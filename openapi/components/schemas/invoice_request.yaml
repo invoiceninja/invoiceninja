@@ -1,9 +1,12 @@
-    Invoice:
+    InvoiceRequest:
+      required:
+        - client_id        
       properties:
         id:
           description: 'The invoice hashed id'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         user_id:
           description: 'The user hashed id'
           type: string
@@ -16,6 +19,7 @@
           description: 'The company hashed id'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         client_id:
           description: 'The client hashed id'
           type: string
@@ -24,6 +28,7 @@
           description: 'The invoice status variable'
           type: string
           example: '4'
+          readOnly: true
         number:
           description: 'The invoice number - is a unique alpha numeric number per invoice per company'
           type: string
@@ -96,6 +101,7 @@
           type: number
           format: float
           example: '10.00'
+          readOnly:
         line_items:
           type: array
           description: 'An array of objects which define the line items of the invoice'
@@ -105,22 +111,25 @@
           type: array
           description: 'An array of objects which define the invitations of the invoice'
           items:
-            $ref: '#/components/schemas/InvoiceInvitation'
+            $ref: '#/components/schemas/InvoiceInvitationRequest'
         amount:
           description: 'The invoice amount'
           type: number
           format: float
           example: '10.00'
+          readOnly: true
         balance:
           description: 'The invoice balance'
           type: number
           format: float
           example: '10.00'
+          readOnly: true
         paid_to_date:
           description: 'The amount paid on the invoice to date'
           type: number
           format: float
           example: '10.00'
+          readOnly: true
         discount:
           description: 'The invoice discount, can be an amount or a percentage'
           type: number
@@ -139,6 +148,7 @@
           description: 'Defines if the invoice has been deleted'
           type: boolean
           example: true
+          readOnly: true
         uses_inclusive_taxes:
           description: 'Defines the type of taxes used as either inclusive or exclusive'
           type: boolean
@@ -153,11 +163,13 @@
           type: string
           format: date
           example: '1994-07-30'
+          readOnly: true
         next_send_date:
           description: 'The Next date for a reminder to be sent'
           type: string
           format: date
           example: '1994-07-30'
+          readOnly: true
         partial_due_date:
           description: 'The due date for the deposit/partial amount'
           type: string
@@ -168,23 +180,24 @@
           type: string
           format: date
           example: '1994-07-30'
-        settings:
-          $ref: '#/components/schemas/CompanySettings'
         last_viewed:
           description: Timestamp
           type: number
           format: integer
           example: '1434342123'
+          readOnly: true
         updated_at:
           description: Timestamp
           type: number
           format: integer
           example: '1434342123'
+          readOnly: true
         archived_at:
           description: Timestamp
           type: number
           format: integer
           example: '1434342123'
+          readOnly: true
         custom_surcharge1:
           description: 'First Custom Surcharge'
           type: number

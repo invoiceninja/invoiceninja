@@ -1,0 +1,59 @@
+    InvoiceInvitationRequest:
+      required:
+        - client_contact_id
+      properties:
+        id:
+          description: 'The entity invitation hashed id'
+          type: string
+          example: Opnel5aKBz
+          readOnly: true
+        client_contact_id: 
+          description: 'The client contact hashed id'
+          type: string
+          example: Opnel5aKBz
+        key:
+          description: 'The invitation key'
+          type: string
+          example: Opnel5aKBz4343343566236gvbb
+          readOnly: true
+        link:
+          description: 'The invitation link'
+          type: string
+          example: 'https://www.example.com/invitations/Opnel5aKBz4343343566236gvbb'
+          readOnly: true
+        sent_date:
+          description: 'The invitation sent date'
+          type: string
+          format: date-time
+          readOnly: true
+        viewed_date:
+          description: 'The invitation viewed date'
+          type: string
+          format: date-time
+          readOnly: true
+        opened_date:
+          description: 'The invitation opened date'
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+          example: '1434342123'
+          readOnly: true
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+          example: '1434342123'
+          readOnly: true
+        email_error:
+          description: 'The email error'
+          type: string
+          example: 'The email error'
+          readOnly: true
+        email_status:
+          description: 'The email status'
+          type: string
+          readOnly: true

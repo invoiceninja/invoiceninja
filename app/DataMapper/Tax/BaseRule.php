@@ -119,6 +119,8 @@ class BaseRule implements RuleInterface
 
     public mixed $invoice;
     
+    private bool $should_calc_tax = true;
+
     public function __construct()
     {
     }
@@ -128,6 +130,10 @@ class BaseRule implements RuleInterface
         return $this;
     }
     
+    public function shouldCalcTax(): bool
+    {
+        return $this->should_calc_tax;
+    }
     /**
      * Initializes the tax rule for the entity.
      *
@@ -176,7 +182,7 @@ class BaseRule implements RuleInterface
          * Destination - Client Tax Data
          * 
          */
-        // $tax_data = new Response([]);
+
         $tax_data = false;
 
         if($this->seller_region == 'US' && $this->client_region == 'US'){
@@ -184,13 +190,11 @@ class BaseRule implements RuleInterface
             $company = $this->invoice->company;
  
             /** If no company tax data has been configured, lets do that now. */
-            if(!$company->origin_tax_data && \DB::transactionLevel() == 0)
+            /** We should never encounter this scenario */
+            if(!$company->origin_tax_data)
             {
- 
-                $tp = new TaxProvider($company);
-                $tp->updateCompanyTaxData();
-                $company->fresh();
-
+                $this->should_calc_tax = false;        
+                return $this;
             }
 
             /** If we are in a Origin based state, force the company tax here */
@@ -202,14 +206,15 @@ class BaseRule implements RuleInterface
             else{
                 
                 /** Ensures the client tax data has been updated */
-                if(!$this->client->tax_data && \DB::transactionLevel() == 0) {
+                // if(!$this->client->tax_data && \DB::transactionLevel() == 0) {
  
-                    $tp = new TaxProvider($company, $this->client);
-                    $tp->updateClientTaxData();
-                    $this->client->fresh();
-                }
+                    // $tp = new TaxProvider($company, $this->client);
+                    // $tp->updateClientTaxData();
+                    // $this->client->fresh();
+                // }
                 
-                $tax_data = $this->client->tax_data;
+                if($this->client->tax_data)
+                    $tax_data = $this->client->tax_data;
 
             }
 
@@ -218,7 +223,7 @@ class BaseRule implements RuleInterface
         /** Applies the tax data to the invoice */
         if($this->invoice instanceof Invoice && $tax_data) {
 
-            $this->invoice->tax_data = $tax_data ;
+            $this->invoice->tax_data = $tax_data;
             
             if(\DB::transactionLevel() == 0)
                 $this->invoice->saveQuietly();

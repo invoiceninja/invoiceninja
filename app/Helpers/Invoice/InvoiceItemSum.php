@@ -170,7 +170,7 @@ class InvoiceItemSum
     private function shouldCalculateTax(): self
     {
         
-        if (!$this->invoice->company->calculate_taxes || !$this->invoice->company->account->isFreeHostedClient()) {
+        if (!$this->invoice->company->calculate_taxes || $this->invoice->company->account->isFreeHostedClient()) {
             $this->calc_tax = false;
             return $this;
         }
@@ -188,7 +188,7 @@ class InvoiceItemSum
                  ->setEntity($this->invoice)
                  ->init();
                  
-            $this->calc_tax = true;
+            $this->calc_tax = $this->rule->shouldCalcTax();
 
             return $this;
         }

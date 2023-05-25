@@ -200,7 +200,7 @@ class SumTaxTest extends TestCase
         $line_items = $invoice->line_items;
 
         $this->assertEquals(10.88, $invoice->amount);
-        $this->assertEquals("CA Sales Tax", $line_items[0]->tax_name1);
+        $this->assertEquals("Sales Tax", $line_items[0]->tax_name1);
         $this->assertEquals(8.75, $line_items[0]->tax_rate1);
     }
 

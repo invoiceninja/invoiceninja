@@ -174,9 +174,9 @@ class FacturaEInvoice extends AbstractService
 
         $disk = config('filesystems.default');
 
-        if (!Storage::disk($disk)->exists($this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()))) {
-            Storage::makeDirectory($this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()));
-        }
+        // if (!Storage::disk($disk)->exists($this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()))) {
+        //     Storage::makeDirectory($this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()));
+        // }
 
         $this->fac->export(Storage::disk($disk)->path($this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName("xsig")));
 
@@ -386,9 +386,12 @@ class FacturaEInvoice extends AbstractService
 
     private function signDocument(): self
     {
-        // $ssl_cert = file_get_contents(base_path('e_invoice_cert.p12'));
 
-        // $this->fac->sign($ssl_cert, null, "SuperSecretPassword");
+        $ssl_cert = $this->invoice->company->getInvoiceCert();
+        $ssl_passphrase = $this->invoice->company->getSslPassPhrase();
+
+        if($ssl_cert)
+            $this->fac->sign($ssl_cert, null, $ssl_passphrase);
 
         return $this;
     }

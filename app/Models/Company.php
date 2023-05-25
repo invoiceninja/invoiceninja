@@ -904,4 +904,18 @@ class Company extends BaseModel
             return $item->id == $this->getSetting('date_format_id');
         })->first()->format;
     }
+
+    public function getInvoiceCert()
+    {
+        if($this->e_invoice_certificate)
+            return base64_decode($this->e_invoice_certificate);
+
+        return false;
+    }
+
+    public function getSslPassPhrase()
+    {
+        return $this->e_invoice_certificate_passphrase;
+    }
+
 }

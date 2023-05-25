@@ -11,16 +11,17 @@
 
 namespace App\Jobs\Client;
 
-use App\DataProviders\USStates;
 use App\Models\Client;
 use App\Models\Company;
 use App\Libraries\MultiDB;
 use Illuminate\Bus\Queueable;
+use App\DataProviders\USStates;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 
 class UpdateTaxData implements ShouldQueue
 {
@@ -59,7 +60,6 @@ class UpdateTaxData implements ShouldQueue
             
             $tax_provider->updateClientTaxData();
         
-        
             if (!$this->client->state && $this->client->postal_code) {
 
                 $this->client->state = USStates::getState($this->client->postal_code);
@@ -73,6 +73,11 @@ class UpdateTaxData implements ShouldQueue
             nlog("problem getting tax data => ".$e->getMessage());
         }
 
-        
     }
+
+    public function middleware()
+    {
+        return [new WithoutOverlapping($this->company->id)];
+    }
+
 }

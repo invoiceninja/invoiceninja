@@ -12,20 +12,21 @@
 
 namespace App\PaymentDrivers\Authorize;
 
-use App\Exceptions\PaymentFailed;
-use App\Jobs\Util\SystemLogger;
-use App\Models\ClientGatewayToken;
-use App\Models\GatewayType;
 use App\Models\Payment;
+use App\Models\SystemLog;
+use App\Models\GatewayType;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use App\Models\SystemLog;
-use App\PaymentDrivers\AuthorizePaymentDriver;
+use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
-use net\authorize\api\contract\v1\DeleteCustomerPaymentProfileRequest;
+use App\Exceptions\PaymentFailed;
+use App\Models\ClientGatewayToken;
+use App\PaymentDrivers\AuthorizePaymentDriver;
+use App\PaymentDrivers\Authorize\AuthorizeTransaction;
 use net\authorize\api\contract\v1\DeleteCustomerProfileRequest;
-use net\authorize\api\controller\DeleteCustomerPaymentProfileController;
 use net\authorize\api\controller\DeleteCustomerProfileController;
+use net\authorize\api\contract\v1\DeleteCustomerPaymentProfileRequest;
+use net\authorize\api\controller\DeleteCustomerPaymentProfileController;
 
 /**
  * Class AuthorizeCreditCard.
@@ -68,19 +69,26 @@ class AuthorizeCreditCard
 
         $gateway_customer_reference = $authorise_create_customer->create($data);
 
-        $authorise_payment_method = new AuthorizePaymentMethod($this->authorize);
-
-        $payment_profile = $authorise_payment_method->addPaymentMethodToClient($gateway_customer_reference, $data);
-        $payment_profile_id = $payment_profile->getPaymentProfile()->getCustomerPaymentProfileId();
-
-        $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($gateway_customer_reference, $payment_profile_id, $data['amount_with_fee']);
-
         if ($request->has('store_card') && $request->input('store_card') === true) {
+
+            $authorise_payment_method = new AuthorizePaymentMethod($this->authorize);
+
+            $payment_profile = $authorise_payment_method->addPaymentMethodToClient($gateway_customer_reference, $data);
+            $payment_profile_id = $payment_profile->getPaymentProfile()->getCustomerPaymentProfileId();
+
+            $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($gateway_customer_reference, $payment_profile_id, $data['amount_with_fee']);
+
             $authorise_payment_method->payment_method = GatewayType::CREDIT_CARD;
             $client_gateway_token = $authorise_payment_method->createClientGatewayToken($payment_profile, $gateway_customer_reference);
+
         } else {
-            //remove the payment profile if we are not storing tokens in our system
-            $this->removePaymentProfile($gateway_customer_reference, $payment_profile_id);
+
+            $authorise_transaction = new AuthorizeTransaction($this->authorize);
+            $data = $authorise_transaction->chargeCustomer($gateway_customer_reference, $data);
+
+            $transaction_id = $data['transaction_id'];
+            nlog($transaction_id);
+
         }
 
         return $this->handleResponse($data, $request);
