@@ -212,6 +212,7 @@ class BaseRule implements RuleInterface
                     // $tp->updateClientTaxData();
                     // $this->client->fresh();
                 // }
+                
                 if($this->client->tax_data)
                     $tax_data = $this->client->tax_data;
 

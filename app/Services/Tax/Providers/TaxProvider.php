@@ -56,7 +56,12 @@ class TaxProvider
     {
     }
 
-
+    
+    /**
+     * updateCompanyTaxData
+     *
+     * @return self
+     */
     public function updateCompanyTaxData(): self
     {
         $this->configureProvider($this->provider, $this->company->country()->iso_3166_2); //hard coded for now to one provider, but we'll be able to swap these out later
@@ -83,7 +88,12 @@ class TaxProvider
         return $this;
 
     }
-
+    
+    /**
+     * updateClientTaxData
+     *
+     * @return self
+     */
     public function updateClientTaxData(): self
     {
         $this->configureProvider($this->provider, $this->client->country->iso_3166_2); //hard coded for now to one provider, but we'll be able to swap these out later
@@ -106,8 +116,9 @@ class TaxProvider
             'country_id' => $this->client->shipping_country_id,
         ];
 
-
-        $tax_provider = new $this->provider($billing_details);
+        $taxable_address = $this->taxShippingAddress() ? $shipping_details : $billing_details;
+        
+        $tax_provider = new $this->provider($taxable_address);
 
         $tax_provider->setApiCredentials($this->api_credentials);
         
@@ -120,7 +131,29 @@ class TaxProvider
         return $this;
 
     }
+    
+    /**
+     * taxShippingAddress
+     *
+     * @return bool
+     */
+    private function taxShippingAddress(): bool
+    {
+        
+        if($this->client->shipping_country_id == "840" && strlen($this->client->shipping_postal_code) > 3)
+            return true;
 
+        return false;
+
+    }
+    
+    /**
+     * configureProvider
+     *
+     * @param  string $provider
+     * @param  string $country_code
+     * @return self
+     */
     private function configureProvider(?string $provider, string $country_code): self
     {
 
@@ -159,21 +192,36 @@ class TaxProvider
         return $this;
 
     }
-
+    
+    /**
+     * configureEuTax
+     *
+     * @return self
+     */
     private function configureEuTax(): self
     {
         $this->provider = EuTax::class;
 
         return $this;
     }
-
+    
+    /**
+     * noTaxRegionDefined
+     *
+     * @return void
+     */
     private function noTaxRegionDefined()
     {
         throw new \Exception("No tax region defined for this country");
 
         // return $this;
     }
-
+    
+    /**
+     * configureZipTax
+     *
+     * @return self
+     */
     private function configureZipTax(): self
     {
 
