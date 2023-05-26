@@ -129,11 +129,13 @@ class Rule extends BaseRule implements RuleInterface
      */
     public function taxShipping($item): self
     {
-
         if($this->tax_data?->txbFreight == 'Y') {
-            $this->default($item);
+            return $this->default($item);
         }
 
+        $this->tax_rate1 = 0;
+        $this->tax_name1 = '';
+        
         return $this;
     }
     
