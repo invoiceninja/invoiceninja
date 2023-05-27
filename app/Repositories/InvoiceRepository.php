@@ -78,8 +78,8 @@ class InvoiceRepository extends BaseRepository
     /**
      * Handles the restoration on a deleted invoice.
      *
-     * @param  [type] $invoice [description]
-     * @return [type]          [description]
+     * @param  Invoice $invoice
+     * @return Invoice
      */
     public function restore($invoice) :Invoice
     {

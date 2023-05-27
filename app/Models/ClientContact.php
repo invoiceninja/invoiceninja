@@ -173,6 +173,16 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $quote_invitations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $recurring_invoice_invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $credit_invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invoice_invitations
+ * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $quote_invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $recurring_invoice_invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $credit_invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invoice_invitations
+ * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $quote_invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $recurring_invoice_invitations
  * @mixin \Eloquent
  */
 class ClientContact extends Authenticatable implements HasLocalePreference
@@ -405,9 +415,6 @@ class ClientContact extends Authenticatable implements HasLocalePreference
      */
     public function getLoginLink()
     {
-        // $domain = isset($this->company->portal_domain) ? $this->company->portal_domain : $this->company->domain();
-
-        // return $domain.'/client/key_login/'.$this->contact_key;
 
         if (Ninja::isHosted()) {
             $domain = $this->company->domain();
@@ -418,18 +425,13 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         switch ($this->company->portal_mode) {
             case 'subdomain':
                 return $domain.'/client/key_login/'.$this->contact_key;
-                break;
             case 'iframe':
                 return $domain.'/client/key_login/'.$this->contact_key;
-                //return $domain . $entity_type .'/'. $this->contact->client->client_hash .'/'. $this->key;
-                break;
             case 'domain':
                 return $domain.'/client/key_login/'.$this->contact_key;
-                break;
 
             default:
                 return '';
-                break;
         }
     }
 }

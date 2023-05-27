@@ -63,8 +63,8 @@ class PdfMock
         $pdf_config->entity_design_id = $pdf_config->settings->{"{$pdf_config->entity_string}_design_id"};
         $pdf_config->setPdfVariables();
         $pdf_config->setCurrency(Currency::find($this->settings->currency_id));
-        $pdf_config->setCountry(Country::find($this->settings->country_id));
-        $pdf_config->design = Design::find($this->decodePrimaryKey($pdf_config->entity_design_id));
+        $pdf_config->setCountry(Country::find($this->settings->country_id ?: 840));
+        $pdf_config->design = Design::withTrashed()->find($this->decodePrimaryKey($pdf_config->entity_design_id));
         $pdf_config->currency_entity = $this->mock->client;
         
         $pdf_service->config = $pdf_config;
@@ -383,7 +383,7 @@ class PdfMock
     '$product.tax' => '',
     '$valid_until' => '',
     '$your_entity' => '',
-    '$shipping' => '',
+    '$shipping' => ctrans('texts.shipping_address'),
     '$balance_due' => '$0.00',
     '$outstanding' => '$0.00',
     '$partial_due' => '$0.00',
@@ -739,7 +739,7 @@ class PdfMock
             '$font_name_label' => '',
             '$auto_bill_label' => ctrans('texts.auto_bill'),
             '$payments_label' => ctrans('texts.payments'),
-            '$shipping_label' => '',
+            '$shipping_label' => ctrans('texts.shipping_address'),
             '$task.tax_label' => ctrans('texts.tax'),
             '$viewLink_label' => ctrans('texts.link'),
             '$company1_label' => ctrans('texts.company1'),

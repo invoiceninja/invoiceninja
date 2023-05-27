@@ -40,6 +40,12 @@ class CompanyObserver
             //fire event to build new custom portal domain
             \Modules\Admin\Jobs\Domain\CustomDomain::dispatch($company->getOriginal('portal_domain'), $company)->onQueue('domain');
         }
+
+        // if($company->wasChanged()) {
+        // nlog("updated event");
+        //     nlog($company->getChanges());
+        // }
+
     }
 
     /**

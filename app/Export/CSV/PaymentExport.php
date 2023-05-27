@@ -49,6 +49,7 @@ class PaymentExport extends BaseExport
         'transaction_reference' => 'transaction_reference',
         'type' => 'type_id',
         'vendor' => 'vendor_id',
+        'invoices' => 'invoices',
     ];
 
     private array $decorate_keys = [
@@ -59,6 +60,7 @@ class PaymentExport extends BaseExport
         'currency',
         'exchange_currency',
         'type',
+        'invoices',
     ];
 
     public function __construct(Company $company, array $input)
@@ -153,6 +155,8 @@ class PaymentExport extends BaseExport
         if (in_array('gateway_type_id', $this->input['report_keys'])) {
             $entity['gateway'] = $payment->gateway_type ? $payment->gateway_type->name : 'Unknown Type';
         }
+
+            $entity['invoices'] = $payment->invoices()->exists() ? $payment->invoices->pluck('number')->implode(',') : '';
 
         return $entity;
     }

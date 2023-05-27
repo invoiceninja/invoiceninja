@@ -66,7 +66,7 @@ class GenerateDeliveryNote
             return (new Phantom)->generate($this->invoice->invitations->first());
         }
 
-        $design = Design::find($design_id);
+        $design = Design::withTrashed()->find($design_id);
         $html = new HtmlEngine($invitation);
 
         if ($design->is_custom) {

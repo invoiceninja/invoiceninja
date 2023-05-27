@@ -21,34 +21,7 @@ class InvoiceWasEmailedAndFailed
 {
     use SerializesModels;
 
-    public $invitation;
-
-    public $message;
-
-    public $company;
-
-    public $event_vars;
-
-    public $template;
-
-    /**
-     * Create a new event instance.
-     *
-     * @param $invitation
-     * @param Company $company
-     * @param string $errors
-     * @param array $event_vars
-     */
-    public function __construct($invitation, Company $company, string $message, string $template, array $event_vars)
+    public function __construct(public mixed $invitation, public Company $company, public string $message, public string $template, public array $event_vars)
     {
-        $this->invitation = $invitation;
-
-        $this->company = $company;
-
-        $this->message = $message;
-
-        $this->event_vars = $event_vars;
-
-        $this->template = $template;
     }
 }

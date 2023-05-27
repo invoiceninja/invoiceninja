@@ -183,7 +183,7 @@ class BankTransactionRuleTest extends TestCase
 
         if ($response) {
             $arr = $response->json();
-            nlog($arr);
+           
             $response->assertStatus(200);
         }
     }

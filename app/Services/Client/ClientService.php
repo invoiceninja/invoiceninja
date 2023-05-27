@@ -16,7 +16,6 @@ use App\Models\Credit;
 use App\Models\Payment;
 use App\Services\Email\Email;
 use App\Services\Email\EmailObject;
-use App\Services\Email\EmailService;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Mail\Mailables\Address;
@@ -167,9 +166,6 @@ class ClientService
     {
         $this->client_start_date = $this->translateDate($options['start_date'], $this->client->date_format(), $this->client->locale());
         $this->client_end_date = $this->translateDate($options['end_date'], $this->client->date_format(), $this->client->locale());
-
-        // $email_service = new EmailService($this->buildStatementMailableData($pdf), $this->client->company);
-        // $email_service->send();
         
         $email_object = $this->buildStatementMailableData($pdf);
         Email::dispatch($email_object, $this->client->company);
@@ -183,8 +179,23 @@ class ClientService
      */
     public function buildStatementMailableData($pdf) :EmailObject
     {
+        $email = $this->client->present()->email();
+
         $email_object = new EmailObject;
-        $email_object->to = [new Address($this->client->present()->email(), $this->client->present()->name())];
+        $email_object->to = [new Address($email, $this->client->present()->name())];
+
+        $cc_contacts = $this->client
+                            ->contacts()
+                            ->where('send_email', true)
+                            ->where('email', '!=',  $email)
+                            ->get();
+
+        foreach ($cc_contacts as $contact) {
+        
+            $email_object->cc[] = new Address($contact->email, $contact->present()->name());
+        
+        }
+
         $email_object->attachments = [['file' => base64_encode($pdf), 'name' => ctrans('texts.statement') . ".pdf"]];
         $email_object->client_id = $this->client->id;
         $email_object->email_template_subject = 'email_subject_statement';

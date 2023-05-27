@@ -5,6 +5,7 @@ return [
     'web_url' => 'https://www.invoiceninja.com',
     'admin_token' => env('NINJA_ADMIN_TOKEN', ''),
     'license_url' => 'https://app.invoiceninja.com',
+    'react_url' => 'https://app.invoicing.co',
     'production' => env('NINJA_PROD', false),
     'license'   => env('NINJA_LICENSE', ''),
     'version_url' => 'https://pdf.invoicing.co/api/version',
@@ -14,8 +15,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
-    'app_version' => '5.5.104',
-    'app_tag' => '5.5.104',
+    'app_version' => '5.5.122',
+    'app_tag' => '5.5.122',
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),
@@ -214,4 +215,8 @@ return [
     ],
     'licenses' => env('LICENSES',false),
     'google_application_credentials' => env("GOOGLE_APPLICATION_CREDENTIALS", false),
+    'shopify' => [
+        'client_id' => env('SHOPIFY_CLIENT_ID', null),
+        'client_secret' => env('SHOPIFY_CLIENT_SECRET', null),
+    ],
 ];

@@ -40,6 +40,7 @@ class ARDetailReport extends BaseExport
 
     public array $report_keys = [
         'date',
+        'due_date',
         'invoice_number',
         'status',
         'client_name',
@@ -99,8 +100,6 @@ class ARDetailReport extends BaseExport
 
         $query = $this->filterByClients($query);
 
-        $this->csv->insertOne($this->buildHeader());
-
         $query->cursor()
             ->each(function ($invoice) {
                     $this->csv->insertOne($this->buildRow($invoice));
@@ -114,6 +113,7 @@ class ARDetailReport extends BaseExport
         $client = $invoice->client;
 
         return [
+            $this->translateDate($invoice->date, $this->company->date_format(), $this->company->locale()),
             $this->translateDate($invoice->due_date, $this->company->date_format(), $this->company->locale()),
             $invoice->number,
             $invoice->stringStatus($invoice->status_id),

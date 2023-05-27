@@ -14,19 +14,19 @@ namespace App\DataMapper\Tax;
 class TaxModel 
 {
     
-    /** @var mixed $seller_subregion */
+    /** @var string $seller_subregion */
     public string $seller_subregion = 'CA';
     
-    /** @var mixed $version */
+    /** @var string $version */
     public string $version = 'alpha';
     
-    /** @var mixed $regions */
+    /** @var object $regions */
     public object $regions;
     
     /**
      * __construct
      *
-     * @param  mixed $model
+     * @param  TaxModel $model
      * @return void
      */
     public function __construct(public ?TaxModel $model = null)
@@ -42,9 +42,9 @@ class TaxModel
     /**
      * Initializes the rules and builds any required data.
      *
-     * @return void
+     * @return object
      */
-    public function init()
+    public function init(): object
     {
         $this->regions = new \stdClass();
         $this->regions->US = new \stdClass();
@@ -68,7 +68,7 @@ class TaxModel
         $this->regions->AU = new \stdClass();
         $this->regions->AU->has_sales_above_threshold = false;
         $this->regions->AU->tax_all_subregions = false;
-        $this->regions->AU->vat_threshold = 75000;
+        $this->regions->AU->tax_threshold = 75000;
         $this->auSubRegions();
 
         return $this;
@@ -115,7 +115,7 @@ class TaxModel
      
         $this->regions->EU->has_sales_above_threshold = false;
         $this->regions->EU->tax_all_subregions = false;
-        $this->regions->EU->vat_threshold = 10000;
+        $this->regions->EU->tax_threshold = 10000;
         $this->euSubRegions();
 
         return $this;
@@ -381,6 +381,7 @@ class TaxModel
 
         $this->regions->EU->subregions->DK = new \stdClass();
         $this->regions->EU->subregions->DK->tax_rate = 25;
+        $this->regions->EU->subregions->DK->tax_name = 'Moms';
         $this->regions->EU->subregions->DK->reduced_tax_rate = 0;
         $this->regions->EU->subregions->DK->apply_tax = false;
 

@@ -302,13 +302,6 @@ class CheckoutComPaymentDriver extends BaseDriver
                 throw new PaymentFailed($human_exception);
             }
 
-
-
-            // catch (\Exception $e) {
-                //     // API error
-                //     throw new PaymentFailed($e->getMessage(), $e->getCode());
-            // }
-
             return $response;
         }
     }

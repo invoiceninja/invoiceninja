@@ -44,12 +44,14 @@ class Ninja
     {
         $mysql_version = DB::select(DB::raw('select version() as version'))[0]->version;
 
+        $version = request()->input('version', 'No Version Supplied.');
+
         $info = 'App Version: v'.config('ninja.app_version').'\\n'.
             'White Label: '.'\\n'. // TODO: Implement white label with hasFeature.
             'Server OS: '.php_uname('s').' '.php_uname('r').'\\n'.
             'PHP Version: '.phpversion().'\\n'.
             'MySQL Version: '.$mysql_version.'\\n'.
-            'Version: '.request()->has('version') ? request()->input('version') : 'No Version Supplied.';
+            'Version: '.$version;
 
         return $info;
     }
@@ -101,7 +103,8 @@ class Ninja
         foreach ($fields as $key => $value) {
             $data .= $key.'='.$value.'&';
         }
-        rtrim($data, '&');
+
+        $data = rtrim($data, '&');
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);

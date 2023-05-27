@@ -12,7 +12,6 @@
 namespace App\Console\Commands;
 
 use DirectoryIterator;
-use Faker\Factory;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
@@ -44,8 +43,6 @@ class OpenApiYaml extends Command
      */
     public function __construct()
     {
-        $this->faker = Factory::create();
-
         parent::__construct();
     }
 

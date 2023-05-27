@@ -41,6 +41,7 @@ use App\Utils\Traits\Uploadable;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
+use Str;
 use Turbo124\Beacon\Facades\LightLogs;
 
 /**
@@ -411,10 +412,18 @@ class CompanyController extends BaseController
 
         $company = $this->company_repo->save($request->all(), $company);
 
-        $company->saveSettings($request->input('settings'), $company);
+        /** We save the settings in the repository - this is duplicated */
+        // $company->saveSettings($request->input('settings'), $company);
 
         if ($request->has('documents')) {
             $this->saveDocuments($request->input('documents'), $company, false);
+        }
+
+        if($request->has('e_invoice_certificate') && !is_null($request->file("e_invoice_certificate"))){
+
+            $company->e_invoice_certificate = base64_encode($request->file("e_invoice_certificate")->get());
+            $company->save();
+
         }
 
         $this->uploadLogo($request->file('company_logo'), $company, $company);
@@ -603,7 +612,7 @@ class CompanyController extends BaseController
      * Update the specified resource in storage.
      *
      * @param UploadCompanyRequest $request
-     * @param Company $client
+     * @param Company $company
      * @return Response
      *
      *

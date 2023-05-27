@@ -107,7 +107,7 @@ class ImportMigrations extends Command
                     Import::dispatch($import_file, $this->getUser()->companies()->first(), $this->getUser());
                     //   StartMigration::dispatch($file->getRealPath(), $this->getUser(), $this->getUser()->companies()->first());
                 } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing $e) {
-                    \Mail::to($this->user)->send(new MigrationFailed($e, $e->getMessage()));
+                    \Mail::to($user)->send(new MigrationFailed($e, $company));
 
                     if (app()->environment() !== 'production') {
                         info($e->getMessage());

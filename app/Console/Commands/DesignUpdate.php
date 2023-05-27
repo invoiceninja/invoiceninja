@@ -60,7 +60,7 @@ class DesignUpdate extends Command
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
 
-                $this->handleOnDb($db);
+                $this->handleOnDb();
             }
 
             MultiDB::setDB($current_db);

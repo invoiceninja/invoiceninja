@@ -20,6 +20,7 @@ use App\Models\Company;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\User;
+use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Tests\TestCase;
@@ -31,6 +32,7 @@ use Tests\TestCase;
 class ProductSalesReportTest extends TestCase
 {
     use MakesHash;
+    use AppSetup;
 
     public $faker;
 
@@ -45,6 +47,8 @@ class ProductSalesReportTest extends TestCase
         );
 
         $this->withoutExceptionHandling();
+
+        $this->buildCache(true);
     }
 
     public $company;
@@ -131,7 +135,6 @@ class ProductSalesReportTest extends TestCase
     public function testSimpleReport()
     {
         $this->buildData();
-
 
         $this->payload = [
             'start_date' => '2000-01-01',

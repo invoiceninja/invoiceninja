@@ -34,7 +34,7 @@ class PurchaseOrderCreatedListener implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param  object  $event
+     * @param  PurchaseOrderWasCreated $event
      * @return void
      */
     public function handle(PurchaseOrderWasCreated $event)

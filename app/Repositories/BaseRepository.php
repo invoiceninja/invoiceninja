@@ -190,7 +190,7 @@ class BaseRepository
             $this->new_model = true;
 
             if (is_array($model->line_items) && !($model instanceof RecurringInvoice)) {
-                $model->line_items = (collect($model->line_items))->map(function ($item) use ($model, $client) {
+                $model->line_items = (collect($model->line_items))->map(function ($item) use ($client) {
                     $item->notes = Helpers::processReservedKeywords($item->notes, $client);
 
                     return $item;
@@ -295,7 +295,7 @@ class BaseRepository
             }
 
             if (! $model->design_id) {
-                $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
+                $model->design_id = intval($this->decodePrimaryKey($client->getSetting('invoice_design_id')));
             }
 
             //links tasks and expenses back to the invoice, but only if we are not in the middle of a transaction.
@@ -334,7 +334,7 @@ class BaseRepository
 
         if ($model instanceof Quote) {
             if (! $model->design_id) {
-                $model->design_id = $this->decodePrimaryKey($client->getSetting('quote_design_id'));
+                $model->design_id = intval($this->decodePrimaryKey($client->getSetting('quote_design_id')));
             }
 
             $model = $model->calc()->getQuote();
@@ -348,7 +348,7 @@ class BaseRepository
 
         if ($model instanceof RecurringInvoice) {
             if (! $model->design_id) {
-                $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
+                $model->design_id = intval($this->decodePrimaryKey($client->getSetting('invoice_design_id')));
             }
 
             $model = $model->calc()->getRecurringInvoice();

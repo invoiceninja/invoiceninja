@@ -104,16 +104,6 @@ class ApplyPayment extends AbstractService
 
         $this->invoice->service()->applyNumber()->workFlow()->touchPdf()->save();
 
-        $transaction = [
-            'invoice' => $this->invoice->transaction_event(),
-            'payment' => $this->payment->transaction_event(),
-            'client' => $this->invoice->client->transaction_event(),
-            'credit' => [],
-            'metadata' => [],
-        ];
-
-        // TransactionLog::dispatch(TransactionEvent::INVOICE_PAYMENT_APPLIED, $transaction, $this->invoice->company->db);
-
         return $this->invoice;
     }
 }

@@ -30,7 +30,10 @@ class TokenAuth
      */
     public function handle($request, Closure $next)
     {
-        if ($request->header('X-API-TOKEN') && ($company_token = CompanyToken::with(['user', 'company'])->where('token', $request->header('X-API-TOKEN'))->first())) {
+        if ($request->header('X-API-TOKEN') && ($company_token = CompanyToken::with([
+            'user' => [ 
+                'account',
+            ], 'company'])->where('token', $request->header('X-API-TOKEN'))->first())) {
             $user = $company_token->user;
 
             $error = [
@@ -51,7 +54,6 @@ class TokenAuth
                 return response()->json($error, 403);
             }
 
-
             /*
             |
             | Necessary evil here: As we are authenticating on CompanyToken,
@@ -59,7 +61,6 @@ class TokenAuth
             | us to decouple a $user and their attached companies completely.
             |
             */
-
             $truth = app()->make(TruthSource::class);
 
             $truth->setCompanyUser($company_token->cu);

@@ -64,23 +64,19 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int|null $hosted_company_count
  * @property string|null $inapp_transaction_id
  * @property bool $set_react_as_default_ap
- * @property int $is_flagged
+ * @property bool $is_flagged
  * @property int $is_verified_account
  * @property string|null $account_sms_verification_code
  * @property string|null $account_sms_verification_number
- * @property int $account_sms_verified
+ * @property bool $account_sms_verified
  * @property string|null $bank_integration_account_id
  * @property int $is_trial
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankIntegration> $bank_integrations
  * @property-read int|null $bank_integrations_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
  * @property-read int|null $companies_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyUser> $company_users
  * @property-read int|null $company_users_count
  * @property-read \App\Models\Company|null $default_company
  * @property-read mixed $hashed_id
  * @property-read \App\Models\Payment|null $payment
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
  * @property-read int|null $users_count
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
@@ -130,46 +126,14 @@ use Laracasts\Presenter\PresentableTrait;
  * @method static \Illuminate\Database\Eloquent\Builder|Account whereUtmMedium($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Account whereUtmSource($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Account whereUtmTerm($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account first()
+ * @method static \Illuminate\Database\Eloquent\Builder|Account with()
+ * @method static \Illuminate\Database\Eloquent\Builder|Account count() 
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankIntegration> $bank_integrations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyUser> $company_users
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankIntegration> $bank_integrations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyUser> $company_users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankIntegration> $bank_integrations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyUser> $company_users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankIntegration> $bank_integrations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyUser> $company_users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankIntegration> $bank_integrations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyUser> $company_users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankIntegration> $bank_integrations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyUser> $company_users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankIntegration> $bank_integrations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyUser> $company_users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankIntegration> $bank_integrations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyUser> $company_users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankIntegration> $bank_integrations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyUser> $company_users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankIntegration> $bank_integrations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyUser> $company_users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
+
  * @mixin \Eloquent
  */
 class Account extends BaseModel
@@ -180,14 +144,12 @@ class Account extends BaseModel
     private $free_plan_email_quota = 20;
 
     private $paid_plan_email_quota = 500;
+
     /**
      * @var string
      */
     protected $presenter = AccountPresenter::class;
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'plan',
         'plan_term',
@@ -298,6 +260,11 @@ class Account extends BaseModel
     public function owner()
     {
         return $this->hasMany(CompanyUser::class)->where('is_owner', true)->first() ? $this->hasMany(CompanyUser::class)->where('is_owner', true)->first()->user : false;
+    }
+
+    public function tokens()
+    {
+        return $this->hasMany(CompanyToken::class)->withTrashed();
     }
 
     public function getPlan()
@@ -446,6 +413,8 @@ class Account extends BaseModel
         }
 
         $trial_active = false;
+        $trial_expires = false;
+        $trial_started = false;
 
         //14 day trial
         $duration = 60*60*24*14;
@@ -460,10 +429,11 @@ class Account extends BaseModel
         }
 
         $plan_active = false;
+        $plan_expires = false;
+        
         if ($plan) {
             if ($this->plan_expires == null) {
                 $plan_active = true;
-                $plan_expires = false;
             } else {
                 $plan_expires = Carbon::parse($this->plan_expires);
                 if ($plan_expires->greaterThan(now())) {
@@ -475,7 +445,6 @@ class Account extends BaseModel
         if (! $include_inactive && ! $plan_active && ! $trial_active) {
             return null;
         }
-
 
         // Should we show plan details or trial details?
         if (($plan && ! $trial_plan) || ! $include_trial) {
@@ -550,7 +519,7 @@ class Account extends BaseModel
             $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 50;
         } else {
             $limit = $this->free_plan_email_quota;
-            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 10;
+            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 3;
         }
 
         return min($limit, 5000);
@@ -658,11 +627,11 @@ class Account extends BaseModel
 
         $plan_expires = Carbon::parse($this->plan_expires);
 
-        if (!$this->payment_id && $plan_expires->gt(now())) {
+        if ($plan_expires->gt(now())) {
             $diff = $plan_expires->diffInDays();
             
-            if ($diff > 14);
-            return 0;
+            if ($diff > 14)
+                return 0;
 
             return $diff;
         }

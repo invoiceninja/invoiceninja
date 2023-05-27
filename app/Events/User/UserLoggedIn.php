@@ -26,27 +26,8 @@ class UserLoggedIn
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /**
-     * @var
-     */
-    public $user;
-
-    public $company;
-
-    public $event_vars;
-
-    /**
-     * Create a new event instance.
-     *
-     * @param User $user
-     * @param Company $company
-     * @param array $event_vars
-     */
-    public function __construct(User $user, Company $company, array $event_vars)
+    public function __construct(public User $user, public Company $company, public array $event_vars)
     {
-        $this->user = $user;
-        $this->company = $company;
-        $this->event_vars = $event_vars;
     }
 
     /**
@@ -54,8 +35,8 @@ class UserLoggedIn
      *
      * @return Channel|array
      */
-    public function broadcastOn()
-    {
-        return new PrivateChannel('channel-name');
-    }
+     public function broadcastOn()
+     {
+        return [];
+     }
 }

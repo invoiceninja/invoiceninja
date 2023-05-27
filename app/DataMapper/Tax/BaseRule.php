@@ -12,8 +12,11 @@
 namespace App\DataMapper\Tax;
 
 use App\Models\Client;
+use App\Models\Invoice;
 use App\Models\Product;
+use App\DataProviders\USStates;
 use App\DataMapper\Tax\ZipTax\Response;
+use App\Services\Tax\Providers\TaxProvider;
 
 class BaseRule implements RuleInterface
 {
@@ -101,9 +104,6 @@ class BaseRule implements RuleInterface
     /** EU TAXES */
 
 
-    /** US TAXES */
-    /** US TAXES */
-
     public string $tax_name1 = '';
     public float $tax_rate1 = 0;
 
@@ -115,7 +115,11 @@ class BaseRule implements RuleInterface
 
     protected ?Client $client;
 
-    protected ?Response $tax_data;
+    public ?Response $tax_data;
+
+    public mixed $invoice;
+    
+    private bool $should_calc_tax = true;
 
     public function __construct()
     {
@@ -125,39 +129,146 @@ class BaseRule implements RuleInterface
     {
         return $this;
     }
-
-    public function setClient(Client $client): self
+    
+    public function shouldCalcTax(): bool
     {
-        $this->client = $client;
+        return $this->should_calc_tax;
+    }
+    /**
+     * Initializes the tax rule for the entity.
+     *
+     * @param  mixed $invoice
+     * @return self
+     */
+    public function setEntity(mixed $invoice): self
+    {
+        $this->invoice = $invoice;
+
+        $this->client = $invoice->client;
 
         $this->resolveRegions();
 
+        if(!$this->isTaxableRegion())
+            return $this;
+
+        $this->configTaxData();
+
+        $this->tax_data = new Response($this->invoice->tax_data);
+
         return $this;
     }
-
-    public function setTaxData(Response $tax_data): self
+    
+    /**
+     * Configigures the Tax Data for the entity
+     *
+     * @return self
+     */
+    private function configTaxData(): self
     {
-        $this->tax_data = $tax_data;
+        /* We should only apply taxes for configured states */
+        if(!array_key_exists($this->client->country->iso_3166_2, $this->region_codes)) {
+            nlog('Automatic tax calculations not supported for this country - defaulting to company country');
+            nlog("With new logic, we should never see this");
+        }
 
+        /** Harvest the client_region */
+
+        /** If the tax data is already set and the invoice is marked as sent, do not adjust the rates */
+        if($this->invoice->tax_data && $this->invoice->status_id > 1)
+            return $this;
+
+        /**
+         * Origin - Company Tax Data
+         * Destination - Client Tax Data
+         * 
+         */
+
+        $tax_data = false;
+
+        if($this->seller_region == 'US' && $this->client_region == 'US'){
+        
+            $company = $this->invoice->company;
+ 
+            /** If no company tax data has been configured, lets do that now. */
+            /** We should never encounter this scenario */
+            if(!$company->origin_tax_data)
+            {
+                $this->should_calc_tax = false;        
+                return $this;
+            }
+
+            /** If we are in a Origin based state, force the company tax here */
+            if($company->origin_tax_data?->originDestination == 'O' && ($company->tax_data?->seller_subregion == $this->client_subregion)) {
+
+                $tax_data = $company->origin_tax_data;
+
+            }
+            else{
+                
+                /** Ensures the client tax data has been updated */
+                // if(!$this->client->tax_data && \DB::transactionLevel() == 0) {
+ 
+                    // $tp = new TaxProvider($company, $this->client);
+                    // $tp->updateClientTaxData();
+                    // $this->client->fresh();
+                // }
+                
+                if($this->client->tax_data)
+                    $tax_data = $this->client->tax_data;
+
+            }
+
+        }
+
+        /** Applies the tax data to the invoice */
+        if($this->invoice instanceof Invoice && $tax_data) {
+
+            $this->invoice->tax_data = $tax_data;
+            
+            if(\DB::transactionLevel() == 0)
+                $this->invoice->saveQuietly();
+        }
+            
         return $this;
+
     }
 
-    // Refactor to support switching between shipping / billing country / region / subregion
+    
+    /**
+     * Resolve Regions & Subregions
+     *
+     * @return self
+     */
     private function resolveRegions(): self
     {
-
-        if(!array_key_exists($this->client->country->iso_3166_2, $this->region_codes))
-            throw new \Exception('Automatic tax calculations not supported for this country');
-
+        
         $this->client_region = $this->region_codes[$this->client->country->iso_3166_2];
 
         match($this->client_region){
-            'US' => $this->client_subregion = $this->tax_data->geoState,
+            'US' => $this->client_subregion = strlen($this->invoice?->client?->tax_data?->geoState) > 1 ? $this->invoice->client->tax_data->geoState : $this->getUSState(),
             'EU' => $this->client_subregion = $this->client->country->iso_3166_2,
-            default => $this->client->country->iso_3166_2,
+            'AU' => $this->client_subregion = 'AU',
+            default => $this->client_subregion = $this->client->country->iso_3166_2,
         };
-    
+
         return $this;
+
+    }
+
+    private function getUSState(): string
+    {
+        try {
+            
+            $states = USStates::$states;
+
+            if(isset($states[$this->client->state]))
+                return $this->client->state;
+
+            return USStates::getState(strlen($this->client->postal_code) > 1 ? $this->client->postal_code : $this->client->shipping_postal_code);
+
+        } catch (\Exception $e) {
+            return $this->client->company->country()->iso_3166_2 == 'US' ? $this->client->company->tax_data->seller_subregion : 'CA';
+        }
     }
 
     public function isTaxableRegion(): bool
@@ -168,7 +279,7 @@ class BaseRule implements RuleInterface
     public function defaultForeign(): self
     {
 
-        if($this->client_region == 'US') {
+        if($this->client_region == 'US' && isset($this->tax_data?->taxSales)) {
                 
             $this->tax_rate1 = $this->tax_data->taxSales * 100;
             $this->tax_name1 = "{$this->tax_data->geoState} Sales Tax";
@@ -176,32 +287,41 @@ class BaseRule implements RuleInterface
             return $this;
 
         }
+        elseif($this->client_region == 'AU'){ //these are defaults and are only stubbed out for now, for AU we can actually remove these
+            
+            $this->tax_rate1 = $this->client->company->tax_data->regions->AU->subregions->AU->tax_rate;
+            $this->tax_name1 = $this->client->company->tax_data->regions->AU->subregions->AU->tax_name;
 
+            return $this;
+        }
 
-        $this->tax_rate1 = $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->tax_rate;
-        $this->tax_name1 = $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->tax_name;
-
+        if(isset($this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion})) {
+            $this->tax_rate1 = $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->tax_rate;
+            $this->tax_name1 = $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->tax_name;
+        }
+        
         return $this;
     }
 
     public function tax($item = null): self
     {
-        nlog($this->client_region);
-        nlog($this->seller_region);
-
+    
         if ($this->client->is_tax_exempt) {
-            return $this->taxExempt();
+            
+            return $this->taxExempt($item);
+
         } elseif($this->client_region == $this->seller_region && $this->isTaxableRegion()) {
 
-            $this->taxByType($item->tax_id);
+            $this->taxByType($item);
 
             return $this;
+
         } elseif($this->isTaxableRegion()) { //other regions outside of US
 
-            match($item->tax_id) {
-                Product::PRODUCT_TYPE_EXEMPT => $this->taxExempt(),
-                Product::PRODUCT_TYPE_REDUCED_TAX => $this->taxReduced(),
-                Product::PRODUCT_TYPE_OVERRIDE_TAX => $this->override(),
+            match(intval($item->tax_id)) {
+                Product::PRODUCT_TYPE_EXEMPT => $this->taxExempt($item),
+                Product::PRODUCT_TYPE_REDUCED_TAX => $this->taxReduced($item),
+                Product::PRODUCT_TYPE_OVERRIDE_TAX => $this->override($item),
                 default => $this->defaultForeign(),
             };
 
@@ -215,42 +335,42 @@ class BaseRule implements RuleInterface
         return $this;
     }
 
-    public function taxReduced(): self
+    public function taxReduced($item): self
     {
         return $this;
     }
 
-    public function taxExempt(): self
+    public function taxExempt($item): self
     {
         return $this;
     }
 
-    public function taxDigital(): self
+    public function taxDigital($item): self
     {
         return $this;
     }
 
-    public function taxService(): self
+    public function taxService($item): self
     {
         return $this;
     }
 
-    public function taxShipping(): self
+    public function taxShipping($item): self
     {
         return $this;
     }
 
-    public function taxPhysical(): self
+    public function taxPhysical($item): self
     {
         return $this;
     }
 
-    public function default(): self
+    public function default($item): self
     {
         return $this;
     }
 
-    public function override(): self
+    public function override($item): self
     {
         return $this;
     }
@@ -259,4 +379,10 @@ class BaseRule implements RuleInterface
     {
         return $this;
     }
+
+    public function regionWithNoTaxCoverage(string $iso_3166_2): bool
+    {
+        return ! in_array($iso_3166_2, array_merge($this->eu_country_codes, array_keys($this->region_codes)));
+    }
+
 }

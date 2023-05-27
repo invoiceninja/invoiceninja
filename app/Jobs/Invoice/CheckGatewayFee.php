@@ -11,13 +11,14 @@
 
 namespace App\Jobs\Invoice;
 
-use App\Libraries\MultiDB;
 use App\Models\Invoice;
+use App\Libraries\MultiDB;
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 
 class CheckGatewayFee implements ShouldQueue
 {
@@ -40,6 +41,8 @@ class CheckGatewayFee implements ShouldQueue
      */
     public function handle()
     {
+        nlog("Checking Gateway Fees for Invoice Id = {$this->invoice_id}");
+        
         MultiDB::setDb($this->db);
 
         $i = Invoice::withTrashed()->find($this->invoice_id);
@@ -51,5 +54,10 @@ class CheckGatewayFee implements ShouldQueue
         if ($i->status_id == Invoice::STATUS_SENT) {
             $i->service()->removeUnpaidGatewayFees();
         }
+    }
+
+    public function middleware()
+    {
+        return [(new WithoutOverlapping($this->invoice_id.$this->db))];
     }
 }

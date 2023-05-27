@@ -42,11 +42,6 @@ class CreateAccount extends Command
      */
     protected $signature = 'ninja:create-account {--email=} {--password=}';
 
-    /**
-     * Create a new command instance.
-     *
-     * @param InvoiceRepository $invoice_repo
-     */
     public function __construct()
     {
         parent::__construct();

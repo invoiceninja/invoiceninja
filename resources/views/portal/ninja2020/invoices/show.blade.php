@@ -14,11 +14,11 @@
 
     @if($invoice->isPayable() && $client->getSetting('custom_message_unpaid_invoice'))
         @component('portal.ninja2020.components.message')
-            {{ $client->getSetting('custom_message_unpaid_invoice') }}
+            <pre>{{ $client->getSetting('custom_message_unpaid_invoice') }}</pre>
         @endcomponent
     @elseif($invoice->status_id === 4 && $client->getSetting('custom_message_paid_invoice'))
         @component('portal.ninja2020.components.message')
-            {{ $client->getSetting('custom_message_paid_invoice') }}
+            <pre>{{ $client->getSetting('custom_message_paid_invoice') }}</pre>
         @endcomponent
     @endif
 

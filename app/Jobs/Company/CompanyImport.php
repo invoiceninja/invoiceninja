@@ -89,7 +89,7 @@ class CompanyImport implements ShouldQueue
 
     private $account;
 
-    public $company;
+    public Company $company;
 
     public $user;
 
@@ -215,8 +215,8 @@ class CompanyImport implements ShouldQueue
      *
      * @param Company $company
      * @param User $user
-     * @param string $hash - the cache hash of the import data.
-     * @param array $request->all()
+     * @param string $file_location - the cache hash of the import data.
+     * @param array $request_array
      */
     public function __construct(Company $company, User $user, string $file_location, array $request_array)
     {

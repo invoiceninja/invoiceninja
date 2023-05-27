@@ -120,7 +120,7 @@ class CreatePurchaseOrderPdf implements ShouldQueue
 
         $entity_design_id = $this->entity->design_id ? $this->entity->design_id : $this->decodePrimaryKey('Wpmbk5ezJn');
 
-        $design = Design::find($entity_design_id);
+        $design = Design::withTrashed()->find($entity_design_id);
 
         /* Catch all in case migration doesn't pass back a valid design */
         if (!$design) {
