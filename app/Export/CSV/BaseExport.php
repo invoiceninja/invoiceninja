@@ -33,6 +33,8 @@ class BaseExport
 
     public string $client_description = 'All Clients';
 
+    public array $forced_keys = [];
+
     protected function filterByClients($query)
     {
         if (isset($this->input['client_id']) && $this->input['client_id'] != 'all') {
@@ -170,7 +172,7 @@ class BaseExport
     {
         $header = [];
 
-        foreach ($this->input['report_keys'] as $value) {
+        foreach (array_merge($this->input['report_keys'], $this->forced_keys) as $value) {
             $key = array_search($value, $this->entity_keys);
 
             $key = str_replace('item.', '', $key);

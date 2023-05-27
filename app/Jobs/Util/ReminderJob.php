@@ -75,7 +75,7 @@ class ReminderJob implements ShouldQueue
                          $this->sendReminderForInvoice($invoice);
                      }
 
-                     sleep(2);
+                     sleep(1);
                  });
         } else {
             //multiDB environment, need to
@@ -105,7 +105,7 @@ class ReminderJob implements ShouldQueue
                              $this->sendReminderForInvoice($invoice);
                          }
 
-                         sleep(2);
+                         sleep(1);
                      });
             }
         }

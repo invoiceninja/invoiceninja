@@ -5094,6 +5094,7 @@ $LANG = array(
     'order_id' => 'Order',
     'total_invoices_outstanding' => 'Total Invoices Outstanding',
     'recent_activity' => 'Recent Activity',
+    'enable_auto_bill' => 'Enable auto billing',
 );
 
 
