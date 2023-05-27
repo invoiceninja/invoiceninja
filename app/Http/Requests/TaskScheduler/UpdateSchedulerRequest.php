@@ -42,7 +42,7 @@ class UpdateSchedulerRequest extends Request
             'parameters.end_date' => ['bail', 'sometimes', 'date:Y-m-d', 'required_if:parameters.date_rate,custom', 'after_or_equal:parameters.start_date'],
             'parameters.entity' => ['bail', 'sometimes', 'string', 'in:invoice,credit,quote,purchase_order'],
             'parameters.entity_id' => ['bail', 'sometimes', 'string'],
-            'parameters.report_name' => ['bail','sometimes', 'string', 'required_if:template,email_report', 'in:ar_summary_report,ar_detail_report,tax_summary_report,user_sales_report,client_sales_report,client_balance_report,product_sales_report'],
+            'parameters.report_name' => ['bail','sometimes', 'string', 'required_if:template,email_report', 'in:ar_detailed,ar_summary,client_balance,tax_summary,profitloss,client_sales,user_sales,product_sales,clients,client_contacts,credits,documents,expenses,invoices,invoice_items,quotes,quote_items,recurring_invoices,payments,products,tasks'],
             'parameters.date_key' => ['bail','sometimes', 'string'],
         ];
 
@@ -57,6 +57,5 @@ class UpdateSchedulerRequest extends Request
             $this->merge(['next_run_client' => $input['next_run']]);
         }
         
-        return $input;
     }
 }

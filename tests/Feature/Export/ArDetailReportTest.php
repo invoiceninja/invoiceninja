@@ -19,15 +19,15 @@ use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\User;
 use App\Services\Report\ARDetailReport;
-use App\Services\Report\UserSalesReport;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
  * @test
  */
-class ARDetailReportTest extends TestCase
+class ArDetailReportTest extends TestCase
 {
     use MakesHash;
 
@@ -44,6 +44,7 @@ class ARDetailReportTest extends TestCase
         );
 
         $this->withoutExceptionHandling();
+
     }
 
     public $company;

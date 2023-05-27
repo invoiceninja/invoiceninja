@@ -11,8 +11,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * App\Models\CompanyUser
@@ -25,9 +27,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property object|null $notifications
  * @property object|null $settings
  * @property string $slack_webhook_url
- * @property int $is_owner
- * @property int $is_admin
- * @property int $is_locked
+ * @property bool $is_owner
+ * @property bool $is_admin
+ * @property bool $is_locked
  * @property int|null $deleted_at
  * @property int|null $created_at
  * @property int|null $updated_at
@@ -36,6 +38,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $react_settings
  * @property-read \App\Models\Account $account
  * @property-read \App\Models\Company $company
+ * @property-read \App\Models\CompanyUser $cu
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $token
  * @property-read int|null $token_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens
@@ -73,6 +76,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $token
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyUser> $cu
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $token
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $token
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $token
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
@@ -104,14 +114,11 @@ class CompanyUser extends Pivot
     use SoftDeletes;
     use \Awobaz\Compoships\Compoships;
 
-    //   protected $guarded = ['id'];
-
     protected $dateFormat = 'Y-m-d H:i:s.u';
 
     /**
      * The attributes that should be cast to native types.
      *
-     * @var array
      */
     protected $casts = [
         'permissions_updated_at' => 'timestamp',
@@ -145,11 +152,6 @@ class CompanyUser extends Pivot
         return self::class;
     }
 
-    // public function tax_rates()
-    // {
-    //     return $this->hasMany(TaxRate::class, 'company_id', 'company_id');
-    // }
-
     public function account()
     {
         return $this->belongsTo(Account::class);
@@ -165,7 +167,7 @@ class CompanyUser extends Pivot
         return $this->hasOne(Company::class)->withPivot('permissions', 'settings', 'react_settings', 'is_admin', 'is_owner', 'is_locked', 'slack_webhook_url', 'migrating');
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
     }

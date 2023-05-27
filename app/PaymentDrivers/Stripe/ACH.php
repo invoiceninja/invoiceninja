@@ -201,6 +201,7 @@ class ACH
                     'payment_hash' => $this->stripe->payment_hash->hash,
                     'gateway_type_id' => GatewayType::BANK_TRANSFER,
                 ],
+                'statement_descriptor' => $this->stripe->getStatementDescriptor(),
             ]
             );
         }
@@ -275,6 +276,7 @@ class ACH
                     'payment_hash' => $this->stripe->payment_hash->hash,
                     'gateway_type_id' => $cgt->gateway_type_id,
                 ],
+                'statement_descriptor' => $this->stripe->getStatementDescriptor(),
             ];
 
             if ($cgt->gateway_type_id == GatewayType::BANK_TRANSFER) {
@@ -543,7 +545,8 @@ class ACH
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_FAILURE,
             SystemLog::TYPE_STRIPE,
-            $this->stripe->client
+            $this->stripe->client,
+            $this->stripe->client->company,
         );
 
         throw new PaymentFailed('Failed to process the payment.', 500);
@@ -569,6 +572,20 @@ class ACH
                 'token' => $method->id,
                 'payment_method_id' => $payment_method_id,
             ];
+
+            /**
+             * Ensure the method does not already exist!!
+             */
+
+            $token = ClientGatewayToken::where([
+                'gateway_customer_reference' => $customer->id,
+                'token' => $method->id,
+                'client_id' => $this->stripe->client->id,
+                'company_id' => $this->stripe->client->company_id,
+            ])->first();
+
+            if($token)
+                return $token;
 
             return $this->stripe->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
         } catch (Exception $e) {

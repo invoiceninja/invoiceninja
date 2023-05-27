@@ -15,7 +15,7 @@
  *
  * //Cache::forever($custom_company_translated_string, 'mogly');
  *
- * @param string translation string key
+ * @param string $string
  * @param array $replace
  * @param null $locale
  * @return string

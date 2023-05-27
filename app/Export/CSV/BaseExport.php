@@ -12,8 +12,10 @@
 namespace App\Export\CSV;
 
 use App\Models\Client;
-use App\Utils\Traits\MakesHash;
+use App\Models\Invoice;
 use Illuminate\Support\Carbon;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\Builder;
 
 class BaseExport
 {
@@ -31,6 +33,8 @@ class BaseExport
 
     public string $client_description = 'All Clients';
 
+    public array $forced_keys = [];
+
     protected function filterByClients($query)
     {
         if (isset($this->input['client_id']) && $this->input['client_id'] != 'all') {
@@ -43,6 +47,60 @@ class BaseExport
             $this->client_description = 'Multiple Clients';
             return $query->whereIn('client_id', $this->input['clients']);
         }
+        return $query;
+    }
+
+    protected function addInvoiceStatusFilter($query, $status): Builder
+    {
+
+        $status_parameters = explode(',', $status);
+        
+
+        if(in_array('all', $status_parameters))
+            return $query;
+
+        $query->where(function ($nested) use ($status_parameters) {
+
+            $invoice_filters = [];
+
+            if (in_array('draft', $status_parameters)) {
+                $invoice_filters[] = Invoice::STATUS_DRAFT;
+            }
+
+            if (in_array('sent', $status_parameters)) {
+                $invoice_filters[] = Invoice::STATUS_SENT;
+            }
+
+            if (in_array('paid', $status_parameters)) {
+                $invoice_filters[] = Invoice::STATUS_PAID;
+            }
+
+            if (in_array('unpaid', $status_parameters)) {
+                $invoice_filters[] = Invoice::STATUS_SENT;
+                $invoice_filters[] = Invoice::STATUS_PARTIAL;
+            }
+
+            if (count($invoice_filters) > 0) {
+                $nested->whereIn('status_id', $invoice_filters);
+            }
+                                
+            if (in_array('overdue', $status_parameters)) {
+                $nested->orWhereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                                ->where('due_date', '<', Carbon::now())
+                                ->orWhere('partial_due_date', '<', Carbon::now());
+            }
+
+            if(in_array('viewed', $status_parameters)){
+                
+                $nested->whereHas('invitations', function ($q){
+                    $q->whereNotNull('viewed_date')->whereNotNull('deleted_at');
+                });
+
+            }
+                
+            
+        });
+
         return $query;
     }
 
@@ -114,7 +172,7 @@ class BaseExport
     {
         $header = [];
 
-        foreach ($this->input['report_keys'] as $value) {
+        foreach (array_merge($this->input['report_keys'], $this->forced_keys) as $value) {
             $key = array_search($value, $this->entity_keys);
 
             $key = str_replace('item.', '', $key);

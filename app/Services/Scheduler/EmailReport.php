@@ -77,13 +77,13 @@ class EmailReport
 
         match($this->scheduler->parameters['report_name'])
         {
-            'product_sales_report' => $export = (new ProductSalesExport($this->scheduler->company, $data)),
-            'email_ar_detailed_report' => $export = (new ARDetailReport($this->scheduler->company, $data)),
-            'email_ar_summary_report' => $export = (new ARSummaryReport($this->scheduler->company, $data)),
-            'email_tax_summary_report' => $export = (new TaxSummaryReport($this->scheduler->company, $data)),
-            'email_client_balance_report' => $export = (new ClientBalanceReport($this->scheduler->company, $data)),
-            'email_client_sales_report' => $export = (new ClientSalesReport($this->scheduler->company, $data)),
-            'email_user_sales_report' => $export = (new UserSalesReport($this->scheduler->company, $data)),
+            'product_sales' => $export = (new ProductSalesExport($this->scheduler->company, $data)),
+            'ar_detailed' => $export = (new ARDetailReport($this->scheduler->company, $data)),
+            'ar_summary' => $export = (new ARSummaryReport($this->scheduler->company, $data)),
+            'tax_summary' => $export = (new TaxSummaryReport($this->scheduler->company, $data)),
+            'client_balance' => $export = (new ClientBalanceReport($this->scheduler->company, $data)),
+            'client_sales' => $export = (new ClientSalesReport($this->scheduler->company, $data)),
+            'user_sales' => $export = (new UserSalesReport($this->scheduler->company, $data)),
             'clients' => $export = (new ClientExport($this->scheduler->company, $data)),
             'client_contacts' => $export = (new ContactExport($this->scheduler->company, $data)),
             'credits' => $export = (new CreditExport($this->scheduler->company, $data)),

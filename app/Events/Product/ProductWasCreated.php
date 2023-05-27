@@ -19,30 +19,7 @@ class ProductWasCreated
 {
     use SerializesModels;
 
-    /**
-     * @var Product
-     */
-    public $product;
-
-    public $input;
-
-    public $company;
-
-    public $event_vars;
-
-    /**
-     * Create a new event instance.
-     *
-     * @param Product $product
-     * @param $input
-     * @param Company $company
-     * @param array $event_vars
-     */
-    public function __construct(Product $product, $input, Company $company, array $event_vars)
+    public function __construct(public Product $product, public mixed $input, public Company $company, public array $event_vars)
     {
-        $this->product = $product;
-        $this->input = $input;
-        $this->company = $company;
-        $this->event_vars = $event_vars;
     }
 }

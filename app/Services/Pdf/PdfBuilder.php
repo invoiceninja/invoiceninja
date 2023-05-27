@@ -187,6 +187,14 @@ class PdfBuilder
                 'id' => 'statement-payment-table-totals',
                 'elements' => $this->statementPaymentTableTotals(),
             ],
+            'statement-credits-table' => [
+                'id' => 'statement-credits-table',
+                'elements' => $this->statementCreditTable(),
+            ],
+            'statement-credit-table-totals' => [
+                'id' => 'statement-credit-table-totals',
+                'elements' => $this->statementCreditTableTotals(),
+            ],
             'statement-aging-table' => [
                 'id' => 'statement-aging-table',
                 'elements' => $this->statementAgingTable(),
@@ -212,6 +220,56 @@ class PdfBuilder
 
         return [
             ['element' => 'p', 'content' => '$outstanding_label: ' . $this->service->config->formatMoney($outstanding)],
+        ];
+    }
+    
+    /**
+     * Parent method for building payments table within statement.
+     *
+     * @return array
+     */
+    public function statementCreditTable(): array
+    {
+        if (is_null($this->service->options['credits'])) {
+            return [];
+        }
+
+        if (\array_key_exists('show_credits_table', $this->service->options) && $this->service->options['show_credits_table'] === false) {
+            return [];
+        }
+
+        $tbody = [];
+
+        foreach ($this->service->options['credits'] as $credit) {
+            $element = ['element' => 'tr', 'elements' => []];
+
+            $element['elements'][] = ['element' => 'td', 'content' => $credit->number];
+            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($credit->date, $this->service->config->client->date_format(), $this->service->config->locale) ?: ' '];
+            $element['elements'][] = ['element' => 'td', 'content' => $this->service->config->formatMoney($credit->amount) ?: ' '];
+            $element['elements'][] = ['element' => 'td', 'content' => $this->service->config->formatMoney($credit->balance) ?: ' '];
+
+            $tbody[] = $element;
+        }
+
+        return [
+            ['element' => 'thead', 'elements' => $this->buildTableHeader('statement_invoice')],
+            ['element' => 'tbody', 'elements' => $tbody],
+        ];
+
+    }
+
+    /**
+     * Parent method for building invoice table totals
+     * for statements.
+     *
+     * @return array
+     */
+    public function statementCreditTableTotals(): array
+    {
+        $outstanding = $this->service->options['credits']->sum('balance');
+
+        return [
+            ['element' => 'p', 'content' => '$credit.balance_label: ' . $this->service->config->formatMoney($outstanding)],
         ];
     }
 
@@ -311,6 +369,33 @@ class PdfBuilder
         return $elements;
     }
 
+
+    /**
+     * Generates the statement aging table
+     *
+     * @return array
+     *
+     */
+    public function statementCreditsTable(): array
+    {
+        if (\array_key_exists('show_credits_table', $this->service->options) && $this->service->options['show_credits_table'] === false) {
+            return [];
+        }
+
+        $elements = [
+            ['element' => 'thead', 'elements' => []],
+            ['element' => 'tbody', 'elements' => [
+                ['element' => 'tr', 'elements' => []],
+            ]],
+        ];
+
+        foreach ($this->service->options['credits'] as $column => $value) {
+            $elements[0]['elements'][] = ['element' => 'th', 'content' => $column];
+            $elements[1]['elements'][] = ['element' => 'td', 'content' => $value];
+        }
+
+        return $elements;
+    }
 
     /**
      * Generates the purchase order sections

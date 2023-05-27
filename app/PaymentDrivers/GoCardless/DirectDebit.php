@@ -143,7 +143,7 @@ class DirectDebit implements MethodInterface
     /**
      * Handle unsuccessful authorization.
      *
-     * @param Exception $exception
+     * @param \Exception $exception
      * @throws PaymentFailed
      * @return void
      */

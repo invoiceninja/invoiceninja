@@ -31,6 +31,8 @@ class ProcessBankRules extends AbstractService
 
     protected $categories;
 
+    protected $invoices;
+    
     public function __construct(public BankTransaction $bank_transaction)
     {
     }

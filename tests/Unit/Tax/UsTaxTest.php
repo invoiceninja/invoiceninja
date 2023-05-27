@@ -98,6 +98,8 @@ class UsTaxTest extends TestCase
             'settings' => $settings,
             'tax_data' => $tax_data,
             'calculate_taxes' => true,
+            'origin_tax_data' => new Response($this->mock_response),
+
         ]);
 
         $client = Client::factory()->create([
@@ -107,6 +109,7 @@ class UsTaxTest extends TestCase
             'shipping_country_id' => 840,
             'has_valid_vat_number' => false,
             'postal_code' => $postal_code,
+            'tax_data' => new Response($this->mock_response),
         ]);
 
         $invoice = Invoice::factory()->create([
@@ -146,6 +149,735 @@ class UsTaxTest extends TestCase
         return $invoice;
     }
 
+    public function testTaxAuNoExemption()
+    {
+       
+        $settings = CompanySettings::defaults();
+        $settings->country_id = '840'; // germany
+
+        $tax_data = new TaxModel();
+        $tax_data->seller_subregion = 'CA';
+        $tax_data->regions->US->has_sales_above_threshold = true;
+        $tax_data->regions->US->tax_all_subregions = false;
+        $tax_data->regions->AU->has_sales_above_threshold = true;
+        $tax_data->regions->AU->tax_all_subregions = true;
+
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+            'settings' => $settings,
+            'tax_data' => $tax_data,
+            'calculate_taxes' => true,
+            'origin_tax_data' => new Response($this->mock_response),
+        ]);
+
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'country_id' => 36,
+            'postal_code' => '30002',
+            'shipping_country_id' => 36,
+            'shipping_postal_code' => '30002',
+            'shipping_state' => '30002',
+            'has_valid_vat_number' => false,
+            'is_tax_exempt' => false,
+            'state' => 'NSW'
+        ]);
+
+        $invoice = Invoice::factory()->create([
+            'company_id' => $company->id,
+            'client_id' => $client->id,
+            'status_id' => 1,
+            'user_id' => $this->user->id,
+            'uses_inclusive_taxes' => false,
+            'discount' => 0,
+            'line_items' => [
+                [
+                    'product_key' => 'Test',
+                    'notes' => 'Test',
+                    'cost' => 100,
+                    'quantity' => 1,
+                    'tax_name1' => '',
+                    'tax_rate1' => 0,
+                    'tax_name2' => '',
+                    'tax_rate2' => 0,
+                    'tax_name3' => '',
+                    'tax_rate3' => 0,
+                    'type_id' => '1',
+                    'tax_id' => Product::PRODUCT_TYPE_PHYSICAL,
+                ],
+            ],
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'tax_name1' => '',
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'tax_data' => new Response($this->mock_response),
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice()->service()->markSent()->save();
+
+        $this->assertEquals(110, $invoice->amount);
+        
+    }
+
+    public function testTaxAuClientExemption()
+    {
+       
+        $settings = CompanySettings::defaults();
+        $settings->country_id = '840'; // germany
+
+        $tax_data = new TaxModel();
+        $tax_data->seller_subregion = 'CA';
+        $tax_data->regions->US->has_sales_above_threshold = true;
+        $tax_data->regions->US->tax_all_subregions = false;
+        $tax_data->regions->AU->has_sales_above_threshold = true;
+        $tax_data->regions->AU->tax_all_subregions = true;
+
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+            'settings' => $settings,
+            'tax_data' => $tax_data,
+            'calculate_taxes' => true,
+            'origin_tax_data' => new Response($this->mock_response),
+        ]);
+
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'country_id' => 36,
+            'postal_code' => '30002',
+            'shipping_country_id' => 36,
+            'shipping_postal_code' => '30002',
+            'shipping_state' => '30002',
+            'has_valid_vat_number' => false,
+            'is_tax_exempt' => true,
+            'state' => 'NSW'
+        ]);
+
+        $invoice = Invoice::factory()->create([
+            'company_id' => $company->id,
+            'client_id' => $client->id,
+            'status_id' => 1,
+            'user_id' => $this->user->id,
+            'uses_inclusive_taxes' => false,
+            'discount' => 0,
+            'line_items' => [
+                [
+                    'product_key' => 'Test',
+                    'notes' => 'Test',
+                    'cost' => 100,
+                    'quantity' => 1,
+                    'tax_name1' => '',
+                    'tax_rate1' => 0,
+                    'tax_name2' => '',
+                    'tax_rate2' => 0,
+                    'tax_name3' => '',
+                    'tax_rate3' => 0,
+                    'type_id' => '1',
+                    'tax_id' => Product::PRODUCT_TYPE_PHYSICAL,
+                ],
+            ],
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'tax_name1' => '',
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'tax_data' => new Response($this->mock_response),
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice()->service()->markSent()->save();
+
+        $this->assertEquals(100, $invoice->amount);
+        
+    }
+
+    public function testTaxAuProductExemption()
+    {
+       
+        $settings = CompanySettings::defaults();
+        $settings->country_id = '840'; // germany
+
+        $tax_data = new TaxModel();
+        $tax_data->seller_subregion = 'CA';
+        $tax_data->regions->US->has_sales_above_threshold = true;
+        $tax_data->regions->US->tax_all_subregions = false;
+        $tax_data->regions->AU->has_sales_above_threshold = true;
+        $tax_data->regions->AU->tax_all_subregions = true;
+
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+            'settings' => $settings,
+            'tax_data' => $tax_data,
+            'calculate_taxes' => true,
+            'origin_tax_data' => new Response($this->mock_response),
+        ]);
+
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'country_id' => 36,
+            'postal_code' => '30002',
+            'shipping_country_id' => 36,
+            'shipping_postal_code' => '30002',
+            'shipping_state' => '30002',
+            'has_valid_vat_number' => false,
+            'is_tax_exempt' => false,
+            'state' => 'NSW'
+        ]);
+
+        $invoice = Invoice::factory()->create([
+            'company_id' => $company->id,
+            'client_id' => $client->id,
+            'status_id' => 1,
+            'user_id' => $this->user->id,
+            'uses_inclusive_taxes' => false,
+            'discount' => 0,
+            'line_items' => [
+                [
+                    'product_key' => 'Test',
+                    'notes' => 'Test',
+                    'cost' => 100,
+                    'quantity' => 1,
+                    'tax_name1' => '',
+                    'tax_rate1' => 0,
+                    'tax_name2' => '',
+                    'tax_rate2' => 0,
+                    'tax_name3' => '',
+                    'tax_rate3' => 0,
+                    'type_id' => '1',
+                    'tax_id' => Product::PRODUCT_TYPE_EXEMPT,
+                ],
+            ],
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'tax_name1' => '',
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'tax_data' => new Response($this->mock_response),
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice()->service()->markSent()->save();
+
+        $this->assertEquals(100, $invoice->amount);
+        
+    }
+
+    public function testTaxAuProductOverride()
+    {
+       
+        $settings = CompanySettings::defaults();
+        $settings->country_id = '840'; // germany
+
+        $tax_data = new TaxModel();
+        $tax_data->seller_subregion = 'CA';
+        $tax_data->regions->US->has_sales_above_threshold = true;
+        $tax_data->regions->US->tax_all_subregions = false;
+        $tax_data->regions->AU->has_sales_above_threshold = true;
+        $tax_data->regions->AU->tax_all_subregions = true;
+
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+            'settings' => $settings,
+            'tax_data' => $tax_data,
+            'calculate_taxes' => true,
+            'origin_tax_data' => new Response($this->mock_response),
+        ]);
+
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'country_id' => 36,
+            'postal_code' => '30002',
+            'shipping_country_id' => 36,
+            'shipping_postal_code' => '30002',
+            'shipping_state' => '30002',
+            'has_valid_vat_number' => false,
+            'is_tax_exempt' => false,
+            'state' => 'NSW'
+        ]);
+
+        $invoice = Invoice::factory()->create([
+            'company_id' => $company->id,
+            'client_id' => $client->id,
+            'status_id' => 1,
+            'user_id' => $this->user->id,
+            'uses_inclusive_taxes' => false,
+            'discount' => 0,
+            'line_items' => [
+                [
+                    'product_key' => 'Test',
+                    'notes' => 'Test',
+                    'cost' => 100,
+                    'quantity' => 1,
+                    'tax_name1' => 'OVERRIDE',
+                    'tax_rate1' => 20,
+                    'tax_name2' => '',
+                    'tax_rate2' => 0,
+                    'tax_name3' => '',
+                    'tax_rate3' => 0,
+                    'type_id' => '1',
+                    'tax_id' => Product::PRODUCT_TYPE_OVERRIDE_TAX,
+                ],
+            ],
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'tax_name1' => '',
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'tax_data' => new Response($this->mock_response),
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice()->service()->markSent()->save();
+
+        $this->assertEquals(120, $invoice->amount);
+        
+    }
+    
+    public function testInterstateFreightNoTaxWithProductTax()
+    {
+
+        $settings = CompanySettings::defaults();
+        $settings->country_id = '840'; // germany
+
+        $tax_data = new TaxModel();
+        $tax_data->seller_subregion = 'CA';
+        $tax_data->regions->US->has_sales_above_threshold = true;
+        $tax_data->regions->US->tax_all_subregions = true;
+
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+            'settings' => $settings,
+            'tax_data' => $tax_data,
+            'calculate_taxes' => true,
+            'origin_tax_data' => new Response($this->mock_response),
+        ]);
+
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'country_id' => 840,
+            'postal_code' => '30002',
+            'shipping_country_id' => 840,
+            'shipping_postal_code' => '30002',
+            'shipping_state' => '30002',
+            'has_valid_vat_number' => false,
+            'is_tax_exempt' => false,
+            'state' => 'GA'
+        ]);
+
+        $invoice = Invoice::factory()->create([
+            'company_id' => $company->id,
+            'client_id' => $client->id,
+            'status_id' => 1,
+            'user_id' => $this->user->id,
+            'uses_inclusive_taxes' => false,
+            'discount' => 0,
+            'line_items' => [
+                [
+                    'product_key' => 'Test',
+                    'notes' => 'Test',
+                    'cost' => 100,
+                    'quantity' => 1,
+                    'tax_name1' => '',
+                    'tax_rate1' => 0,
+                    'tax_name2' => '',
+                    'tax_rate2' => 0,
+                    'tax_name3' => '',
+                    'tax_rate3' => 0,
+                    'type_id' => '1',
+                    'tax_id' => Product::PRODUCT_TYPE_SHIPPING,
+                ],
+                [
+                    'product_key' => 'Test',
+                    'notes' => 'Test',
+                    'cost' => 100,
+                    'quantity' => 1,
+                    'tax_name1' => '',
+                    'tax_rate1' => 0,
+                    'tax_name2' => '',
+                    'tax_rate2' => 0,
+                    'tax_name3' => '',
+                    'tax_rate3' => 0,
+                    'type_id' => '1',
+                    'tax_id' => Product::PRODUCT_TYPE_PHYSICAL,
+                ],
+            ],
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'tax_name1' => '',
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'tax_data' => new Response($this->mock_response),
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice()->service()->markSent()->save();
+
+        $this->assertEquals(208.75, $invoice->amount);
+
+    }
+
+    public function testInterstateFreightProductNoTax()
+    {
+
+        $settings = CompanySettings::defaults();
+        $settings->country_id = '840'; // germany
+
+        $tax_data = new TaxModel();
+        $tax_data->seller_subregion = 'CA';
+        $tax_data->regions->US->has_sales_above_threshold = true;
+        $tax_data->regions->US->tax_all_subregions = false;
+
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+            'settings' => $settings,
+            'tax_data' => $tax_data,
+            'calculate_taxes' => true,
+            'origin_tax_data' => new Response($this->mock_response),
+        ]);
+
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'country_id' => 840,
+            'postal_code' => '30002',
+            'shipping_country_id' => 840,
+            'shipping_postal_code' => '30002',
+            'shipping_state' => '30002',
+            'has_valid_vat_number' => false,
+            'is_tax_exempt' => false,
+            'state' => 'GA'
+        ]);
+
+        $invoice = Invoice::factory()->create([
+            'company_id' => $company->id,
+            'client_id' => $client->id,
+            'status_id' => 1,
+            'user_id' => $this->user->id,
+            'uses_inclusive_taxes' => false,
+            'discount' => 0,
+            'line_items' => [
+                [
+                    'product_key' => 'Test',
+                    'notes' => 'Test',
+                    'cost' => 100,
+                    'quantity' => 1,
+                    'tax_name1' => '',
+                    'tax_rate1' => 0,
+                    'tax_name2' => '',
+                    'tax_rate2' => 0,
+                    'tax_name3' => '',
+                    'tax_rate3' => 0,
+                    'type_id' => '1',
+                    'tax_id' => Product::PRODUCT_TYPE_SHIPPING,
+                ],
+            ],
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'tax_name1' => '',
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'tax_data' => new Response($this->mock_response),
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice()->service()->markSent()->save();
+
+        $this->assertEquals(100, $invoice->amount);
+
+    }
+
+
+
+    public function testInterstateServiceProductNoTax()
+    {
+
+        $settings = CompanySettings::defaults();
+        $settings->country_id = '840'; // germany
+
+        $tax_data = new TaxModel();
+        $tax_data->seller_subregion = 'CA';
+        $tax_data->regions->US->has_sales_above_threshold = true;
+        $tax_data->regions->US->tax_all_subregions = false;
+
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+            'settings' => $settings,
+            'tax_data' => $tax_data,
+            'calculate_taxes' => true,
+            'origin_tax_data' => new Response($this->mock_response),
+        ]);
+
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'country_id' => 840,
+            'postal_code' => '30002',
+            'shipping_country_id' => 840,
+            'shipping_postal_code' => '30002',
+            'shipping_state' => '30002',
+            'has_valid_vat_number' => false,
+            'is_tax_exempt' => false,
+            'state' => 'GA'
+        ]);
+
+        $invoice = Invoice::factory()->create([
+            'company_id' => $company->id,
+            'client_id' => $client->id,
+            'status_id' => 1,
+            'user_id' => $this->user->id,
+            'uses_inclusive_taxes' => false,
+            'discount' => 0,
+            'line_items' => [
+                [
+                    'product_key' => 'Test',
+                    'notes' => 'Test',
+                    'cost' => 100,
+                    'quantity' => 1,
+                    'tax_name1' => '',
+                    'tax_rate1' => 0,
+                    'tax_name2' => '',
+                    'tax_rate2' => 0,
+                    'tax_name3' => '',
+                    'tax_rate3' => 0,
+                    'type_id' => '2',
+                    'tax_id' => Product::PRODUCT_TYPE_SERVICE,
+                ],
+            ],
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'tax_name1' => '',
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'tax_data' => new Response($this->mock_response),
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice()->service()->markSent()->save();
+
+        $this->assertEquals(100, $invoice->amount);
+
+    }
+
+
+    public function testInterstateWithNoTax()
+    {
+
+        $settings = CompanySettings::defaults();
+        $settings->country_id = '840'; // germany
+
+        $tax_data = new TaxModel();
+        $tax_data->seller_subregion = 'CA';
+        $tax_data->regions->US->has_sales_above_threshold = true;
+        $tax_data->regions->US->tax_all_subregions = false;
+
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+            'settings' => $settings,
+            'tax_data' => $tax_data,
+            'calculate_taxes' => true,
+            'origin_tax_data' => new Response($this->mock_response),
+        ]);
+
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'country_id' => 840,
+            'postal_code' => '30002',
+            'shipping_country_id' => 840,
+            'shipping_postal_code' => '30002',
+            'shipping_state' => '30002',
+            'has_valid_vat_number' => false,
+            'is_tax_exempt' => false,
+            'state' => 'GA'
+        ]);
+
+        $invoice = Invoice::factory()->create([
+            'company_id' => $company->id,
+            'client_id' => $client->id,
+            'status_id' => 1,
+            'user_id' => $this->user->id,
+            'uses_inclusive_taxes' => false,
+            'discount' => 0,
+            'line_items' => [
+                [
+                    'product_key' => 'Test',
+                    'notes' => 'Test',
+                    'cost' => 100,
+                    'quantity' => 1,
+                    'tax_name1' => '',
+                    'tax_rate1' => 0,
+                    'tax_name2' => '',
+                    'tax_rate2' => 0,
+                    'tax_name3' => '',
+                    'tax_rate3' => 0,
+                    'type_id' => '1',
+                    'tax_id' => Product::PRODUCT_TYPE_PHYSICAL,
+                ],
+            ],
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'tax_name1' => '',
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'tax_data' => new Response($this->mock_response),
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice()->service()->markSent()->save();
+
+        $this->assertEquals(100, $invoice->amount);
+
+    }
+
+    public function testSameSubregionAndExemptProduct()
+    {
+
+        $settings = CompanySettings::defaults();
+        $settings->country_id = '840'; // germany
+
+        $tax_data = new TaxModel();
+        $tax_data->seller_subregion = 'CA';
+        $tax_data->regions->US->has_sales_above_threshold = true;
+        $tax_data->regions->US->tax_all_subregions = true;
+        $tax_data->regions->EU->has_sales_above_threshold = true;
+        $tax_data->regions->EU->tax_all_subregions = true;
+        $tax_data->regions->EU->subregions->DE->tax_rate = 21;
+
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+            'settings' => $settings,
+            'tax_data' => $tax_data,
+            'calculate_taxes' => true,
+            'origin_tax_data' => new Response($this->mock_response),
+        ]);
+
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'country_id' => 840,
+            'postal_code' => '90210',
+            'shipping_country_id' => 840,
+            'shipping_postal_code' => '90210',
+            'has_valid_vat_number' => false,
+            'postal_code' => 'xx',
+            'is_tax_exempt' => false,
+        ]);
+
+        $invoice = Invoice::factory()->create([
+            'company_id' => $company->id,
+            'client_id' => $client->id,
+            'status_id' => 1,
+            'user_id' => $this->user->id,
+            'uses_inclusive_taxes' => false,
+            'discount' => 0,
+            'line_items' => [
+                [
+                    'product_key' => 'Test',
+                    'notes' => 'Test',
+                    'cost' => 100,
+                    'quantity' => 1,
+                    'tax_name1' => '',
+                    'tax_rate1' => 0,
+                    'tax_name2' => '',
+                    'tax_rate2' => 0,
+                    'tax_name3' => '',
+                    'tax_rate3' => 0,
+                    'type_id' => '1',
+                    'tax_id' => Product::PRODUCT_TYPE_EXEMPT,
+                ],
+            ],
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'tax_name1' => '',
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'tax_data' => new Response($this->mock_response),
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice()->service()->markSent()->save();
+
+        $this->assertEquals(100, $invoice->amount);
+
+    }
+
+    public function testSameSubregionAndExemptClient()
+    {
+
+        $settings = CompanySettings::defaults();
+        $settings->country_id = '840'; // germany
+
+        $tax_data = new TaxModel();
+        $tax_data->seller_subregion = 'CA';
+        $tax_data->regions->US->has_sales_above_threshold = true;
+        $tax_data->regions->US->tax_all_subregions = true;
+        $tax_data->regions->EU->has_sales_above_threshold = true;
+        $tax_data->regions->EU->tax_all_subregions = true;
+        $tax_data->regions->EU->subregions->DE->tax_rate = 21;
+
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+            'settings' => $settings,
+            'tax_data' => $tax_data,
+            'calculate_taxes' => true,
+            'origin_tax_data' => new Response($this->mock_response),
+        ]);
+
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'country_id' => 840,
+            'postal_code' => '90210',
+            'shipping_country_id' => 840,
+            'shipping_postal_code' => '90210',
+            'has_valid_vat_number' => false,
+            'is_tax_exempt' => true,
+        ]);
+
+        $invoice = Invoice::factory()->create([
+            'company_id' => $company->id,
+            'client_id' => $client->id,
+            'status_id' => 1,
+            'user_id' => $this->user->id,
+            'uses_inclusive_taxes' => false,
+            'discount' => 0,
+            'line_items' => [
+                [
+                    'product_key' => 'Test',
+                    'notes' => 'Test',
+                    'cost' => 100,
+                    'quantity' => 1,
+                    'tax_name1' => '',
+                    'tax_rate1' => 0,
+                    'tax_name2' => '',
+                    'tax_rate2' => 0,
+                    'tax_name3' => '',
+                    'tax_rate3' => 0,
+                    'type_id' => '1',
+                    'tax_id' => Product::PRODUCT_TYPE_PHYSICAL,
+                ],
+            ],
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'tax_name1' => '',
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'tax_data' => new Response($this->mock_response),
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice()->service()->markSent()->save();
+
+        $this->assertEquals(100, $invoice->amount);
+
+    }
+
+
     public function testForeignTaxesEnabledWithExemptProduct()
     {
             $settings = CompanySettings::defaults();
@@ -164,6 +896,7 @@ class UsTaxTest extends TestCase
                 'settings' => $settings,
                 'tax_data' => $tax_data,
                 'calculate_taxes' => true,
+                'origin_tax_data' => new Response($this->mock_response),
             ]);
 
             $client = Client::factory()->create([
@@ -173,6 +906,7 @@ class UsTaxTest extends TestCase
                 'shipping_country_id' => 276,
                 'has_valid_vat_number' => false,
                 'postal_code' => 'xx',
+                'is_tax_exempt' => false,
             ]);
 
             $invoice = Invoice::factory()->create([
@@ -232,6 +966,7 @@ class UsTaxTest extends TestCase
                 'settings' => $settings,
                 'tax_data' => $tax_data,
                 'calculate_taxes' => true,
+                'origin_tax_data' => new Response($this->mock_response),
             ]);
 
             $client = Client::factory()->create([
@@ -300,6 +1035,7 @@ class UsTaxTest extends TestCase
                 'settings' => $settings,
                 'tax_data' => $tax_data,
                 'calculate_taxes' => true,
+                'origin_tax_data' => new Response($this->mock_response),
             ]);
 
             $client = Client::factory()->create([
@@ -309,6 +1045,7 @@ class UsTaxTest extends TestCase
                 'shipping_country_id' => 276,
                 'has_valid_vat_number' => false,
                 'postal_code' => 'xx',
+                'tax_data' => new Response($this->mock_response),
             ]);
 
             $invoice = Invoice::factory()->create([
@@ -353,18 +1090,18 @@ class UsTaxTest extends TestCase
     {
 
         $invoice = $this->invoiceStub('92582');
-        $client = $invoice->client;
-        $client->is_tax_exempt = false;
-        $client->save();
+        $invoice->client->is_tax_exempt = false;
+        $invoice->client->tax_data = new Response($this->mock_response);
 
-        $company = $invoice->company;
-        $tax_data = $company->tax_data;
+        $invoice->client->push();
+
+        $tax_data = $invoice->company->tax_data;
 
         $tax_data->regions->US->has_sales_above_threshold = true;
         $tax_data->regions->US->tax_all_subregions = true;
 
-        $company->tax_data = $tax_data;
-        $company->save();
+        $invoice->company->tax_data = $tax_data;
+        $invoice->company->push();
 
         $invoice = $invoice->calc()->getInvoice()->service()->markSent()->save();
 

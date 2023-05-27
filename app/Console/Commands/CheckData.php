@@ -12,36 +12,37 @@
 namespace App\Console\Commands;
 
 use App;
+use Exception;
+use App\Models\User;
+use App\Utils\Ninja;
+use App\Models\Quote;
+use App\Models\Client;
+use App\Models\Credit;
+use App\Models\Vendor;
+use App\Models\Account;
+use App\Models\Company;
+use App\Models\Contact;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\CompanyUser;
+use Illuminate\Support\Str;
+use App\Models\CompanyToken;
+use App\Models\ClientContact;
+use App\Models\CompanyLedger;
+use App\Models\PurchaseOrder;
+use App\Models\VendorContact;
+use App\Models\BankTransaction;
+use App\Models\QuoteInvitation;
+use Illuminate\Console\Command;
+use App\Models\CreditInvitation;
+use App\Models\InvoiceInvitation;
 use App\DataMapper\ClientSettings;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use App\Factory\ClientContactFactory;
 use App\Factory\VendorContactFactory;
 use App\Jobs\Company\CreateCompanyToken;
-use App\Models\Account;
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Company;
-use App\Models\CompanyLedger;
-use App\Models\CompanyToken;
-use App\Models\CompanyUser;
-use App\Models\Contact;
-use App\Models\Credit;
-use App\Models\CreditInvitation;
-use App\Models\Invoice;
-use App\Models\InvoiceInvitation;
-use App\Models\Payment;
-use App\Models\PurchaseOrder;
-use App\Models\Quote;
-use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
-use App\Models\User;
-use App\Models\Vendor;
-use App\Models\VendorContact;
-use App\Utils\Ninja;
-use Exception;
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputOption;
 
 /*
@@ -81,7 +82,7 @@ class CheckData extends Command
     /**
      * @var string
      */
-    protected $signature = 'ninja:check-data {--database=} {--fix=} {--portal_url=} {--client_id=} {--vendor_id=} {--paid_to_date=} {--client_balance=} {--ledger_balance=} {--balance_status=}';
+    protected $signature = 'ninja:check-data {--database=} {--fix=} {--portal_url=} {--client_id=} {--vendor_id=} {--paid_to_date=} {--client_balance=} {--ledger_balance=} {--balance_status=} {--bank_transaction=}';
 
     /**
      * @var string
@@ -134,6 +135,10 @@ class CheckData extends Command
 
         if (! $this->option('client_id')) {
             $this->checkOAuth();
+        }
+
+        if($this->option('bank_transaction')) {
+            $this->fixBankTransactions();
         }
 
         $this->logMessage('Done: '.strtoupper($this->isValid ? Account::RESULT_SUCCESS : Account::RESULT_FAILURE));
@@ -410,8 +415,8 @@ class CheckData extends Command
                 $invitation->company_id = $invoice->company_id;
                 $invitation->user_id = $invoice->user_id;
                 $invitation->invoice_id = $invoice->id;
-                $invitation->contact_id = ClientContact::whereClientId($invoice->client_id)->first()->id;
-                $invitation->invitation_key = Str::random(config('ninja.key_length'));
+                $invitation->client_contact_id = ClientContact::whereClientId($invoice->client_id)->first()->id;
+                $invitation->key = Str::random(config('ninja.key_length'));
                 $invitation->save();
             }
         }
@@ -442,7 +447,7 @@ class CheckData extends Command
                     $contact_id = 'client_contact_id';
                     $contact_class = ClientContact::class;
 
-                    $entity_key = \Illuminate\Support\Str::of(class_basename($entity))->snake()->append('_id')->value;
+                    $entity_key = \Illuminate\Support\Str::of(class_basename($entity))->snake()->append('_id')->toString();
                     $entity_obj = get_class($entity).'Invitation';
 
                     if ($entity instanceof PurchaseOrder) {
@@ -1089,5 +1094,24 @@ class CheckData extends Command
                 }
             }
         });
+    }
+
+    public function fixBankTransactions()
+    {
+        $this->logMessage("checking bank transactions");
+
+        BankTransaction::with('payment')->withTrashed()->where('invoice_ids', ',,,,,,,,')->cursor()->each(function ($bt){
+
+            if($bt->payment->exists()) {
+
+                $bt->invoice_ids = collect($bt->payment->invoices)->pluck('hashed_id')->implode(',');
+                $bt->save();
+
+                $this->logMessage("Fixing - {$bt->id}");
+                
+            }
+
+        });
+
     }
 }

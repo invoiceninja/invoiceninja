@@ -52,15 +52,19 @@ class TaxProvider
     
     private mixed $api_credentials;
 
-    public function __construct(protected Company $company, protected Client $client)
+    public function __construct(public Company $company, public ?Client $client = null)
     {
-
     }
 
-
+    
+    /**
+     * updateCompanyTaxData
+     *
+     * @return self
+     */
     public function updateCompanyTaxData(): self
     {
-        $this->configureProvider($this->provider); //hard coded for now to one provider, but we'll be able to swap these out later
+        $this->configureProvider($this->provider, $this->company->country()->iso_3166_2); //hard coded for now to one provider, but we'll be able to swap these out later
 
         $company_details = [
             'address1' => $this->company->settings->address1,
@@ -77,17 +81,22 @@ class TaxProvider
         
         $tax_data = $tax_provider->run();
         
-        $this->company->tax_data = $tax_data;
+        $this->company->origin_tax_data = $tax_data;
         
         $this->company->save();
 
         return $this;
 
     }
-
+    
+    /**
+     * updateClientTaxData
+     *
+     * @return self
+     */
     public function updateClientTaxData(): self
     {
-        $this->configureProvider($this->provider); //hard coded for now to one provider, but we'll be able to swap these out later
+        $this->configureProvider($this->provider, $this->client->country->iso_3166_2); //hard coded for now to one provider, but we'll be able to swap these out later
 
         $billing_details =[
             'address1' => $this->client->address1,
@@ -107,25 +116,48 @@ class TaxProvider
             'country_id' => $this->client->shipping_country_id,
         ];
 
-
-        $tax_provider = new $this->provider();
+        $taxable_address = $this->taxShippingAddress() ? $shipping_details : $billing_details;
+        
+        $tax_provider = new $this->provider($taxable_address);
 
         $tax_provider->setApiCredentials($this->api_credentials);
         
         $tax_data = $tax_provider->run();
+                
+        $this->client->tax_data = $tax_data;
         
-        $this->company->tax_data = $tax_data;
-        
-        $this->company->save();
+        $this->client->save();
 
         return $this;
 
     }
+    
+    /**
+     * taxShippingAddress
+     *
+     * @return bool
+     */
+    private function taxShippingAddress(): bool
+    {
+        
+        if($this->client->shipping_country_id == "840" && strlen($this->client->shipping_postal_code) > 3)
+            return true;
 
-    private function configureProvider(?string $provider): self
+        return false;
+
+    }
+    
+    /**
+     * configureProvider
+     *
+     * @param  string $provider
+     * @param  string $country_code
+     * @return self
+     */
+    private function configureProvider(?string $provider, string $country_code): self
     {
 
-        match($this->client->country->iso_3166_2){
+        match($country_code){
             'US' => $this->configureZipTax(),
             "AT" => $this->configureEuTax(),
             "BE" => $this->configureEuTax(),
@@ -160,21 +192,36 @@ class TaxProvider
         return $this;
 
     }
-
+    
+    /**
+     * configureEuTax
+     *
+     * @return self
+     */
     private function configureEuTax(): self
     {
         $this->provider = EuTax::class;
 
         return $this;
     }
-
-    private function noTaxRegionDefined(): self
+    
+    /**
+     * noTaxRegionDefined
+     *
+     * @return void
+     */
+    private function noTaxRegionDefined()
     {
         throw new \Exception("No tax region defined for this country");
 
-        return $this;
+        // return $this;
     }
-
+    
+    /**
+     * configureZipTax
+     *
+     * @return self
+     */
     private function configureZipTax(): self
     {
 

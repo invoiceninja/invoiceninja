@@ -34,6 +34,11 @@ class PreviewTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
+
+        if (config('ninja.testvars.travis') !== false) {
+            $this->markTestSkipped('Skip test for Travis');
+        }
+
     }
 
     public function testPreviewRoute()

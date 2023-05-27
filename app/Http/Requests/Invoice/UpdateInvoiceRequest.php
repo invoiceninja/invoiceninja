@@ -31,8 +31,11 @@ class UpdateInvoiceRequest extends Request
      * @return bool
      */
     public function authorize() : bool
-    {
-        return auth()->user()->can('edit', $this->invoice);
+    {   
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('edit', $this->invoice);
     }
 
     public function rules()

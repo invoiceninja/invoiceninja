@@ -11,8 +11,9 @@
 
 namespace App\Jobs\Cron;
 
-use App\Libraries\MultiDB;
 use App\Models\Invoice;
+use App\Libraries\MultiDB;
+use Illuminate\Support\Facades\Auth;
 use App\Utils\Traits\SubscriptionHooker;
 use Illuminate\Foundation\Bus\Dispatchable;
 
@@ -38,6 +39,8 @@ class SubscriptionCron
     public function handle() : void
     {
         nlog('Subscription Cron');
+
+        Auth::logout();
 
         if (! config('ninja.db.multi_db_enabled')) {
             $invoices = Invoice::where('is_deleted', 0)

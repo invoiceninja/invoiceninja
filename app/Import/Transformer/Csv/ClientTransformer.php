@@ -1,10 +1,10 @@
 <?php
 /**
- * client Ninja (https://clientninja.com).
+ * Invoice Ninja (https://invoiceninja.com).
  *
- * @link https://github.com/clientninja/clientninja source repository
+ * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. client Ninja LLC (https://clientninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -110,8 +110,8 @@ class ClientTransformer extends BaseTransformer
                     ),
                 ],
             ],
-            'country_id' => isset($data['client.country'])
-                ? $this->getCountryId($data['client.country'])
+            'country_id' => isset($data['client.country_id'])
+                ? $this->getCountryId($data['client.country_id'])
                 : null,
             'shipping_country_id' => isset($data['client.shipping_country'])
                 ? $this->getCountryId($data['client.shipping_country'])

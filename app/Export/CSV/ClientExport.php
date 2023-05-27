@@ -81,6 +81,10 @@ class ClientExport extends BaseExport
         'client.industry',
     ];
 
+    public array $forced_keys = [
+        'status',
+    ];
+
     public function __construct(Company $company, array $input)
     {
         $this->company = $company;
@@ -103,7 +107,7 @@ class ClientExport extends BaseExport
         if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = array_values($this->entity_keys);
         }
-
+        
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 

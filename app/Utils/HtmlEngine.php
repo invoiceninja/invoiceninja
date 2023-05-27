@@ -84,16 +84,12 @@ class HtmlEngine
         switch ($this->invitation) {
             case ($this->invitation instanceof InvoiceInvitation):
                 return 'invoice';
-                break;
             case ($this->invitation instanceof CreditInvitation):
                 return 'credit';
-                break;
             case ($this->invitation instanceof QuoteInvitation):
                 return 'quote';
-                break;
             case ($this->invitation instanceof RecurringInvoiceInvitation):
                 return 'recurring_invoice';
-                break;
             default:
                 # code...
                 break;
@@ -118,7 +114,8 @@ class HtmlEngine
         $data['$company_logo_size'] = ['value' => $this->resolveCompanyLogoSize(), 'label' => ''];
         $data['$show_shipping_address'] = ['value' => $this->settings?->show_shipping_address ? 'flex' : 'none', 'label' => ''];
         $data['$show_shipping_address_block'] = ['value' => $this->settings?->show_shipping_address ? 'block' : 'none', 'label' => ''];
-        $data['$show_shipping_address_visibility'] = ['value' => $this->settings?->show_shipping_address ? 'visible' : 'hidden', 'label' => ''];
+        // $data['$show_shipping_address_visibility'] = ['value' => $this->settings?->show_shipping_address ? 'visible' : 'hidden', 'label' => ''];
+        $data['$show_shipping_address_visibility'] = ['value' => $this->settings?->show_shipping_address ? 1 : 0, 'label' => ''];
         
         $data['$tax'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$app_url'] = ['value' => $this->generateAppUrl(), 'label' => ''];
@@ -145,7 +142,7 @@ class HtmlEngine
         $data['$invoice.po_number'] = ['value' => $this->entity->po_number ?: ' ', 'label' => ctrans('texts.po_number')];
         $data['$poNumber'] = &$data['$invoice.po_number'];
         $data['$po_number'] = &$data['$invoice.po_number'];
-        $data['$entity.datetime'] = ['value' => $this->formatDatetime($this->entity->created_at, $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.date')];
+        $data['$entity.datetime'] = ['value' => $this->formatDatetime($this->entity->created_at, $this->client->date_format()), 'label' => ctrans('texts.date')];
         $data['$invoice.datetime'] = &$data['$entity.datetime'];
         $data['$quote.datetime'] = &$data['$entity.datetime'];
         $data['$credit.datetime'] = &$data['$entity.datetime'];
@@ -155,7 +152,7 @@ class HtmlEngine
         $data['$exchange_rate'] = ['value' => $this->entity->exchange_rate ?: ' ', 'label' => ctrans('texts.exchange_rate')];
 
         if ($this->entity_string == 'invoice' || $this->entity_string == 'recurring_invoice') {
-            $data['$entity'] = ['value' => '', 'label' => ctrans('texts.invoice')];
+            $data['$entity'] = ['value' => ctrans('texts.invoice'), 'label' => ctrans('texts.invoice')];
             $data['$number'] = ['value' => $this->entity->number ?: ' ', 'label' => ctrans('texts.invoice_number')];
             $data['$invoice'] = ['value' => $this->entity->number ?: ' ', 'label' => ctrans('texts.invoice_number')];
             $data['$number_short'] = ['value' => $this->entity->number ?: ' ', 'label' => ctrans('texts.invoice_number_short')];
@@ -212,7 +209,7 @@ class HtmlEngine
         }
 
         if ($this->entity_string == 'quote') {
-            $data['$entity'] = ['value' => '', 'label' => ctrans('texts.quote')];
+            $data['$entity'] = ['value' => ctrans('texts.quote'), 'label' => ctrans('texts.quote')];
             $data['$number'] = ['value' => $this->entity->number ?: '', 'label' => ctrans('texts.quote_number')];
             $data['$number_short'] = ['value' => $this->entity->number ?: '', 'label' => ctrans('texts.quote_number_short')];
             $data['$entity.terms'] = ['value' => Helpers::processReservedKeywords(\nl2br($this->entity->terms ?: ''), $this->client) ?: '', 'label' => ctrans('texts.quote_terms')];
@@ -256,7 +253,7 @@ class HtmlEngine
         }
 
         if ($this->entity_string == 'credit') {
-            $data['$entity'] = ['value' => '', 'label' => ctrans('texts.credit')];
+            $data['$entity'] = ['value' => ctrans('texts.credit'), 'label' => ctrans('texts.credit')];
             $data['$number'] = ['value' => $this->entity->number ?: '', 'label' => ctrans('texts.credit_number')];
             $data['$number_short'] = ['value' => $this->entity->number ?: '', 'label' => ctrans('texts.credit_number_short')];
             $data['$entity.terms'] = ['value' => Helpers::processReservedKeywords(\nl2br($this->entity->terms ?: ''), $this->client) ?: '', 'label' => ctrans('texts.credit_terms')];
@@ -360,7 +357,8 @@ class HtmlEngine
         $data['$credit.po_number'] = &$data['$invoice.po_number'];
         $data['$credit.date'] = ['value' => $this->translateDate($this->entity->date, $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.credit_date')];
         $data['$balance'] = ['value' => Number::formatMoney($this->entity_calc->getBalance(), $this->client) ?: ' ', 'label' => ctrans('texts.balance')];
-        $data['$credit.balance'] = &$data['$balance'];
+        $data['$credit.balance'] = ['value' => Number::formatMoney($this->entity_calc->getBalance(), $this->client) ?: ' ', 'label' => ctrans('texts.credit_balance')];
+
 
         $data['$invoice.balance'] = &$data['$balance'];
         $data['$taxes'] = ['value' => Number::formatMoney($this->entity_calc->getItemTotalTaxes(), $this->client) ?: ' ', 'label' => ctrans('texts.taxes')];
@@ -463,6 +461,12 @@ class HtmlEngine
         $data['$client.shipping_state'] = ['value' => $this->client->shipping_state ?: ' ', 'label' => ctrans('texts.shipping_state')];
         $data['$client.shipping_postal_code'] = ['value' => $this->client->shipping_postal_code ?: ' ', 'label' => ctrans('texts.shipping_postal_code')];
         $data['$client.shipping_country'] = ['value' => isset($this->client->shipping_country->name) ? ctrans('texts.country_' . $this->client->shipping_country->name) : '', 'label' => ctrans('texts.shipping_country')];
+        $data['$shipping_postal_city_state'] = ['value' => $this->entity->present()->cityStateZip($this->client->shipping_city, $this->client->shipping_state, $this->client->shipping_postal_code, true) ?: ' ', 'label' => ctrans('texts.postal_city_state')];
+        $data['$client.shipping_postal_city_state'] = &$data['$shipping_postal_city_state'];
+        $data['$shipping_postal_city'] = ['value' => $this->entity->present()->cityStateZip($this->client->shipping_city, null, $this->client->shipping_postal_code, true) ?: ' ', 'label' => ctrans('texts.postal_city')];
+        $data['$client.shipping_postal_city'] = &$data['$shipping_postal_city'];
+        $data['$shipping_city_state_postal'] = ['value' => $this->entity->present()->cityStateZip($this->client->shipping_city, $this->client->shipping_state, $this->client->shipping_postal_code, false) ?: ' ', 'label' => ctrans('texts.city_state_postal')];
+        $data['$client.shipping_city_state_postal'] = &$data['$shipping_city_state_postal'];
 
         $data['$client.currency'] = ['value' => $this->client->currency()->code, 'label' => ''];
 

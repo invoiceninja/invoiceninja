@@ -142,14 +142,14 @@
                    style="border: 1px solid #c2c2c2;" class="dark-bg-base">
                 
                 <!--[if mso]>
-                <tr class="dark-bg" style="margin-top:0px; border: none;">
+                <tr class="dark-bg" style="margin-top:10px; border: none;">
                 <td style="border: none;"></td>
                 </tr>
                 <![endif]-->
                 
                 <tr>
                     <td align="center" cellpadding="20">
-                        <div style="border: 1px solid #c2c2c2; border-bottom: none; padding-bottom: 10px; border-top-left-radius: 3px; border-top-right-radius: 3px;">
+                        <div style="border: 1px solid #c2c2c2; border-bottom: none; padding-bottom: 10px; border-top-left-radius: 3px; border-top-right-radius: 3px; padding-top:10px;">
                             @if($logo && strpos($logo, 'blank.png') === false)
                              <img class="" src="{{ $logo ?? '' }}" width="50%" height="" alt=" " border="0" style="width: 50%; max-width: 570px; display: block;">
                             @endif

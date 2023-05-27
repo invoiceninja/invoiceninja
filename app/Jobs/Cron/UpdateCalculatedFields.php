@@ -13,6 +13,7 @@ namespace App\Jobs\Cron;
 
 use App\Models\Project;
 use App\Libraries\MultiDB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Bus\Dispatchable;
 
 class UpdateCalculatedFields
@@ -37,6 +38,8 @@ class UpdateCalculatedFields
     {
         nlog("Updating calculated fields");
         
+        Auth::logout();
+
         if (! config('ninja.db.multi_db_enabled')) {
 
             Project::with('tasks')->where('updated_at', '>', now()->subHours(2))
