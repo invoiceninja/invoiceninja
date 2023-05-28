@@ -23,6 +23,7 @@ use Turbo124\Beacon\Facades\LightLogs;
  */
 class QueryLogging
 {
+
     /**
      * Handle an incoming request.
      *
@@ -33,6 +34,7 @@ class QueryLogging
      */
     public function handle(Request $request, Closure $next)
     {
+
         // Enable query logging for development
         if (! Ninja::isHosted() || ! config('beacon.enabled')) {
             return $next($request);
@@ -45,8 +47,8 @@ class QueryLogging
 
     public function terminate($request, $response)
     {
-
-        $timeStart = microtime(true);
+        if (! Ninja::isHosted() || ! config('beacon.enabled')) {
+            return;
 
         // hide requests made by debugbar
         if (strstr($request->url(), '_debugbar') === false) {
@@ -54,7 +56,7 @@ class QueryLogging
             $queries = DB::getQueryLog();
             $count = count($queries);
             $timeEnd = microtime(true);
-            $time = $timeEnd - $timeStart;
+            $time = $timeEnd - LARAVEL_START;
 
             if ($count > 175) {
                 nlog("Query count = {$count}");
