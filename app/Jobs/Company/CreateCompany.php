@@ -202,7 +202,7 @@ class CreateCompany
 
         }
         catch(\Exception $e){
-            nlog("SETUP: could not complete setup for Spanish Locale");
+            nlog("SETUP: could not complete setup for Australian Locale");
         }
 
         $company->save();

@@ -178,7 +178,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $dateFormat = 'Y-m-d H:i:s.u';
 
-    public Company $company;
+    public ?Company $company = null;
 
     protected $appends = [
         'hashed_id',
