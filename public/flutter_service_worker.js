@@ -293,13 +293,13 @@ const RESOURCES = {
 "assets/packages/window_manager/images/ic_chrome_close.png": "75f4b8ab3608a05461a31fc18d6b47c2",
 "assets/FontManifest.json": "087fb858dc3cbfbf6baf6a30004922f1",
 "assets/AssetManifest.json": "759f9ef9973f7e26c2a51450b55bb9fa",
-"/": "520d726bd9ac92c9b45e52ec5efee3d1",
+"/": "912bec7134fde1adb6155ffd02485abd",
 "favicon.png": "dca91c54388f52eded692718d5a98b8b",
 "version.json": "7e4267a86708d41867f499ca02deb833",
 "icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed",
 "icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35",
 "favicon.ico": "51636d3a390451561744c42188ccd628",
-"main.dart.js": "92793e3ecacaeef6c7480613ee9a7f26",
+"main.dart.js": "e5658db5e0c3e1655a902ea72a539905",
 "manifest.json": "ef43d90e57aa7682d7e2cfba2f484a40"
 };
 
