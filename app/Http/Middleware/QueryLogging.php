@@ -37,22 +37,25 @@ class QueryLogging
         if (! Ninja::isHosted() || ! config('beacon.enabled')) {
             return $next($request);
         }
+        
+        DB::enableQueryLog();
+        return $next($request);
+
+    }
+
+    public function terminate($request, $response)
+    {
 
         $timeStart = microtime(true);
-        DB::enableQueryLog();
 
-        $response = $next($request);
         // hide requests made by debugbar
         if (strstr($request->url(), '_debugbar') === false) {
+
             $queries = DB::getQueryLog();
             $count = count($queries);
             $timeEnd = microtime(true);
             $time = $timeEnd - $timeStart;
 
-            // nlog("Query count = {$count}");
-            // nlog($queries);
-            // nlog($request->url());
-            
             if ($count > 175) {
                 nlog("Query count = {$count}");
                 nlog($queries);
@@ -60,18 +63,17 @@ class QueryLogging
 
             $ip = '';
 
-            if (request()->hasHeader('Cf-Connecting-Ip')) {
-                $ip = request()->header('Cf-Connecting-Ip');
-            } elseif (request()->hasHeader('X-Forwarded-For')) {
-                $ip = request()->header('Cf-Connecting-Ip');
+            if ($request->hasHeader('Cf-Connecting-Ip')) {
+                $ip = $request->header('Cf-Connecting-Ip');
+            } elseif ($request->hasHeader('X-Forwarded-For')) {
+                $ip = $request->header('Cf-Connecting-Ip');
             } else {
-                $ip = request()->ip();
+                $ip = $request->ip();
             }
 
             LightLogs::create(new DbQuery($request->method(), substr(urldecode($request->url()), 0, 180), $count, $time, $ip))
-                 ->batch();
+                ->batch();
         }
 
-        return $response;
     }
 }
