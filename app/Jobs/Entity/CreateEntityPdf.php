@@ -47,7 +47,7 @@ class CreateEntityPdf implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter, MakesInvoiceHtml, PdfMaker, MakesHash, PageNumbering;
 
-    public $entity;
+    public Invoice | Quote | Credit | RecurringInvoice $entity;
 
     public $company;
 
