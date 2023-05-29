@@ -365,20 +365,21 @@ class LoginController extends BaseController
 
     private function hydrateCompanyUser(): Builder
     {
-        $cu = CompanyUser::query()->where('user_id', auth()->user()->id);
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $cu = CompanyUser::query()->where('user_id', $user->id);
 
         if ($cu->count() == 0) {
             return $cu;
         }
 
-        if (CompanyUser::query()->where('user_id', auth()->user()->id)->where('company_id', auth()->user()->account->default_company_id)->exists()) {
-            $set_company = auth()->user()->account->default_company;
+        if (CompanyUser::query()->where('user_id', $user->id)->where('company_id', $user->account->default_company_id)->exists()) {
+            $set_company = $user->account->default_company;
         } else {
-            $set_company = $cu->first()->company;
+            $set_company = CompanyUser::query()->where('user_id', $user->id)->first()->company;
         }
-
-        /** @var \App\Models\User $user */
-        $user = auth()->user();
 
         $user->setCompany($set_company);
 
@@ -389,15 +390,15 @@ class LoginController extends BaseController
         $truth->setUser($user);
         $truth->setCompany($set_company);
 
-        $cu->first()->account->companies->each(function ($company) use ($cu) {
+        $user->account->companies->each(function ($company) use ($user) {
             if ($company->tokens()->where('is_system', true)->count() == 0) {
-                (new CreateCompanyToken($company, $cu->first()->user, request()->server('HTTP_USER_AGENT')))->handle();
+                (new CreateCompanyToken($company, $user, request()->server('HTTP_USER_AGENT')))->handle();
             }
         });
 
-        $truth->setCompanyToken(CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $set_company->id)->first());
+        $truth->setCompanyToken(CompanyToken::where('user_id', $user->id)->where('company_id', $set_company->id)->first());
 
-        return $cu;
+        return CompanyUser::query()->where('user_id', $user->id);
     }
 
     private function handleMicrosoftOauth()
