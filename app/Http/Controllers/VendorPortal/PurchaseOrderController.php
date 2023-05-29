@@ -168,8 +168,6 @@ class PurchaseOrderController extends Controller
                             event(new PurchaseOrderWasAccepted($purchase_order, auth()->guard('vendor')->user(), $purchase_order->company, Ninja::eventVars()));
         });
 
-        nlog($purchase_count_query->count());
-
         if ($purchase_count_query->count() == 1) {
             $purchase_order = $purchase_count_query->first();
 
