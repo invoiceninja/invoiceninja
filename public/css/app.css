@@ -2319,7 +2319,7 @@ button:disabled {
 
 .badge-warning {
   --tw-bg-opacity: 1;
-  background-color: rgba(254, 243, 199, var(--tw-bg-opacity));
+  background-color: rgba(59, 130, 246, var(--tw-bg-opacity));
   --tw-text-opacity: 1;
   color: rgba(217, 119, 6, var(--tw-text-opacity));
 }
