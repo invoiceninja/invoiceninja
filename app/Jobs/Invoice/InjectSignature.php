@@ -54,9 +54,11 @@ class InjectSignature implements ShouldQueue
         $invitation->signature_base64 = $this->signature;
         $invitation->save();
 
-        if($this->entity instanceof PurchaseOrder)
-            CreatePurchaseOrderPdf::dispatch($invitation);
-        else
-            CreateEntityPdf::dispatch($invitation);
+        $this->entity->refresh()->service()->touchPdf(true);
+        
+        // if($this->entity instanceof PurchaseOrder)
+        //     (new CreatePurchaseOrderPdf($invitation))->handle();
+        // else
+        //     (new CreateEntityPdf($invitation))->handle();
     }
 }
