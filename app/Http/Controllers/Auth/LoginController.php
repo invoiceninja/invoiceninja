@@ -640,8 +640,8 @@ class LoginController extends BaseController
             $parameters = ['response_type' => 'code', 'redirect_uri' => config('ninja.app_url') . "/auth/microsoft"];
         }
 
-        if(request()->hasHeader('X-REACT'))
-            Cache::put("react_redir:".auth()->user()->account->key, 'true', 300);
+        if(request()->hasHeader('X-REACT') || request()->query('react'))
+            Cache::put("react_redir:".auth()->user()?->account->key, 'true', 300);
 
         if (request()->has('code')) {
             return $this->handleProviderCallback($provider);
