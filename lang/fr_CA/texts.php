@@ -5078,6 +5078,15 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'e_invoice' => 'Facture électronique',
     'light_dark_mode' => 'Mode clair/sombre',
     'activities' => 'Activités',
+    'recent_transactions' => "Voici les transations les plus récentes de votre entreprise:",
+    'country_Palestine' => "Palestine",
+    'country_Taiwan' => 'Taiwan',
+    'duties' => 'Droits',
+    'order_number' => 'Numéro de commande',
+    'order_id' => 'Commande',
+    'total_invoices_outstanding' => 'Total des factures impayées',
+    'recent_activity' => 'Activité récente',
+    'enable_auto_bill' => 'Activer l\'autofacturation',
 );
 
 
