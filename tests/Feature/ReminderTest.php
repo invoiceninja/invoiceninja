@@ -89,7 +89,7 @@ class ReminderTest extends TestCase
 
         $this->invoice = $this->invoice->fresh();
 
-        $this->assertEquals(now()->addMonth()->format('Y-m-d'), Carbon::parse($this->invoice->next_send_date)->format('Y-m-d'));
+        $this->assertEquals(now()->setTimezone('America/Chicago')->startOfDay()->addMonthNoOverflow()->format('Y-m-d'), Carbon::parse($this->invoice->next_send_date)->setTimezone('America/Chicago')->startOfDay()->format('Y-m-d'));
 
     }
 
