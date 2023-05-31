@@ -734,9 +734,7 @@ class BaseDriver extends AbstractPaymentDriver
 
         $invoices_string = str_replace(["*","<",">","'",'"'], "-", $invoices_string);
         
-        if(is_numeric($invoices_string)){
-            $invoices_string = "I-".$invoices_string;
-        }
+        $invoices_string = "I-".$invoices_string;
 
         $invoices_string = substr($invoices_string,0,22);
         
