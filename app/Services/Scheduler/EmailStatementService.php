@@ -32,11 +32,12 @@ class EmailStatementService
     {
         $query = Client::query()
                 ->where('company_id', $this->scheduler->company_id)
-                ->where('is_deleted', 0);
+                ->where('is_deleted', 0)
+                ->where('balance', '>', 0);
 
         //Email only the selected clients
         if (count($this->scheduler->parameters['clients']) >= 1) {
-            $query->whereIn('id', $this->transformKeys($this->scheduler->parameters['clients']))->where('balance', '>', 0);
+            $query->whereIn('id', $this->transformKeys($this->scheduler->parameters['clients']));
         }
      
         $query->cursor()
