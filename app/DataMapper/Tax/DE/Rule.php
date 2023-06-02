@@ -41,6 +41,7 @@ class Rule extends BaseRule implements RuleInterface
     /** @var float $reduced_tax_rate */
     public float $reduced_tax_rate = 0;
     
+    public string $tax_name1 = 'MwSt.';
     /**
      * Initializes the rules and builds any required data.
      *
@@ -90,7 +91,6 @@ class Rule extends BaseRule implements RuleInterface
     public function reverseTax($item): self
     {
         $this->tax_rate1 = 0;
-        $this->tax_name1 = 'ermäßigte MwSt.';
 
         return $this;
     }
@@ -103,8 +103,7 @@ class Rule extends BaseRule implements RuleInterface
     public function taxReduced($item): self
     {
         $this->tax_rate1 = $this->reduced_tax_rate;
-        $this->tax_name1 = 'ermäßigte MwSt.';
-
+        
         return $this;
     }
     
@@ -116,8 +115,7 @@ class Rule extends BaseRule implements RuleInterface
     public function zeroRated($item): self
     {
         $this->tax_rate1 = 0;
-        $this->tax_name1 = 'ermäßigte MwSt.';
-
+       
         return $this;
     }
     
@@ -144,8 +142,7 @@ class Rule extends BaseRule implements RuleInterface
     {
 
         $this->tax_rate1 = $this->tax_rate;
-        $this->tax_name1 = 'MwSt.';
-
+       
         return $this;
     }
     
@@ -158,8 +155,7 @@ class Rule extends BaseRule implements RuleInterface
     {
 
         $this->tax_rate1 = $this->tax_rate;
-        $this->tax_name1 = 'MwSt.';
-
+       
         return $this;
     }
     
@@ -172,8 +168,7 @@ class Rule extends BaseRule implements RuleInterface
     {
 
         $this->tax_rate1 = $this->tax_rate;
-        $this->tax_name1 = 'MwSt.';
-
+    
         return $this;
     }
     
@@ -186,8 +181,7 @@ class Rule extends BaseRule implements RuleInterface
     {
 
         $this->tax_rate1 = $this->tax_rate;
-        $this->tax_name1 = 'MwSt.';
-
+    
         return $this;
     }
     
@@ -227,7 +221,8 @@ class Rule extends BaseRule implements RuleInterface
             $this->tax_rate = 0;
             $this->reduced_tax_rate = 0;
         }
-        elseif($this->client_subregion != $this->client->company->tax_data->seller_subregion && in_array($this->client_subregion, $this->eu_country_codes) && $this->client->has_valid_vat_number && $this->eu_business_tax_exempt)
+        elseif($this->client_subregion != $this->client->company->tax_data->seller_subregion && in_array($this->client_subregion, $this->eu_country_codes) && $this->client->vat_number && $this->eu_business_tax_exempt)
+        // elseif($this->client_subregion != $this->client->company->tax_data->seller_subregion && in_array($this->client_subregion, $this->eu_country_codes) && $this->client->has_valid_vat_number && $this->eu_business_tax_exempt)
         {
             nlog("euro zone and tax exempt");
             $this->tax_rate = 0;
@@ -243,7 +238,7 @@ class Rule extends BaseRule implements RuleInterface
         {
             $this->defaultForeign();
         }
-        elseif(in_array($this->client_subregion, $this->eu_country_codes) && !$this->client->has_valid_vat_number) //eu country / no valid vat 
+        elseif(in_array($this->client_subregion, $this->eu_country_codes) && !$this->client->vat_number) //eu country / no valid vat 
         {   
             if(($this->client->company->tax_data->seller_subregion != $this->client_subregion) && $this->client->company->tax_data->regions->EU->has_sales_above_threshold)
             {
