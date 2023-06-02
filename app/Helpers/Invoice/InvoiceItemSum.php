@@ -60,7 +60,7 @@ class InvoiceItemSum
     ];
 
     private array $tax_jurisdictions = [
-        // 'AT', // Austria
+        'AT', // Austria
         // 'BE', // Belgium
         // 'BG', // Bulgaria
         // 'CY', // Cyprus
