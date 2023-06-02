@@ -37,7 +37,9 @@ class UpdateCompanyRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->company);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        return $user->can('edit', $this->company);
     }
 
     public function rules()

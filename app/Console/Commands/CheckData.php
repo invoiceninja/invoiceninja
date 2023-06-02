@@ -127,7 +127,8 @@ class CheckData extends Command
         $this->checkClientSettings();
         $this->checkCompanyTokens();
         $this->checkUserState();
-        
+        $this->checkContactEmailAndSendEmailStatus();
+
         if (Ninja::isHosted()) {
             $this->checkAccountStatuses();
             $this->checkNinjaPortalUrls();
@@ -1113,5 +1114,24 @@ class CheckData extends Command
 
         });
 
+    }
+
+    public function checkContactEmailAndSendEmailStatus()
+    {
+        $q = ClientContact::whereNull('email')
+                     ->where('send_email', true);
+
+        $this->logMessage($q->count() . " Contacts with Send Email = true but no email address");
+
+        if ($this->option('fix') == 'true') {
+
+            $q->cursor()->each(function ($c){
+                $c->send_email = false;
+                $c->saveQuietly();
+
+                $this->logMessage("Fixing - {$c->id}");
+
+            });
+        }
     }
 }

@@ -388,10 +388,8 @@ $entity_images
             ];
 
             tables.forEach((tableIdentifier) => {
-                console.log(document.getElementById(tableIdentifier));
-
-                document.getElementById(tableIdentifier)?.childElementCount === 0
-                    ? document.getElementById(tableIdentifier).style.setProperty('display', 'none', 'important')
+                document.getElementById(tableIdentifier).childElementCount === 0
+                    ? document.getElementById(tableIdentifier).style.display = 'none'
                     : '';
             });
         });

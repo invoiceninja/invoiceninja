@@ -422,8 +422,12 @@ class CompanyController extends BaseController
         if($request->has('e_invoice_certificate') && !is_null($request->file("e_invoice_certificate"))){
 
             $company->e_invoice_certificate = base64_encode($request->file("e_invoice_certificate")->get());
-            $company->save();
 
+            $settings = $company->settings;
+            $settings->enable_e_invoice = true;
+            
+            $company->save();
+            
         }
 
         $this->uploadLogo($request->file('company_logo'), $company, $company);

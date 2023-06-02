@@ -89,7 +89,7 @@ class ReminderTest extends TestCase
 
         $this->invoice = $this->invoice->fresh();
 
-        $this->assertEquals(now()->addMonth()->format('Y-m-d'), Carbon::parse($this->invoice->next_send_date)->format('Y-m-d'));
+        $this->assertEquals(now()->addMonthNoOverflow()->format('Y-m-d'), Carbon::parse($this->invoice->next_send_date)->format('Y-m-d'));
 
     }
 
