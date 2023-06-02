@@ -67,8 +67,8 @@ class Response
     public float $taxSales = 0;
     public string $taxName = "";
     public float $taxUse = 0;
-    public string $txbService = ""; // N = No, Y = Yes
-    public string $txbFreight = ""; // N = No, Y = Yes
+    public string $txbService = "Y"; // N = No, Y = Yes
+    public string $txbFreight = "Y"; // N = No, Y = Yes
     public float $stateSalesTax = 0;
     public float $stateUseTax = 0;
     public float $citySalesTax = 0;
@@ -98,7 +98,7 @@ class Response
     public float $district5UseTax = 0;
     /* US SPECIFIC TAX CODES */
 
-    public string $originDestination = ""; // defines if the client origin is the locale where the tax is remitted to
+    public string $originDestination = "D"; // defines if the client origin is the locale where the tax is remitted to
 
     public function __construct($data = null)
     {

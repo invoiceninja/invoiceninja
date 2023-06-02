@@ -79,22 +79,18 @@ trait CompanySettingsSaver
 
         $entity->settings = $company_settings;
 
-        if( $entity?->calculate_taxes && $company_settings->country_id == "840" && array_key_exists('settings', $entity->getDirty())) 
+        if($entity?->calculate_taxes && $company_settings->country_id == "840" && array_key_exists('settings', $entity->getDirty()) && !$entity?->account->isFreeHostedClient()) 
         {
             $old_settings = $entity->getOriginal()['settings'];
                                 
             /** Monitor changes of the Postal code */
             if($old_settings->postal_code != $company_settings->postal_code)
-            {
-                nlog("postal code change");
                 CompanyTaxRate::dispatch($entity);
-            }
+            
             
         }
-        elseif( $entity?->calculate_taxes && $company_settings->country_id == "840" && array_key_exists('calculate_taxes', $entity->getDirty()) && $entity->getOriginal('calculate_taxes') == 0)
+        elseif( $entity?->calculate_taxes && $company_settings->country_id == "840" && array_key_exists('calculate_taxes', $entity->getDirty()) && $entity->getOriginal('calculate_taxes') == 0 && !$entity?->account->isFreeHostedClient())
         {
-            nlog("calc taxes change");
-            nlog($entity->getOriginal('calculate_taxes'));
             CompanyTaxRate::dispatch($entity);
         }
         
