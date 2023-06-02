@@ -123,7 +123,7 @@ class UpdateTaxData implements ShouldQueue
             }
                         
             $data = [
-                'seller_subregion' => $this->company->origin_tax_data?->seller_subregion ?: '',
+                'seller_subregion' => $this->company->tax_data?->seller_subregion ?: '',
                 'geoPostalCode' => $this->client->postal_code ?? '',
                 'geoCity' => $this->client->city ?? '',
                 'geoState' => $calculated_state,
