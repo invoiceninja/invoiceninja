@@ -112,7 +112,8 @@ class ClientFilters extends QueryFilters
             return $this->builder;
         }
 
-        return $this->builder->where('group_settings_id', $group_id);
+        return $this->builder->where('group_settings_id', $this->decodePrimaryKey($group_id));
+
     }
 
     /**
