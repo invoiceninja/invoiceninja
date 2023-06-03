@@ -18,6 +18,16 @@ class AuthorizeAuthorizeCard {
 
     handleAuthorization = () => {
 
+        if (cvvRequired == "1" && document.getElementById("cvv").value.length < 3) {
+            var $errors = $('#errors');
+            $errors.show().html("<p>CVV is required</p>");
+
+            document.getElementById('pay-now').disabled = false;
+            document.querySelector('#pay-now > svg').classList.add('hidden');
+            document.querySelector('#pay-now > span').classList.remove('hidden');
+            return;
+        }
+
         var myCard = $('#my-card');
 
         var authData = {};
@@ -139,6 +149,10 @@ const publicKey = document.querySelector(
 
 const loginId = document.querySelector(
     'meta[name="authorize-login-id"]'
+).content;
+
+const cvvRequired = document.querySelector(
+    'meta[name="authnet-require-cvv"]'
 ).content;
 
 /** @handle */

@@ -6,6 +6,7 @@
 
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="{{ asset('js/clients/payments/card-js.min.js') }}"></script>
+    <meta name="authnet-require-cvv" content="{{ $gateway->company_gateway->require_cvv }}">
 
     <link href="{{ asset('css/card-js.min.css') }}" rel="stylesheet" type="text/css">
 @endsection
