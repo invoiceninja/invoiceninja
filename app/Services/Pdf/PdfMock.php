@@ -811,7 +811,7 @@ class PdfMock
           '$purchase_order.due_date' => '02-12-2021',
           '$vendor.billing_address1' => '589',
           '$vendor.billing_address2' => '761 Odessa Centers Suite 673',
-          '$invoiceninja.whitelabel' => 'https://raw.githubusercontent.com/invoiceninja/invoiceninja/v5-develop/public/images/new_logo.png',
+          '$invoiceninja.whitelabel' => 'https://invoicing.co/images/new_logo.png',
           '$purchase_order.custom1' => 'Custom 1',
           '$purchase_order.custom2' => 'Custom 2',
           '$purchase_order.custom3' => 'Custom 3',

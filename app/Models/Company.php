@@ -241,12 +241,12 @@ class Company extends BaseModel
     protected array $tax_coverage_countries = [
         'US',
         // //EU countries
-        // 'AT', // Austria
+        'AT', // Austria
         // 'BE', // Belgium
         // 'BG', // Bulgaria
         // 'CY', // Cyprus
         // 'CZ', // Czech Republic
-        // 'DE', // Germany
+        'DE', // Germany
         // 'DK', // Denmark
         // 'EE', // Estonia
         // 'ES', // Spain
@@ -269,9 +269,12 @@ class Company extends BaseModel
         // 'SI', // Slovenia
         // 'SK', // Slovakia
         // //EU Countries
+        'AU', // Australia
     ];
 
     protected $fillable = [
+        'invoice_task_item_description',
+        'invoice_task_project_header',
         'invoice_task_hours',
         'markdown_enabled',
         'calculate_expense_tax_by_amount',

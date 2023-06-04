@@ -23,11 +23,8 @@ class HandleReversal extends AbstractService
 {
     use GeneratesCounter;
 
-    private $invoice;
-
-    public function __construct(Invoice $invoice)
+    public function __construct(private Invoice $invoice)
     {
-        $this->invoice = $invoice;
     }
 
     public function run()

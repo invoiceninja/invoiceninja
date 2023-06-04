@@ -201,6 +201,8 @@ class CompanyTransformer extends EntityTransformer
             'tax_data' => $company->tax_data ?: new \stdClass,
             'has_e_invoice_certificate' => $company->e_invoice_certificate ? true : false,
             'has_e_invoice_certificate_passphrase' => $company->e_invoice_certificate_passphrase ? true : false,
+            'invoice_task_project_header' => (bool) $company->invoice_task_project_header,
+            'invoice_task_item_description' => (bool) $company->invoice_task_item_description,
         ];
     }
 
