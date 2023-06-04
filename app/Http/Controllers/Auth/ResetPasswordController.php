@@ -69,7 +69,7 @@ class ResetPasswordController extends Controller
             $account = Account::first();
         }
 
-        return $this->render('auth.passwords.reset', ['root' => 'themes', 'token' => $token, 'account' => $account]);
+        return $this->render('auth.passwords.reset', ['root' => 'themes', 'token' => $token, 'account' => $account, 'email' => $request->email]);
     }
 
     /**
@@ -111,4 +111,28 @@ class ResetPasswordController extends Controller
 
         return redirect('/');
     }
+
+    /**
+     * Get the response for a successful password reset.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $response
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
+     */
+    protected function sendResetResponse(Request $request, $response)
+    {
+        if ($request->wantsJson()) {
+            return new JsonResponse(['message' => trans($response)], 200);
+        }
+
+        if(Ninja::isHosted() &&  $request->hasHeader('X-React')){
+            return redirect('https://app.invoicing.co/#/login');
+        }
+        elseif($request->hasHeader('X-React'))
+            return redirect('/#/login');    
+
+        return redirect($this->redirectPath())
+                            ->with('status', trans($response));
+    }
+
 }
