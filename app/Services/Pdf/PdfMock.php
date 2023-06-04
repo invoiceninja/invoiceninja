@@ -205,7 +205,7 @@ class PdfMock
     '$client.billing_address2' => '63993 Aiyana View',
     '$client.billing_address1' => '8447',
     '$client.shipping_country' => 'USA',
-    '$invoiceninja.whitelabel' => 'https://raw.githubusercontent.com/invoiceninja/invoiceninja/v5-develop/public/images/new_logo.png',
+    '$invoiceninja.whitelabel' => 'https://invoicing.co/images/new_logo.png',
     '$client.billing_address' => '8447<br/>63993 Aiyana View<br/>Aufderharchester, North Carolina 11243<br/>Afghanistan<br/>',
     '$client.billing_country' => 'USA',
     '$task.gross_line_total' => '100',
