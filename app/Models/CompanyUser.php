@@ -128,6 +128,7 @@ class CompanyUser extends Pivot
         'settings' => 'object',
         'notifications' => 'object',
         'permissions' => 'string',
+        'react_settings' => 'object',
     ];
 
     protected $fillable = [
