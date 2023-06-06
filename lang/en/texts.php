@@ -5095,6 +5095,16 @@ $LANG = array(
     'upload_certificate' => 'Upload Certificate',
     'certificate_passphrase' => 'Certificate Passphrase',
     'valid_vat_number' => 'Valid VAT Number',
+    'react_notification_link' => 'React Notification Links',
+    'react_notification_link_help' => 'Admin emails will contain links to the react application',  
+    'show_task_billable' => 'Show Task Billable',
+    'credit_item' => 'Credit Item',
+    'drop_file_here' => 'Drop file here',
+    'files' => 'Files',
+    'camera' => 'Camera',
+    'gallery' => 'Gallery',
+    'project_location' => 'Project Location',
+    'add_gateway_help_message' => 'Add a payment gateway (ie. Stripe, WePay or PayPal) to accept online payments', 
 );
 
 
