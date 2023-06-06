@@ -139,8 +139,13 @@ trait Inviteable
         }
     }
 
-    public function getAdminLink() :string
+    public function getAdminLink($use_react_link = false) :string
     {
         return $this->getLink().'?silent=true';
+    }
+
+    private function getReactLink(): string
+    {
+        return config('ninja.app_url')."/#/{$entity}/{$hash}/edit";
     }
 }

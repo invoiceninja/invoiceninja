@@ -33,10 +33,13 @@ class EntityCreatedObject
 
     private $template_body;
 
-    public function __construct($entity, $entity_type)
+    private $use_react_link;
+
+    public function __construct($entity, $entity_type, $use_react_link = false)
     {
         $this->entity_type = $entity_type;
         $this->entity = $entity;
+        $this->use_react_link = $use_react_link;
     }
 
     /**
@@ -81,7 +84,7 @@ class EntityCreatedObject
                                         'purchase_order' => $this->entity->number,
                                     ]
                                 ),
-                                'url' => $this->entity->invitations()->first()->getAdminLink(),
+                                'url' => $this->entity->invitations()->first()->getAdminLink($this->use_react_link),
                                 'button' => ctrans("texts.view_{$this->entity_type}"),
                                 'signature' => $this->company->settings->email_signature,
                                 'logo' => $this->company->present()->logo(),
