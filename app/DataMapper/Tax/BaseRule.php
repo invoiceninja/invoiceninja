@@ -263,7 +263,8 @@ class BaseRule implements RuleInterface
 
     public function isTaxableRegion(): bool
     {
-        return $this->client->company->tax_data->regions->{$this->client_region}->tax_all_subregions || $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->apply_tax;
+        return $this->client->company->tax_data->regions->{$this->client_region}->tax_all_subregions || 
+        (property_exists($this->client->company->tax_data->regions->{$this->client_region}->subregions, $this->client_subregion) && $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->apply_tax);
     }
 
     public function defaultForeign(): self

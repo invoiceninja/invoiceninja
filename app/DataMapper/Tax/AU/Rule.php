@@ -223,7 +223,7 @@ class Rule extends BaseRule implements RuleInterface
     public function calculateRates(): self
     {
         if ($this->client->is_tax_exempt) {
-            nlog("tax exempt");
+            // nlog("tax exempt");
             $this->tax_rate = 0;
             $this->reduced_tax_rate = 0;
         // } elseif($this->client_subregion != $this->client->company->tax_data->seller_subregion && in_array($this->client_subregion, $this->eu_country_codes) && $this->client->has_valid_vat_number && $this->eu_business_tax_exempt) {
@@ -247,7 +247,6 @@ class Rule extends BaseRule implements RuleInterface
         //         $this->reduced_tax_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->company->country()->iso_3166_2}->reduced_tax_rate;
         //     }
         } else {
-            nlog("default tax");
             $this->tax_rate = $this->client->company->tax_data->regions->AU->subregions->{$this->client->company->country()->iso_3166_2}->tax_rate;
             $this->reduced_tax_rate = $this->client->company->tax_data->regions->AU->subregions->{$this->client->company->country()->iso_3166_2}->reduced_tax_rate;
         }

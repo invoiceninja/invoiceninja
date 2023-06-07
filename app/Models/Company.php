@@ -241,37 +241,40 @@ class Company extends BaseModel
     protected array $tax_coverage_countries = [
         'US',
         // //EU countries
-        // 'AT', // Austria
-        // 'BE', // Belgium
-        // 'BG', // Bulgaria
-        // 'CY', // Cyprus
-        // 'CZ', // Czech Republic
-        // 'DE', // Germany
-        // 'DK', // Denmark
-        // 'EE', // Estonia
-        // 'ES', // Spain
-        // 'FI', // Finland
-        // 'FR', // France
-        // 'GR', // Greece
-        // 'HR', // Croatia
-        // 'HU', // Hungary
-        // 'IE', // Ireland
-        // 'IT', // Italy
-        // 'LT', // Lithuania
-        // 'LU', // Luxembourg
-        // 'LV', // Latvia
-        // 'MT', // Malta
-        // 'NL', // Netherlands
-        // 'PL', // Poland
-        // 'PT', // Portugal
-        // 'RO', // Romania
-        // 'SE', // Sweden
-        // 'SI', // Slovenia
-        // 'SK', // Slovakia
+        'AT', // Austria
+        'BE', // Belgium
+        'BG', // Bulgaria
+        'CY', // Cyprus
+        'CZ', // Czech Republic
+        'DE', // Germany
+        'DK', // Denmark
+        'EE', // Estonia
+        'ES', // Spain
+        'FI', // Finland
+        'FR', // France
+        'GR', // Greece
+        'HR', // Croatia
+        'HU', // Hungary
+        'IE', // Ireland
+        'IT', // Italy
+        'LT', // Lithuania
+        'LU', // Luxembourg
+        'LV', // Latvia
+        'MT', // Malta
+        'NL', // Netherlands
+        'PL', // Poland
+        'PT', // Portugal
+        'RO', // Romania
+        'SE', // Sweden
+        'SI', // Slovenia
+        'SK', // Slovakia
         // //EU Countries
+        'AU', // Australia
     ];
 
     protected $fillable = [
+        'invoice_task_item_description',
+        'invoice_task_project_header',
         'invoice_task_hours',
         'markdown_enabled',
         'calculate_expense_tax_by_amount',

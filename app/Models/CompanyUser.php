@@ -35,7 +35,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $updated_at
  * @property int $permissions_updated_at
  * @property string $ninja_portal_url
- * @property string|null $react_settings
+ * @property object|null $react_settings
  * @property-read \App\Models\Account $account
  * @property-read \App\Models\Company $company
  * @property-read \App\Models\CompanyUser $cu
@@ -128,6 +128,7 @@ class CompanyUser extends Pivot
         'settings' => 'object',
         'notifications' => 'object',
         'permissions' => 'string',
+        'react_settings' => 'object',
     ];
 
     protected $fillable = [
@@ -195,8 +196,22 @@ class CompanyUser extends Pivot
 
     public function scopeAuthCompany($query)
     {
-        $query->where('company_id', auth()->user()->companyId());
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $query->where('company_id', $user->companyId());
 
         return $query;
     }
+    
+    /**
+     * Determines if the notifications should be React or Flutter links
+     *
+     * @return bool
+     */
+    public function portalType():bool
+    {
+        return isset($this->react_settings->react_notification_link) && $this->react_settings->react_notification_link;
+    }
+
 }

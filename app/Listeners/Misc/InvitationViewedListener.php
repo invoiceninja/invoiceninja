@@ -70,7 +70,7 @@ class InvitationViewedListener implements ShouldQueue
 
 
                 $nmo = new NinjaMailerObject;
-                $nmo->mailable = new NinjaMailer((new EntityViewedObject($invitation, $entity_name))->build());
+                $nmo->mailable = new NinjaMailer((new EntityViewedObject($invitation, $entity_name, $company_user->portalType()))->build());
                 $nmo->company = $invitation->company;
                 $nmo->settings = $invitation->company->settings;
 

@@ -107,6 +107,14 @@ class RecurringInvoiceInvitation extends BaseModel
     /**
      * @return mixed
      */
+    public function entity()
+    {
+        return $this->belongsTo(RecurringInvoice::class)->withTrashed();
+    }
+
+    /**
+     * @return mixed
+     */
     public function contact()
     {
         return $this->belongsTo(ClientContact::class, 'client_contact_id', 'id')->withTrashed();
