@@ -38,7 +38,7 @@ class EntitySentObject
 
     protected $use_react_url;
 
-    public function __construct($invitation, $entity_type, $template, use_react_url)
+    public function __construct($invitation, $entity_type, $template, $use_react_url)
     {
         $this->invitation = $invitation;
         $this->entity_type = $entity_type;

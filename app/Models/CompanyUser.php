@@ -205,7 +205,7 @@ class CompanyUser extends Pivot
     }
     
     /**
-     * Determines if the notifications should be React of Flutter links
+     * Determines if the notifications should be React or Flutter links
      *
      * @return bool
      */
