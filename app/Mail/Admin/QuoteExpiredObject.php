@@ -84,7 +84,7 @@ class QuoteExpiredObject
                 ]
             ),
             'url' => $this->quote->invitations->first()->getAdminLink($this->use_react_url),
-            'button' => ctrans('texts.view_quote'),
+            'button' => $this->use_react_url ? ctrans('texts.view_quote') : ctrans('texts.login'),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),
             'settings' => $settings,
