@@ -141,11 +141,13 @@ trait Inviteable
 
     public function getAdminLink($use_react_link = false) :string
     {
-        return $this->getLink().'?silent=true';
+        return $use_react_link ? $this->getReactLink() : $this->getLink().'?silent=true';
     }
 
     private function getReactLink(): string
     {
-        return config('ninja.app_url')."/#/{$entity}/{$hash}/edit";
+        $entity_type = Str::snake(class_basename($this->entityType()));
+
+        return config('ninja.app_url')."/#/{$entity_type}/{$this->invoice->hashed_id}/edit";
     }
 }

@@ -55,6 +55,13 @@ class PurchaseOrderCreatedListener implements ShouldQueue
                 continue;
             }
 
+            $use_react_link = false;
+
+            if($company_user->react_settings && property_exists($company_user->react_settings, 'react_notification_link') && $company_user->react_settings->react_notification_link) {
+                $use_react_link = true;
+                nlog("inside");
+            }
+
             /* This is only here to handle the alternate message channels - ie Slack */
             // $notification = new EntitySentNotification($event->invitation, 'purchase_order');
 
@@ -66,7 +73,7 @@ class PurchaseOrderCreatedListener implements ShouldQueue
                 unset($methods[$key]);
 
                 $nmo = new NinjaMailerObject;
-                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($purchase_order, 'purchase_order'))->build());
+                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($purchase_order, 'purchase_order', $use_react_link))->build());
                 $nmo->company = $purchase_order->company;
                 $nmo->settings = $purchase_order->company->settings;
 

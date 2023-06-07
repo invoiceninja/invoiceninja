@@ -118,6 +118,14 @@ class InvoiceInvitation extends BaseModel
     /**
      * @return mixed
      */
+    public function entity()
+    {
+        return $this->belongsTo(Invoice::class)->withTrashed();
+    }
+
+    /**
+     * @return mixed
+     */
     public function contact()
     {
         return $this->belongsTo(ClientContact::class, 'client_contact_id', 'id')->withTrashed();

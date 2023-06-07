@@ -113,6 +113,14 @@ class PurchaseOrderInvitation extends BaseModel
     /**
      * @return mixed
      */
+    public function entity()
+    {
+        return $this->belongsTo(PurchaseOrder::class)->withTrashed();
+    }
+
+    /**
+     * @return mixed
+     */
     public function contact()
     {
         return $this->belongsTo(VendorContact::class, 'vendor_contact_id', 'id')->withTrashed();

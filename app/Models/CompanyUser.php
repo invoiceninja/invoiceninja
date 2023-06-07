@@ -35,7 +35,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $updated_at
  * @property int $permissions_updated_at
  * @property string $ninja_portal_url
- * @property string|null $react_settings
+ * @property object|null $react_settings
  * @property-read \App\Models\Account $account
  * @property-read \App\Models\Company $company
  * @property-read \App\Models\CompanyUser $cu

@@ -49,6 +49,12 @@ class CreditCreatedNotification implements ShouldQueue
             /* The User */
             $user = $company_user->user;
 
+            $use_react_link = false;
+            
+            if($company_user->react_settings && property_exists($company_user->react_settings, 'react_notification_link') && $company_user->react_settings->react_notification_link) {
+                $use_react_link = true;
+            }
+
             /* This is only here to handle the alternate message channels - ie Slack */
             // $notification = new EntitySentNotification($event->invitation, 'credit');
 
@@ -60,7 +66,7 @@ class CreditCreatedNotification implements ShouldQueue
                 unset($methods[$key]);
 
                 $nmo = new NinjaMailerObject;
-                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($credit, 'credit'))->build());
+                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($credit, 'credit', $use_react_link))->build());
                 $nmo->company = $credit->company;
                 $nmo->settings = $credit->company->settings;
                 $nmo->to_user = $user;

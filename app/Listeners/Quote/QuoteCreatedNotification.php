@@ -54,6 +54,12 @@ class QuoteCreatedNotification implements ShouldQueue
                 continue;
             }
 
+            $use_react_link = false;
+            
+            if($company_user->react_settings && property_exists($company_user->react_settings, 'react_notification_link') && $company_user->react_settings->react_notification_link) {
+                $use_react_link = true;
+            }
+
             /* This is only here to handle the alternate message channels - ie Slack */
             // $notification = new EntitySentNotification($event->invitation, 'quote');
 

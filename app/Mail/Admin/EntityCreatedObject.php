@@ -33,7 +33,7 @@ class EntityCreatedObject
 
     private $template_body;
 
-    private $use_react_link;
+    protected bool $use_react_link;
 
     public function __construct($entity, $entity_type, $use_react_link = false)
     {
@@ -168,7 +168,7 @@ class EntityCreatedObject
         return [
             'title' => $this->getSubject(),
             'message' => $this->getMessage(),
-            'url' => $this->entity->invitations()->first()->getAdminLink(),
+            'url' => $this->entity->invitations()->first()->getAdminLink($this->use_react_link),
             'button' => ctrans("texts.view_{$this->entity_type}"),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),

@@ -24,7 +24,7 @@ class InvoiceCreatedNotification implements ShouldQueue
 {
     use UserNotifies;
 
-    public $delay = 7;
+    public $delay = 3;
 
     public function __construct()
     {
@@ -53,8 +53,8 @@ class InvoiceCreatedNotification implements ShouldQueue
             if (! $user) {
                 continue;
             }
-
-            if($company_user->react_settings && property_exists($company_user->react_settings, 'react_notification_link') && $company_user->react_settings->react_notification_link) {
+            
+            if(isset($company_user->react_settings->react_notification_link) && $company_user->react_settings->react_notification_link) {
                 $use_react_link = true;
             }
 
