@@ -21,16 +21,9 @@ use stdClass;
 
 class QuoteExpiredObject
 {
-    public $quote;
 
-    public $company;
-
-    public $settings;
-
-    public function __construct(Quote $quote, Company $company)
+    public function __construct(public Quote $quote, public Company $company, public bool $use_react_url)
     {
-        $this->quote = $quote;
-        $this->company = $company;
     }
 
     public function build()
@@ -90,7 +83,7 @@ class QuoteExpiredObject
                     'invoice' => $this->quote->number,
                 ]
             ),
-            'url' => $this->quote->invitations->first()->getAdminLink(),
+            'url' => $this->quote->invitations->first()->getAdminLink($this->use_react_url),
             'button' => ctrans('texts.view_quote'),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),
