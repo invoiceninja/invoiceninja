@@ -40,20 +40,12 @@ class CreditCreatedNotification implements ShouldQueue
     {
         MultiDB::setDb($event->company->db);
 
-        // $first_notification_sent = true;
-
         $credit = $event->credit;
 
         /* We loop through each user and determine whether they need to be notified */
         foreach ($event->company->company_users as $company_user) {
             /* The User */
             $user = $company_user->user;
-
-            $use_react_link = false;
-            
-            if($company_user->react_settings && property_exists($company_user->react_settings, 'react_notification_link') && $company_user->react_settings->react_notification_link) {
-                $use_react_link = true;
-            }
 
             /* This is only here to handle the alternate message channels - ie Slack */
             // $notification = new EntitySentNotification($event->invitation, 'credit');
@@ -66,7 +58,7 @@ class CreditCreatedNotification implements ShouldQueue
                 unset($methods[$key]);
 
                 $nmo = new NinjaMailerObject;
-                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($credit, 'credit', $use_react_link))->build());
+                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($credit, 'credit', $company_user->portalType()))->build());
                 $nmo->company = $credit->company;
                 $nmo->settings = $credit->company->settings;
                 $nmo->to_user = $user;

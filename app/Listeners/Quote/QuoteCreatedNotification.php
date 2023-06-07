@@ -56,7 +56,7 @@ class QuoteCreatedNotification implements ShouldQueue
 
             $use_react_link = false;
             
-            if($company_user->react_settings && property_exists($company_user->react_settings, 'react_notification_link') && $company_user->react_settings->react_notification_link) {
+            if(isset($company_user->react_settings->react_notification_link) && $company_user->react_settings->react_notification_link) {
                 $use_react_link = true;
             }
 
@@ -71,7 +71,7 @@ class QuoteCreatedNotification implements ShouldQueue
                 unset($methods[$key]);
 
                 $nmo = new NinjaMailerObject;
-                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($quote, 'quote'))->build());
+                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($quote, 'quote', $company_user->portalType()))->build());
                 $nmo->company = $quote->company;
                 $nmo->settings = $quote->company->settings;
 

@@ -194,8 +194,16 @@ class PurchaseOrderInvitation extends BaseModel
         }
     }
 
-    public function getAdminLink() :string
+    public function getAdminLink($use_react_link = false) :string
     {
-        return $this->getLink().'?silent=true';
+        return $use_react_link ? $this->getReactLink() : $this->getLink().'?silent=true';
     }
+
+    private function getReactLink(): string
+    {
+        $entity_type = Str::snake(class_basename($this->entityType()));
+
+        return config('ninja.app_url')."/#/{$entity_type}/{$this->{$entity_type}->hashed_id}/edit";
+    }
+    
 }

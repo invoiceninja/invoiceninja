@@ -196,8 +196,22 @@ class CompanyUser extends Pivot
 
     public function scopeAuthCompany($query)
     {
-        $query->where('company_id', auth()->user()->companyId());
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $query->where('company_id', $user->companyId());
 
         return $query;
     }
+    
+    /**
+     * Determines if the notifications should be React of Flutter links
+     *
+     * @return bool
+     */
+    public function portalType():bool
+    {
+        return isset($this->react_settings->react_notification_link) && $this->react_settings->react_notification_link;
+    }
+
 }
