@@ -664,7 +664,7 @@ class StripePaymentDriver extends BaseDriver
     }
 
     public function processWebhookRequest(PaymentWebhookRequest $request)
-    {
+    {nlog($request->all());
         if ($request->type === 'customer.source.updated') {
             $ach = new ACH($this);
             $ach->updateBankAccount($request->all());

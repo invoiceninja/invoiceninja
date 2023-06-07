@@ -64,7 +64,7 @@ class InvoiceEmailedNotification implements ShouldQueue
                 unset($methods[$key]);
 
                 $nmo = new NinjaMailerObject;
-                $nmo->mailable = new NinjaMailer((new EntitySentObject($event->invitation, 'invoice', $event->template))->build());
+                $nmo->mailable = new NinjaMailer((new EntitySentObject($event->invitation, 'invoice', $event->template, $company_user->portalType()))->build());
                 $nmo->company = $invoice->company;
                 $nmo->settings = $invoice->company->settings;
                 $nmo->to_user = $user;
