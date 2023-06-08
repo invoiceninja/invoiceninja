@@ -37,6 +37,7 @@ class PasswordProtection
             'errors' => new stdClass,
         ];
 
+        /** @var \App\Models\User auth()->user() */        
         $timeout = auth()->user()->company()->default_password_timeout;
 
         if ($timeout == 0) {
