@@ -11,26 +11,27 @@
 
 namespace App\Jobs\Util;
 
-use App\Exceptions\ClientHostedMigrationException;
-use App\Exceptions\MigrationValidatorFailed;
-use App\Exceptions\NonExistingMigrationFile;
-use App\Exceptions\ProcessingMigrationArchiveFailed;
-use App\Exceptions\ResourceDependencyMissing;
-use App\Exceptions\ResourceNotAvailableForMigration;
-use App\Libraries\MultiDB;
-use App\Mail\MigrationFailed;
-use App\Models\Company;
+use ZipArchive;
 use App\Models\User;
 use App\Utils\Ninja;
+use App\Models\Company;
+use App\Libraries\MultiDB;
+use App\Mail\MigrationFailed;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
-use ZipArchive;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use App\Exceptions\MigrationValidatorFailed;
+use App\Exceptions\NonExistingMigrationFile;
+use App\Exceptions\ResourceDependencyMissing;
+use App\Exceptions\ClientHostedMigrationException;
+use App\Exceptions\ProcessingMigrationArchiveFailed;
+use App\Exceptions\ResourceNotAvailableForMigration;
 
 class StartMigration implements ShouldQueue
 {
@@ -79,6 +80,8 @@ class StartMigration implements ShouldQueue
     {
         nlog('Inside Migration Job');
 
+        Cache::put("migration-{$this->company->company_key}", "started", 86400);
+        
         set_time_limit(0);
 
         MultiDB::setDb($this->company->db);
@@ -124,12 +127,16 @@ class StartMigration implements ShouldQueue
             $this->company->update_products = $update_product_flag;
             $this->company->save();
 
+            Cache::put("migration-{$this->company->company_key}", "completed", 86400);
+
             App::forgetInstance('translator');
             $t = app('translator');
             $t->replace(Ninja::transformTranslations($this->company->settings));
         } catch (ClientHostedMigrationException | NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing | \Exception $e) {
             $this->company->update_products = $update_product_flag;
             $this->company->save();
+
+            Cache::put("migration-{$this->company->company_key}", "failed", 86400);
 
             if (Ninja::isHosted()) {
                 app('sentry')->captureException($e);
@@ -147,6 +154,9 @@ class StartMigration implements ShouldQueue
             if (app()->environment() !== 'production') {
                 info($e->getMessage());
             }
+
+            Storage::deleteDirectory(public_path("storage/migrations/{$filename}"));
+
         }
 
         //always make sure we unset the migration as running
