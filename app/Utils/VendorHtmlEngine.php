@@ -108,7 +108,7 @@ class VendorHtmlEngine
     {
         if (! $this->vendor->currency()) {
             throw new Exception(debug_backtrace()[1]['function'], 1);
-            exit;
+            return [];
         }
 
         App::forgetInstance('translator');
