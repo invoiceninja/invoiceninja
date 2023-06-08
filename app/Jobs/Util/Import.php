@@ -100,10 +100,7 @@ class Import implements ShouldQueue
     use Uploadable;
     use SavesDocuments;
 
-    /**
-     * @var array
-     */
-    private $file_path; //the file path - using a different JSON parser here.
+    private string $file_path; //the file path - using a different JSON parser here.
 
     /**
      * @var Company
@@ -202,7 +199,11 @@ class Import implements ShouldQueue
         nlog($this->company->id);
         
         auth()->login($this->user, false);
-        auth()->user()->setCompany($this->company);
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $user->setCompany($this->company);
 
         $array = json_decode(file_get_contents($this->file_path), 1);
         $data = $array['data'];

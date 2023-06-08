@@ -108,7 +108,6 @@ class VendorHtmlEngine
     {
         if (! $this->vendor->currency()) {
             throw new Exception(debug_backtrace()[1]['function'], 1);
-            exit;
         }
 
         App::forgetInstance('translator');
@@ -601,6 +600,8 @@ class VendorHtmlEngine
      * @return string a collection of <tr> rows with line item
      * aggregate data
      */
+
+     /*
     private function makeLineTaxes() :string
     {
         $tax_map = $this->entity_calc->getTaxMap();
@@ -616,18 +617,6 @@ class VendorHtmlEngine
         return $data;
     }
 
-    private function lineTaxValues() :string
-    {
-        $tax_map = $this->entity_calc->getTaxMap();
-
-        $data = '';
-
-        foreach ($tax_map as $tax) {
-            $data .= '<span>'.Number::formatMoney($tax['total'], $this->company).'</span>';
-        }
-
-        return $data;
-    }
 
     private function makeTotalTaxes() :string
     {
@@ -653,21 +642,13 @@ class VendorHtmlEngine
 
         return strtr($section, $values);
     }
-
-    /*
-    | Ensures the URL doesn't have duplicated trailing slash
-    */
-    public function generateAppUrl()
-    {
-        //return rtrim(config('ninja.app_url'), "/");
-        return config('ninja.app_url');
-    }
+        */
 
     /**
      * Builds CSS to assist with the generation
      * of Repeating headers and footers on the PDF.
      * @return string The css string
-     */
+     
     private function generateCustomCSS() :string
     {
         $header_and_footer = '
@@ -759,6 +740,31 @@ html {
 
         return $css;
     }
+*/
+
+    private function lineTaxValues() :string
+    {
+        $tax_map = $this->entity_calc->getTaxMap();
+
+        $data = '';
+
+        foreach ($tax_map as $tax) {
+            $data .= '<span>'.Number::formatMoney($tax['total'], $this->company).'</span>';
+        }
+
+        return $data;
+    }
+
+    /*
+    | Ensures the URL doesn't have duplicated trailing slash
+    */
+    public function generateAppUrl()
+    {
+        //return rtrim(config('ninja.app_url'), "/");
+        return config('ninja.app_url');
+    }
+
+
 
     /**
      * Generate markup for HTML images on entity.

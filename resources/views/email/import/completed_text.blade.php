@@ -64,7 +64,7 @@ If your logo imported correctly it will available display below. If it didn't im
     {!! ctrans('texts.documents') !!}: {!! count($company->documents) !!} 
 @endif
 
-{!! url('/') !!}
+{!! $url !!}
 
 {!! ctrans('texts.email_signature') !!}
 

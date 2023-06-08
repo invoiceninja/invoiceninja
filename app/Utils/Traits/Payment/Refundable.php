@@ -29,7 +29,7 @@ trait Refundable
      * Entry point for processing of refunds.
      * @param array $data
      * @deprecated ???? 06-09-2022
-     * @return Refundable
+     * @return self
      * @throws PaymentRefundFailed
      */
     public function processRefund(array $data)
