@@ -168,6 +168,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @method static \Illuminate\Database\Eloquent\Builder|Client withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Client withoutTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Client with()
+ * @method static \Illuminate\Database\Eloquent\Builder|Client where()
  * @property string $payment_balance
  * @method static \Illuminate\Database\Eloquent\Builder|Client wherePaymentBalance($value)
  * @property mixed $tax_data
