@@ -11,14 +11,15 @@
 
 namespace Tests\Feature;
 
+use Tests\TestCase;
 use App\Models\Task;
+use App\Models\Project;
+use Tests\MockAccountData;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
-use Tests\MockAccountData;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * @test
@@ -356,6 +357,34 @@ class TaskApiTest extends TestCase
         ];
 
         $this->assertTrue($this->checkTimeLog($log));
+    }
+
+    public function testTaskListWithProjects()
+    {
+
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'name' => 'proggy',
+        ]);
+
+        $data = [
+            'project_id' => $this->encodePrimaryKey($project->id),
+            'timelog' => [[1,2,'a'],[3,4,'d']],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/tasks?include=project', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals('proggy', $arr['data']['project']['name']);
+
     }
 
     public function testTaskListClientStatus()
