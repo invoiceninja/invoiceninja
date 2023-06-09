@@ -173,22 +173,22 @@ class ARSummaryReport extends BaseExport
 
                 return $ranges;
             case '60':
-                $ranges[0] = now()->startOfDay()->subDays(30);
+                $ranges[0] = now()->startOfDay()->subDays(31);
                 $ranges[1] = now()->startOfDay()->subDays(60);
 
                 return $ranges;
             case '90':
-                $ranges[0] = now()->startOfDay()->subDays(60);
+                $ranges[0] = now()->startOfDay()->subDays(61);
                 $ranges[1] = now()->startOfDay()->subDays(90);
 
                 return $ranges;
             case '120':
-                $ranges[0] = now()->startOfDay()->subDays(90);
+                $ranges[0] = now()->startOfDay()->subDays(91);
                 $ranges[1] = now()->startOfDay()->subDays(120);
 
                 return $ranges;
             case '120+':
-                $ranges[0] = now()->startOfDay()->subDays(120);
+                $ranges[0] = now()->startOfDay()->subDays(121);
                 $ranges[1] = now()->startOfDay()->subYears(20);
 
                 return $ranges;
