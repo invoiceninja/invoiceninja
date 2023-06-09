@@ -84,6 +84,7 @@ trait VerifiesUserEmail
         return $this->render('auth.confirmed', [
             'root' => 'themes',
             'message' => ctrans('texts.security_confirmation'),
+            'redirect_url' => request()->hasHeader('X-React') ? 'https://app.invoicing.co/#/' : url('/'),
         ]);
     }
 }

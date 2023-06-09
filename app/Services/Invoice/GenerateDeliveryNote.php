@@ -29,26 +29,12 @@ class GenerateDeliveryNote
     use MakesHash, PdfMaker;
 
     /**
-     * @var \App\Models\Invoice
-     */
-    private $invoice;
-
-    /**
-     * @var \App\Models\ClientContact
-     */
-    private $contact;
-
-    /**
      * @var mixed
      */
     private $disk;
 
-    public function __construct(Invoice $invoice, ClientContact $contact = null, $disk = null)
+    public function __construct(private Invoice $invoice, private ?ClientContact $contact = null, $disk = null)
     {
-        $this->invoice = $invoice;
-
-        $this->contact = $contact;
-
         $this->disk = $disk ?? config('filesystems.default');
     }
 

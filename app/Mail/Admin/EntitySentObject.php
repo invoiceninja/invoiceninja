@@ -36,7 +36,9 @@ class EntitySentObject
 
     private $template_body;
 
-    public function __construct($invitation, $entity_type, $template)
+    protected $use_react_url;
+
+    public function __construct($invitation, $entity_type, $template, $use_react_url)
     {
         $this->invitation = $invitation;
         $this->entity_type = $entity_type;
@@ -44,6 +46,7 @@ class EntitySentObject
         $this->contact = $invitation->contact;
         $this->company = $invitation->company;
         $this->template = $template;
+        $this->use_react_url = $use_react_url;
     }
 
     public function build()
@@ -78,7 +81,7 @@ class EntitySentObject
                         'purchase_order' => $this->entity->number,
                     ]
                 ),
-                'url' => $this->invitation->getAdminLink(),
+                'url' => $this->invitation->getAdminLink($this->use_react_url),
                 'button' => ctrans("texts.view_{$this->entity_type}"),
                 'signature' => $this->company->settings->email_signature,
                 'logo' => $this->company->present()->logo(),
@@ -185,7 +188,7 @@ class EntitySentObject
         return [
             'title' => $this->getSubject(),
             'message' => $this->getMessage(),
-            'url' => $this->invitation->getAdminLink(),
+            'url' => $this->invitation->getAdminLink($this->use_react_url),
             'button' => ctrans("texts.view_{$this->entity_type}"),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),

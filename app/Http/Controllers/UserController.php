@@ -231,8 +231,11 @@ class UserController extends BaseController
 
         $return_user_collection = collect();
 
-        $users->each(function ($user, $key) use ($action, $return_user_collection) {
-            if (auth()->user()->can('edit', $user)) {
+        /** @var \App\Models\User $logged_in_user */
+        $logged_in_user = auth()->user(); 
+
+        $users->each(function ($user, $key) use ($logged_in_user, $action, $return_user_collection) {
+            if ($logged_in_user->can('edit', $user)) {
                 $this->user_repo->{$action}($user);
 
                 $return_user_collection->push($user->id);
@@ -251,12 +254,11 @@ class UserController extends BaseController
      */
     public function detach(DetachCompanyUserRequest $request, User $user)
     {
-        // if ($request->entityIsDeleted($user)) {
-        //     return $request->disallowUpdate();
-        // }
+        /** @var \App\Models\User $logged_in_user */
+        $logged_in_user = auth()->user();
 
         $company_user = CompanyUser::whereUserId($user->id)
-                                    ->whereCompanyId(auth()->user()->companyId())
+                                    ->whereCompanyId($logged_in_user->companyId())
                                     ->withTrashed()
                                     ->first();
 

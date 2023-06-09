@@ -152,12 +152,14 @@ class CreateCompany
 
             $company->save();
 
-            $user = $this->account->users()->orderBy('id','asc')->first();
+            //user does not exist yet.
+            // MultiDB::setDb($company->db);
+            // $user = \App\Models\User::where('account_id', $company->account_id)->first();
 
-            $tax_rate = TaxRateFactory::create($company->id, $user->id);
-            $tax_rate->name = $company->tax_data->regions->EU->subregions->ES->tax_name;
-            $tax_rate->rate = $company->tax_data->regions->EU->subregions->ES->tax_rate;
-            $tax_rate->save();
+            // $tax_rate = TaxRateFactory::create($company->id, $user->id);
+            // $tax_rate->name = $company->tax_data->regions->EU->subregions->ES->tax_name;
+            // $tax_rate->rate = $company->tax_data->regions->EU->subregions->ES->tax_rate;
+            // $tax_rate->save();
 
             return $company;
 
@@ -191,18 +193,23 @@ class CreateCompany
             
             $company->save();
 
-            $user = $company->account->users()->first();
+            //$user = $company->account->users()->first();
+            //user does not exist yet.
+            // MultiDB::setDb($company->db);
+            // $user = \App\Models\User::where('account_id', $company->account_id)->first();
 
-            $tax_rate = TaxRateFactory::create($company->id, $user->id);
-            $tax_rate->name = $company->tax_data->regions->AU->subregions->AU->tax_name;
-            $tax_rate->rate = $company->tax_data->regions->AU->subregions->AU->tax_rate;
-            $tax_rate->save();
+
+            // $tax_rate = TaxRateFactory::create($company->id, $user->id);
+            // $tax_rate->name = $company->tax_data->regions->AU->subregions->AU->tax_name;
+            // $tax_rate->rate = $company->tax_data->regions->AU->subregions->AU->tax_rate;
+            // $tax_rate->save();
 
             return $company;
 
         }
         catch(\Exception $e){
-            nlog("SETUP: could not complete setup for Spanish Locale");
+            nlog($e->getMessage());
+            nlog("SETUP: could not complete setup for Australian Locale");
         }
 
         $company->save();

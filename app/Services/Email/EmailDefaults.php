@@ -230,7 +230,9 @@ class EmailDefaults
 
         $this->email->email_object->subject = strtr($this->email->email_object->subject, $this->email->email_object->variables);
 
-        if ($this->template != 'custom') {
+        
+        //06-06-2023 ensure we do not parse markdown in custom templates
+        if ($this->template != 'custom' && $this->template != 'email.template.custom') {
             $this->email->email_object->body = $this->parseMarkdownToHtml($this->email->email_object->body);
         }
 

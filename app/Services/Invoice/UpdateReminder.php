@@ -18,14 +18,9 @@ use Carbon\Carbon;
 
 class UpdateReminder extends AbstractService
 {
-    public $invoice;
 
-    public $settings;
-
-    public function __construct(Invoice $invoice, $settings = null)
+    public function __construct(public Invoice $invoice, public mixed $settings = null)
     {
-        $this->invoice = $invoice;
-        $this->settings = $settings;
     }
 
     /* We only support setting reminders based on the due date, not the partial due date */

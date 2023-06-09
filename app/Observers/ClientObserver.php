@@ -11,7 +11,6 @@
 
 namespace App\Observers;
 
-use App\Utils\Ninja;
 use App\Models\Client;
 use App\Models\Webhook;
 use App\Jobs\Client\CheckVat;
@@ -60,11 +59,12 @@ class ClientObserver
      */
     public function created(Client $client)
     {
-
-        if ($client->country_id == 840 && $client->company->calculate_taxes) {
+        /** Fix Tax Data for Clients */
+        if ($client->country_id == 840 && $client->company->calculate_taxes && !$client->company->account->isFreeHostedClient()) {
             UpdateTaxData::dispatch($client, $client->company);
         }
 
+        /** Check VAT records for client */
         if(in_array($client->country_id, $this->eu_country_codes) && $client->company->calculate_taxes) {
             CheckVat::dispatch($client, $client->company);
         }
@@ -88,7 +88,7 @@ class ClientObserver
     {
 
         /** Monitor postal code changes for US based clients for tax calculations */
-        if(Ninja::isHosted() && $client->getOriginal('postal_code') != $client->postal_code && $client->country_id == 840 && $client->company->calculate_taxes) {
+        if($client->getOriginal('postal_code') != $client->postal_code && $client->country_id == 840 && $client->company->calculate_taxes && !$client->company->account->isFreeHostedClient()) {
             UpdateTaxData::dispatch($client, $client->company);
         }
 

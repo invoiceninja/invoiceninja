@@ -86,6 +86,10 @@ class RouteServiceProvider extends ServiceProvider
             }
         });
 
+        RateLimiter::for('honeypot', function (Request $request) {
+            return Limit::perMinute(2)->by($request->ip());
+        });
+
     }
 
     /**

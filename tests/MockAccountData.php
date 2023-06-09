@@ -184,6 +184,8 @@ trait MockAccountData
      */
     public $scheduler;
 
+    public $contact;
+    
     public function makeTestData()
     {
         config(['database.default' => config('ninja.db.default')]);
@@ -325,6 +327,8 @@ trait MockAccountData
             'is_primary' => 1,
             'send_email' => true,
         ]);
+
+        $this->contact = $contact;
 
         $this->payment = Payment::factory()->create([
             'user_id' => $user_id,

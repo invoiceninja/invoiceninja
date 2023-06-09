@@ -728,12 +728,14 @@ class BaseDriver extends AbstractPaymentDriver
         App::setLocale($this->client->company->locale());
         
         if (! $this->payment_hash || !$this->client) 
-            return 'x';
+            return 'Descriptor';
 
         $invoices_string = \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray()) ?: null;
 
         $invoices_string = str_replace(["*","<",">","'",'"'], "-", $invoices_string);
         
+        $invoices_string = "I-".$invoices_string;
+
         $invoices_string = substr($invoices_string,0,22);
         
         $invoices_string = str_pad($invoices_string, 5, ctrans('texts.invoice'), STR_PAD_LEFT);

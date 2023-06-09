@@ -11,6 +11,7 @@
 
 namespace App\Jobs\Cron;
 
+use App\Models\Payment;
 use App\Models\Project;
 use App\Libraries\MultiDB;
 use Illuminate\Support\Facades\Auth;
@@ -65,7 +66,6 @@ class UpdateCalculatedFields
                     $project->save();
                 });
 
-                
             }
         }
     }

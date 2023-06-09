@@ -168,6 +168,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @method static \Illuminate\Database\Eloquent\Builder|Client withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Client withoutTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Client with()
+ * @method static \Illuminate\Database\Eloquent\Builder|Client where()
  * @property string $payment_balance
  * @method static \Illuminate\Database\Eloquent\Builder|Client wherePaymentBalance($value)
  * @property mixed $tax_data
@@ -251,6 +252,7 @@ class Client extends BaseModel implements HasLocalePreference
         'number',
         'routing_id',
         'is_tax_exempt',
+        'has_valid_vat_number',
     ];
 
     protected $with = [
@@ -543,6 +545,8 @@ class Client extends BaseModel implements HasLocalePreference
             } elseif (is_bool($this->settings->{$setting})) {
                 return $this->settings->{$setting};
             } elseif (is_int($this->settings->{$setting})) { //10-08-2022 integer client values are not being passed back! This resolves it.
+                return $this->settings->{$setting};
+            } elseif(is_float($this->settings->{$setting})) { //10-08-2022 integer client values are not being passed back! This resolves it.
                 return $this->settings->{$setting};
             }
         }
@@ -861,5 +865,10 @@ class Client extends BaseModel implements HasLocalePreference
     public function translate_entity()
     {
         return ctrans('texts.client');
+    }
+
+    public function portalUrl(bool $use_react_url): string
+    {
+        return $use_react_url ? config('ninja.react_url'). "/clients/{$this->hashed_id}": config('ninja.app_url');
     }
 }

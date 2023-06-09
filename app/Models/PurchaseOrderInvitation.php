@@ -113,6 +113,14 @@ class PurchaseOrderInvitation extends BaseModel
     /**
      * @return mixed
      */
+    public function entity()
+    {
+        return $this->belongsTo(PurchaseOrder::class)->withTrashed();
+    }
+
+    /**
+     * @return mixed
+     */
     public function contact()
     {
         return $this->belongsTo(VendorContact::class, 'vendor_contact_id', 'id')->withTrashed();
@@ -186,8 +194,16 @@ class PurchaseOrderInvitation extends BaseModel
         }
     }
 
-    public function getAdminLink() :string
+    public function getAdminLink($use_react_link = false) :string
     {
-        return $this->getLink().'?silent=true';
+        return $use_react_link ? $this->getReactLink() : $this->getLink().'?silent=true';
     }
+
+    private function getReactLink(): string
+    {
+        $entity_type = Str::snake(class_basename($this->entityType()));
+
+        return config('ninja.react_url')."/{$entity_type}s/{$this->{$entity_type}->hashed_id}/edit";
+    }
+    
 }

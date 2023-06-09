@@ -621,7 +621,7 @@ class Account extends BaseModel
 
     public function getTrialDays()
     {
-        if ($this->payment_id) {
+        if ($this->payment_id || $this->is_migrated) {
             return 0;
         }
 

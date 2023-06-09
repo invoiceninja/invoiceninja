@@ -23,17 +23,14 @@ class HandleRestore extends AbstractService
 {
     use GeneratesCounter;
 
-    private $invoice;
-
     private $payment_total = 0;
 
     private $total_payments = 0;
 
     private $adjustment_amount = 0;
 
-    public function __construct(Invoice $invoice)
+    public function __construct(private Invoice $invoice)
     {
-        $this->invoice = $invoice;
     }
 
     public function run()

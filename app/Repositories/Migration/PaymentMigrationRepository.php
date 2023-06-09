@@ -98,17 +98,18 @@ class PaymentMigrationRepository extends BaseRepository
         }
 
         $payment->deleted_at = $data['deleted_at'] ?: null;
-        $payment->save();
+        
 
         if ($payment->currency_id == 0) {
             $payment->currency_id = $payment->company->settings->currency_id;
-            $payment->save();
         }
 
         /*Ensure payment number generated*/
         if (! $payment->number || strlen($payment->number) == 0) {
             $payment->number = $payment->client->getNextPaymentNumber($payment->client, $payment);
         }
+
+        $payment->save();
 
         $invoice_totals = 0;
         $credit_totals = 0;

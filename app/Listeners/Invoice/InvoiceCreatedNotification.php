@@ -24,7 +24,7 @@ class InvoiceCreatedNotification implements ShouldQueue
 {
     use UserNotifies;
 
-    public $delay = 7;
+    public $delay = 3;
 
     public function __construct()
     {
@@ -48,11 +48,11 @@ class InvoiceCreatedNotification implements ShouldQueue
         foreach ($event->company->company_users as $company_user) {
             /* The User */
             $user = $company_user->user;
-
+            
             if (! $user) {
                 continue;
             }
-
+            
             /* This is only here to handle the alternate message channels - ie Slack */
             // $notification = new EntitySentNotification($event->invitation, 'invoice');
 
@@ -64,7 +64,7 @@ class InvoiceCreatedNotification implements ShouldQueue
                 unset($methods[$key]);
 
                 $nmo = new NinjaMailerObject;
-                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($invoice, 'invoice'))->build());
+                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($invoice, 'invoice', $company_user->portalType()))->build());
                 $nmo->company = $invoice->company;
                 $nmo->settings = $invoice->company->settings;
                 $nmo->to_user = $user;

@@ -54,6 +54,12 @@ class QuoteCreatedNotification implements ShouldQueue
                 continue;
             }
 
+            $use_react_link = false;
+            
+            if(isset($company_user->react_settings->react_notification_link) && $company_user->react_settings->react_notification_link) {
+                $use_react_link = true;
+            }
+
             /* This is only here to handle the alternate message channels - ie Slack */
             // $notification = new EntitySentNotification($event->invitation, 'quote');
 
@@ -65,7 +71,7 @@ class QuoteCreatedNotification implements ShouldQueue
                 unset($methods[$key]);
 
                 $nmo = new NinjaMailerObject;
-                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($quote, 'quote'))->build());
+                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($quote, 'quote', $company_user->portalType()))->build());
                 $nmo->company = $quote->company;
                 $nmo->settings = $quote->company->settings;
 
