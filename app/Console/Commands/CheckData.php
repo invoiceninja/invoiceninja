@@ -468,37 +468,6 @@ class CheckData extends Command
             $ii->saveQuietly();
         });
 
-
-
-        InvoiceInvitation::where('sent_date', '0000-00-00 00:00:00')->cursor()->each(function ($ii) {
-            $ii->sent_date = null;
-            $ii->saveQuietly();
-        });
-        InvoiceInvitation::where('viewed_date', '0000-00-00 00:00:00')->cursor()->each(function ($ii) {
-            $ii->viewed_date = null;
-            $ii->saveQuietly();
-        });
-
-        QuoteInvitation::where('sent_date', '0000-00-00 00:00:00')->cursor()->each(function ($ii) {
-            $ii->sent_date = null;
-            $ii->saveQuietly();
-        });
-        QuoteInvitation::where('viewed_date', '0000-00-00 00:00:00')->cursor()->each(function ($ii) {
-            $ii->viewed_date = null;
-            $ii->saveQuietly();
-        });
-
-        CreditInvitation::where('sent_date', '0000-00-00 00:00:00')->cursor()->each(function ($ii) {
-            $ii->sent_date = null;
-            $ii->saveQuietly();
-        });
-        CreditInvitation::where('viewed_date', '0000-00-00 00:00:00')->cursor()->each(function ($ii) {
-            $ii->viewed_date = null;
-            $ii->saveQuietly();
-        });
-
-
-
         collect([Invoice::class, Quote::class, Credit::class, PurchaseOrder::class])->each(function ($entity) {
             if ($entity::doesntHave('invitations')->count() > 0) {
                 $entity::doesntHave('invitations')->cursor()->each(function ($entity) {
