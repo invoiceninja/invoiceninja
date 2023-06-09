@@ -127,7 +127,8 @@ class CheckData extends Command
         $this->checkClientSettings();
         $this->checkCompanyTokens();
         $this->checkUserState();
-        
+        $this->checkContactEmailAndSendEmailStatus();
+
         if (Ninja::isHosted()) {
             $this->checkAccountStatuses();
             $this->checkNinjaPortalUrls();
@@ -434,11 +435,38 @@ class CheckData extends Command
 
     private function checkEntityInvitations()
     {
+        
         RecurringInvoiceInvitation::where('deleted_at', "0000-00-00 00:00:00.000000")->withTrashed()->update(['deleted_at' => null]);
         InvoiceInvitation::where('deleted_at', "0000-00-00 00:00:00.000000")->withTrashed()->update(['deleted_at' => null]);
         QuoteInvitation::where('deleted_at', "0000-00-00 00:00:00.000000")->withTrashed()->update(['deleted_at' => null]);
         CreditInvitation::where('deleted_at', "0000-00-00 00:00:00.000000")->withTrashed()->update(['deleted_at' => null]);
 
+        InvoiceInvitation::where('sent_date', '0000-00-00 00:00:00')->cursor()->each(function ($ii){
+            $ii->sent_date = null;
+            $ii->saveQuietly();
+        });
+        InvoiceInvitation::where('viewed_date', '0000-00-00 00:00:00')->cursor()->each(function ($ii) {
+            $ii->viewed_date = null;
+            $ii->saveQuietly();
+        });
+
+        QuoteInvitation::where('sent_date', '0000-00-00 00:00:00')->cursor()->each(function ($ii) {
+            $ii->sent_date = null;
+            $ii->saveQuietly();
+        });
+        QuoteInvitation::where('viewed_date', '0000-00-00 00:00:00')->cursor()->each(function ($ii) {
+            $ii->viewed_date = null;
+            $ii->saveQuietly();
+        });
+        
+        CreditInvitation::where('sent_date', '0000-00-00 00:00:00')->cursor()->each(function ($ii) {
+            $ii->sent_date = null;
+            $ii->saveQuietly();
+        });
+        CreditInvitation::where('viewed_date', '0000-00-00 00:00:00')->cursor()->each(function ($ii) {
+            $ii->viewed_date = null;
+            $ii->saveQuietly();
+        });
 
         collect([Invoice::class, Quote::class, Credit::class, PurchaseOrder::class])->each(function ($entity) {
             if ($entity::doesntHave('invitations')->count() > 0) {
@@ -1113,5 +1141,24 @@ class CheckData extends Command
 
         });
 
+    }
+
+    public function checkContactEmailAndSendEmailStatus()
+    {
+        $q = ClientContact::whereNull('email')
+                     ->where('send_email', true);
+
+        $this->logMessage($q->count() . " Contacts with Send Email = true but no email address");
+
+        if ($this->option('fix') == 'true') {
+
+            $q->cursor()->each(function ($c){
+                $c->send_email = false;
+                $c->saveQuietly();
+
+                $this->logMessage("Fixing - {$c->id}");
+
+            });
+        }
     }
 }

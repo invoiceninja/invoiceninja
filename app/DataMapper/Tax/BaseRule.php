@@ -16,7 +16,6 @@ use App\Models\Invoice;
 use App\Models\Product;
 use App\DataProviders\USStates;
 use App\DataMapper\Tax\ZipTax\Response;
-use App\Services\Tax\Providers\TaxProvider;
 
 class BaseRule implements RuleInterface
 {
@@ -203,18 +202,9 @@ class BaseRule implements RuleInterface
                 $tax_data = $company->origin_tax_data;
 
             }
-            else{
-                
-                /** Ensures the client tax data has been updated */
-                // if(!$this->client->tax_data && \DB::transactionLevel() == 0) {
- 
-                    // $tp = new TaxProvider($company, $this->client);
-                    // $tp->updateClientTaxData();
-                    // $this->client->fresh();
-                // }
-                
-                if($this->client->tax_data)
-                    $tax_data = $this->client->tax_data;
+            elseif($this->client->tax_data){
+                               
+                $tax_data = $this->client->tax_data;
 
             }
 
@@ -273,7 +263,8 @@ class BaseRule implements RuleInterface
 
     public function isTaxableRegion(): bool
     {
-        return $this->client->company->tax_data->regions->{$this->client_region}->tax_all_subregions || $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->apply_tax;
+        return $this->client->company->tax_data->regions->{$this->client_region}->tax_all_subregions || 
+        (property_exists($this->client->company->tax_data->regions->{$this->client_region}->subregions, $this->client_subregion) && $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->apply_tax);
     }
 
     public function defaultForeign(): self

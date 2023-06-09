@@ -18,19 +18,8 @@ use App\Services\AbstractService;
 
 class SendEmail extends AbstractService
 {
-    protected $invoice;
-
-    protected $reminder_template;
-
-    protected $contact;
-
-    public function __construct(Invoice $invoice, $reminder_template = null, ClientContact $contact = null)
+    public function __construct(protected Invoice $invoice, protected $reminder_template = null, protected ?ClientContact $contact = null)
     {
-        $this->invoice = $invoice;
-
-        $this->reminder_template = $reminder_template;
-
-        $this->contact = $contact;
     }
 
     /**

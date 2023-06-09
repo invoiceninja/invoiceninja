@@ -12,6 +12,7 @@
 namespace App\Transformers;
 
 use App\Models\Document;
+use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Utils\Traits\MakesHash;
@@ -33,7 +34,8 @@ class TaskTransformer extends EntityTransformer
      */
     protected $availableIncludes = [
         'client',
-        'status'
+        'status',
+        'project',
     ];
 
     public function includeDocuments(Task $task)
@@ -65,6 +67,16 @@ class TaskTransformer extends EntityTransformer
         return $this->includeItem($task->status, $transformer, TaskStatus::class);
     }
 
+    public function includeProject(Task $task): ?Item
+    {
+        $transformer = new ProjectTransformer($this->serializer);
+
+        if (!$task->project) {
+            return null;
+        }
+
+        return $this->includeItem($task->project, $transformer, Project::class);
+    }
 
     public function transform(Task $task)
     {

@@ -141,6 +141,9 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'clie
 
 Route::get('phantom/{entity}/{invitation_key}', [Phantom::class, 'displayInvitation'])->middleware(['invite_db', 'phantom_secret'])->name('phantom_view');
 
+Route::get('.env', function () {
+})->middleware('throttle:honeypot');
+
 Route::fallback(function () {
 
     if (Ninja::isSelfHost() && Account::first()?->set_react_as_default_ap) {

@@ -76,7 +76,7 @@ class PaymentNotification implements ShouldQueue
                     unset($methods[$key]);
 
                     $nmo = new NinjaMailerObject;
-                    $nmo->mailable = new NinjaMailer((new EntityPaidObject($payment))->build());
+                    $nmo->mailable = new NinjaMailer((new EntityPaidObject($payment, $company_user->portalType()))->build());
                     $nmo->company = $event->company;
                     $nmo->settings = $event->company->settings;
                     $nmo->to_user = $user;
@@ -108,7 +108,7 @@ class PaymentNotification implements ShouldQueue
                 unset($methods[$key]);
 
                 $nmo = new NinjaMailerObject;
-                $nmo->mailable = new NinjaMailer((new EntityPaidObject($payment))->build());
+                $nmo->mailable = new NinjaMailer((new EntityPaidObject($payment, $company_user->portalType()))->build());
                 $nmo->company = $event->company;
                 $nmo->settings = $event->company->settings;
                 $nmo->to_user = $user;
@@ -161,11 +161,12 @@ class PaymentNotification implements ShouldQueue
     }
 
     /**
-     * @param $data
+     * @param string $url
      */
-    private function sendAnalytics($data)
-    {
-        $data = utf8_encode($data);
+    private function sendAnalytics($url)
+    {   
+        $data = mb_convert_encoding($url, 'UTF-8');
+        // $data = utf8_encode($data);
         $curl = curl_init();
 
         $opts = [

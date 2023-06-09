@@ -41,7 +41,7 @@
                             <input type="email" name="email" id="email"
                                    class="input"
                                    value="{{ $email ?? old('email') }}"
-                                   autofocus>
+                                   >
                             @error('email')
                             <div class="validation validation-fail">
                                 {{ $message }}
@@ -63,7 +63,7 @@
                             <label for="password" class="input-label">{{ ctrans('texts.password') }}</label>
                             <input type="password" name="password_confirmation" id="password_confirmation"
                                    class="input"
-                                   autofocus>
+                                   >
                             @error('password_confirmation')
                             <div class="validation validation-fail">
                                 {{ $message }}

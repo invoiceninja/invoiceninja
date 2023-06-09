@@ -138,6 +138,7 @@ abstract class QueryFilters
      */
     public function status(string $filter = ''): Builder
     {
+
         if (strlen($filter) == 0) {
             return $this->builder;
         }
@@ -146,17 +147,17 @@ abstract class QueryFilters
 
         return $this->builder->where(function ($query) use ($filters) {
             if (in_array(self::STATUS_ACTIVE, $filters)) {
-                $query->orWhereNull('deleted_at');
+                $query = $query->orWhereNull('deleted_at');
             }
 
             if (in_array(self::STATUS_ARCHIVED, $filters)) {
-                $query->orWhere(function ($query) {
-                    $query->whereNotNull('deleted_at')->where('is_deleted', 0);
+                $query = $query->orWhere(function ($q) {
+                    $q->whereNotNull('deleted_at')->where('is_deleted', 0);
                 });
             }
 
             if (in_array(self::STATUS_DELETED, $filters)) {
-                $query->orWhere('is_deleted', 1);
+                $query = $query->orWhere('is_deleted', 1);
             }
         });
     }

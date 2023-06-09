@@ -45,6 +45,32 @@ class MultiDB
 
     public static $dbs = ['db-ninja-01', 'db-ninja-02'];
 
+    private static $protected_domains = [
+        'www',
+        'app',
+        'ninja',
+        'sentry',
+        'sentry2',
+        'staging',
+        'pdf',
+        'demo',
+        'docs',
+        'client_domain',
+        'custom_domain',
+        'preview',
+        'invoiceninja',
+        'cname',
+        'sandbox',
+        'stage',
+        'html',
+        'lb',
+        'shopify',
+        'beta',
+        'prometh',
+        'license',
+        'socket',
+    ];
+
     /**
      * @return array
      */
@@ -55,8 +81,13 @@ class MultiDB
 
     public static function checkDomainAvailable($subdomain) : bool
     {
+
         if (! config('ninja.db.multi_db_enabled')) {
             return Company::whereSubdomain($subdomain)->count() == 0;
+        }
+
+        if (in_array($subdomain, self::$protected_domains)) {
+            return false;
         }
 
         $current_db = config('database.default');

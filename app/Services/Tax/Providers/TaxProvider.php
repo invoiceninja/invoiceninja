@@ -52,11 +52,22 @@ class TaxProvider
     
     private mixed $api_credentials;
 
+    private bool $updated_client = false;
+
     public function __construct(public Company $company, public ?Client $client = null)
     {
     }
-
     
+    /**
+     * Flag if tax has been updated successfull.
+     *
+     * @return bool
+     */
+    public function updatedTaxStatus(): bool
+    {
+        return $this->updated_client;
+    }
+
     /**
      * updateCompanyTaxData
      *
@@ -67,23 +78,31 @@ class TaxProvider
         $this->configureProvider($this->provider, $this->company->country()->iso_3166_2); //hard coded for now to one provider, but we'll be able to swap these out later
 
         $company_details = [
-            'address1' => $this->company->settings->address1,
             'address2' => $this->company->settings->address2,
+            'address1' => $this->company->settings->address1,
             'city' => $this->company->settings->city,
             'state' => $this->company->settings->state,
             'postal_code' => $this->company->settings->postal_code,
-            'country_id' => $this->company->settings->country_id,
+            'country' => $this->company->country()->name,
         ];
 
-        $tax_provider = new $this->provider($company_details);
+        try {
+            $tax_provider = new $this->provider($company_details);
 
-        $tax_provider->setApiCredentials($this->api_credentials);
-        
-        $tax_data = $tax_provider->run();
-        
-        $this->company->origin_tax_data = $tax_data;
-        
-        $this->company->save();
+            $tax_provider->setApiCredentials($this->api_credentials);
+                
+            $tax_data = $tax_provider->run();
+
+            if($tax_data) {
+                $this->company->origin_tax_data = $tax_data;
+                $this->company->saveQuietly();
+                $this->updated_client = true;
+            }
+            
+        }
+        catch(\Exception $e){
+            nlog("Could not updated company tax data: " . $e->getMessage());
+        }
 
         return $this;
 
@@ -99,21 +118,21 @@ class TaxProvider
         $this->configureProvider($this->provider, $this->client->country->iso_3166_2); //hard coded for now to one provider, but we'll be able to swap these out later
 
         $billing_details =[
-            'address1' => $this->client->address1,
             'address2' => $this->client->address2,
+            'address1' => $this->client->address1,
             'city' => $this->client->city,
             'state' => $this->client->state,
             'postal_code' => $this->client->postal_code,
-            'country_id' => $this->client->country_id,
+            'country' => $this->client->country->name,
         ];
 
         $shipping_details =[
-            'address1' => $this->client->shipping_address1,
             'address2' => $this->client->shipping_address2,
+            'address1' => $this->client->shipping_address1,
             'city' => $this->client->shipping_city,
             'state' => $this->client->shipping_state,
             'postal_code' => $this->client->shipping_postal_code,
-            'country_id' => $this->client->shipping_country_id,
+            'country' => $this->client->shipping_country->name,
         ];
 
         $taxable_address = $this->taxShippingAddress() ? $shipping_details : $billing_details;
@@ -123,10 +142,14 @@ class TaxProvider
         $tax_provider->setApiCredentials($this->api_credentials);
         
         $tax_data = $tax_provider->run();
-                
-        $this->client->tax_data = $tax_data;
+
+        nlog($tax_data);
         
-        $this->client->save();
+        if($tax_data) {
+            $this->client->tax_data = $tax_data;
+            $this->client->saveQuietly();
+            $this->updated_client = true;
+        }
 
         return $this;
 
@@ -224,10 +247,12 @@ class TaxProvider
      */
     private function configureZipTax(): self
     {
+        if(!config('services.tax.zip_tax.key'))
+            throw new \Exception("ZipTax API key not set in .env file");
 
-        $this->provider = ZipTax::class;
-        
         $this->api_credentials = config('services.tax.zip_tax.key');
+        
+        $this->provider = ZipTax::class;
 
         return $this;
 

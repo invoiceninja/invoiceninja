@@ -11,12 +11,12 @@
 
 namespace App\Jobs\Company;
 
-use App\Models\Client;
 use App\Models\Company;
 use App\Libraries\MultiDB;
 use Illuminate\Bus\Queueable;
-use App\Jobs\Client\UpdateTaxData;
+use App\DataProviders\USStates;
 use Illuminate\Queue\SerializesModels;
+use App\DataMapper\Tax\ZipTax\Response;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Services\Tax\Providers\TaxProvider;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -40,33 +40,52 @@ class CompanyTaxRate implements ShouldQueue
 
     public function handle()
     {
-
-        if(!config('services.tax.zip_tax.key')) {
-            return;
-        }
-
+        
         MultiDB::setDB($this->company->db);
 
         $tp = new TaxProvider($this->company);
-
         $tp->updateCompanyTaxData();
-
-        $tp = null;
-
-        Client::query()
-              ->where('company_id', $this->company->id)
-              ->where('is_deleted', false)
-              ->where('country_id', 840)
-              ->whereNotNull('postal_code')
-              ->whereNull('tax_data')
-              ->where('is_tax_exempt', false)
-              ->cursor()
-              ->each(function ($client) {
-                
-                  (new UpdateTaxData($client, $this->company))->handle();
-                  
-              });
         
+        if(!$tp->updatedTaxStatus() && $this->company->settings->country_id == '840') {
+
+            $calculated_state = false;
+
+            /** State must be calculated else default to the company state for taxes */
+            if(array_key_exists($this->company->settings->state, USStates::get())) {
+                $calculated_state = $this->company->setting->state;
+            }
+            else {
+
+                try{
+                    $calculated_state = USStates::getState($this->company->settings->postal_code);
+                }
+                catch(\Exception $e){
+                    nlog("could not calculate state from postal code => {$this->company->settings->postal_code} or from state {$this->company->settings->state}");
+                }
+
+                if(!$calculated_state && $this->company->tax_data?->seller_subregion)
+                    $calculated_state = $this->company->tax_data?->seller_subregion;
+
+                if(!$calculated_state) 
+                    return;
+
+            }
+                        
+            $data = [
+                'seller_subregion' => $this->company->origin_tax_data?->seller_subregion ?: '',
+                'geoPostalCode' => $this->company->settings->postal_code ?? '',
+                'geoCity' => $this->company->settings->city ?? '',
+                'geoState' => $calculated_state,
+                'taxSales' => $this->company->tax_data->regions->US->subregions?->{$calculated_state}?->taxSales ?? 0,
+            ];
+
+            $tax_data = new Response($data);
+
+            $this->company->origin_tax_data = $tax_data;
+            $this->company->saveQuietly();
+
+        }
+
     }
 
     public function middleware()
@@ -74,4 +93,7 @@ class CompanyTaxRate implements ShouldQueue
         return [new WithoutOverlapping($this->company->id)];
     }
 
+    public function failed($e){
+        nlog($e->getMessage());
+    }
 }

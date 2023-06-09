@@ -41,7 +41,6 @@ class CheckGatewayFee implements ShouldQueue
      */
     public function handle()
     {
-        nlog("Checking Gateway Fees for Invoice Id = {$this->invoice_id}");
         
         MultiDB::setDb($this->db);
 

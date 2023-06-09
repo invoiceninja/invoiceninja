@@ -2,9 +2,12 @@ includes:
     - ./vendor/nunomaduro/larastan/extension.neon
 
 parameters:
+    treatPhpDocTypesAsCertain: false
     ignoreErrors:
         - '#Call to an undefined method .*badMethod\(\)#'
         - '#Call to an undefined method Illuminate\Database\Eloquent\Builder::exclude#'
+    parallel:
+        maximumNumberOfProcesses: 8
     level: 4
     paths:
         - 'app/'

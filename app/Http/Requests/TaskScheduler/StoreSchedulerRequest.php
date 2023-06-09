@@ -59,6 +59,11 @@ class StoreSchedulerRequest extends Request
         if (array_key_exists('next_run', $input) && is_string($input['next_run'])) {
             $this->merge(['next_run_client' => $input['next_run']]);
         }
-        
+     
+        if($input['template'] == 'email_record'){
+            $input['frequency_id'] = 0;
+        }
+
+        $this->replace($input);
     }
 }

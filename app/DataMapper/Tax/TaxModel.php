@@ -344,9 +344,9 @@ class TaxModel
         $this->regions->EU->subregions = new \stdClass();
 
         $this->regions->EU->subregions->AT = new \stdClass();
-        $this->regions->EU->subregions->AT->tax_rate = 21;
+        $this->regions->EU->subregions->AT->tax_rate = 20;
         $this->regions->EU->subregions->AT->tax_name = 'USt';
-        $this->regions->EU->subregions->AT->reduced_tax_rate = 11;
+        $this->regions->EU->subregions->AT->reduced_tax_rate = 10;
         $this->regions->EU->subregions->AT->apply_tax = false;
 
         $this->regions->EU->subregions->BE = new \stdClass();

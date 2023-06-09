@@ -3,6 +3,8 @@
 namespace App\Jobs\Invoice;
 
 use App\Jobs\Entity\CreateEntityPdf;
+use App\Jobs\Vendor\CreatePurchaseOrderPdf;
+use App\Models\PurchaseOrder;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -52,6 +54,11 @@ class InjectSignature implements ShouldQueue
         $invitation->signature_base64 = $this->signature;
         $invitation->save();
 
-        CreateEntityPdf::dispatch($invitation);
+        $this->entity->refresh()->service()->touchPdf(true);
+        
+        // if($this->entity instanceof PurchaseOrder)
+        //     (new CreatePurchaseOrderPdf($invitation))->handle();
+        // else
+        //     (new CreateEntityPdf($invitation))->handle();
     }
 }

@@ -176,7 +176,9 @@ class PreviewController extends BaseController
         if (Ninja::isHosted() && !in_array($request->getHost(), ['preview.invoicing.co','staging.invoicing.co'])) {
             return response()->json(['message' => 'This server cannot handle this request.'], 400);
         }
-        
+     
+        $start = microtime(true);
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
@@ -322,6 +324,8 @@ class PreviewController extends BaseController
 
         $response = Response::make($file_path, 200);
         $response->header('Content-Type', 'application/pdf');
+        $response->header('Server-Timing', microtime(true)-$start);
+
 
         return $response;
     }

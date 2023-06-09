@@ -106,6 +106,16 @@ class ClientFilters extends QueryFilters
         return $this->builder->where('number', $number);
     }
 
+    public function group(string $group_id = ''): Builder
+    {
+        if (strlen($group_id) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->where('group_settings_id', $this->decodePrimaryKey($group_id));
+
+    }
+
     /**
      * Filter based on search text.
      *

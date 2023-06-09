@@ -216,7 +216,7 @@ class CreateEntityPdf implements ShouldQueue
             (new CreateEInvoice($this->entity, true))->handle();
         }
         $this->invitation = null;
-        $this->entity = null;
+        // $this->entity = null;
         $this->company = null;
         $this->client = null;
         $this->contact = null;

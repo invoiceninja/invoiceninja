@@ -557,4 +557,10 @@ class Payment extends BaseModel
     {
         return ctrans('texts.payment');
     }
+
+    public function portalUrl($use_react_url)
+    {
+        return $use_react_url ? config('ninja.react_url')."/payments/{$this->hashed_id}/edit" : config('ninja.app_url');
+    }
+
 }

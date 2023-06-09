@@ -23,17 +23,10 @@ class TriggeredActions extends AbstractService
 {
     use GeneratesCounter;
 
-    private $request;
-
-    private $invoice;
-
     private bool $updated = false;
 
-    public function __construct(Invoice $invoice, Request $request)
+    public function __construct(private Invoice $invoice, private Request $request)
     {
-        $this->request = $request;
-
-        $this->invoice = $invoice;
     }
 
     public function run()
