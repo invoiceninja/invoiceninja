@@ -102,7 +102,12 @@ class PaymentFilters extends QueryFilters
             if (count($payment_filters) >0) {
                 $query->whereIn('status_id', $payment_filters);
             }
+
+            if(in_array('partially_unapplied', $status_parameters)) {
+                $query->where('amount', '>', 'applied')->where('refunded', 0);
+            }
         });
+
 
         return $this->builder;
     }

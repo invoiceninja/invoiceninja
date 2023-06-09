@@ -123,7 +123,7 @@ class ARSummaryReport extends BaseExport
             ->where('balance', '>', 0)
             ->where('is_deleted', 0)
             ->where(function ($query){
-                $query->where('due_date', '<', now()->startOfDay())
+                $query->where('due_date', '>', now()->startOfDay())
                     ->orWhereNull('due_date');
             })
             ->sum('balance');

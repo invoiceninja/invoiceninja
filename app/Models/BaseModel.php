@@ -32,6 +32,7 @@ use Illuminate\Support\Str;
  * @property \App\Models\Company $company
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|Illuminate\Database\Eloquent\Relations\BelongsTo|\Awobaz\Compoships\Database\Eloquent\Relations\BelongsTo|\App\Models\Company company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel with()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel query()

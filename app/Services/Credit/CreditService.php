@@ -130,13 +130,6 @@ class CreditService
              ->credits()
              ->attach($this->credit->id, ['amount' => $adjustment]);
 
-        //reduce client paid_to_date by $this->credit->balance amount
-        // $this->credit
-        //      ->client
-        //      ->service()
-        //      ->updatePaidToDate($adjustment)
-        //      ->save();
-
         $client = $this->credit->client->fresh();
         $client->service()
                 ->updatePaidToDate($adjustment)
