@@ -283,6 +283,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
 
     Route::post('reports/clients', ClientReportController::class);
     Route::post('reports/activities', ActivityReportController::class);
+    Route::post('reports/client_contacts', ClientContactReportController::class);
     Route::post('reports/contacts', ClientContactReportController::class);
     Route::post('reports/credits', CreditReportController::class);
     Route::post('reports/documents', DocumentReportController::class);
