@@ -869,6 +869,6 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function portalUrl(bool $use_react_url): string
     {
-        return $use_react_url ? config('ninja.react_url'). "/clients/{$this->hashed_id}": config('ninja.app_url');
+        return $use_react_url ? config('ninja.react_url'). "/#/clients/{$this->hashed_id}": config('ninja.app_url');
     }
 }
