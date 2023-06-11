@@ -203,7 +203,7 @@ class PurchaseOrderInvitation extends BaseModel
     {
         $entity_type = Str::snake(class_basename($this->entityType()));
 
-        return config('ninja.react_url')."/{$entity_type}s/{$this->{$entity_type}->hashed_id}/edit";
+        return config('ninja.react_url')."/#/{$entity_type}s/{$this->{$entity_type}->hashed_id}/edit";
     }
     
 }

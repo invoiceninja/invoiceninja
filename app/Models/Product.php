@@ -203,6 +203,6 @@ class Product extends BaseModel
 
     public function portalUrl($use_react_url): string
     {
-        return $use_react_url ? config('ninja.react_url') . "/products/{$this->hashed_id}/edit" : config('ninja.app_url');
+        return $use_react_url ? config('ninja.react_url') . "/#/products/{$this->hashed_id}/edit" : config('ninja.app_url');
     }
 }
