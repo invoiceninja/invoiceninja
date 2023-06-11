@@ -72,7 +72,7 @@ class ImportCompleted extends Mailable
             'client_gateway_token_count' => $this->company->client_gateway_tokens()->count(),
             'tax_rate_count' => $this->company->tax_rates()->count(),
             'document_count' => $this->company->documents()->count(),
-
+            'url' => Ninja::isHosted() ? config('ninja.react_url') : config('ninja.app_url'),
         ]);
 
         return $this
