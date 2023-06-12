@@ -61,7 +61,6 @@ class SelfUpdateController extends BaseController
 
         nlog('copying release file');
 
-        // if (copy($this->getDownloadUrl(), storage_path('app/invoiceninja.zip'))) {
         if (copy($this->getDownloadUrl(), storage_path("app/{$this->filename}"))) {
             nlog('Copied file from URL');
         } else {
@@ -70,21 +69,16 @@ class SelfUpdateController extends BaseController
 
         nlog('Finished copying');
 
-        // if($this->use_zip) {
-            $file = Storage::disk('local')->path($this->filename);
+        $file = Storage::disk('local')->path($this->filename);
 
-            nlog('Extracting tar');
+        nlog('Extracting tar');
 
-            $phar = new \PharData($file);
-            $phar->extractTo(base_path(), null, true);
+        $phar = new \PharData($file);
+        $phar->extractTo(base_path(), null, true);
 
-            nlog('Finished extracting files');
+        nlog('Finished extracting files');
 
-            unlink($file);
-        // }
-        // else {
-        //     $this->extractUsingZip();
-        // }
+        unlink($file);
 
         nlog('Deleted release zip file');
 
@@ -110,31 +104,13 @@ class SelfUpdateController extends BaseController
         return response()->json(['message' => 'Update completed'], 200);
     }
 
-    // private function extractUsingZip()
-    // {
-
-    //     $file = Storage::disk('local')->path($this->filename);
-
-    //     nlog('Extracting zip');
-
-    //     $zipFile = new \PhpZip\ZipFile();
-    //     $zipFile->openFile($file);
-    //     $zipFile->deleteFromName(".htaccess");
-    //     $zipFile->rewrite();
-    //     $zipFile->extractTo(base_path());
-    //     $zipFile->close();
-    //     $zipFile = null;
-                
-    //     unlink($file);
-
-    // }
-
     private function clearCacheDir()
     {
         $directoryIterator = new \RecursiveDirectoryIterator(base_path('bootstrap/cache'), \RecursiveDirectoryIterator::SKIP_DOTS);
 
         foreach (new \RecursiveIteratorIterator($directoryIterator) as $file) {
             unlink(base_path('bootstrap/cache/').$file->getFileName());
+            $file = null;
         }
 
         $directoryIterator = null;
@@ -155,6 +131,8 @@ class SelfUpdateController extends BaseController
                 throw new FilePermissionsFailure("Cannot update system because {$file->getFileName()} is not writable");
 
             }
+
+            $file = null;
         }
 
         $directoryIterator = null;
@@ -169,10 +147,8 @@ class SelfUpdateController extends BaseController
 
     private function getDownloadUrl()
     {
-        $version = $this->checkVersion();
 
-        // if(request()->has('zip'))
-        //     return "https://github.com/invoiceninja/invoiceninja/releases/download/v{$version}/invoiceninja.zip";
+        $version = $this->checkVersion();
 
         return "https://github.com/invoiceninja/invoiceninja/releases/download/v{$version}/invoiceninja.tar";
 
