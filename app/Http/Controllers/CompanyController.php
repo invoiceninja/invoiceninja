@@ -87,7 +87,7 @@ class CompanyController extends BaseController
      *      summary="Gets a list of companies",
      *      description="Lists companies, search and filters allow fine grained lists to be generated.
 
-        Query parameters can be added to performed more fine grained filtering of the companies, these are handled by the CompanyFilters class which defines the methods available",
+     *   Query parameters can be added to performed more fine grained filtering of the companies, these are handled by the CompanyFilters class which defines the methods available",
      *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -114,7 +114,10 @@ class CompanyController extends BaseController
      */
     public function index()
     {
-        $companies = Company::whereAccountId(auth()->user()->company()->account->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $companies = Company::whereAccountId($user->company()->account->id);
 
         return $this->listResponse($companies);
     }
@@ -159,8 +162,12 @@ class CompanyController extends BaseController
      */
     public function create(CreateCompanyRequest $request)
     {
-        $cf = new \App\Factory\CompanyFactory;
-        $company = $cf->create(auth()->user()->company()->account->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $company_factory = new \App\Factory\CompanyFactory;
+
+        $company = $company_factory->create($user->company()->account->id);
 
         return $this->itemResponse($company);
     }
@@ -206,15 +213,18 @@ class CompanyController extends BaseController
     {
         $this->forced_includes = ['company_user'];
 
-        $company = (new CreateCompany($request->all(), auth()->user()->company()->account))->handle();
-        (new CreateCompanyPaymentTerms($company, auth()->user()))->handle();
-        (new CreateCompanyTaskStatuses($company, auth()->user()))->handle();
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $company = (new CreateCompany($request->all(), $user->company()->account))->handle();
+        (new CreateCompanyPaymentTerms($company, $user))->handle();
+        (new CreateCompanyTaskStatuses($company, $user))->handle();
 
         $company = $this->company_repo->save($request->all(), $company);
 
         $this->uploadLogo($request->file('company_logo'), $company, $company);
 
-        auth()->user()->companies()->attach($company->id, [
+        $user->companies()->attach($company->id, [
             'account_id' => $company->account->id,
             'is_owner' => 1,
             'is_admin' => 1,
@@ -231,7 +241,7 @@ class CompanyController extends BaseController
         /*
          * Required dependencies
          */
-        auth()->user()->setCompany($company);
+        $user->setCompany($company);
 
         /*
          * Create token
