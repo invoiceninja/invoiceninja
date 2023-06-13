@@ -158,7 +158,7 @@ class Ninja
         Http::withHeaders([
             'X-API-HOSTED-SECRET' => config('ninja.ninja_hosted_secret'),
         ])->post(config('ninja.license_url').'/api/v1/enable_forwarding', [
-            'company_key' => $company_key,
+            'account_key' => $company_key,
             'email' => $email,
         ]);
     }

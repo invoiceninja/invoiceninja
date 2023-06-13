@@ -422,9 +422,6 @@ class CompanyController extends BaseController
 
         $company = $this->company_repo->save($request->all(), $company);
 
-        /** We save the settings in the repository - this is duplicated */
-        // $company->saveSettings($request->input('settings'), $company);
-
         if ($request->has('documents')) {
             $this->saveDocuments($request->input('documents'), $company, false);
         }
