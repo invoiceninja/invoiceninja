@@ -391,23 +391,27 @@ class Design extends BaseDesign
     {
         if ($this->type === 'statement') {
             // $s_date = $this->translateDate(now(), $this->client->date_format(), $this->client->locale());
-            
-            $s_date = $this->translateDate($this->options['start_date'], $this->client->date_format(), $this->client->locale()) . " - " . $this->translateDate($this->options['end_date'], $this->client->date_format(), $this->client->locale());
 
-            return [
+
+            $headerParts = [
                 ['element' => 'tr', 'properties' => ['data-ref' => 'statement-label'], 'elements' => [
                     ['element' => 'th', 'properties' => [], 'content' => ""],
-                    ['element' => 'th', 'properties' => [], 'content' => "<h2>".ctrans('texts.statement')."</h2>"],
-                ]],
-                ['element' => 'tr', 'properties' => [], 'elements' => [
-                    ['element' => 'th', 'properties' => [], 'content' => ctrans('texts.statement_date')],
-                    ['element' => 'th', 'properties' => [], 'content' => $s_date ?? ''],
-                ]],
-                ['element' => 'tr', 'properties' => [], 'elements' => [
-                    ['element' => 'th', 'properties' => [], 'content' => '$balance_due_label'],
-                    ['element' => 'th', 'properties' => [], 'content' => Number::formatMoney($this->invoices->sum('balance'), $this->client)],
+                    ['element' => 'th', 'properties' => [], 'content' => "<h2>" . ctrans('texts.statement') . "</h2>"],
                 ]],
             ];
+            if (!empty($this->options['start_date']) || !empty($this->options['end_date'])) {
+                $s_date = $this->translateDate($this->options['start_date'], $this->client->date_format(), $this->client->locale()) . " - " . $this->translateDate($this->options['end_date'], $this->client->date_format(), $this->client->locale());
+                $headerParts[] =
+                    ['element' => 'tr', 'properties' => [], 'elements' => [
+                        ['element' => 'th', 'properties' => [], 'content' => ctrans('texts.statement_date')],
+                        ['element' => 'th', 'properties' => [], 'content' => $s_date ?? ''],
+                    ]];
+            }
+            $headerParts[] = ['element' => 'tr', 'properties' => [], 'elements' => [
+                ['element' => 'th', 'properties' => [], 'content' => '$balance_due_label'],
+                ['element' => 'th', 'properties' => [], 'content' => Number::formatMoney($this->invoices->sum('balance'), $this->client)],
+            ]];
+            return $headerParts;
         }
 
         $variables = $this->context['pdf_variables']['invoice_details'];

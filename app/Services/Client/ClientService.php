@@ -18,6 +18,7 @@ use App\Services\Email\Email;
 use App\Services\Email\EmailObject;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
+use Carbon\Carbon;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Support\Facades\DB;
 
@@ -149,7 +150,22 @@ class ClientService
         $pdf = $statement->run();
 
         if ($send_email) {
-            return $this->emailStatement($pdf, $statement->options);
+            // If selected, ignore clients that don't have any invoices to put on the statement.
+            if (!empty($options['only_clients_with_invoices'] && $statement->getInvoices()->count() == 0)) {
+                return false;
+            }
+
+            $options = $statement->options;
+
+            if (empty($options['start_date'])) {
+                $options['start_date'] = $statement->getInvoices()->first()->date;
+            }
+
+            if (empty($options['end_date'])) {
+                $options['end_date'] = Carbon::now();
+            }
+
+            return $this->emailStatement($pdf, $options);
         }
 
         return $pdf;

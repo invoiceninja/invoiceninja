@@ -211,6 +211,9 @@ class Statement
             $this->options['show_credits_table'] = false;
         }
 
+        if (!\array_key_exists('only_clients_with_invoices', $this->options)) {
+            $this->options['only_clients_with_invoices'] = false;
+        }
 
         return $this;
     }
@@ -220,18 +223,25 @@ class Statement
      *
      * @return Invoice[]|\Illuminate\Support\LazyCollection
      */
-    protected function getInvoices(): \Illuminate\Support\LazyCollection
+    public function getInvoices(): \Illuminate\Support\LazyCollection
     {
-        return Invoice::withTrashed()
+        $query = Invoice::withTrashed()
             ->with('payments.type')
             ->where('is_deleted', false)
             ->where('company_id', $this->client->company_id)
             ->where('client_id', $this->client->id)
             ->whereIn('status_id', $this->invoiceStatuses())
-            ->whereBetween('date', [Carbon::parse($this->options['start_date']), Carbon::parse($this->options['end_date'])])
             ->orderBy('due_date', 'ASC')
-            ->orderBy('date', 'ASC')
-            ->cursor();
+            ->orderBy('date', 'ASC');
+
+        if (!empty($this->options['start_date'])) {
+            $query->whereDate('date', '>=', $this->options['start_date']);
+        }
+        if (!empty($this->options['end_date'])) {
+            $query->whereDate('date', '<=', $this->options['end_date']);
+        }
+
+        return $query->cursor();
     }
 
     private function invoiceStatuses() :array
@@ -266,15 +276,22 @@ class Statement
      */
     protected function getPayments(): \Illuminate\Support\LazyCollection
     {
-        return Payment::withTrashed()
+        $query = Payment::withTrashed()
             ->with('client.country', 'invoices')
             ->where('is_deleted', false)
             ->where('company_id', $this->client->company_id)
             ->where('client_id', $this->client->id)
             ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
-            ->whereBetween('date', [Carbon::parse($this->options['start_date']), Carbon::parse($this->options['end_date'])])
-            ->orderBy('date', 'ASC')
-            ->cursor();
+            ->orderBy('date', 'ASC');
+
+        if (!empty($this->options['start_date'])) {
+            $query->whereDate('date', '>=', $this->options['start_date']);
+        }
+        if (!empty($this->options['end_date'])) {
+            $query->whereDate('date', '<=', $this->options['end_date']);
+        }
+
+        return $query->cursor();
     }
 
     /**
@@ -284,19 +301,26 @@ class Statement
      */
     protected function getCredits(): \Illuminate\Support\LazyCollection
     {
-        return Credit::withTrashed()
+        $query = Credit::withTrashed()
             ->with('client.country', 'invoices')
             ->where('is_deleted', false)
             ->where('company_id', $this->client->company_id)
             ->where('client_id', $this->client->id)
             ->whereIn('status_id', [Credit::STATUS_SENT, Credit::STATUS_PARTIAL, Credit::STATUS_APPLIED])
-            ->whereBetween('date', [Carbon::parse($this->options['start_date']), Carbon::parse($this->options['end_date'])])
-            ->where(function ($query) {
-                $query->whereDate('due_date', '>=', $this->options['end_date'])
-                      ->orWhereNull('due_date');
-            })
-            ->orderBy('date', 'ASC')
-            ->cursor();
+            ->orderBy('date', 'ASC');
+
+        if (!empty($this->options['start_date'])) {
+            $query->whereDate('date', '>=', $this->options['start_date']);
+        }
+        if (!empty($this->options['end_date'])) {
+            $query->whereDate('date', '<=', $this->options['end_date'])
+                ->where(function ($query) {
+                    $query->whereDate('due_date', '>=', $this->options['end_date'])
+                        ->orWhereNull('due_date');
+                });
+        }
+
+        return $query->cursor();
     }
 
     /**

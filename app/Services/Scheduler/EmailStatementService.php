@@ -71,10 +71,11 @@ class EmailStatementService
             'show_payments_table' => $this->scheduler->parameters['show_payments_table'] ?? true,
             'show_aging_table' => $this->scheduler->parameters['show_aging_table'] ?? true,
             'show_credits_table' => $this->scheduler->parameters['show_credits_table'] ?? true,
+            'only_clients_with_invoices' => $this->scheduler->parameters['only_clients_with_invoices'] ?? true,
             'status' => $this->scheduler->parameters['status']
         ];
     }
-    
+
     /**
      * Start and end date of the statement
      *
@@ -92,6 +93,7 @@ class EmailStatementService
             EmailStatement::LAST_QUARTER => [now()->startOfDay()->subQuarterNoOverflow()->firstOfQuarter()->format('Y-m-d'), now()->startOfDay()->subQuarterNoOverflow()->lastOfQuarter()->format('Y-m-d')],
             EmailStatement::THIS_YEAR => [now()->startOfDay()->firstOfYear()->format('Y-m-d'), now()->startOfDay()->lastOfYear()->format('Y-m-d')],
             EmailStatement::LAST_YEAR => [now()->startOfDay()->subYearNoOverflow()->firstOfYear()->format('Y-m-d'), now()->startOfDay()->subYearNoOverflow()->lastOfYear()->format('Y-m-d')],
+            EmailStatement::ALL_TIME => [null, null],
             EmailStatement::CUSTOM_RANGE => [$this->scheduler->parameters['start_date'], $this->scheduler->parameters['end_date']],
             default => [now()->startOfDay()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->lastOfMonth()->format('Y-m-d')],
         };
