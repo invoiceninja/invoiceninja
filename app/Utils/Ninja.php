@@ -155,12 +155,17 @@ class Ninja
 
     public static function triggerForwarding(string $company_key, string $email)
     {
-        Http::withHeaders([
-            'X-API-HOSTED-SECRET' => config('ninja.ninja_hosted_secret'),
-        ])->post(config('ninja.license_url').'/api/v1/enable_forwarding', [
-            'account_key' => $company_key,
-            'email' => $email,
-        ]);
+        try {
+            Http::withHeaders([
+                'X-API-HOSTED-SECRET' => config('ninja.ninja_hosted_secret'),
+            ])->post(config('ninja.license_url').'/api/v1/enable_forwarding', [
+                'account_key' => $company_key,
+                'email' => $email,
+            ]);
+        }
+        catch (\Exception $e) {
+            nlog("attempt forwarding for{$email} - {$company_key}");
+        }
     }
 
     public function createLicense($request)
