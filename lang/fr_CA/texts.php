@@ -5087,6 +5087,16 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'upload_certificate' => 'Téléverser le certificat',
     'certificate_passphrase' => 'Passphrase du certificat',
     'valid_vat_number' => 'Numéro valide de taxe',
+    'react_notification_link' => 'Lien de notifications React',
+    'react_notification_link_help' => 'Les courriels provenant de l\'administration contiennent des liens vers l\'application React',  
+    'show_task_billable' => 'Afficher la facturation de tâche',
+    'credit_item' => 'Credit Item',
+    'drop_file_here' => 'Déposer le fichier ici',
+    'files' => 'Fichiers',
+    'camera' => 'Caméra',
+    'gallery' => 'Galerie',
+    'project_location' => 'Emplacement du projet',
+    'add_gateway_help_message' => 'Ajouter un passerelle de paiement (Stripe, WePay, ou PayPal) pour accepter les paiements en ligne', 
 );
 
 

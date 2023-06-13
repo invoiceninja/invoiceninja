@@ -276,9 +276,8 @@ class Design extends BaseDesign
 
         $header = [];
         $header[] = ['element' => 'p', 'content' => ctrans('texts.shipping_address'), 'properties' => ['data-ref' => 'shipping_address-label', 'style' => 'font-weight: bold; text-transform: uppercase']];
-        return array_merge($header, $elements);
 
-        // return $elements;
+        return array_merge($header, $elements);
 
     }
 

@@ -12,6 +12,7 @@
 namespace App\Utils;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 /**
  * Class Ninja.
@@ -150,6 +151,21 @@ class Ninja
         }
 
         return $translations;
+    }
+
+    public static function triggerForwarding(string $company_key, string $email)
+    {
+        try {
+            Http::withHeaders([
+                'X-API-HOSTED-SECRET' => config('ninja.ninja_hosted_secret'),
+            ])->post(config('ninja.license_url').'/api/v1/enable_forwarding', [
+                'account_key' => $company_key,
+                'email' => $email,
+            ]);
+        }
+        catch (\Exception $e) {
+            nlog("attempt forwarding for{$email} - {$company_key}");
+        }
     }
 
     public function createLicense($request)
