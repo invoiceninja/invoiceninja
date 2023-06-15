@@ -151,21 +151,11 @@ class ClientService
 
         if ($send_email) {
             // If selected, ignore clients that don't have any invoices to put on the statement.
-            if (!empty($options['only_clients_with_invoices'] && $statement->getInvoices()->count() == 0)) {
+            if (!empty($options['only_clients_with_invoices']) && $statement->getInvoices()->count() == 0) {
                 return false;
             }
 
-            $options = $statement->options;
-
-            if (empty($options['start_date'])) {
-                $options['start_date'] = $statement->getInvoices()->first()->date;
-            }
-
-            if (empty($options['end_date'])) {
-                $options['end_date'] = Carbon::now();
-            }
-
-            return $this->emailStatement($pdf, $options);
+            return $this->emailStatement($pdf, $statement->options);
         }
 
         return $pdf;
