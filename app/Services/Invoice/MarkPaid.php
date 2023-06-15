@@ -71,7 +71,6 @@ class MarkPaid extends AbstractService
         $payment->is_manual = true;
 
         if ($this->invoice->company->timezone()) {
-            nlog($this->invoice->company->timezone()->utc_offset);
             $payment->date = now()->addSeconds($this->invoice->company->timezone()->utc_offset)->format('Y-m-d');
         }
 
