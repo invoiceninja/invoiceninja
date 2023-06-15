@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -11,6 +12,7 @@
 
 namespace App\Transformers;
 
+use App\Models\Client;
 use App\Models\Document;
 use App\Models\Project;
 use App\Utils\Traits\MakesHash;
@@ -30,6 +32,7 @@ class ProjectTransformer extends EntityTransformer
      * @var array
      */
     protected $availableIncludes = [
+        'client',
     ];
 
     public function includeDocuments(Project $project)
@@ -37,6 +40,13 @@ class ProjectTransformer extends EntityTransformer
         $transformer = new DocumentTransformer($this->serializer);
 
         return $this->includeCollection($project->documents, $transformer, Document::class);
+    }
+
+    public function includeClient(Project $project): \League\Fractal\Resource\Item
+    {
+        $transformer = new ClientTransformer($this->serializer);
+
+        return $this->includeItem($project->client, $transformer, Client::class);
     }
 
     public function transform(Project $project)
