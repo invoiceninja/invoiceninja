@@ -95,7 +95,7 @@ class EmailStatementService
             EmailStatement::THIS_YEAR => [now()->startOfDay()->firstOfYear()->format('Y-m-d'), now()->startOfDay()->lastOfYear()->format('Y-m-d')],
             EmailStatement::LAST_YEAR => [now()->startOfDay()->subYearNoOverflow()->firstOfYear()->format('Y-m-d'), now()->startOfDay()->subYearNoOverflow()->lastOfYear()->format('Y-m-d')],
             EmailStatement::ALL_TIME => [
-                Invoice::withTrashed()->where('client_id', $client->id)->selectRaw('MIN(invoices.date) as start_date')->pluck('start_date')->first()
+                $client->invoices()->selectRaw('MIN(invoices.date) as start_date')->pluck('start_date')->first()
                     ?: Carbon::now()->format('Y-m-d'),
                 Carbon::now()->format('Y-m-d')
             ],
