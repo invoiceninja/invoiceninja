@@ -40,6 +40,8 @@ class SchedulerTest extends TestCase
     use WithoutEvents;
     use DatabaseTransactions;
 
+    protected $faker;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -594,12 +596,6 @@ class SchedulerTest extends TestCase
         $scheduler->save();
         $scheduler->calculateNextRun();
 
-        // $service_object = new SchedulerService($scheduler);
-
-        // $reflectionMethod = new \ReflectionMethod(SchedulerService::class, 'calculateNextRun');
-        // $reflectionMethod->setAccessible(true);
-        // $method = $reflectionMethod->invoke(new SchedulerService($scheduler));
-
         $scheduler->fresh();
         $offset = $this->company->timezone_offset();
 
@@ -634,7 +630,7 @@ class SchedulerTest extends TestCase
 
         $reflectionMethod = new \ReflectionMethod(EmailStatementService::class, 'calculateStartAndEndDates');
         $reflectionMethod->setAccessible(true);
-        $method = $reflectionMethod->invoke(new EmailStatementService($scheduler));
+        $method = $reflectionMethod->invoke(new EmailStatementService($scheduler), $this->client);
 
         $this->assertIsArray($method);
 
@@ -668,7 +664,7 @@ class SchedulerTest extends TestCase
 
         $reflectionMethod = new \ReflectionMethod(EmailStatementService::class, 'calculateStatementProperties');
         $reflectionMethod->setAccessible(true);
-        $method = $reflectionMethod->invoke(new EmailStatementService($scheduler)); // 'baz'
+        $method = $reflectionMethod->invoke(new EmailStatementService($scheduler), $this->client);
 
         $this->assertIsArray($method);
 
