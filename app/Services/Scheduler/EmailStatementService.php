@@ -11,11 +11,11 @@
 
 namespace App\Services\Scheduler;
 
+use App\DataMapper\Schedule\EmailStatement;
 use App\Models\Client;
 use App\Models\Scheduler;
-use App\Utils\Traits\MakesHash;
-use App\DataMapper\Schedule\EmailStatement;
 use App\Utils\Traits\MakesDates;
+use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
 
 class EmailStatementService
@@ -38,7 +38,7 @@ class EmailStatementService
         //Email only the selected clients
         if (count($this->scheduler->parameters['clients']) >= 1) {
             $query->whereIn('id', $this->transformKeys($this->scheduler->parameters['clients']));
-        }else {
+        } else {
             $query->where('balance', '>', 0);
         }
      
