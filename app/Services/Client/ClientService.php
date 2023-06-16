@@ -18,6 +18,7 @@ use App\Services\Email\Email;
 use App\Services\Email\EmailObject;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
+use Carbon\Carbon;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Support\Facades\DB;
 
@@ -149,6 +150,11 @@ class ClientService
         $pdf = $statement->run();
 
         if ($send_email) {
+            // If selected, ignore clients that don't have any invoices to put on the statement.
+            if (!empty($options['only_clients_with_invoices']) && $statement->getInvoices()->count() == 0) {
+                return false;
+            }
+
             return $this->emailStatement($pdf, $statement->options);
         }
 

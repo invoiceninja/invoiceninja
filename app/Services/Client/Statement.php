@@ -211,6 +211,9 @@ class Statement
             $this->options['show_credits_table'] = false;
         }
 
+        if (!\array_key_exists('only_clients_with_invoices', $this->options)) {
+            $this->options['only_clients_with_invoices'] = false;
+        }
 
         return $this;
     }
@@ -220,7 +223,7 @@ class Statement
      *
      * @return Invoice[]|\Illuminate\Support\LazyCollection
      */
-    protected function getInvoices(): \Illuminate\Support\LazyCollection
+    public function getInvoices(): \Illuminate\Support\LazyCollection
     {
         return Invoice::withTrashed()
             ->with('payments.type')

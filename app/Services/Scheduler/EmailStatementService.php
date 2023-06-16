@@ -16,6 +16,7 @@ use App\Models\Scheduler;
 use App\Utils\Traits\MakesHash;
 use App\DataMapper\Schedule\EmailStatement;
 use App\Utils\Traits\MakesDates;
+use Carbon\Carbon;
 
 class EmailStatementService
 {
@@ -46,7 +47,7 @@ class EmailStatementService
                 $this->client = $_client;
 
                 //work out the date range
-                $statement_properties = $this->calculateStatementProperties();
+                $statement_properties = $this->calculateStatementProperties($_client);
 
                 $_client->service()->statement($statement_properties, true);
             });
@@ -61,26 +62,27 @@ class EmailStatementService
      *
      * @return array The statement options array
      */
-    private function calculateStatementProperties(): array
+    private function calculateStatementProperties(Client $client): array
     {
-        $start_end = $this->calculateStartAndEndDates();
+        $start_end = $this->calculateStartAndEndDates($client);
 
         return [
-            'start_date' =>$start_end[0],
-            'end_date' =>$start_end[1],
+            'start_date' => $start_end[0],
+            'end_date' => $start_end[1],
             'show_payments_table' => $this->scheduler->parameters['show_payments_table'] ?? true,
             'show_aging_table' => $this->scheduler->parameters['show_aging_table'] ?? true,
             'show_credits_table' => $this->scheduler->parameters['show_credits_table'] ?? true,
+            'only_clients_with_invoices' => $this->scheduler->parameters['only_clients_with_invoices'] ?? false,
             'status' => $this->scheduler->parameters['status']
         ];
     }
-    
+
     /**
      * Start and end date of the statement
      *
      * @return array [$start_date, $end_date];
      */
-    private function calculateStartAndEndDates(): array
+    private function calculateStartAndEndDates(Client $client): array
     {
         return match ($this->scheduler->parameters['date_range']) {
             EmailStatement::LAST7 => [now()->startOfDay()->subDays(7)->format('Y-m-d'), now()->startOfDay()->format('Y-m-d')],
@@ -92,6 +94,11 @@ class EmailStatementService
             EmailStatement::LAST_QUARTER => [now()->startOfDay()->subQuarterNoOverflow()->firstOfQuarter()->format('Y-m-d'), now()->startOfDay()->subQuarterNoOverflow()->lastOfQuarter()->format('Y-m-d')],
             EmailStatement::THIS_YEAR => [now()->startOfDay()->firstOfYear()->format('Y-m-d'), now()->startOfDay()->lastOfYear()->format('Y-m-d')],
             EmailStatement::LAST_YEAR => [now()->startOfDay()->subYearNoOverflow()->firstOfYear()->format('Y-m-d'), now()->startOfDay()->subYearNoOverflow()->lastOfYear()->format('Y-m-d')],
+            EmailStatement::ALL_TIME => [
+                Invoice::withTrashed()->where('client_id', $client->id)->selectRaw('MIN(invoices.date) as start_date')->pluck('start_date')->first()
+                    ?: Carbon::now()->format('Y-m-d'),
+                Carbon::now()->format('Y-m-d')
+            ],
             EmailStatement::CUSTOM_RANGE => [$this->scheduler->parameters['start_date'], $this->scheduler->parameters['end_date']],
             default => [now()->startOfDay()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->lastOfMonth()->format('Y-m-d')],
         };
