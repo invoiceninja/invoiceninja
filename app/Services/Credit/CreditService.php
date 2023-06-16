@@ -119,7 +119,7 @@ class CreditService
         $payment->type_id = PaymentType::CREDIT;
         $payment->is_manual = true;
         $payment->currency_id = $this->credit->client->getSetting('currency_id');
-        $payment->date = now();
+        $payment->date = now()->addSeconds($this->credit->company->timezone()->utc_offset)->format('Y-m-d');
 
         $payment->saveQuietly();
         $payment->number = $payment->client->getNextPaymentNumber($payment->client, $payment);
