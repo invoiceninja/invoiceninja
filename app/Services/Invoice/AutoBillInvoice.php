@@ -179,7 +179,7 @@ class AutoBillInvoice extends AbstractService
         $payment->applied = $amount;
         $payment->client_id = $this->invoice->client_id;
         $payment->currency_id = $this->invoice->client->getSetting('currency_id');
-        $payment->date = now();
+        $payment->date = now()->addSeconds($this->invoice->company->timezone()->utc_offset)->format('Y-m-d');
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->type_id = PaymentType::CREDIT;
         $payment->service()->applyNumber()->save();

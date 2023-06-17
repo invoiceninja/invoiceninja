@@ -11,11 +11,11 @@
 
 namespace App\Services\Scheduler;
 
+use App\DataMapper\Schedule\EmailStatement;
 use App\Models\Client;
 use App\Models\Scheduler;
-use App\Utils\Traits\MakesHash;
-use App\DataMapper\Schedule\EmailStatement;
 use App\Utils\Traits\MakesDates;
+use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
 
 class EmailStatementService
@@ -38,7 +38,7 @@ class EmailStatementService
         //Email only the selected clients
         if (count($this->scheduler->parameters['clients']) >= 1) {
             $query->whereIn('id', $this->transformKeys($this->scheduler->parameters['clients']));
-        }else {
+        } else {
             $query->where('balance', '>', 0);
         }
      
@@ -95,7 +95,7 @@ class EmailStatementService
             EmailStatement::THIS_YEAR => [now()->startOfDay()->firstOfYear()->format('Y-m-d'), now()->startOfDay()->lastOfYear()->format('Y-m-d')],
             EmailStatement::LAST_YEAR => [now()->startOfDay()->subYearNoOverflow()->firstOfYear()->format('Y-m-d'), now()->startOfDay()->subYearNoOverflow()->lastOfYear()->format('Y-m-d')],
             EmailStatement::ALL_TIME => [
-                Invoice::withTrashed()->where('client_id', $client->id)->selectRaw('MIN(invoices.date) as start_date')->pluck('start_date')->first()
+                $client->invoices()->selectRaw('MIN(invoices.date) as start_date')->pluck('start_date')->first()
                     ?: Carbon::now()->format('Y-m-d'),
                 Carbon::now()->format('Y-m-d')
             ],
