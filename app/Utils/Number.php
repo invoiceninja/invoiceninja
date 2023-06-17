@@ -194,8 +194,8 @@ class Number
     /**
      * Formats a given value based on the clients currency AND country.
      *
-     * @param floatval $value The number to be formatted
-     * @param $entity
+     * @param float $value The number to be formatted
+     * @param mixed $entity
      * @return string           The formatted value
      */
     public static function formatMoneyNoRounding($value, $entity) :string

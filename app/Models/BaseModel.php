@@ -45,6 +45,9 @@ use Illuminate\Support\Str;
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel count()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel create()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel insert()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel whereHas()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel withTrashed()
+ * 
  * @method \App\Models\Company company()
  * @method int companyId()
  * @method Builder|static exclude($columns)
