@@ -95,6 +95,11 @@ class RecurringExpenseToExpenseFactory
 
         $replacements = [
             'literal' => [
+                ':MONTHYEAR' => \sprintf(
+                    '%s %s',
+                    Carbon::createFromDate(now()->year, now()->month)->translatedFormat('F'),
+                    now()->year,
+                ),
                 ':MONTH' => Carbon::createFromDate(now()->year, now()->month)->translatedFormat('F'),
                 ':YEAR' => now()->year,
                 ':QUARTER' => 'Q'.now()->quarter,
@@ -238,6 +243,17 @@ class RecurringExpenseToExpenseFactory
 
                 if ($matches->keys()->first() == ':MONTH') {
                     $output = \Carbon\Carbon::create()->month($output)->translatedFormat('F');
+                }
+
+                if ($matches->keys()->first() == ':MONTHYEAR') {
+
+                    $final_date = now()->addMonths($output-now()->month);
+
+                    $output =    \sprintf(
+                            '%s %s',
+                            $final_date->translatedFormat('F'),
+                            $final_date->year,
+                        );
                 }
 
                 $value = preg_replace(
