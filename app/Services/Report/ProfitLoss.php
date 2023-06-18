@@ -11,18 +11,19 @@
 
 namespace App\Services\Report;
 
-use App\Libraries\Currency\Conversion\CurrencyApi;
-use App\Libraries\MultiDB;
-use App\Models\Company;
-use App\Models\Currency;
-use App\Models\Expense;
-use App\Models\Payment;
 use App\Utils\Ninja;
 use App\Utils\Number;
+use League\Csv\Writer;
+use App\Models\Company;
+use App\Models\Expense;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\Currency;
+use App\Libraries\MultiDB;
+use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Str;
-use League\Csv\Writer;
+use App\Libraries\Currency\Conversion\CurrencyApi;
 
 class ProfitLoss
 {
@@ -279,8 +280,6 @@ class ProfitLoss
                         ->with(['company', 'client'])
                         ->cursor()
                         ->each(function ($payment) {
-                            $company = $payment->company;
-                            $client = $payment->client;
 
                             $map = new \stdClass;
                             $amount_payment_paid = 0;
@@ -293,8 +292,8 @@ class ProfitLoss
                             $tax_amount_credit_converted = $tax_amount_credit_converted = 0;
 
                             foreach ($payment->paymentables as $pivot) {
-                                if ($pivot->paymentable instanceof \App\Models\Invoice) {
-                                    $invoice = $pivot->paymentable;
+                                if ($pivot->paymentable_type == 'invoices') {
+                                    $invoice = Invoice::withTrashed()->find($pivot->paymentable_id);
 
                                     $amount_payment_paid += $pivot->amount - $pivot->refunded;
                                     $amount_payment_paid_converted += $amount_payment_paid / ($payment->exchange_rate ?: 1);
@@ -303,7 +302,7 @@ class ProfitLoss
                                     $tax_amount_converted += (($amount_payment_paid / $invoice->amount) * $invoice->total_taxes) / $payment->exchange_rate;
                                 }
 
-                                if ($pivot->paymentable instanceof \App\Models\Credit) {
+                                if ($pivot->paymentable_type == 'credits') {
                                     $amount_credit_paid += $pivot->amount - $pivot->refunded;
                                     $amount_credit_paid_converted += $amount_payment_paid / ($payment->exchange_rate ?: 1);
 
