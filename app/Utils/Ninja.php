@@ -156,15 +156,17 @@ class Ninja
     public static function triggerForwarding(string $company_key, string $email)
     {
         try {
-            Http::withHeaders([
+            $x = Http::withHeaders([
                 'X-API-HOSTED-SECRET' => config('ninja.ninja_hosted_secret'),
             ])->post(config('ninja.license_url').'/api/v1/enable_forwarding', [
                 'account_key' => $company_key,
                 'email' => $email,
             ]);
+
+            nlog($x->body());
         }
         catch (\Exception $e) {
-            nlog("attempt forwarding for{$email} - {$company_key}");
+            nlog("Attempt forwarding for {$email} - {$company_key} Failed");
         }
     }
 

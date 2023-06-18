@@ -527,11 +527,11 @@ class Account extends BaseModel
 
     public function emailsSent()
     {
-        if (is_null(Cache::get($this->key))) {
+        if (is_null(Cache::get("email_quota".$this->key))) {
             return 0;
         }
 
-        return Cache::get($this->key);
+        return Cache::get("email_quota".$this->key);
     }
 
     public function emailQuotaExceeded() :bool
