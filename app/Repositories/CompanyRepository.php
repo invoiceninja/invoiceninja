@@ -40,9 +40,7 @@ class CompanyRepository extends BaseRepository
         $company->fill($data);
 
         /** Only required to handle v4 migration workloads */
-        // if(Ninja::isHosted() && $company->isDirty('is_disabled') && !$company->is_disabled) {
-        if($company->isDirty('is_disabled') && !$company->is_disabled) {
-            nlog("trigger");
+        if(Ninja::isHosted() && $company->isDirty('is_disabled') && !$company->is_disabled) {
             Ninja::triggerForwarding($company->company_key, $company->owner()->email);
         }
 

@@ -77,7 +77,6 @@ class EntityFailedSendObject
 
     private function setTemplate()
     {
-        // nlog($this->template);
 
         switch ($this->template) {
             case 'invoice':
