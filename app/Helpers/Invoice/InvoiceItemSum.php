@@ -161,8 +161,16 @@ class InvoiceItemSum
                 ->sumLineItem()
                 ->setDiscount()
                 ->calcTaxes()
+                ->roundLineItem()
                 ->push();
         }
+
+        return $this;
+    }
+
+    private function roundLineItem(): self
+    {
+        $this->item->line_total = round($this->item->line_total, $this->currency->precision);
 
         return $this;
     }

@@ -297,9 +297,12 @@ class ProfitLoss
 
                                     $amount_payment_paid += $pivot->amount - $pivot->refunded;
                                     $amount_payment_paid_converted += $amount_payment_paid / ($payment->exchange_rate ?: 1);
-
-                                    $tax_amount += ($amount_payment_paid / $invoice->amount) * $invoice->total_taxes;
-                                    $tax_amount_converted += (($amount_payment_paid / $invoice->amount) * $invoice->total_taxes) / $payment->exchange_rate;
+                                    
+                                    if ($invoice->amount > 0) {
+                                        $tax_amount += ($amount_payment_paid / $invoice->amount) * $invoice->total_taxes;
+                                        $tax_amount_converted += (($amount_payment_paid / $invoice->amount) * $invoice->total_taxes) / $payment->exchange_rate;
+                                    }
+                                    
                                 }
 
                                 if ($pivot->paymentable_type == 'credits') {
