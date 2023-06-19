@@ -62,6 +62,8 @@ class UpdatePurchaseOrderRequest extends Request
             $rules['file'] = $this->file_validation;
         }
 
+        $rules['status_id'] = 'sometimes|integer|in:1,2,3,4,5';
+
         return $rules;
     }
 
