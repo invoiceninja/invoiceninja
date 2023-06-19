@@ -302,7 +302,7 @@ class ProfitLoss
                                         $tax_amount += ($amount_payment_paid / $invoice->amount) * $invoice->total_taxes;
                                         $tax_amount_converted += (($amount_payment_paid / $invoice->amount) * $invoice->total_taxes) / $payment->exchange_rate;
                                     }
-                                    
+
                                 }
 
                                 if ($pivot->paymentable_type == 'credits') {
@@ -595,52 +595,50 @@ class ProfitLoss
             case 'all':
                 $this->start_date = now()->subYears(50);
                 $this->end_date = now();
-                // return $query;
-                // no break
+                break;
+
             case 'last7':
                 $this->start_date = now()->subDays(7);
                 $this->end_date = now();
-                // return $query->whereBetween($this->date_key, [now()->subDays(7), now()])->orderBy($this->date_key, 'ASC');
-                // no break
+                break;
+
             case 'last30':
                 $this->start_date = now()->subDays(30);
                 $this->end_date = now();
-                // return $query->whereBetween($this->date_key, [now()->subDays(30), now()])->orderBy($this->date_key, 'ASC');
-                // no break
+                break;
+
             case 'this_month':
                 $this->start_date = now()->startOfMonth();
                 $this->end_date = now();
-                //return $query->whereBetween($this->date_key, [now()->startOfMonth(), now()])->orderBy($this->date_key, 'ASC');
-                // no break
+                break;
+
             case 'last_month':
                 $this->start_date = now()->startOfMonth()->subMonth();
                 $this->end_date = now()->startOfMonth()->subMonth()->endOfMonth();
-                //return $query->whereBetween($this->date_key, [now()->startOfMonth()->subMonth(), now()->startOfMonth()->subMonth()->endOfMonth()])->orderBy($this->date_key, 'ASC');
-                // no break
+                break;
+
             case 'this_quarter':
                 $this->start_date = (new \Carbon\Carbon('-3 months'))->firstOfQuarter();
                 $this->end_date = (new \Carbon\Carbon('-3 months'))->lastOfQuarter();
-                //return $query->whereBetween($this->date_key, [(new \Carbon\Carbon('-3 months'))->firstOfQuarter(), (new \Carbon\Carbon('-3 months'))->lastOfQuarter()])->orderBy($this->date_key, 'ASC');
-                // no break
+                break;
+
             case 'last_quarter':
                 $this->start_date = (new \Carbon\Carbon('-6 months'))->firstOfQuarter();
                 $this->end_date = (new \Carbon\Carbon('-6 months'))->lastOfQuarter();
-                //return $query->whereBetween($this->date_key, [(new \Carbon\Carbon('-6 months'))->firstOfQuarter(), (new \Carbon\Carbon('-6 months'))->lastOfQuarter()])->orderBy($this->date_key, 'ASC');
-                // no break
+                break;
+
             case 'this_year':
                 $this->start_date = now()->startOfYear();
                 $this->end_date = now();
-                //return $query->whereBetween($this->date_key, [now()->startOfYear(), now()])->orderBy($this->date_key, 'ASC');
-                // no break
+                break;
+
             case 'custom':
                 $this->start_date = $custom_start_date;
                 $this->end_date = $custom_end_date;
-                //return $query->whereBetween($this->date_key, [$custom_start_date, $custom_end_date])->orderBy($this->date_key, 'ASC');
-                // no break
+                break;
             default:
                 $this->start_date = now()->startOfYear();
                 $this->end_date = now();
-                // return $query->whereBetween($this->date_key, [now()->startOfYear(), now()])->orderBy($this->date_key, 'ASC');
         }
 
         return $this;
