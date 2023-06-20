@@ -14,6 +14,7 @@ namespace App\PaymentDrivers;
 
 use Omnipay\Omnipay;
 use App\Models\Invoice;
+use App\Utils\CurlUtils;
 use Omnipay\Common\Item;
 use App\Models\SystemLog;
 use App\Models\GatewayType;
@@ -106,17 +107,44 @@ class PayPalProPaymentDriver extends BaseDriver
 
         // $data['token'] = base64_decode($this->omnipay_gateway->getToken());
 
+        // $access_token = $this->omnipay_gateway->createToken();
         $access_token = $this->omnipay_gateway->getToken();
+nlog($access_token);
 
         // $r = Http::withToken($access_token)
         //          ->withHeaders(['Accept-Language' => 'en_US'])->post("https://api-m.sandbox.paypal.com/v1/identity/generate-token",[]);
+//curl -v https://api-m.sandbox.paypal.com/v1/oauth2/token \ -H "Accept: application/json" \ -H "Accept-Language: en_US" \ -u "client_id:secret" \ -d "grant_type=client_credentials"
+
+
+        //         $basic =  'Basic ' . base64_encode("AdRZZt44vJYAtXirmzMjnvUMoFIloN9kpuSgshQB7SJqLHbgtMP_rcmhy83FYY4a-c3R-_e4wZC8E3oG:ENPRXSxr6Jy1YQWhh87eN4fSlNVj5uFT2PDmBqPs_QYJD8MXGcsvJATgR8Xc5sOb6T0q1AHCwfmv9B7n");
+
+
+        $headers = [
+            'Accept' => 'application/json',
+            'Content-type' => 'application/json',
+            // 'Authorization' =>  $basic,
+            'Accept-Language' => 'en_US',
+            'User-Agent' => 'curl/7.68.0'
+        ];
+
+        // $r = Http::withHeaders($headers)->post('https://api-m.sandbox.paypal.com/v1/oauth2/token?grant_type=client_credentials');
+        
+
+        // if ($response) {
+        //     return $response;
+        // }
+
+// $r = Http::withToken($access_token)
+        //          ->withHeaders(['Accept-Language' => 'en_US'])->post("https://api-m.sandbox.paypal.com/v1/identity/generate-token",[]);
+
 
         $r = Http::
         withToken($access_token)
-        ->post('https://api-m.sandbox.paypal.com/v1/identity/generate-token');
+        ->withHeaders($headers)
+        ->post("https://api-m.sandbox.paypal.com/v1/identity/generate-token",['body' => '']);
 
-        dd($r);
         nlog($r->body());
+        dd($r);
 
         return render('gateways.paypal.pay', $data);
 
