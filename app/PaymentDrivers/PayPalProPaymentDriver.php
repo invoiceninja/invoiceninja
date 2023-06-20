@@ -65,8 +65,8 @@ class PayPalProPaymentDriver extends BaseDriver
  
             // Initialise the gateway
             $this->omnipay_gateway->initialize(array(
-                'clientId' => 'AdRZZt44vJYAtXirmzMjnvUMoFIloN9kpuSgshQB7SJqLHbgtMP_rcmhy83FYY4a-c3R-_e4wZC8E3oG',
-                'secret'   => 'ENPRXSxr6Jy1YQWhh87eN4fSlNVj5uFT2PDmBqPs_QYJD8MXGcsvJATgR8Xc5sOb6T0q1AHCwfmv9B7n',
+                'clientId' => '',
+                'secret'   => '',
                 'testMode' => true, // Or false when you are ready for live transactions
             ));
 
@@ -107,16 +107,7 @@ class PayPalProPaymentDriver extends BaseDriver
 
         // $data['token'] = base64_decode($this->omnipay_gateway->getToken());
 
-        // $access_token = $this->omnipay_gateway->createToken();
         $access_token = $this->omnipay_gateway->getToken();
-nlog($access_token);
-
-        // $r = Http::withToken($access_token)
-        //          ->withHeaders(['Accept-Language' => 'en_US'])->post("https://api-m.sandbox.paypal.com/v1/identity/generate-token",[]);
-//curl -v https://api-m.sandbox.paypal.com/v1/oauth2/token \ -H "Accept: application/json" \ -H "Accept-Language: en_US" \ -u "client_id:secret" \ -d "grant_type=client_credentials"
-
-
-        //         $basic =  'Basic ' . base64_encode("AdRZZt44vJYAtXirmzMjnvUMoFIloN9kpuSgshQB7SJqLHbgtMP_rcmhy83FYY4a-c3R-_e4wZC8E3oG:ENPRXSxr6Jy1YQWhh87eN4fSlNVj5uFT2PDmBqPs_QYJD8MXGcsvJATgR8Xc5sOb6T0q1AHCwfmv9B7n");
 
 
         $headers = [
