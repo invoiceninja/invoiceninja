@@ -83,6 +83,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['id' => 57, 'name' => 'Square', 'provider' => 'Square', 'is_offsite' => false, 'sort_order' => 21, 'key' => '65faab2ab6e3223dbe848b1686490baz', 'fields' => '{"accessToken":"","applicationId":"","locationId":"","testMode":false}'],
             ['id' => 58, 'name' => 'Razorpay', 'provider' => 'Razorpay', 'is_offsite' => false, 'sort_order' => 21, 'key' => 'hxd6gwg3ekb9tb3v9lptgx1mqyg69zu9', 'fields' => '{"apiKey":"","apiSecret":""}'],
             ['id' => 59, 'name' => 'Forte', 'provider' => 'Forte', 'is_offsite' => false, 'sort_order' => 21, 'key' => 'kivcvjexxvdiyqtj3mju5d6yhpeht2xs', 'fields' => '{"testMode":false,"apiLoginId":"","apiAccessId":"","secureKey":"","authOrganizationId":"","organizationId":"","locationId":""}'],
+            ['id' => 60, 'name' => 'PayPal REST', 'provider' => 'PayPal_Rest', 'key' => '80af24a6a691230bbec33e930ab40665', 'fields' => '{"clientId":"","secret":"","signature":"","testMode":false}'],
         ];
 
         foreach ($gateways as $gateway) {
@@ -99,7 +100,7 @@ class PaymentLibrariesSeeder extends Seeder
 
         Gateway::query()->update(['visible' => 0]);
 
-        Gateway::whereIn('id', [1,3,7,11,15,20,39,46,55,50,57,52,58,59])->update(['visible' => 1]);
+        Gateway::whereIn('id', [1,3,7,11,15,20,39,46,55,50,57,52,58,59,60])->update(['visible' => 1]);
 
         if (Ninja::isHosted()) {
             Gateway::whereIn('id', [20])->update(['visible' => 0]);

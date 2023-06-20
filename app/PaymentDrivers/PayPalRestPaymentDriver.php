@@ -14,7 +14,6 @@ namespace App\PaymentDrivers;
 
 use Omnipay\Omnipay;
 use App\Models\Invoice;
-use App\Utils\CurlUtils;
 use Omnipay\Common\Item;
 use App\Models\SystemLog;
 use App\Models\GatewayType;
@@ -24,7 +23,7 @@ use App\Utils\Traits\MakesHash;
 use App\Exceptions\PaymentFailed;
 use Illuminate\Support\Facades\Http;
 
-class PayPalProPaymentDriver extends BaseDriver
+class PayPalRestPaymentDriver extends BaseDriver
 {
     use MakesHash;
 
@@ -61,17 +60,9 @@ class PayPalProPaymentDriver extends BaseDriver
             $this->company_gateway->gateway->provider
         );
 
-           $this->omnipay_gateway = Omnipay::create('PayPal_Rest');
- 
-            // Initialise the gateway
-            $this->omnipay_gateway->initialize(array(
-                'clientId' => '',
-                'secret'   => '',
-                'testMode' => true, // Or false when you are ready for live transactions
-            ));
+        $this->omnipay_gateway->initialize((array) $this->company_gateway->getConfig());
 
-                return $this;
-        // $this->omnipay_gateway->initialize((array) $this->company_gateway->getConfig());
+        return $this;
     }
 
     public function setPaymentMethod($payment_method_id)
@@ -105,34 +96,17 @@ class PayPalProPaymentDriver extends BaseDriver
         $this->payment_hash->data = array_merge((array) $this->payment_hash->data, ['amount' => $data['total']['amount_with_fee']]);
         $this->payment_hash->save();
 
-        // $data['token'] = base64_decode($this->omnipay_gateway->getToken());
-
         $access_token = $this->omnipay_gateway->getToken();
-
 
         $headers = [
             'Accept' => 'application/json',
             'Content-type' => 'application/json',
-            // 'Authorization' =>  $basic,
             'Accept-Language' => 'en_US',
-            'User-Agent' => 'curl/7.68.0'
         ];
 
-        // $r = Http::withHeaders($headers)->post('https://api-m.sandbox.paypal.com/v1/oauth2/token?grant_type=client_credentials');
-        
-
-        // if ($response) {
-        //     return $response;
-        // }
-
-// $r = Http::withToken($access_token)
-        //          ->withHeaders(['Accept-Language' => 'en_US'])->post("https://api-m.sandbox.paypal.com/v1/identity/generate-token",[]);
-
-
-        $r = Http::
-        withToken($access_token)
-        ->withHeaders($headers)
-        ->post("https://api-m.sandbox.paypal.com/v1/identity/generate-token",['body' => '']);
+        $r = Http::withToken($access_token)
+                ->withHeaders($headers)
+                ->post("https://api-m.sandbox.paypal.com/v1/identity/generate-token",['body' => '']);
 
         nlog($r->body());
         dd($r);
