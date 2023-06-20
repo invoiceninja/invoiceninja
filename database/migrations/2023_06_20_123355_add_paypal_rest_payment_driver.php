@@ -23,7 +23,6 @@ return new class extends Migration
             $fields->secret = "";
             $fields->testMode = false;
 
-
             $paypal = new Gateway;
             $paypal->id = 60;
             $paypal->name = 'PayPal REST';

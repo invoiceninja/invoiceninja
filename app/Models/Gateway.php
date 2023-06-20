@@ -190,6 +190,11 @@ class Gateway extends StaticModel
                     GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true], // Forte
                     GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => [' ']],
                 ];
+            case 60:
+                return [
+                    GatewayType::PAYPAL => ['refund' => false, 'token_billing' => false],
+                ]; //Paypal
+
             default:
                 return [];
         }
