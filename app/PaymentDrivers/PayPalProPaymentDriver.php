@@ -12,15 +12,16 @@
 
 namespace App\PaymentDrivers;
 
-use App\Exceptions\PaymentFailed;
-use App\Jobs\Util\SystemLogger;
-use App\Models\GatewayType;
-use App\Models\Invoice;
-use App\Models\PaymentType;
-use App\Models\SystemLog;
-use App\Utils\Traits\MakesHash;
-use Omnipay\Common\Item;
 use Omnipay\Omnipay;
+use App\Models\Invoice;
+use Omnipay\Common\Item;
+use App\Models\SystemLog;
+use App\Models\GatewayType;
+use App\Models\PaymentType;
+use App\Jobs\Util\SystemLogger;
+use App\Utils\Traits\MakesHash;
+use App\Exceptions\PaymentFailed;
+use Illuminate\Support\Facades\Http;
 
 class PayPalProPaymentDriver extends BaseDriver
 {
@@ -53,13 +54,23 @@ class PayPalProPaymentDriver extends BaseDriver
      *
      * @return void
      */
-    private function initializeOmnipayGateway(): void
+    private function initializeOmnipayGateway(): self
     {
         $this->omnipay_gateway = Omnipay::create(
             $this->company_gateway->gateway->provider
         );
 
-        $this->omnipay_gateway->initialize((array) $this->company_gateway->getConfig());
+           $this->omnipay_gateway = Omnipay::create('PayPal_Rest');
+ 
+            // Initialise the gateway
+            $this->omnipay_gateway->initialize(array(
+                'clientId' => 'AdRZZt44vJYAtXirmzMjnvUMoFIloN9kpuSgshQB7SJqLHbgtMP_rcmhy83FYY4a-c3R-_e4wZC8E3oG',
+                'secret'   => 'ENPRXSxr6Jy1YQWhh87eN4fSlNVj5uFT2PDmBqPs_QYJD8MXGcsvJATgR8Xc5sOb6T0q1AHCwfmv9B7n',
+                'testMode' => true, // Or false when you are ready for live transactions
+            ));
+
+                return $this;
+        // $this->omnipay_gateway->initialize((array) $this->company_gateway->getConfig());
     }
 
     public function setPaymentMethod($payment_method_id)
@@ -93,32 +104,19 @@ class PayPalProPaymentDriver extends BaseDriver
         $this->payment_hash->data = array_merge((array) $this->payment_hash->data, ['amount' => $data['total']['amount_with_fee']]);
         $this->payment_hash->save();
 
-        // $response = $this->omnipay_gateway
-        //     ->purchase($this->generatePaymentDetails($data))
-        //     ->setItems($this->generatePaymentItems($data))
-        //     ->send();
+        // $data['token'] = base64_decode($this->omnipay_gateway->getToken());
 
-        // if ($response->isRedirect()) {
-        //     return $response->redirect();
-        // }
+        $access_token = $this->omnipay_gateway->getToken();
 
-        // $this->sendFailureMail($response->getMessage() ?: '');
+        // $r = Http::withToken($access_token)
+        //          ->withHeaders(['Accept-Language' => 'en_US'])->post("https://api-m.sandbox.paypal.com/v1/identity/generate-token",[]);
 
-        // $message = [
-        //     'server_response' => $response->getMessage(),
-        //     'data' => $this->payment_hash->data,
-        // ];
+        $r = Http::
+        withToken($access_token)
+        ->post('https://api-m.sandbox.paypal.com/v1/identity/generate-token');
 
-        // SystemLogger::dispatch(
-        //     $message,
-        //     SystemLog::CATEGORY_GATEWAY_RESPONSE,
-        //     SystemLog::EVENT_GATEWAY_FAILURE,
-        //     SystemLog::TYPE_PAYPAL,
-        //     $this->client,
-        //     $this->client->company,
-        // );
-
-        // throw new PaymentFailed($response->getMessage(), $response->getCode());
+        dd($r);
+        nlog($r->body());
 
         return render('gateways.paypal.pay', $data);
 

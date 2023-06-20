@@ -76,6 +76,7 @@ class PaymentType extends StaticModel
     const BACS = 49;
     const STRIPE_BANK_TRANSFER = 50;
     const CASH_APP = 51;
+    const VENMO = 25;
 
     public array $type_names = [
         self::CREDIT => 'payment_type_Credit',
@@ -119,6 +120,7 @@ class PaymentType extends StaticModel
         self::Interac_E_Transfer => 'payment_type_Interac E Transfer',
         self::STRIPE_BANK_TRANSFER => 'bank_transfer',
         self::CASH_APP => 'payment_type_Cash App',
+        self::VENMO => 'payment_type_Venmo',
     ];
 
     public static function parseCardType($cardName)
