@@ -204,6 +204,14 @@ class InvoiceFilters extends QueryFilters
             return $this->builder;
         }
 
+        if ($sort_col[0] == 'client_id') {
+        
+            $this->builder->with(['client' => function($q) use($sort_col){
+                        $q->orderBy('name', $sort_col[1]);
+                        }]);
+            
+        }
+
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }
 
