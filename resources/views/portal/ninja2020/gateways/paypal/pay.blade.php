@@ -62,12 +62,21 @@
 
 
     var FUNDING_SOURCES = [
-    // paypal.FUNDING.PAYPAL,
-    paypal.FUNDING.VENMO,
-    paypal.FUNDING.PAYLATER,
-    paypal.FUNDING.CREDIT,
-    paypal.FUNDING.CARD,
-    ]
+      paypal.FUNDING.PAYPAL,
+      paypal.FUNDING.CARD,
+      paypal.FUNDING.VENMO,
+      paypal.FUNDING.SEPA,
+      paypal.FUNDING.BANCONTACT,
+      paypal.FUNDING.EPS,
+      paypal.FUNDING.GIROPAY,
+      paypal.FUNDING.IDEAL,
+      paypal.FUNDING.MERCADOPAGO,
+      paypal.FUNDING.MYBANK,
+      paypal.FUNDING.PAYLATER,
+      paypal.FUNDING.P24,
+      paypal.FUNDING.SOFORT,
+    ];
+    
     // Loop over each funding source
     FUNDING_SOURCES.forEach(function (fundingSource) {
     // Initialize the buttons

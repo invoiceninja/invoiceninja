@@ -61,8 +61,8 @@ class PayPalRestPaymentDriver extends BaseDriver
 
     public function setPaymentMethod($payment_method_id)
     {
-        // PayPal doesn't have multiple ways of paying.
-        // There's just one, off-site redirect.
+// ['paypal', 'card', 'venmo', 'sepa', 'bancontact', 'eps', 'giropay', 'ideal', 'mercadopago', 'mybank', 'paylater', 'p24', 'sofort']
+
 
         return $this;
     }

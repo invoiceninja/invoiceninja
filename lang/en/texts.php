@@ -5109,6 +5109,9 @@ $LANG = array(
     'add_gateway_help_message' => 'Add a payment gateway (ie. Stripe, WePay or PayPal) to accept online payments', 
     'lang_Hungarian' => 'Hungarian',
     'use_mobile_to_manage_plan' => 'Use your phone subscription settings to manage your plan',
+    'mercado_pago' => 'Mercado Pago',
+    'mybank' => 'MyBank',
+    'paypal_paylater' => 'Pay in 4',
 );
 
 
