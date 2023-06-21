@@ -37,6 +37,8 @@ class PayPalRestPaymentDriver extends BaseDriver
 
     public const SYSTEM_LOG_TYPE = SystemLog::TYPE_PAYPAL;
 
+    private string $api_endpoint_url = '';
+
     public function gatewayTypes()
     {
         return [
@@ -46,22 +48,14 @@ class PayPalRestPaymentDriver extends BaseDriver
 
     public function init()
     {
-        return $this;
-    }
-
-    /**
-     * Initialize Omnipay PayPal_Express gateway.
-     *
-     * @return void
-     */
-    private function initializeOmnipayGateway(): self
-    {
         $this->omnipay_gateway = Omnipay::create(
             $this->company_gateway->gateway->provider
         );
 
         $this->omnipay_gateway->initialize((array) $this->company_gateway->getConfig());
 
+        $this->api_endpoint_url = $this->company_gateway->getConfigField('testMode') ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com';
+        
         return $this;
     }
 
@@ -89,32 +83,121 @@ class PayPalRestPaymentDriver extends BaseDriver
 
     public function processPaymentView($data)
     {
-        $this->initializeOmnipayGateway();
+        $this->init();
 
         $data['gateway'] = $this;
         
         $this->payment_hash->data = array_merge((array) $this->payment_hash->data, ['amount' => $data['total']['amount_with_fee']]);
         $this->payment_hash->save();
 
-        $access_token = $this->omnipay_gateway->getToken();
-
-        $headers = [
-            'Accept' => 'application/json',
-            'Content-type' => 'application/json',
-            'Accept-Language' => 'en_US',
-        ];
-
-        $r = Http::withToken($access_token)
-                ->withHeaders($headers)
-                ->post("https://api-m.sandbox.paypal.com/v1/identity/generate-token",['body' => '']);
-
-        nlog($r->body());
-        dd($r);
+        $data['client_id'] = $this->company_gateway->getConfigField('clientId');
+        $data['token'] = $this->getClientToken();
+        $data['order_id'] = $this->createOrder($data);
 
         return render('gateways.paypal.pay', $data);
 
     }
 
+    public function processPaymentResponse($request)
+    {
+        $this->init();
+
+        nlog($request->all());
+        
+        $response = json_decode($request['gateway_response'], true);
+        
+        $order_id = $response['orderID'];
+
+        nlog($order_id);
+
+        $r = $this->gatewayRequest("/v2/checkout/orders/{$order_id}/capture", 'post', []);
+
+            dd($r->body());
+
+    }
+
+    private function getClientToken(): string
+    {
+
+        $r = $this->gatewayRequest('/v1/identity/generate-token', 'post', ['body' => '']);
+
+        if($r->successful()) 
+            return $r->json()['client_token'];
+        
+        throw new PaymentFailed('Unable to gain client token from Paypal. Check your configuration', 401);
+
+    }
+
+    private function createOrder(array $data): string
+    {
+
+        $_invoice = collect($this->payment_hash->data->invoices)->first();
+
+        $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
+
+        $order = [
+          "intent" => "CAPTURE",
+          "purchase_units" => [
+                [
+            "description" =>ctrans('texts.invoice_number').'# '.$invoice->number,
+            "invoice_id" => $invoice->number,
+            'reference_id' => 'PUHF',
+            'description' => 'Sporting Goods',
+            'custom_id' => 'CUST-HighFashions',
+            'soft_descriptor' => 'HighFashions',
+            "amount" => [
+                "value" => (string)$data['amount_with_fee'],
+                "currency_code"=> $this->client->currency()->code,
+                "breakdown" => [
+                    "item_total" => [
+                        "currency_code" => $this->client->currency()->code,
+                        "value" => (string)$data['amount_with_fee']
+                    ]
+                ]
+            ],
+            "items"=> [
+                [
+                    "name" => ctrans('texts.invoice_number').'# '.$invoice->number,
+                    "quantity" => "1",
+                    "unit_amount" => [
+                        "currency_code" => $this->client->currency()->code,
+                        "value" => (string)$data['amount_with_fee']
+                    ],
+                ],
+            ],
+          ]
+          ]
+        ];
+        
+        $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
+
+        return $r->json()['id'];
+
+    }
+
+    public function gatewayRequest(string $uri, string $verb, array $data, ?array $headers = [])
+    {
+        $r = Http::withToken($this->omnipay_gateway->getToken())
+                ->withHeaders($this->getHeaders($headers))
+                ->{$verb}("{$this->api_endpoint_url}{$uri}", $data);
+
+        if($r->successful()) 
+            return $r;
+
+        throw new PaymentFailed("Gateway failure - {$r->body()}", 401);
+
+    }
+
+    private function getHeaders(array $headers = []): array
+    {
+        return array_merge([
+            'Accept' => 'application/json',
+            'Content-type' => 'application/json',
+            'Accept-Language' => 'en_US',
+        ], $headers);
+    }
+
+    /*
     public function processPaymentResponse($request)
     {
         $this->initializeOmnipayGateway();
@@ -221,6 +304,8 @@ class PayPalRestPaymentDriver extends BaseDriver
         return $items;
     }
 
+    */
+
     private function feeCalc($invoice, $invoice_total)
     {
         $invoice->service()->removeUnpaidGatewayFees();
@@ -241,4 +326,6 @@ class PayPalRestPaymentDriver extends BaseDriver
 
         return 0;
     }
+
+    
 }

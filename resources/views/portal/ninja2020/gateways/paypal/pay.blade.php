@@ -1,8 +1,6 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.payment_type_credit_card'), 'card_title' => ctrans('texts.payment_type_credit_card')])
 
 @section('gateway_head')
-    <link href="{{ asset('css/card-js.min.css') }}" rel="stylesheet" type="text/css">
-
     <link
       rel="stylesheet"
       type="text/css"
@@ -12,7 +10,16 @@
 @endsection
 
 @section('gateway_content')
-    
+    <form action="{{ route('client.payments.response') }}" method="post" id="server_response">
+        @csrf
+        <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
+        <input type="hidden" name="company_gateway_id" value="{{ $gateway->company_gateway->id }}">
+        <input type="hidden" name="gateway_response" id="gateway_response">
+        <input type="hidden" name="amount_with_fee" id="amount_with_fee" value="{{ $total['amount_with_fee'] }}"/>
+    </form>
+
+    <div class="alert alert-failure mb-4" hidden id="errors"></div>
+
 <div id="paypal-button-container" class="paypal-button-container"></div>
     <div class="card_container">
       <form id="card-form">
@@ -101,85 +108,18 @@
 @endsection
 
 @push('footer')
-<script src="https://www.paypal.com/sdk/js?components=buttons,hosted-fields&client-id=AdRZZt44vJYAtXirmzMjnvUMoFIloN9kpuSgshQB7SJqLHbgtMP_rcmhy83FYY4a-c3R-_e4wZC8E3oG" data-client-token="{!! $token !!}">
+<script src="https://www.paypal.com/sdk/js?components=buttons,hosted-fields&intent=capture&client-id={!! $client_id !!}" data-client-token="{!! $token !!}">
 </script>
 
 <script>
-paypal
-  .Buttons({
-    // Sets up the transaction when a payment button is clicked
-    createOrder: function () {
-      return fetch("/api/orders", {
-        method: "post",
-        // use the "body" param to optionally pass additional order information
-        // like product skus and quantities
-        body: JSON.stringify({
-          cart: [
-            {
-              sku: "213434",
-              quantity: "1",
-            },
-          ],
-        }),
-      })
-        .then((response) => response.json())
-        .then((order) => order.id);
-    },
-    // Finalize the transaction after payer approval
-    onApprove: function (data) {
-      return fetch(`/api/orders/${data.orderID}/capture`, {
-        method: "post",
-      })
-        .then((response) => response.json())
-        .then((orderData) => {
-          // Successful capture! For dev/demo purposes:
-          console.log(
-            "Capture result",
-            orderData,
-            JSON.stringify(orderData, null, 2)
-          );
-          const transaction = orderData.purchase_units[0].payments.captures[0];
-          alert(`Transaction ${transaction.status}: ${transaction.id}
 
-            See console for all available details
-          `);
-          // When ready to go live, remove the alert and show a success message within this page. For example:
-          // var element = document.getElementById('paypal-button-container');
-          // element.innerHTML = '<h3>Thank you for your payment!</h3>';
-          // Or go to another URL:  actions.redirect('thank_you.html');
-        });
-    },
-  })
-  .render("#paypal-button-container");
-
-// If this returns false or the card fields aren't visible, see Step #1.
 if (paypal.HostedFields.isEligible()) {
-  let orderId;
-
-  // Renders card fields
-  paypal.HostedFields.render({
-    // Call your server to set up the transaction
-    createOrder: () => {
-      return fetch("/api/orders", {
-        method: "post",
-        // use the "body" param to optionally pass additional order information
-        // like product skus and quantities
-        body: JSON.stringify({
-          cart: [
-            {
-              sku: "cxcxcx",
-              quantity: "333",
-            },
-          ],
-        }),
-      })
-        .then((res) => res.json())
-        .then((orderData) => {
-          orderId = orderData.id; // needed later to complete capture
-          return orderData.id;
-        });
-    },
-    styles: {
+  paypal.HostedFields.render({ 
+       
+      createOrder: function(data, actions) {
+        return "{!! $order_id !!}"  
+      },
+      styles: {
       ".valid": {
         color: "green",
       },
@@ -261,9 +201,34 @@ if (paypal.HostedFields.isEligible()) {
         });
     });
   });
-} else {
-  // Hides card fields if the merchant isn't eligible
-  document.querySelector("#card-form").style = "display: none";
 }
+else {
+    document.querySelector("#card-form").style = "display: none";
+
+    paypal.Buttons({ 
+ env: 'sandbox', // sandbox | production
+
+client: {
+    sandbox:    "{{ $gateway->company_gateway->getConfigField('clientId') }}",
+
+},       
+      createOrder: function(data, actions) {
+        return "{!! $order_id !!}"  
+      },
+      onApprove: function(data, actions) {
+
+        return actions.order.capture().then(function(details) {                                    
+          
+          console.log(details);
+        });           
+
+            // document.getElementById("gateway_response").value =JSON.stringify( data );
+            // document.getElementById("server_response").submit();
+
+      }
+    }).render('#paypal-button-container');
+
+}
+
 </script>
 @endpush
