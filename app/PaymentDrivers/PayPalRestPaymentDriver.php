@@ -100,20 +100,35 @@ class PayPalRestPaymentDriver extends BaseDriver
 
     public function processPaymentResponse($request)
     {
-        $this->init();
-
-        nlog($request->all());
         
         $response = json_decode($request['gateway_response'], true);
         
-        $order_id = $response['orderID'];
+        if($response['status'] == 'COMPLETED'){
 
-        nlog($order_id);
+            $data = [
+                'payment_type' => PaymentType::PAYPAL,
+                'amount' => $response['purchase_units'][0]['amount']['value'],
+                'transaction_reference' => $response['purchase_units'][0]['payments']['captures'][0]['id'],
+                'gateway_type_id' => GatewayType::PAYPAL,
+            ];
 
-        $r = $this->gatewayRequest("/v2/checkout/orders/{$order_id}/capture", 'post', []);
+            $payment = $this->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
 
-            dd($r->body());
+            SystemLogger::dispatch(
+                ['response' => $response, 'data' => $data],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_SUCCESS,
+                SystemLog::TYPE_PAYPAL,
+                $this->client,
+                $this->client->company,
+            );
 
+            return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
+
+        }
+        else {
+            throw new PaymentFailed('Payment failed. Please try again.', 401);
+        }
     }
 
     private function getClientToken(): string
@@ -141,10 +156,10 @@ class PayPalRestPaymentDriver extends BaseDriver
                 [
             "description" =>ctrans('texts.invoice_number').'# '.$invoice->number,
             "invoice_id" => $invoice->number,
-            'reference_id' => 'PUHF',
-            'description' => 'Sporting Goods',
-            'custom_id' => 'CUST-HighFashions',
-            'soft_descriptor' => 'HighFashions',
+            // 'reference_id' => 'PUHF',
+            // 'description' => 'Sporting Goods',
+            // 'custom_id' => 'CUST-HighFashions',
+            // 'soft_descriptor' => 'HighFashions',
             "amount" => [
                 "value" => (string)$data['amount_with_fee'],
                 "currency_code"=> $this->client->currency()->code,
