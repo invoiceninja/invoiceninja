@@ -34,17 +34,15 @@ class RecurringInvoiceFilters extends QueryFilters
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('number', 'like', '%'.$filter.'%')
-                          ->orWhere('date', 'like', '%'.$filter.'%')
-                          ->orWhere('amount', 'like', '%'.$filter.'%')
-                          ->orWhere('balance', 'like', '%'.$filter.'%')
-                          ->orWhere('custom_value1', 'like', '%'.$filter.'%')
-                          ->orWhere('custom_value2', 'like', '%'.$filter.'%')
-                          ->orWhere('custom_value3', 'like', '%'.$filter.'%')
-                          ->orWhere('custom_value4', 'like', '%'.$filter.'%')
-                          ->orWhereHas('client', function ($q) use ($filter) {
-                              $q->where('name', 'like', '%'.$filter.'%');
-                          });
+              $query->where('date', 'like', '%'.$filter.'%')
+                    ->orWhere('amount', 'like', '%'.$filter.'%')
+                    ->orWhere('custom_value1', 'like', '%'.$filter.'%')
+                    ->orWhere('custom_value2', 'like', '%'.$filter.'%')
+                    ->orWhere('custom_value3', 'like', '%'.$filter.'%')
+                    ->orWhere('custom_value4', 'like', '%'.$filter.'%')
+                    ->orWhereHas('client', function ($q) use ($filter) {
+                        $q->where('name', 'like', '%'.$filter.'%');
+                    });
         });
     }
 
