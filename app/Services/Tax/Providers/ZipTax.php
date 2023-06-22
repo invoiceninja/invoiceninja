@@ -27,22 +27,23 @@ class ZipTax implements TaxProviderInterface
 
     public function run()
     {
+        $string_address = implode(" ", $this->address);
 
-        $response = $this->callApi(['key' => $this->api_key, 'address' => $this->address]);
+        $response = $this->callApi(['key' => $this->api_key, 'address' => $string_address]);
 
-        if($response->successful())
-            return $response->json();
+        if($response->successful()){
+            return $this->parseResponse($response->json());
+        }
 
-        if($this->postal_code) {
-           $response = $this->callApi(['key' => $this->api_key, 'address' => $this->postal_code]);
+        if(isset($this->address['postal_code'])) {
+           $response = $this->callApi(['key' => $this->api_key, 'address' => $this->address['postal_code']]);
 
             if($response->successful())
-                return $response->json();
+                return $this->parseResponse($response->json());
 
         }
 
-        $response->throw();
-
+        return null;
     }
     
     public function setApiCredentials($api_key): self
@@ -60,9 +61,21 @@ class ZipTax implements TaxProviderInterface
      */
     private function callApi(array $parameters): Response
     {
-        $response = Http::retry(3, 1000)->withHeaders([])->get($this->endpoint, $parameters);
 
-        return $response;
+        return Http::retry(3, 1000)->withHeaders([])->get($this->endpoint, $parameters);
 
+    }
+
+    private function parseResponse($response)
+    {
+
+        if(isset($response['rCode']) && $response['rCode'] == 100)
+            return $response['results']['0'];
+
+        if(isset($response['rCode']) && class_exists(\Modules\Admin\Events\TaxProviderException::class)) 
+            event(new \Modules\Admin\Events\TaxProviderException($response['rCode']));
+        
+        return null;
+        
     }
 }

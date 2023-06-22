@@ -40,8 +40,6 @@ class CreditCreatedNotification implements ShouldQueue
     {
         MultiDB::setDb($event->company->db);
 
-        // $first_notification_sent = true;
-
         $credit = $event->credit;
 
         /* We loop through each user and determine whether they need to be notified */
@@ -60,7 +58,7 @@ class CreditCreatedNotification implements ShouldQueue
                 unset($methods[$key]);
 
                 $nmo = new NinjaMailerObject;
-                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($credit, 'credit'))->build());
+                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($credit, 'credit', $company_user->portalType()))->build());
                 $nmo->company = $credit->company;
                 $nmo->settings = $credit->company->settings;
                 $nmo->to_user = $user;

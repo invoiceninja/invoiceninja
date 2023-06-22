@@ -100,10 +100,10 @@ class ClientPresenter extends EntityPresenter
         if ($address2 = $client->shipping_address2) {
             $str .= e($address2).'<br/>';
         }
-        if ($cityState = $this->getCityState()) {
+        if ($cityState = $this->getShippingCityState()) {
             $str .= e($cityState).'<br/>';
         }
-        if ($country = $client->country) {
+        if ($country = $client->shipping_country) {
             $str .= e($country->name).'<br/>';
         }
 
@@ -194,4 +194,6 @@ class ClientPresenter extends EntityPresenter
             return false;
         }
     }
+
+
 }

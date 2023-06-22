@@ -52,7 +52,7 @@ class NinjaMailerJob implements ShouldQueue
     public $override;
 
     /* @var Company $company*/
-    public $company;
+    public ?Company $company;
 
     private $mailer;
 
@@ -72,7 +72,9 @@ class NinjaMailerJob implements ShouldQueue
 
     public function backoff()
     {
-        return [5, 10, 30, 240];
+        // return [5, 10, 30, 240];
+        return [rand(5, 10), rand(30, 40), rand(60, 79), rand(160, 400)];
+
     }
 
     public function handle()
@@ -136,7 +138,7 @@ class NinjaMailerJob implements ShouldQueue
                 ->send($this->nmo->mailable);
 
             /* Count the amount of emails sent across all the users accounts */
-            Cache::increment($this->company->account->key);
+            Cache::increment("email_quota".$this->company->account->key);
 
             LightLogs::create(new EmailSuccess($this->nmo->company->company_key))
                      ->send();
@@ -486,8 +488,13 @@ class NinjaMailerJob implements ShouldQueue
      */
     private function preFlightChecksFail(): bool
     {
+        /* Always send regardless */ 
+        if($this->override) {
+            return false;
+        }
+
         /* If we are migrating data we don't want to fire any emails */
-        if ($this->company->is_disabled && !$this->override) {
+        if ($this->company->is_disabled) {
             return true;
         }
 
@@ -513,12 +520,6 @@ class NinjaMailerJob implements ShouldQueue
 
         /* If the account is verified, we allow emails to flow */
         if (Ninja::isHosted() && $this->company->account && $this->company->account->is_verified_account) {
-            //11-01-2022
-
-            /* Continue to analyse verified accounts in case they later start sending poor quality emails*/
-            // if(class_exists(\Modules\Admin\Jobs\Account\EmailQuality::class))
-            //     (new \Modules\Admin\Jobs\Account\EmailQuality($this->nmo, $this->company))->run();
-
             return false;
         }
 
@@ -575,10 +576,10 @@ class NinjaMailerJob implements ShouldQueue
     /**
      * Attempts to refresh the Microsoft refreshToken
      *
-     * @param  App\Models\User
-     * @return string | boool
+     * @param  \App\Models\User $user
+     * @return mixed
      */
-    private function refreshOfficeToken($user)
+    private function refreshOfficeToken(User $user)
     {
         $expiry = $user->oauth_user_token_expiry ?: now()->subDay();
 

@@ -84,7 +84,7 @@ class UpdateTaskRequest extends Request
     public function prepareForValidation()
     {
         $input = $this->decodePrimaryKeys($this->all());
-
+        
         if (array_key_exists('status_id', $input) && is_string($input['status_id'])) {
             $input['status_id'] = $this->decodePrimaryKey($input['status_id']);
         }
@@ -102,6 +102,15 @@ class UpdateTaskRequest extends Request
 
         if (array_key_exists('color', $input) && is_null($input['color'])) {
             $input['color'] = '';
+        }
+
+        if(isset($input['project_id']) && isset($input['client_id'])){
+            $search_project_with_client = Project::withTrashed()->where('id', $input['project_id'])->where('client_id', $input['client_id'])->company()->doesntExist();
+
+            if($search_project_with_client){
+                unset($input['project_id']);
+            }
+
         }
 
         $this->replace($input);

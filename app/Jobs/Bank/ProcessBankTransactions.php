@@ -63,6 +63,8 @@ class ProcessBankTransactions implements ShouldQueue
         //Loop through everything until we are up to date
         $this->from_date = $this->from_date ?: '2021-01-01';
 
+        nlog("Processing transactions for account: {$this->bank_integration->account->key}");
+
         do {
             try {
                 $this->processTransactions();

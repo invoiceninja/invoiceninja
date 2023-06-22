@@ -436,6 +436,14 @@ class MigrationController extends BaseController
                     StartMigration::dispatch($migration_file, $user, $fresh_company);
                 }
             }
+
+            return response()->json([
+                '_id' => Str::uuid(),
+                'method' => config('queue.default'),
+                'started_at' => now(),
+            ], 200);
+        
         }
+
     }
 }

@@ -71,21 +71,21 @@ class OAuth
     public static function providerToString(int $social_provider): string
     {
         switch ($social_provider) {
-            case SOCIAL_GOOGLE:
+            case self::SOCIAL_GOOGLE:
                 return 'google';
-            case SOCIAL_FACEBOOK:
+            case self::SOCIAL_FACEBOOK:
                 return 'facebook';
-            case SOCIAL_GITHUB:
+            case self::SOCIAL_GITHUB:
                 return 'github';
-            case SOCIAL_LINKEDIN:
+            case self::SOCIAL_LINKEDIN:
                 return 'linkedin';
-            case SOCIAL_TWITTER:
+            case self::SOCIAL_TWITTER:
                 return 'twitter';
-            case SOCIAL_BITBUCKET:
+            case self::SOCIAL_BITBUCKET:
                 return 'bitbucket';
-            case SOCIAL_MICROSOFT:
+            case self::SOCIAL_MICROSOFT:
                 return 'microsoft';
-            case SOCIAL_APPLE:
+            case self::SOCIAL_APPLE:
                 return 'apple';
         }
     }
@@ -94,21 +94,21 @@ class OAuth
     {
         switch ($social_provider) {
             case 'google':
-                return SOCIAL_GOOGLE;
+                return self::SOCIAL_GOOGLE;
             case 'facebook':
-                return SOCIAL_FACEBOOK;
+                return self::SOCIAL_FACEBOOK;
             case 'github':
-                return SOCIAL_GITHUB;
+                return self::SOCIAL_GITHUB;
             case 'linkedin':
-                return SOCIAL_LINKEDIN;
+                return self::SOCIAL_LINKEDIN;
             case 'twitter':
-                return SOCIAL_TWITTER;
+                return self::SOCIAL_TWITTER;
             case 'bitbucket':
-                return SOCIAL_BITBUCKET;
+                return self::SOCIAL_BITBUCKET;
             case 'microsoft':
-                return SOCIAL_MICROSOFT;
+                return self::SOCIAL_MICROSOFT;
             case 'apple':
-                return SOCIAL_APPLE;
+                return self::SOCIAL_APPLE;
         }
     }
 

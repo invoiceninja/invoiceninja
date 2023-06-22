@@ -45,6 +45,32 @@ class MultiDB
 
     public static $dbs = ['db-ninja-01', 'db-ninja-02'];
 
+    private static $protected_domains = [
+        'www',
+        'app',
+        'ninja',
+        'sentry',
+        'sentry2',
+        'staging',
+        'pdf',
+        'demo',
+        'docs',
+        'client_domain',
+        'custom_domain',
+        'preview',
+        'invoiceninja',
+        'cname',
+        'sandbox',
+        'stage',
+        'html',
+        'lb',
+        'shopify',
+        'beta',
+        'prometh',
+        'license',
+        'socket',
+    ];
+
     /**
      * @return array
      */
@@ -55,8 +81,13 @@ class MultiDB
 
     public static function checkDomainAvailable($subdomain) : bool
     {
+
         if (! config('ninja.db.multi_db_enabled')) {
-            return Company::whereSubdomain($subdomain)->get()->count() == 0;
+            return Company::whereSubdomain($subdomain)->count() == 0;
+        }
+
+        if (in_array($subdomain, self::$protected_domains)) {
+            return false;
         }
 
         $current_db = config('database.default');
@@ -105,7 +136,7 @@ class MultiDB
      * a new user request.
      *
      * @param  string $email       The user email
-     * @param  stirng $company_key The company key
+     * @param  string $company_key The company key
      * @return bool             True|False
      */
     public static function checkUserAndCompanyCoExist($email, $company_key) :bool
@@ -156,8 +187,8 @@ class MultiDB
     }
 
     /**
-     * @param array $data
-     * @return User|null
+     * @param string $email
+     * @return ClientContact|null
      */
     public static function hasContact(string $email) : ?ClientContact
     {
@@ -183,8 +214,8 @@ class MultiDB
     }
 
     /**
-     * @param array $data
-     * @return User|null
+     * @param array $search
+     * @return ClientContact|null
      */
     public static function findContact(array $search) : ?ClientContact
     {
@@ -310,7 +341,24 @@ class MultiDB
 
         self::setDB($current_db);
 
-        return false;
+        return null;
+    }
+
+    public static function findAndSetDbByShopifyName($shopify_name) :?Company
+    {
+        $current_db = config('database.default');
+
+        foreach (self::$dbs as $db) {
+            if ($company = Company::on($db)->with('tokens')->where('shopify_name', $shopify_name)->first()) {
+                self::setDb($db);
+
+                return $company;
+            }
+        }
+
+        self::setDB($current_db);
+
+        return null;
     }
 
     public static function findAndSetDbByAccountKey($account_key) :bool
@@ -413,7 +461,7 @@ class MultiDB
 
         self::setDB($current_db);
 
-        return false;
+        return null;
     }
 
     public static function findAndSetDbByDomain($query_array)
@@ -456,8 +504,8 @@ class MultiDB
     }
 
     /**
-     * @param array $data
-     * @return User|null
+     * @param string $phone
+     * @return bool
      */
     public static function hasPhoneNumber(string $phone) : bool
     {
@@ -482,7 +530,7 @@ class MultiDB
 
     
 
-    public static function randomSubdomainGenerator()
+    public static function randomSubdomainGenerator(): string
     {
         $current_db = config('database.default');
 
@@ -509,6 +557,7 @@ class MultiDB
 
     /**
      * @param $database
+     * @return void
      */
     public static function setDB(string $database) : void
     {

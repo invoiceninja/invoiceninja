@@ -13,6 +13,7 @@ namespace Tests\Unit\Tax;
 
 use Tests\TestCase;
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Product;
 use Tests\MockAccountData;
@@ -20,6 +21,7 @@ use App\DataMapper\InvoiceItem;
 use App\DataMapper\Tax\TaxData;
 use App\Factory\InvoiceFactory;
 use App\DataMapper\Tax\TaxModel;
+use App\DataMapper\CompanySettings;
 use App\DataMapper\Tax\ZipTax\Response;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -92,30 +94,38 @@ class SumTaxTest extends TestCase
     public function testCalcInvoiceNoTax()
     {
 
+        $settings = CompanySettings::defaults();
+        $settings->country_id = '840'; // germany
 
         $tax_data = new TaxModel();
-        $tax_data->seller_region = 'US';
         $tax_data->seller_subregion = 'CA';
         $tax_data->regions->US->has_sales_above_threshold = true;
-        $tax_data->regions->US->tax_all = true;
+        $tax_data->regions->US->tax_all_subregions = true;
 
-        $this->company->calculate_taxes = false;
-        $this->company->tax_data = $tax_data;
-        $this->company->save();
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+            'settings' => $settings,
+            'tax_data' => $tax_data,
+            'calculate_taxes' => false,
+            'origin_tax_data' => new Response($this->resp),        
+        ]);
 
         $client = Client::factory()->create([
             'user_id' => $this->user->id,
-            'company_id' => $this->company->id,
+            'company_id' => $company->id,
             'country_id' => 840,
+            'state' => 'CA',
+            'postal_code' => '90210',
+            'tax_data' => new Response($this->resp),
         ]);
 
-        $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+        $invoice = InvoiceFactory::create($company->id, $this->user->id);
         $invoice->client_id = $client->id;
         $invoice->uses_inclusive_taxes = false;
 
         $line_items = [];
 
-        $invoice->tax_data = new TaxData($this->response);
+        $invoice->tax_data = $tax_data;
 
         $line_item = new InvoiceItem();
         $line_item->quantity = 1;
@@ -132,7 +142,6 @@ class SumTaxTest extends TestCase
 
         $line_items = $invoice->line_items;
 
-
         $this->assertEquals(10, $invoice->amount);
         $this->assertEquals("", $line_items[0]->tax_name1);
         $this->assertEquals(0, $line_items[0]->tax_rate1);
@@ -142,32 +151,39 @@ class SumTaxTest extends TestCase
     public function testCalcInvoiceTax()
     {
 
-
+        $settings = CompanySettings::defaults();
+        $settings->country_id = '840'; 
+        $settings->currency_id = '1';
 
         $tax_data = new TaxModel();
-        $tax_data->seller_region = 'US';
         $tax_data->seller_subregion = 'CA';
         $tax_data->regions->US->has_sales_above_threshold = true;
-        $tax_data->regions->US->tax_all = true;
+        $tax_data->regions->US->tax_all_subregions = true;
 
-        $this->company->calculate_taxes = true;
-        $this->company->tax_data = $tax_data;
-        $this->company->save();
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+            'settings' => $settings,
+            'tax_data' => $tax_data,
+            'calculate_taxes' => true,
+            'origin_tax_data' => new Response($this->resp),
+        ]);
+
 
         $client = Client::factory()->create([
             'user_id' => $this->user->id,
-            'company_id' => $this->company->id,
+            'company_id' => $company->id,
             'country_id' => 840,
+            'postal_code' => '90210',
+            'state' => 'CA',
+            'tax_data' => new Response($this->resp),
         ]);
 
-        $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+        $invoice = InvoiceFactory::create($company->id, $this->user->id);
         $invoice->client_id = $client->id;
         $invoice->uses_inclusive_taxes = false;
 
         $line_items = [];
 
-        $invoice->tax_data = new TaxData($this->response);
-        
         $line_item = new InvoiceItem;
         $line_item->quantity = 1;
         $line_item->cost = 10;
@@ -183,9 +199,8 @@ class SumTaxTest extends TestCase
 
         $line_items = $invoice->line_items;
 
-
         $this->assertEquals(10.88, $invoice->amount);
-        $this->assertEquals("CA Sales Tax", $line_items[0]->tax_name1);
+        $this->assertEquals("Sales Tax", $line_items[0]->tax_name1);
         $this->assertEquals(8.75, $line_items[0]->tax_rate1);
     }
 

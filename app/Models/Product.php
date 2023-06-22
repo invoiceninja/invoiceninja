@@ -106,6 +106,10 @@ use League\CommonMark\CommonMarkConverter;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @mixin \Eloquent
  */
 class Product extends BaseModel
@@ -121,6 +125,8 @@ class Product extends BaseModel
     public const PRODUCT_TYPE_EXEMPT = 5;
     public const PRODUCT_TYPE_REDUCED_TAX = 6;
     public const PRODUCT_TYPE_OVERRIDE_TAX = 7;
+    public const PRODUCT_TYPE_ZERO_RATED = 8;
+    public const PRODUCT_TYPE_REVERSE_TAX = 9;
 
     protected $fillable = [
         'custom_value1',
@@ -193,5 +199,10 @@ class Product extends BaseModel
         ]);
 
         return $converter->convert($this->notes);
+    }
+
+    public function portalUrl($use_react_url): string
+    {
+        return $use_react_url ? config('ninja.react_url') . "/#/products/{$this->hashed_id}/edit" : config('ninja.app_url');
     }
 }

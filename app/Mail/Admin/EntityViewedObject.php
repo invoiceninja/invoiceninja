@@ -30,13 +30,16 @@ class EntityViewedObject
 
     public $settings;
 
-    public function __construct($invitation, $entity_type)
+    protected $use_react_url;
+    
+    public function __construct($invitation, $entity_type, $use_react_url)
     {
         $this->invitation = $invitation;
         $this->entity_type = $entity_type;
         $this->entity = $invitation->{$entity_type};
         $this->contact = $invitation->contact;
         $this->company = $invitation->company;
+        $this->use_react_url = $use_react_url;
     }
 
     public function build()
@@ -104,7 +107,7 @@ class EntityViewedObject
                     'invoice' => $this->entity->number,
                 ]
             ),
-            'url' => $this->invitation->getAdminLink(),
+            'url' => $this->invitation->getAdminLink($this->use_react_url),
             'button' => ctrans("texts.view_{$this->entity_type}"),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),

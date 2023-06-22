@@ -29,17 +29,8 @@ class VerifyCsrfToken extends Middleware
      * @var array
      */
     protected $except = [
-        // 'livewire/message/*'
+        'setup/*',
+        'setup'
     ];
 
-    // public function handle($request, \Closure $next) {
-
-    //     try {
-    //         return parent::handle($request, $next);
-    //     } catch (TokenMismatchException $ex) {
-
-    //         throw new TokenMismatchException('CSRF token mismatch.');
-
-    //     }
-    // }
 }

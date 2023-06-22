@@ -16,7 +16,6 @@ use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
 use App\Mail\Admin\EntitySentObject;
-use App\Notifications\Admin\EntitySentNotification;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -38,6 +37,8 @@ class InvoiceEmailedNotification implements ShouldQueue
      */
     public function handle($event)
     {
+        nlog($event->template);
+
         MultiDB::setDb($event->company->db);
 
         $first_notification_sent = true;
@@ -63,7 +64,7 @@ class InvoiceEmailedNotification implements ShouldQueue
                 unset($methods[$key]);
 
                 $nmo = new NinjaMailerObject;
-                $nmo->mailable = new NinjaMailer((new EntitySentObject($event->invitation, 'invoice', $event->template))->build());
+                $nmo->mailable = new NinjaMailer((new EntitySentObject($event->invitation, 'invoice', $event->template, $company_user->portalType()))->build());
                 $nmo->company = $invoice->company;
                 $nmo->settings = $invoice->company->settings;
                 $nmo->to_user = $user;

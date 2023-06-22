@@ -28,7 +28,7 @@
       name: X-API-PASSWORD
       in: header
       description: 'The login password when challenged on certain protected routes'
-      required: false
+      required: true
       schema:
         type: string
         example: supersecretpassword

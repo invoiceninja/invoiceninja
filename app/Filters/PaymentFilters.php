@@ -22,7 +22,7 @@ class PaymentFilters extends QueryFilters
     /**
      * Filter based on search text.
      *
-     * @param string query filter
+     * @param string $filter
      * @return Builder
      * @deprecated
      */
@@ -35,10 +35,15 @@ class PaymentFilters extends QueryFilters
         return  $this->builder->where(function ($query) use ($filter) {
             $query->where('amount', 'like', '%'.$filter.'%')
                           ->orWhere('date', 'like', '%'.$filter.'%')
+                          ->orWhere('number','like', '%'.$filter.'%')
+                          ->orWhere('transaction_reference', 'like', '%'.$filter.'%')
                           ->orWhere('custom_value1', 'like', '%'.$filter.'%')
                           ->orWhere('custom_value2', 'like', '%'.$filter.'%')
                           ->orWhere('custom_value3', 'like', '%'.$filter.'%')
-                          ->orWhere('custom_value4', 'like', '%'.$filter.'%');
+                          ->orWhere('custom_value4', 'like', '%'.$filter.'%')
+                          ->orWhereHas('client', function ($q) use ($filter) {
+                                $q->where('name', 'like', '%'.$filter.'%');
+                            });
         });
     }
 
@@ -55,7 +60,7 @@ class PaymentFilters extends QueryFilters
      * - partially refunded
      * - refunded
      *
-     * @param string client_status The payment status as seen by the client
+     * @param string $value The payment status as seen by the client
      * @return Builder
      */
     public function client_status(string $value = ''): Builder
@@ -100,7 +105,12 @@ class PaymentFilters extends QueryFilters
             if (count($payment_filters) >0) {
                 $query->whereIn('status_id', $payment_filters);
             }
+
+            if(in_array('partially_unapplied', $status_parameters)) {
+                $query->where('amount', '>', 'applied')->where('refunded', 0);
+            }
         });
+
 
         return $this->builder;
     }
@@ -154,7 +164,7 @@ class PaymentFilters extends QueryFilters
     /**
      * Filters the query by the users company ID.
      *
-     * @return Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     public function entityFilter(): Builder
     {

@@ -34,7 +34,7 @@ class PurchaseOrderCreatedListener implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param  object  $event
+     * @param  PurchaseOrderWasCreated $event
      * @return void
      */
     public function handle(PurchaseOrderWasCreated $event)
@@ -45,7 +45,6 @@ class PurchaseOrderCreatedListener implements ShouldQueue
 
         $purchase_order = $event->purchase_order;
 
-        
         /* We loop through each user and determine whether they need to be notified */
         foreach ($event->company->company_users as $company_user) {
             /* The User */
@@ -66,7 +65,7 @@ class PurchaseOrderCreatedListener implements ShouldQueue
                 unset($methods[$key]);
 
                 $nmo = new NinjaMailerObject;
-                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($purchase_order, 'purchase_order'))->build());
+                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($purchase_order, 'purchase_order', $company_user->portalType()))->build());
                 $nmo->company = $purchase_order->company;
                 $nmo->settings = $purchase_order->company->settings;
 

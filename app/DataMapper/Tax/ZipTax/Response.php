@@ -57,7 +57,7 @@ class Response
     *    ];
     *
     */
-    public string $seller_region = "";
+    public string $seller_subregion = "";
     //US
 
     public string $geoPostalCode = "";
@@ -65,14 +65,17 @@ class Response
     public string $geoCounty = "";
     public string $geoState = "";
     public float $taxSales = 0;
+    public string $taxName = "";
     public float $taxUse = 0;
-    public string $txbService = ""; // N = No, Y = Yes
-    public string $txbFreight = ""; // N = No, Y = Yes
+    public string $txbService = "Y"; // N = No, Y = Yes
+    public string $txbFreight = "Y"; // N = No, Y = Yes
     public float $stateSalesTax = 0;
     public float $stateUseTax = 0;
     public float $citySalesTax = 0;
     public float $cityUseTax = 0;
     public string $cityTaxCode = "";
+
+    /* US SPECIFIC TAX CODES */
     public float $countySalesTax = 0;
     public float $countyUseTax = 0;
     public string $countyTaxCode = "";
@@ -93,13 +96,19 @@ class Response
     public string $district5Code = "";
     public float $district5SalesTax = 0;
     public float $district5UseTax = 0;
-    public string $originDestination = "";
+    /* US SPECIFIC TAX CODES */
 
-    public function __construct($data)
+    public string $originDestination = "D"; // defines if the client origin is the locale where the tax is remitted to
+
+    public function __construct($data = null)
     {
 
-        foreach($data as $key => $value){
-            $this->{$key} = $value;
+        if($data) {
+
+            foreach($data as $key => $value) {
+                $this->{$key} = $value;
+            }
+
         }
         
     }

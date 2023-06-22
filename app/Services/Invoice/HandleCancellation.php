@@ -12,10 +12,7 @@
 namespace App\Services\Invoice;
 
 use App\Events\Invoice\InvoiceWasCancelled;
-use App\Jobs\Ninja\TransactionLog;
-use App\Models\Client;
 use App\Models\Invoice;
-use App\Models\TransactionEvent;
 use App\Services\AbstractService;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
@@ -25,9 +22,7 @@ class HandleCancellation extends AbstractService
 {
     use GeneratesCounter;
 
-    private $invoice;
-
-    public function __construct(Invoice $invoice)
+    public function __construct(private Invoice $invoice)
     {
         $this->invoice = $invoice;
     }

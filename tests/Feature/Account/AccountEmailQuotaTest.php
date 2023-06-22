@@ -126,7 +126,7 @@ class AccountEmailQuotaTest extends TestCase
         $account->save();
 
 
-        Cache::put($account->key, 3000);
+        Cache::put("email_quota".$account->key, 3000);
 
         $count = $account->emailsSent();
 

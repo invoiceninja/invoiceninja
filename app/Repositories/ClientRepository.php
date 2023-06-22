@@ -117,9 +117,12 @@ class ClientRepository extends BaseRepository
      */
     public function create($client): ?Client
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         return $this->save(
             $client,
-            ClientFactory::create(auth()->user()->company()->id, auth()->user()->id)
+            ClientFactory::create($user->company()->id, $user->id)
         );
     }
 

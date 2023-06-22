@@ -24,17 +24,6 @@ class PaymentFailureObject
 {
     use MakesHash;
 
-    public Client $client;
-
-    public string $error;
-
-    public Company $company;
-
-    public $amount;
-
-    public ?PaymentHash $payment_hash;
-    // private $invoices;
-
     /**
      * Create a new job instance.
      *
@@ -43,19 +32,8 @@ class PaymentFailureObject
      * @param $company
      * @param $amount
      */
-    public function __construct(Client $client, string $error, Company $company, $amount, ?PaymentHash $payment_hash)
+    public function __construct(public Client $client, public string $error, public Company $company, public float $amount, public ?PaymentHash $payment_hash, protected bool $use_react_url)
     {
-        $this->client = $client;
-
-        $this->error = $error;
-
-        $this->company = $company;
-
-        $this->amount = $amount;
-
-        $this->company = $company;
-
-        $this->payment_hash = $payment_hash;
     }
 
     public function build()
@@ -115,8 +93,8 @@ class PaymentFailureObject
             'logo' => $this->company->present()->logo(),
             'settings' => $this->client->getMergedSettings(),
             'whitelabel' => $this->company->account->isPaid() ? true : false,
-            'url' => config('ninja.app_url'),
-            'button' => ctrans('texts.login'),
+            'url' => $this->client->portalUrl($this->use_react_url),
+            'button' => $this->use_react_url ? ctrans('texts.view_client') : ctrans('texts.login'),
             'additional_info' => $this->error,
         ];
 

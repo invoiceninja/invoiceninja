@@ -121,6 +121,10 @@ class SubscriptionService
                 'account_key' => $recurring_invoice->client->custom_value2,
             ];
 
+            if (property_exists($payment_hash->data->billing_context, 'campaign')) {
+                $context['campaign'] = $payment_hash->data->billing_context->campaign;
+            }
+
             $response = $this->triggerWebhook($context);
 
             return $this->handleRedirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);

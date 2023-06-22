@@ -21,17 +21,14 @@ class MarkInvoiceDeleted extends AbstractService
 {
     use GeneratesCounter;
 
-    public $invoice;
-
     private $adjustment_amount = 0;
 
     private $total_payments = 0;
 
     private $balance_adjustment = 0;
 
-    public function __construct(Invoice $invoice)
+    public function __construct(public Invoice $invoice)
     {
-        $this->invoice = $invoice;
     }
 
     public function run()

@@ -22,10 +22,11 @@ use App\Factory\SchedulerFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Session;
 use App\DataMapper\Schedule\EmailStatement;
-use App\Services\Scheduler\SchedulerService;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\WithoutEvents;
 use App\Services\Scheduler\EmailStatementService;
+use App\Services\Scheduler\EmailReport;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
@@ -37,6 +38,9 @@ class SchedulerTest extends TestCase
     use MakesHash;
     use MockAccountData;
     use WithoutEvents;
+    use DatabaseTransactions;
+
+    protected $faker;
 
     protected function setUp(): void
     {
@@ -53,7 +57,197 @@ class SchedulerTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
+
+        // $this->withoutExceptionHandling();
     }
+
+
+    public function testReportValidationRules()
+    {
+        $data = [
+            'name' => 'A test product sales scheduler',
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'email_report',
+            'parameters' => [
+                'date_range' => EmailStatement::LAST_MONTH,
+                'clients' => [],
+                'report_keys' => [],
+                'client_id' => $this->client->hashed_id,
+                'report_name' => '',
+            ],
+        ];
+
+        $response = false;
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/task_schedulers', $data);
+
+            $response->assertStatus(422);
+
+    }
+
+
+    public function testProductSalesReportGenerationOneClientSeparateParam()
+    {
+        $data = [
+            'name' => 'A test product sales scheduler',
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'email_report',
+            'parameters' => [
+                'date_range' => EmailStatement::LAST_MONTH,
+                'clients' => [],
+                'report_keys' => [],
+                'client_id' => $this->client->hashed_id,
+                'report_name' => 'product_sales',
+
+            ],
+        ];
+
+        $response = false;
+
+        try {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/task_schedulers', $data);
+
+            $response->assertStatus(200);
+        }
+        catch(\Exception $e){
+            nlog($e->getMessage());
+        }
+
+        $arr = $response->json();
+
+        $id = $this->decodePrimaryKey($arr['data']['id']);
+        $scheduler = Scheduler::find($id);
+        $user = $scheduler->user;
+        $user->email = "{rand(5,555555}@gmail.com";
+        $user->save();
+
+        $this->assertNotNull($scheduler);
+
+        $export = (new EmailReport($scheduler))->run();
+
+        $this->assertEquals(now()->addMonth()->format('Y-m-d'), $scheduler->next_run->format('Y-m-d'));
+
+    }
+
+    public function testProductSalesReportGenerationOneClient()
+    {
+        $data = [
+            'name' => 'A test product sales scheduler',
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'email_report',
+            'parameters' => [
+                'date_range' => EmailStatement::LAST_MONTH,
+                'clients' => [$this->client->hashed_id],
+                'report_keys' => [],
+                'client_id' => null,
+                'report_name' => 'product_sales',
+            ],
+        ];
+
+        $response = false;
+
+        try {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/task_schedulers', $data);
+
+            $response->assertStatus(200);
+        }
+        catch(\Exception $e){
+            nlog($e->getMessage());
+        }
+
+        $arr = $response->json();
+
+        $id = $this->decodePrimaryKey($arr['data']['id']);
+        $scheduler = Scheduler::find($id);
+        $user = $scheduler->user;
+        $user->email = "{rand(5,555555}@gmail.com";
+        $user->save();
+
+        $this->assertNotNull($scheduler);
+
+        $export = (new EmailReport($scheduler))->run();
+
+        $this->assertEquals(now()->addMonth()->format('Y-m-d'), $scheduler->next_run->format('Y-m-d'));
+
+    }
+
+    public function testProductSalesReportGeneration()
+    {
+        $data = [
+            'name' => 'A test product sales scheduler',
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'email_report',
+            'parameters' => [
+                'date_range' => EmailStatement::LAST_MONTH,
+                'clients' => [],
+                'report_keys' => [],
+                'client_id' => null,
+                'report_name' => 'product_sales',
+            ],
+        ];
+
+        $response = false;
+
+        try {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/task_schedulers', $data);
+
+            $response->assertStatus(200);
+        }
+        catch(\Exception $e){
+            nlog($e->getMessage());
+        }
+
+        $arr = $response->json();
+
+        $id = $this->decodePrimaryKey($arr['data']['id']);
+        $scheduler = Scheduler::find($id);
+
+        $this->assertNotNull($scheduler);
+
+        $export = (new EmailReport($scheduler))->run();
+
+        $this->assertEquals(now()->addMonth()->format('Y-m-d'), $scheduler->next_run->format('Y-m-d'));
+
+    }
+
+    public function testProductSalesReportStore()
+    {
+        $data = [
+            'name' => 'A test product sales scheduler',
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'email_report',
+            'parameters' => [
+                'date_range' => EmailStatement::LAST_MONTH,
+                'clients' => [],
+                'report_name' => 'product_sales',
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $data);
+
+        $response->assertStatus(200);
+    }
+
 
     public function testSchedulerGet3()
     {
@@ -288,14 +482,14 @@ class SchedulerTest extends TestCase
         $c = Client::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
-            'number' => rand(1000, 100000),
+            'number' => rand(1000, 10000000),
             'name' => 'A fancy client'
         ]);
 
         $c2 = Client::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
-            'number' => rand(1000, 100000),
+            'number' => rand(1000, 10000000),
             'name' => 'A fancy client'
         ]);
 
@@ -402,12 +596,6 @@ class SchedulerTest extends TestCase
         $scheduler->save();
         $scheduler->calculateNextRun();
 
-        // $service_object = new SchedulerService($scheduler);
-
-        // $reflectionMethod = new \ReflectionMethod(SchedulerService::class, 'calculateNextRun');
-        // $reflectionMethod->setAccessible(true);
-        // $method = $reflectionMethod->invoke(new SchedulerService($scheduler));
-
         $scheduler->fresh();
         $offset = $this->company->timezone_offset();
 
@@ -442,7 +630,7 @@ class SchedulerTest extends TestCase
 
         $reflectionMethod = new \ReflectionMethod(EmailStatementService::class, 'calculateStartAndEndDates');
         $reflectionMethod->setAccessible(true);
-        $method = $reflectionMethod->invoke(new EmailStatementService($scheduler));
+        $method = $reflectionMethod->invoke(new EmailStatementService($scheduler), $this->client);
 
         $this->assertIsArray($method);
 
@@ -476,7 +664,7 @@ class SchedulerTest extends TestCase
 
         $reflectionMethod = new \ReflectionMethod(EmailStatementService::class, 'calculateStatementProperties');
         $reflectionMethod->setAccessible(true);
-        $method = $reflectionMethod->invoke(new EmailStatementService($scheduler)); // 'baz'
+        $method = $reflectionMethod->invoke(new EmailStatementService($scheduler), $this->client);
 
         $this->assertIsArray($method);
 
@@ -538,6 +726,7 @@ class SchedulerTest extends TestCase
 
         $response->assertStatus(200);
     }
+
 
     public function testDeleteSchedule()
     {

@@ -11,19 +11,24 @@
 
 namespace App\Helpers\Invoice;
 
+use App\Models\Quote;
+use App\Models\Credit;
 use App\Models\Invoice;
-use App\Utils\Traits\NumberFormatter;
+use App\Models\PurchaseOrder;
+use App\Models\RecurringQuote;
+use App\Models\RecurringInvoice;
 use Illuminate\Support\Collection;
+use App\Utils\Traits\NumberFormatter;
+use App\Helpers\Invoice\InvoiceItemSumInclusive;
 
 class InvoiceSumInclusive
 {
     use Taxer;
-    use Balancer;
     use CustomValuer;
     use Discounter;
     use NumberFormatter;
 
-    protected $invoice;
+    protected RecurringInvoice | Invoice | Quote | Credit | PurchaseOrder | RecurringQuote $invoice;
 
     public $tax_map;
 
@@ -43,10 +48,11 @@ class InvoiceSumInclusive
 
     private $precision;
 
+    public InvoiceItemSumInclusive $invoice_items;
     /**
      * Constructs the object with Invoice and Settings object.
      *
-     * @param      \App\Models\RecurringInvoice|\App\Models\Quote|\App\Models\Credit|\App\Models\PurchaseOrder|\App\Models\Invoice  $invoice   The entity
+     * @param RecurringInvoice | Invoice | Quote | Credit | PurchaseOrder | RecurringQuote $invoice;
      */
     public function __construct($invoice)
     {
@@ -155,7 +161,6 @@ class InvoiceSumInclusive
      */
     private function calculateBalance()
     {
-        //$this->invoice->balance = $this->balance($this->getTotal(), $this->invoice);
         $this->setCalculatedAttributes();
 
         return $this;
@@ -173,6 +178,11 @@ class InvoiceSumInclusive
     private function calculateTotals()
     {
         return $this;
+    }
+
+    public function getTotalSurcharges()
+    {
+        return $this->total_custom_values;
     }
 
     public function getRecurringInvoice()
@@ -193,6 +203,9 @@ class InvoiceSumInclusive
         return $this->invoice;
     }
 
+    /**
+     * @return Invoice | RecurringInvoice | Quote | Credit | PurchaseOrder
+     */
     public function getInvoice()
     {
         //Build invoice values here and return Invoice
@@ -202,6 +215,9 @@ class InvoiceSumInclusive
         return $this->invoice;
     }
 
+    /**
+     * @return Invoice | RecurringInvoice | Quote | Credit | PurchaseOrder
+     */
     public function getQuote()
     {
         //Build invoice values here and return Invoice
@@ -211,6 +227,9 @@ class InvoiceSumInclusive
         return $this->invoice;
     }
 
+    /**
+     * @return Invoice | RecurringInvoice | Quote | Credit | PurchaseOrder
+     */
     public function getCredit()
     {
         //Build invoice values here and return Invoice
@@ -220,6 +239,9 @@ class InvoiceSumInclusive
         return $this->invoice;
     }
 
+    /**
+     * @return Invoice | RecurringInvoice | Quote | Credit | PurchaseOrder
+     */
     public function getPurchaseOrder()
     {
         //Build invoice values here and return Invoice

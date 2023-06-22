@@ -23,7 +23,7 @@ class CreditWasRestored
     use SerializesModels;
 
     /**
-     * @var Client
+     * @var Credit
      */
     public $credit;
 

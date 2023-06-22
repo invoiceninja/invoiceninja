@@ -50,6 +50,8 @@ class EmailObject
 
     public ?string $body = null;
 
+    public string $text_body = '';
+
     /** @var array{key: value} $args */
     public array $attachments = [];
 

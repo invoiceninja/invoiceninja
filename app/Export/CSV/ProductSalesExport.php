@@ -97,8 +97,6 @@ class ProductSalesExport extends BaseExport
         }
 
         //insert the header
-        $this->csv->insertOne($this->buildHeader());
-
         $query = Invoice::query()
                         ->withTrashed()
                         ->where('company_id', $this->company->id)
@@ -108,6 +106,8 @@ class ProductSalesExport extends BaseExport
         $query = $this->addDateRange($query);
 
         $query = $this->filterByClients($query);
+
+        $this->csv->insertOne($this->buildHeader());
 
         $query->cursor()
               ->each(function ($invoice) {
@@ -229,7 +229,7 @@ class ProductSalesExport extends BaseExport
     /**
      * calculateTax
      *
-     * @param  mixed $invoice
+     * @param  Invoice $invoice
      * @param  float $amount
      * @param  float $tax_rate
      * @return float
@@ -250,7 +250,7 @@ class ProductSalesExport extends BaseExport
     /**
      * calculateDiscount
      *
-     * @param  mixed $invoice
+     * @param  Invoice $invoice
      * @param  mixed $entity
      * @return float
      */

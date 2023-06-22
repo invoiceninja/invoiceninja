@@ -23,11 +23,8 @@ class CreateInvitations extends AbstractService
 {
     use MakesHash;
 
-    private $invoice;
-
-    public function __construct(Invoice $invoice)
+    public function __construct(private Invoice $invoice)
     {
-        $this->invoice = $invoice;
     }
 
     public function run()

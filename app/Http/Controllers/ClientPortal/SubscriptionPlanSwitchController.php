@@ -24,7 +24,7 @@ class SubscriptionPlanSwitchController extends Controller
      *
      * @param ShowPlanSwitchRequest $request
      * @param RecurringInvoice $recurring_invoice
-     * @param string $target
+     * @param Subscription $target
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function index(ShowPlanSwitchRequest $request, RecurringInvoice $recurring_invoice, Subscription $target)

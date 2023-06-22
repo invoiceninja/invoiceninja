@@ -11,13 +11,14 @@
 
 namespace App\Jobs\Cron;
 
-use App\Factory\RecurringExpenseToExpenseFactory;
 use App\Libraries\MultiDB;
+use Illuminate\Support\Carbon;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
+use Illuminate\Support\Facades\Auth;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Support\Carbon;
+use App\Factory\RecurringExpenseToExpenseFactory;
 
 class RecurringExpensesCron
 {
@@ -44,6 +45,8 @@ class RecurringExpensesCron
     {
         /* Get all expenses where the send date is less than NOW + 30 minutes() */
         nlog('Sending recurring expenses '.Carbon::now()->format('Y-m-d h:i:s'));
+
+        Auth::logout();
 
         if (! config('ninja.db.multi_db_enabled')) {
             $recurring_expenses = RecurringExpense::where('next_send_date', '<=', now()->toDateTimeString())
@@ -95,15 +98,10 @@ class RecurringExpensesCron
         }
     }
 
-    private function getRecurringExpenses()
-    {
-        //extracting this back to the if/else block to test duplicate crons
-    }
-
     private function generateExpense(RecurringExpense $recurring_expense)
     {
         $expense = RecurringExpenseToExpenseFactory::create($recurring_expense);
-        $expense->save();
+        $expense->saveQuietly();
 
         $expense->number = $this->getNextExpenseNumber($expense);
         $expense->save();

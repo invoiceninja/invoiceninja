@@ -19,26 +19,7 @@ class ProductWasDeleted
 {
     use SerializesModels;
 
-    /**
-     * @var Product
-     */
-    public $product;
-
-    public $company;
-
-    public $event_vars;
-
-    /**
-     * Create a new event instance.
-     *
-     * @param Product $product
-     * @param Company $company
-     * @param array $event_vars
-     */
-    public function __construct(Product $product, Company $company, array $event_vars)
+    public function __construct(public Product $product, public Company $company, public array $event_vars)
     {
-        $this->product = $product;
-        $this->company = $company;
-        $this->event_vars = $event_vars;
     }
 }

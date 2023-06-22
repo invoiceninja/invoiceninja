@@ -25,9 +25,6 @@ class ContactLoggedIn
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /**
-     * @var
-     */
     public $client_contact;
 
     public $company;
@@ -53,8 +50,8 @@ class ContactLoggedIn
      *
      * @return Channel|array
      */
-    public function broadcastOn()
-    {
-        return new PrivateChannel('channel-name');
-    }
+     public function broadcastOn()
+     {
+        return [];
+     }
 }

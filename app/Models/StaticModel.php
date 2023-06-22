@@ -25,6 +25,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel query()
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel find()
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel findOrFail()
  * @mixin \Eloquent
  */
 class StaticModel extends Model
@@ -50,7 +52,10 @@ class StaticModel extends Model
      */
     public function scopeCompany($query)
     {
-        $query->where('company_id', auth()->user()->companyId());
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $query->where('company_id', $user->companyId());
 
         return $query;
     }
