@@ -11,7 +11,12 @@
 
 namespace App\Helpers\Invoice;
 
+use App\Models\Quote;
+use App\Models\Credit;
 use App\Models\Invoice;
+use App\Models\PurchaseOrder;
+use App\Models\RecurringQuote;
+use App\Models\RecurringInvoice;
 use App\Utils\Traits\NumberFormatter;
 
 class InvoiceItemSumInclusive
@@ -20,11 +25,7 @@ class InvoiceItemSumInclusive
     use Discounter;
     use Taxer;
 
-    protected $invoice;
-
-    private $items;
-
-    private $line_total;
+    protected RecurringInvoice | Invoice | Quote | Credit | PurchaseOrder | RecurringQuote $invoice;
 
     private $currency;
 
@@ -36,13 +37,9 @@ class InvoiceItemSumInclusive
 
     private $sub_total;
 
-    private $total_discount;
-
     private $tax_collection;
 
-    private $tax_amount;
-
-    public function __construct($invoice)
+    public function __construct(RecurringInvoice | Invoice | Quote | Credit | PurchaseOrder | RecurringQuote $invoice)
     {
         $this->tax_collection = collect([]);
 
@@ -60,7 +57,6 @@ class InvoiceItemSumInclusive
     public function process()
     {
         if (! $this->invoice->line_items || ! is_array($this->invoice->line_items) || count($this->invoice->line_items) == 0) {
-            $this->items = [];
 
             return $this;
         }

@@ -11,6 +11,13 @@
 
 namespace App\Models\Traits;
 
+use Illuminate\Support\Facades\Schema;
+
+/**
+ * @template TModelClass of \Illuminate\Database\Eloquent\Model
+ * @extends \Illuminate\Database\Eloquent\Builder<TModelClass>
+ * @mixin \Illuminate\Database\Eloquent\Builder
+ */
 trait Excludable
 {
     /**
@@ -20,18 +27,20 @@ trait Excludable
      */
     private function getTableColumns()
     {
+        /** @var Schema|\App\Models\BaseModel $this */
         return $this->getConnection()->getSchemaBuilder()->getColumnListing($this->getTable());
     }
 
     /**
      * Exclude an array of elements from the result.
-     * @param $query
-     * @param $columns
+     * @param Builder $query
+     * @param array $columns
      *
-     * @return mixed
+     * @return Builder<BaseModel>
      */
-    public function scopeExclude($query, $columns)
+    public function scopeExclude($query, $columns): \Illuminate\Database\Eloquent\Builder
     {
+        /** @var \Illuminate\Database\Eloquent\Builder|static $query */
         return $query->select(array_diff($this->getTableColumns(), (array) $columns));
     }
 }

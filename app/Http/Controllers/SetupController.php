@@ -122,6 +122,19 @@ class SetupController extends Controller
             unset($env_values['DB_USERNAME']);
             unset($env_values['DB_PASSWORD']);
         }
+        else {
+            
+            config(['database.connections.mysql.host' => $request->input('db_host')]);
+            config(['database.connections.mysql.port' => $request->input('db_port')]);
+            config(['database.connections.mysql.database' => $request->input('db_database')]);
+            config(['database.connections.mysql.username' => $request->input('db_username')]);
+            config(['database.connections.mysql.password' => $request->input('db_password')]);
+            config(['database.default' => 'mysql']);
+
+            DB::purge('mysql');
+            /* Make sure no stale connections are cached */
+
+        }
 
         try {
             foreach ($env_values as $property => $value) {
@@ -131,11 +144,12 @@ class SetupController extends Controller
             /* We need this in some environments that do not have STDIN defined */
             define('STDIN', fopen('php://stdin', 'r'));
 
-            /* Make sure no stale connections are cached */
-            DB::purge('mysql');
-            Artisan::call('optimize');
+            Artisan::call('config:clear');
+
+
             Artisan::call('migrate', ['--force' => true]);
             Artisan::call('db:seed', ['--force' => true]);
+            Artisan::call('config:clear');
 
             Storage::disk('local')->delete('test.pdf');
 
@@ -153,6 +167,8 @@ class SetupController extends Controller
             nlog($e->getMessage());
             info($e->getMessage());
 
+            echo $e->getMessage();
+
             return redirect()
                 ->back()
                 ->with('setup_error', $e->getMessage());
@@ -166,7 +182,7 @@ class SetupController extends Controller
      * @return Application|ResponseFactory|JsonResponse|Response
      */
     public function checkDB(CheckDatabaseRequest $request)
-    {
+    {nlog("trying");
         try {
             $status = SystemHealth::dbCheck($request);
 
@@ -176,6 +192,8 @@ class SetupController extends Controller
 
             return response($status, 400);
         } catch (Exception $e) {
+            nlog("failed?");
+            nlog($e->getMessage());
             nlog(['message' => $e->getMessage(), 'action' => 'SetupController::checkDB()']);
 
             return response()->json(['message' => $e->getMessage()], 400);
@@ -281,7 +299,9 @@ class SetupController extends Controller
         Artisan::call('clear-compiled');
         Artisan::call('route:clear');
         Artisan::call('view:clear');
-        Artisan::call('optimize');
+        Artisan::call('config:clear');
+
+        // Artisan::call('optimize');
 
         Artisan::call('migrate', ['--force' => true]);
         Artisan::call('db:seed', ['--force' => true]);

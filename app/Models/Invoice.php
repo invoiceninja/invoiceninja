@@ -11,24 +11,24 @@
 
 namespace App\Models;
 
-use App\Events\Invoice\InvoiceReminderWasEmailed;
-use App\Events\Invoice\InvoiceWasEmailed;
-use App\Helpers\Invoice\InvoiceSum;
-use App\Helpers\Invoice\InvoiceSumInclusive;
-use App\Jobs\Entity\CreateEntityPdf;
-use App\Models\Presenters\InvoicePresenter;
-use App\Services\Invoice\InvoiceService;
-use App\Services\Ledger\LedgerService;
 use App\Utils\Ninja;
-use App\Utils\Traits\Invoice\ActionsInvoice;
+use Illuminate\Support\Carbon;
 use App\Utils\Traits\MakesDates;
-use App\Utils\Traits\MakesInvoiceValues;
+use App\Helpers\Invoice\InvoiceSum;
+use App\Jobs\Entity\CreateEntityPdf;
 use App\Utils\Traits\MakesReminders;
 use App\Utils\Traits\NumberFormatter;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
+use App\Services\Ledger\LedgerService;
 use Illuminate\Support\Facades\Storage;
+use App\Services\Invoice\InvoiceService;
+use App\Utils\Traits\MakesInvoiceValues;
+use App\Events\Invoice\InvoiceWasEmailed;
 use Laracasts\Presenter\PresentableTrait;
+use App\Models\Presenters\InvoicePresenter;
+use App\Helpers\Invoice\InvoiceSumInclusive;
+use App\Utils\Traits\Invoice\ActionsInvoice;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Events\Invoice\InvoiceReminderWasEmailed;
 
 /**
  * App\Models\Invoice
@@ -51,20 +51,20 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $last_sent_date
  * @property string|null $due_date
  * @property bool $is_deleted
- * @property object|null $line_items
+ * @property object|array $line_items
  * @property object|null $backup
  * @property string|null $footer
  * @property string|null $public_notes
  * @property string|null $private_notes
  * @property string|null $terms
  * @property string|null $tax_name1
- * @property string $tax_rate1
+ * @property float $tax_rate1
  * @property string|null $tax_name2
- * @property string $tax_rate2
+ * @property float $tax_rate2
  * @property string|null $tax_name3
- * @property string $tax_rate3
- * @property string $total_taxes
- * @property int $uses_inclusive_taxes
+ * @property float $tax_rate3
+ * @property float $total_taxes
+ * @property bool $uses_inclusive_taxes
  * @property string|null $custom_value1
  * @property string|null $custom_value2
  * @property string|null $custom_value3
@@ -74,14 +74,14 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $custom_surcharge2
  * @property string|null $custom_surcharge3
  * @property string|null $custom_surcharge4
- * @property int $custom_surcharge_tax1
- * @property int $custom_surcharge_tax2
- * @property int $custom_surcharge_tax3
- * @property int $custom_surcharge_tax4
- * @property string $exchange_rate
- * @property string $amount
- * @property string $balance
- * @property string|null $partial
+ * @property bool $custom_surcharge_tax1
+ * @property bool $custom_surcharge_tax2
+ * @property bool $custom_surcharge_tax3
+ * @property bool $custom_surcharge_tax4
+ * @property float $exchange_rate
+ * @property float $amount
+ * @property float $balance
+ * @property float|null $partial
  * @property string|null $partial_due_date
  * @property string|null $last_viewed
  * @property int|null $created_at
@@ -91,11 +91,11 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $reminder2_sent
  * @property string|null $reminder3_sent
  * @property string|null $reminder_last_sent
- * @property int $auto_bill_enabled
- * @property string $paid_to_date
+ * @property bool $auto_bill_enabled
+ * @property float $paid_to_date
  * @property int|null $subscription_id
  * @property int $auto_bill_tries
- * @property int $is_proforma
+ * @property bool $is_proforma
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
  * @property-read int|null $activities_count
  * @property-read \App\Models\User|null $assigned_user
@@ -223,6 +223,42 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
  * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereTaxData($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
@@ -494,9 +530,11 @@ class Invoice extends BaseModel
     {
         return $this->hasOne(Expense::class);
     }
-
+ 
     /**
      * Service entry points.
+     *
+     * @return InvoiceService
      */
     public function service() :InvoiceService
     {
@@ -576,78 +614,61 @@ class Invoice extends BaseModel
         return ($this->partial && $this->partial > 0) === true;
     }
 
-    public static function badgeForStatus(int $status)
+    public static function badgeForStatus(int $status): string
     {
         switch ($status) {
             case self::STATUS_DRAFT:
                 return '<h5><span class="badge badge-light">'.ctrans('texts.draft').'</span></h5>';
-                break;
             case self::STATUS_SENT:
                 return '<h5><span class="badge badge-primary">'.ctrans('texts.sent').'</span></h5>';
-                break;
             case self::STATUS_PARTIAL:
                 return '<h5><span class="badge badge-primary">'.ctrans('texts.partial').'</span></h5>';
-                break;
             case self::STATUS_PAID:
                 return '<h5><span class="badge badge-success">'.ctrans('texts.paid').'</span></h5>';
-                break;
             case self::STATUS_CANCELLED:
                 return '<h5><span class="badge badge-secondary">'.ctrans('texts.cancelled').'</span></h5>';
-                break;
             case self::STATUS_OVERDUE:
                 return '<h5><span class="badge badge-danger">'.ctrans('texts.overdue').'</span></h5>';
-                break;
             case self::STATUS_UNPAID:
                 return '<h5><span class="badge badge-warning text-white">'.ctrans('texts.unpaid').'</span></h5>';
-                break;
             case self::STATUS_REVERSED:
                 return '<h5><span class="badge badge-info">'.ctrans('texts.reversed').'</span></h5>';
-                break;
             default:
-                // code...
-                break;
+                return '<h5><span class="badge badge-primary">'.ctrans('texts.sent').'</span></h5>';
+                
         }
     }
 
-    public static function stringStatus(int $status)
+    public static function stringStatus(int $status): string
     {
         switch ($status) {
             case self::STATUS_DRAFT:
                 return ctrans('texts.draft');
-                break;
             case self::STATUS_SENT:
                 return ctrans('texts.sent');
-                break;
             case self::STATUS_PARTIAL:
                 return ctrans('texts.partial');
-                break;
             case self::STATUS_PAID:
                 return ctrans('texts.paid');
-                break;
             case self::STATUS_CANCELLED:
                 return ctrans('texts.cancelled');
-                break;
             case self::STATUS_OVERDUE:
                 return ctrans('texts.overdue');
-                break;
             case self::STATUS_UNPAID:
                 return ctrans('texts.unpaid');
-                break;
             case self::STATUS_REVERSED:
                 return ctrans('texts.reversed');
-                break;
             default:
-                // code...
-                break;
+                return ctrans('texts.sent');
         }
     }
 
     /**
      * Access the invoice calculator object.
      *
-     * @return \stdClass The invoice calculator object getters
+     * @return InvoiceSumInclusive | InvoiceSum The invoice calculator object getters
      */
-    public function calc()
+    public function calc(): InvoiceSumInclusive | InvoiceSum
     {
         $invoice_calc = null;
 
@@ -744,16 +765,12 @@ class Invoice extends BaseModel
         switch ($locked_status) {
             case 'off':
                 return false;
-                break;
             case 'when_sent':
                 return $this->status_id == self::STATUS_SENT;
-                break;
             case 'when_paid':
                 return $this->status_id == self::STATUS_PAID || $this->status_id == self::STATUS_PARTIAL;
-                break;
             default:
                 return false;
-                break;
         }
     }
 
@@ -777,7 +794,7 @@ class Invoice extends BaseModel
             return $this->balance;
         }
 
-        if ($this->status_id = 1) {
+        if ($this->status_id == 1) {
             return $this->amount;
         }
 
@@ -786,22 +803,28 @@ class Invoice extends BaseModel
 
     public function entityEmailEvent($invitation, $reminder_template, $template = '')
     {
+
         switch ($reminder_template) {
             case 'invoice':
                 event(new InvoiceWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $template));
                 break;
             case 'reminder1':
-                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), Activity::INVOICE_REMINDER1_SENT));
+                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $template));
                 break;
             case 'reminder2':
-                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), Activity::INVOICE_REMINDER2_SENT));
+                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $template));
                 break;
             case 'reminder3':
-                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), Activity::INVOICE_REMINDER3_SENT));
+                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $template));
                 break;
             case 'reminder_endless':
             case 'endless_reminder':
-                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), Activity::INVOICE_REMINDER_ENDLESS_SENT));
+                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $template));
+                break;
+            case 'custom1':
+            case 'custom2':
+            case 'custom3':
+                event(new InvoiceWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $template));
                 break;
             default:
                 // code...

@@ -104,8 +104,6 @@ class MatchBankTransactions implements ShouldQueue
         }
 
         foreach ($this->input as $input) {
-            nlog($input);
-
             if (array_key_exists('invoice_ids', $input) && strlen($input['invoice_ids']) >= 1) {
                 $this->matchInvoicePayment($input);
             } elseif (array_key_exists('payment_id', $input) && strlen($input['payment_id']) >= 1) {
@@ -120,7 +118,7 @@ class MatchBankTransactions implements ShouldQueue
         return BankTransaction::whereIn('id', $this->bts);
     }
 
-    private function getInvoices(string $invoice_hashed_ids)
+    private function getInvoices(string $invoice_hashed_ids): array
     {
         $collection = collect();
 
@@ -134,7 +132,7 @@ class MatchBankTransactions implements ShouldQueue
             }
         }
 
-        return $collection;
+        return $collection->toArray();
     }
 
     private function checkPayable($invoices) :bool
@@ -154,26 +152,45 @@ class MatchBankTransactions implements ShouldQueue
     {
         $this->bt = BankTransaction::find($input['id']);
 
-        if (!$this->bt || $this->bt->status_id == BankTransaction::STATUS_CONVERTED) {
+        if (!$this->bt) {
             return $this;
         }
 
-        $expense = Expense::withTrashed()->find($input['expense_id']);
+        $_expenses = explode(",", $input['expense_id']);
 
-        if ($expense && !$expense->transaction_id) {
-            $expense->transaction_id = $this->bt->id;
-            $expense->save();
+        foreach($_expenses as $_expense) {
+                    
+            $expense = Expense::withTrashed()
+                             ->where('id', $this->decodePrimaryKey($_expense))
+                             ->where('company_id', $this->bt->company_id)
+                             ->first();
 
-            $this->bt->expense_id = $expense->id;
-            $this->bt->status_id = BankTransaction::STATUS_CONVERTED;
-            $this->bt->vendor_id = $expense->vendor_id;
-            $this->bt->ninja_category_id = $expense->category_id;
-            $this->bt->save();
+            if ($expense && !$expense->transaction_id) {
+                $expense->transaction_id = $this->bt->id;
+                $expense->save();
 
-            $this->bts->push($this->bt->id);
+                $this->bt->expense_id = $this->coalesceExpenses($expense->hashed_id);
+                $this->bt->status_id = BankTransaction::STATUS_CONVERTED;
+                $this->bt->vendor_id = $expense->vendor_id;
+                $this->bt->ninja_category_id = $expense->category_id;
+                $this->bt->save();
+
+                $this->bts->push($this->bt->id);
+            }
         }
     
         return $this;
+    }
+
+    private function coalesceExpenses($expense): string 
+    {
+
+        if (!$this->bt->expense_id || strlen($this->bt->expense_id) < 1) {
+            return $expense;
+        }
+
+        return collect(explode(",", $this->bt->expense_id))->push($expense)->implode(",");
+
     }
 
     private function linkPayment($input)
@@ -188,7 +205,7 @@ class MatchBankTransactions implements ShouldQueue
         
         if ($payment && !$payment->transaction_id) {
             $payment->transaction_id = $this->bt->id;
-            $payment->save();
+            $payment->saveQuietly();
 
             $this->bt->payment_id = $payment->id;
             $this->bt->status_id = BankTransaction::STATUS_CONVERTED;
@@ -209,7 +226,10 @@ class MatchBankTransactions implements ShouldQueue
             return $this;
         }
 
-        $_invoices = Invoice::withTrashed()->find($this->getInvoices($input['invoice_ids']));
+        $_invoices = Invoice::query()
+                            ->withTrashed()
+                            ->where('company_id', $this->bt->company_id)
+                            ->whereIn('id', $this->getInvoices($input['invoice_ids']));
         
         $amount = $this->bt->amount;
 
@@ -249,7 +269,7 @@ class MatchBankTransactions implements ShouldQueue
         $expense->should_be_invoiced = $this->company->mark_expenses_invoiceable;
         $expense->save();
 
-        $this->bt->expense_id = $expense->id;
+        $this->bt->expense_id = $this->coalesceExpenses($expense->hashed_id);
 
         if (array_key_exists('vendor_id', $input)) {
             $this->bt->vendor_id = $input['vendor_id'];
@@ -363,7 +383,7 @@ class MatchBankTransactions implements ShouldQueue
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         event(new InvoiceWasPaid($this->invoice, $payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
-        $this->bt->invoice_ids = collect($invoices)->pluck('hashed_id')->implode(',');
+        $this->bt->invoice_ids = $invoices->get()->pluck('hashed_id')->implode(',');
         $this->bt->status_id = BankTransaction::STATUS_CONVERTED;
         $this->bt->payment_id = $payment->id;
         $this->bt->save();

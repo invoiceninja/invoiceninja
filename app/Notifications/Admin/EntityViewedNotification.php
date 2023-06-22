@@ -38,6 +38,8 @@ class EntityViewedNotification extends Notification
 
     protected $contact;
 
+    public $is_system;
+    
     public function __construct($invitation, $entity_name, $is_system = false, $settings = null)
     {
         $this->entity_name = $entity_name;

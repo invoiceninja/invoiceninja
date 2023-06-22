@@ -63,8 +63,8 @@ class PdfMock
         $pdf_config->entity_design_id = $pdf_config->settings->{"{$pdf_config->entity_string}_design_id"};
         $pdf_config->setPdfVariables();
         $pdf_config->setCurrency(Currency::find($this->settings->currency_id));
-        $pdf_config->setCountry(Country::find($this->settings->country_id));
-        $pdf_config->design = Design::find($this->decodePrimaryKey($pdf_config->entity_design_id));
+        $pdf_config->setCountry(Country::find($this->settings->country_id ?: 840));
+        $pdf_config->design = Design::withTrashed()->find($this->decodePrimaryKey($pdf_config->entity_design_id));
         $pdf_config->currency_entity = $this->mock->client;
         
         $pdf_service->config = $pdf_config;
@@ -205,7 +205,7 @@ class PdfMock
     '$client.billing_address2' => '63993 Aiyana View',
     '$client.billing_address1' => '8447',
     '$client.shipping_country' => 'USA',
-    '$invoiceninja.whitelabel' => 'https://raw.githubusercontent.com/invoiceninja/invoiceninja/v5-develop/public/images/new_logo.png',
+    '$invoiceninja.whitelabel' => 'https://invoicing.co/images/new_logo.png',
     '$client.billing_address' => '8447<br/>63993 Aiyana View<br/>Aufderharchester, North Carolina 11243<br/>Afghanistan<br/>',
     '$client.billing_country' => 'USA',
     '$task.gross_line_total' => '100',
@@ -383,7 +383,7 @@ class PdfMock
     '$product.tax' => '',
     '$valid_until' => '',
     '$your_entity' => '',
-    '$shipping' => '',
+    '$shipping' => ctrans('texts.shipping_address'),
     '$balance_due' => '$0.00',
     '$outstanding' => '$0.00',
     '$partial_due' => '$0.00',
@@ -739,7 +739,7 @@ class PdfMock
             '$font_name_label' => '',
             '$auto_bill_label' => ctrans('texts.auto_bill'),
             '$payments_label' => ctrans('texts.payments'),
-            '$shipping_label' => '',
+            '$shipping_label' => ctrans('texts.shipping_address'),
             '$task.tax_label' => ctrans('texts.tax'),
             '$viewLink_label' => ctrans('texts.link'),
             '$company1_label' => ctrans('texts.company1'),
@@ -811,7 +811,7 @@ class PdfMock
           '$purchase_order.due_date' => '02-12-2021',
           '$vendor.billing_address1' => '589',
           '$vendor.billing_address2' => '761 Odessa Centers Suite 673',
-          '$invoiceninja.whitelabel' => 'https://raw.githubusercontent.com/invoiceninja/invoiceninja/v5-develop/public/images/new_logo.png',
+          '$invoiceninja.whitelabel' => 'https://invoicing.co/images/new_logo.png',
           '$purchase_order.custom1' => 'Custom 1',
           '$purchase_order.custom2' => 'Custom 2',
           '$purchase_order.custom3' => 'Custom 3',

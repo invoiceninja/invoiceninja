@@ -112,7 +112,14 @@ class CreditInvitation extends BaseModel
     {
         return $this->belongsTo(Credit::class)->withTrashed();
     }
-
+    
+    /**
+     * @return mixed
+     */
+    public function entity()
+    {
+        return $this->belongsTo(Credit::class)->withTrashed();
+    }
     /**
      * @return mixed
      */

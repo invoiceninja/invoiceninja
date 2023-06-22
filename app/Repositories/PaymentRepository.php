@@ -201,7 +201,7 @@ class PaymentRepository extends BaseRepository
      * the company currency, we need to set a record.
      * @param $data
      * @param $payment
-     * @return
+     * @return Payment $payment
      */
     public function processExchangeRates($data, $payment)
     {

@@ -101,7 +101,11 @@
           description: 'An array of objects which define the line items of the invoice'
           items:
             $ref: '#/components/schemas/InvoiceItem'
-        
+        invitations:
+          type: array
+          description: 'An array of objects which define the invitations of the invoice'
+          items:
+            $ref: '#/components/schemas/InvoiceInvitation'
         amount:
           description: 'The invoice amount'
           type: number

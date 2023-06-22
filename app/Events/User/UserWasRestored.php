@@ -26,9 +26,6 @@ class UserWasRestored
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /**
-     * @var
-     */
     public $user;
 
     public $company;
@@ -57,8 +54,8 @@ class UserWasRestored
      *
      * @return Channel|array
      */
-    public function broadcastOn()
-    {
-        return new PrivateChannel('channel-name');
-    }
+     public function broadcastOn()
+     {
+        return [];
+     }
 }

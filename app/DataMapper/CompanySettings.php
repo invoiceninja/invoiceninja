@@ -475,7 +475,16 @@ class CompanySettings extends BaseSettings
 
     public $sync_invoice_quote_columns = true;
 
+    public $e_invoice_type = 'EN16931';
+
+    public $default_expense_payment_type_id = '0';
+
+    public $enable_e_invoice = false;
+
     public static $casts = [
+        'enable_e_invoice'                   => 'bool', 
+        'default_expense_payment_type_id'    => 'string',
+        'e_invoice_type'                     => 'string',    
         'mailgun_endpoint'                   => 'string',    
         'client_initiated_payments'          => 'bool',
         'client_initiated_payments_minimum'  => 'float',
@@ -961,6 +970,12 @@ class CompanySettings extends BaseSettings
                 '$payment.date',
                 '$method',
                 '$statement_amount',
+            ],
+            'statement_credit_columns' => [
+                '$credit.number',
+                '$credit.date',
+                '$total',
+                '$credit.balance',
             ],
         ];
 

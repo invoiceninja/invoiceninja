@@ -46,8 +46,8 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $email
  * @property string|null $email_verified_at
  * @property string|null $confirmation_code
- * @property int $is_primary
- * @property int $confirmed
+ * @property bool $is_primary
+ * @property bool $confirmed
  * @property int|null $last_login
  * @property int|null $failed_logins
  * @property string|null $oauth_user_id
@@ -59,8 +59,8 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $avatar_size
  * @property string $password
  * @property string|null $token
- * @property int $is_locked
- * @property int $send_email
+ * @property bool $is_locked
+ * @property bool $send_email
  * @property string|null $contact_key
  * @property string|null $remember_token
  * @property int|null $created_at
@@ -123,6 +123,26 @@ use Laracasts\Presenter\PresentableTrait;
  * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClientContact withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|ClientContact withoutTrashed()
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $credit_invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invoice_invitations
+ * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $quote_invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $recurring_invoice_invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $credit_invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invoice_invitations
+ * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $quote_invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $recurring_invoice_invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $credit_invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invoice_invitations
+ * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $quote_invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $recurring_invoice_invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $credit_invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invoice_invitations
+ * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $quote_invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $recurring_invoice_invitations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $credit_invitations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invoice_invitations
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
@@ -395,9 +415,6 @@ class ClientContact extends Authenticatable implements HasLocalePreference
      */
     public function getLoginLink()
     {
-        // $domain = isset($this->company->portal_domain) ? $this->company->portal_domain : $this->company->domain();
-
-        // return $domain.'/client/key_login/'.$this->contact_key;
 
         if (Ninja::isHosted()) {
             $domain = $this->company->domain();
@@ -408,18 +425,13 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         switch ($this->company->portal_mode) {
             case 'subdomain':
                 return $domain.'/client/key_login/'.$this->contact_key;
-                break;
             case 'iframe':
                 return $domain.'/client/key_login/'.$this->contact_key;
-                //return $domain . $entity_type .'/'. $this->contact->client->client_hash .'/'. $this->key;
-                break;
             case 'domain':
                 return $domain.'/client/key_login/'.$this->contact_key;
-                break;
 
             default:
                 return '';
-                break;
         }
     }
 }

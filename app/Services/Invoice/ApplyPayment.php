@@ -11,25 +11,15 @@
 
 namespace App\Services\Invoice;
 
-use App\Jobs\Ninja\TransactionLog;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\TransactionEvent;
 use App\Services\AbstractService;
 
 class ApplyPayment extends AbstractService
 {
-    private $invoice;
 
-    private $payment;
-
-    private $payment_amount;
-
-    public function __construct($invoice, $payment, $payment_amount)
+    public function __construct(private Invoice $invoice, private Payment $payment, private float $payment_amount)
     {
-        $this->invoice = $invoice;
-        $this->payment = $payment;
-        $this->payment_amount = $payment_amount;
     }
 
     /* Apply payment to a single invoice */
@@ -103,16 +93,6 @@ class ApplyPayment extends AbstractService
         });
 
         $this->invoice->service()->applyNumber()->workFlow()->touchPdf()->save();
-
-        $transaction = [
-            'invoice' => $this->invoice->transaction_event(),
-            'payment' => $this->payment->transaction_event(),
-            'client' => $this->invoice->client->transaction_event(),
-            'credit' => [],
-            'metadata' => [],
-        ];
-
-        // TransactionLog::dispatch(TransactionEvent::INVOICE_PAYMENT_APPLIED, $transaction, $this->invoice->company->db);
 
         return $this->invoice;
     }

@@ -68,4 +68,20 @@ class ClientCsvTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+    public function testActivityExportCsv()
+    {
+        $data = [
+            'date_range' => 'this_year',
+            'report_keys' => [],
+            'send_email' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/activities', $data);
+
+        $response->assertStatus(200);
+    }
 }

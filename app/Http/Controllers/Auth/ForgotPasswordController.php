@@ -11,12 +11,13 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
-use App\Libraries\MultiDB;
 use App\Models\Account;
-use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
+use App\Models\Company;
+use App\Libraries\MultiDB;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 
 class ForgotPasswordController extends Controller
 {

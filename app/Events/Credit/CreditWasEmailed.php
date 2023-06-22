@@ -32,7 +32,7 @@ class CreditWasEmailed
     /**
      * Create a new event instance.
      *
-     * @param Credit $credit
+     * @param CreditInvitation $invitation
      * @param Company $company
      * @param array $event_vars
      */

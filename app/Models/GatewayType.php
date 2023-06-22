@@ -36,6 +36,10 @@ namespace App\Models;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentType> $payment_methods
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentType> $payment_methods
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentType> $payment_methods
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentType> $payment_methods
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentType> $payment_methods
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentType> $payment_methods
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentType> $payment_methods
  * @mixin \Eloquent
  */
 class GatewayType extends StaticModel
@@ -142,7 +146,7 @@ class GatewayType extends StaticModel
             case self::ACSS:
                 return ctrans('texts.acss');
             case self::DIRECT_DEBIT:
-                return ctrans('texts.payment_type_direct_debit');
+                return ctrans('texts.bank_transfer') . " / " . ctrans('texts.payment_type_direct_debit');
             case self::INSTANT_BANK_PAY:
                 return ctrans('texts.payment_type_instant_bank_pay');
             case self::FPX:

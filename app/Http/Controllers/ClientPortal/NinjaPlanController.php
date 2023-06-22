@@ -177,8 +177,10 @@ class NinjaPlanController extends Controller
                  ->increment()
                  ->queue();
 
-
-        $old_recurring = RecurringInvoice::where('company_id', config('ninja.ninja_default_company_id'))->where('client_id', $client->id)->first();
+        $old_recurring = RecurringInvoice::where('company_id', config('ninja.ninja_default_company_id'))
+                                            ->where('client_id', $client->id)
+                                            ->where('id', '!=', $recurring_invoice->id)
+                                            ->first();
 
         if ($old_recurring) {
             $old_recurring->service()->stop()->save();

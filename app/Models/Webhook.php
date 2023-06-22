@@ -53,6 +53,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|Webhook whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Webhook withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Webhook withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Webhook where()
  * @mixin \Eloquent
  */
 class Webhook extends BaseModel

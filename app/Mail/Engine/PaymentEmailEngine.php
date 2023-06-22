@@ -11,15 +11,16 @@
 
 namespace App\Mail\Engine;
 
-use App\DataMapper\EmailTemplateDefaults;
-use App\Jobs\Entity\CreateRawPdf;
-use App\Models\Account;
-use App\Utils\Helpers;
 use App\Utils\Ninja;
 use App\Utils\Number;
+use App\Utils\Helpers;
+use App\Models\Account;
 use App\Utils\Traits\MakesDates;
+use App\Jobs\Entity\CreateRawPdf;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Storage;
+use App\DataMapper\EmailTemplateDefaults;
 
 class PaymentEmailEngine extends BaseEmailEngine
 {
@@ -105,6 +106,18 @@ class PaymentEmailEngine extends BaseEmailEngine
                         }
                     }
                 }
+
+                if($this->client->getSetting('enable_e_invoice'))
+                {
+
+                    $e_invoice_filepath = $invoice->service()->getEInvoice($this->contact);
+
+                    if(Storage::disk(config('filesystems.default'))->exists($e_invoice_filepath)) {
+                        $this->setAttachments([['path' => Storage::disk(config('filesystems.default'))->path($e_invoice_filepath), 'name' => $invoice->getFileName("xml"), 'mime' => null]]);
+                    }
+
+                }
+
             });
         }
 
@@ -342,6 +355,11 @@ class PaymentEmailEngine extends BaseEmailEngine
             $invoice_list .= ctrans('texts.invoice_number_short')." {$invoice->number} " . Number::formatMoney($invoice->pivot->amount, $this->client).', ';
 
         }
+
+        if(strlen($invoice_list) < 4){
+                $invoice_list = Number::formatMoney($this->payment->amount, $this->client) ?: '&nbsp;';
+        }
+            
 
         return $invoice_list;
 

@@ -11,15 +11,16 @@
 
 namespace App\Services\Recurring;
 
-use App\Jobs\RecurringInvoice\SendRecurring;
 use App\Jobs\Util\UnlinkFile;
+use App\Models\RecurringQuote;
+use Illuminate\Support\Carbon;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
-use Illuminate\Support\Carbon;
+use App\Jobs\RecurringInvoice\SendRecurring;
 
 class RecurringService
 {
-    public function __construct(public RecurringInvoice | RecurringExpense $recurring_entity)
+    public function __construct(public RecurringInvoice | RecurringExpense | RecurringQuote $recurring_entity)
     {
     }
 

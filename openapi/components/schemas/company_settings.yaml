@@ -1,5 +1,11 @@
     CompanySettings:
+      required:
+        - currency_id
       properties:
+        currency_id:
+          description: 'The default currency id'
+          type: string
+          example: true
         timezone_id:
           description: 'The timezone id'
           type: string
@@ -19,10 +25,6 @@
         show_currency_code:
           description: 'Toggles whether the currency symbol or code is shown'
           type: boolean
-          example: true
-        currency_id:
-          description: 'The default currency id'
-          type: string
           example: true
         payment_terms:
           description: '-1 sets no payment term, 0 sets payment due immediately, positive integers indicates payment terms in days'
@@ -306,7 +308,7 @@
           type: string
           example: 'A default email footer'
         email_sending_method:
-          description: 'The email driver to use to send email, options include default, gmail'
+          description: 'The email driver to use to send email, options include default, gmail, client_postmark, client_mailgun, office365'
           type: string
           example: default
         gmail_sending_user_id:
@@ -589,4 +591,248 @@
           description: 'Determines if a client should receive the notification for a manually entered payment'
           type: boolean
           example: false
+        enable_e_invoice:
+          description: 'Determines if e-invoicing is enabled'
+          type: boolean
+          example: false
+        default_expense_payment_type_id:
+          description: 'The default payment type for expenses'
+          type: string
+          example: '0'
+        e_invoice_type:
+          description: 'The e-invoice type'
+          type: string
+          example: 'EN16931'
+        mailgun_endpoint:
+          description: 'The mailgun endpoint - used to determine whether US or EU endpoints are used'
+          type: string
+          example: 'api.mailgun.net or api.eu.mailgun.net'
+        client_initiated_payments:
+          description: 'Determines if clients can initiate payments directly from the client portal'
+          type: boolean
+          example: false
+        client_initiated_payments_minimum:
+          description: 'The minimum amount a client can pay'
+          type: number
+          example: 10
+        sync_invoice_quote_columns:
+          description: 'Determines if invoice and quote columns are synced for the PDF rendering, or if they use their own columns'
+          type: boolean
+          example: false
+        show_task_item_description:
+          description: 'Determines if the task item description is shown on the invoice'
+          type: boolean
+          example: false
+        allow_billable_task_items:
+          description: 'Determines if task items can be marked as billable'
+          type: boolean
+          example: false
+        accept_client_input_quote_approval:
+          description: 'Determines if clients can approve quotes and also pass through a PO Number reference'
+          type: boolean
+          example: false
+        custom_sending_email:
+          description: 'When using Mailgun or Postmark, the FROM email address can be customized using this setting.'
+          type: string
+          example: 'bob@gmail.com'
+        show_paid_stamp:
+          description: 'Determines if the PAID stamp is shown on the invoice'
+          type: boolean
+          example: false
+        show_shipping_address:
+          description: 'Determines if the shipping address is shown on the invoice'
+          type: boolean
+          example: false
+        company_logo_size:
+          description: 'The size of the company logo on the PDF - percentage value between 0 and 100'
+          type: number
+          example: 100
+        show_email_footer:
+          description: 'Determines if the email footer is shown on emails'
+          type: boolean
+          example: false
+        email_alignment:
+          description: 'The alignment of the email body text, options include left / center / right'
+          type: string
+          example: 'left'
+        auto_bill_standard_invoices:
+          description: 'Determines if standard invoices are automatically billed when they are created or due'
+          type: boolean
+          example: false
+        postmark_secret:
+          description: 'The Postmark secret API key'
+          type: string
+          example: '123456'
+        mailgun_secret:
+          description: 'The Mailgun secret API key'
+          type: string
+          example: '123456'
+        mailgun_domain:
+          description: 'The Mailgun domain'
+          type: string
+          example: 'sandbox123456.mailgun.org'
+        send_email_on_mark_paid:
+          description: 'Determines if an email is sent when an invoice is marked as paid'
+          type: boolean
+          example: false
+        vendor_portal_enable_uploads:
+          description: 'Determines if vendors can upload files to the portal'
+          type: boolean
+          example: false
+        besr_id:
+          description: 'The BESR ID'
+          type: string
+          example: '123456'
+        qr_iban:
+          description: 'The IBAN for the QR code'
+          type: string
+          example: 'CH123456'
+        email_subject_purchase_order:
+          description: 'The email subject for purchase orders'
+          type: string
+          example: 'Purchase Order'
+        email_template_purchase_order:
+          description: 'The email template for purchase orders'
+          type: string
+          example: 'Please see attached your purchase order.'
+        require_purchase_order_signature:
+          description: 'Determines if a signature is required on purchase orders'
+          type: boolean
+          example: false
+        purchase_order_public_notes:
+          description: 'The public notes for purchase orders'
+          type: string
+          example: 'Please see attached your purchase order.'
+        purchase_order_terms:
+          description: 'The terms for purchase orders'
+          type: string
+          example: 'Please see attached your purchase order.'
+        purchase_order_footer:
+          description: 'The footer for purchase orders'
+          type: string
+          example: 'Please see attached your purchase order.'
+        purchase_order_design_id:
+          description: 'The design id for purchase orders'
+          type: string
+          example: 'hd677df'
+        purchase_order_number_pattern:
+          description: 'The pattern for purchase order numbers'
+          type: string
+          example: 'PO-000000'
+        purchase_order_number_counter:
+          description: 'The counter for purchase order numbers'
+          type: number
+          example: 1
+        page_numbering_alignment:
+          description: 'The alignment for page numbering: options include left / center / right'
+          type: string
+          example: 'left'
+        page_numbering:
+          description: 'Determines if page numbering is enabled on Document PDFs'
+          type: boolean
+          example: false
+        auto_archive_invoice_cancelled:
+          description: 'Determines if invoices are automatically archived when they are cancelled'
+          type: boolean
+          example: false
+        email_from_name:
+          description: 'The FROM name for emails when using Custom emailers'
+          type: string
+          example: 'Bob Smith'
+        show_all_tasks_client_portal:
+          description: 'Determines if all tasks are shown on the client portal'
+          type: boolean
+          example: false
+        entity_send_time:
+          description: 'The time that emails are sent. The time is localized to the clients locale, integer values from 1 - 24'
+          type: integer
+          example: 9
+        shared_invoice_credit_counter:
+          description: 'Determines if the invoice and credit counter are shared'
+          type: boolean
+          example: false
+        reply_to_name:
+          description: 'The reply to name for emails'
+          type: string
+          example: 'Bob Smith'
+        hide_empty_columns_on_pdf:
+          description: 'Determines if empty columns are hidden on PDFs'
+          type: boolean
+          example: false
+        enable_reminder_endless:
+          description: 'Determines if endless reminders are enabled'
+          type: boolean
+          example: false
+        use_credits_payment:
+          description: 'Determines if credits can be used as a payment method'
+          type: boolean
+          example: false
+        recurring_invoice_number_pattern:
+          description: 'The pattern for recurring invoice numbers'
+          type: string
+          example: 'R-000000'
+        recurring_invoice_number_counter:
+          description: 'The counter for recurring invoice numbers'
+          type: number
+          example: 1
+        client_portal_under_payment_minimum:
+          description: 'The minimum payment payment'
+          type: number
+          example: 10
+        auto_bill_date:
+          description: 'Determines when the invoices are auto billed, options are on_send_date (when the invoice is sent) or on_due_date (when the invoice is due))'
+          type: string
+          example: 'on_send_date'
+        primary_color:
+          description: 'The primary color for the client portal / document highlights'
+          type: string
+          example: '#ffffff'
+        secondary_color:
+          description: 'The secondary color for the client portal / document highlights'
+          type: string
+          example: '#ffffff'
+        client_portal_allow_under_payment:
+          description: 'Determines if clients can pay invoices under the invoice amount due'
+          type: boolean
+          example: false
+        client_portal_allow_over_payment:
+          description: 'Determines if clients can pay invoices over the invoice amount'
+          type: boolean
+          example: false
+        auto_bill:
+          description: 'Determines how autobilling is applied for recurring invoices. off (no auto billed), always (always auto bill), optin (The user must opt in to auto billing), optout (The user must opt out of auto billing'
+          type: string
+          example: 'off'
+        client_portal_terms:
+          description: 'The terms which are displayed on the client portal'
+          type: string
+          example: 'Please see attached your invoice.'
+        client_portal_privacy_policy:
+          description: 'The privacy policy which is displayed on the client portal'
+          type: string
+          example: 'These are the terms of use for using the client portal.'
+        client_can_register:
+          description: 'Determines if clients can register on the client portal'
+          type: boolean
+          example: false
+        portal_design_id:
+          description: 'The design id for the client portal'
+          type: string
+          example: 'hd677df'
+        late_fee_endless_percent:
+          description: 'The late fee percentage for endless late fees'
+          type: number
+          example: 10
+        late_fee_endless_amount:
+          description: 'The late fee amount for endless late fees'
+          type: number
+          example: 10
+        auto_email_invoice:
+          description: 'Determines if invoices are automatically emailed when they are created'
+          type: boolean
+          example: false
+        email_signature:
+          description: 'The email signature for emails'
+          type: string
+          example: 'Bob Smith'
       type: object

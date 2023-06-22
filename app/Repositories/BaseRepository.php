@@ -11,18 +11,19 @@
 
 namespace App\Repositories;
 
-use App\Jobs\Product\UpdateOrCreateProduct;
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Company;
-use App\Models\Credit;
-use App\Models\Invoice;
-use App\Models\Quote;
-use App\Models\RecurringInvoice;
-use App\Utils\Helpers;
 use App\Utils\Ninja;
+use App\Models\Quote;
+use App\Models\Client;
+use App\Models\Credit;
+use App\Utils\Helpers;
+use App\Models\Company;
+use App\Models\Invoice;
+use App\Models\ClientContact;
 use App\Utils\Traits\MakesHash;
+use App\Models\RecurringInvoice;
+use App\Jobs\Client\UpdateTaxData;
 use App\Utils\Traits\SavesDocuments;
+use App\Jobs\Product\UpdateOrCreateProduct;
 
 class BaseRepository
 {
@@ -190,7 +191,7 @@ class BaseRepository
             $this->new_model = true;
 
             if (is_array($model->line_items) && !($model instanceof RecurringInvoice)) {
-                $model->line_items = (collect($model->line_items))->map(function ($item) use ($model, $client) {
+                $model->line_items = (collect($model->line_items))->map(function ($item) use ($client) {
                     $item->notes = Helpers::processReservedKeywords($item->notes, $client);
 
                     return $item;
@@ -295,7 +296,7 @@ class BaseRepository
             }
 
             if (! $model->design_id) {
-                $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
+                $model->design_id = intval($this->decodePrimaryKey($client->getSetting('invoice_design_id')));
             }
 
             //links tasks and expenses back to the invoice, but only if we are not in the middle of a transaction.
@@ -308,6 +309,11 @@ class BaseRepository
             } else {
                 event('eloquent.updated: App\Models\Invoice', $model);
             }
+
+            /** If the client does not have tax_data - then populate this now */
+            if($client->country_id == 840 && !$client->tax_data && $model->company->calculate_taxes && !$model->company->account->isFreeHostedClient())
+                UpdateTaxData::dispatch($client, $client->company);
+
         }
 
         if ($model instanceof Credit) {
@@ -334,7 +340,7 @@ class BaseRepository
 
         if ($model instanceof Quote) {
             if (! $model->design_id) {
-                $model->design_id = $this->decodePrimaryKey($client->getSetting('quote_design_id'));
+                $model->design_id = intval($this->decodePrimaryKey($client->getSetting('quote_design_id')));
             }
 
             $model = $model->calc()->getQuote();
@@ -348,7 +354,7 @@ class BaseRepository
 
         if ($model instanceof RecurringInvoice) {
             if (! $model->design_id) {
-                $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
+                $model->design_id = intval($this->decodePrimaryKey($client->getSetting('invoice_design_id')));
             }
 
             $model = $model->calc()->getRecurringInvoice();

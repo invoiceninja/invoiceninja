@@ -87,6 +87,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereVendorId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction withoutTrashed()
+ * @property-read \App\Models\Payment|null $payment
  * @mixin \Eloquent
  */
 class BankTransaction extends BaseModel
@@ -133,6 +134,23 @@ class BankTransaction extends BaseModel
         return $collection;
     }
 
+    public function getExpenseIds()
+    {
+        $collection = collect();
+
+        $expenses = explode(",", $this->expense_id);
+
+        if (count($expenses) >= 1) {
+            foreach ($expenses as $expense) {
+                if (is_string($expense) && strlen($expense) > 1) {
+                    $collection->push($this->decodePrimaryKey($expense));
+                }
+            }
+        }
+
+        return $collection;
+    }
+
     public function getEntityType()
     {
         return self::class;
@@ -148,11 +166,6 @@ class BankTransaction extends BaseModel
         return $this->belongsTo(Vendor::class);
     }
 
-    public function expense()
-    {
-        return $this->belongsTo(Expense::class);
-    }
-
     public function user()
     {
         return $this->belongsTo(User::class)->withTrashed();
@@ -166,6 +179,11 @@ class BankTransaction extends BaseModel
     public function account()
     {
         return $this->belongsTo(Account::class)->withTrashed();
+    }
+
+    public function payment()
+    {
+        return $this->belongsTo(Payment::class)->withTrashed();
     }
 
     public function service() :BankService

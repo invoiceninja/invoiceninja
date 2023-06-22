@@ -75,7 +75,8 @@ class Email implements ShouldQueue
      */
     public function backoff()
     {
-        return [10, 30, 60, 240];
+        // return [10, 30, 60, 240];
+        return [rand(10, 20), rand(30, 45), rand(60, 79), rand(160, 400)];
     }
 
     public function handle()
@@ -247,7 +248,7 @@ class Email implements ShouldQueue
             
             $mailer->send($this->mailable);
 
-            Cache::increment($this->company->account->key);
+            Cache::increment("email_quota".$this->company->account->key);
 
             LightLogs::create(new EmailSuccess($this->company->company_key))
                      ->send();
@@ -329,8 +330,13 @@ class Email implements ShouldQueue
      */
     public function preFlightChecksFail(): bool
     {
+        /* Always send if disabled */
+        if($this->override) {
+            return false;
+        }
+
         /* If we are migrating data we don't want to fire any emails */
-        if ($this->company->is_disabled && !$this->override) {
+        if ($this->company->is_disabled) {
             return true;
         }
 

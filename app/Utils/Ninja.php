@@ -12,6 +12,7 @@
 namespace App\Utils;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 /**
  * Class Ninja.
@@ -44,12 +45,14 @@ class Ninja
     {
         $mysql_version = DB::select(DB::raw('select version() as version'))[0]->version;
 
+        $version = request()->input('version', 'No Version Supplied.');
+
         $info = 'App Version: v'.config('ninja.app_version').'\\n'.
             'White Label: '.'\\n'. // TODO: Implement white label with hasFeature.
             'Server OS: '.php_uname('s').' '.php_uname('r').'\\n'.
             'PHP Version: '.phpversion().'\\n'.
             'MySQL Version: '.$mysql_version.'\\n'.
-            'Version: '.request()->has('version') ? request()->input('version') : 'No Version Supplied.';
+            'Version: '.$version;
 
         return $info;
     }
@@ -101,7 +104,8 @@ class Ninja
         foreach ($fields as $key => $value) {
             $data .= $key.'='.$value.'&';
         }
-        rtrim($data, '&');
+
+        $data = rtrim($data, '&');
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -147,6 +151,23 @@ class Ninja
         }
 
         return $translations;
+    }
+
+    public static function triggerForwarding(string $company_key, string $email)
+    {
+        try {
+            $x = Http::withHeaders([
+                'X-API-HOSTED-SECRET' => config('ninja.ninja_hosted_secret'),
+            ])->post(config('ninja.license_url').'/api/v1/enable_forwarding', [
+                'account_key' => $company_key,
+                'email' => $email,
+            ]);
+
+            nlog($x->body());
+        }
+        catch (\Exception $e) {
+            nlog("Attempt forwarding for {$email} - {$company_key} Failed");
+        }
     }
 
     public function createLicense($request)

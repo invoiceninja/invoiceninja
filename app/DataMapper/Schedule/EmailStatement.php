@@ -41,6 +41,7 @@ class EmailStatement
     public const LAST_QUARTER = "last_quarter";
     public const THIS_YEAR = "this_year";
     public const LAST_YEAR = "last_year";
+    public const ALL_TIME = "all_time";
     public const CUSTOM_RANGE = "custom";
 
 

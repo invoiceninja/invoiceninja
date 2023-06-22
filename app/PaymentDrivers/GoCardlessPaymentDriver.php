@@ -385,9 +385,6 @@ class GoCardlessPaymentDriver extends BaseDriver
         );
     }
 
-
-
-
     public function ensureMandateIsReady($token)
     {
         try {
@@ -541,5 +538,10 @@ class GoCardlessPaymentDriver extends BaseDriver
         }
 
         return $client;
+    }
+
+    public function verificationView()
+    {
+        return render('gateways.gocardless.verification');
     }
 }

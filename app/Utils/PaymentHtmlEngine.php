@@ -278,9 +278,9 @@ class PaymentHtmlEngine
     /**
      * generateLabelsAndValues
      *
-     * @return void
+     * @return array
      */
-    public function generateLabelsAndValues()
+    public function generateLabelsAndValues(): array
     {
         $data = [];
 

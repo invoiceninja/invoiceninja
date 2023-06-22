@@ -11,7 +11,6 @@
 
 namespace App\Models;
 
-use App\DataMapper\ClientSettings;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Traits\Excludable;
 use App\Utils\Traits\MakesHash;
@@ -28,12 +27,33 @@ use Illuminate\Support\Str;
  * @method scope() static
  * @package App\Models
  * @property-read mixed $hashed_id
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * @property string $number
+ * @property int $company_id
+ * @property \App\Models\Company $company
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|Illuminate\Database\Eloquent\Relations\BelongsTo|\Awobaz\Compoships\Database\Eloquent\Relations\BelongsTo|\App\Models\Company company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel with()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel query()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude(array $excludeable)
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scopeExclude()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel find() 
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel whereIn()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel where()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel count()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel create()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel insert()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel whereHas()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel withTrashed()
+ * 
+ * @method \App\Models\Company company()
+ * @method int companyId()
+ * @method Builder|static exclude($columns)
+ * @method static \Illuminate\Database\Eloquent\Builder exclude(array $columns)
  * @mixin \Eloquent
+ * @mixin \Illuminate\Database\Eloquent\Builder
  */
 class BaseModel extends Model
 {
@@ -90,7 +110,10 @@ class BaseModel extends Model
      */
     public function scopeCompany($query)
     {
-        $query->where('company_id', auth()->user()->companyId());
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $query->where('company_id', $user->companyId());
 
         return $query;
     }
@@ -100,7 +123,10 @@ class BaseModel extends Model
      */
     public function scopeScope($query)
     {
-        $query->where($this->getTable().'.company_id', '=', auth()->user()->company()->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $query->where($this->getTable().'.company_id', '=', $user->company()->id);
 
         return $query;
     }
@@ -132,39 +158,39 @@ class BaseModel extends Model
     //     }
     // }
 
-    public function setSettingsByEntity($entity, $settings)
-    {
-        switch ($entity) {
-            case Client::class:
+    // public function setSettingsByEntity($entity, $settings)
+    // {
+    //     switch ($entity) {
+    //         case Client::class:
 
-                $this->settings = $settings;
-                $this->save();
-                $this->fresh();
-                break;
-            case Company::class:
+    //             $this->settings = $settings;
+    //             $this->save();
+    //             $this->fresh();
+    //             break;
+    //         case Company::class:
 
-                $this->company->settings = $settings;
-                $this->company->save();
-                break;
-                //todo check that saving any other entity (Invoice:: RecurringInvoice::) settings is valid using the default:
-            default:
-                $this->client->settings = $settings;
-                $this->client->save();
-                break;
-        }
-    }
+    //             $this->company->settings = $settings;
+    //             $this->company->save();
+    //             break;
+    //             //todo check that saving any other entity (Invoice:: RecurringInvoice::) settings is valid using the default:
+    //         default:
+    //             $this->client->settings = $settings;
+    //             $this->client->save();
+    //             break;
+    //     }
+    // }
 
     /**
      * Gets the settings.
      *
      * Generic getter for client settings
      *
-     * @return     ClientSettings  The settings.
+     * @return ClientSettings.
      */
-    public function getSettings()
-    {
-        return new ClientSettings($this->settings);
-    }
+    // public function getSettings()
+    // {
+    //     return new ClientSettings($this->settings);
+    // }
 
     /**
      * Retrieve the model for a bound value.
@@ -181,7 +207,6 @@ class BaseModel extends Model
 
         return $this
             ->withTrashed()
-            // ->company()
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
 
