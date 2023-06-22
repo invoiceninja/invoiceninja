@@ -110,6 +110,13 @@ class TaskFilters extends QueryFilters
             return $this->builder;
         }
 
+
+        if ($sort_col[0] == 'client_id') {
+            return $this->builder->orderBy(\App\Models\Client::select('name')
+                    ->whereColumn('clients.id', 'tasks.client_id'), $sort_col[1]);
+        }
+
+
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }
 

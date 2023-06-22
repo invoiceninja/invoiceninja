@@ -146,6 +146,8 @@ class UpdateTaxData implements ShouldQueue
     public function failed($exception)
     {
         nlog("UpdateTaxData failed => ".$exception->getMessage());
+        config(['queue.failed.driver' => null]);
+
     }
 
 }
