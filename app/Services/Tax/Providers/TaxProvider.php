@@ -132,7 +132,7 @@ class TaxProvider
             'city' => $this->client->shipping_city,
             'state' => $this->client->shipping_state,
             'postal_code' => $this->client->shipping_postal_code,
-            'country' => $this->client?->shipping_country?->name,
+            'country' => $this->client->shipping_country()->exists() ? $this->client->shipping_country->name : $this->client->country->name,
         ];
 
         $taxable_address = $this->taxShippingAddress() ? $shipping_details : $billing_details;
