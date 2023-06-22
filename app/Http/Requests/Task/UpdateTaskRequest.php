@@ -104,6 +104,15 @@ class UpdateTaskRequest extends Request
             $input['color'] = '';
         }
 
+        if(isset($input['project_id']) && isset($input['client_id'])){
+            $search_project_with_client = Project::withTrashed()->where('id', $input['project_id'])->where('client_id', $input['client_id'])->company()->doesntExist();
+
+            if($search_project_with_client){
+                unset($input['project_id']);
+            }
+
+        }
+
         $this->replace($input);
     }
 
