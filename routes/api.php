@@ -179,6 +179,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('company_gateways/bulk', [CompanyGatewayController::class, 'bulk'])->name('company_gateways.bulk');
 
     Route::put('company_users/{user}', [CompanyUserController::class, 'update']);
+    Route::put('company_users/{user}/preferences', [CompanyUserController::class, 'updatePreferences']);
 
     Route::resource('credits', CreditController::class); // name = (credits. index / create / show / update / destroy / edit
     Route::put('credits/{credit}/upload', [CreditController::class, 'upload'])->name('credits.upload');
