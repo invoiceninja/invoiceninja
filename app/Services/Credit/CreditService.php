@@ -243,7 +243,7 @@ class CreditService
 
     public function triggeredActions($request)
     {
-        $this->invoice = (new TriggeredActions($this->credit, $request))->run();
+        $this->credit = (new TriggeredActions($this->credit, $request))->run();
 
         return $this;
     }

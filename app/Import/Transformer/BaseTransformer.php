@@ -246,6 +246,15 @@ class BaseTransformer
             ->exists();
     }
 
+    public function hasClientIdNumber($id_number)
+    {
+        return Client::where('company_id', $this->company->id)
+            ->where('is_deleted', false)
+            ->where('id_number', trim($id_number))
+            ->exists();
+    }
+
+
     /**
      * @param $name
      *

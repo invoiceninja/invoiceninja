@@ -61,11 +61,11 @@ class DesignFilters extends QueryFilters
      */
     public function entityFilter(): Builder
     {
-        //19-03-2023 change the scope for the design filters
-        return  $this->builder->where(function ($query) {
-            $query->where('company_id', auth()->user()->company()->id)->orWhere('company_id', null)->orderBy('id', 'asc');
-    // return $this->builder->where('company_id', auth()->user()->company()->id)->orWhere('company_id', null)->orderBy('id', 'asc');
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
+        return  $this->builder->where(function ($query) use($user){
+            $query->where('company_id', $user->company()->id)->orWhere('company_id', null)->orderBy('id', 'asc');
         });
     }
 

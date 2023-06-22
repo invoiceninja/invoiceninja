@@ -821,7 +821,14 @@ class InvoiceController extends BaseController
         $contact = $invitation->contact;
         $invoice = $invitation->invoice;
 
-        $file = $invoice->service()->getInvoicePdf($contact);
+        // $file = $invoice->service()->getInvoicePdf($contact);
+
+        /************** */
+$file_name = $invoice->numberFormatter().'.pdf';
+
+$file = (new \App\Jobs\Entity\CreateRawPdf($invitation, $invitation->company->db))->handle();
+
+        /************* */
 
         $headers = ['Content-Type' => 'application/pdf'];
 
@@ -830,8 +837,8 @@ class InvoiceController extends BaseController
         }
 
         return response()->streamDownload(function () use ($file) {
-            echo Storage::get($file);
-        }, basename($file), $headers);
+            echo $file;
+        }, $file_name, $headers);
     }
 
     /**
