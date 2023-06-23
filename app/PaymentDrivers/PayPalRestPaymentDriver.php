@@ -93,9 +93,15 @@ class PayPalRestPaymentDriver extends BaseDriver
         $data['client_id'] = $this->company_gateway->getConfigField('clientId');
         $data['token'] = $this->getClientToken();
         $data['order_id'] = $this->createOrder($data);
+        $data['funding_options'] = $this->getFundingOptions();
 
         return render('gateways.paypal.pay', $data);
 
+    }
+
+    private function getFundingOptions():string
+    {
+        
     }
 
     public function processPaymentResponse($request)
@@ -152,6 +158,21 @@ class PayPalRestPaymentDriver extends BaseDriver
 
         $order = [
           "intent" => "CAPTURE",
+          "payer" => [
+            "name" => [
+                "given_name" => $this->client->present()->first_name(),
+                "surname" => $this->client->present()->last_name(),
+            ],
+            "email_address" => $this->client->present()->email(),
+            "address" => [
+                "address_line_1" => $this->client->address1,
+                "address_line_2" => $this->client->address2, 
+                "admin_area_1" => $this->client->city, 
+                "admin_area_2" => $this->client->state, 
+                "postal_code" => $this->client->postal_code,
+                "country_code" => $this->client->country->iso_3166_2,
+            ]
+            ],
           "purchase_units" => [
                 [
             "description" =>ctrans('texts.invoice_number').'# '.$invoice->number,

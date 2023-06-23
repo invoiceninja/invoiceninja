@@ -1,4 +1,4 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.payment_type_credit_card'), 'card_title' => ctrans('texts.payment_type_credit_card')])
+@extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.payment_type_credit_card'), 'card_title' => 'PayPal'])
 
 @section('gateway_head')
     <link
@@ -28,7 +28,7 @@
 @endsection
 
 @push('footer')
-<script src="https://www.paypal.com/sdk/js?components=buttons,hosted-fields&intent=capture&client-id={!! $client_id !!}" data-client-token="{!! $token !!}">
+<script src="https://www.paypal.com/sdk/js?buyer-country=DE&currency=EUR&enable-funding={$funding_options}&components=buttons,hosted-fields,funding-eligibility&intent=capture&client-id={!! $client_id !!}" data-client-token="{!! $token !!}">
 </script>
 
 <script>
@@ -55,40 +55,13 @@
 
       });           
 
-
-
-      }
-    });
-
-
-    var FUNDING_SOURCES = [
-      paypal.FUNDING.PAYPAL,
-      paypal.FUNDING.CARD,
-      paypal.FUNDING.VENMO,
-      paypal.FUNDING.SEPA,
-      paypal.FUNDING.BANCONTACT,
-      paypal.FUNDING.EPS,
-      paypal.FUNDING.GIROPAY,
-      paypal.FUNDING.IDEAL,
-      paypal.FUNDING.MERCADOPAGO,
-      paypal.FUNDING.MYBANK,
-      paypal.FUNDING.PAYLATER,
-      paypal.FUNDING.P24,
-      paypal.FUNDING.SOFORT,
-    ];
-    
-    // Loop over each funding source
-    FUNDING_SOURCES.forEach(function (fundingSource) {
-    // Initialize the buttons
-    var button = paypal.Buttons({
-    fundingSource: fundingSource,
-    })
-    // Check if the button is eligible
-    if (button.isEligible()) {
-    // Render the standalone button for that funding source
-    button.render('#paypal-button-container')
+      },
+    onError: function(err) {
+          console.log(err);
     }
-    })
+    
+    }).render('#paypal-button-container');
+
 
 
 </script>

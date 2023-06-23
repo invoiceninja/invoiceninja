@@ -5112,6 +5112,7 @@ $LANG = array(
     'mercado_pago' => 'Mercado Pago',
     'mybank' => 'MyBank',
     'paypal_paylater' => 'Pay in 4',
+    'paid_date' => 'Paid Date',
 );
 
 

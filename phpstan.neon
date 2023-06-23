@@ -7,7 +7,7 @@ parameters:
         - '#Call to an undefined method .*badMethod\(\)#'
         - '#Call to an undefined method Illuminate\Database\Eloquent\Builder::exclude#'
     parallel:
-        maximumNumberOfProcesses: 8
+        maximumNumberOfProcesses: 1 
     level: 4
     paths:
         - 'app/'
