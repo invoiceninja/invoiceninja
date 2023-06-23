@@ -14,7 +14,6 @@ namespace App\PaymentDrivers;
 
 use Omnipay\Omnipay;
 use App\Models\Invoice;
-use Omnipay\Common\Item;
 use App\Models\SystemLog;
 use App\Models\GatewayType;
 use App\Models\PaymentType;
@@ -41,9 +40,37 @@ class PayPalRestPaymentDriver extends BaseDriver
 
     public function gatewayTypes()
     {
-        return [
-            GatewayType::PAYPAL,
+
+        $enums = [
+            3 => 'paypal',
+            1 => 'card',
+            25 => 'venmo',
+            9 => 'sepa',
+            12 => 'bancontact',
+            17 => 'eps',
+            15 => 'giropay',
+            13 => 'ideal',
+            26 => 'mercadopago',
+            27 => 'mybank',
+            28 => 'paylater',
+            16 => 'p24',
+            7 => 'sofort'
         ];
+
+        $funding_options = [];
+
+        foreach ($this->company_gateway->fees_and_limits as $key => $value) {
+            if ($value->is_enabled) {
+                $funding_options[] = $key;
+            }
+        }
+
+            return $funding_options;
+
+
+        // return [
+        //     GatewayType::PAYPAL,
+        // ];
     }
 
     public function init()
@@ -61,9 +88,6 @@ class PayPalRestPaymentDriver extends BaseDriver
 
     public function setPaymentMethod($payment_method_id)
     {
-// ['paypal', 'card', 'venmo', 'sepa', 'bancontact', 'eps', 'giropay', 'ideal', 'mercadopago', 'mybank', 'paylater', 'p24', 'sofort']
-
-
         return $this;
     }
 
@@ -101,7 +125,37 @@ class PayPalRestPaymentDriver extends BaseDriver
 
     private function getFundingOptions():string
     {
-        
+
+        $enums = [
+            3 => 'paypal', 
+            1 => 'card', 
+            25 => 'venmo', 
+            9 => 'sepa', 
+            12 => 'bancontact', 
+            17 => 'eps', 
+            15 => 'giropay', 
+            13 => 'ideal', 
+            26 => 'mercadopago', 
+            27 => 'mybank', 
+            28 => 'paylater', 
+            16 => 'p24', 
+            7 => 'sofort'
+        ];
+
+        $funding_options = '';
+
+        foreach($this->company_gateway->fees_and_limits as $key => $value) {
+
+            if($value->is_enabled) {
+
+                $funding_options .=$enums[$key].',';
+
+            }
+
+        }
+
+        return rtrim($funding_options, ',');
+
     }
 
     public function processPaymentResponse($request)
