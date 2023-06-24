@@ -84,8 +84,8 @@ class ApplyPayment extends AbstractService
         /* Update Pivot Record amount */
         $this->payment->invoices->each(function ($inv) use ($amount_paid) {
             if ($inv->id == $this->invoice->id) {
-                $inv->pivot->amount = ($amount_paid * -1);
-                $inv->pivot->save();
+                // $inv->pivot->amount = ($amount_paid * -1);
+                // $inv->pivot->save();
 
                 $inv->paid_to_date += floatval($amount_paid * -1);
                 $inv->save();
