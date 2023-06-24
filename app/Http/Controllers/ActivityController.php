@@ -93,7 +93,11 @@ class ActivityController extends BaseController
                                 ->take($default_activities);
 
         if ($request->has('react')) {
-            if (!auth()->user()->isAdmin()) {
+
+            /** @var \App\Models\User auth()->user() */
+            $user = auth()->user();
+
+            if (!$user->isAdmin()) {
                 $activities->where('user_id', auth()->user()->id);
             }
 

@@ -460,4 +460,69 @@ class Activity extends StaticModel
     {
         return $this->belongsTo(Company::class);
     }
+
+    public function activity_string()
+    {
+        $intersect = [
+            ':invoice',
+            ':client',
+            ':contact',
+            ':user',
+            ':vendor',
+            ':quote',
+            ':credit',
+            ':payment',
+            ':task',
+            ':expense',
+            ':purchase_order',
+            ':subscription',
+            ':recurring_invoice',
+            ':recurring_expense',
+            ':amount',
+            ':balance',
+            ':number',
+            ':payment_amount',
+            ':gateway', 
+            ':adjustment',           
+        ];
+
+        $found_variables = array_intersect(explode(" ",trans("texts.activity_{$this->activity_type_id}")));
+
+        $replacements = [];
+
+        foreach($found_variables as $var){
+            $replacements[] = $this->matchVar($var);
+        }
+
+        return ctrans("texts.activity_{$this->activity_type_id}",$replacements);
+    }
+
+    private function matchVar(string $variable)
+    {
+        return match($variable) {
+            ':invoice' => $translation =  [substr($variable, -1) => $this?->invoice?->number ?? ''],
+            ':client' => $translation =  [substr($variable, -1) => $this?->client?->present()->name() ?? ''],
+            ':contact' => $translation =  [substr($variable, -1) => $this?->contact?->present()->name() ?? ''],
+            ':user' => $translation =  [substr($variable, -1) => $this?->user?->present()->name() ??''],
+            ':vendor' => $translation =  [substr($variable, -1) => $this?->vendor?->present()->name() ?? ''],
+            ':quote' => $translation =  [substr($variable, -1) => $this?->quote?->number ?? ''],
+            ':credit' => $translation =  [substr($variable, -1) => $this?->credit?->number ?? ''],
+            ':payment' => $translation =  [substr($variable, -1) => $this?->payment?->number ?? ''],
+            ':task' => $translation =  [substr($variable, -1) => $this?->task?->number ?? ''],
+            ':expense' => $translation =  [substr($variable, -1) => $this?->expense?->number ?? ''],
+            ':purchase_order' => $translation =  [substr($variable, -1) => $this?->purchase_order?->number ?? ''],
+            ':subscription' => $translation =  [substr($variable, -1) => $this?->subscription?->number ?? ''],
+            ':recurring_invoice' => $translation =  [substr($variable, -1) => $this?->purchase_order?->number ??''],
+            ':recurring_expense' => $translation =  [substr($variable, -1) => $this?->recurring_expense?->number ??''],
+            ':amount' => $translation =  [substr($variable, -1) => ''],
+            ':balance' => $translation =  [substr($variable, -1) => ''],
+            ':number' => $translation =  [substr($variable, -1) => ''],
+            ':payment_amount' => $translation =  [substr($variable, -1) =>  ''],
+            ':adjustment' => $translation =  [substr($variable, -1) => $this->payment->refunded ?? ''], 
+            default => $translation =  [substr($variable, -1) => ''],
+        };
+
+        return $translation;
+    }
+
 }
