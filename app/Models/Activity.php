@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -483,10 +484,11 @@ class Activity extends StaticModel
             ':number',
             ':payment_amount',
             ':gateway', 
-            ':adjustment',           
+            ':adjustment',
+            ':ip',           
         ];
 
-        $found_variables = array_intersect(explode(" ",trans("texts.activity_{$this->activity_type_id}")));
+        $found_variables = array_intersect(explode(" ",trans("texts.activity_{$this->activity_type_id}")), $intersect);
 
         $replacements = [];
 
@@ -494,35 +496,48 @@ class Activity extends StaticModel
             $replacements[] = $this->matchVar($var);
         }
 
-        return ctrans("texts.activity_{$this->activity_type_id}",$replacements);
+        foreach(['id', 'hashed_id','notes','created_at','activity_type_id'] as $var)
+            $replacements[] = $this->matchVar($var);
+
+        // return ctrans("texts.activity_{$this->activity_type_id}",$replacements);
+        
+        return $replacements;
+
     }
 
     private function matchVar(string $variable)
     {
         return match($variable) {
-            ':invoice' => $translation =  [substr($variable, -1) => $this?->invoice?->number ?? ''],
-            ':client' => $translation =  [substr($variable, -1) => $this?->client?->present()->name() ?? ''],
-            ':contact' => $translation =  [substr($variable, -1) => $this?->contact?->present()->name() ?? ''],
-            ':user' => $translation =  [substr($variable, -1) => $this?->user?->present()->name() ??''],
-            ':vendor' => $translation =  [substr($variable, -1) => $this?->vendor?->present()->name() ?? ''],
-            ':quote' => $translation =  [substr($variable, -1) => $this?->quote?->number ?? ''],
-            ':credit' => $translation =  [substr($variable, -1) => $this?->credit?->number ?? ''],
-            ':payment' => $translation =  [substr($variable, -1) => $this?->payment?->number ?? ''],
-            ':task' => $translation =  [substr($variable, -1) => $this?->task?->number ?? ''],
-            ':expense' => $translation =  [substr($variable, -1) => $this?->expense?->number ?? ''],
-            ':purchase_order' => $translation =  [substr($variable, -1) => $this?->purchase_order?->number ?? ''],
-            ':subscription' => $translation =  [substr($variable, -1) => $this?->subscription?->number ?? ''],
-            ':recurring_invoice' => $translation =  [substr($variable, -1) => $this?->purchase_order?->number ??''],
-            ':recurring_expense' => $translation =  [substr($variable, -1) => $this?->recurring_expense?->number ??''],
-            ':amount' => $translation =  [substr($variable, -1) => ''],
-            ':balance' => $translation =  [substr($variable, -1) => ''],
-            ':number' => $translation =  [substr($variable, -1) => ''],
-            ':payment_amount' => $translation =  [substr($variable, -1) =>  ''],
-            ':adjustment' => $translation =  [substr($variable, -1) => $this->payment->refunded ?? ''], 
-            default => $translation =  [substr($variable, -1) => ''],
+            'activity_type_id' => $translation = ['activity_type_id' => $this->activity_type_id],
+            'id' => $translation = ['id' => $this->id],
+            'hashed_id' => $translation = ['hashed_id' => $this->hashed_id],
+            'notes' => $translation = ['notes' => $this->notes ?? ''],
+            'created_at' => $translation = ['created_at' => $this->created_at ?? ''], 
+            ':invoice' => $translation =  [substr($variable, 1) => [ 'label' => $this?->invoice?->number ?? '', 'hashed_id' => $this->invoice?->hashed_id ?? '']],
+            ':client' => $translation =  [substr($variable, 1) => [ 'label' => $this?->client?->present()->name() ?? '', 'hashed_id' => $this->client->hashed_id ?? '']],
+            ':contact' => $translation =  [substr($variable, 1) => [ 'label' => $this?->contact?->present()->name() ?? '', 'hashed_id' => $this->contact->client->hashed_id ?? '']],
+            ':user' => $translation =  [substr($variable, 1) => [ 'label' => $this?->user?->present()->name() ??'', 'hashed_id' => $this->user->hashed_id ?? '']],
+            ':vendor' => $translation =  [substr($variable, 1) => [ 'label' => $this?->vendor?->present()->name() ?? '', 'hashed_id' => $this->vendor->hashed_id ?? '']],
+            ':quote' => $translation =  [substr($variable, 1) => [ 'label' => $this?->quote?->number ?? '', 'hashed_id' => $this->quote->hashed_id ?? '']],
+            ':credit' => $translation =  [substr($variable, 1) => [ 'label' => $this?->credit?->number ?? '', 'hashed_id' => $this->credit->hashed_id ?? '']],
+            ':payment' => $translation =  [substr($variable, 1) => [ 'label' => $this?->payment?->number ?? '', 'hashed_id' => $this->payment->hashed_id ?? '']],
+            ':task' => $translation =  [substr($variable, 1) => [ 'label' => $this?->task?->number ?? '', 'hashed_id' => $this->task->hashed_id ?? '']],
+            ':expense' => $translation =  [substr($variable, 1) => [ 'label' => $this?->expense?->number ?? '', 'hashed_id' => $this->expense->hashed_id ?? '']],
+            ':purchase_order' => $translation =  [substr($variable, 1) => [ 'label' => $this?->purchase_order?->number ?? '', 'hashed_id' => $this->purchase_order->hashed_id ?? '']],
+            ':subscription' => $translation =  [substr($variable, 1) => [ 'label' => $this?->subscription?->number ?? '', 'hashed_id' => $this->subscription->hashed_id ?? '' ]],
+            ':recurring_invoice' => $translation =  [substr($variable, 1) =>[ 'label' =>  $this?->recurring_invoice?->number ??'', 'hashed_id' => $this->recurring_invoice->hashed_id ?? '']],
+            ':recurring_expense' => $translation =  [substr($variable, 1) => [ 'label' => $this?->recurring_expense?->number ??'', 'hashed_id' => $this->recurring_expense->hashed_id ?? '']],
+            ':payment_amount' => $translation =  [substr($variable, 1) =>[ 'label' =>  Number::formatMoney($this?->payment?->amount, $this?->payment?->client) ?? '']],
+            ':adjustment' => $translation =  [substr($variable, 1) =>[ 'label' =>  Number::formatMoney($this?->payment?->refunded, $this?->payment?->client) ?? '']], 
+            ':ip' => $translation = [ 'ip' => $this->ip ?? ''],
+            default => $translation =  [substr($variable, 1) => ''],
         };
 
         return $translation;
     }
 
+    private function returnEntityValue(string $variable)
+    {
+
+    }
 }

@@ -104,6 +104,8 @@ class ActivityController extends BaseController
             $system = ctrans('texts.system');
 
             $data = $activities->cursor()->map(function ($activity) use ($system) {
+
+                return $activity->activity_string();
                 $arr =
                 [
                     'client' => $activity->client ? $activity->client : '',
@@ -134,7 +136,7 @@ class ActivityController extends BaseController
                 $activity_meta['is_system'] = $activity->is_system;
                 // $activity_meta['currency_id'] = $activity->currency_id;
 
-                return array_merge($arr, $activity_meta);
+                return array_merge($arr, $activity_array);
             });
 
             return response()->json(['data' => $data->toArray()], 200);
