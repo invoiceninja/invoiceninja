@@ -103,9 +103,8 @@ class ActivityController extends BaseController
 
             $system = ctrans('texts.system');
 
-            $data = $activities->cursor()->map(function ($activity) use ($system) {
+            $data = $activities->cursor()->map(function ($activity) {
 
-                return $activity->activity_string();
                 $arr =
                 [
                     'client' => $activity->client ? $activity->client : '',
@@ -126,17 +125,27 @@ class ActivityController extends BaseController
                 ];
                 
                 $activity_array = $activity->toArray();
-                $activity_meta = [];
-                $activity_meta['hashed_id'] = $activity->hashed_id;
-                $activity_meta['notes'] = $activity->notes;
-                $activity_meta['ip'] = $activity->ip;
-                $activity_meta['activity_type_id'] = $activity->activity_type_id;
-                $activity_meta['created_at'] = $activity->created_at;
-                $activity_meta['updated_at'] = $activity->updated_at;
-                $activity_meta['is_system'] = $activity->is_system;
-                // $activity_meta['currency_id'] = $activity->currency_id;
 
                 return array_merge($arr, $activity_array);
+            });
+
+            return response()->json(['data' => $data->toArray()], 200);
+        }
+        elseif($request->has('reactv2')) {
+
+            /** @var \App\Models\User auth()->user() */
+            $user = auth()->user();
+
+            if (!$user->isAdmin()) {
+                $activities->where('user_id', auth()->user()->id);
+            }
+
+            $system = ctrans('texts.system');
+
+            $data = $activities->cursor()->map(function ($activity) use ($system) {
+
+                return $activity->activity_string();
+
             });
 
             return response()->json(['data' => $data->toArray()], 200);
