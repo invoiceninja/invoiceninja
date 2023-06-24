@@ -13,9 +13,10 @@ namespace App\Events\Payment;
 
 use App\Models\Company;
 use App\Models\Payment;
-use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Foundation\Events\Dispatchable;
+use App\Models\ClientContact;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Broadcasting\InteractsWithSockets;
 
 /**
  * Class PaymentWasEmailed.
@@ -25,25 +26,14 @@ class PaymentWasEmailed
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
-     * @var Payment
-     */
-    public $payment;
-
-    public $company;
-
-    public $event_vars;
-
-    /**
      * Create a new event instance.
      *
      * @param Payment $payment
      * @param Company $company
+     * @param ClientContact $contact
      * @param array $event_vars
      */
-    public function __construct(Payment $payment, Company $company, array $event_vars)
+    public function __construct(public Payment $payment, public Company $company, public ClientContact $contact, public array $event_vars)
     {
-        $this->payment = $payment;
-        $this->company = $company;
-        $this->event_vars = $event_vars;
     }
 }

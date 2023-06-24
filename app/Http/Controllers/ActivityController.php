@@ -96,7 +96,6 @@ class ActivityController extends BaseController
             if (!auth()->user()->isAdmin()) {
                 $activities->where('user_id', auth()->user()->id);
             }
-            // return response()->json(['data' => []], 200);
 
             $system = ctrans('texts.system');
 
@@ -104,7 +103,7 @@ class ActivityController extends BaseController
                 $arr =
                 [
                     'client' => $activity->client ? $activity->client : '',
-                    'contact' => $activity->contact ? $activity->contact : '',
+                    'contact' => $activity->client ? $activity->contact : '',
                     'quote' => $activity->quote ? $activity->quote : '',
                     'user' => $activity->user ? $activity->user : '',
                     'expense' => $activity->expense ? $activity->expense : '',
@@ -119,8 +118,19 @@ class ActivityController extends BaseController
                     'vendor_contact' => $activity->vendor_contact ? $activity->vendor_contact : '',
                     'recurring_expense' => $activity->recurring_expense ? $activity->recurring_expense : '',
                 ];
+                
+                $activity_array = $activity->toArray();
+                $activity_meta = [];
+                $activity_meta['hashed_id'] = $activity->hashed_id;
+                $activity_meta['notes'] = $activity->notes;
+                $activity_meta['ip'] = $activity->ip;
+                $activity_meta['activity_type_id'] = $activity->activity_type_id;
+                $activity_meta['created_at'] = $activity->created_at;
+                $activity_meta['updated_at'] = $activity->updated_at;
+                $activity_meta['is_system'] = $activity->is_system;
+                // $activity_meta['currency_id'] = $activity->currency_id;
 
-                return array_merge($arr, $activity->toArray());
+                return array_merge($arr, $activity_meta);
             });
 
             return response()->json(['data' => $data->toArray()], 200);
