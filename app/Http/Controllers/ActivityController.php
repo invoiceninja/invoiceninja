@@ -85,7 +85,7 @@ class ActivityController extends BaseController
      */
     public function index(Request $request)
     {
-        $default_activities = $request->has('rows') ? $request->input('rows') : 50;
+        $default_activities = $request->has('rows') ? $request->input('rows') : 75;
 
         $activities = Activity::with('user')
                                 ->orderBy('created_at', 'DESC')
