@@ -139,7 +139,7 @@ class PaymentRepository extends BaseRepository
 
             $invoices = Invoice::withTrashed()->whereIn('id', array_column($data['invoices'], 'invoice_id'))->get();
 
-            // $payment->invoices()->saveMany($invoices);
+            // $payment->invoices()->saveMany($invoices); //25-06-2023
 
             //todo optimize this into a single query
             foreach ($data['invoices'] as $paid_invoice) {
@@ -147,6 +147,8 @@ class PaymentRepository extends BaseRepository
                 $invoice = $invoices->firstWhere('id', $paid_invoice['invoice_id']);
 
                 if ($invoice) {
+
+                //25-06-2023
 
                     $paymentable = new Paymentable();
                     $paymentable->payment_id = $payment->id;
@@ -162,9 +164,7 @@ class PaymentRepository extends BaseRepository
                 }
             }
         } else {
-            //payment is made, but not to any invoice, therefore we are applying the payment to the clients paid_to_date only
-            //01-07-2020 i think we were duplicating the paid to date here.
-            //$payment->client->service()->updatePaidToDate($payment->amount)->save();
+
         }
 
         if (array_key_exists('credits', $data) && is_array($data['credits'])) {
@@ -176,7 +176,7 @@ class PaymentRepository extends BaseRepository
 
             //todo optimize into a single query
             foreach ($data['credits'] as $paid_credit) {
-                // $credit = Credit::withTrashed()->find($paid_credit['credit_id']);
+
                 $credit = $credits->firstWhere('id', $paid_credit['credit_id']);
                 
                 if ($credit) {
