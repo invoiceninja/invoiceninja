@@ -11,17 +11,19 @@
 
 namespace App\Jobs\Bank;
 
-use App\Helpers\Bank\Yodlee\Yodlee;
+use App\Models\Company;
 use App\Libraries\MultiDB;
+use Illuminate\Bus\Queueable;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
-use App\Models\Company;
+use App\Helpers\Bank\Yodlee\Yodlee;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use App\Services\Bank\BankMatchingService;
-use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
+use App\Notifications\Ninja\GenericNinjaAdminNotification;
 
 class ProcessBankTransactions implements ShouldQueue
 {
@@ -70,6 +72,14 @@ class ProcessBankTransactions implements ShouldQueue
                 $this->processTransactions();
             } catch(\Exception $e) {
                 nlog("{$this->bank_integration_account_id} - exited abnormally => ". $e->getMessage());
+
+                $content = [
+                    "Processing transactions for account: {$this->bank_integration->account->key} failed",
+                    "Exception Details => ",
+                    $e->getMessage(),
+                ];
+
+                $this->bank_integration->account->company->notification(new GenericNinjaAdminNotification($content))->ninja();
                 return;
             }
         } while ($this->stop_loop);
@@ -151,5 +161,16 @@ class ProcessBankTransactions implements ShouldQueue
             $this->bank_integration->from_date = now()->subDays(2);
             $this->bank_integration->save();
         }
+    }
+
+
+    public function middleware()
+    {
+        return [new WithoutOverlapping($this->bank_integration_account_id)];
+    }
+    
+    public function backoff()
+    {
+        return [rand(10, 15), rand(30, 40), rand(60, 79), rand(160, 200), rand(3000, 5000)];
     }
 }
