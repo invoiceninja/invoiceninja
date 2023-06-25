@@ -20,12 +20,14 @@ class BankTransactionMap
             1 => 'transaction.amount',
             2 => 'transaction.currency',
             3 => 'transaction.account_type',
-            4 => 'transaction.category_id',
+            4 => 'transaction.category',
             5 => 'transaction.category_type',
             6 => 'transaction.date',
-            7 => 'transaction.bank_account_id',
+            7 => 'transaction.bank_account',
             8 => 'transaction.description',
             9 => 'transaction.base_type',
+            10 => 'transaction.payment_type_Credit',
+            11 => 'transaction.payment_type_Debit',
         ];
     }
 
@@ -42,6 +44,8 @@ class BankTransactionMap
             7 => 'texts.bank_account_id',
             8 => 'texts.description',
             9 => 'texts.type',
+            10 => 'transaction.credit',
+            11 => 'transaction.debit',
         ];
     }
 }
