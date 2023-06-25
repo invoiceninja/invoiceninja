@@ -1446,7 +1446,7 @@ Ensure the default browser behavior of the `hidden` attribute.
         <h2 class="text-[24px] font-bold leading-[1.5em] mb-[26px] relative md:text-[30px] md:mb-[46px]">
           Your Pro Plan trial is <br/>loaded and ready to go!
         </h2>
-        <a href="https://invoicing.co"
+        <a href="https://app.invoicing.co/#/"
               type="button"
               class="mx-[auto] max-w-[212px] bg-primary-blue hover:opacity-80 button button-primary bg-primary rounded-sm text-sm transition duration-300 ease-in md:mx-[0]"
             >

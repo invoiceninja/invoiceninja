@@ -58,7 +58,7 @@ class DocumentController extends Controller
 
         $document = Document::where('hash', $document_hash)->firstOrFail();
 
-        $headers = [];
+        $headers = ['Cache-Control:' => 'no-cache'];
 
         if (request()->input('inline') == 'true') {
             $headers = array_merge($headers, ['Content-Disposition' => 'inline']);

@@ -82,7 +82,7 @@ class UpdateCompanyRequest extends Request
             $input['settings'] = (array)$this->filterSaveableSettings($input['settings']);
         }
 
-        if(array_key_exists('subdomain', $input) && $this->subdomain == $input['subdomain']) {
+        if(array_key_exists('subdomain', $input) && $this->company->subdomain == $input['subdomain']) {
             unset($input['subdomain']);
         }
 

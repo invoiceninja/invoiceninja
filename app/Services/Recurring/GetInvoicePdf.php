@@ -20,6 +20,8 @@ class GetInvoicePdf extends AbstractService
 {
     public $entity;
 
+    public $contact;
+    
     public function __construct($entity, ClientContact $contact = null)
     {
         $this->entity = $entity;

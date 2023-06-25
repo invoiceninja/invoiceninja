@@ -46,8 +46,8 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $email
  * @property string|null $email_verified_at
  * @property string|null $confirmation_code
- * @property int $is_primary
- * @property int $confirmed
+ * @property bool $is_primary
+ * @property bool $confirmed
  * @property int|null $last_login
  * @property int|null $failed_logins
  * @property string|null $oauth_user_id
@@ -59,8 +59,8 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $avatar_size
  * @property string $password
  * @property string|null $token
- * @property int $is_locked
- * @property int $send_email
+ * @property bool $is_locked
+ * @property bool $send_email
  * @property string|null $contact_key
  * @property string|null $remember_token
  * @property int|null $created_at

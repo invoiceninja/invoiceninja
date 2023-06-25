@@ -135,6 +135,13 @@ class QuoteFilters extends QueryFilters
             return $this->builder;
         }
 
+        if($sort_col[0] == 'client_id'){
+
+            return $this->builder->orderBy(\App\Models\Client::select('name')
+                    ->whereColumn('clients.id', 'quotes.client_id'), $sort_col[1]);
+
+        }
+
         if ($sort_col[0] == 'valid_until') {
             $sort_col[0] = 'due_date';
         }

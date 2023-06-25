@@ -754,7 +754,7 @@ $LANG = array(
     'activity_7' => ':contact viewed invoice :invoice for :client',
     'activity_8' => ':user archived invoice :invoice',
     'activity_9' => ':user deleted invoice :invoice',
-    'activity_10' => ':contact entered payment :payment for :payment_amount on invoice :invoice for :client',
+    'activity_10' => ':user entered payment :payment for :payment_amount on invoice :invoice for :client',
     'activity_11' => ':user updated payment :payment',
     'activity_12' => ':user archived payment :payment',
     'activity_13' => ':user deleted payment :payment',
@@ -2000,6 +2000,7 @@ $LANG = array(
     'current_quarter' => 'Current Quarter',
     'last_quarter' => 'Last Quarter',
     'last_year' => 'Last Year',
+    'all_time' => 'All Time',
     'custom_range' => 'Custom Range',
     'url' => 'URL',
     'debug' => 'Debug',
@@ -4907,6 +4908,7 @@ $LANG = array(
     'all_clients' => 'All Clients',
     'show_aging_table' => 'Show Aging Table',
     'show_payments_table' => 'Show Payments Table',
+    'only_clients_with_invoices' => 'Only Clients with Invoices',
     'email_statement' => 'Email Statement',
     'once' => 'Once',
     'schedules' => 'Schedules',
@@ -5105,6 +5107,8 @@ $LANG = array(
     'gallery' => 'Gallery',
     'project_location' => 'Project Location',
     'add_gateway_help_message' => 'Add a payment gateway (ie. Stripe, WePay or PayPal) to accept online payments', 
+    'lang_Hungarian' => 'Hungarian',
+    'use_mobile_to_manage_plan' => 'Use your phone subscription settings to manage your plan',
 );
 
 

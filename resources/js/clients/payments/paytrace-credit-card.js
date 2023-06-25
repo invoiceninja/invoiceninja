@@ -173,6 +173,7 @@ class PayTraceCreditCard {
     }
 
     handle() {
+        
         Array.from(
             document.getElementsByClassName('toggle-payment-with-token')
         ).forEach((element) =>
