@@ -304,7 +304,7 @@ class Import implements ShouldQueue
 
             if (round($total_invoice_payments, 2) != round($client->paid_to_date, 2)) {
                 $client->paid_to_date = $total_invoice_payments;
-                $client->save();
+                $client->saveQuietly();
             }
         });
     }
@@ -320,12 +320,12 @@ class Import implements ShouldQueue
             $company_ledger->notes = 'Migrated Client Balance';
             $company_ledger->balance = $invoice_balances;
             $company_ledger->activity_id = Activity::CREATE_CLIENT;
-            $company_ledger->save();
+            $company_ledger->saveQuietly();
 
             $client->company_ledger()->save($company_ledger);
 
             $client->balance = $invoice_balances;
-            $client->save();
+            $client->saveQuietly();
         });
     }
 
@@ -1781,6 +1781,7 @@ class Import implements ShouldQueue
     {
         Activity::where('company_id', $this->company->id)->cursor()->each(function ($a){
             $a->forceDelete();
+            nlog("deleting {$a->id}");
         });
 
         Activity::unguard();
@@ -1827,6 +1828,8 @@ try {
     if (isset($modified['client_contact_id'])) {
         $modified['client_contact_id'] = $this->transformId('client_contacts', $resource['client_contact_id']);
     }
+
+    $modified['updated_at'] = $modified['created_at'];
 
     $act = Activity::make($modified);
 
