@@ -202,5 +202,16 @@ class Scheduler extends BaseModel
         $this->save();
     }
 
+    public function adjustOffset(): void
+    {
+        if (! $this->next_run) {
+            return;
+        }
 
+        $offset = $this->company->timezone_offset();
+
+        $this->next_run = $this->next_run->copy()->addSeconds($offset);
+        $this->save();
+
+    }
 }

@@ -37,8 +37,6 @@ class SendEmail
      */
     public function run()
     {
-        nlog($this->reminder_template);
-        nlog("is there a template");
 
         if (! $this->reminder_template) {
             $this->reminder_template = $this->quote->calculateTemplate('quote');

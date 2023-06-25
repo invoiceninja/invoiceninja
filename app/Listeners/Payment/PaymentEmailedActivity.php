@@ -45,6 +45,7 @@ class PaymentEmailedActivity implements ShouldQueue
 
         $fields->user_id = $user_id;
         $fields->client_id = $event->payment->client_id;
+        $fields->client_contact_id = $event->contact->id;
         $fields->company_id = $event->payment->company_id;
         $fields->activity_type_id = Activity::PAYMENT_EMAILED;
         $fields->payment_id = $event->payment->id;

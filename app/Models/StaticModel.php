@@ -26,6 +26,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel query()
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel find()
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel with()
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel findOrFail()
  * @mixin \Eloquent
  */

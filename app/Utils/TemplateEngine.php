@@ -102,7 +102,11 @@ class TemplateEngine
         } elseif (stripos($this->template, 'purchase') !== false && $purchase_order = PurchaseOrder::whereHas('invitations')->withTrashed()->company()->first()) {
             $this->entity = 'purchase_order';
             $this->entity_obj = $purchase_order;
-        } elseif ($invoice = Invoice::whereHas('invitations')->withTrashed()->company()->first()) {
+        }elseif (stripos($this->template, 'payment') !== false && $payment = Payment::withTrashed()->company()->first()) {
+            $this->entity = 'payment';
+            $this->entity_obj = $payment;
+        } 
+        elseif ($invoice = Invoice::whereHas('invitations')->withTrashed()->company()->first()) {
             $this->entity_obj = $invoice;
         } else {
             $this->mockEntity();

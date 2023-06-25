@@ -288,11 +288,6 @@ class SystemHealth
         return $result;
     }
 
-    private static function checkDbConnection()
-    {
-        return DB::connection()->getPdo();
-    }
-
     public static function testMailServer($request = null)
     {
         if ($request->driver == 'log') {

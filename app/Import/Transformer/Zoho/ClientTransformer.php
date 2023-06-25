@@ -27,7 +27,12 @@ class ClientTransformer extends BaseTransformer
      */
     public function transform($data)
     {
-        if (isset($data['Company Name']) && $this->hasClient($data['Company Name'])) {
+        $client_id_proxy = array_key_exists('Customer ID', $data) ? 'Customer ID' : 'Primary Contact ID';
+
+        if(isset($data[$client_id_proxy]) && $this->hasClientIdNumber($data[$client_id_proxy])) {
+            throw new ImportException('Client ID already exists => '. $data[$client_id_proxy]);
+        }
+        elseif (isset($data['Company Name']) && $this->hasClient($data['Company Name'])) {
             throw new ImportException('Client already exists => '. $data['Company Name']);
         }
 
@@ -37,8 +42,6 @@ class ClientTransformer extends BaseTransformer
         if (strval($data['Payment Terms'] ?? '') > 0) {
             $settings->payment_terms = $data['Payment Terms'];
         }
-
-        $client_id_proxy = array_key_exists('Customer ID', $data) ? 'Customer ID' : 'Primary Contact ID';
 
         $data = [
             'company_id'    => $this->company->id,

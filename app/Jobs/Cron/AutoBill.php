@@ -67,6 +67,9 @@ class AutoBill implements ShouldQueue
                     if ($invitation->contact && ! $invitation->contact->trashed() && strlen($invitation->contact->email) >= 1 && $invoice->client->getSetting('auto_email_invoice')) {
                         try {
                             EmailEntity::dispatch($invitation, $invoice->company)->delay(rand(1, 2));
+
+                            $invoice->entityEmailEvent($invitation, 'invoice', 'email_template_invoice');
+                                
                         } catch (\Exception $e) {
                             nlog($e->getMessage());
                         }

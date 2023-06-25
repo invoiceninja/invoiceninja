@@ -123,7 +123,6 @@ class InvoiceTransformer extends BaseTransformer
             return $client_id_search->first()->id;
         }
 
-
         $client_repository = app()->make(\App\Repositories\ClientRepository::class);
         $client_repository->import_mode = true;
 

@@ -65,7 +65,7 @@ class EmailPayment implements ShouldQueue
     public function handle()
     {
         if ($this->company->is_disabled) {
-            return true;
+            return;
         }
 
         if ($this->contact->email) {
@@ -96,7 +96,7 @@ class EmailPayment implements ShouldQueue
 
             (new NinjaMailerJob($nmo))->handle();
 
-            event(new PaymentWasEmailed($this->payment, $this->payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+            event(new PaymentWasEmailed($this->payment, $this->payment->company, $this->contact, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         }
     }
 }

@@ -356,6 +356,11 @@ class PaymentEmailEngine extends BaseEmailEngine
 
         }
 
+        if(strlen($invoice_list) < 4){
+                $invoice_list = Number::formatMoney($this->payment->amount, $this->client) ?: '&nbsp;';
+        }
+            
+
         return $invoice_list;
 
     }

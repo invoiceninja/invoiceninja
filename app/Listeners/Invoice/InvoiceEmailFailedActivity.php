@@ -58,7 +58,6 @@ class InvoiceEmailFailedActivity implements ShouldQueue
         $fields->client_contact_id = $event->invitation->client_contact_id;
         $fields->company_id = $event->invitation->invoice->company_id;
         $fields->activity_type_id = Activity::EMAIL_INVOICE_FAILED;
-        $fields->notes = $event->message;
 
         $this->activity_repo->save($fields, $event->invitation->invoice, $event->event_vars);
     }

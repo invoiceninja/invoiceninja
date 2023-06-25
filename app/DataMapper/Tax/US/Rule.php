@@ -162,14 +162,16 @@ class Rule extends BaseRule implements RuleInterface
         
         if($this->tax_data?->stateSalesTax == 0) {
 
-            $this->tax_rate1 = $this->invoice->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->tax_rate;
-            $this->tax_name1 = "Sales Tax";
+            $this->tax_rate1 = 0;
+            $this->tax_name1 = '';
+
+            // $this->tax_rate1 = $this->invoice->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->tax_rate;
+            // $this->tax_name1 = "Sales Tax";
 
             return $this;
         }
 
         $this->tax_rate1 = $this->tax_data->taxSales * 100;
-        // $this->tax_name1 = "{$this->tax_data->geoState} Sales Tax";
         $this->tax_name1 = "Sales Tax";
 
         return $this;
