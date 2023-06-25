@@ -1,1 +1,3631 @@
-(()=>{var e,t={9669:(e,t,r)=>{e.exports=r(1609)},5448:(e,t,r)=>{"use strict";var n=r(4867),i=r(6026),o=r(4372),s=r(5327),a=r(4097),u=r(4109),c=r(7985),l=r(5061),f=r(5655),p=r(5263);e.exports=function(e){return new Promise((function(t,r){var d,h=e.data,v=e.headers,m=e.responseType;function g(){e.cancelToken&&e.cancelToken.unsubscribe(d),e.signal&&e.signal.removeEventListener("abort",d)}n.isFormData(h)&&delete v["Content-Type"];var y=new XMLHttpRequest;if(e.auth){var b=e.auth.username||"",w=e.auth.password?unescape(encodeURIComponent(e.auth.password)):"";v.Authorization="Basic "+btoa(b+":"+w)}var x=a(e.baseURL,e.url);function O(){if(y){var n="getAllResponseHeaders"in y?u(y.getAllResponseHeaders()):null,o={data:m&&"text"!==m&&"json"!==m?y.response:y.responseText,status:y.status,statusText:y.statusText,headers:n,config:e,request:y};i((function(e){t(e),g()}),(function(e){r(e),g()}),o),y=null}}if(y.open(e.method.toUpperCase(),s(x,e.params,e.paramsSerializer),!0),y.timeout=e.timeout,"onloadend"in y?y.onloadend=O:y.onreadystatechange=function(){y&&4===y.readyState&&(0!==y.status||y.responseURL&&0===y.responseURL.indexOf("file:"))&&setTimeout(O)},y.onabort=function(){y&&(r(l("Request aborted",e,"ECONNABORTED",y)),y=null)},y.onerror=function(){r(l("Network Error",e,null,y)),y=null},y.ontimeout=function(){var t=e.timeout?"timeout of "+e.timeout+"ms exceeded":"timeout exceeded",n=e.transitional||f.transitional;e.timeoutErrorMessage&&(t=e.timeoutErrorMessage),r(l(t,e,n.clarifyTimeoutError?"ETIMEDOUT":"ECONNABORTED",y)),y=null},n.isStandardBrowserEnv()){var E=(e.withCredentials||c(x))&&e.xsrfCookieName?o.read(e.xsrfCookieName):void 0;E&&(v[e.xsrfHeaderName]=E)}"setRequestHeader"in y&&n.forEach(v,(function(e,t){void 0===h&&"content-type"===t.toLowerCase()?delete v[t]:y.setRequestHeader(t,e)})),n.isUndefined(e.withCredentials)||(y.withCredentials=!!e.withCredentials),m&&"json"!==m&&(y.responseType=e.responseType),"function"==typeof e.onDownloadProgress&&y.addEventListener("progress",e.onDownloadProgress),"function"==typeof e.onUploadProgress&&y.upload&&y.upload.addEventListener("progress",e.onUploadProgress),(e.cancelToken||e.signal)&&(d=function(e){y&&(r(!e||e&&e.type?new p("canceled"):e),y.abort(),y=null)},e.cancelToken&&e.cancelToken.subscribe(d),e.signal&&(e.signal.aborted?d():e.signal.addEventListener("abort",d))),h||(h=null),y.send(h)}))}},1609:(e,t,r)=>{"use strict";var n=r(4867),i=r(1849),o=r(321),s=r(7185);var a=function e(t){var r=new o(t),a=i(o.prototype.request,r);return n.extend(a,o.prototype,r),n.extend(a,r),a.create=function(r){return e(s(t,r))},a}(r(5655));a.Axios=o,a.Cancel=r(5263),a.CancelToken=r(4972),a.isCancel=r(6502),a.VERSION=r(7288).version,a.all=function(e){return Promise.all(e)},a.spread=r(8713),a.isAxiosError=r(6268),e.exports=a,e.exports.default=a},5263:e=>{"use strict";function t(e){this.message=e}t.prototype.toString=function(){return"Cancel"+(this.message?": "+this.message:"")},t.prototype.__CANCEL__=!0,e.exports=t},4972:(e,t,r)=>{"use strict";var n=r(5263);function i(e){if("function"!=typeof e)throw new TypeError("executor must be a function.");var t;this.promise=new Promise((function(e){t=e}));var r=this;this.promise.then((function(e){if(r._listeners){var t,n=r._listeners.length;for(t=0;t<n;t++)r._listeners[t](e);r._listeners=null}})),this.promise.then=function(e){var t,n=new Promise((function(e){r.subscribe(e),t=e})).then(e);return n.cancel=function(){r.unsubscribe(t)},n},e((function(e){r.reason||(r.reason=new n(e),t(r.reason))}))}i.prototype.throwIfRequested=function(){if(this.reason)throw this.reason},i.prototype.subscribe=function(e){this.reason?e(this.reason):this._listeners?this._listeners.push(e):this._listeners=[e]},i.prototype.unsubscribe=function(e){if(this._listeners){var t=this._listeners.indexOf(e);-1!==t&&this._listeners.splice(t,1)}},i.source=function(){var e;return{token:new i((function(t){e=t})),cancel:e}},e.exports=i},6502:e=>{"use strict";e.exports=function(e){return!(!e||!e.__CANCEL__)}},321:(e,t,r)=>{"use strict";var n=r(4867),i=r(5327),o=r(782),s=r(3572),a=r(7185),u=r(4875),c=u.validators;function l(e){this.defaults=e,this.interceptors={request:new o,response:new o}}l.prototype.request=function(e,t){if("string"==typeof e?(t=t||{}).url=e:t=e||{},!t.url)throw new Error("Provided config url is not valid");(t=a(this.defaults,t)).method?t.method=t.method.toLowerCase():this.defaults.method?t.method=this.defaults.method.toLowerCase():t.method="get";var r=t.transitional;void 0!==r&&u.assertOptions(r,{silentJSONParsing:c.transitional(c.boolean),forcedJSONParsing:c.transitional(c.boolean),clarifyTimeoutError:c.transitional(c.boolean)},!1);var n=[],i=!0;this.interceptors.request.forEach((function(e){"function"==typeof e.runWhen&&!1===e.runWhen(t)||(i=i&&e.synchronous,n.unshift(e.fulfilled,e.rejected))}));var o,l=[];if(this.interceptors.response.forEach((function(e){l.push(e.fulfilled,e.rejected)})),!i){var f=[s,void 0];for(Array.prototype.unshift.apply(f,n),f=f.concat(l),o=Promise.resolve(t);f.length;)o=o.then(f.shift(),f.shift());return o}for(var p=t;n.length;){var d=n.shift(),h=n.shift();try{p=d(p)}catch(e){h(e);break}}try{o=s(p)}catch(e){return Promise.reject(e)}for(;l.length;)o=o.then(l.shift(),l.shift());return o},l.prototype.getUri=function(e){if(!e.url)throw new Error("Provided config url is not valid");return e=a(this.defaults,e),i(e.url,e.params,e.paramsSerializer).replace(/^\?/,"")},n.forEach(["delete","get","head","options"],(function(e){l.prototype[e]=function(t,r){return this.request(a(r||{},{method:e,url:t,data:(r||{}).data}))}})),n.forEach(["post","put","patch"],(function(e){l.prototype[e]=function(t,r,n){return this.request(a(n||{},{method:e,url:t,data:r}))}})),e.exports=l},782:(e,t,r)=>{"use strict";var n=r(4867);function i(){this.handlers=[]}i.prototype.use=function(e,t,r){return this.handlers.push({fulfilled:e,rejected:t,synchronous:!!r&&r.synchronous,runWhen:r?r.runWhen:null}),this.handlers.length-1},i.prototype.eject=function(e){this.handlers[e]&&(this.handlers[e]=null)},i.prototype.forEach=function(e){n.forEach(this.handlers,(function(t){null!==t&&e(t)}))},e.exports=i},4097:(e,t,r)=>{"use strict";var n=r(1793),i=r(7303);e.exports=function(e,t){return e&&!n(t)?i(e,t):t}},5061:(e,t,r)=>{"use strict";var n=r(481);e.exports=function(e,t,r,i,o){var s=new Error(e);return n(s,t,r,i,o)}},3572:(e,t,r)=>{"use strict";var n=r(4867),i=r(8527),o=r(6502),s=r(5655),a=r(5263);function u(e){if(e.cancelToken&&e.cancelToken.throwIfRequested(),e.signal&&e.signal.aborted)throw new a("canceled")}e.exports=function(e){return u(e),e.headers=e.headers||{},e.data=i.call(e,e.data,e.headers,e.transformRequest),e.headers=n.merge(e.headers.common||{},e.headers[e.method]||{},e.headers),n.forEach(["delete","get","head","post","put","patch","common"],(function(t){delete e.headers[t]})),(e.adapter||s.adapter)(e).then((function(t){return u(e),t.data=i.call(e,t.data,t.headers,e.transformResponse),t}),(function(t){return o(t)||(u(e),t&&t.response&&(t.response.data=i.call(e,t.response.data,t.response.headers,e.transformResponse))),Promise.reject(t)}))}},481:e=>{"use strict";e.exports=function(e,t,r,n,i){return e.config=t,r&&(e.code=r),e.request=n,e.response=i,e.isAxiosError=!0,e.toJSON=function(){return{message:this.message,name:this.name,description:this.description,number:this.number,fileName:this.fileName,lineNumber:this.lineNumber,columnNumber:this.columnNumber,stack:this.stack,config:this.config,code:this.code,status:this.response&&this.response.status?this.response.status:null}},e}},7185:(e,t,r)=>{"use strict";var n=r(4867);e.exports=function(e,t){t=t||{};var r={};function i(e,t){return n.isPlainObject(e)&&n.isPlainObject(t)?n.merge(e,t):n.isPlainObject(t)?n.merge({},t):n.isArray(t)?t.slice():t}function o(r){return n.isUndefined(t[r])?n.isUndefined(e[r])?void 0:i(void 0,e[r]):i(e[r],t[r])}function s(e){if(!n.isUndefined(t[e]))return i(void 0,t[e])}function a(r){return n.isUndefined(t[r])?n.isUndefined(e[r])?void 0:i(void 0,e[r]):i(void 0,t[r])}function u(r){return r in t?i(e[r],t[r]):r in e?i(void 0,e[r]):void 0}var c={url:s,method:s,data:s,baseURL:a,transformRequest:a,transformResponse:a,paramsSerializer:a,timeout:a,timeoutMessage:a,withCredentials:a,adapter:a,responseType:a,xsrfCookieName:a,xsrfHeaderName:a,onUploadProgress:a,onDownloadProgress:a,decompress:a,maxContentLength:a,maxBodyLength:a,transport:a,httpAgent:a,httpsAgent:a,cancelToken:a,socketPath:a,responseEncoding:a,validateStatus:u};return n.forEach(Object.keys(e).concat(Object.keys(t)),(function(e){var t=c[e]||o,i=t(e);n.isUndefined(i)&&t!==u||(r[e]=i)})),r}},6026:(e,t,r)=>{"use strict";var n=r(5061);e.exports=function(e,t,r){var i=r.config.validateStatus;r.status&&i&&!i(r.status)?t(n("Request failed with status code "+r.status,r.config,null,r.request,r)):e(r)}},8527:(e,t,r)=>{"use strict";var n=r(4867),i=r(5655);e.exports=function(e,t,r){var o=this||i;return n.forEach(r,(function(r){e=r.call(o,e,t)})),e}},5655:(e,t,r)=>{"use strict";var n=r(4155),i=r(4867),o=r(6016),s=r(481),a={"Content-Type":"application/x-www-form-urlencoded"};function u(e,t){!i.isUndefined(e)&&i.isUndefined(e["Content-Type"])&&(e["Content-Type"]=t)}var c,l={transitional:{silentJSONParsing:!0,forcedJSONParsing:!0,clarifyTimeoutError:!1},adapter:(("undefined"!=typeof XMLHttpRequest||void 0!==n&&"[object process]"===Object.prototype.toString.call(n))&&(c=r(5448)),c),transformRequest:[function(e,t){return o(t,"Accept"),o(t,"Content-Type"),i.isFormData(e)||i.isArrayBuffer(e)||i.isBuffer(e)||i.isStream(e)||i.isFile(e)||i.isBlob(e)?e:i.isArrayBufferView(e)?e.buffer:i.isURLSearchParams(e)?(u(t,"application/x-www-form-urlencoded;charset=utf-8"),e.toString()):i.isObject(e)||t&&"application/json"===t["Content-Type"]?(u(t,"application/json"),function(e,t,r){if(i.isString(e))try{return(t||JSON.parse)(e),i.trim(e)}catch(e){if("SyntaxError"!==e.name)throw e}return(r||JSON.stringify)(e)}(e)):e}],transformResponse:[function(e){var t=this.transitional||l.transitional,r=t&&t.silentJSONParsing,n=t&&t.forcedJSONParsing,o=!r&&"json"===this.responseType;if(o||n&&i.isString(e)&&e.length)try{return JSON.parse(e)}catch(e){if(o){if("SyntaxError"===e.name)throw s(e,this,"E_JSON_PARSE");throw e}}return e}],timeout:0,xsrfCookieName:"XSRF-TOKEN",xsrfHeaderName:"X-XSRF-TOKEN",maxContentLength:-1,maxBodyLength:-1,validateStatus:function(e){return e>=200&&e<300},headers:{common:{Accept:"application/json, text/plain, */*"}}};i.forEach(["delete","get","head"],(function(e){l.headers[e]={}})),i.forEach(["post","put","patch"],(function(e){l.headers[e]=i.merge(a)})),e.exports=l},7288:e=>{e.exports={version:"0.25.0"}},1849:e=>{"use strict";e.exports=function(e,t){return function(){for(var r=new Array(arguments.length),n=0;n<r.length;n++)r[n]=arguments[n];return e.apply(t,r)}}},5327:(e,t,r)=>{"use strict";var n=r(4867);function i(e){return encodeURIComponent(e).replace(/%3A/gi,":").replace(/%24/g,"$").replace(/%2C/gi,",").replace(/%20/g,"+").replace(/%5B/gi,"[").replace(/%5D/gi,"]")}e.exports=function(e,t,r){if(!t)return e;var o;if(r)o=r(t);else if(n.isURLSearchParams(t))o=t.toString();else{var s=[];n.forEach(t,(function(e,t){null!=e&&(n.isArray(e)?t+="[]":e=[e],n.forEach(e,(function(e){n.isDate(e)?e=e.toISOString():n.isObject(e)&&(e=JSON.stringify(e)),s.push(i(t)+"="+i(e))})))})),o=s.join("&")}if(o){var a=e.indexOf("#");-1!==a&&(e=e.slice(0,a)),e+=(-1===e.indexOf("?")?"?":"&")+o}return e}},7303:e=>{"use strict";e.exports=function(e,t){return t?e.replace(/\/+$/,"")+"/"+t.replace(/^\/+/,""):e}},4372:(e,t,r)=>{"use strict";var n=r(4867);e.exports=n.isStandardBrowserEnv()?{write:function(e,t,r,i,o,s){var a=[];a.push(e+"="+encodeURIComponent(t)),n.isNumber(r)&&a.push("expires="+new Date(r).toGMTString()),n.isString(i)&&a.push("path="+i),n.isString(o)&&a.push("domain="+o),!0===s&&a.push("secure"),document.cookie=a.join("; ")},read:function(e){var t=document.cookie.match(new RegExp("(^|;\\s*)("+e+")=([^;]*)"));return t?decodeURIComponent(t[3]):null},remove:function(e){this.write(e,"",Date.now()-864e5)}}:{write:function(){},read:function(){return null},remove:function(){}}},1793:e=>{"use strict";e.exports=function(e){return/^([a-z][a-z\d+\-.]*:)?\/\//i.test(e)}},6268:(e,t,r)=>{"use strict";var n=r(4867);e.exports=function(e){return n.isObject(e)&&!0===e.isAxiosError}},7985:(e,t,r)=>{"use strict";var n=r(4867);e.exports=n.isStandardBrowserEnv()?function(){var e,t=/(msie|trident)/i.test(navigator.userAgent),r=document.createElement("a");function i(e){var n=e;return t&&(r.setAttribute("href",n),n=r.href),r.setAttribute("href",n),{href:r.href,protocol:r.protocol?r.protocol.replace(/:$/,""):"",host:r.host,search:r.search?r.search.replace(/^\?/,""):"",hash:r.hash?r.hash.replace(/^#/,""):"",hostname:r.hostname,port:r.port,pathname:"/"===r.pathname.charAt(0)?r.pathname:"/"+r.pathname}}return e=i(window.location.href),function(t){var r=n.isString(t)?i(t):t;return r.protocol===e.protocol&&r.host===e.host}}():function(){return!0}},6016:(e,t,r)=>{"use strict";var n=r(4867);e.exports=function(e,t){n.forEach(e,(function(r,n){n!==t&&n.toUpperCase()===t.toUpperCase()&&(e[t]=r,delete e[n])}))}},4109:(e,t,r)=>{"use strict";var n=r(4867),i=["age","authorization","content-length","content-type","etag","expires","from","host","if-modified-since","if-unmodified-since","last-modified","location","max-forwards","proxy-authorization","referer","retry-after","user-agent"];e.exports=function(e){var t,r,o,s={};return e?(n.forEach(e.split("\n"),(function(e){if(o=e.indexOf(":"),t=n.trim(e.substr(0,o)).toLowerCase(),r=n.trim(e.substr(o+1)),t){if(s[t]&&i.indexOf(t)>=0)return;s[t]="set-cookie"===t?(s[t]?s[t]:[]).concat([r]):s[t]?s[t]+", "+r:r}})),s):s}},8713:e=>{"use strict";e.exports=function(e){return function(t){return e.apply(null,t)}}},4875:(e,t,r)=>{"use strict";var n=r(7288).version,i={};["object","boolean","number","function","string","symbol"].forEach((function(e,t){i[e]=function(r){return typeof r===e||"a"+(t<1?"n ":" ")+e}}));var o={};i.transitional=function(e,t,r){function i(e,t){return"[Axios v"+n+"] Transitional option '"+e+"'"+t+(r?". "+r:"")}return function(r,n,s){if(!1===e)throw new Error(i(n," has been removed"+(t?" in "+t:"")));return t&&!o[n]&&(o[n]=!0,console.warn(i(n," has been deprecated since v"+t+" and will be removed in the near future"))),!e||e(r,n,s)}},e.exports={assertOptions:function(e,t,r){if("object"!=typeof e)throw new TypeError("options must be an object");for(var n=Object.keys(e),i=n.length;i-- >0;){var o=n[i],s=t[o];if(s){var a=e[o],u=void 0===a||s(a,o,e);if(!0!==u)throw new TypeError("option "+o+" must be "+u)}else if(!0!==r)throw Error("Unknown option "+o)}},validators:i}},4867:(e,t,r)=>{"use strict";var n=r(1849),i=Object.prototype.toString;function o(e){return Array.isArray(e)}function s(e){return void 0===e}function a(e){return"[object ArrayBuffer]"===i.call(e)}function u(e){return null!==e&&"object"==typeof e}function c(e){if("[object Object]"!==i.call(e))return!1;var t=Object.getPrototypeOf(e);return null===t||t===Object.prototype}function l(e){return"[object Function]"===i.call(e)}function f(e,t){if(null!=e)if("object"!=typeof e&&(e=[e]),o(e))for(var r=0,n=e.length;r<n;r++)t.call(null,e[r],r,e);else for(var i in e)Object.prototype.hasOwnProperty.call(e,i)&&t.call(null,e[i],i,e)}e.exports={isArray:o,isArrayBuffer:a,isBuffer:function(e){return null!==e&&!s(e)&&null!==e.constructor&&!s(e.constructor)&&"function"==typeof e.constructor.isBuffer&&e.constructor.isBuffer(e)},isFormData:function(e){return"[object FormData]"===i.call(e)},isArrayBufferView:function(e){return"undefined"!=typeof ArrayBuffer&&ArrayBuffer.isView?ArrayBuffer.isView(e):e&&e.buffer&&a(e.buffer)},isString:function(e){return"string"==typeof e},isNumber:function(e){return"number"==typeof e},isObject:u,isPlainObject:c,isUndefined:s,isDate:function(e){return"[object Date]"===i.call(e)},isFile:function(e){return"[object File]"===i.call(e)},isBlob:function(e){return"[object Blob]"===i.call(e)},isFunction:l,isStream:function(e){return u(e)&&l(e.pipe)},isURLSearchParams:function(e){return"[object URLSearchParams]"===i.call(e)},isStandardBrowserEnv:function(){return("undefined"==typeof navigator||"ReactNative"!==navigator.product&&"NativeScript"!==navigator.product&&"NS"!==navigator.product)&&("undefined"!=typeof window&&"undefined"!=typeof document)},forEach:f,merge:function e(){var t={};function r(r,n){c(t[n])&&c(r)?t[n]=e(t[n],r):c(r)?t[n]=e({},r):o(r)?t[n]=r.slice():t[n]=r}for(var n=0,i=arguments.length;n<i;n++)f(arguments[n],r);return t},extend:function(e,t,r){return f(t,(function(t,i){e[i]=r&&"function"==typeof t?n(t,r):t})),e},trim:function(e){return e.trim?e.trim():e.replace(/^\s+|\s+$/g,"")},stripBOM:function(e){return 65279===e.charCodeAt(0)&&(e=e.slice(1)),e}}},7080:(e,t,r)=>{window.axios=r(9669),window.valid=r(5703),document.querySelectorAll(".disposable-alert").forEach((function(e){setTimeout((function(){e.remove()}),5e3)}))},5443:(e,t,r)=>{"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.cardNumber=void 0;var n=r(4839),i=r(1938);function o(e,t,r){return{card:e,isPotentiallyValid:t,isValid:r}}t.cardNumber=function(e,t){var r,s;if(void 0===t&&(t={}),"string"!=typeof e&&"number"!=typeof e)return o(null,!1,!1);var a=String(e).replace(/-|\s/g,"");if(!/^\d*$/.test(a))return o(null,!1,!1);var u=i(a);if(0===u.length)return o(null,!1,!1);if(1!==u.length)return o(null,!0,!1);var c=u[0];if(t.maxLength&&a.length>t.maxLength)return o(c,!1,!1);r=c.type===i.types.UNIONPAY&&!0!==t.luhnValidateUnionPay||n(a),s=Math.max.apply(null,c.lengths),t.maxLength&&(s=Math.min(t.maxLength,s));for(var l=0;l<c.lengths.length;l++)if(c.lengths[l]===a.length)return o(c,a.length<s||r,r);return o(c,a.length<s,!1)}},5367:(e,t)=>{"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.cardholderName=void 0;var r=/^[\d\s-]*$/,n=255;function i(e,t){return{isValid:e,isPotentiallyValid:t}}t.cardholderName=function(e){return"string"!=typeof e?i(!1,!1):0===e.length?i(!1,!0):e.length>n?i(!1,!1):r.test(e)?i(!1,!0):i(!0,!0)}},5084:(e,t)=>{"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.cvv=void 0;var r=3;function n(e,t){return{isValid:e,isPotentiallyValid:t}}t.cvv=function(e,t){return void 0===t&&(t=r),t=t instanceof Array?t:[t],"string"!=typeof e?n(!1,!1):/^\d*$/.test(e)?function(e,t){for(var r=0;r<e.length;r++)if(t===e[r])return!0;return!1}(t,e.length)?n(!0,!0):e.length<Math.min.apply(null,t)?n(!1,!0):e.length>function(e){for(var t=r,n=0;n<e.length;n++)t=e[n]>t?e[n]:t;return t}(t)?n(!1,!1):n(!0,!0):n(!1,!1)}},7622:function(e,t,r){"use strict";var n=this&&this.__assign||function(){return n=Object.assign||function(e){for(var t,r=1,n=arguments.length;r<n;r++)for(var i in t=arguments[r])Object.prototype.hasOwnProperty.call(t,i)&&(e[i]=t[i]);return e},n.apply(this,arguments)};Object.defineProperty(t,"__esModule",{value:!0}),t.expirationDate=void 0;var i=r(9178),o=r(3437),s=r(5275);function a(e,t,r,n){return{isValid:e,isPotentiallyValid:t,month:r,year:n}}t.expirationDate=function(e,t){var r;if("string"==typeof e)e=e.replace(/^(\d\d) (\d\d(\d\d)?)$/,"$1/$2"),r=i.parseDate(String(e));else{if(null===e||"object"!=typeof e)return a(!1,!1,null,null);var u=n({},e);r={month:String(u.month),year:String(u.year)}}var c=o.expirationMonth(r.month),l=s.expirationYear(r.year,t);if(c.isValid){if(l.isCurrentYear){var f=c.isValidForThisYear;return a(f,f,r.month,r.year)}if(l.isValid)return a(!0,!0,r.month,r.year)}return c.isPotentiallyValid&&l.isPotentiallyValid?a(!1,!0,null,null):a(!1,!1,null,null)}},3437:(e,t)=>{"use strict";function r(e,t,r){return{isValid:e,isPotentiallyValid:t,isValidForThisYear:r||!1}}Object.defineProperty(t,"__esModule",{value:!0}),t.expirationMonth=void 0,t.expirationMonth=function(e){var t=(new Date).getMonth()+1;if("string"!=typeof e)return r(!1,!1);if(""===e.replace(/\s/g,"")||"0"===e)return r(!1,!0);if(!/^\d*$/.test(e))return r(!1,!1);var n=parseInt(e,10);if(isNaN(Number(e)))return r(!1,!1);var i=n>0&&n<13;return r(i,i,i&&n>=t)}},5275:(e,t)=>{"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.expirationYear=void 0;var r=19;function n(e,t,r){return{isValid:e,isPotentiallyValid:t,isCurrentYear:r||!1}}t.expirationYear=function(e,t){var i;if(void 0===t&&(t=r),"string"!=typeof e)return n(!1,!1);if(""===e.replace(/\s/g,""))return n(!1,!0);if(!/^\d*$/.test(e))return n(!1,!1);var o=e.length;if(o<2)return n(!1,!0);var s=(new Date).getFullYear();if(3===o)return n(!1,e.slice(0,2)===String(s).slice(0,2));if(o>4)return n(!1,!1);var a=parseInt(e,10),u=Number(String(s).substr(2,2)),c=!1;if(2===o){if(String(s).substr(0,2)===e)return n(!1,!0);i=u===a,c=a>=u&&a<=u+t}else 4===o&&(i=s===a,c=a>=s&&a<=s+t);return n(c,c,i)}},5703:function(e,t,r){"use strict";var n=this&&this.__createBinding||(Object.create?function(e,t,r,n){void 0===n&&(n=r),Object.defineProperty(e,n,{enumerable:!0,get:function(){return t[r]}})}:function(e,t,r,n){void 0===n&&(n=r),e[n]=t[r]}),i=this&&this.__setModuleDefault||(Object.create?function(e,t){Object.defineProperty(e,"default",{enumerable:!0,value:t})}:function(e,t){e.default=t}),o=(this&&this.__importStar||function(e){if(e&&e.__esModule)return e;var t={};if(null!=e)for(var r in e)"default"!==r&&Object.prototype.hasOwnProperty.call(e,r)&&n(t,e,r);return i(t,e),t})(r(1938)),s=r(5367),a=r(5443),u=r(7622),c=r(3437),l=r(5275),f=r(5084),p=r(7204),d={creditCardType:o,cardholderName:s.cardholderName,number:a.cardNumber,expirationDate:u.expirationDate,expirationMonth:c.expirationMonth,expirationYear:l.expirationYear,cvv:f.cvv,postalCode:p.postalCode};e.exports=d},2991:(e,t)=>{"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.isArray=void 0,t.isArray=Array.isArray||function(e){return"[object Array]"===Object.prototype.toString.call(e)}},9178:(e,t,r)=>{"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.parseDate=void 0;var n=r(5275),i=r(2991);t.parseDate=function(e){var t;if(/^\d{4}-\d{1,2}$/.test(e)?t=e.split("-").reverse():/\//.test(e)?t=e.split(/\s*\/\s*/g):/\s/.test(e)&&(t=e.split(/ +/g)),i.isArray(t))return{month:t[0]||"",year:t.slice(1).join()};var r,o,s,a=(r=e,0===(s=Number(r[0]))?2:s>1||1===s&&Number(r[1])>2?1:1===s?(o=r.substr(1),n.expirationYear(o).isPotentiallyValid?1:2):5===r.length?1:r.length>5?2:1),u=e.substr(0,a);return{month:u,year:e.substr(u.length)}}},4839:e=>{"use strict";e.exports=function(e){for(var t,r=0,n=!1,i=e.length-1;i>=0;)t=parseInt(e.charAt(i),10),n&&(t*=2)>9&&(t=t%10+1),n=!n,r+=t,i--;return r%10==0}},7204:(e,t)=>{"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.postalCode=void 0;var r=3;function n(e,t){return{isValid:e,isPotentiallyValid:t}}t.postalCode=function(e,t){void 0===t&&(t={});var i=t.minLength||r;return"string"!=typeof e?n(!1,!1):e.length<i?n(!1,!0):n(!0,!0)}},1938:function(e,t,r){"use strict";var n=this&&this.__assign||function(){return n=Object.assign||function(e){for(var t,r=1,n=arguments.length;r<n;r++)for(var i in t=arguments[r])Object.prototype.hasOwnProperty.call(t,i)&&(e[i]=t[i]);return e},n.apply(this,arguments)},i=r(2323),o=r(2778),s=r(9657),a=r(4558),u=r(4176),c={},l={VISA:"visa",MASTERCARD:"mastercard",AMERICAN_EXPRESS:"american-express",DINERS_CLUB:"diners-club",DISCOVER:"discover",JCB:"jcb",UNIONPAY:"unionpay",MAESTRO:"maestro",ELO:"elo",MIR:"mir",HIPER:"hiper",HIPERCARD:"hipercard"},f=[l.VISA,l.MASTERCARD,l.AMERICAN_EXPRESS,l.DINERS_CLUB,l.DISCOVER,l.JCB,l.UNIONPAY,l.MAESTRO,l.ELO,l.MIR,l.HIPER,l.HIPERCARD],p=u.clone(f);function d(e){return c[e]||i[e]}function h(e,t){void 0===t&&(t=!1);var r=p.indexOf(e);if(!t&&-1===r)throw new Error('"'+e+'" is not a supported card type.');return r}function v(e){var t=[];if(!s.isValidInputType(e))return t;if(0===e.length)return p.map((function(e){return u.clone(d(e))}));p.forEach((function(r){var n=d(r);o.addMatchingCardsToResults(e,n,t)}));var r=a.findBestMatch(t);return r?[r]:t}v.getTypeInfo=function(e){return u.clone(d(e))},v.removeCard=function(e){var t=h(e);p.splice(t,1)},v.addCard=function(e){var t=h(e.type,!0);c[e.type]=e,-1===t&&p.push(e.type)},v.updateCard=function(e,t){var r=c[e]||i[e];if(!r)throw new Error('"'+e+"\" is not a recognized type. Use `addCard` instead.'");if(t.type&&r.type!==t.type)throw new Error("Cannot overwrite type parameter.");var o=u.clone(r);o=n(n({},o),t),c[o.type]=o},v.changeOrder=function(e,t){var r=h(e);p.splice(r,1),p.splice(t,0,e)},v.resetModifications=function(){p=u.clone(f),c={}},v.types=l,e.exports=v},2778:(e,t,r)=>{"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.addMatchingCardsToResults=void 0;var n=r(4176),i=r(2528);t.addMatchingCardsToResults=function(e,t,r){var o,s;for(o=0;o<t.patterns.length;o++){var a=t.patterns[o];if(i.matches(e,a)){var u=n.clone(t);s=Array.isArray(a)?String(a[0]).length:String(a).length,e.length>=s&&(u.matchStrength=s),r.push(u);break}}}},2323:e=>{"use strict";e.exports={visa:{niceType:"Visa",type:"visa",patterns:[4],gaps:[4,8,12],lengths:[16,18,19],code:{name:"CVV",size:3}},mastercard:{niceType:"Mastercard",type:"mastercard",patterns:[[51,55],[2221,2229],[223,229],[23,26],[270,271],2720],gaps:[4,8,12],lengths:[16],code:{name:"CVC",size:3}},"american-express":{niceType:"American Express",type:"american-express",patterns:[34,37],gaps:[4,10],lengths:[15],code:{name:"CID",size:4}},"diners-club":{niceType:"Diners Club",type:"diners-club",patterns:[[300,305],36,38,39],gaps:[4,10],lengths:[14,16,19],code:{name:"CVV",size:3}},discover:{niceType:"Discover",type:"discover",patterns:[6011,[644,649],65],gaps:[4,8,12],lengths:[16,19],code:{name:"CID",size:3}},jcb:{niceType:"JCB",type:"jcb",patterns:[2131,1800,[3528,3589]],gaps:[4,8,12],lengths:[16,17,18,19],code:{name:"CVV",size:3}},unionpay:{niceType:"UnionPay",type:"unionpay",patterns:[620,[624,626],[62100,62182],[62184,62187],[62185,62197],[62200,62205],[622010,622999],622018,[622019,622999],[62207,62209],[622126,622925],[623,626],6270,6272,6276,[627700,627779],[627781,627799],[6282,6289],6291,6292,810,[8110,8131],[8132,8151],[8152,8163],[8164,8171]],gaps:[4,8,12],lengths:[14,15,16,17,18,19],code:{name:"CVN",size:3}},maestro:{niceType:"Maestro",type:"maestro",patterns:[493698,[5e5,504174],[504176,506698],[506779,508999],[56,59],63,67,6],gaps:[4,8,12],lengths:[12,13,14,15,16,17,18,19],code:{name:"CVC",size:3}},elo:{niceType:"Elo",type:"elo",patterns:[401178,401179,438935,457631,457632,431274,451416,457393,504175,[506699,506778],[509e3,509999],627780,636297,636368,[650031,650033],[650035,650051],[650405,650439],[650485,650538],[650541,650598],[650700,650718],[650720,650727],[650901,650978],[651652,651679],[655e3,655019],[655021,655058]],gaps:[4,8,12],lengths:[16],code:{name:"CVE",size:3}},mir:{niceType:"Mir",type:"mir",patterns:[[2200,2204]],gaps:[4,8,12],lengths:[16,17,18,19],code:{name:"CVP2",size:3}},hiper:{niceType:"Hiper",type:"hiper",patterns:[637095,63737423,63743358,637568,637599,637609,637612],gaps:[4,8,12],lengths:[16],code:{name:"CVC",size:3}},hipercard:{niceType:"Hipercard",type:"hipercard",patterns:[606282],gaps:[4,8,12],lengths:[16],code:{name:"CVC",size:3}}}},4176:(e,t)=>{"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.clone=void 0,t.clone=function(e){return e?JSON.parse(JSON.stringify(e)):null}},4558:(e,t)=>{"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.findBestMatch=void 0,t.findBestMatch=function(e){return function(e){var t=e.filter((function(e){return e.matchStrength})).length;return t>0&&t===e.length}(e)?e.reduce((function(e,t){return e?Number(e.matchStrength)<Number(t.matchStrength)?t:e:t})):null}},9657:(e,t)=>{"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.isValidInputType=void 0,t.isValidInputType=function(e){return"string"==typeof e||e instanceof String}},2528:(e,t)=>{"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.matches=void 0,t.matches=function(e,t){return Array.isArray(t)?function(e,t,r){var n=String(t).length,i=e.substr(0,n),o=parseInt(i,10);return t=parseInt(String(t).substr(0,i.length),10),r=parseInt(String(r).substr(0,i.length),10),o>=t&&o<=r}(e,t[0],t[1]):function(e,t){return(t=String(t)).substring(0,e.length)===e.substring(0,t.length)}(e,t)}},1580:()=>{},4155:e=>{var t,r,n=e.exports={};function i(){throw new Error("setTimeout has not been defined")}function o(){throw new Error("clearTimeout has not been defined")}function s(e){if(t===setTimeout)return setTimeout(e,0);if((t===i||!t)&&setTimeout)return t=setTimeout,setTimeout(e,0);try{return t(e,0)}catch(r){try{return t.call(null,e,0)}catch(r){return t.call(this,e,0)}}}!function(){try{t="function"==typeof setTimeout?setTimeout:i}catch(e){t=i}try{r="function"==typeof clearTimeout?clearTimeout:o}catch(e){r=o}}();var a,u=[],c=!1,l=-1;function f(){c&&a&&(c=!1,a.length?u=a.concat(u):l=-1,u.length&&p())}function p(){if(!c){var e=s(f);c=!0;for(var t=u.length;t;){for(a=u,u=[];++l<t;)a&&a[l].run();l=-1,t=u.length}a=null,c=!1,function(e){if(r===clearTimeout)return clearTimeout(e);if((r===o||!r)&&clearTimeout)return r=clearTimeout,clearTimeout(e);try{return r(e)}catch(t){try{return r.call(null,e)}catch(t){return r.call(this,e)}}}(e)}}function d(e,t){this.fun=e,this.array=t}function h(){}n.nextTick=function(e){var t=new Array(arguments.length-1);if(arguments.length>1)for(var r=1;r<arguments.length;r++)t[r-1]=arguments[r];u.push(new d(e,t)),1!==u.length||c||s(p)},d.prototype.run=function(){this.fun.apply(null,this.array)},n.title="browser",n.browser=!0,n.env={},n.argv=[],n.version="",n.versions={},n.on=h,n.addListener=h,n.once=h,n.off=h,n.removeListener=h,n.removeAllListeners=h,n.emit=h,n.prependListener=h,n.prependOnceListener=h,n.listeners=function(e){return[]},n.binding=function(e){throw new Error("process.binding is not supported")},n.cwd=function(){return"/"},n.chdir=function(e){throw new Error("process.chdir is not supported")},n.umask=function(){return 0}}},r={};function n(e){var i=r[e];if(void 0!==i)return i.exports;var o=r[e]={exports:{}};return t[e].call(o.exports,o,o.exports,n),o.exports}n.m=t,e=[],n.O=(t,r,i,o)=>{if(!r){var s=1/0;for(l=0;l<e.length;l++){for(var[r,i,o]=e[l],a=!0,u=0;u<r.length;u++)(!1&o||s>=o)&&Object.keys(n.O).every((e=>n.O[e](r[u])))?r.splice(u--,1):(a=!1,o<s&&(s=o));if(a){e.splice(l--,1);var c=i();void 0!==c&&(t=c)}}return t}o=o||0;for(var l=e.length;l>0&&e[l-1][2]>o;l--)e[l]=e[l-1];e[l]=[r,i,o]},n.o=(e,t)=>Object.prototype.hasOwnProperty.call(e,t),(()=>{var e={773:0,170:0};n.O.j=t=>0===e[t];var t=(t,r)=>{var i,o,[s,a,u]=r,c=0;if(s.some((t=>0!==e[t]))){for(i in a)n.o(a,i)&&(n.m[i]=a[i]);if(u)var l=u(n)}for(t&&t(r);c<s.length;c++)o=s[c],n.o(e,o)&&e[o]&&e[o][0](),e[o]=0;return n.O(l)},r=self.webpackChunk=self.webpackChunk||[];r.forEach(t.bind(null,0)),r.push=t.bind(null,r.push.bind(r))})(),n.O(void 0,[170],(()=>n(7080)));var i=n.O(void 0,[170],(()=>n(1580)));i=n.O(i)})();
+/******/ (() => { // webpackBootstrap
+/******/ 	var __webpack_modules__ = ({
+
+/***/ "./node_modules/axios/index.js":
+/*!*************************************!*\
+  !*** ./node_modules/axios/index.js ***!
+  \*************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+module.exports = __webpack_require__(/*! ./lib/axios */ "./node_modules/axios/lib/axios.js");
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/adapters/xhr.js":
+/*!************************************************!*\
+  !*** ./node_modules/axios/lib/adapters/xhr.js ***!
+  \************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
+var settle = __webpack_require__(/*! ./../core/settle */ "./node_modules/axios/lib/core/settle.js");
+var cookies = __webpack_require__(/*! ./../helpers/cookies */ "./node_modules/axios/lib/helpers/cookies.js");
+var buildURL = __webpack_require__(/*! ./../helpers/buildURL */ "./node_modules/axios/lib/helpers/buildURL.js");
+var buildFullPath = __webpack_require__(/*! ../core/buildFullPath */ "./node_modules/axios/lib/core/buildFullPath.js");
+var parseHeaders = __webpack_require__(/*! ./../helpers/parseHeaders */ "./node_modules/axios/lib/helpers/parseHeaders.js");
+var isURLSameOrigin = __webpack_require__(/*! ./../helpers/isURLSameOrigin */ "./node_modules/axios/lib/helpers/isURLSameOrigin.js");
+var createError = __webpack_require__(/*! ../core/createError */ "./node_modules/axios/lib/core/createError.js");
+var defaults = __webpack_require__(/*! ../defaults */ "./node_modules/axios/lib/defaults.js");
+var Cancel = __webpack_require__(/*! ../cancel/Cancel */ "./node_modules/axios/lib/cancel/Cancel.js");
+
+module.exports = function xhrAdapter(config) {
+  return new Promise(function dispatchXhrRequest(resolve, reject) {
+    var requestData = config.data;
+    var requestHeaders = config.headers;
+    var responseType = config.responseType;
+    var onCanceled;
+    function done() {
+      if (config.cancelToken) {
+        config.cancelToken.unsubscribe(onCanceled);
+      }
+
+      if (config.signal) {
+        config.signal.removeEventListener('abort', onCanceled);
+      }
+    }
+
+    if (utils.isFormData(requestData)) {
+      delete requestHeaders['Content-Type']; // Let the browser set it
+    }
+
+    var request = new XMLHttpRequest();
+
+    // HTTP basic authentication
+    if (config.auth) {
+      var username = config.auth.username || '';
+      var password = config.auth.password ? unescape(encodeURIComponent(config.auth.password)) : '';
+      requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
+    }
+
+    var fullPath = buildFullPath(config.baseURL, config.url);
+    request.open(config.method.toUpperCase(), buildURL(fullPath, config.params, config.paramsSerializer), true);
+
+    // Set the request timeout in MS
+    request.timeout = config.timeout;
+
+    function onloadend() {
+      if (!request) {
+        return;
+      }
+      // Prepare the response
+      var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
+      var responseData = !responseType || responseType === 'text' ||  responseType === 'json' ?
+        request.responseText : request.response;
+      var response = {
+        data: responseData,
+        status: request.status,
+        statusText: request.statusText,
+        headers: responseHeaders,
+        config: config,
+        request: request
+      };
+
+      settle(function _resolve(value) {
+        resolve(value);
+        done();
+      }, function _reject(err) {
+        reject(err);
+        done();
+      }, response);
+
+      // Clean up request
+      request = null;
+    }
+
+    if ('onloadend' in request) {
+      // Use onloadend if available
+      request.onloadend = onloadend;
+    } else {
+      // Listen for ready state to emulate onloadend
+      request.onreadystatechange = function handleLoad() {
+        if (!request || request.readyState !== 4) {
+          return;
+        }
+
+        // The request errored out and we didn't get a response, this will be
+        // handled by onerror instead
+        // With one exception: request that using file: protocol, most browsers
+        // will return status as 0 even though it's a successful request
+        if (request.status === 0 && !(request.responseURL && request.responseURL.indexOf('file:') === 0)) {
+          return;
+        }
+        // readystate handler is calling before onerror or ontimeout handlers,
+        // so we should call onloadend on the next 'tick'
+        setTimeout(onloadend);
+      };
+    }
+
+    // Handle browser request cancellation (as opposed to a manual cancellation)
+    request.onabort = function handleAbort() {
+      if (!request) {
+        return;
+      }
+
+      reject(createError('Request aborted', config, 'ECONNABORTED', request));
+
+      // Clean up request
+      request = null;
+    };
+
+    // Handle low level network errors
+    request.onerror = function handleError() {
+      // Real errors are hidden from us by the browser
+      // onerror should only fire if it's a network error
+      reject(createError('Network Error', config, null, request));
+
+      // Clean up request
+      request = null;
+    };
+
+    // Handle timeout
+    request.ontimeout = function handleTimeout() {
+      var timeoutErrorMessage = config.timeout ? 'timeout of ' + config.timeout + 'ms exceeded' : 'timeout exceeded';
+      var transitional = config.transitional || defaults.transitional;
+      if (config.timeoutErrorMessage) {
+        timeoutErrorMessage = config.timeoutErrorMessage;
+      }
+      reject(createError(
+        timeoutErrorMessage,
+        config,
+        transitional.clarifyTimeoutError ? 'ETIMEDOUT' : 'ECONNABORTED',
+        request));
+
+      // Clean up request
+      request = null;
+    };
+
+    // Add xsrf header
+    // This is only done if running in a standard browser environment.
+    // Specifically not if we're in a web worker, or react-native.
+    if (utils.isStandardBrowserEnv()) {
+      // Add xsrf header
+      var xsrfValue = (config.withCredentials || isURLSameOrigin(fullPath)) && config.xsrfCookieName ?
+        cookies.read(config.xsrfCookieName) :
+        undefined;
+
+      if (xsrfValue) {
+        requestHeaders[config.xsrfHeaderName] = xsrfValue;
+      }
+    }
+
+    // Add headers to the request
+    if ('setRequestHeader' in request) {
+      utils.forEach(requestHeaders, function setRequestHeader(val, key) {
+        if (typeof requestData === 'undefined' && key.toLowerCase() === 'content-type') {
+          // Remove Content-Type if data is undefined
+          delete requestHeaders[key];
+        } else {
+          // Otherwise add header to the request
+          request.setRequestHeader(key, val);
+        }
+      });
+    }
+
+    // Add withCredentials to request if needed
+    if (!utils.isUndefined(config.withCredentials)) {
+      request.withCredentials = !!config.withCredentials;
+    }
+
+    // Add responseType to request if needed
+    if (responseType && responseType !== 'json') {
+      request.responseType = config.responseType;
+    }
+
+    // Handle progress if needed
+    if (typeof config.onDownloadProgress === 'function') {
+      request.addEventListener('progress', config.onDownloadProgress);
+    }
+
+    // Not all browsers support upload events
+    if (typeof config.onUploadProgress === 'function' && request.upload) {
+      request.upload.addEventListener('progress', config.onUploadProgress);
+    }
+
+    if (config.cancelToken || config.signal) {
+      // Handle cancellation
+      // eslint-disable-next-line func-names
+      onCanceled = function(cancel) {
+        if (!request) {
+          return;
+        }
+        reject(!cancel || (cancel && cancel.type) ? new Cancel('canceled') : cancel);
+        request.abort();
+        request = null;
+      };
+
+      config.cancelToken && config.cancelToken.subscribe(onCanceled);
+      if (config.signal) {
+        config.signal.aborted ? onCanceled() : config.signal.addEventListener('abort', onCanceled);
+      }
+    }
+
+    if (!requestData) {
+      requestData = null;
+    }
+
+    // Send the request
+    request.send(requestData);
+  });
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/axios.js":
+/*!*****************************************!*\
+  !*** ./node_modules/axios/lib/axios.js ***!
+  \*****************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ./utils */ "./node_modules/axios/lib/utils.js");
+var bind = __webpack_require__(/*! ./helpers/bind */ "./node_modules/axios/lib/helpers/bind.js");
+var Axios = __webpack_require__(/*! ./core/Axios */ "./node_modules/axios/lib/core/Axios.js");
+var mergeConfig = __webpack_require__(/*! ./core/mergeConfig */ "./node_modules/axios/lib/core/mergeConfig.js");
+var defaults = __webpack_require__(/*! ./defaults */ "./node_modules/axios/lib/defaults.js");
+
+/**
+ * Create an instance of Axios
+ *
+ * @param {Object} defaultConfig The default config for the instance
+ * @return {Axios} A new instance of Axios
+ */
+function createInstance(defaultConfig) {
+  var context = new Axios(defaultConfig);
+  var instance = bind(Axios.prototype.request, context);
+
+  // Copy axios.prototype to instance
+  utils.extend(instance, Axios.prototype, context);
+
+  // Copy context to instance
+  utils.extend(instance, context);
+
+  // Factory for creating new instances
+  instance.create = function create(instanceConfig) {
+    return createInstance(mergeConfig(defaultConfig, instanceConfig));
+  };
+
+  return instance;
+}
+
+// Create the default instance to be exported
+var axios = createInstance(defaults);
+
+// Expose Axios class to allow class inheritance
+axios.Axios = Axios;
+
+// Expose Cancel & CancelToken
+axios.Cancel = __webpack_require__(/*! ./cancel/Cancel */ "./node_modules/axios/lib/cancel/Cancel.js");
+axios.CancelToken = __webpack_require__(/*! ./cancel/CancelToken */ "./node_modules/axios/lib/cancel/CancelToken.js");
+axios.isCancel = __webpack_require__(/*! ./cancel/isCancel */ "./node_modules/axios/lib/cancel/isCancel.js");
+axios.VERSION = (__webpack_require__(/*! ./env/data */ "./node_modules/axios/lib/env/data.js").version);
+
+// Expose all/spread
+axios.all = function all(promises) {
+  return Promise.all(promises);
+};
+axios.spread = __webpack_require__(/*! ./helpers/spread */ "./node_modules/axios/lib/helpers/spread.js");
+
+// Expose isAxiosError
+axios.isAxiosError = __webpack_require__(/*! ./helpers/isAxiosError */ "./node_modules/axios/lib/helpers/isAxiosError.js");
+
+module.exports = axios;
+
+// Allow use of default import syntax in TypeScript
+module.exports["default"] = axios;
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/cancel/Cancel.js":
+/*!*************************************************!*\
+  !*** ./node_modules/axios/lib/cancel/Cancel.js ***!
+  \*************************************************/
+/***/ ((module) => {
+
+"use strict";
+
+
+/**
+ * A `Cancel` is an object that is thrown when an operation is canceled.
+ *
+ * @class
+ * @param {string=} message The message.
+ */
+function Cancel(message) {
+  this.message = message;
+}
+
+Cancel.prototype.toString = function toString() {
+  return 'Cancel' + (this.message ? ': ' + this.message : '');
+};
+
+Cancel.prototype.__CANCEL__ = true;
+
+module.exports = Cancel;
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/cancel/CancelToken.js":
+/*!******************************************************!*\
+  !*** ./node_modules/axios/lib/cancel/CancelToken.js ***!
+  \******************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var Cancel = __webpack_require__(/*! ./Cancel */ "./node_modules/axios/lib/cancel/Cancel.js");
+
+/**
+ * A `CancelToken` is an object that can be used to request cancellation of an operation.
+ *
+ * @class
+ * @param {Function} executor The executor function.
+ */
+function CancelToken(executor) {
+  if (typeof executor !== 'function') {
+    throw new TypeError('executor must be a function.');
+  }
+
+  var resolvePromise;
+
+  this.promise = new Promise(function promiseExecutor(resolve) {
+    resolvePromise = resolve;
+  });
+
+  var token = this;
+
+  // eslint-disable-next-line func-names
+  this.promise.then(function(cancel) {
+    if (!token._listeners) return;
+
+    var i;
+    var l = token._listeners.length;
+
+    for (i = 0; i < l; i++) {
+      token._listeners[i](cancel);
+    }
+    token._listeners = null;
+  });
+
+  // eslint-disable-next-line func-names
+  this.promise.then = function(onfulfilled) {
+    var _resolve;
+    // eslint-disable-next-line func-names
+    var promise = new Promise(function(resolve) {
+      token.subscribe(resolve);
+      _resolve = resolve;
+    }).then(onfulfilled);
+
+    promise.cancel = function reject() {
+      token.unsubscribe(_resolve);
+    };
+
+    return promise;
+  };
+
+  executor(function cancel(message) {
+    if (token.reason) {
+      // Cancellation has already been requested
+      return;
+    }
+
+    token.reason = new Cancel(message);
+    resolvePromise(token.reason);
+  });
+}
+
+/**
+ * Throws a `Cancel` if cancellation has been requested.
+ */
+CancelToken.prototype.throwIfRequested = function throwIfRequested() {
+  if (this.reason) {
+    throw this.reason;
+  }
+};
+
+/**
+ * Subscribe to the cancel signal
+ */
+
+CancelToken.prototype.subscribe = function subscribe(listener) {
+  if (this.reason) {
+    listener(this.reason);
+    return;
+  }
+
+  if (this._listeners) {
+    this._listeners.push(listener);
+  } else {
+    this._listeners = [listener];
+  }
+};
+
+/**
+ * Unsubscribe from the cancel signal
+ */
+
+CancelToken.prototype.unsubscribe = function unsubscribe(listener) {
+  if (!this._listeners) {
+    return;
+  }
+  var index = this._listeners.indexOf(listener);
+  if (index !== -1) {
+    this._listeners.splice(index, 1);
+  }
+};
+
+/**
+ * Returns an object that contains a new `CancelToken` and a function that, when called,
+ * cancels the `CancelToken`.
+ */
+CancelToken.source = function source() {
+  var cancel;
+  var token = new CancelToken(function executor(c) {
+    cancel = c;
+  });
+  return {
+    token: token,
+    cancel: cancel
+  };
+};
+
+module.exports = CancelToken;
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/cancel/isCancel.js":
+/*!***************************************************!*\
+  !*** ./node_modules/axios/lib/cancel/isCancel.js ***!
+  \***************************************************/
+/***/ ((module) => {
+
+"use strict";
+
+
+module.exports = function isCancel(value) {
+  return !!(value && value.__CANCEL__);
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/core/Axios.js":
+/*!**********************************************!*\
+  !*** ./node_modules/axios/lib/core/Axios.js ***!
+  \**********************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
+var buildURL = __webpack_require__(/*! ../helpers/buildURL */ "./node_modules/axios/lib/helpers/buildURL.js");
+var InterceptorManager = __webpack_require__(/*! ./InterceptorManager */ "./node_modules/axios/lib/core/InterceptorManager.js");
+var dispatchRequest = __webpack_require__(/*! ./dispatchRequest */ "./node_modules/axios/lib/core/dispatchRequest.js");
+var mergeConfig = __webpack_require__(/*! ./mergeConfig */ "./node_modules/axios/lib/core/mergeConfig.js");
+var validator = __webpack_require__(/*! ../helpers/validator */ "./node_modules/axios/lib/helpers/validator.js");
+
+var validators = validator.validators;
+/**
+ * Create a new instance of Axios
+ *
+ * @param {Object} instanceConfig The default config for the instance
+ */
+function Axios(instanceConfig) {
+  this.defaults = instanceConfig;
+  this.interceptors = {
+    request: new InterceptorManager(),
+    response: new InterceptorManager()
+  };
+}
+
+/**
+ * Dispatch a request
+ *
+ * @param {Object} config The config specific for this request (merged with this.defaults)
+ */
+Axios.prototype.request = function request(configOrUrl, config) {
+  /*eslint no-param-reassign:0*/
+  // Allow for axios('example/url'[, config]) a la fetch API
+  if (typeof configOrUrl === 'string') {
+    config = config || {};
+    config.url = configOrUrl;
+  } else {
+    config = configOrUrl || {};
+  }
+
+  if (!config.url) {
+    throw new Error('Provided config url is not valid');
+  }
+
+  config = mergeConfig(this.defaults, config);
+
+  // Set config.method
+  if (config.method) {
+    config.method = config.method.toLowerCase();
+  } else if (this.defaults.method) {
+    config.method = this.defaults.method.toLowerCase();
+  } else {
+    config.method = 'get';
+  }
+
+  var transitional = config.transitional;
+
+  if (transitional !== undefined) {
+    validator.assertOptions(transitional, {
+      silentJSONParsing: validators.transitional(validators.boolean),
+      forcedJSONParsing: validators.transitional(validators.boolean),
+      clarifyTimeoutError: validators.transitional(validators.boolean)
+    }, false);
+  }
+
+  // filter out skipped interceptors
+  var requestInterceptorChain = [];
+  var synchronousRequestInterceptors = true;
+  this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
+    if (typeof interceptor.runWhen === 'function' && interceptor.runWhen(config) === false) {
+      return;
+    }
+
+    synchronousRequestInterceptors = synchronousRequestInterceptors && interceptor.synchronous;
+
+    requestInterceptorChain.unshift(interceptor.fulfilled, interceptor.rejected);
+  });
+
+  var responseInterceptorChain = [];
+  this.interceptors.response.forEach(function pushResponseInterceptors(interceptor) {
+    responseInterceptorChain.push(interceptor.fulfilled, interceptor.rejected);
+  });
+
+  var promise;
+
+  if (!synchronousRequestInterceptors) {
+    var chain = [dispatchRequest, undefined];
+
+    Array.prototype.unshift.apply(chain, requestInterceptorChain);
+    chain = chain.concat(responseInterceptorChain);
+
+    promise = Promise.resolve(config);
+    while (chain.length) {
+      promise = promise.then(chain.shift(), chain.shift());
+    }
+
+    return promise;
+  }
+
+
+  var newConfig = config;
+  while (requestInterceptorChain.length) {
+    var onFulfilled = requestInterceptorChain.shift();
+    var onRejected = requestInterceptorChain.shift();
+    try {
+      newConfig = onFulfilled(newConfig);
+    } catch (error) {
+      onRejected(error);
+      break;
+    }
+  }
+
+  try {
+    promise = dispatchRequest(newConfig);
+  } catch (error) {
+    return Promise.reject(error);
+  }
+
+  while (responseInterceptorChain.length) {
+    promise = promise.then(responseInterceptorChain.shift(), responseInterceptorChain.shift());
+  }
+
+  return promise;
+};
+
+Axios.prototype.getUri = function getUri(config) {
+  if (!config.url) {
+    throw new Error('Provided config url is not valid');
+  }
+  config = mergeConfig(this.defaults, config);
+  return buildURL(config.url, config.params, config.paramsSerializer).replace(/^\?/, '');
+};
+
+// Provide aliases for supported request methods
+utils.forEach(['delete', 'get', 'head', 'options'], function forEachMethodNoData(method) {
+  /*eslint func-names:0*/
+  Axios.prototype[method] = function(url, config) {
+    return this.request(mergeConfig(config || {}, {
+      method: method,
+      url: url,
+      data: (config || {}).data
+    }));
+  };
+});
+
+utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
+  /*eslint func-names:0*/
+  Axios.prototype[method] = function(url, data, config) {
+    return this.request(mergeConfig(config || {}, {
+      method: method,
+      url: url,
+      data: data
+    }));
+  };
+});
+
+module.exports = Axios;
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/core/InterceptorManager.js":
+/*!***********************************************************!*\
+  !*** ./node_modules/axios/lib/core/InterceptorManager.js ***!
+  \***********************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
+
+function InterceptorManager() {
+  this.handlers = [];
+}
+
+/**
+ * Add a new interceptor to the stack
+ *
+ * @param {Function} fulfilled The function to handle `then` for a `Promise`
+ * @param {Function} rejected The function to handle `reject` for a `Promise`
+ *
+ * @return {Number} An ID used to remove interceptor later
+ */
+InterceptorManager.prototype.use = function use(fulfilled, rejected, options) {
+  this.handlers.push({
+    fulfilled: fulfilled,
+    rejected: rejected,
+    synchronous: options ? options.synchronous : false,
+    runWhen: options ? options.runWhen : null
+  });
+  return this.handlers.length - 1;
+};
+
+/**
+ * Remove an interceptor from the stack
+ *
+ * @param {Number} id The ID that was returned by `use`
+ */
+InterceptorManager.prototype.eject = function eject(id) {
+  if (this.handlers[id]) {
+    this.handlers[id] = null;
+  }
+};
+
+/**
+ * Iterate over all the registered interceptors
+ *
+ * This method is particularly useful for skipping over any
+ * interceptors that may have become `null` calling `eject`.
+ *
+ * @param {Function} fn The function to call for each interceptor
+ */
+InterceptorManager.prototype.forEach = function forEach(fn) {
+  utils.forEach(this.handlers, function forEachHandler(h) {
+    if (h !== null) {
+      fn(h);
+    }
+  });
+};
+
+module.exports = InterceptorManager;
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/core/buildFullPath.js":
+/*!******************************************************!*\
+  !*** ./node_modules/axios/lib/core/buildFullPath.js ***!
+  \******************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var isAbsoluteURL = __webpack_require__(/*! ../helpers/isAbsoluteURL */ "./node_modules/axios/lib/helpers/isAbsoluteURL.js");
+var combineURLs = __webpack_require__(/*! ../helpers/combineURLs */ "./node_modules/axios/lib/helpers/combineURLs.js");
+
+/**
+ * Creates a new URL by combining the baseURL with the requestedURL,
+ * only when the requestedURL is not already an absolute URL.
+ * If the requestURL is absolute, this function returns the requestedURL untouched.
+ *
+ * @param {string} baseURL The base URL
+ * @param {string} requestedURL Absolute or relative URL to combine
+ * @returns {string} The combined full path
+ */
+module.exports = function buildFullPath(baseURL, requestedURL) {
+  if (baseURL && !isAbsoluteURL(requestedURL)) {
+    return combineURLs(baseURL, requestedURL);
+  }
+  return requestedURL;
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/core/createError.js":
+/*!****************************************************!*\
+  !*** ./node_modules/axios/lib/core/createError.js ***!
+  \****************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var enhanceError = __webpack_require__(/*! ./enhanceError */ "./node_modules/axios/lib/core/enhanceError.js");
+
+/**
+ * Create an Error with the specified message, config, error code, request and response.
+ *
+ * @param {string} message The error message.
+ * @param {Object} config The config.
+ * @param {string} [code] The error code (for example, 'ECONNABORTED').
+ * @param {Object} [request] The request.
+ * @param {Object} [response] The response.
+ * @returns {Error} The created error.
+ */
+module.exports = function createError(message, config, code, request, response) {
+  var error = new Error(message);
+  return enhanceError(error, config, code, request, response);
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/core/dispatchRequest.js":
+/*!********************************************************!*\
+  !*** ./node_modules/axios/lib/core/dispatchRequest.js ***!
+  \********************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
+var transformData = __webpack_require__(/*! ./transformData */ "./node_modules/axios/lib/core/transformData.js");
+var isCancel = __webpack_require__(/*! ../cancel/isCancel */ "./node_modules/axios/lib/cancel/isCancel.js");
+var defaults = __webpack_require__(/*! ../defaults */ "./node_modules/axios/lib/defaults.js");
+var Cancel = __webpack_require__(/*! ../cancel/Cancel */ "./node_modules/axios/lib/cancel/Cancel.js");
+
+/**
+ * Throws a `Cancel` if cancellation has been requested.
+ */
+function throwIfCancellationRequested(config) {
+  if (config.cancelToken) {
+    config.cancelToken.throwIfRequested();
+  }
+
+  if (config.signal && config.signal.aborted) {
+    throw new Cancel('canceled');
+  }
+}
+
+/**
+ * Dispatch a request to the server using the configured adapter.
+ *
+ * @param {object} config The config that is to be used for the request
+ * @returns {Promise} The Promise to be fulfilled
+ */
+module.exports = function dispatchRequest(config) {
+  throwIfCancellationRequested(config);
+
+  // Ensure headers exist
+  config.headers = config.headers || {};
+
+  // Transform request data
+  config.data = transformData.call(
+    config,
+    config.data,
+    config.headers,
+    config.transformRequest
+  );
+
+  // Flatten headers
+  config.headers = utils.merge(
+    config.headers.common || {},
+    config.headers[config.method] || {},
+    config.headers
+  );
+
+  utils.forEach(
+    ['delete', 'get', 'head', 'post', 'put', 'patch', 'common'],
+    function cleanHeaderConfig(method) {
+      delete config.headers[method];
+    }
+  );
+
+  var adapter = config.adapter || defaults.adapter;
+
+  return adapter(config).then(function onAdapterResolution(response) {
+    throwIfCancellationRequested(config);
+
+    // Transform response data
+    response.data = transformData.call(
+      config,
+      response.data,
+      response.headers,
+      config.transformResponse
+    );
+
+    return response;
+  }, function onAdapterRejection(reason) {
+    if (!isCancel(reason)) {
+      throwIfCancellationRequested(config);
+
+      // Transform response data
+      if (reason && reason.response) {
+        reason.response.data = transformData.call(
+          config,
+          reason.response.data,
+          reason.response.headers,
+          config.transformResponse
+        );
+      }
+    }
+
+    return Promise.reject(reason);
+  });
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/core/enhanceError.js":
+/*!*****************************************************!*\
+  !*** ./node_modules/axios/lib/core/enhanceError.js ***!
+  \*****************************************************/
+/***/ ((module) => {
+
+"use strict";
+
+
+/**
+ * Update an Error with the specified config, error code, and response.
+ *
+ * @param {Error} error The error to update.
+ * @param {Object} config The config.
+ * @param {string} [code] The error code (for example, 'ECONNABORTED').
+ * @param {Object} [request] The request.
+ * @param {Object} [response] The response.
+ * @returns {Error} The error.
+ */
+module.exports = function enhanceError(error, config, code, request, response) {
+  error.config = config;
+  if (code) {
+    error.code = code;
+  }
+
+  error.request = request;
+  error.response = response;
+  error.isAxiosError = true;
+
+  error.toJSON = function toJSON() {
+    return {
+      // Standard
+      message: this.message,
+      name: this.name,
+      // Microsoft
+      description: this.description,
+      number: this.number,
+      // Mozilla
+      fileName: this.fileName,
+      lineNumber: this.lineNumber,
+      columnNumber: this.columnNumber,
+      stack: this.stack,
+      // Axios
+      config: this.config,
+      code: this.code,
+      status: this.response && this.response.status ? this.response.status : null
+    };
+  };
+  return error;
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/core/mergeConfig.js":
+/*!****************************************************!*\
+  !*** ./node_modules/axios/lib/core/mergeConfig.js ***!
+  \****************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ../utils */ "./node_modules/axios/lib/utils.js");
+
+/**
+ * Config-specific merge-function which creates a new config-object
+ * by merging two configuration objects together.
+ *
+ * @param {Object} config1
+ * @param {Object} config2
+ * @returns {Object} New object resulting from merging config2 to config1
+ */
+module.exports = function mergeConfig(config1, config2) {
+  // eslint-disable-next-line no-param-reassign
+  config2 = config2 || {};
+  var config = {};
+
+  function getMergedValue(target, source) {
+    if (utils.isPlainObject(target) && utils.isPlainObject(source)) {
+      return utils.merge(target, source);
+    } else if (utils.isPlainObject(source)) {
+      return utils.merge({}, source);
+    } else if (utils.isArray(source)) {
+      return source.slice();
+    }
+    return source;
+  }
+
+  // eslint-disable-next-line consistent-return
+  function mergeDeepProperties(prop) {
+    if (!utils.isUndefined(config2[prop])) {
+      return getMergedValue(config1[prop], config2[prop]);
+    } else if (!utils.isUndefined(config1[prop])) {
+      return getMergedValue(undefined, config1[prop]);
+    }
+  }
+
+  // eslint-disable-next-line consistent-return
+  function valueFromConfig2(prop) {
+    if (!utils.isUndefined(config2[prop])) {
+      return getMergedValue(undefined, config2[prop]);
+    }
+  }
+
+  // eslint-disable-next-line consistent-return
+  function defaultToConfig2(prop) {
+    if (!utils.isUndefined(config2[prop])) {
+      return getMergedValue(undefined, config2[prop]);
+    } else if (!utils.isUndefined(config1[prop])) {
+      return getMergedValue(undefined, config1[prop]);
+    }
+  }
+
+  // eslint-disable-next-line consistent-return
+  function mergeDirectKeys(prop) {
+    if (prop in config2) {
+      return getMergedValue(config1[prop], config2[prop]);
+    } else if (prop in config1) {
+      return getMergedValue(undefined, config1[prop]);
+    }
+  }
+
+  var mergeMap = {
+    'url': valueFromConfig2,
+    'method': valueFromConfig2,
+    'data': valueFromConfig2,
+    'baseURL': defaultToConfig2,
+    'transformRequest': defaultToConfig2,
+    'transformResponse': defaultToConfig2,
+    'paramsSerializer': defaultToConfig2,
+    'timeout': defaultToConfig2,
+    'timeoutMessage': defaultToConfig2,
+    'withCredentials': defaultToConfig2,
+    'adapter': defaultToConfig2,
+    'responseType': defaultToConfig2,
+    'xsrfCookieName': defaultToConfig2,
+    'xsrfHeaderName': defaultToConfig2,
+    'onUploadProgress': defaultToConfig2,
+    'onDownloadProgress': defaultToConfig2,
+    'decompress': defaultToConfig2,
+    'maxContentLength': defaultToConfig2,
+    'maxBodyLength': defaultToConfig2,
+    'transport': defaultToConfig2,
+    'httpAgent': defaultToConfig2,
+    'httpsAgent': defaultToConfig2,
+    'cancelToken': defaultToConfig2,
+    'socketPath': defaultToConfig2,
+    'responseEncoding': defaultToConfig2,
+    'validateStatus': mergeDirectKeys
+  };
+
+  utils.forEach(Object.keys(config1).concat(Object.keys(config2)), function computeConfigValue(prop) {
+    var merge = mergeMap[prop] || mergeDeepProperties;
+    var configValue = merge(prop);
+    (utils.isUndefined(configValue) && merge !== mergeDirectKeys) || (config[prop] = configValue);
+  });
+
+  return config;
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/core/settle.js":
+/*!***********************************************!*\
+  !*** ./node_modules/axios/lib/core/settle.js ***!
+  \***********************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var createError = __webpack_require__(/*! ./createError */ "./node_modules/axios/lib/core/createError.js");
+
+/**
+ * Resolve or reject a Promise based on response status.
+ *
+ * @param {Function} resolve A function that resolves the promise.
+ * @param {Function} reject A function that rejects the promise.
+ * @param {object} response The response.
+ */
+module.exports = function settle(resolve, reject, response) {
+  var validateStatus = response.config.validateStatus;
+  if (!response.status || !validateStatus || validateStatus(response.status)) {
+    resolve(response);
+  } else {
+    reject(createError(
+      'Request failed with status code ' + response.status,
+      response.config,
+      null,
+      response.request,
+      response
+    ));
+  }
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/core/transformData.js":
+/*!******************************************************!*\
+  !*** ./node_modules/axios/lib/core/transformData.js ***!
+  \******************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
+var defaults = __webpack_require__(/*! ./../defaults */ "./node_modules/axios/lib/defaults.js");
+
+/**
+ * Transform the data for a request or a response
+ *
+ * @param {Object|String} data The data to be transformed
+ * @param {Array} headers The headers for the request or response
+ * @param {Array|Function} fns A single function or Array of functions
+ * @returns {*} The resulting transformed data
+ */
+module.exports = function transformData(data, headers, fns) {
+  var context = this || defaults;
+  /*eslint no-param-reassign:0*/
+  utils.forEach(fns, function transform(fn) {
+    data = fn.call(context, data, headers);
+  });
+
+  return data;
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/defaults.js":
+/*!********************************************!*\
+  !*** ./node_modules/axios/lib/defaults.js ***!
+  \********************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+/* provided dependency */ var process = __webpack_require__(/*! process/browser.js */ "./node_modules/process/browser.js");
+
+
+var utils = __webpack_require__(/*! ./utils */ "./node_modules/axios/lib/utils.js");
+var normalizeHeaderName = __webpack_require__(/*! ./helpers/normalizeHeaderName */ "./node_modules/axios/lib/helpers/normalizeHeaderName.js");
+var enhanceError = __webpack_require__(/*! ./core/enhanceError */ "./node_modules/axios/lib/core/enhanceError.js");
+
+var DEFAULT_CONTENT_TYPE = {
+  'Content-Type': 'application/x-www-form-urlencoded'
+};
+
+function setContentTypeIfUnset(headers, value) {
+  if (!utils.isUndefined(headers) && utils.isUndefined(headers['Content-Type'])) {
+    headers['Content-Type'] = value;
+  }
+}
+
+function getDefaultAdapter() {
+  var adapter;
+  if (typeof XMLHttpRequest !== 'undefined') {
+    // For browsers use XHR adapter
+    adapter = __webpack_require__(/*! ./adapters/xhr */ "./node_modules/axios/lib/adapters/xhr.js");
+  } else if (typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]') {
+    // For node use HTTP adapter
+    adapter = __webpack_require__(/*! ./adapters/http */ "./node_modules/axios/lib/adapters/xhr.js");
+  }
+  return adapter;
+}
+
+function stringifySafely(rawValue, parser, encoder) {
+  if (utils.isString(rawValue)) {
+    try {
+      (parser || JSON.parse)(rawValue);
+      return utils.trim(rawValue);
+    } catch (e) {
+      if (e.name !== 'SyntaxError') {
+        throw e;
+      }
+    }
+  }
+
+  return (encoder || JSON.stringify)(rawValue);
+}
+
+var defaults = {
+
+  transitional: {
+    silentJSONParsing: true,
+    forcedJSONParsing: true,
+    clarifyTimeoutError: false
+  },
+
+  adapter: getDefaultAdapter(),
+
+  transformRequest: [function transformRequest(data, headers) {
+    normalizeHeaderName(headers, 'Accept');
+    normalizeHeaderName(headers, 'Content-Type');
+
+    if (utils.isFormData(data) ||
+      utils.isArrayBuffer(data) ||
+      utils.isBuffer(data) ||
+      utils.isStream(data) ||
+      utils.isFile(data) ||
+      utils.isBlob(data)
+    ) {
+      return data;
+    }
+    if (utils.isArrayBufferView(data)) {
+      return data.buffer;
+    }
+    if (utils.isURLSearchParams(data)) {
+      setContentTypeIfUnset(headers, 'application/x-www-form-urlencoded;charset=utf-8');
+      return data.toString();
+    }
+    if (utils.isObject(data) || (headers && headers['Content-Type'] === 'application/json')) {
+      setContentTypeIfUnset(headers, 'application/json');
+      return stringifySafely(data);
+    }
+    return data;
+  }],
+
+  transformResponse: [function transformResponse(data) {
+    var transitional = this.transitional || defaults.transitional;
+    var silentJSONParsing = transitional && transitional.silentJSONParsing;
+    var forcedJSONParsing = transitional && transitional.forcedJSONParsing;
+    var strictJSONParsing = !silentJSONParsing && this.responseType === 'json';
+
+    if (strictJSONParsing || (forcedJSONParsing && utils.isString(data) && data.length)) {
+      try {
+        return JSON.parse(data);
+      } catch (e) {
+        if (strictJSONParsing) {
+          if (e.name === 'SyntaxError') {
+            throw enhanceError(e, this, 'E_JSON_PARSE');
+          }
+          throw e;
+        }
+      }
+    }
+
+    return data;
+  }],
+
+  /**
+   * A timeout in milliseconds to abort a request. If set to 0 (default) a
+   * timeout is not created.
+   */
+  timeout: 0,
+
+  xsrfCookieName: 'XSRF-TOKEN',
+  xsrfHeaderName: 'X-XSRF-TOKEN',
+
+  maxContentLength: -1,
+  maxBodyLength: -1,
+
+  validateStatus: function validateStatus(status) {
+    return status >= 200 && status < 300;
+  },
+
+  headers: {
+    common: {
+      'Accept': 'application/json, text/plain, */*'
+    }
+  }
+};
+
+utils.forEach(['delete', 'get', 'head'], function forEachMethodNoData(method) {
+  defaults.headers[method] = {};
+});
+
+utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
+  defaults.headers[method] = utils.merge(DEFAULT_CONTENT_TYPE);
+});
+
+module.exports = defaults;
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/env/data.js":
+/*!********************************************!*\
+  !*** ./node_modules/axios/lib/env/data.js ***!
+  \********************************************/
+/***/ ((module) => {
+
+module.exports = {
+  "version": "0.25.0"
+};
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/bind.js":
+/*!************************************************!*\
+  !*** ./node_modules/axios/lib/helpers/bind.js ***!
+  \************************************************/
+/***/ ((module) => {
+
+"use strict";
+
+
+module.exports = function bind(fn, thisArg) {
+  return function wrap() {
+    var args = new Array(arguments.length);
+    for (var i = 0; i < args.length; i++) {
+      args[i] = arguments[i];
+    }
+    return fn.apply(thisArg, args);
+  };
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/buildURL.js":
+/*!****************************************************!*\
+  !*** ./node_modules/axios/lib/helpers/buildURL.js ***!
+  \****************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
+
+function encode(val) {
+  return encodeURIComponent(val).
+    replace(/%3A/gi, ':').
+    replace(/%24/g, '$').
+    replace(/%2C/gi, ',').
+    replace(/%20/g, '+').
+    replace(/%5B/gi, '[').
+    replace(/%5D/gi, ']');
+}
+
+/**
+ * Build a URL by appending params to the end
+ *
+ * @param {string} url The base of the url (e.g., http://www.google.com)
+ * @param {object} [params] The params to be appended
+ * @returns {string} The formatted url
+ */
+module.exports = function buildURL(url, params, paramsSerializer) {
+  /*eslint no-param-reassign:0*/
+  if (!params) {
+    return url;
+  }
+
+  var serializedParams;
+  if (paramsSerializer) {
+    serializedParams = paramsSerializer(params);
+  } else if (utils.isURLSearchParams(params)) {
+    serializedParams = params.toString();
+  } else {
+    var parts = [];
+
+    utils.forEach(params, function serialize(val, key) {
+      if (val === null || typeof val === 'undefined') {
+        return;
+      }
+
+      if (utils.isArray(val)) {
+        key = key + '[]';
+      } else {
+        val = [val];
+      }
+
+      utils.forEach(val, function parseValue(v) {
+        if (utils.isDate(v)) {
+          v = v.toISOString();
+        } else if (utils.isObject(v)) {
+          v = JSON.stringify(v);
+        }
+        parts.push(encode(key) + '=' + encode(v));
+      });
+    });
+
+    serializedParams = parts.join('&');
+  }
+
+  if (serializedParams) {
+    var hashmarkIndex = url.indexOf('#');
+    if (hashmarkIndex !== -1) {
+      url = url.slice(0, hashmarkIndex);
+    }
+
+    url += (url.indexOf('?') === -1 ? '?' : '&') + serializedParams;
+  }
+
+  return url;
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/combineURLs.js":
+/*!*******************************************************!*\
+  !*** ./node_modules/axios/lib/helpers/combineURLs.js ***!
+  \*******************************************************/
+/***/ ((module) => {
+
+"use strict";
+
+
+/**
+ * Creates a new URL by combining the specified URLs
+ *
+ * @param {string} baseURL The base URL
+ * @param {string} relativeURL The relative URL
+ * @returns {string} The combined URL
+ */
+module.exports = function combineURLs(baseURL, relativeURL) {
+  return relativeURL
+    ? baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '')
+    : baseURL;
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/cookies.js":
+/*!***************************************************!*\
+  !*** ./node_modules/axios/lib/helpers/cookies.js ***!
+  \***************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
+
+module.exports = (
+  utils.isStandardBrowserEnv() ?
+
+  // Standard browser envs support document.cookie
+    (function standardBrowserEnv() {
+      return {
+        write: function write(name, value, expires, path, domain, secure) {
+          var cookie = [];
+          cookie.push(name + '=' + encodeURIComponent(value));
+
+          if (utils.isNumber(expires)) {
+            cookie.push('expires=' + new Date(expires).toGMTString());
+          }
+
+          if (utils.isString(path)) {
+            cookie.push('path=' + path);
+          }
+
+          if (utils.isString(domain)) {
+            cookie.push('domain=' + domain);
+          }
+
+          if (secure === true) {
+            cookie.push('secure');
+          }
+
+          document.cookie = cookie.join('; ');
+        },
+
+        read: function read(name) {
+          var match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
+          return (match ? decodeURIComponent(match[3]) : null);
+        },
+
+        remove: function remove(name) {
+          this.write(name, '', Date.now() - 86400000);
+        }
+      };
+    })() :
+
+  // Non standard browser env (web workers, react-native) lack needed support.
+    (function nonStandardBrowserEnv() {
+      return {
+        write: function write() {},
+        read: function read() { return null; },
+        remove: function remove() {}
+      };
+    })()
+);
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/isAbsoluteURL.js":
+/*!*********************************************************!*\
+  !*** ./node_modules/axios/lib/helpers/isAbsoluteURL.js ***!
+  \*********************************************************/
+/***/ ((module) => {
+
+"use strict";
+
+
+/**
+ * Determines whether the specified URL is absolute
+ *
+ * @param {string} url The URL to test
+ * @returns {boolean} True if the specified URL is absolute, otherwise false
+ */
+module.exports = function isAbsoluteURL(url) {
+  // A URL is considered absolute if it begins with "<scheme>://" or "//" (protocol-relative URL).
+  // RFC 3986 defines scheme name as a sequence of characters beginning with a letter and followed
+  // by any combination of letters, digits, plus, period, or hyphen.
+  return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url);
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/isAxiosError.js":
+/*!********************************************************!*\
+  !*** ./node_modules/axios/lib/helpers/isAxiosError.js ***!
+  \********************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
+
+/**
+ * Determines whether the payload is an error thrown by Axios
+ *
+ * @param {*} payload The value to test
+ * @returns {boolean} True if the payload is an error thrown by Axios, otherwise false
+ */
+module.exports = function isAxiosError(payload) {
+  return utils.isObject(payload) && (payload.isAxiosError === true);
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/isURLSameOrigin.js":
+/*!***********************************************************!*\
+  !*** ./node_modules/axios/lib/helpers/isURLSameOrigin.js ***!
+  \***********************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
+
+module.exports = (
+  utils.isStandardBrowserEnv() ?
+
+  // Standard browser envs have full support of the APIs needed to test
+  // whether the request URL is of the same origin as current location.
+    (function standardBrowserEnv() {
+      var msie = /(msie|trident)/i.test(navigator.userAgent);
+      var urlParsingNode = document.createElement('a');
+      var originURL;
+
+      /**
+    * Parse a URL to discover it's components
+    *
+    * @param {String} url The URL to be parsed
+    * @returns {Object}
+    */
+      function resolveURL(url) {
+        var href = url;
+
+        if (msie) {
+        // IE needs attribute set twice to normalize properties
+          urlParsingNode.setAttribute('href', href);
+          href = urlParsingNode.href;
+        }
+
+        urlParsingNode.setAttribute('href', href);
+
+        // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
+        return {
+          href: urlParsingNode.href,
+          protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
+          host: urlParsingNode.host,
+          search: urlParsingNode.search ? urlParsingNode.search.replace(/^\?/, '') : '',
+          hash: urlParsingNode.hash ? urlParsingNode.hash.replace(/^#/, '') : '',
+          hostname: urlParsingNode.hostname,
+          port: urlParsingNode.port,
+          pathname: (urlParsingNode.pathname.charAt(0) === '/') ?
+            urlParsingNode.pathname :
+            '/' + urlParsingNode.pathname
+        };
+      }
+
+      originURL = resolveURL(window.location.href);
+
+      /**
+    * Determine if a URL shares the same origin as the current location
+    *
+    * @param {String} requestURL The URL to test
+    * @returns {boolean} True if URL shares the same origin, otherwise false
+    */
+      return function isURLSameOrigin(requestURL) {
+        var parsed = (utils.isString(requestURL)) ? resolveURL(requestURL) : requestURL;
+        return (parsed.protocol === originURL.protocol &&
+            parsed.host === originURL.host);
+      };
+    })() :
+
+  // Non standard browser envs (web workers, react-native) lack needed support.
+    (function nonStandardBrowserEnv() {
+      return function isURLSameOrigin() {
+        return true;
+      };
+    })()
+);
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/normalizeHeaderName.js":
+/*!***************************************************************!*\
+  !*** ./node_modules/axios/lib/helpers/normalizeHeaderName.js ***!
+  \***************************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ../utils */ "./node_modules/axios/lib/utils.js");
+
+module.exports = function normalizeHeaderName(headers, normalizedName) {
+  utils.forEach(headers, function processHeader(value, name) {
+    if (name !== normalizedName && name.toUpperCase() === normalizedName.toUpperCase()) {
+      headers[normalizedName] = value;
+      delete headers[name];
+    }
+  });
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/parseHeaders.js":
+/*!********************************************************!*\
+  !*** ./node_modules/axios/lib/helpers/parseHeaders.js ***!
+  \********************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
+
+// Headers whose duplicates are ignored by node
+// c.f. https://nodejs.org/api/http.html#http_message_headers
+var ignoreDuplicateOf = [
+  'age', 'authorization', 'content-length', 'content-type', 'etag',
+  'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
+  'last-modified', 'location', 'max-forwards', 'proxy-authorization',
+  'referer', 'retry-after', 'user-agent'
+];
+
+/**
+ * Parse headers into an object
+ *
+ * ```
+ * Date: Wed, 27 Aug 2014 08:58:49 GMT
+ * Content-Type: application/json
+ * Connection: keep-alive
+ * Transfer-Encoding: chunked
+ * ```
+ *
+ * @param {String} headers Headers needing to be parsed
+ * @returns {Object} Headers parsed into an object
+ */
+module.exports = function parseHeaders(headers) {
+  var parsed = {};
+  var key;
+  var val;
+  var i;
+
+  if (!headers) { return parsed; }
+
+  utils.forEach(headers.split('\n'), function parser(line) {
+    i = line.indexOf(':');
+    key = utils.trim(line.substr(0, i)).toLowerCase();
+    val = utils.trim(line.substr(i + 1));
+
+    if (key) {
+      if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
+        return;
+      }
+      if (key === 'set-cookie') {
+        parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
+      } else {
+        parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
+      }
+    }
+  });
+
+  return parsed;
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/spread.js":
+/*!**************************************************!*\
+  !*** ./node_modules/axios/lib/helpers/spread.js ***!
+  \**************************************************/
+/***/ ((module) => {
+
+"use strict";
+
+
+/**
+ * Syntactic sugar for invoking a function and expanding an array for arguments.
+ *
+ * Common use case would be to use `Function.prototype.apply`.
+ *
+ *  ```js
+ *  function f(x, y, z) {}
+ *  var args = [1, 2, 3];
+ *  f.apply(null, args);
+ *  ```
+ *
+ * With `spread` this example can be re-written.
+ *
+ *  ```js
+ *  spread(function(x, y, z) {})([1, 2, 3]);
+ *  ```
+ *
+ * @param {Function} callback
+ * @returns {Function}
+ */
+module.exports = function spread(callback) {
+  return function wrap(arr) {
+    return callback.apply(null, arr);
+  };
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/validator.js":
+/*!*****************************************************!*\
+  !*** ./node_modules/axios/lib/helpers/validator.js ***!
+  \*****************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var VERSION = (__webpack_require__(/*! ../env/data */ "./node_modules/axios/lib/env/data.js").version);
+
+var validators = {};
+
+// eslint-disable-next-line func-names
+['object', 'boolean', 'number', 'function', 'string', 'symbol'].forEach(function(type, i) {
+  validators[type] = function validator(thing) {
+    return typeof thing === type || 'a' + (i < 1 ? 'n ' : ' ') + type;
+  };
+});
+
+var deprecatedWarnings = {};
+
+/**
+ * Transitional option validator
+ * @param {function|boolean?} validator - set to false if the transitional option has been removed
+ * @param {string?} version - deprecated version / removed since version
+ * @param {string?} message - some message with additional info
+ * @returns {function}
+ */
+validators.transitional = function transitional(validator, version, message) {
+  function formatMessage(opt, desc) {
+    return '[Axios v' + VERSION + '] Transitional option \'' + opt + '\'' + desc + (message ? '. ' + message : '');
+  }
+
+  // eslint-disable-next-line func-names
+  return function(value, opt, opts) {
+    if (validator === false) {
+      throw new Error(formatMessage(opt, ' has been removed' + (version ? ' in ' + version : '')));
+    }
+
+    if (version && !deprecatedWarnings[opt]) {
+      deprecatedWarnings[opt] = true;
+      // eslint-disable-next-line no-console
+      console.warn(
+        formatMessage(
+          opt,
+          ' has been deprecated since v' + version + ' and will be removed in the near future'
+        )
+      );
+    }
+
+    return validator ? validator(value, opt, opts) : true;
+  };
+};
+
+/**
+ * Assert object's properties type
+ * @param {object} options
+ * @param {object} schema
+ * @param {boolean?} allowUnknown
+ */
+
+function assertOptions(options, schema, allowUnknown) {
+  if (typeof options !== 'object') {
+    throw new TypeError('options must be an object');
+  }
+  var keys = Object.keys(options);
+  var i = keys.length;
+  while (i-- > 0) {
+    var opt = keys[i];
+    var validator = schema[opt];
+    if (validator) {
+      var value = options[opt];
+      var result = value === undefined || validator(value, opt, options);
+      if (result !== true) {
+        throw new TypeError('option ' + opt + ' must be ' + result);
+      }
+      continue;
+    }
+    if (allowUnknown !== true) {
+      throw Error('Unknown option ' + opt);
+    }
+  }
+}
+
+module.exports = {
+  assertOptions: assertOptions,
+  validators: validators
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/utils.js":
+/*!*****************************************!*\
+  !*** ./node_modules/axios/lib/utils.js ***!
+  \*****************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var bind = __webpack_require__(/*! ./helpers/bind */ "./node_modules/axios/lib/helpers/bind.js");
+
+// utils is a library of generic helper functions non-specific to axios
+
+var toString = Object.prototype.toString;
+
+/**
+ * Determine if a value is an Array
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is an Array, otherwise false
+ */
+function isArray(val) {
+  return Array.isArray(val);
+}
+
+/**
+ * Determine if a value is undefined
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if the value is undefined, otherwise false
+ */
+function isUndefined(val) {
+  return typeof val === 'undefined';
+}
+
+/**
+ * Determine if a value is a Buffer
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Buffer, otherwise false
+ */
+function isBuffer(val) {
+  return val !== null && !isUndefined(val) && val.constructor !== null && !isUndefined(val.constructor)
+    && typeof val.constructor.isBuffer === 'function' && val.constructor.isBuffer(val);
+}
+
+/**
+ * Determine if a value is an ArrayBuffer
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is an ArrayBuffer, otherwise false
+ */
+function isArrayBuffer(val) {
+  return toString.call(val) === '[object ArrayBuffer]';
+}
+
+/**
+ * Determine if a value is a FormData
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is an FormData, otherwise false
+ */
+function isFormData(val) {
+  return toString.call(val) === '[object FormData]';
+}
+
+/**
+ * Determine if a value is a view on an ArrayBuffer
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a view on an ArrayBuffer, otherwise false
+ */
+function isArrayBufferView(val) {
+  var result;
+  if ((typeof ArrayBuffer !== 'undefined') && (ArrayBuffer.isView)) {
+    result = ArrayBuffer.isView(val);
+  } else {
+    result = (val) && (val.buffer) && (isArrayBuffer(val.buffer));
+  }
+  return result;
+}
+
+/**
+ * Determine if a value is a String
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a String, otherwise false
+ */
+function isString(val) {
+  return typeof val === 'string';
+}
+
+/**
+ * Determine if a value is a Number
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Number, otherwise false
+ */
+function isNumber(val) {
+  return typeof val === 'number';
+}
+
+/**
+ * Determine if a value is an Object
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is an Object, otherwise false
+ */
+function isObject(val) {
+  return val !== null && typeof val === 'object';
+}
+
+/**
+ * Determine if a value is a plain Object
+ *
+ * @param {Object} val The value to test
+ * @return {boolean} True if value is a plain Object, otherwise false
+ */
+function isPlainObject(val) {
+  if (toString.call(val) !== '[object Object]') {
+    return false;
+  }
+
+  var prototype = Object.getPrototypeOf(val);
+  return prototype === null || prototype === Object.prototype;
+}
+
+/**
+ * Determine if a value is a Date
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Date, otherwise false
+ */
+function isDate(val) {
+  return toString.call(val) === '[object Date]';
+}
+
+/**
+ * Determine if a value is a File
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a File, otherwise false
+ */
+function isFile(val) {
+  return toString.call(val) === '[object File]';
+}
+
+/**
+ * Determine if a value is a Blob
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Blob, otherwise false
+ */
+function isBlob(val) {
+  return toString.call(val) === '[object Blob]';
+}
+
+/**
+ * Determine if a value is a Function
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Function, otherwise false
+ */
+function isFunction(val) {
+  return toString.call(val) === '[object Function]';
+}
+
+/**
+ * Determine if a value is a Stream
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Stream, otherwise false
+ */
+function isStream(val) {
+  return isObject(val) && isFunction(val.pipe);
+}
+
+/**
+ * Determine if a value is a URLSearchParams object
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a URLSearchParams object, otherwise false
+ */
+function isURLSearchParams(val) {
+  return toString.call(val) === '[object URLSearchParams]';
+}
+
+/**
+ * Trim excess whitespace off the beginning and end of a string
+ *
+ * @param {String} str The String to trim
+ * @returns {String} The String freed of excess whitespace
+ */
+function trim(str) {
+  return str.trim ? str.trim() : str.replace(/^\s+|\s+$/g, '');
+}
+
+/**
+ * Determine if we're running in a standard browser environment
+ *
+ * This allows axios to run in a web worker, and react-native.
+ * Both environments support XMLHttpRequest, but not fully standard globals.
+ *
+ * web workers:
+ *  typeof window -> undefined
+ *  typeof document -> undefined
+ *
+ * react-native:
+ *  navigator.product -> 'ReactNative'
+ * nativescript
+ *  navigator.product -> 'NativeScript' or 'NS'
+ */
+function isStandardBrowserEnv() {
+  if (typeof navigator !== 'undefined' && (navigator.product === 'ReactNative' ||
+                                           navigator.product === 'NativeScript' ||
+                                           navigator.product === 'NS')) {
+    return false;
+  }
+  return (
+    typeof window !== 'undefined' &&
+    typeof document !== 'undefined'
+  );
+}
+
+/**
+ * Iterate over an Array or an Object invoking a function for each item.
+ *
+ * If `obj` is an Array callback will be called passing
+ * the value, index, and complete array for each item.
+ *
+ * If 'obj' is an Object callback will be called passing
+ * the value, key, and complete object for each property.
+ *
+ * @param {Object|Array} obj The object to iterate
+ * @param {Function} fn The callback to invoke for each item
+ */
+function forEach(obj, fn) {
+  // Don't bother if no value provided
+  if (obj === null || typeof obj === 'undefined') {
+    return;
+  }
+
+  // Force an array if not already something iterable
+  if (typeof obj !== 'object') {
+    /*eslint no-param-reassign:0*/
+    obj = [obj];
+  }
+
+  if (isArray(obj)) {
+    // Iterate over array values
+    for (var i = 0, l = obj.length; i < l; i++) {
+      fn.call(null, obj[i], i, obj);
+    }
+  } else {
+    // Iterate over object keys
+    for (var key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        fn.call(null, obj[key], key, obj);
+      }
+    }
+  }
+}
+
+/**
+ * Accepts varargs expecting each argument to be an object, then
+ * immutably merges the properties of each object and returns result.
+ *
+ * When multiple objects contain the same key the later object in
+ * the arguments list will take precedence.
+ *
+ * Example:
+ *
+ * ```js
+ * var result = merge({foo: 123}, {foo: 456});
+ * console.log(result.foo); // outputs 456
+ * ```
+ *
+ * @param {Object} obj1 Object to merge
+ * @returns {Object} Result of all merge properties
+ */
+function merge(/* obj1, obj2, obj3, ... */) {
+  var result = {};
+  function assignValue(val, key) {
+    if (isPlainObject(result[key]) && isPlainObject(val)) {
+      result[key] = merge(result[key], val);
+    } else if (isPlainObject(val)) {
+      result[key] = merge({}, val);
+    } else if (isArray(val)) {
+      result[key] = val.slice();
+    } else {
+      result[key] = val;
+    }
+  }
+
+  for (var i = 0, l = arguments.length; i < l; i++) {
+    forEach(arguments[i], assignValue);
+  }
+  return result;
+}
+
+/**
+ * Extends object a by mutably adding to it the properties of object b.
+ *
+ * @param {Object} a The object to be extended
+ * @param {Object} b The object to copy properties from
+ * @param {Object} thisArg The object to bind function to
+ * @return {Object} The resulting value of object a
+ */
+function extend(a, b, thisArg) {
+  forEach(b, function assignValue(val, key) {
+    if (thisArg && typeof val === 'function') {
+      a[key] = bind(val, thisArg);
+    } else {
+      a[key] = val;
+    }
+  });
+  return a;
+}
+
+/**
+ * Remove byte order marker. This catches EF BB BF (the UTF-8 BOM)
+ *
+ * @param {string} content with BOM
+ * @return {string} content value without BOM
+ */
+function stripBOM(content) {
+  if (content.charCodeAt(0) === 0xFEFF) {
+    content = content.slice(1);
+  }
+  return content;
+}
+
+module.exports = {
+  isArray: isArray,
+  isArrayBuffer: isArrayBuffer,
+  isBuffer: isBuffer,
+  isFormData: isFormData,
+  isArrayBufferView: isArrayBufferView,
+  isString: isString,
+  isNumber: isNumber,
+  isObject: isObject,
+  isPlainObject: isPlainObject,
+  isUndefined: isUndefined,
+  isDate: isDate,
+  isFile: isFile,
+  isBlob: isBlob,
+  isFunction: isFunction,
+  isStream: isStream,
+  isURLSearchParams: isURLSearchParams,
+  isStandardBrowserEnv: isStandardBrowserEnv,
+  forEach: forEach,
+  merge: merge,
+  extend: extend,
+  trim: trim,
+  stripBOM: stripBOM
+};
+
+
+/***/ }),
+
+/***/ "./resources/js/app.js":
+/*!*****************************!*\
+  !*** ./resources/js/app.js ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
+
+/**
+ * Axios
+ *
+ * Promise based HTTP client for the browser and node.js
+ * https://github.com/axios/axios
+ */
+window.axios = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+
+/**
+ * card-validator
+ *
+ * Validate credit cards as users type.
+ * https://github.com/braintree/card-validator
+ */
+window.valid = __webpack_require__(/*! card-validator */ "./node_modules/card-validator/dist/index.js");
+
+/**
+ * Remove flashing message div after 3 seconds.
+ */
+document.querySelectorAll('.disposable-alert').forEach(function (element) {
+  setTimeout(function () {
+    element.remove();
+  }, 5000);
+});
+
+/***/ }),
+
+/***/ "./node_modules/card-validator/dist/card-number.js":
+/*!*********************************************************!*\
+  !*** ./node_modules/card-validator/dist/card-number.js ***!
+  \*********************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.cardNumber = void 0;
+var luhn10 = __webpack_require__(/*! ./luhn-10 */ "./node_modules/card-validator/dist/luhn-10.js");
+var getCardTypes = __webpack_require__(/*! credit-card-type */ "./node_modules/credit-card-type/dist/index.js");
+function verification(card, isPotentiallyValid, isValid) {
+    return {
+        card: card,
+        isPotentiallyValid: isPotentiallyValid,
+        isValid: isValid,
+    };
+}
+function cardNumber(value, options) {
+    if (options === void 0) { options = {}; }
+    var isPotentiallyValid, isValid, maxLength;
+    if (typeof value !== "string" && typeof value !== "number") {
+        return verification(null, false, false);
+    }
+    var testCardValue = String(value).replace(/-|\s/g, "");
+    if (!/^\d*$/.test(testCardValue)) {
+        return verification(null, false, false);
+    }
+    var potentialTypes = getCardTypes(testCardValue);
+    if (potentialTypes.length === 0) {
+        return verification(null, false, false);
+    }
+    else if (potentialTypes.length !== 1) {
+        return verification(null, true, false);
+    }
+    var cardType = potentialTypes[0];
+    if (options.maxLength && testCardValue.length > options.maxLength) {
+        return verification(cardType, false, false);
+    }
+    if (cardType.type === getCardTypes.types.UNIONPAY &&
+        options.luhnValidateUnionPay !== true) {
+        isValid = true;
+    }
+    else {
+        isValid = luhn10(testCardValue);
+    }
+    maxLength = Math.max.apply(null, cardType.lengths);
+    if (options.maxLength) {
+        maxLength = Math.min(options.maxLength, maxLength);
+    }
+    for (var i = 0; i < cardType.lengths.length; i++) {
+        if (cardType.lengths[i] === testCardValue.length) {
+            isPotentiallyValid = testCardValue.length < maxLength || isValid;
+            return verification(cardType, isPotentiallyValid, isValid);
+        }
+    }
+    return verification(cardType, testCardValue.length < maxLength, false);
+}
+exports.cardNumber = cardNumber;
+
+
+/***/ }),
+
+/***/ "./node_modules/card-validator/dist/cardholder-name.js":
+/*!*************************************************************!*\
+  !*** ./node_modules/card-validator/dist/cardholder-name.js ***!
+  \*************************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.cardholderName = void 0;
+var CARD_NUMBER_REGEX = /^[\d\s-]*$/;
+var MAX_LENGTH = 255;
+function verification(isValid, isPotentiallyValid) {
+    return { isValid: isValid, isPotentiallyValid: isPotentiallyValid };
+}
+function cardholderName(value) {
+    if (typeof value !== "string") {
+        return verification(false, false);
+    }
+    if (value.length === 0) {
+        return verification(false, true);
+    }
+    if (value.length > MAX_LENGTH) {
+        return verification(false, false);
+    }
+    if (CARD_NUMBER_REGEX.test(value)) {
+        return verification(false, true);
+    }
+    return verification(true, true);
+}
+exports.cardholderName = cardholderName;
+
+
+/***/ }),
+
+/***/ "./node_modules/card-validator/dist/cvv.js":
+/*!*************************************************!*\
+  !*** ./node_modules/card-validator/dist/cvv.js ***!
+  \*************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.cvv = void 0;
+var DEFAULT_LENGTH = 3;
+function includes(array, thing) {
+    for (var i = 0; i < array.length; i++) {
+        if (thing === array[i]) {
+            return true;
+        }
+    }
+    return false;
+}
+function max(array) {
+    var maximum = DEFAULT_LENGTH;
+    var i = 0;
+    for (; i < array.length; i++) {
+        maximum = array[i] > maximum ? array[i] : maximum;
+    }
+    return maximum;
+}
+function verification(isValid, isPotentiallyValid) {
+    return { isValid: isValid, isPotentiallyValid: isPotentiallyValid };
+}
+function cvv(value, maxLength) {
+    if (maxLength === void 0) { maxLength = DEFAULT_LENGTH; }
+    maxLength = maxLength instanceof Array ? maxLength : [maxLength];
+    if (typeof value !== "string") {
+        return verification(false, false);
+    }
+    if (!/^\d*$/.test(value)) {
+        return verification(false, false);
+    }
+    if (includes(maxLength, value.length)) {
+        return verification(true, true);
+    }
+    if (value.length < Math.min.apply(null, maxLength)) {
+        return verification(false, true);
+    }
+    if (value.length > max(maxLength)) {
+        return verification(false, false);
+    }
+    return verification(true, true);
+}
+exports.cvv = cvv;
+
+
+/***/ }),
+
+/***/ "./node_modules/card-validator/dist/expiration-date.js":
+/*!*************************************************************!*\
+  !*** ./node_modules/card-validator/dist/expiration-date.js ***!
+  \*************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.expirationDate = void 0;
+var parse_date_1 = __webpack_require__(/*! ./lib/parse-date */ "./node_modules/card-validator/dist/lib/parse-date.js");
+var expiration_month_1 = __webpack_require__(/*! ./expiration-month */ "./node_modules/card-validator/dist/expiration-month.js");
+var expiration_year_1 = __webpack_require__(/*! ./expiration-year */ "./node_modules/card-validator/dist/expiration-year.js");
+function verification(isValid, isPotentiallyValid, month, year) {
+    return {
+        isValid: isValid,
+        isPotentiallyValid: isPotentiallyValid,
+        month: month,
+        year: year,
+    };
+}
+function expirationDate(value, maxElapsedYear) {
+    var date;
+    if (typeof value === "string") {
+        value = value.replace(/^(\d\d) (\d\d(\d\d)?)$/, "$1/$2");
+        date = parse_date_1.parseDate(String(value));
+    }
+    else if (value !== null && typeof value === "object") {
+        var fullDate = __assign({}, value);
+        date = {
+            month: String(fullDate.month),
+            year: String(fullDate.year),
+        };
+    }
+    else {
+        return verification(false, false, null, null);
+    }
+    var monthValid = expiration_month_1.expirationMonth(date.month);
+    var yearValid = expiration_year_1.expirationYear(date.year, maxElapsedYear);
+    if (monthValid.isValid) {
+        if (yearValid.isCurrentYear) {
+            var isValidForThisYear = monthValid.isValidForThisYear;
+            return verification(isValidForThisYear, isValidForThisYear, date.month, date.year);
+        }
+        if (yearValid.isValid) {
+            return verification(true, true, date.month, date.year);
+        }
+    }
+    if (monthValid.isPotentiallyValid && yearValid.isPotentiallyValid) {
+        return verification(false, true, null, null);
+    }
+    return verification(false, false, null, null);
+}
+exports.expirationDate = expirationDate;
+
+
+/***/ }),
+
+/***/ "./node_modules/card-validator/dist/expiration-month.js":
+/*!**************************************************************!*\
+  !*** ./node_modules/card-validator/dist/expiration-month.js ***!
+  \**************************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.expirationMonth = void 0;
+function verification(isValid, isPotentiallyValid, isValidForThisYear) {
+    return {
+        isValid: isValid,
+        isPotentiallyValid: isPotentiallyValid,
+        isValidForThisYear: isValidForThisYear || false,
+    };
+}
+function expirationMonth(value) {
+    var currentMonth = new Date().getMonth() + 1;
+    if (typeof value !== "string") {
+        return verification(false, false);
+    }
+    if (value.replace(/\s/g, "") === "" || value === "0") {
+        return verification(false, true);
+    }
+    if (!/^\d*$/.test(value)) {
+        return verification(false, false);
+    }
+    var month = parseInt(value, 10);
+    if (isNaN(Number(value))) {
+        return verification(false, false);
+    }
+    var result = month > 0 && month < 13;
+    return verification(result, result, result && month >= currentMonth);
+}
+exports.expirationMonth = expirationMonth;
+
+
+/***/ }),
+
+/***/ "./node_modules/card-validator/dist/expiration-year.js":
+/*!*************************************************************!*\
+  !*** ./node_modules/card-validator/dist/expiration-year.js ***!
+  \*************************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.expirationYear = void 0;
+var DEFAULT_VALID_NUMBER_OF_YEARS_IN_THE_FUTURE = 19;
+function verification(isValid, isPotentiallyValid, isCurrentYear) {
+    return {
+        isValid: isValid,
+        isPotentiallyValid: isPotentiallyValid,
+        isCurrentYear: isCurrentYear || false,
+    };
+}
+function expirationYear(value, maxElapsedYear) {
+    if (maxElapsedYear === void 0) { maxElapsedYear = DEFAULT_VALID_NUMBER_OF_YEARS_IN_THE_FUTURE; }
+    var isCurrentYear;
+    if (typeof value !== "string") {
+        return verification(false, false);
+    }
+    if (value.replace(/\s/g, "") === "") {
+        return verification(false, true);
+    }
+    if (!/^\d*$/.test(value)) {
+        return verification(false, false);
+    }
+    var len = value.length;
+    if (len < 2) {
+        return verification(false, true);
+    }
+    var currentYear = new Date().getFullYear();
+    if (len === 3) {
+        // 20x === 20x
+        var firstTwo = value.slice(0, 2);
+        var currentFirstTwo = String(currentYear).slice(0, 2);
+        return verification(false, firstTwo === currentFirstTwo);
+    }
+    if (len > 4) {
+        return verification(false, false);
+    }
+    var numericValue = parseInt(value, 10);
+    var twoDigitYear = Number(String(currentYear).substr(2, 2));
+    var valid = false;
+    if (len === 2) {
+        if (String(currentYear).substr(0, 2) === value) {
+            return verification(false, true);
+        }
+        isCurrentYear = twoDigitYear === numericValue;
+        valid =
+            numericValue >= twoDigitYear &&
+                numericValue <= twoDigitYear + maxElapsedYear;
+    }
+    else if (len === 4) {
+        isCurrentYear = currentYear === numericValue;
+        valid =
+            numericValue >= currentYear &&
+                numericValue <= currentYear + maxElapsedYear;
+    }
+    return verification(valid, valid, isCurrentYear);
+}
+exports.expirationYear = expirationYear;
+
+
+/***/ }),
+
+/***/ "./node_modules/card-validator/dist/index.js":
+/*!***************************************************!*\
+  !*** ./node_modules/card-validator/dist/index.js ***!
+  \***************************************************/
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var creditCardType = __importStar(__webpack_require__(/*! credit-card-type */ "./node_modules/credit-card-type/dist/index.js"));
+var cardholder_name_1 = __webpack_require__(/*! ./cardholder-name */ "./node_modules/card-validator/dist/cardholder-name.js");
+var card_number_1 = __webpack_require__(/*! ./card-number */ "./node_modules/card-validator/dist/card-number.js");
+var expiration_date_1 = __webpack_require__(/*! ./expiration-date */ "./node_modules/card-validator/dist/expiration-date.js");
+var expiration_month_1 = __webpack_require__(/*! ./expiration-month */ "./node_modules/card-validator/dist/expiration-month.js");
+var expiration_year_1 = __webpack_require__(/*! ./expiration-year */ "./node_modules/card-validator/dist/expiration-year.js");
+var cvv_1 = __webpack_require__(/*! ./cvv */ "./node_modules/card-validator/dist/cvv.js");
+var postal_code_1 = __webpack_require__(/*! ./postal-code */ "./node_modules/card-validator/dist/postal-code.js");
+var cardValidator = {
+    creditCardType: creditCardType,
+    cardholderName: cardholder_name_1.cardholderName,
+    number: card_number_1.cardNumber,
+    expirationDate: expiration_date_1.expirationDate,
+    expirationMonth: expiration_month_1.expirationMonth,
+    expirationYear: expiration_year_1.expirationYear,
+    cvv: cvv_1.cvv,
+    postalCode: postal_code_1.postalCode,
+};
+module.exports = cardValidator;
+
+
+/***/ }),
+
+/***/ "./node_modules/card-validator/dist/lib/is-array.js":
+/*!**********************************************************!*\
+  !*** ./node_modules/card-validator/dist/lib/is-array.js ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+// Polyfill taken from <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/isArray#Polyfill>.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.isArray = void 0;
+exports.isArray = Array.isArray ||
+    function (arg) {
+        return Object.prototype.toString.call(arg) === "[object Array]";
+    };
+
+
+/***/ }),
+
+/***/ "./node_modules/card-validator/dist/lib/parse-date.js":
+/*!************************************************************!*\
+  !*** ./node_modules/card-validator/dist/lib/parse-date.js ***!
+  \************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.parseDate = void 0;
+var expiration_year_1 = __webpack_require__(/*! ../expiration-year */ "./node_modules/card-validator/dist/expiration-year.js");
+var is_array_1 = __webpack_require__(/*! ./is-array */ "./node_modules/card-validator/dist/lib/is-array.js");
+function getNumberOfMonthDigitsInDateString(dateString) {
+    var firstCharacter = Number(dateString[0]);
+    var assumedYear;
+    /*
+      if the first character in the string starts with `0`,
+      we know that the month will be 2 digits.
+  
+      '0122' => {month: '01', year: '22'}
+    */
+    if (firstCharacter === 0) {
+        return 2;
+    }
+    /*
+      if the first character in the string starts with
+      number greater than 1, it must be a 1 digit month
+  
+      '322' => {month: '3', year: '22'}
+    */
+    if (firstCharacter > 1) {
+        return 1;
+    }
+    /*
+      if the first 2 characters make up a number between
+      13-19, we know that the month portion must be 1
+  
+      '139' => {month: '1', year: '39'}
+    */
+    if (firstCharacter === 1 && Number(dateString[1]) > 2) {
+        return 1;
+    }
+    /*
+      if the first 2 characters make up a number between
+      10-12, we check if the year portion would be considered
+      valid if we assumed that the month was 1. If it is
+      not potentially valid, we assume the month must have
+      2 digits.
+  
+      '109' => {month: '10', year: '9'}
+      '120' => {month: '1', year: '20'} // when checked in the year 2019
+      '120' => {month: '12', year: '0'} // when checked in the year 2021
+    */
+    if (firstCharacter === 1) {
+        assumedYear = dateString.substr(1);
+        return expiration_year_1.expirationYear(assumedYear).isPotentiallyValid ? 1 : 2;
+    }
+    /*
+      If the length of the value is exactly 5 characters,
+      we assume a full year was passed in, meaning the remaining
+      single leading digit must be the month value.
+  
+      '12202' => {month: '1', year: '2202'}
+    */
+    if (dateString.length === 5) {
+        return 1;
+    }
+    /*
+      If the length of the value is more than five characters,
+      we assume a full year was passed in addition to the month
+      and therefore the month portion must be 2 digits.
+  
+      '112020' => {month: '11', year: '2020'}
+    */
+    if (dateString.length > 5) {
+        return 2;
+    }
+    /*
+      By default, the month value is the first value
+    */
+    return 1;
+}
+function parseDate(datestring) {
+    var date;
+    if (/^\d{4}-\d{1,2}$/.test(datestring)) {
+        date = datestring.split("-").reverse();
+    }
+    else if (/\//.test(datestring)) {
+        date = datestring.split(/\s*\/\s*/g);
+    }
+    else if (/\s/.test(datestring)) {
+        date = datestring.split(/ +/g);
+    }
+    if (is_array_1.isArray(date)) {
+        return {
+            month: date[0] || "",
+            year: date.slice(1).join(),
+        };
+    }
+    var numberOfDigitsInMonth = getNumberOfMonthDigitsInDateString(datestring);
+    var month = datestring.substr(0, numberOfDigitsInMonth);
+    return {
+        month: month,
+        year: datestring.substr(month.length),
+    };
+}
+exports.parseDate = parseDate;
+
+
+/***/ }),
+
+/***/ "./node_modules/card-validator/dist/luhn-10.js":
+/*!*****************************************************!*\
+  !*** ./node_modules/card-validator/dist/luhn-10.js ***!
+  \*****************************************************/
+/***/ ((module) => {
+
+"use strict";
+/* eslint-disable */
+/*
+ * Luhn algorithm implementation in JavaScript
+ * Copyright (c) 2009 Nicholas C. Zakas
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+function luhn10(identifier) {
+    var sum = 0;
+    var alt = false;
+    var i = identifier.length - 1;
+    var num;
+    while (i >= 0) {
+        num = parseInt(identifier.charAt(i), 10);
+        if (alt) {
+            num *= 2;
+            if (num > 9) {
+                num = (num % 10) + 1; // eslint-disable-line no-extra-parens
+            }
+        }
+        alt = !alt;
+        sum += num;
+        i--;
+    }
+    return sum % 10 === 0;
+}
+module.exports = luhn10;
+
+
+/***/ }),
+
+/***/ "./node_modules/card-validator/dist/postal-code.js":
+/*!*********************************************************!*\
+  !*** ./node_modules/card-validator/dist/postal-code.js ***!
+  \*********************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.postalCode = void 0;
+var DEFAULT_MIN_POSTAL_CODE_LENGTH = 3;
+function verification(isValid, isPotentiallyValid) {
+    return { isValid: isValid, isPotentiallyValid: isPotentiallyValid };
+}
+function postalCode(value, options) {
+    if (options === void 0) { options = {}; }
+    var minLength = options.minLength || DEFAULT_MIN_POSTAL_CODE_LENGTH;
+    if (typeof value !== "string") {
+        return verification(false, false);
+    }
+    else if (value.length < minLength) {
+        return verification(false, true);
+    }
+    return verification(true, true);
+}
+exports.postalCode = postalCode;
+
+
+/***/ }),
+
+/***/ "./node_modules/credit-card-type/dist/index.js":
+/*!*****************************************************!*\
+  !*** ./node_modules/credit-card-type/dist/index.js ***!
+  \*****************************************************/
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var cardTypes = __webpack_require__(/*! ./lib/card-types */ "./node_modules/credit-card-type/dist/lib/card-types.js");
+var add_matching_cards_to_results_1 = __webpack_require__(/*! ./lib/add-matching-cards-to-results */ "./node_modules/credit-card-type/dist/lib/add-matching-cards-to-results.js");
+var is_valid_input_type_1 = __webpack_require__(/*! ./lib/is-valid-input-type */ "./node_modules/credit-card-type/dist/lib/is-valid-input-type.js");
+var find_best_match_1 = __webpack_require__(/*! ./lib/find-best-match */ "./node_modules/credit-card-type/dist/lib/find-best-match.js");
+var clone_1 = __webpack_require__(/*! ./lib/clone */ "./node_modules/credit-card-type/dist/lib/clone.js");
+var customCards = {};
+var cardNames = {
+    VISA: "visa",
+    MASTERCARD: "mastercard",
+    AMERICAN_EXPRESS: "american-express",
+    DINERS_CLUB: "diners-club",
+    DISCOVER: "discover",
+    JCB: "jcb",
+    UNIONPAY: "unionpay",
+    MAESTRO: "maestro",
+    ELO: "elo",
+    MIR: "mir",
+    HIPER: "hiper",
+    HIPERCARD: "hipercard",
+};
+var ORIGINAL_TEST_ORDER = [
+    cardNames.VISA,
+    cardNames.MASTERCARD,
+    cardNames.AMERICAN_EXPRESS,
+    cardNames.DINERS_CLUB,
+    cardNames.DISCOVER,
+    cardNames.JCB,
+    cardNames.UNIONPAY,
+    cardNames.MAESTRO,
+    cardNames.ELO,
+    cardNames.MIR,
+    cardNames.HIPER,
+    cardNames.HIPERCARD,
+];
+var testOrder = clone_1.clone(ORIGINAL_TEST_ORDER);
+function findType(cardType) {
+    return customCards[cardType] || cardTypes[cardType];
+}
+function getAllCardTypes() {
+    return testOrder.map(function (cardType) { return clone_1.clone(findType(cardType)); });
+}
+function getCardPosition(name, ignoreErrorForNotExisting) {
+    if (ignoreErrorForNotExisting === void 0) { ignoreErrorForNotExisting = false; }
+    var position = testOrder.indexOf(name);
+    if (!ignoreErrorForNotExisting && position === -1) {
+        throw new Error('"' + name + '" is not a supported card type.');
+    }
+    return position;
+}
+function creditCardType(cardNumber) {
+    var results = [];
+    if (!is_valid_input_type_1.isValidInputType(cardNumber)) {
+        return results;
+    }
+    if (cardNumber.length === 0) {
+        return getAllCardTypes();
+    }
+    testOrder.forEach(function (cardType) {
+        var cardConfiguration = findType(cardType);
+        add_matching_cards_to_results_1.addMatchingCardsToResults(cardNumber, cardConfiguration, results);
+    });
+    var bestMatch = find_best_match_1.findBestMatch(results);
+    if (bestMatch) {
+        return [bestMatch];
+    }
+    return results;
+}
+creditCardType.getTypeInfo = function (cardType) {
+    return clone_1.clone(findType(cardType));
+};
+creditCardType.removeCard = function (name) {
+    var position = getCardPosition(name);
+    testOrder.splice(position, 1);
+};
+creditCardType.addCard = function (config) {
+    var existingCardPosition = getCardPosition(config.type, true);
+    customCards[config.type] = config;
+    if (existingCardPosition === -1) {
+        testOrder.push(config.type);
+    }
+};
+creditCardType.updateCard = function (cardType, updates) {
+    var originalObject = customCards[cardType] || cardTypes[cardType];
+    if (!originalObject) {
+        throw new Error("\"" + cardType + "\" is not a recognized type. Use `addCard` instead.'");
+    }
+    if (updates.type && originalObject.type !== updates.type) {
+        throw new Error("Cannot overwrite type parameter.");
+    }
+    var clonedCard = clone_1.clone(originalObject);
+    clonedCard = __assign(__assign({}, clonedCard), updates);
+    customCards[clonedCard.type] = clonedCard;
+};
+creditCardType.changeOrder = function (name, position) {
+    var currentPosition = getCardPosition(name);
+    testOrder.splice(currentPosition, 1);
+    testOrder.splice(position, 0, name);
+};
+creditCardType.resetModifications = function () {
+    testOrder = clone_1.clone(ORIGINAL_TEST_ORDER);
+    customCards = {};
+};
+creditCardType.types = cardNames;
+module.exports = creditCardType;
+
+
+/***/ }),
+
+/***/ "./node_modules/credit-card-type/dist/lib/add-matching-cards-to-results.js":
+/*!*********************************************************************************!*\
+  !*** ./node_modules/credit-card-type/dist/lib/add-matching-cards-to-results.js ***!
+  \*********************************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.addMatchingCardsToResults = void 0;
+var clone_1 = __webpack_require__(/*! ./clone */ "./node_modules/credit-card-type/dist/lib/clone.js");
+var matches_1 = __webpack_require__(/*! ./matches */ "./node_modules/credit-card-type/dist/lib/matches.js");
+function addMatchingCardsToResults(cardNumber, cardConfiguration, results) {
+    var i, patternLength;
+    for (i = 0; i < cardConfiguration.patterns.length; i++) {
+        var pattern = cardConfiguration.patterns[i];
+        if (!matches_1.matches(cardNumber, pattern)) {
+            continue;
+        }
+        var clonedCardConfiguration = clone_1.clone(cardConfiguration);
+        if (Array.isArray(pattern)) {
+            patternLength = String(pattern[0]).length;
+        }
+        else {
+            patternLength = String(pattern).length;
+        }
+        if (cardNumber.length >= patternLength) {
+            clonedCardConfiguration.matchStrength = patternLength;
+        }
+        results.push(clonedCardConfiguration);
+        break;
+    }
+}
+exports.addMatchingCardsToResults = addMatchingCardsToResults;
+
+
+/***/ }),
+
+/***/ "./node_modules/credit-card-type/dist/lib/card-types.js":
+/*!**************************************************************!*\
+  !*** ./node_modules/credit-card-type/dist/lib/card-types.js ***!
+  \**************************************************************/
+/***/ ((module) => {
+
+"use strict";
+
+var cardTypes = {
+    visa: {
+        niceType: "Visa",
+        type: "visa",
+        patterns: [4],
+        gaps: [4, 8, 12],
+        lengths: [16, 18, 19],
+        code: {
+            name: "CVV",
+            size: 3,
+        },
+    },
+    mastercard: {
+        niceType: "Mastercard",
+        type: "mastercard",
+        patterns: [[51, 55], [2221, 2229], [223, 229], [23, 26], [270, 271], 2720],
+        gaps: [4, 8, 12],
+        lengths: [16],
+        code: {
+            name: "CVC",
+            size: 3,
+        },
+    },
+    "american-express": {
+        niceType: "American Express",
+        type: "american-express",
+        patterns: [34, 37],
+        gaps: [4, 10],
+        lengths: [15],
+        code: {
+            name: "CID",
+            size: 4,
+        },
+    },
+    "diners-club": {
+        niceType: "Diners Club",
+        type: "diners-club",
+        patterns: [[300, 305], 36, 38, 39],
+        gaps: [4, 10],
+        lengths: [14, 16, 19],
+        code: {
+            name: "CVV",
+            size: 3,
+        },
+    },
+    discover: {
+        niceType: "Discover",
+        type: "discover",
+        patterns: [6011, [644, 649], 65],
+        gaps: [4, 8, 12],
+        lengths: [16, 19],
+        code: {
+            name: "CID",
+            size: 3,
+        },
+    },
+    jcb: {
+        niceType: "JCB",
+        type: "jcb",
+        patterns: [2131, 1800, [3528, 3589]],
+        gaps: [4, 8, 12],
+        lengths: [16, 17, 18, 19],
+        code: {
+            name: "CVV",
+            size: 3,
+        },
+    },
+    unionpay: {
+        niceType: "UnionPay",
+        type: "unionpay",
+        patterns: [
+            620,
+            [624, 626],
+            [62100, 62182],
+            [62184, 62187],
+            [62185, 62197],
+            [62200, 62205],
+            [622010, 622999],
+            622018,
+            [622019, 622999],
+            [62207, 62209],
+            [622126, 622925],
+            [623, 626],
+            6270,
+            6272,
+            6276,
+            [627700, 627779],
+            [627781, 627799],
+            [6282, 6289],
+            6291,
+            6292,
+            810,
+            [8110, 8131],
+            [8132, 8151],
+            [8152, 8163],
+            [8164, 8171],
+        ],
+        gaps: [4, 8, 12],
+        lengths: [14, 15, 16, 17, 18, 19],
+        code: {
+            name: "CVN",
+            size: 3,
+        },
+    },
+    maestro: {
+        niceType: "Maestro",
+        type: "maestro",
+        patterns: [
+            493698,
+            [500000, 504174],
+            [504176, 506698],
+            [506779, 508999],
+            [56, 59],
+            63,
+            67,
+            6,
+        ],
+        gaps: [4, 8, 12],
+        lengths: [12, 13, 14, 15, 16, 17, 18, 19],
+        code: {
+            name: "CVC",
+            size: 3,
+        },
+    },
+    elo: {
+        niceType: "Elo",
+        type: "elo",
+        patterns: [
+            401178,
+            401179,
+            438935,
+            457631,
+            457632,
+            431274,
+            451416,
+            457393,
+            504175,
+            [506699, 506778],
+            [509000, 509999],
+            627780,
+            636297,
+            636368,
+            [650031, 650033],
+            [650035, 650051],
+            [650405, 650439],
+            [650485, 650538],
+            [650541, 650598],
+            [650700, 650718],
+            [650720, 650727],
+            [650901, 650978],
+            [651652, 651679],
+            [655000, 655019],
+            [655021, 655058],
+        ],
+        gaps: [4, 8, 12],
+        lengths: [16],
+        code: {
+            name: "CVE",
+            size: 3,
+        },
+    },
+    mir: {
+        niceType: "Mir",
+        type: "mir",
+        patterns: [[2200, 2204]],
+        gaps: [4, 8, 12],
+        lengths: [16, 17, 18, 19],
+        code: {
+            name: "CVP2",
+            size: 3,
+        },
+    },
+    hiper: {
+        niceType: "Hiper",
+        type: "hiper",
+        patterns: [637095, 63737423, 63743358, 637568, 637599, 637609, 637612],
+        gaps: [4, 8, 12],
+        lengths: [16],
+        code: {
+            name: "CVC",
+            size: 3,
+        },
+    },
+    hipercard: {
+        niceType: "Hipercard",
+        type: "hipercard",
+        patterns: [606282],
+        gaps: [4, 8, 12],
+        lengths: [16],
+        code: {
+            name: "CVC",
+            size: 3,
+        },
+    },
+};
+module.exports = cardTypes;
+
+
+/***/ }),
+
+/***/ "./node_modules/credit-card-type/dist/lib/clone.js":
+/*!*********************************************************!*\
+  !*** ./node_modules/credit-card-type/dist/lib/clone.js ***!
+  \*********************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.clone = void 0;
+function clone(originalObject) {
+    if (!originalObject) {
+        return null;
+    }
+    return JSON.parse(JSON.stringify(originalObject));
+}
+exports.clone = clone;
+
+
+/***/ }),
+
+/***/ "./node_modules/credit-card-type/dist/lib/find-best-match.js":
+/*!*******************************************************************!*\
+  !*** ./node_modules/credit-card-type/dist/lib/find-best-match.js ***!
+  \*******************************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.findBestMatch = void 0;
+function hasEnoughResultsToDetermineBestMatch(results) {
+    var numberOfResultsWithMaxStrengthProperty = results.filter(function (result) { return result.matchStrength; }).length;
+    /*
+     * if all possible results have a maxStrength property that means the card
+     * number is sufficiently long enough to determine conclusively what the card
+     * type is
+     * */
+    return (numberOfResultsWithMaxStrengthProperty > 0 &&
+        numberOfResultsWithMaxStrengthProperty === results.length);
+}
+function findBestMatch(results) {
+    if (!hasEnoughResultsToDetermineBestMatch(results)) {
+        return null;
+    }
+    return results.reduce(function (bestMatch, result) {
+        if (!bestMatch) {
+            return result;
+        }
+        /*
+         * If the current best match pattern is less specific than this result, set
+         * the result as the new best match
+         * */
+        if (Number(bestMatch.matchStrength) < Number(result.matchStrength)) {
+            return result;
+        }
+        return bestMatch;
+    });
+}
+exports.findBestMatch = findBestMatch;
+
+
+/***/ }),
+
+/***/ "./node_modules/credit-card-type/dist/lib/is-valid-input-type.js":
+/*!***********************************************************************!*\
+  !*** ./node_modules/credit-card-type/dist/lib/is-valid-input-type.js ***!
+  \***********************************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.isValidInputType = void 0;
+function isValidInputType(cardNumber) {
+    return typeof cardNumber === "string" || cardNumber instanceof String;
+}
+exports.isValidInputType = isValidInputType;
+
+
+/***/ }),
+
+/***/ "./node_modules/credit-card-type/dist/lib/matches.js":
+/*!***********************************************************!*\
+  !*** ./node_modules/credit-card-type/dist/lib/matches.js ***!
+  \***********************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+/*
+ * Adapted from https://github.com/polvo-labs/card-type/blob/aaab11f80fa1939bccc8f24905a06ae3cd864356/src/cardType.js#L37-L42
+ * */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.matches = void 0;
+function matchesRange(cardNumber, min, max) {
+    var maxLengthToCheck = String(min).length;
+    var substr = cardNumber.substr(0, maxLengthToCheck);
+    var integerRepresentationOfCardNumber = parseInt(substr, 10);
+    min = parseInt(String(min).substr(0, substr.length), 10);
+    max = parseInt(String(max).substr(0, substr.length), 10);
+    return (integerRepresentationOfCardNumber >= min &&
+        integerRepresentationOfCardNumber <= max);
+}
+function matchesPattern(cardNumber, pattern) {
+    pattern = String(pattern);
+    return (pattern.substring(0, cardNumber.length) ===
+        cardNumber.substring(0, pattern.length));
+}
+function matches(cardNumber, pattern) {
+    if (Array.isArray(pattern)) {
+        return matchesRange(cardNumber, pattern[0], pattern[1]);
+    }
+    return matchesPattern(cardNumber, pattern);
+}
+exports.matches = matches;
+
+
+/***/ }),
+
+/***/ "./resources/sass/app.scss":
+/*!*********************************!*\
+  !*** ./resources/sass/app.scss ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
+/***/ "./node_modules/process/browser.js":
+/*!*****************************************!*\
+  !*** ./node_modules/process/browser.js ***!
+  \*****************************************/
+/***/ ((module) => {
+
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = __webpack_modules__;
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/chunk loaded */
+/******/ 	(() => {
+/******/ 		var deferred = [];
+/******/ 		__webpack_require__.O = (result, chunkIds, fn, priority) => {
+/******/ 			if(chunkIds) {
+/******/ 				priority = priority || 0;
+/******/ 				for(var i = deferred.length; i > 0 && deferred[i - 1][2] > priority; i--) deferred[i] = deferred[i - 1];
+/******/ 				deferred[i] = [chunkIds, fn, priority];
+/******/ 				return;
+/******/ 			}
+/******/ 			var notFulfilled = Infinity;
+/******/ 			for (var i = 0; i < deferred.length; i++) {
+/******/ 				var [chunkIds, fn, priority] = deferred[i];
+/******/ 				var fulfilled = true;
+/******/ 				for (var j = 0; j < chunkIds.length; j++) {
+/******/ 					if ((priority & 1 === 0 || notFulfilled >= priority) && Object.keys(__webpack_require__.O).every((key) => (__webpack_require__.O[key](chunkIds[j])))) {
+/******/ 						chunkIds.splice(j--, 1);
+/******/ 					} else {
+/******/ 						fulfilled = false;
+/******/ 						if(priority < notFulfilled) notFulfilled = priority;
+/******/ 					}
+/******/ 				}
+/******/ 				if(fulfilled) {
+/******/ 					deferred.splice(i--, 1)
+/******/ 					var r = fn();
+/******/ 					if (r !== undefined) result = r;
+/******/ 				}
+/******/ 			}
+/******/ 			return result;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/jsonp chunk loading */
+/******/ 	(() => {
+/******/ 		// no baseURI
+/******/ 		
+/******/ 		// object to store loaded and loading chunks
+/******/ 		// undefined = chunk not loaded, null = chunk preloaded/prefetched
+/******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
+/******/ 		var installedChunks = {
+/******/ 			"/js/app": 0,
+/******/ 			"css/app": 0
+/******/ 		};
+/******/ 		
+/******/ 		// no chunk on demand loading
+/******/ 		
+/******/ 		// no prefetching
+/******/ 		
+/******/ 		// no preloaded
+/******/ 		
+/******/ 		// no HMR
+/******/ 		
+/******/ 		// no HMR manifest
+/******/ 		
+/******/ 		__webpack_require__.O.j = (chunkId) => (installedChunks[chunkId] === 0);
+/******/ 		
+/******/ 		// install a JSONP callback for chunk loading
+/******/ 		var webpackJsonpCallback = (parentChunkLoadingFunction, data) => {
+/******/ 			var [chunkIds, moreModules, runtime] = data;
+/******/ 			// add "moreModules" to the modules object,
+/******/ 			// then flag all "chunkIds" as loaded and fire callback
+/******/ 			var moduleId, chunkId, i = 0;
+/******/ 			if(chunkIds.some((id) => (installedChunks[id] !== 0))) {
+/******/ 				for(moduleId in moreModules) {
+/******/ 					if(__webpack_require__.o(moreModules, moduleId)) {
+/******/ 						__webpack_require__.m[moduleId] = moreModules[moduleId];
+/******/ 					}
+/******/ 				}
+/******/ 				if(runtime) var result = runtime(__webpack_require__);
+/******/ 			}
+/******/ 			if(parentChunkLoadingFunction) parentChunkLoadingFunction(data);
+/******/ 			for(;i < chunkIds.length; i++) {
+/******/ 				chunkId = chunkIds[i];
+/******/ 				if(__webpack_require__.o(installedChunks, chunkId) && installedChunks[chunkId]) {
+/******/ 					installedChunks[chunkId][0]();
+/******/ 				}
+/******/ 				installedChunks[chunkId] = 0;
+/******/ 			}
+/******/ 			return __webpack_require__.O(result);
+/******/ 		}
+/******/ 		
+/******/ 		var chunkLoadingGlobal = self["webpackChunk"] = self["webpackChunk"] || [];
+/******/ 		chunkLoadingGlobal.forEach(webpackJsonpCallback.bind(null, 0));
+/******/ 		chunkLoadingGlobal.push = webpackJsonpCallback.bind(null, chunkLoadingGlobal.push.bind(chunkLoadingGlobal));
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
+/******/ 	__webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/js/app.js")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/sass/app.scss")))
+/******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
+/******/ 	
+/******/ })()
+;
