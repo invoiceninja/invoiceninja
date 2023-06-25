@@ -54,7 +54,7 @@ class UpdateSchedulerRequest extends Request
         $input = $this->all();
 
         if (array_key_exists('next_run', $input) && is_string($input['next_run'])) {
-            $this->merge(['next_run_client' => $input['next_run']]);
+            $input['next_run_client'] = $input['next_run'];
         }
         
         if($input['template'] == 'email_record') {
