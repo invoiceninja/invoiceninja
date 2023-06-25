@@ -11,12 +11,14 @@
 
 namespace App\Filters;
 
+use RuntimeException;
+use App\Models\Client;
 use App\Models\Invoice;
+use App\Filters\QueryFilters;
+use InvalidArgumentException;
+use Illuminate\Support\Carbon;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Carbon;
-use InvalidArgumentException;
-use RuntimeException;
 
 /**
  * InvoiceFilters.
@@ -205,10 +207,9 @@ class InvoiceFilters extends QueryFilters
         }
 
         if ($sort_col[0] == 'client_id') {
-        
-            $this->builder->with(['client' => function($q) use($sort_col){
-                        $q->orderBy('name', $sort_col[1]);
-                        }]);
+
+            return $this->builder->orderBy(\App\Models\Client::select('name')
+                             ->whereColumn('clients.id', 'invoices.client_id'), $sort_col[1]);
             
         }
 

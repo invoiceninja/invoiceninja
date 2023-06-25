@@ -73,12 +73,11 @@ class UpdateTaxData implements ShouldQueue
             nlog("problem getting tax data => ".$e->getMessage());
         }
 
-        /** Set static tax information */
+        /*
         if(!$tax_provider->updatedTaxStatus() && $this->client->country_id == 840){
 
             $calculated_state = false;
 
-            /** State must be calculated else default to the company state for taxes */
             if(array_key_exists($this->client->shipping_state, USStates::get())) {
                 $calculated_state = $this->client->shipping_state;
                 $calculated_postal_code = $this->client->shipping_postal_code;
@@ -136,7 +135,7 @@ class UpdateTaxData implements ShouldQueue
             $this->client->saveQuietly();
 
         }
-      
+      */
     }
 
     public function middleware()
@@ -147,6 +146,8 @@ class UpdateTaxData implements ShouldQueue
     public function failed($exception)
     {
         nlog("UpdateTaxData failed => ".$exception->getMessage());
+        config(['queue.failed.driver' => null]);
+
     }
 
 }

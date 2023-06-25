@@ -818,17 +818,11 @@ class InvoiceController extends BaseController
             return response()->json(['message' => 'no record found'], 400);
         }
 
-        $contact = $invitation->contact;
         $invoice = $invitation->invoice;
 
-        // $file = $invoice->service()->getInvoicePdf($contact);
+        $file_name = $invoice->numberFormatter().'.pdf';
 
-        /************** */
-$file_name = $invoice->numberFormatter().'.pdf';
-
-$file = (new \App\Jobs\Entity\CreateRawPdf($invitation, $invitation->company->db))->handle();
-
-        /************* */
+        $file = (new \App\Jobs\Entity\CreateRawPdf($invitation, $invitation->company->db))->handle();
 
         $headers = ['Content-Type' => 'application/pdf'];
 
