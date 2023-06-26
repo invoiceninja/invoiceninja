@@ -185,7 +185,7 @@ class PaymentRepository extends BaseRepository
                     $paymentable->payment_id = $payment->id;
                     $paymentable->paymentable_id = $credit->id;
                     $paymentable->paymentable_type = Credit::class;
-                    $paymentable->amount = $paid_invoice['amount'];
+                    $paymentable->amount = $paid_credit['amount'];
                     $paymentable->save();
 
                     $credit = $credit->service()->markSent()->save();
