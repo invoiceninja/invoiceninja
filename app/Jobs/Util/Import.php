@@ -182,7 +182,7 @@ class Import implements ShouldQueue
 
     public function middleware()
     {
-        return [(new WithoutOverlapping($this->user->account_id))];
+        return [(new WithoutOverlapping($this->company->company_key))];
     }
 
     /**

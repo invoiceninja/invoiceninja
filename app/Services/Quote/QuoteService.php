@@ -11,14 +11,14 @@
 
 namespace App\Services\Quote;
 
-use App\Events\Quote\QuoteWasApproved;
-use App\Jobs\Entity\CreateEntityPdf;
-use App\Jobs\Util\UnlinkFile;
-use App\Models\Invoice;
-use App\Models\Quote;
-use App\Repositories\QuoteRepository;
 use App\Utils\Ninja;
+use App\Models\Quote;
+use App\Jobs\Util\UnlinkFile;
 use App\Utils\Traits\MakesHash;
+use App\Exceptions\QuoteConversion;
+use App\Jobs\Entity\CreateEntityPdf;
+use App\Repositories\QuoteRepository;
+use App\Events\Quote\QuoteWasApproved;
 
 class QuoteService
 {
@@ -43,7 +43,7 @@ class QuoteService
     public function convert() :self
     {
         if ($this->quote->invoice_id) {
-            return $this;
+            throw new QuoteConversion();
         }
 
         $convert_quote = (new ConvertQuote($this->quote->client))->run($this->quote);
