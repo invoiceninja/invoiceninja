@@ -98,6 +98,7 @@ class ChartService
         $data = [];
 
         $data['currencies'] = $this->getCurrencyCodes();
+
         $data['start_date'] = $start_date;
         $data['end_date'] = $end_date;
 
