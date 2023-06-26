@@ -58,8 +58,6 @@ class ShowChartRequest extends Request
             $input['end_date'] = now()->format('Y-m-d');
         }
 
-        nlog($input);
-
         $this->replace($input);
     }
 }
