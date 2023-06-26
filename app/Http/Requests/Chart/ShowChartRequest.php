@@ -12,9 +12,12 @@
 namespace App\Http\Requests\Chart;
 
 use App\Http\Requests\Request;
+use App\Utils\Traits\MakesDates;
 
 class ShowChartRequest extends Request
 {
+    use MakesDates;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -22,7 +25,10 @@ class ShowChartRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->isAdmin();
+        /**@var \App\Models\User auth()->user */
+        $user = auth()->user();
+
+        return $user->isAdmin();
     }
 
     public function rules()
@@ -38,13 +44,21 @@ class ShowChartRequest extends Request
     {
         $input = $this->all();
 
-        if (! array_key_exists('start_date', $input)) {
-            $input['start_date'] = now()->subDays(20);
+        if(isset($input['date_range'])) {
+            $dates = $this->calculateStartAndEndDates($input);
+            $input['start_date'] = $dates[0];
+            $input['end_date'] = $dates[1];
         }
 
-        if (! array_key_exists('end_date', $input)) {
-            $input['end_date'] = now();
+        if (! isset($input['start_date'])) {
+            $input['start_date'] = now()->subDays(20)->format('Y-m-d');
         }
+
+        if (! isset($input['end_date'])) {
+            $input['end_date'] = now()->format('Y-m-d');
+        }
+
+        nlog($input);
 
         $this->replace($input);
     }
