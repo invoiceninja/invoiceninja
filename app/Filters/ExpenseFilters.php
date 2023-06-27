@@ -106,6 +106,15 @@ class ExpenseFilters extends QueryFilters
         return $this->builder;
     }
 
+    public function has_invoices(string $value = ''): Builder
+    {
+        if ($value == 'true') {
+            return $this->builder->whereNotNull('invoice_id')->select('expenses.invoice_id');
+        }
+
+        return $this->builder;
+    }
+
     /**
      * Returns a list of expenses that can be matched to bank transactions
      */
