@@ -109,7 +109,7 @@ class ExpenseFilters extends QueryFilters
     public function has_invoices(string $value = ''): Builder
     {
         if ($value == 'true') {
-            return $this->builder->whereNotNull('invoice_id')->select('expenses.invoice_id');
+            return $this->builder->whereNotNull('invoice_id');
         }
 
         return $this->builder;
