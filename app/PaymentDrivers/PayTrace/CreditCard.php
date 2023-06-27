@@ -177,6 +177,7 @@ class CreditCard
             'customer_id' => $token,
             'integrator_id' =>  $this->paytrace->company_gateway->getConfigField('integratorId'),
             'amount' => $request->input('amount_with_fee'),
+            'invoice_id' => $this->harvestInvoiceId(),
         ];
 
         $response = $this->paytrace->gatewayRequest('/v1/transactions/sale/by_customer', $data);
