@@ -114,8 +114,16 @@ class ExpenseFilters extends QueryFilters
      */
     public function has_invoices(string $value = ''): Builder
     {
-        if ($value == 'true') {
-            return $this->builder->whereNotNull('invoice_id');
+        $split = explode(",", $value);
+
+        if (is_array($split) && in_array($split[0], ['client', 'project'])) {
+
+            $search_key = $split[0] == 'client' ? 'client_id' : 'project_id';
+
+            return $this->builder->whereNotNull('invoice_id')
+                          ->whereHas('invoice', function ($query) use ($search_key, $split){
+                              $query->where($search_key, $this->decodePrimaryKey($split[1]));
+                          });
         }
 
         return $this->builder;
