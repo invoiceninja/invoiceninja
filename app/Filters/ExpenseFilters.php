@@ -106,6 +106,12 @@ class ExpenseFilters extends QueryFilters
         return $this->builder;
     }
 
+    /**
+     * Filter expenses that only have invoices
+     *
+     * @param string $value
+     * @return Builder
+     */
     public function has_invoices(string $value = ''): Builder
     {
         if ($value == 'true') {
