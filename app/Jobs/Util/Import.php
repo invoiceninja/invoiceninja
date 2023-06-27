@@ -135,6 +135,7 @@ class Import implements ShouldQueue
         'recurring_expenses',
         'tasks',
         'documents',
+        'activities',
     ];
 
     /**
@@ -181,7 +182,7 @@ class Import implements ShouldQueue
 
     public function middleware()
     {
-        return [(new WithoutOverlapping($this->user->account_id))];
+        return [(new WithoutOverlapping($this->company->company_key))];
     }
 
     /**
@@ -303,7 +304,7 @@ class Import implements ShouldQueue
 
             if (round($total_invoice_payments, 2) != round($client->paid_to_date, 2)) {
                 $client->paid_to_date = $total_invoice_payments;
-                $client->save();
+                $client->saveQuietly();
             }
         });
     }
@@ -319,12 +320,12 @@ class Import implements ShouldQueue
             $company_ledger->notes = 'Migrated Client Balance';
             $company_ledger->balance = $invoice_balances;
             $company_ledger->activity_id = Activity::CREATE_CLIENT;
-            $company_ledger->save();
+            $company_ledger->saveQuietly();
 
             $client->company_ledger()->save($company_ledger);
 
             $client->balance = $invoice_balances;
-            $client->save();
+            $client->saveQuietly();
         });
     }
 
@@ -1775,6 +1776,78 @@ class Import implements ShouldQueue
 
         $data = null;
     }
+
+    private function processActivities(array $data): void
+    {
+        Activity::where('company_id', $this->company->id)->cursor()->each(function ($a){
+            $a->forceDelete();
+            nlog("deleting {$a->id}");
+        });
+
+        Activity::unguard();
+
+        foreach ($data as $resource) {
+            $modified = $resource;
+
+            $modified['company_id'] = $this->company->id;
+            $modified['user_id'] = $this->processUserId($resource);
+
+try {
+    if (isset($modified['client_id'])) {
+        $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+    }
+
+    if (isset($modified['invoice_id'])) {
+        $modified['invoice_id'] = $this->transformId('invoices', $resource['invoice_id']);
+    }
+
+    if (isset($modified['quote_id'])) {
+        $modified['quote_id'] = $this->transformId('quotes', $resource['quote_id']);
+    }
+
+    if (isset($modified['recurring_invoice_id'])) {
+        $modified['recurring_invoice_id'] = $this->transformId('recurring_invoices', $resource['recurring_invoice_id']);
+    }
+
+    if (isset($modified['payment_id'])) {
+        $modified['payment_id'] = $this->transformId('payments', $resource['payment_id']);
+    }
+
+    if (isset($modified['credit_id'])) {
+        $modified['credit_id'] = $this->transformId('credits', $resource['credit_id']);
+    }
+
+    if (isset($modified['expense_id'])) {
+        $modified['expense_id'] = $this->transformId('expenses', $resource['expense_id']);
+    }
+
+    if (isset($modified['task_id'])) {
+        $modified['task_id'] = $this->transformId('tasks', $resource['task_id']);
+    }
+
+    if (isset($modified['client_contact_id'])) {
+        $modified['client_contact_id'] = $this->transformId('client_contacts', $resource['client_contact_id']);
+    }
+
+    $modified['updated_at'] = $modified['created_at'];
+
+    $act = Activity::make($modified);
+
+    $act->save(['timestamps' => false]);
+}
+catch (\Exception $e) {
+
+nlog("could not import activity: {$e->getMessage()}");
+
+}
+
+        }
+
+    
+        Activity::reguard();
+
+    }
+
 
     private function processExpenses(array $data) :void
     {

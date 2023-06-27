@@ -79,7 +79,7 @@ class ProcessBankTransactions implements ShouldQueue
                     $e->getMessage(),
                 ];
 
-                $this->bank_integration->account->company->notification(new GenericNinjaAdminNotification($content))->ninja();
+                $this->bank_integration->company->notification(new GenericNinjaAdminNotification($content))->ninja();
                 return;
             }
         } while ($this->stop_loop);

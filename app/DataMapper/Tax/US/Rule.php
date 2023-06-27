@@ -165,9 +165,6 @@ class Rule extends BaseRule implements RuleInterface
             $this->tax_rate1 = 0;
             $this->tax_name1 = '';
 
-            // $this->tax_rate1 = $this->invoice->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->tax_rate;
-            // $this->tax_name1 = "Sales Tax";
-
             return $this;
         }
 

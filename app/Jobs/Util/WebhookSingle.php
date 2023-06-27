@@ -122,7 +122,9 @@ class WebhookSingle implements ShouldQueue
         $client = new Client(['headers' => array_merge($base_headers, $headers)]);
 
         try {
-            $response = $client->{$subscription->rest_method}($subscription->target_url, [
+            $verb = $subscription->rest_method ?? 'post';
+
+            $response = $client->{$verb}($subscription->target_url, [
                 RequestOptions::JSON => $data, // or 'json' => [...]
             ]);
 
