@@ -123,6 +123,7 @@ class CreditCard
             'city' => $this->paytrace->client->city,
             'state' => $this->paytrace->client->state,
             'zip' => $this->paytrace->client->postal_code,
+            'country' => $this->paytrace->client->country->iso_3166_2
         ];
 
         return $data;
