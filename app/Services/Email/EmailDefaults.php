@@ -307,9 +307,6 @@ class EmailDefaults
                
                 $xinvoice_path = $this->email->email_object->entity->service()->getEInvoice();
 
-                // $xinvoice_path = (new CreateEInvoice($this->email->email_object->entity, true, stream_get_meta_data($tempfile)['uri']))->handle();
-                // $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
-                
                 if(Storage::disk(config('filesystems.default'))->exists($xinvoice_path))
                     $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode(Storage::get($xinvoice_path)), 'name' => explode(".", $this->email->email_object->entity->getFileName('xml'))[0]."-xinvoice.xml"]]);
 
