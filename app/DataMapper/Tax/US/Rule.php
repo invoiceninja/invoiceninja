@@ -48,7 +48,6 @@ class Rule extends BaseRule implements RuleInterface
     {
         
         $this->tax_rate1 = $item->tax_rate1;
-        
         $this->tax_name1 = $item->tax_name1;
 
         return $this;
