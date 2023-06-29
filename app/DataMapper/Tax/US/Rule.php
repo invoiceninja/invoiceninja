@@ -117,6 +117,9 @@ class Rule extends BaseRule implements RuleInterface
         if(in_array($this->tax_data?->txbService,['Y','L'])) {
             $this->default($item);
         }
+        else {
+            $this->taxExempt($item);
+        }
 
         return $this;
     }
