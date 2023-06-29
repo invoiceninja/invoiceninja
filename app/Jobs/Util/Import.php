@@ -11,85 +11,89 @@
 
 namespace App\Jobs\Util;
 
-use App\DataMapper\Analytics\MigrationFailure;
-use App\DataMapper\CompanySettings;
-use App\Exceptions\ClientHostedMigrationException;
-use App\Exceptions\MigrationValidatorFailed;
-use App\Exceptions\ResourceDependencyMissing;
+use Exception;
+use App\Models\Task;
+use App\Models\User;
+use App\Utils\Ninja;
+use App\Models\Quote;
+use App\Models\Client;
+use App\Models\Credit;
+use App\Models\Vendor;
+use App\Models\Company;
+use App\Models\Expense;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\Product;
+use App\Models\Project;
+use App\Models\TaxRate;
+use App\Models\Activity;
+use App\Models\Document;
+use App\Libraries\MultiDB;
+use App\Models\TaskStatus;
+use App\Models\PaymentTerm;
+use Illuminate\Support\Str;
+use App\Factory\UserFactory;
+use App\Factory\QuoteFactory;
+use App\Models\ClientContact;
+use Illuminate\Bus\Queueable;
 use App\Factory\ClientFactory;
-use App\Factory\CompanyLedgerFactory;
 use App\Factory\CreditFactory;
+use App\Factory\VendorFactory;
+use App\Models\CompanyGateway;
+use Illuminate\Support\Carbon;
 use App\Factory\InvoiceFactory;
 use App\Factory\PaymentFactory;
 use App\Factory\ProductFactory;
-use App\Factory\QuoteFactory;
-use App\Factory\RecurringInvoiceFactory;
 use App\Factory\TaxRateFactory;
-use App\Factory\UserFactory;
-use App\Factory\VendorFactory;
-use App\Http\Requests\Company\UpdateCompanyRequest;
-use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
-use App\Http\ValidationRules\ValidUserForCompany;
-use App\Jobs\Company\CreateCompanyToken;
-use App\Jobs\Mail\NinjaMailerJob;
-use App\Jobs\Mail\NinjaMailerObject;
-use App\Jobs\Ninja\CheckCompanyData;
-use App\Libraries\MultiDB;
-use App\Mail\Migration\StripeConnectMigration;
-use App\Mail\MigrationCompleted;
-use App\Models\Activity;
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\ClientGatewayToken;
-use App\Models\Company;
-use App\Models\CompanyGateway;
-use App\Models\Credit;
-use App\Models\Document;
-use App\Models\Expense;
+use App\Jobs\Util\VersionCheck;
 use App\Models\ExpenseCategory;
-use App\Models\Invoice;
-use App\Models\Payment;
-use App\Models\PaymentTerm;
-use App\Models\Product;
-use App\Models\Project;
-use App\Models\Quote;
+use App\Utils\Traits\MakesHash;
+use App\Mail\MigrationCompleted;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
-use App\Models\Task;
-use App\Models\TaskStatus;
-use App\Models\TaxRate;
-use App\Models\User;
-use App\Models\Vendor;
-use App\Repositories\ClientContactRepository;
-use App\Repositories\ClientRepository;
-use App\Repositories\CompanyRepository;
-use App\Repositories\CreditRepository;
-use App\Repositories\Migration\InvoiceMigrationRepository;
-use App\Repositories\Migration\PaymentMigrationRepository;
-use App\Repositories\ProductRepository;
-use App\Repositories\UserRepository;
-use App\Repositories\VendorContactRepository;
-use App\Repositories\VendorRepository;
-use App\Utils\Ninja;
-use App\Utils\Traits\CleanLineItems;
-use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\SavesDocuments;
 use App\Utils\Traits\Uploadable;
-use Exception;
-use Illuminate\Bus\Queueable;
+use App\Jobs\Mail\NinjaMailerJob;
+use Illuminate\Http\UploadedFile;
+use App\Models\ClientGatewayToken;
+use Illuminate\Support\Facades\DB;
+use App\DataMapper\CompanySettings;
+use Illuminate\Support\Facades\App;
+use App\Jobs\Mail\NinjaMailerObject;
+use App\Jobs\Ninja\CheckCompanyData;
+use App\Repositories\UserRepository;
+use App\Utils\Traits\CleanLineItems;
+use App\Utils\Traits\SavesDocuments;
+use Illuminate\Support\Facades\Mail;
+use App\Factory\CompanyLedgerFactory;
+use App\Repositories\ClientRepository;
+use App\Repositories\CreditRepository;
+use App\Repositories\VendorRepository;
+use Illuminate\Queue\SerializesModels;
+use Turbo124\Beacon\Facades\LightLogs;
+use App\Repositories\CompanyRepository;
+use App\Repositories\ProductRepository;
+use App\Factory\RecurringInvoiceFactory;
+use App\Jobs\Company\CreateCompanyToken;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Validator;
+use Modules\Admin\Jobs\Account\NinjaUser;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Queue\InteractsWithQueue;
+use App\DataMapper\ClientRegistrationFields;
+use App\Exceptions\MigrationValidatorFailed;
+use App\Exceptions\ResourceDependencyMissing;
+use App\Repositories\ClientContactRepository;
+use App\Repositories\VendorContactRepository;
+use App\DataMapper\Analytics\MigrationFailure;
+use App\Mail\Migration\StripeConnectMigration;
+use App\Http\ValidationRules\ValidUserForCompany;
+use App\Exceptions\ClientHostedMigrationException;
+use App\Http\Requests\Company\UpdateCompanyRequest;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
-use Turbo124\Beacon\Facades\LightLogs;
+use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
+use App\Repositories\Migration\InvoiceMigrationRepository;
+use App\Repositories\Migration\PaymentMigrationRepository;
+use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
 
 class Import implements ShouldQueue
 {
@@ -1505,7 +1509,19 @@ class Import implements ShouldQueue
                     false
                 );
 
-                $this->saveDocument($uploaded_file, $entity, $is_public = true);
+                // $this->saveDocument($uploaded_file, $entity, $is_public = true);
+
+                $document = (new \App\Jobs\Util\UploadFile(
+                    $uploaded_file,
+                    \App\Jobs\Util\UploadFile::DOCUMENT,
+                    $this->user,
+                    $this->company,
+                    $entity,
+                    null,
+                    true
+                ))->handle();
+                
+
             } catch(\Exception $e) {
                 //do nothing, gracefully :)
             }
