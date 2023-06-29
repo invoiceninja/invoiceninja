@@ -11,6 +11,9 @@
 
 namespace App\Models;
 
+use App\Models\Company;
+use App\Models\BaseModel;
+use App\Models\RecurringInvoice;
 use App\Services\Scheduler\SchedulerService;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -73,6 +76,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|Scheduler whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Scheduler withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Scheduler withoutTrashed()
+ * @property-read \App\Models\User $user
  * @mixin \Eloquent
  */
 class Scheduler extends BaseModel
@@ -119,6 +123,11 @@ class Scheduler extends BaseModel
         return $this->belongsTo(Company::class);
     }
     
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     /**
      * remainingCycles
      *
@@ -134,4 +143,64 @@ class Scheduler extends BaseModel
             return $this->remaining_cycles - 1;
         }
     }
+    
+    public function calculateNextRun()
+    {
+        if (! $this->next_run) {
+            return null;
+        }
+
+        $offset = $this->company->timezone_offset();
+
+        switch ($this->frequency_id) {
+            case 0: //used only for email entities
+                $next_run = $this->next_run;
+                break;
+            case RecurringInvoice::FREQUENCY_DAILY:
+                $next_run = now()->startOfDay()->addDay();
+                break;
+            case RecurringInvoice::FREQUENCY_WEEKLY:
+                $next_run = now()->startOfDay()->addWeek();
+                break;
+            case RecurringInvoice::FREQUENCY_TWO_WEEKS:
+                $next_run = now()->startOfDay()->addWeeks(2);
+                break;
+            case RecurringInvoice::FREQUENCY_FOUR_WEEKS:
+                $next_run = now()->startOfDay()->addWeeks(4);
+                break;
+            case RecurringInvoice::FREQUENCY_MONTHLY:
+                $next_run = now()->startOfDay()->addMonthNoOverflow();
+                break;
+            case RecurringInvoice::FREQUENCY_TWO_MONTHS:
+                $next_run = now()->startOfDay()->addMonthsNoOverflow(2);
+                break;
+            case RecurringInvoice::FREQUENCY_THREE_MONTHS:
+                $next_run = now()->startOfDay()->addMonthsNoOverflow(3);
+                break;
+            case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
+                $next_run = now()->startOfDay()->addMonthsNoOverflow(4);
+                break;
+            case RecurringInvoice::FREQUENCY_SIX_MONTHS:
+                $next_run = now()->startOfDay()->addMonthsNoOverflow(6);
+                break;
+            case RecurringInvoice::FREQUENCY_ANNUALLY:
+                $next_run = now()->startOfDay()->addYear();
+                break;
+            case RecurringInvoice::FREQUENCY_TWO_YEARS:
+                $next_run = now()->startOfDay()->addYears(2);
+                break;
+            case RecurringInvoice::FREQUENCY_THREE_YEARS:
+                $next_run = now()->startOfDay()->addYears(3);
+                break;
+            default:
+                $next_run =  null;
+        }
+
+
+        $this->next_run_client = $next_run ?: null;
+        $this->next_run = $next_run ? $next_run->copy()->addSeconds($offset) : null;
+        $this->save();
+    }
+
+
 }

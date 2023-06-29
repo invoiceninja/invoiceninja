@@ -17,14 +17,17 @@ use App\Filters\WebhookFilters;
 use App\Http\Requests\Webhook\CreateWebhookRequest;
 use App\Http\Requests\Webhook\DestroyWebhookRequest;
 use App\Http\Requests\Webhook\EditWebhookRequest;
+use App\Http\Requests\Webhook\RetryWebhookRequest;
 use App\Http\Requests\Webhook\ShowWebhookRequest;
 use App\Http\Requests\Webhook\StoreWebhookRequest;
 use App\Http\Requests\Webhook\UpdateWebhookRequest;
+use App\Jobs\Util\WebhookSingle;
 use App\Models\Webhook;
 use App\Repositories\BaseRepository;
 use App\Transformers\WebhookTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 
 class WebhookController extends BaseController
 {
@@ -486,5 +489,29 @@ class WebhookController extends BaseController
         });
 
         return $this->listResponse(Webhook::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+    }
+
+    public function retry(RetryWebhookRequest $request, Webhook $webhook)
+    {
+        match ($request->entity) {
+            'invoice' => $includes ='client',
+            'payment' => $includes ='invoices,client',
+            'project' => $includes ='client',
+            'purchase_order' => $includes ='vendor',
+            'quote' => $includes ='client',
+            default => $includes = ''
+        };
+
+        $class = 'App\Models\\'.ucfirst(Str::camel($request->entity));
+
+        $entity = $class::withTrashed()->where('id', $this->decodePrimaryKey($request->entity_id))->company()->first();
+
+        if (!$entity) {
+            return response()->json(['message' => ctrans('texts.record_not_found')], 400);
+        }
+
+        WebhookSingle::dispatchSync($webhook->id, $entity, auth()->user()->company()->db, $includes);
+
+        return $this->itemResponse($webhook);
     }
 }

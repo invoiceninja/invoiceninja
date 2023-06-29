@@ -61,6 +61,10 @@ class TriggeredActions extends AbstractService
             $company->save();
         }
 
+        if ($this->request->has('mark_paid') && $this->request->input('mark_paid') == 'true') {
+            $this->credit->service()->markPaid()->save();
+        }
+
         return $this->credit;
     }
 

@@ -11,13 +11,14 @@
 
 namespace App\Jobs\Ninja;
 
-use App\Libraries\MultiDB;
 use App\Models\Scheduler;
+use App\Libraries\MultiDB;
 use Illuminate\Bus\Queueable;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 //@rebuild it
 class TaskScheduler implements ShouldQueue
@@ -42,6 +43,8 @@ class TaskScheduler implements ShouldQueue
      */
     public function handle()
     {
+        Auth::logout();
+
         if (! config('ninja.db.multi_db_enabled')) {
             Scheduler::with('company')
                 ->where('is_paused', false)

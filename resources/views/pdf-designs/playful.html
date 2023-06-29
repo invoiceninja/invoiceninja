@@ -206,7 +206,7 @@
         gap: 80px;
         padding-left: 2rem;
         padding-right: 0rem;
-        page-break-inside:auto;
+        break-inside: avoid;
         overflow: visible !important;
     }
 
@@ -271,7 +271,7 @@
 
     #footer {
         margin-top: 1rem;
-        page-break-inside:auto;
+        break-inside: avoid;
         overflow: visible !important;
     }
 
@@ -458,6 +458,8 @@
             <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
             <table id="statement-payment-table" cellspacing="0" data-ref="table"></table>
             <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
+                            <table id="statement-credit-table" cellspacing="0" data-ref="table"></table>
+                            <div id="statement-credit-table-totals" data-ref="statement-totals"></div>
             <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
             <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
             <div id="table-totals" cellspacing="0">$status_logo</div>      
@@ -509,7 +511,7 @@ $entity_images
                     'product-table', 'task-table', 'delivery-note-table',
                     'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
                     'statement-invoice-table-totals', 'statement-payment-table-totals', 'statement-aging-table',
-                    'client-details','vendor-details'
+                    'client-details', 'vendor-details', 'swiss-qr', 'shipping-details', 'statement-credit-table', 'statement-credit-table-totals',
                 ];
 
                 tables.forEach((tableIdentifier) => {

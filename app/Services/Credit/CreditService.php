@@ -119,7 +119,7 @@ class CreditService
         $payment->type_id = PaymentType::CREDIT;
         $payment->is_manual = true;
         $payment->currency_id = $this->credit->client->getSetting('currency_id');
-        $payment->date = now();
+        $payment->date = now()->addSeconds($this->credit->company->timezone()->utc_offset)->format('Y-m-d');
 
         $payment->saveQuietly();
         $payment->number = $payment->client->getNextPaymentNumber($payment->client, $payment);
@@ -129,13 +129,6 @@ class CreditService
         $payment
              ->credits()
              ->attach($this->credit->id, ['amount' => $adjustment]);
-
-        //reduce client paid_to_date by $this->credit->balance amount
-        // $this->credit
-        //      ->client
-        //      ->service()
-        //      ->updatePaidToDate($adjustment)
-        //      ->save();
 
         $client = $this->credit->client->fresh();
         $client->service()
@@ -250,7 +243,7 @@ class CreditService
 
     public function triggeredActions($request)
     {
-        $this->invoice = (new TriggeredActions($this->credit, $request))->run();
+        $this->credit = (new TriggeredActions($this->credit, $request))->run();
 
         return $this;
     }

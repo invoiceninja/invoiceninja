@@ -17,7 +17,7 @@ use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\App;
 use stdClass;
-
+//@deprecated
 class AutoBillingFailureObject
 {
     use MakesHash;

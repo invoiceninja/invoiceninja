@@ -11,9 +11,11 @@
 
 namespace App\Utils\Traits;
 
-use App\DataMapper\CompanySettings;
-use App\Models\Company;
 use stdClass;
+use App\Utils\Ninja;
+use App\Models\Company;
+use App\DataMapper\CompanySettings;
+use App\Jobs\Company\CompanyTaxRate;
 
 /**
  * Class CompanySettingsSaver.
@@ -77,6 +79,22 @@ trait CompanySettingsSaver
 
         $entity->settings = $company_settings;
 
+        if($entity?->calculate_taxes && $company_settings->country_id == "840" && array_key_exists('settings', $entity->getDirty()) && !$entity?->account->isFreeHostedClient()) 
+        {
+            $old_settings = $entity->getOriginal()['settings'];
+                                
+            /** Monitor changes of the Postal code */
+            if($old_settings->postal_code != $company_settings->postal_code)
+                CompanyTaxRate::dispatch($entity);
+            
+            
+        }
+        elseif( $entity?->calculate_taxes && $company_settings->country_id == "840" && array_key_exists('calculate_taxes', $entity->getDirty()) && $entity->getOriginal('calculate_taxes') == 0 && !$entity?->account->isFreeHostedClient())
+        {
+            CompanyTaxRate::dispatch($entity);
+        }
+        
+        
         $entity->save();
     }
 

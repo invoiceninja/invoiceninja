@@ -75,10 +75,10 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int $custom_surcharge_tax2
  * @property int $custom_surcharge_tax3
  * @property int $custom_surcharge_tax4
- * @property string $exchange_rate
- * @property string $amount
- * @property string $balance
- * @property string|null $partial
+ * @property float $exchange_rate
+ * @property float $amount
+ * @property float $balance
+ * @property float|null $partial
  * @property string|null $partial_due_date
  * @property string|null $last_viewed
  * @property int|null $created_at
@@ -103,9 +103,9 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read mixed $valid_until
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
  * @property-read int|null $history_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $invitations
  * @property-read int|null $invitations_count
  * @property-read \App\Models\Invoice|null $invoice
+ * @property-read \App\Models\QuoteInvitation|null $invitations
  * @property-read \App\Models\Project|null $project
  * @property-read \App\Models\User $user
  * @property-read \App\Models\Vendor|null $vendor
@@ -181,6 +181,10 @@ use Laracasts\Presenter\PresentableTrait;
  * @method static \Illuminate\Database\Eloquent\Builder|Quote whereVendorId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Quote withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Quote withoutTrashed()
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $invitations
  * @mixin \Eloquent
  */
 class Quote extends BaseModel
@@ -345,9 +349,9 @@ class Quote extends BaseModel
     /**
      * Access the quote calculator object.
      *
-     * @return stdClass The quote calculator object getters
+     * @return InvoiceSumInclusive | InvoiceSum The quote calculator object getters
      */
-    public function calc()
+    public function calc(): InvoiceSumInclusive | InvoiceSum
     {
         $quote_calc = null;
 
@@ -402,6 +406,8 @@ class Quote extends BaseModel
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         }
 
+        $file_exists = false;
+
         try {
             $file_exists = Storage::disk(config('filesystems.default'))->exists($file_path);
         } catch (\Exception $e) {
@@ -425,51 +431,40 @@ class Quote extends BaseModel
      * @param int $status
      * @return string
      */
-    public static function badgeForStatus(int $status)
+    public static function badgeForStatus(int $status): string
     {
         switch ($status) {
             case self::STATUS_DRAFT:
                 return '<h5><span class="badge badge-light">'.ctrans('texts.draft').'</span></h5>';
-                break;
             case self::STATUS_SENT:
                 return '<h5><span class="badge badge-primary">'.ctrans('texts.pending').'</span></h5>';
-                break;
             case self::STATUS_APPROVED:
                 return '<h5><span class="badge badge-success">'.ctrans('texts.approved').'</span></h5>';
-                break;
             case self::STATUS_EXPIRED:
                 return '<h5><span class="badge badge-danger">'.ctrans('texts.expired').'</span></h5>';
-                break;
             case self::STATUS_CONVERTED:
                 return '<h5><span class="badge badge-light">'.ctrans('texts.converted').'</span></h5>';
-                break;
             default:
-                // code...
-                break;
+                return '<h5><span class="badge badge-light">'.ctrans('texts.draft').'</span></h5>';
         }
     }
 
-    public static function stringStatus(int $status)
+    public static function stringStatus(int $status): string
     {
         switch ($status) {
             case self::STATUS_DRAFT:
                 return ctrans('texts.draft');
-                break;
             case self::STATUS_SENT:
                 return ctrans('texts.pending');
-                break;
             case self::STATUS_APPROVED:
                 return ctrans('texts.approved');
-                break;
             case self::STATUS_EXPIRED:
                 return ctrans('texts.expired');
-                break;
             case self::STATUS_CONVERTED:
                 return ctrans('texts.converted');
-                break;
             default:
-                // code...
-                break;
+                return ctrans('texts.draft');
+
         }
     }
 

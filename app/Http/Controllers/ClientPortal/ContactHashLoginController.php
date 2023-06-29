@@ -11,17 +11,18 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
-use App\Http\Controllers\Controller;
-use App\Http\ViewComposers\PortalComposer;
-use App\Models\RecurringInvoice;
 use Auth;
+use App\Models\RecurringInvoice;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Redirect;
+use App\Http\ViewComposers\PortalComposer;
 
 class ContactHashLoginController extends Controller
 {
     /**
      * Logs a user into the client portal using their contact_key
      * @param  string $contact_key  The contact key
-     * @return Auth|Redirect
+     * @return Redirect
      */
     public function login(string $contact_key)
     {

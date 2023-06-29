@@ -1,0 +1,42 @@
+    CompanyGateway:
+      properties:
+        id:
+          description: 'The hashed id of the company gateway'
+          type: string
+          example: Opnel5aKBz
+        company_id:
+          description: 'The company hashed id'
+          type: string
+          example: '2'
+        gateway_key:
+          description: 'The gateway key (hash)'
+          type: string
+          example: '2'
+        accepted_credit_cards:
+          description: 'Bitmask representation of cards'
+          type: integer
+          example: '32'
+        require_billing_address:
+          description: 'Determines if the the billing address is required prior to payment.'
+          type: boolean
+          example: true
+        require_shipping_address:
+          description: 'Determines if the the billing address is required prior to payment.'
+          type: boolean
+          example: true
+        config:
+          description: 'The configuration map for the gateway'
+          type: string
+          example: dfadsfdsafsafd
+        update_details:
+          description: 'Determines if the client details should be updated.'
+          type: boolean
+          example: true
+        fees_and_limits:
+          description: 'A mapped collection of the fees and limits for the configured gateway'
+          type: array
+          items:
+            $ref: '#/components/schemas/FeesAndLimits'
+      type: object
+    
+    

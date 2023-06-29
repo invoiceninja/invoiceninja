@@ -32,7 +32,7 @@ class PaymentEmailFailureActivity implements ShouldQueue
      * Handle the event.
      *
      * @param object $event
-     * @return bool
+     * @return void
      */
     public function handle($event)
     {
@@ -41,6 +41,6 @@ class PaymentEmailFailureActivity implements ShouldQueue
         $payment = $event->payment;
 
         nlog("i failed emailing {$payment->number}");
-        // nlog(print_r($event->errors,1));
+
     }
 }

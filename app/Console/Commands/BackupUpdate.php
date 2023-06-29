@@ -11,11 +11,12 @@
 
 namespace App\Console\Commands;
 
-use App\Libraries\MultiDB;
+use App\Utils\Ninja;
 use App\Models\Backup;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Document;
+use App\Libraries\MultiDB;
 use App\Models\GroupSetting;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
@@ -55,6 +56,9 @@ class BackupUpdate extends Command
     {
         //always return state to first DB
 
+        if(Ninja::isSelfHost())
+            return;
+            
         $current_db = config('database.default');
 
         if (! config('ninja.db.multi_db_enabled')) {
@@ -190,14 +194,12 @@ class BackupUpdate extends Command
                 ->where('filename', '!=', '')
                 ->cursor()
                 ->each(function ($backup) {
-                    
                     $backup_bin = Storage::disk('s3')->get($backup->filename);
 
                     if ($backup_bin) {
                         Storage::disk($this->option('disk'))->put($backup->filename, $backup_bin);
 
                         nlog("Backups - Moving {$backup->filename} to {$this->option('disk')}");
-
                     }
                 });
     }

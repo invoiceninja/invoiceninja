@@ -11,24 +11,24 @@
 
 namespace App\Http\Livewire;
 
-use App\Utils\Ninja;
-use App\Models\Client;
-use App\Models\Invoice;
-use Livewire\Component;
-use App\Libraries\MultiDB;
-use Illuminate\Support\Str;
-use App\Models\Subscription;
-use App\Models\ClientContact;
+use App\DataMapper\ClientSettings;
 use App\Factory\ClientFactory;
 use App\Jobs\Mail\NinjaMailerJob;
-use App\DataMapper\ClientSettings;
 use App\Jobs\Mail\NinjaMailerObject;
+use App\Libraries\MultiDB;
+use App\Mail\ContactPasswordlessLogin;
+use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\Invoice;
+use App\Models\Subscription;
+use App\Repositories\ClientContactRepository;
+use App\Repositories\ClientRepository;
+use App\Services\Subscription\SubscriptionService;
+use App\Utils\Ninja;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use App\Mail\ContactPasswordlessLogin;
-use App\Repositories\ClientRepository;
-use App\Repositories\ClientContactRepository;
-use App\Services\Subscription\SubscriptionService;
+use Illuminate\Support\Str;
+use Livewire\Component;
 
 class BillingPortalPurchase extends Component
 {
@@ -400,8 +400,7 @@ class BillingPortalPurchase extends Component
 
         $context = 'purchase';
 
-        // if(Ninja::isHosted() && $this->subscription->service()->recurring_products()->first()?->id == SubscriptionService::WHITE_LABEL) {
-        if(Ninja::isHosted() && $this->subscription->service()->recurring_products()->first()?->product_key == 'whitelabel') {
+        if (Ninja::isHosted() && $this->subscription->service()->recurring_products()->first()?->product_key == 'whitelabel') {
             $context = 'whitelabel';
         }
 
@@ -444,13 +443,13 @@ class BillingPortalPurchase extends Component
             return;
         }
 
-
         return $this->subscription->service()->handleNoPaymentRequired([
             'email' => $this->email ?? $this->contact->email,
             'quantity' => $this->quantity,
             'contact_id' => $this->contact->id,
             'client_id' => $this->contact->client->id,
             'coupon' => $this->coupon,
+            'campaign' => $this->campaign,
         ]);
     }
 

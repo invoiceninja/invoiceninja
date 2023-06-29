@@ -11,15 +11,16 @@
 
 namespace App\Mail\Engine;
 
-use App\DataMapper\EmailTemplateDefaults;
-use App\Jobs\Entity\CreateRawPdf;
-use App\Models\Account;
-use App\Utils\Helpers;
 use App\Utils\Ninja;
 use App\Utils\Number;
+use App\Utils\Helpers;
+use App\Models\Account;
 use App\Utils\Traits\MakesDates;
+use App\Jobs\Entity\CreateRawPdf;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Storage;
+use App\DataMapper\EmailTemplateDefaults;
 
 class PaymentEmailEngine extends BaseEmailEngine
 {
@@ -105,6 +106,18 @@ class PaymentEmailEngine extends BaseEmailEngine
                         }
                     }
                 }
+
+                if($this->client->getSetting('enable_e_invoice'))
+                {
+
+                    $e_invoice_filepath = $invoice->service()->getEInvoice($this->contact);
+
+                    if(Storage::disk(config('filesystems.default'))->exists($e_invoice_filepath)) {
+                        $this->setAttachments([['path' => Storage::disk(config('filesystems.default'))->path($e_invoice_filepath), 'name' => $invoice->getFileName("xml"), 'mime' => null]]);
+                    }
+
+                }
+
             });
         }
 
@@ -251,6 +264,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$emailSignature'] = &$data['$signature'];
 
         $data['$invoices'] = ['value' => $this->formatInvoices(), 'label' => ctrans('texts.invoices')];
+        $data['$invoice_references_subject'] = ['value' => $this->formatInvoiceReferencesSubject(), 'label' => ctrans('texts.invoices')];
         $data['$invoice_references'] = ['value' => $this->formatInvoiceReferences(), 'label' => ctrans('texts.invoices')];
         $data['$invoice'] = ['value' => $this->formatInvoice(), 'label' => ctrans('texts.invoices')];
         $data['$invoice.po_number'] = ['value' => $this->formatPoNumber(), 'label' => ctrans('texts.po_number')];
@@ -260,7 +274,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$invoices.balance'] = ['value' => $this->formatInvoiceField('balance'), 'label' => ctrans('texts.invoices')];
         $data['$invoices.due_date'] = ['value' => $this->formatInvoiceField('due_date'), 'label' => ctrans('texts.invoices')];
         $data['$invoices.po_number'] = ['value' => $this->formatInvoiceField('po_number'), 'label' => ctrans('texts.invoices')];
-
+        $data['$invoice_numbers'] = ['value' => $this->formatInvoiceNumbersRaw(), 'label' => ctrans('texts.invoices')];
 
         if ($this->payment->status_id == 4) {
             $data['$status_logo'] = ['value' => '<div class="stamp is-paid"> ' . ctrans('texts.paid') .'</div>', 'label' => ''];
@@ -329,6 +343,34 @@ class PaymentEmailEngine extends BaseEmailEngine
         return $invoice_list;
     }
 
+    private function formatInvoiceReferencesSubject()
+    {
+         $invoice_list = '';
+
+        foreach ($this->payment->invoices as $invoice) {
+            if (strlen($invoice->po_number) > 1) {
+                $invoice_list .= ctrans('texts.po_number')." {$invoice->po_number} <br>";
+            }
+
+            $invoice_list .= ctrans('texts.invoice_number_short')." {$invoice->number} " . Number::formatMoney($invoice->pivot->amount, $this->client).', ';
+
+        }
+
+        if(strlen($invoice_list) < 4){
+                $invoice_list = Number::formatMoney($this->payment->amount, $this->client) ?: '&nbsp;';
+        }
+            
+
+        return $invoice_list;
+
+    }
+
+    private function formatInvoiceNumbersRaw(){
+
+        return collect($this->payment->invoices->pluck('number')->toArray())->implode(', ');
+
+    }
+
     private function formatInvoiceReferences()
     {
         $invoice_list = '<br><br>';
@@ -363,9 +405,9 @@ class PaymentEmailEngine extends BaseEmailEngine
     /**
      * generateLabelsAndValues
      *
-     * @return void
+     * @return array
      */
-    public function generateLabelsAndValues()
+    public function generateLabelsAndValues(): array
     {
         $data = [];
 
@@ -388,6 +430,11 @@ class PaymentEmailEngine extends BaseEmailEngine
      */
     private function buildViewButton(string $link, string $text): string
     {
+        if ($this->settings->email_style == 'plain') {
+            return '<a href="'. $link .'" target="_blank">'. $text .'</a>';
+        }
+
+
         return '
 <div>
 <!--[if (gte mso 9)|(IE)]>

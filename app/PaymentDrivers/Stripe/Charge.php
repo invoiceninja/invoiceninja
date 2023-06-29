@@ -43,7 +43,7 @@ class Charge
      * Create a charge against a payment method.
      * @param ClientGatewayToken $cgt
      * @param PaymentHash $payment_hash
-     * @return bool success/failure
+     * @return mixed success/failure
      * @throws \Laracasts\Presenter\Exceptions\PresenterException
      */
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
@@ -86,7 +86,7 @@ class Charge
                 $data['off_session'] = true;
             }
 
-            $response = $this->stripe->createPaymentIntent($data, array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st", true)]));
+            $response = $this->stripe->createPaymentIntent($data);
 
             SystemLogger::dispatch($response, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->stripe->client, $this->stripe->client->company);
         } catch (\Exception $e) {
@@ -136,15 +136,11 @@ class Charge
         if ($cgt->gateway_type_id == GatewayType::SEPA) {
             $payment_method_type = PaymentType::SEPA;
             $status = Payment::STATUS_PENDING;
-
-        } elseif ($cgt->gateway_type_id == GatewayType::BACS){
+        } elseif ($cgt->gateway_type_id == GatewayType::BACS) {
             $payment_method_type = PaymentType::BACS;
             $status = Payment::STATUS_PENDING;
-        }
-        else {
-
-            if(isset($response->latest_charge)) {
-
+        } else {
+            if (isset($response->latest_charge)) {
                 $charge = \Stripe\Charge::retrieve($response->latest_charge, $this->stripe->stripe_connect_auth);
                 $payment_method_type = $charge->payment_method_details->card->brand;
             } elseif (isset($response->charges->data[0]->payment_method_details->card->brand)) {
@@ -157,9 +153,8 @@ class Charge
         }
 
 
-        if(!in_array($response?->status, ['succeeded', 'processing'])){
-            $this->stripe->processInternallyFailedPayment($this->stripe, new \Exception('Auto billing failed.',400));
-
+        if (!in_array($response?->status, ['succeeded', 'processing'])) {
+            $this->stripe->processInternallyFailedPayment($this->stripe, new \Exception('Auto billing failed.', 400));
         }
 
         $data = [
@@ -199,17 +194,14 @@ class Charge
         switch ($type) {
             case 'visa':
                 return PaymentType::VISA;
-                break;
             case 'mastercard':
                 return PaymentType::MASTERCARD;
-                break;
             case PaymentType::SEPA:
                 return PaymentType::SEPA;
             case PaymentType::BACS:
                 return PaymentType::BACS;
             default:
                 return PaymentType::CREDIT_CARD_OTHER;
-                break;
         }
     }
 }

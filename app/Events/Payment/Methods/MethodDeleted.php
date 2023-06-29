@@ -26,7 +26,7 @@ class MethodDeleted
     /**
      * @var ClientGatewayToken
      */
-    private $payment_method;
+    public $payment_method;
 
     public $company;
 
@@ -51,8 +51,8 @@ class MethodDeleted
      *
      * @return Channel|array
      */
-    public function broadcastOn()
-    {
-        return new PrivateChannel('channel-name');
-    }
+     public function broadcastOn()
+     {
+        return [];
+     }
 }

@@ -1,0 +1,43 @@
+    SystemLog:
+      properties:
+        id:
+          description: 'The account hashed id'
+          type: string
+          example: AS3df3A
+        company_id:
+          description: 'The company hashed id'
+          type: string
+          example: AS3df3A
+        user_id:
+          description: 'The user_id hashed id'
+          type: string
+          example: AS3df3A
+        client_id:
+          description: 'The client_id hashed id'
+          type: string
+          example: AS3df3A
+        event_id:
+          description: 'The Log Type ID'
+          type: integer
+          example: 1
+        category_id:
+          description: 'The Category Type ID'
+          type: integer
+          example: 1
+        type_id:
+          description: 'The Type Type ID'
+          type: integer
+          example: 1
+        log:
+          description: 'The json object of the error'
+          type: object
+          example: '{''key'':''value''}'
+        updated_at:
+          description: Timestamp
+          type: string
+          example: '2'
+        created_at:
+          description: Timestamp
+          type: string
+          example: '2'
+      type: object

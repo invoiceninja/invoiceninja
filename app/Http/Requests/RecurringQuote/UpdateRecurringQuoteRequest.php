@@ -37,10 +37,11 @@ class UpdateRecurringQuoteRequest extends Request
     {
         $rules = [];
 
-        if($this->file('documents') && is_array($this->file('documents')))
+        if ($this->file('documents') && is_array($this->file('documents'))) {
             $rules['documents.*'] = $this->file_validation;
-        elseif($this->file('documents'))
+        } elseif ($this->file('documents')) {
             $rules['documents'] = $this->file_validation;
+        }
 
         if ($this->file('file') && is_array($this->file('file'))) {
             $rules['file.*'] = $this->file_validation;
@@ -80,7 +81,7 @@ class UpdateRecurringQuoteRequest extends Request
      * off / optin / optout will reset the status of this field to off to allow
      * the client to choose whether to auto_bill or not.
      *
-     * @param enum $auto_bill off/always/optin/optout
+     * @param string $auto_bill off/always/optin/optout
      *
      * @return bool
      */

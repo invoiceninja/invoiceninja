@@ -30,7 +30,7 @@ class EntityPaidObject
 
     public $settings;
 
-    public function __construct(public Payment $payment)
+    public function __construct(public Payment $payment, protected bool $use_react_url)
     {
         $this->payment = $payment;
         $this->company = $payment->company;
@@ -98,7 +98,7 @@ class EntityPaidObject
                     'invoice' => $invoice_texts,
                 ]
             ),
-            'url' => config('ninja.app_url'),
+            'url' => $this->payment->portalUrl($this->use_react_url),
             'button' => ctrans('texts.view_payment'),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),
@@ -117,4 +117,5 @@ class EntityPaidObject
 
         return $signature;
     }
+
 }

@@ -23,28 +23,22 @@ class UpdatePrice extends AbstractService
 
     public function run()
     {
-
-
         $line_items = $this->recurring_invoice->line_items;
 
-        foreach($line_items as $key => $line_item)
-        {
-
+        foreach ($line_items as $key => $line_item) {
+            
             $product = Product::where('company_id', $this->recurring_invoice->company_id)
             ->where('product_key', $line_item->product_key)
             ->where('is_deleted', 0)
             ->first();
             
-            if($product){
-
-                $line_items[$key]->cost = $product->cost;
+            if ($product) {
+                $line_items[$key]->cost = floatval($product->price);
             }
-
         }
 
         $this->recurring_invoice->line_items = $line_items;
+
         $this->recurring_invoice->calc()->getInvoice()->save();
-
-
     }
 }

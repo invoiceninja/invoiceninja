@@ -13,7 +13,6 @@ namespace App\Utils\Traits;
 
 use App\Jobs\Util\UnlinkFile;
 use App\Jobs\Util\UploadAvatar;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * Class Uploadable.

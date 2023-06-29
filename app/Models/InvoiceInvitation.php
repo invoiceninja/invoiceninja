@@ -77,6 +77,7 @@ use Illuminate\Support\Facades\Storage;
  * @method static \Illuminate\Database\Eloquent\Builder|InvoiceInvitation whereViewedDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvoiceInvitation withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|InvoiceInvitation withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvoiceInvitation where()
  * @mixin \Eloquent
  */
 class InvoiceInvitation extends BaseModel
@@ -110,6 +111,14 @@ class InvoiceInvitation extends BaseModel
      * @return mixed
      */
     public function invoice()
+    {
+        return $this->belongsTo(Invoice::class)->withTrashed();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEntity()
     {
         return $this->belongsTo(Invoice::class)->withTrashed();
     }
@@ -166,7 +175,7 @@ class InvoiceInvitation extends BaseModel
 
     public function pdf_file_path()
     {
-        $storage_path = Storage::url($this->invoice->client->invoice_filepath().$this->invoice->numberFormatter().'.pdf');
+        $storage_path = Storage::url($this->invoice->client->invoice_filepath($this).$this->invoice->numberFormatter().'.pdf');
 
         if (! Storage::exists($this->invoice->client->invoice_filepath($this).$this->invoice->numberFormatter().'.pdf')) {
             event(new InvoiceWasUpdated($this->invoice, $this->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));

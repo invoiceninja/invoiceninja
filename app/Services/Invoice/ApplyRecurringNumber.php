@@ -21,17 +21,10 @@ class ApplyRecurringNumber extends AbstractService
 {
     use GeneratesCounter;
 
-    private $client;
-
-    private $invoice;
-
     private bool $completed = true;
 
-    public function __construct(Client $client, Invoice $invoice)
+    public function __construct(private Client $client, private Invoice $invoice)
     {
-        $this->client = $client;
-
-        $this->invoice = $invoice;
     }
 
     public function run()

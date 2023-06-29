@@ -37,6 +37,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|TaskStatus onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|TaskStatus query()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel insert()
  * @method static \Illuminate\Database\Eloquent\Builder|TaskStatus whereColor($value)
  * @method static \Illuminate\Database\Eloquent\Builder|TaskStatus whereCompanyId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|TaskStatus whereCreatedAt($value)
@@ -63,7 +64,7 @@ class TaskStatus extends BaseModel
     public $timestamps = true;
 
     /**
-     * @var array
+     * @var array<string>
      */
     protected $fillable = [
         'name',

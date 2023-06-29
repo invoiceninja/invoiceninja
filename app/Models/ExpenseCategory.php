@@ -24,7 +24,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $created_at
  * @property int|null $updated_at
  * @property int|null $deleted_at
- * @property int $is_deleted
+ * @property bool $is_deleted
  * @property string $color
  * @property int|null $bank_category_id
  * @property-read \App\Models\Expense|null $expense

@@ -1,9 +1,17 @@
 <?php
 
+use Imdhemy\Purchases\Events\AppStore\Refund;
 use Imdhemy\Purchases\Events\AppStore\DidRenew;
-use App\Listeners\Subscription\AppStoreRenewSubscription;
-use App\Listeners\Subscription\PlayStoreRenewSubscription;
+use Imdhemy\Purchases\Events\AppStore\DidFailToRenew;
+use Imdhemy\Purchases\Events\GooglePlay\SubscriptionPaused;
+use Imdhemy\Purchases\Events\GooglePlay\SubscriptionExpired;
 use Imdhemy\Purchases\Events\GooglePlay\SubscriptionRenewed;
+use Imdhemy\Purchases\Events\GooglePlay\SubscriptionRevoked;
+use Imdhemy\Purchases\Events\AppStore\DidChangeRenewalStatus;
+use Imdhemy\Purchases\Events\GooglePlay\SubscriptionCanceled;
+use Imdhemy\Purchases\Events\GooglePlay\SubscriptionPurchased;
+use Imdhemy\Purchases\Events\GooglePlay\SubscriptionRecovered;
+use Imdhemy\Purchases\Events\GooglePlay\SubscriptionRestarted;
 
 return [
     /*
@@ -97,9 +105,19 @@ return [
         /* \Imdhemy\Purchases\Events\GooglePlay\SubscriptionRecovered::class => [
              \App\Listeners\GooglePlay\SubscriptionRecovered::class,
          ],*/
-        SubscriptionRenewed::class => [PlayStoreRenewSubscription::class],
-        DidRenew::class => [AppStoreRenewSubscription::class],
-
+        
+        DidRenew::class => class_exists(\Modules\Admin\Listeners\Subscription\AppleAutoRenew::class) ? [\Modules\Admin\Listeners\Subscription\AppleAutoRenew::class] : [],
+        SubscriptionRenewed::class => class_exists(\Modules\Admin\Listeners\Subscription\GoogleAutoRenew::class) ? [\Modules\Admin\Listeners\Subscription\GoogleAutoRenew::class] : [],
+        DidChangeRenewalStatus::class => class_exists(\Modules\Admin\Listeners\Subscription\GoogleChangeRenewalStaus::class) ? [\Modules\Admin\Listeners\Subscription\GoogleChangeRenewalStaus::class] : [],
+        DidFailToRenew::class => class_exists(\Modules\Admin\Listeners\Subscription\GoogleFailedToRenew::class) ? [\Modules\Admin\Listeners\Subscription\GoogleFailedToRenew::class] : [],
+        Refund::class => class_exists(\Modules\Admin\Listeners\Subscription\AppleRefund::class) ? [\Modules\Admin\Listeners\Subscription\AppleRefund::class] : [],
+        SubscriptionRecovered::class => class_exists(\Modules\Admin\Listeners\Subscription\GoogleSubscriptionRecovered::class) ? [\Modules\Admin\Listeners\Subscription\GoogleSubscriptionRecovered::class] : [],
+        SubscriptionCanceled::class => class_exists(\Modules\Admin\Listeners\Subscription\GoogleSubscriptionCanceled::class) ? [\Modules\Admin\Listeners\Subscription\GoogleSubscriptionCanceled::class] : [],
+        SubscriptionPurchased::class => class_exists(\Modules\Admin\Listeners\Subscription\GoogleSubscriptionPurchased::class) ? [\Modules\Admin\Listeners\Subscription\GoogleSubscriptionPurchased::class] : [],
+        SubscriptionRestarted::class => class_exists(\Modules\Admin\Listeners\Subscription\GoogleSubscriptionRestarted::class) ? [\Modules\Admin\Listeners\Subscription\GoogleSubscriptionRestarted::class] : [],
+        SubscriptionPaused::class => class_exists(\Modules\Admin\Listeners\Subscription\GoogleSubscriptionPaused::class) ? [\Modules\Admin\Listeners\Subscription\GoogleSubscriptionPaused::class] : [],
+        SubscriptionRevoked::class => class_exists(\Modules\Admin\Listeners\Subscription\GoogleSubscriptionRevoked::class) ? [\Modules\Admin\Listeners\Subscription\GoogleSubscriptionRevoked::class] : [],
+        SubscriptionExpired::class => class_exists(\Modules\Admin\Listeners\Subscription\GoogleSubscriptionExpired::class) ? [\Modules\Admin\Listeners\Subscription\GoogleSubscriptionExpired::class] : [],
     ],
 
     /*

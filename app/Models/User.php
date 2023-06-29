@@ -11,32 +11,32 @@
 
 namespace App\Models;
 
+use App\Models\Company;
+use App\Utils\TruthSource;
 use App\Jobs\Mail\NinjaMailer;
+use Illuminate\Support\Carbon;
+use App\Utils\Traits\MakesHash;
 use App\Jobs\Mail\NinjaMailerJob;
+use App\Services\User\UserService;
+use App\Utils\Traits\UserSettings;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Mail\Admin\ResetPasswordObject;
+use Illuminate\Database\Eloquent\Model;
 use App\Models\Presenters\UserPresenter;
-use App\Notifications\ResetPasswordNotification;
-use App\Services\User\UserService;
-use App\Utils\Traits\MakesHash;
+use Illuminate\Notifications\Notifiable;
+use Laracasts\Presenter\PresentableTrait;
 use App\Utils\Traits\UserSessionAttributes;
-use App\Utils\Traits\UserSettings;
-use App\Utils\TruthSource;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Laracasts\Presenter\PresentableTrait;
 
 /**
  * App\Models\User
  *
  * @property int $id
  * @property int $account_id
+ * @property int $company_id
  * @property string|null $first_name
  * @property string|null $last_name
  * @property string|null $phone
@@ -76,6 +76,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $sms_verification_code
  * @property int $verified_phone_number
  * @property-read \App\Models\Account $account
+ * @property-read \App\Models\Company $company
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Client> $clients
  * @property-read int|null $clients_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
@@ -139,6 +140,22 @@ use Laracasts\Presenter\PresentableTrait;
  * @method static \Illuminate\Database\Eloquent\Builder|User whereVerifiedPhoneNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|User withoutTrashed()
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Client> $clients
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyUser> $company_users
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientContact> $contacts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens
+ * @method bool hasPermissionTo(string $permission)
+ * @method \App\Models\Company getCompany()
+ * @method \App\Models\Company company()
+ * @method bool hasExcludedPermissions(array $matched_permission, array $excluded_permissions)
+ * @method bool isAdmin()
+ * @method bool isSuperUser()
+ * @method bool hasIntersectPermissions(array $permissions)
+ * @method int companyId()
+ * @method bool isOwner()
  * @mixin \Eloquent
  */
 class User extends Authenticatable implements MustVerifyEmail
@@ -161,7 +178,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $dateFormat = 'Y-m-d H:i:s.u';
 
-    public $company;
+    public ?Company $company = null;
 
     protected $appends = [
         'hashed_id',
@@ -170,7 +187,6 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * The attributes that are mass assignable.
      *
-     * @var array
      */
     protected $fillable = [
         'first_name',
@@ -182,20 +198,19 @@ class User extends Authenticatable implements MustVerifyEmail
         'accepted_terms_version',
         'oauth_user_id',
         'oauth_provider_id',
-        'oauth_user_token',
-        'oauth_user_refresh_token',
         'custom_value1',
         'custom_value2',
         'custom_value3',
         'custom_value4',
         'is_deleted',
-        // 'google_2fa_secret',
+        'shopify_user_id',
+        // 'oauth_user_token',
+        // 'oauth_user_refresh_token',
     ];
 
     /**
      * The attributes that should be hidden for arrays.
      *
-     * @var array
      */
     protected $hidden = [
         'remember_token',
@@ -290,7 +305,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Returns the currently set Company.
      */
-    public function getCompany()
+    public function getCompany(): ?Company
     {
         $truth = app()->make(TruthSource::class);
 
@@ -299,38 +314,34 @@ class User extends Authenticatable implements MustVerifyEmail
         } elseif ($truth->getCompany()) {
             return $truth->getCompany();
         } elseif (request()->header('X-API-TOKEN')) {
-            $company_token = CompanyToken::with(['company'])->where('token', request()->header('X-API-TOKEN'))->first();
+            $company_token = CompanyToken::with('company')->where('token', request()->header('X-API-TOKEN'))->first();
             return $company_token->company;
         }
 
         throw new \Exception('No Company Found');
     }
 
-    public function companyIsSet()
+    public function companyIsSet(): bool
     {
-        if ($this->company) {
-            return true;
-        }
-
-        return false;
+        return isset($this->company);
     }
 
     /**
      * Returns the current company.
      *
-     * @return App\Models\Company $company
+     * @return \App\Models\Company $company
      */
-    public function company()
+    public function company(): Company
     {
         return $this->getCompany();
     }
 
-    private function setCompanyByGuard()
-    {
-        if (Auth::guard('contact')->check()) {
-            $this->setCompany(auth()->user()->client->company);
-        }
-    }
+    // private function setCompanyByGuard()
+    // {
+    //     if (Auth::guard('contact')->check()) {
+    //         $this->setCompany(auth()->user()->client->company);
+    //     }
+    // }
 
     public function company_users()
     {
@@ -384,19 +395,18 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Returns a comma separated list of user permissions.
      *
-     * @return comma separated list
+     * @return string $permissions
      */
     public function permissions()
     {
         return $this->token()->cu->permissions;
 
-        // return $this->company_user->permissions;
     }
 
     /**
      * Returns a object of User Settings.
      *
-     * @return stdClass
+     * @return \stdClass
      */
     public function settings()
     {
@@ -447,7 +457,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Returns a boolean value if the user owns the current Entity.
      *
-     * @param  string Entity
+     * @param  mixed $entity
      * @return bool
      */
     public function owns($entity) : bool
@@ -458,7 +468,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Returns a boolean value if the user is assigned to the current Entity.
      *
-     * @param  string Entity
+     * @param  mixed $entity
      * @return bool
      */
     public function assigned($entity) : bool
@@ -469,7 +479,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Returns true if permissions exist in the map.
      *
-     * @param  string permission
+     * @param  string $permission
      * @return bool
      */
     public function hasPermission($permission) : bool

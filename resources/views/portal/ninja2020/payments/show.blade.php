@@ -14,6 +14,18 @@
             </div>
             <div>
                 <dl>
+
+                    @if(!empty($payment->status_id) && !is_null($payment->status_id))
+                        <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium leading-5 text-gray-500">
+                                {{ ctrans('texts.status') }}
+                            </dt>
+                            <div class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                                {!! \App\Models\Payment::badgeForStatus($payment->status_id) !!}
+                            </div>
+                        </div>
+                    @endif
+
                     @if(!empty($payment->clientPaymentDate()) && !is_null($payment->clientPaymentDate()))
                         <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                             <dt class="text-sm font-medium leading-5 text-gray-500">
@@ -72,14 +84,6 @@
                     @endif
 
                     @if(!empty($payment->status_id) && !is_null($payment->status_id))
-                        <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                            <dt class="text-sm font-medium leading-5 text-gray-500">
-                                {{ ctrans('texts.status') }}
-                            </dt>
-                            <div class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                {!! \App\Models\Payment::badgeForStatus($payment->status_id) !!}
-                            </div>
-                        </div>
 
                         @if($payment->refunded > 0)
                             <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -91,6 +95,18 @@
                                 </div>
                             </div>
                         @endif
+
+                        @if($payment->applied != $payment->amount)
+                            <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium leading-5 text-gray-500">
+                                    {{ ctrans('texts.remaining') }}
+                                </dt>
+                                <div class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                                    {{ \App\Utils\Number::formatMoney($payment->amount - $payment->applied, $payment->client) }}
+                                </div>
+                            </div>
+                        @endif
+
                     @endif
                 </dl>
             </div>
@@ -107,6 +123,7 @@
             <div>
                 <dl>
                     @foreach($payment->invoices as $invoice)
+                        @if(!$invoice->is_proforma && !$invoice->is_deleted)
                         <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                             <dt class="text-sm font-medium leading-5 text-gray-500">
                                 {{ ctrans('texts.invoice_number') }}
@@ -119,6 +136,7 @@
                                 - {{ \App\Utils\Number::formatMoney($payment->invoices->where('id', $invoice->id)->sum('pivot.amount') - $payment->invoices->where('id', $invoice->id)->sum('pivot.refunded'), $payment->client) }}
                             </div>
                         </div>
+                        @endif
                     @endforeach
                 </dl>
             </div>

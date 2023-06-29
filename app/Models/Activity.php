@@ -284,6 +284,8 @@ class Activity extends StaticModel
 
     const ACCEPT_PURCHASE_ORDER = 137;
 
+    const PAYMENT_EMAILED = 138;
+
     protected $casts = [
         'is_system' => 'boolean',
         'updated_at' => 'timestamp',

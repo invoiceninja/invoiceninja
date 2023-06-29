@@ -14,6 +14,7 @@ namespace App\PaymentDrivers;
 use App\Factory\ClientContactFactory;
 use App\Factory\ClientFactory;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
+use App\Jobs\Mail\PaymentFailedMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\Client;
 use App\Models\ClientGatewayToken;
@@ -46,7 +47,7 @@ class GoCardlessPaymentDriver extends BaseDriver
     private bool $completed = true;
 
     public static $methods = [
-        GatewayType::BANK_TRANSFER => \App\PaymentDrivers\GoCardless\ACH::class,
+        GatewayType::BANK_TRANSFER => \App\PaymentDrivers\GoCardless\DirectDebit::class,
         GatewayType::DIRECT_DEBIT => \App\PaymentDrivers\GoCardless\DirectDebit::class,
         GatewayType::SEPA => \App\PaymentDrivers\GoCardless\SEPA::class,
         GatewayType::INSTANT_BANK_PAY => \App\PaymentDrivers\GoCardless\InstantBankPay::class,
@@ -78,12 +79,13 @@ class GoCardlessPaymentDriver extends BaseDriver
         if (
             $this->client
             && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ['GBR'])
+            // && in_array($this->client->country->iso_3166_3, ['GBR'])
+            && in_array($this->client->currency()->code, ['EUR', 'GBP','DKK','SEK','AUD','NZD'])
         ) {
             $types[] = GatewayType::DIRECT_DEBIT;
         }
 
-        if ($this->client->currency()->code === 'EUR') {
+        if (in_array($this->client->currency()->code, ['EUR', 'GBP'])) {
             $types[] = GatewayType::SEPA;
         }
 
@@ -241,7 +243,6 @@ class GoCardlessPaymentDriver extends BaseDriver
         $this->init();
 
         nlog('GoCardless Event');
-        nlog($request->all());
 
         if (! $request->has('events')) {
             nlog('No GoCardless events to process in response?');
@@ -277,9 +278,26 @@ class GoCardlessPaymentDriver extends BaseDriver
                     ->first();
 
                 if ($payment) {
+                    if ($payment->status_id == Payment::STATUS_PENDING) {
+                        $payment->service()->deletePayment();
+                    }
+
                     $payment->status_id = Payment::STATUS_FAILED;
                     $payment->save();
-                    nlog('GoCardless completed');
+
+                    $payment_hash = PaymentHash::where('payment_id', $payment->id)->first();
+                    $error = '';
+
+                    if (isset($event['details']['description'])) {
+                        $error = $event['details']['description'];
+                    }
+
+                    PaymentFailedMailer::dispatch(
+                        $payment_hash,
+                        $payment->client->company,
+                        $payment->client,
+                        $error
+                    );
                 }
             }
 
@@ -367,9 +385,6 @@ class GoCardlessPaymentDriver extends BaseDriver
         );
     }
 
-
-
-
     public function ensureMandateIsReady($token)
     {
         try {
@@ -415,14 +430,12 @@ class GoCardlessPaymentDriver extends BaseDriver
 
     private function updatePaymentMethods($customer, Client $client): void
     {
-        
         $this->client = $client;
 
         $mandates = $this->gateway->mandates()->list();
 
-        foreach($mandates->records as $mandate)
-        {
-            if($customer->id != $mandate->links->customer || $mandate->status != 'active' || ClientGatewayToken::where('token', $mandate->id)->where('gateway_customer_reference', $customer->id)->exists()) {
+        foreach ($mandates->records as $mandate) {
+            if ($customer->id != $mandate->links->customer || $mandate->status != 'active' || ClientGatewayToken::where('token', $mandate->id)->where('gateway_customer_reference', $customer->id)->exists()) {
                 continue;
             }
 
@@ -431,12 +444,10 @@ class GoCardlessPaymentDriver extends BaseDriver
             if ($mandate->scheme == 'bacs') {
                 $payment_meta->brand = ctrans('texts.payment_type_direct_debit');
                 $payment_meta->type = GatewayType::DIRECT_DEBIT;
-            }
-            elseif($mandate->scheme == 'sepa_core') {
+            } elseif ($mandate->scheme == 'sepa_core') {
                 $payment_meta->brand = ctrans('texts.sepa');
                 $payment_meta->type = GatewayType::SEPA;
-            }
-            else {
+            } else {
                 continue;
             }
             
@@ -450,7 +461,6 @@ class GoCardlessPaymentDriver extends BaseDriver
 
             $payment_method = $this->storeGatewayToken($data, ['gateway_customer_reference' => $mandate->links->customer]);
         }
-
     }
 
     /*
@@ -528,5 +538,10 @@ class GoCardlessPaymentDriver extends BaseDriver
         }
 
         return $client;
+    }
+
+    public function verificationView()
+    {
+        return render('gateways.gocardless.verification');
     }
 }

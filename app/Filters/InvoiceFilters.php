@@ -35,7 +35,7 @@ class InvoiceFilters extends QueryFilters
      * - overdue
      * - reversed
      *
-     * @param string client_status The invoice status as seen by the client
+     * @param string $value The invoice status as seen by the client
      * @return Builder
      */
     public function client_status(string $value = ''): Builder
@@ -69,7 +69,6 @@ class InvoiceFilters extends QueryFilters
             if (in_array('overdue', $status_parameters)) {
                 $query->orWhereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                 ->where('due_date', '<', Carbon::now())
-                                ->orWhere('due_date', null)
                                 ->orWhere('partial_due_date', '<', Carbon::now());
             }
         });
@@ -89,7 +88,7 @@ class InvoiceFilters extends QueryFilters
     /**
      * Filter based on search text.
      *
-     * @param string query filter
+     * @param string $filter
      * @return Builder
      * @deprecated
      */
@@ -109,11 +108,28 @@ class InvoiceFilters extends QueryFilters
                           ->orWhere('custom_value2', 'like', '%'.$filter.'%')
                           ->orWhere('custom_value3', 'like', '%'.$filter.'%')
                           ->orWhere('custom_value4', 'like', '%'.$filter.'%')
-                          ->orWhereHas('client', function ($q) use ($filter){
-                            $q->where('name', 'like', '%'.$filter.'%');
+                          ->orWhereHas('client', function ($q) use ($filter) {
+                              $q->where('name', 'like', '%'.$filter.'%');
                           });
         });
     }
+
+    /**
+     * @return Builder
+     * @throws RuntimeException
+     */
+    public function status_id(string $status = ''): Builder
+    {
+
+        if (strlen($status) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->whereIn('status_id', explode(",", $status));
+
+    }
+
+
 
     /**
      * @return Builder
@@ -128,11 +144,12 @@ class InvoiceFilters extends QueryFilters
 
     /**
      * @return Builder
+     * @return Builder
      * @throws InvalidArgumentException
      */
     public function upcoming(): Builder
     {
-        return $this->builder
+        return $this->builder->whereIn('status_id', [Invoice::STATUS_PARTIAL, Invoice::STATUS_SENT])
                     ->where(function ($query) {
                         $query->whereNull('due_date')
                               ->orWhere('due_date', '>', now());
@@ -142,6 +159,7 @@ class InvoiceFilters extends QueryFilters
 
     /**
      * @return void
+     * @return Builder
      * @throws InvalidArgumentException
      */
     public function overdue(): Builder
@@ -175,7 +193,7 @@ class InvoiceFilters extends QueryFilters
     /**
      * Sorts the list based on $sort.
      *
-     * @param string sort formatted as column|asc
+     * @param string $sort formatted as column|asc
      * @return Builder
      */
     public function sort(string $sort = ''): Builder
@@ -184,6 +202,14 @@ class InvoiceFilters extends QueryFilters
 
         if (!is_array($sort_col) || count($sort_col) != 2) {
             return $this->builder;
+        }
+
+        if ($sort_col[0] == 'client_id') {
+        
+            $this->builder->with(['client' => function($q) use($sort_col){
+                        $q->orderBy('name', $sort_col[1]);
+                        }]);
+            
         }
 
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
@@ -195,9 +221,9 @@ class InvoiceFilters extends QueryFilters
      * We need to ensure we are using the correct company ID
      * as we could be hitting this from either the client or company auth guard
      *
-     * @return Illuminate\Database\Query\Builder
+     * @return Builder
      */
-    public function entityFilter()
+    public function entityFilter(): Builder
     {
         if (auth()->guard('contact')->user()) {
             return $this->contactViewFilter();
@@ -211,7 +237,7 @@ class InvoiceFilters extends QueryFilters
      * @return Builder
      * @throws InvalidArgumentException
      */
-    public function private_notes($filter = '') :Builder
+    public function private_notes($filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;

@@ -18,7 +18,7 @@
 
     @if(!$quote->isApproved() && $client->getSetting('custom_message_unapproved_quote'))
         @component('portal.ninja2020.components.message')
-            {{ $client->getSetting('custom_message_unapproved_quote') }}
+            <pre>{{ $client->getSetting('custom_message_unapproved_quote') }}</pre>
         @endcomponent
     @endif
 
@@ -119,19 +119,6 @@
     <script type="text/javascript">
 
         var clipboard = new ClipboardJS('.btn');
-
-            // clipboard.on('success', function(e) {
-            //     console.info('Action:', e.action);
-            //     console.info('Text:', e.text);
-            //     console.info('Trigger:', e.trigger);
-
-            //     e.clearSelection();
-            // });
-
-            // clipboard.on('error', function(e) {
-            //     console.error('Action:', e.action);
-            //     console.error('Trigger:', e.trigger);
-            // });
 
     </script>
 @endsection

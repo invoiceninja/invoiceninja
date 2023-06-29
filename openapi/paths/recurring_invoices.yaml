@@ -67,7 +67,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
     post:
@@ -99,7 +103,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   
@@ -141,7 +149,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
     put:
@@ -181,7 +193,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
     delete:
@@ -217,7 +233,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   "/api/v1/recurring_invoices/{id}/edit":
@@ -258,7 +278,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   
@@ -292,7 +316,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   /api/v1/recurring_invoices/bulk:
@@ -333,10 +361,7 @@
                       Archives the recurring invoice. The recurring invoice will not fire in this state.
                     - `delete`  
                       Deletes a recurring invoice.  
-                   
-                  required: true
                 ids:
-                  required: true
                   type: array
                   items:
                     description: "Array of hashed IDs to be bulk 'actioned - ['D2J234DFA','D2J234DFA','D2J234DFA']"
@@ -363,7 +388,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   "/api/v1/recurring_invoices/{id}/{action}":
@@ -413,7 +442,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   "/api/v1/recurring_invoice/{invitation_key}/download":
@@ -450,7 +483,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   "/api/v1/recurring_invoices/{id}/upload":
@@ -491,6 +528,10 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"

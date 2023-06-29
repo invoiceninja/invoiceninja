@@ -11,15 +11,15 @@
 
 namespace App\Services\Payment;
 
-use App\Models\Payment;
-use App\Models\ClientContact;
 use App\Jobs\Payment\EmailPayment;
+use App\Models\ClientContact;
+use App\Models\Payment;
 
 class SendEmail
 {
-
     public function __construct(public Payment $payment, public ?ClientContact $contact)
-    {}
+    {
+    }
 
     /**
      * Builds the correct template to send.
@@ -29,16 +29,18 @@ class SendEmail
     {
         $this->payment->load('company', 'client.contacts', 'invoices');
 
-        if(!$this->contact)
+        if (!$this->contact) {
             $this->contact = $this->payment->client->contacts()->first();
+        }
 
         // $this->payment->invoices->sortByDesc('id')->first(function ($invoice) {
         //     $invoice->invitations->each(function ($invitation) {
         //         if (!$invitation->contact->trashed() && $invitation->contact->email) {
-                    EmailPayment::dispatch($this->payment, $this->payment->company, $this->contact);
+        EmailPayment::dispatch($this->payment, $this->payment->company, $this->contact);
+                    
+        // event(new PaymentWasEmailed($this->payment, $this->payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         //         }
         //     });
         // });
-        
     }
 }

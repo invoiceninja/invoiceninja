@@ -22,16 +22,10 @@ class YodleeController extends BaseController
 {
     public function auth(YodleeAuthRequest $request)
     {
-        // create a user at this point
-        // use the one time token here to pull in the actual user
-        // store the user_account_id on the accounts table
 
         $yodlee = new Yodlee();
 
         $company = $request->getCompany();
-
-
-        //ensure user is enterprise!!
 
         if ($company->account->bank_integration_account_id) {
             $flow = 'edit';
@@ -276,8 +270,6 @@ class YodleeController extends BaseController
     {
         //this is the main hook we use for notifications
 
-        nlog("data refresh");
-        nlog($request->all());
 
         return response()->json(['message' => 'Success'], 200);
     

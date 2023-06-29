@@ -11,10 +11,11 @@
 
 namespace App\Models;
 
+use App\Models\Filterable;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 
 /**
  * App\Models\GroupSetting
@@ -54,13 +55,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|GroupSetting whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|GroupSetting withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|GroupSetting withoutTrashed()
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Client> $clients
  * @mixin \Eloquent
  */
 class GroupSetting extends StaticModel
 {
     use MakesHash;
     use SoftDeletes;
-
+    use Filterable;
+    
     protected $casts = [
         'settings' => 'object',
         'updated_at' => 'timestamp',

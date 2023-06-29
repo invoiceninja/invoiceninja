@@ -22,30 +22,7 @@ class RecurringQuoteWasRestored
 {
     use SerializesModels;
 
-    /**
-     * @var RecurringQuote
-     */
-    public $recurring_quote;
-
-    public $fromDeleted;
-
-    public $company;
-
-    public $event_vars;
-
-    /**
-     * Create a new event instance.
-     *
-     * @param Invoice $invoice
-     * @param $fromDeleted
-     * @param Company $company
-     * @param array $event_vars
-     */
-    public function __construct(RecurringQuote $recurring_quote, $fromDeleted, Company $company, array $event_vars)
+    public function __construct(public RecurringQuote $recurring_quote, public bool $fromDeleted, public Company $company, public array $event_vars)
     {
-        $this->recurring_quote = $recurring_quote;
-        $this->fromDeleted = $fromDeleted;
-        $this->company = $company;
-        $this->event_vars = $event_vars;
     }
 }

@@ -65,8 +65,8 @@ class PaymentFailedMailer implements ShouldQueue
      */
     public function handle()
     {
-        if (!is_string($this->error)) {
-            $this->error = "Payment failed, no reason given.";
+        if (!is_string($this->error) || strlen($this->error) <=1) {
+            $this->error = "";
         }
 
         //Set DB
@@ -79,7 +79,8 @@ class PaymentFailedMailer implements ShouldQueue
         $invoice = false;
 
         if ($this->payment_hash) {
-            $amount = array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total;
+            // $amount = array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total;
+            $amount =$this->payment_hash?->amount_with_fee() ?: 0;
             $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
         }
 
@@ -91,7 +92,7 @@ class PaymentFailedMailer implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
-                $mail_obj = (new PaymentFailureObject($this->client, $this->error, $this->company, $amount, $this->payment_hash))->build();
+                $mail_obj = (new PaymentFailureObject($this->client, $this->error, $this->company, $amount, $this->payment_hash, $company_user->portalType()))->build();
 
                 $nmo = new NinjaMailerObject;
                 $nmo->mailable = new NinjaMailer($mail_obj);

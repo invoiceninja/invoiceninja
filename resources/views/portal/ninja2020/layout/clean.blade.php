@@ -91,7 +91,9 @@
 
         <!-- Styles -->
         <link href="{{ mix('css/app.css') }}" rel="stylesheet">
+        @if(auth()->guard('contact')->user() && !auth()->guard('contact')->user()->user->account->isPaid())
         {{-- <link href="{{ mix('favicon.png') }}" rel="shortcut icon" type="image/png"> --}}
+        @endif
 
         <link rel="canonical" href="{{ config('ninja.app_url') }}/{{ request()->path() }}"/>
 

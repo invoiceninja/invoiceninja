@@ -12,6 +12,7 @@
 namespace App\Repositories;
 
 use App\Models\Company;
+use App\Utils\Ninja;
 
 /**
  * CompanyRepository.
@@ -31,11 +32,17 @@ class CompanyRepository extends BaseRepository
      */
     public function save(array $data, Company $company) : ?Company
     {
+        
         if (isset($data['custom_fields']) && is_array($data['custom_fields'])) {
             $data['custom_fields'] = $this->parseCustomFields($data['custom_fields']);
         }
-
+        
         $company->fill($data);
+
+        /** Only required to handle v4 migration workloads */
+        if(Ninja::isHosted() && $company->isDirty('is_disabled') && !$company->is_disabled) {
+            Ninja::triggerForwarding($company->company_key, $company->owner()->email);
+        }
 
         if (array_key_exists('settings', $data)) {
             $company->saveSettings($data['settings'], $company);
@@ -45,7 +52,13 @@ class CompanyRepository extends BaseRepository
 
         return $company;
     }
-
+    
+    /**
+     * parseCustomFields
+     *
+     * @param  array $fields
+     * @return array
+     */
     private function parseCustomFields($fields) :array
     {
         foreach ($fields as &$value) {

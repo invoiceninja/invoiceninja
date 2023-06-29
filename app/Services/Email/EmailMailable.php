@@ -12,16 +12,15 @@
 namespace App\Services\Email;
 
 use App\Models\Document;
-use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Attachment;
-use Illuminate\Support\Facades\URL;
+use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Headers;
 use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Mail\Mailables\Headers;
+use Illuminate\Support\Facades\URL;
 
 class EmailMailable extends Mailable
 {
-    
     public int $max_attachment_size = 3000000;
 
     /**
@@ -39,9 +38,9 @@ class EmailMailable extends Mailable
      * @return \Illuminate\Mail\Mailables\Envelope
      */
     public function envelope()
-    {nlog($this->email_object->cc);
+    {
         return new Envelope(
-            subject: $this->email_object->subject,
+            subject: str_replace("<br>", "", $this->email_object->subject),
             tags: [$this->email_object->company_key],
             replyTo: $this->email_object->reply_to,
             from: $this->email_object->from,
@@ -58,21 +57,18 @@ class EmailMailable extends Mailable
      */
     public function content()
     {
-
-        $links = Document::whereIn('id',$this->email_object->documents)
+        $links = Document::whereIn('id', $this->email_object->documents)
                 ->where('size', '>', $this->max_attachment_size)
                 ->cursor()
-                ->map(function ($document){
-
-                return "<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>";
-
-        });
+                ->map(function ($document) {
+                    return "<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>";
+                });
 
         return new Content(
             view: $this->email_object->html_template,
             text: $this->email_object->text_template,
             with: [
-                'text_body' => strip_tags($this->email_object->body), //@todo this is a bit hacky here.
+                'text_body' => $this->email_object->text_body, //@todo this is a bit hacky here.
                 'body' => $this->email_object->body,
                 'settings' => $this->email_object->settings,
                 'whitelabel' => $this->email_object->whitelabel,
@@ -94,18 +90,16 @@ class EmailMailable extends Mailable
     {
         $attachments  = [];
 
-        $attachments = collect($this->email_object->attachments)->map(function ($file){
+        $attachments = collect($this->email_object->attachments)->map(function ($file) {
             return Attachment::fromData(fn () => base64_decode($file['file']), $file['name']);
         });
 
-        $documents = Document::whereIn('id',$this->email_object->documents)
+        $documents = Document::whereIn('id', $this->email_object->documents)
                 ->where('size', '<', $this->max_attachment_size)
                 ->cursor()
-                ->map(function ($document){
-
-                return Attachment::fromData(fn () => $document->getFile(), $document->name);
-
-        });
+                ->map(function ($document) {
+                    return Attachment::fromData(fn () => $document->getFile(), $document->name);
+                });
 
         return $attachments->merge($documents)->toArray();
     }

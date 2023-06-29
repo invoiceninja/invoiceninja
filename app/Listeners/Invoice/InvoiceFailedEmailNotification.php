@@ -49,7 +49,7 @@ class InvoiceFailedEmailNotification
                 unset($methods[$key]);
 
                 $nmo = new NinjaMailerObject;
-                $nmo->mailable = new NinjaMailer((new EntityFailedSendObject($event->invitation->withoutRelations(), 'invoice', $event->template, $event->message))->build());
+                $nmo->mailable = new NinjaMailer((new EntityFailedSendObject($event->invitation->withoutRelations(), 'invoice', $event->template, $event->message, $company_user->portalType()))->build());
                 $nmo->company = $invoice->company->withoutRelations();
                 $nmo->settings = $invoice->company->settings;
                 $nmo->to_user = $user;

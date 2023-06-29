@@ -107,7 +107,9 @@
                         <div>
                           <div class="flex justify-between text-base font-medium text-gray-900">
                             <h3>
-                              {!! nl2br($product->markdownNotes()) !!}
+                                <article class="prose">
+                                    {!! $product->markdownNotes() !!}
+                                </article>
                             </h3>
                             <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }}</p>
                           </div>
@@ -145,7 +147,11 @@
                           <div class="ml-0 flex flex-1 flex-col">
                             <div>
                               <div class="flex justify-between text-base font-medium text-gray-900">
-                                <h3>{!! nl2br($product->markdownNotes()) !!}</h3>
+                                <h3>
+                                    <article class="prose">
+                                        {!! $product->markdownNotes() !!}
+                                    </article>
+                                </h3>
                                 <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }} / {{ App\Models\RecurringInvoice::frequencyForKey($subscription->frequency_id) }}</p>
                               </div>
                             </div>
@@ -186,7 +192,11 @@
                           <div class="ml-0 flex flex-1 flex-col">
                             <div>
                               <div class="flex justify-between text-base font-medium text-gray-900">
-                                <h3>{!! nl2br($product->markdownNotes()) !!}</h3>
+                                <h3>
+                                    <article class="prose">
+                                        {!! $product->markdownNotes() !!}
+                                    </article>
+                                </h3>
                                 <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }}</p>
                               </div>
                               <p class="mt-1 text-sm text-gray-500"></p>
@@ -234,7 +244,7 @@
 
                 @foreach($bundle->toArray() as $item)
                     <div class="flex justify-between mt-1 mb-1">
-                      <span class="font-light text-sm">{{ $item['qty'] }} x {{ substr(str_replace(["\r","\n","<BR>","<BR />","<br>","<br />"]," ", $item['product']), 0, 30) . "..." }}</span>
+                      <span class="font-light text-sm">{{ $item['qty'] }} x {{ $item['product'] }}</span>
                       <span class="font-bold text-sm">{{ $item['price'] }}</span>
                     </div>
                 @endforeach

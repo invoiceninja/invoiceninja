@@ -26,9 +26,6 @@ class UserWasUpdated
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /**
-     * @var
-     */
     public $user;
 
     public $creating_user;
@@ -57,8 +54,8 @@ class UserWasUpdated
      *
      * @return Channel|array
      */
-    public function broadcastOn()
-    {
-        return new PrivateChannel('channel-name');
-    }
+     public function broadcastOn()
+     {
+        return [];
+     }
 }

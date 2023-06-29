@@ -2,9 +2,9 @@
 /**
  * Invoice Ninja (https://clientninja.com).
  *
- * @link https://github.com/clientninja/clientninja source repository
+ * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. client Ninja LLC (https://clientninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -27,8 +27,13 @@ class ClientTransformer extends BaseTransformer
      */
     public function transform($data)
     {
-        if (isset($data['Company Name']) && $this->hasClient($data['Company Name'])) {
-            throw new ImportException('Client already exists');
+        $client_id_proxy = array_key_exists('Customer ID', $data) ? 'Customer ID' : 'Primary Contact ID';
+
+        if(isset($data[$client_id_proxy]) && $this->hasClientIdNumber($data[$client_id_proxy])) {
+            throw new ImportException('Client ID already exists => '. $data[$client_id_proxy]);
+        }
+        elseif (isset($data['Company Name']) && $this->hasClient($data['Company Name'])) {
+            throw new ImportException('Client already exists => '. $data['Company Name']);
         }
 
         $settings = new \stdClass;
@@ -38,9 +43,7 @@ class ClientTransformer extends BaseTransformer
             $settings->payment_terms = $data['Payment Terms'];
         }
 
-        $client_id_proxy = array_key_exists('Customer ID', $data) ? 'Customer ID' : 'Primary Contact ID';
-
-        return [
+        $data = [
             'company_id'    => $this->company->id,
             'name'          => $this->getString($data, 'Display Name'),
             'phone'    		=> $this->getString($data, 'Phone'),
@@ -72,5 +75,7 @@ class ClientTransformer extends BaseTransformer
                 ],
             ],
         ];
+
+        return $data;
     }
 }

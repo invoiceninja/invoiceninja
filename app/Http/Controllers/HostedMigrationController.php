@@ -36,7 +36,10 @@ class HostedMigrationController extends Controller
         $account = (new CreateAccount($request->all(), $request->getClientIp()))->handle();
         $account->hosted_client_count = 100;
         $account->hosted_company_count = 10;
+        $account->created_at = now()->subYears(2);
         $account->save();
+
+        MultiDB::findAndSetDbByAccountKey($account->key);
 
         $company = $account->companies->first();
 

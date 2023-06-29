@@ -11,25 +11,25 @@
 
 namespace App\Providers;
 
-use App\Helpers\Mail\GmailTransport;
-use App\Helpers\Mail\Office365MailTransport;
-use App\Http\Middleware\SetDomainNameDb;
+use App\Utils\Ninja;
+use Livewire\Livewire;
 use App\Models\Invoice;
 use App\Models\Proposal;
-use App\Utils\Ninja;
 use App\Utils\TruthSource;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Mail\Mailer;
-use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Blade;
+use App\Helpers\Mail\GmailTransport;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\ParallelTesting;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\ServiceProvider;
-use Livewire\Livewire;
+use App\Http\Middleware\SetDomainNameDb;
+use Illuminate\Queue\Events\JobProcessing;
+use App\Helpers\Mail\Office365MailTransport;
+use Illuminate\Support\Facades\ParallelTesting;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -40,7 +40,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // DB::listen(function($query) {
+        // \DB::listen(function($query) {
         //     nlog(
         //         $query->sql,
         //         [
@@ -101,12 +101,12 @@ class AppServiceProvider extends ServiceProvider
             return $this;
         });
         
-        Mailer::macro('mailgun_config', function (string $secret, string $domain) {
+        Mailer::macro('mailgun_config', function (string $secret, string $domain, string $endpoint = 'api.mailgun.net') {
             Mailer::setSymfonyTransport(app('mail.manager')->createSymfonyTransport([
                 'transport' => 'mailgun',
                 'secret' => $secret,
                 'domain' => $domain,
-                'endpoint' => config('services.mailgun.endpoint'),
+                'endpoint' => $endpoint,
                 'scheme' => config('services.mailgun.scheme'),
             ]));
  
@@ -114,11 +114,18 @@ class AppServiceProvider extends ServiceProvider
         });
 
         /* Extension for custom mailers */
-        
 
         /* Convenience helper for testing s*/
         ParallelTesting::setUpTestDatabase(function ($database, $token) {
             Artisan::call('db:seed');
         });
+
+    }
+
+    public function register(): void
+    {
+        if (Ninja::isHosted()) {
+            $this->app->register(\App\Providers\BroadcastServiceProvider::class);
+        }
     }
 }

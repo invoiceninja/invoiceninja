@@ -148,8 +148,8 @@ class CompanyExport implements ShouldQueue
 
         $this->export_data['clients'] = $this->company->clients()->orderBy('number', 'DESC')->cursor()->map(function ($client) {
             $client = $this->transformArrayOfKeys($client, ['company_id', 'user_id', 'assigned_user_id', 'group_settings_id']);
-
-            return $client->makeVisible(['id','private_notes','user_id','company_id','last_login','hashed_id']);
+            $client->tax_data = '';
+            return $client->makeVisible(['id','private_notes','user_id','company_id','last_login','hashed_id'])->makeHidden(['is_tax_exempt','has_valid_vat_number']);
         })->all();
 
 
@@ -229,6 +229,7 @@ class CompanyExport implements ShouldQueue
         $this->export_data['invoices'] = $this->company->invoices()->orderBy('number', 'DESC')->cursor()->map(function ($invoice) {
             $invoice = $this->transformBasicEntities($invoice);
             $invoice = $this->transformArrayOfKeys($invoice, ['recurring_id','client_id', 'vendor_id', 'project_id', 'design_id', 'subscription_id','project_id']);
+            $invoice->tax_data = '';
 
             return $invoice->makeVisible(['id',
                                         'private_notes',

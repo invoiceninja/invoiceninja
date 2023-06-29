@@ -11,42 +11,44 @@
 
 namespace App\Exceptions;
 
+use Throwable;
+use PDOException;
 use App\Utils\Ninja;
-use Illuminate\Auth\Access\AuthorizationException;
+use Sentry\State\Scope;
+use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
+use Sentry\Laravel\Integration;
+use Illuminate\Support\Facades\Schema;
+use GuzzleHttp\Exception\ConnectException;
 use Illuminate\Auth\AuthenticationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
+use League\Flysystem\UnableToCreateDirectory;
+use Illuminate\Session\TokenMismatchException;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Queue\MaxAttemptsExceededException;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Symfony\Component\Process\Exception\RuntimeException;
 use Illuminate\Database\Eloquent\RelationNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Http\Exceptions\ThrottleRequestsException;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Queue\MaxAttemptsExceededException;
-use Illuminate\Session\TokenMismatchException;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Validation\ValidationException;
-use League\Flysystem\UnableToCreateDirectory;
-use PDOException;
-use Sentry\Laravel\Integration;
-use Sentry\State\Scope;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
-use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Throwable;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
+use InvalidArgumentException;
 
 class Handler extends ExceptionHandler
 {
     /**
      * A list of the exception types that are not reported.
      *
-     * @var array
+     * @var array<int, class-string<Throwable>>
      */
     protected $dontReport = [
-        PDOException::class,
+        // PDOException::class,
         MaxAttemptsExceededException::class,
         CommandNotFoundException::class,
         ValidationException::class,
-        ModelNotFoundException::class,
+        // ModelNotFoundException::class,
         NotFoundHttpException::class,
     ];
 
@@ -59,10 +61,9 @@ class Handler extends ExceptionHandler
         ModelNotFoundException::class,
         NotFoundHttpException::class,
         UnableToCreateDirectory::class,
-        GuzzleHttp\Exception\ConnectException::class,
-        Symfony\Component\Process\Exception\RuntimeException::class,
-        InvalidArgumentException::class,
+        ConnectException::class,
         RuntimeException::class,
+        InvalidArgumentException::class,
         Aws\Exception\CredentialsException::class,
     ];
 
@@ -78,7 +79,7 @@ class Handler extends ExceptionHandler
     /**
      * A list of the inputs that are never flashed for validation exceptions.
      *
-     * @var array
+     * @var array<1, string>
      */
     protected $dontFlash = [
         'current_password',
@@ -101,6 +102,12 @@ class Handler extends ExceptionHandler
         }
 
         if (Ninja::isHosted()) {
+
+            if($exception instanceof ThrottleRequestsException && class_exists(\Modules\Admin\Events\ThrottledExceptionRaised::class)) {
+                $uri = urldecode(request()->getRequestUri());
+                event(new \Modules\Admin\Events\ThrottledExceptionRaised(auth()->user()?->account?->key, $uri, request()->ip()));
+            }
+
             Integration::configureScope(function (Scope $scope): void {
                 $name = 'hosted@invoiceninja.com';
 
@@ -201,7 +208,6 @@ class Handler extends ExceptionHandler
      *
      * @param Request $request
      * @param Throwable $exception
-     * @return Response
      * @throws Throwable
      */
     public function render($request, Throwable $exception)

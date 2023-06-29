@@ -128,6 +128,8 @@ paths:
           $ref: "#/components/responses/403"
         422:
           $ref: "#/components/responses/422"
+        5XX:
+          $ref: "#/components/responses/5XX"
         default:
           $ref: "#/components/responses/default"
   /api/v1/refresh:

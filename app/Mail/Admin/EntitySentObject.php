@@ -36,7 +36,9 @@ class EntitySentObject
 
     private $template_body;
 
-    public function __construct($invitation, $entity_type, $template)
+    protected $use_react_url;
+
+    public function __construct($invitation, $entity_type, $template, $use_react_url)
     {
         $this->invitation = $invitation;
         $this->entity_type = $entity_type;
@@ -44,6 +46,7 @@ class EntitySentObject
         $this->contact = $invitation->contact;
         $this->company = $invitation->company;
         $this->template = $template;
+        $this->use_react_url = $use_react_url;
     }
 
     public function build()
@@ -78,7 +81,7 @@ class EntitySentObject
                         'purchase_order' => $this->entity->number,
                     ]
                 ),
-                'url' => $this->invitation->getAdminLink(),
+                'url' => $this->invitation->getAdminLink($this->use_react_url),
                 'button' => ctrans("texts.view_{$this->entity_type}"),
                 'signature' => $this->company->settings->email_signature,
                 'logo' => $this->company->present()->logo(),
@@ -101,7 +104,6 @@ class EntitySentObject
 
     private function setTemplate()
     {
-        // nlog($this->template);
 
         switch ($this->template) {
             case 'invoice':
@@ -135,6 +137,12 @@ class EntitySentObject
             case 'purchase_order':
                 $this->template_subject = 'texts.notification_purchase_order_sent_subject';
                 $this->template_body = 'texts.notification_purchase_order_sent';
+                break;
+            case 'custom1':
+            case 'custom2':
+            case 'custom3':
+                $this->template_subject = 'texts.notification_invoice_custom_sent_subject';
+                $this->template_body = 'texts.notification_invoice_sent';
                 break;
             default:
                 $this->template_subject = 'texts.notification_invoice_sent_subject';
@@ -179,7 +187,7 @@ class EntitySentObject
         return [
             'title' => $this->getSubject(),
             'message' => $this->getMessage(),
-            'url' => $this->invitation->getAdminLink(),
+            'url' => $this->invitation->getAdminLink($this->use_react_url),
             'button' => ctrans("texts.view_{$this->entity_type}"),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),

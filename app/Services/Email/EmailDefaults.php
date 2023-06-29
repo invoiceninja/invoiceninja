@@ -24,6 +24,7 @@ use App\Utils\Traits\MakesHash;
 use App\Jobs\Entity\CreateRawPdf;
 use Illuminate\Support\Facades\App;
 use Illuminate\Mail\Mailables\Address;
+use Illuminate\Support\Facades\Storage;
 use App\DataMapper\EmailTemplateDefaults;
 use League\CommonMark\CommonMarkConverter;
 use App\Jobs\Vendor\CreatePurchaseOrderPdf;
@@ -55,7 +56,7 @@ class EmailDefaults
     public function __construct(protected Email $email)
     {
     }
- 
+
     /**
      * Entry point for generating
      * the defaults for the email object
@@ -66,7 +67,7 @@ class EmailDefaults
     {
         $this->settings = $this->email->email_object->settings;
 
-        $this->setLocale() 
+        $this->setLocale()
              ->setFrom()
              ->setTo()
              ->setCc()
@@ -76,8 +77,8 @@ class EmailDefaults
              ->setReplyTo()
              ->setBcc()
              ->setAttachments()
-             ->setVariables();
-        
+             ->setVariables()
+             ->setHeaders();
         return $this->email->email_object;
     }
 
@@ -128,7 +129,6 @@ class EmailDefaults
     private function setFrom(): self
     {
         if (Ninja::isHosted() && $this->email->email_object->settings->email_sending_method == 'default') {
-
             if ($this->email->company->account->isPaid() && property_exists($this->email->email_object->settings, 'email_from_name') && strlen($this->email->email_object->settings->email_from_name) > 1) {
                 $email_from_name = $this->email->email_object->settings->email_from_name;
             } else {
@@ -168,9 +168,10 @@ class EmailDefaults
      */
     private function setBody(): self
     {
-        if ($this->email->email_object->body) {
+                
+        if (strlen($this->email->email_object->body) > 3) {
             // A Custom Message has been set in the email screen.
-            return $this;
+            // return $this;
         } elseif (strlen($this->email->email_object->settings?->{$this->email->email_object->email_template_body}) > 3) {
             // A body has been saved in the settings.
             $this->email->email_object->body = $this->email->email_object->settings?->{$this->email->email_object->email_template_body};
@@ -178,12 +179,15 @@ class EmailDefaults
             // Default template to be used
             $this->email->email_object->body = EmailTemplateDefaults::getDefaultTemplate($this->email->email_object->email_template_body, $this->locale);
         }
+
+        $this->email->email_object->text_body = strip_tags($this->email->email_object->body);
         
         if ($this->template == 'email.template.custom') {
-            $this->email->email_object->body = (str_replace('$body', $this->email->email_object->body, $this->email->email_object->settings->email_style_custom));
+            $this->email->email_object->body = (str_replace('$body', $this->email->email_object->body, str_replace(["\r","\n"], "", $this->email->email_object->settings->email_style_custom)));
         }
 
         return $this;
+
     }
 
     /**
@@ -223,10 +227,12 @@ class EmailDefaults
     public function setVariables(): self
     {
         $this->email->email_object->body = strtr($this->email->email_object->body, $this->email->email_object->variables);
-        
+
         $this->email->email_object->subject = strtr($this->email->email_object->subject, $this->email->email_object->variables);
 
-        if ($this->template != 'custom') {
+        
+        //06-06-2023 ensure we do not parse markdown in custom templates
+        if ($this->template != 'custom' && $this->template != 'email.template.custom') {
             $this->email->email_object->body = $this->parseMarkdownToHtml($this->email->email_object->body);
         }
 
@@ -252,7 +258,7 @@ class EmailDefaults
         foreach ($bccs as $bcc) {
             $bcc_array[] = new Address($bcc);
         }
-        
+
         $this->email->email_object->bcc = array_merge($this->email->email_object->bcc, $bcc_array);
 
         return $this;
@@ -266,7 +272,7 @@ class EmailDefaults
         return $this;
         // return $this->email->email_object->cc;
         // return [
-        
+
         // ];
     }
 
@@ -289,20 +295,29 @@ class EmailDefaults
 
         /** Purchase Order / Invoice / Credit / Quote PDF  */
         if ($this->email->email_object->settings->pdf_email_attachment && $this->email->email_object->entity instanceof PurchaseOrder) {
-
             $pdf = (new CreatePurchaseOrderPdf($this->email->email_object->invitation))->rawPdf();
 
             $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
-
         } elseif ($this->email->email_object->settings->pdf_email_attachment &&
         ($this->email->email_object->entity instanceof Invoice ||
          $this->email->email_object->entity instanceof Quote ||
          $this->email->email_object->entity instanceof Credit)) {
-
             $pdf = ((new CreateRawPdf($this->email->email_object->invitation, $this->email->company->db))->handle());
+            if ($this->email->email_object->settings->enable_e_invoice && $this->email->email_object->entity instanceof Invoice) {
+               
+                $xinvoice_path = $this->email->email_object->entity->service()->getEInvoice();
 
+                // $xinvoice_path = (new CreateEInvoice($this->email->email_object->entity, true, stream_get_meta_data($tempfile)['uri']))->handle();
+                // $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
+                
+                if(Storage::disk(config('filesystems.default'))->exists($xinvoice_path))
+                    $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode(Storage::get($xinvoice_path)), 'name' => explode(".", $this->email->email_object->entity->getFileName('xml'))[0]."-xinvoice.xml"]]);
+
+            }
+            else {
+                $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
+            }
             $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
-
         }
 
         /** UBL xml file */
@@ -313,9 +328,17 @@ class EmailDefaults
                 $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($ubl_string), 'name' => $this->email->email_object->entity->getFileName('xml')]]);
             }
         }
+        /** E-Invoice xml file */
+        if ($this->email->email_object->settings->enable_e_invoice && $this->email->email_object->entity instanceof Invoice) {
+            $xinvoice_path = $this->email->email_object->entity->service()->getEInvoice();
 
-        if(!$this->email->email_object->settings->document_email_attachment || !$this->email->company->account->hasFeature(Account::FEATURE_DOCUMENTS))
+            if(Storage::disk(config('filesystems.default'))->exists($xinvoice_path))
+                $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode(Storage::get($xinvoice_path)), 'name' => explode(".", $this->email->email_object->entity->getFileName('xml'))[0]."-e_invoice.xml"]]);
+        }
+
+        if (!$this->email->email_object->settings->document_email_attachment || !$this->email->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
             return $this;
+        }
 
         /* Company Documents */
         $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->company->documents->pluck('id')->toArray());
@@ -334,7 +357,7 @@ class EmailDefaults
         if ($this->email->email_object->entity instanceof Invoice) {
             $expense_ids = [];
             $task_ids = [];
-            
+
             foreach ($this->email->email_object->entity->line_items as $item) {
                 if (property_exists($item, 'expense_id')) {
                     $expense_ids[] = $item->expense_id;
@@ -372,7 +395,7 @@ class EmailDefaults
     private function setHeaders(): self
     {
         if ($this->email->email_object->invitation_key) {
-            $this->email->email_object->headers = array_merge($this->email->email_object->headers, ['x-invitation-key' => $this->email->email_object->invitation_key]);
+            $this->email->email_object->headers = array_merge($this->email->email_object->headers, ['x-invitation' => $this->email->email_object->invitation_key]);
         }
 
         return $this;

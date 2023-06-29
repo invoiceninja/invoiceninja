@@ -36,7 +36,7 @@ class MailSentListener implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param  object  $event
+     * @param  MessageSent $event
      * @return void
      */
     public function handle(MessageSent $event)

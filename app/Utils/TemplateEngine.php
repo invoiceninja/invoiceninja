@@ -96,6 +96,18 @@ class TemplateEngine
         if (strlen($this->entity) > 1 && strlen($this->entity_id) > 1) {
             $class = 'App\Models\\' . ucfirst(Str::camel($this->entity));
             $this->entity_obj = $class::withTrashed()->where('id', $this->decodePrimaryKey($this->entity_id))->company()->first();
+        } elseif (stripos($this->template, 'quote') !== false && $quote = Quote::whereHas('invitations')->withTrashed()->company()->first()) {
+            $this->entity = 'quote';
+            $this->entity_obj = $quote;
+        } elseif (stripos($this->template, 'purchase') !== false && $purchase_order = PurchaseOrder::whereHas('invitations')->withTrashed()->company()->first()) {
+            $this->entity = 'purchase_order';
+            $this->entity_obj = $purchase_order;
+        }elseif (stripos($this->template, 'payment') !== false && $payment = Payment::withTrashed()->company()->first()) {
+            $this->entity = 'payment';
+            $this->entity_obj = $payment;
+        } 
+        elseif ($invoice = Invoice::whereHas('invitations')->withTrashed()->company()->first()) {
+            $this->entity_obj = $invoice;
         } else {
             $this->mockEntity();
         }
@@ -323,6 +335,8 @@ class TemplateEngine
                 'user_id' => auth()->user()->id,
                 'company_id' => auth()->user()->company()->id,
                 'client_id' => $client->id,
+                'amount' => '10',
+                'balance' => '10',
             ]);
 
             $invitation = InvoiceInvitation::factory()->create([

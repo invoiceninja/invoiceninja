@@ -13,6 +13,7 @@ namespace App\Http\Controllers;
 
 use App\Factory\ProductFactory;
 use App\Filters\ProductFilters;
+use App\Http\Requests\Product\BulkProductRequest;
 use App\Http\Requests\Product\CreateProductRequest;
 use App\Http\Requests\Product\DestroyProductRequest;
 use App\Http\Requests\Product\EditProductRequest;
@@ -455,21 +456,32 @@ class ProductController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkProductRequest $request)
     {
-        $action = request()->input('action');
+        $action = $request->input('action');
 
-        $ids = request()->input('ids');
+        $ids = $request->input('ids');
 
-        $products = Product::withTrashed()->whereIn('id', $this->transformKeys($ids))->cursor();
+        $products = Product::withTrashed()->whereIn('id', $ids);
 
-        $products->each(function ($product, $key) use ($action) {
+        nlog($products->count());
+
+        if($action == 'set_tax_id'){
+            
+            $tax_id = $request->input('tax_id');
+
+            $products->update(['tax_id' => $tax_id]);
+
+            return $this->listResponse(Product::withTrashed()->whereIn('id', $ids));
+        }
+
+        $products->cursor()->each(function ($product, $key) use ($action) {
             if (auth()->user()->can('edit', $product)) {
                 $this->product_repo->{$action}($product);
             }
         });
 
-        return $this->listResponse(Product::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(Product::withTrashed()->whereIn('id', $ids));
     }
 
     /**

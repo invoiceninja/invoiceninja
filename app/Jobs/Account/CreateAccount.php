@@ -47,9 +47,9 @@ class CreateAccount
 
     public function handle()
     {
-        if (config('ninja.environment') == 'selfhost' && Account::all()->count() == 0) {
+        if (config('ninja.environment') == 'selfhost' && Account::count() == 0) {
             return $this->create();
-        } elseif (config('ninja.environment') == 'selfhost' && Account::all()->count() > 1) {
+        } elseif (config('ninja.environment') == 'selfhost' && Account::count() > 1) {
             return response()->json(['message' => Ninja::selfHostedMessage()], 400);
         } elseif (! Ninja::boot()) {
             return response()->json(['message' => Ninja::parse()], 401);
@@ -77,12 +77,10 @@ class CreateAccount
             $sp794f3f->hosted_company_count = config('ninja.quotas.free.max_companies');
             $sp794f3f->account_sms_verified = true;
 
-            if (in_array($this->getDomain($this->request['email']), ['givmail.com','yopmail.com','gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'aol.com', 'mail.ru','brand-app.biz','proton.me','ema-sofia.eu'])) {
+            if (in_array($this->getDomain($this->request['email']), ['mailto.plus', 'givmail.com','yopmail.com','gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'aol.com', 'mail.ru','brand-app.biz','proton.me','ema-sofia.eu', 'mail.com', 'fastmail.com'])) {
                 $sp794f3f->account_sms_verified = false;
             }
 
-            // $sp794f3f->trial_started = now();
-            // $sp794f3f->trial_plan = 'pro';
         }
 
         $sp794f3f->save();
@@ -125,6 +123,8 @@ class CreateAccount
             $nmo->to_user = $sp035a66->owner();
 
             NinjaMailerJob::dispatch($nmo, true);
+
+            // \Modules\Admin\Jobs\Account\NinjaUser::dispatch([], $sp035a66);
 
             (new \Modules\Admin\Jobs\Account\NinjaUser([], $sp035a66))->handle();
         }

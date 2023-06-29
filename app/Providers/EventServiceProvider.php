@@ -70,8 +70,8 @@ use App\Events\Quote\QuoteWasRestored;
 use App\Events\Client\ClientWasCreated;
 use App\Events\Client\ClientWasDeleted;
 use App\Events\Client\ClientWasUpdated;
-use App\Events\Client\DesignWasDeleted;
-use App\Events\Client\DesignWasUpdated;
+use App\Events\Design\DesignWasDeleted;
+use App\Events\Design\DesignWasUpdated;
 use App\Events\Contact\ContactLoggedIn;
 use App\Events\Credit\CreditWasCreated;
 use App\Events\Credit\CreditWasDeleted;
@@ -85,7 +85,7 @@ use App\Observers\SubscriptionObserver;
 use Illuminate\Mail\Events\MessageSent;
 use App\Events\Client\ClientWasArchived;
 use App\Events\Client\ClientWasRestored;
-use App\Events\Client\DesignWasRestored;
+use App\Events\Design\DesignWasRestored;
 use App\Events\Credit\CreditWasArchived;
 use App\Events\Credit\CreditWasRestored;
 use App\Events\Design\DesignWasArchived;
@@ -120,6 +120,9 @@ use App\Events\Payment\PaymentWasArchived;
 use App\Events\Payment\PaymentWasRefunded;
 use App\Events\Payment\PaymentWasRestored;
 use Illuminate\Mail\Events\MessageSending;
+use App\Events\Document\DocumentWasCreated;
+use App\Events\Document\DocumentWasDeleted;
+use App\Events\Document\DocumentWasUpdated;
 use App\Events\Invoice\InvoiceWasCancelled;
 use App\Listeners\Invoice\CreateInvoicePdf;
 use App\Listeners\Quote\QuoteEmailActivity;
@@ -127,6 +130,8 @@ use App\Listeners\User\CreatedUserActivity;
 use App\Listeners\User\DeletedUserActivity;
 use App\Listeners\User\UpdatedUserActivity;
 use App\Listeners\User\UpdateUserLastLogin;
+use App\Events\Document\DocumentWasArchived;
+use App\Events\Document\DocumentWasRestored;
 use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Listeners\Quote\QuoteViewedActivity;
 use App\Listeners\User\ArchivedUserActivity;
@@ -171,6 +176,7 @@ use App\Listeners\Activity\VendorUpdatedActivity;
 use App\Listeners\Contact\UpdateContactLastLogin;
 use App\Listeners\Invoice\InvoiceDeletedActivity;
 use App\Listeners\Payment\PaymentBalanceActivity;
+use App\Listeners\Payment\PaymentEmailedActivity;
 use App\Listeners\Quote\QuoteCreatedNotification;
 use App\Listeners\Quote\QuoteEmailedNotification;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
@@ -269,7 +275,6 @@ class EventServiceProvider extends ServiceProvider
     /**
      * The event listener mappings for the application.
      *
-     * @var array
      */
     protected $listen = [
         AccountCreated::class => [
@@ -433,6 +438,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         InvoiceReminderWasEmailed::class => [
             InvoiceReminderEmailActivity::class,
+            InvoiceEmailedNotification::class,
         ],
         InvoiceWasDeleted::class => [
             InvoiceDeletedActivity::class,
@@ -454,7 +460,7 @@ class EventServiceProvider extends ServiceProvider
             InvitationViewedListener::class,
         ],
         PaymentWasEmailed::class => [
-            // PaymentEmailedActivity::class,
+            PaymentEmailedActivity::class,
         ],
         PaymentWasEmailedAndFailed::class => [
             // PaymentEmailFailureActivity::class,

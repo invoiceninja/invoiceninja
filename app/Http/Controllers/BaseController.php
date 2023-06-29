@@ -33,6 +33,8 @@ use App\Utils\Statics;
 use App\Utils\Traits\AppSetup;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use League\Fractal\Manager;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
@@ -42,6 +44,7 @@ use League\Fractal\Serializer\JsonApiSerializer;
 
 /**
  * Class BaseController.
+ * @method static Illuminate\Database\Eloquent\Builder exclude($columns)
  */
 class BaseController extends Controller
 {
@@ -234,26 +237,26 @@ class BaseController extends Controller
      * @param  string  $includes The includes for the object
      * @return string            The filtered array of includes
      */
-    private function filterIncludes(string $includes): string
-    {
-        $permissions_array = [
-            'payments' => 'view_payment',
-            'client' => 'view_client',
-            'clients' => 'view_client',
-            'vendor' => 'view_vendor',
-            'vendors' => 'view_vendors',
-            'expense' => 'view_expense',
-            'expenses' => 'view_expense',
-        ];
+    // private function filterIncludes(string $includes): string
+    // {
+    //     $permissions_array = [
+    //         'payments' => 'view_payment',
+    //         'client' => 'view_client',
+    //         'clients' => 'view_client',
+    //         'vendor' => 'view_vendor',
+    //         'vendors' => 'view_vendors',
+    //         'expense' => 'view_expense',
+    //         'expenses' => 'view_expense',
+    //     ];
 
-        $collection = collect(explode(",", $includes));
+    //     $collection = collect(explode(",", $includes));
 
-        $filtered_includes = $collection->filter(function ($include) use ($permissions_array) {
-            return auth()->user()->hasPermission($permissions_array[$include]);
-        });
+    //     $filtered_includes = $collection->filter(function ($include) use ($permissions_array) {
+    //         return auth()->user()->hasPermission($permissions_array[$include]);
+    //     });
 
-        return $filtered_includes->implode(",");
-    }
+    //     return $filtered_includes->implode(",");
+    // }
 
     /**
      * 404 for the client portal.
@@ -292,11 +295,11 @@ class BaseController extends Controller
      * Refresh API response with latest cahnges
      *
      * @param  Builder           $query
-     * @property App\Models\User auth()->user()
-     * @return Builer
+     * @return Response
      */
     protected function refreshResponse($query)
     {
+        /** @var \App\Models\User $user */
         $user = auth()->user();
 
         $this->manager->parseIncludes($this->first_load);
@@ -360,7 +363,7 @@ class BaseController extends Controller
                         $query->where('designs.user_id', $user->id);
                     }
                 },
-                'company.documents'=> function ($query) {
+                'company.documents'=> function ($query) use ($updated_at) {
                     $query->where('updated_at', '>=', $updated_at);
                 },
                 'company.expenses'=> function ($query) use ($updated_at, $user) {
@@ -535,14 +538,18 @@ class BaseController extends Controller
 
             $paginator = $query->paginate($limit);
 
-            $query = $paginator->getCollection();
+            /** @phpstan-ignore-next-line */
+            $query = $paginator->getCollection(); /** @phpstan-ignore-line */
+
 
             $resource = new Collection($query, $transformer, $this->entity_type);
 
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
-        } else {
-            $resource = new Collection($query, $transformer, $this->entity_type);
         }
+        
+        // else {
+        //     $resource = new Collection($query, $transformer, $this->entity_type);
+        // }
 
         return $this->response($this->manager->createData($resource)->toArray());
     }
@@ -556,7 +563,6 @@ class BaseController extends Controller
     {
         if (request()->has('per_page')) {
             return min(abs((int)request()->input('per_page', 20)), 5000);
-            // return abs((int)request()->input('per_page', 20));
         }
 
         return 20;
@@ -565,11 +571,12 @@ class BaseController extends Controller
     /**
      * Mini Load Query
      *
-     * @param  mixed $query
-     * @return void
+     * @param  Builder $query
+     *
      */
     protected function miniLoadResponse($query)
     {
+        /** @var \App\Models\User $user */
         $user = auth()->user();
 
         $this->serializer = request()->input('serializer') ?: EntityTransformer::API_SERIALIZER_ARRAY;
@@ -636,12 +643,15 @@ class BaseController extends Controller
             $limit = $this->resolveQueryLimit();
 
             $paginator = $query->paginate($limit);
+
+            /** @phpstan-ignore-next-line */
             $query = $paginator->getCollection();
             $resource = new Collection($query, $transformer, $this->entity_type);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
-        } else {
-            $resource = new Collection($query, $transformer, $this->entity_type);
         }
+        //  else {
+        //     $resource = new Collection($query, $transformer, $this->entity_type);
+        // }
 
         return $this->response($this->manager->createData($resource)->toArray());
     }
@@ -654,24 +664,25 @@ class BaseController extends Controller
      * @deprecated
      * @return bool
      */
-    private function complexPermissionsUser(): bool
-    {
-        //if the user is attached to more than one company AND they are not an admin across all companies
-        if (auth()->user()->company_users()->count() > 1 && (auth()->user()->company_users()->where('is_admin', 1)->count() != auth()->user()->company_users()->count())) {
-            return true;
-        }
+    // private function complexPermissionsUser(): bool
+    // {
+    //     //if the user is attached to more than one company AND they are not an admin across all companies
+    //     if (auth()->user()->company_users()->count() > 1 && (auth()->user()->company_users()->where('is_admin', 1)->count() != auth()->user()->company_users()->count())) {
+    //         return true;
+    //     }
 
-        return false;
-    }
+    //     return false;
+    // }
     
     /**
      * Passes back the miniloaded data response
      *
-     * @param  mixed $query
-     * @return void
+     * @param  Builder $query
+     *
      */
     protected function timeConstrainedResponse($query)
     {
+        /** @var \App\Models\User $user */
         $user = auth()->user();
 
         if ($user->getCompany()->is_large) {
@@ -899,12 +910,17 @@ class BaseController extends Controller
             $limit = $this->resolveQueryLimit();
 
             $paginator = $query->paginate($limit);
+
+            /** @phpstan-ignore-next-line */
             $query = $paginator->getCollection();
+
             $resource = new Collection($query, $transformer, $this->entity_type);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
-        } else {
-            $resource = new Collection($query, $transformer, $this->entity_type);
-        }
+        } 
+        
+        // else {
+        //     $resource = new Collection($query, $transformer, $this->entity_type);
+        // }
 
         return $this->response($this->manager->createData($resource)->toArray());
     }
@@ -912,10 +928,9 @@ class BaseController extends Controller
     /**
      * List response
      *
-     * @param  mixed $query
-     * @return void
+     * @param Builder $query
      */
-    protected function listResponse($query)
+    protected function listResponse(Builder $query)
     {
         $this->buildManager();
 
@@ -927,24 +942,26 @@ class BaseController extends Controller
 
         $query->with($includes);
 
-        if (auth()->user() && ! auth()->user()->hasPermission('view_'.Str::snake(class_basename($this->entity_type)))) {
+        $user = Auth::user();
+
+        if ($user && ! $user->hasPermission('view_'.Str::snake(class_basename($this->entity_type)))) {
             if (in_array($this->entity_type, [User::class])) {
-                $query->where('id', auth()->user()->id);
+                $query->where('id', $user->id);
             } elseif (in_array($this->entity_type, [BankTransactionRule::class,CompanyGateway::class, TaxRate::class, BankIntegration::class, Scheduler::class, BankTransaction::class, Webhook::class, ExpenseCategory::class])) { //table without assigned_user_id
-                if ($this->entity_type == BankIntegration::class && !auth()->user()->isSuperUser() && auth()->user()->hasIntersectPermissions(['create_bank_transaction','edit_bank_transaction','view_bank_transaction'])) {
+                if ($this->entity_type == BankIntegration::class && !$user->isSuperUser() && $user->hasIntersectPermissions(['create_bank_transaction','edit_bank_transaction','view_bank_transaction'])) {
                     $query->exclude(["balance"]);
                 } //allows us to selective display bank integrations back to the user if they can view / create bank transactions but without the bank balance being present in the response
                 else {
-                    $query->where('user_id', '=', auth()->user()->id);
+                    $query->where('user_id', '=', $user->id);
                 }
             } elseif (in_array($this->entity_type, [Design::class, GroupSetting::class, PaymentTerm::class, TaskStatus::class])) {
                 // nlog($this->entity_type);
             } else {
-                $query->where('user_id', '=', auth()->user()->id)->orWhere('assigned_user_id', auth()->user()->id);
+                $query->where('user_id', '=', $user->id)->orWhere('assigned_user_id', $user->id);
             }
         }
         
-        if ($this->entity_type == Client::class && auth()->user()->hasExcludedPermissions($this->client_excludable_permissions, $this->client_excludable_overrides)) {
+        if ($this->entity_type == Client::class && $user->hasExcludedPermissions($this->client_excludable_permissions, $this->client_excludable_overrides)) {
             $query->exclude($this->client_exclusion_fields);
         }
 
@@ -962,9 +979,10 @@ class BaseController extends Controller
             $query = $paginator->getCollection();
             $resource = new Collection($query, $transformer, $this->entity_type);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
-        } else {
-            $resource = new Collection($query, $transformer, $this->entity_type);
         }
+        //  else {
+        //     $resource = new Collection($query, $transformer, $this->entity_type);
+        // }
 
         return $this->response($this->manager->createData($resource)->toArray());
     }
@@ -973,7 +991,7 @@ class BaseController extends Controller
      * Sorts the response by keys
      *
      * @param  mixed $response
-     * @return void
+     * @return Response
      */
     protected function response($response)
     {
@@ -993,7 +1011,11 @@ class BaseController extends Controller
             }
 
             if (request()->include_static) {
-                $response['static'] = Statics::company(auth()->user()->getCompany()->getLocale());
+
+                /** @var \App\Models\User $user */
+                $user = auth()->user();
+
+                $response['static'] = Statics::company($user->getCompany()->getLocale());
             }
         }
 
@@ -1010,7 +1032,7 @@ class BaseController extends Controller
      * Item Response
      *
      * @param  mixed $item
-     * @return void
+     * @return Response
      */
     protected function itemResponse($item)
     {
@@ -1024,8 +1046,11 @@ class BaseController extends Controller
 
         $resource = new Item($item, $transformer, $this->entity_type);
 
-        if (auth()->user() && request()->include_static) {
-            $data['static'] = Statics::company(auth()->user()->getCompany()->getLocale());
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if ($user && request()->include_static) {
+            $data['static'] = Statics::company($user->getCompany()->getLocale());
         }
 
         return $this->response($this->manager->createData($resource)->toArray());
@@ -1057,7 +1082,11 @@ class BaseController extends Controller
          * Thresholds for displaying large account on first load
          */
         if (request()->has('first_load') && request()->input('first_load') == 'true') {
-            if (auth()->user()->getCompany()->is_large && request()->missing('updated_at')) {
+            
+            /** @var \App\Models\User $user */
+            $user = auth()->user();
+
+            if ($user->getCompany()->is_large && request()->missing('updated_at')) {
                 $data = $this->mini_load;
             } else {
                 $data = $this->first_load;
@@ -1085,9 +1114,13 @@ class BaseController extends Controller
      */
     public function flutterRoute()
     {
+        
         if ((bool) $this->checkAppSetup() !== false && $account = Account::first()) {
+            
+            /** @var \App\Models\Account $account */
+
             //always redirect invoicing.co to invoicing.co
-            if (Ninja::isHosted() && !in_array(request()->getSchemeAndHttpHost(), ['https://staging.invoicing.co', 'https://invoicing.co', 'https://demo.invoicing.co'])) {
+            if (Ninja::isHosted() && !in_array(request()->getSchemeAndHttpHost(), ['https://staging.invoicing.co', 'https://invoicing.co', 'https://demo.invoicing.co', 'https://invoiceninja.net'])) {
                 return redirect()->secure('https://invoicing.co');
             }
 
@@ -1151,9 +1184,9 @@ class BaseController extends Controller
     /**
      * Sets the Flutter build to serve
      *
-     * @return void
+     * @return string
      */
-    private function setBuild()
+    private function setBuild(): string
     {
         $build = '';
 

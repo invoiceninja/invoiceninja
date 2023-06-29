@@ -19,6 +19,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Auth;
 
 class CleanStaleInvoiceOrder implements ShouldQueue
 {
@@ -37,6 +38,10 @@ class CleanStaleInvoiceOrder implements ShouldQueue
      */
     public function handle(InvoiceRepository $repo) : void
     {
+        nlog("Cleaning Stale Invoices:");
+        
+        Auth::logout();
+    
         if (! config('ninja.db.multi_db_enabled')) {
             Invoice::query()
                     ->withTrashed()
@@ -47,6 +52,20 @@ class CleanStaleInvoiceOrder implements ShouldQueue
                         $invoice->is_proforma = false;
                         $repo->delete($invoice);
                     });
+
+            Invoice::query()
+                   ->withTrashed()
+                   ->where('status_id', Invoice::STATUS_SENT)
+                   ->where('created_at', '<', now()->subHours(2))
+                   ->where('balance', '>', 0)
+                   ->cursor()
+                   ->each(function ($invoice){
+
+                    if (collect($invoice->line_items)->contains('type_id', 3)) {
+                        $invoice->service()->removeUnpaidGatewayFees();
+                    }
+
+                   });
 
             return;
         }

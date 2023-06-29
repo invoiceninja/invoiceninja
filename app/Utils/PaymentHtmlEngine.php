@@ -11,12 +11,10 @@
 
 namespace App\Utils;
 
-
 use App\Models\Client;
-use App\Utils\Helpers;
+use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Payment;
-use App\Models\ClientContact;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Support\Facades\App;
 
@@ -54,7 +52,7 @@ class PaymentHtmlEngine
         App::setLocale($this->contact->preferredLocale());
         $t->replace(Ninja::transformTranslations($this->client->getMergedSettings()));
  
-       $data = [];
+        $data = [];
 
         $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
         $data['$to'] = ['value' => '', 'label' => ctrans('texts.to')];
@@ -190,7 +188,6 @@ class PaymentHtmlEngine
         array_multisort($arrKeysLength, SORT_DESC, $data);
 
         return $data;
-
     }
 
     private function formatInvoiceField($field)
@@ -281,9 +278,9 @@ class PaymentHtmlEngine
     /**
      * generateLabelsAndValues
      *
-     * @return void
+     * @return array
      */
-    public function generateLabelsAndValues()
+    public function generateLabelsAndValues(): array
     {
         $data = [];
 
@@ -342,8 +339,4 @@ class PaymentHtmlEngine
             </table>
         ';
     }
-
-
-
-
 }

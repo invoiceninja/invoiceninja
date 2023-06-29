@@ -12,7 +12,6 @@
 namespace App\Notifications\Ninja;
 
 use App\Models\Company;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
 

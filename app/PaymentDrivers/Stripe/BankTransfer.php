@@ -106,8 +106,7 @@ class BankTransfer
     /**
      * paymentResponse
      *
-     * @param  mixed $request
-     * @return void
+     * @param  PaymentResponseRequest $request
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
@@ -154,16 +153,16 @@ class BankTransfer
     public function formatDataForUk(PaymentIntent $pi): array
     {
         return  [
-                    'amount' => Number::formatMoney($this->stripe->convertFromStripeAmount($pi->next_action->display_bank_transfer_instructions->amount_remaining, $this->stripe->client->currency()->precision, $this->stripe->client->currency()), $this->stripe->client),
-                    'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code->account_holder_name,
-                    'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code->account_number,
-                    'sort_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code->sort_code,
-                    'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
-                    'description' => $pi->description,
-                    'gateway'   => $this->stripe->company_gateway,
-                    'currency' => $pi->next_action->display_bank_transfer_instructions->currency,
+            'amount' => Number::formatMoney($this->stripe->convertFromStripeAmount($pi->next_action->display_bank_transfer_instructions->amount_remaining, $this->stripe->client->currency()->precision, $this->stripe->client->currency()), $this->stripe->client),
+            'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code->account_holder_name,
+            'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code->account_number,
+            'sort_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code->sort_code,
+            'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
+            'description' => $pi->description,
+            'gateway'   => $this->stripe->company_gateway,
+            'currency' => $pi->next_action->display_bank_transfer_instructions->currency,
 
-                ];
+        ];
     }
     
     /**
@@ -175,16 +174,16 @@ class BankTransfer
     public function formatDataforMx(PaymentIntent $pi): array
     {
         return  [
-                    'amount' => Number::formatMoney($this->stripe->convertFromStripeAmount($pi->next_action->display_bank_transfer_instructions->amount_remaining, $this->stripe->client->currency()->precision, $this->stripe->client->currency()), $this->stripe->client),
-                    'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->spei->bank_name,
-                    'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->spei->bank_code,
-                    'sort_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->spei->clabe,
-                    'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
-                    'description' => $pi->description,
-                    'gateway'   => $this->stripe->company_gateway,
-                    'currency' => $pi->next_action->display_bank_transfer_instructions->currency,
+            'amount' => Number::formatMoney($this->stripe->convertFromStripeAmount($pi->next_action->display_bank_transfer_instructions->amount_remaining, $this->stripe->client->currency()->precision, $this->stripe->client->currency()), $this->stripe->client),
+            'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->spei->bank_name,
+            'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->spei->bank_code,
+            'sort_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->spei->clabe,
+            'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
+            'description' => $pi->description,
+            'gateway'   => $this->stripe->company_gateway,
+            'currency' => $pi->next_action->display_bank_transfer_instructions->currency,
 
-                ];
+        ];
     }
 
     
@@ -246,7 +245,7 @@ class BankTransfer
 
         $data = [
             'payment_method' => $payment_intent->payment_method,
-            'payment_type' => PaymentType::DIRECT_DEBIT,
+            'payment_type' => PaymentType::STRIPE_BANK_TRANSFER,
             'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
             'transaction_reference' => $payment_intent->id,
             'gateway_type_id' => GatewayType::DIRECT_DEBIT,

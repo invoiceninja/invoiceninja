@@ -85,7 +85,7 @@ class ImportController extends Controller
 
             // Store the csv in cache with an expiry of 10 minutes
             Cache::put($hash.'-'.$entityType, base64_encode($contents), 600);
-
+            
             // Parse CSV
             $csv_array = $this->getCsvData($contents);
 
@@ -163,19 +163,15 @@ class ImportController extends Controller
         $bestDelimiter = ' ';
         $count = 0;
         foreach ($delimiters as $delimiter) {
-
             // if (substr_count($csvfile, $delimiter) > $count) {
             //     $count = substr_count($csvfile, $delimiter);
             //     $bestDelimiter = $delimiter;
             // }
             
-            if (substr_count(strstr($csvfile,"\n",true), $delimiter) > $count) {
+            if (substr_count(strstr($csvfile, "\n", true), $delimiter) > $count) {
                 $count = substr_count($csvfile, $delimiter);
                 $bestDelimiter = $delimiter;
             }
-
-            
-
         }
         return $bestDelimiter;
     }

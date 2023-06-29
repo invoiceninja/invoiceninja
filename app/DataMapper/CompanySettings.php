@@ -449,6 +449,8 @@ class CompanySettings extends BaseSettings
     
     public $mailgun_domain = '';
 
+    public $mailgun_endpoint = 'api.mailgun.net'; //api.eu.mailgun.net
+
     public $auto_bill_standard_invoices = false;
 
     public $email_alignment = 'center'; // center , left, right
@@ -473,7 +475,17 @@ class CompanySettings extends BaseSettings
 
     public $sync_invoice_quote_columns = true;
 
+    public $e_invoice_type = 'EN16931';
+
+    public $default_expense_payment_type_id = '0';
+
+    public $enable_e_invoice = false;
+
     public static $casts = [
+        'enable_e_invoice'                   => 'bool', 
+        'default_expense_payment_type_id'    => 'string',
+        'e_invoice_type'                     => 'string',    
+        'mailgun_endpoint'                   => 'string',    
         'client_initiated_payments'          => 'bool',
         'client_initiated_payments_minimum'  => 'float',
         'sync_invoice_quote_columns'         => 'bool',
@@ -502,7 +514,6 @@ class CompanySettings extends BaseSettings
         'purchase_order_design_id'           => 'string',
         'purchase_order_footer'              => 'string',
         'purchase_order_number_pattern'      => 'string',
-        'purchase_order_number_counter'      => 'int',
         'page_numbering_alignment'           => 'string',
         'page_numbering'                     => 'bool',
         'auto_archive_invoice_cancelled'     => 'bool',
@@ -534,7 +545,6 @@ class CompanySettings extends BaseSettings
         'reminder_send_time'                 => 'int',
         'email_sending_method'               => 'string',
         'gmail_sending_user_id'              => 'string',
-        'currency_id'                        => 'string',
         'counter_number_applied'             => 'string',
         'quote_number_applied'               => 'string',
         'email_subject_custom1'              => 'string',
@@ -960,6 +970,12 @@ class CompanySettings extends BaseSettings
                 '$payment.date',
                 '$method',
                 '$statement_amount',
+            ],
+            'statement_credit_columns' => [
+                '$credit.number',
+                '$credit.date',
+                '$total',
+                '$credit.balance',
             ],
         ];
 

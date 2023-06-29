@@ -53,9 +53,11 @@
         "halaxa/json-machine": "^0.7.0",
         "hashids/hashids": "^4.0",
         "hedii/laravel-gelf-logger": "^7.0",
+        "horstoeko/zugferd": "^1",
         "imdhemy/laravel-purchases": "^1.7",
         "intervention/image": "^2.5",
         "invoiceninja/inspector": "^1.0",
+        "josemmo/facturae-php": "^1.7",
         "laracasts/presenter": "^0.2.1",
         "laravel/framework": "^9.3",
         "laravel/slack-notification-channel": "^2.2",
@@ -74,13 +76,15 @@
         "omnipay/paypal": "^3.0",
         "payfast/payfast-php-sdk": "^1.1",
         "pragmarx/google2fa": "^8.0",
-        "turbo124/predis": "1.1.11",
+        "pusher/pusher-php-server": "^7.2",
         "razorpay/razorpay": "2.*",
         "sentry/sentry-laravel": "^3",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.3",
+        "shopify/shopify-api": "^4.3",
         "socialiteproviders/apple": "^5.2",
         "socialiteproviders/microsoft": "^4.1",
+        "spatie/laravel-data": "^3.5",
         "sprain/swiss-qr-bill": "^3.2",
         "square/square": "13.0.0.20210721",
         "stripe/stripe-php": "^7.50",
@@ -88,6 +92,7 @@
         "symfony/mailgun-mailer": "^6.1",
         "symfony/postmark-mailer": "^6.1",
         "turbo124/beacon": "^1.4",
+        "turbo124/predis": "1.1.11",
         "twilio/sdk": "^6.40",
         "webpatser/laravel-countries": "dev-master#75992ad",
         "wepay/php-sdk": "^0.3"
@@ -105,6 +110,7 @@
         "laravel/dusk": "^6.15",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^6.1",
+        "nunomaduro/larastan": "^2.0",
         "phpstan/phpstan": "^1.9",
         "phpunit/phpunit": "^9.5.10",
         "spatie/laravel-ignition": "^1.0",
@@ -158,7 +164,10 @@
     "config": {
         "preferred-install": "dist",
         "sort-packages": true,
-        "optimize-autoloader": true
+        "optimize-autoloader": true,
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
     },
     "minimum-stability": "dev",
     "prefer-stable": true

@@ -11,15 +11,15 @@
 
 namespace App\Export\CSV;
 
-use App\Utils\Ninja;
-use League\Csv\Writer;
+use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Product;
-use App\Libraries\MultiDB;
+use App\Utils\Ninja;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
-use Illuminate\Database\Eloquent\Collection;
+use League\Csv\Writer;
 
 class ProductSalesExport extends BaseExport
 {
@@ -97,8 +97,6 @@ class ProductSalesExport extends BaseExport
         }
 
         //insert the header
-        $this->csv->insertOne($this->buildHeader());
-
         $query = Invoice::query()
                         ->withTrashed()
                         ->where('company_id', $this->company->id)
@@ -109,6 +107,8 @@ class ProductSalesExport extends BaseExport
 
         $query = $this->filterByClients($query);
 
+        $this->csv->insertOne($this->buildHeader());
+
         $query->cursor()
               ->each(function ($invoice) {
                   foreach ($invoice->line_items as $item) {
@@ -117,10 +117,9 @@ class ProductSalesExport extends BaseExport
               });
 
         
-        $grouped = $this->sales->groupBy('product_key')->map(function ($key, $value){
-
+        $grouped = $this->sales->groupBy('product_key')->map(function ($key, $value) {
             $data =  [
-                'product' => $value, 
+                'product' => $value,
                 'quantity' => $key->sum('quantity'),
                 'markup' => $key->sum('markup'),
                 'profit' => $key->sum('profit'),
@@ -183,11 +182,10 @@ class ProductSalesExport extends BaseExport
         $this->sales->push($entity);
 
         return $entity;
-
     }
 
     private function decorateAdvancedFields(Invoice $invoice, $entity) :array
-    {   
+    {
         $product = $this->getProduct($entity['product_key']);
 
         $entity['cost'] = $product->cost ?? 0;
@@ -199,31 +197,31 @@ class ProductSalesExport extends BaseExport
         $entity['date'] = Carbon::parse($invoice->date)->format($this->company->date_format());
 
         $entity['discount'] = $this->calculateDiscount($invoice, $entity);
-        $entity['markup'] = round(((($entity['price'] - $entity['discount'] - $entity['cost']) / $unit_cost) * 100),2);
+        $entity['markup'] = round(((($entity['price'] - $entity['discount'] - $entity['cost']) / $unit_cost) * 100), 2);
 
         $entity['net_total'] = $entity['price'] - $entity['discount'];
         $entity['profit'] = $entity['price'] - $entity['discount'] - $entity['cost'];
         
-        if(strlen($entity['tax_name1']) > 1) {
+        if (strlen($entity['tax_name1']) > 1) {
             $entity['tax_name1'] = $entity['tax_name1'] . ' [' . $entity['tax_rate1'] . '%]';
             $entity['tax_amount1'] = $this->calculateTax($invoice, $entity['line_total'], $entity['tax_rate1']);
-        }
-        else 
+        } else {
             $entity['tax_amount1'] = 0;
+        }
 
-        if(strlen($entity['tax_name2']) > 1) {
+        if (strlen($entity['tax_name2']) > 1) {
             $entity['tax_name2'] = $entity['tax_name2'] . ' [' . $entity['tax_rate2'] . '%]';
             $entity['tax_amount2'] = $this->calculateTax($invoice, $entity['line_total'], $entity['tax_rate2']);
-        }
-        else 
+        } else {
             $entity['tax_amount2'] = 0;
+        }
         
-        if(strlen($entity['tax_name3']) > 1) {
+        if (strlen($entity['tax_name3']) > 1) {
             $entity['tax_name3'] = $entity['tax_name3'] . ' [' . $entity['tax_rate3'] . '%]';
             $entity['tax_amount3'] = $this->calculateTax($invoice, $entity['line_total'], $entity['tax_rate3']);
-        }
-        else 
+        } else {
             $entity['tax_amount3'] = 0;
+        }
 
         return $entity;
     }
@@ -231,7 +229,7 @@ class ProductSalesExport extends BaseExport
     /**
      * calculateTax
      *
-     * @param  mixed $invoice
+     * @param  Invoice $invoice
      * @param  float $amount
      * @param  float $tax_rate
      * @return float
@@ -240,13 +238,11 @@ class ProductSalesExport extends BaseExport
     {
         $amount = $amount - ($amount * ($invoice->discount / 100));
 
-        if($invoice->uses_inclusive_taxes) {
+        if ($invoice->uses_inclusive_taxes) {
             return round($amount - ($amount / (1 + ($tax_rate / 100))), 2);
-        }
-        else {
+        } else {
             return round(($amount * $tax_rate / 100), 2);
         }
-
     }
 
     
@@ -254,19 +250,19 @@ class ProductSalesExport extends BaseExport
     /**
      * calculateDiscount
      *
-     * @param  mixed $invoice
+     * @param  Invoice $invoice
      * @param  mixed $entity
      * @return float
      */
-    private function calculateDiscount(Invoice $invoice , $entity) :float
+    private function calculateDiscount(Invoice $invoice, $entity) :float
     {
-        if($entity['discount'] == 0)
+        if ($entity['discount'] == 0) {
             return 0;
-
-        if($invoice->is_amount_discount && $entity['discount'] != 0) {
-            return $entity['discount'];
         }
-        elseif(!$invoice->is_amount_discount && $entity['discount'] != 0) {
+
+        if ($invoice->is_amount_discount && $entity['discount'] != 0) {
+            return $entity['discount'];
+        } elseif (!$invoice->is_amount_discount && $entity['discount'] != 0) {
             return round($entity['line_total'] * ($entity['discount'] / 100), 2);
         }
 

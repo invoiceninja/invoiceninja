@@ -13,6 +13,10 @@
     <input type="hidden" name="company_gateway_id" id="company_gateway_id">
     <input type="hidden" name="payment_method_id" id="payment_method_id">
     <input type="hidden" name="signature">
+    <input type="hidden" name="pre_payment" value="{{ isset($pre_payment) ? $pre_payment : false }}">
+    <input type="hidden" name="is_recurring" value="{{ isset($is_recurring) ? $is_recurring : false }}">
+    <input type="hidden" name="frequency_id" value="{{ isset($frequency_id) ? $frequency_id : false }}">
+    <input type="hidden" name="remaining_cycles" value="{{ isset($remaining_cycles) ? $remaining_cycles : false }}">
 
     <div class="container mx-auto">
         <div class="grid grid-cols-6 gap-4">
@@ -83,6 +87,18 @@
                             </div>
                             @endif
 
+                            @if($settings->client_portal_allow_under_payment || $settings->client_portal_allow_over_payment)
+                            <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium leading-5 text-gray-500">
+                                    {{ ctrans('texts.amount_due') }}
+                                </dt>
+                                <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                                    {{ $invoice->client->currency()->code }} ({{ $invoice->client->currency()->symbol }})
+                                    {{ $invoice->partial > 0 ? $invoice->partial : $invoice->balance }}
+                                </dd>
+                            </div>
+                            @endif
+
                             @if(!empty($invoice->amount) && !is_null($invoice->amount))
                             <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium leading-5 text-gray-500">
@@ -102,15 +118,14 @@
                                                 readonly />
                                         </label>
                                     @else
+                                    
                                         <div class="flex items-center">
                                             <label>
                                                 <span class="mt-2">{{ $invoice->client->currency()->code }} ({{ $invoice->client->currency()->symbol }})</span>
-
                                                 <input
                                                     type="text"
                                                     class="input mt-0 mr-4 relative"
                                                     name="payable_invoices[{{$key}}][amount]"
-                                                    dusk="underpayment-input"
                                                     value="{{ $invoice->partial > 0 ? $invoice->partial : $invoice->balance }}"/>
                                             </label>
                                         </div>

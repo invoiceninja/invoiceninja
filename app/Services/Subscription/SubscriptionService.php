@@ -11,42 +11,42 @@
 
 namespace App\Services\Subscription;
 
-use Carbon\Carbon;
+use App\DataMapper\InvoiceItem;
+use App\Factory\CreditFactory;
+use App\Factory\InvoiceFactory;
+use App\Factory\PaymentFactory;
+use App\Factory\RecurringInvoiceFactory;
+use App\Jobs\Mail\NinjaMailer;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
+use App\Jobs\Util\SystemLogger;
+use App\Libraries\MultiDB;
+use App\Mail\RecurringInvoice\ClientContactRequestCancellationObject;
 use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\License;
-use App\Models\Product;
-use App\Models\SystemLog;
-use App\Libraries\MultiDB;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use Illuminate\Support\Str;
-use App\Models\Subscription;
-use App\Models\ClientContact;
-use App\Services\Email\Email;
-use App\Factory\CreditFactory;
-use App\Jobs\Mail\NinjaMailer;
-use App\DataMapper\InvoiceItem;
-use App\Factory\InvoiceFactory;
-use App\Factory\PaymentFactory;
-use App\Jobs\Util\SystemLogger;
-use App\Utils\Traits\MakesHash;
+use App\Models\Product;
 use App\Models\RecurringInvoice;
-use App\Jobs\Mail\NinjaMailerJob;
-use App\Services\Email\EmailObject;
-use App\Jobs\Mail\NinjaMailerObject;
-use App\Utils\Traits\CleanLineItems;
+use App\Models\Subscription;
+use App\Models\SystemLog;
 use App\Repositories\CreditRepository;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\PaymentRepository;
-use App\Factory\RecurringInvoiceFactory;
-use App\Utils\Traits\SubscriptionHooker;
-use App\Repositories\SubscriptionRepository;
 use App\Repositories\RecurringInvoiceRepository;
+use App\Repositories\SubscriptionRepository;
+use App\Services\Email\Email;
+use App\Services\Email\EmailObject;
+use App\Utils\Traits\CleanLineItems;
+use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Notifications\UserNotifies;
+use App\Utils\Traits\SubscriptionHooker;
+use Carbon\Carbon;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use App\Mail\RecurringInvoice\ClientContactRequestCancellationObject;
+use Illuminate\Support\Str;
 
 class SubscriptionService
 {
@@ -121,10 +121,13 @@ class SubscriptionService
                 'account_key' => $recurring_invoice->client->custom_value2,
             ];
 
-                $response = $this->triggerWebhook($context);
+            if (property_exists($payment_hash->data->billing_context, 'campaign')) {
+                $context['campaign'] = $payment_hash->data->billing_context->campaign;
+            }
+
+            $response = $this->triggerWebhook($context);
 
             return $this->handleRedirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
-
         } else {
             $invoice = Invoice::withTrashed()->find($payment_hash->fee_invoice_id);
 
@@ -168,8 +171,8 @@ class SubscriptionService
     {
         //send license to the user.
         $invoice = $payment_hash->fee_invoice;
-        $license_key = Str::uuid()->toString();
-        $invoice->footer = ctrans('texts.white_label_body',['license_key' => $license_key]);
+        $license_key = "v5_".Str::uuid()->toString();
+        $invoice->footer = ctrans('texts.white_label_body', ['license_key' => $license_key]);
 
         $recurring_invoice = $this->convertInvoiceToRecurring($payment_hash->payment->client_id);
         
@@ -207,7 +210,7 @@ class SubscriptionService
         $email_object = new EmailObject;
         $email_object->to = [$contact->email];
         $email_object->subject = ctrans('texts.white_label_link') . " " .ctrans('texts.payment_subject');
-        $email_object->body = ctrans('texts.white_label_body',['license_key' => $license_key]);
+        $email_object->body = ctrans('texts.white_label_body', ['license_key' => $license_key]);
         $email_object->client_id = $invoice->client_id;
         $email_object->client_contact_id = $contact->id;
         $email_object->invitation_key = $invitation->invitation_key;
@@ -219,7 +222,6 @@ class SubscriptionService
         Email::dispatch($email_object, $invoice->company);
 
         return true;
-
     }
 
     /* Starts the process to create a trial
@@ -436,10 +438,11 @@ class SubscriptionService
 
         $days_of_subscription_used = $start_date->diffInDays($current_date);
 
-        if($subscription)
+        if ($subscription) {
             $days_in_frequency = $subscription->service()->getDaysInFrequency();
-        else
+        } else {
             $days_in_frequency = $this->getDaysInFrequency();
+        }
 
         if ($days_of_subscription_used >= $days_in_frequency) {
             return 0;
@@ -1087,7 +1090,7 @@ class SubscriptionService
     }
 
 
-    private function setAutoBillFlag($auto_bill)
+    private function setAutoBillFlag($auto_bill): bool
     {
         if ($auto_bill == 'always' || $auto_bill == 'optout') {
             return true;

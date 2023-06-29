@@ -11,16 +11,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Account\CreateAccountRequest;
-use App\Http\Requests\Account\UpdateAccountRequest;
-use App\Jobs\Account\CreateAccount;
 use App\Models\Account;
+use App\Libraries\MultiDB;
+use App\Utils\TruthSource;
 use App\Models\CompanyUser;
+use Illuminate\Http\Response;
+use App\Jobs\Account\CreateAccount;
 use App\Transformers\AccountTransformer;
 use App\Transformers\CompanyUserTransformer;
-use App\Utils\TruthSource;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Http\Response;
+use App\Http\Requests\Account\CreateAccountRequest;
+use App\Http\Requests\Account\UpdateAccountRequest;
 
 class AccountController extends BaseController
 {
@@ -61,84 +62,6 @@ class AccountController extends BaseController
      * @param CreateAccountRequest $request
      * @return Response
      *
-     * @OA\Post(
-     *      path="/api/v1/signup",
-     *      operationId="postSignup",
-     *      tags={"signup"},
-     *      summary="Attempts a new account signup",
-     *      description="Attempts a new account signup and returns a CompanyUser object on success",
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(
-     *          name="token_name",
-     *          in="query",
-     *          description="A custom name for the user company token",
-     *          example="Daves iOS Device",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\RequestBody(
-     *         description="Signup credentials",
-     *         required=true,
-     *         @OA\MediaType(
-     *             mediaType="application/json",
-     *             @OA\Schema(
-     *                 type="object",
-     *                 @OA\Property(
-     *                     property="email",
-     *                     description="The user email address",
-     *                     type="string",
-     *                 ),
-     *                 @OA\Property(
-     *                     property="first_name",
-     *                     description="The signup users first name",
-     *                     type="string",
-     *                 ),
-     *                 @OA\Property(
-     *                     property="last_name",
-     *                     description="The signup users last name",
-     *                     type="string",
-     *                 ),
-     *                 @OA\Property(
-     *                     property="terms_of_service",
-     *                     description="The user accepted the terms of service",
-     *                     type="boolean",
-     *                 ),
-     *                 @OA\Property(
-     *                     property="privacy_policy",
-     *                     description="The user accepted the privacy policy",
-     *                     type="boolean",
-     *                 ),
-     *                 @OA\Property(
-     *                     property="password",
-     *                     example="1234567",
-     *                     description="The user password must meet minimum criteria ~ >6 characters",
-     *                     type="string"
-     *                 )
-     *             )
-     *         )
-     *     ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="The Company User response",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/CompanyUser"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      */
     public function store(CreateAccountRequest $request)
     {
@@ -146,15 +69,20 @@ class AccountController extends BaseController
         if (! ($account instanceof Account)) {
             return $account;
         }
+        
+        MultiDB::findAndSetDbByAccountKey($account->key);
 
-        $ct = CompanyUser::whereUserId(auth()->user()->id);
+        $cu = CompanyUser::where('user_id', $account->users()->first()->id);
+
+        $company_user = $cu->first();
 
         $truth = app()->make(TruthSource::class);
-        $truth->setCompanyUser($ct->first());
-        $truth->setUser(auth()->user());
-        $truth->setCompany($ct->first()->company);
+        $truth->setCompanyUser($company_user);
+        $truth->setUser($company_user->user);
+        $truth->setCompany($company_user->company);
+        $truth->setCompanyToken($company_user->tokens()->where('user_id', $company_user->user_id)->where('company_id', $company_user->company_id)->first());
 
-        return $this->listResponse($ct->fresh());
+        return $this->listResponse($cu);
     }
 
     public function update(UpdateAccountRequest $request, Account $account)

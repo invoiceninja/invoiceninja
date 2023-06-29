@@ -25,15 +25,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $created_at
  * @property int|null $updated_at
  * @property int|null $deleted_at
- * @property int $is_deleted
- * @property int $is_system
+ * @property bool $is_deleted
+ * @property bool $is_system
  * @property-read \App\Models\Account $account
  * @property-read \App\Models\Company $company
  * @property-read \App\Models\CompanyUser|null $company_user
  * @property-read \App\Models\CompanyUser|null $cu
  * @property-read mixed $hashed_id
  * @property-read \App\Models\User $user
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken filter(\App\Filters\QueryFilters $filters)
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken newModelQuery()
@@ -54,6 +53,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken with()
  * @mixin \Eloquent
  */
 class CompanyToken extends BaseModel
@@ -100,6 +100,9 @@ class CompanyToken extends BaseModel
                     ->where('user_id', $this->user_id);
     }
 
+    /**
+     * @return \Awobaz\Compoships\Database\Eloquent\Relations\HasOne
+     */
     public function cu()
     {
         return $this->hasOne(CompanyUser::class, 'user_id', 'user_id')

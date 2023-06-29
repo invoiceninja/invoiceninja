@@ -12,20 +12,15 @@
 namespace App\Services\Recurring;
 
 use App\Jobs\Util\UnlinkFile;
+use App\Models\RecurringQuote;
 use Illuminate\Support\Carbon;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
-use App\Services\Recurring\ApplyNumber;
-use App\Services\Recurring\UpdatePrice;
-use App\Services\Recurring\GetInvoicePdf;
-use App\Services\Recurring\IncreasePrice;
 use App\Jobs\RecurringInvoice\SendRecurring;
-use App\Services\Recurring\CreateRecurringInvitations;
 
 class RecurringService
 {
-
-    public function __construct(public RecurringInvoice | RecurringExpense $recurring_entity)
+    public function __construct(public RecurringInvoice | RecurringExpense | RecurringQuote $recurring_entity)
     {
     }
 
@@ -58,8 +53,9 @@ class RecurringService
             return $this;
         }
     
-        if($this->recurring_entity->trashed())
+        if ($this->recurring_entity->trashed()) {
             $this->recurring_entity->restore();
+        }
 
         $this->setStatus(RecurringInvoice::STATUS_ACTIVE);
         
@@ -145,7 +141,6 @@ class RecurringService
         (new IncreasePrice($this->recurring_entity, $percentage))->run();
         
         return $this;
-
     }
 
     public function updatePrice()

@@ -60,7 +60,7 @@ class InvoiceController extends Controller
             $invitation->markViewed();
 
             event(new InvitationWasViewed($invoice, $invitation, $invoice->company, Ninja::eventVars()));
-            event(new InvoiceWasViewed($invitation, $invitation->company, Ninja::eventVars()));
+            event(new InvoiceWasViewed($invitation, $invoice->company, Ninja::eventVars()));
         }
 
         $data = [
@@ -80,8 +80,6 @@ class InvoiceController extends Controller
     /**
      * Pay one or more invoices.
      *
-     * @param ProcessInvoicesInBulkRequest $request
-     * @return mixed
      */
     public function catch_bulk()
     {
@@ -189,7 +187,6 @@ class InvoiceController extends Controller
      *
      * @param array $ids
      *
-     * @return void
      */
     private function downloadInvoicePDF(array $ids)
     {

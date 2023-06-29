@@ -43,7 +43,7 @@ class SendEmailRequest extends Request
             'template' => 'bail|required',
             'entity' => 'bail|required',
             'entity_id' => 'bail|required',
-            'cc_email' => 'bail|sometimes|email',
+            'cc_email' => 'bail|sometimes|email|nullable',
         ];
     }
 
@@ -92,7 +92,11 @@ class SendEmailRequest extends Request
         
         /*Make sure we have all the require ingredients to send a template*/
         if (array_key_exists('entity', $input) && array_key_exists('entity_id', $input) && is_string($input['entity']) && $input['entity_id']) {
-            $company = auth()->user()->company();
+
+            /** @var \App\Models\User $user */
+            $user = auth()->user();
+
+            $company = $user->company();
 
             $entity = $input['entity'];
 
@@ -100,7 +104,7 @@ class SendEmailRequest extends Request
             $entity_obj = $entity::whereId($input['entity_id'])->withTrashed()->company()->first();
 
             /* Check object, check user and company id is same as users, and check user can edit the object */
-            if ($entity_obj && ($company->id == $entity_obj->company_id) && auth()->user()->can('edit', $entity_obj)) {
+            if ($entity_obj && ($company->id == $entity_obj->company_id) && $user->can('edit', $entity_obj)) {
                 return true;
             }
         }
