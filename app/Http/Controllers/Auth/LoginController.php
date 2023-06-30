@@ -682,8 +682,6 @@ class LoginController extends BaseController
                 'email' => $socialite_user->getEmail(),
                 'oauth_user_id' => $socialite_user->getId(),
                 'oauth_provider_id' => $provider,
-                // 'oauth_user_token' => $oauth_user_token,
-                // 'oauth_user_refresh_token' => $socialite_user->refreshToken,
             ];
 
             $user->update($update_user);
@@ -735,6 +733,10 @@ class LoginController extends BaseController
             nlog('user not found for oauth');
         }
 
-        return redirect('/#/');
+        $redirect_url = config('ninja.react_url')."/#/settings/user_details/connect";
+
+        return redirect($redirect_url);
+
+        // return redirect('/#/');
     }
 }
