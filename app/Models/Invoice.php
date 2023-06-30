@@ -727,7 +727,6 @@ class Invoice extends BaseModel
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         }
 
-
         try {
             $file_exists = Storage::disk('public')->exists($file_path);
         } catch (\Exception $e) {
