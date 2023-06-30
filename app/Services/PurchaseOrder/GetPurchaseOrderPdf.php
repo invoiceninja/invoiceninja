@@ -21,9 +21,6 @@ class GetPurchaseOrderPdf extends AbstractService
 {
     public function __construct(public PurchaseOrder $purchase_order, public ?VendorContact $contact = null)
     {
-        $this->purchase_order = $purchase_order;
-
-        $this->contact = $contact;
     }
 
     public function run()

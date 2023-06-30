@@ -683,7 +683,7 @@ class Invoice extends BaseModel
     }
 
     public function pdf_file_path($invitation = null, string $type = 'path', bool $portal = false)
-    {return "data:application/pdf;base64,".base64_encode((new CreateRawPdf($invitation, $invitation->company->db))->handle());
+    {
 
         if (! $invitation) {
             if ($this->invitations()->exists()) {
