@@ -245,6 +245,7 @@ class NinjaMailerJob implements ShouldQueue
                 $this->setGmailMailer();
                 return $this;
             case 'office365':
+            case 'microsoft':
                 $this->mailer = 'office365';
                 $this->setOfficeMailer();
                 return $this;
