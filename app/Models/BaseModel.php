@@ -11,15 +11,17 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Str;
+use Illuminate\Support\Carbon;
+use App\Utils\Traits\MakesHash;
+use App\Jobs\Entity\CreateRawPdf;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Traits\Excludable;
-use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\Model;
+use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Str;
 
 /**
  * Class BaseModel
@@ -254,5 +256,31 @@ class BaseModel extends Model
         if ($subscriptions) {
             WebhookHandler::dispatch($event_id, $this, $this->company, $additional_data);
         }
+    }
+
+    /**
+     * Returns the base64 encoded PDF string of the entity
+     */
+    public function fullscreenPdfViewer($invitation = null): string
+    {
+
+        if (! $invitation) {
+            if ($this->invitations()->exists()) {
+                $invitation = $this->invitations()->first();
+            } else {
+                $this->service()->createInvitations();
+                $invitation = $this->invitations()->first();
+            }
+        }
+
+        if (! $invitation) {
+            throw new \Exception('Hard fail, could not create an invitation - is there a valid contact?');
+        }
+
+        if($this instanceof \App\Models\PurchaseOrder) 
+            return "data:application/pdf;base64,".base64_encode((new CreatePurchaseOrderPdf($invitation, $invitation->company->db))->rawPdf());
+        
+        return "data:application/pdf;base64,".base64_encode((new CreateRawPdf($invitation, $invitation->company->db))->handle());
+
     }
 }

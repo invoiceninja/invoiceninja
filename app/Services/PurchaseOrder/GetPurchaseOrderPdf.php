@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Storage;
 
 class GetPurchaseOrderPdf extends AbstractService
 {
-    public function __construct(PurchaseOrder $purchase_order, VendorContact $contact = null)
+    public function __construct(public PurchaseOrder $purchase_order, public VendorContact $contact = null)
     {
         $this->purchase_order = $purchase_order;
 

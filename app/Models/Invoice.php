@@ -14,6 +14,7 @@ namespace App\Models;
 use App\Utils\Ninja;
 use Illuminate\Support\Carbon;
 use App\Utils\Traits\MakesDates;
+use App\Jobs\Entity\CreateRawPdf;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Entity\CreateEntityPdf;
 use App\Utils\Traits\MakesReminders;
@@ -682,7 +683,8 @@ class Invoice extends BaseModel
     }
 
     public function pdf_file_path($invitation = null, string $type = 'path', bool $portal = false)
-    {
+    {return "data:application/pdf;base64,".base64_encode((new CreateRawPdf($invitation, $invitation->company->db))->handle());
+
         if (! $invitation) {
             if ($this->invitations()->exists()) {
                 $invitation = $this->invitations()->first();
