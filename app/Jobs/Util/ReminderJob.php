@@ -208,7 +208,8 @@ class ReminderJob implements ShouldQueue
                 ->markSent()
                 ->save();
         
-        $invoice->service()->touchPdf(true);
+        //30-6-2023 - fix for duplicate touching
+        // $invoice->service()->touchPdf(true); 
 
         $enabled_reminder = 'enable_'.$reminder_template;
         if ($reminder_template == 'endless_reminder') {
@@ -268,7 +269,6 @@ class ReminderJob implements ShouldQueue
         }
 
         return [$late_fee_amount, $late_fee_percent];
-        // return $this->setLateFee($invoice, $late_fee_amount, $late_fee_percent);
     }
 
     /**

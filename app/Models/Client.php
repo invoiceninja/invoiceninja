@@ -544,9 +544,9 @@ class Client extends BaseModel implements HasLocalePreference
                 return $this->settings->{$setting};
             } elseif (is_bool($this->settings->{$setting})) {
                 return $this->settings->{$setting};
-            } elseif (is_int($this->settings->{$setting})) { //10-08-2022 integer client values are not being passed back! This resolves it.
+            } elseif (is_int($this->settings->{$setting})) { 
                 return $this->settings->{$setting};
-            } elseif(is_float($this->settings->{$setting})) { //10-08-2022 integer client values are not being passed back! This resolves it.
+            } elseif(is_float($this->settings->{$setting})) { 
                 return $this->settings->{$setting};
             }
         }

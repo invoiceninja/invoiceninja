@@ -48,7 +48,6 @@ class Rule extends BaseRule implements RuleInterface
     {
         
         $this->tax_rate1 = $item->tax_rate1;
-        
         $this->tax_name1 = $item->tax_name1;
 
         return $this;
@@ -116,6 +115,9 @@ class Rule extends BaseRule implements RuleInterface
     {
         if(in_array($this->tax_data?->txbService,['Y','L'])) {
             $this->default($item);
+        }
+        else {
+            $this->taxExempt($item);
         }
 
         return $this;

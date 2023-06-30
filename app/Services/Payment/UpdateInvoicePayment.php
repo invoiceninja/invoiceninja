@@ -79,7 +79,7 @@ class UpdateInvoicePayment
             $invoice =  $invoice->service()
                                 ->clearPartial()
                                 ->updateStatus()
-                                ->touchPdf()
+                                ->deletePdf()
                                 ->workFlow()
                                 ->save();
             

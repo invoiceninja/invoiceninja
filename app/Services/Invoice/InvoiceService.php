@@ -115,7 +115,6 @@ class InvoiceService
      */
     public function applyPayment(Payment $payment, float $payment_amount)
     {
-        // $this->deletePdf();
         $this->invoice = $this->markSent()->save();
 
         $this->invoice = (new ApplyPayment($this->invoice, $payment, $payment_amount))->run();
@@ -339,7 +338,7 @@ class InvoiceService
                                          return $item;
                                      })->toArray();
 
-        $this->touchPdf();
+        $this->deletePdf();
 
         return $this;
     }
@@ -348,13 +347,15 @@ class InvoiceService
     {
         $this->invoice->load('invitations');
 
+        //30-06-2023
         $this->invoice->invitations->each(function ($invitation) {
             try {
-                if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf')) {
+                // if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf')) {
                     Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf');
-                }
+                // }
 
-                if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf')) {
+                // if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf')) {
+                if (Ninja::isHosted()) {
                     Storage::disk('public')->delete($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf');
                 }
             } catch (\Exception $e) {
@@ -371,11 +372,12 @@ class InvoiceService
 
         $this->invoice->invitations->each(function ($invitation) {
             try {
-                if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
+                // if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
                     Storage::disk(config('filesystems.default'))->delete($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"));
-                }
+                // }
 
-                if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
+                // if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
+                if (Ninja::isHosted()) {
                     Storage::disk('public')->delete($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"));
                 }
             } catch (\Exception $e) {
@@ -403,7 +405,7 @@ class InvoiceService
                                      })->toArray();
 
         $this->invoice = $this->invoice->calc()->getInvoice();
-        $this->touchPdf();
+        $this->deletePdf();
 
         /* 24-03-2022 */
         $new_balance = $this->invoice->balance;

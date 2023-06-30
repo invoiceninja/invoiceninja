@@ -243,19 +243,20 @@ class NinjaMailerJob implements ShouldQueue
             case 'gmail':
                 $this->mailer = 'gmail';
                 $this->setGmailMailer();
-                return;
+                return $this;
             case 'office365':
+            case 'microsoft':
                 $this->mailer = 'office365';
                 $this->setOfficeMailer();
-                return;
+                return $this;
             case 'client_postmark':
                 $this->mailer = 'postmark';
                 $this->setPostmarkMailer();
-                return;
+                return $this;
             case 'client_mailgun':
                 $this->mailer = 'mailgun';
                 $this->setMailgunMailer();
-                return;
+                return $this;
 
             default:
                 break;
@@ -264,6 +265,8 @@ class NinjaMailerJob implements ShouldQueue
         if (Ninja::isSelfHost()) {
             $this->setSelfHostMultiMailer();
         }
+
+        return $this;
     }
 
     /**
