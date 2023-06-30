@@ -43,10 +43,6 @@ class TriggeredActions extends AbstractService
             $this->purchase_order = $this->purchase_order->service()->markSent()->touchPdf()->save();
         }
 
-        // if ($this->request->has('cancel') && $this->request->input('cancel') == 'true') {
-        //     $this->purchase_order = $this->purchase_order->service()->handleCancellation()->save();
-        // }
-
         if ($this->request->has('save_default_footer') && $this->request->input('save_default_footer') == 'true') {
             $company = $this->purchase_order->company;
             $settings = $company->settings;

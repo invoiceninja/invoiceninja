@@ -19,6 +19,7 @@ use App\Exceptions\QuoteConversion;
 use App\Jobs\Entity\CreateEntityPdf;
 use App\Repositories\QuoteRepository;
 use App\Events\Quote\QuoteWasApproved;
+use Illuminate\Support\Facades\Storage;
 
 class QuoteService
 {
@@ -115,7 +116,7 @@ class QuoteService
             $this->invoice
                  ->service()
                  ->markSent()
-                 ->touchPdf()
+                 ->deletePdf()
                  ->save();
         }
 
@@ -224,7 +225,22 @@ class QuoteService
     public function deletePdf()
     {
         $this->quote->invitations->each(function ($invitation) {
-            (new UnlinkFile(config('filesystems.default'), $this->quote->client->quote_filepath($invitation).$this->quote->numberFormatter().'.pdf'))->handle();
+            // (new UnlinkFile(config('filesystems.default'), $this->quote->client->quote_filepath($invitation).$this->quote->numberFormatter().'.pdf'))->handle();
+
+            //30-06-2023
+            try {
+                // if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf')) {
+                Storage::disk(config('filesystems.default'))->delete($this->quote->client->quote_filepath($invitation).$this->quote->numberFormatter().'.pdf');
+                // }
+
+                // if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf')) {
+                if (Ninja::isHosted()) {
+                    Storage::disk('public')->delete($this->quote->client->quote_filepath($invitation).$this->quote->numberFormatter().'.pdf');
+                }
+            } catch (\Exception $e) {
+                nlog($e->getMessage());
+            }
+
         });
 
         return $this;
