@@ -445,7 +445,8 @@ class Email implements ShouldQueue
                 return $this;
 
             default:
-                break;
+                $this->mailer = config('mail.default');
+                return $this;
         }
 
         if (Ninja::isSelfHost()) {
