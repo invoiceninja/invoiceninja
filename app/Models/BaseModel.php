@@ -274,7 +274,7 @@ class BaseModel extends Model
         }
 
         if (! $invitation) {
-            throw new \Exception('Hard fail, could not create an invitation - is there a valid contact?');
+            throw new \Exception('Hard fail, could not create an invitation.');
         }
 
         if($this instanceof \App\Models\PurchaseOrder) 
