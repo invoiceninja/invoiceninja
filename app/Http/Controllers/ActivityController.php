@@ -92,46 +92,47 @@ class ActivityController extends BaseController
                                 ->company()
                                 ->take($default_activities);
 
-        if ($request->has('react')) {
+        // if ($request->has('react')) {
 
-            /** @var \App\Models\User auth()->user() */
-            $user = auth()->user();
+        //     /** @var \App\Models\User auth()->user() */
+        //     $user = auth()->user();
 
-            if (!$user->isAdmin()) {
-                $activities->where('user_id', auth()->user()->id);
-            }
+        //     if (!$user->isAdmin()) {
+        //         $activities->where('user_id', auth()->user()->id);
+        //     }
 
-            $system = ctrans('texts.system');
+        //     $system = ctrans('texts.system');
 
-            $data = $activities->cursor()->map(function ($activity) {
+        //     $data = $activities->cursor()->map(function ($activity) {
 
-                $arr =
-                [
-                    'client' => $activity->client ? $activity->client : '',
-                    'contact' => $activity->client ? $activity->contact : '',
-                    'quote' => $activity->quote ? $activity->quote : '',
-                    'user' => $activity->user ? $activity->user : '',
-                    'expense' => $activity->expense ? $activity->expense : '',
-                    'invoice' => $activity->invoice ? $activity->invoice : '',
-                    'recurring_invoice' => $activity->recurring_invoice ? $activity->recurring_invoice : '',
-                    'payment' => $activity->payment ? $activity->payment : '',
-                    'credit' => $activity->credit ? $activity->credit : '',
-                    'task' => $activity->task ? $activity->task : '',
-                    'vendor' => $activity->vendor ? $activity->vendor : '',
-                    'purchase_order' => $activity->purchase_order ? $activity->purchase_order : '',
-                    'subscription' => $activity->subscription ? $activity->subscription : '',
-                    'vendor_contact' => $activity->vendor_contact ? $activity->vendor_contact : '',
-                    'recurring_expense' => $activity->recurring_expense ? $activity->recurring_expense : '',
-                ];
+        //         $arr =
+        //         [
+        //             'client' => $activity->client ? $activity->client : '',
+        //             'contact' => $activity->client ? $activity->contact : '',
+        //             'quote' => $activity->quote ? $activity->quote : '',
+        //             'user' => $activity->user ? $activity->user : '',
+        //             'expense' => $activity->expense ? $activity->expense : '',
+        //             'invoice' => $activity->invoice ? $activity->invoice : '',
+        //             'recurring_invoice' => $activity->recurring_invoice ? $activity->recurring_invoice : '',
+        //             'payment' => $activity->payment ? $activity->payment : '',
+        //             'credit' => $activity->credit ? $activity->credit : '',
+        //             'task' => $activity->task ? $activity->task : '',
+        //             'vendor' => $activity->vendor ? $activity->vendor : '',
+        //             'purchase_order' => $activity->purchase_order ? $activity->purchase_order : '',
+        //             'subscription' => $activity->subscription ? $activity->subscription : '',
+        //             'vendor_contact' => $activity->vendor_contact ? $activity->vendor_contact : '',
+        //             'recurring_expense' => $activity->recurring_expense ? $activity->recurring_expense : '',
+        //         ];
                 
-                $activity_array = $activity->toArray();
+        //         $activity_array = $activity->toArray();
 
-                return array_merge($arr, $activity_array);
-            });
+        //         return array_merge($arr, $activity_array);
+        //     });
 
-            return response()->json(['data' => $data->toArray()], 200);
-        }
-        elseif($request->has('reactv2')) {
+        //     return response()->json(['data' => $data->toArray()], 200);
+        // }
+        // else
+        if($request->has('reactv2')) {
 
             /** @var \App\Models\User auth()->user() */
             $user = auth()->user();

@@ -25,9 +25,12 @@ return new class extends Migration
             Language::create(['id' => 38, 'name' => 'Khmer', 'locale' => 'km_KH']);
         }
 
-        Schema::table('companies', function (Blueprint $table) {
-            $table->dropColumn('enable_e_invoice');
-        });
+        if (Schema::hasColumn('companies', 'enable_e_invoice'))
+        {
+            Schema::table('companies', function (Blueprint $table) {
+                $table->dropColumn('enable_e_invoice');
+            });
+        }
 
         Company::query()->cursor()->each(function ($company){
             $company->tax_data = new TaxModel();

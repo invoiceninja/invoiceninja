@@ -11,11 +11,13 @@
 
 namespace App\Services\Recurring;
 
+use App\Utils\Ninja;
 use App\Jobs\Util\UnlinkFile;
 use App\Models\RecurringQuote;
 use Illuminate\Support\Carbon;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
+use Illuminate\Support\Facades\Storage;
 use App\Jobs\RecurringInvoice\SendRecurring;
 
 class RecurringService
@@ -88,7 +90,22 @@ class RecurringService
     public function deletePdf()
     {
         $this->recurring_entity->invitations->each(function ($invitation) {
-            (new UnlinkFile(config('filesystems.default'), $this->recurring_entity->client->recurring_invoice_filepath($invitation) . $this->recurring_entity->numberFormatter().'.pdf'))->handle();
+            // (new UnlinkFile(config('filesystems.default'), $this->recurring_entity->client->recurring_invoice_filepath($invitation) . $this->recurring_entity->numberFormatter().'.pdf'))->handle();
+
+            //30-06-2023
+            try {
+                Storage::disk(config('filesystems.default'))->delete($this->recurring_entity->client->recurring_invoice_filepath($invitation) . $this->recurring_entity->numberFormatter().'.pdf');
+                // if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf')) {
+                // }
+
+                // if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf')) {
+                    Storage::disk('public')->delete($this->recurring_entity->client->recurring_invoice_filepath($invitation) . $this->recurring_entity->numberFormatter().'.pdf');
+                if (Ninja::isHosted()) {
+                }
+            } catch (\Exception $e) {
+                nlog($e->getMessage());
+            }
+
         });
 
 

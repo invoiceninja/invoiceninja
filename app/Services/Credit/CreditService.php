@@ -11,15 +11,17 @@
 
 namespace App\Services\Credit;
 
-use App\Factory\PaymentFactory;
-use App\Jobs\Entity\CreateEntityPdf;
-use App\Jobs\Util\UnlinkFile;
+use App\Utils\Ninja;
 use App\Models\Credit;
 use App\Models\Payment;
 use App\Models\PaymentType;
+use App\Jobs\Util\UnlinkFile;
+use App\Factory\PaymentFactory;
+use App\Utils\Traits\MakesHash;
+use App\Jobs\Entity\CreateEntityPdf;
 use App\Repositories\CreditRepository;
 use App\Repositories\PaymentRepository;
-use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Facades\Storage;
 
 class CreditService
 {
@@ -235,7 +237,24 @@ class CreditService
     public function deletePdf()
     {
         $this->credit->invitations->each(function ($invitation) {
-            (new UnlinkFile(config('filesystems.default'), $this->credit->client->credit_filepath($invitation).$this->credit->numberFormatter().'.pdf'))->handle();
+            // (new UnlinkFile(config('filesystems.default'), $this->credit->client->credit_filepath($invitation).$this->credit->numberFormatter().'.pdf'))->handle();
+            
+            //30-06-2023
+            try {
+                // if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf')) {
+                Storage::disk(config('filesystems.default'))->delete($this->credit->client->credit_filepath($invitation).$this->credit->numberFormatter().'.pdf');
+                // }
+
+                // if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf')) {
+                if (Ninja::isHosted()) {
+                    Storage::disk('public')->delete($this->credit->client->credit_filepath($invitation).$this->credit->numberFormatter().'.pdf');
+                }
+            } catch (\Exception $e) {
+                nlog($e->getMessage());
+            }
+
+        
+        
         });
 
         return $this;
