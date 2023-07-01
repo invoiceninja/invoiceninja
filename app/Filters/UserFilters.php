@@ -89,6 +89,15 @@ class UserFilters extends QueryFilters
             ->where('account_id', auth()->user()->account_id);
     }
     
+    public function sending_users(string $value = ''): Builder
+    {
+        if (strlen($value) == 0 || $value != 'true') {
+            return $this->builder;
+        }
+
+        return $this->builder->whereNotNull('oauth_user_refresh_token');
+    }
+    
     /**
      * Exclude a list of user_ids, can pass multiple
      * user IDs by separating them with a comma.

@@ -106,7 +106,7 @@ class iDeal
             'gateway_type_id' => GatewayType::IDEAL,
         ];
 
-        $this->stripe->createPayment($data, Payment::STATUS_PENDING);
+        $this->stripe->createPayment($data, Payment::STATUS_COMPLETED);
 
         SystemLogger::dispatch(
             ['response' => $this->stripe->payment_hash->data, 'data' => $data],
