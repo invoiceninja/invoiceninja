@@ -137,7 +137,7 @@ class ApplyPayment
                  ->updateBalance($this->amount_applied * -1)
                  ->updatePaidToDate($this->amount_applied)
                  ->updateStatus()
-                 ->touchPdf()
+                 ->deletePdf()
                  ->save();
 
         $this->credit
@@ -147,7 +147,7 @@ class ApplyPayment
         event(new InvoiceWasUpdated($this->invoice, $this->invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         if ((int) $this->invoice->balance == 0) {
-            $this->invoice->service()->touchPdf();
+            $this->invoice->service()->deletePdf();
             $this->invoice = $this->invoice->fresh();
             event(new InvoiceWasPaid($this->invoice, $this->payment, $this->payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         }

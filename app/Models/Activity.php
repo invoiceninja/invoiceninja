@@ -515,9 +515,8 @@ class Activity extends StaticModel
     {
         $system = ctrans('texts.system');
         
-        return match($variable) {
-            ':invoice' => $translation =  [substr($variable, 1) => [ 'label' => $this?->invoice?->number ?? '', 'hashed_id' => $this->invoice?->hashed_id ?? '']],
-            ':contact' => $translation =  $this->resolveContact(),
+        match($variable) {
+            ':invoice' => $translation = [substr($variable, 1) => [ 'label' => $this?->invoice?->number ?? '', 'hashed_id' => $this->invoice?->hashed_id ?? '']],
             ':user' => $translation =  [substr($variable, 1) => [ 'label' => $this?->user?->present()->name() ?? $system, 'hashed_id' => $this->user->hashed_id ?? '']],
             ':quote' => $translation =  [substr($variable, 1) => [ 'label' => $this?->quote?->number ?? '', 'hashed_id' => $this->quote->hashed_id ?? '']],
             ':credit' => $translation =  [substr($variable, 1) => [ 'label' => $this?->credit?->number ?? '', 'hashed_id' => $this->credit->hashed_id ?? '']],
@@ -531,6 +530,7 @@ class Activity extends StaticModel
             ':payment_amount' => $translation =  [substr($variable, 1) =>[ 'label' =>  Number::formatMoney($this?->payment?->amount, $this?->payment?->client) ?? '', 'hashed_id' => '']],
             ':adjustment' => $translation =  [substr($variable, 1) =>[ 'label' =>  Number::formatMoney($this?->payment?->refunded, $this?->payment?->client) ?? '', 'hashed_id' => '']], 
             ':ip' => $translation = [ 'ip' => $this->ip ?? ''],
+            ':contact' => $translation = $this->resolveContact(),
             default => $translation = [],
         };
 

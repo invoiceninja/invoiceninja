@@ -69,7 +69,7 @@ class ZipTax implements TaxProviderInterface
     private function parseResponse($response)
     {
 
-        if(isset($response['rCode']) && $response['rCode'] == 100)
+        if(isset($response['rCode']) && $response['rCode'] == 100 && isset($response['results']['0']))
             return $response['results']['0'];
 
         if(isset($response['rCode']) && class_exists(\Modules\Admin\Events\TaxProviderException::class)) 
