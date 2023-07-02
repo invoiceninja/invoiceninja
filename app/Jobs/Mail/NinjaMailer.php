@@ -15,16 +15,14 @@ use Illuminate\Mail\Mailable;
 
 class NinjaMailer extends Mailable
 {
-    public $mail_obj;
 
     /**
      * Create a new message instance.
      *
      * @param $mail_obj
      */
-    public function __construct($mail_obj)
+    public function __construct(public mixed $mail_obj)
     {
-        $this->mail_obj = $mail_obj;
     }
 
     /**
