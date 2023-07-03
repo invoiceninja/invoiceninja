@@ -163,12 +163,8 @@ class ImportController extends Controller
         $bestDelimiter = ' ';
         $count = 0;
         foreach ($delimiters as $delimiter) {
-            // if (substr_count($csvfile, $delimiter) > $count) {
-            //     $count = substr_count($csvfile, $delimiter);
-            //     $bestDelimiter = $delimiter;
-            // }
             
-            if (substr_count(strstr($csvfile, "\n", true), $delimiter) > $count) {
+            if (substr_count(strstr($csvfile, "\n", true), $delimiter) >= $count) {
                 $count = substr_count($csvfile, $delimiter);
                 $bestDelimiter = $delimiter;
             }
