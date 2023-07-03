@@ -145,6 +145,11 @@ class BaseRule implements RuleInterface
 
         $this->client = $invoice->client;
 
+        if(!$this->client->tax_data){
+            $this->should_calc_tax = false;
+            return $this;
+        }
+
         $this->resolveRegions();
 
         if(!$this->isTaxableRegion())
