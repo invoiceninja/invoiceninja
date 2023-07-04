@@ -161,13 +161,7 @@ class ZugferdEInvoice extends AbstractService
             }
         }
 
-
-        if ($this->invoice->isPartial()) {
-            $xrechnung->setDocumentSummation($this->invoice->amount, $this->invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), null, (float) $this->invoice->partial);
-        } else {
-            $xrechnung->setDocumentSummation($this->invoice->amount, $this->invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), null, 0.0);
-        }
-
+        $xrechnung->setDocumentSummation($this->invoice->amount, $this->invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), 0.0, $this->invoice->amount-$this->invoice->balance);
 
         foreach ($this->tax_map as $item){
             $xrechnung->addDocumentTax($item["tax_type"], "VAT", $item["net_amount"], $item["tax_rate"]*$item["net_amount"], $item["tax_rate"]*100);
