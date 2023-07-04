@@ -95,7 +95,6 @@ class UpdateCompanyUserTest extends TestCase
         $this->assertFalse($arr['data']['company_user']['react_settings']['show_pdf_preview']);
         $this->assertTrue($arr['data']['company_user']['react_settings']['react_notification_link']);
 
-
     }
 
 
