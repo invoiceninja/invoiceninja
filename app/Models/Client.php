@@ -91,7 +91,6 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientGatewayToken> $gateway_tokens
  * @property-read int|null $gateway_tokens_count
  * @property-read mixed $hashed_id
- * @property-read \App\Models\GroupSetting|null $group_settings
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
  * @property-read int|null $invoices_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $ledger
@@ -112,6 +111,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SystemLog> $system_logs
  * @property-read int|null $system_logs_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoice> $recurring_invoices
  * @property-read int|null $tasks_count
  * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()

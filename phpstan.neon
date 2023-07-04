@@ -2,6 +2,8 @@ includes:
     - ./vendor/nunomaduro/larastan/extension.neon
 
 parameters:
+	parallel:
+		processTimeout: 300.0
     treatPhpDocTypesAsCertain: false
     ignoreErrors:
         - '#Call to an undefined method .*badMethod\(\)#'

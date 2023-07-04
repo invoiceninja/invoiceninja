@@ -56,7 +56,7 @@ class UpdateCompanyUserTest extends TestCase
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->put('/api/v1/company_users/'.$this->encodePrimaryKey($this->user->id).'/preferences', $settings);
+            ])->put('/api/v1/company_users/'.$this->encodePrimaryKey($this->user->id).'/preferences?include=company_user', $settings);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
             $this->assertNotNull($message);
@@ -66,9 +66,8 @@ class UpdateCompanyUserTest extends TestCase
 
         $arr = $response->json();
 
-        $this->assertTrue($arr['data']['react_settings']['show_pdf_preview']);
-        $this->assertFalse($arr['data']['react_settings']['react_notification_link']);
-
+        $this->assertTrue($arr['data']['company_user']['react_settings']['show_pdf_preview']);
+        $this->assertFalse($arr['data']['company_user']['react_settings']['react_notification_link']);
 
         $settings = [
             'react_settings' => [
@@ -83,7 +82,7 @@ class UpdateCompanyUserTest extends TestCase
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->put('/api/v1/company_users/'.$this->encodePrimaryKey($this->user->id).'/preferences', $settings);
+            ])->put('/api/v1/company_users/'.$this->encodePrimaryKey($this->user->id).'/preferences?include=company_user', $settings);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
             $this->assertNotNull($message);
@@ -93,9 +92,8 @@ class UpdateCompanyUserTest extends TestCase
 
         $arr = $response->json();
 
-        $this->assertFalse($arr['data']['react_settings']['show_pdf_preview']);
-        $this->assertTrue($arr['data']['react_settings']['react_notification_link']);
-
+        $this->assertFalse($arr['data']['company_user']['react_settings']['show_pdf_preview']);
+        $this->assertTrue($arr['data']['company_user']['react_settings']['react_notification_link']);
 
     }
 
