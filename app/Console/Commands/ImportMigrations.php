@@ -105,7 +105,7 @@ class ImportMigrations extends Command
                     $import_file = public_path("storage/migrations/$filename/migration.json");
 
                     Import::dispatch($import_file, $this->getUser()->companies()->first(), $this->getUser());
-                    //   StartMigration::dispatch($file->getRealPath(), $this->getUser(), $this->getUser()->companies()->first());
+
                 } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing $e) {
                     \Mail::to($user)->send(new MigrationFailed($e, $company));
 

@@ -309,7 +309,6 @@ class Company extends BaseModel
         'google_analytics_key',
         'matomo_url',
         'matomo_id',
-        'enable_e_invoice',
         'client_can_register',
         'enable_shop_api',
         'invoice_task_timelog',

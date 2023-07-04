@@ -123,6 +123,21 @@ class TaskFilters extends QueryFilters
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }
 
+    public function task_status(string $value = ''): Builder
+    {
+        if (strlen($value) == 0) {
+            return $this->builder;
+        }
+
+        $status_parameters = explode(',', $value);
+
+        if(count($status_parameters) > 0)
+            return $this->builder->whereIn('status_id', $this->transformKeys($status_parameters));
+
+        return $this->builder;
+    }
+
+
     /**
      * Filters the query by the users company ID.
      *
