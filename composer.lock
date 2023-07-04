@@ -3345,16 +3345,16 @@
         },
         {
             "name": "horstoeko/zugferd",
-            "version": "v1.0.19",
+            "version": "v1.0.20",
             "source": {
                 "type": "git",
                 "url": "https://github.com/horstoeko/zugferd.git",
-                "reference": "2432b4f16c376f5e21dcb825da2edaf883397d3f"
+                "reference": "725c130ec0a09d72cf54b3d819840f3959a5502c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/horstoeko/zugferd/zipball/2432b4f16c376f5e21dcb825da2edaf883397d3f",
-                "reference": "2432b4f16c376f5e21dcb825da2edaf883397d3f",
+                "url": "https://api.github.com/repos/horstoeko/zugferd/zipball/725c130ec0a09d72cf54b3d819840f3959a5502c",
+                "reference": "725c130ec0a09d72cf54b3d819840f3959a5502c",
                 "shasum": ""
             },
             "require": {
@@ -3412,9 +3412,9 @@
             ],
             "support": {
                 "issues": "https://github.com/horstoeko/zugferd/issues",
-                "source": "https://github.com/horstoeko/zugferd/tree/v1.0.19"
+                "source": "https://github.com/horstoeko/zugferd/tree/v1.0.20"
             },
-            "time": "2023-05-16T04:16:15+00:00"
+            "time": "2023-07-04T15:21:32+00:00"
         },
         {
             "name": "http-interop/http-factory-guzzle",
@@ -3529,16 +3529,16 @@
         },
         {
             "name": "imdhemy/google-play-billing",
-            "version": "1.4.1",
+            "version": "1.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/imdhemy/google-play-billing.git",
-                "reference": "56f383338756eba875dc07cc30e55fa35267447f"
+                "reference": "d318db28efafb56ac8954c9f651fbe6ac367d637"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/imdhemy/google-play-billing/zipball/56f383338756eba875dc07cc30e55fa35267447f",
-                "reference": "56f383338756eba875dc07cc30e55fa35267447f",
+                "url": "https://api.github.com/repos/imdhemy/google-play-billing/zipball/d318db28efafb56ac8954c9f651fbe6ac367d637",
+                "reference": "d318db28efafb56ac8954c9f651fbe6ac367d637",
                 "shasum": ""
             },
             "require": {
@@ -3574,22 +3574,22 @@
             "description": "Google Play Billing",
             "support": {
                 "issues": "https://github.com/imdhemy/google-play-billing/issues",
-                "source": "https://github.com/imdhemy/google-play-billing/tree/1.4.1"
+                "source": "https://github.com/imdhemy/google-play-billing/tree/1.4.2"
             },
-            "time": "2023-06-05T06:38:09+00:00"
+            "time": "2023-07-04T16:00:39+00:00"
         },
         {
             "name": "imdhemy/laravel-purchases",
-            "version": "1.8.1",
+            "version": "1.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/imdhemy/laravel-in-app-purchases.git",
-                "reference": "5f716b36962eb014231ecd23ea149450a6a80dbb"
+                "reference": "22c6c85f94b34fefe6a92e5d1df2e1d61bd62d38"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/imdhemy/laravel-in-app-purchases/zipball/5f716b36962eb014231ecd23ea149450a6a80dbb",
-                "reference": "5f716b36962eb014231ecd23ea149450a6a80dbb",
+                "url": "https://api.github.com/repos/imdhemy/laravel-in-app-purchases/zipball/22c6c85f94b34fefe6a92e5d1df2e1d61bd62d38",
+                "reference": "22c6c85f94b34fefe6a92e5d1df2e1d61bd62d38",
                 "shasum": ""
             },
             "require": {
@@ -3645,7 +3645,7 @@
             ],
             "support": {
                 "issues": "https://github.com/imdhemy/laravel-in-app-purchases/issues",
-                "source": "https://github.com/imdhemy/laravel-in-app-purchases/tree/1.8.1"
+                "source": "https://github.com/imdhemy/laravel-in-app-purchases/tree/1.8.2"
             },
             "funding": [
                 {
@@ -3653,7 +3653,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-05-24T09:19:14+00:00"
+            "time": "2023-07-04T16:11:06+00:00"
         },
         {
             "name": "intervention/image",
@@ -9312,16 +9312,16 @@
         },
         {
             "name": "sentry/sentry-laravel",
-            "version": "3.6.0",
+            "version": "3.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-laravel.git",
-                "reference": "6aacef4d12c22046f68ab617ee1496b9655b8eb9"
+                "reference": "eb94a52b88794d0c108dc46ca1a680531c3a8bad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-laravel/zipball/6aacef4d12c22046f68ab617ee1496b9655b8eb9",
-                "reference": "6aacef4d12c22046f68ab617ee1496b9655b8eb9",
+                "url": "https://api.github.com/repos/getsentry/sentry-laravel/zipball/eb94a52b88794d0c108dc46ca1a680531c3a8bad",
+                "reference": "eb94a52b88794d0c108dc46ca1a680531c3a8bad",
                 "shasum": ""
             },
             "require": {
@@ -9386,7 +9386,7 @@
             ],
             "support": {
                 "issues": "https://github.com/getsentry/sentry-laravel/issues",
-                "source": "https://github.com/getsentry/sentry-laravel/tree/3.6.0"
+                "source": "https://github.com/getsentry/sentry-laravel/tree/3.6.1"
             },
             "funding": [
                 {
@@ -9398,7 +9398,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2023-06-29T10:31:13+00:00"
+            "time": "2023-07-04T10:30:42+00:00"
         },
         {
             "name": "setasign/fpdf",
@@ -16339,16 +16339,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.10.22",
+            "version": "1.10.23",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "97d694dfd4ceb57bcce4e3b38548f13ea62e4287"
+                "reference": "65ab678d1248a8bc6fde456f0d7ff3562a61a4cd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/97d694dfd4ceb57bcce4e3b38548f13ea62e4287",
-                "reference": "97d694dfd4ceb57bcce4e3b38548f13ea62e4287",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/65ab678d1248a8bc6fde456f0d7ff3562a61a4cd",
+                "reference": "65ab678d1248a8bc6fde456f0d7ff3562a61a4cd",
                 "shasum": ""
             },
             "require": {
@@ -16397,7 +16397,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-06-30T20:04:11+00:00"
+            "time": "2023-07-04T13:32:44+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
