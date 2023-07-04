@@ -2515,8 +2515,8 @@ $LANG = array(
     'partial_due_date' => 'Partial Due Date',
     'task_fields' => 'Task Fields',
     'product_fields_help' => 'Drag and drop fields to change their order',
-    'custom_value1' => 'Custom Value',
-    'custom_value2' => 'Custom Value',
+    'custom_value1' => 'Custom Value 1',
+    'custom_value2' => 'Custom Value 2',
     'enable_two_factor' => 'Two-Factor Authentication',
     'enable_two_factor_help' => 'Use your phone to confirm your identity when logging in',
     'two_factor_setup' => 'Two-Factor Setup',
@@ -5109,6 +5109,11 @@ $LANG = array(
     'add_gateway_help_message' => 'Add a payment gateway (ie. Stripe, WePay or PayPal) to accept online payments', 
     'lang_Hungarian' => 'Hungarian',
     'use_mobile_to_manage_plan' => 'Use your phone subscription settings to manage your plan',
+    'item_tax3' => 'Item Tax3',
+    'item_tax_rate1' => 'Item Tax Rate 1',
+    'item_tax_rate2' => 'Item Tax Rate 2',
+    'item_tax_rate3' => 'Item Tax Rate 3',
+
 );
 
 
