@@ -70,15 +70,13 @@ class CreditCard
 
         $response = $this->eway_driver->init()->eway->createCustomer(\Eway\Rapid\Enum\ApiMethod::DIRECT, $transaction);
 
-        if(property_exists($response, 'ResponseMessage'))
-            $response_status = ErrorCode::getStatus($response->ResponseMessage);
-
-        if (! $response_status['success']) {
+        if($response->getErrors()) {
+    
+            $response_status['message'] = \Eway\Rapid::getMessage($response->getErrors()[0]);
 
             $this->eway_driver->sendFailureMail($response_status['message']);
 
             $this->logResponse($response);
-
 
             throw new PaymentFailed($response_status['message'] ?? 'Unknown response from gateway, please contact you merchant.', 400);
         }
