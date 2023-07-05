@@ -80,6 +80,7 @@ class InvoiceExport extends BaseExport
         'project',
     ];
 
+
     public function __construct(Company $company, array $input)
     {
         $this->company = $company;
