@@ -464,6 +464,11 @@ class Client extends BaseModel implements HasLocalePreference
         return $this->belongsTo(Industry::class);
     }
 
+    public function size()
+    {
+        return $this->belongsTo(Size::class);
+    }
+
     public function locale()
     {
         if (! $this->language()) {

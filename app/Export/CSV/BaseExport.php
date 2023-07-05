@@ -14,6 +14,7 @@ namespace App\Export\CSV;
 use App\Utils\Number;
 use App\Models\Client;
 use App\Models\Invoice;
+use App\Models\GatewayType;
 use League\Fractal\Manager;
 use Illuminate\Support\Carbon;
 use App\Utils\Traits\MakesHash;
@@ -50,6 +51,7 @@ class BaseExport
         "private_notes" => "client.private_notes",
         "industry" => "client.industry_id",
         "size" => "client.size_id",
+        "work_phone" => "client.phone",
         "address1" => "client.address1",
         "address2" => "client.address2",
         "city" => "client.city",
@@ -248,6 +250,7 @@ class BaseExport
             return '';
 
         match($parts[0]) {
+            'contact' => $value = $this->resolveClientContactKey($parts[1], $entity, $transformer),
             'client' => $value = $this->resolveClientKey($parts[1], $entity, $transformer),
             'invoice' => $value = $this->resolveInvoiceKey($parts[1], $entity, $transformer),
             'payment' => $value = $this->resolvePaymentKey($parts[1], $entity, $transformer),
@@ -255,6 +258,15 @@ class BaseExport
         };
         
         return $value;
+    }
+
+    private function resolveClientContactKey($column, $entity, $transformer)
+    {
+
+        $primary_contact = $entity->client->primary_contact()->first() ?? $entity->client->contacts()->first();
+
+        return $primary_contact?->{$column} ?? '';
+
     }
 
     private function resolveClientKey($column, $entity, $transformer)
@@ -271,13 +283,25 @@ class BaseExport
         if($column == 'user_id')
             return $entity->client->user->present()->name();
 
+        if($column == 'country_id')
+            return $entity->client->country ? ctrans("texts.country_{$entity->client->country->name}") : '';
+        
+        if($column == 'shipping_country_id')
+            return $entity->client->shipping_country ? ctrans("texts.country_{$entity->client->shipping_country->name}") : '';
+        
+        if($column == 'size_id')
+            return $entity->client->size?->name ?? '';
+
+        if($column == 'industry_id')
+            return $entity->client->industry?->name ?? '';
+
+        if ($column == 'currency_id') {
+            return $entity->client->currency() ? $entity->client->currency()->code : $entity->company->currency()->code;
+        }
+
+
         if(array_key_exists($column, $transformed_client))
             return $transformed_client[$column];
-
-        $primary_contact = $entity->client->primary_contact()->first() ?? $entity->client->contacts()->first();
-
-        if($primary_contact && array_key_exists($column, $primary_contact->toArray()))
-            return $primary_contact->{$column};
 
         return '';
 
@@ -309,6 +333,12 @@ class BaseExport
 
         if(!$payment)
             return '';
+
+        if($column == 'method')
+            return $payment->translatedType();
+
+        if($column == 'currency')
+            return $payment?->currency?->code ?? '';
 
         $payment_transformer = new PaymentTransformer();
         $transformed_payment = $payment_transformer->transform($payment);
@@ -447,25 +477,33 @@ class BaseExport
         $header = [];
 
         foreach (array_merge($this->input['report_keys'], $this->forced_keys) as $value) {
+
+            $prefix = '';
+
             $key = array_search($value, $this->entity_keys);
 
             if(!$key) {
+                $prefix = stripos($value, 'client.') !== false ? ctrans('texts.client') : ctrans('texts.contact');
                 $key = array_search($value, $this->client_report_keys);
             }
 
             if(!$key) {
+                $prefix = ctrans('texts.invoice');
                 $key = array_search($value, $this->invoice_report_keys);
             }
 
             if(!$key) {
+                $prefix = ctrans('texts.quote');
                 $key = array_search($value, $this->quote_report_keys);
             }
             
             if(!$key) {
+                $prefix = ctrans('texts.credit');
                 $key = array_search($value, $this->credit_report_keys);
             }
 
             if(!$key) {
+                $prefix = ctrans('texts.payment');
                 $key = array_search($value, $this->payment_report_keys);
             }
 
@@ -475,7 +513,7 @@ class BaseExport
             $key = str_replace('contact.', '', $key);
             $key = str_replace('payment.', '', $key);
 
-            $header[] = ctrans("texts.{$key}");
+            $header[] = "{$prefix} " . ctrans("texts.{$key}");
         }
 
         return $header;

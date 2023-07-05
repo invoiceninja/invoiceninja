@@ -152,6 +152,10 @@ class CreditExport extends BaseExport
             $entity['client.country_id'] = $credit->client->country ? ctrans("texts.country_{$credit->client->country->name}") : '';
         }
 
+        if (in_array('client.shipping_country_id', $this->input['report_keys'])) {
+            $entity['client.shipping_country_id'] = $credit->client->shipping_country ? ctrans("texts.country_{$credit->client->shipping_country->name}") : '';
+        }
+
         if (in_array('currency_id', $this->input['report_keys'])) {
             $entity['currency_id'] = $credit->client->currency() ? $credit->client->currency()->code : $credit->company->currency()->code;
         }
@@ -171,6 +175,20 @@ class CreditExport extends BaseExport
         if(in_array('credit.status', $this->input['report_keys'])) {
             $entity['credit.status'] = $credit->stringStatus($credit->status_id);
         }
+
+        if(in_array('client.payment_terms', $this->input['report_keys'])) {
+            $entity['client.payment_terms'] = $credit->client->getSetting('payment_terms');
+        }
+
+        if(in_array('client.size_id', $this->input['report_keys'])) {
+            $entity['client.size_id'] = $credit->client->size?->name ?? '';
+        }
+
+        if(in_array('client.industry_id', $this->input['report_keys'])) {
+            $entity['client.industry_id'] = $credit->client->industry?->name ?? '';
+        }
+
+        
 
         nlog($entity);
 
