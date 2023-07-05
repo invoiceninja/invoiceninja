@@ -143,9 +143,9 @@ class ClientExport extends BaseExport
 
             $keyval = array_search($key, $this->entity_keys);
 
-            if ($parts[0] == 'client' && array_key_exists($parts[1], $transformed_client)) {
+            if (is_array($parts) && $parts[0] == 'client' && array_key_exists($parts[1], $transformed_client)) {
                 $entity[$keyval] = $transformed_client[$parts[1]];
-            } elseif ($parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {
+            } elseif (is_array($parts) && $parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {
                 $entity[$keyval] = $transformed_contact[$parts[1]];
             } else {
                 $entity[$keyval] = '';

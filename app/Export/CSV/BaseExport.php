@@ -81,7 +81,6 @@ class BaseExport
         "amount" => "invoice.amount",
         "balance" => "invoice.balance",
         "paid_to_date" => "invoice.paid_to_date",
-        "discount" => "item.discount",
         "po_number" => "invoice.po_number",
         "date" => "invoice.date",
         "due_date" => "invoice.due_date",
@@ -94,16 +93,17 @@ class BaseExport
         "is_amount_discount" => "invoice.is_amount_discount",
         "partial" => "invoice.partial",
         "partial_due_date" => "invoice.partial_due_date",
-        "custom_value1" => "item.custom_value1",
-        "custom_value2" => "item.custom_value2",
-        "custom_value3" => "item.custom_value3",
-        "custom_value4" => "item.custom_value4",
         "surcharge1" => "invoice.custom_surcharge1",
         "surcharge2" => "invoice.custom_surcharge2",
         "surcharge3" => "invoice.custom_surcharge3",
         "surcharge4" => "invoice.custom_surcharge4",
         "exchange_rate" => "invoice.exchange_rate",
         "tax_amount" => "invoice.total_taxes",
+        "assigned_user" => "invoice.assigned_user_id",
+        "user" => "invoice.user_id",
+    ];
+
+    protected array $item_report_keys = [
         "quantity" => "item.quantity",
         "cost" => "item.cost",
         "product_key" => "item.product_key",
@@ -114,10 +114,13 @@ class BaseExport
         "item_tax_rate2" => "item.tax_rate2",
         "item_tax3" => "item.tax_name3",
         "item_tax_rate3" => "item.tax_rate3",
+        "custom_value1" => "item.custom_value1",
+        "custom_value2" => "item.custom_value2",
+        "custom_value3" => "item.custom_value3",
+        "custom_value4" => "item.custom_value4",
+        "discount" => "item.discount",
         "type" => "item.type_id",
         "tax_category" => "item.tax_id",
-        "assigned_user" => "invoice.assigned_user_id",
-        "user" => "invoice.user_id",
     ];
 
     protected array $quote_report_keys = [
@@ -125,7 +128,6 @@ class BaseExport
         "amount" => "quote.amount",
         "balance" => "quote.balance",
         "paid_to_date" => "quote.paid_to_date",
-        "discount" => "item.discount",
         "po_number" => "quote.po_number",
         "date" => "quote.date",
         "due_date" => "quote.due_date",
@@ -138,28 +140,12 @@ class BaseExport
         "is_amount_discount" => "quote.is_amount_discount",
         "partial" => "quote.partial",
         "partial_due_date" => "quote.partial_due_date",
-        "custom_value1" => "item.custom_value1",
-        "custom_value2" => "item.custom_value2",
-        "custom_value3" => "item.custom_value3",
-        "custom_value4" => "item.custom_value4",
         "surcharge1" => "quote.custom_surcharge1",
         "surcharge2" => "quote.custom_surcharge2",
         "surcharge3" => "quote.custom_surcharge3",
         "surcharge4" => "quote.custom_surcharge4",
         "exchange_rate" => "quote.exchange_rate",
         "tax_amount" => "quote.total_taxes",
-        "quantity" => "item.quantity",
-        "cost" => "item.cost",
-        "product_key" => "item.product_key",
-        "notes" => "item.notes",
-        "item_tax1" => "item.tax_name1",
-        "item_tax_rate1" => "item.tax_rate1",
-        "item_tax2" => "item.tax_name2",
-        "item_tax_rate2" => "item.tax_rate2",
-        "item_tax3" => "item.tax_name3",
-        "item_tax_rate3" => "item.tax_rate3",
-        "type" => "item.type_id",
-        "tax_category" => "item.tax_id",
         "assigned_user" => "quote.assigned_user_id",
         "user" => "quote.user_id",
     ];
@@ -169,7 +155,6 @@ class BaseExport
         "amount" => "credit.amount",
         "balance" => "credit.balance",
         "paid_to_date" => "credit.paid_to_date",
-        "discount" => "item.discount",
         "po_number" => "credit.po_number",
         "date" => "credit.date",
         "due_date" => "credit.due_date",
@@ -182,28 +167,12 @@ class BaseExport
         "is_amount_discount" => "credit.is_amount_discount",
         "partial" => "credit.partial",
         "partial_due_date" => "credit.partial_due_date",
-        "custom_value1" => "item.custom_value1",
-        "custom_value2" => "item.custom_value2",
-        "custom_value3" => "item.custom_value3",
-        "custom_value4" => "item.custom_value4",
         "surcharge1" => "credit.custom_surcharge1",
         "surcharge2" => "credit.custom_surcharge2",
         "surcharge3" => "credit.custom_surcharge3",
         "surcharge4" => "credit.custom_surcharge4",
         "exchange_rate" => "credit.exchange_rate",
         "tax_amount" => "credit.total_taxes",
-        "quantity" => "item.quantity",
-        "cost" => "item.cost",
-        "product_key" => "item.product_key",
-        "notes" => "item.notes",
-        "item_tax1" => "item.tax_name1",
-        "item_tax_rate1" => "item.tax_rate1",
-        "item_tax2" => "item.tax_name2",
-        "item_tax_rate2" => "item.tax_rate2",
-        "item_tax3" => "item.tax_name3",
-        "item_tax_rate3" => "item.tax_rate3",
-        "type" => "item.type_id",
-        "tax_category" => "item.tax_id",
         "assigned_user" => "credit.assigned_user_id",
         "user" => "credit.user_id",
   ];
@@ -315,13 +284,22 @@ class BaseExport
 
     private function resolveInvoiceKey($column, $entity, $transformer)
     {
-        if($transformer instanceof PaymentTransformer)
+        nlog("searching for {$column}");
+
+        if($transformer instanceof PaymentTransformer) {
             $transformed_invoices = $transformer->includeInvoices($entity);
 
-        $manager = new Manager();
-        $manager->setSerializer(new ArraySerializer());
-        $transformed_invoices = $manager->createData($transformed_invoices)->toArray();
+            $manager = new Manager();
+            $manager->setSerializer(new ArraySerializer());
+            $transformed_invoices = $manager->createData($transformed_invoices)->toArray();
+        }
 
+        $transformed_invoice = $transformer->transform($entity);
+
+        if($column == 'status')
+            return $entity->stringStatus($entity->status_id);
+    
+        return '';
     }
 
     private function resolvePaymentKey($column, $entity, $transformer)
@@ -505,8 +483,6 @@ class BaseExport
 
         foreach (array_merge($this->input['report_keys'], $this->forced_keys) as $value) {
 
-            $prefix = '';
-
             $key = array_search($value, $this->entity_keys);
 
             if(!$key) {
@@ -520,6 +496,12 @@ class BaseExport
             }
 
             if(!$key) {
+                $prefix = ctrans('texts.payment');
+                $key = array_search($value, $this->payment_report_keys);
+            }
+
+
+            if(!$key) {
                 $prefix = ctrans('texts.quote');
                 $key = array_search($value, $this->quote_report_keys);
             }
@@ -530,8 +512,12 @@ class BaseExport
             }
 
             if(!$key) {
-                $prefix = ctrans('texts.payment');
-                $key = array_search($value, $this->payment_report_keys);
+                $prefix = ctrans('texts.item');
+                $key = array_search($value, $this->item_report_keys);
+            }
+
+            if(!$key) {
+                $prefix = '';
             }
 
             $key = str_replace('item.', '', $key);
