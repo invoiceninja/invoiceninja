@@ -292,6 +292,23 @@ class BaseExport
             $manager = new Manager();
             $manager->setSerializer(new ArraySerializer());
             $transformed_invoices = $manager->createData($transformed_invoices)->toArray();
+
+            if(!isset($transformed_invoices['App\\Models\\Invoice']))
+                return '';
+           
+            $transformed_invoices = $transformed_invoices['App\\Models\\Invoice'];
+
+            nlog(count($transformed_invoices));
+            nlog(array_key_exists($column, $transformed_invoices[0]));
+
+            if(count($transformed_invoices) == 1 && array_key_exists($column, $transformed_invoices[0]))
+                return $transformed_invoices[0][$column];
+
+            if(count($transformed_invoices) > 1 && array_key_exists($column, $transformed_invoices[0]))
+                return implode(', ', array_column($transformed_invoices, $column));
+
+            return "";
+
         }
 
         $transformed_invoice = $transformer->transform($entity);
