@@ -15,6 +15,7 @@ use App\Utils\Number;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\GatewayType;
+use App\Models\Payment;
 use League\Fractal\Manager;
 use Illuminate\Support\Carbon;
 use App\Utils\Traits\MakesHash;
@@ -299,9 +300,14 @@ class BaseExport
             return $entity->client->currency() ? $entity->client->currency()->code : $entity->company->currency()->code;
         }
 
+        if($column == 'client.payment_terms') {
+            return $entity->client->getSetting('payment_terms');
+        }
 
         if(array_key_exists($column, $transformed_client))
             return $transformed_client[$column];
+
+        nlog("export: Could not resolve client key: {$column}");
 
         return '';
 
@@ -311,10 +317,31 @@ class BaseExport
     {
         if($transformer instanceof PaymentTransformer)
             $transformed_invoices = $transformer->includeInvoices($entity);
+
+        $manager = new Manager();
+        $manager->setSerializer(new ArraySerializer());
+        $transformed_invoices = $manager->createData($transformed_invoices)->toArray();
+
     }
 
     private function resolvePaymentKey($column, $entity, $transformer)
     {
+        if($entity instanceof Payment){
+
+            $transformed_payment = $transformer->transform($entity);
+
+            if(array_key_exists($column, $transformed_payment)) {
+                return $transformed_payment[$column];
+            } elseif (array_key_exists(str_replace("payment.", "", $column), $transformed_payment)) {
+                return $transformed_payment[$column];
+            }
+
+            nlog("export: Could not resolve payment key: {$column}");
+
+            return '';
+
+        }
+
         if($column == 'amount')
             return $entity->payments()->exists() ? Number::formatMoney($entity->payments()->sum('paymentables.amount'), $entity->company) : ctrans('texts.unpaid');
 
