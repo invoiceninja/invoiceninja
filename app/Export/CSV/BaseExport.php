@@ -298,9 +298,6 @@ class BaseExport
            
             $transformed_invoices = $transformed_invoices['App\\Models\\Invoice'];
 
-            nlog(count($transformed_invoices));
-            nlog(array_key_exists($column, $transformed_invoices[0]));
-
             if(count($transformed_invoices) == 1 && array_key_exists($column, $transformed_invoices[0]))
                 return $transformed_invoices[0][$column];
 
