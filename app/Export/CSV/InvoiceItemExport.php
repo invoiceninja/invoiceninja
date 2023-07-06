@@ -30,6 +30,8 @@ class InvoiceItemExport extends BaseExport
 
     public Writer $csv;
 
+    private bool $force_keys = false;
+
     public array $entity_keys = [
         'amount' => 'amount',
         'balance' => 'balance',
@@ -112,6 +114,7 @@ class InvoiceItemExport extends BaseExport
         $this->csv = Writer::createFromString();
 
         if (count($this->input['report_keys']) == 0) {
+            $this->force_keys = true;
             $this->input['report_keys'] = array_values($this->entity_keys);
         }
 
@@ -153,12 +156,10 @@ class InvoiceItemExport extends BaseExport
                     }
                 }
             }
-nlog("item array");
-nlog($item_array);
-
+            
             $entity = [];
 
-            foreach (array_values($this->input['report_keys']) as $key) {
+            foreach (array_values($this->input['report_keys']) as $key) { //create an array of report keys only 
                 $keyval = array_search($key, $this->entity_keys); 
 
                 if (array_key_exists($key, $transformed_items)) {
@@ -167,9 +168,6 @@ nlog($item_array);
                     $entity[$keyval] = "";
                 }
             }
-
-nlog("entity");
-nlog($entity);
 
             $transformed_items = array_merge($transformed_invoice, $item_array);
             $entity = $this->decorateAdvancedFields($invoice, $transformed_items);
@@ -187,12 +185,26 @@ nlog($entity);
         foreach (array_values($this->input['report_keys']) as $key) {
             $keyval = array_search($key, $this->entity_keys);
 
+            if(!$keyval) {
+                $keyval = array_search(str_replace("invoice.", "", $key), $this->entity_keys) ?? $key;
+            }
+
+            if(!$keyval) {
+                $keyval = $key;
+            }
+nlog($keyval);
+
             if (array_key_exists($key, $transformed_invoice)) {
                 $entity[$keyval] = $transformed_invoice[$key];
-            } else {
-                $entity[$keyval] = "";
+            } elseif (array_key_exists($keyval, $transformed_invoice)) {
+                $entity[$keyval] = $transformed_invoice[$keyval];
+            }
+             else {
+                $entity[$keyval] = $this->resolveKey($keyval, $invoice, $this->invoice_transformer);
             }
         }
+
+        nlog($entity);
 
         return $this->decorateAdvancedFields($invoice, $entity);
     }
@@ -203,13 +215,12 @@ nlog($entity);
             $entity['currency'] = $invoice->client->currency() ? $invoice->client->currency()->code : $invoice->company->currency()->code;
         }
 
-        // if(in_array('client_id', $this->input['report_keys']))
-        $entity['client'] = $invoice->client->present()->name();
-        $entity['client_id_number'] = $invoice->client->id_number;
-        $entity['client_number'] = $invoice->client->number;
-
-        // if(in_array('status_id', $this->input['report_keys']))
-        $entity['status'] = $invoice->stringStatus($invoice->status_id);
+        if($this->force_keys) {
+            $entity['client'] = $invoice->client->present()->name();
+            $entity['client_id_number'] = $invoice->client->id_number;
+            $entity['client_number'] = $invoice->client->number;
+            $entity['status'] = $invoice->stringStatus($invoice->status_id);
+        }
 
         return $entity;
     }
