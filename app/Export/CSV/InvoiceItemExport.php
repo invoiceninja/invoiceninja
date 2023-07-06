@@ -142,7 +142,7 @@ class InvoiceItemExport extends BaseExport
         foreach ($invoice->line_items as $item) {
             $item_array = [];
 
-            foreach (array_values($this->input['report_keys']) as $key) {
+            foreach (array_values($this->input['report_keys']) as $key) { //items iterator produces item array
                 if (str_contains($key, "item.")) {
                     $key = str_replace("item.", "", $key);
 
@@ -153,11 +153,13 @@ class InvoiceItemExport extends BaseExport
                     }
                 }
             }
+nlog("item array");
+nlog($item_array);
 
             $entity = [];
 
             foreach (array_values($this->input['report_keys']) as $key) {
-                $keyval = array_search($key, $this->entity_keys);
+                $keyval = array_search($key, $this->entity_keys); 
 
                 if (array_key_exists($key, $transformed_items)) {
                     $entity[$keyval] = $transformed_items[$key];
@@ -165,6 +167,9 @@ class InvoiceItemExport extends BaseExport
                     $entity[$keyval] = "";
                 }
             }
+
+nlog("entity");
+nlog($entity);
 
             $transformed_items = array_merge($transformed_invoice, $item_array);
             $entity = $this->decorateAdvancedFields($invoice, $transformed_items);
