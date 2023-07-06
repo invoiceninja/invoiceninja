@@ -48,7 +48,7 @@ class PreviewInvoiceRequest extends Request
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
         $input['amount'] = 0;
         $input['balance'] = 0;
-        $input['number'] = ctrans('texts.live_preview').' #'.rand(0, 1000);
+        $input['number'] = isset($input['number']) ? $input['number'] : ctrans('texts.live_preview').' #'.rand(0, 1000);
 
         $this->replace($input);
     }

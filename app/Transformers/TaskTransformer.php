@@ -36,6 +36,7 @@ class TaskTransformer extends EntityTransformer
         'client',
         'status',
         'project',
+        'user',
     ];
 
     public function includeDocuments(Task $task)
@@ -44,6 +45,18 @@ class TaskTransformer extends EntityTransformer
 
         return $this->includeCollection($task->documents, $transformer, Document::class);
     }
+
+    public function includeUser(Task $task): ?Item
+    {
+        $transformer = new UserTransformer($this->serializer);
+
+        if (!$task->user) {
+            return null;
+        }
+
+        return $this->includeItem($task->user, $transformer, User::class);
+    }
+
 
     public function includeClient(Task $task): ?Item
     {

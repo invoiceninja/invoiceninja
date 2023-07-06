@@ -84,15 +84,15 @@ class ApplyPayment extends AbstractService
         /* Update Pivot Record amount */
         $this->payment->invoices->each(function ($inv) use ($amount_paid) {
             if ($inv->id == $this->invoice->id) {
-                $inv->pivot->amount = ($amount_paid * -1);
-                $inv->pivot->save();
-
+                // $inv->pivot->amount = ($amount_paid * -1);
+                // $inv->pivot->save();
+                //25-06-2023
                 $inv->paid_to_date += floatval($amount_paid * -1);
                 $inv->save();
             }
         });
 
-        $this->invoice->service()->applyNumber()->workFlow()->touchPdf()->save();
+        $this->invoice->service()->applyNumber()->workFlow()->deletePdf()->save();
 
         return $this->invoice;
     }

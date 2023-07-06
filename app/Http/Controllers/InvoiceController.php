@@ -408,7 +408,7 @@ class InvoiceController extends BaseController
 
         $invoice->service()
                 ->triggeredActions($request)
-                ->touchPdf()
+                ->deletePdf()
                 ->adjustInventory($old_invoice);
 
         event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
@@ -740,7 +740,8 @@ class InvoiceController extends BaseController
                 }
                 break;
             case 'cancel':
-                $invoice = $invoice->service()->handleCancellation()->touchPdf()->save();
+                $invoice = $invoice->service()->handleCancellation()->deletePdf()->save();
+                // $invoice = $invoice->service()->handleCancellation()->touchPdf()->save();
 
                 if (! $bulk) {
                     $this->itemResponse($invoice);
@@ -818,17 +819,11 @@ class InvoiceController extends BaseController
             return response()->json(['message' => 'no record found'], 400);
         }
 
-        $contact = $invitation->contact;
         $invoice = $invitation->invoice;
 
-        // $file = $invoice->service()->getInvoicePdf($contact);
+        $file_name = $invoice->numberFormatter().'.pdf';
 
-        /************** */
-$file_name = $invoice->numberFormatter().'.pdf';
-
-$file = (new \App\Jobs\Entity\CreateRawPdf($invitation, $invitation->company->db))->handle();
-
-        /************* */
+        $file = (new \App\Jobs\Entity\CreateRawPdf($invitation, $invitation->company->db))->handle();
 
         $headers = ['Content-Type' => 'application/pdf'];
 

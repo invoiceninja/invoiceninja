@@ -225,6 +225,11 @@ class Expense extends BaseModel
         return $this->belongsTo(Company::class);
     }
 
+    public function invoice()
+    {
+        return $this->belongsTo(Invoice::class);
+    }
+
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);

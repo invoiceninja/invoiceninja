@@ -122,7 +122,7 @@ class PaymentMigrationRepository extends BaseRepository
 
             $invoices = Invoice::whereIn('id', array_column($data['invoices'], 'invoice_id'))->withTrashed()->get();
 
-            $payment->invoices()->saveMany($invoices);
+            $payment->invoices()->saveMany($invoices); // 1:1 relationship so this is ok
 
             $payment->invoices->each(function ($inv) use ($invoice_totals, $refund_totals, $payment) {
                 if ($payment->status_id != Payment::STATUS_CANCELLED || ! $payment->is_deleted) {

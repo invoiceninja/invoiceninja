@@ -85,42 +85,68 @@ class ActivityController extends BaseController
      */
     public function index(Request $request)
     {
-        $default_activities = $request->has('rows') ? $request->input('rows') : 50;
+        $default_activities = $request->has('rows') ? $request->input('rows') : 75;
 
         $activities = Activity::with('user')
                                 ->orderBy('created_at', 'DESC')
                                 ->company()
                                 ->take($default_activities);
 
-        if ($request->has('react')) {
-            if (!auth()->user()->isAdmin()) {
+        // if ($request->has('react')) {
+
+        //     /** @var \App\Models\User auth()->user() */
+        //     $user = auth()->user();
+
+        //     if (!$user->isAdmin()) {
+        //         $activities->where('user_id', auth()->user()->id);
+        //     }
+
+        //     $system = ctrans('texts.system');
+
+        //     $data = $activities->cursor()->map(function ($activity) {
+
+        //         $arr =
+        //         [
+        //             'client' => $activity->client ? $activity->client : '',
+        //             'contact' => $activity->client ? $activity->contact : '',
+        //             'quote' => $activity->quote ? $activity->quote : '',
+        //             'user' => $activity->user ? $activity->user : '',
+        //             'expense' => $activity->expense ? $activity->expense : '',
+        //             'invoice' => $activity->invoice ? $activity->invoice : '',
+        //             'recurring_invoice' => $activity->recurring_invoice ? $activity->recurring_invoice : '',
+        //             'payment' => $activity->payment ? $activity->payment : '',
+        //             'credit' => $activity->credit ? $activity->credit : '',
+        //             'task' => $activity->task ? $activity->task : '',
+        //             'vendor' => $activity->vendor ? $activity->vendor : '',
+        //             'purchase_order' => $activity->purchase_order ? $activity->purchase_order : '',
+        //             'subscription' => $activity->subscription ? $activity->subscription : '',
+        //             'vendor_contact' => $activity->vendor_contact ? $activity->vendor_contact : '',
+        //             'recurring_expense' => $activity->recurring_expense ? $activity->recurring_expense : '',
+        //         ];
+                
+        //         $activity_array = $activity->toArray();
+
+        //         return array_merge($arr, $activity_array);
+        //     });
+
+        //     return response()->json(['data' => $data->toArray()], 200);
+        // }
+        // else
+        if($request->has('reactv2')) {
+
+            /** @var \App\Models\User auth()->user() */
+            $user = auth()->user();
+
+            if (!$user->isAdmin()) {
                 $activities->where('user_id', auth()->user()->id);
             }
-            // return response()->json(['data' => []], 200);
 
             $system = ctrans('texts.system');
 
             $data = $activities->cursor()->map(function ($activity) use ($system) {
-                $arr =
-                [
-                    'client' => $activity->client ? $activity->client : '',
-                    'contact' => $activity->contact ? $activity->contact : '',
-                    'quote' => $activity->quote ? $activity->quote : '',
-                    'user' => $activity->user ? $activity->user : '',
-                    'expense' => $activity->expense ? $activity->expense : '',
-                    'invoice' => $activity->invoice ? $activity->invoice : '',
-                    'recurring_invoice' => $activity->recurring_invoice ? $activity->recurring_invoice : '',
-                    'payment' => $activity->payment ? $activity->payment : '',
-                    'credit' => $activity->credit ? $activity->credit : '',
-                    'task' => $activity->task ? $activity->task : '',
-                    'vendor' => $activity->vendor ? $activity->vendor : '',
-                    'purchase_order' => $activity->purchase_order ? $activity->purchase_order : '',
-                    'subscription' => $activity->subscription ? $activity->subscription : '',
-                    'vendor_contact' => $activity->vendor_contact ? $activity->vendor_contact : '',
-                    'recurring_expense' => $activity->recurring_expense ? $activity->recurring_expense : '',
-                ];
 
-                return array_merge($arr, $activity->toArray());
+                return $activity->activity_string();
+
             });
 
             return response()->json(['data' => $data->toArray()], 200);

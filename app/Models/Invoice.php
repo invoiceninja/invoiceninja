@@ -14,6 +14,7 @@ namespace App\Models;
 use App\Utils\Ninja;
 use Illuminate\Support\Carbon;
 use App\Utils\Traits\MakesDates;
+use App\Jobs\Entity\CreateRawPdf;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Entity\CreateEntityPdf;
 use App\Utils\Traits\MakesReminders;
@@ -683,6 +684,7 @@ class Invoice extends BaseModel
 
     public function pdf_file_path($invitation = null, string $type = 'path', bool $portal = false)
     {
+
         if (! $invitation) {
             if ($this->invitations()->exists()) {
                 $invitation = $this->invitations()->first();
@@ -724,7 +726,6 @@ class Invoice extends BaseModel
         if ($file_exists) {
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         }
-
 
         try {
             $file_exists = Storage::disk('public')->exists($file_path);
@@ -887,5 +888,39 @@ class Invoice extends BaseModel
     public function translate_entity()
     {
         return ctrans('texts.invoice');
+    }
+
+    public function taxTypeString($id)
+    {
+        match(intval($id)){
+            Product::PRODUCT_TYPE_PHYSICAL => $tax_type = ctrans('texts.physical_goods'),
+            Product::PRODUCT_TYPE_SERVICE => $tax_type = ctrans('texts.services'),
+            Product::PRODUCT_TYPE_DIGITAL => $tax_type = ctrans('texts.digital_products'),
+            Product::PRODUCT_TYPE_SHIPPING => $tax_type = ctrans('texts.shipping'),
+            Product::PRODUCT_TYPE_EXEMPT => $tax_type = ctrans('texts.tax_exempt'),
+            Product::PRODUCT_TYPE_REDUCED_TAX => $tax_type = ctrans('texts.reduced_tax'),
+            Product::PRODUCT_TYPE_OVERRIDE_TAX => $tax_type = ctrans('texts.override_tax'),
+            Product::PRODUCT_TYPE_ZERO_RATED => $tax_type = ctrans('texts.zero_rated'),
+            Product::PRODUCT_TYPE_REVERSE_TAX => $tax_type = ctrans('texts.reverse_tax'),
+            default => $tax_type = ctrans('texts.physical_goods'),
+        };
+
+        return $tax_type;
+    }
+
+    public function typeIdString($id)
+    {
+        match($id) {
+            '1' => $type = ctrans('texts.product'),
+            '2' => $type = ctrans('texts.service'),
+            '3' => $type = ctrans('texts.gateway_fees'),
+            '4' => $type = ctrans('texts.gateway_fees'),
+            '5' => $type = ctrans('texts.late_fees'),
+            '6' => $type = ctrans('texts.expense'),
+            default => $type = ctrans('texts.product'),
+        };
+
+        return $type;
+
     }
 }
