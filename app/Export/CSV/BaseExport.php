@@ -501,6 +501,8 @@ class BaseExport
         foreach (array_merge($this->input['report_keys'], $this->forced_keys) as $value) {
 
             $key = array_search($value, $this->entity_keys);
+            
+            $prefix = '';
 
             if(!$key) {
                 $prefix = stripos($value, 'client.') !== false ? ctrans('texts.client') : ctrans('texts.contact');

@@ -47,8 +47,11 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel count()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel create()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel insert()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel service()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel whereHas()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel withTrashed()
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation | \App\Models\CreditInvitation | \App\Models\QuoteInvitation | \App\Models\RecurringInvoiceInvitation> $invitations
+ * @property-read int|null $invitations_count
  * 
  * @method \App\Models\Company company()
  * @method int companyId()
