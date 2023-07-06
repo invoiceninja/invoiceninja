@@ -146,7 +146,6 @@ class InvoiceItemExport extends BaseExport
 
         foreach ($invoice->line_items as $item) {
             $item_array = [];      
-            nlog($this->input['report_keys']);
 
             foreach (array_values($this->input['report_keys']) as $key) { //items iterator produces item array
                 
