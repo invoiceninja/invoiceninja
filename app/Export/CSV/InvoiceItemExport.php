@@ -192,7 +192,6 @@ class InvoiceItemExport extends BaseExport
             if(!$keyval) {
                 $keyval = $key;
             }
-nlog($keyval);
 
             if (array_key_exists($key, $transformed_invoice)) {
                 $entity[$keyval] = $transformed_invoice[$key];
@@ -203,8 +202,6 @@ nlog($keyval);
                 $entity[$keyval] = $this->resolveKey($keyval, $invoice, $this->invoice_transformer);
             }
         }
-
-        nlog($entity);
 
         return $this->decorateAdvancedFields($invoice, $entity);
     }
