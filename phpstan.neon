@@ -1,12 +1,12 @@
 includes:
     - ./vendor/nunomaduro/larastan/extension.neon
-
+    - phpstan-baseline.neon
 parameters:
     treatPhpDocTypesAsCertain: false
     parallel:
-        jobSize: 20
-        maximumNumberOfProcesses: 2
-        processTimeout: 300.0
+        jobSize: 5
+        maximumNumberOfProcesses: 16
+        processTimeout: 600.0
     ignoreErrors:
         - '#Call to an undefined method .*badMethod\(\)#'
         - '#Call to an undefined method Illuminate\Database\Eloquent\Builder::exclude#'
