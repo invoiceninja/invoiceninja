@@ -19,6 +19,7 @@ return new class extends Migration
         
         if($t) {
             $t->full_name = 'Taiwan';
+            $t->name = 'Taiwan';
             $t->save();
         }
 
@@ -26,6 +27,7 @@ return new class extends Migration
 
         if($m) {
             $m->full_name = 'Macedonia';
+            $m->name = 'Macedonia';
             $m->save();
         }
 
