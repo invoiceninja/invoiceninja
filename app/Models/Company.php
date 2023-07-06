@@ -212,29 +212,29 @@ class Company extends BaseModel
     use AppSetup;
     use \Awobaz\Compoships\Compoships;
 
-    const ENTITY_RECURRING_INVOICE = 'recurring_invoice';
+    // const ENTITY_RECURRING_INVOICE = 'recurring_invoice';
 
-    const ENTITY_CREDIT = 'credit';
+    // const ENTITY_CREDIT = 'credit';
 
-    const ENTITY_QUOTE = 'quote';
+    // const ENTITY_QUOTE = 'quote';
 
-    const ENTITY_TASK = 'task';
+    // const ENTITY_TASK = 'task';
 
-    const ENTITY_EXPENSE = 'expense';
+    // const ENTITY_EXPENSE = 'expense';
 
-    const ENTITY_PROJECT = 'project';
+    // const ENTITY_PROJECT = 'project';
 
-    const ENTITY_VENDOR = 'vendor';
+    // const ENTITY_VENDOR = 'vendor';
 
-    const ENTITY_TICKET = 'ticket';
+    // const ENTITY_TICKET = 'ticket';
 
-    const ENTITY_PROPOSAL = 'proposal';
+    // const ENTITY_PROPOSAL = 'proposal';
 
-    const ENTITY_RECURRING_EXPENSE = 'recurring_expense';
+    // const ENTITY_RECURRING_EXPENSE = 'recurring_expense';
 
-    const ENTITY_RECURRING_TASK = 'task';
+    // const ENTITY_RECURRING_TASK = 'task';
 
-    const ENTITY_RECURRING_QUOTE = 'recurring_quote';
+    // const ENTITY_RECURRING_QUOTE = 'recurring_quote';
 
     protected $presenter = CompanyPresenter::class;
 
@@ -367,29 +367,24 @@ class Company extends BaseModel
 
     protected $with = [];
 
-    public static $modules = [
-        self::ENTITY_RECURRING_INVOICE => 1,
-        self::ENTITY_CREDIT => 2,
-        self::ENTITY_QUOTE => 4,
-        self::ENTITY_TASK => 8,
-        self::ENTITY_EXPENSE => 16,
-        self::ENTITY_PROJECT => 32,
-        self::ENTITY_VENDOR => 64,
-        self::ENTITY_TICKET => 128,
-        self::ENTITY_PROPOSAL => 256,
-        self::ENTITY_RECURRING_EXPENSE => 512,
-        self::ENTITY_RECURRING_TASK => 1024,
-        self::ENTITY_RECURRING_QUOTE => 2048,
-    ];
+    // public static $modules = [
+    //     self::ENTITY_RECURRING_INVOICE => 1,
+    //     self::ENTITY_CREDIT => 2,
+    //     self::ENTITY_QUOTE => 4,
+    //     self::ENTITY_TASK => 8,
+    //     self::ENTITY_EXPENSE => 16,
+    //     self::ENTITY_PROJECT => 32,
+    //     self::ENTITY_VENDOR => 64,
+    //     self::ENTITY_TICKET => 128,
+    //     self::ENTITY_PROPOSAL => 256,
+    //     self::ENTITY_RECURRING_EXPENSE => 512,
+    //     self::ENTITY_RECURRING_TASK => 1024,
+    //     self::ENTITY_RECURRING_QUOTE => 2048,
+    // ];
 
     public function shouldCalculateTax()
     {
         return $this->calculate_taxes && in_array($this->getSetting('country_id'), $this->tax_coverage_countries);
-    }
-
-    public function refreshTaxData()
-    {
-
     }
 
     public function documents()

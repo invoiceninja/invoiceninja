@@ -3,10 +3,10 @@ includes:
 
 parameters:
     treatPhpDocTypesAsCertain: false
-	parallel:
+    parallel:
         jobSize: 20
         maximumNumberOfProcesses: 2
-		processTimeout: 300.0
+        processTimeout: 300.0
     ignoreErrors:
         - '#Call to an undefined method .*badMethod\(\)#'
         - '#Call to an undefined method Illuminate\Database\Eloquent\Builder::exclude#'
