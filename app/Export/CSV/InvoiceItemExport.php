@@ -145,13 +145,18 @@ class InvoiceItemExport extends BaseExport
         $transformed_items = [];
 
         foreach ($invoice->line_items as $item) {
-            $item_array = [];
-
+            $item_array = [];            
             foreach (array_values($this->input['report_keys']) as $key) { //items iterator produces item array
+                
                 if (str_contains($key, "item.")) {
+
                     $key = str_replace("item.", "", $key);
 
-                    $keyval = str_replace("custom_value", "invoice", $key);
+                    if($key == 'type_id')
+                        $keyval = 'type';
+
+                    if($key == 'tax_id')
+                        $keyval = 'tax_category';
 
                     if (property_exists($item, $key)) {
                         $item_array[$keyval] = $item->{$key};
@@ -160,8 +165,6 @@ class InvoiceItemExport extends BaseExport
                     }
                 }
             }
-            nlog("item array");
-            nlog($item_array);
 
             $entity = [];
 
@@ -174,8 +177,8 @@ class InvoiceItemExport extends BaseExport
                     $entity[$keyval] = "";
                 }
             }
-            nlog("entity");
-            nlog($entity);
+            // nlog("entity");
+            // nlog($entity);
 
             $transformed_items = array_merge($transformed_invoice, $item_array);
             $entity = $this->decorateAdvancedFields($invoice, $transformed_items);
@@ -218,6 +221,14 @@ class InvoiceItemExport extends BaseExport
     {
         if (in_array('currency_id', $this->input['report_keys'])) {
             $entity['currency'] = $invoice->client->currency() ? $invoice->client->currency()->code : $invoice->company->currency()->code;
+        }
+
+        if(array_key_exists('type', $entity)) {
+            $entity['type'] = $invoice->typeIdString($entity['type']);
+        }
+
+        if(array_key_exists('tax_category', $entity)) {
+            $entity['tax_category'] = $invoice->taxTypeString($entity['tax_category']);
         }
 
         if($this->force_keys) {
