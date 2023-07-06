@@ -14,7 +14,6 @@ namespace App\Http\Controllers;
 use App\Events\Credit\CreditWasEmailed;
 use App\Events\Quote\QuoteWasEmailed;
 use App\Http\Requests\Email\SendEmailRequest;
-use App\Jobs\Entity\EmailEntity;
 use App\Jobs\PurchaseOrder\PurchaseOrderEmail;
 use App\Models\Credit;
 use App\Models\Invoice;
@@ -30,7 +29,6 @@ use App\Transformers\QuoteTransformer;
 use App\Transformers\RecurringInvoiceTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Response;
 use Illuminate\Mail\Mailables\Address;
 
 class EmailController extends BaseController
