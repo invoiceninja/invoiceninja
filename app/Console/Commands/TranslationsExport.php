@@ -133,11 +133,9 @@ class TranslationsExport extends Command
         Storage::disk('local')->makeDirectory('lang');
 
         foreach ($this->langs as $lang) {
-            nlog($lang);
             Storage::disk('local')->makeDirectory("lang/{$lang}");
 
             $translations = Lang::getLoader()->load($lang, 'texts');
-nlog($translations);
             Storage::disk('local')->put("lang/{$lang}/{$lang}.json", json_encode(Arr::dot($translations), JSON_UNESCAPED_UNICODE));
         }
     }

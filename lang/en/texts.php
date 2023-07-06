@@ -5114,6 +5114,10 @@ $LANG = array(
     'item_tax_rate2' => 'Item Tax Rate 2',
     'item_tax_rate3' => 'Item Tax Rate 3',
     'buy_price' => 'Buy Price',
+    'country_Macedonia' => 'Macedonia',
+    'admin_initiated_payments' => 'Admin Initiated Payments',
+    'admin_initiated_payments_help' => 'Support entering a payment in the admin portal without an invoice',
+    'paid_date' => 'Paid Date',
 );
 
 
