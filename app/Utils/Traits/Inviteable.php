@@ -101,7 +101,6 @@ trait Inviteable
                 break;
             case 'iframe':
                 return $domain.'/client/'.$entity_type.'/'.$this->key;
-                //return $domain . $entity_type .'/'. $this->contact->client->client_hash .'/'. $this->key;
                 break;
             case 'domain':
                 return $domain.'/client/'.$entity_type.'/'.$this->key;
@@ -127,7 +126,6 @@ trait Inviteable
                 break;
             case 'iframe':
                 return $domain.'/client/';
-                //return $domain . $entity_type .'/'. $this->contact->client->client_hash .'/'. $this->key;
                 break;
             case 'domain':
                 return $domain.'/client/';

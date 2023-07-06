@@ -525,7 +525,7 @@ class BaseDriver extends AbstractPaymentDriver
             $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
             $invoices->each(function ($invoice) {
-                $invoice->service()->touchPdf();
+                $invoice->service()->deletePdf();
             });
 
             $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
@@ -570,7 +570,7 @@ class BaseDriver extends AbstractPaymentDriver
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
         $invoices->each(function ($invoice) {
-            $invoice->service()->touchPdf();
+            $invoice->service()->deletePdf();
         });
 
         $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
@@ -731,6 +731,9 @@ class BaseDriver extends AbstractPaymentDriver
             return 'Descriptor';
 
         $invoices_string = \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray()) ?: null;
+
+        if (!$invoices_string) 
+            return str_replace(["*","<",">","'",'"'], "", $this->client->company->present()->name());
 
         $invoices_string = str_replace(["*","<",">","'",'"'], "-", $invoices_string);
         

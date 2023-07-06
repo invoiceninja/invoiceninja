@@ -11,16 +11,17 @@
 
 namespace Tests\Feature;
 
-use App\Models\ClientContact;
-use App\Models\Project;
-use App\Models\Quote;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Support\Facades\Session;
-use Tests\MockAccountData;
 use Tests\TestCase;
+use App\Models\Quote;
+use App\Models\Project;
+use Tests\MockAccountData;
+use App\Models\ClientContact;
+use App\Utils\Traits\MakesHash;
+use App\Exceptions\QuoteConversion;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * @test
@@ -31,6 +32,8 @@ class QuoteTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
+
+    public $faker;
 
     protected function setUp() :void
     {
@@ -47,6 +50,19 @@ class QuoteTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
+    }
+
+    public function testQuoteConversion()
+    {
+        $invoice = $this->quote->service()->convertToInvoice();
+
+        $this->assertInstanceOf('\App\Models\Invoice', $invoice);
+
+        $this->expectException(QuoteConversion::class);
+
+        $invoice = $this->quote->service()->convertToInvoice();
+
+
     }
 
     public function testQuoteDownloadPDF()

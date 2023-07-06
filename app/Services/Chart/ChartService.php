@@ -76,6 +76,8 @@ class ChartService
         $currencies = $this->getCurrencyCodes();
 
         $data = [];
+        $data['start_date'] = $start_date;
+        $data['end_date'] = $end_date;
 
         foreach ($currencies as $key => $value) {
             $data[$key]['invoices'] = $this->getInvoiceChartQuery($start_date, $end_date, $key);
@@ -96,6 +98,9 @@ class ChartService
         $data = [];
 
         $data['currencies'] = $this->getCurrencyCodes();
+
+        $data['start_date'] = $start_date;
+        $data['end_date'] = $end_date;
 
         $revenue = $this->getRevenue($start_date, $end_date);
         $outstanding = $this->getOutstanding($start_date, $end_date);

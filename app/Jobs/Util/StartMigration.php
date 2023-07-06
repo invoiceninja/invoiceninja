@@ -60,10 +60,6 @@ class StartMigration implements ShouldQueue
 
     public $timeout = 0;
 
-    //  public $maxExceptions = 2;
-
-    //public $backoff = 86430;
-
     public function __construct($filepath, User $user, Company $company)
     {
         $this->filepath = $filepath;
@@ -158,8 +154,6 @@ class StartMigration implements ShouldQueue
             Storage::deleteDirectory(public_path("storage/migrations/{$filename}"));
 
         }
-
-        //always make sure we unset the migration as running
 
         return true;
     }

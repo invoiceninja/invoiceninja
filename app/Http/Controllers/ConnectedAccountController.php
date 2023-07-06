@@ -38,7 +38,7 @@ class ConnectedAccountController extends BaseController
      * Connect an OAuth account to a regular email/password combination account
      *
      * @param Request $request
-     * @return User Refresh Feed.
+     * @return JsonResponse.
      *
      *
      * @OA\Post(
@@ -90,14 +90,15 @@ class ConnectedAccountController extends BaseController
 
     private function handleMicrosoftOauth($request)
     {
-        nlog($request->all());
+        $access_token = false;
+        $access_token = $request->has('access_token') ? $request->input('access_token') : $request->input('accessToken');
 
-        if (!$request->has('access_token')) {
+        if (!$access_token) {
             return response()->json(['message' => 'No access_token parameter found!'], 400);
         }
 
         $graph = new \Microsoft\Graph\Graph();
-        $graph->setAccessToken($request->input('access_token'));
+        $graph->setAccessToken($access_token);
 
         $user = $graph->createRequest("GET", "/me")
                       ->setReturnType(Model\User::class)

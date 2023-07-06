@@ -45,6 +45,7 @@
     </div>
 
     @include('portal.ninja2020.components.pdf-viewer', ['url' => route('client.statement.raw')])
+    
 @endsection
 
 @push('footer')

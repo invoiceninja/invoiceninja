@@ -38,13 +38,15 @@ class TaskStatusRepository extends BaseRepository
 
     public function archive($task_status)
     {
-        $task_status = TaskStatus::where('id', $task_status->id)
+        $task_status = TaskStatus::withTrashed()
+                                 ->where('id', $task_status->id)
                                  ->where('company_id', $task_status->company_id)
                                  ->first();
 
         $new_status = $task_status ? $task_status->id : null;
         
-        Task::where('status_id', $task_status->id)
+        Task::withTrashed()
+            ->where('status_id', $task_status->id)
             ->where('company_id', $task_status->company_id)
             ->update(['status_id' => $new_status]);
 

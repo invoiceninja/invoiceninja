@@ -235,7 +235,7 @@ class BaseRule implements RuleInterface
         $this->client_region = $this->region_codes[$this->client->country->iso_3166_2];
 
         match($this->client_region){
-            'US' => $this->client_subregion = strlen($this->invoice?->client?->tax_data?->geoState) > 1 ? $this->invoice->client->tax_data->geoState : $this->getUSState(),
+            'US' => $this->client_subregion = isset($this->invoice?->client?->tax_data?->geoState) ? $this->invoice->client->tax_data->geoState : $this->getUSState(),
             'EU' => $this->client_subregion = $this->client->country->iso_3166_2,
             'AU' => $this->client_subregion = 'AU',
             default => $this->client_subregion = $this->client->country->iso_3166_2,

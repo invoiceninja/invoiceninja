@@ -91,6 +91,10 @@ class BaseImport
 
     public function getCsvData($entity_type)
     {
+        if (! ini_get('auto_detect_line_endings')) {
+            ini_set('auto_detect_line_endings', '1');
+        }
+
         $base64_encoded_csv = Cache::pull($this->hash.'-'.$entity_type);
 
         if (empty($base64_encoded_csv)) {
@@ -132,14 +136,12 @@ class BaseImport
         $bestDelimiter = ',';
         $count = 0;
         foreach ($delimiters as $delimiter) {
-            // if (substr_count($csvfile, $delimiter) > $count) {
-            //     $count = substr_count($csvfile, $delimiter);
-            //     $bestDelimiter = $delimiter;
-            // }
-            if (substr_count(strstr($csvfile, "\n", true), $delimiter) > $count) {
+
+            if (substr_count(strstr($csvfile, "\n", true), $delimiter) >= $count) {
                 $count = substr_count($csvfile, $delimiter);
                 $bestDelimiter = $delimiter;
             }
+
         }
         return $bestDelimiter;
     }

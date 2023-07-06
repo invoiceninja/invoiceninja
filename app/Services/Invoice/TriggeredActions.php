@@ -54,7 +54,7 @@ class TriggeredActions extends AbstractService
         }
 
         if ($this->request->has('send_email') && $this->request->input('send_email') == 'true') {
-            $this->invoice->service()->markSent()->touchPdf()->save();
+            $this->invoice->service()->markSent()->save();
             $this->sendEmail();
             $this->updated = false;
         }

@@ -362,7 +362,7 @@ class MatchBankTransactions implements ShouldQueue
         $this->invoice
                 ->service()
                 ->applyNumber()
-                ->touchPdf()
+                ->deletePdf()
                 ->save();
 
         $payment->ledger()
