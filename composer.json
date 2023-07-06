@@ -136,7 +136,7 @@
     },
     "extra": {
         "laravel": {
-            "dont-discover": ["*"]
+            "dont-discover": ["invoiceninja/inspector"]
         }
     },
     "scripts": {
