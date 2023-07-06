@@ -46,7 +46,8 @@ jobs:
           git checkout main
           npm i
           npm run build
-          cp -r dist/react/* ../public/react
+          cp -r dist/react/* ../public/react 
+          cp -r node_modules/tinymce ../public/
           cd ..
           rm -rf ui
           php artisan ninja:react
