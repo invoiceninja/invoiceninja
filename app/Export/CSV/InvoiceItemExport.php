@@ -69,9 +69,9 @@ class InvoiceItemExport extends BaseExport
         'total_taxes' => 'total_taxes',
         'currency' => 'currency_id',
         'quantity' => 'item.quantity',
-        'unit_cost' => 'item.cost',
+        'cost' => 'item.cost',
         'product_key' => 'item.product_key',
-        'cost' => 'item.product_cost',
+        'buy_price' => 'item.product_cost',
         'notes' => 'item.notes',
         'discount' => 'item.discount',
         'is_amount_discount' => 'item.is_amount_discount',
@@ -87,6 +87,8 @@ class InvoiceItemExport extends BaseExport
         'invoice2' => 'item.custom_value2',
         'invoice3' => 'item.custom_value3',
         'invoice4' => 'item.custom_value4',
+        'tax_category' => 'item.tax_id',
+        'type' => 'item.type_id',
     ];
 
     private array $decorate_keys = [
@@ -149,14 +151,18 @@ class InvoiceItemExport extends BaseExport
                 if (str_contains($key, "item.")) {
                     $key = str_replace("item.", "", $key);
 
+                    $keyval = str_replace("custom_value", "invoice", $key);
+
                     if (property_exists($item, $key)) {
-                        $item_array[$key] = $item->{$key};
+                        $item_array[$keyval] = $item->{$key};
                     } else {
-                        $item_array[$key] = '';
+                        $item_array[$keyval] = '';
                     }
                 }
             }
-            
+            nlog("item array");
+            nlog($item_array);
+
             $entity = [];
 
             foreach (array_values($this->input['report_keys']) as $key) { //create an array of report keys only 
@@ -168,6 +174,8 @@ class InvoiceItemExport extends BaseExport
                     $entity[$keyval] = "";
                 }
             }
+            nlog("entity");
+            nlog($entity);
 
             $transformed_items = array_merge($transformed_invoice, $item_array);
             $entity = $this->decorateAdvancedFields($invoice, $transformed_items);

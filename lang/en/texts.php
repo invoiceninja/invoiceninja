@@ -5113,7 +5113,7 @@ $LANG = array(
     'item_tax_rate1' => 'Item Tax Rate 1',
     'item_tax_rate2' => 'Item Tax Rate 2',
     'item_tax_rate3' => 'Item Tax Rate 3',
-
+    'buy_price' => 'Buy Price',
 );
 
 
