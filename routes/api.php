@@ -279,26 +279,26 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('recurring_quotes/bulk', [RecurringQuoteController::class, 'bulk'])->name('recurring_quotes.bulk');
     Route::put('recurring_quotes/{recurring_quote}/upload', [RecurringQuoteController::class, 'upload']);
 
-    Route::post('refresh', [LoginController::class, 'refresh'])->middleware('throttle:refresh');
+    Route::post('refresh', [LoginController::class, 'refresh'])->middleware('throttle:refr2sh');
 
-    Route::post('reports/clients', ClientReportController::class);
-    Route::post('reports/activities', ActivityReportController::class);
-    Route::post('reports/client_contacts', ClientContactReportController::class);
-    Route::post('reports/contacts', ClientContactReportController::class);
-    Route::post('reports/credits', CreditReportController::class);
-    Route::post('reports/documents', DocumentReportController::class);
-    Route::post('reports/expenses', ExpenseReportController::class);
-    Route::post('reports/invoices', InvoiceReportController::class);
-    Route::post('reports/invoice_items', InvoiceItemReportController::class);
-    Route::post('reports/quotes', QuoteReportController::class);
-    Route::post('reports/quote_items', QuoteItemReportController::class);
-    Route::post('reports/recurring_invoices', RecurringInvoiceReportController::class);
-    Route::post('reports/payments', PaymentReportController::class);
-    Route::post('reports/products', ProductReportController::class);
-    Route::post('reports/product_sales', ProductSalesReportController::class);
-    Route::post('reports/tasks', TaskReportController::class);
+    Route::post('reports/clients', ClientReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/activities', ActivityReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/client_contacts', ClientContactReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/contacts', ClientContactReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/credits', CreditReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/documents', DocumentReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/expenses', ExpenseReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/invoices', InvoiceReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/invoice_items', InvoiceItemReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/quotes', QuoteReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/quote_items', QuoteItemReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/recurring_invoices', RecurringInvoiceReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/payments', PaymentReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/products', ProductReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/product_sales', ProductSalesReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/tasks', TaskReportController::class)->middleware('throttle:20,1');
+
     Route::post('reports/profitloss', ProfitAndLossController::class);
-    
     Route::post('reports/ar_detail_report', ARDetailReportController::class);
     Route::post('reports/ar_summary_report', ARSummaryReportController::class);
     Route::post('reports/client_balance_report', ClientBalanceReportController::class);
