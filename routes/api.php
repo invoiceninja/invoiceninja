@@ -101,6 +101,7 @@ use App\Http\Controllers\Support\Messages\SendingController;
 use App\Http\Controllers\Reports\ClientSalesReportController;
 use App\Http\Controllers\Reports\InvoiceItemReportController;
 use App\Http\Controllers\PaymentNotificationWebhookController;
+use App\Http\Controllers\ProtectedDownloadController;
 use App\Http\Controllers\Reports\ProductSalesReportController;
 use App\Http\Controllers\Reports\ClientBalanceReportController;
 use App\Http\Controllers\Reports\ClientContactReportController;
@@ -400,5 +401,7 @@ Route::post('api/v1/yodlee/refresh', [YodleeController::class, 'refreshWebhook']
 Route::post('api/v1/yodlee/data_updates', [YodleeController::class, 'dataUpdatesWebhook'])->middleware('throttle:100,1');
 Route::post('api/v1/yodlee/refresh_updates', [YodleeController::class, 'refreshUpdatesWebhook'])->middleware('throttle:100,1');
 Route::post('api/v1/yodlee/balance', [YodleeController::class, 'balanceWebhook'])->middleware('throttle:100,1');
+
+Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::class, 'index'])->name('protected_download')->middleware('signed')->middleware('throttle:300,1');
 
 Route::fallback([BaseController::class, 'notFound'])->middleware('throttle:404');
