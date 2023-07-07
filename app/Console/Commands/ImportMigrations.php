@@ -64,8 +64,6 @@ class ImportMigrations extends Command
      */
     public function __construct()
     {
-        $this->faker = Factory::create();
-
         parent::__construct();
     }
 
@@ -76,6 +74,8 @@ class ImportMigrations extends Command
      */
     public function handle()
     {
+        $this->faker = Factory::create();
+
         $this->buildCache();
 
         $path = $this->option('path') ?? public_path('storage/migrations/import');
