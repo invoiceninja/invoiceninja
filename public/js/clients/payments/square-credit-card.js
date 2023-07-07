@@ -176,62 +176,79 @@ var SquareCreditCard = /*#__PURE__*/function () {
   }, {
     key: "handle",
     value: function () {
-      var _handle = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
-        var _document$getElementB,
-          _this = this,
-          _document$getElementB2,
-          _document$getElementB3;
-        var toggleWithToken, _document$getElementB4;
-        return _regeneratorRuntime().wrap(function _callee6$(_context6) {
-          while (1) switch (_context6.prev = _context6.next) {
+      var _handle = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7() {
+        var _this = this;
+        return _regeneratorRuntime().wrap(function _callee7$(_context7) {
+          while (1) switch (_context7.prev = _context7.next) {
             case 0:
-              _context6.next = 2;
-              return this.init();
-            case 2:
-              (_document$getElementB = document.getElementById('authorize-card')) === null || _document$getElementB === void 0 ? void 0 : _document$getElementB.addEventListener('click', function (e) {
-                return _this.completePaymentWithoutToken(e);
-              });
-              (_document$getElementB2 = document.getElementById('pay-now')) === null || _document$getElementB2 === void 0 ? void 0 : _document$getElementB2.addEventListener('click', function (e) {
-                var tokenInput = document.querySelector('input[name=token]');
-                if (tokenInput.value) {
-                  return _this.completePaymentUsingToken(e);
-                }
-                return _this.completePaymentWithoutToken(e);
-              });
-              Array.from(document.getElementsByClassName('toggle-payment-with-token')).forEach(function (element) {
-                return element.addEventListener('click', function (element) {
-                  document.getElementById('card-container').classList.add('hidden');
-                  document.getElementById('save-card--container').style.display = 'none';
-                  document.querySelector('input[name=token]').value = element.target.dataset.token;
+              document.getElementById('payment-list').classList.add('hidden');
+              _context7.next = 3;
+              return this.init().then(function () {
+                var _document$getElementB, _document$getElementB2, _document$getElementB3, _document$getElementB4;
+                (_document$getElementB = document.getElementById('authorize-card')) === null || _document$getElementB === void 0 ? void 0 : _document$getElementB.addEventListener('click', function (e) {
+                  return _this.completePaymentWithoutToken(e);
                 });
-              });
-              (_document$getElementB3 = document.getElementById('toggle-payment-with-credit-card')) === null || _document$getElementB3 === void 0 ? void 0 : _document$getElementB3.addEventListener('click', /*#__PURE__*/function () {
-                var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(element) {
-                  return _regeneratorRuntime().wrap(function _callee5$(_context5) {
-                    while (1) switch (_context5.prev = _context5.next) {
-                      case 0:
-                        document.getElementById('card-container').classList.remove('hidden');
-                        document.getElementById('save-card--container').style.display = 'grid';
-                        document.querySelector('input[name=token]').value = '';
-                      case 3:
-                      case "end":
-                        return _context5.stop();
-                    }
-                  }, _callee5);
-                }));
-                return function (_x4) {
-                  return _ref.apply(this, arguments);
-                };
-              }());
-              toggleWithToken = document.querySelector('.toggle-payment-with-token');
-              if (!toggleWithToken) {
+                (_document$getElementB2 = document.getElementById('pay-now')) === null || _document$getElementB2 === void 0 ? void 0 : _document$getElementB2.addEventListener('click', function (e) {
+                  var tokenInput = document.querySelector('input[name=token]');
+                  if (tokenInput.value) {
+                    return _this.completePaymentUsingToken(e);
+                  }
+                  return _this.completePaymentWithoutToken(e);
+                });
+                Array.from(document.getElementsByClassName('toggle-payment-with-token')).forEach(function (element) {
+                  return element.addEventListener('click', /*#__PURE__*/function () {
+                    var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(element) {
+                      return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+                        while (1) switch (_context5.prev = _context5.next) {
+                          case 0:
+                            document.getElementById('card-container').classList.add('hidden');
+                            document.getElementById('save-card--container').style.display = 'none';
+                            document.querySelector('input[name=token]').value = element.target.dataset.token;
+                          case 3:
+                          case "end":
+                            return _context5.stop();
+                        }
+                      }, _callee5);
+                    }));
+                    return function (_x4) {
+                      return _ref.apply(this, arguments);
+                    };
+                  }());
+                });
+                (_document$getElementB3 = document.getElementById('toggle-payment-with-credit-card')) === null || _document$getElementB3 === void 0 ? void 0 : _document$getElementB3.addEventListener('click', /*#__PURE__*/function () {
+                  var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(element) {
+                    return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+                      while (1) switch (_context6.prev = _context6.next) {
+                        case 0:
+                          document.getElementById('card-container').classList.remove('hidden');
+                          document.getElementById('save-card--container').style.display = 'grid';
+                          document.querySelector('input[name=token]').value = '';
+                        case 3:
+                        case "end":
+                          return _context6.stop();
+                      }
+                    }, _callee6);
+                  }));
+                  return function (_x5) {
+                    return _ref2.apply(this, arguments);
+                  };
+                }());
+
+                // let toggleWithToken = document.querySelector(
+                //     '.toggle-payment-with-token'
+                // );
+
+                // if (!toggleWithToken) {
+                document.getElementById('loader').classList.add('hidden');
+                document.getElementById('payment-list').classList.remove('hidden');
                 (_document$getElementB4 = document.getElementById('toggle-payment-with-credit-card')) === null || _document$getElementB4 === void 0 ? void 0 : _document$getElementB4.click();
-              }
-            case 8:
+                // }
+              });
+            case 3:
             case "end":
-              return _context6.stop();
+              return _context7.stop();
           }
-        }, _callee6, this);
+        }, _callee7, this);
       }));
       function handle() {
         return _handle.apply(this, arguments);

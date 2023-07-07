@@ -11,39 +11,39 @@
 
 namespace App\Jobs\Company;
 
-use App\Jobs\Mail\NinjaMailerJob;
-use App\Jobs\Mail\NinjaMailerObject;
-use App\Libraries\MultiDB;
-use App\Mail\DownloadBackup;
-use App\Models\Company;
-use App\Models\CreditInvitation;
-use App\Models\InvoiceInvitation;
-use App\Models\PurchaseOrderInvitation;
-use App\Models\QuoteInvitation;
-use App\Models\RecurringInvoiceInvitation;
 use App\Models\User;
-use App\Models\VendorContact;
 use App\Utils\Ninja;
-use App\Utils\Traits\MakesHash;
+use App\Models\Company;
+use App\Libraries\MultiDB;
+use Illuminate\Support\Str;
+use App\Mail\DownloadBackup;
+use App\Jobs\Util\UnlinkFile;
+use App\Models\VendorContact;
 use Illuminate\Bus\Queueable;
+use App\Models\QuoteInvitation;
+use App\Utils\Traits\MakesHash;
+use App\Models\CreditInvitation;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Models\InvoiceInvitation;
+use Illuminate\Support\Facades\App;
+use App\Jobs\Mail\NinjaMailerObject;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Queue\SerializesModels;
+use App\Models\PurchaseOrderInvitation;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Queue\InteractsWithQueue;
+use App\Models\RecurringInvoiceInvitation;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Storage;
 
 class CompanyExport implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
 
-    public $company;
-
-    private $export_format;
+    private $export_format = 'json';
 
     private $export_data = [];
 
-    public $user;
 
     /**
      * Create a new job instance.
@@ -52,11 +52,8 @@ class CompanyExport implements ShouldQueue
      * @param User $user
      * @param string $custom_token_name
      */
-    public function __construct(Company $company, User $user, $export_format = 'json')
+    public function __construct(public Company $company, private User $user, public string $hash)
     {
-        $this->company = $company;
-        $this->user = $user;
-        $this->export_format = $export_format;
     }
 
     /**
@@ -467,6 +464,10 @@ class CompanyExport implements ShouldQueue
         }
 
         $storage_file_path = Storage::disk(config('filesystems.default'))->url('backups/'.$file_name);
+        $storage_path = Storage::disk(config('filesystems.default'))->path('backups/'.$file_name);
+
+        $url = Cache::get($this->hash);
+        Cache::put($this->hash, $storage_path, now()->addHour());
 
         App::forgetInstance('translator');
         $t = app('translator');
@@ -475,12 +476,14 @@ class CompanyExport implements ShouldQueue
         $company_reference = Company::find($this->company->id);
 
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new DownloadBackup($storage_file_path, $company_reference);
+        $nmo->mailable = new DownloadBackup($url, $company_reference);
         $nmo->to_user = $this->user;
         $nmo->company = $company_reference;
         $nmo->settings = $this->company->settings;
         
         NinjaMailerJob::dispatch($nmo, true);
+        
+        UnlinkFile::dispatch(config('filesystems.default'), $storage_path)->delay(now()->addHours(1));
 
         if (Ninja::isHosted()) {
             sleep(3);
