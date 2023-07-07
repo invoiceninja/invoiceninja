@@ -3345,16 +3345,16 @@
         },
         {
             "name": "horstoeko/zugferd",
-            "version": "v1.0.19",
+            "version": "v1.0.20",
             "source": {
                 "type": "git",
                 "url": "https://github.com/horstoeko/zugferd.git",
-                "reference": "2432b4f16c376f5e21dcb825da2edaf883397d3f"
+                "reference": "725c130ec0a09d72cf54b3d819840f3959a5502c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/horstoeko/zugferd/zipball/2432b4f16c376f5e21dcb825da2edaf883397d3f",
-                "reference": "2432b4f16c376f5e21dcb825da2edaf883397d3f",
+                "url": "https://api.github.com/repos/horstoeko/zugferd/zipball/725c130ec0a09d72cf54b3d819840f3959a5502c",
+                "reference": "725c130ec0a09d72cf54b3d819840f3959a5502c",
                 "shasum": ""
             },
             "require": {
@@ -3412,9 +3412,9 @@
             ],
             "support": {
                 "issues": "https://github.com/horstoeko/zugferd/issues",
-                "source": "https://github.com/horstoeko/zugferd/tree/v1.0.19"
+                "source": "https://github.com/horstoeko/zugferd/tree/v1.0.20"
             },
-            "time": "2023-05-16T04:16:15+00:00"
+            "time": "2023-07-04T15:21:32+00:00"
         },
         {
             "name": "http-interop/http-factory-guzzle",
@@ -3529,16 +3529,16 @@
         },
         {
             "name": "imdhemy/google-play-billing",
-            "version": "1.4.1",
+            "version": "1.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/imdhemy/google-play-billing.git",
-                "reference": "56f383338756eba875dc07cc30e55fa35267447f"
+                "reference": "d318db28efafb56ac8954c9f651fbe6ac367d637"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/imdhemy/google-play-billing/zipball/56f383338756eba875dc07cc30e55fa35267447f",
-                "reference": "56f383338756eba875dc07cc30e55fa35267447f",
+                "url": "https://api.github.com/repos/imdhemy/google-play-billing/zipball/d318db28efafb56ac8954c9f651fbe6ac367d637",
+                "reference": "d318db28efafb56ac8954c9f651fbe6ac367d637",
                 "shasum": ""
             },
             "require": {
@@ -3574,22 +3574,22 @@
             "description": "Google Play Billing",
             "support": {
                 "issues": "https://github.com/imdhemy/google-play-billing/issues",
-                "source": "https://github.com/imdhemy/google-play-billing/tree/1.4.1"
+                "source": "https://github.com/imdhemy/google-play-billing/tree/1.4.2"
             },
-            "time": "2023-06-05T06:38:09+00:00"
+            "time": "2023-07-04T16:00:39+00:00"
         },
         {
             "name": "imdhemy/laravel-purchases",
-            "version": "1.8.1",
+            "version": "1.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/imdhemy/laravel-in-app-purchases.git",
-                "reference": "5f716b36962eb014231ecd23ea149450a6a80dbb"
+                "reference": "22c6c85f94b34fefe6a92e5d1df2e1d61bd62d38"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/imdhemy/laravel-in-app-purchases/zipball/5f716b36962eb014231ecd23ea149450a6a80dbb",
-                "reference": "5f716b36962eb014231ecd23ea149450a6a80dbb",
+                "url": "https://api.github.com/repos/imdhemy/laravel-in-app-purchases/zipball/22c6c85f94b34fefe6a92e5d1df2e1d61bd62d38",
+                "reference": "22c6c85f94b34fefe6a92e5d1df2e1d61bd62d38",
                 "shasum": ""
             },
             "require": {
@@ -3645,7 +3645,7 @@
             ],
             "support": {
                 "issues": "https://github.com/imdhemy/laravel-in-app-purchases/issues",
-                "source": "https://github.com/imdhemy/laravel-in-app-purchases/tree/1.8.1"
+                "source": "https://github.com/imdhemy/laravel-in-app-purchases/tree/1.8.2"
             },
             "funding": [
                 {
@@ -3653,7 +3653,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-05-24T09:19:14+00:00"
+            "time": "2023-07-04T16:11:06+00:00"
         },
         {
             "name": "intervention/image",
@@ -5716,16 +5716,16 @@
         },
         {
             "name": "microsoft/microsoft-graph",
-            "version": "1.101.0",
+            "version": "1.102.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/microsoftgraph/msgraph-sdk-php.git",
-                "reference": "71a41f6a6673e0a839fc940bc4cb7befebad6328"
+                "reference": "4b450b06ac9df3868bbdbddb31bfcc4595f643bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/microsoftgraph/msgraph-sdk-php/zipball/71a41f6a6673e0a839fc940bc4cb7befebad6328",
-                "reference": "71a41f6a6673e0a839fc940bc4cb7befebad6328",
+                "url": "https://api.github.com/repos/microsoftgraph/msgraph-sdk-php/zipball/4b450b06ac9df3868bbdbddb31bfcc4595f643bc",
+                "reference": "4b450b06ac9df3868bbdbddb31bfcc4595f643bc",
                 "shasum": ""
             },
             "require": {
@@ -5762,9 +5762,9 @@
             "homepage": "https://developer.microsoft.com/en-us/graph",
             "support": {
                 "issues": "https://github.com/microsoftgraph/msgraph-sdk-php/issues",
-                "source": "https://github.com/microsoftgraph/msgraph-sdk-php/tree/1.101.0"
+                "source": "https://github.com/microsoftgraph/msgraph-sdk-php/tree/1.102.0"
             },
-            "time": "2023-06-29T14:38:52+00:00"
+            "time": "2023-07-05T13:07:19+00:00"
         },
         {
             "name": "mollie/mollie-api-php",
@@ -9312,16 +9312,16 @@
         },
         {
             "name": "sentry/sentry-laravel",
-            "version": "3.6.0",
+            "version": "3.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-laravel.git",
-                "reference": "6aacef4d12c22046f68ab617ee1496b9655b8eb9"
+                "reference": "eb94a52b88794d0c108dc46ca1a680531c3a8bad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-laravel/zipball/6aacef4d12c22046f68ab617ee1496b9655b8eb9",
-                "reference": "6aacef4d12c22046f68ab617ee1496b9655b8eb9",
+                "url": "https://api.github.com/repos/getsentry/sentry-laravel/zipball/eb94a52b88794d0c108dc46ca1a680531c3a8bad",
+                "reference": "eb94a52b88794d0c108dc46ca1a680531c3a8bad",
                 "shasum": ""
             },
             "require": {
@@ -9386,7 +9386,7 @@
             ],
             "support": {
                 "issues": "https://github.com/getsentry/sentry-laravel/issues",
-                "source": "https://github.com/getsentry/sentry-laravel/tree/3.6.0"
+                "source": "https://github.com/getsentry/sentry-laravel/tree/3.6.1"
             },
             "funding": [
                 {
@@ -9398,7 +9398,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2023-06-29T10:31:13+00:00"
+            "time": "2023-07-04T10:30:42+00:00"
         },
         {
             "name": "setasign/fpdf",
@@ -9830,16 +9830,16 @@
         },
         {
             "name": "spatie/laravel-data",
-            "version": "3.6.0",
+            "version": "3.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-data.git",
-                "reference": "ec8135711ef1dcba8650eb28d02c2a771b11349d"
+                "reference": "a975123d86e0133a361ac225d17acb3d11aa351f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-data/zipball/ec8135711ef1dcba8650eb28d02c2a771b11349d",
-                "reference": "ec8135711ef1dcba8650eb28d02c2a771b11349d",
+                "url": "https://api.github.com/repos/spatie/laravel-data/zipball/a975123d86e0133a361ac225d17acb3d11aa351f",
+                "reference": "a975123d86e0133a361ac225d17acb3d11aa351f",
                 "shasum": ""
             },
             "require": {
@@ -9901,7 +9901,7 @@
             ],
             "support": {
                 "issues": "https://github.com/spatie/laravel-data/issues",
-                "source": "https://github.com/spatie/laravel-data/tree/3.6.0"
+                "source": "https://github.com/spatie/laravel-data/tree/3.7.0"
             },
             "funding": [
                 {
@@ -9909,7 +9909,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-06-02T12:17:38+00:00"
+            "time": "2023-07-05T11:45:14+00:00"
         },
         {
             "name": "spatie/laravel-package-tools",
@@ -14410,16 +14410,16 @@
         },
         {
             "name": "barryvdh/reflection-docblock",
-            "version": "v2.1.0",
+            "version": "v2.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/barryvdh/ReflectionDocBlock.git",
-                "reference": "bf44b757feb8ba1734659029357646466ded673e"
+                "reference": "e6811e927f0ecc37cc4deaa6627033150343e597"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/barryvdh/ReflectionDocBlock/zipball/bf44b757feb8ba1734659029357646466ded673e",
-                "reference": "bf44b757feb8ba1734659029357646466ded673e",
+                "url": "https://api.github.com/repos/barryvdh/ReflectionDocBlock/zipball/e6811e927f0ecc37cc4deaa6627033150343e597",
+                "reference": "e6811e927f0ecc37cc4deaa6627033150343e597",
                 "shasum": ""
             },
             "require": {
@@ -14456,9 +14456,9 @@
                 }
             ],
             "support": {
-                "source": "https://github.com/barryvdh/ReflectionDocBlock/tree/v2.1.0"
+                "source": "https://github.com/barryvdh/ReflectionDocBlock/tree/v2.1.1"
             },
-            "time": "2022-10-31T15:35:43+00:00"
+            "time": "2023-06-14T05:06:27+00:00"
         },
         {
             "name": "beyondcode/laravel-query-detector",
@@ -15248,16 +15248,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.20.0",
+            "version": "v3.21.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "0e8249e0b15e2bc022fbbd1090ce29d071481e69"
+                "reference": "229b55b3eae4729a8e2a321441ba40fcb3720b86"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/0e8249e0b15e2bc022fbbd1090ce29d071481e69",
-                "reference": "0e8249e0b15e2bc022fbbd1090ce29d071481e69",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/229b55b3eae4729a8e2a321441ba40fcb3720b86",
+                "reference": "229b55b3eae4729a8e2a321441ba40fcb3720b86",
                 "shasum": ""
             },
             "require": {
@@ -15267,7 +15267,7 @@
                 "doctrine/lexer": "^2 || ^3",
                 "ext-json": "*",
                 "ext-tokenizer": "*",
-                "php": "^7.4 || ^8.0",
+                "php": "^8.0.1",
                 "sebastian/diff": "^4.0 || ^5.0",
                 "symfony/console": "^5.4 || ^6.0",
                 "symfony/event-dispatcher": "^5.4 || ^6.0",
@@ -15332,7 +15332,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.20.0"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.21.1"
             },
             "funding": [
                 {
@@ -15340,7 +15340,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-06-27T20:22:39+00:00"
+            "time": "2023-07-05T21:50:25+00:00"
         },
         {
             "name": "hamcrest/hamcrest-php",
@@ -16339,16 +16339,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.10.22",
+            "version": "1.10.25",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "97d694dfd4ceb57bcce4e3b38548f13ea62e4287"
+                "reference": "578f4e70d117f9a90699324c555922800ac38d8c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/97d694dfd4ceb57bcce4e3b38548f13ea62e4287",
-                "reference": "97d694dfd4ceb57bcce4e3b38548f13ea62e4287",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/578f4e70d117f9a90699324c555922800ac38d8c",
+                "reference": "578f4e70d117f9a90699324c555922800ac38d8c",
                 "shasum": ""
             },
             "require": {
@@ -16397,7 +16397,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-06-30T20:04:11+00:00"
+            "time": "2023-07-06T12:11:37+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -17848,16 +17848,16 @@
         },
         {
             "name": "spatie/flare-client-php",
-            "version": "1.4.0",
+            "version": "1.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/flare-client-php.git",
-                "reference": "82138174d5fe2829a7f085a6bdb2a06f6def9f7a"
+                "reference": "943894c6a6b00501365ac0b91ae0dce56f2226fa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/flare-client-php/zipball/82138174d5fe2829a7f085a6bdb2a06f6def9f7a",
-                "reference": "82138174d5fe2829a7f085a6bdb2a06f6def9f7a",
+                "url": "https://api.github.com/repos/spatie/flare-client-php/zipball/943894c6a6b00501365ac0b91ae0dce56f2226fa",
+                "reference": "943894c6a6b00501365ac0b91ae0dce56f2226fa",
                 "shasum": ""
             },
             "require": {
@@ -17906,7 +17906,7 @@
             ],
             "support": {
                 "issues": "https://github.com/spatie/flare-client-php/issues",
-                "source": "https://github.com/spatie/flare-client-php/tree/1.4.0"
+                "source": "https://github.com/spatie/flare-client-php/tree/1.4.1"
             },
             "funding": [
                 {
@@ -17914,7 +17914,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-06-28T11:08:09+00:00"
+            "time": "2023-07-06T09:29:49+00:00"
         },
         {
             "name": "spatie/ignition",
