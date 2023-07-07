@@ -41,6 +41,7 @@ use App\Http\Middleware\VerifyCsrfToken;
 use App\Http\Middleware\ContactTokenAuth;
 use Illuminate\Auth\Middleware\Authorize;
 use App\Http\Middleware\SetDbByCompanyKey;
+use App\Http\Middleware\ValidateSignature;
 use App\Http\Middleware\PasswordProtection;
 use App\Http\Middleware\ClientPortalEnabled;
 use App\Http\Middleware\CheckClientExistence;
@@ -49,16 +50,13 @@ use Illuminate\Http\Middleware\SetCacheHeaders;
 use Illuminate\Session\Middleware\StartSession;
 use App\Http\Middleware\CheckForMaintenanceMode;
 use App\Http\Middleware\RedirectIfAuthenticated;
-use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
-use Illuminate\Routing\Middleware\ValidateSignature;
 use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
 use Illuminate\Foundation\Http\Middleware\ValidatePostSize;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use Illuminate\Routing\Middleware\ThrottleRequestsWithRedis;
 use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
 
 class Kernel extends HttpKernel
