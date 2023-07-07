@@ -466,10 +466,9 @@ class CompanyExport implements ShouldQueue
         $storage_file_path = Storage::disk(config('filesystems.default'))->url('backups/'.$file_name);
         $storage_path = Storage::disk(config('filesystems.default'))->path('backups/'.$file_name);
 
-
         $url = Cache::get($this->hash);
         Cache::put($this->hash, $storage_path, now()->addHour());
-        
+
         App::forgetInstance('translator');
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
