@@ -5119,7 +5119,7 @@ $LANG = array(
     'admin_initiated_payments_help' => 'Support entering a payment in the admin portal without an invoice',
     'paid_date' => 'Paid Date',
     'downloaded_entities' => 'An email will be sent with the PDFs',
-
+    'lang_French - Swiss' => 'French - Swiss',
 );
 
 
