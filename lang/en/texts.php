@@ -5121,6 +5121,8 @@ $LANG = array(
     'downloaded_entities' => 'An email will be sent with the PDFs',
     'lang_French - Swiss' => 'French - Swiss',
     'currency_swazi_lilangeni' => 'Swazi Lilangeni',
+    'income' => 'Income',
+    
 );
 
 
