@@ -25,6 +25,8 @@ class PdfSlot extends Component
 
     public $pdf;
 
+    public $url;
+    
     public function mount()
     {
         MultiDB::setDb($this->db);

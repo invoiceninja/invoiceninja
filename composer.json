@@ -106,7 +106,6 @@
         "filp/whoops": "^2.7",
         "friendsofphp/php-cs-fixer": "^3.14",
         "laracasts/cypress": "^3.0",
-        "laravel/dusk": "^6.15",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^6.1",
         "nunomaduro/larastan": "^2.0",
