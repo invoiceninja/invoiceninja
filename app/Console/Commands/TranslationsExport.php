@@ -51,6 +51,7 @@ class TranslationsExport extends Command
         'fi',
         'fr',
         'fr_CA',
+        'fr_CH',
         'he',
         'hr',
         'hu',

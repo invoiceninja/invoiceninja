@@ -37,9 +37,9 @@ class TokenFilters extends QueryFilters
     }
 
 
-    public function is_system(bool $value = false): Builder
+    public function is_system(string $value = 'false'): Builder
     {
-        return $this->builder->where('is_system', $value);
+        return $this->builder->where('is_system', $value == 'false' ? false : true);
     }
 
     /**

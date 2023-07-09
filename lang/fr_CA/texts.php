@@ -5110,6 +5110,8 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'admin_initiated_payments' => 'Paiements initiés par l\'administration',
     'admin_initiated_payments_help' => 'Permet la saisie d\'un paiement dans le portal d\'administration sans facture',
     'paid_date' => 'Date de paiement',
+    'downloaded_entities' => 'Un courriel sera envoyé avec le ou les PDF',
+
 );
 
 

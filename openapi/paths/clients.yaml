@@ -117,8 +117,20 @@
               $ref: '#/components/headers/X-RateLimit-Limit'
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Client'
+              schema:  
+                type: object
+                properties:
+                  data: 
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Client'
+                    example:
+                      $ref: '#/components/examples/Client'
+                  meta:
+                    type: object
+                    $ref: '#/components/schemas/Meta'
+                    example:
+                      $ref: '#/components/examples/Meta'
         401:
           $ref: '#/components/responses/401'
         403:

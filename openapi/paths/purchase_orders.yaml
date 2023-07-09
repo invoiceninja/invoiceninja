@@ -21,8 +21,16 @@
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/Credit"
+              schema:  
+                type: object
+                properties:
+                  data: 
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PurchaseOrder'
+                  meta:
+                    type: object
+                    $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
         403:
@@ -58,7 +66,7 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Credit"
+                $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -104,7 +112,7 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Credit"
+                $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -149,7 +157,7 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Credit"
+                $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -234,7 +242,7 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Invoice"
+                $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -272,7 +280,7 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Credit"
+                $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -359,7 +367,7 @@
           example: clone_to_quote
       responses:
         200:
-          description: "Returns the invoice object"
+          description: "Returns the purchase order object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -370,7 +378,7 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Invoice"
+                $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -415,7 +423,7 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Vendor"
+                $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:
