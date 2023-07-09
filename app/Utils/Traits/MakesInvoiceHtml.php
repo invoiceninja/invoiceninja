@@ -42,6 +42,8 @@ trait MakesInvoiceHtml
     {
         $data['__env'] = app(Factory::class);
 
+        return Blade::render($string, $data); //potential fix for removing eval()
+
         $php = Blade::compileString($string);
 
         $obLevel = ob_get_level();
