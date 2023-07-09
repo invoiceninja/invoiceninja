@@ -168,8 +168,6 @@
           type: string
           format: date
           example: '1994-07-30'
-        settings:
-          $ref: '#/components/schemas/CompanySettings'
         last_viewed:
           description: Timestamp
           type: number
