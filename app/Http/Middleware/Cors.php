@@ -15,7 +15,7 @@ class Cors
             // ALLOW OPTIONS METHOD
             $headers = [
                 'Access-Control-Allow-Methods'=> 'POST, GET, OPTIONS, PUT, DELETE',
-                'Access-Control-Allow-Headers'=> 'X-React,X-API-PASSWORD-BASE64,X-API-COMPANY-KEY,X-CLIENT-VERSION,X-API-SECRET,X-API-TOKEN,X-API-PASSWORD,DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Content-Disposition,Range,X-CSRF-TOKEN,X-XSRF-TOKEN,X-LIVEWIRE',
+                'Access-Control-Allow-Headers'=> 'X-CLIENT-PLATFORM,X-React,X-API-PASSWORD-BASE64,X-API-COMPANY-KEY,X-CLIENT-VERSION,X-API-SECRET,X-API-TOKEN,X-API-PASSWORD,DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Content-Disposition,Range,X-CSRF-TOKEN,X-XSRF-TOKEN,X-LIVEWIRE',
             ];
 
             return Response::make('OK', 200, $headers);
