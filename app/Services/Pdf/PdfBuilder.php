@@ -102,7 +102,12 @@ class PdfBuilder
 
         $this->document = $document;
 
-        // $this->xpath = new DOMXPath($document);
+        return $this;
+    }
+
+    public function setDocument($document): self
+    {
+        $this->document = $document;
 
         return $this;
     }
@@ -127,6 +132,13 @@ class PdfBuilder
     private function mergeSections(array $section) :self
     {
         $this->sections = array_merge($this->sections, $section);
+
+        return $this;
+    }
+
+    public function setSections($sections): self
+    {
+        $this->sections = $sections;
 
         return $this;
     }
@@ -1641,6 +1653,7 @@ class PdfBuilder
 
     public function updateVariables()
     {
+
         $html = strtr($this->getCompiledHTML(), $this->service->html_variables['labels']);
 
         $html = strtr($html, $this->service->html_variables['values']);
