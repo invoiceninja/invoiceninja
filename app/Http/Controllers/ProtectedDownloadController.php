@@ -35,6 +35,7 @@ class ProtectedDownloadController extends BaseController
         return response()->streamDownload(function () use ($hashed_path) {
             echo Storage::get($hashed_path);
         }, basename($hashed_path), []);
+        
 
     }
 

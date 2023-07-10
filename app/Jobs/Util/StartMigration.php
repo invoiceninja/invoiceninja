@@ -49,6 +49,8 @@ class StartMigration implements ShouldQueue
      */
     private $company;
 
+    private $silent_migration;
+
     /**
      * Create a new job instance.
      *
@@ -60,11 +62,12 @@ class StartMigration implements ShouldQueue
 
     public $timeout = 0;
 
-    public function __construct($filepath, User $user, Company $company)
+    public function __construct($filepath, User $user, Company $company, $silent_migration = false)
     {
         $this->filepath = $filepath;
         $this->user = $user;
         $this->company = $company;
+        $this->silent_migration = $silent_migration;
     }
 
     /**
@@ -116,7 +119,7 @@ class StartMigration implements ShouldQueue
                 throw new NonExistingMigrationFile('Migration file does not exist, or it is corrupted.');
             }
 
-            (new Import($file, $this->company, $this->user))->handle();
+            (new Import($file, $this->company, $this->user, [], $this->silent_migration))->handle();
 
             Storage::deleteDirectory(public_path("storage/migrations/{$filename}"));
 
@@ -138,7 +141,8 @@ class StartMigration implements ShouldQueue
                 app('sentry')->captureException($e);
             }
 
-            Mail::to($this->user->email, $this->user->name())->send(new MigrationFailed($e, $this->company, $e->getMessage()));
+            if(!$this->silent_migration)
+                Mail::to($this->user->email, $this->user->name())->send(new MigrationFailed($e, $this->company, $e->getMessage()));
 
             if (Ninja::isHosted()) {
                 $migration_failed = new MigrationFailed($e, $this->company, $e->getMessage());
