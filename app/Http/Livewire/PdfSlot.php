@@ -82,22 +82,17 @@ class PdfSlot extends Component
         @$document->loadHTML(mb_convert_encoding($pdf_service->designer->template, 'HTML-ENTITIES', 'UTF-8'));
 
         $pdf_service->builder->document = $document;
-
         $pdf_service->builder->sections = $section;
 
         $html = $pdf_service->builder
                     ->getEmptyElements()
                     ->updateElementProperties()
-                    ->updateVariables()
-                    ->getCompiledHTML();
+                    ->updateVariables();
 
-        $doc = new \DOMDocument();
-
-        $doc->loadHTML($html);
-        $doc->removeChild($doc->doctype);
-        $doc->replaceChild($doc->firstChild->firstChild->firstChild, $doc->firstChild);
-
-        nlog($doc->saveHTML());
+        $pdf_service->builder->document->removeChild($pdf_service->builder->document->doctype);
+        $pdf_service->builder->document->replaceChild($pdf_service->builder->document->firstChild->firstChild->firstChild, $pdf_service->builder->document->firstChild);
+        
+        nlog($pdf_service->builder->document->saveHTML());
 
     }
 }
