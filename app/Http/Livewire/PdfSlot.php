@@ -50,14 +50,16 @@ class PdfSlot extends Component
     {
         
         $this->pdf =  $this->entity->fullscreenPdfViewer($this->invitation);
+
+
+    }
+
+    public function getHtml()
+    {
+
         $pdf_service = new PdfService($this->invitation);
-        
-
-        // $company_details = $pdf_service->config->settings->pdf_variables->company_details;
-
-
+                
         $pdf_service->config = (new PdfConfiguration($pdf_service))->init();
-
 
         $pdf_service->html_variables = $pdf_service->config->client ?
                                     (new HtmlEngine($this->invitation))->generateLabelsAndValues() :
@@ -68,55 +70,34 @@ class PdfSlot extends Component
 
         $pdf_service->builder = (new PdfBuilder($pdf_service));
 
-$section = [
-    'company-details' => [
-        'id' => 'company-details',
-        'elements' => $pdf_service->builder->companyDetails(),
-    ]
-];
+        $section = [
+            'company-details' => [
+                'id' => 'company-details',
+                'elements' => $pdf_service->builder->companyDetails(),
+            ]
+        ];
 
+        $document = new \DOMDocument();
+        $document->validateOnParse = true;
+        @$document->loadHTML(mb_convert_encoding($pdf_service->designer->template, 'HTML-ENTITIES', 'UTF-8'));
 
+        $pdf_service->builder->document = $document;
 
-$document = new \DOMDocument();
-$document->validateOnParse = true;
-@$document->loadHTML(mb_convert_encoding($pdf_service->designer->template, 'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-$pdf_service->builder->document = $document;
+        $pdf_service->builder->sections = $section;
 
-$pdf_service->builder->sections = $section;
+        $html = $pdf_service->builder
+                    ->getEmptyElements()
+                    ->updateElementProperties()
+                    ->updateVariables()
+                    ->getCompiledHTML();
 
-$html = $pdf_service->builder
-            ->getEmptyElements()
-            ->updateElementProperties()
-            ->updateVariables();
+        $doc = new \DOMDocument();
 
-nlog($html->getCompiledHTML());
+        $doc->loadHTML($html);
+        $doc->removeChild($doc->doctype);
+        $doc->replaceChild($doc->firstChild->firstChild->firstChild, $doc->firstChild);
 
-
-
-
-        // nlog($section);
-
-        // $document = new \DOMDocument();
-        // @$document->loadHTML(mb_convert_encoding('<div></div>', 'HTML-ENTITIES', 'UTF-8'));
-        // $pdf_service->designer->template = '';
-        // $pdf_service->builder->document = $document;
-
-        // $pdf_service->builder
-        //             ->sections = $section;        
-
-        // nlog($pdf_service->builder->sections);
-
-        //    $html =  $pdf_service->builder
-        //             ->getEmptyElements()
-        //             ->updateElementProperties()
-        //             ->updateVariables();
-
-        // nlog($html->getCompiledHTML());
-    }
-
-    public function getHtml()
-    {
-
+        nlog($doc->saveHTML());
 
     }
 }
