@@ -99,7 +99,6 @@ class ReminderJob implements ShouldQueue
                          $query->where('is_disabled', 0);
                      })
                      ->with('invitations')->chunk(50, function ($invoices) {
-                         // if ($invoice->refresh() && $invoice->isPayable()) {
 
                          foreach ($invoices as $invoice) {
                              $this->sendReminderForInvoice($invoice);
