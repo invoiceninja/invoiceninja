@@ -126,7 +126,7 @@ class Helpers
             return $custom_field_parts[0];
         }
 
-        $field = str_replace(["quote","credit"], ["invoice","invoice"], $field);
+        $field = str_replace(["quote","credit"], ["invoice", "invoice"], $field);
 
         if ($custom_fields && property_exists($custom_fields, $field)) {
             $custom_field = $custom_fields->{$field};
