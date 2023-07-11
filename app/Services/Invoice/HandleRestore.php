@@ -44,6 +44,7 @@ class HandleRestore extends AbstractService
         //cannot restore an invoice with a deleted payment
         foreach ($this->invoice->payments as $payment) {
             if (($this->invoice->paid_to_date == 0) && $payment->is_deleted) {
+                $this->invoice->delete(); //set it back to deleted so that it can be restored from repository
                 return $this->invoice;
             }
         }
