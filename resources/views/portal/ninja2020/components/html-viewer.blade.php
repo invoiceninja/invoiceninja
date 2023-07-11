@@ -28,7 +28,7 @@ span {
 
 </style>
 <div class="w-full">
-    <div class="flex flex-row content-center border-fuchsia-600 border-b-2">
+    <div class="flex flex-row content-center border-fuchsia-600 border-b-2 pb-3">
         <div id="company-details" class="mx-auto">
             {!! $company_details !!}
         </div>
@@ -38,9 +38,9 @@ span {
         </div>
     </div>
 
-    <div> {!! $entity_details !!}</div>
+    <div class="mt-3"> {!! $entity_details !!}</div>
 
-    <div id="user-details">
+    <div id="user-details" class="mt-3">
         {!! $user_details !!}
     </div>
 
