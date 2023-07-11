@@ -41,4 +41,4 @@
     </div>
     @endif
 </div>
-    @include('portal.ninja2020.components.html-viewer', ['data' => $data])
+    @include('portal.ninja2020.components.html-viewer')
