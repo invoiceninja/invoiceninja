@@ -120,24 +120,24 @@ class PdfSlot extends Component
 
     private function getEntityDetails()
     {
-        $entity_details = "<dl class=''>";
+        $entity_details = "<dl class='border-1'>";
 
         if($this->entity_type == 'invoice' || $this->entity_type == 'recurring_invoice') {
             foreach($this->settings->pdf_variables->invoice_details as $variable) 
-                $entity_details .= "<div class='px-1 py-1 sm:grid sm:grid-cols-4 sm:gap-0 sm:px-2 border-b-3 border-fuschia-500'><dt class=''>{$variable}_label</dt><dd class='flex text-sm font-mediumtext-gray-900 space-x-4'>{$variable}</dd></div>";
+                $entity_details .= "<div class='px-1 sm:grid sm:grid-cols-3'><dt class=''>{$variable}_label</dt><dd class='flex ml-5'>{$variable}</dd></div>";
     
         }
         elseif($this->entity_type == 'quote'){
             foreach($this->settings->pdf_variables->quote_details as $variable)
-                $entity_details .= "<div class='px-1 py-1 sm:grid sm:grid-cols-4 sm:gap-0 sm:px-2 border-b-3 border-fuschia-500'><dt class=''>{$variable}_label</dt><dd class='flex text-sm font-mediumtext-gray-900 space-x-4'>{$variable}</dd></div>";
+                $entity_details .= "<div class='px-1 sm:grid sm:grid-cols-3'><dt class=''>{$variable}_label</dt><dd class='flex ml-5'>{$variable}</dd></div>";
         }
         elseif($this->entity_type == 'credit') {
             foreach($this->settings->pdf_variables->credit_details as $variable)
-                $entity_details .= "<div class='px-1 py-1 sm:grid sm:grid-cols-4 sm:gap-0 sm:px-2 border-b-3 border-fuschia-500'><dt class=''>{$variable}_label</dt><dd class='flex text-sm font-mediumtext-gray-900 space-x-4'>{$variable}</dd></div>";
+                $entity_details .= "<div class='px-1 sm:grid sm:grid-cols-3'><dt class=''>{$variable}_label</dt><dd class='flex ml-5'>{$variable}</dd></div>";
         }
         elseif($this->entity_type == 'purchase_order'){
             foreach($this->settings->pdf_variables->purchase_order_details as $variable)
-                $entity_details .= "<div class='px-1 py-1 sm:grid sm:grid-cols-4 sm:gap-0 sm:px-2 border-b-3 border-fuschia-500'><dt class=''>{$variable}_label</dt><dd class='flex text-sm font-mediumtext-gray-900 space-x-4'>{$variable}</dd></div>";
+                $entity_details .= "<div class='px-1 sm:grid sm:grid-cols-3'><dt class=''>{$variable}_label</dt><dd class='flex ml-5'>{$variable}</dd></div>";
         }
             
         $entity_details .= "</dl>";
