@@ -52,7 +52,7 @@ class PdfSlot extends Component
 
     public function getPdf()
     {        
-        // $this->pdf =  $this->entity->fullscreenPdfViewer($this->invitation);
+        $this->pdf = $this->entity->fullscreenPdfViewer($this->invitation);
     }
 
     public function render()
@@ -125,20 +125,20 @@ class PdfSlot extends Component
 
         if($this->entity_type == 'invoice' || $this->entity_type == 'recurring_invoice') {
             foreach($this->settings->pdf_variables->invoice_details as $variable) 
-                $entity_details .= "<div class='flex px-4 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-1 w-36 block'>{$variable}</p></div>";
+                $entity_details .= "<div class='flex px-3 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-1 w-36 block'>{$variable}</p></div>";
     
         }
         elseif($this->entity_type == 'quote'){
             foreach($this->settings->pdf_variables->quote_details as $variable)
-                $entity_details .= "<div class='flex px-4 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-1 w-36 block'>{$variable}</p></div>";
+                $entity_details .= "<div class='flex px-3 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-1 w-36 block'>{$variable}</p></div>";
         }
         elseif($this->entity_type == 'credit') {
             foreach($this->settings->pdf_variables->credit_details as $variable)
-                $entity_details .= "<div class='flex px-4 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-1 w-36 block'>{$variable}</p></div>";
+                $entity_details .= "<div class='flex px-3 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-1 w-36 block'>{$variable}</p></div>";
         }
         elseif($this->entity_type == 'purchase_order'){
             foreach($this->settings->pdf_variables->purchase_order_details as $variable)
-                $entity_details .= "<div class='flex px-4 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-1 w-36 block'>{$variable}</p></div>";
+                $entity_details .= "<div class='flex px-3 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-1 w-36 block'>{$variable}</p></div>";
         }
             
         return $this->convertVariables($entity_details);
@@ -147,10 +147,13 @@ class PdfSlot extends Component
 
     private function getUserName()
     {
-        if($this->entity_type == 'purchase_order') {
+        $name = ctrans('texts.details');
+
+        if($this->entity_type == 'purchase_order' && isset($this->settings->pdf_variables->vendor_details[0])) {
             $name = $this->settings->pdf_variables->vendor_details[0];
 
-        } else {
+        } elseif(isset($this->settings->pdf_variables->client_details[0])) {
+
             $name = $this->settings->pdf_variables->client_details[0];
         }
                 

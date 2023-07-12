@@ -34,10 +34,6 @@ span {
             {!! $company_details !!}
         </div>
 
-        <!-- <div id="company-address"  class="mx-auto">
-            {!! $company_address !!}
-        </div> -->
-
     </div>
 
     <div class="border-fuchsia-600 border-b-2 pb-3 mt-3">
@@ -47,7 +43,7 @@ span {
     </div>
 
 
-    <div id="user-details" class="mt-3 px-3 border-b-2 border-fuschia-600"> 
+    <div id="user-details" class="mt-3 px-3 border-b-2 border-fuschia-600 flex flex-col items-end"> 
 
         <div x-data="{ show_user: false }" class="mb-3">
 
@@ -80,8 +76,8 @@ span {
                     <td>
                         <div class="product-information">
                             <div class="item-details">
-                                <p class="px-2 mt-2">{{ $product['quantity'] }} × {{ $product['cost'] }}</p> 
-                                <p class="overflow-ellipsis overflow-hidden px-2 mb-2">{{ $product['notes'] }}</p>
+                                <p class="mt-2">{{ $product['quantity'] }} × {{ $product['cost'] }}</p> 
+                                <p class="overflow-ellipsis overflow-hidden px-1 mb-2">{{ $product['notes'] }}</p>
                             </div>
                         </div>
                     </td>
@@ -93,10 +89,10 @@ span {
     </div>
     @endif 
     @if($services->count() > 0)
-    <div id="task-details" class="py-6 mr-5 ml-5">
+    <div id="task-details" class="py-6 mr-3 ml-3">
         <table width="100%">
             <thead>
-                <tr class="border-bottom>
+                <tr class="border-bottom">
                     <th style="text-align:left; width:70%; padding-left:2px;">Service</th>
                     <th style="text-align:right; width:30%; padding-right:2px;">Amount</th>
                 </tr>
@@ -107,8 +103,8 @@ span {
                     <td>
                         <div class="">
                             <div class="">
-                                <p class="px-2 mt-2">{{ $service['quantity'] }} × {{ $service['cost'] }}</p> 
-                                <p class="overflow-ellipsis overflow-hidden px-2 mb-2">{{ $service['notes'] }}</p>
+                                <p class="mt-2">{{ $service['quantity'] }} × {{ $service['cost'] }}</p> 
+                                <p class="overflow-ellipsis overflow-hidden px-1 mb-2">{{ $service['notes'] }}</p>
                             </div>
                         </div>
                     </td>
@@ -119,7 +115,7 @@ span {
         </table>
     </div>
     @endif
-    <div id="totals" class="mb-10 mr-5 ml-5">
+    <div id="totals" class="mb-10 mr-3 ml-3">
         <table width="100%">
             <thead>
             </thead>
@@ -132,7 +128,7 @@ span {
                             </div>
                         </div>
                     </td>
-                    <td style="text-align:right; padding-right:2px;" class="text-lg">{{ $amount }}</td>
+                    <td style="text-align:right; padding-right:10px;" class="text-lg">{{ $amount }}</td>
                 </tr>
                  <tr style="display: table-row;">
                     <td>
@@ -142,7 +138,7 @@ span {
                             </div>
                         </div>
                     </td>
-                    <td style="text-align:right; padding-right:2px;" class="text-lg">{{ $balance }}</td>
+                    <td style="text-align:right; padding-right:10px;" class="text-lg">{{ $balance }}</td>
                 </tr>
             </tbody>
         </table>
