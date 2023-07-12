@@ -78,6 +78,7 @@ class PdfSlot extends Component
             'company_address' => $this->getCompanyAddress(),
             'entity_details' => $this->getEntityDetails(),
             'user_details' => $this->getUserDetails(),
+            'user_name' => $this->getUserName(),
 
         ]);
     }
@@ -120,29 +121,40 @@ class PdfSlot extends Component
 
     private function getEntityDetails()
     {
-        $entity_details = "<dl class='border-1'>";
+        $entity_details = "";
 
         if($this->entity_type == 'invoice' || $this->entity_type == 'recurring_invoice') {
             foreach($this->settings->pdf_variables->invoice_details as $variable) 
-                $entity_details .= "<div class='px-1 sm:grid sm:grid-cols-3'><dt class=''>{$variable}_label</dt><dd class='flex ml-5'>{$variable}</dd></div>";
+                $entity_details .= "<div class='flex px-4 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-1 w-36 block'>{$variable}</p></div>";
     
         }
         elseif($this->entity_type == 'quote'){
             foreach($this->settings->pdf_variables->quote_details as $variable)
-                $entity_details .= "<div class='px-1 sm:grid sm:grid-cols-3'><dt class=''>{$variable}_label</dt><dd class='flex ml-5'>{$variable}</dd></div>";
+                $entity_details .= "<div class='flex px-4 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-1 w-36 block'>{$variable}</p></div>";
         }
         elseif($this->entity_type == 'credit') {
             foreach($this->settings->pdf_variables->credit_details as $variable)
-                $entity_details .= "<div class='px-1 sm:grid sm:grid-cols-3'><dt class=''>{$variable}_label</dt><dd class='flex ml-5'>{$variable}</dd></div>";
+                $entity_details .= "<div class='flex px-4 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-1 w-36 block'>{$variable}</p></div>";
         }
         elseif($this->entity_type == 'purchase_order'){
             foreach($this->settings->pdf_variables->purchase_order_details as $variable)
-                $entity_details .= "<div class='px-1 sm:grid sm:grid-cols-3'><dt class=''>{$variable}_label</dt><dd class='flex ml-5'>{$variable}</dd></div>";
+                $entity_details .= "<div class='flex px-4 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-1 w-36 block'>{$variable}</p></div>";
         }
             
-        $entity_details .= "</dl>";
-
         return $this->convertVariables($entity_details);
+
+    }
+
+    private function getUserName()
+    {
+        if($this->entity_type == 'purchase_order') {
+            $name = $this->settings->pdf_variables->vendor_details[0];
+
+        } else {
+            $name = $this->settings->pdf_variables->client_details[0];
+        }
+                
+        return $this->convertVariables($name);
 
     }
 
@@ -151,12 +163,12 @@ class PdfSlot extends Component
         $user_details = "";
 
         if($this->entity_type == 'purchase_order') {
-            foreach($this->settings->pdf_variables->vendor_details as $variable) {
+            foreach(array_slice($this->settings->pdf_variables->vendor_details,1) as $variable) {
                 $user_details .= "<p>{$variable}</p>";
             }
         }
         else{
-            foreach($this->settings->pdf_variables->client_details as $variable) {
+            foreach(array_slice($this->settings->pdf_variables->client_details,1) as $variable) {
                 $user_details .= "<p>{$variable}</p>";
             }
         }
