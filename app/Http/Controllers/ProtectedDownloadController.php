@@ -30,11 +30,7 @@ class ProtectedDownloadController extends BaseController
             abort(404, 'File no longer available');
         }
 
-        UnlinkFile::dispatch(config('filesystems.default'), $hashed_path)->delay(now()->addSeconds(10));
-
-        return response()->streamDownload(function () use ($hashed_path) {
-            echo Storage::get($hashed_path);
-        }, basename($hashed_path), []);
+        return response()->download($hashed_path, basename($hashed_path), [])->deleteFileAfterSend(true);
 
     }
 

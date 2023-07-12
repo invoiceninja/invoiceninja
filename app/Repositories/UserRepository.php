@@ -39,7 +39,7 @@ class UserRepository extends BaseRepository
      * @param bool $unset_company_user
      * @return \App\Models\User user Object
      */
-    public function save(array $data, User $user, $unset_company_user = false)
+    public function save(array $data, User $user, $unset_company_user = false, $is_migrating = false)
     {
         $details = $data;
 
@@ -71,7 +71,7 @@ class UserRepository extends BaseRepository
             $user->password = Hash::make($data['password']);
         }
 
-        if (! $user->confirmation_code) {
+        if (! $user->confirmation_code && !$is_migrating) {
             $user->confirmation_code = $this->createDbHash($company->db);
         }
 

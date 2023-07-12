@@ -24,7 +24,7 @@ class BulkInvoiceRequest extends Request
     {
         return [
             'action' => 'required|string',
-            'ids' => 'required',
+            'ids' => 'required|array',
             'email_type' => 'sometimes|in:reminder1,reminder2,reminder3,reminder_endless,custom1,custom2,custom3,invoice,quote,credit,payment,payment_partial,statement,purchase_order'
         ];
     }
