@@ -45,14 +45,37 @@ class PdfSlot extends Component
 
     private $entity_type;
 
+    public $download_button_text;
+
     public function mount()
     {
         MultiDB::setDb($this->db);
+
+        $this->download_button_text = ctrans('texts.download_pdf');
     }
 
     public function getPdf()
     {        
         $this->pdf = $this->entity->fullscreenPdfViewer($this->invitation);
+    }
+
+    public function downloadPdf()
+    {
+        
+        $this->download_button_text = ctrans('texts.working');
+
+        $file_name = $this->entity->numberFormatter().'.pdf';
+
+        $file = (new \App\Jobs\Entity\CreateRawPdf($this->invitation, $this->invitation->company->db))->handle();
+
+        $headers = ['Content-Type' => 'application/pdf'];
+
+        return response()->streamDownload(function () use ($file) {
+            echo $file;
+        }, $file_name, $headers);
+
+        $this->download_button_text = ctrans('texts.download_pdf');
+
     }
 
     public function render()

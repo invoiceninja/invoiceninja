@@ -26,6 +26,7 @@ span {
 }
 
 </style>
+
 <div class="w-full bg-white py-3 border-2 shadow sm:rounded-lg">
 
     <div class="px-3 border-fuchsia-600 border-b-2 pb-3">
