@@ -206,8 +206,6 @@ class InvoiceController extends Controller
 
             $file = $invoice->service()->getInvoicePdf(auth()->guard('contact')->user());
 
-            // return response()->download(file_get_contents(public_path($file)));
-
             return response()->streamDownload(function () use ($file) {
                 echo Storage::get($file);
             }, basename($file), ['Content-Type' => 'application/pdf']);
