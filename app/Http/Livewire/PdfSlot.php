@@ -26,6 +26,7 @@ use App\Services\Pdf\PdfDesigner;
 use App\Services\Pdf\PdfConfiguration;
 use App\Models\PurchaseOrderInvitation;
 use App\Models\RecurringInvoiceInvitation;
+use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 
 class PdfSlot extends Component
 {
@@ -45,13 +46,11 @@ class PdfSlot extends Component
 
     private $entity_type;
 
-    public $download_button_text;
+    protected $listeners = ['viewportChanged' => 'getPdf'];
 
     public function mount()
     {
         MultiDB::setDb($this->db);
-
-        $this->download_button_text = ctrans('texts.download_pdf');
     }
 
     public function getPdf()
@@ -62,19 +61,18 @@ class PdfSlot extends Component
     public function downloadPdf()
     {
         
-        $this->download_button_text = ctrans('texts.working');
-
         $file_name = $this->entity->numberFormatter().'.pdf';
 
-        $file = (new \App\Jobs\Entity\CreateRawPdf($this->invitation, $this->invitation->company->db))->handle();
+        if($this->entity instanceof \App\Models\PurchaseOrder)
+            $file = (new CreatePurchaseOrderPdf($this->invitation, $this->invitation->company->db))->rawPdf();
+        else
+            $file = (new \App\Jobs\Entity\CreateRawPdf($this->invitation, $this->invitation->company->db))->handle();
 
         $headers = ['Content-Type' => 'application/pdf'];
 
         return response()->streamDownload(function () use ($file) {
             echo $file;
         }, $file_name, $headers);
-
-        $this->download_button_text = ctrans('texts.download_pdf');
 
     }
 
@@ -110,7 +108,6 @@ class PdfSlot extends Component
     {
 
         $html = strtr($string, $this->html_variables['labels']);
-        
         $html = strtr($html, $this->html_variables['values']);
 
         return $html;
@@ -148,20 +145,20 @@ class PdfSlot extends Component
 
         if($this->entity_type == 'invoice' || $this->entity_type == 'recurring_invoice') {
             foreach($this->settings->pdf_variables->invoice_details as $variable) 
-                $entity_details .= "<div class='flex px-3 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-1 w-36 block'>{$variable}</p></div>";
+                $entity_details .= "<div class='flex px-3 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-1 w-36 block entity-field'>{$variable}</p></div>";
     
         }
         elseif($this->entity_type == 'quote'){
             foreach($this->settings->pdf_variables->quote_details as $variable)
-                $entity_details .= "<div class='flex px-3 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-1 w-36 block'>{$variable}</p></div>";
+                $entity_details .= "<div class='flex px-3 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-1 w-36 block entity-field'>{$variable}</p></div>";
         }
         elseif($this->entity_type == 'credit') {
             foreach($this->settings->pdf_variables->credit_details as $variable)
-                $entity_details .= "<div class='flex px-3 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-1 w-36 block'>{$variable}</p></div>";
+                $entity_details .= "<div class='flex px-3 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-1 w-36 block entity-field'>{$variable}</p></div>";
         }
         elseif($this->entity_type == 'purchase_order'){
             foreach($this->settings->pdf_variables->purchase_order_details as $variable)
-                $entity_details .= "<div class='flex px-3 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-1 w-36 block'>{$variable}</p></div>";
+                $entity_details .= "<div class='flex px-3 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-1 w-36 block entity-field'>{$variable}</p></div>";
         }
             
         return $this->convertVariables($entity_details);

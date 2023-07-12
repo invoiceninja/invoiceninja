@@ -39,7 +39,7 @@ span {
 
     <div class="border-fuchsia-600 border-b-2 pb-3 mt-3">
 
-        <div class=""> {!! $entity_details !!} </div>
+        <div id="entity-details"> {!! $entity_details !!} </div>
 
     </div>
 
@@ -118,27 +118,13 @@ span {
     @endif
     <div id="totals" class="mb-10 mr-3 ml-3">
         <table width="100%">
-            <thead>
-            </thead>
             <tbody>
-                <tr style="display: table-row;">
-                    <td>
-                        <div class="">
-                            <div class="">
-                                <p class="px-2 text-lg">{{ ctrans('texts.total') }}</p> 
-                            </div>
-                        </div>
-                    </td>
+                <tr>
+                    <td style="text-align:left; padding-right:10px;" class="text-lg">{{ ctrans('texts.total') }}</td>
                     <td style="text-align:right; padding-right:10px;" class="text-lg">{{ $amount }}</td>
                 </tr>
-                 <tr style="display: table-row;">
-                    <td>
-                        <div class="">
-                            <div class="">
-                                <p class="px-2 text-lg">{{ ctrans('texts.balance') }}</p> 
-                            </div>
-                        </div>
-                    </td>
+                 <tr>
+                    <td style="text-align:left; padding-right:10px;" class="text-lg">{{ ctrans('texts.balance') }}</td>
                     <td style="text-align:right; padding-right:10px;" class="text-lg">{{ $balance }}</td>
                 </tr>
             </tbody>
@@ -191,3 +177,50 @@ span {
 
     </div>
     @endif
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        
+        Array.from(document.getElementsByClassName("entity-field")).forEach(function(item) {
+            if(item.innerText.length == 0){
+                item.parentNode.remove();
+            }
+        });
+
+        Livewire.hook('message.processed', (message, component) => {
+
+            Array.from(document.getElementsByClassName("entity-field")).forEach(function(item) {
+                if(item.innerText.length == 0){
+                    item.parentNode.remove();
+                }
+            });
+
+        })
+        
+        var timeout = false; 
+        
+        /* Watch for resize of window and ensure we unset props with no values */
+        window.addEventListener('resize', function() {
+            clearTimeout(timeout);
+            timeout = setTimeout(getDimensions, 250);
+        });
+
+        getDimensions();
+
+        function getDimensions() {
+
+            const width = window.innerWidth;
+            
+            if(width < 900){
+            
+                Array.from(document.getElementsByClassName("entity-field")).forEach(function(item) {
+                    if(item.innerText.length == 0){
+                        item.parentNode.remove();
+                    }
+                });
+
+            }
+        }
+
+    });
+</script>
