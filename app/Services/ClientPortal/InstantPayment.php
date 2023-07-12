@@ -190,7 +190,7 @@ class InstantPayment
 
         /* Schedule a job to check the gateway fees for this invoice*/
         if (Ninja::isHosted()) {
-            CheckGatewayFee::dispatch($first_invoice->id, $client->company->db)->delay(600);
+            CheckGatewayFee::dispatch($first_invoice->id, $client->company->db)->delay(800);
         }
 
         if ($gateway) {

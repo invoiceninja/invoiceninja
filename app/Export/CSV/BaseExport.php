@@ -318,6 +318,7 @@ class BaseExport
 
     private function resolvePaymentKey($column, $entity, $transformer)
     {
+
         if($entity instanceof Payment){
 
             $transformed_payment = $transformer->transform($entity);

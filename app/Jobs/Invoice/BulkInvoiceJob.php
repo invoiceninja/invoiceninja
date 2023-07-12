@@ -41,7 +41,7 @@ class BulkInvoiceJob implements ShouldQueue
      */
     public function handle()
     {   //only the reminder should mark the reminder sent field
-        // $this->invoice->service()->touchReminder($this->reminder_template)->markSent()->save();
+
         $this->invoice->service()->markSent()->save();
 
         $this->invoice->invitations->load('contact.client.country', 'invoice.client.country', 'invoice.company')->each(function ($invitation) {
