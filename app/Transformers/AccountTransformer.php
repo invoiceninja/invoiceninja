@@ -61,7 +61,7 @@ class AccountTransformer extends EntityTransformer
             'plan_paid' => (string) $account->plan_paid,
             'plan_expires' => (string) $account->plan_expires,
             'user_agent' => (string) $account->user_agent,
-            'payment_id' => (string) $account->payment_id,
+            'payment_id' => (string) $this->encodePrimaryKey($account->payment_id),
             'trial_started' => (string) $account->trial_started,
             'trial_plan' => (string) $account->trial_plan,
             'plan_price' => (float) $account->plan_price,
