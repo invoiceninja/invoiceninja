@@ -264,6 +264,58 @@ class BaseExport
         "assigned_user" => "payment.assigned_user_id",
   ];
 
+    protected array $expense_report_keys = [
+        'amount' => 'expense.amount',
+        'category' => 'expense.category_id',
+        'client' => 'expense.client_id',
+        'custom_value1' => 'expense.custom_value1',
+        'custom_value2' => 'expense.custom_value2',
+        'custom_value3' => 'expense.custom_value3',
+        'custom_value4' => 'expense.custom_value4',
+        'currency' => 'expense.currency_id',
+        'date' => 'expense.date',
+        'exchange_rate' => 'expense.exchange_rate',
+        'converted_amount' => 'expense.foreign_amount',
+        'invoice_currency_id' => 'expense.invoice_currency_id',
+        'payment_date' => 'expense.payment_date',
+        'number' => 'expense.number',
+        'payment_type_id' => 'expense.payment_type_id',
+        'private_notes' => 'expense.private_notes',
+        'project' => 'expense.project_id',
+        'public_notes' => 'expense.public_notes',
+        'tax_amount1' => 'expense.tax_amount1',
+        'tax_amount2' => 'expense.tax_amount2',
+        'tax_amount3' => 'expense.tax_amount3',
+        'tax_name1' => 'expense.tax_name1',
+        'tax_name2' => 'expense.tax_name2',
+        'tax_name3' => 'expense.tax_name3',
+        'tax_rate1' => 'expense.tax_rate1',
+        'tax_rate2' => 'expense.tax_rate2',
+        'tax_rate3' => 'expense.tax_rate3',
+        'transaction_reference' => 'expense.transaction_reference',
+        'vendor' => 'expense.vendor_id',
+        'invoice' => 'expense.invoice_id',
+        'user' => 'expense.user',
+        'assigned_user' => 'expense.assigned_user',
+    ];
+
+    protected array $task_report_keys = [
+        'start_date' => 'task.start_date',
+        'end_date' => 'task.end_date',
+        'duration' => 'task.duration',
+        'rate' => 'task.rate',
+        'number' => 'task.number',
+        'description' => 'task.description',
+        'custom_value1' => 'task.custom_value1',
+        'custom_value2' => 'task.custom_value2',
+        'custom_value3' => 'task.custom_value3',
+        'custom_value4' => 'task.custom_value4',
+        'status' => 'task.status_id',
+        'project' => 'task.project_id',
+        'invoice' => 'task.invoice_id',
+        'client' => 'task.client_id',
+    ];
+
     protected function filterByClients($query)
     {
         if (isset($this->input['client_id']) && $this->input['client_id'] != 'all') {
@@ -289,6 +341,7 @@ class BaseExport
         match($parts[0]) {
             'contact' => $value = $this->resolveClientContactKey($parts[1], $entity, $transformer),
             'client' => $value = $this->resolveClientKey($parts[1], $entity, $transformer),
+            'expense' => $value = $this->resolveExpenseKey($parts[1], $entity, $transformer),
             'vendor' => $value = $this->resolveVendorKey($parts[1], $entity, $transformer),
             'vendor_contact' => $value = $this->resolveVendorContactKey($parts[1], $entity, $transformer),
             'invoice' => $value = $this->resolveInvoiceKey($parts[1], $entity, $transformer),
@@ -302,24 +355,62 @@ class BaseExport
 
     private function resolveClientContactKey($column, $entity, $transformer)
     {
+        
+        if(!$entity->client) {
+            return "";
+        }
 
         $primary_contact = $entity->client->primary_contact()->first() ?? $entity->client->contacts()->first();
 
-        return $primary_contact?->{$column} ?? '';
+        return $primary_contact ? $primary_contact?->{$column} ?? '' : '';
 
     }
 
     private function resolveVendorContactKey($column, $entity, $transformer)
     {
+        if(!$entity->vendor)
+            return "";
 
         $primary_contact = $entity->vendor->primary_contact()->first() ?? $entity->vendor->contacts()->first();
 
-        return $primary_contact?->{$column} ?? '';
+        return $primary_contact ? $primary_contact?->{$column} ?? '' : '';
+
+    }
+
+
+    private function resolveExpenseKey($column, $entity, $transformer)
+    {
+        // $transformed_entity = $transformer->includeExpense($entity);
+
+        // $manager = new Manager();
+        // $manager->setSerializer(new ArraySerializer());
+        // $transformed_entity = $manager->createData($transformed_entity)->toArray();
+
+        if($column == 'user' && $entity?->expense?->user)
+            return $entity->expense->user->present()->name() ?? ' ';
+
+        if($column == 'assigned_user' && $entity?->expense?->assigned_user) 
+            return $entity->expense->assigned_user->present()->name() ?? ' ';
+
+        if($column == 'category' && $entity->expense) {
+            return $entity->expense->category?->name ?? ' ';
+        }
+
+        if(property_exists($entity, $column))
+            return $entity?->{$column} ?? '';
+
+        nlog("export: Could not resolve expense key: {$column}");
+
+        return '';
 
     }
 
     private function resolveVendorKey($column, $entity, $transformer)
     {
+
+        if(!$entity->vendor)
+            return '';
+
         $transformed_entity = $transformer->includeVendor($entity);
 
         $manager = new Manager();
@@ -327,10 +418,10 @@ class BaseExport
         $transformed_entity = $manager->createData($transformed_entity)->toArray();
 
         if($column == 'name')
-            return $transformed_entity['display_name'];
+            return $entity->vendor->present()->name() ?: '';
         
         if($column == 'user_id')
-            return $entity->vendor->user->present()->name();
+            return $entity->vendor->user->present()->name()  ?: '';
 
         if($column == 'country_id')
             return $entity->vendor->country ? ctrans("texts.country_{$entity->vendor->country->name}") : '';
@@ -340,9 +431,7 @@ class BaseExport
         }
 
         if($column == 'status')
-            return $entity->stringStatus($entity->status_id);
-
-
+            return $entity->stringStatus($entity->status_id) ?: '';
 
         if(array_key_exists($column, $transformed_entity))
             return $transformed_entity[$column];
@@ -356,6 +445,10 @@ class BaseExport
 
     private function resolveClientKey($column, $entity, $transformer)
     {
+
+        if(!$entity->client)
+            return '';
+
         $transformed_client = $transformer->includeClient($entity);
 
         $manager = new Manager();
@@ -622,7 +715,7 @@ class BaseExport
     public function buildHeader() :array
     {
         $header = [];
-        
+
         nlog($this->input['report_keys']);
 
         foreach (array_merge($this->input['report_keys'], $this->forced_keys) as $value) {
@@ -663,6 +756,26 @@ class BaseExport
             }
 
             if(!$key) {
+                $prefix = ctrans('texts.expense');
+                $key = array_search($value, $this->expense_report_keys);
+            }
+
+            if(!$key) {
+                $prefix = ctrans('texts.task');
+                $key = array_search($value, $this->task_report_keys);
+            }
+
+            if(!$key) {
+                $prefix = ctrans('texts.vendor');
+                $key = array_search($value, $this->vendor_report_keys);
+            }
+
+            if(!$key) {
+                $prefix = ctrans('texts.purchase_order');
+                $key = array_search($value, $this->purchase_order_report_keys);
+            }
+
+            if(!$key) {
                 $prefix = '';
             }
 
@@ -676,6 +789,7 @@ class BaseExport
             $key = str_replace('vendor.', '', $key);
             $key = str_replace('contact.', '', $key);
             $key = str_replace('payment.', '', $key);
+            $key = str_replace('expense.', '', $key);
 
             $header[] = "{$prefix} " . ctrans("texts.{$key}");
         }
