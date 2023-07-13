@@ -5123,6 +5123,7 @@ $LANG = array(
     'currency_swazi_lilangeni' => 'Swazi Lilangeni',
     'income' => 'Income',
     'amount_received_help' => 'Enter a value here if the total amount received was MORE than the invoice amount, or when recording a payment with no invoices. Otherwise this field should be left blank.',  
+    'vendor_phone' => 'Vendor Phone',
 );
 
 

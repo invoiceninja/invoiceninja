@@ -185,7 +185,7 @@ class ClientExport extends BaseExport
         }
 
         if ($client->deleted_at) {
-            return ctrans('texts.arcvived');
+            return ctrans('texts.archived');
         }
 
         return ctrans('texts.active');

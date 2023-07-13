@@ -42,6 +42,37 @@ class BaseExport
 
     public array $forced_keys = [];
 
+    protected array $vendor_report_keys = [
+        'address1' => 'vendor.address1',
+        'address2' => 'vendor.address2',
+        'city' => 'vendor.city',
+        'country' => 'vendor.country_id',
+        'custom_value1' => 'vendor.custom_value1',
+        'custom_value2' => 'vendor.custom_value2',
+        'custom_value3' => 'vendor.custom_value3',
+        'custom_value4' => 'vendor.custom_value4',
+        'id_number' => 'vendor.id_number',
+        'name' => 'vendor.name',
+        'number' => 'vendor.number',
+        'client_phone' => 'vendor.phone',
+        'postal_code' => 'vendor.postal_code',
+        'private_notes' => 'vendor.private_notes',
+        'public_notes' => 'vendor.public_notes',
+        'state' => 'vendor.state',
+        'vat_number' => 'vendor.vat_number',
+        'website' => 'vendor.website',
+        'currency' => 'vendor.currency',
+        'first_name' => 'vendor_contact.first_name',
+        'last_name' => 'vendor_contact.last_name',
+        'contact_phone' => 'vendor_contact.phone',
+        'contact_custom_value1' => 'vendor_contact.custom_value1',
+        'contact_custom_value2' => 'vendor_contact.custom_value2',
+        'contact_custom_value3' => 'vendor_contact.custom_value3',
+        'contact_custom_value4' => 'vendor_contact.custom_value4',
+        'email' => 'vendor_contact.email',
+        'status' => 'vendor.status',
+    ];
+
     protected array $client_report_keys = [
         "name" => "client.name",
         "user" => "client.user_id",
@@ -101,6 +132,42 @@ class BaseExport
         "tax_amount" => "invoice.total_taxes",
         "assigned_user" => "invoice.assigned_user_id",
         "user" => "invoice.user_id",
+    ];
+
+    protected array $purchase_order_report_keys = [
+        'amount' => 'purchase_order.amount',
+        'balance' => 'purchase_order.balance',
+        'vendor' => 'purchase_order.vendor_id',
+        // 'custom_surcharge1' => 'purchase_order.custom_surcharge1',
+        // 'custom_surcharge2' => 'purchase_order.custom_surcharge2',
+        // 'custom_surcharge3' => 'purchase_order.custom_surcharge3',
+        // 'custom_surcharge4' => 'purchase_order.custom_surcharge4',
+        'custom_value1' => 'purchase_order.custom_value1',
+        'custom_value2' => 'purchase_order.custom_value2',
+        'custom_value3' => 'purchase_order.custom_value3',
+        'custom_value4' => 'purchase_order.custom_value4',
+        'date' => 'purchase_order.date',
+        'discount' => 'purchase_order.discount',
+        'due_date' => 'purchase_order.due_date',
+        'exchange_rate' => 'purchase_order.exchange_rate',
+        'footer' => 'purchase_order.footer',
+        'number' => 'purchase_order.number',
+        'paid_to_date' => 'purchase_order.paid_to_date',
+        'partial' => 'purchase_order.partial',
+        'partial_due_date' => 'purchase_order.partial_due_date',
+        'po_number' => 'purchase_order.po_number',
+        'private_notes' => 'purchase_order.private_notes',
+        'public_notes' => 'purchase_order.public_notes',
+        'status' => 'purchase_order.status_id',
+        'tax_name1' => 'purchase_order.tax_name1',
+        'tax_name2' => 'purchase_order.tax_name2',
+        'tax_name3' => 'purchase_order.tax_name3',
+        'tax_rate1' => 'purchase_order.tax_rate1',
+        'tax_rate2' => 'purchase_order.tax_rate2',
+        'tax_rate3' => 'purchase_order.tax_rate3',
+        'terms' => 'purchase_order.terms',
+        'total_taxes' => 'purchase_order.total_taxes',
+        'currency_id' => 'purchase_order.currency_id',
     ];
 
     protected array $item_report_keys = [
@@ -222,7 +289,10 @@ class BaseExport
         match($parts[0]) {
             'contact' => $value = $this->resolveClientContactKey($parts[1], $entity, $transformer),
             'client' => $value = $this->resolveClientKey($parts[1], $entity, $transformer),
+            'vendor' => $value = $this->resolveVendorKey($parts[1], $entity, $transformer),
+            'vendor_contact' => $value = $this->resolveVendorContactKey($parts[1], $entity, $transformer),
             'invoice' => $value = $this->resolveInvoiceKey($parts[1], $entity, $transformer),
+            'purchase_order' => $value = $this->resolvePurchaseOrderKey($parts[1], $entity, $transformer),
             'payment' => $value = $this->resolvePaymentKey($parts[1], $entity, $transformer),
             default => $value = ''
         };
@@ -238,6 +308,51 @@ class BaseExport
         return $primary_contact?->{$column} ?? '';
 
     }
+
+    private function resolveVendorContactKey($column, $entity, $transformer)
+    {
+
+        $primary_contact = $entity->vendor->primary_contact()->first() ?? $entity->vendor->contacts()->first();
+
+        return $primary_contact?->{$column} ?? '';
+
+    }
+
+    private function resolveVendorKey($column, $entity, $transformer)
+    {
+        $transformed_entity = $transformer->includeVendor($entity);
+
+        $manager = new Manager();
+        $manager->setSerializer(new ArraySerializer());
+        $transformed_entity = $manager->createData($transformed_entity)->toArray();
+
+        if($column == 'name')
+            return $transformed_entity['display_name'];
+        
+        if($column == 'user_id')
+            return $entity->vendor->user->present()->name();
+
+        if($column == 'country_id')
+            return $entity->vendor->country ? ctrans("texts.country_{$entity->vendor->country->name}") : '';
+
+        if ($column == 'currency_id') {
+            return $entity->vendor->currency() ? $entity->vendor->currency()->code : $entity->company->currency()->code;
+        }
+
+        if($column == 'status')
+            return $entity->stringStatus($entity->status_id);
+
+
+
+        if(array_key_exists($column, $transformed_entity))
+            return $transformed_entity[$column];
+
+        nlog("export: Could not resolve vendor key: {$column}");
+
+        return '';
+
+    }
+
 
     private function resolveClientKey($column, $entity, $transformer)
     {
@@ -280,6 +395,18 @@ class BaseExport
 
         return '';
 
+    }
+
+    private function resolvePurchaseOrderKey($column, $entity, $transformer)
+    {
+        nlog("searching for {$column}");
+
+        $transformed_entity = $transformer->transform($entity);
+
+        if($column == 'status')
+            return $entity->stringStatus($entity->status_id);
+    
+        return '';
     }
 
     private function resolveInvoiceKey($column, $entity, $transformer)
@@ -495,6 +622,8 @@ class BaseExport
     public function buildHeader() :array
     {
         $header = [];
+        
+        nlog($this->input['report_keys']);
 
         foreach (array_merge($this->input['report_keys'], $this->forced_keys) as $value) {
 
@@ -538,8 +667,13 @@ class BaseExport
             }
 
             $key = str_replace('item.', '', $key);
+            $key = str_replace('recurring_invoice.', '', $key);
             $key = str_replace('invoice.', '', $key);
+            $key = str_replace('quote.', '', $key);
+            $key = str_replace('credit.', '', $key);
+            $key = str_replace('task.', '', $key);
             $key = str_replace('client.', '', $key);
+            $key = str_replace('vendor.', '', $key);
             $key = str_replace('contact.', '', $key);
             $key = str_replace('payment.', '', $key);
 

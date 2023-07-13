@@ -75,6 +75,7 @@ use App\Http\Controllers\HostedMigrationController;
 use App\Http\Controllers\ConnectedAccountController;
 use App\Http\Controllers\RecurringExpenseController;
 use App\Http\Controllers\RecurringInvoiceController;
+use App\Http\Controllers\ProtectedDownloadController;
 use App\Http\Controllers\ClientGatewayTokenController;
 use App\Http\Controllers\Reports\TaskReportController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -85,6 +86,7 @@ use App\Http\Controllers\Auth\PasswordTimeoutController;
 use App\Http\Controllers\PreviewPurchaseOrderController;
 use App\Http\Controllers\Reports\ClientReportController;
 use App\Http\Controllers\Reports\CreditReportController;
+use App\Http\Controllers\Reports\VendorReportController;
 use App\Http\Controllers\Reports\ExpenseReportController;
 use App\Http\Controllers\Reports\InvoiceReportController;
 use App\Http\Controllers\Reports\PaymentReportController;
@@ -101,11 +103,12 @@ use App\Http\Controllers\Support\Messages\SendingController;
 use App\Http\Controllers\Reports\ClientSalesReportController;
 use App\Http\Controllers\Reports\InvoiceItemReportController;
 use App\Http\Controllers\PaymentNotificationWebhookController;
-use App\Http\Controllers\ProtectedDownloadController;
 use App\Http\Controllers\Reports\ProductSalesReportController;
 use App\Http\Controllers\Reports\ClientBalanceReportController;
 use App\Http\Controllers\Reports\ClientContactReportController;
+use App\Http\Controllers\Reports\PurchaseOrderReportController;
 use App\Http\Controllers\Reports\RecurringInvoiceReportController;
+use App\Http\Controllers\Reports\PurchaseOrderItemReportController;
 
 Route::group(['middleware' => ['throttle:api', 'api_secret_check']], function () {
     Route::post('api/v1/signup', [AccountController::class, 'store'])->name('signup.submit');
@@ -272,7 +275,6 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('recurring_expenses/bulk', [RecurringExpenseController::class, 'bulk'])->name('recurring_expenses.bulk');
     Route::put('recurring_expenses/{recurring_expense}/upload', [RecurringExpenseController::class, 'upload']);
 
-
     Route::resource('recurring_invoices', RecurringInvoiceController::class); // name = (recurring_invoices. index / create / show / update / destroy / edit
     Route::post('recurring_invoices/bulk', [RecurringInvoiceController::class, 'bulk'])->name('recurring_invoices.bulk');
     Route::put('recurring_invoices/{recurring_invoice}/upload', [RecurringInvoiceController::class, 'upload']);
@@ -291,6 +293,8 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('reports/expenses', ExpenseReportController::class)->middleware('throttle:20,1');
     Route::post('reports/invoices', InvoiceReportController::class)->middleware('throttle:20,1');
     Route::post('reports/invoice_items', InvoiceItemReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/purchase_orders', PurchaseOrderReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/purchase_order_items', PurchaseOrderItemReportController::class)->middleware('throttle:20,1');
     Route::post('reports/quotes', QuoteReportController::class)->middleware('throttle:20,1');
     Route::post('reports/quote_items', QuoteItemReportController::class)->middleware('throttle:20,1');
     Route::post('reports/recurring_invoices', RecurringInvoiceReportController::class)->middleware('throttle:20,1');
@@ -298,7 +302,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('reports/products', ProductReportController::class)->middleware('throttle:20,1');
     Route::post('reports/product_sales', ProductSalesReportController::class)->middleware('throttle:20,1');
     Route::post('reports/tasks', TaskReportController::class)->middleware('throttle:20,1');
-
+    Route::post('reports/vendors', VendorReportController::class)->middleware('throttle:20,1');
     Route::post('reports/profitloss', ProfitAndLossController::class);
     Route::post('reports/ar_detail_report', ARDetailReportController::class);
     Route::post('reports/ar_summary_report', ARSummaryReportController::class);
