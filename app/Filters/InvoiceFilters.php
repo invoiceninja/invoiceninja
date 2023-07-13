@@ -55,6 +55,10 @@ class InvoiceFilters extends QueryFilters
         $this->builder->where(function ($query) use ($status_parameters) {
             $invoice_filters = [];
 
+            if (in_array('draft', $status_parameters)) {
+                $invoice_filters[] = Invoice::STATUS_DRAFT;
+            }
+
             if (in_array('paid', $status_parameters)) {
                 $invoice_filters[] = Invoice::STATUS_PAID;
             }
