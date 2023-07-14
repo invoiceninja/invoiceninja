@@ -82,7 +82,6 @@ class ClientExport extends BaseExport
     ];
 
     public array $forced_keys = [
-        'status',
     ];
 
     public function __construct(Company $company, array $input)
@@ -144,11 +143,11 @@ class ClientExport extends BaseExport
             $keyval = array_search($key, $this->entity_keys);
 
             if (is_array($parts) && $parts[0] == 'client' && array_key_exists($parts[1], $transformed_client)) {
-                $entity[$keyval] = $transformed_client[$parts[1]];
+                $entity[$key] = $transformed_client[$parts[1]];
             } elseif (is_array($parts) && $parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {
-                $entity[$keyval] = $transformed_contact[$parts[1]];
+                $entity[$key] = $transformed_contact[$parts[1]];
             } else {
-                $entity[$keyval] = '';
+                $entity[$key] = '';
             }
         }
 
@@ -157,6 +156,14 @@ class ClientExport extends BaseExport
 
     private function decorateAdvancedFields(Client $client, array $entity) :array
     {
+        if (in_array('client.user', $this->input['report_keys'])) {
+            $entity['client.user'] = $client->user->present()->name();
+        }
+
+        if (in_array('client.assigned_user', $this->input['report_keys'])) {
+            $entity['client.assigned_user'] = $client->assigned_user ? $client->user->present()->name() : '';
+        }
+
         if (in_array('client.country_id', $this->input['report_keys'])) {
             $entity['country'] = $client->country ? ctrans("texts.country_{$client->country->name}") : '';
         }
@@ -172,8 +179,6 @@ class ClientExport extends BaseExport
         if (in_array('client.industry_id', $this->input['report_keys'])) {
             $entity['industry_id'] = $client->industry ? ctrans("texts.industry_{$client->industry->name}") : '';
         }
-
-        $entity['status'] = $this->calculateStatus($client);
 
         return $entity;
     }

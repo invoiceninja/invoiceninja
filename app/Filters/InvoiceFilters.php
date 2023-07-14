@@ -135,19 +135,6 @@ class InvoiceFilters extends QueryFilters
 
     }
 
-
-
-    /**
-     * @return Builder
-     * @throws RuntimeException
-     */
-    public function without_deleted_clients(): Builder
-    {
-        return $this->builder->whereHas('client', function ($query) {
-            $query->where('is_deleted', 0);
-        });
-    }
-
     /**
      * @return Builder
      * @return Builder

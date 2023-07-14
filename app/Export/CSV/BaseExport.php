@@ -75,7 +75,8 @@ class BaseExport
 
     protected array $client_report_keys = [
         "name" => "client.name",
-        "user" => "client.user_id",
+        "user" => "client.user",
+        "assigned_user" => "client.assigned_user",
         "balance" => "client.balance",
         "paid_to_date" => "client.paid_to_date",
         "currency" => "client.currency_id",
@@ -796,6 +797,7 @@ class BaseExport
 
             $header[] = "{$prefix} " . ctrans("texts.{$key}");
         }
+nlog($header);
 
         return $header;
     }
