@@ -50,6 +50,9 @@ class ActivityRepository extends BaseRepository
             $activity->{$key} = $value;
         }
 
+        if($entity->company)
+            $activity->account_id = $entity->company->account_id;
+
         if ($token_id = $this->getTokenId($event_vars)) {
             $activity->token_id = $token_id;
         }
