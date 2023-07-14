@@ -11,22 +11,29 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
-use App\Events\Invoice\InvoiceWasViewed;
-use App\Events\Misc\InvitationWasViewed;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\ClientPortal\Invoices\ProcessInvoicesInBulkRequest;
-use App\Http\Requests\ClientPortal\Invoices\ShowInvoiceRequest;
-use App\Http\Requests\ClientPortal\Invoices\ShowInvoicesRequest;
-use App\Models\Invoice;
 use App\Utils\Ninja;
 use App\Utils\Number;
-use App\Utils\Traits\MakesDates;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use App\Models\Invoice;
 use Illuminate\View\View;
+use Illuminate\Http\Request;
+use App\Models\QuoteInvitation;
+use App\Utils\Traits\MakesHash;
+use App\Models\CreditInvitation;
+use App\Utils\Traits\MakesDates;
+use App\Models\InvoiceInvitation;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Contracts\View\Factory;
+use App\Models\PurchaseOrderInvitation;
+use Illuminate\Support\Facades\Storage;
+use App\Events\Invoice\InvoiceWasViewed;
+use App\Events\Misc\InvitationWasViewed;
+use App\Models\RecurringInvoiceInvitation;
+use App\Jobs\Vendor\CreatePurchaseOrderPdf;
+use App\Http\Requests\ClientPortal\Invoices\ShowInvoiceRequest;
+use App\Http\Requests\ClientPortal\Invoices\ShowInvoicesRequest;
+use App\Http\Requests\ClientPortal\Invoices\ProcessInvoicesInBulkRequest;
 
 class InvoiceController extends Controller
 {
@@ -75,6 +82,31 @@ class InvoiceController extends Controller
         }
 
         return $this->render('invoices.show', $data);
+    }
+
+    public function showBlob($hash)
+    {
+        $data = Cache::pull($hash);
+
+        match($data['entity_type']){
+            'invoice' => $invitation = InvoiceInvitation::withTrashed()->find($data['invitation_id']),
+            'quote' => $invitation = QuoteInvitation::withTrashed()->find($data['invitation_id']),
+            'credit' => $invitation = CreditInvitation::withTrashed()->find($data['invitation_id']),
+            'recurring_invoice' => $invitation = RecurringInvoiceInvitation::withTrashed()->find($data['invitation_id']),
+        };
+
+        $file = (new \App\Jobs\Entity\CreateRawPdf($invitation, $invitation->company->db))->handle();
+        
+        // $headers = ['Content-Type' => 'application/pdf'];
+        // $entity_string = $data['entity_type'];
+        // $file_name = $invitation->{$entity_string}->numberFormatter().'.pdf';
+        // return response()->streamDownload(function () use ($file) {
+        //     echo $file;
+        // }, $file_name, $headers);
+
+        $headers = ['Content-Type' => 'application/pdf'];
+        return response()->make($file, 200, $headers);
+
     }
 
     /**

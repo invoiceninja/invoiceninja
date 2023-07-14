@@ -4,8 +4,8 @@
 @endphp
 
 @push('head')
-    <meta name="pdf-url" content="{{ $url ?? $entity->pdf_file_path($invitation, 'url', true) }}?cache_buster={{time()}}">
-    <script src="{{ asset('js/vendor/pdf.js/pdf.min.js') }}"></script>
+    <!-- <meta name="pdf-url" content="{{ $url ?? $entity->pdf_file_path($invitation, 'url', true) }}?cache_buster={{time()}}">
+    <script src="{{ asset('js/vendor/pdf.js/pdf.min.js') }}"></script> -->
 @endpush
 
 <div class="flex items-center justify-between mt-4">
@@ -68,6 +68,6 @@
 
 @if($mobile)
     @push('footer')
-        <script src="{{ asset('js/clients/shared/pdf.js') }}" defer></script>
+        <!-- <script src="{{ asset('js/clients/shared/pdf.js') }}" defer></script> -->
     @endpush
 @endif

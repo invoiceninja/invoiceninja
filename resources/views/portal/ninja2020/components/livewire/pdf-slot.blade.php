@@ -14,7 +14,8 @@
 <div class="hidden lg:block">
   <div wire:init="getPdf()">
       @if($pdf)
-      <iframe id="pdf-iframe" src="{!! $pdf !!}" class="h-screen w-full border-0 mt-4"></iframe>
+      <!-- <iframe id="pdf-iframe" src="{!! $pdf !!}" class="h-screen w-full border-0 mt-4"></iframe> -->
+      <iframe id="pdf-iframe" src="/{{ $route_entity }}/showBlob/{{ $pdf }}" class="h-screen w-full border-0 mt-4"></iframe>
       @else
       <div class="flex mt-4 place-items-center">
           <span class="loader m-auto"></span>

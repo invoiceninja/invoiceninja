@@ -188,7 +188,7 @@ class CreatePurchaseOrderPdf implements ShouldQueue
         }
 
         if (config('ninja.log_pdf_html')) {
-            info($maker->getCompiledHTML());
+            nlog($maker->getCompiledHTML());
         }
 
         $maker = null;

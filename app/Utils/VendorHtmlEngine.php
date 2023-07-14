@@ -133,16 +133,18 @@ class VendorHtmlEngine
         $data['$partial_due_date'] = ['value' => $this->translateDate($this->entity->partial_due_date, $this->company->date_format(), $this->company->locale()) ?: '&nbsp;', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
         
         $data['$dueDate'] = &$data['$due_date'];
+        $data['$purchase_order.due_date'] = &$data['$due_date'];
 
         $data['$payment_due'] = ['value' => $this->translateDate($this->entity->due_date, $this->company->date_format(), $this->company->locale()) ?: '&nbsp;', 'label' => ctrans('texts.payment_due')];
-        $data['$poNumber'] = ['value' => $this->entity->po_number, 'label' => ctrans('texts.po_number')];
+        $data['$purchase_order.po_number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.po_number')];
+
+        $data['$poNumber'] = &$data['$purchase_order.po_number'];
 
         $data['$entity.datetime'] = ['value' => $this->formatDatetime($this->entity->created_at, $this->company->date_format()), 'label' => ctrans('texts.date')];
 
-        $data['$po_number'] = &$data['$poNumber'];
         $data['$status_logo'] = ['value' => ' ', 'label' => ' '];
         $data['$entity'] = ['value' => '', 'label' => ctrans('texts.purchase_order')];
-        $data['$number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.purchase_order_number')];
+        $data['$number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.number')];
         $data['$number_short'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.purchase_order_number_short')];
         $data['$entity.terms'] = ['value' => Helpers::processReservedKeywords(\nl2br($this->entity->terms), $this->company) ?: '', 'label' => ctrans('texts.invoice_terms')];
         $data['$terms'] = &$data['$entity.terms'];
@@ -155,7 +157,6 @@ class VendorHtmlEngine
 
         $data['$purchase_order.number'] = &$data['$number'];
         $data['$purchase_order.date'] = &$data['$date'];
-        $data['$purchase_order.po_number'] = &$data['$poNumber'];
         $data['$purchase_order.due_date'] = &$data['$due_date'];
         $data['$entity_issued_to'] = ['value' => '', 'label' => ctrans("texts.purchase_order_issued_to")];
 
@@ -189,8 +190,9 @@ class VendorHtmlEngine
             }
         }
 
-        // $data['$balance_due'] = $data['$balance_due'];
         $data['$outstanding'] = &$data['$balance_due'];
+        $data['$purchase_order.balance_due'] = &$data['$balance_due'];
+        
         $data['$partial_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
         $data['$partial'] = &$data['$partial_due'];
 
