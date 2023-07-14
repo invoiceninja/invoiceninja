@@ -176,8 +176,6 @@ class ExpenseExport extends BaseExport
             $entity['expense.assigned_user'] = $expense->assigned_user ? $expense->assigned_user->present()->name() : '';
         }
 
-        nlog($entity);
-
         return $entity;
     }
 }

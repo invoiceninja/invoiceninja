@@ -395,7 +395,7 @@ class BaseExport
 
         if($entity instanceof Expense)
             return '';
-            
+
         $transformed_entity = $transformer->includeExpense($entity);
 
         $manager = new Manager();
@@ -725,7 +725,7 @@ class BaseExport
     {
         $header = [];
 
-        nlog($this->input['report_keys']);
+        // nlog($this->input['report_keys']);
 
         foreach (array_merge($this->input['report_keys'], $this->forced_keys) as $value) {
 
@@ -802,7 +802,7 @@ class BaseExport
 
             $header[] = "{$prefix} " . ctrans("texts.{$key}");
         }
-nlog($header);
+// nlog($header);
 
         return $header;
     }
