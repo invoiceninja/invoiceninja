@@ -13,6 +13,7 @@ namespace App\Export\CSV;
 
 use App\Utils\Number;
 use App\Models\Client;
+use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -381,12 +382,7 @@ class BaseExport
 
     private function resolveExpenseKey($column, $entity, $transformer)
     {
-        $transformed_entity = $transformer->includeExpense($entity);
-
-        $manager = new Manager();
-        $manager->setSerializer(new ArraySerializer());
-        $transformed_entity = $manager->createData($transformed_entity)->toArray();
-
+     
         if($column == 'user' && $entity?->expense?->user)
             return $entity->expense->user->present()->name() ?? ' ';
 
@@ -396,6 +392,15 @@ class BaseExport
         if($column == 'category' && $entity->expense) {
             return $entity->expense->category?->name ?? ' ';
         }
+
+        if($entity instanceof Expense)
+            return '';
+            
+        $transformed_entity = $transformer->includeExpense($entity);
+
+        $manager = new Manager();
+        $manager->setSerializer(new ArraySerializer());
+        $transformed_entity = $manager->createData($transformed_entity)->toArray();
 
         if(array_key_exists($column, $transformed_entity)) 
             return $transformed_entity[$column];    
