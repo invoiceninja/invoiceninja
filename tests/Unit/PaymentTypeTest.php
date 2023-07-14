@@ -33,7 +33,7 @@ class PaymentTypeTest extends TestCase
         $payment_type_class = new PaymentType;
 
         foreach($payment_type_class->type_names as $type)
-        {nlog($type);
+        {
             $this->assertTrue(Lang::has("texts.{$type}"));
         }
     }

@@ -44,7 +44,6 @@ class HandleRestore extends AbstractService
         //cannot restore an invoice with a deleted payment
         foreach ($this->invoice->payments as $payment) {
             if (($this->invoice->paid_to_date == 0) && $payment->is_deleted) {
-                $this->invoice->delete(); //set it back to deleted so that it can be restored from repository
                 return $this->invoice;
             }
         }
@@ -81,8 +80,8 @@ class HandleRestore extends AbstractService
             Paymentable::query()
             ->withTrashed()
             ->where('payment_id', $payment->id)
-            ->where('paymentable_type', '=', 'invoices')
-            ->where('paymentable_id', $this->invoice->id)
+            // ->where('paymentable_type', '=', 'invoices')
+            // ->where('paymentable_id', $this->invoice->id)
             ->update(['deleted_at' => null]);
         });
 
@@ -102,6 +101,12 @@ class HandleRestore extends AbstractService
                                                 ->where('paymentable_type', '=', 'invoices')
                                                 ->where('paymentable_id', $this->invoice->id)
                                                 ->sum(DB::raw('refunded'));
+
+            //14/07/2023 - do not include credits in the payment amount
+            $this->adjustment_amount -= $payment->paymentables
+                                            ->where('paymentable_type', '=', 'App\Models\Credit')
+                                            ->sum(DB::raw('amount'));
+
         }
 
         $this->total_payments = $this->invoice->payments->sum('amount') - $this->invoice->payments->sum('refunded');
@@ -130,11 +135,16 @@ class HandleRestore extends AbstractService
                                             ->where('paymentable_id', $this->invoice->id)
                                             ->sum(DB::raw('refunded'));
 
+            $payment_adjustment -= $payment->paymentables
+                        ->where('paymentable_type', '=', 'App\Models\Credit')
+                        ->sum(DB::raw('amount'));
+ 
             $payment->amount += $payment_adjustment;
             $payment->applied += $payment_adjustment;
             $payment->is_deleted = false;
             $payment->restore();
             $payment->saveQuietly();
+
         });
         
         return $this;
