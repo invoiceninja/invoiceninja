@@ -20,6 +20,7 @@ use App\Models\Company;
 use App\Models\Invoice;
 use Tests\MockAccountData;
 use App\Models\CompanyToken;
+use App\Models\ClientContact;
 use App\Utils\Traits\MakesHash;
 use App\DataMapper\CompanySettings;
 use App\Factory\CompanyUserFactory;
@@ -145,6 +146,17 @@ class ReportCsvGenerationTest extends TestCase
             'name' => 'bob',
             'address1' => '1234'
         ]);
+
+        ClientContact::factory()->create([
+                'user_id' => $this->user->id,
+                'client_id' => $this->client->id,
+                'company_id' => $this->company->id,
+                'is_primary' => 1,
+                'first_name' => 'john',
+                'last_name' => 'doe',
+                'email' => 'john@doe.com'
+            ]);
+
     }
 
     public function testClientCsvGeneration()
@@ -176,6 +188,43 @@ class ReportCsvGenerationTest extends TestCase
 
         $this->assertEquals('bob', $res[1]);
 
+    }
+
+    public function testClientContactCsvGeneration()
+    {
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => [],
+            'send_email' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/contacts', $data);
+       
+        $csv = $response->streamedContent();
+
+        $reader = Reader::createFromString($csv);
+        $reader->setHeaderOffset(0);
+        
+        $res = $reader->fetchColumnByName('First Name');
+        $res = iterator_to_array($res, true);
+
+        $this->assertEquals('john', $res[1]);
+
+        $res = $reader->fetchColumnByName('Last Name');
+        $res = iterator_to_array($res, true);
+
+        $this->assertEquals('doe', $res[1]);
+
+        $res = $reader->fetchColumnByName('Email');
+        $res = iterator_to_array($res, true);
+
+        $this->assertEquals('john@doe.com', $res[1]);
+
 
     }
+
 }
