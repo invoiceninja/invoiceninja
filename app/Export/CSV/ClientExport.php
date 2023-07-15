@@ -131,6 +131,8 @@ class ClientExport extends BaseExport
 
         $transformed_client = $this->client_transformer->transform($client);
 
+        $transformed_contact = [];
+
         if ($contact = $client->contacts()->first()) {
             $transformed_contact = $this->contact_transformer->transform($contact);
         }
@@ -139,9 +141,7 @@ class ClientExport extends BaseExport
 
         foreach (array_values($this->input['report_keys']) as $key) {
             $parts = explode('.', $key);
-
-            $keyval = array_search($key, $this->entity_keys);
-
+            
             if (is_array($parts) && $parts[0] == 'client' && array_key_exists($parts[1], $transformed_client)) {
                 $entity[$key] = $transformed_client[$parts[1]];
             } elseif (is_array($parts) && $parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {

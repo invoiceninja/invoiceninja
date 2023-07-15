@@ -734,53 +734,53 @@ class BaseExport
             $prefix = '';
 
             if(!$key) {
-                $prefix = stripos($value, 'client.') !== false ? ctrans('texts.client') : ctrans('texts.contact');
+                $prefix = stripos($value, 'client.') !== false ? ctrans('texts.client')." " : ctrans('texts.contact')." ";
                 $key = array_search($value, $this->client_report_keys);
             }
 
             if(!$key) {
-                $prefix = ctrans('texts.invoice');
+                $prefix = ctrans('texts.invoice')." ";
                 $key = array_search($value, $this->invoice_report_keys);
             }
 
             if(!$key) {
-                $prefix = ctrans('texts.payment');
+                $prefix = ctrans('texts.payment')." ";
                 $key = array_search($value, $this->payment_report_keys);
             }
 
 
             if(!$key) {
-                $prefix = ctrans('texts.quote');
+                $prefix = ctrans('texts.quote')." ";
                 $key = array_search($value, $this->quote_report_keys);
             }
             
             if(!$key) {
-                $prefix = ctrans('texts.credit');
+                $prefix = ctrans('texts.credit')." ";
                 $key = array_search($value, $this->credit_report_keys);
             }
 
             if(!$key) {
-                $prefix = ctrans('texts.item');
+                $prefix = ctrans('texts.item')." ";
                 $key = array_search($value, $this->item_report_keys);
             }
 
             if(!$key) {
-                $prefix = ctrans('texts.expense');
+                $prefix = ctrans('texts.expense')." ";
                 $key = array_search($value, $this->expense_report_keys);
             }
 
             if(!$key) {
-                $prefix = ctrans('texts.task');
+                $prefix = ctrans('texts.task')." ";
                 $key = array_search($value, $this->task_report_keys);
             }
 
             if(!$key) {
-                $prefix = ctrans('texts.vendor');
+                $prefix = ctrans('texts.vendor')." ";
                 $key = array_search($value, $this->vendor_report_keys);
             }
 
             if(!$key) {
-                $prefix = ctrans('texts.purchase_order');
+                $prefix = ctrans('texts.purchase_order')." ";
                 $key = array_search($value, $this->purchase_order_report_keys);
             }
 
@@ -800,7 +800,7 @@ class BaseExport
             $key = str_replace('payment.', '', $key);
             $key = str_replace('expense.', '', $key);
 
-            $header[] = "{$prefix} " . ctrans("texts.{$key}");
+            $header[] = "{$prefix}" . ctrans("texts.{$key}");
         }
 // nlog($header);
 
