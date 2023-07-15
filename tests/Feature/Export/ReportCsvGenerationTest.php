@@ -224,7 +224,6 @@ class ReportCsvGenerationTest extends TestCase
 
         $this->assertEquals('john@doe.com', $res[1]);
 
-
     }
 
 }
