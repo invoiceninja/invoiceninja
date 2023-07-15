@@ -171,5 +171,11 @@ class ReportCsvGenerationTest extends TestCase
 
         $this->assertEquals('1234', $res[1]);
 
+        $res = $reader->fetchColumnByName('Name');
+        $res = iterator_to_array($res, true);
+
+        $this->assertEquals('bob', $res[1]);
+
+
     }
 }
