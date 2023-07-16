@@ -63,6 +63,7 @@ class UpdatePurchaseOrderRequest extends Request
         }
 
         $rules['status_id'] = 'sometimes|integer|in:1,2,3,4,5';
+        $rules['exchange_rate'] = 'bail|sometimes|gt:0';
 
         return $rules;
     }
@@ -77,6 +78,10 @@ class UpdatePurchaseOrderRequest extends Request
 
         if (isset($input['line_items']) && is_array($input['line_items'])) {
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+        }
+
+        if (array_key_exists('exchange_rate', $input) && is_null($input['exchange_rate'])) {
+            $input['exchange_rate'] = 1;
         }
 
         $this->replace($input);

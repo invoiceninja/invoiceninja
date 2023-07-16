@@ -135,25 +135,44 @@ class QuoteItemExport extends BaseExport
 
         $transformed_items = [];
 
-        foreach ($quote->line_items as $item) {
-            $item_array = [];
+        $transformed_items = [];
 
-            foreach (array_values($this->input['report_keys']) as $key) {
-                if (str_contains($key, 'item.')) {
-                    $key = str_replace('item.', '', $key);
-                    $item_array[$key] = $item->{$key};
+        foreach ($quote->line_items as $item) {
+            $item_array = [];      
+
+            foreach (array_values($this->input['report_keys']) as $key) { //items iterator produces item array
+                
+                if (str_contains($key, "item.")) {
+
+                    $key = str_replace("item.", "", $key);
+                    
+                    $keyval = $key;
+
+                    $keyval = str_replace("custom_value", "quote", $key);
+
+                    if($key == 'type_id')
+                        $keyval = 'type';
+
+                    if($key == 'tax_id')
+                        $keyval = 'tax_category';
+
+                    if (property_exists($item, $key)) {
+                        $item_array[$keyval] = $item->{$key};
+                    } else {
+                        $item_array[$keyval] = '';
+                    }
                 }
             }
 
             $entity = [];
 
-            foreach (array_values($this->input['report_keys']) as $key) {
-                $keyval = array_search($key, $this->entity_keys);
+            foreach (array_values($this->input['report_keys']) as $key) { //create an array of report keys only 
+                $keyval = array_search($key, $this->entity_keys); 
 
                 if (array_key_exists($key, $transformed_items)) {
                     $entity[$keyval] = $transformed_items[$key];
                 } else {
-                    $entity[$keyval] = '';
+                    $entity[$keyval] = "";
                 }
             }
 
@@ -173,16 +192,26 @@ class QuoteItemExport extends BaseExport
         foreach (array_values($this->input['report_keys']) as $key) {
             $keyval = array_search($key, $this->entity_keys);
 
+            if(!$keyval) {
+                $keyval = array_search(str_replace("quote.", "", $key), $this->entity_keys) ?? $key;
+            }
+
+            if(!$keyval) {
+                $keyval = $key;
+            }
+
             if (array_key_exists($key, $transformed_quote)) {
                 $entity[$keyval] = $transformed_quote[$key];
-            } else {
-                $entity[$keyval] = '';
+            } elseif (array_key_exists($keyval, $transformed_quote)) {
+                $entity[$keyval] = $transformed_quote[$keyval];
+            }
+             else {
+                $entity[$keyval] = $this->resolveKey($keyval, $quote, $this->quote_transformer);
             }
         }
 
         return $this->decorateAdvancedFields($quote, $entity);
     }
-
     private function decorateAdvancedFields(Quote $quote, array $entity) :array
     {
         if (in_array('currency_id', $this->input['report_keys'])) {
