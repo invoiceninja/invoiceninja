@@ -97,6 +97,10 @@ class InvoiceRepository extends BaseRepository
         // reversed delete invoice actions
         $invoice = $invoice->service()->handleRestore()->save();
 
+        /* If the reverse did not succeed due to rules, then do not restore / unarchive */
+        if($invoice->is_deleted)
+            return $invoice;
+
         parent::restore($invoice);
 
         return $invoice;
