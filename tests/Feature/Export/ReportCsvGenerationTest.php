@@ -355,6 +355,81 @@ class ReportCsvGenerationTest extends TestCase
 
     }
 
+public function testQuoteCsvGeneration()
+    {
+
+        \App\Models\Quote::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'amount' => 100,
+            'balance' => 50,
+            'status_id' => 2,
+            'discount' => 10,
+            'po_number' => '1234',
+            'public_notes' => 'Public',
+            'private_notes' => 'Private',
+            'terms' => 'Terms',
+            'date' => '2020-01-01',
+            'due_date' => '2020-01-01',
+            'partial_due_date' => '2021-01-03',
+            'partial' => 10,
+            'discount' => 10,
+            'custom_value1' => 'Custom 1',
+            'custom_value2' => 'Custom 2',
+            'custom_value3' => 'Custom 3',
+            'custom_value4' => 'Custom 4',
+            'footer' => 'Footer',
+            'tax_name1' => 'Tax 1',
+            'tax_rate1' => 10,
+            'tax_name2' => 'Tax 2',
+            'tax_rate2' => 20,
+            'tax_name3' => 'Tax 3',
+            'tax_rate3' => 30,
+
+        ]);
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => [],
+            'send_email' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/quotes', $data);
+
+        $response->assertStatus(200);
+
+        $csv = $response->streamedContent();
+
+        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Amount'));
+        $this->assertEquals('50', $this->getFirstValueByColumn($csv, 'Balance'));
+        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Discount'));
+        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'PO Number'));
+        $this->assertEquals('Public', $this->getFirstValueByColumn($csv, 'Public Notes'));
+        $this->assertEquals('Private', $this->getFirstValueByColumn($csv, 'Private Notes'));
+        $this->assertEquals('Terms', $this->getFirstValueByColumn($csv, 'Terms'));
+        $this->assertEquals('2020-01-01', $this->getFirstValueByColumn($csv, 'Date'));
+        $this->assertEquals('2020-01-01', $this->getFirstValueByColumn($csv, 'Valid Until'));
+        $this->assertEquals('2021-01-03', $this->getFirstValueByColumn($csv, 'Partial Due Date'));
+        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Partial/Deposit'));
+        $this->assertEquals('Custom 1', $this->getFirstValueByColumn($csv, 'Custom Value 1'));
+        $this->assertEquals('Custom 2', $this->getFirstValueByColumn($csv, 'Custom Value 2'));
+        $this->assertEquals('Custom 3', $this->getFirstValueByColumn($csv, 'Custom Value 3'));
+        $this->assertEquals('Custom 4', $this->getFirstValueByColumn($csv, 'Custom Value 4'));
+        $this->assertEquals('Footer', $this->getFirstValueByColumn($csv, 'Footer'));
+        $this->assertEquals('Tax 1', $this->getFirstValueByColumn($csv, 'Tax Name 1'));
+        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Tax Rate 1'));
+        $this->assertEquals('Tax 2', $this->getFirstValueByColumn($csv, 'Tax Name 2'));
+        $this->assertEquals('20', $this->getFirstValueByColumn($csv, 'Tax Rate 2'));
+        $this->assertEquals('Tax 3', $this->getFirstValueByColumn($csv, 'Tax Name 3'));
+        $this->assertEquals('30', $this->getFirstValueByColumn($csv, 'Tax Rate 3'));
+        $this->assertEquals('Expired', $this->getFirstValueByColumn($csv, 'Status'));
+
+    }
+
 
     public function testExpenseCsvGeneration()
     {

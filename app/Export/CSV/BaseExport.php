@@ -193,13 +193,13 @@ class BaseExport
     ];
 
     protected array $quote_report_keys = [
-        "quote_number" => "quote.number",
+        "number" => "quote.number",
         "amount" => "quote.amount",
         "balance" => "quote.balance",
         "paid_to_date" => "quote.paid_to_date",
         "po_number" => "quote.po_number",
         "date" => "quote.date",
-        "due_date" => "quote.due_date",
+        "valid_until" => "quote.due_date",
         "terms" => "quote.terms",
         "footer" => "quote.footer",
         "status" => "quote.status",
@@ -347,6 +347,7 @@ class BaseExport
             'vendor' => $value = $this->resolveVendorKey($parts[1], $entity, $transformer),
             'vendor_contact' => $value = $this->resolveVendorContactKey($parts[1], $entity, $transformer),
             'invoice' => $value = $this->resolveInvoiceKey($parts[1], $entity, $transformer),
+            'quote' => $value = $this->resolveQuoteKey($parts[1], $entity, $transformer),
             'purchase_order' => $value = $this->resolvePurchaseOrderKey($parts[1], $entity, $transformer),
             'payment' => $value = $this->resolvePaymentKey($parts[1], $entity, $transformer),
             default => $value = ''
@@ -509,6 +510,20 @@ class BaseExport
             return $entity->stringStatus($entity->status_id);
     
         return '';
+    }
+
+    private function resolveQuoteKey($column, $entity, $transformer)
+    {
+        nlog("searching for {$column}");
+
+        $transformed_entity = $transformer->transform($entity);
+
+        if(array_key_exists($column, $transformed_entity)) {
+            return $transformed_entity[$column];
+        }
+
+        return '';
+
     }
 
     private function resolveInvoiceKey($column, $entity, $transformer)
