@@ -257,7 +257,8 @@ class RequiredClientInfo extends Component
             }
 
             if (Str::startsWith($field['name'], 'contact_')) {
-                if (empty($this->contact->{$_field}) || is_null($this->contact->{$_field})) {
+                
+                if (empty($this->contact->{$_field}) || is_null($this->contact->{$_field}) || str_contains($this->contact->{$_field}, '@example.com')) {
                     $this->show_form = true;
                 } else {
                     $this->fields[$index]['filled'] = true;

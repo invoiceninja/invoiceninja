@@ -1173,10 +1173,25 @@ class Import implements ShouldQueue
 
             unset($modified['id']);
 
+
             $credit = $credit_repository->save(
                 $modified,
                 CreditFactory::create($this->company->id, $modified['user_id'])
             );
+
+            if($credit->status_id == 4)
+            {
+
+                $client = $credit->client;
+                $client->balance -= $credit->balance;
+                $client->credit_balance -= $credit->amount;
+                $client->saveQuietly();
+
+                $credit->paid_to_date = $credit->amount;
+                $credit->balance = 0;
+                $credit->saveQuietly();
+
+            }
 
             //remove credit balance from ledger
             if ($credit->balance > 0 && $credit->client->balance > 0) {

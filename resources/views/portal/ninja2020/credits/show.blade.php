@@ -32,8 +32,7 @@
     </div>
 
     @include('portal.ninja2020.components.entity-documents', ['entity' => $credit])
-
-    @include('portal.ninja2020.components.pdf-viewer', ['entity' => $credit, 'invitation' => $invitation])
+    @livewire('pdf-slot', ['entity' => $credit, 'invitation' => $invitation, 'db' => $invitation->company->db])
     
 @endsection
 

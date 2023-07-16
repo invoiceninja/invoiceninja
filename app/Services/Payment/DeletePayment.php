@@ -109,6 +109,8 @@ class DeletePayment
                     $paymentable_invoice->service()
                                         ->updatePaidToDate($net_deletable * -1)
                                         ->save();
+                    $paymentable_invoice->delete();
+
                 }
             });
         }

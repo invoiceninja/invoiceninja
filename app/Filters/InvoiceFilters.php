@@ -55,6 +55,10 @@ class InvoiceFilters extends QueryFilters
         $this->builder->where(function ($query) use ($status_parameters) {
             $invoice_filters = [];
 
+            if (in_array('draft', $status_parameters)) {
+                $invoice_filters[] = Invoice::STATUS_DRAFT;
+            }
+
             if (in_array('paid', $status_parameters)) {
                 $invoice_filters[] = Invoice::STATUS_PAID;
             }
@@ -129,19 +133,6 @@ class InvoiceFilters extends QueryFilters
 
         return $this->builder->whereIn('status_id', explode(",", $status));
 
-    }
-
-
-
-    /**
-     * @return Builder
-     * @throws RuntimeException
-     */
-    public function without_deleted_clients(): Builder
-    {
-        return $this->builder->whereHas('client', function ($query) {
-            $query->where('is_deleted', 0);
-        });
     }
 
     /**
