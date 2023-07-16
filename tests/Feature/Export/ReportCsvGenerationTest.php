@@ -226,4 +226,34 @@ class ReportCsvGenerationTest extends TestCase
 
     }
 
+    public function testCreditCsvGeneration()
+    {
+
+        Credit::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'amount' => 100,
+            'balance' => 50,
+            'status_id' => 2,
+            'discount' => 10,
+            'po_number' => '1234',
+            'public_notes' => 'Public',
+            'private_notes' => 'Private',
+            'terms' => 'Terms',
+        ]);
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => [],
+            'send_email' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/credits', $data);
+       
+
+
 }

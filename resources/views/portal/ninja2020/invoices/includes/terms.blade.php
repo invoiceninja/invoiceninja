@@ -1,4 +1,4 @@
-<div style="display: none;" id="displayTermsModal" class="fixed bottom-0 inset-x-0 px-4 pb-4 sm:inset-0 sm:flex sm:items-center sm:justify-center">
+<div style="display: none;" id="displayTermsModal" class="fixed bottom-0 inset-x-0 px-4 pb-4 sm:inset-0 sm:flex sm:items-center sm:justify-center" x-data>
     <div x-show="open" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 transition-opacity">
         <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
     </div>
@@ -24,7 +24,7 @@
             </div>
         </div>
         <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
-            <div class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
+            <div class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto" x-data>
                 <button 
                     type="button"
                     id="accept-terms-button" 
@@ -33,8 +33,8 @@
                     {{ ctrans('texts.i_agree') }}
                 </button>
             </div>
-            <div class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto" id="hide_close">
-                <button @click="document.getElementById('displayTermsModal').style.display = 'none';" type="button" class="button button-secondary">
+            <div class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto" x-data>
+                <button @click="document.getElementById('displayTermsModal').style.display = 'none';" type="button" class="button button-secondary" id="close-terms-button">
                     {{ ctrans('texts.close') }}
                 </button>
             </div>

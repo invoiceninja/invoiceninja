@@ -56,14 +56,14 @@
     </section>
 </div>
 
-@if($mobile)
+<!-- @if($mobile)
     <div class="w-full h-full overflow-auto mt-4">
         <canvas id="pdf-placeholder" class="shadow rounded-lg bg-white"></canvas>
     </div>
-@else
+@else -->
 @livewire('pdf-slot', ['entity' => $entity, 'invitation' => $invitation, 'db' => $invitation->company->db])
     <!-- <iframe id="pdf-iframe" src="{{ $url ?? $entity->pdf_file_path($invitation, 'url', true) }}?cache_buster={{time()}}" class="h-screen w-full border-0 mt-4"></iframe> -->
-@endif
+<!-- @endif -->
 
 
 @if($mobile)

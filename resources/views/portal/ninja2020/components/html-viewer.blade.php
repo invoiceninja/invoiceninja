@@ -1,4 +1,4 @@
-
+@push('head')
 <style>
 
 table, th, td {
@@ -26,6 +26,7 @@ span {
 }
 
 </style>
+@endpush
 
 <div class="w-full bg-white py-3 border-2 shadow sm:rounded-lg">
 
@@ -42,7 +43,6 @@ span {
         <div id="entity-details"> {!! $entity_details !!} </div>
 
     </div>
-
 
     <div id="user-details" class="mt-3 px-3 border-b-2 border-fuschia-600 flex flex-col items-end"> 
 
@@ -182,10 +182,10 @@ span {
             {{ strip_tags($entity->footer) }}
         </div>
 
-
     </div>
     @endif
 
+@push('head')
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         
@@ -232,3 +232,4 @@ span {
 
     });
 </script>
+@endpush

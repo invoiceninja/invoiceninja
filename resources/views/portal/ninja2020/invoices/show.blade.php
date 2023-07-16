@@ -5,7 +5,6 @@
     <meta name="show-invoice-terms" content="{{ $settings->show_accept_invoice_terms ? true : false }}">
     <meta name="require-invoice-signature" content="{{ $client->user->account->hasFeature(\App\Models\Account::FEATURE_INVOICE_SETTINGS) && $settings->require_invoice_signature }}">
     @include('portal.ninja2020.components.no-cache')
-    
     <script src="{{ asset('vendor/signature_pad@2.3.2/signature_pad.min.js') }}"></script>
 
 @endpush
@@ -96,18 +95,26 @@
     @endif
 
     @include('portal.ninja2020.components.entity-documents', ['entity' => $invoice])
-    @include('portal.ninja2020.components.pdf-viewer', ['entity' => $invoice, 'invitation' => $invitation])
-    @include('portal.ninja2020.invoices.includes.terms', ['entities' => [$invoice], 'entity_type' => ctrans('texts.invoice')])
-    @include('portal.ninja2020.invoices.includes.signature')
+    @livewire('pdf-slot', ['entity' => $invoice, 'invitation' => $invitation, 'db' => $invitation->company->db])
+
 @endsection
 
 @section('footer')
-    <script src="{{ asset('js/clients/invoices/payment.js') }}"></script>
-    <script src="{{ asset('vendor/clipboard.min.js') }}"></script>
+    @include('portal.ninja2020.invoices.includes.signature')
+    @include('portal.ninja2020.invoices.includes.terms', ['entities' => [$invoice], 'entity_type' => ctrans('texts.invoice')])
+@endsection
+
+@push('head')
+    <script src="{{ asset('js/clients/invoices/payment.js') }}" defer></script>
+    <script src="{{ asset('vendor/clipboard.min.js') }}" defer></script>
 
     <script type="text/javascript">
 
+    document.addEventListener('DOMContentLoaded', () => {
+
         var clipboard = new ClipboardJS('.btn');
 
+    });
+
     </script>
-@endsection
+@endpush
