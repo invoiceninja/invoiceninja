@@ -13,12 +13,8 @@
   </div>
   <div class="hidden lg:block">
     <div wire:init="getPdf()">
-        @if($pdf)
-        <!-- <iframe id="pdf-iframe" src="{!! $pdf !!}" class="h-screen w-full border-0 mt-4"></iframe> -->
-        <iframe id="pdf-iframe" src="/{{ $route_entity }}/showBlob/{{ $pdf }}" class="h-screen w-full border-0 mt-4"></iframe>
-        @else
         <div class="flex mt-4 place-items-center">
-            <span class="loader m-auto"></span>
+            <span class="loader m-auto" id="loader"></span>
             <style type="text/css">
             .loader {
             width: 48px;
@@ -54,6 +50,9 @@
           }
             </style>
         </div>
+        <!-- <iframe id="pdf-iframe" src="{!! $pdf !!}" class="h-screen w-full border-0 mt-4"></iframe> -->
+        @if($pdf)
+        <iframe id="pdf-iframe" src="/{{ $route_entity }}/showBlob/{{ $pdf }}" class="h-screen w-full border-0 mt-4"></iframe>
         @endif
     </div>
   </div>
@@ -62,3 +61,39 @@
     @include('portal.ninja2020.components.html-viewer')
   </div>
 </div>
+
+
+<script type="text/javascript">
+
+  waitForElement("#pdf-iframe", 0).then(function(){
+    const iframe = document.getElementById("pdf-iframe");
+
+    iframe.addEventListener("load", function () {
+      const loader = document.getElementById("loader").hidden = "true";
+    });
+
+  });
+
+function waitForElement(querySelector, timeout){
+  return new Promise((resolve, reject)=>{
+    var timer = false;
+    if(document.querySelectorAll(querySelector).length) return resolve();
+    const observer = new MutationObserver(()=>{
+      if(document.querySelectorAll(querySelector).length){
+        observer.disconnect();
+        if(timer !== false) clearTimeout(timer);
+        return resolve();
+      }
+    });
+    observer.observe(document.body, {
+      childList: true, 
+      subtree: true
+    });
+    if(timeout) timer = setTimeout(()=>{
+      observer.disconnect();
+      reject();
+    }, timeout);
+  });
+}
+
+</script>
