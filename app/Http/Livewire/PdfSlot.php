@@ -16,6 +16,7 @@ use App\Utils\Number;
 use Livewire\Component;
 use App\Utils\HtmlEngine;
 use App\Libraries\MultiDB;
+use Illuminate\Support\Str;
 use App\Models\QuoteInvitation;
 use App\Utils\VendorHtmlEngine;
 use App\Models\CreditInvitation;
@@ -23,6 +24,7 @@ use App\Services\Pdf\PdfBuilder;
 use App\Services\Pdf\PdfService;
 use App\Models\InvoiceInvitation;
 use App\Services\Pdf\PdfDesigner;
+use Illuminate\Support\Facades\Cache;
 use App\Services\Pdf\PdfConfiguration;
 use App\Models\PurchaseOrderInvitation;
 use App\Models\RecurringInvoiceInvitation;
@@ -48,6 +50,12 @@ class PdfSlot extends Component
 
     protected $listeners = ['viewportChanged' => 'getPdf'];
 
+    public $show_cost = true;
+
+    public $show_quantity = true;
+
+    public $route_entity = 'client';
+
     public function mount()
     {
         MultiDB::setDb($this->db);
@@ -55,7 +63,21 @@ class PdfSlot extends Component
 
     public function getPdf()
     {        
-        $this->pdf = $this->entity->fullscreenPdfViewer($this->invitation);
+        // $this->pdf = $this->entity->fullscreenPdfViewer($this->invitation);
+
+        $blob = [
+            'entity_type' => $this->resolveEntityType(),
+            'entity_id' => $this->entity->id,
+            'invitation_id' => $this->invitation->id,
+            'download' => false,
+        ];
+
+        $hash = Str::random(64);
+
+        Cache::put($hash, $blob, now()->addMinutes(2));
+        
+        $this->pdf = $hash;
+
     }
 
     public function downloadPdf()
@@ -78,9 +100,18 @@ class PdfSlot extends Component
 
     public function render()
     {
+        
         $this->entity_type = $this->resolveEntityType();
 
         $this->settings = $this->entity->client ? $this->entity->client->getMergedSettings() : $this->entity->company->settings;
+
+        $this->show_cost = in_array('$product.unit_cost', $this->settings->pdf_variables->product_columns);
+        $this->show_quantity = in_array('$product.quantity', $this->settings->pdf_variables->product_columns);
+
+        if($this->entity_type == 'quote' && !$this->settings->sync_invoice_quote_columns ){
+            $this->show_cost = in_array('$product.unit_cost', $this->settings->pdf_variables->product_quote_columns);
+            $this->show_quantity = in_array('$product.quantity', $this->settings->pdf_variables->product_quote_columns);
+        }
 
         $this->html_variables = $this->entity->client ?
                             (new HtmlEngine($this->invitation))->generateLabelsAndValues() :
@@ -100,7 +131,6 @@ class PdfSlot extends Component
             'entity_details' => $this->getEntityDetails(),
             'user_details' => $this->getUserDetails(),
             'user_name' => $this->getUserName(),
-
         ]);
     }
 
@@ -243,6 +273,7 @@ class PdfSlot extends Component
         } elseif ($this->invitation instanceof RecurringInvoiceInvitation) {
             return 'recurring_invoice';
         } elseif ($this->invitation instanceof PurchaseOrderInvitation) {
+            $this->route_entity = 'vendor';
             return 'purchase_order';
         }
 

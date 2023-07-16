@@ -77,6 +77,7 @@ var Payment = /*#__PURE__*/function () {
   }, {
     key: "displaySignature",
     value: function displaySignature() {
+      document.getElementById("signature-next-step").disabled = true;
       var displaySignatureModal = document.getElementById("displaySignatureModal");
       displaySignatureModal.removeAttribute("style");
       var signaturePad = new SignaturePad(document.getElementById("signature-pad"), {
@@ -91,7 +92,6 @@ var Payment = /*#__PURE__*/function () {
     key: "handle",
     value: function handle() {
       var _this2 = this;
-      document.getElementById("signature-next-step").disabled = true;
       document.querySelectorAll(".dropdown-gateway-button").forEach(function (element) {
         element.addEventListener("click", function () {
           if (!_this2.submitting) {

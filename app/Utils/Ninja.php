@@ -132,7 +132,7 @@ class Ninja
             'ip' => $ip,
             'token' => request()->header('X-API-TOKEN'),
             'is_system' => app()->runningInConsole(),
-            'user_id' => $user_id,
+            'user_id' => ($ip == '127.0.0.1') ? null : $user_id,
         ];
     }
 

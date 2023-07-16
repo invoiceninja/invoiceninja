@@ -57,7 +57,7 @@ class RouteServiceProvider extends ServiceProvider
             if (Ninja::isSelfHost()) {
                 return Limit::none();
             } else {
-                return Limit::perMinute(50)->by($request->ip());
+                return Limit::perMinute(30)->by($request->ip());
             }
         });
 
@@ -88,6 +88,11 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('honeypot', function (Request $request) {
             return Limit::perMinute(2)->by($request->ip());
         });
+
+        RateLimiter::for('portal', function (Request $request) {
+            return Limit::perMinute(15)->by($request->ip());
+        });
+
 
     }
 

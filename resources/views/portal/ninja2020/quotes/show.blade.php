@@ -106,19 +106,27 @@
     @endif
 
     @include('portal.ninja2020.components.entity-documents', ['entity' => $quote])
-    @include('portal.ninja2020.components.pdf-viewer', ['entity' => $quote, 'invitation' => $invitation])
-    @include('portal.ninja2020.invoices.includes.terms', ['entities' => [$quote], 'entity_type' => ctrans('texts.quote')])
-    @include('portal.ninja2020.invoices.includes.signature')
-    @include('portal.ninja2020.quotes.includes.user-input')
+    @livewire('pdf-slot', ['entity' => $quote, 'invitation' => $invitation, 'db' => $invitation->company->db])
+
 @endsection
 
 @section('footer')
-    <script src="{{ asset('js/clients/quotes/approve.js') }}"></script>
-    <script src="{{ asset('vendor/clipboard.min.js') }}"></script>
+    @include('portal.ninja2020.quotes.includes.user-input')
+    @include('portal.ninja2020.invoices.includes.terms', ['entities' => [$quote], 'entity_type' => ctrans('texts.quote')])
+    @include('portal.ninja2020.invoices.includes.signature')
+@endsection
 
-    <script type="text/javascript">
+@push('head')
+    <script src="{{ asset('js/clients/quotes/approve.js') }}" defer></script>
+    <script src="{{ asset('vendor/clipboard.min.js') }}" defer></script>
+
+    <script type="text/javascript" defer>
+
+    document.addEventListener('DOMContentLoaded', () => {
 
         var clipboard = new ClipboardJS('.btn');
 
+    });
+
     </script>
-@endsection
+@endpush
