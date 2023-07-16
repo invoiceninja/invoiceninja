@@ -48,8 +48,6 @@ class PdfSlot extends Component
 
     private $entity_type;
 
-    protected $listeners = ['viewportChanged' => 'getPdf'];
-
     public $show_cost = true;
 
     public $show_quantity = true;

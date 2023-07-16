@@ -14,6 +14,7 @@ namespace Tests\Feature\Export;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Client;
+use App\Models\Credit;
 use League\Csv\Reader;
 use App\Models\Account;
 use App\Models\Company;
@@ -253,7 +254,8 @@ class ReportCsvGenerationTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/reports/credits', $data);
+
+        $response->assertStatus(200);
        
-
-
+    }
 }
