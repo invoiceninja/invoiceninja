@@ -281,6 +281,7 @@ public function testStorePaymentWithCreditsThenDeletingInvoicesAndThenPayments()
         $payment_id = $arr['data']['id'];
 
         $payment = Payment::find($this->decodePrimaryKey($payment_id));
+        $credit = $credit->fresh();
 
         $this->assertNotNull($payment);
         $this->assertNotNull($payment->invoices());
@@ -288,9 +289,10 @@ public function testStorePaymentWithCreditsThenDeletingInvoicesAndThenPayments()
         $this->assertEquals(80, $payment->amount);
         $this->assertEquals(0, $client->fresh()->balance);
         $this->assertEquals(100, $client->fresh()->paid_to_date);
+        $this->assertEquals(0, $credit->balance);
 
         $invoice = $invoice->fresh();
-
+        
         //delete the invoice
 
         $data = [
@@ -346,29 +348,13 @@ public function testStorePaymentWithCreditsThenDeletingInvoicesAndThenPayments()
         $this->assertTrue($invoice->is_deleted);
         $this->assertTrue($invoice->trashed());
 
-        // $this->assertEquals(0, $payment->amount);
-        // $this->assertEquals(0, $client->fresh()->balance);
-        // $this->assertEquals(0, $client->fresh()->paid_to_date);
+        $client = $client->fresh();
+        $credit = $credit->fresh();
 
-        // $data = [
-        //     'action' => 'restore',
-        //     'ids' => [
-        //         $invoice->hashed_id,
-        //     ],
-        // ];
-
-        // $response = $this->withHeaders([
-        //     'X-API-SECRET' => config('ninja.api_secret'),
-        //     'X-API-TOKEN' => $this->token,
-        // ])->post('/api/v1/invoices/bulk', $data);
-
-        // $invoice = $invoice->fresh();
-        // $this->assertEquals(false, $invoice->is_deleted);
-
-        // $payment = $payment->fresh();
-
-        // $this->assertEquals(0, $payment->amount);
-        // $this->assertEquals(20, $client->fresh()->paid_to_date);
+        $this->assertEquals(0, $client->balance);
+        $this->assertEquals(0, $client->paid_to_date);
+        // $this->assertEquals(20, $client->credit_balance);
+        $this->assertEquals(20, $credit->balance);
 
     }
 
