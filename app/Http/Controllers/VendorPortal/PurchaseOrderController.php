@@ -11,21 +11,24 @@
 
 namespace App\Http\Controllers\VendorPortal;
 
-use App\Events\Misc\InvitationWasViewed;
-use App\Events\PurchaseOrder\PurchaseOrderWasAccepted;
-use App\Events\PurchaseOrder\PurchaseOrderWasViewed;
+use App\Utils\Ninja;
+use Illuminate\View\View;
+use App\Models\PurchaseOrder;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesDates;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\VendorPortal\PurchaseOrders\ProcessPurchaseOrdersInBulkRequest;
+use App\Jobs\Invoice\InjectSignature;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Contracts\View\Factory;
+use App\Models\PurchaseOrderInvitation;
+use Illuminate\Support\Facades\Storage;
+use App\Events\Misc\InvitationWasViewed;
+use App\Jobs\Vendor\CreatePurchaseOrderPdf;
+use App\Events\PurchaseOrder\PurchaseOrderWasViewed;
+use App\Events\PurchaseOrder\PurchaseOrderWasAccepted;
 use App\Http\Requests\VendorPortal\PurchaseOrders\ShowPurchaseOrderRequest;
 use App\Http\Requests\VendorPortal\PurchaseOrders\ShowPurchaseOrdersRequest;
-use App\Jobs\Invoice\InjectSignature;
-use App\Models\PurchaseOrder;
-use App\Utils\Ninja;
-use App\Utils\Traits\MakesDates;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\View\View;
+use App\Http\Requests\VendorPortal\PurchaseOrders\ProcessPurchaseOrdersInBulkRequest;
 
 class PurchaseOrderController extends Controller
 {
@@ -107,6 +110,28 @@ class PurchaseOrderController extends Controller
 
         return $this->render('purchase_orders.show', $data);
     }
+
+    public function showBlob($hash)
+    {
+        $data = Cache::pull($hash);
+
+        $invitation = PurchaseOrderInvitation::withTrashed()->find($data['invitation_id']);
+
+        $file = (new CreatePurchaseOrderPdf($invitation, $invitation->company->db))->rawPdf();
+
+        // $headers = ['Content-Type' => 'application/pdf'];
+        // $entity_string = $data['entity_type'];
+        // $file_name = $invitation->{$entity_string}->numberFormatter().'.pdf';
+        // return response()->streamDownload(function () use ($file) {
+        //     echo $file;
+        // }, $file_name, $headers);
+
+        $headers = ['Content-Type' => 'application/pdf'];
+        return response()->make($file, 200, $headers);
+
+    }
+
+    
 
     private function sidebarMenu() :array
     {

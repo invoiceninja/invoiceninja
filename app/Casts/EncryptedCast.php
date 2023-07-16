@@ -17,7 +17,7 @@ class EncryptedCast implements CastsAttributes
 {
     public function get($model, string $key, $value, array $attributes)
     {   
-        return strlen($value) > 1 ? decrypt($value) : null;
+        return is_string($value) && strlen($value) > 1 ? decrypt($value) : null;
     }
 
     public function set($model, string $key, $value, array $attributes)

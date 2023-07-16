@@ -46,7 +46,7 @@ class ExportCompanyTest extends TestCase
 
     public function testCompanyExport()
     {
-        $res = (new CompanyExport($this->company, $this->company->users->first()))->handle();
+        $res = (new CompanyExport($this->company, $this->company->users->first(), '123'))->handle();
 
         $this->assertTrue($res);
     }

@@ -61,12 +61,14 @@ var Approve = /*#__PURE__*/function () {
     value: function handle() {
       var _this = this;
       document.getElementById("signature-next-step").disabled = true;
-      document.getElementById("close_button").addEventListener('click', function () {
+      document.getElementById("close-button").addEventListener('click', function () {
         var approveButton = document.getElementById("approve-button");
+        console.log('close button');
         if (approveButton) approveButton.disabled = false;
       });
-      document.getElementById("hide_close").addEventListener('click', function () {
+      document.getElementById("close-terms-button").addEventListener('click', function () {
         var approveButton = document.getElementById("approve-button");
+        console.log('close terms-button');
         if (approveButton) approveButton.disabled = false;
       });
       document.getElementById('approve-button').addEventListener('click', function () {

@@ -288,6 +288,33 @@ abstract class QueryFilters
         return $this->builder;
     }
 
+    /**
+     * @return Builder
+     * @throws RuntimeException
+     */
+    public function without_deleted_clients(): Builder
+    {
+        return $this->builder->where(function ($query) {
+            $query->whereHas('client', function ($sub_query) {
+                $sub_query->where('is_deleted', 0);
+            })->orWhere('client_id', null);
+        });
+    }
+
+    /**
+     * @return Builder
+     * @throws RuntimeException
+     */
+    public function without_deleted_vendors(): Builder
+    {
+        return $this->builder->where(function ($query) {
+            $query->whereHas('vendor', function ($sub_query) {
+                $sub_query->where('is_deleted', 0);
+            })->orWhere('vendor_id', null);
+        });
+    }
+
+
     public function with(string $value = ''): Builder
     {
         if (strlen($value) == 0) {
