@@ -77,11 +77,13 @@ class QuoteItemExport extends BaseExport
         'tax_name2' => 'item.tax_name2',
         'tax_name3' => 'item.tax_name3',
         'line_total' => 'item.line_total',
-        // 'gross_line_total' => 'item.gross_line_total',
-        'custom_value1' => 'item.custom_value1',
-        'custom_value2' => 'item.custom_value2',
-        'custom_value3' => 'item.custom_value3',
-        'custom_value4' => 'item.custom_value4',
+        'gross_line_total' => 'item.gross_line_total',
+        'quote1' => 'item.custom_value1',
+        'quote2' => 'item.custom_value2',
+        'quote3' => 'item.custom_value3',
+        'quote4' => 'item.custom_value4',
+        'tax_category' => 'item.tax_id',
+        'type' => 'item.type_id',
     ];
 
     private array $decorate_keys = [

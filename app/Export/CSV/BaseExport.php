@@ -193,6 +193,10 @@ class BaseExport
     ];
 
     protected array $quote_report_keys = [
+        'custom_value1' => 'quote.custom_value1',
+        'custom_value2' => 'quote.custom_value2',
+        'custom_value3' => 'quote.custom_value3',
+        'custom_value4' => 'quote.custom_value4',
         "number" => "quote.number",
         "amount" => "quote.amount",
         "balance" => "quote.balance",
@@ -817,6 +821,7 @@ class BaseExport
 
             $header[] = "{$prefix}" . ctrans("texts.{$key}");
         }
+
 // nlog($header);
 
         return $header;
