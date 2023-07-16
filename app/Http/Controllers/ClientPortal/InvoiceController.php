@@ -86,7 +86,7 @@ class InvoiceController extends Controller
 
     public function showBlob($hash)
     {
-        $data = Cache::pull($hash);
+        $data = Cache::get($hash);
 
         match($data['entity_type']){
             'invoice' => $invitation = InvoiceInvitation::withTrashed()->find($data['invitation_id']),
