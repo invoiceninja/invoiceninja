@@ -143,10 +143,13 @@ class ReportCsvGenerationTest extends TestCase
 
         $this->client = Client::factory()->create([
             'user_id' => $this->user->id,
+            // 'assigned_user_id', $this->user->id,
             'company_id' => $this->company->id,
             'is_deleted' => 0,
             'name' => 'bob',
-            'address1' => '1234'
+            'address1' => '1234',
+            'balance' => 100,
+            'paid_to_date' => 50,
         ]);
 
         ClientContact::factory()->create([
@@ -306,6 +309,35 @@ class ReportCsvGenerationTest extends TestCase
         $this->assertEquals('bob', $res[1]);
 
     }
+
+    public function testClientCustomColumnsCsvGeneration()
+    {
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => ["client.name","client.user","client.assigned_user","client.balance","client.paid_to_date","client.currency_id"],
+            'send_email' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/clients', $data);
+       
+        $csv = $response->streamedContent();
+
+        $this->assertEquals('bob', $this->getFirstValueByColumn($csv, 'Name'));
+        $this->assertEquals(100, $this->getFirstValueByColumn($csv, 'Balance'));
+        $this->assertEquals(50, $this->getFirstValueByColumn($csv, 'Paid to Date'));
+        $this->assertEquals($this->user->present()->name(), $this->getFirstValueByColumn($csv, 'Client User'));
+        $this->assertEquals('', $this->getFirstValueByColumn($csv, 'Client Assigned User'));
+        $this->assertEquals('USD', $this->getFirstValueByColumn($csv, 'Client Currency'));
+
+    }
+
+
+
+
 
     public function testClientContactCsvGeneration()
     {
