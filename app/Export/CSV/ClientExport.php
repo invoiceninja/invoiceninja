@@ -22,8 +22,6 @@ use League\Csv\Writer;
 
 class ClientExport extends BaseExport
 {
-    private $company;
-
     private $client_transformer;
 
     private $contact_transformer;

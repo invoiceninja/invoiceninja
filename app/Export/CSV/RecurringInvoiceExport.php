@@ -21,7 +21,6 @@ use League\Csv\Writer;
 
 class RecurringInvoiceExport extends BaseExport
 {
-    private Company $company;
 
     private $invoice_transformer;
 

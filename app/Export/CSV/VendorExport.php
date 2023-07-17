@@ -22,7 +22,6 @@ use League\Csv\Writer;
 
 class VendorExport extends BaseExport
 {
-    private $company;
 
     private $vendor_transformer;
 

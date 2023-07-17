@@ -22,7 +22,6 @@ use League\Csv\Writer;
 
 class PurchaseOrderExport extends BaseExport
 {
-    private Company $company;
 
     private $purchase_order_transformer;
 

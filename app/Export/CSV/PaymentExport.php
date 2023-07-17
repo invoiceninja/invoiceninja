@@ -21,8 +21,6 @@ use League\Csv\Writer;
 
 class PaymentExport extends BaseExport
 {
-    private Company $company;
-
     private $entity_transformer;
 
     public string $date_key = 'date';

@@ -13,14 +13,13 @@ namespace App\Export\CSV;
 
 use App\Utils\Number;
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\Expense;
 use App\Models\Invoice;
-use App\Models\GatewayType;
 use App\Models\Payment;
 use League\Fractal\Manager;
 use Illuminate\Support\Carbon;
 use App\Utils\Traits\MakesHash;
-use App\Transformers\ClientTransformer;
 use App\Transformers\PaymentTransformer;
 use Illuminate\Database\Eloquent\Builder;
 use League\Fractal\Serializer\ArraySerializer;
@@ -29,6 +28,8 @@ class BaseExport
 {
     use MakesHash;
 
+    public Company $company;
+    
     public array $input;
 
     public string $date_key = '';
@@ -726,8 +727,15 @@ class BaseExport
                 $this->end_date = now()->startOfDay()->format('Y-m-d');
                 return $query->whereBetween($this->date_key, [now()->subDays(365), now()])->orderBy($this->date_key, 'ASC');
             case 'this_year':
-                $this->start_date = now()->startOfYear()->format('Y-m-d');
-                $this->end_date = now()->format('Y-m-d');
+
+                $first_month_of_year = $this->company->getSetting('first_month_of_year') ?? 1;
+                $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
+
+                if(now()->lt($fin_year_start))
+                    $fin_year_start->subYearNoOverflow();
+
+                $this->start_date = $fin_year_start->format('Y-m-d');
+                $this->end_date = $fin_year_start->copy()->addYear()->subDay()->format('Y-m-d');
                 return $query->whereBetween($this->date_key, [now()->startOfYear(), now()])->orderBy($this->date_key, 'ASC');
             case 'custom':
                 $this->start_date = $custom_start_date->format('Y-m-d');

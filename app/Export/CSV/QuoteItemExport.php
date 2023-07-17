@@ -21,7 +21,6 @@ use League\Csv\Writer;
 
 class QuoteItemExport extends BaseExport
 {
-    private Company $company;
 
     private $quote_transformer;
 

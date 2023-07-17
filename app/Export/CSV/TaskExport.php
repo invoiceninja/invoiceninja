@@ -24,7 +24,6 @@ use League\Csv\Writer;
 
 class TaskExport extends BaseExport
 {
-    private Company $company;
 
     private $entity_transformer;
 
