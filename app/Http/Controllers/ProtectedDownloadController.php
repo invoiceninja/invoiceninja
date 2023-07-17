@@ -29,8 +29,10 @@ class ProtectedDownloadController extends BaseController
             throw new SystemError('File no longer available', 404);
             abort(404, 'File no longer available');
         }
-
-        return response()->download($hashed_path, basename($hashed_path), [])->deleteFileAfterSend(true);
+        
+        return response()->streamDownload(function () use ($hashed_path) {
+            echo Storage::get($hashed_path);
+        }, basename($hashed_path), []);
 
     }
 
