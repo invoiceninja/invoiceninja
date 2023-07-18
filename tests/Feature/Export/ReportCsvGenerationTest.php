@@ -410,6 +410,175 @@ class ReportCsvGenerationTest extends TestCase
         $this->assertEquals('', $this->getFirstValueByColumn($csv, 'Payment Date'));
 
     }
+    
+    public function testInvoiceItemsCustomColumnsCsvGeneration()
+    {
+        
+        \App\Models\Invoice::factory()->create([
+           'user_id' => $this->user->id,
+           'company_id' => $this->company->id,
+           'client_id' => $this->client->id,
+           'amount' => 100,
+           'balance' => 50,
+           'number' => '1234',
+           'status_id' => 2,
+           'discount' => 10,
+           'po_number' => '1234',
+           'public_notes' => 'Public',
+           'private_notes' => 'Private',
+           'terms' => 'Terms',
+           'line_items' => [
+                [
+                'quantity' => 10,
+                'cost' => 100,
+                'line_total' => 1000,
+                'is_amount_discount' => true,
+                'discount' => 0,
+                'notes' => 'item notes',
+                'product_key' => 'product key',
+                'custom_value1' => 'custom 1',
+                'custom_value2' => 'custom 2',
+                'custom_value3' => 'custom 3',
+                'custom_value4' => 'custom 4',
+                'tax_name1' => 'GST',
+                'tax_rate1' => 10.00,
+                'type_id' => '1',
+                ],
+           ]
+       ]);
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => ["client.name","invoice.number","invoice.amount","payment.date", "payment.amount", "item.quantity", "item.cost", "item.line_total", "item.discount", "item.notes", "item.product_key", "item.custom_value1", "item.tax_name1", "item.tax_rate1",],
+            'send_email' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/invoice_items', $data);
+       
+        $csv = $response->streamedContent();
+
+        $this->assertEquals('bob', $this->getFirstValueByColumn($csv, 'Client Name'));
+        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Invoice Invoice Number'));
+        $this->assertEquals('Unpaid', $this->getFirstValueByColumn($csv, 'Payment Amount'));
+        $this->assertEquals('', $this->getFirstValueByColumn($csv, 'Payment Date'));
+        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Quantity'));
+        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Cost'));
+        $this->assertEquals('1000', $this->getFirstValueByColumn($csv, 'Line Total'));
+        $this->assertEquals('0', $this->getFirstValueByColumn($csv, 'Discount'));
+        $this->assertEquals('item notes', $this->getFirstValueByColumn($csv, 'Notes'));
+        $this->assertEquals('product key', $this->getFirstValueByColumn($csv, 'Product'));
+        $this->assertEquals('custom 1', $this->getFirstValueByColumn($csv, 'Custom Invoice 1'));
+        $this->assertEquals('GST', $this->getFirstValueByColumn($csv, 'Tax Name 1'));
+        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Tax Rate 1'));
+
+    }
+
+
+    public function testQuoteItemsCustomColumnsCsvGeneration()
+    {
+        
+        \App\Models\Quote::factory()->create([
+           'user_id' => $this->user->id,
+           'company_id' => $this->company->id,
+           'client_id' => $this->client->id,
+           'amount' => 100,
+           'balance' => 50,
+           'number' => '1234',
+           'status_id' => 2,
+           'discount' => 10,
+           'po_number' => '1234',
+           'public_notes' => 'Public',
+           'private_notes' => 'Private',
+           'terms' => 'Terms',
+           'line_items' => [
+                [
+                'quantity' => 10,
+                'cost' => 100,
+                'line_total' => 1000,
+                'is_amount_discount' => true,
+                'discount' => 0,
+                'notes' => 'item notes',
+                'product_key' => 'product key',
+                'custom_value1' => 'custom 1',
+                'custom_value2' => 'custom 2',
+                'custom_value3' => 'custom 3',
+                'custom_value4' => 'custom 4',
+                'tax_name1' => 'GST',
+                'tax_rate1' => 10.00,
+                'type_id' => '1',
+                ],
+           ]
+       ]);
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => ["client.name","quote.number","quote.amount", "item.quantity", "item.cost", "item.line_total", "item.discount", "item.notes", "item.product_key", "item.custom_value1", "item.tax_name1", "item.tax_rate1",],
+            'send_email' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/quote_items', $data);
+       
+        $csv = $response->streamedContent();
+
+        $this->assertEquals('bob', $this->getFirstValueByColumn($csv, 'Client Name'));
+        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Quote Number'));
+        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Quantity'));
+        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Cost'));
+        $this->assertEquals('1000', $this->getFirstValueByColumn($csv, 'Line Total'));
+        $this->assertEquals('0', $this->getFirstValueByColumn($csv, 'Discount'));
+        $this->assertEquals('item notes', $this->getFirstValueByColumn($csv, 'Notes'));
+        $this->assertEquals('product key', $this->getFirstValueByColumn($csv, 'Product'));
+        $this->assertEquals('custom 1', $this->getFirstValueByColumn($csv, 'Custom Quote 1'));
+        $this->assertEquals('GST', $this->getFirstValueByColumn($csv, 'Tax Name 1'));
+        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Tax Rate 1'));
+
+    }
+
+
+
+    public function testQuoteCustomColumnsCsvGeneration()
+    {
+        
+        \App\Models\Quote::factory()->create([
+           'user_id' => $this->user->id,
+           'company_id' => $this->company->id,
+           'client_id' => $this->client->id,
+           'amount' => 100,
+           'balance' => 50,
+           'number' => '1234',
+           'status_id' => 2,
+           'discount' => 10,
+           'po_number' => '1234',
+           'public_notes' => 'Public',
+           'private_notes' => 'Private',
+           'terms' => 'Terms',
+       ]);
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => ["client.name","quote.number","quote.amount"],
+            'send_email' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/quotes', $data);
+       
+        $csv = $response->streamedContent();
+
+        $this->assertEquals('bob', $this->getFirstValueByColumn($csv, 'Client Name'));
+        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Quote Number'));
+        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Quote Amount'));
+
+    }
+
 
     public function testInvoicePaidCustomColumnsCsvGeneration()
     {
@@ -798,6 +967,51 @@ class ReportCsvGenerationTest extends TestCase
         $this->assertEquals('Public', $this->getFirstValueByColumn($csv, 'Public Notes'));
         $this->assertEquals('Private', $this->getFirstValueByColumn($csv, 'Private Notes'));
         $this->assertEquals($this->user->present()->name(), $this->getFirstValueByColumn($csv, 'User'));
+        
+    }
+
+    public function testExpenseCustomColumnsCsvGeneration()
+    {
+        $vendor = 
+        \App\Models\Vendor::factory()->create(
+            [
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'name' => 'Vendor 1',
+            ]
+        
+        );
+
+        Expense::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'vendor_id' => $vendor->id,
+            'amount' => 100,
+            'public_notes' => 'Public',
+            'private_notes' => 'Private',   
+            'currency_id' => 1,         
+        ]);
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => ['client.name','vendor.name','expense.amount','expense.currency_id'],
+            'send_email' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/expenses', $data);
+
+        $response->assertStatus(200);
+
+        $csv = $response->streamedContent();
+
+        $this->assertEquals('bob', $this->getFirstValueByColumn($csv, 'Client Name'));
+        $this->assertEquals('Vendor 1', $this->getFirstValueByColumn($csv, 'Vendor Name'));
+        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Amount'));
+        $this->assertEquals('USD', $this->getFirstValueByColumn($csv, 'Currency'));
         
     }
 
