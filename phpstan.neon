@@ -4,9 +4,9 @@ includes:
 parameters:
     treatPhpDocTypesAsCertain: false
     parallel:
-        jobSize: 5
+        jobSize: 20
         maximumNumberOfProcesses: 1
-        processTimeout: 600.0
+        processTimeout: 60.0
     ignoreErrors:
         - '#Call to an undefined method .*badMethod\(\)#'
         - '#Call to an undefined method Illuminate\Database\Eloquent\Builder::exclude#'
