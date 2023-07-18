@@ -30,39 +30,39 @@ class PurchaseOrderExport extends BaseExport
     public Writer $csv;
 
     public array $entity_keys = [
-        'amount' => 'amount',
-        'balance' => 'balance',
-        'vendor' => 'vendor_id',
-        'custom_surcharge1' => 'custom_surcharge1',
-        'custom_surcharge2' => 'custom_surcharge2',
-        'custom_surcharge3' => 'custom_surcharge3',
-        'custom_surcharge4' => 'custom_surcharge4',
-        'custom_value1' => 'custom_value1',
-        'custom_value2' => 'custom_value2',
-        'custom_value3' => 'custom_value3',
-        'custom_value4' => 'custom_value4',
-        'date' => 'date',
-        'discount' => 'discount',
-        'due_date' => 'due_date',
-        'exchange_rate' => 'exchange_rate',
-        'footer' => 'footer',
-        'number' => 'number',
-        'paid_to_date' => 'paid_to_date',
-        'partial' => 'partial',
-        'partial_due_date' => 'partial_due_date',
-        'po_number' => 'po_number',
-        'private_notes' => 'private_notes',
-        'public_notes' => 'public_notes',
-        'status' => 'status_id',
-        'tax_name1' => 'tax_name1',
-        'tax_name2' => 'tax_name2',
-        'tax_name3' => 'tax_name3',
-        'tax_rate1' => 'tax_rate1',
-        'tax_rate2' => 'tax_rate2',
-        'tax_rate3' => 'tax_rate3',
-        'terms' => 'terms',
-        'total_taxes' => 'total_taxes',
-        'currency_id' => 'currency_id',
+        'amount' => 'purchase_order.amount',
+        'balance' => 'purchase_order.balance',
+        'vendor' => 'purchase_order.vendor_id',
+        // 'custom_surcharge1' => 'purchase_order.custom_surcharge1',
+        // 'custom_surcharge2' => 'purchase_order.custom_surcharge2',
+        // 'custom_surcharge3' => 'purchase_order.custom_surcharge3',
+        // 'custom_surcharge4' => 'purchase_order.custom_surcharge4',
+        'custom_value1' => 'purchase_order.custom_value1',
+        'custom_value2' => 'purchase_order.custom_value2',
+        'custom_value3' => 'purchase_order.custom_value3',
+        'custom_value4' => 'purchase_order.custom_value4',
+        'date' => 'purchase_order.date',
+        'discount' => 'purchase_order.discount',
+        'due_date' => 'purchase_order.due_date',
+        'exchange_rate' => 'purchase_order.exchange_rate',
+        'footer' => 'purchase_order.footer',
+        'number' => 'purchase_order.number',
+        'paid_to_date' => 'purchase_order.paid_to_date',
+        'partial' => 'purchase_order.partial',
+        'partial_due_date' => 'purchase_order.partial_due_date',
+        'po_number' => 'purchase_order.po_number',
+        'private_notes' => 'purchase_order.private_notes',
+        'public_notes' => 'purchase_order.public_notes',
+        'status' => 'purchase_order.status_id',
+        'tax_name1' => 'purchase_order.tax_name1',
+        'tax_name2' => 'purchase_order.tax_name2',
+        'tax_name3' => 'purchase_order.tax_name3',
+        'tax_rate1' => 'purchase_order.tax_rate1',
+        'tax_rate2' => 'purchase_order.tax_rate2',
+        'tax_rate3' => 'purchase_order.tax_rate3',
+        'terms' => 'purchase_order.terms',
+        'total_taxes' => 'purchase_order.total_taxes',
+        'currency_id' => 'purchase_order.currency_id',
     ];
 
     private array $decorate_keys = [
@@ -129,7 +129,7 @@ class PurchaseOrderExport extends BaseExport
             $keyval = array_search($key, $this->entity_keys);
 
             if(!$keyval) {
-                $keyval = array_search(str_replace("invoice.", "", $key), $this->entity_keys) ?? $key;
+                $keyval = array_search(str_replace("purchase_order.", "", $key), $this->entity_keys) ?? $key;
             }
 
             if(!$keyval) {

@@ -829,6 +829,7 @@ class BaseExport
 
             $key = str_replace('item.', '', $key);
             $key = str_replace('recurring_invoice.', '', $key);
+            $key = str_replace('purchase_order.', '', $key);
             $key = str_replace('invoice.', '', $key);
             $key = str_replace('quote.', '', $key);
             $key = str_replace('credit.', '', $key);

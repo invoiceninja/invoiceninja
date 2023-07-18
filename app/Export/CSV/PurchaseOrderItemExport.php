@@ -36,10 +36,10 @@ class PurchaseOrderItemExport extends BaseExport
         'vendor' => 'vendor_id',
         'vendor_number' => 'vendor.number',
         'vendor_id_number' => 'vendor.id_number',
-        'custom_surcharge1' => 'custom_surcharge1',
-        'custom_surcharge2' => 'custom_surcharge2',
-        'custom_surcharge3' => 'custom_surcharge3',
-        'custom_surcharge4' => 'custom_surcharge4',
+        // 'custom_surcharge1' => 'custom_surcharge1',
+        // 'custom_surcharge2' => 'custom_surcharge2',
+        // 'custom_surcharge3' => 'custom_surcharge3',
+        // 'custom_surcharge4' => 'custom_surcharge4',
         // 'custom_value1' => 'custom_value1',
         // 'custom_value2' => 'custom_value2',
         // 'custom_value3' => 'custom_value3',
@@ -81,10 +81,10 @@ class PurchaseOrderItemExport extends BaseExport
         'tax_name3' => 'item.tax_name3',
         'line_total' => 'item.line_total',
         'gross_line_total' => 'item.gross_line_total',
-        // 'invoice1' => 'item.custom_value1',
-        // 'invoice2' => 'item.custom_value2',
-        // 'invoice3' => 'item.custom_value3',
-        // 'invoice4' => 'item.custom_value4',
+        'purchase_order1' => 'item.custom_value1',
+        'purchase_order2' => 'item.custom_value2',
+        'purchase_order3' => 'item.custom_value3',
+        'purchase_order4' => 'item.custom_value4',
         'tax_category' => 'item.tax_id',
         'type' => 'item.type_id',
     ];
@@ -138,7 +138,7 @@ class PurchaseOrderItemExport extends BaseExport
 
     private function iterateItems(PurchaseOrder $purchase_order)
     {
-        $transformed_invoice = $this->buildRow($purchase_order);
+        $transformed_purchase_order = $this->buildRow($purchase_order);
 
         $transformed_items = [];
 
@@ -153,7 +153,7 @@ class PurchaseOrderItemExport extends BaseExport
                     
                     $keyval = $key;
 
-                    $keyval = str_replace("custom_value", "invoice", $key);
+                    $keyval = str_replace("custom_value", "purchase_order", $key);
 
                     if($key == 'type_id') {
                         $keyval = 'type';
@@ -183,7 +183,7 @@ class PurchaseOrderItemExport extends BaseExport
                 }
             }
 
-            $transformed_items = array_merge($transformed_invoice, $item_array);
+            $transformed_items = array_merge($transformed_purchase_order, $item_array);
             $entity = $this->decorateAdvancedFields($purchase_order, $transformed_items);
 
             $this->csv->insertOne($entity);
@@ -192,7 +192,7 @@ class PurchaseOrderItemExport extends BaseExport
 
     private function buildRow(PurchaseOrder $purchase_order) :array
     {
-        $transformed_invoice = $this->purchase_order_transformer->transform($purchase_order);
+        $transformed_purchase_order = $this->purchase_order_transformer->transform($purchase_order);
 
         $entity = [];
 
@@ -200,17 +200,17 @@ class PurchaseOrderItemExport extends BaseExport
             $keyval = array_search($key, $this->entity_keys);
 
             if(!$keyval) {
-                $keyval = array_search(str_replace("invoice.", "", $key), $this->entity_keys) ?? $key;
+                $keyval = array_search(str_replace("purchase_order.", "", $key), $this->entity_keys) ?? $key;
             }
 
             if(!$keyval) {
                 $keyval = $key;
             }
 
-            if (array_key_exists($key, $transformed_invoice)) {
-                $entity[$keyval] = $transformed_invoice[$key];
-            } elseif (array_key_exists($keyval, $transformed_invoice)) {
-                $entity[$keyval] = $transformed_invoice[$keyval];
+            if (array_key_exists($key, $transformed_purchase_order)) {
+                $entity[$keyval] = $transformed_purchase_order[$key];
+            } elseif (array_key_exists($keyval, $transformed_purchase_order)) {
+                $entity[$keyval] = $transformed_purchase_order[$keyval];
             } else {
                 $entity[$keyval] = $this->resolveKey($keyval, $purchase_order, $this->purchase_order_transformer);
             }
