@@ -411,6 +411,47 @@ class ReportCsvGenerationTest extends TestCase
 
     }
     
+    public function testRecurringInvoiceCustomColumnsCsvGeneration()
+    {
+        
+        \App\Models\RecurringInvoice::factory()->create([
+           'user_id' => $this->user->id,
+           'company_id' => $this->company->id,
+           'client_id' => $this->client->id,
+           'amount' => 100,
+           'balance' => 50,
+           'number' => '1234',
+           'status_id' => 2,
+           'discount' => 10,
+           'po_number' => '1234',
+           'public_notes' => 'Public',
+           'private_notes' => 'Private',
+           'terms' => 'Terms',
+           'frequency_id' => 1,
+       ]);
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => ["client.name","recurring_invoice.number","recurring_invoice.amount", "recurring_invoice.frequency_id"],
+            'send_email' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/recurring_invoices', $data);
+       
+        $csv = $response->streamedContent();
+
+        nlog($csv);
+
+        $this->assertEquals('bob', $this->getFirstValueByColumn($csv, 'Client Name'));
+        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Recurring Invoice Invoice Number'));
+        $this->assertEquals('Daily', $this->getFirstValueByColumn($csv, 'Recurring Invoice How Often'));
+
+    }
+
+
     public function testInvoiceItemsCustomColumnsCsvGeneration()
     {
         
@@ -983,7 +1024,7 @@ class ReportCsvGenerationTest extends TestCase
         $this->assertEquals('20', $this->getFirstValueByColumn($csv, 'Tax Rate 2'));
         $this->assertEquals('Tax 3', $this->getFirstValueByColumn($csv, 'Tax Name 3'));
         $this->assertEquals('30', $this->getFirstValueByColumn($csv, 'Tax Rate 3'));
-        $this->assertEquals('Daily', $this->getFirstValueByColumn($csv, 'Frequency'));
+        $this->assertEquals('Daily', $this->getFirstValueByColumn($csv, 'How Often'));
 
     }
 

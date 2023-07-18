@@ -137,6 +137,35 @@ class BaseExport
         "user" => "invoice.user_id",
     ];
 
+    protected array $recurring_invoice_report_keys = [    
+        "invoice_number" => "recurring_invoice.number",
+        "amount" => "recurring_invoice.amount",
+        "balance" => "recurring_invoice.balance",
+        "paid_to_date" => "recurring_invoice.paid_to_date",
+        "po_number" => "recurring_invoice.po_number",
+        "date" => "recurring_invoice.date",
+        "due_date" => "recurring_invoice.due_date",
+        "terms" => "recurring_invoice.terms",
+        "footer" => "recurring_invoice.footer",
+        "status" => "recurring_invoice.status",
+        "public_notes" => "recurring_invoice.public_notes",
+        "private_notes" => "recurring_invoice.private_notes",
+        "uses_inclusive_taxes" => "recurring_invoice.uses_inclusive_taxes",
+        "is_amount_discount" => "recurring_invoice.is_amount_discount",
+        "partial" => "recurring_invoice.partial",
+        "partial_due_date" => "recurring_invoice.partial_due_date",
+        "surcharge1" => "recurring_invoice.custom_surcharge1",
+        "surcharge2" => "recurring_invoice.custom_surcharge2",
+        "surcharge3" => "recurring_invoice.custom_surcharge3",
+        "surcharge4" => "recurring_invoice.custom_surcharge4",
+        "exchange_rate" => "recurring_invoice.exchange_rate",
+        "tax_amount" => "recurring_invoice.total_taxes",
+        "assigned_user" => "recurring_invoice.assigned_user_id",
+        "user" => "recurring_invoice.user_id",
+        "frequency_id" => "recurring_invoice.frequency_id",
+        "next_send_date" => "recurring_invoice.next_send_date"
+    ];
+
     protected array $purchase_order_report_keys = [
         'amount' => 'purchase_order.amount',
         'balance' => 'purchase_order.balance',
@@ -352,6 +381,7 @@ class BaseExport
             'vendor' => $value = $this->resolveVendorKey($parts[1], $entity, $transformer),
             'vendor_contact' => $value = $this->resolveVendorContactKey($parts[1], $entity, $transformer),
             'invoice' => $value = $this->resolveInvoiceKey($parts[1], $entity, $transformer),
+            'recurring_invoice' => $value = $this->resolveInvoiceKey($parts[1], $entity, $transformer),
             'quote' => $value = $this->resolveQuoteKey($parts[1], $entity, $transformer),
             'purchase_order' => $value = $this->resolvePurchaseOrderKey($parts[1], $entity, $transformer),
             'payment' => $value = $this->resolvePaymentKey($parts[1], $entity, $transformer),
@@ -764,7 +794,7 @@ class BaseExport
     {
         $header = [];
 
-        nlog($this->input['report_keys']);
+        // nlog($this->input['report_keys']);
 
         foreach (array_merge($this->input['report_keys'], $this->forced_keys) as $value) {
 
@@ -780,6 +810,11 @@ class BaseExport
             if(!$key) {
                 $prefix = ctrans('texts.invoice')." ";
                 $key = array_search($value, $this->invoice_report_keys);
+            }
+
+            if(!$key) {
+                $prefix = ctrans('texts.recurring_invoice')." ";
+                $key = array_search($value, $this->recurring_invoice_report_keys);
             }
 
             if(!$key) {
@@ -850,8 +885,6 @@ class BaseExport
                 $header[] = "{$prefix}" . ctrans("texts.{$key}");
             }
         }
-
-// nlog($header);
 
         return $header;
     }
