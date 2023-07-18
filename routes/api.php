@@ -143,6 +143,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::get('health_check', [PingController::class, 'health'])->name('health_check');
 
     Route::get('activities', [ActivityController::class, 'index']);
+    Route::post('activities/entity', [ActivityController::class, 'entityActivity']);
     Route::get('activities/download_entity/{activity}', [ActivityController::class, 'downloadHistoricalEntity']);
 
     Route::post('charts/totals', [ChartController::class, 'totals'])->name('chart.totals');

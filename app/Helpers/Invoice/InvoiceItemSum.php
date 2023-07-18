@@ -238,14 +238,20 @@ class InvoiceItemSum
     {
         $this->rule->tax($this->item);
         
+        $precision = strlen(substr(strrchr($this->rule->tax_rate1, "."), 1));
+
         $this->item->tax_name1 = $this->rule->tax_name1;
-        $this->item->tax_rate1 = $this->rule->tax_rate1;
+        $this->item->tax_rate1 = round($this->rule->tax_rate1, $precision);
+
+        $precision = strlen(substr(strrchr($this->rule->tax_rate2, "."), 1));
 
         $this->item->tax_name2 = $this->rule->tax_name2;
-        $this->item->tax_rate2 = $this->rule->tax_rate2;
+        $this->item->tax_rate2 = round($this->rule->tax_rate2, $precision);
+
+        $precision = strlen(substr(strrchr($this->rule->tax_rate3, "."), 1));
 
         $this->item->tax_name3 = $this->rule->tax_name3;
-        $this->item->tax_rate3 = $this->rule->tax_rate3;
+        $this->item->tax_rate3 = round($this->rule->tax_rate3, $precision);
 
         return $this;
     }
