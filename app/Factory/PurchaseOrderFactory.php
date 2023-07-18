@@ -49,7 +49,8 @@ class PurchaseOrderFactory
         $purchase_order->user_id = $user_id;
         $purchase_order->company_id = $company_id;
         $purchase_order->recurring_id = null;
-
+        $purchase_order->exchange_rate = 1;
+        
         return $purchase_order;
     }
 }

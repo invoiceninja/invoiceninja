@@ -60,7 +60,8 @@ class StorePurchaseOrderRequest extends Request
         }
 
         $rules['status_id'] = 'nullable|integer|in:1,2,3,4,5';
-        
+        $rules['exchange_rate'] = 'bail|sometimes|gt:0';
+
         return $rules;
     }
 
@@ -76,6 +77,10 @@ class StorePurchaseOrderRequest extends Request
 
         $input['amount'] = 0;
         $input['balance'] = 0;
+
+        if (array_key_exists('exchange_rate', $input) && is_null($input['exchange_rate'])) {
+            $input['exchange_rate'] = 1;
+        }
 
         $this->replace($input);
     }

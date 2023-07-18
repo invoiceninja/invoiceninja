@@ -13,14 +13,14 @@ namespace App\Export\CSV;
 
 use App\Utils\Number;
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\Expense;
 use App\Models\Invoice;
-use App\Models\GatewayType;
 use App\Models\Payment;
 use League\Fractal\Manager;
 use Illuminate\Support\Carbon;
 use App\Utils\Traits\MakesHash;
-use App\Transformers\ClientTransformer;
+use App\Transformers\TaskTransformer;
 use App\Transformers\PaymentTransformer;
 use Illuminate\Database\Eloquent\Builder;
 use League\Fractal\Serializer\ArraySerializer;
@@ -29,6 +29,8 @@ class BaseExport
 {
     use MakesHash;
 
+    public Company $company;
+    
     public array $input;
 
     public string $date_key = '';
@@ -136,6 +138,35 @@ class BaseExport
         "user" => "invoice.user_id",
     ];
 
+    protected array $recurring_invoice_report_keys = [    
+        "invoice_number" => "recurring_invoice.number",
+        "amount" => "recurring_invoice.amount",
+        "balance" => "recurring_invoice.balance",
+        "paid_to_date" => "recurring_invoice.paid_to_date",
+        "po_number" => "recurring_invoice.po_number",
+        "date" => "recurring_invoice.date",
+        "due_date" => "recurring_invoice.due_date",
+        "terms" => "recurring_invoice.terms",
+        "footer" => "recurring_invoice.footer",
+        "status" => "recurring_invoice.status",
+        "public_notes" => "recurring_invoice.public_notes",
+        "private_notes" => "recurring_invoice.private_notes",
+        "uses_inclusive_taxes" => "recurring_invoice.uses_inclusive_taxes",
+        "is_amount_discount" => "recurring_invoice.is_amount_discount",
+        "partial" => "recurring_invoice.partial",
+        "partial_due_date" => "recurring_invoice.partial_due_date",
+        "surcharge1" => "recurring_invoice.custom_surcharge1",
+        "surcharge2" => "recurring_invoice.custom_surcharge2",
+        "surcharge3" => "recurring_invoice.custom_surcharge3",
+        "surcharge4" => "recurring_invoice.custom_surcharge4",
+        "exchange_rate" => "recurring_invoice.exchange_rate",
+        "tax_amount" => "recurring_invoice.total_taxes",
+        "assigned_user" => "recurring_invoice.assigned_user_id",
+        "user" => "recurring_invoice.user_id",
+        "frequency_id" => "recurring_invoice.frequency_id",
+        "next_send_date" => "recurring_invoice.next_send_date"
+    ];
+
     protected array $purchase_order_report_keys = [
         'amount' => 'purchase_order.amount',
         'balance' => 'purchase_order.balance',
@@ -193,13 +224,17 @@ class BaseExport
     ];
 
     protected array $quote_report_keys = [
-        "quote_number" => "quote.number",
+        'custom_value1' => 'quote.custom_value1',
+        'custom_value2' => 'quote.custom_value2',
+        'custom_value3' => 'quote.custom_value3',
+        'custom_value4' => 'quote.custom_value4',
+        "number" => "quote.number",
         "amount" => "quote.amount",
         "balance" => "quote.balance",
         "paid_to_date" => "quote.paid_to_date",
         "po_number" => "quote.po_number",
         "date" => "quote.date",
-        "due_date" => "quote.due_date",
+        "valid_until" => "quote.due_date",
         "terms" => "quote.terms",
         "footer" => "quote.footer",
         "status" => "quote.status",
@@ -314,8 +349,6 @@ class BaseExport
         'custom_value4' => 'task.custom_value4',
         'status' => 'task.status_id',
         'project' => 'task.project_id',
-        'invoice' => 'task.invoice_id',
-        'client' => 'task.client_id',
     ];
 
     protected function filterByClients($query)
@@ -347,8 +380,11 @@ class BaseExport
             'vendor' => $value = $this->resolveVendorKey($parts[1], $entity, $transformer),
             'vendor_contact' => $value = $this->resolveVendorContactKey($parts[1], $entity, $transformer),
             'invoice' => $value = $this->resolveInvoiceKey($parts[1], $entity, $transformer),
+            'recurring_invoice' => $value = $this->resolveInvoiceKey($parts[1], $entity, $transformer),
+            'quote' => $value = $this->resolveQuoteKey($parts[1], $entity, $transformer),
             'purchase_order' => $value = $this->resolvePurchaseOrderKey($parts[1], $entity, $transformer),
             'payment' => $value = $this->resolvePaymentKey($parts[1], $entity, $transformer),
+            'task' => $value = $this->resolveTaskKey($parts[1], $entity, $transformer),
             default => $value = ''
         };
         
@@ -413,6 +449,22 @@ class BaseExport
         return '';
 
     }
+
+    private function resolveTaskKey($column, $entity, $transformer)
+    {
+        nlog("searching for {$column}");
+
+        $transformed_entity = $transformer->transform($entity);
+
+        if(array_key_exists($column, $transformed_entity)) {
+            return $transformed_entity[$column];
+        }
+
+        return '';
+
+    }
+
+
 
     private function resolveVendorKey($column, $entity, $transformer)
     {
@@ -511,6 +563,20 @@ class BaseExport
         return '';
     }
 
+    private function resolveQuoteKey($column, $entity, $transformer)
+    {
+        nlog("searching for {$column}");
+
+        $transformed_entity = $transformer->transform($entity);
+
+        if(array_key_exists($column, $transformed_entity)) {
+            return $transformed_entity[$column];
+        }
+
+        return '';
+
+    }
+
     private function resolveInvoiceKey($column, $entity, $transformer)
     {
         nlog("searching for {$column}");
@@ -537,7 +603,23 @@ class BaseExport
 
         }
 
-        $transformed_invoice = $transformer->transform($entity);
+        if($transformer instanceof TaskTransformer) {
+            $transformed_invoice = $transformer->includeInvoice($entity);
+
+            if(!$transformed_invoice)
+                return '';
+
+            $manager = new Manager();
+            $manager->setSerializer(new ArraySerializer());
+            $transformed_invoice = $manager->createData($transformed_invoice)->toArray();
+
+        }
+        
+        if(array_key_exists($column, $transformed_invoice)) {
+            return $transformed_invoice[$column];
+        } elseif (array_key_exists(str_replace("invoice.", "", $column), $transformed_invoice)) {
+            return $transformed_invoice[$column];
+        }
 
         if($column == 'status')
             return $entity->stringStatus($entity->status_id);
@@ -707,8 +789,27 @@ class BaseExport
                 $this->end_date = now()->startOfDay()->format('Y-m-d');
                 return $query->whereBetween($this->date_key, [now()->subDays(365), now()])->orderBy($this->date_key, 'ASC');
             case 'this_year':
-                $this->start_date = now()->startOfYear()->format('Y-m-d');
-                $this->end_date = now()->format('Y-m-d');
+
+                $first_month_of_year = $this->company->getSetting('first_month_of_year') ?? 1;
+                $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
+
+                if(now()->lt($fin_year_start))
+                    $fin_year_start->subYearNoOverflow();
+
+                $this->start_date = $fin_year_start->format('Y-m-d');
+                $this->end_date = $fin_year_start->copy()->addYear()->subDay()->format('Y-m-d');
+                return $query->whereBetween($this->date_key, [now()->startOfYear(), now()])->orderBy($this->date_key, 'ASC');
+            case 'last_year':
+
+                $first_month_of_year = $this->company->getSetting('first_month_of_year') ?? 1;
+                $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
+                $fin_year_start->subYearNoOverflow();
+
+                if(now()->subYear()->lt($fin_year_start)) 
+                    $fin_year_start->subYearNoOverflow();
+
+                $this->start_date = $fin_year_start->format('Y-m-d');
+                $this->end_date = $fin_year_start->copy()->addYear()->subDay()->format('Y-m-d');
                 return $query->whereBetween($this->date_key, [now()->startOfYear(), now()])->orderBy($this->date_key, 'ASC');
             case 'custom':
                 $this->start_date = $custom_start_date->format('Y-m-d');
@@ -741,6 +842,11 @@ class BaseExport
             if(!$key) {
                 $prefix = ctrans('texts.invoice')." ";
                 $key = array_search($value, $this->invoice_report_keys);
+            }
+
+            if(!$key) {
+                $prefix = ctrans('texts.recurring_invoice')." ";
+                $key = array_search($value, $this->recurring_invoice_report_keys);
             }
 
             if(!$key) {
@@ -790,6 +896,7 @@ class BaseExport
 
             $key = str_replace('item.', '', $key);
             $key = str_replace('recurring_invoice.', '', $key);
+            $key = str_replace('purchase_order.', '', $key);
             $key = str_replace('invoice.', '', $key);
             $key = str_replace('quote.', '', $key);
             $key = str_replace('credit.', '', $key);
@@ -800,9 +907,18 @@ class BaseExport
             $key = str_replace('payment.', '', $key);
             $key = str_replace('expense.', '', $key);
 
-            $header[] = "{$prefix}" . ctrans("texts.{$key}");
+            if(in_array($key, ['quote1','quote2','quote3','quote4','credit1','credit2','credit3','credit4','purchase_order1','purchase_order2','purchase_order3','purchase_order4']))
+            {
+                $number = substr($key, -1);
+                $header[] = ctrans('texts.item') . " ". ctrans("texts.custom_value{$number}"); 
+            }
+            else
+            {
+                $header[] = "{$prefix}" . ctrans("texts.{$key}");
+            }
         }
-// nlog($header);
+
+        // nlog($header);
 
         return $header;
     }

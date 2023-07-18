@@ -21,7 +21,6 @@ use League\Csv\Writer;
 
 class DocumentExport extends BaseExport
 {
-    private Company $company;
 
     private $entity_transformer;
 

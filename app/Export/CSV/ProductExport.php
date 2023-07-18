@@ -22,8 +22,6 @@ use League\Csv\Writer;
 
 class ProductExport extends BaseExport
 {
-    private Company $company;
-
     private $entity_transformer;
 
     public string $date_key = 'created_at';

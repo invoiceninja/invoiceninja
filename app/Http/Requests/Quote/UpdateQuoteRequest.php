@@ -57,6 +57,7 @@ class UpdateQuoteRequest extends Request
         $rules['line_items'] = 'array';
         $rules['discount'] = 'sometimes|numeric';
         $rules['is_amount_discount'] = ['boolean'];
+        $rules['exchange_rate'] = 'bail|sometimes|gt:0';
 
         return $rules;
     }
@@ -73,6 +74,10 @@ class UpdateQuoteRequest extends Request
 
         if (array_key_exists('documents', $input)) {
             unset($input['documents']);
+        }
+
+        if (array_key_exists('exchange_rate', $input) && is_null($input['exchange_rate'])) {
+            $input['exchange_rate'] = 1;
         }
 
         $input['id'] = $this->quote->id;

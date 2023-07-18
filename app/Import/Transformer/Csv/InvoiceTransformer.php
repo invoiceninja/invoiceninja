@@ -114,7 +114,7 @@ class InvoiceTransformer extends BaseTransformer
                 $invoice_data,
                 'invoice.custom_surcharge4'
             ),
-            'exchange_rate' => $this->getString(
+            'exchange_rate' => $this->getFloatOrOne(
                 $invoice_data,
                 'invoice.exchange_rate'
             ),

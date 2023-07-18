@@ -23,7 +23,6 @@ use League\Csv\Writer;
 
 class ContactExport extends BaseExport
 {
-    private Company $company;
 
     private ClientTransformer $client_transformer;
 

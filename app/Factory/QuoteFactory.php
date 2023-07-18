@@ -46,6 +46,7 @@ class QuoteFactory
         $quote->user_id = $user_id;
         $quote->company_id = $company_id;
         $quote->paid_to_date = 0;
+        $quote->exchange_rate = 1;
 
         return $quote;
     }

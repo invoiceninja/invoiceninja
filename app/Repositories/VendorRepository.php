@@ -44,7 +44,9 @@ class VendorRepository extends BaseRepository
     public function save(array $data, Vendor $vendor) : ?Vendor
     {
         $vendor->fill($data);
-
+        
+        nlog($data);
+        
         $vendor->saveQuietly();
 
         if ($vendor->number == '' || ! $vendor->number) {
