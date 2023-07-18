@@ -440,6 +440,9 @@ class CheckoutComPaymentDriver extends BaseDriver
                 $request->query('cko-session-id')
             );
 
+            nlog("checkout3ds");
+            nlog($payment);
+
             if (isset($payment['approved']) && $payment['approved']) {
                 return $this->processSuccessfulPayment($payment);
             } else {

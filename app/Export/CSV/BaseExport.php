@@ -741,7 +741,6 @@ class BaseExport
 
                 $first_month_of_year = $this->company->getSetting('first_month_of_year') ?? 1;
                 $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
-
                 $fin_year_start->subYearNoOverflow();
 
                 if(now()->subYear()->lt($fin_year_start)) 
