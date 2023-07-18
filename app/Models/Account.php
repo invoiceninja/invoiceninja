@@ -554,7 +554,7 @@ class Account extends BaseModel
                     $nmo->to_user = $this->companies()->first()->owner();
                     NinjaMailerJob::dispatch($nmo, true);
 
-                    Cache::put("throttle_notified:{$this->key}", true, 60 * 24);
+                    Cache::put("throttle_notified:{$this->key}", true, 60 * 60 * 24);
 
                     if (config('ninja.notification.slack')) {
                         $this->companies()->first()->notification(new EmailQuotaNotification($this))->ninja();
