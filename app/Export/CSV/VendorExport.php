@@ -114,7 +114,7 @@ class VendorExport extends BaseExport
 
     private function buildRow(Vendor $vendor) :array
     {
-        $transformed_contact = false;
+        $transformed_contact = [];
 
         $transformed_vendor = $this->vendor_transformer->transform($vendor);
 

@@ -165,9 +165,100 @@ class ReportCsvGenerationTest extends TestCase
     }
 
 
+    public function testVendorCsvGeneration()
+    {
+        
+        $vendor =
+        \App\Models\Vendor::factory()->create(
+            [
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'name' => 'Vendor 1',
+                'city' => 'city',
+                'address1' => 'address1',
+                'address2' => 'address2',
+                'postal_code' => 'postal_code',
+                'phone' => 'work_phone',
+                'private_notes' => 'private_notes',
+                'public_notes' => 'public_notes',
+                'website' => 'website',
+                'number' => '1234', 
+            ]
+        );
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => [],
+            // 'report_keys' => ["vendor.name","purchase_order.number","purchase_order.amount", "item.quantity", "item.cost", "item.line_total", "item.discount", "item.notes", "item.product_key", "item.custom_value1", "item.tax_name1", "item.tax_rate1",],
+            'send_email' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/vendors', $data);
+       
+        $csv = $response->streamedContent();
+
+        $this->assertEquals('Vendor 1', $this->getFirstValueByColumn($csv, 'Name'));
+        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Number'));
+        $this->assertEquals('city', $this->getFirstValueByColumn($csv, 'City'));
+        $this->assertEquals('address1', $this->getFirstValueByColumn($csv, 'Street'));
+        $this->assertEquals('address2', $this->getFirstValueByColumn($csv, 'Apt/Suite'));
+        $this->assertEquals('postal_code', $this->getFirstValueByColumn($csv, 'Postal Code'));
+        $this->assertEquals('work_phone', $this->getFirstValueByColumn($csv, 'Phone'));
+        $this->assertEquals('private_notes', $this->getFirstValueByColumn($csv, 'Private Notes'));
+        $this->assertEquals('public_notes', $this->getFirstValueByColumn($csv, 'Public Notes'));
+        $this->assertEquals('website', $this->getFirstValueByColumn($csv, 'Website'));
+
+    }
+
+    public function testVendorCustomColumnCsvGeneration()   
+    {
+        
+        \App\Models\Vendor::query()->cursor()->each(function ($t) {
+            $t->forceDelete();
+        });
+
+        $vendor =
+        \App\Models\Vendor::factory()->create(
+            [
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'name' => 'Vendor 1',
+                'city' => 'city',
+                'address1' => 'address1',
+                'address2' => 'address2',
+                'postal_code' => 'postal_code',
+                'phone' => 'work_phone',
+                'private_notes' => 'private_notes',
+                'public_notes' => 'public_notes',
+                'website' => 'website',
+                'number' => '1234', 
+            ]
+        );
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => ["vendor.name", "vendor.city", "vendor.number"],
+            'send_email' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/vendors', $data);
+       
+        $csv = $response->streamedContent();
+
+        $this->assertEquals('Vendor 1', $this->getFirstValueByColumn($csv, 'Name'));
+        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Number'));
+        $this->assertEquals('city', $this->getFirstValueByColumn($csv, 'City'));
+    }
+
+
     public function testTaskCustomColumnsCsvGeneration()    
     {
-
 
         $invoice = \App\Models\Invoice::factory()->create([
             'user_id' => $this->user->id,
