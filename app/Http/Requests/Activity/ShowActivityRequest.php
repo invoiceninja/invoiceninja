@@ -31,7 +31,7 @@ class ShowActivityRequest extends Request
     public function rules()
     {
         return [
-            'entity' => 'bail|required|in:invoice,quote,credit,purchase_order,payment,client,vendor',
+            'entity' => 'bail|required|in:invoice,quote,credit,purchase_order,payment,client,vendor,expense,task,project,subscription,recurring_invoice,',
             'entity_id' => 'bail|required|exists:'.$this->entity.'s,id,company_id,'.auth()->user()->company()->id,
         ];
     }
