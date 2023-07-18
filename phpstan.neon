@@ -5,7 +5,7 @@ parameters:
     treatPhpDocTypesAsCertain: false
     parallel:
         jobSize: 5
-        maximumNumberOfProcesses: 16
+        maximumNumberOfProcesses: 1
         processTimeout: 600.0
     ignoreErrors:
         - '#Call to an undefined method .*badMethod\(\)#'

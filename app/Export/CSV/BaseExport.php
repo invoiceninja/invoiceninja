@@ -20,6 +20,7 @@ use App\Models\Payment;
 use League\Fractal\Manager;
 use Illuminate\Support\Carbon;
 use App\Utils\Traits\MakesHash;
+use App\Transformers\TaskTransformer;
 use App\Transformers\PaymentTransformer;
 use Illuminate\Database\Eloquent\Builder;
 use League\Fractal\Serializer\ArraySerializer;
@@ -348,8 +349,6 @@ class BaseExport
         'custom_value4' => 'task.custom_value4',
         'status' => 'task.status_id',
         'project' => 'task.project_id',
-        'invoice' => 'task.invoice_id',
-        'client' => 'task.client_id',
     ];
 
     protected function filterByClients($query)
@@ -385,6 +384,7 @@ class BaseExport
             'quote' => $value = $this->resolveQuoteKey($parts[1], $entity, $transformer),
             'purchase_order' => $value = $this->resolvePurchaseOrderKey($parts[1], $entity, $transformer),
             'payment' => $value = $this->resolvePaymentKey($parts[1], $entity, $transformer),
+            'task' => $value = $this->resolveTaskKey($parts[1], $entity, $transformer),
             default => $value = ''
         };
         
@@ -449,6 +449,22 @@ class BaseExport
         return '';
 
     }
+
+    private function resolveTaskKey($column, $entity, $transformer)
+    {
+        nlog("searching for {$column}");
+
+        $transformed_entity = $transformer->transform($entity);
+
+        if(array_key_exists($column, $transformed_entity)) {
+            return $transformed_entity[$column];
+        }
+
+        return '';
+
+    }
+
+
 
     private function resolveVendorKey($column, $entity, $transformer)
     {
@@ -587,7 +603,23 @@ class BaseExport
 
         }
 
-        $transformed_invoice = $transformer->transform($entity);
+        if($transformer instanceof TaskTransformer) {
+            $transformed_invoice = $transformer->includeInvoice($entity);
+
+            if(!$transformed_invoice)
+                return '';
+
+            $manager = new Manager();
+            $manager->setSerializer(new ArraySerializer());
+            $transformed_invoice = $manager->createData($transformed_invoice)->toArray();
+
+        }
+        
+        if(array_key_exists($column, $transformed_invoice)) {
+            return $transformed_invoice[$column];
+        } elseif (array_key_exists(str_replace("invoice.", "", $column), $transformed_invoice)) {
+            return $transformed_invoice[$column];
+        }
 
         if($column == 'status')
             return $entity->stringStatus($entity->status_id);
@@ -885,6 +917,8 @@ class BaseExport
                 $header[] = "{$prefix}" . ctrans("texts.{$key}");
             }
         }
+
+        // nlog($header);
 
         return $header;
     }

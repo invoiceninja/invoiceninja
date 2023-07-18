@@ -164,8 +164,91 @@ class ReportCsvGenerationTest extends TestCase
 
     }
 
+
+    public function testTaskCustomColumnsCsvGeneration()    
+    {
+
+
+        $invoice = \App\Models\Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'date' => '2023-01-01',
+            'amount' => 1000,
+            'balance' => 1000,
+            'number' => '123456',
+            'status_id' => 2,
+            'discount' => 10,
+            'po_number' => '12345',
+            'public_notes' => 'Public5',
+            'private_notes' => 'Private5',
+            'terms' => 'Terms5',
+            ]);
+
+
+        $log =  '[[1689547165,1689550765,"sumtin",true]]';
+
+        \App\Models\Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'invoice_id' => $invoice->id,
+            'description' => 'test1',
+            'time_log' => $log,
+            'custom_value1' => 'Custom 11',
+            'custom_value2' => 'Custom 22',
+            'custom_value3' => 'Custom 33',
+            'custom_value4' => 'Custom 44',
+        ]);
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => [
+                'client.name',
+                'invoice.number',
+                'invoice.amount',
+                'task.start_date',
+                'task.end_date',
+                'task.duration',
+                'task.description',
+                'task.custom_value1',
+                'task.custom_value2',
+                'task.custom_value3',
+                'task.custom_value4',
+            ],
+            'send_email' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/tasks', $data);
+       
+        $csv = $response->streamedContent();
+
+        $this->assertEquals(3600, $this->getFirstValueByColumn($csv, 'Task Duration'));
+        $this->assertEquals('test1', $this->getFirstValueByColumn($csv, 'Task Description'));
+        $this->assertEquals('16/Jul/2023', $this->getFirstValueByColumn($csv, 'Task Start Date'));
+        $this->assertEquals('16/Jul/2023', $this->getFirstValueByColumn($csv, 'Task End Date'));
+        $this->assertEquals('Custom 11', $this->getFirstValueByColumn($csv, 'Task Custom Value 1'));
+        $this->assertEquals('Custom 22', $this->getFirstValueByColumn($csv, 'Task Custom Value 2'));
+        $this->assertEquals('Custom 33', $this->getFirstValueByColumn($csv, 'Task Custom Value 3'));
+        $this->assertEquals('Custom 44', $this->getFirstValueByColumn($csv, 'Task Custom Value 4'));
+        $this->assertEquals('bob', $this->getFirstValueByColumn($csv, 'Client Name'));
+        $this->assertEquals('123456', $this->getFirstValueByColumn($csv, 'Invoice Invoice Number'));
+        $this->assertEquals(1000, $this->getFirstValueByColumn($csv, 'Invoice Amount'));
+
+    }
+
+
+
+
     public function testTasksCsvGeneration()
     {
+
+        \App\Models\Task::query()->cursor()->each(function ($t) {
+            $t->forceDelete();
+        });
 
         $log =  '[[1689547165,1689550765,"sumtin",true]]';
 
@@ -249,11 +332,68 @@ class ReportCsvGenerationTest extends TestCase
     public function testPaymentCsvGeneration()
     {
 
+        $invoice = \App\Models\Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'date' => '2023-01-01',
+            'amount' => 100,
+            'balance' => 100,
+            'number' => '12345',
+            'status_id' => 2,
+            'discount' => 10,
+            'po_number' => '1234',
+            'public_notes' => 'Public',
+            'private_notes' => 'Private',
+            'terms' => 'Terms',
+            ]);
+
+        $invoice->client->balance = 100;
+        $invoice->client->paid_to_date = 0;
+        $invoice->push();
+
+        $invoice->service()->markPaid()->save();
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => [
+                "payment.date",
+                "payment.amount",
+                "invoice.number",
+                "invoice.amount",
+                "client.name",
+                "client.balance",
+                "client.paid_to_date"
+            ],
+            'send_email' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/payments', $data);
+       
+        $csv = $response->streamedContent();
+
+        $this->assertEquals(100, $this->getFirstValueByColumn($csv, 'Payment Amount'));
+        $this->assertEquals(now()->addSeconds($this->company->timezone()->utc_offset)->format('Y-m-d'), $this->getFirstValueByColumn($csv, 'Payment Date'));
+        $this->assertEquals('12345', $this->getFirstValueByColumn($csv, 'Invoice Invoice Number'));
+        $this->assertEquals(100, $this->getFirstValueByColumn($csv, 'Invoice Amount'));
+        $this->assertEquals('bob', $this->getFirstValueByColumn($csv, 'Client Name'));
+        $this->assertEquals(0, $this->getFirstValueByColumn($csv, 'Client Balance'));
+        $this->assertEquals(100, $this->getFirstValueByColumn($csv, 'Client Paid to Date'));
+    
+    }
+
+
+    public function testPaymentCustomFieldsCsvGeneration()
+    {
+
         \App\Models\Payment::factory()->create([
             'amount' => 500,
             'date' => '2020-01-01',
-            'company_id' => $this->company->id,
             'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
             'client_id' => $this->client->id,
             'transaction_reference' => '1234',
         ]);
@@ -278,6 +418,7 @@ class ReportCsvGenerationTest extends TestCase
         $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Transaction Reference'));
     
     }
+
 
     public function testClientCsvGeneration()
     {
@@ -442,8 +583,6 @@ class ReportCsvGenerationTest extends TestCase
         ])->post('/api/v1/reports/recurring_invoices', $data);
        
         $csv = $response->streamedContent();
-
-        nlog($csv);
 
         $this->assertEquals('bob', $this->getFirstValueByColumn($csv, 'Client Name'));
         $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Recurring Invoice Invoice Number'));
@@ -693,8 +832,6 @@ class ReportCsvGenerationTest extends TestCase
         ])->post('/api/v1/reports/purchase_order_items', $data);
        
         $csv = $response->streamedContent();
-
-        nlog($csv);
 
         $this->assertEquals('Vendor 1', $this->getFirstValueByColumn($csv, 'Vendor Name'));
         $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Purchase Order Number'));
