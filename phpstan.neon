@@ -4,7 +4,7 @@ includes:
 parameters:
     treatPhpDocTypesAsCertain: false
     parallel:
-        jobSize: 20
+        jobSize: 10
         maximumNumberOfProcesses: 1
         processTimeout: 60.0
     ignoreErrors:
