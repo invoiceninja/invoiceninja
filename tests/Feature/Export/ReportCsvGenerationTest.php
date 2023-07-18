@@ -525,6 +525,7 @@ class ReportCsvGenerationTest extends TestCase
         ])->post('/api/v1/reports/quote_items', $data);
        
         $csv = $response->streamedContent();
+nlog($csv);
 
         $this->assertEquals('bob', $this->getFirstValueByColumn($csv, 'Client Name'));
         $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Quote Number'));
@@ -534,7 +535,7 @@ class ReportCsvGenerationTest extends TestCase
         $this->assertEquals('0', $this->getFirstValueByColumn($csv, 'Discount'));
         $this->assertEquals('item notes', $this->getFirstValueByColumn($csv, 'Notes'));
         $this->assertEquals('product key', $this->getFirstValueByColumn($csv, 'Product'));
-        $this->assertEquals('custom 1', $this->getFirstValueByColumn($csv, 'Custom Quote 1'));
+        $this->assertEquals('custom 1', $this->getFirstValueByColumn($csv, 'Item Custom Value 1'));
         $this->assertEquals('GST', $this->getFirstValueByColumn($csv, 'Tax Name 1'));
         $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Tax Rate 1'));
 

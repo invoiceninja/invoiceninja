@@ -764,7 +764,7 @@ class BaseExport
     {
         $header = [];
 
-        // nlog($this->input['report_keys']);
+        nlog($this->input['report_keys']);
 
         foreach (array_merge($this->input['report_keys'], $this->forced_keys) as $value) {
 
@@ -839,7 +839,15 @@ class BaseExport
             $key = str_replace('payment.', '', $key);
             $key = str_replace('expense.', '', $key);
 
-            $header[] = "{$prefix}" . ctrans("texts.{$key}");
+            if(in_array($key, ['quote1','quote2','quote3','quote4','credit1','credit2','credit3','credit4','purchase_order1','purchase_order2','purchase_order3','purchase_order4']))
+            {
+                $number = substr($key, -1);
+                $header[] = ctrans('texts.item') . " ". ctrans("texts.custom_value{$number}"); 
+            }
+            else
+            {
+                $header[] = "{$prefix}" . ctrans("texts.{$key}");
+            }
         }
 
 // nlog($header);
