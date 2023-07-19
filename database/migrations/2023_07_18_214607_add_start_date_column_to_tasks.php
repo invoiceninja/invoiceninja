@@ -16,6 +16,10 @@ return new class extends Migration
         Schema::table('tasks', function (Blueprint $table) {
             $table->date('calculated_start_date')->nullable();
         });
+
+        Schema::table('webhooks', function (Blueprint $table){
+            $table->text('target_url')->change();
+        });
     }
 
     /**
