@@ -20,12 +20,8 @@ use Illuminate\Support\Str;
 use App\Models\QuoteInvitation;
 use App\Utils\VendorHtmlEngine;
 use App\Models\CreditInvitation;
-use App\Services\Pdf\PdfBuilder;
-use App\Services\Pdf\PdfService;
 use App\Models\InvoiceInvitation;
-use App\Services\Pdf\PdfDesigner;
 use Illuminate\Support\Facades\Cache;
-use App\Services\Pdf\PdfConfiguration;
 use App\Models\PurchaseOrderInvitation;
 use App\Models\RecurringInvoiceInvitation;
 use App\Jobs\Vendor\CreatePurchaseOrderPdf;
@@ -51,6 +47,8 @@ class PdfSlot extends Component
     public $show_cost = true;
 
     public $show_quantity = true;
+
+    public $show_line_total = true;
 
     public $route_entity = 'client';
 
@@ -104,11 +102,12 @@ class PdfSlot extends Component
         $this->settings = $this->entity->client ? $this->entity->client->getMergedSettings() : $this->entity->company->settings;
 
         $this->show_cost = in_array('$product.unit_cost', $this->settings->pdf_variables->product_columns);
-        $this->show_quantity = in_array('$product.quantity', $this->settings->pdf_variables->product_columns);
+        $this->show_line_total = in_array('$product.line_total', $this->settings->pdf_variables->product_columns);
 
         if($this->entity_type == 'quote' && !$this->settings->sync_invoice_quote_columns ){
             $this->show_cost = in_array('$product.unit_cost', $this->settings->pdf_variables->product_quote_columns);
             $this->show_quantity = in_array('$product.quantity', $this->settings->pdf_variables->product_quote_columns);
+            $this->show_line_total = in_array('$product.line_total', $this->settings->pdf_variables->product_quote_columns);
         }
 
         $this->html_variables = $this->entity->client ?

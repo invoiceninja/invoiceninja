@@ -90,7 +90,12 @@ span {
                             </div>
                         </div>
                     </td>
-                    <td style="text-align:right; padding-right:2px;">{{ $product['line_total'] }}</td>
+                    
+                    <td style="text-align:right; padding-right:2px;">
+                    @if($show_line_total)
+                        {{ $product['line_total'] }}
+                    @endif
+                    </td>
                 </tr>
                 @endforeach                   
             </tbody>
