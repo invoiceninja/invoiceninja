@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Cache;
 use App\Models\PurchaseOrderInvitation;
 use App\Models\RecurringInvoiceInvitation;
 use App\Jobs\Vendor\CreatePurchaseOrderPdf;
+use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
 
 class PdfSlot extends Component
 {
@@ -172,20 +173,20 @@ class PdfSlot extends Component
 
         if($this->entity_type == 'invoice' || $this->entity_type == 'recurring_invoice') {
             foreach($this->settings->pdf_variables->invoice_details as $variable) 
-                $entity_details .= "<div class='flex px-3 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-1 w-36 block entity-field'>{$variable}</p></div>";
+                $entity_details .= "<div class='flex px-5 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-5 w-36 block entity-field'>{$variable}</p></div>";
     
         }
         elseif($this->entity_type == 'quote'){
             foreach($this->settings->pdf_variables->quote_details as $variable)
-                $entity_details .= "<div class='flex px-3 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-1 w-36 block entity-field'>{$variable}</p></div>";
+                $entity_details .= "<div class='flex px-5 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-5 w-36 block entity-field'>{$variable}</p></div>";
         }
         elseif($this->entity_type == 'credit') {
             foreach($this->settings->pdf_variables->credit_details as $variable)
-                $entity_details .= "<div class='flex px-3 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-1 w-36 block entity-field'>{$variable}</p></div>";
+                $entity_details .= "<div class='flex px-5 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-5 w-36 block entity-field'>{$variable}</p></div>";
         }
         elseif($this->entity_type == 'purchase_order'){
             foreach($this->settings->pdf_variables->purchase_order_details as $variable)
-                $entity_details .= "<div class='flex px-3 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-1 w-36 block entity-field'>{$variable}</p></div>";
+                $entity_details .= "<div class='flex px-5 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-5 w-36 block entity-field'>{$variable}</p></div>";
         }
             
         return $this->convertVariables($entity_details);
@@ -228,13 +229,16 @@ class PdfSlot extends Component
 
     private function getProducts()
     {
+
+        
+
         $product_items = collect($this->entity->line_items)->filter(function ($item) {
             return $item->type_id == 1 || $item->type_id == 6 || $item->type_id == 5;
         })->map(function ($item){
             return [
                 'quantity' => $item->quantity,
                 'cost' => Number::formatMoney($item->cost, $this->entity->client ?: $this->entity->vendor),
-                'notes' => $item->notes,
+                'notes' => $this->invitation->company->markdown_enabled ? DesignHelpers::parseMarkdownToHtml($item->notes) : $item->notes,
                 'line_total' => Number::formatMoney($item->line_total, $this->entity->client ?: $this->entity->vendor),
             ];
         });
@@ -250,7 +254,7 @@ class PdfSlot extends Component
             return [
                 'quantity' => $item->quantity,
                 'cost' => Number::formatMoney($item->cost, $this->entity->client ?: $this->entity->vendor),
-                'notes' => $item->notes,
+                'notes' => $this->invitation->company->markdown_enabled ? DesignHelpers::parseMarkdownToHtml($item->notes) : $item->notes,
                 'line_total' => Number::formatMoney($item->line_total, $this->entity->client ?: $this->entity->vendor),
             ];
         });
