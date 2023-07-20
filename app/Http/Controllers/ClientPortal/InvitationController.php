@@ -85,23 +85,21 @@ class InvitationController extends Controller
                                     ->with('contact.client')
                                     ->firstOrFail();
 
-        //09-03-2023 do not show entity if the invitation has been trashed.
         if ($invitation->trashed() || $invitation->{$entity}->is_deleted) {
             return $this->render('generic.not_available', ['account' => $invitation->company->account, 'company' => $invitation->company]);
         }
 
-        /* 12/01/2022 Clean up an edge case where if the contact is trashed, restore if a invitation comes back. */
         if ($invitation->contact->trashed()) {
             $invitation->contact->restore();
         }
 
-        /* Return early if we have the correct client_hash embedded */
         $client_contact = $invitation->contact;
 
         if (empty($client_contact->email)) {
             $client_contact->email = Str::random(15) . "@example.com";
-        } $client_contact->save();
-
+            $client_contact->save();
+        } 
+        
         if (request()->has('client_hash') && request()->input('client_hash') == $invitation->contact->client->client_hash) {
             request()->session()->invalidate();
             auth()->guard('contact')->loginUsingId($client_contact->id, true);

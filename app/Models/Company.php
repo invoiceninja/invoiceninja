@@ -16,6 +16,7 @@ use App\Casts\EncryptedCast;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\MakesHash;
 use App\DataMapper\CompanySettings;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Laracasts\Presenter\PresentableTrait;
 use App\Utils\Traits\CompanySettingsSaver;
@@ -686,6 +687,11 @@ class Company extends BaseModel
         return $this->getLocale();
     }
 
+    public function setLocale()
+    {
+        App::setLocale($this->getLocale());
+    }
+    
     public function getSetting($setting)
     {
         if (property_exists($this->settings, $setting) != false) {

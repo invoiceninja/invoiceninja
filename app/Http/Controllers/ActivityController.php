@@ -148,6 +148,8 @@ class ActivityController extends BaseController
             }
         }
 
+        $activity->company->setLocale();
+        
         if (isset($activity->invoice_id)) {
             $filename = $activity->invoice->numberFormatter().'.pdf';
         } elseif (isset($activity->quote_id)) {
