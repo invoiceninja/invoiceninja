@@ -33,6 +33,8 @@ class CreditsTest extends TestCase
     use DatabaseTransactions;
     use AppSetup;
 
+    private $faker;
+    
     protected function setUp(): void
     {
         parent::setUp();
