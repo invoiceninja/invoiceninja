@@ -27,6 +27,7 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\CheckoutCom\CreditCard;
 use App\PaymentDrivers\CheckoutCom\Utilities;
+use App\PaymentDrivers\CheckoutCom\CheckoutWebhook;
 use App\Utils\Traits\SystemLogTrait;
 use Checkout\CheckoutApi;
 use Checkout\CheckoutApiException;
@@ -421,8 +422,19 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     public function processWebhookRequest(PaymentWebhookRequest $request)
     {
-        nlog($request->all());
-        return true;
+
+        header('Content-Type: text/plain');
+        $webhook_payload = file_get_contents('php://input');
+
+        if($request->header('cko-signature') == hash_hmac('sha256', $webhook_payload, $this->company_gateway->company->company_key)) {
+            CheckoutWebhook::dispatch($request->all(), $request->company_key, $this->company_gateway->id)->delay(10);
+        }
+        else {
+            nlog("Hash Mismatch = {$request->header('cko-signature')} ".hash_hmac('sha256', $webhook_payload, $this->company_gateway->company->company_key));
+            nlog($request->all());
+        }
+
+        return response()->json(['success' => true]);
     }
 
     public function process3dsConfirmation(Checkout3dsRequest $request)
