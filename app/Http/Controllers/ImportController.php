@@ -97,6 +97,8 @@ class ImportController extends Controller
             ];
         }
 
+        $data = mb_convert_encoding($data, 'UTF-8', 'UTF-8');
+
         return response()->json($data);
     }
 
