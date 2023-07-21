@@ -334,7 +334,7 @@ class CheckoutComPaymentDriver extends BaseDriver
         $paymentRequest->amount = $this->convertToCheckoutAmount($amount, $this->client->getCurrencyCode());
         $paymentRequest->reference = '#'.$invoice->number.' - '.now();
         $paymentRequest->customer = $this->getCustomer();
-        $paymentRequest->metadata = ['udf1' => 'Invoice Ninja'];
+        $paymentRequest->metadata = ['udf1' => 'Invoice Ninja', 'udf2' => $payment_hash->hash];
         $paymentRequest->currency = $this->client->getCurrencyCode();
 
         $request = new PaymentResponseRequest();
@@ -421,6 +421,7 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     public function processWebhookRequest(PaymentWebhookRequest $request)
     {
+        nlog($request->all());
         return true;
     }
 
