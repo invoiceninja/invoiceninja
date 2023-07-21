@@ -53,7 +53,7 @@ class SelfUpdateController extends BaseController
 
         nlog('Test filesystem is writable');
 
-        $this->testWritable();
+        // $this->testWritable();
 
         nlog('Clear cache directory');
 

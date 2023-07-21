@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Utils\Ninja;
 use Illuminate\Http\Request;
 use App\Jobs\Util\UnlinkFile;
 use App\Exceptions\SystemError;

@@ -441,15 +441,15 @@ class CompanyExport implements ShouldQueue
 
         $path = 'backups';
 
-        Storage::makeDirectory(public_path('storage/backups/'));
+        Storage::makeDirectory(storage_path('backups/'));
 
         try {
-            mkdir(public_path('storage/backups/'));
+            mkdir(storage_path('backups/'));
         } catch(\Exception $e) {
             nlog("could not create directory");
         }
 
-        $zip_path = public_path('storage/backups/'.$file_name);
+        $zip_path = storage_path('backups/'.$file_name);
         $zip = new \ZipArchive();
 
         if ($zip->open($zip_path, \ZipArchive::CREATE)!==true) {
@@ -459,14 +459,16 @@ class CompanyExport implements ShouldQueue
         $zip->addFromString("backup.json", json_encode($this->export_data));
         $zip->close();
 
-        if (Ninja::isHosted()) {
-            Storage::disk(config('filesystems.default'))->put('backups/'.$file_name, file_get_contents($zip_path));
-        }
+        Storage::disk(config('filesystems.default'))->put('backups/'.$file_name, file_get_contents($zip_path));
+        unlink($zip_path);        
 
-        $storage_file_path = Storage::disk(config('filesystems.default'))->url('backups/'.$file_name);
-        $storage_path = Storage::disk(config('filesystems.default'))->path('backups/'.$file_name);
+        if(Ninja::isSelfHost())
+            $storage_path = 'backups/'.$file_name;
+        else
+            $storage_path = Storage::disk(config('filesystems.default'))->path('backups/'.$file_name);
 
         $url = Cache::get($this->hash);
+
         Cache::put($this->hash, $storage_path, now()->addHour());
 
         App::forgetInstance('translator');

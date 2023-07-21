@@ -86,11 +86,16 @@ span {
                                     {{ $product['cost'] }}
                                     @endif
                                 </p> 
-                                <p class="overflow-ellipsis overflow-hidden px-1 mb-2">{{ $product['notes'] }}</p>
+                                <p class="overflow-ellipsis overflow-hidden px-1 mb-2">{!! $product['notes'] !!}</p>
                             </div>
                         </div>
                     </td>
-                    <td style="text-align:right; padding-right:2px;">{{ $product['line_total'] }}</td>
+                    
+                    <td style="text-align:right; padding-right:2px;">
+                    @if($show_line_total)
+                        {{ $product['line_total'] }}
+                    @endif
+                    </td>
                 </tr>
                 @endforeach                   
             </tbody>
@@ -101,19 +106,19 @@ span {
     <div id="task-details" class="py-6 mr-3 ml-3">
         <table width="100%">
             <thead>
-                <tr class="border-bottom">
+                <tr class="border-b-2">
                     <th style="text-align:left; width:70%; padding-left:2px;">Service</th>
                     <th style="text-align:right; width:30%; padding-right:2px;">Amount</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($services as $service)
-                <tr style="display: table-row;">
+                <tr style="display: table-row;" class="border-b-2">
                     <td>
                         <div class="">
                             <div class="">
                                 <p class="mt-2">{{ $service['quantity'] }} × {{ $service['cost'] }}</p> 
-                                <p class="overflow-ellipsis overflow-hidden px-1 mb-2">{{ $service['notes'] }}</p>
+                                <p class="overflow-ellipsis overflow-hidden px-1 mb-2">{!! $service['notes'] !!}</p>
                             </div>
                         </div>
                     </td>
