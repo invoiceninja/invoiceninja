@@ -38,24 +38,27 @@ class PayPalRestPaymentDriver extends BaseDriver
 
     private string $api_endpoint_url = '';
 
+    private string $paypal_payment_method = '';
+
+    private array $funding_options = [
+        3 => 'paypal',
+        1 => 'card',
+        25 => 'venmo',
+        9 => 'sepa',
+        12 => 'bancontact',
+        17 => 'eps',
+        15 => 'giropay',
+        13 => 'ideal',
+        26 => 'mercadopago',
+        27 => 'mybank',
+        28 => 'paylater',
+        16 => 'p24',
+        7 => 'sofort'
+    ];
+
+
     public function gatewayTypes()
     {
-
-        $enums = [
-            3 => 'paypal',
-            1 => 'card',
-            25 => 'venmo',
-            9 => 'sepa',
-            12 => 'bancontact',
-            17 => 'eps',
-            15 => 'giropay',
-            13 => 'ideal',
-            26 => 'mercadopago',
-            27 => 'mybank',
-            28 => 'paylater',
-            16 => 'p24',
-            7 => 'sofort'
-        ];
 
         $funding_options = [];
 
@@ -65,12 +68,8 @@ class PayPalRestPaymentDriver extends BaseDriver
             }
         }
 
-            return $funding_options;
+        return $funding_options;
 
-
-        // return [
-        //     GatewayType::PAYPAL,
-        // ];
     }
 
     public function init()
@@ -88,6 +87,8 @@ class PayPalRestPaymentDriver extends BaseDriver
 
     public function setPaymentMethod($payment_method_id)
     {
+        $this->paypal_payment_method = $this->funding_options[$payment_method_id];
+
         return $this;
     }
 
@@ -117,7 +118,7 @@ class PayPalRestPaymentDriver extends BaseDriver
         $data['client_id'] = $this->company_gateway->getConfigField('clientId');
         $data['token'] = $this->getClientToken();
         $data['order_id'] = $this->createOrder($data);
-        $data['funding_options'] = $this->getFundingOptions();
+        $data['funding_options'] = $this->paypal_payment_method;
 
         return render('gateways.paypal.pay', $data);
 
@@ -130,16 +131,16 @@ class PayPalRestPaymentDriver extends BaseDriver
             3 => 'paypal', 
             1 => 'card', 
             25 => 'venmo', 
-            9 => 'sepa', 
-            12 => 'bancontact', 
-            17 => 'eps', 
-            15 => 'giropay', 
-            13 => 'ideal', 
-            26 => 'mercadopago', 
-            27 => 'mybank', 
-            28 => 'paylater', 
-            16 => 'p24', 
-            7 => 'sofort'
+            // 9 => 'sepa', 
+            // 12 => 'bancontact', 
+            // 17 => 'eps', 
+            // 15 => 'giropay', 
+            // 13 => 'ideal', 
+            // 26 => 'mercadopago', 
+            // 27 => 'mybank', 
+            // 28 => 'paylater', 
+            // 16 => 'p24', 
+            // 7 => 'sofort'
         ];
 
         $funding_options = '';
@@ -231,10 +232,6 @@ class PayPalRestPaymentDriver extends BaseDriver
                 [
             "description" =>ctrans('texts.invoice_number').'# '.$invoice->number,
             "invoice_id" => $invoice->number,
-            // 'reference_id' => 'PUHF',
-            // 'description' => 'Sporting Goods',
-            // 'custom_id' => 'CUST-HighFashions',
-            // 'soft_descriptor' => 'HighFashions',
             "amount" => [
                 "value" => (string)$data['amount_with_fee'],
                 "currency_code"=> $this->client->currency()->code,
