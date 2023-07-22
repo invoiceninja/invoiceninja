@@ -28,7 +28,7 @@
 @endsection
 
 @push('footer')
-<script src="https://www.paypal.com/sdk/js?buyer-country=US&currency=USD&enable-funding={!! $funding_options !!}&disable-funding=credit&components=buttons,hosted-fields,funding-eligibility&intent=capture&client-id={!! $client_id !!}" data-client-token="{!! $token !!}">
+<script src="https://www.paypal.com/sdk/js?buyer-country=US&currency=USD&enable-funding={!! $funding_options !!}&disable-funding=credit,card&components=buttons,hosted-fields,funding-eligibility&intent=capture&client-id={!! $client_id !!}" data-client-token="{!! $token !!}">
 </script>
 
 <script>
