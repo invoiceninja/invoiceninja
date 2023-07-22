@@ -765,7 +765,8 @@ class BaseImport
     {
         $keys = array_shift($data);
         ksort($keys);
-
+// nlog($data);
+// nlog($keys);
         return array_map(function ($values) use ($keys) {
             return array_combine($keys, $values);
         }, $data);
