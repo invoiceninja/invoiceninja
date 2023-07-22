@@ -149,7 +149,7 @@ class InvoiceTransformer extends EntityTransformer
             'paid_to_date' => (float) $invoice->paid_to_date,
             'subscription_id' => $this->encodePrimaryKey($invoice->subscription_id),
             'auto_bill_enabled' => (bool) $invoice->auto_bill_enabled,
-            'tax_data' => $invoice->tax_data ?: '',            
+            'tax_info' => $invoice->tax_data ?: new \stdClass,,
         ];
     }
 }
