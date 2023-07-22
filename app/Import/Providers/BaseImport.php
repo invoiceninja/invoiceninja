@@ -102,6 +102,8 @@ class BaseImport
         }
 
         $csv = base64_decode($base64_encoded_csv);
+        $csv = mb_convert_encoding($csv, 'UTF-8', 'UTF-8');
+ nlog($csv);
         $csv = Reader::createFromString($csv);
         $csvdelimiter = self::detectDelimiter($csv);
 
@@ -765,8 +767,7 @@ class BaseImport
     {
         $keys = array_shift($data);
         ksort($keys);
-// nlog($data);
-// nlog($keys);
+
         return array_map(function ($values) use ($keys) {
             return array_combine($keys, $values);
         }, $data);
