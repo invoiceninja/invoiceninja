@@ -49,7 +49,7 @@ class CreditFactory
         $credit->user_id = $user_id;
         $credit->company_id = $company_id;
         $credit->recurring_id = null;
-
+        $credit->exchange_rate = 1;
         return $credit;
     }
 }

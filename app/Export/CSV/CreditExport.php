@@ -21,7 +21,6 @@ use League\Csv\Writer;
 
 class CreditExport extends BaseExport
 {
-    private Company $company;
 
     private CreditTransformer $credit_transformer;
 

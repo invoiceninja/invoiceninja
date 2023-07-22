@@ -11,16 +11,17 @@
 
 namespace App\Http\Controllers\VendorPortal;
 
-use App\Events\Misc\InvitationWasViewed;
-use App\Events\PurchaseOrder\PurchaseOrderWasViewed;
-use App\Http\Controllers\Controller;
-use App\Jobs\Vendor\CreatePurchaseOrderPdf;
-use App\Models\PurchaseOrderInvitation;
 use App\Utils\Ninja;
-use App\Utils\Traits\MakesDates;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesDates;
+use Illuminate\Support\Facades\App;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use App\Models\PurchaseOrderInvitation;
+use App\Events\Misc\InvitationWasViewed;
+use App\Jobs\Vendor\CreatePurchaseOrderPdf;
+use App\Events\PurchaseOrder\PurchaseOrderWasViewed;
 
 /**
  * Class InvitationController.
@@ -88,6 +89,8 @@ class InvitationController extends Controller
         if (!$invitation) {
             return response()->json(["message" => "no record found"], 400);
         }
+
+        App::setLocale($invitation->contact->preferredLocale());
 
         $file_name = $invitation->purchase_order->numberFormatter().'.pdf';
 

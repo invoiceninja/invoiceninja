@@ -129,12 +129,10 @@ class ReminderJob implements ShouldQueue
             $invoice->service()->touchReminder($reminder_template)->save();
             $fees = $this->calcLateFee($invoice, $reminder_template);
 
-            if(in_array($invoice->client->getSetting('lock_invoices'), ['when_sent','when_paid'])) {
+            if($invoice->isLocked()) 
                 return $this->addFeeToNewInvoice($invoice, $reminder_template, $fees);
-            }
-            else
-                $invoice = $this->setLateFee($invoice, $fees[0], $fees[1]);
-
+            
+            $invoice = $this->setLateFee($invoice, $fees[0], $fees[1]);
 
             //20-04-2022 fixes for endless reminders - generic template naming was wrong
             $enabled_reminder = 'enable_'.$reminder_template;

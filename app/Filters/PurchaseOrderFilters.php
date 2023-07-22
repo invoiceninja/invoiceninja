@@ -123,6 +123,11 @@ class PurchaseOrderFilters extends QueryFilters
             return $this->builder;
         }
 
+        if ($sort_col[0] == 'vendor_id') {
+            return $this->builder->orderBy(\App\Models\Vendor::select('name')
+                    ->whereColumn('vendors.id', 'purchase_orders.vendor_id'), $sort_col[1]);
+        }
+
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }
 

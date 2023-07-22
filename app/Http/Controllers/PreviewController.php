@@ -285,7 +285,7 @@ class PreviewController extends BaseController
                 return $maker->getCompiledHTML();
             }
         } catch(\Exception $e) {
-            nlog($e->getMessage());
+            // nlog($e->getMessage());
             DB::connection(config('database.default'))->rollBack();
 
             return;

@@ -347,6 +347,11 @@ class Client extends BaseModel implements HasLocalePreference
         return $this->hasMany(Credit::class)->withTrashed();
     }
 
+    public function purgeable_activities()
+    {
+        return $this->hasMany(Activity::class);
+    }
+
     public function activities()
     {
         return $this->hasMany(Activity::class)->take(50)->orderBy('id', 'desc');

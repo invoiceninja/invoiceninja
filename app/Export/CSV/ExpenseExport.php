@@ -21,7 +21,6 @@ use League\Csv\Writer;
 
 class ExpenseExport extends BaseExport
 {
-    private Company $company;
 
     private $expense_transformer;
 

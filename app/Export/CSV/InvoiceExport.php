@@ -23,8 +23,6 @@ use App\Transformers\InvoiceTransformer;
 
 class InvoiceExport extends BaseExport
 {
-    private Company $company;
-
     private $invoice_transformer;
 
     public string $date_key = 'date';
