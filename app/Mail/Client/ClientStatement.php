@@ -57,7 +57,6 @@ class ClientStatement extends Mailable
             with: [
                 'text_body' => $this->data['body'],
                 'body' => $this->data['body'],
-                'whitelabel' => $this->data['whitelabel'],
                 'settings' => $this->data['settings'],
                 'whitelabel' => $this->data['whitelabel'],
                 'logo' => $this->data['logo'],

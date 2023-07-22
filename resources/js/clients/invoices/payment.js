@@ -84,6 +84,8 @@ class Payment {
     }
 
     displaySignature() {
+        document.getElementById("signature-next-step").disabled = true;
+
         let displaySignatureModal = document.getElementById(
             "displaySignatureModal"
         );
@@ -104,7 +106,6 @@ class Payment {
     }
 
     handle() {
-        document.getElementById("signature-next-step").disabled = true;
 
         document
             .querySelectorAll(".dropdown-gateway-button")

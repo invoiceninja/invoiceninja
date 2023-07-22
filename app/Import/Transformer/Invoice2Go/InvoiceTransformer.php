@@ -1,10 +1,10 @@
 <?php
 /**
- * client Ninja (https://clientninja.com).
+ * Invoice Ninja (https://invoiceninja.com).
  *
- * @link https://github.com/clientninja/clientninja source repository
+ * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. client Ninja LLC (https://clientninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -61,8 +61,14 @@ class InvoiceTransformer extends BaseTransformer
             ],
         ];
 
-        $client_id =
-            $this->getClient($this->getString($invoice_data, 'Name'), $this->getString($invoice_data, 'EmailRecipient'));
+        $client_id = null;
+        
+        if($this->hasClient($this->getString($invoice_data, 'Name') || $this->getContact($this->getString($invoice_data, 'EmailRecipient'))))
+        {
+
+            $client_id = $this->getClient($this->getString($invoice_data, 'Name'), $this->getString($invoice_data, 'EmailRecipient'));
+            
+        }
 
         if ($client_id) {
             $transformed['client_id'] = $client_id;

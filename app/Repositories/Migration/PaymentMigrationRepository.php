@@ -98,17 +98,18 @@ class PaymentMigrationRepository extends BaseRepository
         }
 
         $payment->deleted_at = $data['deleted_at'] ?: null;
-        $payment->save();
+        
 
         if ($payment->currency_id == 0) {
             $payment->currency_id = $payment->company->settings->currency_id;
-            $payment->save();
         }
 
         /*Ensure payment number generated*/
         if (! $payment->number || strlen($payment->number) == 0) {
             $payment->number = $payment->client->getNextPaymentNumber($payment->client, $payment);
         }
+
+        $payment->save();
 
         $invoice_totals = 0;
         $credit_totals = 0;
@@ -121,7 +122,7 @@ class PaymentMigrationRepository extends BaseRepository
 
             $invoices = Invoice::whereIn('id', array_column($data['invoices'], 'invoice_id'))->withTrashed()->get();
 
-            $payment->invoices()->saveMany($invoices);
+            $payment->invoices()->saveMany($invoices); // 1:1 relationship so this is ok
 
             $payment->invoices->each(function ($inv) use ($invoice_totals, $refund_totals, $payment) {
                 if ($payment->status_id != Payment::STATUS_CANCELLED || ! $payment->is_deleted) {

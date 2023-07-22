@@ -145,8 +145,11 @@ class DocumentController extends BaseController
      * @return Response
      */
     public function update(UpdateDocumentRequest $request, Document $document)
-    {
-        return $this->itemResponse($document);
+    {   
+        $document->fill($request->all());
+        $document->save();
+
+        return $this->itemResponse($document->fresh());
     }
 
     /**

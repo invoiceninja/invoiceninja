@@ -26,7 +26,7 @@ class WebCronController extends Controller
      * @return Response
      *
      * @OA\Get(
-     *      path="/api/v1/webcron",
+     *      path="/webcron",
      *      operationId="webcron",
      *      tags={"webcron"},
      *      summary="Executes the task scheduler via a webcron service",

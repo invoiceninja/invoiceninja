@@ -11,26 +11,27 @@
 
 namespace App\Jobs\Util;
 
-use App\Exceptions\ClientHostedMigrationException;
-use App\Exceptions\MigrationValidatorFailed;
-use App\Exceptions\NonExistingMigrationFile;
-use App\Exceptions\ProcessingMigrationArchiveFailed;
-use App\Exceptions\ResourceDependencyMissing;
-use App\Exceptions\ResourceNotAvailableForMigration;
-use App\Libraries\MultiDB;
-use App\Mail\MigrationFailed;
-use App\Models\Company;
+use ZipArchive;
 use App\Models\User;
 use App\Utils\Ninja;
+use App\Models\Company;
+use App\Libraries\MultiDB;
+use App\Mail\MigrationFailed;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
-use ZipArchive;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use App\Exceptions\MigrationValidatorFailed;
+use App\Exceptions\NonExistingMigrationFile;
+use App\Exceptions\ResourceDependencyMissing;
+use App\Exceptions\ClientHostedMigrationException;
+use App\Exceptions\ProcessingMigrationArchiveFailed;
+use App\Exceptions\ResourceNotAvailableForMigration;
 
 class StartMigration implements ShouldQueue
 {
@@ -48,6 +49,8 @@ class StartMigration implements ShouldQueue
      */
     private $company;
 
+    private $silent_migration;
+
     /**
      * Create a new job instance.
      *
@@ -59,15 +62,12 @@ class StartMigration implements ShouldQueue
 
     public $timeout = 0;
 
-    //  public $maxExceptions = 2;
-
-    //public $backoff = 86430;
-
-    public function __construct($filepath, User $user, Company $company)
+    public function __construct($filepath, User $user, Company $company, $silent_migration = false)
     {
         $this->filepath = $filepath;
         $this->user = $user;
         $this->company = $company;
+        $this->silent_migration = $silent_migration;
     }
 
     /**
@@ -79,6 +79,8 @@ class StartMigration implements ShouldQueue
     {
         nlog('Inside Migration Job');
 
+        Cache::put("migration-{$this->company->company_key}", "started", 86400);
+        
         set_time_limit(0);
 
         MultiDB::setDb($this->company->db);
@@ -117,12 +119,14 @@ class StartMigration implements ShouldQueue
                 throw new NonExistingMigrationFile('Migration file does not exist, or it is corrupted.');
             }
 
-            (new Import($file, $this->company, $this->user))->handle();
+            (new Import($file, $this->company, $this->user, [], $this->silent_migration))->handle();
 
             Storage::deleteDirectory(public_path("storage/migrations/{$filename}"));
 
             $this->company->update_products = $update_product_flag;
             $this->company->save();
+
+            Cache::put("migration-{$this->company->company_key}", "completed", 86400);
 
             App::forgetInstance('translator');
             $t = app('translator');
@@ -131,11 +135,14 @@ class StartMigration implements ShouldQueue
             $this->company->update_products = $update_product_flag;
             $this->company->save();
 
+            Cache::put("migration-{$this->company->company_key}", "failed", 86400);
+
             if (Ninja::isHosted()) {
                 app('sentry')->captureException($e);
             }
 
-            Mail::to($this->user->email, $this->user->name())->send(new MigrationFailed($e, $this->company, $e->getMessage()));
+            if(!$this->silent_migration)
+                Mail::to($this->user->email, $this->user->name())->send(new MigrationFailed($e, $this->company, $e->getMessage()));
 
             if (Ninja::isHosted()) {
                 $migration_failed = new MigrationFailed($e, $this->company, $e->getMessage());
@@ -147,9 +154,10 @@ class StartMigration implements ShouldQueue
             if (app()->environment() !== 'production') {
                 info($e->getMessage());
             }
-        }
 
-        //always make sure we unset the migration as running
+            Storage::deleteDirectory(public_path("storage/migrations/{$filename}"));
+
+        }
 
         return true;
     }

@@ -34,7 +34,8 @@ class PaymentType extends StaticModel
      */
     public $timestamps = false;
 
-    const CREDIT = 32;
+    const BANK_TRANSFER = 1;
+    const CASH = 2;
     const ACH = 4;
     const VISA = 5;
     const MASTERCARD = 6;
@@ -53,11 +54,14 @@ class PaymentType extends StaticModel
     const MAESTRO = 20;
     const SOLO = 21;
     const SWITCH = 22;
+    const VENMO = 24;
     const ALIPAY = 27;
     const SOFORT = 28;
     const SEPA = 29;
     const GOCARDLESS = 30;
     const CRYPTO = 31;
+    const CREDIT = 32;
+    const ZELLE = 33;
     const MOLLIE_BANK_TRANSFER = 34;
     const KBC = 35;
     const BANCONTACT = 36;
@@ -74,9 +78,14 @@ class PaymentType extends StaticModel
     const KLARNA = 47;
     const Interac_E_Transfer = 48;
     const BACS = 49;
+    const STRIPE_BANK_TRANSFER = 50;
+    const CASH_APP = 51;
 
     public array $type_names = [
+        self::BANK_TRANSFER => 'payment_type_Bank Transfer',
+        self::CASH => 'payment_type_Cash',
         self::CREDIT => 'payment_type_Credit',
+        self::ZELLE => 'payment_type_Zelle',
         self::ACH => 'payment_type_ACH',
         self::VISA => 'payment_type_Visa Card',
         self::MASTERCARD => 'payment_type_MasterCard',
@@ -115,6 +124,9 @@ class PaymentType extends StaticModel
         self::FPX => 'fpx',
         self::KLARNA => 'payment_type_Klarna',
         self::Interac_E_Transfer => 'payment_type_Interac E Transfer',
+        self::STRIPE_BANK_TRANSFER => 'bank_transfer',
+        self::CASH_APP => 'payment_type_Cash App',
+        self::VENMO => 'payment_type_Venmo',
     ];
 
     public static function parseCardType($cardName)

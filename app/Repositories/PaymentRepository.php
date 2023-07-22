@@ -11,19 +11,20 @@
 
 namespace App\Repositories;
 
-use App\Events\Payment\PaymentWasCreated;
-use App\Events\Payment\PaymentWasDeleted;
-use App\Jobs\Credit\ApplyCreditPayment;
-use App\Libraries\Currency\Conversion\CurrencyApi;
+use App\Utils\Ninja;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Utils\Ninja;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\SavesDocuments;
+use App\Models\Paymentable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
+use App\Jobs\Credit\ApplyCreditPayment;
+use App\Events\Payment\PaymentWasCreated;
+use App\Events\Payment\PaymentWasDeleted;
+use App\Libraries\Currency\Conversion\CurrencyApi;
 
 /**
  * PaymentRepository.
@@ -138,7 +139,7 @@ class PaymentRepository extends BaseRepository
 
             $invoices = Invoice::withTrashed()->whereIn('id', array_column($data['invoices'], 'invoice_id'))->get();
 
-            $payment->invoices()->saveMany($invoices);
+            // $payment->invoices()->saveMany($invoices); //25-06-2023
 
             //todo optimize this into a single query
             foreach ($data['invoices'] as $paid_invoice) {
@@ -146,6 +147,16 @@ class PaymentRepository extends BaseRepository
                 $invoice = $invoices->firstWhere('id', $paid_invoice['invoice_id']);
 
                 if ($invoice) {
+
+                //25-06-2023
+
+                    $paymentable = new Paymentable();
+                    $paymentable->payment_id = $payment->id;
+                    $paymentable->paymentable_id = $invoice->id;
+                    $paymentable->paymentable_type = 'invoices';
+                    $paymentable->amount = $paid_invoice['amount'];
+                    $paymentable->save();
+
                     $invoice = $invoice->service()
                                        ->markSent()
                                        ->applyPayment($payment, $paid_invoice['amount'])
@@ -153,26 +164,30 @@ class PaymentRepository extends BaseRepository
                 }
             }
         } else {
-            //payment is made, but not to any invoice, therefore we are applying the payment to the clients paid_to_date only
-            //01-07-2020 i think we were duplicating the paid to date here.
-            //$payment->client->service()->updatePaidToDate($payment->amount)->save();
+
         }
 
         if (array_key_exists('credits', $data) && is_array($data['credits'])) {
             $credit_totals = array_sum(array_column($data['credits'], 'amount'));
 
-            // $credits = Credit::whereIn('id', $this->transformKeys(array_column($data['credits'], 'credit_id')))->get();
-
             $credits = Credit::whereIn('id', array_column($data['credits'], 'credit_id'))->get();
 
-            $payment->credits()->saveMany($credits);
+            // $payment->credits()->saveMany($credits);
 
             //todo optimize into a single query
             foreach ($data['credits'] as $paid_credit) {
-                // $credit = Credit::withTrashed()->find($paid_credit['credit_id']);
+
                 $credit = $credits->firstWhere('id', $paid_credit['credit_id']);
                 
                 if ($credit) {
+
+                    $paymentable = new Paymentable();
+                    $paymentable->payment_id = $payment->id;
+                    $paymentable->paymentable_id = $credit->id;
+                    $paymentable->paymentable_type = Credit::class;
+                    $paymentable->amount = $paid_credit['amount'];
+                    $paymentable->save();
+
                     $credit = $credit->service()->markSent()->save();
                     (new ApplyCreditPayment($credit, $payment, $paid_credit['amount'], $credit->company))->handle();
                 }
@@ -201,7 +216,7 @@ class PaymentRepository extends BaseRepository
      * the company currency, we need to set a record.
      * @param $data
      * @param $payment
-     * @return
+     * @return Payment $payment
      */
     public function processExchangeRates($data, $payment)
     {

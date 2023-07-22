@@ -1,2 +1,263 @@
-/*! For license information please see square-credit-card.js.LICENSE.txt */
-(()=>{function t(e){return t="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(t){return typeof t}:function(t){return t&&"function"==typeof Symbol&&t.constructor===Symbol&&t!==Symbol.prototype?"symbol":typeof t},t(e)}function e(){"use strict";e=function(){return n};var n={},r=Object.prototype,o=r.hasOwnProperty,i=Object.defineProperty||function(t,e,n){t[e]=n.value},a="function"==typeof Symbol?Symbol:{},c=a.iterator||"@@iterator",u=a.asyncIterator||"@@asyncIterator",s=a.toStringTag||"@@toStringTag";function l(t,e,n){return Object.defineProperty(t,e,{value:n,enumerable:!0,configurable:!0,writable:!0}),t[e]}try{l({},"")}catch(t){l=function(t,e,n){return t[e]=n}}function d(t,e,n,r){var o=e&&e.prototype instanceof p?e:p,a=Object.create(o.prototype),c=new q(r||[]);return i(a,"_invoke",{value:x(t,n,c)}),a}function f(t,e,n){try{return{type:"normal",arg:t.call(e,n)}}catch(t){return{type:"throw",arg:t}}}n.wrap=d;var h={};function p(){}function y(){}function m(){}var v={};l(v,c,(function(){return this}));var g=Object.getPrototypeOf,w=g&&g(g(_([])));w&&w!==r&&o.call(w,c)&&(v=w);var b=m.prototype=p.prototype=Object.create(v);function E(t){["next","throw","return"].forEach((function(e){l(t,e,(function(t){return this._invoke(e,t)}))}))}function k(e,n){function r(i,a,c,u){var s=f(e[i],e,a);if("throw"!==s.type){var l=s.arg,d=l.value;return d&&"object"==t(d)&&o.call(d,"__await")?n.resolve(d.__await).then((function(t){r("next",t,c,u)}),(function(t){r("throw",t,c,u)})):n.resolve(d).then((function(t){l.value=t,c(l)}),(function(t){return r("throw",t,c,u)}))}u(s.arg)}var a;i(this,"_invoke",{value:function(t,e){function o(){return new n((function(n,o){r(t,e,n,o)}))}return a=a?a.then(o,o):o()}})}function x(t,e,n){var r="suspendedStart";return function(o,i){if("executing"===r)throw new Error("Generator is already running");if("completed"===r){if("throw"===o)throw i;return B()}for(n.method=o,n.arg=i;;){var a=n.delegate;if(a){var c=L(a,n);if(c){if(c===h)continue;return c}}if("next"===n.method)n.sent=n._sent=n.arg;else if("throw"===n.method){if("suspendedStart"===r)throw r="completed",n.arg;n.dispatchException(n.arg)}else"return"===n.method&&n.abrupt("return",n.arg);r="executing";var u=f(t,e,n);if("normal"===u.type){if(r=n.done?"completed":"suspendedYield",u.arg===h)continue;return{value:u.arg,done:n.done}}"throw"===u.type&&(r="completed",n.method="throw",n.arg=u.arg)}}}function L(t,e){var n=e.method,r=t.iterator[n];if(void 0===r)return e.delegate=null,"throw"===n&&t.iterator.return&&(e.method="return",e.arg=void 0,L(t,e),"throw"===e.method)||"return"!==n&&(e.method="throw",e.arg=new TypeError("The iterator does not provide a '"+n+"' method")),h;var o=f(r,t.iterator,e.arg);if("throw"===o.type)return e.method="throw",e.arg=o.arg,e.delegate=null,h;var i=o.arg;return i?i.done?(e[t.resultName]=i.value,e.next=t.nextLoc,"return"!==e.method&&(e.method="next",e.arg=void 0),e.delegate=null,h):i:(e.method="throw",e.arg=new TypeError("iterator result is not an object"),e.delegate=null,h)}function S(t){var e={tryLoc:t[0]};1 in t&&(e.catchLoc=t[1]),2 in t&&(e.finallyLoc=t[2],e.afterLoc=t[3]),this.tryEntries.push(e)}function I(t){var e=t.completion||{};e.type="normal",delete e.arg,t.completion=e}function q(t){this.tryEntries=[{tryLoc:"root"}],t.forEach(S,this),this.reset(!0)}function _(t){if(t){var e=t[c];if(e)return e.call(t);if("function"==typeof t.next)return t;if(!isNaN(t.length)){var n=-1,r=function e(){for(;++n<t.length;)if(o.call(t,n))return e.value=t[n],e.done=!1,e;return e.value=void 0,e.done=!0,e};return r.next=r}}return{next:B}}function B(){return{value:void 0,done:!0}}return y.prototype=m,i(b,"constructor",{value:m,configurable:!0}),i(m,"constructor",{value:y,configurable:!0}),y.displayName=l(m,s,"GeneratorFunction"),n.isGeneratorFunction=function(t){var e="function"==typeof t&&t.constructor;return!!e&&(e===y||"GeneratorFunction"===(e.displayName||e.name))},n.mark=function(t){return Object.setPrototypeOf?Object.setPrototypeOf(t,m):(t.__proto__=m,l(t,s,"GeneratorFunction")),t.prototype=Object.create(b),t},n.awrap=function(t){return{__await:t}},E(k.prototype),l(k.prototype,u,(function(){return this})),n.AsyncIterator=k,n.async=function(t,e,r,o,i){void 0===i&&(i=Promise);var a=new k(d(t,e,r,o),i);return n.isGeneratorFunction(e)?a:a.next().then((function(t){return t.done?t.value:a.next()}))},E(b),l(b,s,"Generator"),l(b,c,(function(){return this})),l(b,"toString",(function(){return"[object Generator]"})),n.keys=function(t){var e=Object(t),n=[];for(var r in e)n.push(r);return n.reverse(),function t(){for(;n.length;){var r=n.pop();if(r in e)return t.value=r,t.done=!1,t}return t.done=!0,t}},n.values=_,q.prototype={constructor:q,reset:function(t){if(this.prev=0,this.next=0,this.sent=this._sent=void 0,this.done=!1,this.delegate=null,this.method="next",this.arg=void 0,this.tryEntries.forEach(I),!t)for(var e in this)"t"===e.charAt(0)&&o.call(this,e)&&!isNaN(+e.slice(1))&&(this[e]=void 0)},stop:function(){this.done=!0;var t=this.tryEntries[0].completion;if("throw"===t.type)throw t.arg;return this.rval},dispatchException:function(t){if(this.done)throw t;var e=this;function n(n,r){return a.type="throw",a.arg=t,e.next=n,r&&(e.method="next",e.arg=void 0),!!r}for(var r=this.tryEntries.length-1;r>=0;--r){var i=this.tryEntries[r],a=i.completion;if("root"===i.tryLoc)return n("end");if(i.tryLoc<=this.prev){var c=o.call(i,"catchLoc"),u=o.call(i,"finallyLoc");if(c&&u){if(this.prev<i.catchLoc)return n(i.catchLoc,!0);if(this.prev<i.finallyLoc)return n(i.finallyLoc)}else if(c){if(this.prev<i.catchLoc)return n(i.catchLoc,!0)}else{if(!u)throw new Error("try statement without catch or finally");if(this.prev<i.finallyLoc)return n(i.finallyLoc)}}}},abrupt:function(t,e){for(var n=this.tryEntries.length-1;n>=0;--n){var r=this.tryEntries[n];if(r.tryLoc<=this.prev&&o.call(r,"finallyLoc")&&this.prev<r.finallyLoc){var i=r;break}}i&&("break"===t||"continue"===t)&&i.tryLoc<=e&&e<=i.finallyLoc&&(i=null);var a=i?i.completion:{};return a.type=t,a.arg=e,i?(this.method="next",this.next=i.finallyLoc,h):this.complete(a)},complete:function(t,e){if("throw"===t.type)throw t.arg;return"break"===t.type||"continue"===t.type?this.next=t.arg:"return"===t.type?(this.rval=this.arg=t.arg,this.method="return",this.next="end"):"normal"===t.type&&e&&(this.next=e),h},finish:function(t){for(var e=this.tryEntries.length-1;e>=0;--e){var n=this.tryEntries[e];if(n.finallyLoc===t)return this.complete(n.completion,n.afterLoc),I(n),h}},catch:function(t){for(var e=this.tryEntries.length-1;e>=0;--e){var n=this.tryEntries[e];if(n.tryLoc===t){var r=n.completion;if("throw"===r.type){var o=r.arg;I(n)}return o}}throw new Error("illegal catch attempt")},delegateYield:function(t,e,n){return this.delegate={iterator:_(t),resultName:e,nextLoc:n},"next"===this.method&&(this.arg=void 0),h}},n}function n(t,e,n,r,o,i,a){try{var c=t[i](a),u=c.value}catch(t){return void n(t)}c.done?e(u):Promise.resolve(u).then(r,o)}function r(t){return function(){var e=this,r=arguments;return new Promise((function(o,i){var a=t.apply(e,r);function c(t){n(a,o,i,c,u,"next",t)}function u(t){n(a,o,i,c,u,"throw",t)}c(void 0)}))}}function o(e,n){for(var r=0;r<n.length;r++){var o=n[r];o.enumerable=o.enumerable||!1,o.configurable=!0,"value"in o&&(o.writable=!0),Object.defineProperty(e,(i=o.key,a=void 0,a=function(e,n){if("object"!==t(e)||null===e)return e;var r=e[Symbol.toPrimitive];if(void 0!==r){var o=r.call(e,n||"default");if("object"!==t(o))return o;throw new TypeError("@@toPrimitive must return a primitive value.")}return("string"===n?String:Number)(e)}(i,"string"),"symbol"===t(a)?a:String(a)),o)}var i,a}(new(function(){function t(){!function(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}(this,t),this.appId=document.querySelector("meta[name=square-appId]").content,this.locationId=document.querySelector("meta[name=square-locationId]").content,this.isLoaded=!1}var n,i,a,c,u,s,l,d;return n=t,i=[{key:"init",value:(d=r(e().mark((function t(){var n;return e().wrap((function(t){for(;;)switch(t.prev=t.next){case 0:return this.payments=Square.payments(this.appId,this.locationId),t.next=3,this.payments.card();case 3:return this.card=t.sent,t.next=6,this.card.attach("#card-container");case 6:this.isLoaded=!0,(n=document.querySelector(".sq-card-iframe-container"))&&n.setAttribute("style","150px !important"),document.querySelector(".toggle-payment-with-token")&&document.getElementById("card-container").classList.add("hidden");case 11:case"end":return t.stop()}}),t,this)}))),function(){return d.apply(this,arguments)})},{key:"completePaymentWithoutToken",value:(l=r(e().mark((function t(n){var r,o,i,a,c;return e().wrap((function(t){for(;;)switch(t.prev=t.next){case 0:return document.getElementById("errors").hidden=!0,n.target.parentElement.disabled=!0,t.next=4,this.card.tokenize();case 4:return r=t.sent,t.prev=5,i={amount:document.querySelector("meta[name=amount]").content,billingContact:JSON.parse(document.querySelector("meta[name=square_contact]").content),currencyCode:document.querySelector("meta[name=currencyCode]").content,intent:"CHARGE"},t.next=9,this.payments.verifyBuyer(r.token,i);case 9:a=t.sent,o=a.token,t.next=16;break;case 13:t.prev=13,t.t0=t.catch(5),n.target.parentElement.disabled=!0;case 16:if(document.querySelector('input[name="verificationToken"]').value=o,"OK"!==r.status){t.next=22;break}return document.getElementById("sourceId").value=r.token,(c=document.querySelector('input[name="token-billing-checkbox"]:checked'))&&(document.querySelector('input[name="store_card"]').value=c.value),t.abrupt("return",document.getElementById("server_response").submit());case 22:document.getElementById("errors").textContent=r.errors[0].message,document.getElementById("errors").hidden=!1,n.target.parentElement.disabled=!1;case 25:case"end":return t.stop()}}),t,this,[[5,13]])}))),function(t){return l.apply(this,arguments)})},{key:"completePaymentUsingToken",value:(s=r(e().mark((function t(n){return e().wrap((function(t){for(;;)switch(t.prev=t.next){case 0:return n.target.parentElement.disabled=!0,t.abrupt("return",document.getElementById("server_response").submit());case 2:case"end":return t.stop()}}),t)}))),function(t){return s.apply(this,arguments)})},{key:"verifyBuyer",value:(u=r(e().mark((function t(n){var r,o;return e().wrap((function(t){for(;;)switch(t.prev=t.next){case 0:return r={amount:document.querySelector("meta[name=amount]").content,billingContact:document.querySelector("meta[name=square_contact]").content,currencyCode:document.querySelector("meta[name=currencyCode]").content,intent:"CHARGE"},t.next=3,this.payments.verifyBuyer(n,r);case 3:return o=t.sent,t.abrupt("return",o.token);case 5:case"end":return t.stop()}}),t,this)}))),function(t){return u.apply(this,arguments)})},{key:"handle",value:(c=r(e().mark((function t(){var n,o,i,a,c=this;return e().wrap((function(t){for(;;)switch(t.prev=t.next){case 0:return t.next=2,this.init();case 2:null===(n=document.getElementById("authorize-card"))||void 0===n||n.addEventListener("click",(function(t){return c.completePaymentWithoutToken(t)})),null===(o=document.getElementById("pay-now"))||void 0===o||o.addEventListener("click",(function(t){return document.querySelector("input[name=token]").value?c.completePaymentUsingToken(t):c.completePaymentWithoutToken(t)})),Array.from(document.getElementsByClassName("toggle-payment-with-token")).forEach((function(t){return t.addEventListener("click",(function(t){document.getElementById("card-container").classList.add("hidden"),document.getElementById("save-card--container").style.display="none",document.querySelector("input[name=token]").value=t.target.dataset.token}))})),null===(i=document.getElementById("toggle-payment-with-credit-card"))||void 0===i||i.addEventListener("click",function(){var t=r(e().mark((function t(n){return e().wrap((function(t){for(;;)switch(t.prev=t.next){case 0:document.getElementById("card-container").classList.remove("hidden"),document.getElementById("save-card--container").style.display="grid",document.querySelector("input[name=token]").value="";case 3:case"end":return t.stop()}}),t)})));return function(e){return t.apply(this,arguments)}}()),document.querySelector(".toggle-payment-with-token")||null===(a=document.getElementById("toggle-payment-with-credit-card"))||void 0===a||a.click();case 8:case"end":return t.stop()}}),t,this)}))),function(){return c.apply(this,arguments)})}],i&&o(n.prototype,i),a&&o(n,a),Object.defineProperty(n,"prototype",{writable:!1}),t}())).handle()})();
+/******/ (() => { // webpackBootstrap
+var __webpack_exports__ = {};
+/*!*************************************************************!*\
+  !*** ./resources/js/clients/payments/square-credit-card.js ***!
+  \*************************************************************/
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, defineProperty = Object.defineProperty || function (obj, key, desc) { obj[key] = desc.value; }, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return defineProperty(generator, "_invoke", { value: makeInvokeMethod(innerFn, self, context) }), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == _typeof(value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; defineProperty(this, "_invoke", { value: function value(method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; } function maybeInvokeDelegate(delegate, context) { var methodName = context.method, method = delegate.iterator[methodName]; if (undefined === method) return context.delegate = null, "throw" === methodName && delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method) || "return" !== methodName && (context.method = "throw", context.arg = new TypeError("The iterator does not provide a '" + methodName + "' method")), ContinueSentinel; var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, defineProperty(Gp, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), defineProperty(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (val) { var object = Object(val), keys = []; for (var key in object) keys.push(key); return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
+var SquareCreditCard = /*#__PURE__*/function () {
+  function SquareCreditCard() {
+    _classCallCheck(this, SquareCreditCard);
+    this.appId = document.querySelector('meta[name=square-appId]').content;
+    this.locationId = document.querySelector('meta[name=square-locationId]').content;
+    this.isLoaded = false;
+  }
+  _createClass(SquareCreditCard, [{
+    key: "init",
+    value: function () {
+      var _init = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+        var iframeContainer, toggleWithToken;
+        return _regeneratorRuntime().wrap(function _callee$(_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              this.payments = Square.payments(this.appId, this.locationId);
+              _context.next = 3;
+              return this.payments.card();
+            case 3:
+              this.card = _context.sent;
+              _context.next = 6;
+              return this.card.attach('#card-container');
+            case 6:
+              this.isLoaded = true;
+              iframeContainer = document.querySelector('.sq-card-iframe-container');
+              if (iframeContainer) {
+                iframeContainer.setAttribute('style', '150px !important');
+              }
+              toggleWithToken = document.querySelector('.toggle-payment-with-token');
+              if (toggleWithToken) {
+                document.getElementById('card-container').classList.add('hidden');
+              }
+            case 11:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee, this);
+      }));
+      function init() {
+        return _init.apply(this, arguments);
+      }
+      return init;
+    }()
+  }, {
+    key: "completePaymentWithoutToken",
+    value: function () {
+      var _completePaymentWithoutToken = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(e) {
+        var result, verificationToken, verificationDetails, verificationResults, tokenBillingCheckbox;
+        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
+            case 0:
+              document.getElementById('errors').hidden = true;
+              e.target.parentElement.disabled = true;
+              _context2.next = 4;
+              return this.card.tokenize();
+            case 4:
+              result = _context2.sent;
+              _context2.prev = 5;
+              verificationDetails = {
+                amount: document.querySelector('meta[name=amount]').content,
+                billingContact: JSON.parse(document.querySelector('meta[name=square_contact]').content),
+                currencyCode: document.querySelector('meta[name=currencyCode]').content,
+                intent: 'CHARGE'
+              };
+              _context2.next = 9;
+              return this.payments.verifyBuyer(result.token, verificationDetails);
+            case 9:
+              verificationResults = _context2.sent;
+              verificationToken = verificationResults.token;
+              _context2.next = 16;
+              break;
+            case 13:
+              _context2.prev = 13;
+              _context2.t0 = _context2["catch"](5);
+              e.target.parentElement.disabled = true;
+            case 16:
+              document.querySelector('input[name="verificationToken"]').value = verificationToken;
+              if (!(result.status === 'OK')) {
+                _context2.next = 22;
+                break;
+              }
+              document.getElementById('sourceId').value = result.token;
+              tokenBillingCheckbox = document.querySelector('input[name="token-billing-checkbox"]:checked');
+              if (tokenBillingCheckbox) {
+                document.querySelector('input[name="store_card"]').value = tokenBillingCheckbox.value;
+              }
+              return _context2.abrupt("return", document.getElementById('server_response').submit());
+            case 22:
+              document.getElementById('errors').textContent = result.errors[0].message;
+              document.getElementById('errors').hidden = false;
+              e.target.parentElement.disabled = false;
+            case 25:
+            case "end":
+              return _context2.stop();
+          }
+        }, _callee2, this, [[5, 13]]);
+      }));
+      function completePaymentWithoutToken(_x) {
+        return _completePaymentWithoutToken.apply(this, arguments);
+      }
+      return completePaymentWithoutToken;
+    }()
+  }, {
+    key: "completePaymentUsingToken",
+    value: function () {
+      var _completePaymentUsingToken = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(e) {
+        return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+          while (1) switch (_context3.prev = _context3.next) {
+            case 0:
+              e.target.parentElement.disabled = true;
+              return _context3.abrupt("return", document.getElementById('server_response').submit());
+            case 2:
+            case "end":
+              return _context3.stop();
+          }
+        }, _callee3);
+      }));
+      function completePaymentUsingToken(_x2) {
+        return _completePaymentUsingToken.apply(this, arguments);
+      }
+      return completePaymentUsingToken;
+    }() /* SCA */
+  }, {
+    key: "verifyBuyer",
+    value: function () {
+      var _verifyBuyer = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(token) {
+        var verificationDetails, verificationResults;
+        return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+          while (1) switch (_context4.prev = _context4.next) {
+            case 0:
+              verificationDetails = {
+                amount: document.querySelector('meta[name=amount]').content,
+                billingContact: document.querySelector('meta[name=square_contact]').content,
+                currencyCode: document.querySelector('meta[name=currencyCode]').content,
+                intent: 'CHARGE'
+              };
+              _context4.next = 3;
+              return this.payments.verifyBuyer(token, verificationDetails);
+            case 3:
+              verificationResults = _context4.sent;
+              return _context4.abrupt("return", verificationResults.token);
+            case 5:
+            case "end":
+              return _context4.stop();
+          }
+        }, _callee4, this);
+      }));
+      function verifyBuyer(_x3) {
+        return _verifyBuyer.apply(this, arguments);
+      }
+      return verifyBuyer;
+    }()
+  }, {
+    key: "handle",
+    value: function () {
+      var _handle = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7() {
+        var _this = this;
+        return _regeneratorRuntime().wrap(function _callee7$(_context7) {
+          while (1) switch (_context7.prev = _context7.next) {
+            case 0:
+              document.getElementById('payment-list').classList.add('hidden');
+              _context7.next = 3;
+              return this.init().then(function () {
+                var _document$getElementB, _document$getElementB2, _document$getElementB3, _document$getElementB4;
+                (_document$getElementB = document.getElementById('authorize-card')) === null || _document$getElementB === void 0 ? void 0 : _document$getElementB.addEventListener('click', function (e) {
+                  return _this.completePaymentWithoutToken(e);
+                });
+                (_document$getElementB2 = document.getElementById('pay-now')) === null || _document$getElementB2 === void 0 ? void 0 : _document$getElementB2.addEventListener('click', function (e) {
+                  var tokenInput = document.querySelector('input[name=token]');
+                  if (tokenInput.value) {
+                    return _this.completePaymentUsingToken(e);
+                  }
+                  return _this.completePaymentWithoutToken(e);
+                });
+                Array.from(document.getElementsByClassName('toggle-payment-with-token')).forEach(function (element) {
+                  return element.addEventListener('click', /*#__PURE__*/function () {
+                    var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(element) {
+                      return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+                        while (1) switch (_context5.prev = _context5.next) {
+                          case 0:
+                            document.getElementById('card-container').classList.add('hidden');
+                            document.getElementById('save-card--container').style.display = 'none';
+                            document.querySelector('input[name=token]').value = element.target.dataset.token;
+                          case 3:
+                          case "end":
+                            return _context5.stop();
+                        }
+                      }, _callee5);
+                    }));
+                    return function (_x4) {
+                      return _ref.apply(this, arguments);
+                    };
+                  }());
+                });
+                (_document$getElementB3 = document.getElementById('toggle-payment-with-credit-card')) === null || _document$getElementB3 === void 0 ? void 0 : _document$getElementB3.addEventListener('click', /*#__PURE__*/function () {
+                  var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(element) {
+                    return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+                      while (1) switch (_context6.prev = _context6.next) {
+                        case 0:
+                          document.getElementById('card-container').classList.remove('hidden');
+                          document.getElementById('save-card--container').style.display = 'grid';
+                          document.querySelector('input[name=token]').value = '';
+                        case 3:
+                        case "end":
+                          return _context6.stop();
+                      }
+                    }, _callee6);
+                  }));
+                  return function (_x5) {
+                    return _ref2.apply(this, arguments);
+                  };
+                }());
+
+                // let toggleWithToken = document.querySelector(
+                //     '.toggle-payment-with-token'
+                // );
+
+                // if (!toggleWithToken) {
+                document.getElementById('loader').classList.add('hidden');
+                document.getElementById('payment-list').classList.remove('hidden');
+                (_document$getElementB4 = document.getElementById('toggle-payment-with-credit-card')) === null || _document$getElementB4 === void 0 ? void 0 : _document$getElementB4.click();
+                // }
+              });
+            case 3:
+            case "end":
+              return _context7.stop();
+          }
+        }, _callee7, this);
+      }));
+      function handle() {
+        return _handle.apply(this, arguments);
+      }
+      return handle;
+    }()
+  }]);
+  return SquareCreditCard;
+}();
+new SquareCreditCard().handle();
+/******/ })()
+;

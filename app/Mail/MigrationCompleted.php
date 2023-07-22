@@ -53,6 +53,8 @@ class MigrationCompleted extends Mailable
         $data['whitelabel'] = $this->company->account->isPaid() ? true : false;
         $data['check_data'] = $this->check_data ?: '';
         $data['logo'] = $this->company->present()->logo();
+        $data['url'] = Ninja::isHosted() ? config('ninja.react_url') : config('ninja.app_url');
+
 
         $data = array_merge($data, [
             'logo' => $this->company->present()->logo(),

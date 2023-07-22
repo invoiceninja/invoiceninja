@@ -74,7 +74,7 @@ class PurchaseOrderFilters extends QueryFilters
     /**
      * Filter based on search text.
      *
-     * @param string query filter
+     * @param string $filter
      * @return Builder
      * @deprecated
      */
@@ -112,7 +112,7 @@ class PurchaseOrderFilters extends QueryFilters
     /**
      * Sorts the list based on $sort.
      *
-     * @param string sort formatted as column|asc
+     * @param string $sort formatted as column|asc
      * @return Builder
      */
     public function sort(string $sort = ''): Builder
@@ -121,6 +121,11 @@ class PurchaseOrderFilters extends QueryFilters
 
         if (!is_array($sort_col) || count($sort_col) != 2) {
             return $this->builder;
+        }
+
+        if ($sort_col[0] == 'vendor_id') {
+            return $this->builder->orderBy(\App\Models\Vendor::select('name')
+                    ->whereColumn('vendors.id', 'purchase_orders.vendor_id'), $sort_col[1]);
         }
 
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);

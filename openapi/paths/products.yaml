@@ -52,14 +52,26 @@
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/Product"
+              schema:  
+                type: object
+                properties:
+                  data: 
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+                  meta:
+                    type: object
+                    $ref: '#/components/schemas/Meta'
         401:
           $ref: '#/components/responses/401'
         403:
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: '#/components/responses/default'
     post:
@@ -72,6 +84,13 @@
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+      requestBody:
+        description: Product object that needs to be added to the company
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
       responses:
         200:
           description: "Returns the saved product object"
@@ -92,6 +111,10 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: '#/components/responses/default'
   "/api/v1/products/{id}":
@@ -133,6 +156,10 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: '#/components/responses/default'
     put:
@@ -153,6 +180,13 @@
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: Product object that needs to be added to the company
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
       responses:
         200:
           description: "Returns the Product object"
@@ -173,6 +207,10 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: '#/components/responses/default'
     delete:
@@ -209,6 +247,10 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: '#/components/responses/default'
   "/api/v1/products/{id}/edit":
@@ -250,6 +292,10 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: '#/components/responses/default'
   "/api/v1/products/create":
@@ -283,6 +329,10 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: '#/components/responses/default'
 
@@ -291,23 +341,19 @@
       tags:
         - products
       summary: "Bulk product actions"
-      description: "Archive / Restore / Delete in bulk"
+      description: "Archive / Restore / Delete  / Set tax id in bulk"
       operationId: bulkProducts
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "Hashed IDs"
+        description: 'Bulk action array'
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: "[0,1,2,3]"
+              $ref: '#/components/schemas/ProductBulkAction'
       responses:
         200:
           description: "The Product response"
@@ -328,6 +374,10 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: '#/components/responses/default'
 
@@ -384,5 +434,9 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: '#/components/responses/default'

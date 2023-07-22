@@ -33,6 +33,7 @@ class GenericReportRequest extends Request
             'start_date' => 'bail|required_if:date_range,custom|nullable|date',
             'report_keys' => 'present|array',
             'send_email' => 'required|bool',
+            // 'status' => 'sometimes|string|nullable|in:all,draft,sent,viewed,paid,unpaid,overdue',
         ];
     }
 

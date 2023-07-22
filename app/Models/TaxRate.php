@@ -24,8 +24,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $updated_at
  * @property int|null $deleted_at
  * @property string $name
- * @property string $rate
- * @property int $is_deleted
+ * @property float $rate
+ * @property bool $is_deleted
  * @property-read mixed $hashed_id
  * @property-read mixed $tax_rate_id
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()

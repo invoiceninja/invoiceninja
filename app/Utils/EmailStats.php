@@ -28,7 +28,7 @@ class EmailStats
      */
     public static function inc($company_key)
     {
-        Cache::increment(self::EMAIL.$company_key);
+        Cache::increment("email_quota".self::EMAIL.$company_key);
     }
 
     /**

@@ -33,6 +33,7 @@ class ProductFactory extends Factory
             'custom_value3' => $this->faker->text(20),
             'custom_value4' => $this->faker->text(20),
             'is_deleted' => false,
+            'tax_id' => 1,
         ];
     }
 }

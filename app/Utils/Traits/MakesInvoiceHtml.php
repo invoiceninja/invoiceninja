@@ -42,29 +42,31 @@ trait MakesInvoiceHtml
     {
         $data['__env'] = app(Factory::class);
 
-        $php = Blade::compileString($string);
+        return Blade::render($string, $data); //potential fix for removing eval()
 
-        $obLevel = ob_get_level();
-        ob_start();
-        extract($data, EXTR_SKIP);
+        // $php = Blade::compileString($string);
 
-        try {
-            eval('?'.'>'.$php);
-        } catch (Exception $e) {
-            while (ob_get_level() > $obLevel) {
-                ob_end_clean();
-            }
+        // $obLevel = ob_get_level();
+        // ob_start();
+        // extract($data, EXTR_SKIP);
 
-            throw $e;
-        } catch (Throwable $e) {
-            while (ob_get_level() > $obLevel) {
-                ob_end_clean();
-            }
+        // try {
+        //     eval('?'.'>'.$php);
+        // } catch (Exception $e) {
+        //     while (ob_get_level() > $obLevel) {
+        //         ob_end_clean();
+        //     }
 
-            throw new \Exception($e->getMessage());
-        }
+        //     throw $e;
+        // } catch (Throwable $e) {
+        //     while (ob_get_level() > $obLevel) {
+        //         ob_end_clean();
+        //     }
 
-        return ob_get_clean();
+        //     throw new \Exception($e->getMessage());
+        // }
+
+        // return ob_get_clean();
     }
 
     /*

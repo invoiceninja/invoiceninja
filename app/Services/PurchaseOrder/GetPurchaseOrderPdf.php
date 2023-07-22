@@ -11,19 +11,16 @@
 
 namespace App\Services\PurchaseOrder;
 
-use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Models\PurchaseOrder;
 use App\Models\VendorContact;
 use App\Services\AbstractService;
 use Illuminate\Support\Facades\Storage;
+use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 
 class GetPurchaseOrderPdf extends AbstractService
 {
-    public function __construct(PurchaseOrder $purchase_order, VendorContact $contact = null)
+    public function __construct(public PurchaseOrder $purchase_order, public ?VendorContact $contact = null)
     {
-        $this->purchase_order = $purchase_order;
-
-        $this->contact = $contact;
     }
 
     public function run()
@@ -33,6 +30,7 @@ class GetPurchaseOrderPdf extends AbstractService
         }
 
         $invitation = $this->purchase_order->invitations()->where('vendor_contact_id', $this->contact->id)->first();
+
 
         if (! $invitation) {
             $invitation = $this->purchase_order->invitations()->first();

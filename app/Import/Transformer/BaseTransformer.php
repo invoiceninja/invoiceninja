@@ -11,24 +11,27 @@
 
 namespace App\Import\Transformer;
 
-use App\Factory\ExpenseCategoryFactory;
-use App\Factory\ProjectFactory;
-use App\Factory\VendorFactory;
+use App\Models\Quote;
+use App\Utils\Number;
 use App\Models\Client;
-use App\Models\ClientContact;
+use App\Models\Vendor;
 use App\Models\Country;
 use App\Models\Expense;
-use App\Models\ExpenseCategory;
 use App\Models\Invoice;
-use App\Models\PaymentType;
 use App\Models\Product;
 use App\Models\Project;
-use App\Models\Quote;
 use App\Models\TaxRate;
-use App\Models\Vendor;
-use App\Utils\Number;
+use App\Models\PaymentType;
+use App\Models\ClientContact;
+use App\Factory\ClientFactory;
+use App\Factory\VendorFactory;
 use Illuminate\Support\Carbon;
+use App\Factory\ProjectFactory;
+use App\Models\ExpenseCategory;
+use App\Models\RecurringInvoice;
 use Illuminate\Support\Facades\Cache;
+use App\Repositories\ClientRepository;
+use App\Factory\ExpenseCategoryFactory;
 
 /**
  * Class BaseTransformer.
@@ -96,6 +99,80 @@ class BaseTransformer
             : $this->company->settings->currency_id;
     }
 
+    public function getFrequency($frequency = RecurringInvoice::FREQUENCY_MONTHLY): int
+    {
+
+        switch ($frequency) {
+            case RecurringInvoice::FREQUENCY_DAILY:
+            case 'daily':
+                return RecurringInvoice::FREQUENCY_DAILY;
+            case RecurringInvoice::FREQUENCY_WEEKLY:
+            case 'weekly':
+                return RecurringInvoice::FREQUENCY_WEEKLY;
+            case RecurringInvoice::FREQUENCY_TWO_WEEKS:
+            case 'biweekly':
+                return RecurringInvoice::FREQUENCY_TWO_WEEKS;
+            case RecurringInvoice::FREQUENCY_FOUR_WEEKS:
+            case '4weeks':
+                return RecurringInvoice::FREQUENCY_FOUR_WEEKS;
+            case RecurringInvoice::FREQUENCY_MONTHLY:
+            case 'monthly':
+                return RecurringInvoice::FREQUENCY_MONTHLY;
+            case RecurringInvoice::FREQUENCY_TWO_MONTHS:
+            case 'bimonthly':
+                return RecurringInvoice::FREQUENCY_TWO_MONTHS;
+            case RecurringInvoice::FREQUENCY_THREE_MONTHS:
+            case 'quarterly':
+                return RecurringInvoice::FREQUENCY_THREE_MONTHS;
+            case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
+            case '4months':
+                return RecurringInvoice::FREQUENCY_FOUR_MONTHS;
+            case RecurringInvoice::FREQUENCY_SIX_MONTHS:
+            case '6months':
+                return RecurringInvoice::FREQUENCY_SIX_MONTHS;
+            case RecurringInvoice::FREQUENCY_ANNUALLY:
+            case 'yearly':
+                return RecurringInvoice::FREQUENCY_ANNUALLY;
+            case RecurringInvoice::FREQUENCY_TWO_YEARS:
+            case '2years':
+                return RecurringInvoice::FREQUENCY_TWO_YEARS;
+            case RecurringInvoice::FREQUENCY_THREE_YEARS:
+            case '3years':
+                return RecurringInvoice::FREQUENCY_THREE_YEARS;
+            default:
+                return RecurringInvoice::FREQUENCY_MONTHLY;
+        }
+
+    }
+
+    public function getRemainingCycles($remaining_cycles = -1): int
+    {
+        
+        if ($remaining_cycles == 'endless') {
+            return -1;
+        }
+
+        return (int)$remaining_cycles;
+    }
+
+    public function getAutoBillFlag(string $option): string
+    {
+        switch ($option) {
+            case 'off':
+            case 'false':
+                return 'off';
+            case 'always':
+            case 'true':
+                return 'always';
+            case 'optin':
+                return 'opt_in';
+            case 'optout':
+                return 'opt_out';
+            default:
+                return 'off';
+        }
+    }
+
     public function getClient($client_name, $client_email)
     {
         if (! empty($client_name)) {
@@ -129,7 +206,28 @@ class BaseTransformer
             }
         }
 
-        return null;
+        $client_repository = app()->make(ClientRepository::class);
+        $client_repository->import_mode = true;
+
+        $client = $client_repository->save(
+            [
+                'name' => $client_name,
+                'contacts' => [
+                    [
+                        'first_name' => $client_name,
+                        'email' => $client_email,
+                    ],
+                ],
+            ],
+            ClientFactory::create(
+                $this->company->id,
+                $this->company->owner()->id
+            )
+        );
+
+        $client_repository = null;
+        
+        return $client->id;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////
@@ -147,6 +245,15 @@ class BaseTransformer
             ])
             ->exists();
     }
+
+    public function hasClientIdNumber($id_number)
+    {
+        return Client::where('company_id', $this->company->id)
+            ->where('is_deleted', false)
+            ->where('id_number', trim($id_number))
+            ->exists();
+    }
+
 
     /**
      * @param $name
@@ -213,6 +320,21 @@ class BaseTransformer
     }
 
     /**
+     * @param $data
+     * @param $field
+     *
+     * @return float
+     */
+    public function getFloatOrOne($data, $field)
+    {
+        if (array_key_exists($field, $data)) 
+            return Number::parseStringFloat($data[$field]) > 0 ? Number::parseStringFloat($data[$field]) : 1;
+ 
+        return 1;    
+
+    }
+
+    /**
      * @param $name
      *
      * @return int|null
@@ -249,9 +371,9 @@ class BaseTransformer
     /**
      * @param $email
      *
-     * @return ?Contact
+     * @return ?ClientContact
      */
-    public function getContact($email)
+    public function getContact($email): ?ClientContact
     {
         $contact = ClientContact::where('company_id', $this->company->id)
             ->whereRaw("LOWER(REPLACE(`email`, ' ' ,''))  = ?", [
@@ -273,7 +395,8 @@ class BaseTransformer
      */
     public function getCountryId($name)
     {
-        if (strlen($name) == 2) {
+
+        if (strlen(trim($name)) == 2) {
             return $this->getCountryIdBy2($name);
         }
 
@@ -299,7 +422,7 @@ class BaseTransformer
     /**
      * @param $name
      *
-     * @return int
+     * @return float
      */
     public function getTaxRate($name)
     {
@@ -335,12 +458,11 @@ class BaseTransformer
     }
 
     /**
-     * @param $date
-     * @param string $format
+     *
      * @param mixed  $data
      * @param mixed  $field
      *
-     * @return null
+     * @return ?string
      */
     public function getDate($data, $field)
     {
@@ -391,6 +513,22 @@ class BaseTransformer
     public function hasInvoice($invoice_number)
     {
         return Invoice::where('company_id', $this->company->id)
+            ->where('is_deleted', false)
+            ->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [
+                strtolower(str_replace(' ', '', $invoice_number)),
+            ])
+            ->exists();
+    }
+
+
+    /**
+     * @param $invoice_number
+     *
+     * @return bool
+     */
+    public function hasRecurringInvoice($invoice_number)
+    {
+        return RecurringInvoice::where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $invoice_number)),
@@ -486,6 +624,8 @@ class BaseTransformer
      */
     public function getExpenseCategoryId($name)
     {
+        /** @var \App\Models\ExpenseCategory $ec */
+        
         $ec = ExpenseCategory::where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
@@ -493,6 +633,13 @@ class BaseTransformer
             ])
             ->first();
 
+        if($ec)
+            return $ec->id;
+
+        $ec = \App\Factory\ExpenseCategoryFactory::create($this->company->id, $this->company->owner()->id);
+        $ec->name = $name;
+        $ec->save();
+        
         return $ec ? $ec->id : null;
     }
 

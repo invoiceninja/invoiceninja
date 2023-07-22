@@ -35,7 +35,10 @@ trait VerifiesUserEmail
         $user = User::where('confirmation_code', request()->confirmation_code)->first();
 
         if (! $user) {
-            return $this->render('auth.confirmed', ['root' => 'themes', 'message' => ctrans('texts.wrong_confirmation')]);
+            return $this->render('auth.confirmed', [
+                'root' => 'themes', 
+                'message' => ctrans('texts.wrong_confirmation'),
+                'redirect_url' => request()->has('react') ? config('ninja.react_url')."/#/" : url('/')]);
         }
 
         $user->email_verified_at = now();
@@ -46,16 +49,18 @@ trait VerifiesUserEmail
             return $this->render('auth.confirmed', [
                 'root' => 'themes',
                 'message' => ctrans('texts.security_confirmation'),
+                'redirect_url' => request()->has('react') ? config('ninja.react_url')."/#/" : url('/'),
             ]);
         }
 
         if (is_null($user->password) || empty($user->password) || Hash::check('', $user->password)) {
-            return $this->render('auth.confirmation_with_password', ['root' => 'themes', 'user_id' => $user->hashed_id]);
+            return $this->render('auth.confirmation_with_password', ['root' => 'themes', 'user_id' => $user->hashed_id, 'redirect_url' => request()->has('react') ? config('ninja.react_url')."/#/" : url('/')]);
         }
 
         return $this->render('auth.confirmed', [
             'root' => 'themes',
             'message' => ctrans('texts.security_confirmation'),
+            'redirect_url' => request()->has('react') ? config('ninja.react_url')."/#/" : url('/'),
         ]);
     }
 
@@ -84,6 +89,7 @@ trait VerifiesUserEmail
         return $this->render('auth.confirmed', [
             'root' => 'themes',
             'message' => ctrans('texts.security_confirmation'),
+            'redirect_url' => request()->has('react') ? config('ninja.react_url')."/#/" : url('/'),
         ]);
     }
 }

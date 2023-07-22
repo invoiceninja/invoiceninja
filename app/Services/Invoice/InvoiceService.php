@@ -14,10 +14,12 @@ namespace App\Services\Invoice;
 use App\Events\Invoice\InvoiceWasArchived;
 use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Inventory\AdjustProductInventory;
+use App\Jobs\Invoice\CreateEInvoice;
 use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\CompanyGateway;
 use App\Models\Expense;
 use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
 use App\Models\Payment;
 use App\Models\Task;
 use App\Utils\Ninja;
@@ -46,8 +48,15 @@ class InvoiceService
 
         return $this;
     }
-
-    public function applyPaymentAmount($amount, ?string $reference = null)
+    
+    /**
+     * applyPaymentAmount
+     *
+     * @param  float $amount
+     * @param  ?string $reference
+     * @return self
+     */
+    public function applyPaymentAmount($amount, ?string $reference = null): self
     {
         $this->invoice = (new ApplyPaymentAmount($this->invoice, $amount, $reference))->run();
 
@@ -106,7 +115,6 @@ class InvoiceService
      */
     public function applyPayment(Payment $payment, float $payment_amount)
     {
-        // $this->deletePdf();
         $this->invoice = $this->markSent()->save();
 
         $this->invoice = (new ApplyPayment($this->invoice, $payment, $payment_amount))->run();
@@ -182,6 +190,11 @@ class InvoiceService
     public function getInvoiceDeliveryNote(Invoice $invoice, \App\Models\ClientContact $contact = null)
     {
         return (new GenerateDeliveryNote($invoice, $contact))->run();
+    }
+
+    public function getEInvoice($contact = null)
+    {
+        return (new GetInvoiceXInvoice($this->invoice, $contact))->run();
     }
 
     public function sendEmail($contact = null)
@@ -293,7 +306,7 @@ class InvoiceService
         } elseif ($this->invoice->balance < 0 || $this->invoice->balance > 0) {
             $this->invoice->status_id = Invoice::STATUS_SENT;
         }
-        
+
         return $this;
     }
 
@@ -325,7 +338,7 @@ class InvoiceService
                                          return $item;
                                      })->toArray();
 
-        $this->touchPdf();
+        $this->deletePdf();
 
         return $this;
     }
@@ -334,14 +347,38 @@ class InvoiceService
     {
         $this->invoice->load('invitations');
 
+        //30-06-2023
         $this->invoice->invitations->each(function ($invitation) {
             try {
-                if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf')) {
+                // if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf')) {
                     Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf');
-                }
+                // }
 
-                if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf')) {
+                // if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf')) {
+                if (Ninja::isHosted()) {
                     Storage::disk('public')->delete($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf');
+                }
+            } catch (\Exception $e) {
+                nlog($e->getMessage());
+            }
+        });
+
+        return $this;
+    }
+
+    public function deleteEInvoice()
+    {
+        $this->invoice->load('invitations');
+
+        $this->invoice->invitations->each(function ($invitation) {
+            try {
+                // if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
+                    Storage::disk(config('filesystems.default'))->delete($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"));
+                // }
+
+                // if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
+                if (Ninja::isHosted()) {
+                    Storage::disk('public')->delete($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"));
                 }
             } catch (\Exception $e) {
                 nlog($e->getMessage());
@@ -368,7 +405,7 @@ class InvoiceService
                                      })->toArray();
 
         $this->invoice = $this->invoice->calc()->getInvoice();
-        $this->invoice->service()->touchPdf();
+        $this->deletePdf();
 
         /* 24-03-2022 */
         $new_balance = $this->invoice->balance;
@@ -421,14 +458,27 @@ class InvoiceService
             if ($force) {
                 $this->invoice->invitations->each(function ($invitation) {
                     (new CreateEntityPdf($invitation))->handle();
+
+                    if ($invitation->invoice->client->getSetting('enable_e_invoice') && $invitation instanceof InvoiceInvitation)
+                    {
+                        (new CreateEInvoice($invitation->invoice, true))->handle();
+                    }
+
                 });
 
                 return $this;
             }
 
+
             $this->invoice->invitations->each(function ($invitation) {
                 CreateEntityPdf::dispatch($invitation);
+
+                if ($invitation->invoice->client->getSetting('enable_e_invoice') && $invitation instanceof InvoiceInvitation) {
+                    CreateEInvoice::dispatch($invitation->invoice, true);
+                }
+
             });
+
         } catch (\Exception $e) {
             nlog('failed creating invoices in Touch PDF');
         }
@@ -500,7 +550,7 @@ class InvoiceService
         $settings = $this->invoice->client->getMergedSettings();
 
         if (! $this->invoice->design_id) {
-            $this->invoice->design_id = $this->decodePrimaryKey($settings->invoice_design_id);
+            $this->invoice->design_id = intval($this->decodePrimaryKey($settings->invoice_design_id));
         }
 
         if (! isset($this->invoice->footer) || empty($this->invoice->footer)) {

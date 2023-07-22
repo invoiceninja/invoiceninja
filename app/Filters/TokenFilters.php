@@ -36,6 +36,12 @@ class TokenFilters extends QueryFilters
         });
     }
 
+
+    public function is_system(string $value = 'false'): Builder
+    {
+        return $this->builder->where('is_system', $value == 'false' ? false : true);
+    }
+
     /**
      * Sorts the list based on $sort.
      *

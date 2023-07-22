@@ -23,23 +23,20 @@ class TriggeredActions extends AbstractService
 {
     use GeneratesCounter;
 
-    private $request;
-
-    private $invoice;
-
     private bool $updated = false;
 
-    public function __construct(Invoice $invoice, Request $request)
+    public function __construct(private Invoice $invoice, private Request $request)
     {
-        $this->request = $request;
-
-        $this->invoice = $invoice;
     }
 
     public function run()
     {
         if ($this->request->has('auto_bill') && $this->request->input('auto_bill') == 'true') {
-            $this->invoice->service()->autoBill(); //update notification sends automatically for this.
+            try {
+                $this->invoice->service()->autoBill();
+            } catch(\Exception $e) {
+                
+            } //update notification sends automatically for this.
         }
 
         if ($this->request->has('paid') && $this->request->input('paid') == 'true') {
@@ -57,7 +54,7 @@ class TriggeredActions extends AbstractService
         }
 
         if ($this->request->has('send_email') && $this->request->input('send_email') == 'true') {
-            $this->invoice->service()->markSent()->touchPdf()->save();
+            $this->invoice->service()->markSent()->save();
             $this->sendEmail();
             $this->updated = false;
         }

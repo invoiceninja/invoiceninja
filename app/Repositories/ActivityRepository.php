@@ -50,6 +50,9 @@ class ActivityRepository extends BaseRepository
             $activity->{$key} = $value;
         }
 
+        if($entity->company)
+            $activity->account_id = $entity->company->account_id;
+
         if ($token_id = $this->getTokenId($event_vars)) {
             $activity->token_id = $token_id;
         }
@@ -128,7 +131,7 @@ class ActivityRepository extends BaseRepository
 
         $entity_design_id = $entity->design_id ? $entity->design_id : $this->decodePrimaryKey($entity->client->getSetting($entity_design_id));
 
-        $design = Design::find($entity_design_id);
+        $design = Design::withTrashed()->find($entity_design_id);
 
         if (! $entity->invitations()->exists() || ! $design) {
             nlog("No invitations for entity {$entity->id} - {$entity->number}");

@@ -196,7 +196,7 @@ class PreviewPurchaseOrderController extends BaseController
 
             $html = new VendorHtmlEngine($entity_obj->invitations()->first());
 
-            $design = \App\Models\Design::find($entity_obj->design_id);
+            $design = \App\Models\Design::withTrashed()->find($entity_obj->design_id);
 
             /* Catch all in case migration doesn't pass back a valid design */
             if (!$design) {

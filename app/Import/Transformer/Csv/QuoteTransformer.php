@@ -1,10 +1,10 @@
 <?php
 /**
- * client Ninja (https://clientninja.com).
+ * Invoice Ninja (https://invoiceninja.com).
  *
- * @link https://github.com/clientninja/clientninja source repository
+ * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. client Ninja LLC (https://clientninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -114,7 +114,7 @@ class QuoteTransformer extends BaseTransformer
                 $quote_data,
                 'quote.custom_surcharge4'
             ),
-            'exchange_rate' => $this->getString(
+            'exchange_rate' => $this->getFloatOrOne(
                 $quote_data,
                 'quote.exchange_rate'
             ),

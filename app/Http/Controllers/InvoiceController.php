@@ -12,43 +12,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\Invoice\InvoiceWasCreated;
-use App\Events\Invoice\InvoiceWasUpdated;
-use App\Factory\CloneInvoiceFactory;
-use App\Factory\CloneInvoiceToQuoteFactory;
+use App\Utils\Ninja;
+use App\Models\Quote;
+use App\Models\Account;
+use App\Models\Invoice;
+use App\Jobs\Cron\AutoBill;
+use Illuminate\Http\Response;
 use App\Factory\InvoiceFactory;
 use App\Filters\InvoiceFilters;
-use App\Http\Requests\Invoice\ActionInvoiceRequest;
+use App\Utils\Traits\MakesHash;
+use App\Jobs\Invoice\ZipInvoices;
+use App\Services\PdfMaker\PdfMerge;
+use Illuminate\Support\Facades\App;
+use App\Factory\CloneInvoiceFactory;
+use App\Jobs\Invoice\BulkInvoiceJob;
+use App\Utils\Traits\SavesDocuments;
+use App\Jobs\Invoice\UpdateReminders;
+use App\Transformers\QuoteTransformer;
+use App\Repositories\InvoiceRepository;
+use Illuminate\Support\Facades\Storage;
+use App\Transformers\InvoiceTransformer;
+use App\Events\Invoice\InvoiceWasCreated;
+use App\Events\Invoice\InvoiceWasUpdated;
+use App\Factory\CloneInvoiceToQuoteFactory;
 use App\Http\Requests\Invoice\BulkInvoiceRequest;
-use App\Http\Requests\Invoice\CreateInvoiceRequest;
-use App\Http\Requests\Invoice\DestroyInvoiceRequest;
 use App\Http\Requests\Invoice\EditInvoiceRequest;
 use App\Http\Requests\Invoice\ShowInvoiceRequest;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
+use App\Http\Requests\Invoice\ActionInvoiceRequest;
+use App\Http\Requests\Invoice\CreateInvoiceRequest;
 use App\Http\Requests\Invoice\UpdateInvoiceRequest;
-use App\Http\Requests\Invoice\UpdateReminderRequest;
 use App\Http\Requests\Invoice\UploadInvoiceRequest;
-use App\Jobs\Cron\AutoBill;
-use App\Jobs\Invoice\BulkInvoiceJob;
-use App\Jobs\Invoice\StoreInvoice;
-use App\Jobs\Invoice\UpdateReminders;
-use App\Jobs\Invoice\ZipInvoices;
-use App\Jobs\Ninja\TransactionLog;
-use App\Models\Account;
-use App\Models\Client;
-use App\Models\Invoice;
-use App\Models\Quote;
-use App\Models\TransactionEvent;
-use App\Repositories\InvoiceRepository;
-use App\Services\PdfMaker\PdfMerge;
-use App\Transformers\InvoiceTransformer;
-use App\Transformers\QuoteTransformer;
-use App\Utils\Ninja;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\SavesDocuments;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\Invoice\DestroyInvoiceRequest;
+use App\Http\Requests\Invoice\UpdateReminderRequest;
 
 /**
  * Class InvoiceController.
@@ -413,7 +409,7 @@ class InvoiceController extends BaseController
 
         $invoice->service()
                 ->triggeredActions($request)
-                ->touchPdf()
+                ->deletePdf()
                 ->adjustInventory($old_invoice);
 
         event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
@@ -535,7 +531,7 @@ class InvoiceController extends BaseController
         if (Ninja::isHosted() && (stripos($action, 'email') !== false) && !auth()->user()->company()->account->account_sms_verified) {
             return response(['message' => 'Please verify your account to send emails.'], 400);
         }
-            
+
         $invoices = Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
         if (! $invoices) {
@@ -678,7 +674,7 @@ class InvoiceController extends BaseController
             case 'clone_to_invoice':
                 $invoice = CloneInvoiceFactory::create($invoice, auth()->user()->id);
                 return $this->itemResponse($invoice);
-                
+
             case 'clone_to_quote':
                 $quote = CloneInvoiceToQuoteFactory::create($invoice, auth()->user()->id);
 
@@ -745,7 +741,8 @@ class InvoiceController extends BaseController
                 }
                 break;
             case 'cancel':
-                $invoice = $invoice->service()->handleCancellation()->touchPdf()->save();
+                $invoice = $invoice->service()->handleCancellation()->deletePdf()->save();
+                // $invoice = $invoice->service()->handleCancellation()->touchPdf()->save();
 
                 if (! $bulk) {
                     $this->itemResponse($invoice);
@@ -753,33 +750,12 @@ class InvoiceController extends BaseController
                 break;
 
             case 'email':
-                //check query parameter for email_type and set the template else use calculateTemplate
-
-                // if (request()->has('email_type') && in_array(request()->input('email_type'), ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'custom1', 'custom2', 'custom3'])) {
-                if (request()->has('email_type') && property_exists($invoice->company->settings, request()->input('email_type'))) {
-                    $this->reminder_template = $invoice->client->getSetting(request()->input('email_type'));
-                } else {
-                    $this->reminder_template = $invoice->calculateTemplate('invoice');
-                }
-
-                BulkInvoiceJob::dispatch($invoice, $this->reminder_template);
-
-                if (! $bulk) {
-                    return response()->json(['message' => 'email sent'], 200);
-                }
-                break;
-
             case 'send_email':
                 //check query parameter for email_type and set the template else use calculateTemplate
 
+                $template = request()->has('email_type') ? request()->input('email_type') : $invoice->calculateTemplate('invoice');
 
-                if (request()->has('email_type') && property_exists($invoice->company->settings, request()->input('email_type'))) {
-                    $this->reminder_template = $invoice->client->getSetting(request()->input('email_type'));
-                } else {
-                    $this->reminder_template = $invoice->calculateTemplate('invoice');
-                }
-
-                BulkInvoiceJob::dispatch($invoice, $this->reminder_template);
+                BulkInvoiceJob::dispatch($invoice, $template);
 
                 if (! $bulk) {
                     return response()->json(['message' => 'email sent'], 200);
@@ -844,12 +820,82 @@ class InvoiceController extends BaseController
             return response()->json(['message' => 'no record found'], 400);
         }
 
+        $invoice = $invitation->invoice;
+
+        App::setLocale($invitation->contact->preferredLocale());
+
+        $file_name = $invoice->numberFormatter().'.pdf';
+
+        $file = (new \App\Jobs\Entity\CreateRawPdf($invitation, $invitation->company->db))->handle();
+
+        $headers = ['Content-Type' => 'application/pdf'];
+
+        if (request()->input('inline') == 'true') {
+            $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
+        }
+
+        return response()->streamDownload(function () use ($file) {
+            echo $file;
+        }, $file_name, $headers);
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/api/v1/invoice/{invitation_key}/download_e_invoice",
+     *      operationId="downloadXInvoice",
+     *      tags={"invoices"},
+     *      summary="Download a specific x-invoice by invitation key",
+     *      description="Downloads a specific x-invoice",
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="invitation_key",
+     *          in="path",
+     *          description="The Invoice Invitation Key",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the x-invoice pdf",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     * @param $invitation_key
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function downloadEInvoice($invitation_key)
+    {
+        $invitation = $this->invoice_repo->getInvitationByKey($invitation_key);
+
+        if (! $invitation) {
+            return response()->json(['message' => 'no record found'], 400);
+        }
+
         $contact = $invitation->contact;
         $invoice = $invitation->invoice;
 
-        $file = $invoice->service()->getInvoicePdf($contact);
+        $file = $invoice->service()->getEInvoice($contact);
 
-        $headers = ['Content-Type' => 'application/pdf'];
+        $headers = ['Content-Type' => 'application/xml'];
 
         if (request()->input('inline') == 'true') {
             $headers = array_merge($headers, ['Content-Disposition' => 'inline']);

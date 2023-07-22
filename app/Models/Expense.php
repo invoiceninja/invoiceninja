@@ -138,6 +138,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \App\Models\BankTransaction|null $transaction
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @mixin \Eloquent
  */
 class Expense extends BaseModel
@@ -220,6 +225,11 @@ class Expense extends BaseModel
         return $this->belongsTo(Company::class);
     }
 
+    public function invoice()
+    {
+        return $this->belongsTo(Invoice::class);
+    }
+
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);
@@ -258,5 +268,26 @@ class Expense extends BaseModel
     public function project()
     {
         return $this->belongsTo(Project::class);
+    }
+
+    public function transaction()
+    {
+        return $this->belongsTo(BankTransaction::class);
+    }
+
+    public function stringStatus()
+    {
+        if($this->is_deleted) 
+            return ctrans('texts.deleted');
+        elseif($this->payment_date)
+            return ctrans('texts.paid');    
+        elseif($this->invoice_id)
+            return ctrans('texts.invoiced');
+        elseif($this->should_be_invoiced)
+            return ctrans('texts.pending');
+        elseif($this->trashed())
+            return ctrans('texts.archived');
+
+        return ctrans('texts.logged');
     }
 }

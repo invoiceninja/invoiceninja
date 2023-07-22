@@ -37,6 +37,54 @@ class ClientCsvTest extends TestCase
         $this->withoutExceptionHandling();
     }
 
+    public function testRecurringInvoiceExportCsv()
+    {
+        $data = [
+            'date_range' => 'this_year',
+            'report_keys' => [],
+            'send_email' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/recurring_invoices', $data);
+
+        $response->assertStatus(200);
+    }
+
+    public function testVendorExportCsv()
+    {
+        $data = [
+            'date_range' => 'this_year',
+            'report_keys' => [],
+            'send_email' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/vendors', $data);
+
+        $response->assertStatus(200);
+    }
+
+    public function testPurchaseOrderExportCsv()
+    {
+        $data = [
+            'date_range' => 'this_year',
+            'report_keys' => [],
+            'send_email' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/purchase_orders', $data);
+
+        $response->assertStatus(200);
+    }
+
     public function testClientExportCsv()
     {
         $data = [
@@ -65,6 +113,22 @@ class ClientCsvTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/reports/contacts', $data);
+
+        $response->assertStatus(200);
+    }
+
+    public function testActivityExportCsv()
+    {
+        $data = [
+            'date_range' => 'this_year',
+            'report_keys' => [],
+            'send_email' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/activities', $data);
 
         $response->assertStatus(200);
     }

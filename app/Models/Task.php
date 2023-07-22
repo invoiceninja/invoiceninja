@@ -46,7 +46,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $status_order
  * @property-read \App\Models\User|null $assigned_user
  * @property-read \App\Models\Client|null $client
- * @property-read \App\Models\Company $company
+ * @property-read \App\Models\Company|null $company
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read int|null $documents_count
  * @property-read mixed $hashed_id
@@ -54,7 +54,6 @@ use Illuminate\Support\Carbon;
  * @property-read \App\Models\Project|null $project
  * @property-read \App\Models\TaskStatus|null $status
  * @property-read \App\Models\User $user
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Database\Factories\TaskFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Task filter(\App\Filters\QueryFilters $filters)
@@ -92,13 +91,6 @@ use Illuminate\Support\Carbon;
  * @method static \Illuminate\Database\Eloquent\Builder|Task withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Task withoutTrashed()
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @mixin \Eloquent
  */
 class Task extends BaseModel
@@ -135,7 +127,12 @@ class Task extends BaseModel
         return self::class;
     }
 
-    public function company()
+    /**
+     * Get all of the users that belong to the team.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
     }

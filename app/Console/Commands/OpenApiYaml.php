@@ -12,7 +12,6 @@
 namespace App\Console\Commands;
 
 use DirectoryIterator;
-use Faker\Factory;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
@@ -44,8 +43,6 @@ class OpenApiYaml extends Command
      */
     public function __construct()
     {
-        $this->faker = Factory::create();
-
         parent::__construct();
     }
 
@@ -82,6 +79,7 @@ class OpenApiYaml extends Command
         Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/components.yaml'));
 
         Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/components/responses.yaml'));
+        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/components/examples.yaml'));
 
         $directory = new DirectoryIterator($path . '/components/responses/');
 

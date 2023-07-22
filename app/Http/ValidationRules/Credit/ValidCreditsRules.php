@@ -69,13 +69,16 @@ class ValidCreditsRules implements Rule
 
             if (! $cred) {
                 $this->error_msg = ctrans('texts.credit_not_found');
-
                 return false;
             }
 
             if ($cred->client_id != $this->input['client_id']) {
                 $this->error_msg = ctrans('texts.invoices_dont_match_client');
+                return false;
+            }
 
+            if($cred->balance < $credit['amount']) {
+                $this->error_msg = ctrans('texts.insufficient_credit_balance');
                 return false;
             }
         }

@@ -57,14 +57,26 @@
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/Payment"
+              schema:  
+                type: object
+                properties:
+                  data: 
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Payment'
+                  meta:
+                    type: object
+                    $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
     post:
@@ -103,7 +115,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   
@@ -145,7 +161,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
     put:
@@ -185,7 +205,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
     delete:
@@ -221,7 +245,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   "/api/v1/payments/{id}/edit":
@@ -262,7 +290,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   /api/v1/payments/create:
@@ -295,7 +327,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   /api/v1/payments/refund:
@@ -335,7 +371,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   /api/v1/payments/bulk:
@@ -379,7 +419,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   "/api/v1/payments/{id}/{action}":
@@ -429,7 +473,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   
@@ -471,6 +519,10 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"

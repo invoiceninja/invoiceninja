@@ -106,14 +106,26 @@
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/Invoice"
+              schema:  
+                type: object
+                properties:
+                  data: 
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Invoice'
+                  meta:
+                    type: object
+                    $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
     post:
@@ -131,7 +143,7 @@
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/FillableInvoice"
+              $ref: "#/components/schemas/InvoiceRequest"
       responses:
         200:
           description: "Returns the saved invoice entity"
@@ -151,7 +163,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
 
@@ -193,7 +209,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
 
@@ -234,7 +254,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"  
     delete:
@@ -270,7 +294,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   "/api/v1/invoices/{id}/edit":
@@ -311,7 +339,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
 
@@ -345,7 +377,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
 
@@ -428,7 +464,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
 
@@ -490,7 +530,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   "/api/v1/invoice/{invitation_key}/download":
@@ -527,7 +571,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   "/api/v1/invoices/{id}/delivery_note":
@@ -564,7 +612,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   "/api/v1/invoices/{id}/upload":
@@ -622,6 +674,10 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"

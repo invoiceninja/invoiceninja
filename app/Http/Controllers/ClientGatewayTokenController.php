@@ -47,19 +47,14 @@ class ClientGatewayTokenController extends BaseController
     protected $entity_transformer = ClientGatewayTokenTransformer::class;
 
     /**
-     * @var ClientGatewayTokenRepository
-     */
-    protected $client_gateway_token_gateway_token_repo;
-
-    /**
      * ClientGatewayTokenController constructor.
-     * @param ClientGatewayTokenRepository $client_gateway_token_gateway_token_repo
+     * @param ClientGatewayTokenRepository $client_gateway_token_repo
      */
-    public function __construct(ClientGatewayTokenRepository $client_gateway_token_gateway_token_repo)
+    public function __construct(protected ClientGatewayTokenRepository $client_gateway_token_repo)
     {
         parent::__construct();
 
-        $this->client_gateway_token_repo = $client_gateway_token_gateway_token_repo;
+        $this->client_gateway_token_repo = $client_gateway_token_repo;
     }
 
     /**
@@ -69,8 +64,7 @@ class ClientGatewayTokenController extends BaseController
      *      tags={"client_gateway_tokens"},
      *      summary="Gets a list of client_gateway_tokens",
      *      description="Lists client_gateway_tokens, search and filters allow fine grained lists to be generated.
-
-    Query parameters can be added to performed more fine grained filtering of the client_gateway_tokens, these are handled by the ClientGatewayTokenFilters class which defines the methods available",
+     * Query parameters can be added to performed more fine grained filtering of the client_gateway_tokens, these are handled by the ClientGatewayTokenFilters class which defines the methods available",
      *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -94,7 +88,7 @@ class ClientGatewayTokenController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     * @param ClientGatewayTokenFilters $filters
+     * @param ListClientGatewayTokenRequest $request
      * @return Response|mixed
      */
     public function index(ListClientGatewayTokenRequest $request)

@@ -51,10 +51,13 @@ class TranslationsExport extends Command
         'fi',
         'fr',
         'fr_CA',
+        'fr_CH',
         'he',
         'hr',
+        'hu',
         'it',
         'ja',
+        'km_KH',
         'lt',
         'lv_LV',
         'mk_MK',
@@ -134,7 +137,6 @@ class TranslationsExport extends Command
             Storage::disk('local')->makeDirectory("lang/{$lang}");
 
             $translations = Lang::getLoader()->load($lang, 'texts');
-
             Storage::disk('local')->put("lang/{$lang}/{$lang}.json", json_encode(Arr::dot($translations), JSON_UNESCAPED_UNICODE));
         }
     }

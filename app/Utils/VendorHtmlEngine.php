@@ -90,19 +90,14 @@ class VendorHtmlEngine
         switch ($this->invitation) {
             case ($this->invitation instanceof InvoiceInvitation):
                 return 'invoice';
-                break;
             case ($this->invitation instanceof CreditInvitation):
                 return 'credit';
-                break;
             case ($this->invitation instanceof QuoteInvitation):
                 return 'quote';
-                break;
             case ($this->invitation instanceof RecurringInvoiceInvitation):
                 return 'recurring_invoice';
-                break;
             case ($this->invitation instanceof PurchaseOrderInvitation):
                 return 'purchase_order';
-                break;
             default:
                 # code...
                 break;
@@ -113,7 +108,6 @@ class VendorHtmlEngine
     {
         if (! $this->vendor->currency()) {
             throw new Exception(debug_backtrace()[1]['function'], 1);
-            exit;
         }
 
         App::forgetInstance('translator');
@@ -139,16 +133,18 @@ class VendorHtmlEngine
         $data['$partial_due_date'] = ['value' => $this->translateDate($this->entity->partial_due_date, $this->company->date_format(), $this->company->locale()) ?: '&nbsp;', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
         
         $data['$dueDate'] = &$data['$due_date'];
+        $data['$purchase_order.due_date'] = &$data['$due_date'];
 
         $data['$payment_due'] = ['value' => $this->translateDate($this->entity->due_date, $this->company->date_format(), $this->company->locale()) ?: '&nbsp;', 'label' => ctrans('texts.payment_due')];
-        $data['$poNumber'] = ['value' => $this->entity->po_number, 'label' => ctrans('texts.po_number')];
+        $data['$purchase_order.po_number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.po_number')];
+
+        $data['$poNumber'] = &$data['$purchase_order.po_number'];
 
         $data['$entity.datetime'] = ['value' => $this->formatDatetime($this->entity->created_at, $this->company->date_format()), 'label' => ctrans('texts.date')];
 
-        $data['$po_number'] = &$data['$poNumber'];
         $data['$status_logo'] = ['value' => ' ', 'label' => ' '];
         $data['$entity'] = ['value' => '', 'label' => ctrans('texts.purchase_order')];
-        $data['$number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.purchase_order_number')];
+        $data['$number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.number')];
         $data['$number_short'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.purchase_order_number_short')];
         $data['$entity.terms'] = ['value' => Helpers::processReservedKeywords(\nl2br($this->entity->terms), $this->company) ?: '', 'label' => ctrans('texts.invoice_terms')];
         $data['$terms'] = &$data['$entity.terms'];
@@ -161,7 +157,6 @@ class VendorHtmlEngine
 
         $data['$purchase_order.number'] = &$data['$number'];
         $data['$purchase_order.date'] = &$data['$date'];
-        $data['$purchase_order.po_number'] = &$data['$poNumber'];
         $data['$purchase_order.due_date'] = &$data['$due_date'];
         $data['$entity_issued_to'] = ['value' => '', 'label' => ctrans("texts.purchase_order_issued_to")];
 
@@ -195,8 +190,9 @@ class VendorHtmlEngine
             }
         }
 
-        // $data['$balance_due'] = $data['$balance_due'];
         $data['$outstanding'] = &$data['$balance_due'];
+        $data['$purchase_order.balance_due'] = &$data['$balance_due'];
+        
         $data['$partial_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
         $data['$partial'] = &$data['$partial_due'];
 
@@ -389,7 +385,7 @@ class VendorHtmlEngine
         $data['$font_name'] = ['value' => Helpers::resolveFont($this->settings->primary_font)['name'], 'label' => ''];
         $data['$font_url'] = ['value' => Helpers::resolveFont($this->settings->primary_font)['url'], 'label' => ''];
 
-        $data['$invoiceninja.whitelabel'] = ['value' => 'https://raw.githubusercontent.com/invoiceninja/invoiceninja/v5-develop/public/images/new_logo.png', 'label' => ''];
+        $data['$invoiceninja.whitelabel'] = ['value' => 'https://invoicing.co/images/new_logo.png', 'label' => ''];
 
         $data['$primary_color'] = ['value' => $this->settings->primary_color, 'label' => ''];
         $data['$secondary_color'] = ['value' => $this->settings->secondary_color, 'label' => ''];
@@ -606,6 +602,8 @@ class VendorHtmlEngine
      * @return string a collection of <tr> rows with line item
      * aggregate data
      */
+
+     /*
     private function makeLineTaxes() :string
     {
         $tax_map = $this->entity_calc->getTaxMap();
@@ -621,18 +619,6 @@ class VendorHtmlEngine
         return $data;
     }
 
-    private function lineTaxValues() :string
-    {
-        $tax_map = $this->entity_calc->getTaxMap();
-
-        $data = '';
-
-        foreach ($tax_map as $tax) {
-            $data .= '<span>'.Number::formatMoney($tax['total'], $this->company).'</span>';
-        }
-
-        return $data;
-    }
 
     private function makeTotalTaxes() :string
     {
@@ -658,21 +644,13 @@ class VendorHtmlEngine
 
         return strtr($section, $values);
     }
-
-    /*
-    | Ensures the URL doesn't have duplicated trailing slash
-    */
-    public function generateAppUrl()
-    {
-        //return rtrim(config('ninja.app_url'), "/");
-        return config('ninja.app_url');
-    }
+        */
 
     /**
      * Builds CSS to assist with the generation
      * of Repeating headers and footers on the PDF.
      * @return string The css string
-     */
+     
     private function generateCustomCSS() :string
     {
         $header_and_footer = '
@@ -764,6 +742,31 @@ html {
 
         return $css;
     }
+*/
+
+    private function lineTaxValues() :string
+    {
+        $tax_map = $this->entity_calc->getTaxMap();
+
+        $data = '';
+
+        foreach ($tax_map as $tax) {
+            $data .= '<span>'.Number::formatMoney($tax['total'], $this->company).'</span>';
+        }
+
+        return $data;
+    }
+
+    /*
+    | Ensures the URL doesn't have duplicated trailing slash
+    */
+    public function generateAppUrl()
+    {
+        //return rtrim(config('ninja.app_url'), "/");
+        return config('ninja.app_url');
+    }
+
+
 
     /**
      * Generate markup for HTML images on entity.
@@ -839,14 +842,14 @@ html {
         ';
 
 
-        return '
-            <table border="0" cellspacing="0" cellpadding="0" align="center">
-                <tr style="border: 0 !important; ">
-                    <td class="new_button" style="padding: 12px 18px 12px 18px; border-radius:5px;" align="center"> 
-                    <a href="'. $link .'" target="_blank" style="border: 0 !important;font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; display: inline-block;">'. $text .'</a>
-                    </td>
-                </tr>
-            </table>
-        ';
+        // return '
+        //     <table border="0" cellspacing="0" cellpadding="0" align="center">
+        //         <tr style="border: 0 !important; ">
+        //             <td class="new_button" style="padding: 12px 18px 12px 18px; border-radius:5px;" align="center"> 
+        //             <a href="'. $link .'" target="_blank" style="border: 0 !important;font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; display: inline-block;">'. $text .'</a>
+        //             </td>
+        //         </tr>
+        //     </table>
+        // ';
     }
 }

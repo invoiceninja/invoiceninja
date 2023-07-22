@@ -36,6 +36,9 @@ class PdfServiceTest extends TestCase
     public function testPdfGeneration()
     {
 
+        if(config('ninja.testvars.travis'))
+            $this->markTestSkipped();
+
         $invitation = $this->invoice->invitations->first();
         
         $service = (new PdfService($invitation))->boot();

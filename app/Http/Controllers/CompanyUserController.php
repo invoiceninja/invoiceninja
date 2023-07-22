@@ -11,12 +11,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CompanyUser\UpdateCompanyUserRequest;
-use App\Models\CompanyUser;
 use App\Models\User;
+use App\Models\CompanyUser;
+use Illuminate\Http\Response;
+use App\Transformers\UserTransformer;
 use App\Transformers\CompanyUserTransformer;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Response;
+use App\Http\Requests\CompanyUser\UpdateCompanyUserRequest;
+use App\Http\Requests\CompanyUser\UpdateCompanyUserPreferencesRequest;
 
 class CompanyUserController extends BaseController
 {
@@ -130,6 +132,29 @@ class CompanyUserController extends BaseController
 
         return $this->itemResponse($company_user->fresh());
     }
+
+    public function updatePreferences(UpdateCompanyUserPreferencesRequest $request, User $user)
+    {
+        /** @var \App\Models\User $logged_in_user */
+        $company = auth()->user()->company();
+
+        $company_user = CompanyUser::whereUserId($user->id)->whereCompanyId($company->id)->first();
+
+        if (! $company_user) {
+            throw new ModelNotFoundException(ctrans('texts.company_user_not_found'));
+            return;
+        }
+
+        $this->entity_type = User::class;
+
+        $this->entity_transformer = UserTransformer::class;
+
+        $company_user->react_settings = $request->react_settings;
+        $company_user->save();
+        
+        return $this->itemResponse($user->fresh());
+    }
+
 
     /**
      * Remove the specified resource from storage.

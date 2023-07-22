@@ -30,12 +30,18 @@ class StoreInvoiceRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('create', Invoice::class);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('create', Invoice::class);
     }
 
     public function rules()
     {
         $rules = [];
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
         if ($this->file('documents') && is_array($this->file('documents'))) {
             $rules['documents.*'] = $this->file_validation;
@@ -49,12 +55,11 @@ class StoreInvoiceRequest extends Request
             $rules['file'] = $this->file_validation;
         }
 
-        $rules['client_id'] = 'bail|required|exists:clients,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
-        // $rules['client_id'] = ['required', Rule::exists('clients')->where('company_id', auth()->user()->company()->id)];
+        $rules['client_id'] = 'bail|required|exists:clients,id,company_id,'.$user->company()->id.',is_deleted,0';
 
         $rules['invitations.*.client_contact_id'] = 'distinct';
 
-        $rules['number'] = ['bail', 'nullable', Rule::unique('invoices')->where('company_id', auth()->user()->company()->id)];
+        $rules['number'] = ['bail', 'nullable', Rule::unique('invoices')->where('company_id', $user->company()->id)];
 
         $rules['project_id'] = ['bail', 'sometimes', new ValidProjectForClient($this->all())];
         $rules['is_amount_discount'] = ['boolean'];
@@ -67,7 +72,8 @@ class StoreInvoiceRequest extends Request
         $rules['tax_name1'] = 'bail|sometimes|string|nullable';
         $rules['tax_name2'] = 'bail|sometimes|string|nullable';
         $rules['tax_name3'] = 'bail|sometimes|string|nullable';
-        
+        $rules['exchange_rate'] = 'bail|sometimes|gt:0';
+
         return $rules;
     }
 

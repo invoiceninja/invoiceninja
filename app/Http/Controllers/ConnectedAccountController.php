@@ -38,7 +38,7 @@ class ConnectedAccountController extends BaseController
      * Connect an OAuth account to a regular email/password combination account
      *
      * @param Request $request
-     * @return User Refresh Feed.
+     * @return JsonResponse.
      *
      *
      * @OA\Post(
@@ -90,14 +90,15 @@ class ConnectedAccountController extends BaseController
 
     private function handleMicrosoftOauth($request)
     {
-        nlog($request->all());
+        $access_token = false;
+        $access_token = $request->has('access_token') ? $request->input('access_token') : $request->input('accessToken');
 
-        if (!$request->has('access_token')) {
+        if (!$access_token) {
             return response()->json(['message' => 'No access_token parameter found!'], 400);
         }
 
         $graph = new \Microsoft\Graph\Graph();
-        $graph->setAccessToken($request->input('access_token'));
+        $graph->setAccessToken($access_token);
 
         $user = $graph->createRequest("GET", "/me")
                       ->setReturnType(Model\User::class)
@@ -203,10 +204,10 @@ class ConnectedAccountController extends BaseController
             $connected_account = [
                 'email' => $google->harvestEmail($user),
                 'oauth_user_id' => $google->harvestSubField($user),
-                'oauth_user_token' => $token,
-                'oauth_user_refresh_token' => $refresh_token,
+                // 'oauth_user_token' => $token,
+                // 'oauth_user_refresh_token' => $refresh_token,
                 'oauth_provider_id' => 'google',
-                'email_verified_at' =>now(),
+                // 'email_verified_at' =>now(),
             ];
 
             if (auth()->user()->email != $google->harvestEmail($user)) {
@@ -215,6 +216,9 @@ class ConnectedAccountController extends BaseController
 
             auth()->user()->update($connected_account);
             auth()->user()->email_verified_at = now();
+            auth()->user()->oauth_user_token = $token;
+            auth()->user()->oauth_user_refresh_token = $refresh_token;
+
             auth()->user()->save();
 
             $this->activateGmail(auth()->user());

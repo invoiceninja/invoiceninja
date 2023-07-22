@@ -62,35 +62,9 @@ class PreviewController extends BaseController
     /**
      * Returns a template filled with entity variables.
      *
-     * @return \Illuminate\Http\Response
-     *
-     * @OA\Post(
-     *      path="/api/v1/preview",
-     *      operationId="getPreview",
-     *      tags={"preview"},
-     *      summary="Returns a pdf preview",
-     *      description="Returns a pdf preview.",
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Response(
-     *          response=200,
-     *          description="The pdf response",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
+     * @return mixed
      */
+
     public function show()
     {
         if (request()->has('entity') &&
@@ -154,10 +128,17 @@ class PreviewController extends BaseController
                 return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
             }
 
+
+            /** @var \App\Models\User $user */
+            $user = auth()->user();
+
+            $company = $user->company();
+
             if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
+
                 $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
 
-                $numbered_pdf = $this->pageNumbering($pdf, auth()->user()->company());
+                $numbered_pdf = $this->pageNumbering($pdf, $company);
 
                 if ($numbered_pdf) {
                     $pdf = $numbered_pdf;
@@ -166,9 +147,8 @@ class PreviewController extends BaseController
                 return $pdf;
             }
 
-            //else
+            $file_path = (new PreviewPdf($maker->getCompiledHTML(true), $company))->handle();
 
-            $file_path = (new PreviewPdf($maker->getCompiledHTML(true), auth()->user()->company()))->handle();
             return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
         }
 
@@ -177,11 +157,13 @@ class PreviewController extends BaseController
 
     public function design(DesignPreviewRequest $request)
     {
-        // if (Ninja::isHosted() && !in_array($request->getHost(), ['preview.invoicing.co','staging.invoicing.co'])) {
-        //     return response()->json(['message' => 'This server cannot handle this request.'], 400);
-        // }
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
-        $pdf = (new PdfMock($request->all(), auth()->user()->company()))->build()->getPdf();
+        /** @var \App\Models\Company $company */
+        $company = $user->company();
+
+        $pdf = (new PdfMock($request->all(), $company))->build()->getPdf();
 
         $response = Response::make($pdf, 200);
         $response->header('Content-Type', 'application/pdf');
@@ -194,8 +176,13 @@ class PreviewController extends BaseController
         if (Ninja::isHosted() && !in_array($request->getHost(), ['preview.invoicing.co','staging.invoicing.co'])) {
             return response()->json(['message' => 'This server cannot handle this request.'], 400);
         }
-        
-        $company = auth()->user()->company();
+     
+        $start = microtime(true);
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $company = $user->company();
 
         MultiDB::setDb($company->db);
 
@@ -221,6 +208,8 @@ class PreviewController extends BaseController
             DB::connection(config('database.default'))->beginTransaction();
 
             if ($request->has('entity_id')) {
+
+                /** @var \App\Models\BaseModel $class */
                 $entity_obj = $class::on(config('database.default'))
                                     ->with('client.company')
                                     ->where('id', $this->decodePrimaryKey($request->input('entity_id')))
@@ -250,7 +239,7 @@ class PreviewController extends BaseController
 
             $html = new HtmlEngine($entity_obj->invitations()->first());
 
-            $design = \App\Models\Design::find($entity_obj->design_id);
+            $design = \App\Models\Design::withTrashed()->find($entity_obj->design_id);
 
             /* Catch all in case migration doesn't pass back a valid design */
             if (! $design) {
@@ -296,7 +285,7 @@ class PreviewController extends BaseController
                 return $maker->getCompiledHTML();
             }
         } catch(\Exception $e) {
-            nlog($e->getMessage());
+            // nlog($e->getMessage());
             DB::connection(config('database.default'))->rollBack();
 
             return;
@@ -307,13 +296,16 @@ class PreviewController extends BaseController
                 return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
             }
             
+            /** @var \App\Models\User $user */
+            $user = auth()->user();
+
+            /** @var \App\Models\Company $company */
+            $company = $user->company();
+
             if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
                 $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
 
-                $numbered_pdf = $this->pageNumbering($pdf, auth()->user()->company());
-
-
-                $numbered_pdf = $this->pageNumbering($pdf, auth()->user()->company());
+                $numbered_pdf = $this->pageNumbering($pdf, $company);
 
                 if ($numbered_pdf) {
                     $pdf = $numbered_pdf;
@@ -332,17 +324,26 @@ class PreviewController extends BaseController
 
         $response = Response::make($file_path, 200);
         $response->header('Content-Type', 'application/pdf');
+        $response->header('Server-Timing', microtime(true)-$start);
+
 
         return $response;
     }
 
     private function blankEntity()
     {
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        /** @var \App\Models\Company $company */
+        $company = $user->company();
+
         App::forgetInstance('translator');
         $t = app('translator');
-        $t->replace(Ninja::transformTranslations(auth()->user()->company()->settings));
+        $t->replace(Ninja::transformTranslations($company->settings));
 
-        $invitation = InvoiceInvitation::where('company_id', auth()->user()->company()->id)->orderBy('id', 'desc')->first();
+        $invitation = InvoiceInvitation::where('company_id', $company->id)->orderBy('id', 'desc')->first();
 
         /* If we don't have a valid invitation in the system - create a mock using transactions */
         if (! $invitation) {
@@ -384,10 +385,16 @@ class PreviewController extends BaseController
             return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
         }
 
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        /** @var \App\Models\Company $company */
+        $company = $user->company();
+
         if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
             $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
 
-            $numbered_pdf = $this->pageNumbering($pdf, auth()->user()->company());
+            $numbered_pdf = $this->pageNumbering($pdf, $company);
 
             if ($numbered_pdf) {
                 $pdf = $numbered_pdf;
@@ -396,7 +403,7 @@ class PreviewController extends BaseController
             return $pdf;
         }
 
-        $file_path = (new PreviewPdf($maker->getCompiledHTML(true), auth()->user()->company()))->handle();
+        $file_path = (new PreviewPdf($maker->getCompiledHTML(true), $company))->handle();
 
         $response = Response::make($file_path, 200);
         $response->header('Content-Type', 'application/pdf');
@@ -406,40 +413,51 @@ class PreviewController extends BaseController
 
     private function mockEntity()
     {
-        DB::connection(auth()->user()->company()->db)->beginTransaction();
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
+        /** @var \App\Models\Company $company */
+        $company = $user->company();
+
+
+        DB::connection($company->db)->beginTransaction();
+
+        /** @var \App\Models\Client $client */
         $client = Client::factory()->create([
             'user_id' => auth()->user()->id,
-            'company_id' => auth()->user()->company()->id,
+            'company_id' => $company->id,
         ]);
 
+        /** @var \App\Models\ClientContact $contact */
         $contact = ClientContact::factory()->create([
             'user_id' => auth()->user()->id,
-            'company_id' => auth()->user()->company()->id,
+            'company_id' => $company->id,
             'client_id' => $client->id,
             'is_primary' => 1,
             'send_email' => true,
         ]);
 
+        /** @var \App\Models\Invoice $invoice */
+
         $invoice = Invoice::factory()->create([
             'user_id' => auth()->user()->id,
-            'company_id' => auth()->user()->company()->id,
+            'company_id' => $company->id,
             'client_id' => $client->id,
-            'terms' => auth()->user()->company()->settings->invoice_terms,
-            'footer' => auth()->user()->company()->settings->invoice_footer,
+            'terms' => $company->settings->invoice_terms,
+            'footer' => $company->settings->invoice_footer,
             'public_notes' => 'Sample Public Notes',
         ]);
 
         $invitation = InvoiceInvitation::factory()->create([
             'user_id' => auth()->user()->id,
-            'company_id' => auth()->user()->company()->id,
+            'company_id' => $company->id,
             'invoice_id' => $invoice->id,
             'client_contact_id' => $contact->id,
         ]);
 
         $invoice->setRelation('invitations', $invitation);
         $invoice->setRelation('client', $client);
-        $invoice->setRelation('company', auth()->user()->company());
+        $invoice->setRelation('company', $company);
         $invoice->load('client.company');
 
         $design_object = json_decode(json_encode(request()->input('design')));
@@ -469,7 +487,7 @@ class PreviewController extends BaseController
             ->design($design)
             ->build();
 
-        DB::connection(auth()->user()->company()->db)->rollBack();
+        DB::connection($company->db)->rollBack();
 
         if (request()->query('html') == 'true') {
             return $maker->getCompiledHTML();
@@ -482,7 +500,7 @@ class PreviewController extends BaseController
         if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
             $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
 
-            $numbered_pdf = $this->pageNumbering($pdf, auth()->user()->company());
+            $numbered_pdf = $this->pageNumbering($pdf, $company);
 
             if ($numbered_pdf) {
                 $pdf = $numbered_pdf;
@@ -491,8 +509,7 @@ class PreviewController extends BaseController
             return $pdf;
         }
 
-
-        $file_path = (new PreviewPdf($maker->getCompiledHTML(true), auth()->user()->company()))->handle();
+        $file_path = (new PreviewPdf($maker->getCompiledHTML(true), $company))->handle();
 
         $response = Response::make($file_path, 200);
         $response->header('Content-Type', 'application/pdf');

@@ -68,7 +68,7 @@ class EmailMailable extends Mailable
             view: $this->email_object->html_template,
             text: $this->email_object->text_template,
             with: [
-                'text_body' => strip_tags($this->email_object->body), //@todo this is a bit hacky here.
+                'text_body' => $this->email_object->text_body, //@todo this is a bit hacky here.
                 'body' => $this->email_object->body,
                 'settings' => $this->email_object->settings,
                 'whitelabel' => $this->email_object->whitelabel,

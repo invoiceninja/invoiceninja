@@ -11,151 +11,213 @@
 
 namespace App\DataMapper\Tax\US;
 
-use App\Models\Client;
-use App\Models\Product;
+use App\DataMapper\Tax\BaseRule;
 use App\DataMapper\Tax\RuleInterface;
-use App\DataMapper\Tax\ZipTax\Response;
+use App\Models\Product;
 
-class Rule implements RuleInterface
+/**
+ * The rules apply US => US taxes using the tax calculator.
+ *
+ * US => Foreign taxes we check the product types still for exemptions, and we all back to the client country tax rate.
+ */
+class Rule extends BaseRule implements RuleInterface
 {
 
-    public string $tax_name1 = '';
-    public float $tax_rate1 = 0;
-
-    public string $tax_name2 = '';
-    public float $tax_rate2 = 0;
+    /** @var string $seller_region */
+    public string $seller_region = 'US';
     
-    public string $tax_name3 = '';
-    public float $tax_rate3 = 0;
+    /**
+     * Initializes the rules and builds any required data.
+     *
+     * @return self
+     */
+    public function init(): self
+    {
+        $this->calculateRates();
+
+        return $this;
+    }
     
-    public ?Client $client;
-
-    public ?Response $tax_data;
-
-    public function __construct()
-    {
-    }
-
-    public function override() 
-    { 
-        return $this;
-    }
-
-    public function setTaxData(Response $tax_data): self
-    {
-        $this->tax_data = $tax_data;
-
-        return $this;
-    }
-
-    public function setClient(Client $client):self 
-    {
-        $this->client = $client;
-
-        return $this;
-    }
-
-    public function tax($type): self
+    /**
+     * Override tax class, we use this when we do not modify the input taxes
+     *
+     * @param  mixed $item
+     * @return self
+     */
+    public function override($item): self
     {
         
-        if ($this->client->is_tax_exempt) {
-            return $this->taxExempt();
-        }
-        else if($this->client->company->tax_data->regions->US->tax_all){
-
-            $this->tax_rate1 = $this->tax_data->taxSales * 100;
-            $this->tax_name1 = "{$this->tax_data->geoState} Sales Tax";
-
-            return $this;
-        }
-
-        if($type)
-            return $this->taxByType($type);
+        $this->tax_rate1 = $item->tax_rate1;
+        $this->tax_name1 = $item->tax_name1;
 
         return $this;
 
     }
-
-    public function taxByType($product_tax_type): self
+    
+    /**
+     * Sets the correct tax rate based on the product type.
+     *
+     * @param  mixed $item
+     * @return self
+     */
+    public function taxByType($item): self
     {
-        if(!$product_tax_type)
-            return $this;
 
-        match($product_tax_type){
-            Product::PRODUCT_TYPE_EXEMPT => $this->taxExempt(),
-            Product::PRODUCT_TYPE_DIGITAL => $this->taxDigital(),
-            Product::PRODUCT_TYPE_SERVICE => $this->taxService(),
-            Product::PRODUCT_TYPE_SHIPPING => $this->taxShipping(),
-            Product::PRODUCT_TYPE_PHYSICAL => $this->taxPhysical(),
-            Product::PRODUCT_TYPE_REDUCED_TAX => $this->taxReduced(),
-            Product::PRODUCT_TYPE_OVERRIDE_TAX => $this->override(),
-            default => $this->default(),
+        match(intval($item->tax_id)) {
+            Product::PRODUCT_TYPE_EXEMPT => $this->taxExempt($item),
+            Product::PRODUCT_TYPE_DIGITAL => $this->taxDigital($item),
+            Product::PRODUCT_TYPE_SERVICE => $this->taxService($item),
+            Product::PRODUCT_TYPE_SHIPPING => $this->taxShipping($item),
+            Product::PRODUCT_TYPE_PHYSICAL => $this->taxPhysical($item),
+            Product::PRODUCT_TYPE_REDUCED_TAX => $this->taxReduced($item),
+            Product::PRODUCT_TYPE_OVERRIDE_TAX => $this->override($item), 
+            Product::PRODUCT_TYPE_ZERO_RATED => $this->zeroRated($item),
+            default => $this->default($item),
         };
         
         return $this;
     }
-
-    public function taxExempt(): self
+    
+    /**
+     * Sets the tax as exempt (0)
+     * @param  mixed $item
+     *
+     * @return self
+     */
+    public function taxExempt($item): self
     {
         $this->tax_name1 = '';
         $this->tax_rate1 = 0;
 
         return $this;
     }
-
-    public function taxDigital(): self
+    
+    /**
+     * Calculates the tax rate for a digital product
+     * @param  mixed $item
+     *
+     * @return self
+     */
+    public function taxDigital($item): self
     {
-        $this->default();
+        $this->default($item);
 
         return $this;
     }
-
-    public function taxService(): self
+    
+    /**
+     * Calculates the tax rate for a service product
+     * @param  mixed $item
+     *
+     * @return self
+     */
+    public function taxService($item): self
     {
-        if($this->tax_data->txbService == 'Y')
-            $this->default();
+        if(in_array($this->tax_data?->txbService,['Y','L'])) {
+            $this->default($item);
+        }
+        else {
+            $this->taxExempt($item);
+        }
 
         return $this;
     }
-
-    public function taxShipping(): self
+    
+    /**
+     * Calculates the tax rate for a shipping product
+     * @param  mixed $item
+     *
+     * @return self
+     */
+    public function taxShipping($item): self
     {
-        if($this->tax_data->txbFreight == 'Y')
-            $this->default();
+        if($this->tax_data?->txbFreight == 'Y') {
+            return $this->default($item);
+        }
+
+        $this->tax_rate1 = 0;
+        $this->tax_name1 = '';
+        
+        return $this;
+    }
+    
+    /**
+     * Calculates the tax rate for a physical product
+     * @param  mixed $item
+     *
+     * @return self
+     */
+    public function taxPhysical($item): self
+    {
+        $this->default($item);
 
         return $this;
     }
-
-    public function taxPhysical(): self
+    
+    /**
+     * Calculates the tax rate for an undefined product uses the default tax rate for the client county
+     *
+     * @return self
+     */
+    public function default($item): self
     {
-        $this->default();
+        
+        if($this->tax_data?->stateSalesTax == 0) {
 
-        return $this;
-    }
+            $this->tax_rate1 = 0;
+            $this->tax_name1 = '';
 
-    public function default(): self
-    {
-                
+            return $this;
+        }
+
         $this->tax_rate1 = $this->tax_data->taxSales * 100;
-        $this->tax_name1 = "{$this->tax_data->geoState} Sales Tax";
+        $this->tax_name1 = "Sales Tax";
 
         return $this;
     }
-
-    public function taxReduced(): self
+    
+    public function zeroRated($item): self
     {
-        $this->default();
+
+        $this->tax_rate1 = 0;
+        $this->tax_name1 = "{$this->tax_data->geoState} Zero Rated Tax";
 
         return $this;
+
     }
 
-    public function init(): self
+    /**
+     * Calculates the tax rate for a reduced tax product
+     *
+     * @return self
+     */
+    public function taxReduced($item): self
     {
+        $this->default($item);
+
         return $this;
     }
 
+    /**
+     * Calculates the tax rate for a reverse tax product
+     *
+     * @return self
+     */
+    public function reverseTax($item): self
+    {
+        $this->default($item);
+
+        return $this;
+    }
+
+    /**
+     * Calculates the tax rates to be applied
+     *
+     * @return self
+     */
     public function calculateRates(): self
     {
         return $this;
     }
+
 }

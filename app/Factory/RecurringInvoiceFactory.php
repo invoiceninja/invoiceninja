@@ -57,5 +57,6 @@ class RecurringInvoiceFactory
         $invoice->auto_bill = 'off';
 
         return $invoice;
+        
     }
 }

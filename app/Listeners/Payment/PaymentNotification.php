@@ -56,8 +56,39 @@ class PaymentNotification implements ShouldQueue
             $this->trackRevenue($event);
         }
 
-        if($payment->is_manual)
+        /* Manual Payment Notifications */
+        if($payment->is_manual){
+
+            foreach ($payment->company->company_users as $company_user) {
+                $user = $company_user->user;
+
+                $methods = $this->findUserEntityNotificationType(
+                    $payment,
+                    $company_user,
+                    [
+                    'payment_manual',
+                    'payment_manual_all',
+                    'payment_manual_user',
+                    'all_notifications', ]
+                );
+
+                if (($key = array_search('mail', $methods)) !== false) {
+                    unset($methods[$key]);
+
+                    $nmo = new NinjaMailerObject;
+                    $nmo->mailable = new NinjaMailer((new EntityPaidObject($payment, $company_user->portalType()))->build());
+                    $nmo->company = $event->company;
+                    $nmo->settings = $event->company->settings;
+                    $nmo->to_user = $user;
+
+                    (new NinjaMailerJob($nmo))->handle();
+
+                    $nmo = null;
+                }
+            }
+
             return;
+        }
 
         /*User notifications*/
         foreach ($payment->company->company_users as $company_user) {
@@ -77,7 +108,7 @@ class PaymentNotification implements ShouldQueue
                 unset($methods[$key]);
 
                 $nmo = new NinjaMailerObject;
-                $nmo->mailable = new NinjaMailer((new EntityPaidObject($payment))->build());
+                $nmo->mailable = new NinjaMailer((new EntityPaidObject($payment, $company_user->portalType()))->build());
                 $nmo->company = $event->company;
                 $nmo->settings = $event->company->settings;
                 $nmo->to_user = $user;
@@ -130,11 +161,12 @@ class PaymentNotification implements ShouldQueue
     }
 
     /**
-     * @param $data
+     * @param string $url
      */
-    private function sendAnalytics($data)
-    {
-        $data = utf8_encode($data);
+    private function sendAnalytics($url)
+    {   
+        $data = mb_convert_encoding($url, 'UTF-8');
+        // $data = utf8_encode($data);
         $curl = curl_init();
 
         $opts = [

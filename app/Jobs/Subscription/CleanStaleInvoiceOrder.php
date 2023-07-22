@@ -19,6 +19,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Auth;
 
 class CleanStaleInvoiceOrder implements ShouldQueue
 {
@@ -39,6 +40,8 @@ class CleanStaleInvoiceOrder implements ShouldQueue
     {
         nlog("Cleaning Stale Invoices:");
         
+        Auth::logout();
+    
         if (! config('ninja.db.multi_db_enabled')) {
             Invoice::query()
                     ->withTrashed()
@@ -53,7 +56,7 @@ class CleanStaleInvoiceOrder implements ShouldQueue
             Invoice::query()
                    ->withTrashed()
                    ->where('status_id', Invoice::STATUS_SENT)
-                   ->where('created_at', '<', now()->subHours(2))
+                   ->whereBetween('created_at', [now()->subHours(1), now()->subMinutes(10)])
                    ->where('balance', '>', 0)
                    ->cursor()
                    ->each(function ($invoice){
@@ -74,7 +77,7 @@ class CleanStaleInvoiceOrder implements ShouldQueue
             Invoice::query()
                     ->withTrashed()
                     ->where('is_proforma', 1)
-                    ->where('created_at', '<', now()->subHour())
+                    ->whereBetween('created_at', [now()->subHours(1), now()->subMinutes(10)])
                     ->cursor()
                     ->each(function ($invoice) use ($repo) {
                         $invoice->is_proforma = false;

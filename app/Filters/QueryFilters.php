@@ -115,7 +115,7 @@ abstract class QueryFilters
      * Explodes the value by delimiter.
      *
      * @param  string $value
-     * @return stdClass
+     * @return \stdClass
      */
     public function split($value) : \stdClass
     {
@@ -133,11 +133,12 @@ abstract class QueryFilters
      * Filters the list based on the status
      * archived, active, deleted.
      *
-     * @param string filter
+     * @param string $filter
      * @return Builder
      */
     public function status(string $filter = ''): Builder
     {
+
         if (strlen($filter) == 0) {
             return $this->builder;
         }
@@ -146,17 +147,17 @@ abstract class QueryFilters
 
         return $this->builder->where(function ($query) use ($filters) {
             if (in_array(self::STATUS_ACTIVE, $filters)) {
-                $query->orWhereNull('deleted_at');
+                $query = $query->orWhereNull('deleted_at');
             }
 
             if (in_array(self::STATUS_ARCHIVED, $filters)) {
-                $query->orWhere(function ($query) {
-                    $query->whereNotNull('deleted_at')->where('is_deleted', 0);
+                $query = $query->orWhere(function ($q) {
+                    $q->whereNotNull('deleted_at')->where('is_deleted', 0);
                 });
             }
 
             if (in_array(self::STATUS_DELETED, $filters)) {
-                $query->orWhere('is_deleted', 1);
+                $query = $query->orWhere('is_deleted', 1);
             }
         });
     }
@@ -172,22 +173,16 @@ abstract class QueryFilters
         switch ($operator) {
             case 'lt':
                 return '<';
-                break;
             case 'gt':
                 return '>';
-                break;
             case 'lte':
                 return '<=';
-                break;
             case 'gte':
                 return '>=';
-                break;
             case 'eq':
                 return '=';
-                break;
             default:
                 return '=';
-                break;
         }
     }
 
@@ -196,13 +191,15 @@ abstract class QueryFilters
      *
      * -Can only be used on contact routes
      *
-     * @return
+     * @return Builder
      */
-    public function clientFilter()
+    public function clientFilter(): Builder
     {
         if (auth()->guard('contact')->user()) {
             return $this->builder->where('client_id', auth()->guard('contact')->user()->client->id);
         }
+
+        return $this->builder;
     }
 
     public function created_at($value = '')
@@ -244,7 +241,7 @@ abstract class QueryFilters
     }
 
 
-    public function is_deleted($value)
+    public function is_deleted($value = 'true')
     {
         if ($value == 'true') {
             return $this->builder->where('is_deleted', $value)->withTrashed();
@@ -291,8 +288,43 @@ abstract class QueryFilters
         return $this->builder;
     }
 
-    public function with(string $value): Builder
+    /**
+     * @return Builder
+     * @throws RuntimeException
+     */
+    public function without_deleted_clients(): Builder
     {
+        return $this->builder->where(function ($query) {
+            $query->whereHas('client', function ($sub_query) {
+                $sub_query->where('is_deleted', 0);
+            })->orWhere('client_id', null);
+        });
+    }
+
+    /**
+     * @return Builder
+     * @throws RuntimeException
+     */
+    public function without_deleted_vendors(): Builder
+    {
+        return $this->builder->where(function ($query) {
+            $query->whereHas('vendor', function ($sub_query) {
+                $sub_query->where('is_deleted', 0);
+            })->orWhere('vendor_id', null);
+        });
+    }
+
+
+    public function with(string $value = ''): Builder
+    {
+        if (strlen($value) == 0) {
+            return $this->builder;
+        }
+
+        if($this->with_property == 'id') {
+            $value = $this->decodePrimaryKey($value);
+        }
+
         return $this->builder
             ->orWhere($this->with_property, $value)
             ->orderByRaw("{$this->with_property} = ? DESC", [$value])

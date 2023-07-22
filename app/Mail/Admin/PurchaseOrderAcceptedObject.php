@@ -21,16 +21,9 @@ use stdClass;
 
 class PurchaseOrderAcceptedObject
 {
-    public $purchase_order;
 
-    public $company;
-
-    public $settings;
-
-    public function __construct(PurchaseOrder $purchase_order, Company $company)
+    public function __construct(public PurchaseOrder $purchase_order, public Company $company, protected bool $use_react_url)
     {
-        $this->purchase_order = $purchase_order;
-        $this->company = $company;
     }
 
     public function build()
@@ -90,7 +83,7 @@ class PurchaseOrderAcceptedObject
                     'purchase_order' => $this->purchase_order->number,
                 ]
             ),
-            'url' => $this->purchase_order->invitations->first()->getAdminLink(),
+            'url' => $this->purchase_order->invitations->first()->getAdminLink($this->use_react_url),
             'button' => ctrans('texts.view_purchase_order'),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),

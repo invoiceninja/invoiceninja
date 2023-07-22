@@ -247,8 +247,34 @@
                 type: string
           type: object
       type: object
-    
-    
+    RateLimiterError:
+      properties:
+        message:
+          description: 'Rate limit exceeded.'
+          type: string
+          example: 'Rate limit exceeded.'
+        errors:
+          properties:
+            value:
+              type: array
+              items:
+                type: string
+          type: object
+      type: object
+    InvalidInputError:
+      properties:
+        message:
+          description: 'Invalid input'
+          type: string
+          example: 'Invalid input'
+        errors:
+          properties:
+            value:
+              type: array
+              items:
+                type: string
+          type: object
+      type: object
     Webhook:
       properties:
         id:

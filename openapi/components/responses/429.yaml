@@ -1,0 +1,6 @@
+    429:
+      description: 'Rate Limit Exceeded'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RateLimiterError'

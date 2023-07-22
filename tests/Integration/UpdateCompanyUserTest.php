@@ -35,6 +35,69 @@ class UpdateCompanyUserTest extends TestCase
         $this->makeTestData();
     }
 
+
+    public function testUpdatingCompanyUserReactSettings()
+    {
+
+        $company_user = CompanyUser::whereUserId($this->user->id)->whereCompanyId($this->company->id)->first();
+
+        $this->user->company_user = $company_user;
+
+        $settings = [
+            'react_settings' => [
+                'show_pdf_preview' => true,
+                'react_notification_link' => false
+            ], 
+        ];
+
+        $response = null;
+
+        try {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->put('/api/v1/company_users/'.$this->encodePrimaryKey($this->user->id).'/preferences?include=company_user', $settings);
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            $this->assertNotNull($message);
+        }
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertTrue($arr['data']['company_user']['react_settings']['show_pdf_preview']);
+        $this->assertFalse($arr['data']['company_user']['react_settings']['react_notification_link']);
+
+        $settings = [
+            'react_settings' => [
+                'show_pdf_preview' => false,
+                'react_notification_link' => true
+            ],
+        ];
+
+        $response = null;
+
+        try {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->put('/api/v1/company_users/'.$this->encodePrimaryKey($this->user->id).'/preferences?include=company_user', $settings);
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            $this->assertNotNull($message);
+        }
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertFalse($arr['data']['company_user']['react_settings']['show_pdf_preview']);
+        $this->assertTrue($arr['data']['company_user']['react_settings']['react_notification_link']);
+
+    }
+
+
     public function testUpdatingCompanyUserAsAdmin()
     {
         // User::unguard();
@@ -67,4 +130,6 @@ class UpdateCompanyUserTest extends TestCase
 
         $this->assertEquals('ninja', $arr['data']['settings']['invoice']);
     }
+
+
 }

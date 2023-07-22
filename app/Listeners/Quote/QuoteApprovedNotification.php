@@ -61,7 +61,7 @@ class QuoteApprovedNotification implements ShouldQueue
                 unset($methods[$key]);
 
                 $nmo = new NinjaMailerObject;
-                $nmo->mailable = new NinjaMailer((new QuoteApprovedObject($quote, $event->company))->build());
+                $nmo->mailable = new NinjaMailer((new QuoteApprovedObject($quote, $event->company, $company_user->portalType()))->build());
                 $nmo->company = $quote->company;
                 $nmo->settings = $quote->company->settings;
 

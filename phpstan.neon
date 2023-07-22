@@ -1,6 +1,19 @@
+includes:
+    - ./vendor/nunomaduro/larastan/extension.neon
+    - phpstan-baseline.neon
 parameters:
-    level: 2
+    treatPhpDocTypesAsCertain: false
+    parallel:
+        jobSize: 10
+        maximumNumberOfProcesses: 1
+        processTimeout: 60.0
+    ignoreErrors:
+        - '#Call to an undefined method .*badMethod\(\)#'
+        - '#Call to an undefined method Illuminate\Database\Eloquent\Builder::exclude#'
+    level: 4
     paths:
-        - app
+        - 'app/'
+    excludePaths:
+        - 'vendor/'
     universalObjectCratesClasses:
         - App\DataMapper\Tax\RuleInterface

@@ -43,8 +43,14 @@ class VendorRepository extends BaseRepository
      */
     public function save(array $data, Vendor $vendor) : ?Vendor
     {
-        $vendor->fill($data);
+        $saveable_vendor = $data;
 
+        if(array_key_exists('contacts', $data)) {
+            unset($saveable_vendor['contacts']);
+        }
+
+        $vendor->fill($saveable_vendor);
+                
         $vendor->saveQuietly();
 
         if ($vendor->number == '' || ! $vendor->number) {

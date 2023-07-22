@@ -11,30 +11,31 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Utils\Ninja;
+use App\Models\CompanyUser;
+use App\Factory\UserFactory;
+use App\Filters\UserFilters;
+use Illuminate\Http\Response;
+use App\Utils\Traits\MakesHash;
 use App\Events\User\UserWasCreated;
 use App\Events\User\UserWasDeleted;
 use App\Events\User\UserWasUpdated;
-use App\Factory\UserFactory;
-use App\Filters\UserFilters;
-use App\Http\Controllers\Traits\VerifiesUserEmail;
-use App\Http\Requests\User\BulkUserRequest;
-use App\Http\Requests\User\CreateUserRequest;
-use App\Http\Requests\User\DestroyUserRequest;
-use App\Http\Requests\User\DetachCompanyUserRequest;
-use App\Http\Requests\User\EditUserRequest;
-use App\Http\Requests\User\ReconfirmUserRequest;
-use App\Http\Requests\User\ShowUserRequest;
-use App\Http\Requests\User\StoreUserRequest;
-use App\Http\Requests\User\UpdateUserRequest;
-use App\Jobs\Company\CreateCompanyToken;
 use App\Jobs\User\UserEmailChanged;
-use App\Models\CompanyUser;
-use App\Models\User;
 use App\Repositories\UserRepository;
 use App\Transformers\UserTransformer;
-use App\Utils\Ninja;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Response;
+use App\Jobs\Company\CreateCompanyToken;
+use App\Http\Requests\User\BulkUserRequest;
+use App\Http\Requests\User\EditUserRequest;
+use App\Http\Requests\User\ShowUserRequest;
+use App\Http\Requests\User\StoreUserRequest;
+use App\Http\Requests\User\CreateUserRequest;
+use App\Http\Requests\User\UpdateUserRequest;
+use App\Http\Requests\User\DestroyUserRequest;
+use App\Http\Requests\User\ReconfirmUserRequest;
+use App\Http\Controllers\Traits\VerifiesUserEmail;
+use App\Http\Requests\User\DetachCompanyUserRequest;
+use App\Http\Requests\User\DisconnectUserMailerRequest;
 
 /**
  * Class UserController.
@@ -68,37 +69,6 @@ class UserController extends BaseController
      * @param UserFilters $filters
      * @return Response
      *
-     *
-     * @OA\Get(
-     *      path="/api/v1/users",
-     *      operationId="getUsers",
-     *      tags={"users"},
-     *      summary="Gets a list of users",
-     *      description="Lists users, search and filters allow fine grained lists to be generated.
-     *
-     *Query parameters can be added to performed more fine grained filtering of the users, these are handled by the UserFilters class which defines the methods available",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Response(
-     *          response=200,
-     *          description="A list of users",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/User"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      */
     public function index(UserFilters $filters)
     {
@@ -113,37 +83,6 @@ class UserController extends BaseController
      * @param CreateUserRequest $request
      * @return Response
      *
-     *
-     *
-     * @OA\Get(
-     *      path="/api/v1/users/create",
-     *      operationId="getUsersCreate",
-     *      tags={"users"},
-     *      summary="Gets a new blank User object",
-     *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Response(
-     *          response=200,
-     *          description="A blank User object",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/User"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      */
     public function create(CreateUserRequest $request)
     {
@@ -158,41 +97,13 @@ class UserController extends BaseController
      * @param StoreUserRequest $request
      * @return Response
      *
-     *
-     *
-     * @OA\Post(
-     *      path="/api/v1/users",
-     *      operationId="storeUser",
-     *      tags={"users"},
-     *      summary="Adds a User",
-     *      description="Adds an User to the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns the saved User object",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/User"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      */
     public function store(StoreUserRequest $request)
     {
-        $company = auth()->user()->company();
+        /** @var \App\Models\User $logged_in_user */
+        $logged_in_user = auth()->user();
+
+        $company = $logged_in_user->company();
 
         $user = $this->user_repo->save($request->all(), $request->fetchUser());
 
@@ -215,47 +126,6 @@ class UserController extends BaseController
      * @param User $user
      * @return Response
      *
-     *
-     * @OA\Get(
-     *      path="/api/v1/users/{id}",
-     *      operationId="showUser",
-     *      tags={"users"},
-     *      summary="Shows an User",
-     *      description="Displays an User by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(
-     *          name="id",
-     *          in="path",
-     *          description="The User Hashed ID",
-     *          example="D2J234DFA",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns the User object",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/User"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      */
     public function show(ShowUserRequest $request, User $user)
     {
@@ -269,47 +139,6 @@ class UserController extends BaseController
      * @param User $user
      * @return Response
      *
-     *
-     * @OA\Get(
-     *      path="/api/v1/users/{id}/edit",
-     *      operationId="editUser",
-     *      tags={"users"},
-     *      summary="Shows an User for editting",
-     *      description="Displays an User by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(
-     *          name="id",
-     *          in="path",
-     *          description="The User Hashed ID",
-     *          example="D2J234DFA",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns the User object",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/User"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      */
     public function edit(EditUserRequest $request, User $user)
     {
@@ -319,53 +148,16 @@ class UserController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @OA\Put(
-     *      path="/api/v1/users/{id}",
-     *      operationId="updateUser",
-     *      tags={"users"},
-     *      summary="Updates an User",
-     *      description="Handles the updating of an User by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(
-     *          name="id",
-     *          in="path",
-     *          description="The User Hashed ID",
-     *          example="D2J234DFA",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns the User object",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/User"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      * @param UpdateUserRequest $request
      * @param User $user
      * @return Response|mixed
      */
     public function update(UpdateUserRequest $request, User $user)
     {
-        $old_company_user = $user->company_users()->where('company_id', auth()->user()->company()->id)->first();
+        /** @var \App\Models\User $logged_in_user */
+        $logged_in_user = auth()->user();
+
+        $old_company_user = $user->company_users()->where('company_id', $logged_in_user->company()->id)->first();
         $old_user = json_encode($user);
         $old_user_email = $user->getOriginal('email');
 
@@ -383,10 +175,11 @@ class UserController extends BaseController
             $user->oauth_user_refresh_token = null;
             $user->oauth_user_token = null;
             $user->save();
-            UserEmailChanged::dispatch($new_user, json_decode($old_user), auth()->user()->company());
+            
+            UserEmailChanged::dispatch($new_user, json_decode($old_user), $logged_in_user->company());
         }
 
-        event(new UserWasUpdated($user, auth()->user(), auth()->user()->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        event(new UserWasUpdated($user, $logged_in_user, $logged_in_user->company(), Ninja::eventVars($logged_in_user->id)));
 
         return $this->itemResponse($user);
     }
@@ -396,59 +189,8 @@ class UserController extends BaseController
      *
      * @param DestroyUserRequest $request
      * @param User $user
-     * @return Response
+     * @return JsonResponse | Response
      *
-     *
-     * @OA\Delete(
-     *      path="/api/v1/users/{id}",
-     *      operationId="deleteUser",
-     *      tags={"users"},
-     *      summary="Deletes a User",
-     *      description="Handles the deletion of an User by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(
-     *          name="token_name",
-     *          in="query",
-     *          required=false,
-     *          description="Customized name for the Users API Token",
-     *          example="iOS Device 11 iPad",
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Parameter(
-     *          name="id",
-     *          in="path",
-     *          description="The User Hashed ID",
-     *          example="D2J234DFA",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns a HTTP status",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      */
     public function destroy(DestroyUserRequest $request, User $user)
     {
@@ -459,7 +201,10 @@ class UserController extends BaseController
         /* If the user passes the company user we archive the company user */
         $user = $this->user_repo->delete($request->all(), $user);
 
-        event(new UserWasDeleted($user, auth()->user(), auth()->user()->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        /** @var \App\Models\User $logged_in_user */
+        $logged_in_user = auth()->user();
+
+        event(new UserWasDeleted($user, $logged_in_user, $logged_in_user->company(), Ninja::eventVars($logged_in_user->id)));
 
         return $this->itemResponse($user->fresh());
     }
@@ -467,54 +212,8 @@ class UserController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Collection
+     * @return Response
      *
-     *
-     *
-     * @OA\Post(
-     *      path="/api/v1/users/bulk",
-     *      operationId="bulkUsers",
-     *      tags={"users"},
-     *      summary="Performs bulk actions on an array of users",
-     *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/index"),
-     *      @OA\RequestBody(
-     *         description="Hashed ids",
-     *         required=true,
-     *         @OA\MediaType(
-     *             mediaType="application/json",
-     *             @OA\Schema(
-     *                 type="array",
-     *                 @OA\Items(
-     *                     type="integer",
-     *                     description="Array of hashed IDs to be bulk 'actioned",
-     *                     example="[0,1,2,3]",
-     *                 ),
-     *             )
-     *         )
-     *     ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="The User response",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/User"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      */
     public function bulk(BulkUserRequest $request)
     {
@@ -533,8 +232,11 @@ class UserController extends BaseController
 
         $return_user_collection = collect();
 
-        $users->each(function ($user, $key) use ($action, $return_user_collection) {
-            if (auth()->user()->can('edit', $user)) {
+        /** @var \App\Models\User $logged_in_user */
+        $logged_in_user = auth()->user(); 
+
+        $users->each(function ($user, $key) use ($logged_in_user, $action, $return_user_collection) {
+            if ($logged_in_user->can('edit', $user)) {
                 $this->user_repo->{$action}($user);
 
                 $return_user_collection->push($user->id);
@@ -547,57 +249,17 @@ class UserController extends BaseController
     /**
      * Detach an existing user to a company.
      *
-     * @OA\Delete(
-     *      path="/api/v1/users/{user}/detach_from_company",
-     *      operationId="detachUser",
-     *      tags={"users"},
-     *      summary="Detach an existing user to a company",
-     *      description="Detach an existing user from a company",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(
-     *          name="user",
-     *          in="path",
-     *          description="The user hashed_id",
-     *          example="FD767dfd7",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success response",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      * @param DetachCompanyUserRequest $request
      * @param User $user
      * @return \Illuminate\Http\JsonResponse
      */
     public function detach(DetachCompanyUserRequest $request, User $user)
     {
-        // if ($request->entityIsDeleted($user)) {
-        //     return $request->disallowUpdate();
-        // }
+        /** @var \App\Models\User $logged_in_user */
+        $logged_in_user = auth()->user();
 
         $company_user = CompanyUser::whereUserId($user->id)
-                                    ->whereCompanyId(auth()->user()->companyId())
+                                    ->whereCompanyId($logged_in_user->companyId())
                                     ->withTrashed()
                                     ->first();
 
@@ -621,52 +283,16 @@ class UserController extends BaseController
     /**
      * Invite an existing user to a company.
      *
-     * @OA\Post(
-     *      path="/api/v1/users/{user}/invite",
-     *      operationId="inviteUser",
-     *      tags={"users"},
-     *      summary="Reconfirm an existing user to a company",
-     *      description="Reconfirm an existing user from a company",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(
-     *          name="user",
-     *          in="path",
-     *          description="The user hashed_id",
-     *          example="FD767dfd7",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success response",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      * @param ReconfirmUserRequest $request
      * @param User $user
      * @return \Illuminate\Http\JsonResponse
      */
     public function invite(ReconfirmUserRequest $request, User $user)
     {
-        $user->service()->invite($user->company());
+        /** @var \App\Models\User $logged_in_user */
+        $logged_in_user = auth()->user();
+
+        $user->service()->invite($logged_in_user->company());
 
         return response()->json(['message' => ctrans('texts.confirmation_resent')], 200);
     }
@@ -675,53 +301,54 @@ class UserController extends BaseController
     /**
      * Invite an existing user to a company.
      *
-     * @OA\Post(
-     *      path="/api/v1/users/{user}/reconfirm",
-     *      operationId="inviteUserReconfirm",
-     *      tags={"users"},
-     *      summary="Reconfirm an existing user to a company",
-     *      description="Reconfirm an existing user from a company",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(
-     *          name="user",
-     *          in="path",
-     *          description="The user hashed_id",
-     *          example="FD767dfd7",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success response",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      * @param ReconfirmUserRequest $request
      * @param User $user
      * @return \Illuminate\Http\JsonResponse
      */
     public function reconfirm(ReconfirmUserRequest $request, User $user)
     {
-        $user->service()->invite($user->company());
+        /** @var \App\Models\User $logged_in_user */
+        $logged_in_user = auth()->user();
+
+        $user->service()->invite($logged_in_user->company());
 
         return response()->json(['message' => ctrans('texts.confirmation_resent')], 200);
     }
+
+    public function disconnectOauthMailer(DisconnectUserMailerRequest $request, User $user)
+    {
+
+        $user->oauth_user_token = null;
+        $user->oauth_user_refresh_token = null;
+        $user->save();
+
+
+        /** @var \App\Models\User $logged_in_user */
+        $logged_in_user = auth()->user();
+        $company = $logged_in_user->company();
+
+        $settings = $company->settings;
+        $settings->email_sending_method = "default";
+        $settings->gmail_sending_user_id = "0";
+
+        $company->settings = $settings;
+        $company->save();
+
+        return $this->itemResponse($user->fresh());
+
+    }
+
+    public function disconnectOauth(DisconnectUserMailerRequest $request, User $user)
+    {
+        $user->oauth_user_id = null;
+        $user->oauth_provider_id = null;
+        $user->oauth_user_token_expiry = null;
+        $user->oauth_user_token = null;
+        $user->oauth_user_refresh_token = null;
+        $user->save();
+
+        return $this->itemResponse($user->fresh());
+
+    }
+
 }

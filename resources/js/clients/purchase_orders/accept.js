@@ -48,9 +48,20 @@ class Accept {
 
         document.getElementById("signature-next-step").disabled = true;
 
+        document.getElementById("close-button").addEventListener('click', () => {
+            const approveButton = document.getElementById("approve-button");
+
+            if (approveButton)
+                approveButton.disabled = false;
+
+        });
+
         document
             .getElementById('approve-button')
             .addEventListener('click', () => {
+
+                console.log("accepted ");
+
                 if (this.shouldDisplaySignature && this.shouldDisplayTerms) {
                     this.displaySignature();
 

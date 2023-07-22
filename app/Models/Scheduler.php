@@ -76,6 +76,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|Scheduler whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Scheduler withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Scheduler withoutTrashed()
+ * @property-read \App\Models\User $user
  * @mixin \Eloquent
  */
 class Scheduler extends BaseModel
@@ -122,6 +123,11 @@ class Scheduler extends BaseModel
         return $this->belongsTo(Company::class);
     }
     
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     /**
      * remainingCycles
      *
@@ -147,6 +153,9 @@ class Scheduler extends BaseModel
         $offset = $this->company->timezone_offset();
 
         switch ($this->frequency_id) {
+            case 0: //used only for email entities
+                $next_run = $this->next_run;
+                break;
             case RecurringInvoice::FREQUENCY_DAILY:
                 $next_run = now()->startOfDay()->addDay();
                 break;
@@ -193,5 +202,16 @@ class Scheduler extends BaseModel
         $this->save();
     }
 
+    public function adjustOffset(): void
+    {
+        if (! $this->next_run) {
+            return;
+        }
 
+        $offset = $this->company->timezone_offset();
+
+        $this->next_run = $this->next_run->copy()->addSeconds($offset);
+        $this->save();
+
+    }
 }

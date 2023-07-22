@@ -21,7 +21,6 @@ use League\Csv\Writer;
 
 class CreditExport extends BaseExport
 {
-    private Company $company;
 
     private CreditTransformer $credit_transformer;
 
@@ -123,10 +122,19 @@ class CreditExport extends BaseExport
         foreach (array_values($this->input['report_keys']) as $key) {
             $keyval = array_search($key, $this->entity_keys);
 
+            if(!$keyval)
+                $keyval = array_search(str_replace("credit.", "", $key), $this->entity_keys) ?? $key;
+
+            if(!$keyval)
+                $keyval = $key;
+                
             if (array_key_exists($key, $transformed_credit)) {
                 $entity[$keyval] = $transformed_credit[$key];
-            } else {
-                $entity[$keyval] = '';
+            } elseif (array_key_exists($keyval, $transformed_credit)) {
+                $entity[$keyval] = $transformed_credit[$keyval];
+            }
+            else {
+                $entity[$keyval] = $this->resolveKey($keyval, $credit, $this->credit_transformer);
             }
         }
 
@@ -138,9 +146,9 @@ class CreditExport extends BaseExport
         if (in_array('country_id', $this->input['report_keys'])) {
             $entity['country'] = $credit->client->country ? ctrans("texts.country_{$credit->client->country->name}") : '';
         }
-
+        
         if (in_array('currency_id', $this->input['report_keys'])) {
-            $entity['currency_id'] = $credit->client->currency() ? $credit->client->currency()->code : $invoice->company->currency()->code;
+            $entity['currency_id'] = $credit->client->currency() ? $credit->client->currency()->code : $credit->company->currency()->code;
         }
 
         if (in_array('invoice_id', $this->input['report_keys'])) {
@@ -153,6 +161,10 @@ class CreditExport extends BaseExport
 
         if (in_array('status_id', $this->input['report_keys'])) {
             $entity['status'] = $credit->stringStatus($credit->status_id);
+        }
+
+        if(in_array('credit.status', $this->input['report_keys'])) {
+            $entity['credit.status'] = $credit->stringStatus($credit->status_id);
         }
 
         return $entity;

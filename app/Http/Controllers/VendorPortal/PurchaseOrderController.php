@@ -11,21 +11,24 @@
 
 namespace App\Http\Controllers\VendorPortal;
 
-use App\Events\Misc\InvitationWasViewed;
-use App\Events\PurchaseOrder\PurchaseOrderWasAccepted;
-use App\Events\PurchaseOrder\PurchaseOrderWasViewed;
+use App\Utils\Ninja;
+use Illuminate\View\View;
+use App\Models\PurchaseOrder;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesDates;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\VendorPortal\PurchaseOrders\ProcessPurchaseOrdersInBulkRequest;
+use App\Jobs\Invoice\InjectSignature;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Contracts\View\Factory;
+use App\Models\PurchaseOrderInvitation;
+use Illuminate\Support\Facades\Storage;
+use App\Events\Misc\InvitationWasViewed;
+use App\Jobs\Vendor\CreatePurchaseOrderPdf;
+use App\Events\PurchaseOrder\PurchaseOrderWasViewed;
+use App\Events\PurchaseOrder\PurchaseOrderWasAccepted;
 use App\Http\Requests\VendorPortal\PurchaseOrders\ShowPurchaseOrderRequest;
 use App\Http\Requests\VendorPortal\PurchaseOrders\ShowPurchaseOrdersRequest;
-use App\Jobs\Invoice\InjectSignature;
-use App\Models\PurchaseOrder;
-use App\Utils\Ninja;
-use App\Utils\Traits\MakesDates;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\View\View;
+use App\Http\Requests\VendorPortal\PurchaseOrders\ProcessPurchaseOrdersInBulkRequest;
 
 class PurchaseOrderController extends Controller
 {
@@ -108,6 +111,28 @@ class PurchaseOrderController extends Controller
         return $this->render('purchase_orders.show', $data);
     }
 
+    public function showBlob($hash)
+    {
+        $data = Cache::pull($hash);
+
+        $invitation = PurchaseOrderInvitation::withTrashed()->find($data['invitation_id']);
+
+        $file = (new CreatePurchaseOrderPdf($invitation, $invitation->company->db))->rawPdf();
+
+        // $headers = ['Content-Type' => 'application/pdf'];
+        // $entity_string = $data['entity_type'];
+        // $file_name = $invitation->{$entity_string}->numberFormatter().'.pdf';
+        // return response()->streamDownload(function () use ($file) {
+        //     echo $file;
+        // }, $file_name, $headers);
+
+        $headers = ['Content-Type' => 'application/pdf'];
+        return response()->make($file, 200, $headers);
+
+    }
+
+    
+
     private function sidebarMenu() :array
     {
         $enabled_modules = auth()->guard('vendor')->user()->company->enabled_modules;
@@ -146,25 +171,30 @@ class PurchaseOrderController extends Controller
         $purchase_orders = PurchaseOrder::query()
                                         ->whereIn('id', $this->transformKeys($data['purchase_orders']))
                                         ->where('company_id', auth()->guard('vendor')->user()->vendor->company_id)
-                                        ->whereIn('status_id', [PurchaseOrder::STATUS_DRAFT, PurchaseOrder::STATUS_SENT])
                                         ->where('is_deleted', 0)
-                                        ->withTrashed()
-                                        ->cursor()->each(function ($purchase_order) {
-                                            $purchase_order->service()
-                                                       ->markSent()
-                                                       ->applyNumber()
-                                                       ->setStatus(PurchaseOrder::STATUS_ACCEPTED)
-                                                       ->save();
+                                        ->withTrashed();
 
-                                            if (request()->has('signature') && ! is_null(request()->signature) && ! empty(request()->signature)) {
-                                                InjectSignature::dispatch($purchase_order, request()->signature);
-                                            }
+        $purchase_count_query = clone $purchase_orders;
 
-                                            event(new PurchaseOrderWasAccepted($purchase_order, auth()->guard('vendor')->user(), $purchase_order->company, Ninja::eventVars()));
-                                        });
+        $purchase_orders->whereIn('status_id', [PurchaseOrder::STATUS_DRAFT, PurchaseOrder::STATUS_SENT])
+                        ->cursor()->each(function ($purchase_order) {
+            
+                            $purchase_order->service()
+                                        ->markSent()
+                                        ->applyNumber()
+                                        ->setStatus(PurchaseOrder::STATUS_ACCEPTED)
+                                        ->save();
 
-        if (count($data['purchase_orders']) == 1) {
-            $purchase_order = PurchaseOrder::withTrashed()->where('is_deleted', 0)->whereIn('id', $this->transformKeys($data['purchase_orders']))->first();
+                            if (request()->has('signature') && ! is_null(request()->signature) && ! empty(request()->signature)) {
+                                (new InjectSignature($purchase_order, request()->signature))->handle();
+                                // InjectSignature::dispatch($purchase_order, request()->signature);
+                            }
+
+                            event(new PurchaseOrderWasAccepted($purchase_order, auth()->guard('vendor')->user(), $purchase_order->company, Ninja::eventVars()));
+        });
+
+        if ($purchase_count_query->count() == 1) {
+            $purchase_order = $purchase_count_query->first();
 
             return redirect()->route('vendor.purchase_order.show', ['purchase_order' => $purchase_order->hashed_id]);
         } else {

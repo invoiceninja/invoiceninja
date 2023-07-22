@@ -85,7 +85,7 @@ class ImportController extends Controller
 
             // Store the csv in cache with an expiry of 10 minutes
             Cache::put($hash.'-'.$entityType, base64_encode($contents), 600);
-
+            
             // Parse CSV
             $csv_array = $this->getCsvData($contents);
 
@@ -96,6 +96,8 @@ class ImportController extends Controller
                 'headers'   => array_slice($csv_array, 0, 2),
             ];
         }
+
+        $data = mb_convert_encoding($data, 'UTF-8', 'UTF-8');
 
         return response()->json($data);
     }
@@ -162,16 +164,14 @@ class ImportController extends Controller
         $delimiters = [',', '.', ';'];
         $bestDelimiter = ' ';
         $count = 0;
+
         foreach ($delimiters as $delimiter) {
-            // if (substr_count($csvfile, $delimiter) > $count) {
-            //     $count = substr_count($csvfile, $delimiter);
-            //     $bestDelimiter = $delimiter;
-            // }
             
-            if (substr_count(strstr($csvfile, "\n", true), $delimiter) > $count) {
+            if (substr_count(strstr($csvfile, "\n", true), $delimiter) >= $count) {
                 $count = substr_count($csvfile, $delimiter);
                 $bestDelimiter = $delimiter;
             }
+        
         }
         return $bestDelimiter;
     }

@@ -25,10 +25,13 @@ class SchedulerRepository extends BaseRepository
      */
     public function save(array $data, Scheduler $scheduler): Scheduler
     {
+
         $scheduler->fill($data);
 
         $scheduler->save();
 
-        return $scheduler;
+        $scheduler->adjustOffset();
+        
+        return $scheduler->fresh();
     }
 }

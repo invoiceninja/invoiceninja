@@ -1,2 +1,203 @@
-/*! For license information please see stripe-credit-card.js.LICENSE.txt */
-(()=>{var e,t,n,o,r,i,a,u;function l(e){return l="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e},l(e)}function s(e,t){for(var n=0;n<t.length;n++){var o=t[n];o.enumerable=o.enumerable||!1,o.configurable=!0,"value"in o&&(o.writable=!0),Object.defineProperty(e,(r=o.key,i=void 0,i=function(e,t){if("object"!==l(e)||null===e)return e;var n=e[Symbol.toPrimitive];if(void 0!==n){var o=n.call(e,t||"default");if("object"!==l(o))return o;throw new TypeError("@@toPrimitive must return a primitive value.")}return("string"===t?String:Number)(e)}(r,"string"),"symbol"===l(i)?i:String(i)),o)}var r,i}var c=function(){function e(t,n,o,r){!function(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}(this,e),this.key=t,this.secret=n,this.onlyAuthorization=o,this.stripeConnect=r}var t,n,o;return t=e,(n=[{key:"setupStripe",value:function(){return this.stripeConnect?this.stripe=Stripe(this.key,{stripeAccount:this.stripeConnect}):this.stripe=Stripe(this.key),this.elements=this.stripe.elements(),this}},{key:"createElement",value:function(){var e;return this.cardElement=this.elements.create("card",{hidePostalCode:"0"===(null===(e=document.querySelector("meta[name=stripe-require-postal-code]"))||void 0===e?void 0:e.content),value:{postalCode:document.querySelector("meta[name=client-postal-code]").content}}),this}},{key:"mountCardElement",value:function(){return this.cardElement.mount("#card-element"),this}},{key:"completePaymentUsingToken",value:function(){var e=this,t=document.querySelector("input[name=token]").value,n=document.getElementById("pay-now");this.payNowButton=n,this.payNowButton.disabled=!0,this.payNowButton.querySelector("svg").classList.remove("hidden"),this.payNowButton.querySelector("span").classList.add("hidden"),this.stripe.handleCardPayment(this.secret,{payment_method:t}).then((function(t){return t.error?e.handleFailure(t.error.message):e.handleSuccess(t)}))}},{key:"completePaymentWithoutToken",value:function(){var e=this,t=document.getElementById("pay-now");this.payNowButton=t,this.payNowButton.disabled=!0,this.payNowButton.querySelector("svg").classList.remove("hidden"),this.payNowButton.querySelector("span").classList.add("hidden");var n=document.getElementById("cardholder-name");this.stripe.handleCardPayment(this.secret,this.cardElement,{payment_method_data:{billing_details:{name:n.value}}}).then((function(t){return t.error?e.handleFailure(t.error.message):e.handleSuccess(t)}))}},{key:"handleSuccess",value:function(e){document.querySelector('input[name="gateway_response"]').value=JSON.stringify(e.paymentIntent);var t=document.querySelector('input[name="token-billing-checkbox"]:checked');t&&(document.querySelector('input[name="store_card"]').value=t.value),document.getElementById("server-response").submit()}},{key:"handleFailure",value:function(e){var t=document.getElementById("errors");t.textContent="",t.textContent=e,t.hidden=!1,this.payNowButton.disabled=!1,this.payNowButton.querySelector("svg").classList.add("hidden"),this.payNowButton.querySelector("span").classList.remove("hidden")}},{key:"handleAuthorization",value:function(){var e=this,t=document.getElementById("cardholder-name"),n=document.getElementById("authorize-card");this.payNowButton=n,this.payNowButton.disabled=!0,this.payNowButton.querySelector("svg").classList.remove("hidden"),this.payNowButton.querySelector("span").classList.add("hidden"),this.stripe.handleCardSetup(this.secret,this.cardElement,{payment_method_data:{billing_details:{name:t.value}}}).then((function(t){return t.error?e.handleFailure(t.error.message):e.handleSuccessfulAuthorization(t)}))}},{key:"handleSuccessfulAuthorization",value:function(e){document.getElementById("gateway_response").value=JSON.stringify(e.setupIntent),document.getElementById("server_response").submit()}},{key:"handle",value:function(){var e=this;this.setupStripe(),this.onlyAuthorization?(this.createElement().mountCardElement(),document.getElementById("authorize-card").addEventListener("click",(function(){return e.handleAuthorization()}))):(Array.from(document.getElementsByClassName("toggle-payment-with-token")).forEach((function(e){return e.addEventListener("click",(function(e){document.getElementById("stripe--payment-container").classList.add("hidden"),document.getElementById("save-card--container").style.display="none",document.querySelector("input[name=token]").value=e.target.dataset.token}))})),document.getElementById("toggle-payment-with-credit-card").addEventListener("click",(function(e){document.getElementById("stripe--payment-container").classList.remove("hidden"),document.getElementById("save-card--container").style.display="grid",document.querySelector("input[name=token]").value=""})),this.createElement().mountCardElement(),document.getElementById("pay-now").addEventListener("click",(function(){try{return document.querySelector("input[name=token]").value?e.completePaymentUsingToken():e.completePaymentWithoutToken()}catch(e){console.log(e.message)}})))}}])&&s(t.prototype,n),o&&s(t,o),Object.defineProperty(t,"prototype",{writable:!1}),e}(),d=new c(null!==(e=null===(t=document.querySelector('meta[name="stripe-publishable-key"]'))||void 0===t?void 0:t.content)&&void 0!==e?e:"",null!==(n=null===(o=document.querySelector('meta[name="stripe-secret"]'))||void 0===o?void 0:o.content)&&void 0!==n?n:"",null!==(r=null===(i=document.querySelector('meta[name="only-authorization"]'))||void 0===i?void 0:i.content)&&void 0!==r?r:"",null!==(a=null===(u=document.querySelector('meta[name="stripe-account-id"]'))||void 0===u?void 0:u.content)&&void 0!==a?a:"");d.handle(),Livewire.on("passed-required-fields-check",(function(){return d.handle()}))})();
+/******/ (() => { // webpackBootstrap
+var __webpack_exports__ = {};
+/*!*************************************************************!*\
+  !*** ./resources/js/clients/payments/stripe-credit-card.js ***!
+  \*************************************************************/
+var _document$querySelect2, _document$querySelect3, _document$querySelect4, _document$querySelect5, _document$querySelect6, _document$querySelect7, _document$querySelect8, _document$querySelect9;
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license 
+ */
+var StripeCreditCard = /*#__PURE__*/function () {
+  function StripeCreditCard(key, secret, onlyAuthorization, stripeConnect) {
+    _classCallCheck(this, StripeCreditCard);
+    this.key = key;
+    this.secret = secret;
+    this.onlyAuthorization = onlyAuthorization;
+    this.stripeConnect = stripeConnect;
+  }
+  _createClass(StripeCreditCard, [{
+    key: "setupStripe",
+    value: function setupStripe() {
+      if (this.stripeConnect) {
+        this.stripe = Stripe(this.key, {
+          stripeAccount: this.stripeConnect
+        });
+      } else {
+        this.stripe = Stripe(this.key);
+      }
+      this.elements = this.stripe.elements();
+      return this;
+    }
+  }, {
+    key: "createElement",
+    value: function createElement() {
+      var _document$querySelect;
+      this.cardElement = this.elements.create('card', {
+        hidePostalCode: ((_document$querySelect = document.querySelector('meta[name=stripe-require-postal-code]')) === null || _document$querySelect === void 0 ? void 0 : _document$querySelect.content) === "0",
+        value: {
+          postalCode: document.querySelector('meta[name=client-postal-code]').content
+        }
+      });
+      return this;
+    }
+  }, {
+    key: "mountCardElement",
+    value: function mountCardElement() {
+      this.cardElement.mount('#card-element');
+      return this;
+    }
+  }, {
+    key: "completePaymentUsingToken",
+    value: function completePaymentUsingToken() {
+      var _this = this;
+      var token = document.querySelector('input[name=token]').value;
+      var payNowButton = document.getElementById('pay-now');
+      this.payNowButton = payNowButton;
+      this.payNowButton.disabled = true;
+      this.payNowButton.querySelector('svg').classList.remove('hidden');
+      this.payNowButton.querySelector('span').classList.add('hidden');
+      this.stripe.handleCardPayment(this.secret, {
+        payment_method: token
+      }).then(function (result) {
+        if (result.error) {
+          return _this.handleFailure(result.error.message);
+        }
+        return _this.handleSuccess(result);
+      });
+    }
+  }, {
+    key: "completePaymentWithoutToken",
+    value: function completePaymentWithoutToken() {
+      var _this2 = this;
+      var payNowButton = document.getElementById('pay-now');
+      this.payNowButton = payNowButton;
+      this.payNowButton.disabled = true;
+      this.payNowButton.querySelector('svg').classList.remove('hidden');
+      this.payNowButton.querySelector('span').classList.add('hidden');
+      var cardHolderName = document.getElementById('cardholder-name');
+      this.stripe.handleCardPayment(this.secret, this.cardElement, {
+        payment_method_data: {
+          billing_details: {
+            name: cardHolderName.value
+          }
+        }
+      }).then(function (result) {
+        if (result.error) {
+          return _this2.handleFailure(result.error.message);
+        }
+        return _this2.handleSuccess(result);
+      });
+    }
+  }, {
+    key: "handleSuccess",
+    value: function handleSuccess(result) {
+      document.querySelector('input[name="gateway_response"]').value = JSON.stringify(result.paymentIntent);
+      var tokenBillingCheckbox = document.querySelector('input[name="token-billing-checkbox"]:checked');
+      if (tokenBillingCheckbox) {
+        document.querySelector('input[name="store_card"]').value = tokenBillingCheckbox.value;
+      }
+      document.getElementById('server-response').submit();
+    }
+  }, {
+    key: "handleFailure",
+    value: function handleFailure(message) {
+      var errors = document.getElementById('errors');
+      errors.textContent = '';
+      errors.textContent = message;
+      errors.hidden = false;
+      this.payNowButton.disabled = false;
+      this.payNowButton.querySelector('svg').classList.add('hidden');
+      this.payNowButton.querySelector('span').classList.remove('hidden');
+    }
+  }, {
+    key: "handleAuthorization",
+    value: function handleAuthorization() {
+      var _this3 = this;
+      var cardHolderName = document.getElementById('cardholder-name');
+      var payNowButton = document.getElementById('authorize-card');
+      this.payNowButton = payNowButton;
+      this.payNowButton.disabled = true;
+      this.payNowButton.querySelector('svg').classList.remove('hidden');
+      this.payNowButton.querySelector('span').classList.add('hidden');
+      this.stripe.handleCardSetup(this.secret, this.cardElement, {
+        payment_method_data: {
+          billing_details: {
+            name: cardHolderName.value
+          }
+        }
+      }).then(function (result) {
+        if (result.error) {
+          return _this3.handleFailure(result.error.message);
+        }
+        return _this3.handleSuccessfulAuthorization(result);
+      });
+    }
+  }, {
+    key: "handleSuccessfulAuthorization",
+    value: function handleSuccessfulAuthorization(result) {
+      document.getElementById('gateway_response').value = JSON.stringify(result.setupIntent);
+      document.getElementById('server_response').submit();
+    }
+  }, {
+    key: "handle",
+    value: function handle() {
+      var _this4 = this;
+      this.setupStripe();
+      if (this.onlyAuthorization) {
+        this.createElement().mountCardElement();
+        document.getElementById('authorize-card').addEventListener('click', function () {
+          return _this4.handleAuthorization();
+        });
+      } else {
+        Array.from(document.getElementsByClassName('toggle-payment-with-token')).forEach(function (element) {
+          return element.addEventListener('click', function (element) {
+            document.getElementById('stripe--payment-container').classList.add('hidden');
+            document.getElementById('save-card--container').style.display = 'none';
+            document.querySelector('input[name=token]').value = element.target.dataset.token;
+          });
+        });
+        document.getElementById('toggle-payment-with-credit-card').addEventListener('click', function (element) {
+          document.getElementById('stripe--payment-container').classList.remove('hidden');
+          document.getElementById('save-card--container').style.display = 'grid';
+          document.querySelector('input[name=token]').value = "";
+        });
+        this.createElement().mountCardElement();
+        document.getElementById('pay-now').addEventListener('click', function () {
+          try {
+            var tokenInput = document.querySelector('input[name=token]');
+            if (tokenInput.value) {
+              return _this4.completePaymentUsingToken();
+            }
+            return _this4.completePaymentWithoutToken();
+          } catch (error) {
+            console.log(error.message);
+          }
+        });
+      }
+    }
+  }]);
+  return StripeCreditCard;
+}();
+var publishableKey = (_document$querySelect2 = (_document$querySelect3 = document.querySelector('meta[name="stripe-publishable-key"]')) === null || _document$querySelect3 === void 0 ? void 0 : _document$querySelect3.content) !== null && _document$querySelect2 !== void 0 ? _document$querySelect2 : '';
+var secret = (_document$querySelect4 = (_document$querySelect5 = document.querySelector('meta[name="stripe-secret"]')) === null || _document$querySelect5 === void 0 ? void 0 : _document$querySelect5.content) !== null && _document$querySelect4 !== void 0 ? _document$querySelect4 : '';
+var onlyAuthorization = (_document$querySelect6 = (_document$querySelect7 = document.querySelector('meta[name="only-authorization"]')) === null || _document$querySelect7 === void 0 ? void 0 : _document$querySelect7.content) !== null && _document$querySelect6 !== void 0 ? _document$querySelect6 : '';
+var stripeConnect = (_document$querySelect8 = (_document$querySelect9 = document.querySelector('meta[name="stripe-account-id"]')) === null || _document$querySelect9 === void 0 ? void 0 : _document$querySelect9.content) !== null && _document$querySelect8 !== void 0 ? _document$querySelect8 : '';
+var s = new StripeCreditCard(publishableKey, secret, onlyAuthorization, stripeConnect);
+s.handle();
+Livewire.on('passed-required-fields-check', function () {
+  return s.handle();
+});
+/******/ })()
+;

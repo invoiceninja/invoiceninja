@@ -21,7 +21,6 @@ use League\Csv\Writer;
 
 class ExpenseExport extends BaseExport
 {
-    private Company $company;
 
     private $expense_transformer;
 
@@ -30,36 +29,38 @@ class ExpenseExport extends BaseExport
     public Writer $csv;
 
     public array $entity_keys = [
-        'amount' => 'amount',
-        'category' => 'category_id',
-        'client' => 'client_id',
-        'custom_value1' => 'custom_value1',
-        'custom_value2' => 'custom_value2',
-        'custom_value3' => 'custom_value3',
-        'custom_value4' => 'custom_value4',
-        'currency' => 'currency_id',
-        'date' => 'date',
-        'exchange_rate' => 'exchange_rate',
-        'converted_amount' => 'foreign_amount',
-        'invoice_currency_id' => 'invoice_currency_id',
-        'payment_date' => 'payment_date',
-        'number' => 'number',
-        'payment_type_id' => 'payment_type_id',
-        'private_notes' => 'private_notes',
-        'project' => 'project_id',
-        'public_notes' => 'public_notes',
-        'tax_amount1' => 'tax_amount1',
-        'tax_amount2' => 'tax_amount2',
-        'tax_amount3' => 'tax_amount3',
-        'tax_name1' => 'tax_name1',
-        'tax_name2' => 'tax_name2',
-        'tax_name3' => 'tax_name3',
-        'tax_rate1' => 'tax_rate1',
-        'tax_rate2' => 'tax_rate2',
-        'tax_rate3' => 'tax_rate3',
-        'transaction_reference' => 'transaction_reference',
-        'vendor' => 'vendor_id',
-        'invoice' => 'invoice_id',
+        'amount' => 'expense.amount',
+        'category' => 'expense.category',
+        'client' => 'expense.client_id',
+        'custom_value1' => 'expense.custom_value1',
+        'custom_value2' => 'expense.custom_value2',
+        'custom_value3' => 'expense.custom_value3',
+        'custom_value4' => 'expense.custom_value4',
+        'currency' => 'expense.currency_id',
+        'date' => 'expense.date',
+        'exchange_rate' => 'expense.exchange_rate',
+        'converted_amount' => 'expense.foreign_amount',
+        'invoice_currency_id' => 'expense.invoice_currency_id',
+        'payment_date' => 'expense.payment_date',
+        'number' => 'expense.number',
+        'payment_type_id' => 'expense.payment_type_id',
+        'private_notes' => 'expense.private_notes',
+        'project' => 'expense.project_id',
+        'public_notes' => 'expense.public_notes',
+        'tax_amount1' => 'expense.tax_amount1',
+        'tax_amount2' => 'expense.tax_amount2',
+        'tax_amount3' => 'expense.tax_amount3',
+        'tax_name1' => 'expense.tax_name1',
+        'tax_name2' => 'expense.tax_name2',
+        'tax_name3' => 'expense.tax_name3',
+        'tax_rate1' => 'expense.tax_rate1',
+        'tax_rate2' => 'expense.tax_rate2',
+        'tax_rate3' => 'expense.tax_rate3',
+        'transaction_reference' => 'expense.transaction_reference',
+        'vendor' => 'expense.vendor_id',
+        'invoice' => 'expense.invoice_id',
+        'user' => 'expense.user',
+        'assigned_user' => 'expense.assigned_user',
     ];
 
     private array $decorate_keys = [
@@ -120,13 +121,17 @@ class ExpenseExport extends BaseExport
         $entity = [];
 
         foreach (array_values($this->input['report_keys']) as $key) {
+            $parts = explode('.', $key);
             $keyval = array_search($key, $this->entity_keys);
 
-            if (array_key_exists($key, $transformed_expense)) {
-                $entity[$keyval] = $transformed_expense[$key];
+            if (is_array($parts) && $parts[0] == 'expense' && array_key_exists($parts[1], $transformed_expense)) {
+                $entity[$key] = $transformed_expense[$parts[1]];
+            } elseif (array_key_exists($key, $transformed_expense)) {
+                $entity[$key] = $transformed_expense[$key];
             } else {
-                $entity[$keyval] = '';
+                $entity[$key] = $this->resolveKey($key, $expense, $this->expense_transformer);
             }
+
         }
 
         return $this->decorateAdvancedFields($expense, $entity);
@@ -134,32 +139,40 @@ class ExpenseExport extends BaseExport
 
     private function decorateAdvancedFields(Expense $expense, array $entity) :array
     {
-        if (in_array('currency_id', $this->input['report_keys'])) {
-            $entity['currency'] = $expense->currency ? $expense->currency->code : '';
+        if (in_array('expense.currency_id', $this->input['report_keys'])) {
+            $entity['expense.currency_id'] = $expense->currency ? $expense->currency->code : '';
         }
 
-        if (in_array('client_id', $this->input['report_keys'])) {
-            $entity['client'] = $expense->client ? $expense->client->present()->name() : '';
+        if (in_array('expense.client_id', $this->input['report_keys'])) {
+            $entity['expense.client'] = $expense->client ? $expense->client->present()->name() : '';
         }
 
-        if (in_array('invoice_id', $this->input['report_keys'])) {
-            $entity['invoice'] = $expense->invoice ? $expense->invoice->number : '';
+        if (in_array('expense.invoice_id', $this->input['report_keys'])) {
+            $entity['expense.invoice_id'] = $expense->invoice ? $expense->invoice->number : '';
         }
 
-        if (in_array('category_id', $this->input['report_keys'])) {
-            $entity['category'] = $expense->category ? $expense->category->name : '';
+        if (in_array('expense.category', $this->input['report_keys'])) {
+            $entity['expense.category'] = $expense->category ? $expense->category->name : '';
         }
 
-        if (in_array('vendor_id', $this->input['report_keys'])) {
-            $entity['vendor'] = $expense->vendor ? $expense->vendor->name : '';
+        if (in_array('expense.vendor_id', $this->input['report_keys'])) {
+            $entity['expense.vendor'] = $expense->vendor ? $expense->vendor->name : '';
         }
 
-        if (in_array('payment_type_id', $this->input['report_keys'])) {
-            $entity['payment_type'] = $expense->payment_type ? $expense->payment_type->name : '';
+        if (in_array('expense.payment_type_id', $this->input['report_keys'])) {
+            $entity['expense.payment_type_id'] = $expense->payment_type ? $expense->payment_type->name : '';
         }
 
-        if (in_array('project_id', $this->input['report_keys'])) {
-            $entity['project'] = $expense->project ? $expense->project->name : '';
+        if (in_array('expense.project_id', $this->input['report_keys'])) {
+            $entity['expense.project_id'] = $expense->project ? $expense->project->name : '';
+        }
+
+        if (in_array('expense.user', $this->input['report_keys'])) {
+            $entity['expense.user'] = $expense->user ? $expense->user->present()->name() : '';
+        }
+
+        if (in_array('expense.assigned_user', $this->input['report_keys'])) {
+            $entity['expense.assigned_user'] = $expense->assigned_user ? $expense->assigned_user->present()->name() : '';
         }
 
         return $entity;

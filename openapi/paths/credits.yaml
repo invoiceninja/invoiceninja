@@ -21,15 +21,26 @@
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/Credit"
+              schema:  
+                type: object
+                properties:
+                  data: 
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Credit'
+                  meta:
+                    type: object
+                    $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
         403:
           $ref: "#/components/responses/403"
-
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
     post:
@@ -62,7 +73,11 @@
           $ref: "#/components/responses/403"
 
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   
@@ -105,7 +120,11 @@
           $ref: "#/components/responses/403"
 
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
     put:
@@ -146,7 +165,11 @@
           $ref: "#/components/responses/403"
 
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
     delete:
@@ -183,7 +206,11 @@
           $ref: "#/components/responses/403"
 
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   "/api/v1/credits/{id}/edit":
@@ -225,7 +252,11 @@
           $ref: "#/components/responses/403"
 
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   /api/v1/credits/create:
@@ -259,7 +290,11 @@
           $ref: "#/components/responses/403"
 
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   /api/v1/credits/bulk:
@@ -282,8 +317,8 @@
               type: array
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: "[0,1,2,3]"
+                type: string
+                example: '[D2J234DFA,D2J234DFA,D2J234DFA]'
       responses:
         200:
           description: "The Bulk Action response"
@@ -300,7 +335,11 @@
           $ref: "#/components/responses/403"
 
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   "/api/v1/credit/{invitation_key}/download":
@@ -338,7 +377,11 @@
           $ref: "#/components/responses/403"
 
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   "/api/v1/credits/{id}/upload":
@@ -379,6 +422,10 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"

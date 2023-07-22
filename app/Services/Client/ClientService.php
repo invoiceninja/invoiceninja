@@ -16,9 +16,9 @@ use App\Models\Credit;
 use App\Models\Payment;
 use App\Services\Email\Email;
 use App\Services\Email\EmailObject;
-use App\Services\Email\EmailService;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
+use Carbon\Carbon;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Support\Facades\DB;
 
@@ -81,7 +81,7 @@ class ClientService
         $amount = Payment::where('client_id', $this->client->id)
                         ->where('is_deleted', 0)
                         ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
-                        ->sum(DB::Raw('amount - refunded - applied'));
+                        ->sum(DB::Raw('amount - applied'));
 
         DB::connection(config('database.default'))->transaction(function () use ($amount) {
             $this->client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
@@ -150,6 +150,11 @@ class ClientService
         $pdf = $statement->run();
 
         if ($send_email) {
+            // If selected, ignore clients that don't have any invoices to put on the statement.
+            if (!empty($options['only_clients_with_invoices']) && $statement->getInvoices()->count() == 0) {
+                return false;
+            }
+
             return $this->emailStatement($pdf, $statement->options);
         }
 
@@ -167,9 +172,6 @@ class ClientService
     {
         $this->client_start_date = $this->translateDate($options['start_date'], $this->client->date_format(), $this->client->locale());
         $this->client_end_date = $this->translateDate($options['end_date'], $this->client->date_format(), $this->client->locale());
-
-        // $email_service = new EmailService($this->buildStatementMailableData($pdf), $this->client->company);
-        // $email_service->send();
         
         $email_object = $this->buildStatementMailableData($pdf);
         Email::dispatch($email_object, $this->client->company);
@@ -183,8 +185,23 @@ class ClientService
      */
     public function buildStatementMailableData($pdf) :EmailObject
     {
+        $email = $this->client->present()->email();
+
         $email_object = new EmailObject;
-        $email_object->to = [new Address($this->client->present()->email(), $this->client->present()->name())];
+        $email_object->to = [new Address($email, $this->client->present()->name())];
+
+        $cc_contacts = $this->client
+                            ->contacts()
+                            ->where('send_email', true)
+                            ->where('email', '!=',  $email)
+                            ->get();
+
+        foreach ($cc_contacts as $contact) {
+        
+            $email_object->cc[] = new Address($contact->email, $contact->present()->name());
+        
+        }
+
         $email_object->attachments = [['file' => base64_encode($pdf), 'name' => ctrans('texts.statement') . ".pdf"]];
         $email_object->client_id = $this->client->id;
         $email_object->email_template_subject = 'email_subject_statement';

@@ -10,93 +10,105 @@
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-use App\Http\Controllers\AccountController;
-use App\Http\Controllers\ActivityController;
-use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Bank\YodleeController;
-use App\Http\Controllers\BankIntegrationController;
-use App\Http\Controllers\BankTransactionController;
-use App\Http\Controllers\BankTransactionRuleController;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BaseController;
+use App\Http\Controllers\PingController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\ChartController;
+use App\Http\Controllers\EmailController;
+use App\Http\Controllers\QuoteController;
+use App\Http\Controllers\TokenController;
 use App\Http\Controllers\ClientController;
-use App\Http\Controllers\ClientGatewayTokenController;
-use App\Http\Controllers\ClientStatementController;
-use App\Http\Controllers\CompanyController;
-use App\Http\Controllers\CompanyGatewayController;
-use App\Http\Controllers\CompanyLedgerController;
-use App\Http\Controllers\CompanyUserController;
-use App\Http\Controllers\ConnectedAccountController;
 use App\Http\Controllers\CreditController;
 use App\Http\Controllers\DesignController;
-use App\Http\Controllers\DocumentController;
-use App\Http\Controllers\EmailController;
-use App\Http\Controllers\ExpenseCategoryController;
-use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FilterController;
-use App\Http\Controllers\GroupSettingController;
-use App\Http\Controllers\HostedMigrationController;
 use App\Http\Controllers\ImportController;
-use App\Http\Controllers\ImportJsonController;
-use App\Http\Controllers\InAppPurchase\AppleController;
+use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\StaticController;
+use App\Http\Controllers\StripeController;
+use App\Http\Controllers\TwilioController;
+use App\Http\Controllers\VendorController;
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LicenseController;
-use App\Http\Controllers\LogoutController;
-use App\Http\Controllers\MigrationController;
-use App\Http\Controllers\OneTimeTokenController;
 use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\PaymentNotificationWebhookController;
-use App\Http\Controllers\PaymentTermController;
-use App\Http\Controllers\PaymentWebhookController;
-use App\Http\Controllers\PingController;
-use App\Http\Controllers\PostMarkController;
 use App\Http\Controllers\PreviewController;
-use App\Http\Controllers\PreviewPurchaseOrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\TaxRateController;
+use App\Http\Controllers\WebCronController;
+use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\PostMarkController;
+use App\Http\Controllers\TemplateController;
+use App\Http\Controllers\MigrationController;
+use App\Http\Controllers\SchedulerController;
+use App\Http\Controllers\SubdomainController;
+use App\Http\Controllers\SystemLogController;
+use App\Http\Controllers\TwoFactorController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\ImportJsonController;
+use App\Http\Controllers\SelfUpdateController;
+use App\Http\Controllers\TaskStatusController;
+use App\Http\Controllers\Bank\YodleeController;
+use App\Http\Controllers\CompanyUserController;
+use App\Http\Controllers\PaymentTermController;
+use App\Http\Controllers\GroupSettingController;
+use App\Http\Controllers\OneTimeTokenController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\CompanyLedgerController;
 use App\Http\Controllers\PurchaseOrderController;
-use App\Http\Controllers\QuoteController;
+use App\Http\Controllers\TaskSchedulerController;
+use App\Http\Controllers\CompanyGatewayController;
+use App\Http\Controllers\PaymentWebhookController;
+use App\Http\Controllers\RecurringQuoteController;
+use App\Http\Controllers\BankIntegrationController;
+use App\Http\Controllers\BankTransactionController;
+use App\Http\Controllers\ClientStatementController;
+use App\Http\Controllers\ExpenseCategoryController;
+use App\Http\Controllers\HostedMigrationController;
+use App\Http\Controllers\ConnectedAccountController;
 use App\Http\Controllers\RecurringExpenseController;
 use App\Http\Controllers\RecurringInvoiceController;
-use App\Http\Controllers\RecurringQuoteController;
-use App\Http\Controllers\Reports\ClientContactReportController;
+use App\Http\Controllers\ProtectedDownloadController;
+use App\Http\Controllers\ClientGatewayTokenController;
+use App\Http\Controllers\Reports\TaskReportController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\BankTransactionRuleController;
+use App\Http\Controllers\InAppPurchase\AppleController;
+use App\Http\Controllers\Reports\QuoteReportController;
+use App\Http\Controllers\Auth\PasswordTimeoutController;
+use App\Http\Controllers\PreviewPurchaseOrderController;
 use App\Http\Controllers\Reports\ClientReportController;
 use App\Http\Controllers\Reports\CreditReportController;
-use App\Http\Controllers\Reports\DocumentReportController;
+use App\Http\Controllers\Reports\VendorReportController;
 use App\Http\Controllers\Reports\ExpenseReportController;
-use App\Http\Controllers\Reports\InvoiceItemReportController;
 use App\Http\Controllers\Reports\InvoiceReportController;
 use App\Http\Controllers\Reports\PaymentReportController;
 use App\Http\Controllers\Reports\ProductReportController;
-use App\Http\Controllers\Reports\ProductSalesReportController;
 use App\Http\Controllers\Reports\ProfitAndLossController;
+use App\Http\Controllers\Reports\ActivityReportController;
+use App\Http\Controllers\Reports\ARDetailReportController;
+use App\Http\Controllers\Reports\DocumentReportController;
+use App\Http\Controllers\Reports\ARSummaryReportController;
 use App\Http\Controllers\Reports\QuoteItemReportController;
-use App\Http\Controllers\Reports\QuoteReportController;
-use App\Http\Controllers\Reports\RecurringInvoiceReportController;
-use App\Http\Controllers\Reports\TaskReportController;
-use App\Http\Controllers\SchedulerController;
-use App\Http\Controllers\SelfUpdateController;
-use App\Http\Controllers\StaticController;
-use App\Http\Controllers\StripeController;
-use App\Http\Controllers\SubdomainController;
-use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\Reports\UserSalesReportController;
+use App\Http\Controllers\Reports\TaxSummaryReportController;
 use App\Http\Controllers\Support\Messages\SendingController;
-use App\Http\Controllers\SystemLogController;
-use App\Http\Controllers\TaskController;
-use App\Http\Controllers\TaskSchedulerController;
-use App\Http\Controllers\TaskStatusController;
-use App\Http\Controllers\TaxRateController;
-use App\Http\Controllers\TemplateController;
-use App\Http\Controllers\TokenController;
-use App\Http\Controllers\TwilioController;
-use App\Http\Controllers\TwoFactorController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\VendorController;
-use App\Http\Controllers\WebCronController;
-use App\Http\Controllers\WebhookController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Reports\ClientSalesReportController;
+use App\Http\Controllers\Reports\InvoiceItemReportController;
+use App\Http\Controllers\PaymentNotificationWebhookController;
+use App\Http\Controllers\Reports\ProductSalesReportController;
+use App\Http\Controllers\Reports\ClientBalanceReportController;
+use App\Http\Controllers\Reports\ClientContactReportController;
+use App\Http\Controllers\Reports\PurchaseOrderReportController;
+use App\Http\Controllers\Reports\RecurringInvoiceReportController;
+use App\Http\Controllers\Reports\PurchaseOrderItemReportController;
 
 Route::group(['middleware' => ['throttle:api', 'api_secret_check']], function () {
     Route::post('api/v1/signup', [AccountController::class, 'store'])->name('signup.submit');
@@ -109,6 +121,8 @@ Route::group(['middleware' => ['throttle:login','api_secret_check','email_db']],
 });
 
 Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
+
+    Route::post('password_timeout', PasswordTimeoutController::class)->name('password_timeout');
     Route::put('accounts/{account}', [AccountController::class, 'update'])->name('account.update');
     Route::resource('bank_integrations', BankIntegrationController::class); // name = (clients. index / create / show / update / destroy / edit
     Route::post('bank_integrations/refresh_accounts', [BankIntegrationController::class, 'refreshAccounts'])->name('bank_integrations.refresh_accounts')->middleware('throttle:30,1');
@@ -129,11 +143,14 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::get('health_check', [PingController::class, 'health'])->name('health_check');
 
     Route::get('activities', [ActivityController::class, 'index']);
+    Route::post('activities/entity', [ActivityController::class, 'entityActivity']);
     Route::get('activities/download_entity/{activity}', [ActivityController::class, 'downloadHistoricalEntity']);
-
 
     Route::post('charts/totals', [ChartController::class, 'totals'])->name('chart.totals');
     Route::post('charts/chart_summary', [ChartController::class, 'chart_summary'])->name('chart.chart_summary');
+
+    Route::post('charts/totals_v2', [ChartController::class, 'totalsV2'])->name('chart.totals_v2');
+    Route::post('charts/chart_summary_v2', [ChartController::class, 'chart_summaryV2'])->name('chart.chart_summary_v2');
 
     Route::post('claim_license', [LicenseController::class, 'index'])->name('license.index');
 
@@ -166,6 +183,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('company_gateways/bulk', [CompanyGatewayController::class, 'bulk'])->name('company_gateways.bulk');
 
     Route::put('company_users/{user}', [CompanyUserController::class, 'update']);
+    Route::put('company_users/{user}/preferences', [CompanyUserController::class, 'updatePreferences']);
 
     Route::resource('credits', CreditController::class); // name = (credits. index / create / show / update / destroy / edit
     Route::put('credits/{credit}/upload', [CreditController::class, 'upload'])->name('credits.upload');
@@ -205,6 +223,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::get('invoices/{invoice}/{action}', [InvoiceController::class, 'action'])->name('invoices.action');
     Route::put('invoices/{invoice}/upload', [InvoiceController::class, 'upload'])->name('invoices.upload');
     Route::get('invoice/{invitation_key}/download', [InvoiceController::class, 'downloadPdf'])->name('invoices.downloadPdf');
+    Route::get('invoice/{invitation_key}/download_e_invoice', [InvoiceController::class, 'downloadEInvoice'])->name('invoices.downloadEInvoice');
     Route::post('invoices/bulk', [InvoiceController::class, 'bulk'])->name('invoices.bulk');
     Route::post('invoices/update_reminders', [InvoiceController::class, 'update_reminders'])->name('invoices.update_reminders');
 
@@ -257,7 +276,6 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('recurring_expenses/bulk', [RecurringExpenseController::class, 'bulk'])->name('recurring_expenses.bulk');
     Route::put('recurring_expenses/{recurring_expense}/upload', [RecurringExpenseController::class, 'upload']);
 
-
     Route::resource('recurring_invoices', RecurringInvoiceController::class); // name = (recurring_invoices. index / create / show / update / destroy / edit
     Route::post('recurring_invoices/bulk', [RecurringInvoiceController::class, 'bulk'])->name('recurring_invoices.bulk');
     Route::put('recurring_invoices/{recurring_invoice}/upload', [RecurringInvoiceController::class, 'upload']);
@@ -267,22 +285,33 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
 
     Route::post('refresh', [LoginController::class, 'refresh'])->middleware('throttle:refresh');
 
-    Route::post('reports/clients', ClientReportController::class);
-    Route::post('reports/contacts', ClientContactReportController::class);
-    Route::post('reports/credits', CreditReportController::class);
-    Route::post('reports/documents', DocumentReportController::class);
-    Route::post('reports/expenses', ExpenseReportController::class);
-    Route::post('reports/invoices', InvoiceReportController::class);
-    Route::post('reports/invoice_items', InvoiceItemReportController::class);
-    Route::post('reports/quotes', QuoteReportController::class);
-    Route::post('reports/quote_items', QuoteItemReportController::class);
-    Route::post('reports/recurring_invoices', RecurringInvoiceReportController::class);
-    Route::post('reports/payments', PaymentReportController::class);
-    Route::post('reports/products', ProductReportController::class);
-    Route::post('reports/product_sales', ProductSalesReportController::class);
-    Route::post('reports/tasks', TaskReportController::class);
+    Route::post('reports/clients', ClientReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/activities', ActivityReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/client_contacts', ClientContactReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/contacts', ClientContactReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/credits', CreditReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/documents', DocumentReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/expenses', ExpenseReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/invoices', InvoiceReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/invoice_items', InvoiceItemReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/purchase_orders', PurchaseOrderReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/purchase_order_items', PurchaseOrderItemReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/quotes', QuoteReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/quote_items', QuoteItemReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/recurring_invoices', RecurringInvoiceReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/payments', PaymentReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/products', ProductReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/product_sales', ProductSalesReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/tasks', TaskReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/vendors', VendorReportController::class)->middleware('throttle:20,1');
     Route::post('reports/profitloss', ProfitAndLossController::class);
-
+    Route::post('reports/ar_detail_report', ARDetailReportController::class);
+    Route::post('reports/ar_summary_report', ARSummaryReportController::class);
+    Route::post('reports/client_balance_report', ClientBalanceReportController::class);
+    Route::post('reports/client_sales_report', ClientSalesReportController::class);
+    Route::post('reports/tax_summary_report', TaxSummaryReportController::class);
+    Route::post('reports/user_sales_report', UserSalesReportController::class);
+    
     Route::resource('task_schedulers', TaskSchedulerController::class);
     Route::post('task_schedulers/bulk', [TaskSchedulerController::class, 'bulk'])->name('task_schedulers.bulk');
 
@@ -316,7 +345,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
 
     Route::post('verify', [TwilioController::class, 'generate'])->name('verify.generate')->middleware('throttle:100,1');
     Route::post('verify/confirm', [TwilioController::class, 'confirm'])->name('verify.confirm');
-    
+
     Route::resource('vendors', VendorController::class); // name = (vendors. index / create / show / update / destroy / edit
     Route::post('vendors/bulk', [VendorController::class, 'bulk'])->name('vendors.bulk');
     Route::put('vendors/{vendor}/upload', [VendorController::class, 'upload']);
@@ -331,6 +360,8 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
 
     Route::post('users/bulk', [UserController::class, 'bulk'])->name('users.bulk')->middleware('password_protected');
     Route::post('/users/{user}/invite', [UserController::class, 'invite'])->middleware('password_protected');
+    Route::post('/users/{user}/disconnect_mailer', [UserController::class, 'disconnectOauthMailer']);
+    Route::post('/users/{user}/disconnect_oauth', [UserController::class, 'disconnectOauth']);
     Route::post('/user/{user}/reconfirm', [UserController::class, 'reconfirm']);
 
     Route::resource('webhooks', WebhookController::class);
@@ -376,4 +407,6 @@ Route::post('api/v1/yodlee/data_updates', [YodleeController::class, 'dataUpdates
 Route::post('api/v1/yodlee/refresh_updates', [YodleeController::class, 'refreshUpdatesWebhook'])->middleware('throttle:100,1');
 Route::post('api/v1/yodlee/balance', [YodleeController::class, 'balanceWebhook'])->middleware('throttle:100,1');
 
-Route::fallback([BaseController::class, 'notFound']);
+Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::class, 'index'])->name('protected_download')->middleware('throttle:300,1');
+
+Route::fallback([BaseController::class, 'notFound'])->middleware('throttle:404');

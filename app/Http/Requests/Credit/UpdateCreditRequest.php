@@ -67,7 +67,8 @@ class UpdateCreditRequest extends Request
         $rules['tax_name1'] = 'bail|sometimes|string|nullable';
         $rules['tax_name2'] = 'bail|sometimes|string|nullable';
         $rules['tax_name3'] = 'bail|sometimes|string|nullable';
-        
+        $rules['exchange_rate'] = 'bail|sometimes|gt:0';
+
         return $rules;
     }
 
@@ -79,6 +80,10 @@ class UpdateCreditRequest extends Request
 
         if (isset($input['line_items'])) {
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+        }
+
+        if (array_key_exists('exchange_rate', $input) && is_null($input['exchange_rate'])) {
+            $input['exchange_rate'] = 1;
         }
 
         $input['id'] = $this->credit->id;

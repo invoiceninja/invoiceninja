@@ -4,7 +4,38 @@
         - clients
       summary: 'List clients'
       description: |
-            Lists clients. Fine grained filtering is also available using query parameters.  
+            When retrieving a list of clients you can also chain query parameters in order to filter the dataset that is returned. For example, you can send a request to the following URL to retrieve clients that have a balance greater than 1000:\
+              
+            ```
+            /api/v1/clients?balance=gt:1000
+            ``` 
+            
+            You can also sort the results by adding a sort parameter. The following example will sort the results by the client name in descending order:\
+            
+            ```
+            /api/v1/clients?sort=name|desc
+            ```
+
+            You can also combine multiple filters together. The following example will return clients that have a balance greater than 1000 and are not deleted and have a name that starts with "Bob":\
+            
+            ```
+            /api/v1/clients?balance=gt:1000&name=Bob*
+            ```
+
+            If you wish to retrieve child relations, you can also combine the query parameter `?include=` with a comma separated list of relationships:\
+            
+            ```
+            /api/v1/clients?include=activities,ledger,system_logs'
+            ```
+
+            The per_page and page variables allow pagination of the list of clients. The following example will return the second page of clients with 15 clients per page:\
+            
+            ```
+            /api/v1/clients?per_page=15&page=2
+            ```
+
+            The default per_page value is 20.
+
       operationId: getClients
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
@@ -86,26 +117,51 @@
               $ref: '#/components/headers/X-RateLimit-Limit'
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Client'
+              schema:  
+                type: object
+                properties:
+                  data: 
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Client'
+                    example:
+                      $ref: '#/components/examples/Client'
+                  meta:
+                    type: object
+                    $ref: '#/components/schemas/Meta'
+                    example:
+                      $ref: '#/components/examples/Meta'
         401:
           $ref: '#/components/responses/401'
         403:
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
     post:
       tags:
         - clients
       summary: 'Create client'
-      description: 'Adds a client to a company'
+      description: |
+            Adds a client to a company
+              
+            When creating (or updating) a client you must include the child contacts with all mutating requests. Client contacts cannot be modified in isolation.
+
       operationId: storeClient
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
         - $ref: '#/components/parameters/X-Requested-With'
         - $ref: '#/components/parameters/client_include'
+      requestBody:
+        description: Client object that needs to be added to the company
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientRequest'
       responses:
         200:
           description: 'Returns the saved client object'
@@ -126,6 +182,8 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
   '/api/v1/clients/{id}':
@@ -167,6 +225,8 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
     put:
@@ -187,6 +247,13 @@
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: Client object that needs to be updated
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientRequest'
       responses:
         200:
           description: 'Returns the client object'
@@ -207,6 +274,8 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
     delete:
@@ -243,6 +312,8 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
   '/api/v1/clients/{id}/edit':
@@ -250,7 +321,7 @@
       tags:
         - clients
       summary: 'Edit Client'
-      description: 'Displays a client by id'
+      description: 'Displays a client by id, essentially an alias of the show route'
       operationId: editClient
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
@@ -284,6 +355,8 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
   /api/v1/clients/create:
@@ -317,6 +390,8 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
   /api/v1/clients/bulk:
@@ -331,19 +406,16 @@
         - $ref: '#/components/parameters/X-Requested-With'
         - $ref: '#/components/parameters/index'
       requestBody:
-        description: 'User credentials'
+        description: 'Bulk action array'
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: 'Array of hashed IDs to be bulk ''actioned'
-                type: integer
-                example: '[0,1,2,3]'
+              $ref: '#/components/schemas/GenericBulkAction'
+              
       responses:
         200:
-          description: 'The Client User response'
+          description: 'The Client listresponse'
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
@@ -361,6 +433,8 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
   '/api/v1/clients/{id}/upload':
@@ -416,6 +490,8 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
   '/api/v1/clients/{id}/purge':
@@ -423,11 +499,17 @@
       tags:
         - clients
       summary: 'Purge client'
-      description: 'Handles purging a client'
+      description: |
+            Handles purging a clients.
+
+            Please note this is a destructive action.
+
+            This action will remove all data associated with the client and cannot be undone.
       operationId: purgeClient
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
         - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/X-API-PASSWORD'
         - $ref: '#/components/parameters/client_include'
         - name: id
           in: path
@@ -453,6 +535,8 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
   '/api/v1/clients/{id}/{mergeable_client_hashed_id}/merge':
@@ -460,12 +544,18 @@
       tags:
         - clients
       summary: 'Merge client'
-      description: 'Handles merging 2 clients'
+      description: |
+            Handles merging 2 clients
+
+            The id parameter is the client that will be the primary client after the merge has completed. 
+
+            The mergeable_client_hashed_id is the client that will be merged into the primary client, this clients records will be updated and associated with the primary client.
       operationId: mergeClient
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
         - $ref: '#/components/parameters/X-Requested-With'
         - $ref: '#/components/parameters/client_include'
+        - $ref: '#/components/parameters/X-API-PASSWORD'
         - name: id
           in: path
           description: 'The Client Hashed ID'
@@ -498,6 +588,8 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
   /api/v1/client_statement:
@@ -512,7 +604,7 @@
         - $ref: '#/components/parameters/X-Requested-With'
         - $ref: '#/components/parameters/include'
       requestBody:
-        description: 'Statment Options'
+        description: 'Statement Options'
         required: true
         content:
           application/json:
@@ -529,6 +621,9 @@
                   type: string
                 show_payments_table:
                   description: 'Flag which determines if the payments table is shown'
+                  type: boolean
+                show_credits_table:
+                  description: 'Flag which determines if the credits table is shown'
                   type: boolean
                 show_aging_table:
                   description: 'Flag which determines if the aging table is shown'
@@ -554,5 +649,9 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: '#/components/responses/default'

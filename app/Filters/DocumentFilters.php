@@ -22,7 +22,7 @@ class DocumentFilters extends QueryFilters
     /**
      * Filter based on search text.
      *
-     * @param string query filter
+     * @param string $filter
      * @return Builder
      * @deprecated
      */
@@ -52,7 +52,7 @@ class DocumentFilters extends QueryFilters
     /**
      * Sorts the list based on $sort.
      *
-     * @param string sort formatted as column|asc
+     * @param string $sort formatted as column|asc
      * @return Builder
      */
     public function sort(string $sort = ''): Builder
@@ -79,9 +79,9 @@ class DocumentFilters extends QueryFilters
     /**
      * Filters the query by the users company ID.
      *
-     * @return Illuminate\Database\Query\Builder
+     * @return Builder
      */
-    public function entityFilter()
+    public function entityFilter(): Builder
     {
         return $this->builder->company();
     }

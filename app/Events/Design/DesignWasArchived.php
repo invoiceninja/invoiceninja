@@ -26,29 +26,8 @@ class DesignWasArchived
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /**
-     * @var Design
-     */
-    public $design;
-
-    public $company;
-
-    public $event_vars;
-
-    /**
-     * Create a new event instance.
-     *
-     * @param Design $design
-     * @param Company $company
-     * @param array $event_vars
-     */
-    public function __construct(Design $design, Company $company, array $event_vars)
+    public function __construct(public Design $design, public Company $company, public array $event_vars)
     {
-        $this->design = $design;
-
-        $this->company = $company;
-
-        $this->event_vars = $event_vars;
     }
 
     /**
@@ -56,8 +35,8 @@ class DesignWasArchived
      *
      * @return Channel|array
      */
-    public function broadcastOn()
-    {
-        return new PrivateChannel('channel-name');
-    }
+     public function broadcastOn()
+     {
+        return [];
+     }
 }

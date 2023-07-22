@@ -27,7 +27,7 @@ class CreditFilters extends QueryFilters
      * - overdue
      * - reversed
      *
-     * @param string credit_status The credit status as seen by the client
+     * @param string $value The credit status as seen by the client
      * @return Builder
      */
     public function credit_status(string $value = ''): Builder
@@ -66,7 +66,7 @@ class CreditFilters extends QueryFilters
     /**
      * Filter based on search text.
      *
-     * @param string query filter
+     * @param string $filter
      * @return Builder
      * @deprecated
      */
@@ -104,7 +104,7 @@ class CreditFilters extends QueryFilters
     /**
      * Sorts the list based on $sort.
      *
-     * @param string sort formatted as column|asc
+     * @param string $sort formatted as column|asc
      * @return Builder
      */
     public function sort(string $sort = ''): Builder
@@ -113,6 +113,11 @@ class CreditFilters extends QueryFilters
 
         if (!is_array($sort_col) || count($sort_col) != 2) {
             return $this->builder;
+        }
+
+        if ($sort_col[0] == 'client_id') {
+            return $this->builder->orderBy(\App\Models\Client::select('name')
+                    ->whereColumn('clients.id', 'credits.client_id'), $sort_col[1]);
         }
 
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
@@ -124,7 +129,7 @@ class CreditFilters extends QueryFilters
      * We need to ensure we are using the correct company ID
      * as we could be hitting this from either the client or company auth guard
      *
-     * @return Illuminate\Database\Query\Builder
+     * @return Builder
      */
     public function entityFilter()
     {

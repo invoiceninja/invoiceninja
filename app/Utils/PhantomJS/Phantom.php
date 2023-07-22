@@ -190,7 +190,7 @@ class Phantom
 
         $design_id = $entity_obj->design_id ? $entity_obj->design_id : $this->decodePrimaryKey($entity_obj->client->getSetting($entity_design_id));
 
-        $design = Design::find($design_id);
+        $design = Design::withTrashed()->find($design_id);
         $html = new HtmlEngine($invitation);
 
         if ($design->is_custom) {

@@ -70,14 +70,26 @@
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/Quote"
+              schema:  
+                type: object
+                properties:
+                  data: 
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Quote'
+                  meta:
+                    type: object
+                    $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
     post:
@@ -109,7 +121,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   "/api/v1/quotes/{id}":
@@ -150,7 +166,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
     put:
@@ -190,7 +210,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
     delete:
@@ -226,7 +250,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   "/api/v1/quotes/{id}/edit":
@@ -267,7 +295,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   /api/v1/quotes/create:
@@ -300,7 +332,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   /api/v1/quotes/bulk:
@@ -344,7 +380,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   "/api/v1/quotes/{id}/{action}":
@@ -394,7 +434,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   "/api/v1/quote/{invitation_key}/download":
@@ -431,7 +475,11 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   "/api/v1/quotes/{id}/upload":
@@ -472,6 +520,10 @@
         403:
           $ref: "#/components/responses/403"
         422:
-          $ref: "#/components/responses/422"
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"

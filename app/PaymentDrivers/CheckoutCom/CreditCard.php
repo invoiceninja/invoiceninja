@@ -228,7 +228,7 @@ class CreditCard implements MethodInterface
         $paymentRequest->amount = $this->checkout->payment_hash->data->value;
         $paymentRequest->reference = substr($this->checkout->getDescription(), 0, 49);
         $paymentRequest->customer = $this->checkout->getCustomer();
-        $paymentRequest->metadata = ['udf1' => 'Invoice Ninja'];
+        $paymentRequest->metadata = ['udf1' => 'Invoice Ninja', 'udf2' => $this->checkout->payment_hash->hash];
         $paymentRequest->currency = $this->checkout->client->getCurrencyCode();
 
         $this->checkout->payment_hash->data = array_merge((array) $this->checkout->payment_hash->data, ['checkout_payment_ref' => $paymentRequest]);

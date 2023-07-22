@@ -24,6 +24,7 @@ use App\Http\Requests\CompanyGateway\UpdateCompanyGatewayRequest;
 use App\Jobs\Util\ApplePayDomain;
 use App\Models\Client;
 use App\Models\CompanyGateway;
+use App\PaymentDrivers\CheckoutCom\CheckoutSetupWebhook;
 use App\PaymentDrivers\Stripe\Jobs\StripeWebhook;
 use App\Repositories\CompanyRepository;
 use App\Transformers\CompanyGatewayTransformer;
@@ -48,6 +49,8 @@ class CompanyGatewayController extends BaseController
     public $forced_includes = [];
 
     private array $stripe_keys = ['d14dd26a47cecc30fdd65700bfb67b34', 'd14dd26a37cecc30fdd65700bfb55b23'];
+
+    private string $checkout_key = '3758e7f7c6f4cecf0f4f348b9a00f456';
 
     /**
      * CompanyGatewayController constructor.
@@ -210,6 +213,9 @@ class CompanyGatewayController extends BaseController
 
         if (in_array($company_gateway->gateway_key, $this->stripe_keys)) {
             StripeWebhook::dispatch($company_gateway->company->company_key, $company_gateway->id);
+        }
+        elseif($company_gateway->gateway_key == $this->checkout_key) {
+            CheckoutSetupWebhook::dispatch($company_gateway->company->company_key, $company_gateway->id);
         }
 
         return $this->itemResponse($company_gateway);
@@ -382,8 +388,10 @@ class CompanyGatewayController extends BaseController
 
         $company_gateway->save();
 
-        // ApplePayDomain::dispatch($company_gateway, $company_gateway->company->db);
-
+        if($company_gateway->gateway_key == $this->checkout_key) {
+            CheckoutSetupWebhook::dispatch($company_gateway->company->company_key, $company_gateway->fresh()->id);
+        }
+        
         return $this->itemResponse($company_gateway);
     }
 

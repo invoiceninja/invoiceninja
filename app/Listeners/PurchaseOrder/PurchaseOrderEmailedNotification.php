@@ -62,7 +62,7 @@ class PurchaseOrderEmailedNotification implements ShouldQueue
                 unset($methods[$key]);
 
                 $nmo = new NinjaMailerObject;
-                $nmo->mailable = new NinjaMailer((new EntitySentObject($event->invitation, 'purchase_order', 'purchase_order'))->build());
+                $nmo->mailable = new NinjaMailer((new EntitySentObject($event->invitation, 'purchase_order', 'purchase_order', $company_user->portalType()))->build());
                 $nmo->company = $purchase_order->company;
                 $nmo->settings = $purchase_order->company->settings;
                 $nmo->to_user = $user;

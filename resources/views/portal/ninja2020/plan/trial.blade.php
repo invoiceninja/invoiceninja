@@ -1458,7 +1458,8 @@ Ensure the default browser behavior of the `hidden` attribute.
                                 id="name"
                                 placeholder="{{ ctrans('texts.name') }}"
                                 name="name"
-                                value="{{$client->present()->name()}}"
+                                value="{{$client->name}}"
+                                required
                         />
                     </div>
                     <div class="form-group mb-[10px]">
@@ -1822,6 +1823,23 @@ var country_value = e.options[e.selectedIndex].value;
       .getElementById('pay-now')
       .addEventListener('click', () => {
 
+        //make sure the user has entered their name
+
+        if (document.querySelector('input[name=name]').value == '') {
+          let errors = document.getElementById('errors');
+          let payNowButton = document.getElementById('pay-now');
+
+          errors.textContent = '';
+          errors.textContent = "{{ ctrans('texts.please_enter_a_name') }}";
+          errors.hidden = false;
+
+          payNowButton.disabled = false;
+          payNowButton.querySelector('svg').classList.add('hidden');
+          payNowButton.querySelector('span').classList.remove('hidden');
+          return;
+        }
+
+
         let payNowButton = document.getElementById('pay-now');
         payNowButton = payNowButton;
         payNowButton.disabled = true;
@@ -1832,6 +1850,7 @@ var country_value = e.options[e.selectedIndex].value;
                 payment_method_data: {
                       billing_details: {
                         name: document.querySelector('input[name=name]').content,
+                        email: '{{ $client->present()->email() }}',
                         address: {
                           line1: document.querySelector('input[name=address1]').content,
                           line2: document.querySelector('input[name=address2]').content,

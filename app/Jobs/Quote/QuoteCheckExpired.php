@@ -95,7 +95,6 @@ class QuoteCheckExpired implements ShouldQueue
     private function queueExpiredQuoteNotification(Quote $quote)
     {
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer((new QuoteExpiredObject($quote, $quote->company))->build());
         $nmo->company = $quote->company;
         $nmo->settings = $quote->company->settings;
 
@@ -107,6 +106,8 @@ class QuoteCheckExpired implements ShouldQueue
             if (! $user) {
                 continue;
             }
+            
+            $nmo->mailable = new NinjaMailer((new QuoteExpiredObject($quote, $quote->company, $company_user->portalType()))->build());
 
             /* Returns an array of notification methods */
             $methods = $this->findUserNotificationTypes($quote->invitations()->first(), $company_user, 'quote', ['all_notifications', 'quote_expired', 'quote_expired_all', 'quote_expired_user']);

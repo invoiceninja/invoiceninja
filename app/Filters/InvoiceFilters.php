@@ -11,12 +11,14 @@
 
 namespace App\Filters;
 
+use RuntimeException;
+use App\Models\Client;
 use App\Models\Invoice;
+use App\Filters\QueryFilters;
+use InvalidArgumentException;
+use Illuminate\Support\Carbon;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Carbon;
-use InvalidArgumentException;
-use RuntimeException;
 
 /**
  * InvoiceFilters.
@@ -35,7 +37,7 @@ class InvoiceFilters extends QueryFilters
      * - overdue
      * - reversed
      *
-     * @param string client_status The invoice status as seen by the client
+     * @param string $value The invoice status as seen by the client
      * @return Builder
      */
     public function client_status(string $value = ''): Builder
@@ -52,6 +54,10 @@ class InvoiceFilters extends QueryFilters
 
         $this->builder->where(function ($query) use ($status_parameters) {
             $invoice_filters = [];
+
+            if (in_array('draft', $status_parameters)) {
+                $invoice_filters[] = Invoice::STATUS_DRAFT;
+            }
 
             if (in_array('paid', $status_parameters)) {
                 $invoice_filters[] = Invoice::STATUS_PAID;
@@ -88,7 +94,7 @@ class InvoiceFilters extends QueryFilters
     /**
      * Filter based on search text.
      *
-     * @param string query filter
+     * @param string $filter
      * @return Builder
      * @deprecated
      */
@@ -118,14 +124,19 @@ class InvoiceFilters extends QueryFilters
      * @return Builder
      * @throws RuntimeException
      */
-    public function without_deleted_clients(): Builder
+    public function status_id(string $status = ''): Builder
     {
-        return $this->builder->whereHas('client', function ($query) {
-            $query->where('is_deleted', 0);
-        });
+
+        if (strlen($status) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->whereIn('status_id', explode(",", $status));
+
     }
 
     /**
+     * @return Builder
      * @return Builder
      * @throws InvalidArgumentException
      */
@@ -141,6 +152,7 @@ class InvoiceFilters extends QueryFilters
 
     /**
      * @return void
+     * @return Builder
      * @throws InvalidArgumentException
      */
     public function overdue(): Builder
@@ -174,7 +186,7 @@ class InvoiceFilters extends QueryFilters
     /**
      * Sorts the list based on $sort.
      *
-     * @param string sort formatted as column|asc
+     * @param string $sort formatted as column|asc
      * @return Builder
      */
     public function sort(string $sort = ''): Builder
@@ -183,6 +195,13 @@ class InvoiceFilters extends QueryFilters
 
         if (!is_array($sort_col) || count($sort_col) != 2) {
             return $this->builder;
+        }
+
+        if ($sort_col[0] == 'client_id') {
+
+            return $this->builder->orderBy(\App\Models\Client::select('name')
+                             ->whereColumn('clients.id', 'invoices.client_id'), $sort_col[1]);
+            
         }
 
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
@@ -194,9 +213,9 @@ class InvoiceFilters extends QueryFilters
      * We need to ensure we are using the correct company ID
      * as we could be hitting this from either the client or company auth guard
      *
-     * @return Illuminate\Database\Query\Builder
+     * @return Builder
      */
-    public function entityFilter()
+    public function entityFilter(): Builder
     {
         if (auth()->guard('contact')->user()) {
             return $this->contactViewFilter();
@@ -210,7 +229,7 @@ class InvoiceFilters extends QueryFilters
      * @return Builder
      * @throws InvalidArgumentException
      */
-    public function private_notes($filter = '') :Builder
+    public function private_notes($filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;

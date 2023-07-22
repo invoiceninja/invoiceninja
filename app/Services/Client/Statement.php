@@ -28,6 +28,7 @@ use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\Pdf\PdfMaker as PdfMakerTrait;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Models\Credit;
 
 class Statement
 {
@@ -71,6 +72,7 @@ class Statement
                 'variables' => $variables,
                 'invoices' => $this->getInvoices(),
                 'payments' => $this->getPayments(),
+                'credits' => $this->getCredits(),
                 'aging' => $this->getAging(),
             ], \App\Services\PdfMaker\Design::STATEMENT),
             'variables' => $variables,
@@ -205,15 +207,23 @@ class Statement
             $this->options['show_aging_table'] = false;
         }
 
+        if (! \array_key_exists('show_credits_table', $this->options)) {
+            $this->options['show_credits_table'] = false;
+        }
+
+        if (!\array_key_exists('only_clients_with_invoices', $this->options)) {
+            $this->options['only_clients_with_invoices'] = false;
+        }
+
         return $this;
     }
 
     /**
      * The collection of invoices for the statement.
      *
-     * @return Invoice[]|\Illuminate\Database\Eloquent\Collection
+     * @return Invoice[]|\Illuminate\Support\LazyCollection
      */
-    protected function getInvoices(): \Illuminate\Support\LazyCollection
+    public function getInvoices(): \Illuminate\Support\LazyCollection
     {
         return Invoice::withTrashed()
             ->with('payments.type')
@@ -238,24 +248,24 @@ class Statement
         switch ($status) {
             case 'all':
                 return [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID];
-                break;
+                
             case 'paid':
                 return [Invoice::STATUS_PAID];
-                break;
+                
             case 'unpaid':
                 return [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL];
-                break;
+                
 
             default:
                 return [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID];
-                break;
+                
         }
     }
 
     /**
      * The collection of payments for the statement.
      *
-     * @return Payment[]|\Illuminate\Database\Eloquent\Collection
+     * @return Payment[]|\Illuminate\Support\LazyCollection
      */
     protected function getPayments(): \Illuminate\Support\LazyCollection
     {
@@ -266,6 +276,28 @@ class Statement
             ->where('client_id', $this->client->id)
             ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
             ->whereBetween('date', [Carbon::parse($this->options['start_date']), Carbon::parse($this->options['end_date'])])
+            ->orderBy('date', 'ASC')
+            ->cursor();
+    }
+
+    /**
+     * The collection of credits for the statement.
+     *
+     * @return Credit[]|\Illuminate\Support\LazyCollection
+     */
+    protected function getCredits(): \Illuminate\Support\LazyCollection
+    {
+        return Credit::withTrashed()
+            ->with('client.country', 'invoices')
+            ->where('is_deleted', false)
+            ->where('company_id', $this->client->company_id)
+            ->where('client_id', $this->client->id)
+            ->whereIn('status_id', [Credit::STATUS_SENT, Credit::STATUS_PARTIAL, Credit::STATUS_APPLIED])
+            ->whereBetween('date', [Carbon::parse($this->options['start_date']), Carbon::parse($this->options['end_date'])])
+            ->where(function ($query) {
+                $query->whereDate('due_date', '>=', $this->options['end_date'])
+                      ->orWhereNull('due_date');
+            })
             ->orderBy('date', 'ASC')
             ->cursor();
     }
@@ -342,28 +374,28 @@ class Statement
 
                 return $ranges;
             case '60':
-                $ranges[0] = now()->startOfDay()->subDays(30);
+                $ranges[0] = now()->startOfDay()->subDays(31);
                 $ranges[1] = now()->startOfDay()->subDays(60);
 
                 return $ranges;
             case '90':
-                $ranges[0] = now()->startOfDay()->subDays(60);
+                $ranges[0] = now()->startOfDay()->subDays(61);
                 $ranges[1] = now()->startOfDay()->subDays(90);
 
                 return $ranges;
             case '120':
-                $ranges[0] = now()->startOfDay()->subDays(90);
+                $ranges[0] = now()->startOfDay()->subDays(91);
                 $ranges[1] = now()->startOfDay()->subDays(120);
 
                 return $ranges;
             case '120+':
-                $ranges[0] = now()->startOfDay()->subDays(120);
+                $ranges[0] = now()->startOfDay()->subDays(121);
                 $ranges[1] = now()->startOfDay()->subYears(20);
 
                 return $ranges;
             default:
-                $ranges[0] = now()->startOfDay()->subDays(0);
-                $ranges[1] = now()->subDays(30);
+                $ranges[0] = now()->startOfDay();
+                $ranges[1] = now()->startOfDay()->subDays(30);
 
                 return $ranges;
         }
@@ -382,6 +414,6 @@ class Statement
             $id = (int) $this->client->getSetting('entity_design_id');
         }
 
-        return Design::find($id);
+        return Design::withTrashed()->find($id);
     }
 }

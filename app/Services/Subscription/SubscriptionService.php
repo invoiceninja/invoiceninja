@@ -121,6 +121,10 @@ class SubscriptionService
                 'account_key' => $recurring_invoice->client->custom_value2,
             ];
 
+            if (property_exists($payment_hash->data->billing_context, 'campaign')) {
+                $context['campaign'] = $payment_hash->data->billing_context->campaign;
+            }
+
             $response = $this->triggerWebhook($context);
 
             return $this->handleRedirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
@@ -184,7 +188,7 @@ class SubscriptionService
         //update the invoice and attach to the recurring invoice!!!!!
         $invoice->recurring_id = $recurring_invoice->id;
         $invoice->is_proforma = false;
-        $invoice->service()->touchPdf();
+        $invoice->service()->deletePdf();
         $invoice->save();
 
         $contact = $invoice->client->contacts()->whereNotNull('email')->first();
@@ -817,13 +821,15 @@ class SubscriptionService
         $invoice->is_proforma = false;
         $invoice->save();
 
+        // 29-06-2023 handle webhooks for payment intent - user may not be present.
+        
         $context = [
             'context' => 'change_plan',
             'recurring_invoice' => $recurring_invoice->hashed_id,
             'invoice' => $this->encodePrimaryKey($payment_hash->fee_invoice_id),
             'client' => $recurring_invoice->client->hashed_id,
             'subscription' => $this->subscription->hashed_id,
-            'contact' => auth()->guard('contact')->user()->hashed_id,
+            'contact' => auth()->guard('contact')->user()?->hashed_id ?? $recurring_invoice->client->contacts()->first()->hashed_id,
             'account_key' => $recurring_invoice->client->custom_value2,
         ];
 

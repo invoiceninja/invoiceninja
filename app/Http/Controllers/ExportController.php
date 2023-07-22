@@ -11,10 +11,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Export\StoreExportRequest;
-use App\Jobs\Company\CompanyExport;
-use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Str;
 use Illuminate\Http\Response;
+use App\Utils\Traits\MakesHash;
+use App\Jobs\Company\CompanyExport;
+use Illuminate\Support\Facades\Cache;
+use App\Http\Requests\Export\StoreExportRequest;
 
 class ExportController extends BaseController
 {
@@ -54,8 +56,12 @@ class ExportController extends BaseController
      */
     public function index(StoreExportRequest $request)
     {
-        CompanyExport::dispatch(auth()->user()->getCompany(), auth()->user());
+        $hash = Str::uuid();
+        $url = \Illuminate\Support\Facades\URL::temporarySignedRoute('protected_download', now()->addHour(), ['hash' => $hash]);
+        Cache::put($hash, $url, now()->addHour());
 
-        return response()->json(['message' => 'Processing'], 200);
+        CompanyExport::dispatch(auth()->user()->getCompany(), auth()->user(), $hash);
+
+        return response()->json(['message' => 'Processing', 'url' => $url], 200);
     }
 }

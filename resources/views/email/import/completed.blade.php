@@ -106,7 +106,7 @@
                                 <tbody>
                                     <tr>
                                     <td align="center" class="new_button" style="border-radius: 2px; background-color: '.$this->settings->primary_color.'">
-                                        <a href="{{ url('/') }}" target="_blank" class="new_button" style="text-decoration: none; border: 1px solid '.$this->settings->primary_color.'; display: inline-block; border-radius: 2px; padding-top: 15px; padding-bottom: 15px; padding-left: 25px; padding-right: 25px; font-size: 20px; color: #fff">
+                                        <a href="{{ $url }}" target="_blank" class="new_button" style="text-decoration: none; border: 1px solid '.$this->settings->primary_color.'; display: inline-block; border-radius: 2px; padding-top: 15px; padding-bottom: 15px; padding-left: 25px; padding-right: 25px; font-size: 20px; color: #fff">
                                         <singleline label="cta button">{{ ctrans('texts.account_login') }}</singleline>
                                         </a>
                                     </td>

@@ -1,10 +1,10 @@
 <?php
 /**
- * client Ninja (https://clientninja.com).
+ * client Ninja (https://invoiceninja.com).
  *
- * @link https://github.com/clientninja/clientninja source repository
+ * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. client Ninja LLC (https://clientninja.com)
+ * @copyright Copyright (c) 2022. client Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -114,7 +114,7 @@ class InvoiceTransformer extends BaseTransformer
                 $invoice_data,
                 'invoice.custom_surcharge4'
             ),
-            'exchange_rate' => $this->getString(
+            'exchange_rate' => $this->getFloatOrOne(
                 $invoice_data,
                 'invoice.exchange_rate'
             ),
@@ -167,24 +167,25 @@ class InvoiceTransformer extends BaseTransformer
                     ),
                 ],
             ];
-        } elseif (
-            isset($transformed['amount']) &&
-            isset($transformed['balance']) &&
-            $transformed['amount'] != $transformed['balance']
-        ) {
-            $transformed['payments'] = [
-                [
-                    'date' => isset($invoice_data['payment.date'])
-                        ? $this->parseDate($invoice_data['payment.date'])
-                        : date('y-m-d'),
-                    'transaction_reference' => $this->getString(
-                        $invoice_data,
-                        'payment.transaction_reference'
-                    ),
-                    'amount' => $transformed['amount'] - $transformed['balance'],
-                ],
-            ];
-        }
+        } 
+        // elseif (
+        //     isset($transformed['amount']) &&
+        //     isset($transformed['balance']) &&
+        //     $transformed['amount'] != $transformed['balance']
+        // ) {
+        //     $transformed['payments'] = [
+        //         [
+        //             'date' => isset($invoice_data['payment.date'])
+        //                 ? $this->parseDate($invoice_data['payment.date'])
+        //                 : date('y-m-d'),
+        //             'transaction_reference' => $this->getString(
+        //                 $invoice_data,
+        //                 'payment.transaction_reference'
+        //             ),
+        //             'amount' => $transformed['amount'] - $transformed['balance'],
+        //         ],
+        //     ];
+        // }
 
         $line_items = [];
         foreach ($line_items_data as $record) {

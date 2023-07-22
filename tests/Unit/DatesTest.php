@@ -31,6 +31,150 @@ class DatesTest extends TestCase
         // $this->makeTestData();
     }
 
+    public function testLastFinancialYear3()
+    {
+        $this->travelTo(now()->createFromDate(2020, 6, 30));
+
+        //override for financial years
+        $first_month_of_year = 7;
+        $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
+
+        $fin_year_start->subYearNoOverflow();
+
+        if(now()->subYear()->lt($fin_year_start)) {
+            $fin_year_start->subYearNoOverflow();
+        }
+                    
+        $this->assertEquals('2018-07-01', $fin_year_start->format('Y-m-d'));
+        $this->assertEquals('2019-06-30', $fin_year_start->copy()->addYear()->subDay()->format('Y-m-d'));
+
+        $this->travelBack();
+
+    }
+
+    public function testLastFinancialYear2()
+    {
+        $this->travelTo(now()->createFromDate(2020, 7, 1));
+
+        //override for financial years
+        $first_month_of_year = 7;
+        $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
+
+        $fin_year_start->subYearNoOverflow();
+
+        if(now()->subYear()->lt($fin_year_start)) {
+            $fin_year_start->subYearNoOverflow();
+        }
+                    
+        $this->assertEquals('2019-07-01', $fin_year_start->format('Y-m-d'));
+        $this->assertEquals('2020-06-30', $fin_year_start->copy()->addYear()->subDay()->format('Y-m-d'));
+
+        $this->travelBack();
+
+    }
+
+    public function testLastFinancialYear()
+    {
+        $this->travelTo(now()->createFromDate(2020, 12, 1));
+
+        //override for financial years
+        $first_month_of_year = 7;
+        $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
+
+        $fin_year_start->subYearNoOverflow();
+
+        if(now()->subYear()->lt($fin_year_start)) {
+            $fin_year_start->subYearNoOverflow();
+        }
+                    
+        $this->assertEquals('2019-07-01', $fin_year_start->format('Y-m-d'));
+        $this->assertEquals('2020-06-30', $fin_year_start->copy()->addYear()->subDay()->format('Y-m-d'));
+
+        $this->travelBack();
+
+    }
+
+    public function testFinancialYearDates4()
+    {
+        $this->travelTo(now()->createFromDate(2020, 12, 1));
+
+        $first_month_of_year = 7;
+
+        $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
+
+        if(now()->lt($fin_year_start))
+            $fin_year_start->subYear();
+
+        $fin_year_end = $fin_year_start->copy()->addYear()->subDay();
+
+        $this->assertEquals('2020-07-01', $fin_year_start->format('Y-m-d'));
+        $this->assertEquals('2021-06-30', $fin_year_end->format('Y-m-d'));
+
+        $this->travelBack();
+        
+    }
+
+    public function testFinancialYearDates3()
+    {
+        $this->travelTo(now()->createFromDate(2021, 12, 1));
+
+        $first_month_of_year = 7;
+
+        $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
+
+        if(now()->lt($fin_year_start))
+            $fin_year_start->subYear();
+
+        $fin_year_end = $fin_year_start->copy()->addYear()->subDay();
+
+        $this->assertEquals('2021-07-01', $fin_year_start->format('Y-m-d'));
+        $this->assertEquals('2022-06-30', $fin_year_end->format('Y-m-d'));
+
+        $this->travelBack();
+        
+    }
+
+    public function testFinancialYearDates2()
+    {
+        $this->travelTo(now()->createFromDate(2021, 8, 1));
+
+        $first_month_of_year = 7;
+
+        $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
+
+        if(now()->lt($fin_year_start))
+            $fin_year_start->subYear();
+
+        $fin_year_end = $fin_year_start->copy()->addYear()->subDay();
+
+        $this->assertEquals('2021-07-01', $fin_year_start->format('Y-m-d'));
+        $this->assertEquals('2022-06-30', $fin_year_end->format('Y-m-d'));
+
+        $this->travelBack();
+        
+    }
+
+
+    public function testFinancialYearDates()
+    {
+        $this->travelTo(now()->createFromDate(2021, 1, 1));
+
+        $first_month_of_year = 7;
+
+        $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
+
+        if(now()->lt($fin_year_start))
+            $fin_year_start->subYear();
+
+        $fin_year_end = $fin_year_start->copy()->addYear()->subDay();
+
+        $this->assertEquals('2020-07-01', $fin_year_start->format('Y-m-d'));
+        $this->assertEquals('2021-06-30', $fin_year_end->format('Y-m-d'));
+
+        $this->travelBack();
+
+    }
+
     public function testDaysDiff()
     {
         $string_date = '2021-06-01';

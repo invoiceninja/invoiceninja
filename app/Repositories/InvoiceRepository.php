@@ -78,8 +78,8 @@ class InvoiceRepository extends BaseRepository
     /**
      * Handles the restoration on a deleted invoice.
      *
-     * @param  [type] $invoice [description]
-     * @return [type]          [description]
+     * @param  Invoice $invoice
+     * @return Invoice
      */
     public function restore($invoice) :Invoice
     {
@@ -96,6 +96,10 @@ class InvoiceRepository extends BaseRepository
 
         // reversed delete invoice actions
         $invoice = $invoice->service()->handleRestore()->save();
+
+        /* If the reverse did not succeed due to rules, then do not restore / unarchive */
+        if($invoice->is_deleted)
+            return $invoice;
 
         parent::restore($invoice);
 

@@ -11,17 +11,16 @@
 
 namespace App\Services\Invoice;
 
-use App\Jobs\Inventory\AdjustProductInventory;
+use App\Models\Credit;
 use App\Models\Invoice;
 use App\Services\AbstractService;
-use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Support\Facades\DB;
+use App\Utils\Traits\GeneratesCounter;
+use App\Jobs\Inventory\AdjustProductInventory;
 
 class MarkInvoiceDeleted extends AbstractService
 {
     use GeneratesCounter;
-
-    public $invoice;
 
     private $adjustment_amount = 0;
 
@@ -29,9 +28,8 @@ class MarkInvoiceDeleted extends AbstractService
 
     private $balance_adjustment = 0;
 
-    public function __construct(Invoice $invoice)
+    public function __construct(public Invoice $invoice)
     {
-        $this->invoice = $invoice;
     }
 
     public function run()
@@ -96,6 +94,11 @@ class MarkInvoiceDeleted extends AbstractService
                                             ->where('paymentable_type', '=', 'invoices')
                                             ->where('paymentable_id', $this->invoice->id)
                                             ->sum(DB::raw('refunded'));
+
+            //14-07-2023 - Do not include credits in the payment adjustment.
+            $payment_adjustment -= $payment->paymentables
+                                            ->where('paymentable_type', '=', 'App\Models\Credit')
+                                            ->sum(DB::raw('amount'));
 
             $payment->amount -= $payment_adjustment;
             $payment->applied -= $payment_adjustment;
