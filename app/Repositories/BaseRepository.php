@@ -180,8 +180,6 @@ class BaseRepository
             unset($tmp_data['client_contacts']);
         }
 
-        nlog($tmp_data);
-
         $model->fill($tmp_data);
 
         $model->custom_surcharge_tax1 = $client->company->custom_surcharge_taxes1;

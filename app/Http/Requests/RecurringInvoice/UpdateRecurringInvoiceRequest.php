@@ -122,7 +122,7 @@ class UpdateRecurringInvoiceRequest extends Request
             unset($input['documents']);
         }
 
-        if (array_key_exists('exchange_rate', $input) && is_null($input['exchange_rate'])) {
+        if (array_key_exists('exchange_rate', $input) && (is_null($input['exchange_rate']) || $input['exchange_rate'] == 0)) {
             $input['exchange_rate'] = 1;
         }
 
