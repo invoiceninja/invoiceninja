@@ -24,6 +24,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use App\Notifications\Ninja\GenericNinjaAdminNotification;
+use App\Helpers\Bank\Yodlee\Transformer\AccountTransformer;
 
 class ProcessBankTransactions implements ShouldQueue
 {
@@ -97,6 +98,24 @@ class ProcessBankTransactions implements ShouldQueue
             $this->bank_integration->save();
             $this->stop_loop = false;
             return;
+        }
+
+        try {
+            $account_summary = $yodlee->getAccountSummary($this->bank_integration->bank_account_id);
+
+            if($account_summary) {
+
+                $at = new AccountTransformer();
+                $account = $at->transform($account_summary);
+
+                $this->bank_integration->balance = $account['current_balance'];
+                $this->bank_integration->currency = $account['account_currency'];
+                $this->bank_integration->save();
+
+            }
+        }
+        catch(\Exception $e) {
+            nlog("YODLEE: unable to update account summary for {$this->bank_integration->bank_account_id} => ". $e->getMessage());
         }
 
         $data = [

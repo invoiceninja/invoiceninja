@@ -185,6 +185,21 @@ class Yodlee
         }
     }
 
+    public function getAccountSummary($account_id)
+    {
+        $token = $this->getAccessToken();
+
+        $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->getEndpoint(). "/accounts/{$account_id}", []);
+
+        if ($response->successful()) {
+            return $response->object();
+        }
+
+        if ($response->failed()) {
+            return false;
+        }
+    }
+
     public function deleteAccount($account_id)
     {
         $token = $this->getAccessToken();
