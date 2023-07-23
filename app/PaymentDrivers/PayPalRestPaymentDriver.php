@@ -87,6 +87,9 @@ class PayPalRestPaymentDriver extends BaseDriver
 
     public function setPaymentMethod($payment_method_id)
     {
+        if(!$payment_method_id)
+            return $this;
+
         $this->paypal_payment_method = $this->funding_options[$payment_method_id];
 
         return $this;
@@ -161,10 +164,10 @@ class PayPalRestPaymentDriver extends BaseDriver
 
     public function processPaymentResponse($request)
     {
-        
+
         $response = json_decode($request['gateway_response'], true);
         
-        if($response['status'] == 'COMPLETED'){
+        if($response['status'] == 'COMPLETED' && isset($response['purchase_units'])){
 
             $data = [
                 'payment_type' => PaymentType::PAYPAL,
@@ -188,6 +191,17 @@ class PayPalRestPaymentDriver extends BaseDriver
 
         }
         else {
+
+            SystemLogger::dispatch(
+                ['response' => $response],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_PAYPAL,
+                $this->client,
+                $this->client->company,
+            );
+
+
             throw new PaymentFailed('Payment failed. Please try again.', 401);
         }
     }
