@@ -80,7 +80,6 @@ class PaymentType extends StaticModel
     const BACS = 49;
     const STRIPE_BANK_TRANSFER = 50;
     const CASH_APP = 51;
-    const VENMO = 25;
 
     public array $type_names = [
         self::BANK_TRANSFER => 'payment_type_Bank Transfer',
