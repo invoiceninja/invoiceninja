@@ -5124,6 +5124,10 @@ $LANG = array(
     'income' => 'Income',
     'amount_received_help' => 'Enter a value here if the total amount received was MORE than the invoice amount, or when recording a payment with no invoices. Otherwise this field should be left blank.',  
     'vendor_phone' => 'Vendor Phone',
+    'mercado_pago' => 'Mercado Pago',
+    'mybank' => 'MyBank',
+    'paypal_paylater' => 'Pay in 4',
+    'paid_date' => 'Paid Date',
 );
 
 
