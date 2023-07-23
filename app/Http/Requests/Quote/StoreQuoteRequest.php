@@ -55,6 +55,7 @@ class StoreQuoteRequest extends Request
         $rules['discount'] = 'sometimes|numeric';
 
         $rules['is_amount_discount'] = ['boolean'];
+        $rules['exchange_rate'] = 'bail|sometimes|gt:0';
 
         // $rules['number'] = new UniqueQuoteNumberRule($this->all());
         $rules['line_items'] = 'array';
@@ -71,6 +72,10 @@ class StoreQuoteRequest extends Request
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
         $input['amount'] = 0;
         $input['balance'] = 0;
+
+        if (array_key_exists('exchange_rate', $input) && is_null($input['exchange_rate'])) {
+            $input['exchange_rate'] = 1;
+        }
 
         $this->replace($input);
     }

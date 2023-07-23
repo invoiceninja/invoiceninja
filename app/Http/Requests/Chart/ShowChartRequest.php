@@ -45,7 +45,7 @@ class ShowChartRequest extends Request
         $input = $this->all();
 
         if(isset($input['date_range'])) {
-            $dates = $this->calculateStartAndEndDates($input);
+            $dates = $this->calculateStartAndEndDates($input, auth()->user()->company());
             $input['start_date'] = $dates[0];
             $input['end_date'] = $dates[1];
         }

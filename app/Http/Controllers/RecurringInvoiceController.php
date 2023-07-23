@@ -11,29 +11,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\RecurringInvoice\RecurringInvoiceWasCreated;
-use App\Events\RecurringInvoice\RecurringInvoiceWasUpdated;
+use App\Utils\Ninja;
+use App\Models\Account;
+use Illuminate\Http\Response;
+use App\Utils\Traits\MakesHash;
+use App\Models\RecurringInvoice;
+use App\Utils\Traits\SavesDocuments;
 use App\Factory\RecurringInvoiceFactory;
 use App\Filters\RecurringInvoiceFilters;
-use App\Http\Requests\RecurringInvoice\ActionRecurringInvoiceRequest;
+use App\Jobs\RecurringInvoice\UpdateRecurring;
+use App\Repositories\RecurringInvoiceRepository;
+use App\Transformers\RecurringInvoiceTransformer;
+use App\Events\RecurringInvoice\RecurringInvoiceWasCreated;
+use App\Events\RecurringInvoice\RecurringInvoiceWasUpdated;
 use App\Http\Requests\RecurringInvoice\BulkRecurringInvoiceRequest;
-use App\Http\Requests\RecurringInvoice\CreateRecurringInvoiceRequest;
-use App\Http\Requests\RecurringInvoice\DestroyRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\EditRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\ShowRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\StoreRecurringInvoiceRequest;
+use App\Http\Requests\RecurringInvoice\ActionRecurringInvoiceRequest;
+use App\Http\Requests\RecurringInvoice\CreateRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\UpdateRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\UploadRecurringInvoiceRequest;
-use App\Jobs\RecurringInvoice\UpdateRecurring;
-use App\Models\Account;
-use App\Models\RecurringInvoice;
-use App\Repositories\RecurringInvoiceRepository;
-use App\Transformers\RecurringInvoiceTransformer;
-use App\Utils\Ninja;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\SavesDocuments;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\RecurringInvoice\DestroyRecurringInvoiceRequest;
 
 /**
  * Class RecurringInvoiceController.
@@ -566,6 +565,8 @@ class RecurringInvoiceController extends BaseController
         }
 
         $invoice = $invitation->recurring_invoice;
+        
+        \Illuminate\Support\Facades\App::setLocale($invitation->contact->preferredLocale());
 
         $file_name = $invoice->numberFormatter().'.pdf';
 

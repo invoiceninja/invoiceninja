@@ -24,8 +24,7 @@ use App\Transformers\ActivityTransformer;
 
 class ActivityExport extends BaseExport
 {
-    private Company $company;
-
+    
     private $entity_transformer;
 
     public string $date_key = 'created_at';

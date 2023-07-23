@@ -102,6 +102,8 @@ class BaseImport
         }
 
         $csv = base64_decode($base64_encoded_csv);
+        $csv = mb_convert_encoding($csv, 'UTF-8', 'UTF-8');
+ nlog($csv);
         $csv = Reader::createFromString($csv);
         $csvdelimiter = self::detectDelimiter($csv);
 
@@ -477,8 +479,12 @@ class BaseImport
                     }
                     
                     nlog($invoice_data);
+                    $saveable_invoice_data = $invoice_data;
+                    
+                    if(array_key_exists('payments', $saveable_invoice_data))
+                        unset($saveable_invoice_data['payments']);
 
-                    $invoice_repository->save($invoice_data, $invoice);
+                    $invoice_repository->save($saveable_invoice_data, $invoice);
 
                     $count++;
                     // If we're doing a generic CSV import, only import payment data if we're not importing a payment CSV.
@@ -504,7 +510,7 @@ class BaseImport
                                 ];
 
                                 /* Make sure we don't apply any payments to invoices with a Zero Amount*/
-                                if ($invoice->amount > 0) {
+                                if ($invoice->amount > 0 && $payment_data['amount'] > 0) {
                                     
                                     $payment = $payment_repository->save(
                                         $payment_data,

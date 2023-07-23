@@ -72,7 +72,8 @@ class UpdateInvoiceRequest extends Request
         $rules['tax_name2'] = 'bail|sometimes|string|nullable';
         $rules['tax_name3'] = 'bail|sometimes|string|nullable';
         $rules['status_id'] = 'bail|sometimes|not_in:5'; //do not all cancelled invoices to be modfified.
-
+        $rules['exchange_rate'] = 'bail|sometimes|gt:0';
+        
         // not needed.
         // $rules['partial_due_date'] = 'bail|sometimes|required_unless:partial,0,null';
 
@@ -93,6 +94,10 @@ class UpdateInvoiceRequest extends Request
 
         if (array_key_exists('documents', $input)) {
             unset($input['documents']);
+        }
+
+        if (array_key_exists('exchange_rate', $input) && is_null($input['exchange_rate'])) {
+            $input['exchange_rate'] = 1;
         }
 
         $this->replace($input);

@@ -22,7 +22,6 @@ use League\Csv\Writer;
 
 class InvoiceItemExport extends BaseExport
 {
-    private Company $company;
 
     private $invoice_transformer;
 

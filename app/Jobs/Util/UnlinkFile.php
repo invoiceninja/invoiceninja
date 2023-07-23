@@ -43,6 +43,10 @@ class UnlinkFile implements ShouldQueue
             return;
         }
 
-        Storage::disk($this->disk)->delete($this->file_path);
+        try {
+            Storage::disk($this->disk)->delete($this->file_path);
+        } catch (\Exception $e) {
+          
+        }
     }
 }

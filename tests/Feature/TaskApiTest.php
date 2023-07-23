@@ -31,6 +31,8 @@ class TaskApiTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
+    private $faker;
+
     protected function setUp() :void
     {
         parent::setUp();
@@ -100,6 +102,20 @@ class TaskApiTest extends TestCase
         }
     }
     
+    public function testStartDate()
+    {
+        $x = [];
+
+        $this->assertFalse(isset($x[0][0]));
+
+        $x[0][0] = 'a';
+
+        $this->assertTrue(isset($x[0][0]));
+
+        $this->assertNotNull(\Carbon\Carbon::createFromTimestamp($x[0][0]));
+
+    }
+
     public function testMultiSortArray()
     {
         

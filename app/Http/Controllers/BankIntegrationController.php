@@ -209,7 +209,12 @@ class BankIntegrationController extends BaseController
         $accounts = $yodlee->getAccounts();
 
         foreach ($accounts as $account) {
-            if (!BankIntegration::withTrashed()->where('bank_account_id', $account['id'])->where('company_id', $user->company()->id)->exists()) {
+            if ($bi = BankIntegration::withTrashed()->where('bank_account_id', $account['id'])->where('company_id', $user->company()->id)->first()){
+                    $bi->balance = $account['current_balance'];
+                    $bi->currency = $account['account_currency'];
+                    $bi->save();
+            }
+            else {
                 $bank_integration = new BankIntegration();
                 $bank_integration->company_id = $user->company()->id;
                 $bank_integration->account_id = $user->account_id;

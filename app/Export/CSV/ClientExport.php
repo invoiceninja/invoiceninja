@@ -22,8 +22,6 @@ use League\Csv\Writer;
 
 class ClientExport extends BaseExport
 {
-    private $company;
-
     private $client_transformer;
 
     private $contact_transformer;
@@ -172,8 +170,8 @@ class ClientExport extends BaseExport
             $entity['shipping_country'] = $client->shipping_country ? ctrans("texts.country_{$client->shipping_country->name}") : '';
         }
 
-        if (in_array('client.currency', $this->input['report_keys'])) {
-            $entity['currency'] = $client->currency() ? $client->currency()->code : $client->company->currency()->code;
+        if (in_array('client.currency_id', $this->input['report_keys'])) {
+            $entity['client.currency_id'] = $client->currency() ? $client->currency()->code : $client->company->currency()->code;
         }
 
         if (in_array('client.industry_id', $this->input['report_keys'])) {

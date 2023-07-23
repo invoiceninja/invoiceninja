@@ -46,7 +46,7 @@ class PaymentTransformer extends BaseTransformer
                 $data,
                 'payment.transaction_reference '
             ),
-            'date' => $this->getString($data, 'payment.date'),
+            'date' => isset($data['payment.date']) ? $this->parseDate($data['payment.date']) : date('y-m-d'),
             'private_notes' => $this->getString($data, 'payment.private_notes'),
             'custom_value1' => $this->getString($data, 'payment.custom_value1'),
             'custom_value2' => $this->getString($data, 'payment.custom_value2'),

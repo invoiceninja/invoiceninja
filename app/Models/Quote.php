@@ -455,7 +455,7 @@ class Quote extends BaseModel
             case self::STATUS_DRAFT:
                 return ctrans('texts.draft');
             case self::STATUS_SENT:
-                return ctrans('texts.pending');
+                return ctrans('texts.sent');
             case self::STATUS_APPROVED:
                 return ctrans('texts.approved');
             case self::STATUS_EXPIRED:
