@@ -98,6 +98,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @method static \Illuminate\Database\Eloquent\Builder|User newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|User onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|User query()
+ * @method static \Illuminate\Database\Eloquent\Builder|User where($column, $value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereAcceptedTermsVersion($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereAccountId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereAvatar($value)
@@ -335,13 +336,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->getCompany();
     }
-
-    // private function setCompanyByGuard()
-    // {
-    //     if (Auth::guard('contact')->check()) {
-    //         $this->setCompany(auth()->user()->client->company);
-    //     }
-    // }
 
     public function company_users()
     {

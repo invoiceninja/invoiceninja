@@ -66,6 +66,7 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
  * @property string|null $shipping_postal_code
  * @property int|null $shipping_country_id
  * @property object|null $settings
+ * @property object|null $group_settings
  * @property bool $is_deleted
  * @property int|null $group_settings_id
  * @property string|null $vat_number
@@ -115,68 +116,12 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoice> $recurring_invoices
  * @property-read int|null $tasks_count
  * @property-read \App\Models\User $user
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|Client exclude($columns)
  * @method static \Database\Factories\ClientFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Client filter(\App\Filters\QueryFilters $filters)
- * @method static \Illuminate\Database\Eloquent\Builder|Client newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Client newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Client onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Client query()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereAddress1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereAddress2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereAssignedUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereBalance($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCity($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereClientHash($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCompanyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCountryId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCreditBalance($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCustomValue1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCustomValue2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCustomValue3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCustomValue4($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereGroupSettingsId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereIdNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereIndustryId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereIsDeleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereLastLogin($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereLogo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client wherePaidToDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client wherePhone($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client wherePostalCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client wherePrivateNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client wherePublicNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereSettings($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereShippingAddress1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereShippingAddress2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereShippingCity($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereShippingCountryId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereShippingPostalCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereShippingState($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereSizeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereState($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereVatNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereWebsite($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Client withoutTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Client with()
- * @method static \Illuminate\Database\Eloquent\Builder|Client where()
  * @property string $payment_balance
- * @method static \Illuminate\Database\Eloquent\Builder|Client wherePaymentBalance($value)
  * @property mixed $tax_data
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereTaxData($value)
  * @property int $is_tax_exempt
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereIsTaxExempt($value)
-
  * @property int $has_valid_vat_number
  * @mixin \Eloquent
  */

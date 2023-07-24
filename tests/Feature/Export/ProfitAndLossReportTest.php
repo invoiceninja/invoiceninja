@@ -120,6 +120,34 @@ class ProfitAndLossReportTest extends TestCase
         $this->account->delete();
     }
 
+    public function testExpenseResolution()
+    {
+        $this->buildData();
+
+        Expense::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 121,
+            'date' => now()->format('Y-m-d'),
+            'uses_inclusive_taxes' => true,
+            'tax_rate1' => 21,
+            'tax_name1' => 'VAT',
+            'calculate_tax_by_amount' => false,
+            'exchange_rate' => 1,
+        ]);
+
+        $pl = new ProfitLoss($this->company, $this->payload);
+        $pl->build();
+
+        $expense_breakdown = $pl->getExpenseBreakDown();
+
+        $this->assertEquals(100, array_sum(array_column($expense_breakdown, 'total')));
+        $this->assertEquals(21, array_sum(array_column($expense_breakdown, 'tax')));
+
+        $this->account->delete();
+
+    }
+
     public function testMultiCurrencyInvoiceIncome()
     {
         $this->buildData();
@@ -141,7 +169,6 @@ class ProfitAndLossReportTest extends TestCase
             'is_deleted' => 0,
         ]);
 
-
         Invoice::factory()->create([
             'client_id' => $client->id,
             'user_id' => $this->user->id,
@@ -162,7 +189,6 @@ class ProfitAndLossReportTest extends TestCase
             'uses_inclusive_taxes' => false,
             'exchange_rate' => 2
         ]);
-
 
         Invoice::factory()->create([
             'client_id' => $client2->id,
