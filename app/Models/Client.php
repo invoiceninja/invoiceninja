@@ -11,21 +11,22 @@
 
 namespace App\Models;
 
+use App\Utils\Traits\AppSetup;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesDates;
+use App\DataMapper\FeesAndLimits;
+use App\Models\Traits\Excludable;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
-use App\DataMapper\FeesAndLimits;
-use App\Models\Presenters\ClientPresenter;
-use App\Models\Traits\Excludable;
-use App\Services\Client\ClientService;
-use App\Utils\Traits\AppSetup;
-use App\Utils\Traits\ClientGroupSettingsSaver;
-use App\Utils\Traits\GeneratesCounter;
-use App\Utils\Traits\MakesDates;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Contracts\Translation\HasLocalePreference;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Cache;
+use App\Services\Client\ClientService;
+use App\Utils\Traits\GeneratesCounter;
 use Laracasts\Presenter\PresentableTrait;
+use App\Models\Presenters\ClientPresenter;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Utils\Traits\ClientGroupSettingsSaver;
+use App\Libraries\Currency\Conversion\CurrencyApi;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 
 /**
  * App\Models\Client
@@ -819,6 +820,9 @@ class Client extends BaseModel implements HasLocalePreference
         if (is_string($this->public_notes) && strlen($this->public_notes) >= 1) {
             $defaults['public_notes'] = $this->public_notes;
         }
+
+        $exchange_rate = new CurrencyApi();
+        $defaults['exchange_rate'] = 1/$exchange_rate->exchangeRate($this->getSetting('currency_id'), $this->company->settings->currency_id);
 
         return $defaults;
     }

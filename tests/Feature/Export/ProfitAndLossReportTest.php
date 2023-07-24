@@ -194,8 +194,6 @@ class ProfitAndLossReportTest extends TestCase
 
         $this->account->delete();
 
-
-
     }
 
     public function testSimpleInvoiceIncome()
