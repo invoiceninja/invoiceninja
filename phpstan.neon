@@ -1,8 +1,11 @@
+includes:
+    - ./vendor/nunomaduro/larastan/extension.neon
 parameters:
     level: 4
     paths:
         - 'app/'
     excludePaths:
         - 'vendor/'
+        - 'app/Jobs/Ninja/*'
     universalObjectCratesClasses:
         - App\DataMapper\Tax\RuleInterface
