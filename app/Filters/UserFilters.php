@@ -70,6 +70,19 @@ class UserFilters extends QueryFilters
     }
 
     /**
+     * Filters users that have been removed from the
+     * company, but not deleted from the system.
+     *
+     * @return void
+     */
+    public function hideRemovedUsers()
+    {
+        return $this->builder->whereHas('company_users', function ($q) {
+            $q->where('company_id', '=', auth()->user()->company()->id)->whereNull('deleted_at');
+        });
+    }
+
+    /**
      * Overrides the base with() function as no company ID
      * exists on the user table
      *
