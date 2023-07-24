@@ -62,7 +62,7 @@ trait MakesHash
         return $hashids->encode($value);
     }
 
-    public function decodePrimaryKey($value) : int
+    public function decodePrimaryKey($value)
     {
         try {
             $hashids = new Hashids(config('ninja.hash_salt'), 10);
