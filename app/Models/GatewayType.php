@@ -160,7 +160,6 @@ class GatewayType extends StaticModel
                 return ctrans('texts.paypal_paylater');
             default:
                 return ' ';
-                break;
         }
     }
 }

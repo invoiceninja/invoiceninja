@@ -106,12 +106,6 @@ class Project extends BaseModel
     use PresentableTrait;
     use Filterable;
 
-    /**
-     * @var array
-     */
-    /**
-     * @var array
-     */
     protected $fillable = [
         'name',
         'client_id',

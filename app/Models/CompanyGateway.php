@@ -28,7 +28,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $update_details
  * @property int $is_deleted
  * @property string $config
- * @property object $fees_and_limits
+ * @property mixed $fees_and_limits
  * @property string|null $custom_value1
  * @property string|null $custom_value2
  * @property string|null $custom_value3
@@ -232,7 +232,8 @@ class CompanyGateway extends BaseModel
     /* This is the public entry point into the payment superclass */
     public function driver(Client $client = null)
     {
-        $class = static::driver_class();
+// $class = static::driver_class();
+$class = self::driver_class();
 
         if (!$class) {
             return false;
@@ -343,10 +344,10 @@ class CompanyGateway extends BaseModel
         return ! empty($this->getConfigField('enable_pay_pal'));
     }
 
-    public function feesEnabled()
-    {
-        return floatval($this->fee_amount) || floatval($this->fee_percent);
-    }
+    // public function feesEnabled()
+    // {
+    //     return floatval($this->fee_amount) || floatval($this->fee_percent);
+    // }
 
     /**
      * Returns the current test mode of the gateway.

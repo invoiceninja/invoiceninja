@@ -393,17 +393,17 @@ class Company extends BaseModel
         return $this->morphMany(Document::class, 'documentable');
     }
 
-    public function schedulers()
+    public function schedulers() :HasMany
     {
         return $this->hasMany(Scheduler::class);
     }
 
-    public function task_schedulers() //alias for schedulers
+    public function task_schedulers() :HasMany
     {
         return $this->hasMany(Scheduler::class);
     }
 
-    public function all_documents()
+    public function all_documents() :HasMany
     {
         return $this->hasMany(Document::class);
     }
@@ -413,22 +413,22 @@ class Company extends BaseModel
         return self::class;
     }
 
-    public function ledger()
+    public function ledger() :HasMany
     {
         return $this->hasMany(CompanyLedger::class);
     }
 
-    public function bank_integrations()
+    public function bank_integrations() :HasMany
     {
         return $this->hasMany(BankIntegration::class);
     }
 
-    public function bank_transactions()
+    public function bank_transactions() :HasMany
     {
         return $this->hasMany(BankTransaction::class);
     }
 
-    public function bank_transaction_rules()
+    public function bank_transaction_rules() :HasMany
     {
         return $this->hasMany(BankTransactionRule::class);
     }
@@ -443,7 +443,7 @@ class Company extends BaseModel
         return $this->belongsTo(Account::class);
     }
 
-    public function client_contacts()
+    public function client_contacts() :HasMany
     {
         return $this->hasMany(ClientContact::class)->withTrashed();
     }
@@ -453,27 +453,27 @@ class Company extends BaseModel
         return $this->hasManyThrough(User::class, CompanyUser::class, 'company_id', 'id', 'id', 'user_id')->withTrashed();
     }
 
-    public function expense_categories()
+    public function expense_categories() :HasMany
     {
         return $this->hasMany(ExpenseCategory::class)->withTrashed();
     }
 
-    public function subscriptions()
+    public function subscriptions() :HasMany
     {
         return $this->hasMany(Subscription::class)->withTrashed();
     }
 
-    public function purchase_orders()
+    public function purchase_orders() :HasMany
     {
         return $this->hasMany(PurchaseOrder::class)->withTrashed();
     }
 
-    public function task_statuses()
+    public function task_statuses() :HasMany
     {
         return $this->hasMany(TaskStatus::class)->withTrashed();
     }
 
-    public function clients()
+    public function clients() :HasMany
     {
         return $this->hasMany(Client::class)->withTrashed();
     }
@@ -481,12 +481,12 @@ class Company extends BaseModel
     /**
      * @return HasMany
      */
-    public function tasks()
+    public function tasks() :HasMany
     {
         return $this->hasMany(Task::class)->withTrashed();
     }
 
-    public function webhooks()
+    public function webhooks() :HasMany
     {
         return $this->hasMany(Webhook::class);
     }
@@ -494,7 +494,7 @@ class Company extends BaseModel
     /**
      * @return HasMany
      */
-    public function projects()
+    public function projects() :HasMany
     {
         return $this->hasMany(Project::class)->withTrashed();
     }
@@ -502,17 +502,17 @@ class Company extends BaseModel
     /**
      * @return HasMany
      */
-    public function vendors()
+    public function vendors() :HasMany
     {
         return $this->hasMany(Vendor::class)->withTrashed();
     }
 
-    public function all_activities()
+    public function all_activities() :HasMany
     {
         return $this->hasMany(Activity::class);
     }
 
-    public function activities()
+    public function activities() :HasMany
     {
         return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(50);
     }

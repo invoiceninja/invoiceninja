@@ -377,7 +377,7 @@ class Client extends BaseModel implements HasLocalePreference
         return $this->hasMany(SystemLog::class)->take(50)->orderBy('id', 'desc');
     }
 
-    public function timezone() :TimeZone
+    public function timezone() :Timezone
     {
         return Timezone::find($this->getSetting('timezone_id'));
     }

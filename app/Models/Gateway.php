@@ -180,7 +180,6 @@ class Gateway extends StaticModel
                     GatewayType::SEPA => ['refund' => false, 'token_billing' => true, 'webhooks' => [' ']],
                     GatewayType::INSTANT_BANK_PAY => ['refund' => false, 'token_billing' => true, 'webhooks' => [' ']],
                 ];
-                break;
             case 58:
                 return [
                     GatewayType::HOSTED_PAGE => ['refund' => false, 'token_billing' => false, 'webhooks' => [' ']], // Razorpay

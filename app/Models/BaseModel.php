@@ -39,7 +39,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel with($value)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newModelQuery($query)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newQuery($query)
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel query($query)
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel query()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude(array $excludeable)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scopeExclude($query)
@@ -59,6 +59,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  * 
  * @method \App\Models\Company company()
  * @method int companyId()
+ * @method createInvitations()
  * @method Builder|static exclude($columns)
  * @method static \Illuminate\Database\Eloquent\Builder exclude(array $columns)
  * @mixin \Eloquent
