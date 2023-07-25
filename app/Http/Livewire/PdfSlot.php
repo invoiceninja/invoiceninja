@@ -235,10 +235,13 @@ class PdfSlot extends Component
         $product_items = collect($this->entity->line_items)->filter(function ($item) {
             return $item->type_id == 1 || $item->type_id == 6 || $item->type_id == 5;
         })->map(function ($item){
+
+            $notes = strlen($item->notes) > 4 ? $item->notes : $item->product_key;
+
             return [
                 'quantity' => $item->quantity,
                 'cost' => Number::formatMoney($item->cost, $this->entity->client ?: $this->entity->vendor),
-                'notes' => $this->invitation->company->markdown_enabled ? DesignHelpers::parseMarkdownToHtml($item->notes) : $item->notes,
+                'notes' => $this->invitation->company->markdown_enabled ? DesignHelpers::parseMarkdownToHtml($notes) : $notes,
                 'line_total' => Number::formatMoney($item->line_total, $this->entity->client ?: $this->entity->vendor),
             ];
         });
