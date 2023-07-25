@@ -53,6 +53,8 @@ class PdfSlot extends Component
 
     public $route_entity = 'client';
 
+    public $is_quote = false;
+
     public function mount()
     {
         MultiDB::setDb($this->db);
@@ -230,8 +232,6 @@ class PdfSlot extends Component
     private function getProducts()
     {
 
-        
-
         $product_items = collect($this->entity->line_items)->filter(function ($item) {
             return $item->type_id == 1 || $item->type_id == 6 || $item->type_id == 5;
         })->map(function ($item){
@@ -271,6 +271,7 @@ class PdfSlot extends Component
         if ($this->invitation instanceof InvoiceInvitation) {
             return 'invoice';
         } elseif ($this->invitation instanceof QuoteInvitation) {
+            $this->is_quote = true;
             return 'quote';
         } elseif ($this->invitation instanceof CreditInvitation) {
             return 'credit';
