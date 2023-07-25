@@ -92,6 +92,38 @@ class ReportCsvGenerationTest extends TestCase
             'payment.assigned_user_id'
         ];
 
+    private $all_invoice_report_keys = [
+        'invoice.number',
+        'invoice.amount',
+        'invoice.balance',
+        'invoice.paid_to_date',
+        'invoice.discount',
+        'invoice.po_number',
+        'invoice.date',
+        'invoice.due_date',
+        'invoice.terms',
+        'invoice.footer',
+        'invoice.status',
+        'invoice.public_notes',
+        'invoice.private_notes',
+        'invoice.uses_inclusive_taxes',
+        'invoice.is_amount_discount',
+        'invoice.partial',
+        'invoice.partial_due_date',
+        'invoice.custom_value1',
+        'invoice.custom_value2',
+        'invoice.custom_value3',
+        'invoice.custom_value4',
+        'invoice.custom_surcharge1',
+        'invoice.custom_surcharge2',
+        'invoice.custom_surcharge3',
+        'invoice.custom_surcharge4',
+        'invoice.exchange_rate',
+        'invoice.total_taxes',
+        'invoice.assigned_user_id',
+        'invoice.user_id',
+    ];
+
     /**
      *      start_date - Y-m-d
             end_date - Y-m-d
@@ -365,6 +397,18 @@ class ReportCsvGenerationTest extends TestCase
         ])->post('/api/v1/reports/tasks', $data)->assertStatus(200);
 
 
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => array_merge(["task.date","task.number"], $this->all_invoice_report_keys),
+            'send_email' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/tasks', $data);
+
+
     }
 
 
@@ -524,6 +568,18 @@ class ReportCsvGenerationTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/reports/payments', $data)->assertStatus(200);
 
+
+        
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => array_merge(["payment.amount","payment.date"],$this->all_invoice_report_keys),
+            'send_email' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/payments', $data);
 
     }
 

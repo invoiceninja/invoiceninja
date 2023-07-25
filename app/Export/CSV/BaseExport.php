@@ -624,8 +624,8 @@ class BaseExport
             return $transformed_invoice[$column];
         }
 
-        if($column == 'status')
-            return $entity->stringStatus($entity->status_id);
+        // if($column == 'status')
+        //     return $entity->stringStatus($entity->status_id);
     
         return '';
     }
