@@ -5128,6 +5128,13 @@ $LANG = array(
     'mybank' => 'MyBank',
     'paypal_paylater' => 'Pay in 4',
     'paid_date' => 'Paid Date',
+    'district' => 'District',
+    'region' => 'Region',
+    'county' => 'County',
+    'tax_details' => 'Tax Details',
+    'activity_10_online' => ':contact entered payment :payment for invoice :invoice for :client',
+    'activity_10_manual' => ':user entered payment :payment for invoice :invoice for :client',
+    'default_payment_type' => 'Default Payment Type',
 );
 
 
