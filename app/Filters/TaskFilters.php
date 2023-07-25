@@ -131,8 +131,8 @@ class TaskFilters extends QueryFilters
 
         $status_parameters = explode(',', $value);
 
-        if(count($status_parameters) > 0)
-            return $this->builder->whereIn('status_id', $this->transformKeys($status_parameters));
+        if(count($status_parameters) >= 1)
+            $this->builder->whereIn('status_id', $this->transformKeys($status_parameters));
 
         return $this->builder;
     }

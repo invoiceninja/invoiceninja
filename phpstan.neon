@@ -8,5 +8,6 @@ parameters:
         - 'vendor/'
         - 'app/Jobs/Ninja/*'
         - 'app/Console/Commands/*'
+        - 'app/DataMapper/Analytics/*'
     universalObjectCratesClasses:
         - App\DataMapper\Tax\RuleInterface

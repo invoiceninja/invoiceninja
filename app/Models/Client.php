@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Models\GatewayType;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesDates;
@@ -26,6 +27,9 @@ use App\Models\Presenters\ClientPresenter;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Utils\Traits\ClientGroupSettingsSaver;
 use App\Libraries\Currency\Conversion\CurrencyApi;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 
 /**
@@ -303,62 +307,62 @@ class Client extends BaseModel implements HasLocalePreference
         return $this->hasMany(Activity::class)->take(50)->orderBy('id', 'desc');
     }
 
-    public function contacts()
+    public function contacts() :HasMany
     {
         return $this->hasMany(ClientContact::class)->orderBy('is_primary', 'desc');
     }
 
-    public function primary_contact()
+    public function primary_contact():HasMany
     {
         return $this->hasMany(ClientContact::class)->where('is_primary', true);
     }
 
-    public function company()
+    public function company() :BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function user()
+    public function user() :BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
 
-    public function assigned_user()
+    public function assigned_user() :BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
 
-    public function country()
+    public function country() :BelongsTo
     {
         return $this->belongsTo(Country::class);
     }
 
-    public function invoices()
+    public function invoices() :HasMany
     {
         return $this->hasMany(Invoice::class)->withTrashed();
     }
 
-    public function quotes()
+    public function quotes() :HasMany
     {
         return $this->hasMany(Quote::class)->withTrashed();
     }
 
-    public function tasks()
+    public function tasks() :HasMany
     {
         return $this->hasMany(Task::class)->withTrashed();
     }
 
-    public function payments()
+    public function payments() :HasMany
     {
         return $this->hasMany(Payment::class)->withTrashed();
     }
 
-    public function recurring_invoices()
+    public function recurring_invoices() :HasMany
     {
         return $this->hasMany(RecurringInvoice::class)->withTrashed();
     }
 
-    public function recurring_expenses()
+    public function recurring_expenses() :HasMany
     {
         return $this->hasMany(RecurringExpense::class)->withTrashed();
     }
@@ -368,12 +372,12 @@ class Client extends BaseModel implements HasLocalePreference
         return $this->belongsTo(Country::class, 'shipping_country_id', 'id');
     }
 
-    public function system_logs()
+    public function system_logs() :HasMany
     {
         return $this->hasMany(SystemLog::class)->take(50)->orderBy('id', 'desc');
     }
 
-    public function timezone()
+    public function timezone() :TimeZone
     {
         return Timezone::find($this->getSetting('timezone_id'));
     }
@@ -391,17 +395,17 @@ class Client extends BaseModel implements HasLocalePreference
         })->first();
     }
 
-    public function industry()
+    public function industry() :BelongsTo
     {
         return $this->belongsTo(Industry::class);
     }
 
-    public function size()
+    public function size() :BelongsTo
     {
         return $this->belongsTo(Size::class);
     }
 
-    public function locale()
+    public function locale() :string
     {
         if (! $this->language()) {
             return 'en';
@@ -472,7 +476,7 @@ class Client extends BaseModel implements HasLocalePreference
      * @param  string $setting The Setting parameter
      * @return mixed          The setting requested
      */
-    public function getSetting($setting)
+    public function getSetting($setting) :mixed
     {
         /*Client Settings*/
         if ($this->settings && property_exists($this->settings, $setting) && isset($this->settings->{$setting})) {
@@ -502,7 +506,6 @@ class Client extends BaseModel implements HasLocalePreference
 
         return '';
 
-//        throw new \Exception("Settings corrupted", 1);
     }
 
     public function getSettingEntity($setting)
@@ -528,12 +531,12 @@ class Client extends BaseModel implements HasLocalePreference
         throw new \Exception('Could not find a settings object', 1);
     }
 
-    public function documents()
+    public function documents() :MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
     }
 
-    public function group_settings()
+    public function group_settings() :BelongsTo
     {
         return $this->belongsTo(GroupSetting::class);
     }
@@ -656,7 +659,7 @@ class Client extends BaseModel implements HasLocalePreference
         }
     }
 
-    public function getCurrencyCode()
+    public function getCurrencyCode(): string
     {
         if ($this->currency()) {
             return $this->currency()->code;
@@ -697,51 +700,51 @@ class Client extends BaseModel implements HasLocalePreference
         })->first()->locale;
     }
 
-    public function backup_path()
+    public function backup_path() :string
     {
         return $this->company->company_key.'/'.$this->client_hash.'/backups';
     }
 
-    public function invoice_filepath($invitation)
+    public function invoice_filepath($invitation) :string
     {
         $contact_key = $invitation->contact->contact_key;
 
         return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/invoices/';
     }
-    public function e_invoice_filepath($invitation)
+    public function e_invoice_filepath($invitation) :string
     {
         $contact_key = $invitation->contact->contact_key;
 
         return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/e_invoice/';
     }
 
-    public function quote_filepath($invitation)
+    public function quote_filepath($invitation) :string
     {
         $contact_key = $invitation->contact->contact_key;
 
         return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/quotes/';
     }
 
-    public function credit_filepath($invitation)
+    public function credit_filepath($invitation) :string
     {
         $contact_key = $invitation->contact->contact_key;
 
         return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/credits/';
     }
 
-    public function recurring_invoice_filepath($invitation)
+    public function recurring_invoice_filepath($invitation) :string
     {
         $contact_key = $invitation->contact->contact_key;
 
         return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/recurring_invoices/';
     }
 
-    public function company_filepath()
+    public function company_filepath() :string
     {
         return $this->company->company_key.'/';
     }
 
-    public function document_filepath()
+    public function document_filepath() :string
     {
         return $this->company->company_key.'/documents/';
     }
@@ -772,7 +775,7 @@ class Client extends BaseModel implements HasLocalePreference
         return $defaults;
     }
 
-    public function timezone_offset()
+    public function timezone_offset() :int 
     {
         $offset = 0;
 
@@ -802,7 +805,7 @@ class Client extends BaseModel implements HasLocalePreference
         ];
     }
 
-    public function translate_entity()
+    public function translate_entity() :string
     {
         return ctrans('texts.client');
     }
