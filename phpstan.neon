@@ -7,5 +7,6 @@ parameters:
     excludePaths:
         - 'vendor/'
         - 'app/Jobs/Ninja/*'
+        - 'app/Console/Commands/*'
     universalObjectCratesClasses:
         - App\DataMapper\Tax\RuleInterface

@@ -70,6 +70,8 @@ class ReportCsvGenerationTest extends TestCase
 
     public $cu;
 
+    private $all_client_report_keys =  ["client.name","client.user","client.assigned_user","client.balance","client.paid_to_date","client.currency_id","client.website","client.private_notes","client.industry_id","client.size_id","client.address1","client.address2","client.city","client.state","client.postal_code","client.country_id","contact.custom_value4","client.shipping_address1","client.shipping_address2","client.shipping_city","client.shipping_state","client.shipping_postal_code","client.shipping_country_id","client.payment_terms","client.vat_number","client.id_number","client.public_notes","client.phone","contact.first_name","contact.last_name","contact.email","contact.phone"];
+
     /**
      *      start_date - Y-m-d
             end_date - Y-m-d
@@ -329,6 +331,20 @@ class ReportCsvGenerationTest extends TestCase
         $this->assertEquals('123456', $this->getFirstValueByColumn($csv, 'Invoice Invoice Number'));
         $this->assertEquals(1000, $this->getFirstValueByColumn($csv, 'Invoice Amount'));
 
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => $this->all_client_report_keys,
+            'send_email' => false,
+        ];
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/tasks', $data)->assertStatus(200);
+
+
     }
 
 
@@ -474,6 +490,21 @@ class ReportCsvGenerationTest extends TestCase
         $this->assertEquals(0, $this->getFirstValueByColumn($csv, 'Client Balance'));
         $this->assertEquals(100, $this->getFirstValueByColumn($csv, 'Client Paid to Date'));
     
+
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => $this->all_client_report_keys,
+            'send_email' => false,
+        ];
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/payments', $data)->assertStatus(200);
+
+
     }
 
 
@@ -625,7 +656,7 @@ class ReportCsvGenerationTest extends TestCase
 
         $data = [
             'date_range' => 'all',
-            'report_keys' => ["client.name","invoice.number","invoice.amount","payment.date", "payment.amount"],
+            'report_keys' => ["client.name","invoice.number","invoice.amount","payment.date", "payment.amount","invoice.user"],
             'send_email' => false,
         ];
 
@@ -640,6 +671,20 @@ class ReportCsvGenerationTest extends TestCase
         $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Invoice Invoice Number'));
         $this->assertEquals('Unpaid', $this->getFirstValueByColumn($csv, 'Payment Amount'));
         $this->assertEquals('', $this->getFirstValueByColumn($csv, 'Payment Date'));
+
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => $this->all_client_report_keys,
+            'send_email' => false,
+        ];
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/invoices', $data)->assertStatus(200);
+
 
     }
     
@@ -678,6 +723,20 @@ class ReportCsvGenerationTest extends TestCase
         $this->assertEquals('bob', $this->getFirstValueByColumn($csv, 'Client Name'));
         $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Recurring Invoice Invoice Number'));
         $this->assertEquals('Daily', $this->getFirstValueByColumn($csv, 'Recurring Invoice How Often'));
+
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => $this->all_client_report_keys,
+            'send_email' => false,
+        ];
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/recurring_invoices', $data)->assertStatus(200);
+
 
     }
 
@@ -745,6 +804,20 @@ class ReportCsvGenerationTest extends TestCase
         $this->assertEquals('GST', $this->getFirstValueByColumn($csv, 'Tax Name 1'));
         $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Tax Rate 1'));
 
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => $this->all_client_report_keys,
+            'send_email' => false,
+        ];
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/invoice_items', $data)->assertStatus(200);
+
+
     }
 
 
@@ -809,6 +882,20 @@ class ReportCsvGenerationTest extends TestCase
         $this->assertEquals('custom 1', $this->getFirstValueByColumn($csv, 'Item Custom Value 1'));
         $this->assertEquals('GST', $this->getFirstValueByColumn($csv, 'Tax Name 1'));
         $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Tax Rate 1'));
+
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => $this->all_client_report_keys,
+            'send_email' => false,
+        ];
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/quote_items', $data)->assertStatus(200);
+
 
     }
 
@@ -973,6 +1060,20 @@ class ReportCsvGenerationTest extends TestCase
         $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Quote Number'));
         $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Quote Amount'));
 
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => $this->all_client_report_keys,
+            'send_email' => false,
+        ];
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/quotes', $data)->assertStatus(200);
+
+
     }
 
 
@@ -1104,6 +1205,21 @@ class ReportCsvGenerationTest extends TestCase
         $this->assertEquals('Public', $this->getFirstValueByColumn($csv, 'Public Notes'));
         $this->assertEquals('Private', $this->getFirstValueByColumn($csv, 'Private Notes'));
         $this->assertEquals('Terms', $this->getFirstValueByColumn($csv, 'Terms'));
+
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => $this->all_client_report_keys,
+            'send_email' => false,
+        ];
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/credits', $data)->assertStatus(200);
+
+
     }
 
     public function testInvoiceCsvGeneration()
@@ -1364,6 +1480,21 @@ class ReportCsvGenerationTest extends TestCase
         $this->assertEquals('Private', $this->getFirstValueByColumn($csv, 'Private Notes'));
         $this->assertEquals($this->user->present()->name(), $this->getFirstValueByColumn($csv, 'User'));
         
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => $this->all_client_report_keys,
+            'send_email' => false,
+        ];
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/expenses', $data)->assertStatus(200);
+
+
+
     }
 
     public function testExpenseCustomColumnsCsvGeneration()
