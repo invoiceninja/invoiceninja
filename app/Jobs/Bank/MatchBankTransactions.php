@@ -47,11 +47,11 @@ class MatchBankTransactions implements ShouldQueue
 
     private array $input;
 
-    protected Company $company;
+    protected ?Company $company;
 
     public Invoice $invoice;
 
-    private BankTransaction $bt;
+    private ?BankTransaction $bt;
 
     private $categories;
 
@@ -78,8 +78,6 @@ class MatchBankTransactions implements ShouldQueue
     /**
      * Execute the job.
      *
-     *
-     * @return void
      */
     public function handle()
     {
