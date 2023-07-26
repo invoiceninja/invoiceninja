@@ -113,9 +113,9 @@ class PdfSlot extends Component
             $this->show_line_total = in_array('$product.line_total', $this->settings->pdf_variables->product_quote_columns);
         }
 
-        $this->html_variables = $this->entity->client ?
-                            (new HtmlEngine($this->invitation))->generateLabelsAndValues() :
-                            (new VendorHtmlEngine($this->invitation))->generateLabelsAndValues();
+        $this->html_variables = $this->entity_type == 'purchase_order' ?
+                            (new VendorHtmlEngine($this->invitation))->generateLabelsAndValues() :
+                            (new HtmlEngine($this->invitation))->generateLabelsAndValues();
 
         return render('components.livewire.pdf-slot', [
             'invitation' => $this->invitation,
