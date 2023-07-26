@@ -50,12 +50,6 @@ class BankAccount extends BaseModel
 {
     use SoftDeletes;
 
-    /**
-     * @var array
-     */
-    /**
-     * @var array
-     */
     protected $fillable = [
         'bank_id',
         'app_version',

@@ -59,7 +59,7 @@ class CompanyExport implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @return CompanyToken|null
+     * @return void
      */
     public function handle()
     {

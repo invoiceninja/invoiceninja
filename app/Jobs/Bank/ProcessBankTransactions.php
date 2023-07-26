@@ -108,10 +108,12 @@ class ProcessBankTransactions implements ShouldQueue
                 $at = new AccountTransformer();
                 $account = $at->transform($account_summary);
 
-                $this->bank_integration->balance = $account['current_balance'];
-                $this->bank_integration->currency = $account['account_currency'];
-                $this->bank_integration->save();
-
+                if($account[0]['current_balance']) {
+                    $this->bank_integration->balance = $account['current_balance'];
+                    $this->bank_integration->currency = $account['account_currency'];
+                    $this->bank_integration->save();
+                }
+                
             }
         }
         catch(\Exception $e) {

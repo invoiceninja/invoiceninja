@@ -21,7 +21,7 @@ class UserFilters extends QueryFilters
     /**
      * Filter based on search text.
      *
-     * @param string query filter
+     * @param string $filter
      * @return Builder
      * @deprecated
      */
@@ -43,7 +43,7 @@ class UserFilters extends QueryFilters
     /**
      * Sorts the list based on $sort.
      *
-     * @param string sort formatted as column|asc
+     * @param string $sort formatted as column|asc
      * @return Builder
      */
     public function sort(string $sort = ''): Builder
@@ -66,6 +66,19 @@ class UserFilters extends QueryFilters
     {
         return $this->builder->whereHas('company_users', function ($q) {
             $q->where('company_id', '=', auth()->user()->company()->id);
+        });
+    }
+
+    /**
+     * Filters users that have been removed from the
+     * company, but not deleted from the system.
+     *
+     * @return void
+     */
+    public function hideRemovedUsers()
+    {
+        return $this->builder->whereHas('company_users', function ($q) {
+            $q->where('company_id', '=', auth()->user()->company()->id)->whereNull('deleted_at');
         });
     }
 

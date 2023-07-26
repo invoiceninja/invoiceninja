@@ -37,29 +37,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\GatewayType|null $gateway_type
  * @property-read mixed $hashed_id
  * @property-read \App\Models\User $user
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientGatewayToken newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ClientGatewayToken newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ClientGatewayToken onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|ClientGatewayToken query()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
- * @method static \Illuminate\Database\Eloquent\Builder|ClientGatewayToken whereClientId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientGatewayToken whereCompanyGatewayId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientGatewayToken whereCompanyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientGatewayToken whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientGatewayToken whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientGatewayToken whereGatewayCustomerReference($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientGatewayToken whereGatewayTypeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientGatewayToken whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientGatewayToken whereIsDefault($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientGatewayToken whereIsDeleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientGatewayToken whereMeta($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientGatewayToken whereRoutingNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientGatewayToken whereToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientGatewayToken whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientGatewayToken withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|ClientGatewayToken withoutTrashed()
  * @mixin \Eloquent
  */
 class ClientGatewayToken extends BaseModel

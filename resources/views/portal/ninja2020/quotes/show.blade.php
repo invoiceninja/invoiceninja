@@ -2,15 +2,9 @@
 @section('meta_title', ctrans('texts.entity_number_placeholder', ['entity' => ctrans('texts.quote'), 'entity_number' => $quote->number]))
 
 @push('head')
-    <meta name="pdf-url" content="{{ asset($quote->pdf_file_path(null, 'url', true)) }}">
-    <script src="{{ asset('js/vendor/pdf.js/pdf.min.js') }}"></script>
-
     <meta name="show-quote-terms" content="{{ $settings->show_accept_quote_terms ? true : false }}">
     <meta name="require-quote-signature" content="{{ $client->company->account->hasFeature(\App\Models\Account::FEATURE_INVOICE_SETTINGS) && $settings->require_quote_signature }}">
     <meta name="accept-user-input" content="{{ $client->getSetting('accept_client_input_quote_approval') }}">
-
-    @include('portal.ninja2020.components.no-cache')
-
     <script src="{{ asset('vendor/signature_pad@2.3.2/signature_pad.min.js') }}"></script>
 @endpush
 

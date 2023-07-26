@@ -19,7 +19,7 @@ use Illuminate\View\View;
  *
  * @param $page
  * @param bool $boolean
- * @return bool
+ * @return bool | string
  */
 function isActive($page, bool $boolean = false)
 {
@@ -39,8 +39,6 @@ function isActive($page, bool $boolean = false)
     if (($page == $show) && $boolean) {
         return true;
     }
-
-
 
     return false;
 }

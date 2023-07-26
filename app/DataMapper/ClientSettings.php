@@ -47,17 +47,17 @@ class ClientSettings extends BaseSettings
         'send_reminders' => 'bool',
     ];
 
-    /**
-     * Cast object values and return entire class
-     * prevents missing properties from not being returned
-     * and always ensure an up to date class is returned.
-     *
-     * @param $obj
-     */
-    public function __construct($obj)
-    {
-        parent::__construct($obj);
-    }
+    // /**
+    //  * Cast object values and return entire class
+    //  * prevents missing properties from not being returned
+    //  * and always ensure an up to date class is returned.
+    //  *
+    //  * @param $obj
+    //  */
+    // public function __construct($obj)
+    // {
+    //     // parent::__construct($obj);
+    // }
 
     /**
      * Default Client Settings scaffold.
@@ -78,8 +78,8 @@ class ClientSettings extends BaseSettings
     /**
      * Merges settings from Company to Client.
      *
-     * @param  stdClass $company_settings
-     * @param  stdClass $client_settings
+     * @param  $company_settings
+     * @param  $client_settings
      * @return stdClass of merged settings
      */
     public static function buildClientSettings($company_settings, $client_settings)

@@ -136,10 +136,12 @@ span {
                     <td style="text-align:left; padding-right:10px;" class="text-lg">{{ ctrans('texts.total') }}</td>
                     <td style="text-align:right; padding-right:10px;" class="text-lg">{{ $amount }}</td>
                 </tr>
+                @if(!$is_quote)
                  <tr>
                     <td style="text-align:left; padding-right:10px;" class="text-lg">{{ ctrans('texts.balance') }}</td>
                     <td style="text-align:right; padding-right:10px;" class="text-lg">{{ $balance }}</td>
                 </tr>
+                @endif
             </tbody>
         </table>
 

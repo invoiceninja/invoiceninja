@@ -50,7 +50,6 @@ class MarkSent extends AbstractService
              ->service()
              ->applyNumber()
              ->setDueDate()
-             ->touchPdf()
              ->setReminder()
              ->save();
 

@@ -17,8 +17,10 @@ use App\Utils\Ninja;
 use Sentry\State\Scope;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
+use InvalidArgumentException;
 use Sentry\Laravel\Integration;
 use Illuminate\Support\Facades\Schema;
+use Aws\Exception\CredentialsException;
 use GuzzleHttp\Exception\ConnectException;
 use Illuminate\Auth\AuthenticationException;
 use League\Flysystem\UnableToCreateDirectory;
@@ -34,7 +36,6 @@ use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
-use InvalidArgumentException;
 
 class Handler extends ExceptionHandler
 {
@@ -64,7 +65,7 @@ class Handler extends ExceptionHandler
         ConnectException::class,
         RuntimeException::class,
         InvalidArgumentException::class,
-        Aws\Exception\CredentialsException::class,
+        CredentialsException::class,
     ];
 
     protected $hostedDontReport = [

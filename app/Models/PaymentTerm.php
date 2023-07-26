@@ -57,9 +57,6 @@ class PaymentTerm extends BaseModel
      */
     public $timestamps = true;
 
-    /**
-     * @var array
-     */
     protected $fillable = ['num_days'];
 
     public function getNumDays()

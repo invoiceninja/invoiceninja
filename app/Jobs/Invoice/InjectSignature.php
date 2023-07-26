@@ -2,21 +2,19 @@
 
 namespace App\Jobs\Invoice;
 
-use App\Jobs\Entity\CreateEntityPdf;
-use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Models\PurchaseOrder;
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 class InjectSignature implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
-     * @var App\Models\Invoice|App\Models\Quote
+     * @var \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder
      */
     public $entity;
 
@@ -25,17 +23,26 @@ class InjectSignature implements ShouldQueue
      */
     public $signature;
 
+    public $contact_id;
+
+    public $ip;
+    
     /**
      * Create a new job instance.
      *
      * @param $entity
      * @param string $signature
      */
-    public function __construct($entity, string $signature)
+    public function __construct($entity, $contact_id, string $signature, ?string $ip)
     {
         $this->entity = $entity;
 
+        $this->contact_id = $contact_id;
+
         $this->signature = $signature;
+
+        $this->ip = $ip;
+
     }
 
     /**
@@ -45,20 +52,31 @@ class InjectSignature implements ShouldQueue
      */
     public function handle()
     {
-        $invitation = $this->entity->invitations->whereNotNull('signature_base64')->first();
+        $invitation = false;
 
+        if($this->entity instanceof PurchaseOrder){
+            $invitation = $this->entity->invitations()->where('vendor_contact_id', $this->contact_id)->first();
+
+            if(!$invitation)
+                $invitation = $this->entity->invitations->first();
+
+        }
+        else {
+            
+            $invitation = $this->entity->invitations()->where('client_contact_id', $this->contact_id)->first();
+
+            if(!$invitation)
+                $invitation = $this->entity->invitations->first();
+        }
+        
         if (! $invitation) {
             return;
         }
 
         $invitation->signature_base64 = $this->signature;
+        $invitation->signature_date = now();
+        $invitation->signature_ip = $this->ip;
         $invitation->save();
 
-        $this->entity->refresh()->service()->touchPdf(true);
-        
-        // if($this->entity instanceof PurchaseOrder)
-        //     (new CreatePurchaseOrderPdf($invitation))->handle();
-        // else
-        //     (new CreateEntityPdf($invitation))->handle();
     }
 }

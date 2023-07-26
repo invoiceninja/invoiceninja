@@ -78,9 +78,9 @@ class InvoiceService
      * Sets the exchange rate on the invoice if the client currency
      * is different to the company currency.
      */
-    public function setExchangeRate()
+    public function setExchangeRate($force = false)
     {
-        if ($this->invoice->exchange_rate != 1) {
+        if ($this->invoice->exchange_rate != 1 || $force) {
             return $this;
         }
 

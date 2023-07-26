@@ -53,7 +53,7 @@ class InvoicePresenter extends EntityPresenter
             $properties->itemized_receipt[] = $this->itemRbits($item);
         }
 
-        $data = new stdClass();
+        $data = new \stdClass();
         $data->receive_time = time();
         $data->type = 'transaction_details';
         $data->source = 'user';
@@ -64,7 +64,7 @@ class InvoicePresenter extends EntityPresenter
 
     public function itemRbits($item)
     {
-        $data = new stdClass();
+        $data = new \stdClass();
         $data->description = $item->notes;
         $data->item_price = floatval($item->cost);
         $data->quantity = floatval($item->quantity);

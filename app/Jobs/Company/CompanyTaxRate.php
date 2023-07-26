@@ -52,7 +52,7 @@ class CompanyTaxRate implements ShouldQueue
 
             /** State must be calculated else default to the company state for taxes */
             if(array_key_exists($this->company->settings->state, USStates::get())) {
-                $calculated_state = $this->company->setting->state;
+                $calculated_state = $this->company->settings->state;
             }
             else {
 

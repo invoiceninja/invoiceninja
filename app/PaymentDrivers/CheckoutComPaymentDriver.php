@@ -168,7 +168,7 @@ class CheckoutComPaymentDriver extends BaseDriver
      * Payment View
      *
      * @param array $data Payment data array
-     * @return view         The payment view
+     * @return \Illuminate\View\View         
      */
     public function processPaymentView(array $data)
     {
@@ -179,7 +179,7 @@ class CheckoutComPaymentDriver extends BaseDriver
      * Process the payment response
      *
      * @param Request $request The payment request
-     * @return view             The payment response view
+     * @return \Illuminate\View\View         
      */
     public function processPaymentResponse($request)
     {

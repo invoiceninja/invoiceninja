@@ -48,7 +48,7 @@ class PaymentMethodController extends Controller
      * Show the form for creating a new resource.
      *
      * @param CreatePaymentMethodRequest $request
-     * @return Response
+     * @return \Illuminate\View\View
      */
     public function create(CreatePaymentMethodRequest $request)
     {
@@ -67,7 +67,7 @@ class PaymentMethodController extends Controller
      * Store a newly created resource in storage.
      *
      * @param Request $request
-     * @return Response
+     * @return \Illuminate\View\View
      */
     public function store(Request $request)
     {

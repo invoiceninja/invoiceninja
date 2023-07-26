@@ -43,7 +43,7 @@ class CreditCard implements MethodInterface
      * Authorization page for credit card.
      *
      * @param array $data
-     * @return View
+     * @return \Illuminate\View\View         
      */
     public function authorizeView($data): View
     {

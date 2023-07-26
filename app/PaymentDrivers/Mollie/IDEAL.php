@@ -40,7 +40,7 @@ class IDEAL implements MethodInterface
      * Show the authorization page for iDEAL.
      *
      * @param array $data
-     * @return View
+     * @return \Illuminate\View\View         
      */
     public function authorizeView(array $data): View
     {

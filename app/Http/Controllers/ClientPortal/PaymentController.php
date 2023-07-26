@@ -143,7 +143,7 @@ class PaymentController extends Controller
      * Pay for invoice/s using credits only.
      *
      * @param Request $request The request object
-     * @return Response         The response view
+     * @return \Response         The response view
      */
     public function credit_response(Request $request)
     {
@@ -177,7 +177,6 @@ class PaymentController extends Controller
 
         if ($invoices->sum('balance') > 0) {
             $invoice = $invoices->first();
-            $invoice->service()->touchPdf(true);
 
             return redirect()->route('client.invoice.show', ['invoice' => $invoice->hashed_id, 'hash' => $request->input('hash')]);
         }

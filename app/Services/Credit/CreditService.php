@@ -183,7 +183,7 @@ class CreditService
     /**
      * Sometimes we need to refresh the
      * PDF when it is updated etc.
-     * @return InvoiceService
+     * @return self
      */
     public function touchPdf($force = false)
     {

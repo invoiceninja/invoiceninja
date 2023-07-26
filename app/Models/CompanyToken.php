@@ -40,20 +40,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken query()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken whereAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken whereCompanyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken whereIsDeleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken whereIsSystem($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken whereToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken withoutTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken with()
  * @mixin \Eloquent
  */
 class CompanyToken extends BaseModel

@@ -13,6 +13,7 @@ namespace App\Models;
 
 use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * App\Models\Activity
@@ -302,161 +303,120 @@ class Activity extends StaticModel
         'backup',
     ];
 
-    /**
-     * @return mixed
-     */
+
     public function getHashedIdAttribute()
     {
         return $this->encodePrimaryKey($this->id);
     }
 
-    /**
-     * @return mixed
-     */
+
     public function getEntityType()
     {
         return self::class;
     }
 
-    /**
-     * @return mixed
-     */
+
     public function backup()
     {
         return $this->hasOne(Backup::class);
     }
 
-    /**
-     * @return mixed
-     */
+
     public function history()
     {
         return $this->hasOne(Backup::class);
     }
 
-    /**
-     * @return mixed
-     */
-    public function user()
+    public function user() :BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
+
     public function contact()
     {
         return $this->belongsTo(ClientContact::class, 'client_contact_id', 'id')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
+
     public function client()
     {
         return $this->belongsTo(Client::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
+
     public function invoice()
     {
         return $this->belongsTo(Invoice::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
+
     public function vendor()
     {
         return $this->belongsTo(Vendor::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
+
     public function recurring_invoice()
     {
         return $this->belongsTo(RecurringInvoice::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
+
     public function credit()
     {
         return $this->belongsTo(Credit::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
+
     public function quote()
     {
         return $this->belongsTo(Quote::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
+
     public function subscription()
     {
         return $this->belongsTo(Subscription::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
+
     public function payment()
     {
         return $this->belongsTo(Payment::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
+
     public function expense()
     {
         return $this->belongsTo(Expense::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
+
     public function recurring_expense()
     {
         return $this->belongsTo(RecurringExpense::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
+
     public function purchase_order()
     {
         return $this->belongsTo(PurchaseOrder::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
+
     public function vendor_contact()
     {
         return $this->belongsTo(VendorContact::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
+
     public function task()
     {
         return $this->belongsTo(Task::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
+
     public function company()
     {
         return $this->belongsTo(Company::class);

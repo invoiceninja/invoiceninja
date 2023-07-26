@@ -37,7 +37,6 @@ class AccountSignup extends GenericMixedMetric
      *
      * date("Y-m-d H:i:s")
      *
-     * @var \DateTime
      */
     public $datetime;
 
@@ -61,7 +60,7 @@ class AccountSignup extends GenericMixedMetric
      * The counter
      * set to 1.
      *
-     * @var string
+     * @var int
      */
     public $int_metric1 = 1;
 
