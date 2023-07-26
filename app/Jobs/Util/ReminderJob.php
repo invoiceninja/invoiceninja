@@ -205,9 +205,6 @@ class ReminderJob implements ShouldQueue
                 ->markSent()
                 ->save();
         
-        //30-6-2023 - fix for duplicate touching
-        // $invoice->service()->touchPdf(true); 
-
         $enabled_reminder = 'enable_'.$reminder_template;
         if ($reminder_template == 'endless_reminder') {
             $enabled_reminder = 'enable_reminder_endless';
@@ -308,13 +305,10 @@ class ReminderJob implements ShouldQueue
 
         /**Refresh Invoice values*/
         $invoice = $invoice->calc()->getInvoice();
-        // $invoice->service()->deletePdf(); 24-11-2022 no need to delete here because we regenerate later anyway
 
         nlog('adjusting client balance and invoice balance by #'.$invoice->number.' '.($invoice->balance - $temp_invoice_balance));
         $invoice->client->service()->updateBalance($invoice->balance - $temp_invoice_balance);
         $invoice->ledger()->updateInvoiceBalance($invoice->balance - $temp_invoice_balance, "Late Fee Adjustment for invoice {$invoice->number}");
-
-        $invoice->service()->touchPdf(true);
 
         return $invoice;
     }

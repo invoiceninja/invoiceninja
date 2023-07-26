@@ -177,7 +177,6 @@ class PaymentController extends Controller
 
         if ($invoices->sum('balance') > 0) {
             $invoice = $invoices->first();
-            $invoice->service()->touchPdf(true);
 
             return redirect()->route('client.invoice.show', ['invoice' => $invoice->hashed_id, 'hash' => $request->input('hash')]);
         }

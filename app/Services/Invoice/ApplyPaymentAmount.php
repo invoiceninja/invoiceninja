@@ -73,7 +73,6 @@ class ApplyPaymentAmount extends AbstractService
                 ->updatePaidToDate($payment->amount)
                 ->setCalculatedStatus()
                 ->applyNumber()
-                ->touchPdf()
                 ->save();
 
         $this->invoice
