@@ -32,11 +32,9 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string $color
  * @property-read \App\Models\Client|null $client
  * @property-read \App\Models\Company $company
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read int|null $documents_count
  * @property-read mixed $hashed_id
  * @property-read Project|null $project
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
  * @property-read int|null $tasks_count
  * @property-read \App\Models\User $user
  * @property-read \App\Models\Vendor|null $vendor
@@ -49,53 +47,8 @@ use Laracasts\Presenter\PresentableTrait;
  * @method static \Illuminate\Database\Eloquent\Builder|Project onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Project query()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereAssignedUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereBudgetedHours($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereClientId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereColor($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereCompanyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereCustomValue1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereCustomValue2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereCustomValue3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereCustomValue4($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereDueDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereIsDeleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project wherePrivateNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project wherePublicNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereTaskRate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Project withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Project withoutTrashed()
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @property int|null $current_hours
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @method static \Illuminate\Database\Eloquent\Builder|Project whereCurrentHours($value)
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
  * @mixin \Eloquent
