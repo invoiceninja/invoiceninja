@@ -40,7 +40,7 @@ class Bancontact implements MethodInterface
      * Show the authorization page for Bancontact.
      *
      * @param array $data
-     * @return View
+     * @return \Illuminate\View\View         
      */
     public function authorizeView(array $data): View
     {

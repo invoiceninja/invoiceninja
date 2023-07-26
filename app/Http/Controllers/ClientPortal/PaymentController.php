@@ -143,7 +143,7 @@ class PaymentController extends Controller
      * Pay for invoice/s using credits only.
      *
      * @param Request $request The request object
-     * @return Response         The response view
+     * @return \Response         The response view
      */
     public function credit_response(Request $request)
     {

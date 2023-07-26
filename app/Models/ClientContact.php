@@ -68,17 +68,12 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int|null $deleted_at
  * @property-read \App\Models\Client $client
  * @property-read \App\Models\Company $company
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $credit_invitations
  * @property-read int|null $credit_invitations_count
  * @property-read mixed $contact_id
  * @property-read mixed $hashed_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invoice_invitations
  * @property-read int|null $invoice_invitations_count
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $quote_invitations
  * @property-read int|null $quote_invitations_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $recurring_invoice_invitations
  * @property-read int|null $recurring_invoice_invitations_count
  * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder|ClientContact company()
@@ -89,15 +84,11 @@ use Laracasts\Presenter\PresentableTrait;
  * @method static \Illuminate\Database\Eloquent\Builder|ClientContact query()
  * @method static \Illuminate\Database\Eloquent\Builder|ClientContact withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|ClientContact withoutTrashed()
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $credit_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invoice_invitations
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $quote_invitations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $recurring_invoice_invitations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $credit_invitations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invoice_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Client> $client
-
  * @mixin \Eloquent
  */
 class ClientContact extends Authenticatable implements HasLocalePreference

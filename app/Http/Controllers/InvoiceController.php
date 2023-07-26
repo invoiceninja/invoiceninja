@@ -476,7 +476,7 @@ class InvoiceController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Collection
+     * @return \Illuminate\Support\Collection
      *
      * @OA\Post(
      *      path="/api/v1/invoices/bulk",

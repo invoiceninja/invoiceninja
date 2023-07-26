@@ -78,7 +78,6 @@ class QuoteController extends Controller
     public function bulk(ProcessQuotesInBulkRequest $request)
     {
         $transformed_ids = $this->transformKeys($request->quotes);
-        nlog(request()->all());
 
         if ($request->action == 'download') {
             return $this->downloadQuotes((array) $transformed_ids);
