@@ -21,7 +21,7 @@ class DeletePayment
     private float $_paid_to_date_deleted = 0;
 
     /**
-     * @param mixed $payment
+     * @param Payment $payment
      * @return void
      */
     public function __construct(public Payment $payment, private bool $update_client_paid_to_date)
@@ -29,7 +29,7 @@ class DeletePayment
     }
 
     /**
-     * @return mixed
+     * @return Payment
      * @throws BindingResolutionException
      */
     public function run()
