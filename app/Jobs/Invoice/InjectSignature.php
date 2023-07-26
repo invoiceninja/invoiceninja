@@ -25,19 +25,24 @@ class InjectSignature implements ShouldQueue
 
     public $contact_id;
 
+    public $ip;
+    
     /**
      * Create a new job instance.
      *
      * @param $entity
      * @param string $signature
      */
-    public function __construct($entity, $contact_id, string $signature)
+    public function __construct($entity, $contact_id, string $signature, ?string $ip)
     {
         $this->entity = $entity;
 
         $this->contact_id = $contact_id;
 
         $this->signature = $signature;
+
+        $this->ip = $ip;
+
     }
 
     /**
@@ -70,8 +75,8 @@ class InjectSignature implements ShouldQueue
 
         $invitation->signature_base64 = $this->signature;
         $invitation->signature_date = now();
+        $invitation->signature_ip = $this->ip;
         $invitation->save();
 
-    
     }
 }
