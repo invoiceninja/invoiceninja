@@ -4947,8 +4947,8 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'click_to_variables' => 'Cliquez ici pour voir toutes les variables',
     'ship_to' => 'Livrer à',
     'stripe_direct_debit_details' => 'Veuillez transférer dans le compte bancaire indiqué ci-dessus.',
-    'branch_name' => 'Nom de branche',
-    'branch_code' => 'Code de branche',
+    'branch_name' => 'Nom de succursale',
+    'branch_code' => 'Code de succursale',
     'bank_name' => 'Nom de l\'institution bancaire',
     'bank_code' => 'Code de l\'institution bancaire',
     'bic' => 'BIC',
@@ -5114,7 +5114,8 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'lang_French - Swiss' => 'Français - Suisse',
     'currency_swazi_lilangeni' => 'Lilangeni Eswatinien',
     'income' => 'Revenu',
-    
+    'amount_received_help' => 'Saisissez une valeur si le montant total reçu été PLUS élevé que le montant de la facture, ou lors de l\'enregistrement d\'un paiement sans factures. Sinon, ce champ devrait rester vide.',  
+    'vendor_phone' => 'Téléphone du fournisseur',
 );
 
 

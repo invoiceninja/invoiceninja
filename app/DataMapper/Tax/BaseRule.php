@@ -197,7 +197,7 @@ class BaseRule implements RuleInterface
             }
 
             /** If we are in a Origin based state, force the company tax here */
-            if($company->origin_tax_data?->originDestination == 'O' && ($company->tax_data?->seller_subregion == $this->client_subregion)) {
+            if($company->origin_tax_data->originDestination == 'O' && ($company->tax_data?->seller_subregion == $this->client_subregion)) {
 
                 $tax_data = $company->origin_tax_data;
 

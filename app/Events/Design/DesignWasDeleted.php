@@ -30,7 +30,7 @@ class DesignWasDeleted
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return PrivateChannel
+     * @return PrivateChannel|array
     */
      public function broadcastOn()
      {

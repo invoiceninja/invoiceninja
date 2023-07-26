@@ -14,7 +14,7 @@ namespace App\Exceptions;
 
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Illuminate\Http\JsonResponse;
 
 class QuoteConversion extends Exception
 {
@@ -32,7 +32,7 @@ class QuoteConversion extends Exception
      * Render the exception into an HTTP response.
      *
      * @param  Request  $request
-     * @return Response
+     * @return JsonResponse
      */
     public function render($request)
     {

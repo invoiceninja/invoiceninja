@@ -31,30 +31,35 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  * @property-read mixed $hashed_id
  * @property string $number
  * @property int $company_id
+ * @property int $id
  * @property \App\Models\Company $company
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|Illuminate\Database\Eloquent\Relations\BelongsTo|\Awobaz\Compoships\Database\Eloquent\Relations\BelongsTo|\App\Models\Company company()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|Illuminate\Database\Eloquent\Relations\HasMany|BaseModel orderBy()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel with()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel with($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newModelQuery($query)
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newQuery($query)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel query()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude(array $excludeable)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scopeExclude()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel find() 
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel whereIn()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel where()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scopeExclude($query)
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel find($value) 
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel whereIn($query)
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel where($query)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel count()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel create()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel insert()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel create($query)
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel insert($query)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel service()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel whereHas()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel orderBy($column, $direction)
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel invitations()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel createInvitations()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel whereHas($query)
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation | \App\Models\CreditInvitation | \App\Models\QuoteInvitation | \App\Models\RecurringInvoiceInvitation> $invitations
  * @property-read int|null $invitations_count
  * 
  * @method \App\Models\Company company()
  * @method int companyId()
+ * @method createInvitations()
  * @method Builder|static exclude($columns)
  * @method static \Illuminate\Database\Eloquent\Builder exclude(array $columns)
  * @mixin \Eloquent

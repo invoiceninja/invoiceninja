@@ -29,17 +29,6 @@ namespace App\Models;
  * @method static \Illuminate\Database\Eloquent\Builder|GatewayType whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|GatewayType whereName($value)
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentType> $payment_methods
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentType> $payment_methods
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentType> $payment_methods
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentType> $payment_methods
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentType> $payment_methods
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentType> $payment_methods
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentType> $payment_methods
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentType> $payment_methods
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentType> $payment_methods
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentType> $payment_methods
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentType> $payment_methods
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentType> $payment_methods
  * @mixin \Eloquent
  */
 class GatewayType extends StaticModel
@@ -93,6 +82,14 @@ class GatewayType extends StaticModel
     const KLARNA = 23;
 
     const BACS = 24;
+
+    const VENMO = 25;
+
+    const MERCADOPAGO = 26;
+
+    const MYBANK = 27;
+
+    const PAYLATER = 28;
 
     public function gateway()
     {
@@ -153,9 +150,17 @@ class GatewayType extends StaticModel
                 return ctrans('texts.fpx');
             case self::KLARNA:
                 return ctrans('texts.klarna');
+            case self::VENMO:
+                return ctrans('texts.payment_type_Venmo');
+            case self::MERCADOPAGO:
+                return ctrans('texts.mercado_pago');
+            case self::MYBANK:
+                return ctrans('texts.mybank');
+            case self::PAYLATER:
+                return ctrans('texts.paypal_paylater');
             default:
                 return ' ';
-                break;
         }
     }
 }
+

@@ -33859,8 +33859,6 @@ class USStates
         '99926' => 'AK',
         '99927' => 'AK',
         '99929' => 'AK',
-        '13021' => 'NY',
-        '13024' => 'NY',
         ];
 
     public static function get(): array

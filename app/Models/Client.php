@@ -11,21 +11,26 @@
 
 namespace App\Models;
 
+use App\Models\GatewayType;
+use App\Utils\Traits\AppSetup;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesDates;
+use App\DataMapper\FeesAndLimits;
+use App\Models\Traits\Excludable;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
-use App\DataMapper\FeesAndLimits;
-use App\Models\Presenters\ClientPresenter;
-use App\Models\Traits\Excludable;
-use App\Services\Client\ClientService;
-use App\Utils\Traits\AppSetup;
-use App\Utils\Traits\ClientGroupSettingsSaver;
-use App\Utils\Traits\GeneratesCounter;
-use App\Utils\Traits\MakesDates;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Contracts\Translation\HasLocalePreference;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Cache;
+use App\Services\Client\ClientService;
+use App\Utils\Traits\GeneratesCounter;
 use Laracasts\Presenter\PresentableTrait;
+use App\Models\Presenters\ClientPresenter;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Utils\Traits\ClientGroupSettingsSaver;
+use App\Libraries\Currency\Conversion\CurrencyApi;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 
 /**
  * App\Models\Client
@@ -65,6 +70,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $shipping_postal_code
  * @property int|null $shipping_country_id
  * @property object|null $settings
+ * @property object|null $group_settings
  * @property bool $is_deleted
  * @property int|null $group_settings_id
  * @property string|null $vat_number
@@ -114,68 +120,12 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoice> $recurring_invoices
  * @property-read int|null $tasks_count
  * @property-read \App\Models\User $user
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|Client exclude($columns)
  * @method static \Database\Factories\ClientFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Client filter(\App\Filters\QueryFilters $filters)
- * @method static \Illuminate\Database\Eloquent\Builder|Client newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Client newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Client onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Client query()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereAddress1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereAddress2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereAssignedUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereBalance($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCity($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereClientHash($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCompanyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCountryId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCreditBalance($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCustomValue1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCustomValue2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCustomValue3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereCustomValue4($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereGroupSettingsId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereIdNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereIndustryId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereIsDeleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereLastLogin($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereLogo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client wherePaidToDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client wherePhone($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client wherePostalCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client wherePrivateNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client wherePublicNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereSettings($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereShippingAddress1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereShippingAddress2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereShippingCity($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereShippingCountryId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereShippingPostalCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereShippingState($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereSizeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereState($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereVatNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereWebsite($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Client withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Client withoutTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Client with()
- * @method static \Illuminate\Database\Eloquent\Builder|Client where()
  * @property string $payment_balance
- * @method static \Illuminate\Database\Eloquent\Builder|Client wherePaymentBalance($value)
  * @property mixed $tax_data
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereTaxData($value)
  * @property int $is_tax_exempt
- * @method static \Illuminate\Database\Eloquent\Builder|Client whereIsTaxExempt($value)
-
  * @property int $has_valid_vat_number
  * @mixin \Eloquent
  */
@@ -357,62 +307,62 @@ class Client extends BaseModel implements HasLocalePreference
         return $this->hasMany(Activity::class)->take(50)->orderBy('id', 'desc');
     }
 
-    public function contacts()
+    public function contacts() :HasMany
     {
         return $this->hasMany(ClientContact::class)->orderBy('is_primary', 'desc');
     }
 
-    public function primary_contact()
+    public function primary_contact():HasMany
     {
         return $this->hasMany(ClientContact::class)->where('is_primary', true);
     }
 
-    public function company()
+    public function company() :BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function user()
+    public function user() :BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
 
-    public function assigned_user()
+    public function assigned_user() :BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
 
-    public function country()
+    public function country() :BelongsTo
     {
         return $this->belongsTo(Country::class);
     }
 
-    public function invoices()
+    public function invoices() :HasMany
     {
         return $this->hasMany(Invoice::class)->withTrashed();
     }
 
-    public function quotes()
+    public function quotes() :HasMany
     {
         return $this->hasMany(Quote::class)->withTrashed();
     }
 
-    public function tasks()
+    public function tasks() :HasMany
     {
         return $this->hasMany(Task::class)->withTrashed();
     }
 
-    public function payments()
+    public function payments() :HasMany
     {
         return $this->hasMany(Payment::class)->withTrashed();
     }
 
-    public function recurring_invoices()
+    public function recurring_invoices() :HasMany
     {
         return $this->hasMany(RecurringInvoice::class)->withTrashed();
     }
 
-    public function recurring_expenses()
+    public function recurring_expenses() :HasMany
     {
         return $this->hasMany(RecurringExpense::class)->withTrashed();
     }
@@ -422,12 +372,12 @@ class Client extends BaseModel implements HasLocalePreference
         return $this->belongsTo(Country::class, 'shipping_country_id', 'id');
     }
 
-    public function system_logs()
+    public function system_logs() :HasMany
     {
         return $this->hasMany(SystemLog::class)->take(50)->orderBy('id', 'desc');
     }
 
-    public function timezone()
+    public function timezone() :Timezone
     {
         return Timezone::find($this->getSetting('timezone_id'));
     }
@@ -445,17 +395,17 @@ class Client extends BaseModel implements HasLocalePreference
         })->first();
     }
 
-    public function industry()
+    public function industry() :BelongsTo
     {
         return $this->belongsTo(Industry::class);
     }
 
-    public function size()
+    public function size() :BelongsTo
     {
         return $this->belongsTo(Size::class);
     }
 
-    public function locale()
+    public function locale() :string
     {
         if (! $this->language()) {
             return 'en';
@@ -526,7 +476,7 @@ class Client extends BaseModel implements HasLocalePreference
      * @param  string $setting The Setting parameter
      * @return mixed          The setting requested
      */
-    public function getSetting($setting)
+    public function getSetting($setting) :mixed
     {
         /*Client Settings*/
         if ($this->settings && property_exists($this->settings, $setting) && isset($this->settings->{$setting})) {
@@ -556,7 +506,6 @@ class Client extends BaseModel implements HasLocalePreference
 
         return '';
 
-//        throw new \Exception("Settings corrupted", 1);
     }
 
     public function getSettingEntity($setting)
@@ -582,12 +531,12 @@ class Client extends BaseModel implements HasLocalePreference
         throw new \Exception('Could not find a settings object', 1);
     }
 
-    public function documents()
+    public function documents() :MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
     }
 
-    public function group_settings()
+    public function group_settings() :BelongsTo
     {
         return $this->belongsTo(GroupSetting::class);
     }
@@ -710,7 +659,7 @@ class Client extends BaseModel implements HasLocalePreference
         }
     }
 
-    public function getCurrencyCode()
+    public function getCurrencyCode(): string
     {
         if ($this->currency()) {
             return $this->currency()->code;
@@ -751,51 +700,51 @@ class Client extends BaseModel implements HasLocalePreference
         })->first()->locale;
     }
 
-    public function backup_path()
+    public function backup_path() :string
     {
         return $this->company->company_key.'/'.$this->client_hash.'/backups';
     }
 
-    public function invoice_filepath($invitation)
+    public function invoice_filepath($invitation) :string
     {
         $contact_key = $invitation->contact->contact_key;
 
         return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/invoices/';
     }
-    public function e_invoice_filepath($invitation)
+    public function e_invoice_filepath($invitation) :string
     {
         $contact_key = $invitation->contact->contact_key;
 
         return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/e_invoice/';
     }
 
-    public function quote_filepath($invitation)
+    public function quote_filepath($invitation) :string
     {
         $contact_key = $invitation->contact->contact_key;
 
         return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/quotes/';
     }
 
-    public function credit_filepath($invitation)
+    public function credit_filepath($invitation) :string
     {
         $contact_key = $invitation->contact->contact_key;
 
         return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/credits/';
     }
 
-    public function recurring_invoice_filepath($invitation)
+    public function recurring_invoice_filepath($invitation) :string
     {
         $contact_key = $invitation->contact->contact_key;
 
         return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/recurring_invoices/';
     }
 
-    public function company_filepath()
+    public function company_filepath() :string
     {
         return $this->company->company_key.'/';
     }
 
-    public function document_filepath()
+    public function document_filepath() :string
     {
         return $this->company->company_key.'/documents/';
     }
@@ -820,10 +769,13 @@ class Client extends BaseModel implements HasLocalePreference
             $defaults['public_notes'] = $this->public_notes;
         }
 
+        $exchange_rate = new CurrencyApi();
+        $defaults['exchange_rate'] = 1/$exchange_rate->exchangeRate($this->getSetting('currency_id'), $this->company->settings->currency_id);
+
         return $defaults;
     }
 
-    public function timezone_offset()
+    public function timezone_offset() :int 
     {
         $offset = 0;
 
@@ -853,7 +805,7 @@ class Client extends BaseModel implements HasLocalePreference
         ];
     }
 
-    public function translate_entity()
+    public function translate_entity() :string
     {
         return ctrans('texts.client');
     }
