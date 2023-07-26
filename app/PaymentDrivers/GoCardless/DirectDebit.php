@@ -242,7 +242,7 @@ class DirectDebit implements MethodInterface
      * Payment view for Direct Debit.
      *
      * @param array $data
-     * @return View
+     * @return \Illuminate\View\View         
      */
     public function paymentView(array $data): View
     {

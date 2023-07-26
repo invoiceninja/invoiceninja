@@ -91,9 +91,6 @@ class SendRecurring implements ShouldQueue
 
         $invoice = $this->createRecurringInvitations($invoice);
 
-        /* 09-01-2022 ensure we create the PDFs at this point in time! */
-        $invoice->service()->touchPdf(true);
-
         /* Set next date here to prevent a recurring loop forming */
         $this->recurring_invoice->next_send_date = $this->recurring_invoice->nextSendDate();
         $this->recurring_invoice->next_send_date_client = $this->recurring_invoice->nextSendDateClient();

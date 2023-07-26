@@ -214,7 +214,7 @@ class FacturaEInvoice extends AbstractService
     {
         $po = $this->invoice->po_number ?? '';
 
-        $this->fac->setReferences($po, $this->invoice->custom_value1, $this->invoice->custom_value2);        
+        $this->fac->setReferences($po, substr($this->invoice->custom_value1, 0, 20), $this->invoice->custom_value2);        
 
         return $this;
     }
@@ -233,8 +233,8 @@ class FacturaEInvoice extends AbstractService
 
         foreach($this->invoice->line_items as $item) {
             $this->fac->addItem(new FacturaeItem([
-                'name' => $item->notes,
-                'description' => $item->product_key,
+                'name' => $item->product_key,
+                'description' => $item->notes,
                 'quantity' => $item->quantity,
                 'unitPriceWithoutTax' => $item->cost,
                 'discountsAndRebates' => $item->discount,

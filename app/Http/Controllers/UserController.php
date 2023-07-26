@@ -189,7 +189,7 @@ class UserController extends BaseController
      *
      * @param DestroyUserRequest $request
      * @param User $user
-     * @return JsonResponse | Response
+     * @return \Illuminate\Http\JsonResponse
      *
      */
     public function destroy(DestroyUserRequest $request, User $user)
