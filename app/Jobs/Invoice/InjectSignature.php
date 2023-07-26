@@ -2,11 +2,12 @@
 
 namespace App\Jobs\Invoice;
 
+use App\Models\PurchaseOrder;
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 class InjectSignature implements ShouldQueue
 {
@@ -22,15 +23,19 @@ class InjectSignature implements ShouldQueue
      */
     public $signature;
 
+    public $contact_id;
+
     /**
      * Create a new job instance.
      *
      * @param $entity
      * @param string $signature
      */
-    public function __construct($entity, string $signature)
+    public function __construct($entity, $contact_id, string $signature)
     {
         $this->entity = $entity;
+
+        $this->contact_id = $contact_id;
 
         $this->signature = $signature;
     }
@@ -42,8 +47,23 @@ class InjectSignature implements ShouldQueue
      */
     public function handle()
     {
-        $invitation = $this->entity->invitations->whereNotNull('signature_base64')->first();
+        $invitation = false;
 
+        if($this->entity instanceof PurchaseOrder){
+            $invitation = $this->entity->invitations()->where('vendor_contact_id', $this->contact_id)->first();
+
+            if(!$invitation)
+                $invitation = $this->entity->invitations->first();
+
+        }
+        else {
+            
+            $invitation = $this->entity->invitations()->where('client_contact_id', $this->contact_id)->first();
+
+            if(!$invitation)
+                $invitation = $this->entity->invitations->first();
+        }
+        
         if (! $invitation) {
             return;
         }

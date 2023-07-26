@@ -186,8 +186,7 @@ class PurchaseOrderController extends Controller
                                         ->save();
 
                             if (request()->has('signature') && ! is_null(request()->signature) && ! empty(request()->signature)) {
-                                (new InjectSignature($purchase_order, request()->signature))->handle();
-                                // InjectSignature::dispatch($purchase_order, request()->signature);
+                                (new InjectSignature($purchase_order, auth()->guard('vendor')->user()->id, request()->signature))->handle();
                             }
 
                             event(new PurchaseOrderWasAccepted($purchase_order, auth()->guard('vendor')->user(), $purchase_order->company, Ninja::eventVars()));

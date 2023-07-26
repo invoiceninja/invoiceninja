@@ -175,8 +175,11 @@ class InstantPayment
         }
 
         if ($this->request->has('signature') && ! is_null($this->request->signature) && ! empty($this->request->signature)) {
-            $invoices->each(function ($invoice) {
-                InjectSignature::dispatch($invoice, $this->request->signature);
+                
+            $contact_id = auth()->guard('contact')->user() ? auth()->guard('contact')->user()->id : null;
+
+            $invoices->each(function ($invoice) use($contact_id) {
+                InjectSignature::dispatch($invoice, $contact_id, $this->request->signature);
             });
         }
 
