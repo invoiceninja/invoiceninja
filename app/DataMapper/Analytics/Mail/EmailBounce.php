@@ -37,7 +37,6 @@ class EmailBounce extends GenericMixedMetric
      *
      * date("Y-m-d H:i:s")
      *
-     * @var \DateTime
      */
     public $datetime;
 
@@ -67,7 +66,6 @@ class EmailBounce extends GenericMixedMetric
      * The counter
      * set to 1.
      *
-     * @var string
      */
     public $int_metric1 = 1;
 

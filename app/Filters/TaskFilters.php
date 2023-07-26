@@ -24,7 +24,7 @@ class TaskFilters extends QueryFilters
     /**
      * Filter based on search text.
      *
-     * @param string query filter
+     * @param string $filter
      * @return Builder
      * @deprecated
      */
@@ -99,7 +99,7 @@ class TaskFilters extends QueryFilters
     /**
      * Sorts the list based on $sort.
      *
-     * @param string sort formatted as column|asc
+     * @param string $sort formatted as column|asc
      * @return Builder
      */
     public function sort(string $sort = ''): Builder
@@ -131,8 +131,8 @@ class TaskFilters extends QueryFilters
 
         $status_parameters = explode(',', $value);
 
-        if(count($status_parameters) > 0)
-            return $this->builder->whereIn('status_id', $this->transformKeys($status_parameters));
+        if(count($status_parameters) >= 1)
+            $this->builder->whereIn('status_id', $this->transformKeys($status_parameters));
 
         return $this->builder;
     }

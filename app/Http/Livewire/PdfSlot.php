@@ -53,6 +53,8 @@ class PdfSlot extends Component
 
     public $route_entity = 'client';
 
+    public $is_quote = false;
+
     public function mount()
     {
         MultiDB::setDb($this->db);
@@ -111,9 +113,9 @@ class PdfSlot extends Component
             $this->show_line_total = in_array('$product.line_total', $this->settings->pdf_variables->product_quote_columns);
         }
 
-        $this->html_variables = $this->entity->client ?
-                            (new HtmlEngine($this->invitation))->generateLabelsAndValues() :
-                            (new VendorHtmlEngine($this->invitation))->generateLabelsAndValues();
+        $this->html_variables = $this->entity_type == 'purchase_order' ?
+                            (new VendorHtmlEngine($this->invitation))->generateLabelsAndValues() :
+                            (new HtmlEngine($this->invitation))->generateLabelsAndValues();
 
         return render('components.livewire.pdf-slot', [
             'invitation' => $this->invitation,
@@ -230,15 +232,16 @@ class PdfSlot extends Component
     private function getProducts()
     {
 
-        
-
         $product_items = collect($this->entity->line_items)->filter(function ($item) {
             return $item->type_id == 1 || $item->type_id == 6 || $item->type_id == 5;
         })->map(function ($item){
+
+            $notes = strlen($item->notes) > 4 ? $item->notes : $item->product_key;
+
             return [
                 'quantity' => $item->quantity,
                 'cost' => Number::formatMoney($item->cost, $this->entity->client ?: $this->entity->vendor),
-                'notes' => $this->invitation->company->markdown_enabled ? DesignHelpers::parseMarkdownToHtml($item->notes) : $item->notes,
+                'notes' => $this->invitation->company->markdown_enabled ? DesignHelpers::parseMarkdownToHtml($notes) : $notes,
                 'line_total' => Number::formatMoney($item->line_total, $this->entity->client ?: $this->entity->vendor),
             ];
         });
@@ -268,6 +271,7 @@ class PdfSlot extends Component
         if ($this->invitation instanceof InvoiceInvitation) {
             return 'invoice';
         } elseif ($this->invitation instanceof QuoteInvitation) {
+            $this->is_quote = true;
             return 'quote';
         } elseif ($this->invitation instanceof CreditInvitation) {
             return 'credit';

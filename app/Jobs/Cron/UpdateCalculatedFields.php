@@ -43,7 +43,9 @@ class UpdateCalculatedFields
 
         if (! config('ninja.db.multi_db_enabled')) {
 
-            Project::with('tasks')->where('updated_at', '>', now()->subHours(2))
+            Project::with('tasks')->whereHas('tasks', function ($query){
+                    $query->where('updated_at', '>', now()->subHours(2));
+            })
                 ->cursor()
                 ->each(function ($project) {
 
@@ -59,7 +61,9 @@ class UpdateCalculatedFields
                 MultiDB::setDB($db);
 
 
-            Project::with('tasks')->where('updated_at', '>', now()->subHours(2))
+            Project::with('tasks')->whereHas('tasks', function ($query){
+                    $query->where('updated_at', '>', now()->subHours(2));
+            })
                 ->cursor()
                 ->each(function ($project) {
                     $project->current_hours = $this->calculateDuration($project);

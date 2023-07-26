@@ -11,7 +11,6 @@
 
 namespace App\Filters;
 
-//use Illuminate\Database\Query\Builder;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;

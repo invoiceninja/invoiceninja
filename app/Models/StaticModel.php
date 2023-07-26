@@ -22,13 +22,13 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  * @property-read mixed $id
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel exclude($columns)
- * @method static \Illuminate\Database\Eloquent\Builder|StaticModel newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|StaticModel newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|StaticModel query()
- * @method static \Illuminate\Database\Eloquent\Builder|StaticModel find()
- * @method static \Illuminate\Database\Eloquent\Builder|StaticModel with()
- * @method static \Illuminate\Database\Eloquent\Builder|StaticModel withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|StaticModel findOrFail()
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel newModelQuery($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel newQuery($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel query($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel find($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel with($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel withTrashed($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel findOrFail($value)
  * @mixin \Eloquent
  */
 class StaticModel extends Model

@@ -48,7 +48,7 @@ class SubscriptionController extends BaseController
     /**
      * Show the list of Subscriptions.
      *
-     * @return Response
+     * @return \Illuminate\Http\JsonResponse
      *
      * @OA\Get(
      *      path="/api/v1/subscriptions",
@@ -92,7 +92,7 @@ class SubscriptionController extends BaseController
      *
      * @param CreateSubscriptionRequest $request  The request
      *
-     * @return Response
+     * @return \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -137,7 +137,7 @@ class SubscriptionController extends BaseController
      *
      * @param StoreSubscriptionRequest $request  The request
      *
-     * @return Response
+     * @return \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(
@@ -185,7 +185,7 @@ class SubscriptionController extends BaseController
      * @param ShowSubscriptionRequest $request  The request
      * @param Invoice $subscription  The invoice
      *
-     * @return Response
+     * @return \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -240,7 +240,7 @@ class SubscriptionController extends BaseController
      * @param EditSubscriptionRequest $request  The request
      * @param Invoice $subscription  The invoice
      *
-     * @return Response
+     * @return \Illuminate\Http\JsonResponse
      *
      * @OA\Get(
      *      path="/api/v1/subscriptions/{id}/edit",
@@ -294,7 +294,7 @@ class SubscriptionController extends BaseController
      * @param UpdateSubscriptionRequest $request  The request
      * @param Subscription $subscription  The invoice
      *
-     * @return Response
+     * @return \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Put(
@@ -357,7 +357,7 @@ class SubscriptionController extends BaseController
      * @param DestroySubscriptionRequest $request
      * @param Subscription $invoice
      *
-     * @return     Response
+     * @return \Illuminate\Http\JsonResponse
      *
      * @throws \Exception
      * @OA\Delete(
@@ -410,7 +410,7 @@ class SubscriptionController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Response
+     * @return \Illuminate\Support\Collection
      *
      *
      * @OA\Post(

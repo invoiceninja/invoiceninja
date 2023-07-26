@@ -476,7 +476,7 @@ class InvoiceController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Collection
+     * @return \Illuminate\Support\Collection
      *
      * @OA\Post(
      *      path="/api/v1/invoices/bulk",
@@ -683,7 +683,6 @@ class InvoiceController extends BaseController
 
                 return $this->itemResponse($quote);
 
-                break;
             case 'history':
                 // code...
                 break;
@@ -717,7 +716,6 @@ class InvoiceController extends BaseController
                     echo Storage::get($file);
                 }, basename($file), ['Content-Type' => 'application/pdf']);
 
-                break;
             case 'restore':
                 $this->invoice_repo->restore($invoice);
 
@@ -742,8 +740,6 @@ class InvoiceController extends BaseController
                 break;
             case 'cancel':
                 $invoice = $invoice->service()->handleCancellation()->deletePdf()->save();
-                // $invoice = $invoice->service()->handleCancellation()->touchPdf()->save();
-
                 if (! $bulk) {
                     $this->itemResponse($invoice);
                 }
@@ -765,7 +761,6 @@ class InvoiceController extends BaseController
 
             default:
                 return response()->json(['message' => ctrans('texts.action_unavailable', ['action' => $action])], 400);
-                break;
         }
     }
 

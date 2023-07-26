@@ -373,6 +373,8 @@ class BaseExport
         if(!is_array($parts) || count($parts) < 2)
             return '';
 
+        $value = '';
+
         match($parts[0]) {
             'contact' => $value = $this->resolveClientContactKey($parts[1], $entity, $transformer),
             'client' => $value = $this->resolveClientKey($parts[1], $entity, $transformer),
@@ -385,7 +387,7 @@ class BaseExport
             'purchase_order' => $value = $this->resolvePurchaseOrderKey($parts[1], $entity, $transformer),
             'payment' => $value = $this->resolvePaymentKey($parts[1], $entity, $transformer),
             'task' => $value = $this->resolveTaskKey($parts[1], $entity, $transformer),
-            default => $value = ''
+            default => $value = '',
         };
         
         return $value;
@@ -580,6 +582,7 @@ class BaseExport
     private function resolveInvoiceKey($column, $entity, $transformer)
     {
         nlog("searching for {$column}");
+        $transformed_invoice = false;
 
         if($transformer instanceof PaymentTransformer) {
             $transformed_invoices = $transformer->includeInvoices($entity);
@@ -615,14 +618,14 @@ class BaseExport
 
         }
         
-        if(array_key_exists($column, $transformed_invoice)) {
+        if($transformed_invoice && array_key_exists($column, $transformed_invoice)) {
             return $transformed_invoice[$column];
-        } elseif (array_key_exists(str_replace("invoice.", "", $column), $transformed_invoice)) {
+        } elseif ($transformed_invoice && array_key_exists(str_replace("invoice.", "", $column), $transformed_invoice)) {
             return $transformed_invoice[$column];
         }
 
-        if($column == 'status')
-            return $entity->stringStatus($entity->status_id);
+        // if($column == 'status')
+        //     return $entity->stringStatus($entity->status_id);
     
         return '';
     }

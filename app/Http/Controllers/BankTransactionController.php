@@ -71,7 +71,7 @@ class BankTransactionController extends BaseController
 
     public function create(CreateBankTransactionRequest $request)
     {
-        $bank_transaction = BankTransactionFactory::create(auth()->user()->company()->id, auth()->user()->id, auth()->user()->account_id);
+        $bank_transaction = BankTransactionFactory::create(auth()->user()->company()->id, auth()->user()->id);
 
         return $this->itemResponse($bank_transaction);
     }
@@ -79,7 +79,7 @@ class BankTransactionController extends BaseController
     public function store(StoreBankTransactionRequest $request)
     {
         //stub to store the model
-        $bank_transaction = $this->bank_transaction_repo->save($request->all(), BankTransactionFactory::create(auth()->user()->company()->id, auth()->user()->id, auth()->user()->account_id));
+        $bank_transaction = $this->bank_transaction_repo->save($request->all(), BankTransactionFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         return $this->itemResponse($bank_transaction);
     }

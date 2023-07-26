@@ -141,7 +141,7 @@ class SEPA implements MethodInterface
      * Payment view for SEPA.
      *
      * @param array $data
-     * @return View
+     * @return \Illuminate\View\View         
      */
     public function paymentView(array $data): View
     {

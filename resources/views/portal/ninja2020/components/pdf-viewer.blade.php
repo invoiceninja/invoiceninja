@@ -1,13 +1,3 @@
-@php
-    //$mobile = stripos(request()->server('HTTP_USER_AGENT'), 'Android') || stripos(request()->server('HTTP_USER_AGENT'), 'iPhone') || stripos(request()->server('HTTP_USER_AGENT'), 'iPod') || stripos(request()->server('HTTP_USER_AGENT'), 'iPad');
-    $mobile = false;
-@endphp
-
-@push('head')
-    <!-- <meta name="pdf-url" content="{{ $url ?? $entity->pdf_file_path($invitation, 'url', true) }}?cache_buster={{time()}}">
-    <script src="{{ asset('js/vendor/pdf.js/pdf.min.js') }}"></script> -->
-@endpush
-
 <div class="flex items-center justify-between mt-4">
     <section class="flex items-center">
         <div class="items-center" style="{{ $mobile ? '' : 'display: none' }}" id="pagination-button-container">
@@ -56,15 +46,7 @@
     </section>
 </div>
 
-<!-- @if($mobile)
-    <div class="w-full h-full overflow-auto mt-4">
-        <canvas id="pdf-placeholder" class="shadow rounded-lg bg-white"></canvas>
-    </div>
-@else -->
 @livewire('pdf-slot', ['entity' => $entity, 'invitation' => $invitation, 'db' => $invitation->company->db])
-    <!-- <iframe id="pdf-iframe" src="{{ $url ?? $entity->pdf_file_path($invitation, 'url', true) }}?cache_buster={{time()}}" class="h-screen w-full border-0 mt-4"></iframe> -->
-<!-- @endif -->
-
 
 @if($mobile)
     @push('footer')

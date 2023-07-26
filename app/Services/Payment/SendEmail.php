@@ -23,7 +23,6 @@ class SendEmail
 
     /**
      * Builds the correct template to send.
-     * @return void
      */
     public function run()
     {
