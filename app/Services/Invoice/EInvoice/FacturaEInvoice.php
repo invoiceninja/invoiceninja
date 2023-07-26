@@ -214,7 +214,7 @@ class FacturaEInvoice extends AbstractService
     {
         $po = $this->invoice->po_number ?? '';
 
-        $this->fac->setReferences($po, $this->invoice->custom_value1, $this->invoice->custom_value2);        
+        $this->fac->setReferences($po, substr($this->invoice->custom_value1, 0, 20), $this->invoice->custom_value2);        
 
         return $this;
     }
