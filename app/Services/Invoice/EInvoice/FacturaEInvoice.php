@@ -233,8 +233,8 @@ class FacturaEInvoice extends AbstractService
 
         foreach($this->invoice->line_items as $item) {
             $this->fac->addItem(new FacturaeItem([
-                'name' => $item->notes,
-                'description' => $item->product_key,
+                'name' => $item->product_key,
+                'description' => $item->notes,
                 'quantity' => $item->quantity,
                 'unitPriceWithoutTax' => $item->cost,
                 'discountsAndRebates' => $item->discount,
