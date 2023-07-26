@@ -650,17 +650,17 @@ class BaseExport
         }
 
         if($column == 'amount')
-            return $entity->payments()->exists() ? Number::formatMoney($entity->payments()->sum('paymentables.amount'), $entity->company) : ctrans('texts.unpaid');
+            return $entity->payments()->exists() ? $entity->payments()->sum('paymentables.amount') : ctrans('texts.unpaid');
 
         if($column == 'refunded') {
-            return $entity->payments()->exists() ? Number::formatMoney($entity->payments()->sum('paymentables.refunded'), $entity->company) : 0;
+            return $entity->payments()->exists() ? $entity->payments()->sum('paymentables.refunded') : 0;
         }
 
         if($column == 'applied') {
             $refunded = $entity->payments()->sum('paymentables.refunded');
             $amount = $entity->payments()->sum('paymentables.amount');
 
-            return $entity->payments()->exists() ? Number::formatMoney(($amount - $refunded), $entity->company) : 0;
+            return $entity->payments()->exists() ? ($amount - $refunded) : 0;
         }
 
         $payment = $entity->payments()->first();
