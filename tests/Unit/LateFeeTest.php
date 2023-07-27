@@ -135,7 +135,7 @@ class LateFeeTest extends TestCase
 
         $this->assertEquals(10, $i->amount);
         $this->assertEquals(10, $i->balance);
-
+        
         $reflectionMethod = new \ReflectionMethod(ReminderJob::class, 'sendReminderForInvoice');
         $reflectionMethod->setAccessible(true);
         $reflectionMethod->invokeArgs(new ReminderJob(), [$i]);
