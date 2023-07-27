@@ -454,7 +454,7 @@ class BaseExport
 
     private function resolveTaskKey($column, $entity, $transformer)
     {
-        nlog("searching for {$column}");
+        // nlog("searching for {$column}");
 
         $transformed_entity = $transformer->transform($entity);
 
@@ -499,7 +499,7 @@ class BaseExport
         if(array_key_exists($column, $transformed_entity))
             return $transformed_entity[$column];
 
-        nlog("export: Could not resolve vendor key: {$column}");
+        // nlog("export: Could not resolve vendor key: {$column}");
 
         return '';
 
@@ -547,7 +547,7 @@ class BaseExport
         if(array_key_exists($column, $transformed_client))
             return $transformed_client[$column];
 
-        nlog("export: Could not resolve client key: {$column}");
+        // nlog("export: Could not resolve client key: {$column}");
 
         return '';
 
@@ -555,7 +555,7 @@ class BaseExport
 
     private function resolvePurchaseOrderKey($column, $entity, $transformer)
     {
-        nlog("searching for {$column}");
+        // nlog("searching for {$column}");
 
         $transformed_entity = $transformer->transform($entity);
 
@@ -567,7 +567,7 @@ class BaseExport
 
     private function resolveQuoteKey($column, $entity, $transformer)
     {
-        nlog("searching for {$column}");
+        // nlog("searching for {$column}");
 
         $transformed_entity = $transformer->transform($entity);
 
@@ -581,7 +581,7 @@ class BaseExport
 
     private function resolveInvoiceKey($column, $entity, $transformer)
     {
-        nlog("searching for {$column}");
+        // nlog("searching for {$column}");
         $transformed_invoice = false;
 
         if($transformer instanceof PaymentTransformer) {
@@ -643,7 +643,7 @@ class BaseExport
                 return $transformed_payment[$column];
             }
 
-            nlog("export: Could not resolve payment key: {$column}");
+            // nlog("export: Could not resolve payment key: {$column}");
 
             return '';
 
