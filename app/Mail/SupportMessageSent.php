@@ -67,7 +67,7 @@ class SupportMessageSent extends Mailable
         $db = str_replace('db-ninja-', '', $company->db);
         $is_large = $company->is_large ? 'L' : 'S';
         $platform = array_key_exists('platform', $this->data) ? $this->data['platform'] : 'U';
-        $migrated = strlen($company->company_key) == 32 ? 'M' : '';
+        $migrated = ctype_lower(preg_replace('/[0-9]+/', '', $company->company_key)) ? 'M' : '';
         $trial = $account->isTrial() ? 'T' : '';
         $plan = str_replace('_', ' ', $plan);
 
