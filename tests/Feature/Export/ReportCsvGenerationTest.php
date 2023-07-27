@@ -1226,7 +1226,7 @@ class ReportCsvGenerationTest extends TestCase
 
         $this->assertEquals('bob', $this->getFirstValueByColumn($csv, 'Client Name'));
         $this->assertEquals('12345', $this->getFirstValueByColumn($csv, 'Invoice Invoice Number'));
-        $this->assertEquals('$100.00', $this->getFirstValueByColumn($csv, 'Payment Amount'));
+        $this->assertEquals(100, $this->getFirstValueByColumn($csv, 'Payment Amount'));
         $this->assertEquals(now()->addSeconds($this->company->timezone()->utc_offset)->format('Y-m-d'), $this->getFirstValueByColumn($csv, 'Payment Date'));
 
 

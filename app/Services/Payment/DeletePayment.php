@@ -14,6 +14,7 @@ namespace App\Services\Payment;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\BankTransaction;
 use Illuminate\Contracts\Container\BindingResolutionException;
 
 class DeletePayment
@@ -56,6 +57,11 @@ class DeletePayment
         $this->payment->is_deleted = true;
         $this->payment->delete();
 
+        // BankTransaction::where('payment_id', $this->payment->id)->cursor()->each(function ($bt){
+        //     $bt->payment_id = null;
+        //     $bt->save();
+        // });
+        
         return $this;
     }
 

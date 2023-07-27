@@ -19,21 +19,31 @@ use Illuminate\Support\Carbon;
  */
 trait MakesReminders
 {
+    /**
+     *
+     * @param string $schedule_reminder
+     * @param string $num_days_reminder
+     * @return ?bool
+     */
     public function inReminderWindow($schedule_reminder, $num_days_reminder)
     {
+        
+        $offset = $this->client->timezone_offset();
+
+        // nlog($schedule_reminder. " ". $num_days_reminder);
+        // nlog("date = " . Carbon::parse($this->date)->addDays($num_days_reminder)->startOfDay()->addSeconds($offset));
+        // nlog("due date = " . Carbon::parse($this->due_date)->addDays($num_days_reminder)->startOfDay()->addSeconds($offset));
+        // nlog("now = " . Carbon::now()->startOfDay()->format('Y-m-d H:i:s'));
+
         switch ($schedule_reminder) {
             case 'after_invoice_date':
-                return Carbon::parse($this->date)->addDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());
-                break;
+                return Carbon::parse($this->date)->addDays($num_days_reminder)->startOfDay()->addSeconds($offset)->eq(Carbon::now());
             case 'before_due_date':
-                return Carbon::parse($this->due_date)->subDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());
-                break;
+                return Carbon::parse($this->due_date)->subDays($num_days_reminder)->startOfDay()->addSeconds($offset)->eq(Carbon::now());
             case 'after_due_date':
-                return Carbon::parse($this->due_date)->addDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());
-                break;
+                return Carbon::parse($this->due_date)->addDays($num_days_reminder)->startOfDay()->addSeconds($offset)->eq(Carbon::now());
             default:
                 return null;
-                break;
         }
     }
 
