@@ -19,21 +19,26 @@ use Illuminate\Support\Carbon;
  */
 trait MakesReminders
 {
+    /**
+     *
+     * @param string $schedule_reminder
+     * @param string $num_days_reminder
+     * @return ?bool
+     */
     public function inReminderWindow($schedule_reminder, $num_days_reminder)
     {
+        
+        $offset = $this->client->timezone_offset();
+
         switch ($schedule_reminder) {
             case 'after_invoice_date':
-                return Carbon::parse($this->date)->addDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());
-                break;
+                return Carbon::parse($this->date)->addDays($num_days_reminder)->startOfDay()->addSeconds($offset)->isSameDay(Carbon::now());
             case 'before_due_date':
-                return Carbon::parse($this->due_date)->subDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());
-                break;
+                return Carbon::parse($this->due_date)->subDays($num_days_reminder)->startOfDay()->addSeconds($offset)->isSameDay(Carbon::now());
             case 'after_due_date':
-                return Carbon::parse($this->due_date)->addDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());
-                break;
+                return Carbon::parse($this->due_date)->addDays($num_days_reminder)->startOfDay()->addSeconds($offset)->isSameDay(Carbon::now());
             default:
                 return null;
-                break;
         }
     }
 
@@ -71,7 +76,6 @@ trait MakesReminders
             return $entity_string;
         }
 
-        //also implement endless reminders here
     }
 
     private function checkEndlessReminder($last_sent_date, $endless_reminder_frequency_id) :bool

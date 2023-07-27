@@ -57,7 +57,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property int|null $avatar_width
  * @property int|null $avatar_height
  * @property int|null $avatar_size
- * @property int $is_deleted
+ * @property bool $is_deleted
  * @property string|null $last_login
  * @property string|null $signature
  * @property string $password
@@ -74,7 +74,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property int $has_password
  * @property Carbon|null $oauth_user_token_expiry
  * @property string|null $sms_verification_code
- * @property int $verified_phone_number
+ * @property bool $verified_phone_number
  * @property-read \App\Models\Account $account
  * @property-read \App\Models\Company $company
  * @property-read mixed $hashed_id

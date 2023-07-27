@@ -951,6 +951,9 @@ class BaseController extends Controller
                 if ($this->entity_type == BankIntegration::class && !$user->isSuperUser() && $user->hasIntersectPermissions(['create_bank_transaction','edit_bank_transaction','view_bank_transaction'])) {
                     $query->exclude(["balance"]);
                 } //allows us to selective display bank integrations back to the user if they can view / create bank transactions but without the bank balance being present in the response
+                elseif($this->entity_type == TaxRate::class && $user->hasIntersectPermissions(['create_invoice','edit_invoice','create_quote','edit_quote','create_purchase_order','edit_purchase_order'])){
+                    // need to show tax rates if the user has the ability to create documents.
+                }
                 else {
                     $query->where('user_id', '=', $user->id);
                 }
@@ -980,9 +983,6 @@ class BaseController extends Controller
             $resource = new Collection($query, $transformer, $this->entity_type);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
         }
-        //  else {
-        //     $resource = new Collection($query, $transformer, $this->entity_type);
-        // }
 
         return $this->response($this->manager->createData($resource)->toArray());
     }
