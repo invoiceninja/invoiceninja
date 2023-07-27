@@ -650,20 +650,20 @@ class BaseExport
         }
 
         if($column == 'amount')
-            return $entity->payments()->exists() ? $entity->payments()->sum('paymentables.amount') : ctrans('texts.unpaid');
+            return $entity->payments()->exists() ? $entity->payments()->withoutTrashed()->sum('paymentables.amount') : ctrans('texts.unpaid');
 
         if($column == 'refunded') {
-            return $entity->payments()->exists() ? $entity->payments()->sum('paymentables.refunded') : 0;
+            return $entity->payments()->exists() ? $entity->payments()->withoutTrashed()->sum('paymentables.refunded') : '';
         }
 
         if($column == 'applied') {
-            $refunded = $entity->payments()->sum('paymentables.refunded');
-            $amount = $entity->payments()->sum('paymentables.amount');
+            $refunded = $entity->payments()->withoutTrashed()->sum('paymentables.refunded');
+            $amount = $entity->payments()->withoutTrashed()->sum('paymentables.amount');
 
-            return $entity->payments()->exists() ? ($amount - $refunded) : 0;
+            return $entity->payments()->withoutTrashed()->exists() ? ($amount - $refunded) : '';
         }
 
-        $payment = $entity->payments()->first();
+        $payment = $entity->payments()->withoutTrashed()->first();
 
         if(!$payment)
             return '';
