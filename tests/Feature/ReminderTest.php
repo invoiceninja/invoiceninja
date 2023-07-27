@@ -195,7 +195,7 @@ class ReminderTest extends TestCase
         nlog($next_send_date->format('Y-m-d h:i:s'));
         nlog($calculatedReminderDate->format('Y-m-d h:i:s'));
 
-        $this->travelTo(now()->addDays(1));
+        $this->travelTo($calculatedReminderDate);
 
         $reminder_template = $this->invoice->calculateTemplate('invoice');
 
