@@ -125,7 +125,7 @@ class ReminderJob implements ShouldQueue
             }
 
             $reminder_template = $invoice->calculateTemplate('invoice');
-            // nlog("reminder template = {$reminder_template}");
+            nlog("reminder template = {$reminder_template}");
             $invoice->service()->touchReminder($reminder_template)->save();
             $fees = $this->calcLateFee($invoice, $reminder_template);
 
@@ -139,7 +139,7 @@ class ReminderJob implements ShouldQueue
             if ($reminder_template == 'endless_reminder') {
                 $enabled_reminder = 'enable_reminder_endless';
             }
-
+            
             if (in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'endless_reminder']) &&
         $invoice->client->getSetting($enabled_reminder) &&
         $invoice->client->getSetting('send_reminders') &&
