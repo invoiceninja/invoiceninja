@@ -106,7 +106,7 @@ class ValidRefundableRequest implements Rule
         if ($payment->credits()->exists()) {
             $paymentable_credit = $payment->credits->where('id', $credit->id)->first();
 
-            if (! $paymentable_invoice) {
+            if (! $paymentable_credit) {
                 $this->error_msg = ctrans('texts.credit_not_related_to_payment', ['credit' => $credit->hashed_id]);
 
                 return false;

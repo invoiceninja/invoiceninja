@@ -198,7 +198,7 @@ class Product extends BaseModel
             ],
         ]);
 
-        return $converter->convert($this->notes);
+        return $converter->convert($this->notes ?? '');
     }
 
     public function portalUrl($use_react_url): string
