@@ -196,9 +196,9 @@ class InvoiceFilters extends QueryFilters
         }
 
         if (is_numeric($date)) {
-            $created_at = Carbon::createFromTimestamp((int)$date);
+            $date = Carbon::createFromTimestamp((int)$date);
         } else {
-            $created_at = Carbon::parse($date);
+            $date = Carbon::parse($date);
         }
 
         return $this->builder->where('date', '>=', $date);
@@ -216,9 +216,9 @@ class InvoiceFilters extends QueryFilters
         }
 
         if (is_numeric($date)) {
-            $created_at = Carbon::createFromTimestamp((int)$date);
+            $date = Carbon::createFromTimestamp((int)$date);
         } else {
-            $created_at = Carbon::parse($date);
+            $date = Carbon::parse($date);
         }
 
         return $this->builder->where('due_date', '>=', $date);
