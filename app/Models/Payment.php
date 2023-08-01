@@ -252,7 +252,7 @@ class Payment extends BaseModel
         return $this->belongsTo(Currency::class);
     }
 
-    public function transaction(): BelongsTo
+    public function transaction()
     {
         return $this->belongsTo(BankTransaction::class);
     }

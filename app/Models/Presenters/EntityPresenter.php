@@ -16,6 +16,10 @@ use Laracasts\Presenter\Presenter;
 
 /**
  * Class EntityPresenter.
+ * 
+ * @property \App\Models\Company | \App\Models\Client | \App\Models\ClientContact | \App\Models\Vendor | \App\Models\VendorContact $entity
+ * @property \App\Models\Client $client
+ * @property \App\Models\Company $company
  */
 class EntityPresenter extends Presenter
 {

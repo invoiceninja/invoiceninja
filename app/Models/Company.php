@@ -237,6 +237,7 @@ class Company extends BaseModel
 
     // const ENTITY_RECURRING_QUOTE = 'recurring_quote';
 
+    /** @var CompanyPresenter */
     protected $presenter = CompanyPresenter::class;
 
     protected array $tax_coverage_countries = [

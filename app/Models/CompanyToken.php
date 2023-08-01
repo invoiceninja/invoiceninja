@@ -76,7 +76,7 @@ class CompanyToken extends BaseModel
         return $this->belongsTo(User::class);
     }
 
-    public function company()
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
     }

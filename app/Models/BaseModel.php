@@ -41,7 +41,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newQuery($query)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel query()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude(array $excludeable)
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel withTrashed()
+ * @method static \Illuminate\Database\Eloquent\BaseModel withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scopeExclude($query)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel find($value) 
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel whereIn($query)
@@ -52,7 +52,6 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel service()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel orderBy($column, $direction)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel invitations()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel createInvitations()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel whereHas($query)
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation | \App\Models\CreditInvitation | \App\Models\QuoteInvitation | \App\Models\RecurringInvoiceInvitation> $invitations
  * @property-read int|null $invitations_count

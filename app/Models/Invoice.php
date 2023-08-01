@@ -71,10 +71,10 @@ use App\Events\Invoice\InvoiceReminderWasEmailed;
  * @property string|null $custom_value3
  * @property string|null $custom_value4
  * @property string|null $next_send_date
- * @property string|null $custom_surcharge1
- * @property string|null $custom_surcharge2
- * @property string|null $custom_surcharge3
- * @property string|null $custom_surcharge4
+ * @property float|null $custom_surcharge1
+ * @property float|null $custom_surcharge2
+ * @property float|null $custom_surcharge3
+ * @property float|null $custom_surcharge4
  * @property bool $custom_surcharge_tax1
  * @property bool $custom_surcharge_tax2
  * @property bool $custom_surcharge_tax3
@@ -155,7 +155,7 @@ class Invoice extends BaseModel
     use MakesReminders;
     use ActionsInvoice;
 
-    protected $presenter = InvoicePresenter::class;
+    // protected $presenter = InvoicePresenter::class;
 
     protected $touches = [];
 
@@ -720,6 +720,8 @@ class Invoice extends BaseModel
 
     public function taxTypeString($id)
     {
+        $tax_type  = false;
+
         match(intval($id)){
             Product::PRODUCT_TYPE_PHYSICAL => $tax_type = ctrans('texts.physical_goods'),
             Product::PRODUCT_TYPE_SERVICE => $tax_type = ctrans('texts.services'),
@@ -738,6 +740,7 @@ class Invoice extends BaseModel
 
     public function typeIdString($id)
     {
+        $type = '';
         match($id) {
             '1' => $type = ctrans('texts.product'),
             '2' => $type = ctrans('texts.service'),
