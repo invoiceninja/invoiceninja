@@ -623,9 +623,6 @@ class BaseExport
         } elseif ($transformed_invoice && array_key_exists(str_replace("invoice.", "", $column), $transformed_invoice)) {
             return $transformed_invoice[$column];
         }
-
-        // if($column == 'status')
-        //     return $entity->stringStatus($entity->status_id);
     
         return '';
     }

@@ -11,3 +11,4 @@ parameters:
         - 'app/DataMapper/Analytics/*'
     universalObjectCratesClasses:
         - App\DataMapper\Tax\RuleInterface
+        - App\DataMapper\FeesAndLimits
