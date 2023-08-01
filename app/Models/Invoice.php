@@ -100,7 +100,7 @@ use App\Events\Invoice\InvoiceReminderWasEmailed;
  * @property bool $is_proforma
  * @property-read int|null $activities_count
  * @property-read \App\Models\User|null $assigned_user
- * @property-read \App\Models\Client $client
+ * @property \App\Models\Client $client
  * @property-read \App\Models\Company $company
  * @property-read int|null $company_ledger_count
  * @property-read int|null $credits_count
@@ -292,7 +292,7 @@ class Invoice extends BaseModel
         return $this->hasMany(InvoiceInvitation::class);
     }
 
-    public function client()
+    public function client(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Client::class)->withTrashed();
     }

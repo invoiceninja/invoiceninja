@@ -24,7 +24,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel exclude($columns)
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel newModelQuery($value)
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel newQuery($value)
- * @method static \Illuminate\Database\Eloquent\Builder|StaticModel query($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel query(?$value)
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel find($value)
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel with($value)
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel withTrashed($value)
