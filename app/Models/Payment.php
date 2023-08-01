@@ -56,6 +56,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property float $exchange_rate
  * @property int $currency_id
  * @property int|null $exchange_currency_id
+ * @property \App\Models\Paymentable $paymentables
  * @property object|null $meta
  * @property string|null $custom_value1
  * @property string|null $custom_value2
@@ -67,27 +68,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\Client $client
  * @property-read \App\Models\Company $company
  * @property-read \App\Models\CompanyGateway|null $company_gateway
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read int|null $company_ledger_count
  * @property-read \App\Models\ClientContact|null $contact
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
- * @property-read int|null $credits_count
  * @property-read \App\Models\Currency|null $currency
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read int|null $documents_count
  * @property-read \App\Models\Currency|null $exchange_currency
  * @property-read \App\Models\GatewayType|null $gateway_type
  * @property-read mixed $hashed_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read int|null $invoices_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Paymentable> $paymentables
- * @property-read int|null $paymentables_count
  * @property-read \App\Models\Project|null $project
  * @property-read \App\Models\PaymentType|null $type
  * @property-read \App\Models\User|null $user
  * @property-read \App\Models\Vendor|null $vendor
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
+ * @method static \Illuminate\Database\Eloquent\Builder company()
+ * @method static \Illuminate\Database\Eloquent\Builder exclude($columns)
  * @method static \Database\Factories\PaymentFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Payment filter(\App\Filters\QueryFilters $filters)
  * @method static \Illuminate\Database\Eloquent\Builder|Payment newModelQuery()
@@ -95,7 +86,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|Payment onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Payment query()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
- * @method static \Illuminate\Database\Eloquent\Builder|Payment withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Payment withoutTrashed()
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
@@ -288,7 +278,7 @@ class Payment extends BaseModel
         return $this->belongsTo(GatewayType::class);
     }
 
-    public function paymentables()
+    public function paymentables(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Paymentable::class);
     }

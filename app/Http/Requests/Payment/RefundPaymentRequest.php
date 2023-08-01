@@ -81,7 +81,7 @@ class RefundPaymentRequest extends Request
         return $rules;
     }
 
-    public function payment() :?Payment
+    public function payment(): ?\App\Models\Payment
     {
         $input = $this->all();
 

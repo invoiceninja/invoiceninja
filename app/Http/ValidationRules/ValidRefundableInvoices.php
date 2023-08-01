@@ -45,7 +45,7 @@ class ValidRefundableInvoices implements Rule
             return false;
         }
 
-        /**@var \App\Models\Payment $payment */
+        /**@var \App\Models\Payment $payment **/
         $payment = Payment::whereId($this->input['id'])->first();
 
         if (! $payment) {

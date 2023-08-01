@@ -46,6 +46,7 @@ class ValidRefundableRequest implements Rule
             return false;
         }
 
+        /**@var \App\Models\Payment $payment */
         $payment = Payment::whereId($this->input['id'])->withTrashed()->first();
 
         if (! $payment) {
@@ -76,6 +77,7 @@ class ValidRefundableRequest implements Rule
 
     private function checkInvoiceIsPaymentable($invoice, $payment)
     {
+        /**@var \App\Models\Invoice $invoice */
         $invoice = Invoice::whereId($invoice['invoice_id'])->whereCompanyId($payment->company_id)->withTrashed()->first();
 
         if (! $invoice) {
@@ -99,24 +101,25 @@ class ValidRefundableRequest implements Rule
         }
     }
 
-    private function checkCreditIsPaymentable($credit, $payment)
-    {
-        $credit = Credit::whereId($credit['credit_id'])->whereCompanyId($payment->company_id)->first();
+    // private function checkCreditIsPaymentable($credit, $payment)
+    // {   
+    //     /** @var \App\Models\Credit $credit */
+    //     $credit = Credit::whereId($credit['credit_id'])->whereCompanyId($payment->company_id)->first();
 
-        if ($payment->credits()->exists()) {
-            $paymentable_credit = $payment->credits->where('id', $credit->id)->first();
+    //     if ($payment->credits()->exists()) {
+    //         $paymentable_credit = $payment->credits->where('id', $credit->id)->first();
 
-            if (! $paymentable_credit) {
-                $this->error_msg = ctrans('texts.credit_not_related_to_payment', ['credit' => $credit->hashed_id]);
+    //         if (! $paymentable_credit) {
+    //             $this->error_msg = ctrans('texts.credit_not_related_to_payment', ['credit' => $credit->hashed_id]);
 
-                return false;
-            }
-        } else {
-            $this->error_msg = ctrans('texts.credit_not_related_to_payment', ['credit' => $credit->hashed_id]);
+    //             return false;
+    //         }
+    //     } else {
+    //         $this->error_msg = ctrans('texts.credit_not_related_to_payment', ['credit' => $credit->hashed_id]);
 
-            return false;
-        }
-    }
+    //         return false;
+    //     }
+    // }
 
     private function checkInvoice($paymentable, $request_invoices)
     {
@@ -145,32 +148,32 @@ class ValidRefundableRequest implements Rule
         }
     }
 
-    private function checkCredit($paymentable, $request_credits)
-    {
-        $record_found = null;
+    // private function checkCredit($paymentable, $request_credits)
+    // {
+    //     $record_found = null;
 
-        foreach ($request_credits as $request_credit) {
-            if ($request_credit['credit_id'] == $paymentable->pivot->paymentable_id) {
-                $record_found = true;
+    //     foreach ($request_credits as $request_credit) {
+    //         if ($request_credit['credit_id'] == $paymentable->pivot->paymentable_id) {
+    //             $record_found = true;
 
-                $refundable_amount = ($paymentable->pivot->amount - $paymentable->pivot->refunded);
+    //             $refundable_amount = ($paymentable->pivot->amount - $paymentable->pivot->refunded);
 
-                if ($request_credit['amount'] > $refundable_amount) {
-                    $credit = $paymentable;
+    //             if ($request_credit['amount'] > $refundable_amount) {
+    //                 $credit = $paymentable;
 
-                    $this->error_msg = ctrans('texts.max_refundable_credit', ['credit' => $credit->hashed_id, 'amount' => $refundable_amount]);
+    //                 $this->error_msg = ctrans('texts.max_refundable_credit', ['credit' => $credit->hashed_id, 'amount' => $refundable_amount]);
 
-                    return false;
-                }
-            }
-        }
+    //                 return false;
+    //             }
+    //         }
+    //     }
 
-        if (! $record_found) {
-            $this->error_msg = ctrans('texts.refund_without_credits');
+    //     if (! $record_found) {
+    //         $this->error_msg = ctrans('texts.refund_without_credits');
 
-            return false;
-        }
-    }
+    //         return false;
+    //     }
+    // }
 
     /**
      * @return string
