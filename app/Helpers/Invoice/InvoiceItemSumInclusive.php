@@ -120,6 +120,7 @@ class InvoiceItemSumInclusive
 
         if ($this->invoice->client) {
             $this->currency = $this->invoice->client->currency();
+            $this->client = $this->invoice->client;
             $this->shouldCalculateTax();
         } else {
             $this->currency = $this->invoice->vendor->currency();
