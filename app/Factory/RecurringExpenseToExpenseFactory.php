@@ -40,15 +40,12 @@ class RecurringExpenseToExpenseFactory
         $expense->tax_name3 = $recurring_expense->tax_name3;
         $expense->tax_rate3 = $recurring_expense->tax_rate3;
         $expense->date = now()->format('Y-m-d');
-        $expense->payment_date = $recurring_expense->payment_date ?: now()->format('Y-m-d');
+        // $expense->payment_date = $recurring_expense->payment_date ?: now()->format('Y-m-d');
         $expense->amount = $recurring_expense->amount;
         $expense->foreign_amount = $recurring_expense->foreign_amount ?: 0;
 
         //11-09-2022 - we should be tracking the recurring expense!!
         $expense->recurring_expense_id = $recurring_expense->id;
-
-        // $expense->private_notes = $recurring_expense->private_notes;
-        // $expense->public_notes = $recurring_expense->public_notes;
 
         $expense->public_notes = self::transformObject($recurring_expense->public_notes, $recurring_expense);
         $expense->private_notes = self::transformObject($recurring_expense->private_notes, $recurring_expense);

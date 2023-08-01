@@ -33,9 +33,14 @@ class PermissionsTest extends TestCase
 
     public Company $company;
 
+    public $faker;
+
+    public $token;
+
     protected function setUp() :void
     {
         parent::setUp();
+
         $this->faker = \Faker\Factory::create();
 
         $account = Account::factory()->create([
@@ -74,6 +79,56 @@ class PermissionsTest extends TestCase
         $company_token->is_system = true;
         $company_token->save();
     }
+
+    public function testClientOverviewPermissions()
+    {
+        $u = User::factory()->create([
+            'account_id' => $this->company->account_id,
+            'confirmation_code' => '123',
+            'email' =>  $this->faker->safeEmail(),
+        ]);
+
+        $c = Client::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $u->id,
+        ]);
+
+        Invoice::factory()->create([
+            'company_id' => $this->company->id,
+            'client_id' => $c->id,
+            'user_id' => $u->id,
+            'status_id' => 2
+        ]);
+
+        $low_cu = CompanyUser::where(['company_id' => $this->company->id, 'user_id' => $this->user->id])->first();
+        $low_cu->permissions = '["edit_client","create_client","create_invoice","edit_invoice","create_quote","edit_quote"]';
+        $low_cu->save();
+
+    
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/invoices');
+        
+        $response->assertStatus(200);
+
+        $data = $response->json();
+        
+        $this->assertEquals(2, count($data));
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get("/api/v1/invoices?include=client&client_id={$c->hashed_id}&sort=id|desc&per_page=10&page=1&filter=&status=active");
+
+        $response->assertStatus(200);
+
+        $data = $response->json();
+
+        $this->assertEquals(2, count($data));
+
+    }
+
 
     public function testHasExcludedPermissions()
     {

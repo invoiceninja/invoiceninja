@@ -183,6 +183,48 @@ class InvoiceFilters extends QueryFilters
                              ->where('client_id', $this->decodePrimaryKey($client_id));
     }
 
+
+    /**
+     * @param string $date
+     * @return Builder
+     * @throws InvalidArgumentException
+     */
+    public function date(string $date = ''): Builder
+    {
+        if (strlen($date) == 0) {
+            return $this->builder;
+        }
+
+        if (is_numeric($date)) {
+            $date = Carbon::createFromTimestamp((int)$date);
+        } else {
+            $date = Carbon::parse($date);
+        }
+
+        return $this->builder->where('date', '>=', $date);
+    }
+
+    /**
+     * @param string $date
+     * @return Builder
+     * @throws InvalidArgumentException
+     */
+    public function due_date(string $date = ''): Builder
+    {
+        if (strlen($date) == 0) {
+            return $this->builder;
+        }
+
+        if (is_numeric($date)) {
+            $date = Carbon::createFromTimestamp((int)$date);
+        } else {
+            $date = Carbon::parse($date);
+        }
+
+        return $this->builder->where('due_date', '>=', $date);
+    }
+
+
     /**
      * Sorts the list based on $sort.
      *
