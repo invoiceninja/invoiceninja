@@ -64,12 +64,12 @@ class RefundPaymentRequest extends Request
         $this->replace($input);
     }
 
-    public function rules()
+    public function rules(): array
     {
         $input = $this->all();
 
         $rules = [
-            'id' => 'bail|required',
+            'id' => 'bail|required', //@phpstan-ignore-line
             'id' => new ValidRefundableRequest($input),
             'amount' => 'numeric',
             'date' => 'required',

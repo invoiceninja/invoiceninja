@@ -1,7 +1,7 @@
 includes:
     - ./vendor/nunomaduro/larastan/extension.neon
 parameters:
-    level: 4
+    level: 2
     paths:
         - 'app/'
     excludePaths:

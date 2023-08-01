@@ -132,6 +132,8 @@ use App\Events\Invoice\InvoiceReminderWasEmailed;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
  * @property object|null $tax_data
+ * @method static \Illuminate\Database\Eloquent\Builder company()
+ * @method static \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder withTrashed(bool $withTrashed = true)
  * @mixin \Eloquent
  */
 class Invoice extends BaseModel

@@ -92,6 +92,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Paymentable> $paymentables
+ * @method static \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder withTrashed(bool $withTrashed = true)
  * @mixin \Eloquent
  */
 class Payment extends BaseModel
