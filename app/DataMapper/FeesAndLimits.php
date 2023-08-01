@@ -13,35 +13,35 @@ namespace App\DataMapper;
 
 class FeesAndLimits
 {
-    public float $min_limit = -1; //equivalent to null
+    public $min_limit = -1; //equivalent to null
 
-    public float $max_limit = -1; //equivalent to null
+    public $max_limit = -1; //equivalent to null
 
-    public float $fee_amount = 0;
+    public $fee_amount = 0;
 
-    public float $fee_percent = 0;
+    public $fee_percent = 0;
 
-    public string $fee_tax_name1 = '';
+    public $fee_tax_name1 = '';
 
-    public string $fee_tax_name2 = '';
+    public $fee_tax_name2 = '';
 
-    public string $fee_tax_name3 = '';
+    public $fee_tax_name3 = '';
 
-    public float $fee_tax_rate1 = 0;
+    public $fee_tax_rate1 = 0;
 
-    public float $fee_tax_rate2 = 0;
+    public $fee_tax_rate2 = 0;
 
-    public float $fee_tax_rate3 = 0;
+    public $fee_tax_rate3 = 0;
 
-    public float $fee_cap = 0;
+    public $fee_cap = 0;
 
-    public bool $adjust_fee_percent = false;
+    public $adjust_fee_percent = false;
 
-    public bool $is_enabled = true;
+    public $is_enabled = true;
 
     //public $gateway_type_id = 1;
 
-    public static array $casts = [
+    public static $casts = [
         'is_enabled' => 'bool',
         'gateway_type_id' => 'int',
         'min_limit' => 'float',
