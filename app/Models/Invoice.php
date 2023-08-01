@@ -25,6 +25,7 @@ use App\Services\Invoice\InvoiceService;
 use App\Utils\Traits\MakesInvoiceValues;
 use App\Events\Invoice\InvoiceWasEmailed;
 use Laracasts\Presenter\PresentableTrait;
+use App\Models\Presenters\EntityPresenter;
 use App\Models\Presenters\InvoicePresenter;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Utils\Traits\Invoice\ActionsInvoice;
@@ -155,7 +156,7 @@ class Invoice extends BaseModel
     use MakesReminders;
     use ActionsInvoice;
 
-    // protected $presenter = InvoicePresenter::class;
+    protected $presenter = EntityPresenter::class;
 
     protected $touches = [];
 
