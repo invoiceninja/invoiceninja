@@ -59,7 +59,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction query()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
- * @method static \Illuminate\Database\Eloquent\Account withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction withoutTrashed()
  * @property-read \App\Models\Payment|null $payment
  * @mixin \Eloquent
@@ -137,12 +136,12 @@ class BankTransaction extends BaseModel
 
     public function vendor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Vendor::class);
+        return $this->belongsTo(Vendor::class)->withTrashed();
     }
 
     public function expense(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Expense::class);
+        return $this->belongsTo(Expense::class)->withTrashed();
     }
 
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo

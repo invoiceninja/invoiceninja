@@ -156,7 +156,7 @@ class PaymentMigrationRepository extends BaseRepository
 
             $payment->credits->each(function ($cre) use ($credit_totals) {
                 $cre->pivot->amount = $credit_totals;
-                $cre->pivot->save();
+                $cre->pivot->save(); 
 
                 $cre->paid_to_date += $credit_totals;
                 $cre->balance -= $credit_totals;
