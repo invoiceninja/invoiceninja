@@ -12,5 +12,7 @@ parameters:
     universalObjectCratesClasses:
         - App\DataMapper\Tax\RuleInterface
         - App\DataMapper\FeesAndLimits
+    reportUnmatchedIgnoredErrors: false
     ignoreErrors:
-        - '#Call to an undefined method Illuminate\Database\Database\Eloquent\Builder::company()#'
+        - '#Call to an undefined method [a-zA-Z0-9\\_]+::company\(\)#' 
+        - '#Call to an undefined method [a-zA-Z0-9\\_]+::entityFilter\(\)#'

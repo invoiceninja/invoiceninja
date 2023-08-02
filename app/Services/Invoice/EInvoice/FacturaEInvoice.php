@@ -463,7 +463,7 @@ class FacturaEInvoice extends AbstractService
         $company = $this->invoice->company;
 
         $seller = new FacturaeParty([
-            "isLegalEntity" => true, // Se asume true si se omite
+            "isLegalEntity" => $company->custom_value1, // Se asume true si se omite
             "taxNumber" => $company->settings->vat_number,
             "name" => substr($company->present()->name(), 0, 40),
             "address" => substr($company->settings->address1, 0, 80),

@@ -53,7 +53,7 @@ class QuoteFilters extends QueryFilters
      * - paused
      * - completed
      *
-     * @param string client_status The invoice status as seen by the client
+     * @param string $value The invoice status as seen by the client
      * @return Builder
      */
     public function client_status(string $value = ''): Builder
