@@ -21,6 +21,7 @@ class TaskStatusRepository extends BaseRepository
 {
     public function delete($task_status)
     {
+        /** @var \App\Models\TaskStatus $ts **/
         $ts = TaskStatus::where('company_id', $task_status->company_id)
                                  ->first();
 
