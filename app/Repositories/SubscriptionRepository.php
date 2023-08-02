@@ -48,6 +48,7 @@ class SubscriptionRepository extends BaseRepository
         DB::connection(config('database.default'))->beginTransaction();
         $data = [];
 
+        /** @var \App\Models\Client $client **/
         $client = Client::factory()->create([
             'user_id' => $subscription->user_id,
             'company_id' => $subscription->company_id,
@@ -56,6 +57,7 @@ class SubscriptionRepository extends BaseRepository
             'settings' => ClientSettings::defaults(),
         ]);
 
+        /** @var \App\Models\ClientContact $contact **/
         $contact = ClientContact::factory()->create([
             'user_id' => $subscription->user_id,
             'company_id' => $subscription->company_id,

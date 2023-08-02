@@ -146,6 +146,8 @@ class PaymentMigrationRepository extends BaseRepository
         }
 
         if (array_key_exists('credits', $data) && is_array($data['credits']) && count($data['credits']) > 0) {
+
+            /** @var float $credit_totals **/
             $credit_totals = array_sum(array_column($data['credits'], 'amount'));
 
             $credits = Credit::whereIn('id', array_column($data['credits'], 'credit_id'))->withTrashed()->get();
