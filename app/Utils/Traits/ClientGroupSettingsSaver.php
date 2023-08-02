@@ -31,7 +31,7 @@ trait ClientGroupSettingsSaver
      * Works for groups|clients|companies
      * @param  array|object $settings The request input settings array
      * @param  object $entity   The entity which the settings belongs to
-     * @return void
+     * @return array|object
      */
     public function saveSettings($settings, $entity)
     {

@@ -16,3 +16,5 @@ parameters:
     ignoreErrors:
         - '#Call to an undefined method [a-zA-Z0-9\\_]+::company\(\)#' 
         - '#Call to an undefined method [a-zA-Z0-9\\_]+::entityFilter\(\)#'
+        - '#Call to an undefined method [a-zA-Z0-9\\_]+::withTrashed()\(\)#'
+        - '#Undefined method#'

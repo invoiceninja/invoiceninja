@@ -11,12 +11,14 @@
 
 namespace Tests\Feature;
 
+use Tests\TestCase;
+use Tests\MockAccountData;
+use App\Models\BankIntegration;
+use App\Models\BankTransaction;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
-use Tests\MockAccountData;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * @test
@@ -109,4 +111,41 @@ class BankTransactionApiTest extends TestCase
 
         $this->assertTrue($arr['data'][0]['is_deleted']);
     }
+
+    public function testBankTransactionUnlink()
+    {
+        BankTransaction::truncate();
+        
+        $bi = BankIntegration::factory()->create([
+            'account_id' => $this->account->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+        ]);
+
+        $bank_transaction = BankTransaction::factory()->create([
+            'bank_integration_id' => $bi->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'payment_id' => $this->payment->id,
+            'expense_id' => $this->expense->id,
+            'invoice_ids' => $this->invoice->hashed_id,
+        ]);
+        
+        $data = [
+            'ids' => [$this->encodePrimaryKey($bank_transaction->id)],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/bank_transactions/bulk?action=unlink', $data);
+
+        $arr = $response->json();
+
+        $this->assertEquals(1, $arr['data'][0]['status_id']);
+        $this->assertEquals("", $arr['data'][0]['payment_id']);
+        $this->assertEquals("", $arr['data'][0]['invoice_ids']);
+        $this->assertEquals("", $arr['data'][0]['expense_id']);
+    }
+
 }
