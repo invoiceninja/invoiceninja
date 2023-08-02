@@ -23,7 +23,7 @@ use horstoeko\zugferd\codelists\ZugferdDutyTaxFeeCategories;
 class ZugferdEInvoice extends AbstractService
 {
 
-    public function __construct(public Invoice $invoice, private bool $alterPDF, private string $custom_pdf_path = "", private array $tax_map = [])
+    public function __construct(public Invoice $invoice, private array $tax_map = [])
     {
     }
 
@@ -174,22 +174,6 @@ class ZugferdEInvoice extends AbstractService
 
         $xrechnung->writeFile(Storage::disk($disk)->path($client->e_invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName("xml")));
         // The validity can be checked using https://portal3.gefeg.com/invoice/validation or https://e-rechnung.bayern.de/app/#/upload
-
-        if ($this->alterPDF) {
-            if ($this->custom_pdf_path != "") {
-                $pdfBuilder = new ZugferdDocumentPdfBuilder($xrechnung, $this->custom_pdf_path);
-                $pdfBuilder->generateDocument();
-                $pdfBuilder->saveDocument($this->custom_pdf_path);
-            } else {
-                $filepath_pdf = $client->invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName();
-                $file = Storage::disk($disk)->exists($filepath_pdf);
-                if ($file) {
-                    $pdfBuilder = new ZugferdDocumentPdfBuilder($xrechnung, Storage::disk($disk)->path($filepath_pdf));
-                    $pdfBuilder->generateDocument();
-                    $pdfBuilder->saveDocument(Storage::disk($disk)->path($filepath_pdf));
-                }
-            }
-        }
 
         return $client->e_invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName("xml");
     }
