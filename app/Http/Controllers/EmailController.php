@@ -144,6 +144,8 @@ class EmailController extends BaseController
 
     private function resolveClass(string $entity): string
     {
+        $class = '';
+        
         match ($entity) {
             'invoice' => $class = Invoice::class,
             'App\Models\Invoice' => $class = Invoice::class,

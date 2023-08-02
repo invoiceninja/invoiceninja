@@ -369,7 +369,7 @@ $LANG = array(
     'go_back' => 'Retour',
     'data_visualizations' => 'Visualisation des données',
     'sample_data' => 'Données fictives présentées',
-    'hide' => 'Cacher',
+    'hide' => 'Masquer',
     'new_version_available' => 'Une nouvelle version de :releases_link est disponible. Vous utilisez v:user_version, la plus récente est v:latest_version',
     'invoice_settings' => 'Paramètres des factures',
     'invoice_number_prefix' => 'Préfixe du numéro de facture',
@@ -1132,7 +1132,7 @@ $LANG = array(
     'document_size' => 'Taille',
 
     'enable_client_portal' => 'Portail client',
-    'enable_client_portal_help' => 'Afficher / masquer le portail client.',
+    'enable_client_portal_help' => 'Afficher/masquer le portail client.',
     'enable_client_portal_dashboard' => 'Tableau de bord',
     'enable_client_portal_dashboard_help' => 'Afficher/masquer la page du tableau de bord dans le portail client.',
 
@@ -4281,7 +4281,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'remind_me' => 'Rappel',
     'instant_bank_pay' => 'Instant Bank Pay',
     'click_selected' => 'Cliquer sur la sélection',
-    'hide_preview' => 'Cacher l\'aperçu',
+    'hide_preview' => 'Masquer l\'aperçu',
     'edit_record' => 'Modifier l\'enregistrement',
     'credit_is_more_than_invoice' => 'Le montant du crédit ne peut pas être supérieur que le montant de la facture',
     'please_set_a_password' => 'Veuillez spécifier un mot de passe',
@@ -5116,6 +5116,17 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'income' => 'Revenu',
     'amount_received_help' => 'Saisissez une valeur si le montant total reçu été PLUS élevé que le montant de la facture, ou lors de l\'enregistrement d\'un paiement sans factures. Sinon, ce champ devrait rester vide.',  
     'vendor_phone' => 'Téléphone du fournisseur',
+    'mercado_pago' => 'Mercado Pago',
+    'mybank' => 'MyBank',
+    'paypal_paylater' => 'Payez en 4',
+    'paid_date' => 'Date de paiement',
+    'district' => 'District',
+    'region' => 'Région',
+    'county' => 'Comté',
+    'tax_details' => 'Détails de taxes',
+    'activity_10_online' => ':contact a saisi un paiement :payment pour la facture :invoice pour :client',
+    'activity_10_manual' => ':user a saisi un paiement :payment pour la facture :invoice pour :client',
+    'default_payment_type' => 'Type de paiement par défaut',
 );
 
 

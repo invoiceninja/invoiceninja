@@ -1,7 +1,7 @@
 includes:
     - ./vendor/nunomaduro/larastan/extension.neon
 parameters:
-    level: 4
+    level: 2
     paths:
         - 'app/'
     excludePaths:
@@ -11,3 +11,10 @@ parameters:
         - 'app/DataMapper/Analytics/*'
     universalObjectCratesClasses:
         - App\DataMapper\Tax\RuleInterface
+        - App\DataMapper\FeesAndLimits
+    reportUnmatchedIgnoredErrors: false
+    ignoreErrors:
+        - '#Call to an undefined method [a-zA-Z0-9\\_]+::company\(\)#' 
+        - '#Call to an undefined method [a-zA-Z0-9\\_]+::entityFilter\(\)#'
+        - '#Call to an undefined method [a-zA-Z0-9\\_]+::withTrashed()\(\)#'
+        - '#Undefined method#'

@@ -41,4 +41,24 @@ class BankTransactionRepository extends BaseRepository
 
         $bts = (new MatchBankTransactions(auth()->user()->company()->id, auth()->user()->company()->db, $data))->handle();
     }
+
+    public function unlink($bt)
+    {
+        if($bt->payment()->exists()){
+            $bt->payment->transaction_id = null;
+            $bt->payment_id = null;
+        }
+
+        if($bt->expense()->exists()) {
+            $bt->expense->transaction_id = null;
+            $bt->expense_id = null;      
+        }
+        
+        $bt->vendor_id = null;
+        $bt->status_id = 1;
+        $bt->invoice_ids = null;
+        $bt->ninja_category_id = null;
+        $bt->push();
+    
+    }
 }

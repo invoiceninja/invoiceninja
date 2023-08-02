@@ -67,37 +67,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Models\VendorContact|null $vendor_contact
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel exclude($columns)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Activity newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Activity query()
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereActivityTypeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereClientContactId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereClientId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereCompanyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereCreditId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereExpenseId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereInvitationId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereInvoiceId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereIp($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereIsSystem($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity wherePaymentId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereProjectId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity wherePurchaseOrderId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereQuoteId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereRecurringExpenseId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereRecurringInvoiceId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereRecurringQuoteId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereSubscriptionId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereTaskId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereTokenId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereVendorContactId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereVendorId($value)
+
  * @mixin \Eloquent
  */
 class Activity extends StaticModel
@@ -474,6 +444,8 @@ class Activity extends StaticModel
     private function matchVar(string $variable)
     {
         $system = ctrans('texts.system');
+        
+        $translation = '';
         
         match($variable) {
             ':invoice' => $translation = [substr($variable, 1) => [ 'label' => $this?->invoice?->number ?? '', 'hashed_id' => $this->invoice?->hashed_id ?? '']],

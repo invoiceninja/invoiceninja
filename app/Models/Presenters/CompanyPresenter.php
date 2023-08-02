@@ -17,13 +17,16 @@ use Illuminate\Support\Str;
 
 /**
  * Class CompanyPresenter.
+ * @property \App\DataMapper\CompanySettings $settings
  */
 class CompanyPresenter extends EntityPresenter
 {
+
+
     /**
      * @return string
      */
-    public function name()
+    public function name(): string
     {
         return $this->settings->name ?: ctrans('texts.untitled_account');
     }

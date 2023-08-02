@@ -22,6 +22,7 @@ use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceValues;
 use App\Utils\Traits\MakesReminders;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
@@ -112,79 +113,9 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read int|null $payments_count
  * @property-read \App\Models\Project|null $project
  * @property-read \App\Models\User $user
+ * @property-read \App\Models\Client $client
  * @property-read \App\Models\Vendor|null $vendor
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
- * @method static \Database\Factories\CreditFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|Credit filter(\App\Filters\QueryFilters $filters)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Credit newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Credit onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Credit query()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereAssignedUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereBackup($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereBalance($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereClientId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereCompanyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereCustomSurcharge1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereCustomSurcharge2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereCustomSurcharge3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereCustomSurcharge4($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereCustomSurchargeTax1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereCustomSurchargeTax2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereCustomSurchargeTax3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereCustomSurchargeTax4($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereCustomValue1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereCustomValue2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereCustomValue3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereCustomValue4($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereDesignId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereDiscount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereDueDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereExchangeRate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereFooter($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereInvoiceId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereIsAmountDiscount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereIsDeleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereLastSentDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereLastViewed($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereLineItems($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereNextSendDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit wherePaidToDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit wherePartial($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit wherePartialDueDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit wherePoNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit wherePrivateNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereProjectId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit wherePublicNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereRecurringId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereReminder1Sent($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereReminder2Sent($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereReminder3Sent($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereReminderLastSent($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereStatusId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereSubscriptionId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereTaxName1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereTaxName2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereTaxName3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereTaxRate1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereTaxRate2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereTaxRate3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereTerms($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereTotalTaxes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereUsesInclusiveTaxes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereVendorId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Credit withoutTrashed()
+ * @property-read mixed $pivot
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
@@ -192,83 +123,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $invitations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
+ * 
  * @mixin \Eloquent
  */
 class Credit extends BaseModel
@@ -390,7 +245,7 @@ class Credit extends BaseModel
         return $this->belongsTo(User::class)->withTrashed();
     }
 
-    public function client()
+    public function client(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Client::class)->withTrashed();
     }

@@ -4952,7 +4952,7 @@ $LANG = array(
     'sync_from' => 'Sync From',
     'gateway_payment_text' => 'Invoices: :invoices for :amount for client :client',
     'gateway_payment_text_no_invoice' => 'Payment with no invoice for amount :amount for client :client',
-    'click_to_variables' => 'Client here to see all variables.',
+    'click_to_variables' => 'Click here to see all variables.',
     'ship_to' => 'Ship to',
     'stripe_direct_debit_details' => 'Please transfer into the nominated bank account above.',
     'branch_name' => 'Branch Name',
@@ -5135,8 +5135,12 @@ $LANG = array(
     'activity_10_online' => ':contact entered payment :payment for invoice :invoice for :client',
     'activity_10_manual' => ':user entered payment :payment for invoice :invoice for :client',
     'default_payment_type' => 'Default Payment Type',
+    'number_precision' => 'Number precision',
+    'number_precision_help' => 'Controls the number of decimals supported in the interface',
+    'is_tax_exempt' => 'Tax Exempt',
+    'drop_files_here' => 'Drop files here',
+    'upload_files' => 'Upload Files',
 );
-
 
 return $LANG;
 

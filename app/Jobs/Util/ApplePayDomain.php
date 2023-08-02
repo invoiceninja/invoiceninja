@@ -75,6 +75,6 @@ class ApplePayDomain implements ShouldQueue
 
         $parsed_url = parse_url($domain);
 
-        return $parsed_url['host'];
+        return $parsed_url['host'] ?? '';
     }
 }

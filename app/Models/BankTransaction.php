@@ -59,33 +59,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction query()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereAccountType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereBankAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereBankIntegrationId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereBankTransactionRuleId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereBaseType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereCategoryId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereCategoryType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereCompanyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereCurrencyCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereCurrencyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereExpenseId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereInvoiceIds($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereIsDeleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereNinjaCategoryId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction wherePaymentId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereStatusId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereTransactionId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereVendorId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Account withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction withoutTrashed()
  * @property-read \App\Models\Payment|null $payment
  * @mixin \Eloquent
@@ -156,32 +130,37 @@ class BankTransaction extends BaseModel
         return self::class;
     }
 
-    public function company()
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function vendor()
+    public function vendor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Vendor::class);
     }
 
-    public function user()
+    public function expense(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Expense::class);
+    }
+
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
 
-    public function bank_integration()
+    public function bank_integration(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(BankIntegration::class)->withTrashed();
     }
 
-    public function account()
+    public function account(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Account::class)->withTrashed();
     }
 
-    public function payment()
+    public function payment(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Payment::class)->withTrashed();
     }
