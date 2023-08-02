@@ -5135,8 +5135,12 @@ $LANG = array(
     'activity_10_online' => ':contact entered payment :payment for invoice :invoice for :client',
     'activity_10_manual' => ':user entered payment :payment for invoice :invoice for :client',
     'default_payment_type' => 'Default Payment Type',
+    'number_precision' => 'Number precision',
+    'number_precision_help' => 'Controls the number of decimals supported in the interface',
+    'is_tax_exempt' => 'Tax Exempt',
+    'drop_files_here' => 'Drop files here',
+    'upload_files' => 'Upload Files',
 );
-
 
 return $LANG;
 

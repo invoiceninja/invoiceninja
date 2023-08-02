@@ -249,12 +249,12 @@ class PurchaseOrder extends BaseModel
         return $this->belongsTo(Vendor::class)->withTrashed();
     }
 
-    public function history()
+    public function history(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
         return $this->hasManyThrough(Backup::class, Activity::class);
     }
 
-    public function activities()
+    public function activities(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(50);
     }
@@ -325,12 +325,12 @@ class PurchaseOrder extends BaseModel
         return $this->hasMany(PurchaseOrderInvitation::class);
     }
 
-    public function project()
+    public function project(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Project::class)->withTrashed();
     }
 
-    public function invoice()
+    public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Invoice::class);
     }
@@ -341,17 +341,17 @@ class PurchaseOrder extends BaseModel
         return new PurchaseOrderService($this);
     }
 
-    public function invoices()
+    public function invoices(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Invoice::class)->using(Paymentable::class);
     }
 
-    public function payments()
+    public function payments(): \Illuminate\Database\Eloquent\Relations\MorphToMany
     {
         return $this->morphToMany(Payment::class, 'paymentable');
     }
 
-    public function documents()
+    public function documents(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
     }
@@ -374,7 +374,7 @@ class PurchaseOrder extends BaseModel
         return $purchase_order_calc->build();
     }
 
-    public function translate_entity()
+    public function translate_entity(): string
     {
         return ctrans('texts.purchase_order');
     }

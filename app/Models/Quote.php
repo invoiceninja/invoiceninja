@@ -90,19 +90,13 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $reminder_last_sent
  * @property string $paid_to_date
  * @property int|null $subscription_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read int|null $activities_count
  * @property-read \App\Models\User|null $assigned_user
  * @property-read \App\Models\Client $client
  * @property-read \App\Models\Company $company
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read int|null $documents_count
  * @property-read mixed $balance_due
  * @property-read mixed $hashed_id
  * @property-read mixed $total
  * @property-read mixed $valid_until
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read int|null $history_count
  * @property-read int|null $invitations_count
  * @property-read \App\Models\Invoice|null $invoice
  * @property-read \App\Models\QuoteInvitation|null $invitations
