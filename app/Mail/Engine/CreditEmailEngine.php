@@ -69,7 +69,6 @@ class CreditEmailEngine extends BaseEmailEngine
                     'company' => $this->credit->company->present()->name(),
                     'amount' => Number::formatMoney($this->credit->balance, $this->client),
                 ],
-                null,
                 $this->client->locale()
             );
 
@@ -89,7 +88,6 @@ class CreditEmailEngine extends BaseEmailEngine
                     'number' => $this->credit->number,
                     'account' => $this->credit->company->present()->name(),
                 ],
-                null,
                 $this->client->locale()
             );
         }
@@ -101,7 +99,6 @@ class CreditEmailEngine extends BaseEmailEngine
                 'company' => $this->credit->company->present()->name(),
                 'amount' => Number::formatMoney($this->credit->balance, $this->client),
             ],
-            null,
             $this->client->locale()
         )."\n\n".$this->invitation->getLink();
 

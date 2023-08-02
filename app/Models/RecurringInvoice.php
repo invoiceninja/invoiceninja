@@ -318,17 +318,17 @@ class RecurringInvoice extends BaseModel
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
 
-    public function invoices()
+    public function invoices(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Invoice::class, 'recurring_id', 'id')->withTrashed();
     }
 
-    public function invitations()
+    public function invitations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(RecurringInvoiceInvitation::class);
     }
 
-    public function documents()
+    public function documents(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
     }

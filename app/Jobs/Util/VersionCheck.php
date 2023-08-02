@@ -38,6 +38,7 @@ class VersionCheck implements ShouldQueue
         $version_file = trim(@file_get_contents(config('ninja.version_url')));
 
         if (Ninja::isSelfHost() && $version_file) {
+            /** @var \App\Models\Account $account **/
             Account::whereNotNull('id')->update(['latest_version' => $version_file]);
         }
 

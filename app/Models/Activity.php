@@ -445,6 +445,8 @@ class Activity extends StaticModel
     {
         $system = ctrans('texts.system');
         
+        $translation = '';
+        
         match($variable) {
             ':invoice' => $translation = [substr($variable, 1) => [ 'label' => $this?->invoice?->number ?? '', 'hashed_id' => $this->invoice?->hashed_id ?? '']],
             ':user' => $translation =  [substr($variable, 1) => [ 'label' => $this?->user?->present()->name() ?? $system, 'hashed_id' => $this->user->hashed_id ?? '']],

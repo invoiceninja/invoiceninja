@@ -43,7 +43,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankTransaction> $transactions
  * @property-read int|null $transactions_count
  * @property-read \App\Models\User $user
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Database\Factories\BankIntegrationFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|BankIntegration filter(\App\Filters\QueryFilters $filters)

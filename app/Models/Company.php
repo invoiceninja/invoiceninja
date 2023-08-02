@@ -733,48 +733,42 @@ class Company extends BaseModel
         return $this->belongsTo(PaymentType::class);
     }
 
-    /**
-     * @return mixed
-     */
-    public function expenses()
+    public function expenses(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Expense::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
-    public function payments()
+    public function payments(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Payment::class)->withTrashed();
     }
 
-    public function tokens()
+    public function tokens(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(CompanyToken::class);
     }
 
-    public function client_gateway_tokens()
+    public function client_gateway_tokens(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ClientGatewayToken::class);
     }
 
-    public function system_logs()
+    public function system_logs(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(SystemLog::class)->orderBy('id', 'DESC')->take(100);
     }
 
-    public function system_log_relation()
+    public function system_log_relation(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(SystemLog::class)->orderBy('id', 'DESC');
     }
 
-    public function tokens_hashed()
+    public function tokens_hashed(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(CompanyToken::class);
     }
 
-    public function company_users()
+    public function company_users(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(CompanyUser::class)->withTrashed();
     }
@@ -811,7 +805,7 @@ class Company extends BaseModel
                     ->firstOrFail();
     }
 
-    public function domain()
+    public function domain(): string 
     {
         if (Ninja::isHosted()) {
             if ($this->portal_mode == 'domain' && strlen($this->portal_domain) > 3) {
@@ -829,12 +823,12 @@ class Company extends BaseModel
         return new NotificationService($this, $notification);
     }
 
-    public function routeNotificationForSlack($notification)
+    public function routeNotificationForSlack($notification): string
     {
         return $this->slack_webhook_url;
     }
 
-    public function file_path()
+    public function file_path(): string
     {
         return $this->company_key.'/';
     }
@@ -873,7 +867,7 @@ class Company extends BaseModel
         return $data;
     }
 
-    public function timezone_offset()
+    public function timezone_offset(): int
     {
         $offset = 0;
 
