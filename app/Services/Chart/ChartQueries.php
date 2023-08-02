@@ -164,6 +164,28 @@ trait ChartQueries
         "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
     }
 
+    // public function getPaymentsQuery($start_date, $end_date)
+    // {
+    //     $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
+
+    //     return DB::select(DB::raw("
+    //         SELECT
+    //         sum(payments.amount - payments.refunded) as paid_to_date,
+    //         IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT( clients.settings, '$.currency_id' )) AS SIGNED), :company_currency) AS currency_id
+    //         FROM payments
+    //         JOIN invoices
+    //         on invoices.client_id = clients.id
+    //         WHERE invoices.company_id = :company_id
+    //         AND clients.is_deleted = 0
+    //         {$user_filter}
+    //         AND invoices.is_deleted = 0
+    //         AND invoices.amount > 0
+    //         AND invoices.status_id IN (3,4)
+    //         AND (invoices.date BETWEEN :start_date AND :end_date)
+    //         GROUP BY currency_id
+    //     "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
+    // }
+
     public function getInvoicesQuery($start_date, $end_date)
     {
         $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
