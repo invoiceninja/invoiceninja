@@ -115,6 +115,7 @@ use App\Events\Invoice\InvoiceReminderWasEmailed;
  * @property-read int|null $history_count
  * @property-read int|null $invitations_count
  * @property-read int|null $payments_count
+ * @property-read mixed $pivot
  * @property-read \App\Models\Project|null $project
  * @property-read \App\Models\RecurringInvoice|null $recurring_invoice
  * @property-read \App\Models\Subscription|null $subscription
@@ -132,8 +133,6 @@ use App\Events\Invoice\InvoiceReminderWasEmailed;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
  * @property object|null $tax_data
- * @method static \Illuminate\Database\Eloquent\Builder company()
- * @method static \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder withTrashed(bool $withTrashed = true)
  * @mixin \Eloquent
  */
 class Invoice extends BaseModel

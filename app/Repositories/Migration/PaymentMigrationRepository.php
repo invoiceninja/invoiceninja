@@ -193,11 +193,12 @@ class PaymentMigrationRepository extends BaseRepository
     /**
      * If the client is paying in a currency other than
      * the company currency, we need to set a record.
-     * @param $data
-     * @param $payment
-     * @return
+     * 
+     * @param array$data
+     * @param \App\Models\Payment $payment
+     * @return \App\Models\Payment
      */
-    private function processExchangeRates($data, $payment)
+    private function processExchangeRates($data, $payment): \App\Models\Payment
     {
         if ($payment->exchange_rate != 1) {
             return $payment;
