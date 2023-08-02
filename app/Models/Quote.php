@@ -43,6 +43,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $number
  * @property float $discount
  * @property bool $is_amount_discount
+ * @property bool $auto_bill_enabled
  * @property string|null $po_number
  * @property string|null $date
  * @property string|null $last_sent_date
