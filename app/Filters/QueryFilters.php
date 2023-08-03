@@ -289,7 +289,6 @@ abstract class QueryFilters
 
     /**
      * @return Builder
-     * @throws RuntimeException
      */
     public function without_deleted_clients(): Builder
     {
@@ -302,7 +301,6 @@ abstract class QueryFilters
 
     /**
      * @return Builder
-     * @throws RuntimeException
      */
     public function without_deleted_vendors(): Builder
     {
