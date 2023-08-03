@@ -69,6 +69,7 @@ class ProRata
             return [];
         }
 
+        /** @var \App\Models\RecurringInvoice $recurring_invoice **/
         $recurring_invoice = RecurringInvoice::find($invoice->recurring_id)->first();
 
         if (! $recurring_invoice) {

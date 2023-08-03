@@ -723,10 +723,10 @@ class CreateSingleAccount extends Command
             $cg->config = encrypt(config('ninja.testvars.paypal_rest'));
             $cg->save();
 
-            $gateway_types = $cg->driver()->gatewayTypes();
+            // $gateway_types = $cg->driver()->gatewayTypes();
 
             $fees_and_limits = new stdClass;
-            $fees_and_limits->{$gateway_types[0]} = new FeesAndLimits;
+            $fees_and_limits->{3} = new FeesAndLimits;
 
             $cg->fees_and_limits = $fees_and_limits;
             $cg->save();

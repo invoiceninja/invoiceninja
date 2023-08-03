@@ -67,37 +67,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Models\VendorContact|null $vendor_contact
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel exclude($columns)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Activity newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Activity query()
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereActivityTypeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereClientContactId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereClientId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereCompanyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereCreditId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereExpenseId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereInvitationId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereInvoiceId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereIp($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereIsSystem($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity wherePaymentId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereProjectId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity wherePurchaseOrderId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereQuoteId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereRecurringExpenseId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereRecurringInvoiceId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereRecurringQuoteId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereSubscriptionId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereTaskId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereTokenId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereVendorContactId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Activity whereVendorId($value)
+
  * @mixin \Eloquent
  */
 class Activity extends StaticModel
@@ -304,7 +274,7 @@ class Activity extends StaticModel
     ];
 
 
-    public function getHashedIdAttribute()
+    public function getHashedIdAttribute(): string
     {
         return $this->encodePrimaryKey($this->id);
     }
@@ -315,109 +285,95 @@ class Activity extends StaticModel
         return self::class;
     }
 
-
-    public function backup()
+    public function backup(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Backup::class);
     }
 
-
-    public function history()
+    public function history(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Backup::class);
     }
 
-    public function user() :BelongsTo
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
 
-
-    public function contact()
+    public function contact(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ClientContact::class, 'client_contact_id', 'id')->withTrashed();
     }
 
-
-    public function client()
+    public function client(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Client::class)->withTrashed();
     }
 
-
-    public function invoice()
+    public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Invoice::class)->withTrashed();
     }
 
 
-    public function vendor()
+    public function vendor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Vendor::class)->withTrashed();
     }
 
 
-    public function recurring_invoice()
+    public function recurring_invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(RecurringInvoice::class)->withTrashed();
     }
 
-
-    public function credit()
+    public function credit(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Credit::class)->withTrashed();
     }
 
-
-    public function quote()
+    public function quote(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Quote::class)->withTrashed();
     }
 
-
-    public function subscription()
+    public function subscription(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Subscription::class)->withTrashed();
     }
 
-
-    public function payment()
+    public function payment(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Payment::class)->withTrashed();
     }
 
-
-    public function expense()
+    public function expense(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Expense::class)->withTrashed();
     }
 
 
-    public function recurring_expense()
+    public function recurring_expense(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(RecurringExpense::class)->withTrashed();
     }
 
-
-    public function purchase_order()
+    public function purchase_order(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(PurchaseOrder::class)->withTrashed();
     }
 
-
-    public function vendor_contact()
+    public function vendor_contact(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(VendorContact::class)->withTrashed();
     }
 
-
-    public function task()
+    public function task(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Task::class)->withTrashed();
     }
 
-
-    public function company()
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
@@ -474,6 +430,8 @@ class Activity extends StaticModel
     private function matchVar(string $variable)
     {
         $system = ctrans('texts.system');
+        
+        $translation = '';
         
         match($variable) {
             ':invoice' => $translation = [substr($variable, 1) => [ 'label' => $this?->invoice?->number ?? '', 'hashed_id' => $this->invoice?->hashed_id ?? '']],

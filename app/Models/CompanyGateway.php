@@ -21,12 +21,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $company_id
  * @property int $user_id
  * @property string $gateway_key
- * @property int $accepted_credit_cards
- * @property int $require_cvv
- * @property int|null $require_billing_address
- * @property int|null $require_shipping_address
- * @property int|null $update_details
- * @property int $is_deleted
+ * @property bool $accepted_credit_cards
+ * @property bool $require_cvv
+ * @property bool $require_billing_address
+ * @property bool $require_shipping_address
+ * @property bool $update_details
+ * @property bool $is_deleted
  * @property string $config
  * @property object $fees_and_limits
  * @property string|null $custom_value1
@@ -38,15 +38,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $deleted_at
  * @property string $token_billing
  * @property string|null $label
- * @property int $require_client_name
- * @property int $require_postal_code
- * @property int $require_client_phone
- * @property int $require_contact_name
- * @property int $require_contact_email
- * @property int $require_custom_value1
- * @property int $require_custom_value2
- * @property int $require_custom_value3
- * @property int $require_custom_value4
+ * @property bool $require_client_name
+ * @property bool $require_postal_code
+ * @property bool $require_client_phone
+ * @property bool $require_contact_name
+ * @property bool $require_contact_email
+ * @property bool $require_custom_value1
+ * @property bool $require_custom_value2
+ * @property bool $require_custom_value3
+ * @property bool $require_custom_value4
  * @property-read int|null $client_gateway_tokens_count
  * @property-read \App\Models\Company $company
  * @property-read \App\Models\Gateway $gateway
@@ -61,7 +61,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyGateway withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyGateway withoutTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyGateway find()
+ * @method static CompanyGateway find()
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientGatewayToken> $client_gateway_tokens
  * @mixin \Eloquent
  */

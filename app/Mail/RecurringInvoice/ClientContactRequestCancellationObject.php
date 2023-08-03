@@ -11,13 +11,16 @@
 
 namespace App\Mail\RecurringInvoice;
 
+use App\Utils\Ninja;
+use App\Models\Company;
 use App\Models\ClientContact;
 use App\Models\RecurringInvoice;
-use App\Utils\Ninja;
 use Illuminate\Support\Facades\App;
 
 class ClientContactRequestCancellationObject
 {
+    public Company $company;
+
     public function __construct(public RecurringInvoice $recurring_invoice, public ClientContact $client_contact, private bool $gateway_refund_attempted)
     {
     }

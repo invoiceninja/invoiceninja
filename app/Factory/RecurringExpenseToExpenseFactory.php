@@ -55,7 +55,7 @@ class RecurringExpenseToExpenseFactory
         $expense->custom_value2 = $recurring_expense->custom_value2;
         $expense->custom_value3 = $recurring_expense->custom_value3;
         $expense->custom_value4 = $recurring_expense->custom_value4;
-        $expense->transaction_id = $recurring_expense->transaction_id;
+        $expense->transaction_id = null;
         $expense->category_id = $recurring_expense->category_id;
         $expense->payment_type_id = $recurring_expense->payment_type_id;
         $expense->project_id = $recurring_expense->project_id;

@@ -148,7 +148,7 @@ class MatchBankTransactions implements ShouldQueue
 
     private function linkExpense($input)
     {
-        $this->bt = BankTransaction::find($input['id']);
+        $this->bt = BankTransaction::withTrashed()->find($input['id']);
 
         if (!$this->bt) {
             return $this;

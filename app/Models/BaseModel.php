@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  * Class BaseModel
  *
  * @method scope() static
+ * @method company() static
  * @package App\Models
  * @property-read mixed $hashed_id
  * @property string $number
@@ -41,27 +42,25 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newQuery($query)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel query()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude(array $excludeable)
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|\Illuminate\Database\Query\Builder withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scopeExclude($query)
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel find($value) 
+ * @method static BaseModel find($value) 
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel whereId($query)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel whereIn($query)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel where($query)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel count()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel create($query)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel insert($query)
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel service()
+ * @method BaseModel service()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel orderBy($column, $direction)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel invitations()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel createInvitations()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel whereHas($query)
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation | \App\Models\CreditInvitation | \App\Models\QuoteInvitation | \App\Models\RecurringInvoiceInvitation> $invitations
  * @property-read int|null $invitations_count
- * 
- * @method \App\Models\Company company()
+ * @method static \Illuminate\Database\Eloquent\Builder<static> company()
  * @method int companyId()
  * @method createInvitations()
- * @method Builder|static exclude($columns)
- * @method static \Illuminate\Database\Eloquent\Builder exclude(array $columns)
+ * @method Builder scopeCompany(Builder $builder)
  * @mixin \Eloquent
  * @mixin \Illuminate\Database\Eloquent\Builder
  */
@@ -115,10 +114,8 @@ class BaseModel extends Model
         return parent::__call($method, $params);
     }
 
-    /*
-    V2 type of scope
-     */
-    public function scopeCompany($query)
+    
+    public function scopeCompany($query): \Illuminate\Database\Eloquent\Builder
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -128,8 +125,8 @@ class BaseModel extends Model
         return $query;
     }
 
-    /*
-     V1 type of scope
+    /**
+     * @deprecated version
      */
     public function scopeScope($query)
     {

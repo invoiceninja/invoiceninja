@@ -164,7 +164,7 @@ class Vendor extends BaseModel
         return self::class;
     }
 
-    public function primary_contact()
+    public function primary_contact(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(VendorContact::class)->where('is_primary', true);
     }
@@ -179,12 +179,12 @@ class Vendor extends BaseModel
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
 
-    public function contacts()
+    public function contacts(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(VendorContact::class)->orderBy('is_primary', 'desc');
     }
 
-    public function activities()
+    public function activities(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Activity::class);
     }

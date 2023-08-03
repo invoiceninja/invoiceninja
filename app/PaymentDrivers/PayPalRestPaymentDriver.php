@@ -44,16 +44,16 @@ class PayPalRestPaymentDriver extends BaseDriver
         3 => 'paypal',
         1 => 'card',
         25 => 'venmo',
-        9 => 'sepa',
-        12 => 'bancontact',
-        17 => 'eps',
-        15 => 'giropay',
-        13 => 'ideal',
-        26 => 'mercadopago',
-        27 => 'mybank',
-        28 => 'paylater',
-        16 => 'p24',
-        7 => 'sofort'
+        // 9 => 'sepa',
+        // 12 => 'bancontact',
+        // 17 => 'eps',
+        // 15 => 'giropay',
+        // 13 => 'ideal',
+        // 26 => 'mercadopago',
+        // 27 => 'mybank',
+        // 28 => 'paylater',
+        // 16 => 'p24',
+        // 7 => 'sofort'
     ];
 
 
