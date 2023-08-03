@@ -62,11 +62,15 @@ class ContactForgotPasswordController extends Controller
 
         if (Ninja::isHosted() && $request->session()->has('company_key')) {
             MultiDB::findAndSetDbByCompanyKey($request->session()->get('company_key'));
+
+            /** @var \App\Models\Company $company **/
             $company = Company::where('company_key', $request->session()->get('company_key'))->first();
             $account = $company->account;
         }
 
         if (! $account) {
+
+            /** @var \App\Models\Account $account **/
             $account = Account::first();
             $company = $account->companies->first();
         }

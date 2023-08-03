@@ -230,7 +230,6 @@ class InvoiceItemSumInclusive
 
         $item_tax += $this->formatValue($item_tax_rate1_total, $this->currency->precision);
 
-        // if($item_tax_rate1_total != 0)
         if (strlen($this->item->tax_name1) > 1) {
             $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total);
         }

@@ -100,6 +100,7 @@ class CreditCard implements MethodInterface
         );
 
         if ($request->shouldUseToken()) {
+            /** @var \App\Models\ClientGatewayToken $cgt **/
             $cgt = ClientGatewayToken::where('token', $request->token)->first();
             $token = $cgt->token;
         }

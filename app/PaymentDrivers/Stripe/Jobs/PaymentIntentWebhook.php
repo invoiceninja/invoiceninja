@@ -113,8 +113,10 @@ class PaymentIntentWebhook implements ShouldQueue
             return;
         }
 
+        /** @var \App\Models\Company $company **/
         $company = Company::where('company_key', $this->company_key)->first();
 
+        /** @var \App\Models\Payment $payment **/
         $payment = Payment::query()
                          ->where('company_id', $company->id)
                          ->where('transaction_reference', $charge['id'])

@@ -58,7 +58,7 @@ class ActivityController extends BaseController
 
             $system = ctrans('texts.system');
 
-            $data = $activities->cursor()->map(function ($activity) use ($system) {
+            $data = $activities->cursor()->map(function ($activity) {
 
                 return $activity->activity_string();
 
@@ -90,7 +90,7 @@ class ActivityController extends BaseController
 
         $system = ctrans('texts.system');
 
-        $data = $activities->cursor()->map(function ($activity) use ($system) {
+        $data = $activities->cursor()->map(function ($activity) {
 
             return $activity->activity_string();
 
