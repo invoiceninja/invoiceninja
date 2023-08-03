@@ -148,13 +148,16 @@ class TaskRepository extends BaseRepository
      * Store tasks in bulk.
      *
      * @param array $task
-     * @return task|null
+     * @return Task|null
      */
     public function create($task): ?Task
     {
+        /** @var \App\Models\User $user **/
+        $user = auth()->user();
+
         return $this->save(
             $task,
-            TaskFactory::create(auth()->user()->company()->id, auth()->user()->id)
+            TaskFactory::create($user->company()->id, $user->id)
         );
     }
 
@@ -175,7 +178,7 @@ class TaskRepository extends BaseRepository
     /**
      * Sorts the task status order IF the old status has changed between requests
      *
-     * @param  stdCLass $old_task The old task object
+     * @param  \stdCLass $old_task The old task object
      * @param  Task     $new_task The new Task model
      * @return void
      */

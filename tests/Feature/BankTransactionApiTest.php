@@ -12,6 +12,7 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
+use App\Models\Expense;
 use Tests\MockAccountData;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
@@ -122,19 +123,31 @@ class BankTransactionApiTest extends TestCase
             'user_id' => $this->user->id,
         ]);
 
+        $e = Expense::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+        ]);
+
         $bank_transaction = BankTransaction::factory()->create([
             'bank_integration_id' => $bi->id,
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
             'payment_id' => $this->payment->id,
-            'expense_id' => $this->expense->id,
+            'expense_id' => "{$this->expense->hashed_id},{$e->hashed_id}",
             'invoice_ids' => $this->invoice->hashed_id,
         ]);
         
+        $e->transaction_id = $bank_transaction->id;
+        $e->save();
+
+        $this->expense->transaction_id = $bank_transaction->id;
+        $this->expense->save();
+
         $data = [
             'ids' => [$this->encodePrimaryKey($bank_transaction->id)],
         ];
 
+        nlog($bank_transaction->toArray());
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
@@ -146,6 +159,9 @@ class BankTransactionApiTest extends TestCase
         $this->assertEquals("", $arr['data'][0]['payment_id']);
         $this->assertEquals("", $arr['data'][0]['invoice_ids']);
         $this->assertEquals("", $arr['data'][0]['expense_id']);
+
+        $this->assertNull($e->fresh()->transaction_id);
+        $this->assertNull($this->expense->fresh()->transaction_id);
     }
 
 }

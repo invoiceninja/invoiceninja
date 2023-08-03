@@ -188,7 +188,7 @@ class PaymentRepository extends BaseRepository
                     $paymentable->save();
 
                     $credit = $credit->service()->markSent()->save();
-                    (new ApplyCreditPayment($credit, $payment, $paid_credit['amount'], $credit->company))->handle();
+                    (new ApplyCreditPayment($credit, $payment, $paid_credit['amount']))->handle();
                 }
             }
         }

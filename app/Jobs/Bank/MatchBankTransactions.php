@@ -148,7 +148,7 @@ class MatchBankTransactions implements ShouldQueue
 
     private function linkExpense($input)
     {
-        $this->bt = BankTransaction::find($input['id']);
+        $this->bt = BankTransaction::withTrashed()->find($input['id']);
 
         if (!$this->bt) {
             return $this;
@@ -243,7 +243,7 @@ class MatchBankTransactions implements ShouldQueue
     private function matchExpense($input) :self
     {
         //if there is a category id, pull it from Yodlee and insert - or just reuse!!
-        $this->bt = BankTransaction::withTrashed()->find($input['id']);
+        $this->bt = BankTransaction::find($input['id']);
 
         if (!$this->bt || $this->bt->status_id == BankTransaction::STATUS_CONVERTED) {
             return $this;
