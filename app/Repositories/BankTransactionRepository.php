@@ -11,19 +11,22 @@
 
 namespace App\Repositories;
 
-use App\Jobs\Bank\MatchBankTransactions;
+use App\Models\Expense;
 use App\Models\BankTransaction;
+use App\Jobs\Bank\MatchBankTransactions;
 
 /**
  * Class for bank transaction repository.
  */
 class BankTransactionRepository extends BaseRepository
 {
+    
     public function save($data, BankTransaction $bank_transaction)
     {
         if (array_key_exists('bank_integration_id', $data)) {
             $bank_transaction->bank_integration_id = $data['bank_integration_id'];
         }
+
 
         $bank_transaction->fill($data);
         $bank_transaction->save();
@@ -49,11 +52,16 @@ class BankTransactionRepository extends BaseRepository
             $bt->payment_id = null;
         }
 
-        if($bt->expense()->exists()) {
-            $bt->expense->transaction_id = null;
-            $bt->expense_id = null;      
-        }
+        $e = Expense::whereIn('id', $this->transformKeys(explode(",", $bt->expense_id)))
+        ->cursor()
+        ->each(function ($expense){
+            
+            $expense->transaction_id = null;
+            $expense->saveQuietly();
+
+        });
         
+        $bt->expense_id = null;
         $bt->vendor_id = null;
         $bt->status_id = 1;
         $bt->invoice_ids = null;
