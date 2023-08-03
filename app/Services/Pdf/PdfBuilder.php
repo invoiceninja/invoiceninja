@@ -39,7 +39,6 @@ class PdfBuilder
     /**
      * The DOM Document;
      *
-     * @var $document
      */
     public DomDocument $document;
 
@@ -619,7 +618,6 @@ class PdfBuilder
      *
      * @param mixed $items
      * @param string $table_type
-     * @param mixed|null $custom_fields
      *
      * @return array
      */
@@ -1313,7 +1311,7 @@ class PdfBuilder
      * Generates the custom values for the
      * entity.
      *
-     * @param  array
+     * @param  array $variables
      * @return array
      */
     public function genericDetailsBuilder(array $variables): array
@@ -1470,7 +1468,7 @@ class PdfBuilder
      * Passes an array of items by reference
      * and performs a nl2br
      *
-     * @param  array
+     * @param  array $variables
      * @return void
      *
      */

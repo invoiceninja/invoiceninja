@@ -110,31 +110,48 @@ class SendRecurring implements ShouldQueue
         if ($invoice->auto_bill_enabled && $invoice->client->getSetting('auto_bill_date') == 'on_send_date' && $invoice->client->getSetting('auto_email_invoice')) {
             nlog("attempting to autobill {$invoice->number}");
             AutoBill::dispatch($invoice->id, $this->db, true)->delay(rand(1, 2));
+
+            //edge case to support where online payment notifications are not enabled
+            if(!$invoice->client->getSetting('client_online_payment_notification')){
+                $this->sendRecurringEmails($invoice);
+            }
         } 
         elseif ($invoice->auto_bill_enabled && $invoice->client->getSetting('auto_bill_date') == 'on_due_date' && $invoice->client->getSetting('auto_email_invoice') && ($invoice->due_date && Carbon::parse($invoice->due_date)->startOfDay()->lte(now()->startOfDay()))) {
             nlog("attempting to autobill {$invoice->number}");
             AutoBill::dispatch($invoice->id, $this->db, true)->delay(rand(1, 2));
-        }
-        elseif ($invoice->client->getSetting('auto_email_invoice')) {
-            //Admin notification for recurring invoice sent.
-            if ($invoice->invitations->count() >= 1) {
-                $invoice->entityEmailEvent($invoice->invitations->first(), 'invoice', 'email_template_invoice');
+
+            //edge case to support where online payment notifications are not enabled
+            if(!$invoice->client->getSetting('client_online_payment_notification')) {
+                $this->sendRecurringEmails($invoice);
             }
 
-            $invoice->invitations->each(function ($invitation) use ($invoice) {
-                if ($invitation->contact && ! $invitation->contact->trashed() && strlen($invitation->contact->email) >= 1 && $invoice->client->getSetting('auto_email_invoice')) {
-                    try {
-                        EmailEntity::dispatch($invitation, $invoice->company)->delay(rand(1, 2));
-                    } catch (\Exception $e) {
-                        nlog($e->getMessage());
-                    }
-
-                    nlog("Firing email for invoice {$invoice->number}");
-                }
-            });
+        }
+        elseif ($invoice->client->getSetting('auto_email_invoice')) {
+            $this->sendRecurringEmails($invoice);
         }
 
         
+    }
+
+    private function sendRecurringEmails(Invoice $invoice)
+    {
+        //Admin notification for recurring invoice sent.
+        if ($invoice->invitations->count() >= 1) {
+            $invoice->entityEmailEvent($invoice->invitations->first(), 'invoice', 'email_template_invoice');
+        }
+
+        $invoice->invitations->each(function ($invitation) use ($invoice) {
+            if ($invitation->contact && ! $invitation->contact->trashed() && strlen($invitation->contact->email) >= 1 && $invoice->client->getSetting('auto_email_invoice')) {
+                try {
+                    EmailEntity::dispatch($invitation, $invoice->company)->delay(rand(1, 2));
+                } catch (\Exception $e) {
+                    nlog($e->getMessage());
+                }
+
+                nlog("Firing email for invoice {$invoice->number}");
+            }
+        });
+
     }
 
     /**
