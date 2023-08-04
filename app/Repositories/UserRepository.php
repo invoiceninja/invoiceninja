@@ -52,8 +52,9 @@ class UserRepository extends BaseRepository
         if ($unset_company_user) {
             unset($details['company_user']);
         }
-
-        $company = auth()->user()->company();
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        $company = $user->company();
         $account = $company->account;
 
         // if(array_key_exists('oauth_provider_id', $details))

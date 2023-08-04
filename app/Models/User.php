@@ -283,7 +283,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->getCompany();
     }
 
-    public function company_users()
+    public function company_users(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(CompanyUser::class)->withTrashed();
     }
@@ -313,8 +313,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
         return $this->token()->cu;
 
-        // return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'user_id', 'id', 'user_id')
-        // ->withTrashed();
     }
 
     /**
@@ -327,7 +325,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->company()->id;
     }
 
-    public function clients()
+    public function clients(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Client::class);
     }
@@ -352,7 +350,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return json_decode($this->token()->cu->settings);
 
-        //return json_decode($this->company_user->settings);
     }
 
     /**
@@ -364,14 +361,12 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->token()->cu->is_admin;
 
-        // return $this->company_user->is_admin;
     }
 
     public function isOwner() : bool
     {
         return $this->token()->cu->is_owner;
 
-        // return $this->company_user->is_owner;
     }
 
     /**
@@ -389,7 +384,7 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function contacts()
+    public function contacts(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ClientContact::class);
     }
@@ -581,12 +576,12 @@ class User extends Authenticatable implements MustVerifyEmail
         return false;
     }
 
-    public function documents()
+    public function documents(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
     }
 
-    public function isVerified()
+    public function isVerified(): bool
     {
         return is_null($this->email_verified_at) ? false : true;
     }

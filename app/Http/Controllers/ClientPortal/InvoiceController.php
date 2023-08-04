@@ -97,13 +97,6 @@ class InvoiceController extends Controller
 
         $file = (new \App\Jobs\Entity\CreateRawPdf($invitation, $invitation->company->db))->handle();
         
-        // $headers = ['Content-Type' => 'application/pdf'];
-        // $entity_string = $data['entity_type'];
-        // $file_name = $invitation->{$entity_string}->numberFormatter().'.pdf';
-        // return response()->streamDownload(function () use ($file) {
-        //     echo $file;
-        // }, $file_name, $headers);
-
         $headers = ['Content-Type' => 'application/pdf'];
         return response()->make($file, 200, $headers);
 

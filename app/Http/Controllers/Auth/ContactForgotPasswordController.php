@@ -101,7 +101,11 @@ class ContactForgotPasswordController extends Controller
 
         $this->validateEmail($request);
 
+        
         if (Ninja::isHosted() && $company = Company::where('company_key', $request->input('company_key'))->first()) {
+            /** @var \App\Models\Company $company **/
+
+            /** @var \App\Models\ClientContact $contact **/
             $contact = ClientContact::where(['email' => $request->input('email'), 'company_id' => $company->id])
                                     ->whereHas('client', function ($query) {
                                         $query->where('is_deleted', 0);

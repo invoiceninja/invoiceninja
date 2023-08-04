@@ -44,6 +44,8 @@ class NinjaPlanController extends Controller
 
         if (! $company) {
             MultiDB::findAndSetDbByAccountKey($account_or_company_key);
+
+            /** @var \App\Models\Account $account **/
             $account = Account::where('key', $account_or_company_key)->first();
         } else {
             $account = $company->account;

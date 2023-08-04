@@ -111,7 +111,7 @@ class SendRecurring implements ShouldQueue
             nlog("attempting to autobill {$invoice->number}");
             AutoBill::dispatch($invoice->id, $this->db, true)->delay(rand(1, 2));
 
-            //edge case to support where online payment notifications are not enabled
+            //04-08-2023 edge case to support where online payment notifications are not enabled
             if(!$invoice->client->getSetting('client_online_payment_notification')){
                 $this->sendRecurringEmails($invoice);
             }
@@ -120,7 +120,7 @@ class SendRecurring implements ShouldQueue
             nlog("attempting to autobill {$invoice->number}");
             AutoBill::dispatch($invoice->id, $this->db, true)->delay(rand(1, 2));
 
-            //edge case to support where online payment notifications are not enabled
+            //04-08-2023 edge case to support where online payment notifications are not enabled
             if(!$invoice->client->getSetting('client_online_payment_notification')) {
                 $this->sendRecurringEmails($invoice);
             }
@@ -130,10 +130,16 @@ class SendRecurring implements ShouldQueue
             $this->sendRecurringEmails($invoice);
         }
 
-        
     }
 
-    private function sendRecurringEmails(Invoice $invoice)
+    /**
+     * Sends the recurring invoice emails to
+     * the designated contacts
+     * 
+     * @param Invoice $invoice
+     * @return void
+     */
+    private function sendRecurringEmails(Invoice $invoice): void
     {
         //Admin notification for recurring invoice sent.
         if ($invoice->invitations->count() >= 1) {
