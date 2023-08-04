@@ -73,7 +73,7 @@ class EmailController extends BaseController
             $mo->cc[] = new Address($request->cc_email);
         }
 
-        $entity_obj->invitations->each(function ($invitation) use ($data, $entity_obj, $template, $mo) {
+        $entity_obj->invitations->each(function ($invitation) use ($entity_obj, $mo) {
             if (! $invitation->contact->trashed() && $invitation->contact->email) {
                 $entity_obj->service()->markSent()->save();
 

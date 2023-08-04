@@ -43,6 +43,8 @@ class HostedMigrationController extends Controller
 
         $company = $account->companies->first();
 
+        /** @var \App\Models\CompanyToken $company_token **/
+
         $company_token = CompanyToken::where('user_id', auth()->user()->id)
             ->where('company_id', $company->id)
             ->first();
@@ -60,6 +62,7 @@ class HostedMigrationController extends Controller
 
         MultiDB::findAndSetDbByCompanyKey($input['account_key']);
 
+        /** @var \App\Models\Company $company **/
         $company = Company::with('account')->where('company_key', $input['account_key'])->first();
 
         $forward_url = $company->domain();

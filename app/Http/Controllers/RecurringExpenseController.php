@@ -49,7 +49,7 @@ class RecurringExpenseController extends BaseController
     protected $entity_transformer = RecurringExpenseTransformer::class;
 
     /**
-     * @var RecurringExpenseepository
+     * @var RecurringExpenseRepository
      */
     protected $recurring_expense_repo;
 
@@ -72,7 +72,7 @@ class RecurringExpenseController extends BaseController
      *      summary="Gets a list of recurring_expenses",
      *      description="Lists recurring_expenses, search and filters allow fine grained lists to be generated.
 
-    Query parameters can be added to performed more fine grained filtering of the recurring_expenses, these are handled by the RecurringExpenseFilters class which defines the methods available",
+     * Query parameters can be added to performed more fine grained filtering of the recurring_expenses, these are handled by the RecurringExpenseFilters class which defines the methods available",
      *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
