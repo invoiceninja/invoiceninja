@@ -46,6 +46,32 @@ class InvoiceEmailTest extends TestCase
 
     }
 
+    public function testTemplateValidation()
+    {
+        $data = [
+            "body" => "hey what's up", 
+            "entity" => 'invoice', 
+            "entity_id"=> $this->invoice->hashed_id, 
+            "subject"=> 'Reminder $number', 
+            "template"=> "first_custom"
+        ];
+
+        $response = false;
+
+        // try {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/emails', $data);
+        // } catch (ValidationException $e) {
+        //     $message = json_decode($e->validator->getMessageBag(), 1);
+        //     nlog($message);
+        // }
+
+        $response->assertStatus(200);
+
+    }
+
     public function test_cc_email_implementation()
     {
         $data = [
