@@ -519,7 +519,7 @@ class BaseController extends Controller
                 'company.bank_transaction_rules'=> function ($query) use ($updated_at, $user) {
                     $query->where('updated_at', '>=', $updated_at);
 
-                    if (! $user->isAdmin()) {
+                    if (! $user->isAdmin() && !$user->hasIntersectPermissions(['create_bank_transaction','edit_bank_transaction','view_bank_transaction'])) {
                         $query->where('bank_transaction_rules.user_id', $user->id);
                     }
                 },
@@ -627,7 +627,7 @@ class BaseController extends Controller
                     }
                 },
                 'company.bank_transaction_rules'=> function ($query) use ($user) {
-                    if (! $user->isAdmin()) {
+                    if (! $user->isAdmin() && !$user->hasIntersectPermissions(['create_bank_transaction','edit_bank_transaction','view_bank_transaction'])) {
                         $query->where('bank_transaction_rules.user_id', $user->id);
                     }
                 },
