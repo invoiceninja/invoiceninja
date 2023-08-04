@@ -19,8 +19,6 @@ class StaticController extends BaseController
     /**
      * Show the list of Invoices.
      *
-     * @param InvoiceFilters $filters  The filters
-     *
      * @return Response
      *
      * @OA\Get(
@@ -54,7 +52,11 @@ class StaticController extends BaseController
      */
     public function __invoke()
     {
-        $response = Statics::company(auth()->user()->getCompany()->getLocale());
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        
+        $response = Statics::company($user->company()->getLocale());
 
         return response()->json($response, 200, ['Content-type'=> 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
     }

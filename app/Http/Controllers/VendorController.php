@@ -48,7 +48,7 @@ class VendorController extends BaseController
     protected $entity_transformer = VendorTransformer::class;
 
     /**
-     * @var Vendorepository
+     * @var VendorRepository
      */
     protected $vendor_repo;
 

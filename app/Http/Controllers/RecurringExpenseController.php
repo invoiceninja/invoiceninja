@@ -320,7 +320,10 @@ class RecurringExpenseController extends BaseController
      */
     public function create(CreateRecurringExpenseRequest $request)
     {
-        $recurring_expense = RecurringExpenseFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $recurring_expense = RecurringExpenseFactory::create($user->company()->id, $user->id);
 
         return $this->itemResponse($recurring_expense);
     }
@@ -365,10 +368,13 @@ class RecurringExpenseController extends BaseController
      */
     public function store(StoreRecurringExpenseRequest $request)
     {
-        $recurring_expense = $this->recurring_expense_repo->save($request->all(), RecurringExpenseFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $recurring_expense = $this->recurring_expense_repo->save($request->all(), RecurringExpenseFactory::create($user->company()->id, $user->id));
         $recurring_expense->service()->triggeredActions($request)->save();
 
-        event(new RecurringExpenseWasCreated($recurring_expense, $recurring_expense->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        event(new RecurringExpenseWasCreated($recurring_expense, $recurring_expense->company, Ninja::eventVars($user->id)));
 
         return $this->itemResponse($recurring_expense);
     }
@@ -481,13 +487,16 @@ class RecurringExpenseController extends BaseController
      */
     public function bulk()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $action = request()->input('action');
 
         $ids = request()->input('ids');
         $recurring_expenses = RecurringExpense::withTrashed()->find($this->transformKeys($ids));
 
-        $recurring_expenses->each(function ($recurring_expense, $key) use ($action) {
-            if (auth()->user()->can('edit', $recurring_expense)) {
+        $recurring_expenses->each(function ($recurring_expense, $key) use ($action, $user) {
+            if ($user->can('edit', $recurring_expense)) {
                 $this->performAction($recurring_expense, $action, true);
             }
         });

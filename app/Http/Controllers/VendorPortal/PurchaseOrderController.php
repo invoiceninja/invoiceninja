@@ -75,10 +75,10 @@ class PurchaseOrderController extends Controller
     }
 
     /**
-     * Show specific invoice.
+     * Show specific PurchaseOrder.
      *
-     * @param ShowInvoiceRequest $request
-     * @param Invoice $invoice
+     * @param ShowPurchaseOrderRequest $request
+     * @param PurchaseOrder $purchase_order
      *
      * @return Factory|View
      */

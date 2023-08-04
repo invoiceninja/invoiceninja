@@ -111,10 +111,8 @@ class CompanyUserController extends BaseController
      */
     public function update(UpdateCompanyUserRequest $request, User $user)
     {
-        /** @var \App\Models\User $logged_in_user */
-        $logged_in_user = auth()->user();
 
-        $company = $logged_in_user->company();
+        $company = auth()->user()->company();
 
         $company_user = CompanyUser::whereUserId($user->id)->whereCompanyId($company->id)->first();
 
@@ -124,7 +122,7 @@ class CompanyUserController extends BaseController
             return;
         }
 
-        if ($logged_in_user->isAdmin()) {
+        if (auth()->user()->isAdmin()) {
             $company_user->fill($request->input('company_user'));
         } else {
             $company_user->settings = $request->input('company_user')['settings'];
@@ -138,9 +136,8 @@ class CompanyUserController extends BaseController
 
     public function updatePreferences(UpdateCompanyUserPreferencesRequest $request, User $user)
     {
-        /** @var \App\Models\User $logged_in_user */
-        $logged_in_user = auth()->user();
-        $company = $logged_in_user->company();
+
+        $company = auth()->user()->company();
 
         $company_user = CompanyUser::whereUserId($user->id)->whereCompanyId($company->id)->first();
 

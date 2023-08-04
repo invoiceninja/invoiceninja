@@ -52,14 +52,10 @@ class UserRepository extends BaseRepository
         if ($unset_company_user) {
             unset($details['company_user']);
         }
-        /** @var \App\Models\User $user */
-        $user = auth()->user();
-        $company = $user->company();
+
+        $company = auth()->user()->company();
         $account = $company->account;
 
-        // if(array_key_exists('oauth_provider_id', $details))
-        //     unset($details['oauth_provider_id']);
-        
         if (request()->has('validated_phone')) {
             $details['phone'] = request()->input('validated_phone');
             $user->verified_phone_number = false;
@@ -104,8 +100,8 @@ class UserRepository extends BaseRepository
                         (new CreateCompanyToken($cu->company, $cu->user, 'restored_user'))->handle();
                     }
                 } else {
-                    $cu->notifications = $data['company_user']['notifications'];
-                    $cu->settings = $data['company_user']['settings'];
+                    $cu->notifications = $data['company_user']['notifications'] ?? '';
+                    $cu->settings = $data['company_user']['settings'] ?? '';
                     $cu->save();
                 }
             }

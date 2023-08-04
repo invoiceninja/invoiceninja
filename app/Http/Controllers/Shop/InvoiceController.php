@@ -53,6 +53,7 @@ class InvoiceController extends BaseController
 
     public function show(Request $request, string $invitation_key)
     {
+        /** @var \App\Models\Company $company */
         $company = Company::where('company_key', $request->header('X-API-COMPANY-KEY'))->first();
 
         if (! $company->enable_shop_api) {
@@ -69,6 +70,7 @@ class InvoiceController extends BaseController
 
     public function store(StoreShopInvoiceRequest $request)
     {
+        /** @var \App\Models\Company $company */
         $company = Company::where('company_key', $request->header('X-API-COMPANY-KEY'))->first();
 
         if (! $company->enable_shop_api) {
