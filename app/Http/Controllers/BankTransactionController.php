@@ -114,7 +114,10 @@ class BankTransactionController extends BaseController
 
     public function match(MatchBankTransactionRequest $request)
     {
-        $bts = (new MatchBankTransactions(auth()->user()->company()->id, auth()->user()->company()->db, $request->all()))->handle();
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $bts = (new MatchBankTransactions($user->company()->id, $user->company()->db, $request->all()))->handle();
 
         return $this->listResponse($bts);
     }
