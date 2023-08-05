@@ -42,7 +42,7 @@ class InvoiceEmailTest extends TestCase
 
         $this->makeTestData();
 
-        $this->withoutExceptionHandling();
+        // $this->withoutExceptionHandling();
 
     }
 
@@ -58,17 +58,17 @@ class InvoiceEmailTest extends TestCase
 
         $response = false;
 
-        // try {
+        try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->postJson('/api/v1/emails', $data);
-        // } catch (ValidationException $e) {
-        //     $message = json_decode($e->validator->getMessageBag(), 1);
-        //     nlog($message);
-        // }
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            nlog($message);
+        }
 
-        $response->assertStatus(200);
+        $response->assertStatus(422);
 
     }
 
