@@ -12,38 +12,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\Invoice\InvoiceWasCreated;
-use App\Events\Invoice\InvoiceWasUpdated;
-use App\Factory\CloneInvoiceFactory;
-use App\Factory\CloneInvoiceToQuoteFactory;
+use App\Utils\Ninja;
+use App\Models\Quote;
+use App\Models\Account;
+use App\Models\Invoice;
+use App\Jobs\Cron\AutoBill;
+use Illuminate\Http\Response;
 use App\Factory\InvoiceFactory;
 use App\Filters\InvoiceFilters;
-use App\Http\Requests\Invoice\ActionInvoiceRequest;
+use App\Utils\Traits\MakesHash;
+use App\Jobs\Invoice\ZipInvoices;
+use App\Services\PdfMaker\PdfMerge;
+use Illuminate\Support\Facades\App;
+use App\Factory\CloneInvoiceFactory;
+use App\Jobs\Invoice\BulkInvoiceJob;
+use App\Utils\Traits\SavesDocuments;
+use App\Jobs\Invoice\UpdateReminders;
+use App\Transformers\QuoteTransformer;
+use App\Repositories\InvoiceRepository;
+use Illuminate\Support\Facades\Storage;
+use App\Transformers\InvoiceTransformer;
+use App\Events\Invoice\InvoiceWasCreated;
+use App\Events\Invoice\InvoiceWasUpdated;
+use App\Factory\CloneInvoiceToQuoteFactory;
 use App\Http\Requests\Invoice\BulkInvoiceRequest;
-use App\Http\Requests\Invoice\CreateInvoiceRequest;
-use App\Http\Requests\Invoice\DestroyInvoiceRequest;
 use App\Http\Requests\Invoice\EditInvoiceRequest;
 use App\Http\Requests\Invoice\ShowInvoiceRequest;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
+use App\Http\Requests\Invoice\ActionInvoiceRequest;
+use App\Http\Requests\Invoice\CreateInvoiceRequest;
 use App\Http\Requests\Invoice\UpdateInvoiceRequest;
-use App\Http\Requests\Invoice\UpdateReminderRequest;
 use App\Http\Requests\Invoice\UploadInvoiceRequest;
-use App\Jobs\Cron\AutoBill;
-use App\Jobs\Invoice\BulkInvoiceJob;
-use App\Jobs\Invoice\UpdateReminders;
-use App\Jobs\Invoice\ZipInvoices;
-use App\Models\Account;
-use App\Models\Invoice;
-use App\Models\Quote;
-use App\Repositories\InvoiceRepository;
-use App\Services\PdfMaker\PdfMerge;
-use App\Transformers\InvoiceTransformer;
-use App\Transformers\QuoteTransformer;
-use App\Utils\Ninja;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\SavesDocuments;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\Invoice\DestroyInvoiceRequest;
+use App\Http\Requests\Invoice\UpdateReminderRequest;
 
 /**
  * Class InvoiceController.
@@ -475,7 +476,7 @@ class InvoiceController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Collection
+     * @return \Illuminate\Support\Collection
      *
      * @OA\Post(
      *      path="/api/v1/invoices/bulk",
@@ -682,7 +683,6 @@ class InvoiceController extends BaseController
 
                 return $this->itemResponse($quote);
 
-                break;
             case 'history':
                 // code...
                 break;
@@ -716,7 +716,6 @@ class InvoiceController extends BaseController
                     echo Storage::get($file);
                 }, basename($file), ['Content-Type' => 'application/pdf']);
 
-                break;
             case 'restore':
                 $this->invoice_repo->restore($invoice);
 
@@ -741,8 +740,6 @@ class InvoiceController extends BaseController
                 break;
             case 'cancel':
                 $invoice = $invoice->service()->handleCancellation()->deletePdf()->save();
-                // $invoice = $invoice->service()->handleCancellation()->touchPdf()->save();
-
                 if (! $bulk) {
                     $this->itemResponse($invoice);
                 }
@@ -764,7 +761,6 @@ class InvoiceController extends BaseController
 
             default:
                 return response()->json(['message' => ctrans('texts.action_unavailable', ['action' => $action])], 400);
-                break;
         }
     }
 
@@ -820,6 +816,8 @@ class InvoiceController extends BaseController
         }
 
         $invoice = $invitation->invoice;
+
+        App::setLocale($invitation->contact->preferredLocale());
 
         $file_name = $invoice->numberFormatter().'.pdf';
 

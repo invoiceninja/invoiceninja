@@ -21,8 +21,6 @@ use League\Csv\Writer;
 
 class PaymentExport extends BaseExport
 {
-    private Company $company;
-
     private $entity_transformer;
 
     public string $date_key = 'date';
@@ -112,10 +110,21 @@ class PaymentExport extends BaseExport
         foreach (array_values($this->input['report_keys']) as $key) {
             $keyval = array_search($key, $this->entity_keys);
 
+            if(!$keyval) {
+                $keyval = array_search(str_replace("payment.", "", $key), $this->entity_keys) ?? $key;
+            }
+
+            if(!$keyval) {
+                $keyval = $key;
+            }
+
             if (array_key_exists($key, $transformed_entity)) {
                 $entity[$keyval] = $transformed_entity[$key];
-            } else {
-                $entity[$keyval] = '';
+            }  elseif (array_key_exists($keyval, $transformed_entity)) {
+                $entity[$keyval] = $transformed_entity[$keyval];
+            }
+            else {
+                $entity[$keyval] = $this->resolveKey($keyval, $payment, $this->entity_transformer);
             }
         }
 
@@ -140,6 +149,10 @@ class PaymentExport extends BaseExport
             $entity['currency'] = $payment->currency()->exists() ? $payment->currency->code : '';
         }
 
+        if (in_array('payment.currency', $this->input['report_keys'])) {
+            $entity['payment.currency'] = $payment->currency()->exists() ? $payment->currency->code : '';
+        }
+
         if (in_array('exchange_currency_id', $this->input['report_keys'])) {
             $entity['exchange_currency'] = $payment->exchange_currency()->exists() ? $payment->exchange_currency->code : '';
         }
@@ -152,11 +165,19 @@ class PaymentExport extends BaseExport
             $entity['type'] = $payment->translatedType();
         }
 
+        if (in_array('payment.method', $this->input['report_keys'])) {
+            $entity['payment.method'] = $payment->translatedType();
+        }
+
+        if (in_array('payment.status', $this->input['report_keys'])) {
+            $entity['payment.status'] = $payment->stringStatus($payment->status_id);
+        }
+
         if (in_array('gateway_type_id', $this->input['report_keys'])) {
             $entity['gateway'] = $payment->gateway_type ? $payment->gateway_type->name : 'Unknown Type';
         }
 
-            $entity['invoices'] = $payment->invoices()->exists() ? $payment->invoices->pluck('number')->implode(',') : '';
+        // $entity['invoices'] = $payment->invoices()->exists() ? $payment->invoices->pluck('number')->implode(',') : '';
 
         return $entity;
     }

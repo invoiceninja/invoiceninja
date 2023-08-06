@@ -48,7 +48,7 @@ class InvoiceService
 
         return $this;
     }
-    
+
     /**
      * applyPaymentAmount
      *
@@ -78,9 +78,9 @@ class InvoiceService
      * Sets the exchange rate on the invoice if the client currency
      * is different to the company currency.
      */
-    public function setExchangeRate()
+    public function setExchangeRate($force = false)
     {
-        if ($this->invoice->exchange_rate != 1) {
+        if ($this->invoice->exchange_rate != 1 || $force) {
             return $this;
         }
 
@@ -194,9 +194,13 @@ class InvoiceService
 
     public function getEInvoice($contact = null)
     {
-        return (new GetInvoiceXInvoice($this->invoice, $contact))->run();
+        return (new GetInvoiceEInvoice($this->invoice, $contact))->run();
     }
 
+    public function mergeEInvoice($contact = null): void
+    {
+        (new MergeEInvoice($this->invoice, $contact))->run();
+    }
     public function sendEmail($contact = null)
     {
         $send_email = new SendEmail($this->invoice, null, $contact);

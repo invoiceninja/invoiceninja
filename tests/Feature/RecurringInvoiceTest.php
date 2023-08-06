@@ -40,6 +40,8 @@ class RecurringInvoiceTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
+    public $faker;
+
     protected function setUp() :void
     {
         parent::setUp();
@@ -58,6 +60,96 @@ class RecurringInvoiceTest extends TestCase
     }
 
 
+
+    public function testStartDate()
+    {
+        $line_items = [];
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 10;
+        $item->task_id = $this->encodePrimaryKey($this->task->id);
+        $item->expense_id = $this->encodePrimaryKey($this->expense->id);
+        $item->notes = "Hello this is the month of :MONTH";
+
+        $line_items[] = $item;
+
+
+        $data = [
+            'frequency_id' => 1,
+            'status_id' => 1,
+            'discount' => 0,
+            'is_amount_discount' => 1,
+            'po_number' => '3434343',
+            'public_notes' => 'notes',
+            'is_deleted' => 0,
+            'custom_value1' => 0,
+            'custom_value2' => 0,
+            'custom_value3' => 0,
+            'custom_value4' => 0,
+            'status' => 1,
+            'client_id' => $this->encodePrimaryKey($this->client->id),
+            'line_items' => $line_items,
+            'remaining_cycles' => -1,
+            'date' => '0001-01-01',
+            'due_date' => '0001-01-01',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/recurring_invoices/', $data)
+            ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals('0001-01-01', $arr['data']['date']);
+
+    }
+
+    public function testNextSendDateCatch()
+    {
+        $line_items = [];
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 10;
+        $item->task_id = $this->encodePrimaryKey($this->task->id);
+        $item->expense_id = $this->encodePrimaryKey($this->expense->id);
+        $item->notes = "Hello this is the month of :MONTH";
+
+        $line_items[] = $item;
+
+
+        $data = [
+            'frequency_id' => 1,
+            'status_id' => 2,
+            'discount' => 0,
+            'is_amount_discount' => 1,
+            'po_number' => '3434343',
+            'public_notes' => 'notes',
+            'is_deleted' => 0,
+            'custom_value1' => 0,
+            'custom_value2' => 0,
+            'custom_value3' => 0,
+            'custom_value4' => 0,
+            'status' => 1,
+            'client_id' => $this->encodePrimaryKey($this->client->id),
+            'line_items' => $line_items,
+            'remaining_cycles' => -1,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/recurring_invoices/', $data)
+            ->assertStatus(200);
+
+        $arr = $response->json();
+        
+        $this->assertEquals(now()->startOfDay(), $arr['data']['next_send_date']);
+
+    }
 
     public function testBulkIncreasePriceWithJob()
     {

@@ -76,7 +76,6 @@ class InvoiceEmailEngine extends BaseEmailEngine
                     'company' => $this->invoice->company->present()->name(),
                     'amount' => Number::formatMoney($this->invoice->balance, $this->client),
                 ],
-                null,
                 $this->client->locale()
             );
 
@@ -90,7 +89,6 @@ class InvoiceEmailEngine extends BaseEmailEngine
                 'company' => $this->invoice->company->present()->name(),
                 'amount' => Number::formatMoney($this->invoice->balance, $this->client),
             ],
-            null,
             $this->client->locale()
         )."\n\n".$this->invitation->getLink();
 
@@ -109,7 +107,6 @@ class InvoiceEmailEngine extends BaseEmailEngine
                     'number' => $this->invoice->number,
                     'account' => $this->invoice->company->present()->name(),
                 ],
-                null,
                 $this->client->locale()
             );
         }

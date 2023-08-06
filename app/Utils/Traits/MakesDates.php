@@ -14,6 +14,7 @@ namespace App\Utils\Traits;
 use DateTime;
 use DateTimeZone;
 use Carbon\Carbon;
+use App\Models\Company;
 use App\DataMapper\Schedule\EmailStatement;
 
 /**
@@ -119,8 +120,32 @@ trait MakesDates
      *
      * @return array [$start_date, $end_date];
      */
-    public function calculateStartAndEndDates(array $data): array
+    public function calculateStartAndEndDates(array $data, ?Company $company = null): array
     {
+        //override for financial years
+        if($data['date_range'] == 'this_year') {
+            $first_month_of_year = $company ? $company?->first_month_of_year : 1;
+            $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
+
+            if(now()->lt($fin_year_start)) 
+                $fin_year_start->subYearNoOverflow();
+            
+        }
+
+        //override for financial years
+        if($data['date_range'] == 'last_year') {
+            $first_month_of_year = $company ? $company?->first_month_of_year : 1;
+            $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
+
+            $fin_year_start->subYearNoOverflow();
+
+            if(now()->subYear()->lt($fin_year_start)) {
+                $fin_year_start->subYearNoOverflow();
+            }
+                    
+        }
+
+
         return match ($data['date_range']) {
             EmailStatement::LAST7 => [now()->startOfDay()->subDays(7)->format('Y-m-d'), now()->startOfDay()->format('Y-m-d')],
             EmailStatement::LAST30 => [now()->startOfDay()->subDays(30)->format('Y-m-d'), now()->startOfDay()->format('Y-m-d')],
@@ -129,8 +154,8 @@ trait MakesDates
             EmailStatement::LAST_MONTH => [now()->startOfDay()->subMonthNoOverflow()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->subMonthNoOverflow()->lastOfMonth()->format('Y-m-d')],
             EmailStatement::THIS_QUARTER => [now()->startOfDay()->firstOfQuarter()->format('Y-m-d'), now()->startOfDay()->lastOfQuarter()->format('Y-m-d')],
             EmailStatement::LAST_QUARTER => [now()->startOfDay()->subQuarterNoOverflow()->firstOfQuarter()->format('Y-m-d'), now()->startOfDay()->subQuarterNoOverflow()->lastOfQuarter()->format('Y-m-d')],
-            EmailStatement::THIS_YEAR => [now()->startOfDay()->firstOfYear()->format('Y-m-d'), now()->startOfDay()->lastOfYear()->format('Y-m-d')],
-            EmailStatement::LAST_YEAR => [now()->startOfDay()->subYearNoOverflow()->firstOfYear()->format('Y-m-d'), now()->startOfDay()->subYearNoOverflow()->lastOfYear()->format('Y-m-d')],
+            EmailStatement::THIS_YEAR => [$fin_year_start->format('Y-m-d'), $fin_year_start->copy()->addYear()->subDay()->format('Y-m-d')],
+            EmailStatement::LAST_YEAR => [$fin_year_start->format('Y-m-d'), $fin_year_start->copy()->addYear()->subDay()->format('Y-m-d')],
             EmailStatement::CUSTOM_RANGE => [$data['start_date'], $data['end_date']],
             default => [now()->startOfDay()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->lastOfMonth()->format('Y-m-d')],
         };

@@ -767,18 +767,18 @@ class CompanySettings extends BaseSettings
         'purchase_order_design_id',
     ];
 
-    /**
-     * Cast object values and return entire class
-     * prevents missing properties from not being returned
-     * and always ensure an up to date class is returned.
-     *
-     * @param $obj
-     * @deprecated
-     */
-    public function __construct()
-    {
-        //	parent::__construct($obj);
-    }
+    // /**
+    //  * Cast object values and return entire class
+    //  * prevents missing properties from not being returned
+    //  * and always ensure an up to date class is returned.
+    //  *
+    //  * @param $obj
+    //  * @deprecated
+    //  */
+    // public function __construct()
+    // {
+    //     //	parent::__construct($obj);
+    // }
 
     /**
      * Provides class defaults on init.

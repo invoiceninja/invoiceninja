@@ -48,16 +48,20 @@ class PaymentMethodController extends Controller
      * Show the form for creating a new resource.
      *
      * @param CreatePaymentMethodRequest $request
-     * @return Response
+     * @return \Illuminate\View\View
      */
     public function create(CreatePaymentMethodRequest $request)
     {
         $gateway = $this->getClientGateway();
 
         $data['gateway'] = $gateway;
-        $data['client'] = auth()->user()->client;
+
+        /** @var \App\Models\ClientContact auth()->user() **/
+        $client_contact = auth()->user();
+        $data['client'] = $client_contact->client;
+
         return $gateway
-            ->driver(auth()->user()->client)
+            ->driver($client_contact->client)
             ->setPaymentMethod($request->query('method'))
             ->checkRequirements()
             ->authorizeView($data);
@@ -67,14 +71,17 @@ class PaymentMethodController extends Controller
      * Store a newly created resource in storage.
      *
      * @param Request $request
-     * @return Response
+     * @return \Illuminate\View\View
      */
     public function store(Request $request)
     {
         $gateway = $this->getClientGateway();
 
+        /** @var \App\Models\ClientContact auth()->user() **/
+        $client_contact = auth()->user();
+
         return $gateway
-            ->driver(auth()->user()->client)
+            ->driver($client_contact->client)
             ->setPaymentMethod($request->query('method'))
             ->checkRequirements()
             ->authorizeResponse($request);
@@ -95,18 +102,23 @@ class PaymentMethodController extends Controller
 
     public function verify(ClientGatewayToken $payment_method)
     {
+
+        /** @var \App\Models\ClientContact auth()->user() **/
+        $client_contact = auth()->user();
+
         return $payment_method->gateway
-            ->driver(auth()->user()->client)
+            ->driver($client_contact->client)
             ->setPaymentMethod(request()->query('method'))
             ->verificationView($payment_method);
     }
 
     public function processVerification(Request $request, ClientGatewaytoken $payment_method)
     {
-        // $gateway = $this->getClientGateway();
+        /** @var \App\Models\ClientContact auth()->user() **/
+        $client_contact = auth()->user();
 
         return $payment_method->gateway
-            ->driver(auth()->user()->client)
+            ->driver($client_contact->client)
             ->setPaymentMethod(request()->query('method'))
             ->processVerification($request, $payment_method);
     }
@@ -119,9 +131,12 @@ class PaymentMethodController extends Controller
      */
     public function destroy(ClientGatewayToken $payment_method)
     {
+        /** @var \App\Models\ClientContact auth()->user() **/
+        $client_contact = auth()->user();
+
         if ($payment_method->gateway()->exists()) {
             $payment_method->gateway
-                ->driver(auth()->user()->client)
+                ->driver($client_contact->client)
                 ->setPaymentMethod(request()->query('method'))
                 ->detach($payment_method);
         }
@@ -143,15 +158,18 @@ class PaymentMethodController extends Controller
 
     private function getClientGateway()
     {
+        /** @var \App\Models\ClientContact auth()->user() **/
+        $client_contact = auth()->user();
+
         if (request()->query('method') == GatewayType::CREDIT_CARD) {
-            return auth()->user()->client->getCreditCardGateway();
+            return $client_contact->client->getCreditCardGateway();
         }
         if (request()->query('method') == GatewayType::BACS) {
-            return auth()->user()->client->getBACSGateway();
+            return $client_contact->client->getBACSGateway();
         }
 
         if (in_array(request()->query('method'), [GatewayType::BANK_TRANSFER, GatewayType::DIRECT_DEBIT, GatewayType::SEPA])) {
-            return auth()->user()->client->getBankTransferGateway();
+            return $client_contact->client->getBankTransferGateway();
         }
 
         abort(404, 'Gateway not found.');

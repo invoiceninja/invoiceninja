@@ -83,66 +83,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|Expense onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Expense query()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereAssignedUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereBankId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereCalculateTaxByAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereCategoryId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereClientId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereCompanyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereCurrencyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereCustomValue1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereCustomValue2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereCustomValue3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereCustomValue4($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereExchangeRate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereForeignAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereInvoiceCurrencyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereInvoiceDocuments($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereInvoiceId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereIsDeleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense wherePaymentDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense wherePaymentTypeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense wherePrivateNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereProjectId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense wherePublicNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereRecurringExpenseId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereShouldBeInvoiced($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTaxAmount1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTaxAmount2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTaxAmount3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTaxName1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTaxName2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTaxName3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTaxRate1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTaxRate2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTaxRate3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTransactionId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTransactionReference($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereUsesInclusiveTaxes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Expense whereVendorId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Expense withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Expense withoutTrashed()
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \App\Models\Invoice|null $invoice
  * @property-read \App\Models\BankTransaction|null $transaction
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @mixin \Eloquent
  */
 class Expense extends BaseModel
@@ -210,12 +155,12 @@ class Expense extends BaseModel
         return $this->morphMany(Document::class, 'documentable');
     }
 
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
 
-    public function assigned_user()
+    public function assigned_user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
@@ -225,17 +170,17 @@ class Expense extends BaseModel
         return $this->belongsTo(Company::class);
     }
 
-    public function invoice()
+    public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Invoice::class);
     }
 
-    public function vendor()
+    public function vendor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Vendor::class);
     }
 
-    public function client()
+    public function client(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Client::class);
     }
@@ -250,29 +195,44 @@ class Expense extends BaseModel
         return ctrans('texts.expense');
     }
 
-    public function currency()
+    public function currency(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Currency::class);
     }
 
-    public function category()
+    public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ExpenseCategory::class)->withTrashed();
     }
 
-    public function payment_type()
+    public function payment_type(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(PaymentType::class);
     }
 
-    public function project()
+    public function project(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Project::class);
     }
 
-    public function transaction()
+    public function transaction(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(BankTransaction::class);
     }
 
+    public function stringStatus()
+    {
+        if($this->is_deleted) 
+            return ctrans('texts.deleted');
+        elseif($this->payment_date)
+            return ctrans('texts.paid');    
+        elseif($this->invoice_id)
+            return ctrans('texts.invoiced');
+        elseif($this->should_be_invoiced)
+            return ctrans('texts.pending');
+        elseif($this->trashed())
+            return ctrans('texts.archived');
+
+        return ctrans('texts.logged');
+    }
 }

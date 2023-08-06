@@ -152,7 +152,10 @@ class PaymentController extends BaseController
      */
     public function create(CreatePaymentRequest $request)
     {
-        $payment = PaymentFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $payment = PaymentFactory::create($user->company()->id, $user->id);
 
         return $this->itemResponse($payment);
     }
@@ -203,7 +206,10 @@ class PaymentController extends BaseController
      */
     public function store(StorePaymentRequest $request)
     {
-        $payment = $this->payment_repo->save($request->all(), PaymentFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $payment = $this->payment_repo->save($request->all(), PaymentFactory::create($user->company()->id, $user->id));
 
         event('eloquent.created: App\Models\Payment', $payment);
 
@@ -372,13 +378,16 @@ class PaymentController extends BaseController
      */
     public function update(UpdatePaymentRequest $request, Payment $payment)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         if ($request->entityIsDeleted($payment)) {
             return $request->disallowUpdate();
         }
 
         $payment = $this->payment_repo->save($request->all(), $payment);
 
-        event(new PaymentWasUpdated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        event(new PaymentWasUpdated($payment, $payment->company, Ninja::eventVars($user->id)));
 
         event('eloquent.updated: App\Models\Payment', $payment);
 
@@ -445,7 +454,7 @@ class PaymentController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Collection
+     * @return \Illuminate\Support\Collection
      *
      *
      * @OA\Post(
@@ -495,14 +504,17 @@ class PaymentController extends BaseController
      */
     public function bulk()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $action = request()->input('action');
 
         $ids = request()->input('ids');
 
         $payments = Payment::withTrashed()->find($this->transformKeys($ids));
 
-        $payments->each(function ($payment, $key) use ($action) {
-            if (auth()->user()->can('edit', $payment)) {
+        $payments->each(function ($payment, $key) use ($action, $user) {
+            if ($user->can('edit', $payment)) {
                 $this->performAction($payment, $action, true);
             }
         });
@@ -576,7 +588,6 @@ class PaymentController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     * @param ActionPaymentRequest $request
      * @param Payment $payment
      * @param $action
      */

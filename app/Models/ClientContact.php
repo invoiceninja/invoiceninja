@@ -68,17 +68,12 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int|null $deleted_at
  * @property-read \App\Models\Client $client
  * @property-read \App\Models\Company $company
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $credit_invitations
  * @property-read int|null $credit_invitations_count
  * @property-read mixed $contact_id
  * @property-read mixed $hashed_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invoice_invitations
  * @property-read int|null $invoice_invitations_count
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $quote_invitations
  * @property-read int|null $quote_invitations_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $recurring_invoice_invitations
  * @property-read int|null $recurring_invoice_invitations_count
  * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder|ClientContact company()
@@ -87,102 +82,13 @@ use Laracasts\Presenter\PresentableTrait;
  * @method static \Illuminate\Database\Eloquent\Builder|ClientContact newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ClientContact onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|ClientContact query()
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereAcceptedTermsVersion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereAvatar($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereAvatarSize($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereAvatarType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereClientId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereCompanyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereConfirmationCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereConfirmed($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereContactKey($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereCustomValue1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereCustomValue2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereCustomValue3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereCustomValue4($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereEmail($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereEmailVerifiedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereFailedLogins($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereFirstName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereGoogle2faSecret($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereIsLocked($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereIsPrimary($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereLastLogin($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereLastName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereOauthProviderId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereOauthUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact wherePassword($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact wherePhone($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereRememberToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereSendEmail($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClientContact withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|ClientContact withoutTrashed()
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $credit_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invoice_invitations
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $quote_invitations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $recurring_invoice_invitations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $credit_invitations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invoice_invitations
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $quote_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $recurring_invoice_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $credit_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invoice_invitations
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $quote_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $recurring_invoice_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $credit_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invoice_invitations
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $quote_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $recurring_invoice_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $credit_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invoice_invitations
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $quote_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $recurring_invoice_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $credit_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invoice_invitations
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $quote_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $recurring_invoice_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $credit_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invoice_invitations
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $quote_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $recurring_invoice_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $credit_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invoice_invitations
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $quote_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $recurring_invoice_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $credit_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invoice_invitations
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $quote_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $recurring_invoice_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $credit_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invoice_invitations
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $quote_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $recurring_invoice_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $credit_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invoice_invitations
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $quote_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $recurring_invoice_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $credit_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invoice_invitations
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $quote_invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $recurring_invoice_invitations
  * @mixin \Eloquent
  */
 class ClientContact extends Authenticatable implements HasLocalePreference
@@ -309,7 +215,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         }
     }
 
-    public function client()
+    public function client(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Client::class)->withTrashed();
     }
@@ -319,32 +225,32 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         return $this->where('is_primary', true);
     }
 
-    public function company()
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
 
-    public function invoice_invitations()
+    public function invoice_invitations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(InvoiceInvitation::class);
     }
 
-    public function recurring_invoice_invitations()
+    public function recurring_invoice_invitations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(RecurringInvoiceInvitation::class);
     }
 
-    public function quote_invitations()
+    public function quote_invitations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(QuoteInvitation::class);
     }
 
-    public function credit_invitations()
+    public function credit_invitations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(CreditInvitation::class);
     }

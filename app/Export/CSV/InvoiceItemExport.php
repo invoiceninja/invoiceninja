@@ -22,13 +22,14 @@ use League\Csv\Writer;
 
 class InvoiceItemExport extends BaseExport
 {
-    private Company $company;
 
     private $invoice_transformer;
 
     public string $date_key = 'date';
 
     public Writer $csv;
+
+    private bool $force_keys = false;
 
     public array $entity_keys = [
         'amount' => 'amount',
@@ -67,9 +68,9 @@ class InvoiceItemExport extends BaseExport
         'total_taxes' => 'total_taxes',
         'currency' => 'currency_id',
         'quantity' => 'item.quantity',
-        'unit_cost' => 'item.cost',
+        'cost' => 'item.cost',
         'product_key' => 'item.product_key',
-        'cost' => 'item.product_cost',
+        'buy_price' => 'item.product_cost',
         'notes' => 'item.notes',
         'discount' => 'item.discount',
         'is_amount_discount' => 'item.is_amount_discount',
@@ -85,6 +86,8 @@ class InvoiceItemExport extends BaseExport
         'invoice2' => 'item.custom_value2',
         'invoice3' => 'item.custom_value3',
         'invoice4' => 'item.custom_value4',
+        'tax_category' => 'item.tax_id',
+        'type' => 'item.type_id',
     ];
 
     private array $decorate_keys = [
@@ -112,6 +115,7 @@ class InvoiceItemExport extends BaseExport
         $this->csv = Writer::createFromString();
 
         if (count($this->input['report_keys']) == 0) {
+            $this->force_keys = true;
             $this->input['report_keys'] = array_values($this->entity_keys);
         }
 
@@ -140,24 +144,36 @@ class InvoiceItemExport extends BaseExport
         $transformed_items = [];
 
         foreach ($invoice->line_items as $item) {
-            $item_array = [];
+            $item_array = [];      
 
-            foreach (array_values($this->input['report_keys']) as $key) {
+            foreach (array_values($this->input['report_keys']) as $key) { //items iterator produces item array
+                
                 if (str_contains($key, "item.")) {
+
                     $key = str_replace("item.", "", $key);
+                    
+                    $keyval = $key;
+
+                    $keyval = str_replace("custom_value", "invoice", $key);
+
+                    if($key == 'type_id')
+                        $keyval = 'type';
+
+                    if($key == 'tax_id')
+                        $keyval = 'tax_category';
 
                     if (property_exists($item, $key)) {
-                        $item_array[$key] = $item->{$key};
+                        $item_array[$keyval] = $item->{$key};
                     } else {
-                        $item_array[$key] = '';
+                        $item_array[$keyval] = '';
                     }
                 }
             }
 
             $entity = [];
 
-            foreach (array_values($this->input['report_keys']) as $key) {
-                $keyval = array_search($key, $this->entity_keys);
+            foreach (array_values($this->input['report_keys']) as $key) { //create an array of report keys only 
+                $keyval = array_search($key, $this->entity_keys); 
 
                 if (array_key_exists($key, $transformed_items)) {
                     $entity[$keyval] = $transformed_items[$key];
@@ -182,10 +198,21 @@ class InvoiceItemExport extends BaseExport
         foreach (array_values($this->input['report_keys']) as $key) {
             $keyval = array_search($key, $this->entity_keys);
 
+            if(!$keyval) {
+                $keyval = array_search(str_replace("invoice.", "", $key), $this->entity_keys) ?? $key;
+            }
+
+            if(!$keyval) {
+                $keyval = $key;
+            }
+
             if (array_key_exists($key, $transformed_invoice)) {
                 $entity[$keyval] = $transformed_invoice[$key];
-            } else {
-                $entity[$keyval] = "";
+            } elseif (array_key_exists($keyval, $transformed_invoice)) {
+                $entity[$keyval] = $transformed_invoice[$keyval];
+            }
+             else {
+                $entity[$keyval] = $this->resolveKey($keyval, $invoice, $this->invoice_transformer);
             }
         }
 
@@ -198,13 +225,20 @@ class InvoiceItemExport extends BaseExport
             $entity['currency'] = $invoice->client->currency() ? $invoice->client->currency()->code : $invoice->company->currency()->code;
         }
 
-        // if(in_array('client_id', $this->input['report_keys']))
-        $entity['client'] = $invoice->client->present()->name();
-        $entity['client_id_number'] = $invoice->client->id_number;
-        $entity['client_number'] = $invoice->client->number;
+        if(array_key_exists('type', $entity)) {
+            $entity['type'] = $invoice->typeIdString($entity['type']);
+        }
 
-        // if(in_array('status_id', $this->input['report_keys']))
-        $entity['status'] = $invoice->stringStatus($invoice->status_id);
+        if(array_key_exists('tax_category', $entity)) {
+            $entity['tax_category'] = $invoice->taxTypeString($entity['tax_category']);
+        }
+
+        if($this->force_keys) {
+            $entity['client'] = $invoice->client->present()->name();
+            $entity['client_id_number'] = $invoice->client->id_number;
+            $entity['client_number'] = $invoice->client->number;
+            $entity['status'] = $invoice->stringStatus($invoice->status_id);
+        }
 
         return $entity;
     }

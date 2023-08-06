@@ -103,12 +103,15 @@ class RecurringExpensesCron
         $expense = RecurringExpenseToExpenseFactory::create($recurring_expense);
         $expense->saveQuietly();
 
+        if($expense->company->mark_expenses_paid)
+            $expense->payment_date = now()->format('Y-m-d');
+            
         $expense->number = $this->getNextExpenseNumber($expense);
-        $expense->save();
+        $expense->saveQuietly();
 
         $recurring_expense->next_send_date = $recurring_expense->nextSendDate();
         $recurring_expense->next_send_date_client = $recurring_expense->next_send_date;
-
+        $recurring_expense->last_sent_date = now();
         $recurring_expense->remaining_cycles = $recurring_expense->remainingCycles();
         $recurring_expense->save();
     }

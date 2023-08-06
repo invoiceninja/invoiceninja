@@ -50,7 +50,7 @@ class TaskController extends BaseController
     protected $entity_transformer = TaskTransformer::class;
 
     /**
-     * @var Taskepository
+     * @var TaskRepository
      */
     protected $task_repo;
 
@@ -583,7 +583,7 @@ class TaskController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param StoreTaskRequest $request
+     * @param SortTaskRequest $request
      * @return Response
      *
      *

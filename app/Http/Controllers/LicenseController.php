@@ -14,7 +14,6 @@ namespace App\Http\Controllers;
 use App\Models\Account;
 use App\Utils\CurlUtils;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
 use stdClass;
@@ -137,7 +136,7 @@ class LicenseController extends BaseController
                 }
             } else {
                 $error = [
-                    'message' => trans('texts.white_label_license_error'),
+                    'message' => 'There was an issue connecting to the license server. Please check your network.',
                     'errors' => new stdClass,
                 ];
 

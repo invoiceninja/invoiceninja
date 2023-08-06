@@ -40,7 +40,7 @@ class VendorTransformer extends EntityTransformer
     /**
      * @param Vendor $vendor
      *
-     * @return Collection
+     * @return \Illuminate\Support\Collection
      */
     public function includeActivities(Vendor $vendor)
     {
@@ -52,7 +52,7 @@ class VendorTransformer extends EntityTransformer
     /**
      * @param Vendor $vendor
      *
-     * @return Collection
+     * @return \Illuminate\Support\Collection
      */
     public function includeContacts(Vendor $vendor)
     {

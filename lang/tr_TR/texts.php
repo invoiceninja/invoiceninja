@@ -753,7 +753,7 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'activity_7' => ':contact viewed invoice :invoice for :client',
     'activity_8' => ':user :invoice nolu faturayı arşivledi',
     'activity_9' => ':user :invoice nolu faturayı sildi',
-    'activity_10' => ':contact entered payment :payment for :payment_amount on invoice :invoice for :client',
+    'activity_10' => ':user entered payment :payment for :payment_amount on invoice :invoice for :client',
     'activity_11' => ':user :payment tutarlı ödemeyi güncelledi',
     'activity_12' => ':user :payment tutarlı ödemeyi arşivledi',
     'activity_13' => ':user :payment tutarlı ödemeyi sildi',

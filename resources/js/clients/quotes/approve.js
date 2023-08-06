@@ -55,21 +55,26 @@ class Approve {
 
         document.getElementById("signature-next-step").disabled = true;
 
-        document.getElementById("close_button").addEventListener('click', () => {
+        document.getElementById("close-button").addEventListener('click', () => {
             const approveButton = document.getElementById("approve-button");
+
+            console.log('close button');
 
             if(approveButton)
                 approveButton.disabled = false;
 
         });
 
-        document.getElementById("hide_close").addEventListener('click', () => {
+        document.getElementById("close-terms-button").addEventListener('click', () => {
             const approveButton = document.getElementById("approve-button");
 
-            if(approveButton)
+            console.log('close terms-button');
+
+            if (approveButton)
                 approveButton.disabled = false;
 
         });
+
 
         document
             .getElementById('approve-button')

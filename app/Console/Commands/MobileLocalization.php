@@ -93,17 +93,6 @@ class MobileLocalization extends Command
                 $text = str_replace(['<i>', '</i>'], '', $text);
                 $text = str_replace(['<strong>', '</strong>'], '', $text);
 
-//replace the three lines above with this
-// if($language->locale == 'ar') {
-//     $text = str_replace('\n', " ", $text);
-// }
-
-// $text = str_replace(['<strong>', '</strong>','<i>', '</i>','<b>', '</b>'], '', $text);
-// $text = str_replace('"', "'", $text);
-
-
-
-
                 echo "'$key': '$text',\n";
             }
 

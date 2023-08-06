@@ -209,7 +209,7 @@ class PreviewController extends BaseController
 
             if ($request->has('entity_id')) {
 
-                /** @var \App\Models\BaseModel $class */
+                /** @var \App\Models\Quote | \App\Models\Invoice | \App\Models\RecurringInvoice | \App\Models\Credit $class */
                 $entity_obj = $class::on(config('database.default'))
                                     ->with('client.company')
                                     ->where('id', $this->decodePrimaryKey($request->input('entity_id')))
@@ -239,6 +239,7 @@ class PreviewController extends BaseController
 
             $html = new HtmlEngine($entity_obj->invitations()->first());
 
+            /** @var \App\Models\Design $design */
             $design = \App\Models\Design::withTrashed()->find($entity_obj->design_id);
 
             /* Catch all in case migration doesn't pass back a valid design */
@@ -285,7 +286,7 @@ class PreviewController extends BaseController
                 return $maker->getCompiledHTML();
             }
         } catch(\Exception $e) {
-            nlog($e->getMessage());
+            // nlog($e->getMessage());
             DB::connection(config('database.default'))->rollBack();
 
             return;
@@ -343,6 +344,7 @@ class PreviewController extends BaseController
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($company->settings));
 
+        /** @var \App\Models\InvoiceInvitation $invitation */
         $invitation = InvoiceInvitation::where('company_id', $company->id)->orderBy('id', 'desc')->first();
 
         /* If we don't have a valid invitation in the system - create a mock using transactions */

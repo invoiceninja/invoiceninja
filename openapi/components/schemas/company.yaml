@@ -52,6 +52,10 @@
           description: "A flag determining whether to display product details in the user interface"
           type: boolean
           example: true
+        show_product_cost:
+          description: "A flag determining whether to display product cost is shown in the user interface"
+          type: boolean
+          example: true
         custom_fields:
           description: "A mapping of custom fields for various objects within the company"
           type: object
@@ -86,6 +90,240 @@
           type: string
           format: binary
           example: logo.png
+        company_key:
+          description: "The static company key hash used to identify the Company"
+          readOnly: true
+          type: string
+          example: "Vnb14bRlwiFjc5ckte6cfbygTRkn5IMQ"
+        client_can_register:
+          description: "A flag determining whether clients can register for the client portal"
+          type: boolean
+          example: true
+        enabled_modules:
+          type: integer
+          description: |
+                Bitmask representation of the modules that are enabled in the application
+
+                ```
+                self::ENTITY_RECURRING_INVOICE => 1,
+                self::ENTITY_CREDIT => 2,
+                self::ENTITY_QUOTE => 4,
+                self::ENTITY_TASK => 8,
+                self::ENTITY_EXPENSE => 16,
+                self::ENTITY_PROJECT => 32,
+                self::ENTITY_VENDOR => 64,
+                self::ENTITY_TICKET => 128,
+                self::ENTITY_PROPOSAL => 256,
+                self::ENTITY_RECURRING_EXPENSE => 512,
+                self::ENTITY_RECURRING_TASK => 1024,
+                self::ENTITY_RECURRING_QUOTE => 2048,
+                ```
+                
+                The default per_page value is 20.
+
+          example: 2048
+        db:
+          readOnly: true
+          type: string
+          example: 'db-ninja-01'
+        first_day_of_week:
+          description: "The first day of the week for the company"
+          type: string
+          example: '1'
+        first_month_of_year:
+          description: "The first month for the company financial year"
+          type: string
+          example: '1' 
+        enabled_item_tax_rates:  
+          description: "The number of tax rates used per item"
+          type: integer
+          example: 2
+        is_large:
+          description: "A flag determining whether the company is considered large"
+          type: boolean
+          example: true
+        default_auto_bill:
+          type: enum
+          example: 'always'
+          description: |
+                A flag determining whether to auto-bill clients by default
+
+                values:
+                
+                - always - Always auto bill
+                - disabled - Never auto bill
+                - optin - Allow the client to select their auto bill status with the default being disabled
+                - optout -Allow the client to select their auto bill status with the default being enabled
+        mark_expenses_invoiceable:
+          description: "A flag determining whether to mark expenses as invoiceable by default"
+          type: boolean
+          example: true
+        mark_expenses_paid:
+          description: "A flag determining whether to mark expenses as paid by default"
+          type: boolean
+          example: true
+        invoice_expense_documents:
+          description: "A flag determining whether to include expense documents on invoices by default"
+          type: boolean
+          example: true
+        auto_start_tasks:
+          description: "A flag determining whether to auto-start tasks by default"
+          type: boolean
+          example: true
+        invoice_task_timelog:
+          description: "A flag determining whether to include task time logs on invoices by default"
+          type: boolean
+          example: true
+        invoice_task_documents:
+          description: "A flag determining whether to include task documents on invoices by default"
+          type: boolean
+          example: true
+        show_tasks_table:
+          description: "A flag determining whether to show the tasks table on invoices by default"
+          type: boolean
+          example: true
+        is_disabled:
+          description: "A flag determining whether the company is disabled"
+          type: boolean
+          example: true
+        default_task_is_date_based:
+          description: "A flag determining whether to default tasks to be date-based"
+          type: boolean
+          example: true
+        enable_product_discount:
+          description: "A flag determining whether to show or hide the product discount field in the user interface"
+          type: boolean
+          example: true
+        calculate_expense_tax_by_amount:
+          description: "A flag determining whether to calculate expense taxes by amount"
+          type: boolean
+          example: true
+        expense_inclusive_taxes:
+          description: "A flag determining whether to include taxes in the expense amount"
+          type: boolean
+          example: true
+        session_timeout:
+          description: "The session timeout for the company"
+          type: integer
+          example: 60
+        oauth_password_required:
+          description: "A flag determining whether to require a password for `dangerous` actions when using OAuth"
+          type: boolean
+          example: true
+        invoice_task_datelog:
+          description: "A flag determining whether to include task date logs on invoices by default"
+          type: boolean
+          example: true
+        default_password_timeout:
+          description: "The default password timeout for the company"
+          type: integer
+          example: 60
+        show_task_end_date:
+          description: "A flag determining whether to show the task end date on invoices by default"
+          type: boolean
+          example: true
+        markdown_enabled:
+          description: "A flag determining whether markdown is enabled for the company"
+          type: boolean
+          example: true
+        report_include_drafts:
+          description: "A flag determining whether to include draft invoices in reports"
+          type: boolean
+          example: true
+        client_registration_fields:
+          description: "The client registration fields for the company"
+          type: object
+        stop_on_unpaid_recurring:
+          description: "A flag determining whether to stop recurring invoices when they are unpaid"
+          type: boolean
+          example: true
+        use_quote_terms_on_conversion:
+          description: "A flag determining whether to use quote terms on conversion to an invoice"
+          type: boolean
+          example: true
+        enable_applying_payments:
+          description: "A flag determining whether to enable applying payments to invoices"
+          type: boolean
+          example: true
+        track_inventory:
+          description: "A flag determining whether to track inventory for the company"
+          type: boolean
+          example: true
+        inventory_notification_threshold:
+          description: "The inventory notification threshold for the company"
+          type: integer
+          example: 60
+        stock_notification:
+          description: "A flag determining whether to send stock notifications for the company"
+          type: boolean
+          example: true
+        matomo_url:
+          description: "The Matomo URL for the company"
+          type: string
+          example: 'https://matomo.example.com'
+        matomo_id:
+          description: "The Matomo ID for the company"
+          type: string
+          example: '1'
+        enabled_expense_tax_rates:
+          description: "The number of tax rates used per expense"
+          type: integer
+          example: 2
+        invoice_task_project:
+          description: "A flag determining whether to include the project on invoices by default"
+          type: boolean
+          example: true
+        report_include_deleted:
+          description: "A flag determining whether to include deleted invoices in reports"
+          type: boolean
+          example: true
+        invoice_task_lock:
+          description: "A flag determining whether to lock tasks when invoiced"
+          type: boolean
+          example: true
+        convert_payment_currency:
+          description: "A flag determining whether to convert the payment currency"
+          type: boolean
+          example: true
+        convert_expense_currency:
+          description: "A flag determining whether to convert the expense currency"
+          type: boolean
+          example: true
+        notify_vendor_when_paid:
+          description: "A flag determining whether to notify the vendor when an expense is paid"
+          type: boolean
+          example: true
+        invoice_task_hours:
+          description: "A flag determining whether to include the task hours on invoices by default"
+          type: boolean
+          example: true
+        calculate_taxes:
+          description: "A flag determining whether to calculate taxes for the company"
+          type: boolean
+          example: true
+        tax_data:
+          description: "The tax data for the company"
+          type: object
+        e_invoice_certificate:
+          description: "The e-invoice certificate for the company"
+          type: string
+          example: '-----BEGIN CERTIFICATE-----'
+        e_invoice_certificate_passphrase:
+          description: "The e-invoice certificate passphrase for the company"
+          type: string
+          example: 'secret'
+        origin_tax_data:
+          description: "The origin tax data for the company"
+          type: object
+        invoice_task_project_header:
+          description: "A flag determining whether to include the project header on invoices by default"
+          type: boolean
+          example: true 
+        invoice_task_item_description:
+          description: "A flag determining whether to include the item description on invoices by default"
+          type: boolean
+          example: true
+        
         settings:
           $ref: '#/components/schemas/CompanySettings'
       type: object

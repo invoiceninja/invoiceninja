@@ -61,7 +61,8 @@ class UpdateRecurringInvoiceRequest extends Request
         $rules['tax_name1'] = 'bail|sometimes|string|nullable';
         $rules['tax_name2'] = 'bail|sometimes|string|nullable';
         $rules['tax_name3'] = 'bail|sometimes|string|nullable';
-        
+        $rules['exchange_rate'] = 'bail|sometimes|gt:0';
+
         return $rules;
     }
 
@@ -71,6 +72,10 @@ class UpdateRecurringInvoiceRequest extends Request
 
         if (array_key_exists('due_date_days', $input) && is_null($input['due_date_days'])) {
             $input['due_date_days'] = 'terms';
+        }
+
+        if(!isset($input['next_send_date']) || $input['next_send_date'] == '') {
+            $input['next_send_date'] = now()->format('Y-m-d');
         }
 
         if (array_key_exists('next_send_date', $input) && is_string($input['next_send_date'])) {
@@ -119,6 +124,10 @@ class UpdateRecurringInvoiceRequest extends Request
 
         if (array_key_exists('documents', $input)) {
             unset($input['documents']);
+        }
+
+        if (array_key_exists('exchange_rate', $input) && (is_null($input['exchange_rate']) || $input['exchange_rate'] == 0)) {
+            $input['exchange_rate'] = 1;
         }
 
         $this->replace($input);

@@ -33,10 +33,10 @@ trait Excludable
 
     /**
      * Exclude an array of elements from the result.
-     * @param Builder $query
+     * @param \Illuminate\Database\Eloquent\Builder $query
      * @param array $columns
      *
-     * @return Builder<BaseModel>
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeExclude($query, $columns): \Illuminate\Database\Eloquent\Builder
     {

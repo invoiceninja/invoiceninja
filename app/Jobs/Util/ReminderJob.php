@@ -99,7 +99,6 @@ class ReminderJob implements ShouldQueue
                          $query->where('is_disabled', 0);
                      })
                      ->with('invitations')->chunk(50, function ($invoices) {
-                         // if ($invoice->refresh() && $invoice->isPayable()) {
 
                          foreach ($invoices as $invoice) {
                              $this->sendReminderForInvoice($invoice);
@@ -126,23 +125,21 @@ class ReminderJob implements ShouldQueue
             }
 
             $reminder_template = $invoice->calculateTemplate('invoice');
-            // nlog("reminder template = {$reminder_template}");
+            nlog("reminder template = {$reminder_template}");
             $invoice->service()->touchReminder($reminder_template)->save();
             $fees = $this->calcLateFee($invoice, $reminder_template);
 
-            if(in_array($invoice->client->getSetting('lock_invoices'), ['when_sent','when_paid'])) {
+            if($invoice->isLocked()) 
                 return $this->addFeeToNewInvoice($invoice, $reminder_template, $fees);
-            }
-            else
-                $invoice = $this->setLateFee($invoice, $fees[0], $fees[1]);
-
+            
+            $invoice = $this->setLateFee($invoice, $fees[0], $fees[1]);
 
             //20-04-2022 fixes for endless reminders - generic template naming was wrong
             $enabled_reminder = 'enable_'.$reminder_template;
             if ($reminder_template == 'endless_reminder') {
                 $enabled_reminder = 'enable_reminder_endless';
             }
-
+            
             if (in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'endless_reminder']) &&
         $invoice->client->getSetting($enabled_reminder) &&
         $invoice->client->getSetting('send_reminders') &&
@@ -208,9 +205,6 @@ class ReminderJob implements ShouldQueue
                 ->markSent()
                 ->save();
         
-        //30-6-2023 - fix for duplicate touching
-        // $invoice->service()->touchPdf(true); 
-
         $enabled_reminder = 'enable_'.$reminder_template;
         if ($reminder_template == 'endless_reminder') {
             $enabled_reminder = 'enable_reminder_endless';
@@ -311,13 +305,10 @@ class ReminderJob implements ShouldQueue
 
         /**Refresh Invoice values*/
         $invoice = $invoice->calc()->getInvoice();
-        // $invoice->service()->deletePdf(); 24-11-2022 no need to delete here because we regenerate later anyway
 
         nlog('adjusting client balance and invoice balance by #'.$invoice->number.' '.($invoice->balance - $temp_invoice_balance));
         $invoice->client->service()->updateBalance($invoice->balance - $temp_invoice_balance);
         $invoice->ledger()->updateInvoiceBalance($invoice->balance - $temp_invoice_balance, "Late Fee Adjustment for invoice {$invoice->number}");
-
-        $invoice->service()->touchPdf(true);
 
         return $invoice;
     }

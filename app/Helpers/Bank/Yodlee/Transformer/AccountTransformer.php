@@ -81,6 +81,19 @@ class AccountTransformer implements AccountTransformerInterface
 
     public function transformAccount($account)
     {
+        $current_balance = 0;
+        $account_currency = '';
+        
+        if(property_exists($account, 'currentBalance')) {
+            $current_balance = $account->currentBalance->amount ?? 0;
+            $account_currency = $account->currentBalance->currency ?? '';
+        }
+        elseif(property_exists($account, 'balance')){
+            $current_balance = $account->balance->amount ?? 0;
+            $account_currency = $account->balance->currency ?? '';
+        }
+
+
         return [
             'id' => $account->id,
             'account_type' => $account->CONTAINER,
@@ -92,8 +105,8 @@ class AccountTransformer implements AccountTransformerInterface
             'provider_id' => $account->providerId,
             'provider_name' => $account->providerName,
             'nickname' => property_exists($account, 'nickname') ? $account->nickname : '',
-            'current_balance' => property_exists($account, 'currentBalance') ? $account->currentBalance->amount : 0,
-            'account_currency' => property_exists($account, 'currency') ? $account->currentBalance->currency : '',
+            'current_balance' => $current_balance,
+            'account_currency' => $account_currency,
         ];
     }
 }

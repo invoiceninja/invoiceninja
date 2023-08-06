@@ -12,6 +12,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use App\Models\BankIntegration;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\JsonResponse;
@@ -50,7 +51,7 @@ class BankIntegrationController extends BaseController
 
     /**
      * @param BankIntegrationFilters $filters
-     * @return Responsec
+     * @return Response
      */
     public function index(BankIntegrationFilters $filters)
     {
@@ -209,7 +210,12 @@ class BankIntegrationController extends BaseController
         $accounts = $yodlee->getAccounts();
 
         foreach ($accounts as $account) {
-            if (!BankIntegration::withTrashed()->where('bank_account_id', $account['id'])->where('company_id', $user->company()->id)->exists()) {
+            if ($bi = BankIntegration::withTrashed()->where('bank_account_id', $account['id'])->where('company_id', $user->company()->id)->first()){
+                    $bi->balance = $account['current_balance'];
+                    $bi->currency = $account['account_currency'];
+                    $bi->save();
+            }
+            else {
                 $bank_integration = new BankIntegration();
                 $bank_integration->company_id = $user->company()->id;
                 $bank_integration->account_id = $user->account_id;
@@ -245,7 +251,7 @@ class BankIntegrationController extends BaseController
      * Return the remote list of accounts stored on the third party provider
      * and update our local cache.
      *
-     * @return Response
+     * @return Response | JsonResponse
      *
      */
 

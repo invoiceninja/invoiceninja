@@ -73,7 +73,6 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
                     'company' => $this->purchase_order->company->present()->name(),
                     'amount' => Number::formatMoney($this->purchase_order->balance, $this->vendor),
                 ],
-                null,
                 $this->vendor->company->locale()
             );
 
@@ -86,7 +85,6 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
                 'company' => $this->purchase_order->company->present()->name(),
                 'amount' => Number::formatMoney($this->purchase_order->balance, $this->vendor),
             ],
-            null,
             $this->vendor->company->locale()
         )."\n\n".$this->invitation->getLink();
 
@@ -105,7 +103,6 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
                     'number' => $this->purchase_order->number,
                     'account' => $this->purchase_order->company->present()->name(),
                 ],
-                null,
                 $this->vendor->company->locale()
             );
         }

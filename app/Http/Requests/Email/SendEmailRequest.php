@@ -65,7 +65,7 @@ class SendEmailRequest extends Request
             $input['entity_id'] = $this->decodePrimaryKey($input['entity_id']);
         }
         
-        if (array_key_exists('entity', $input)) {
+        if (isset($input['entity'])) {
             $input['entity'] = "App\Models\\".ucfirst(Str::camel($input['entity']));
         }
 
@@ -83,15 +83,13 @@ class SendEmailRequest extends Request
     {
         $input = $this->all();
         
-        
         if (Ninja::isHosted() && !auth()->user()->account->account_sms_verified) {
             $this->error_message = ctrans('texts.authorization_sms_failure');
-
             return false;
         }
         
         /*Make sure we have all the require ingredients to send a template*/
-        if (array_key_exists('entity', $input) && array_key_exists('entity_id', $input) && is_string($input['entity']) && $input['entity_id']) {
+        if (isset($input['entity']) && array_key_exists('entity_id', $input) && is_string($input['entity']) && $input['entity_id']) {
 
             /** @var \App\Models\User $user */
             $user = auth()->user();
@@ -107,6 +105,9 @@ class SendEmailRequest extends Request
             if ($entity_obj && ($company->id == $entity_obj->company_id) && $user->can('edit', $entity_obj)) {
                 return true;
             }
+        }
+        else {
+            $this->error_message = "Invalid entity or entity_id";
         }
 
         return false;

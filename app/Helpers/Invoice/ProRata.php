@@ -69,6 +69,7 @@ class ProRata
             return [];
         }
 
+        /** @var \App\Models\RecurringInvoice $recurring_invoice **/
         $recurring_invoice = RecurringInvoice::find($invoice->recurring_id)->first();
 
         if (! $recurring_invoice) {
@@ -110,13 +111,13 @@ class ProRata
             case RecurringInvoice::FREQUENCY_MONTHLY:
                 return now()->diffInDays(now()->addMonthNoOverflow());
             case RecurringInvoice::FREQUENCY_TWO_MONTHS:
-                return now()->diffInDays(now()->addMonthNoOverflow(2));
+                return now()->diffInDays(now()->addMonthsNoOverflow(2));
             case RecurringInvoice::FREQUENCY_THREE_MONTHS:
-                return now()->diffInDays(now()->addMonthNoOverflow(3));
+                return now()->diffInDays(now()->addMonthsNoOverflow(3));
             case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
-                return now()->diffInDays(now()->addMonthNoOverflow(4));
+                return now()->diffInDays(now()->addMonthsNoOverflow(4));
             case RecurringInvoice::FREQUENCY_SIX_MONTHS:
-                return now()->diffInDays(now()->addMonthNoOverflow(6));
+                return now()->diffInDays(now()->addMonthsNoOverflow(6));
             case RecurringInvoice::FREQUENCY_ANNUALLY:
                 return now()->diffInDays(now()->addYear());
             case RecurringInvoice::FREQUENCY_TWO_YEARS:

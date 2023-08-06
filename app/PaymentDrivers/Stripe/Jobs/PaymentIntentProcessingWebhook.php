@@ -61,11 +61,13 @@ class PaymentIntentProcessingWebhook implements ShouldQueue
 
         foreach ($this->stripe_request as $transaction) {
             if (array_key_exists('payment_intent', $transaction)) {
+                /** @var \App\Models\Payment $payment **/
                 $payment = Payment::query()
                     ->where('company_id', $company->id)
                     ->where('transaction_reference', $transaction['payment_intent'])
                     ->first();
             } else {
+                /** @var \App\Models\Payment $payment **/
                 $payment = Payment::query()
                    ->where('company_id', $company->id)
                    ->where('transaction_reference', $transaction['id'])
@@ -80,6 +82,7 @@ class PaymentIntentProcessingWebhook implements ShouldQueue
             }
         
             if (isset($transaction['payment_method'])) {
+                /** @var \App\Models\ClientGatewayToken $cgt **/
                 $cgt = ClientGatewayToken::where('token', $transaction['payment_method'])->first();
 
                 if ($cgt && $cgt->meta?->state == 'unauthorized') {
@@ -94,7 +97,7 @@ class PaymentIntentProcessingWebhook implements ShouldQueue
         if ($this->payment_completed) {
             return;
         }
-
+        /** @var \App\Models\CompanyGateway $company_gateway **/
         $company_gateway = CompanyGateway::find($this->company_gateway_id);
         $stripe_driver = $company_gateway->driver()->init();
 
@@ -123,8 +126,10 @@ class PaymentIntentProcessingWebhook implements ShouldQueue
             return;
         }
 
+        /** @var \App\Models\Company $company **/
         $company = Company::where('company_key', $this->company_key)->first();
-
+        
+        /** @var \App\Models\Payment $payment **/
         $payment = Payment::query()
                          ->where('company_id', $company->id)
                          ->where('transaction_reference', $charge['id'])

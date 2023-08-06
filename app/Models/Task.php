@@ -36,8 +36,8 @@ use Illuminate\Support\Carbon;
  * @property string|null $custom_value4
  * @property int|null $duration
  * @property string|null $description
- * @property int $is_deleted
- * @property int $is_running
+ * @property bool $is_deleted
+ * @property bool $is_running
  * @property string|null $time_log
  * @property string|null $number
  * @property string $rate

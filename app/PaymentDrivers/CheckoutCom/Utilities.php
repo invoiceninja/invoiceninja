@@ -12,12 +12,13 @@
 
 namespace App\PaymentDrivers\CheckoutCom;
 
-use App\Exceptions\PaymentFailed;
-use App\Jobs\Util\SystemLogger;
-use App\Models\GatewayType;
-use App\Models\SystemLog;
-use Exception;
 use stdClass;
+use Exception;
+use App\Models\SystemLog;
+use App\Models\GatewayType;
+use App\Jobs\Util\SystemLogger;
+use App\Exceptions\PaymentFailed;
+use Checkout\Payments\PaymentType;
 
 trait Utilities
 {
@@ -60,7 +61,7 @@ trait Utilities
 
         $data = [
             'payment_method' => $_payment['source']['id'],
-            'payment_type' => 12,
+            'payment_type' => \App\Models\PaymentType::CREDIT_CARD_OTHER,
             'amount' => $this->getParent()->payment_hash->data->raw_value,
             'transaction_reference' => $_payment['id'],
             'gateway_type_id' => GatewayType::CREDIT_CARD,

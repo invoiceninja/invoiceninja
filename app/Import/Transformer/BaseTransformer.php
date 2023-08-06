@@ -320,6 +320,21 @@ class BaseTransformer
     }
 
     /**
+     * @param $data
+     * @param $field
+     *
+     * @return float
+     */
+    public function getFloatOrOne($data, $field)
+    {
+        if (array_key_exists($field, $data)) 
+            return Number::parseStringFloat($data[$field]) > 0 ? Number::parseStringFloat($data[$field]) : 1;
+ 
+        return 1;    
+
+    }
+
+    /**
      * @param $name
      *
      * @return int|null

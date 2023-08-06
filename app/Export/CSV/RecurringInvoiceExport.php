@@ -21,7 +21,6 @@ use League\Csv\Writer;
 
 class RecurringInvoiceExport extends BaseExport
 {
-    private Company $company;
 
     private $invoice_transformer;
 
@@ -33,10 +32,10 @@ class RecurringInvoiceExport extends BaseExport
         'amount' => 'amount',
         'balance' => 'balance',
         'client' => 'client_id',
-        'custom_surcharge1' => 'custom_surcharge1',
-        'custom_surcharge2' => 'custom_surcharge2',
-        'custom_surcharge3' => 'custom_surcharge3',
-        'custom_surcharge4' => 'custom_surcharge4',
+        // 'custom_surcharge1' => 'custom_surcharge1',
+        // 'custom_surcharge2' => 'custom_surcharge2',
+        // 'custom_surcharge3' => 'custom_surcharge3',
+        // 'custom_surcharge4' => 'custom_surcharge4',
         'custom_value1' => 'custom_value1',
         'custom_value2' => 'custom_value2',
         'custom_value3' => 'custom_value3',
@@ -66,7 +65,8 @@ class RecurringInvoiceExport extends BaseExport
         'currency' => 'currency_id',
         'vendor' => 'vendor_id',
         'project' => 'project_id',
-        'frequency' => 'frequency_id'
+        'frequency_id' => 'frequency_id',
+        'next_send_date' => 'next_send_date'
     ];
 
     private array $decorate_keys = [
@@ -127,11 +127,22 @@ class RecurringInvoiceExport extends BaseExport
         foreach (array_values($this->input['report_keys']) as $key) {
             $keyval = array_search($key, $this->entity_keys);
 
+            if(!$keyval) {
+                $keyval = array_search(str_replace("recurring_invoice.", "", $key), $this->entity_keys) ?? $key;
+            }
+
+            if(!$keyval) {
+                $keyval = $key;
+            }
+
             if (array_key_exists($key, $transformed_invoice)) {
                 $entity[$keyval] = $transformed_invoice[$key];
+            } elseif (array_key_exists($keyval, $transformed_invoice)) {
+                $entity[$keyval] = $transformed_invoice[$keyval];
             } else {
-                $entity[$keyval] = '';
+                $entity[$keyval] = $this->resolveKey($keyval, $invoice, $this->invoice_transformer);
             }
+
         }
 
         return $this->decorateAdvancedFields($invoice, $entity);
@@ -163,7 +174,9 @@ class RecurringInvoiceExport extends BaseExport
             $entity['vendor'] = $invoice->vendor ? $invoice->vendor->name : '';
         }
 
-        $entity['frequency'] = $invoice->frequencyForKey($invoice->frequency_id);
+        if (in_array('recurring_invoice.frequency_id', $this->input['report_keys']) || in_array('frequency_id', $this->input['report_keys'])) {
+            $entity['frequency_id'] = $invoice->frequencyForKey($invoice->frequency_id);
+        }
 
         return $entity;
     }

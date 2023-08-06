@@ -49,10 +49,6 @@ class EntityViewController extends Controller
                                         ->with('contact.client')
                                         ->firstOrFail();
 
-        // $invitation = $invitation_entity::whereRaw('BINARY `key`= ?', [$invitation_key])
-        //                                 ->with('contact.client')
-        //                                 ->firstOrFail();
-
         $contact = $invitation->contact;
         $client = $contact->client;
         $entity = $invitation->{$entity_type};

@@ -547,6 +547,8 @@ class CompanyController extends BaseController
 
             //If we are deleting the default companies, we'll need to make a new company the default.
             if ($account->default_company_id == $company_id) {
+                
+                /** @var \App\Models\Company $new_default_company **/
                 $new_default_company = Company::whereAccountId($account->id)->first();
                 $account->default_company_id = $new_default_company->id;
                 $account->save();
@@ -560,7 +562,7 @@ class CompanyController extends BaseController
      * Update the specified resource in storage.
      *
      * @param UploadCompanyRequest $request
-     * @param Company $client
+     * @param Company $company
      * @return Response
      *
      *
@@ -622,7 +624,7 @@ class CompanyController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param UploadCompanyRequest $request
+     * @param DefaultCompanyRequest $request
      * @param Company $company
      * @return Response
      *

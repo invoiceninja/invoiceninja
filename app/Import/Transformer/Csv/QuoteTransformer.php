@@ -114,7 +114,7 @@ class QuoteTransformer extends BaseTransformer
                 $quote_data,
                 'quote.custom_surcharge4'
             ),
-            'exchange_rate' => $this->getString(
+            'exchange_rate' => $this->getFloatOrOne(
                 $quote_data,
                 'quote.exchange_rate'
             ),

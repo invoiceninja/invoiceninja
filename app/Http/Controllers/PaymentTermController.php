@@ -1,20 +1,29 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 
 namespace App\Http\Controllers;
 
+use App\Models\PaymentTerm;
+use Illuminate\Http\Response;
+use App\Utils\Traits\MakesHash;
 use App\Factory\PaymentTermFactory;
 use App\Filters\PaymentTermFilters;
-use App\Http\Requests\PaymentTerm\CreatePaymentTermRequest;
-use App\Http\Requests\PaymentTerm\DestroyPaymentTermRequest;
-use App\Http\Requests\PaymentTerm\ShowPaymentTermRequest;
-use App\Http\Requests\PaymentTerm\StorePaymentTermRequest;
-use App\Http\Requests\PaymentTerm\UpdatePaymentTermRequest;
-use App\Models\PaymentTerm;
 use App\Repositories\PaymentTermRepository;
 use App\Transformers\PaymentTermTransformer;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use App\Http\Requests\PaymentTerm\EditPaymentTermRequest;
+use App\Http\Requests\PaymentTerm\ShowPaymentTermRequest;
+use App\Http\Requests\PaymentTerm\StorePaymentTermRequest;
+use App\Http\Requests\PaymentTerm\CreatePaymentTermRequest;
+use App\Http\Requests\PaymentTerm\UpdatePaymentTermRequest;
+use App\Http\Requests\PaymentTerm\DestroyPaymentTermRequest;
 
 class PaymentTermController extends BaseController
 {
@@ -25,7 +34,7 @@ class PaymentTermController extends BaseController
     protected $entity_transformer = PaymentTermTransformer::class;
 
     /**
-     * @var PaymentRepository
+     * @var PaymentTermRepository
      */
     protected $payment_term_repo;
 
@@ -121,7 +130,9 @@ class PaymentTermController extends BaseController
      */
     public function create(CreatePaymentTermRequest $request)
     {
-        $payment_term = PaymentTermFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        $payment_term = PaymentTermFactory::create($user->company()->id, $user->id);
 
         return $this->itemResponse($payment_term);
     }
@@ -172,7 +183,10 @@ class PaymentTermController extends BaseController
      */
     public function store(StorePaymentTermRequest $request)
     {
-        $payment_term = PaymentTermFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $payment_term = PaymentTermFactory::create($user->company()->id, $user->id);
         $payment_term->fill($request->all());
         $payment_term->save();
 
@@ -270,13 +284,13 @@ class PaymentTermController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     * @param EditPaymentRequest $request
-     * @param Payment $payment
+     * @param EditPaymentTermRequest $request
+     * @param PaymentTerm $payment_term
      * @return Response|mixed
      */
-    public function edit(EditPaymentRequest $request, Payment $payment)
+    public function edit(EditPaymentTermRequest $request, PaymentTerm $payment_term)
     {
-        return $this->itemResponse($payment);
+        return $this->itemResponse($payment_term);
     }
 
     /**
@@ -397,7 +411,7 @@ class PaymentTermController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Collection
+     * @return \Illuminate\Support\Collection
      *
      *
      * @OA\Post(
@@ -447,14 +461,17 @@ class PaymentTermController extends BaseController
      */
     public function bulk()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $action = request()->input('action');
 
         $ids = request()->input('ids');
 
         $payment_terms = PaymentTerm::withTrashed()->company()->find($this->transformKeys($ids));
 
-        $payment_terms->each(function ($payment_term, $key) use ($action) {
-            if (auth()->user()->can('edit', $payment_term)) {
+        $payment_terms->each(function ($payment_term, $key) use ($action, $user) {
+            if ($user->can('edit', $payment_term)) {
                 $this->payment_term_repo->{$action}($payment_term);
             }
         });

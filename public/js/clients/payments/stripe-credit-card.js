@@ -31,8 +31,6 @@ var StripeCreditCard = /*#__PURE__*/function () {
     key: "setupStripe",
     value: function setupStripe() {
       if (this.stripeConnect) {
-        // this.stripe.stripeAccount = this.stripeConnect;
-
         this.stripe = Stripe(this.key, {
           stripeAccount: this.stripeConnect
         });

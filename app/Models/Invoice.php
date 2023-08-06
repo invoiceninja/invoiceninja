@@ -25,6 +25,7 @@ use App\Services\Invoice\InvoiceService;
 use App\Utils\Traits\MakesInvoiceValues;
 use App\Events\Invoice\InvoiceWasEmailed;
 use Laracasts\Presenter\PresentableTrait;
+use App\Models\Presenters\EntityPresenter;
 use App\Models\Presenters\InvoicePresenter;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Utils\Traits\Invoice\ActionsInvoice;
@@ -71,10 +72,10 @@ use App\Events\Invoice\InvoiceReminderWasEmailed;
  * @property string|null $custom_value3
  * @property string|null $custom_value4
  * @property string|null $next_send_date
- * @property string|null $custom_surcharge1
- * @property string|null $custom_surcharge2
- * @property string|null $custom_surcharge3
- * @property string|null $custom_surcharge4
+ * @property float|null $custom_surcharge1
+ * @property float|null $custom_surcharge2
+ * @property float|null $custom_surcharge3
+ * @property float|null $custom_surcharge4
  * @property bool $custom_surcharge_tax1
  * @property bool $custom_surcharge_tax2
  * @property bool $custom_surcharge_tax3
@@ -97,113 +98,31 @@ use App\Events\Invoice\InvoiceReminderWasEmailed;
  * @property int|null $subscription_id
  * @property int $auto_bill_tries
  * @property bool $is_proforma
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
  * @property-read int|null $activities_count
  * @property-read \App\Models\User|null $assigned_user
- * @property-read \App\Models\Client $client
+ * @property \App\Models\Client $client
  * @property-read \App\Models\Company $company
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
  * @property-read int|null $company_ledger_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
  * @property-read int|null $credits_count
  * @property-read \App\Models\Design|null $design
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read int|null $documents_count
  * @property-read \App\Models\Expense|null $expense
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
  * @property-read int|null $expenses_count
  * @property-read mixed $balance_due
  * @property-read mixed $hashed_id
  * @property-read mixed $status
  * @property-read mixed $total
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
  * @property-read int|null $history_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invitations
  * @property-read int|null $invitations_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
  * @property-read int|null $payments_count
+ * @property-read mixed $pivot
  * @property-read \App\Models\Project|null $project
  * @property-read \App\Models\RecurringInvoice|null $recurring_invoice
  * @property-read \App\Models\Subscription|null $subscription
  * @property-read \App\Models\Task|null $task
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
  * @property-read int|null $tasks_count
  * @property-read \App\Models\User $user
  * @property-read \App\Models\Vendor|null $vendor
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
- * @method static \Database\Factories\InvoiceFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice filter(\App\Filters\QueryFilters $filters)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice query()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereAssignedUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereAutoBillEnabled($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereAutoBillTries($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereBackup($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereBalance($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereClientId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereCompanyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereCustomSurcharge1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereCustomSurcharge2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereCustomSurcharge3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereCustomSurcharge4($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereCustomSurchargeTax1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereCustomSurchargeTax2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereCustomSurchargeTax3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereCustomSurchargeTax4($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereCustomValue1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereCustomValue2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereCustomValue3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereCustomValue4($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereDesignId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereDiscount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereDueDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereExchangeRate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereFooter($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereIsAmountDiscount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereIsDeleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereIsProforma($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereLastSentDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereLastViewed($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereLineItems($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereNextSendDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice wherePaidToDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice wherePartial($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice wherePartialDueDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice wherePoNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice wherePrivateNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereProjectId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice wherePublicNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereRecurringId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereReminder1Sent($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereReminder2Sent($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereReminder3Sent($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereReminderLastSent($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereStatusId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereSubscriptionId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereTaxName1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereTaxName2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereTaxName3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereTaxRate1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereTaxRate2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereTaxRate3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereTerms($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereTotalTaxes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereUsesInclusiveTaxes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereVendorId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice withoutTrashed()
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
@@ -214,106 +133,6 @@ use App\Events\Invoice\InvoiceReminderWasEmailed;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
  * @property object|null $tax_data
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereTaxData($value)
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
  * @mixin \Eloquent
  */
 class Invoice extends BaseModel
@@ -327,7 +146,7 @@ class Invoice extends BaseModel
     use MakesReminders;
     use ActionsInvoice;
 
-    protected $presenter = InvoicePresenter::class;
+    protected $presenter = EntityPresenter::class;
 
     protected $touches = [];
 
@@ -432,67 +251,67 @@ class Invoice extends BaseModel
         return $this->dateMutator($value);
     }
 
-    public function company()
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function project()
+    public function project(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Project::class);
     }
 
-    public function vendor()
+    public function vendor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Vendor::class);
     }
 
-    public function design()
+    public function design(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Design::class);
     }
 
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
 
-    public function recurring_invoice()
+    public function recurring_invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(RecurringInvoice::class, 'recurring_id', 'id')->withTrashed();
     }
 
-    public function assigned_user()
+    public function assigned_user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
 
-    public function invitations()
+    public function invitations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(InvoiceInvitation::class);
     }
 
-    public function client()
+    public function client(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Client::class)->withTrashed();
     }
 
-    public function subscription()
+    public function subscription(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Subscription::class)->withTrashed();
     }
 
-    public function documents()
+    public function documents(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
     }
 
-    public function payments()
+    public function payments(): \Illuminate\Database\Eloquent\Relations\MorphToMany
     {
         return $this->morphToMany(Payment::class, 'paymentable')->withTrashed()->withPivot('amount', 'refunded')->withTimestamps();
     }
 
-    public function company_ledger()
+    public function company_ledger(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(CompanyLedger::class, 'company_ledgerable');
     }
@@ -888,5 +707,42 @@ class Invoice extends BaseModel
     public function translate_entity()
     {
         return ctrans('texts.invoice');
+    }
+
+    public function taxTypeString($id)
+    {
+        $tax_type  = false;
+
+        match(intval($id)){
+            Product::PRODUCT_TYPE_PHYSICAL => $tax_type = ctrans('texts.physical_goods'),
+            Product::PRODUCT_TYPE_SERVICE => $tax_type = ctrans('texts.services'),
+            Product::PRODUCT_TYPE_DIGITAL => $tax_type = ctrans('texts.digital_products'),
+            Product::PRODUCT_TYPE_SHIPPING => $tax_type = ctrans('texts.shipping'),
+            Product::PRODUCT_TYPE_EXEMPT => $tax_type = ctrans('texts.tax_exempt'),
+            Product::PRODUCT_TYPE_REDUCED_TAX => $tax_type = ctrans('texts.reduced_tax'),
+            Product::PRODUCT_TYPE_OVERRIDE_TAX => $tax_type = ctrans('texts.override_tax'),
+            Product::PRODUCT_TYPE_ZERO_RATED => $tax_type = ctrans('texts.zero_rated'),
+            Product::PRODUCT_TYPE_REVERSE_TAX => $tax_type = ctrans('texts.reverse_tax'),
+            default => $tax_type = ctrans('texts.physical_goods'),
+        };
+
+        return $tax_type;
+    }
+
+    public function typeIdString($id)
+    {
+        $type = '';
+        match($id) {
+            '1' => $type = ctrans('texts.product'),
+            '2' => $type = ctrans('texts.service'),
+            '3' => $type = ctrans('texts.gateway_fees'),
+            '4' => $type = ctrans('texts.gateway_fees'),
+            '5' => $type = ctrans('texts.late_fees'),
+            '6' => $type = ctrans('texts.expense'),
+            default => $type = ctrans('texts.product'),
+        };
+
+        return $type;
+
     }
 }

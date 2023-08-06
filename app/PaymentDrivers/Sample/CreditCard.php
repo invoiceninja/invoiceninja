@@ -69,7 +69,9 @@ class CreditCard
         //     $error .= " - {$response->approval_message}";
 
         // $error_code = property_exists($response, 'approval_message') ? $response->approval_message : 'Undefined code';
-
+        $error = '';
+        $error_code = '';
+        
         $data = [
             'response' => $response,
             'error' => $error,

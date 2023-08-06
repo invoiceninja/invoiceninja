@@ -50,66 +50,13 @@ use League\CommonMark\CommonMarkConverter;
  * @property string|null $product_image
  * @property-read \App\Models\User|null $assigned_user
  * @property-read \App\Models\Company $company
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read int|null $documents_count
  * @property-read mixed $hashed_id
  * @property-read \App\Models\User $user
  * @property-read \App\Models\Vendor|null $vendor
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
- * @method static \Database\Factories\ProductFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|Product filter(\App\Filters\QueryFilters $filters)
- * @method static \Illuminate\Database\Eloquent\Builder|Product newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Product newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Product onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Product query()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereAssignedUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereCompanyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereCost($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereCustomValue1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereCustomValue2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereCustomValue3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereCustomValue4($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereInStockQuantity($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereIsDeleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereMaxQuantity($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product wherePrice($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereProductImage($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereProductKey($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereProjectId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereQuantity($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereStockNotification($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereStockNotificationThreshold($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereTaxName1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereTaxName2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereTaxName3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereTaxRate1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereTaxRate2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereTaxRate3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product whereVendorId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Product withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Product withoutTrashed()
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property int|null $tax_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @method static \Illuminate\Database\Eloquent\Builder|Product whereTaxId($value)
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @mixin \Eloquent
  */
 class Product extends BaseModel
@@ -198,7 +145,7 @@ class Product extends BaseModel
             ],
         ]);
 
-        return $converter->convert($this->notes);
+        return $converter->convert($this->notes ?? '');
     }
 
     public function portalUrl($use_react_url): string

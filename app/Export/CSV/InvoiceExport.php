@@ -23,8 +23,6 @@ use App\Transformers\InvoiceTransformer;
 
 class InvoiceExport extends BaseExport
 {
-    private Company $company;
-
     private $invoice_transformer;
 
     public string $date_key = 'date';
@@ -80,6 +78,7 @@ class InvoiceExport extends BaseExport
         'project',
     ];
 
+
     public function __construct(Company $company, array $input)
     {
         $this->company = $company;
@@ -134,10 +133,21 @@ class InvoiceExport extends BaseExport
         foreach (array_values($this->input['report_keys']) as $key) {
             $keyval = array_search($key, $this->entity_keys);
 
+            if(!$keyval) {
+                $keyval = array_search(str_replace("invoice.", "", $key), $this->entity_keys) ?? $key;
+            }
+
+            if(!$keyval) {
+                $keyval = $key;
+            }
+
             if (array_key_exists($key, $transformed_invoice)) {
                 $entity[$keyval] = $transformed_invoice[$key];
-            } else {
-                $entity[$keyval] = '';
+            } elseif (array_key_exists($keyval, $transformed_invoice)) {
+                $entity[$keyval] = $transformed_invoice[$keyval];
+            }
+            else {
+                $entity[$keyval] = $this->resolveKey($keyval, $invoice, $this->invoice_transformer);
             }
         }
 
@@ -162,15 +172,15 @@ class InvoiceExport extends BaseExport
             $entity['status'] = $invoice->stringStatus($invoice->status_id);
         }
         
-        $payment_exists = $invoice->payments()->exists();
+        // $payment_exists = $invoice->payments()->exists();
 
-        $entity['payment_number'] = $payment_exists ? $invoice->payments()->pluck('number')->implode(',') : '';
+        // $entity['payment_number'] = $payment_exists ? $invoice->payments()->pluck('number')->implode(',') : '';
 
-        $entity['payment_date'] = $payment_exists ? $invoice->payments()->pluck('date')->implode(',') : '';
+        // $entity['payment_date'] = $payment_exists ? $invoice->payments()->pluck('date')->implode(',') : '';
 
-        $entity['payment_amount'] = $payment_exists ? Number::formatMoney($invoice->payments()->sum('paymentables.amount'), $invoice->company) : ctrans('texts.unpaid');
+        // $entity['payment_amount'] = $payment_exists ? Number::formatMoney($invoice->payments()->sum('paymentables.amount'), $invoice->company) : ctrans('texts.unpaid');
 
-        $entity['method'] = $payment_exists ? $invoice->payments()->first()->translatedType() : "";
+        // $entity['method'] = $payment_exists ? $invoice->payments()->first()->translatedType() : "";
         
         return $entity;
     }

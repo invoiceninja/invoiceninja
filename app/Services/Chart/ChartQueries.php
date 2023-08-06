@@ -142,7 +142,7 @@ trait ChartQueries
         "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
     }
 
-    public function getRevenueQuery($start_date, $end_date)
+    public function getRevenueQueryX($start_date, $end_date)
     {
         $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
 
@@ -162,6 +162,24 @@ trait ChartQueries
             AND (invoices.date BETWEEN :start_date AND :end_date)
             GROUP BY currency_id
         "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
+    }
+
+    public function getRevenueQuery($start_date, $end_date)
+    {
+        $user_filter = $this->is_admin ? '' : 'AND payments.user_id = '.$this->user->id;
+
+        return DB::select(DB::raw("
+            SELECT
+            sum(payments.amount - payments.refunded) as paid_to_date,
+            payments.currency_id AS currency_id
+            FROM payments
+            WHERE payments.company_id = :company_id
+            AND payments.is_deleted = 0
+            {$user_filter}
+            AND payments.status_id IN (1,4,5,6)
+            AND (payments.date BETWEEN :start_date AND :end_date)
+            GROUP BY payments.currency_id
+        "), ['company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
     }
 
     public function getInvoicesQuery($start_date, $end_date)

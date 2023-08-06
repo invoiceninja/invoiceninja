@@ -47,11 +47,11 @@ class MatchBankTransactions implements ShouldQueue
 
     private array $input;
 
-    protected Company $company;
+    protected ?Company $company;
 
     public Invoice $invoice;
 
-    private BankTransaction $bt;
+    private ?BankTransaction $bt;
 
     private $categories;
 
@@ -78,8 +78,6 @@ class MatchBankTransactions implements ShouldQueue
     /**
      * Execute the job.
      *
-     *
-     * @return void
      */
     public function handle()
     {
@@ -150,7 +148,7 @@ class MatchBankTransactions implements ShouldQueue
 
     private function linkExpense($input)
     {
-        $this->bt = BankTransaction::find($input['id']);
+        $this->bt = BankTransaction::withTrashed()->find($input['id']);
 
         if (!$this->bt) {
             return $this;
@@ -220,7 +218,7 @@ class MatchBankTransactions implements ShouldQueue
 
     private function matchInvoicePayment($input) :self
     {
-        $this->bt = BankTransaction::find($input['id']);
+        $this->bt = BankTransaction::withTrashed()->find($input['id']);
 
         if (!$this->bt || $this->bt->status_id == BankTransaction::STATUS_CONVERTED) {
             return $this;

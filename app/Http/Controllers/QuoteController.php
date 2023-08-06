@@ -11,38 +11,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\Quote\QuoteWasCreated;
-use App\Events\Quote\QuoteWasUpdated;
-use App\Factory\CloneQuoteFactory;
-use App\Factory\CloneQuoteToInvoiceFactory;
-use App\Factory\CloneQuoteToProjectFactory;
+use App\Utils\Ninja;
+use App\Models\Quote;
+use App\Models\Client;
+use App\Models\Account;
+use App\Models\Invoice;
+use Illuminate\Http\Request;
 use App\Factory\QuoteFactory;
 use App\Filters\QuoteFilters;
-use App\Http\Requests\Quote\ActionQuoteRequest;
-use App\Http\Requests\Quote\BulkActionQuoteRequest;
-use App\Http\Requests\Quote\CreateQuoteRequest;
-use App\Http\Requests\Quote\DestroyQuoteRequest;
+use App\Jobs\Quote\ZipQuotes;
+use Illuminate\Http\Response;
+use App\Utils\Traits\MakesHash;
+use App\Factory\CloneQuoteFactory;
+use App\Services\PdfMaker\PdfMerge;
+use Illuminate\Support\Facades\App;
+use App\Utils\Traits\SavesDocuments;
+use App\Events\Quote\QuoteWasCreated;
+use App\Events\Quote\QuoteWasUpdated;
+use App\Repositories\QuoteRepository;
+use App\Transformers\QuoteTransformer;
+use App\Utils\Traits\GeneratesCounter;
+use Illuminate\Support\Facades\Storage;
+use App\Transformers\InvoiceTransformer;
+use App\Factory\CloneQuoteToInvoiceFactory;
+use App\Factory\CloneQuoteToProjectFactory;
 use App\Http\Requests\Quote\EditQuoteRequest;
 use App\Http\Requests\Quote\ShowQuoteRequest;
 use App\Http\Requests\Quote\StoreQuoteRequest;
+use App\Http\Requests\Quote\ActionQuoteRequest;
+use App\Http\Requests\Quote\CreateQuoteRequest;
 use App\Http\Requests\Quote\UpdateQuoteRequest;
 use App\Http\Requests\Quote\UploadQuoteRequest;
-use App\Jobs\Quote\ZipQuotes;
-use App\Models\Account;
-use App\Models\Client;
-use App\Models\Invoice;
-use App\Models\Quote;
-use App\Repositories\QuoteRepository;
-use App\Services\PdfMaker\PdfMerge;
-use App\Transformers\InvoiceTransformer;
-use App\Transformers\QuoteTransformer;
-use App\Utils\Ninja;
-use App\Utils\Traits\GeneratesCounter;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\SavesDocuments;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\Quote\DestroyQuoteRequest;
+use App\Http\Requests\Quote\BulkActionQuoteRequest;
 
 /**
  * Class QuoteController.
@@ -161,7 +162,10 @@ class QuoteController extends BaseController
      */
     public function create(CreateQuoteRequest $request)
     {
-        $quote = QuoteFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $quote = QuoteFactory::create($user->company()->id, $user->id);
 
         return $this->itemResponse($quote);
     }
@@ -207,16 +211,17 @@ class QuoteController extends BaseController
      */
     public function store(StoreQuoteRequest $request)
     {
-        $client = Client::find($request->input('client_id'));
-
-        $quote = $this->quote_repo->save($request->all(), QuoteFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        
+        $quote = $this->quote_repo->save($request->all(), QuoteFactory::create($user->company()->id, $user->id));
 
         $quote = $quote->service()
                        ->fillDefaults()
                        ->triggeredActions($request)
                        ->save();
 
-        event(new QuoteWasCreated($quote, $quote->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        event(new QuoteWasCreated($quote, $quote->company, Ninja::eventVars($user->id)));
 
         return $this->itemResponse($quote);
     }
@@ -458,7 +463,7 @@ class QuoteController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Collection
+     * @return \Illuminate\Support\Collection
      *
      *
      * @OA\Post(
@@ -508,11 +513,14 @@ class QuoteController extends BaseController
      */
     public function bulk(BulkActionQuoteRequest $request)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $action = request()->input('action');
 
         $ids = request()->input('ids');
 
-        if (Ninja::isHosted() && (stripos($action, 'email') !== false) && !auth()->user()->company()->account->account_sms_verified) {
+        if (Ninja::isHosted() && (stripos($action, 'email') !== false) && !$user->account->account_sms_verified) {
             return response(['message' => 'Please verify your account to send emails.'], 400);
         }
 
@@ -527,8 +535,8 @@ class QuoteController extends BaseController
          */
 
         if ($action == 'bulk_download' && $quotes->count() >= 1) {
-            $quotes->each(function ($quote) {
-                if (auth()->user()->cannot('view', $quote)) {
+            $quotes->each(function ($quote) use($user){
+                if ($user->cannot('view', $quote)) {
                     return response()->json(['message'=> ctrans('texts.access_denied')]);
                 }
             });
@@ -542,8 +550,8 @@ class QuoteController extends BaseController
             $this->entity_type = Quote::class;
             $this->entity_transformer = QuoteTransformer::class;
 
-            $quotes->each(function ($quote, $key) use ($action) {
-                if (auth()->user()->can('edit', $quote) && $quote->service()->isConvertable()) {
+            $quotes->each(function ($quote, $key) use ($user) {
+                if ($user->can('edit', $quote) && $quote->service()->isConvertable()) {
                     $quote->service()->convertToInvoice();
                 }
             });
@@ -551,7 +559,7 @@ class QuoteController extends BaseController
             return $this->listResponse(Quote::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
         }
 
-        if ($action == 'bulk_print' && auth()->user()->can('view', $quotes->first())) {
+        if ($action == 'bulk_print' && $user->can('view', $quotes->first())) {
             $paths = $quotes->map(function ($quote) {
                 return $quote->service()->getQuotePdf();
             });
@@ -565,9 +573,9 @@ class QuoteController extends BaseController
 
 
         if ($action == 'convert_to_project') {
-            $quotes->each(function ($quote, $key) use ($action) {
-                if (auth()->user()->can('edit', $quote)) {
-                    $project = CloneQuoteToProjectFactory::create($quote, auth()->user()->id);
+            $quotes->each(function ($quote, $key) use ($user) {
+                if ($user->can('edit', $quote)) {
+                    $project = CloneQuoteToProjectFactory::create($quote, $user->id);
                     
                     if (empty($project->number)) {
                         $project->number = $this->getNextProjectNumber($project);
@@ -584,8 +592,8 @@ class QuoteController extends BaseController
         /*
          * Send the other actions to the switch
          */
-        $quotes->each(function ($quote, $key) use ($action) {
-            if (auth()->user()->can('edit', $quote)) {
+        $quotes->each(function ($quote, $key) use ($action, $user) {
+            if ($user->can('edit', $quote)) {
                 $this->performAction($quote, $action, true);
             }
         });
@@ -606,18 +614,18 @@ class QuoteController extends BaseController
      *      tags={"quotes"},
      *      summary="Performs a custom action on an Quote",
      *      description="Performs a custom action on an Quote.
-
-    The current range of actions are as follows
-    - clone_to_quote
-    - history
-    - delivery_note
-    - mark_paid
-    - download
-    - archive
-    - delete
-    - convert
-    - convert_to_invoice
-    - email",
+     *
+     *  The current range of actions are as follows
+     *  - clone_to_quote
+     *  - history
+     *  - delivery_note
+     *  - mark_paid
+     *  - download
+     *  - archive
+     *  - delete
+     *  - convert
+     *  - convert_to_invoice
+     *  - email",
      *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -824,6 +832,8 @@ class QuoteController extends BaseController
 
         $contact = $invitation->contact;
         $quote = $invitation->quote;
+        
+        App::setLocale($invitation->contact->preferredLocale());
 
         $file = $quote->service()->getQuotePdf($contact);
 

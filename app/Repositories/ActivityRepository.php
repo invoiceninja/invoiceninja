@@ -38,9 +38,9 @@ class ActivityRepository extends BaseRepository
     /**
      * Save the Activity.
      *
-     * @param stdClass $fields The fields
-     * @param Collection $entity The entity that you wish to have backed up (typically Invoice, Quote etc etc rather than Payment)
-     * @param $event_vars
+     * @param \stdClass $fields The fields
+     * @param \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder $entity
+     * @param array $event_vars
      */
     public function save($fields, $entity, $event_vars)
     {
@@ -49,6 +49,9 @@ class ActivityRepository extends BaseRepository
         foreach ($fields as $key => $value) {
             $activity->{$key} = $value;
         }
+
+        if($entity->company)
+            $activity->account_id = $entity->company->account_id;
 
         if ($token_id = $this->getTokenId($event_vars)) {
             $activity->token_id = $token_id;
@@ -66,8 +69,8 @@ class ActivityRepository extends BaseRepository
     /**
      * Creates a backup.
      *
-     * @param      Collection $entity    The entity
-     * @param      Collection  $activity  The activity
+     * @param \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder $entity
+     * @param \App\Models\Activity $activity  The activity
      */
     public function createBackup($entity, $activity)
     {
@@ -95,6 +98,7 @@ class ActivityRepository extends BaseRepository
     public function getTokenId(array $event_vars)
     {
         if ($event_vars['token']) {
+            /** @var \App\Models\CompanyToken $company_token **/
             $company_token = CompanyToken::where('token', $event_vars['token'])->first();
 
             if ($company_token) {

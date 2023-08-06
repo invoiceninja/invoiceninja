@@ -89,7 +89,7 @@ class WePayPaymentDriver extends BaseDriver
      * Setup the gateway
      *
      * @param  array $data user_id + company
-     * @return view
+     * @return \Illuminate\View\View         
      */
     public function setup(array $data)
     {
@@ -174,7 +174,9 @@ class WePayPaymentDriver extends BaseDriver
         $config = $this->company_gateway->getConfig();
 
         $accountId = $this->company_gateway->getConfigField('accountId');
-
+        $objectId = false;
+        $objectType = '';
+        
         foreach (array_keys($input) as $key) {
             if ('_id' == substr($key, -3)) {
                 $objectType = substr($key, 0, -3);
@@ -183,7 +185,7 @@ class WePayPaymentDriver extends BaseDriver
             }
         }
 
-        if (! isset($objectType)) {
+        if (! $objectId) {
             throw new \Exception('Could not find object id parameter');
         }
 
@@ -226,12 +228,13 @@ class WePayPaymentDriver extends BaseDriver
 
             return ['message' => 'Processed successfully'];
         } elseif ($objectType == 'checkout') {
+            /** @var \App\Models\Payment $payment */
             $payment = Payment::where('company_id', $this->company_gateway->company_id)
                               ->where('transaction_reference', '=', $objectId)
                               ->first();
 
             if (! $payment) {
-                throw new Exception('Unknown payment');
+                throw new \Exception('Unknown payment');
             }
 
             if ($payment->is_deleted) {

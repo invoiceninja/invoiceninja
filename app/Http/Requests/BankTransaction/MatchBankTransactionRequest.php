@@ -24,26 +24,35 @@ class MatchBankTransactionRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->isAdmin() || auth()->user()->can('create', BankTransaction::class) || auth()->user()->hasPermission('edit_bank_transaction');
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->isAdmin() || $user->can('create', BankTransaction::class) || $user->hasPermission('edit_bank_transaction');
     }
 
-    public function rules()
+    public function rules(): array
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $rules = [
             'transactions' => 'bail|array',
             'transactions.*.invoice_ids' => 'nullable|string|sometimes',
         ];
 
-        $rules['transactions.*.ninja_category_id'] = 'bail|nullable|sometimes|exists:expense_categories,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
-        $rules['transactions.*.vendor_id'] = 'bail|nullable|sometimes|exists:vendors,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
-        $rules['transactions.*.id'] = 'bail|required|exists:bank_transactions,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
-        $rules['transactions.*.payment_id'] = 'bail|sometimes|nullable|exists:payments,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+        $rules['transactions.*.ninja_category_id'] = 'bail|nullable|sometimes|exists:expense_categories,id,company_id,'.$user->company()->id.',is_deleted,0';
+        $rules['transactions.*.vendor_id'] = 'bail|nullable|sometimes|exists:vendors,id,company_id,'.$user->company()->id.',is_deleted,0';
+        $rules['transactions.*.id'] = 'bail|required|exists:bank_transactions,id,company_id,'.$user->company()->id.',is_deleted,0';
+        $rules['transactions.*.payment_id'] = 'bail|sometimes|nullable|exists:payments,id,company_id,'.$user->company()->id.',is_deleted,0';
 
         return $rules;
     }
 
     public function prepareForValidation()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $inputs = $this->all();
 
         foreach ($inputs['transactions'] as $key => $input) {
@@ -61,7 +70,7 @@ class MatchBankTransactionRequest extends Request
 
             if (array_key_exists('payment_id', $inputs['transactions'][$key]) && strlen($inputs['transactions'][$key]['payment_id']) >= 1) {
                 $inputs['transactions'][$key]['payment_id'] = $this->decodePrimaryKey($inputs['transactions'][$key]['payment_id']);
-                $p = Payment::withTrashed()->where('company_id', auth()->user()->company()->id)->where('id', $inputs['transactions'][$key]['payment_id'])->first();
+                $p = Payment::withTrashed()->where('company_id', $user->company()->id)->where('id', $inputs['transactions'][$key]['payment_id'])->first();
 
                 /*Ensure we don't relink an existing payment*/
                 if (!$p || is_numeric($p->transaction_id)) {

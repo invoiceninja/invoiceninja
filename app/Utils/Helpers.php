@@ -56,8 +56,35 @@ class Helpers
     public function formatCustomFieldValue($custom_fields, $field, $value, $entity = null): ?string
     {
         $custom_field = '';
+        $quote_or_credit_field = false;
 
-        if ($custom_fields && property_exists($custom_fields, $field)) {
+        if($custom_fields && stripos($field, 'quote') !== false && property_exists($custom_fields, $field)) {
+            $custom_field = $custom_fields->{$field};
+            $custom_field_parts = explode('|', $custom_field);
+
+            if (count($custom_field_parts) >= 2) {
+                $custom_field = $custom_field_parts[1];
+            }
+
+            $quote_or_credit_field = true;
+
+        }elseif($custom_fields && stripos($field, 'credit') !== false && property_exists($custom_fields, $field)) {
+            $custom_field = $custom_fields->{$field};
+            $custom_field_parts = explode('|', $custom_field);
+
+            if (count($custom_field_parts) >= 2) {
+                $custom_field = $custom_field_parts[1];
+            }
+
+            $quote_or_credit_field = true;
+
+        }elseif($custom_fields && stripos($field, 'credit') !== false) {
+            $field = str_replace("credit", "invoice", $field);
+        }elseif($custom_fields && stripos($field, 'quote') !== false) {
+            $field = str_replace("quote", "invoice", $field);
+        }
+
+        if (!$quote_or_credit_field && $custom_fields && property_exists($custom_fields, $field)) {
             $custom_field = $custom_fields->{$field};
             $custom_field_parts = explode('|', $custom_field);
 
@@ -90,6 +117,17 @@ class Helpers
      */
     public function makeCustomField($custom_fields, $field): string
     {
+
+        if ($custom_fields && property_exists($custom_fields, $field)) {
+            $custom_field = $custom_fields->{$field};
+
+            $custom_field_parts = explode('|', $custom_field);
+
+            return $custom_field_parts[0];
+        }
+
+        $field = str_replace(["quote","credit"], ["invoice", "invoice"], $field);
+
         if ($custom_fields && property_exists($custom_fields, $field)) {
             $custom_field = $custom_fields->{$field};
 

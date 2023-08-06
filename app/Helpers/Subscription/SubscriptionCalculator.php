@@ -64,6 +64,7 @@ class SubscriptionCalculator
         }
 
         if ($refund_invoice) {
+            /** @var \App\Models\Subscription $subscription **/
             $subscription = Subscription::find($this->invoice->subscription_id);
             $pro_rata = new ProRata;
 
