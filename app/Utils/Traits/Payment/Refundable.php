@@ -171,6 +171,7 @@ trait Refundable
         $credit_note->save();
 
         if ($data['gateway_refund'] !== false && $total_refund > 0) {
+            /** @var \App\Models\CompanyGateway $gateway */
             $gateway = CompanyGateway::find($this->company_gateway_id);
 
             if ($gateway) {
@@ -190,8 +191,7 @@ trait Refundable
 
         $client_balance_adjustment = $this->adjustInvoices($data);
 
-        // $credit_note->ledger()->updateCreditBalance($client_balance_adjustment, $ledger_string);
-
+        /** @var \App\Models\Client $this->client */
         $this->client->paid_to_date -= $data['amount'];
         $this->client->save();
 

@@ -56,7 +56,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property float $exchange_rate
  * @property int $currency_id
  * @property int|null $exchange_currency_id
- * @property \App\Models\Paymentable $paymentables
+ * @property \App\Models\Paymentable $paymentable
  * @property object|null $meta
  * @property string|null $custom_value1
  * @property string|null $custom_value2

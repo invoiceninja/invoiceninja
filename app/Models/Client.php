@@ -47,9 +47,9 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
  * @property string|null $logo
  * @property string|null $phone
  * @property string|null $routing_id
- * @property string $balance
- * @property string $paid_to_date
- * @property string $credit_balance
+ * @property float $balance
+ * @property float $paid_to_date
+ * @property float $credit_balance
  * @property int|null $last_login
  * @property int|null $industry_id
  * @property int|null $size_id
