@@ -40,7 +40,7 @@ class OAuth
     const SOCIAL_APPLE = 8;
 
     /**
-     * @param Socialite $user
+     * @param \Laravel\Socialite\Facades\Socialite $socialite_user
      * @return bool | \App\Models\User | \App\Models\User | null
      */
     public static function handleAuth($socialite_user, $provider)

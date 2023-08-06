@@ -66,7 +66,6 @@ class RecurringInvoiceExport extends BaseExport
         'vendor' => 'vendor_id',
         'project' => 'project_id',
         'frequency_id' => 'frequency_id',
-        'next_send_date' => 'next_send_date'
     ];
 
     private array $decorate_keys = [

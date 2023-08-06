@@ -55,6 +55,7 @@ class CheckoutSetupWebhook implements ShouldQueue
 
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
+        /** @var \App\Models\CompanyGateway $company_gateway */
         $company_gateway = CompanyGateway::find($this->company_gateway_id);
 
         $this->checkout = $company_gateway->driver()->init();

@@ -1357,13 +1357,13 @@ class SubscriptionService
             case RecurringInvoice::FREQUENCY_MONTHLY:
                 return now()->diffInDays(now()->addMonthNoOverflow());
             case RecurringInvoice::FREQUENCY_TWO_MONTHS:
-                return now()->diffInDays(now()->addMonthNoOverflow(2));
+                return now()->diffInDays(now()->addMonthsNoOverflow(2));
             case RecurringInvoice::FREQUENCY_THREE_MONTHS:
-                return now()->diffInDays(now()->addMonthNoOverflow(3));
+                return now()->diffInDays(now()->addMonthsNoOverflow(3));
             case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
-                return now()->diffInDays(now()->addMonthNoOverflow(4));
+                return now()->diffInDays(now()->addMonthsNoOverflow(4));
             case RecurringInvoice::FREQUENCY_SIX_MONTHS:
-                return now()->diffInDays(now()->addMonthNoOverflow(6));
+                return now()->diffInDays(now()->addMonthsNoOverflow(6));
             case RecurringInvoice::FREQUENCY_ANNUALLY:
                 return now()->diffInDays(now()->addYear());
             case RecurringInvoice::FREQUENCY_TWO_YEARS:
@@ -1397,13 +1397,13 @@ class SubscriptionService
             case RecurringInvoice::FREQUENCY_MONTHLY:
                 return $date->addMonthNoOverflow();
             case RecurringInvoice::FREQUENCY_TWO_MONTHS:
-                return $date->addMonthNoOverflow(2);
+                return $date->addMonthsNoOverflow(2);
             case RecurringInvoice::FREQUENCY_THREE_MONTHS:
-                return $date->addMonthNoOverflow(3);
+                return $date->addMonthsNoOverflow(3);
             case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
-                return $date->addMonthNoOverflow(4);
+                return $date->addMonthsNoOverflow(4);
             case RecurringInvoice::FREQUENCY_SIX_MONTHS:
-                return $date->addMonthNoOverflow(6);
+                return $date->addMonthsNoOverflow(6);
             case RecurringInvoice::FREQUENCY_ANNUALLY:
                 return $date->addYear();
             case RecurringInvoice::FREQUENCY_TWO_YEARS:

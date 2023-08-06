@@ -13,8 +13,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\Pivot;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * App\Models\CompanyUser
@@ -79,34 +77,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyUser> $cu
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $token
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $token
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $token
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $token
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $token
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $token
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $token
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $token
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $token
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $token
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
  * @mixin \Eloquent
  */
 class CompanyUser extends Pivot
@@ -153,32 +123,40 @@ class CompanyUser extends Pivot
         return self::class;
     }
 
-    public function account()
+    public function account(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Account::class);
     }
 
+    /**
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function user_pivot()
     {
         return $this->hasOne(User::class)->withPivot('permissions', 'settings', 'react_settings', 'is_admin', 'is_owner', 'is_locked', 'slack_webhook_url', 'migrating');
     }
-    
+
+    /**
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function company_pivot()
     {
         return $this->hasOne(Company::class)->withPivot('permissions', 'settings', 'react_settings', 'is_admin', 'is_owner', 'is_locked', 'slack_webhook_url', 'migrating');
     }
 
-    public function user(): BelongsTo
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
 
-    public function company()
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function users()
+    public function users(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(User::class)->withTrashed();
     }
@@ -189,7 +167,7 @@ class CompanyUser extends Pivot
         return $this->hasMany(CompanyToken::class, 'user_id', 'user_id');
     }
 
-    public function tokens()
+    public function tokens(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(CompanyToken::class, 'user_id', 'user_id');
     }

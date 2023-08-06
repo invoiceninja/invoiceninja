@@ -30,7 +30,7 @@ class ContactRegister
                 'portal_mode' => 'subdomain',
             ];
 
-            $company = Company::where($query)->first();
+            $company = Company::query()->where($query)->first();
 
             if ($company) {
                 if (! $company->client_can_register) {

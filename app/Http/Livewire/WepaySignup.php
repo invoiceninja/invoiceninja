@@ -53,7 +53,7 @@ class WepaySignup extends Component
 
     public $saved;
 
-    public $company;
+    public Company $company;
 
     protected $rules = [
         'first_name' => ['required'],
@@ -71,7 +71,7 @@ class WepaySignup extends Component
         MultiDB::setDb($this->company->db);
 
         $user = User::find($this->user_id);
-        $this->company = Company::where('company_key', $this->company->company_key)->first();
+        $this->company = Company::query()->where('company_key', $this->company->company_key)->first();
 
         $this->fill([
             'wepay_payment_tos_agree' => '',
@@ -100,7 +100,7 @@ class WepaySignup extends Component
         $data = $this->validate($this->rules);
 
         //need to create or get a new WePay CompanyGateway
-        $cg = CompanyGateway::where('gateway_key', '8fdeed552015b3c7b44ed6c8ebd9e992')
+        $cg = CompanyGateway::query()->where('gateway_key', '8fdeed552015b3c7b44ed6c8ebd9e992')
                             ->where('company_id', $this->company->id)
                             ->firstOrNew();
 

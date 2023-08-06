@@ -89,9 +89,12 @@ class InvoicesTable extends Component
             ->withTrashed()
             ->paginate($this->per_page);
 
+        /** @var \App\Models\ClientContact $client_contact */
+        $client_contact = auth()->user();
+
         return render('components.livewire.invoices-table', [
             'invoices' => $query,
-            'gateway_available' => ! empty(auth()->user()->client->service()->getPaymentMethods(-1)),
+            'gateway_available' => ! empty($client_contact->client->service()->getPaymentMethods(-1)),
         ]);
     }
 }

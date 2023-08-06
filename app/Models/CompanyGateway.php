@@ -28,7 +28,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property bool $update_details
  * @property bool $is_deleted
  * @property string $config
- * @property object $fees_and_limits
+ * @property mixed $fees_and_limits
  * @property string|null $custom_value1
  * @property string|null $custom_value2
  * @property string|null $custom_value3

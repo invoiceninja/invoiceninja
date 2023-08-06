@@ -76,7 +76,6 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read int|null $quote_invitations_count
  * @property-read int|null $recurring_invoice_invitations_count
  * @property-read \App\Models\User $user
- * @method static \Illuminate\Database\Eloquent\Builder|ClientContact company()
  * @method static \Database\Factories\ClientContactFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|ClientContact newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ClientContact newQuery()
