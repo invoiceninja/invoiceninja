@@ -74,9 +74,6 @@ class CheckoutComPaymentDriver extends BaseDriver
      */
     public $gateway;
 
-    /**
-     * @var
-     */
     public $payment_method; //the gateway type id
 
     public static $methods = [
@@ -178,7 +175,7 @@ class CheckoutComPaymentDriver extends BaseDriver
     /**
      * Process the payment response
      *
-     * @param Request $request The payment request
+     * @param \Illuminate\Http\Request $request The payment request
      * @return \Illuminate\View\View         
      */
     public function processPaymentResponse($request)

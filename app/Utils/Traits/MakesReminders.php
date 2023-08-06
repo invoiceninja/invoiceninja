@@ -45,15 +45,13 @@ trait MakesReminders
     public function calculateTemplate(string $entity_string): string
     {
 
-        /** @var \App\Models\Invoice | \App\Models\Quote | \App\Models\RecurringInvoice  | \App\Models\Credit $this **/ 
-
+        /** @var \App\Models\Invoice | \App\Models\Quote | \App\Models\RecurringInvoice  | \App\Models\Credit $this **/
         $client = $this->client;
 
         if ($entity_string != 'invoice') {
             return $entity_string;
         }
 
-        //if the invoice
         if ($this->inReminderWindow(
             $client->getSetting('schedule_reminder1'),
             $client->getSetting('num_days_reminder1')

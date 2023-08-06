@@ -11,15 +11,16 @@
 
 namespace App\Transformers;
 
+use App\Models\Client;
 use App\Models\Vendor;
 use App\Models\Expense;
 use App\Models\Invoice;
-use App\Models\ExpenseCategory;
-use App\Transformers\ExpenseCategoryTransformer;
 use App\Models\Document;
+use App\Models\ExpenseCategory;
 use App\Utils\Traits\MakesHash;
 use League\Fractal\Resource\Item;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Transformers\ExpenseCategoryTransformer;
 
 /**
  * class ExpenseTransformer.

@@ -616,7 +616,7 @@ class PdfBuilder
     /**
      * Formats the line items for display.
      *
-     * @param mixed $items
+     * @param array<\App\DataMapper\InvoiceItem> $items
      * @param string $table_type
      *
      * @return array
@@ -954,7 +954,7 @@ class PdfBuilder
      * Performs a variable check to ensure
      * the variable exists
      *
-     * @param  string $variables
+     * @param  string $variable
      * @return bool
      *
      */
@@ -1468,7 +1468,7 @@ class PdfBuilder
      * Passes an array of items by reference
      * and performs a nl2br
      *
-     * @param  array $variables
+     * @param  array $items
      * @return void
      *
      */
