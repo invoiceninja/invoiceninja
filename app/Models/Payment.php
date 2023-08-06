@@ -77,7 +77,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\PaymentType|null $type
  * @property-read \App\Models\User|null $user
  * @property-read \App\Models\Vendor|null $vendor
- * @method static \Illuminate\Database\Eloquent\Builder exclude($columns)
  * @method static \Database\Factories\PaymentFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Payment filter(\App\Filters\QueryFilters $filters)
  * @method static \Illuminate\Database\Eloquent\Builder|Payment newModelQuery()
@@ -90,8 +89,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Paymentable> $paymentables
- * @method static \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder withTrashed(bool $withTrashed = true)
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $paymentables
  * @mixin \Eloquent
  */
 class Payment extends BaseModel

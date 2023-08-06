@@ -191,7 +191,7 @@ trait Refundable
 
         $client_balance_adjustment = $this->adjustInvoices($data);
 
-        /** @var \App\Models\Client $this->client */
+        /** @var \App\Models\Payment $this */
         $this->client->paid_to_date -= $data['amount'];
         $this->client->save();
 
