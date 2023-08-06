@@ -109,6 +109,7 @@ trait Refundable
         $ledger_string = '';
 
         foreach ($data['invoices'] as $invoice) {
+            /** @var \App\Models\Invoice $inv */
             $inv = Invoice::find($invoice['invoice_id']);
 
             $credit_line_item = InvoiceItemFactory::create();
