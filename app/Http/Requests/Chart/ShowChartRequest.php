@@ -28,7 +28,7 @@ class ShowChartRequest extends Request
         /**@var \App\Models\User auth()->user */
         $user = auth()->user();
 
-        return $user->isAdmin();
+        return $user->isAdmin() || $user->hasPermission('view_dashboard');
     }
 
     public function rules()
