@@ -280,7 +280,7 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @return \App\Models\Company $company
      */
-    public function company(): Company
+    public function company(): \App\Models\Company
     {
         return $this->getCompany();
     }

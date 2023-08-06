@@ -199,6 +199,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Vendor> $vendors
  * @property-read int|null $vendors_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Webhook> $webhooks
+ * @method static \Illuminate\Database\Eloquent\Builder|Company where($query)
  * @property-read int|null $webhooks_count
  * @property int $calculate_taxes
  * @property mixed $tax_data
@@ -439,7 +440,7 @@ class Company extends BaseModel
         return $this->encodePrimaryKey($this->id);
     }
 
-    public function account()
+    public function account(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Account::class);
     }
@@ -449,7 +450,7 @@ class Company extends BaseModel
         return $this->hasMany(ClientContact::class)->withTrashed();
     }
 
-    public function users()
+    public function users(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
         return $this->hasManyThrough(User::class, CompanyUser::class, 'company_id', 'id', 'id', 'user_id')->withTrashed();
     }

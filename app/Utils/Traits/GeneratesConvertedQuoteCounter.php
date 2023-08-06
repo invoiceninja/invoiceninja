@@ -69,7 +69,7 @@ trait GeneratesConvertedQuoteCounter
 
         $number = $this->applyNumberPattern($invoice, $number, $pattern);
 
-        $check = Invoice::whereCompanyId($client->company_id)->whereNumber($number)->withTrashed()->exists();
+        $check = Invoice::query()->whereCompanyId($client->company_id)->whereNumber($number)->withTrashed()->exists();
 
         if ($check) {
             return false;

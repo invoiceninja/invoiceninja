@@ -678,7 +678,7 @@ class Invoice extends BaseModel
             }
         }
             
-        return Expense::whereIn('id', $this->transformKeys($expense_ids))
+        return Expense::query()->whereIn('id', $this->transformKeys($expense_ids))
                            ->where('invoice_documents', 1)
                            ->where('company_id', $this->company_id)
                            ->cursor();
@@ -696,7 +696,7 @@ class Invoice extends BaseModel
             }
         }
             
-        return Task::whereIn('id', $this->transformKeys($task_ids))
+        return Task::query()->whereIn('id', $this->transformKeys($task_ids))
                            ->whereHas('company', function ($query) {
                                $query->where('invoice_task_documents', 1);
                            })

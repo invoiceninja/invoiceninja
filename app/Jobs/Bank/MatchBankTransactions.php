@@ -113,7 +113,7 @@ class MatchBankTransactions implements ShouldQueue
             }
         }
 
-        return BankTransaction::whereIn('id', $this->bts);
+        return BankTransaction::query()->whereIn('id', $this->bts);
     }
 
     private function getInvoices(string $invoice_hashed_ids): array

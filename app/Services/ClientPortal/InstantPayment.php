@@ -60,7 +60,7 @@ class InstantPayment
          * ['invoice_id' => xxx, 'amount' => 22.00]
          */
         $payable_invoices = collect($this->request->payable_invoices);
-        $invoices = Invoice::whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))->withTrashed()->get();
+        $invoices = Invoice::query()->whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))->withTrashed()->get();
 
         $invoices->each(function ($invoice) {
             $invoice->service()

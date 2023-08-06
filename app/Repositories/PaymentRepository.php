@@ -170,7 +170,7 @@ class PaymentRepository extends BaseRepository
         if (array_key_exists('credits', $data) && is_array($data['credits'])) {
             $credit_totals = array_sum(array_column($data['credits'], 'amount'));
 
-            $credits = Credit::whereIn('id', array_column($data['credits'], 'credit_id'))->get();
+            $credits = Credit::query()->whereIn('id', array_column($data['credits'], 'credit_id'))->get();
 
             //todo optimize into a single query
             foreach ($data['credits'] as $paid_credit) {

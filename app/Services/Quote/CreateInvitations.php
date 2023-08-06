@@ -41,7 +41,8 @@ class CreateInvitations
         }
 
         $contacts->each(function ($contact) {
-            $invitation = QuoteInvitation::whereCompanyId($this->quote->company_id)
+            $invitation = QuoteInvitation::query()
+                ->where('company_id',$this->quote->company_id)
                 ->whereClientContactId($contact->id)
                 ->whereQuoteId($this->quote->id)
                 ->withTrashed()

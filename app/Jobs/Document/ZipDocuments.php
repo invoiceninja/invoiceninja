@@ -85,7 +85,7 @@ class ZipDocuments implements ShouldQueue
         $path = $this->company->file_path();
 
         try {
-            $documents = Document::whereIn('id', $this->document_ids)->get();
+            $documents = Document::query()->whereIn('id', $this->document_ids)->get();
 
             foreach ($documents as $document) {
                 $zipFile->addFromString($this->buildFileName($document), $document->getFile());

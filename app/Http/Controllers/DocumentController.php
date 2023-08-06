@@ -128,7 +128,7 @@ class DocumentController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param EditDocumentRegquest $request
+     * @param EditDocumentRequest $request
      * @param Document $document
      * @return Response
      */

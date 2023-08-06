@@ -14,6 +14,8 @@ namespace App\Models\Traits;
 use Illuminate\Support\Facades\Schema;
 
 /**
+ * @method static Builder scopeExclude(Builder $builder)
+ * @method static Builder exclude(Builder $builder)
  * @template TModelClass of \Illuminate\Database\Eloquent\Model
  * @extends \Illuminate\Database\Eloquent\Builder<TModelClass>
  * @mixin \Illuminate\Database\Eloquent\Builder
@@ -33,6 +35,10 @@ trait Excludable
 
     /**
      * Exclude an array of elements from the result.
+     * 
+     * @method static \Illuminate\Database\Eloquent\Builder<static> exclude($columns)
+     * @method static \Illuminate\Database\Eloquent\Builder<static> exclude($columns)
+     * 
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @param array $columns
      *

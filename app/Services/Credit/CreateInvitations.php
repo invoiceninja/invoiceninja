@@ -42,7 +42,8 @@ class CreateInvitations extends AbstractService
         }
 
         $contacts->each(function ($contact) {
-            $invitation = CreditInvitation::whereCompanyId($this->credit->company_id)
+            $invitation = CreditInvitation::query()
+                ->where('company_id', $this->credit->company_id)
                 ->whereClientContactId($contact->id)
                 ->whereCreditId($this->credit->id)
                 ->withTrashed()

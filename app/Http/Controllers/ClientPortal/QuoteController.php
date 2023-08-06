@@ -95,7 +95,8 @@ class QuoteController extends Controller
         /** @var \App\Models\ClientContact $client_contact **/
         $client_contact = auth()->user();
 
-        $data['quotes'] = Quote::whereIn('id', $ids)
+        $data['quotes'] = Quote::query()
+                            ->whereIn('id', $ids)
                             ->where('client_id', $client_contact->client_id)
                             ->withTrashed()
                             ->get();
@@ -120,7 +121,8 @@ class QuoteController extends Controller
         /** @var \App\Models\ClientContact $client_contact **/
         $client_contact = auth()->user();
 
-        $quotes = Quote::whereIn('id', $ids)
+        $quotes = Quote::query()
+            ->whereIn('id', $ids)
             ->whereClientId($client_contact->client_id)
             ->withTrashed()
             ->get();
@@ -168,7 +170,8 @@ class QuoteController extends Controller
 
     protected function approve(array $ids, $process = false)
     {
-        $quotes = Quote::whereIn('id', $ids)
+        $quotes = Quote::query()
+            ->whereIn('id', $ids)
             ->where('client_id', auth()->guard('contact')->user()->client->id)
             ->where('company_id', auth()->guard('contact')->user()->client->company_id)
             ->whereIn('status_id', [Quote::STATUS_DRAFT, Quote::STATUS_SENT])

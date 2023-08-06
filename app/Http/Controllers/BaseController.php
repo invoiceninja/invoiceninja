@@ -532,7 +532,7 @@ class BaseController extends Controller
 
             /** @phpstan-ignore-next-line */
             $query = $paginator->getCollection(); /** @phpstan-ignore-line */
-
+            /** @phpstan-ignore-line */
 
             $resource = new Collection($query, $transformer, $this->entity_type);
 

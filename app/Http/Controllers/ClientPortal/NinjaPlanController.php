@@ -40,13 +40,13 @@ class NinjaPlanController extends Controller
     public function index(string $contact_key, string $account_or_company_key)
     {
         MultiDB::findAndSetDbByCompanyKey($account_or_company_key);
-        $company = Company::where('company_key', $account_or_company_key)->first();
+        $company = Company::query()->where('company_key', $account_or_company_key)->first();
 
         if (! $company) {
             MultiDB::findAndSetDbByAccountKey($account_or_company_key);
 
             /** @var \App\Models\Account $account **/
-            $account = Account::where('key', $account_or_company_key)->first();
+            $account = Account::query()->where('key', $account_or_company_key)->first();
         } else {
             $account = $company->account;
         }
@@ -181,7 +181,7 @@ class NinjaPlanController extends Controller
                  ->increment()
                  ->queue();
 
-        $old_recurring = RecurringInvoice::where('company_id', config('ninja.ninja_default_company_id'))
+        $old_recurring = RecurringInvoice::query()->where('company_id', config('ninja.ninja_default_company_id'))
                                             ->where('client_id', $client->id)
                                             ->where('id', '!=', $recurring_invoice->id)
                                             ->first();

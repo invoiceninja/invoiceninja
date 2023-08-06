@@ -574,7 +574,7 @@ class SubscriptionService
         $credit = false;
 
         /* Get last invoice */
-        $last_invoice = Invoice::where('subscription_id', $recurring_invoice->subscription_id)
+        $last_invoice = Invoice::query()->where('subscription_id', $recurring_invoice->subscription_id)
                                          ->where('client_id', $recurring_invoice->client_id)
                                          ->where('is_proforma', 0)
                                          ->where('is_deleted', 0)
@@ -1166,7 +1166,7 @@ class SubscriptionService
         $keys = $this->transformKeys(explode(",", $this->subscription->product_ids));
 
         if (is_array($keys)) {
-            return Product::whereIn('id', $keys)->get();
+            return Product::query()->whereIn('id', $keys)->get();
         } else {
             return Product::where('id', $keys)->get();
         }
@@ -1186,7 +1186,7 @@ class SubscriptionService
         $keys = $this->transformKeys(explode(",", $this->subscription->recurring_product_ids));
 
         if (is_array($keys)) {
-            return Product::whereIn('id', $keys)->get();
+            return Product::query()->whereIn('id', $keys)->get();
         } else {
             return Product::where('id', $keys)->get();
         }
@@ -1207,7 +1207,7 @@ class SubscriptionService
         $keys = $this->transformKeys(explode(",", $this->subscription->optional_product_ids));
 
         if (is_array($keys)) {
-            return Product::whereIn('id', $keys)->get();
+            return Product::query()->whereIn('id', $keys)->get();
         } else {
             return Product::where('id', $keys)->get();
         }
@@ -1227,7 +1227,7 @@ class SubscriptionService
         $keys = $this->transformKeys(explode(",", $this->subscription->optional_recurring_product_ids));
 
         if (is_array($keys)) {
-            return Product::whereIn('id', $keys)->get();
+            return Product::query()->whereIn('id', $keys)->get();
         } else {
             return Product::where('id', $keys)->get();
         }
