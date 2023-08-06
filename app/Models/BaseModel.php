@@ -38,7 +38,6 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  * @method BaseModel service()
  * @property \App\Models\Company $company
  * @method static BaseModel find($value) 
- * @method BaseModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel<static> company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|Illuminate\Database\Eloquent\Relations\BelongsTo|\Awobaz\Compoships\Database\Eloquent\Relations\BelongsTo|\App\Models\Company company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|Illuminate\Database\Eloquent\Relations\HasMany|BaseModel orderBy()

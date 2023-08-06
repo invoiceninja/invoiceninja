@@ -14,8 +14,8 @@ namespace App\Models\Traits;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * @method static Builder scopeExclude(Builder $builder)
- * @method static Builder exclude(Builder $builder)
+ * @method static Builder scopeExclude(array $columns)
+ * @method static Builder exclude(array $columns)
  * @template TModelClass of \Illuminate\Database\Eloquent\Model
  * @extends \Illuminate\Database\Eloquent\Builder<TModelClass>
  * @mixin \Illuminate\Database\Eloquent\Builder
