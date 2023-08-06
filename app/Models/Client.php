@@ -231,7 +231,7 @@ class Client extends BaseModel implements HasLocalePreference
         return self::class;
     }
 
-    public function ledger()
+    public function ledger(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(CompanyLedger::class)->orderBy('id', 'desc');
     }
@@ -241,17 +241,17 @@ class Client extends BaseModel implements HasLocalePreference
         return $this->morphMany(CompanyLedger::class, 'company_ledgerable');
     }
 
-    public function gateway_tokens()
+    public function gateway_tokens(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ClientGatewayToken::class)->orderBy('is_default', 'DESC');
     }
 
-    public function expenses()
+    public function expenses(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Expense::class)->withTrashed();
     }
 
-    public function projects()
+    public function projects(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Project::class)->withTrashed();
     }
@@ -275,17 +275,17 @@ class Client extends BaseModel implements HasLocalePreference
                     ->first();
     }
 
-    public function credits()
+    public function credits(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Credit::class)->withTrashed();
     }
 
-    public function purgeable_activities()
+    public function purgeable_activities(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Activity::class);
     }
 
-    public function activities()
+    public function activities(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Activity::class)->take(50)->orderBy('id', 'desc');
     }
@@ -350,7 +350,7 @@ class Client extends BaseModel implements HasLocalePreference
         return $this->hasMany(RecurringExpense::class)->withTrashed();
     }
 
-    public function shipping_country()
+    public function shipping_country():\Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Country::class, 'shipping_country_id', 'id');
     }

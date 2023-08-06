@@ -61,8 +61,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyGateway withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyGateway withoutTrashed()
- * @method static CompanyGateway find()
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientGatewayToken> $client_gateway_tokens
+ * @method static CompanyGateway find($value) 
  * @mixin \Eloquent
  */
 class CompanyGateway extends BaseModel

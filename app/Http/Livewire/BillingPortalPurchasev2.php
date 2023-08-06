@@ -122,7 +122,7 @@ class BillingPortalPurchasev2 extends Component
     /**
      * Instance of company.
      *
-     * @var Company
+     * @var \App\Models\Company
      */
     public $company;
 
@@ -498,7 +498,7 @@ class BillingPortalPurchasev2 extends Component
     /**
      * Method to handle events before payments.
      *
-     * @return void
+     * @return self
      */
     public function handleBeforePaymentEvents() :self
     {
