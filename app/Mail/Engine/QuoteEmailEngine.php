@@ -68,7 +68,6 @@ class QuoteEmailEngine extends BaseEmailEngine
                     'company' => $this->quote->company->present()->name(),
                     'amount' => Number::formatMoney($this->quote->amount, $this->client),
                 ],
-                null,
                 $this->client->locale()
             );
 
@@ -88,7 +87,6 @@ class QuoteEmailEngine extends BaseEmailEngine
                     'number' => $this->quote->number,
                     'account' => $this->quote->company->present()->name(),
                 ],
-                null,
                 $this->client->locale()
             );
         }
@@ -100,7 +98,6 @@ class QuoteEmailEngine extends BaseEmailEngine
                 'company' => $this->quote->company->present()->name(),
                 'amount' => Number::formatMoney($this->quote->amount, $this->client),
             ],
-            null,
             $this->client->locale()
         )."\n\n".$this->invitation->getLink();
 

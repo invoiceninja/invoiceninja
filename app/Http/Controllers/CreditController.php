@@ -11,34 +11,35 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\Credit\CreditWasCreated;
-use App\Events\Credit\CreditWasUpdated;
-use App\Factory\CloneCreditFactory;
+use App\Utils\Ninja;
+use App\Models\Client;
+use App\Models\Credit;
+use App\Models\Account;
+use App\Models\Invoice;
+use Illuminate\Http\Response;
 use App\Factory\CreditFactory;
 use App\Filters\CreditFilters;
-use App\Http\Requests\Credit\ActionCreditRequest;
+use App\Jobs\Credit\ZipCredits;
+use App\Utils\Traits\MakesHash;
+use App\Jobs\Entity\EmailEntity;
+use App\Factory\CloneCreditFactory;
+use App\Services\PdfMaker\PdfMerge;
+use Illuminate\Support\Facades\App;
+use App\Utils\Traits\SavesDocuments;
+use App\Repositories\CreditRepository;
+use App\Events\Credit\CreditWasCreated;
+use App\Events\Credit\CreditWasUpdated;
+use App\Transformers\CreditTransformer;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\Credit\BulkCreditRequest;
-use App\Http\Requests\Credit\CreateCreditRequest;
-use App\Http\Requests\Credit\DestroyCreditRequest;
 use App\Http\Requests\Credit\EditCreditRequest;
 use App\Http\Requests\Credit\ShowCreditRequest;
 use App\Http\Requests\Credit\StoreCreditRequest;
+use App\Http\Requests\Credit\ActionCreditRequest;
+use App\Http\Requests\Credit\CreateCreditRequest;
 use App\Http\Requests\Credit\UpdateCreditRequest;
 use App\Http\Requests\Credit\UploadCreditRequest;
-use App\Jobs\Credit\ZipCredits;
-use App\Jobs\Entity\EmailEntity;
-use App\Models\Account;
-use App\Models\Client;
-use App\Models\Credit;
-use App\Models\Invoice;
-use App\Repositories\CreditRepository;
-use App\Services\PdfMaker\PdfMerge;
-use App\Transformers\CreditTransformer;
-use App\Utils\Ninja;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\SavesDocuments;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\Credit\DestroyCreditRequest;
 
 /**
  * Class CreditController.
@@ -147,7 +148,10 @@ class CreditController extends BaseController
      */
     public function create(CreateCreditRequest $request)
     {
-        $credit = CreditFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user**/
+        $user = auth()->user();
+        
+        $credit = CreditFactory::create($user->company()->id, auth()->user()->id);
 
         return $this->itemResponse($credit);
     }
@@ -192,9 +196,13 @@ class CreditController extends BaseController
      */
     public function store(StoreCreditRequest $request)
     {
-        $client = Client::find($request->input('client_id'));
 
-        $credit = $this->credit_repository->save($request->all(), CreditFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        /** @var \App\Models\User $user**/
+        $user = auth()->user();
+
+        // $client = Client::find($request->input('client_id'));
+
+        $credit = $this->credit_repository->save($request->all(), CreditFactory::create($user->company()->id, $user->id));
 
         $credit = $credit->service()
                          ->fillDefaults()
@@ -206,7 +214,7 @@ class CreditController extends BaseController
             $credit->client->service()->updatePaidToDate(-1 * $credit->balance)->save();
         }
 
-        event(new CreditWasCreated($credit, $credit->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        event(new CreditWasCreated($credit, $credit->company, Ninja::eventVars($user->id)));
 
         return $this->itemResponse($credit);
     }
@@ -382,7 +390,10 @@ class CreditController extends BaseController
                ->triggeredActions($request)
                ->deletePdf();
 
-        event(new CreditWasUpdated($credit, $credit->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        /** @var \App\Models\User $user**/
+        $user = auth()->user();
+
+        event(new CreditWasUpdated($credit, $credit->company, Ninja::eventVars($user->id)));
 
         return $this->itemResponse($credit);
     }
@@ -446,7 +457,7 @@ class CreditController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Collection
+     * @return \Illuminate\Support\Collection
      *
      * @OA\Post(
      *      path="/api/v1/credits/bulk",
@@ -494,9 +505,13 @@ class CreditController extends BaseController
      */
     public function bulk(BulkCreditRequest $request)
     {
+
+        /** @var \App\Models\User $user**/
+        $user = auth()->user();
+
         $action = $request->input('action');
 
-        if (Ninja::isHosted() && (stripos($action, 'email') !== false) && !auth()->user()->company()->account->account_sms_verified) {
+        if (Ninja::isHosted() && (stripos($action, 'email') !== false) && !$user->company()->account->account_sms_verified) {
             return response(['message' => 'Please verify your account to send emails.'], 400);
         }
 
@@ -514,20 +529,20 @@ class CreditController extends BaseController
          */
 
         if ($action == 'bulk_download' && $credits->count() > 1) {
-            $credits->each(function ($credit) {
-                if (auth()->user()->cannot('view', $credit)) {
+            $credits->each(function ($credit) use($user){
+                if ($user->cannot('view', $credit)) {
                     nlog('access denied');
 
                     return response()->json(['message' => ctrans('text.access_denied')]);
                 }
             });
 
-            ZipCredits::dispatch($credits, $credits->first()->company, auth()->user());
+            ZipCredits::dispatch($credits, $credits->first()->company, $user);
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
 
-        if ($action == 'bulk_print' && auth()->user()->can('view', $credits->first())) {
+        if ($action == 'bulk_print' && $user->can('view', $credits->first())) {
             $paths = $credits->map(function ($credit) {
                 return $credit->service()->getCreditPdf($credit->invitations->first());
             });
@@ -539,8 +554,8 @@ class CreditController extends BaseController
             }, 'print.pdf', ['Content-Type' => 'application/pdf']);
         }
 
-        $credits->each(function ($credit, $key) use ($action) {
-            if (auth()->user()->can('edit', $credit)) {
+        $credits->each(function ($credit, $key) use ($action, $user) {
+            if ($user->can('edit', $credit)) {
                 $this->performAction($credit, $action, true);
             }
         });
@@ -691,6 +706,8 @@ class CreditController extends BaseController
 
         $credit = $invitation->credit;
 
+        App::setLocale($invitation->contact->preferredLocale());
+        
         $file = $credit->service()->getCreditPdf($invitation);
 
         $headers = ['Content-Type' => 'application/pdf'];

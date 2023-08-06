@@ -238,7 +238,7 @@ class ClientController extends BaseController
      *
      * @param PurgeClientRequest $request
      * @param Client $client
-     * @return Response
+     * @return \Illuminate\Http\JsonResponse
      *
      */
     public function purge(PurgeClientRequest $request, Client $client)
@@ -266,7 +266,7 @@ class ClientController extends BaseController
      * @param PurgeClientRequest $request
      * @param Client $client
      * @param string $mergeable_client
-     * @return Response
+     * @return \Illuminate\Http\JsonResponse
      *
      */
 

@@ -105,7 +105,7 @@ class RefundPayment
     /**
      * Create the payment activity.
      *
-     * @param  json $notes gateway_transaction
+     * @param  string $notes
      * @return $this
      */
     private function createActivity($notes)

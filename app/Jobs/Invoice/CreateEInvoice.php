@@ -51,9 +51,9 @@ class CreateEInvoice implements ShouldQueue
 
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->invoice->client->getMergedSettings()));
-        
+
         $e_invoice_type = $this->invoice->client->getSetting('e_invoice_type');
-        
+
         switch ($e_invoice_type) {
             case "EN16931":
             case "XInvoice_2_2":
@@ -63,13 +63,13 @@ class CreateEInvoice implements ShouldQueue
             case "XInvoice-Extended":
             case "XInvoice-BasicWL":
             case "XInvoice-Basic":
-                return (new ZugferdEInvoice($this->invoice, $this->alterPDF, $this->custom_pdf_path))->run();
+                return (new ZugferdEInvoice($this->invoice))->run();
             case "Facturae_3.2":
             case "Facturae_3.2.1":
             case "Facturae_3.2.2":
                 return (new FacturaEInvoice($this->invoice, str_replace("Facturae_", "", $e_invoice_type)))->run();
             default:
-                return (new ZugferdEInvoice($this->invoice, $this->alterPDF, $this->custom_pdf_path))->run();
+                return (new ZugferdEInvoice($this->invoice))->run();
 
         }
 

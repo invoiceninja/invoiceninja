@@ -35,9 +35,6 @@ class BankSubaccount extends BaseModel
     use SoftDeletes;
 
     /**
-     * @var array
-     */
-    /**
      * @return BelongsTo
      */
     public function bank_account()

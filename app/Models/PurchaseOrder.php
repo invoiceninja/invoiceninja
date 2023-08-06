@@ -116,136 +116,6 @@ use Illuminate\Support\Facades\Storage;
  * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder query()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereAssignedUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereBackup($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereBalance($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereClientId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCompanyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCurrencyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCustomSurcharge1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCustomSurcharge2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCustomSurcharge3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCustomSurcharge4($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCustomSurchargeTax1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCustomSurchargeTax2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCustomSurchargeTax3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCustomSurchargeTax4($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCustomValue1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCustomValue2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCustomValue3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCustomValue4($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereDesignId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereDiscount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereDueDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereExchangeRate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereExpenseId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereFooter($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereInvoiceId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereIsAmountDiscount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereIsDeleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereLastSentDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereLastViewed($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereLineItems($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereNextSendDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder wherePaidToDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder wherePartial($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder wherePartialDueDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder wherePoNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder wherePrivateNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereProjectId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder wherePublicNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereRecurringId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereReminder1Sent($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereReminder2Sent($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereReminder3Sent($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereReminderLastSent($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereStatusId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereTaxName1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereTaxName2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereTaxName3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereTaxRate1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereTaxRate2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereTaxRate3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereTerms($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereTotalTaxes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereUsesInclusiveTaxes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereVendorId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder withoutTrashed()
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
@@ -369,42 +239,42 @@ class PurchaseOrder extends BaseModel
         return self::class;
     }
 
-    public function assigned_user()
+    public function assigned_user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
 
-    public function vendor()
+    public function vendor(): \Illuminate\Database\Eloquent\Relations\BelongsTo 
     {
         return $this->belongsTo(Vendor::class)->withTrashed();
     }
 
-    public function history()
+    public function history(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
         return $this->hasManyThrough(Backup::class, Activity::class);
     }
 
-    public function activities()
+    public function activities(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(50);
     }
 
-    public function company()
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function expense()
+    public function expense(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Expense::class);
     }
 
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
 
-    public function client()
+    public function client(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Client::class)->withTrashed();
     }
@@ -450,17 +320,17 @@ class PurchaseOrder extends BaseModel
         return Storage::disk('public')->{$type}($file_path);
     }
 
-    public function invitations()
+    public function invitations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(PurchaseOrderInvitation::class);
     }
 
-    public function project()
+    public function project(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Project::class)->withTrashed();
     }
 
-    public function invoice()
+    public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Invoice::class);
     }
@@ -471,17 +341,17 @@ class PurchaseOrder extends BaseModel
         return new PurchaseOrderService($this);
     }
 
-    public function invoices()
+    public function invoices(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Invoice::class)->using(Paymentable::class);
     }
 
-    public function payments()
+    public function payments(): \Illuminate\Database\Eloquent\Relations\MorphToMany
     {
         return $this->morphToMany(Payment::class, 'paymentable');
     }
 
-    public function documents()
+    public function documents(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
     }
@@ -504,7 +374,7 @@ class PurchaseOrder extends BaseModel
         return $purchase_order_calc->build();
     }
 
-    public function translate_entity()
+    public function translate_entity(): string
     {
         return ctrans('texts.purchase_order');
     }

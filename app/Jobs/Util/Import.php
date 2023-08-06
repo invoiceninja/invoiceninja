@@ -165,6 +165,8 @@ class Import implements ShouldQueue
 
     public $timeout = 10000000;
 
+    public $silent_migration;
+
     // public $backoff = 86430;
 
     //  public $maxExceptions = 2;
@@ -176,12 +178,13 @@ class Import implements ShouldQueue
      * @param User $user
      * @param array $resources
      */
-    public function __construct(string $file_path, Company $company, User $user, array $resources = [])
+    public function __construct(string $file_path, Company $company, User $user, array $resources = [], $silent_migration = false)
     {
         $this->file_path = $file_path;
         $this->company = $company;
         $this->user = $user;
         $this->resources = $resources;
+        $this->silent_migration = $silent_migration;
     }
 
     public function middleware()
@@ -263,8 +266,9 @@ class Import implements ShouldQueue
             $t = app('translator');
             $t->replace(Ninja::transformTranslations($this->company->settings));
         
-            Mail::to($this->user->email, $this->user->name())
-                ->send(new MigrationCompleted($this->company->id, $this->company->db, implode("<br>", $check_data)));
+            if(!$this->silent_migration)
+                Mail::to($this->user->email, $this->user->name())->send(new MigrationCompleted($this->company->id, $this->company->db, implode("<br>", $check_data)));
+
         } catch(\Exception $e) {
             nlog($e->getMessage());
         }
@@ -394,6 +398,9 @@ class Import implements ShouldQueue
         $data = $this->transformCompanyData($data);
 
         if (Ninja::isHosted()) {
+
+            $data['subdomain'] = str_replace("_","",$data['subdomain']);
+            
             if (!MultiDB::checkDomainAvailable($data['subdomain'])) {
                 $data['subdomain'] = MultiDB::randomSubdomainGenerator();
             }
@@ -641,7 +648,6 @@ class Import implements ShouldQueue
             
             $user = $user_repository->save($modified, $this->fetchUser($resource['email']), true, true);
             $user->email_verified_at = now();
-            // $user->confirmation_code = '';
 
             if ($modified['deleted_at']) {
                 $user->deleted_at = now();
@@ -1170,10 +1176,25 @@ class Import implements ShouldQueue
 
             unset($modified['id']);
 
+
             $credit = $credit_repository->save(
                 $modified,
                 CreditFactory::create($this->company->id, $modified['user_id'])
             );
+
+            if($credit->status_id == 4)
+            {
+
+                $client = $credit->client;
+                $client->balance -= $credit->balance;
+                $client->credit_balance -= $credit->amount;
+                $client->saveQuietly();
+
+                $credit->paid_to_date = $credit->amount;
+                $credit->balance = 0;
+                $credit->saveQuietly();
+
+            }
 
             //remove credit balance from ledger
             if ($credit->balance > 0 && $credit->client->balance > 0) {
@@ -1590,7 +1611,9 @@ class Import implements ShouldQueue
                 $nmo->company = $this->company;
                 $nmo->settings = $this->company->settings;
                 $nmo->to_user = $this->user;
-                NinjaMailerJob::dispatch($nmo, true);
+
+                if(!$this->silent_migration)
+                    NinjaMailerJob::dispatch($nmo, true);
 
                 $modified['gateway_key'] = 'd14dd26a47cecc30fdd65700bfb67b34';
             }

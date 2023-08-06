@@ -732,6 +732,9 @@ class BaseDriver extends AbstractPaymentDriver
 
         $invoices_string = \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray()) ?: null;
 
+        if (!$invoices_string) 
+            return str_replace(["*","<",">","'",'"'], "", $this->client->company->present()->name());
+
         $invoices_string = str_replace(["*","<",">","'",'"'], "-", $invoices_string);
         
         $invoices_string = "I-".$invoices_string;

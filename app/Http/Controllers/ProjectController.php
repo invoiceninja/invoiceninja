@@ -312,7 +312,10 @@ class ProjectController extends BaseController
      */
     public function create(CreateProjectRequest $request)
     {
-        $project = ProjectFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $project = ProjectFactory::create($user->company()->id, $user->id);
 
         return $this->itemResponse($project);
     }
@@ -357,7 +360,10 @@ class ProjectController extends BaseController
      */
     public function store(StoreProjectRequest $request)
     {
-        $project = ProjectFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $project = ProjectFactory::create($user->company()->id, $user->id);
         $project->fill($request->all());
         $project->saveQuietly();
 
@@ -486,14 +492,17 @@ class ProjectController extends BaseController
      */
     public function bulk()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $action = request()->input('action');
 
         $ids = request()->input('ids');
 
         $projects = Project::withTrashed()->find($this->transformKeys($ids));
 
-        $projects->each(function ($project, $key) use ($action) {
-            if (auth()->user()->can('edit', $project)) {
+        $projects->each(function ($project, $key) use ($action, $user) {
+            if ($user->can('edit', $project)) {
                 $this->project_repo->{$action}($project);
             }
         });
@@ -504,11 +513,9 @@ class ProjectController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param UploadProductRequest $request
-     * @param Product $project
+     * @param UploadProjectRequest $request
+     * @param Project $project
      * @return Response
-     *
-     *
      *
      * @OA\Put(
      *      path="/api/v1/projects/{id}/upload",

@@ -71,6 +71,7 @@ class ClientRepository extends BaseRepository
         }
 
         if (! $client->country_id) {
+            /** @var \App\Models\Company $company **/
             $company = Company::find($client->company_id);
             $client->country_id = $company->settings->country_id;
         }
@@ -136,7 +137,7 @@ class ClientRepository extends BaseRepository
         $client->projects()->forceDelete();
         $client->credits()->forceDelete();
         $client->quotes()->forceDelete();
-        $client->activities()->forceDelete();
+        $client->purgeable_activities()->forceDelete();
         $client->recurring_invoices()->forceDelete();
         $client->expenses()->forceDelete();
         $client->recurring_expenses()->forceDelete();

@@ -54,7 +54,12 @@ var Accept = /*#__PURE__*/function () {
     value: function handle() {
       var _this = this;
       document.getElementById("signature-next-step").disabled = true;
+      document.getElementById("close-button").addEventListener('click', function () {
+        var approveButton = document.getElementById("approve-button");
+        if (approveButton) approveButton.disabled = false;
+      });
       document.getElementById('approve-button').addEventListener('click', function () {
+        console.log("accepted ");
         if (_this.shouldDisplaySignature && _this.shouldDisplayTerms) {
           _this.displaySignature();
           document.getElementById('signature-next-step').addEventListener('click', function () {

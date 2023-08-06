@@ -19,7 +19,6 @@ class StripeCreditCard {
     setupStripe() {
 
         if (this.stripeConnect){
-           // this.stripe.stripeAccount = this.stripeConnect;
            
            this.stripe = Stripe(this.key, {
               stripeAccount: this.stripeConnect,

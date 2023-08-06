@@ -808,6 +808,7 @@ trait MockAccountData
             $cg->fees_and_limits = $data;
             $cg->save();
 
+            
             $cg = new CompanyGateway;
             $cg->company_id = $this->company->id;
             $cg->user_id = $user_id;

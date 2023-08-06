@@ -95,19 +95,18 @@
         "turbo124/predis": "1.1.11",
         "twilio/sdk": "^6.40",
         "webpatser/laravel-countries": "dev-master#75992ad",
-        "wepay/php-sdk": "^0.3"
+        "wepay/php-sdk": "^0.3",
+        "psr/http-message": "^1.0"
     },
     "require-dev": {
         "php": "^8.1",
         "barryvdh/laravel-debugbar": "^3.6",
         "barryvdh/laravel-ide-helper": "^2.13",
-        "beyondcode/laravel-query-detector": "^1.6",
         "brianium/paratest": "^6.1",
         "fakerphp/faker": "^1.14",
         "filp/whoops": "^2.7",
         "friendsofphp/php-cs-fixer": "^3.14",
         "laracasts/cypress": "^3.0",
-        "laravel/dusk": "^6.15",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^6.1",
         "nunomaduro/larastan": "^2.0",

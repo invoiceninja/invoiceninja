@@ -44,6 +44,8 @@ class NinjaPlanController extends Controller
 
         if (! $company) {
             MultiDB::findAndSetDbByAccountKey($account_or_company_key);
+
+            /** @var \App\Models\Account $account **/
             $account = Account::where('key', $account_or_company_key)->first();
         } else {
             $account = $company->account;
@@ -137,6 +139,8 @@ class NinjaPlanController extends Controller
         //set free trial
         if (auth()->guard('contact')->user()->client->custom_value2) {
             MultiDB::findAndSetDbByAccountKey(auth()->guard('contact')->user()->client->custom_value2);
+
+            /** @var \App\Models\Account $account **/
             $account = Account::where('key', auth()->guard('contact')->user()->client->custom_value2)->first();
             // $account->trial_started = now();
             // $account->trial_plan = 'pro';

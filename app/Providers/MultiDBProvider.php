@@ -41,9 +41,5 @@ class MultiDBProvider extends ServiceProvider
                 }
             }
         );
-
-        if ($this->app->runningInConsole()) {
-            return;
-        }
     }
 }

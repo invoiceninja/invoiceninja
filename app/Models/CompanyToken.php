@@ -40,20 +40,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken query()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken whereAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken whereCompanyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken whereIsDeleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken whereIsSystem($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken whereToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken withoutTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken with()
  * @mixin \Eloquent
  */
 class CompanyToken extends BaseModel
@@ -78,22 +66,22 @@ class CompanyToken extends BaseModel
         return self::class;
     }
 
-    public function account()
+    public function account(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Account::class);
     }
 
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function company()
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function company_user()
+    public function company_user(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(CompanyUser::class, 'user_id', 'user_id')
                     ->where('company_id', $this->company_id)

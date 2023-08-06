@@ -34,13 +34,4 @@ class DefaultSettings extends BaseSettings
         ];
     }
 
-    /**
-     * @return stdClass
-     */
-    private static function userSettingsObject() : stdClass
-    {
-        return (object) [
-            //    'per_page' => self::$per_page,
-        ];
-    }
 }

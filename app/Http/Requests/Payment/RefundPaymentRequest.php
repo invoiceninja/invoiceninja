@@ -28,7 +28,9 @@ class RefundPaymentRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->isAdmin();
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        return $user->isAdmin();
     }
 
     public function prepareForValidation()
@@ -62,12 +64,12 @@ class RefundPaymentRequest extends Request
         $this->replace($input);
     }
 
-    public function rules()
+    public function rules(): array
     {
         $input = $this->all();
 
         $rules = [
-            'id' => 'bail|required',
+            'id' => 'bail|required', //@phpstan-ignore-line
             'id' => new ValidRefundableRequest($input),
             'amount' => 'numeric',
             'date' => 'required',
@@ -79,7 +81,7 @@ class RefundPaymentRequest extends Request
         return $rules;
     }
 
-    public function payment() :?Payment
+    public function payment(): ?\App\Models\Payment
     {
         $input = $this->all();
 

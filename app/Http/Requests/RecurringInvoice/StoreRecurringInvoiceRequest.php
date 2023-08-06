@@ -67,7 +67,8 @@ class StoreRecurringInvoiceRequest extends Request
         $rules['tax_name2'] = 'bail|sometimes|string|nullable';
         $rules['tax_name3'] = 'bail|sometimes|string|nullable';
         $rules['due_date_days'] = 'bail|sometimes|string';
-        
+        $rules['exchange_rate'] = 'bail|sometimes|gt:0';
+
         return $rules;
     }
 
@@ -77,6 +78,10 @@ class StoreRecurringInvoiceRequest extends Request
 
         if (array_key_exists('due_date_days', $input) && is_null($input['due_date_days'])) {
             $input['due_date_days'] = 'terms';
+        }
+
+        if(!isset($input['next_send_date']) || $input['next_send_date'] == '') {
+            $input['next_send_date'] = now()->format('Y-m-d');
         }
 
         if (array_key_exists('next_send_date', $input) && is_string($input['next_send_date'])) {
@@ -141,6 +146,10 @@ class StoreRecurringInvoiceRequest extends Request
         /* If there is no number, just unset it here. */
         if (array_key_exists('number', $input) && (is_null($input['number']) || empty($input['number']))) {
             unset($input['number']);
+        }
+
+        if (array_key_exists('exchange_rate', $input) && (is_null($input['exchange_rate']) || $input['exchange_rate'] == 0)) {
+            $input['exchange_rate'] = 1;
         }
 
         $this->replace($input);

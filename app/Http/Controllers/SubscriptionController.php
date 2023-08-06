@@ -48,7 +48,7 @@ class SubscriptionController extends BaseController
     /**
      * Show the list of Subscriptions.
      *
-     * @return Response
+     * @return \Illuminate\Http\Response
      *
      * @OA\Get(
      *      path="/api/v1/subscriptions",
@@ -92,7 +92,7 @@ class SubscriptionController extends BaseController
      *
      * @param CreateSubscriptionRequest $request  The request
      *
-     * @return Response
+     * @return \Illuminate\Http\Response
      *
      *
      * @OA\Get(
@@ -127,7 +127,10 @@ class SubscriptionController extends BaseController
      */
     public function create(CreateSubscriptionRequest $request): \Illuminate\Http\Response
     {
-        $subscription = SubscriptionFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $subscription = SubscriptionFactory::create($user->company()->id, $user->id);
 
         return $this->itemResponse($subscription);
     }
@@ -137,7 +140,7 @@ class SubscriptionController extends BaseController
      *
      * @param StoreSubscriptionRequest $request  The request
      *
-     * @return Response
+     * @return \Illuminate\Http\Response
      *
      *
      * @OA\Post(
@@ -172,9 +175,12 @@ class SubscriptionController extends BaseController
      */
     public function store(StoreSubscriptionRequest $request): \Illuminate\Http\Response
     {
-        $subscription = $this->subscription_repo->save($request->all(), SubscriptionFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
-        event(new SubscriptionWasCreated($subscription, $subscription->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        $subscription = $this->subscription_repo->save($request->all(), SubscriptionFactory::create($user->company()->id, $user->id));
+
+        event(new SubscriptionWasCreated($subscription, $subscription->company, Ninja::eventVars($user->id)));
 
         return $this->itemResponse($subscription);
     }
@@ -183,9 +189,9 @@ class SubscriptionController extends BaseController
      * Display the specified resource.
      *
      * @param ShowSubscriptionRequest $request  The request
-     * @param Invoice $subscription  The invoice
+     * @param Subscription $subscription  The invoice
      *
-     * @return Response
+     * @return \Illuminate\Http\Response
      *
      *
      * @OA\Get(
@@ -238,9 +244,9 @@ class SubscriptionController extends BaseController
      * Show the form for editing the specified resource.
      *
      * @param EditSubscriptionRequest $request  The request
-     * @param Invoice $subscription  The invoice
+     * @param Subscription $subscription  The subscription
      *
-     * @return Response
+     * @return \Illuminate\Http\Response
      *
      * @OA\Get(
      *      path="/api/v1/subscriptions/{id}/edit",
@@ -292,9 +298,9 @@ class SubscriptionController extends BaseController
      * Update the specified resource in storage.
      *
      * @param UpdateSubscriptionRequest $request  The request
-     * @param Subscription $subscription  The invoice
+     * @param Subscription $subscription  The subscription
      *
-     * @return Response
+     * @return \Illuminate\Http\Response
      *
      *
      * @OA\Put(
@@ -338,7 +344,7 @@ class SubscriptionController extends BaseController
      *       ),
      *     )
      */
-    public function update(UpdateSubscriptionRequest $request, Subscription $subscription)
+    public function update(UpdateSubscriptionRequest $request, Subscription $subscription): \Illuminate\Http\Response
     {
         if ($request->entityIsDeleted($subscription)) {
             return $request->disallowUpdate();
@@ -346,7 +352,10 @@ class SubscriptionController extends BaseController
 
         $subscription = $this->subscription_repo->save($request->all(), $subscription);
 
-        event(new SubscriptionWasUpdated($subscription, $subscription->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        event(new SubscriptionWasUpdated($subscription, $subscription->company, Ninja::eventVars($user->id)));
 
         return $this->itemResponse($subscription);
     }
@@ -355,9 +364,9 @@ class SubscriptionController extends BaseController
      * Remove the specified resource from storage.
      *
      * @param DestroySubscriptionRequest $request
-     * @param Subscription $invoice
+     * @param Subscription $subscription
      *
-     * @return     Response
+     * @return \Illuminate\Http\Response
      *
      * @throws \Exception
      * @OA\Delete(
@@ -410,7 +419,7 @@ class SubscriptionController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Response
+     * @return \Illuminate\Support\Collection
      *
      *
      * @OA\Post(
@@ -459,13 +468,16 @@ class SubscriptionController extends BaseController
      */
     public function bulk()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $action = request()->input('action');
 
         $ids = request()->input('ids');
         $subscriptions = Subscription::withTrashed()->find($this->transformKeys($ids));
 
-        $subscriptions->each(function ($subscription, $key) use ($action) {
-            if (auth()->user()->can('edit', $subscription)) {
+        $subscriptions->each(function ($subscription, $key) use ($action, $user) {
+            if ($user->can('edit', $subscription)) {
                 $this->subscription_repo->{$action}($subscription);
             }
         });

@@ -62,7 +62,7 @@ trait MakesHash
         return $hashids->encode($value);
     }
 
-    public function decodePrimaryKey($value) : string
+    public function decodePrimaryKey($value)
     {
         try {
             $hashids = new Hashids(config('ninja.hash_salt'), 10);
@@ -71,7 +71,6 @@ trait MakesHash
 
             if (! is_array($decoded_array)) {
                 throw new \Exception('Invalid Primary Key');
-                //response()->json(['error'=>'Invalid primary key'], 400);
             }
 
             return $decoded_array[0];

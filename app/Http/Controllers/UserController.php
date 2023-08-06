@@ -175,6 +175,7 @@ class UserController extends BaseController
             $user->oauth_user_refresh_token = null;
             $user->oauth_user_token = null;
             $user->save();
+            
             UserEmailChanged::dispatch($new_user, json_decode($old_user), $logged_in_user->company());
         }
 
@@ -188,7 +189,7 @@ class UserController extends BaseController
      *
      * @param DestroyUserRequest $request
      * @param User $user
-     * @return JsonResponse | Response
+     * @return \Illuminate\Http\JsonResponse
      *
      */
     public function destroy(DestroyUserRequest $request, User $user)

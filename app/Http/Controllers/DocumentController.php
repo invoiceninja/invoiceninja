@@ -69,7 +69,7 @@ class DocumentController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     * @param DocumentsFilters $filters
+     * @param DocumentFilters $filters
      * @return Response|mixed
      */
     public function index(DocumentFilters $filters)
@@ -168,6 +168,9 @@ class DocumentController extends BaseController
 
     public function bulk()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $action = request()->input('action');
 
         $ids = request()->input('ids');
@@ -179,15 +182,15 @@ class DocumentController extends BaseController
         }
 
         if ($action == 'download') {
-            ZipDocuments::dispatch($documents->pluck('id'), auth()->user()->company(), auth()->user());
+            ZipDocuments::dispatch($documents->pluck('id'), $user->company(), auth()->user());
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
         /*
          * Send the other actions to the switch
          */
-        $documents->each(function ($document, $key) use ($action) {
-            if (auth()->user()->can('edit', $document)) {
+        $documents->each(function ($document, $key) use ($action, $user) {
+            if ($user->can('edit', $document)) {
                 $this->document_repo->{$action}($document);
             }
         });

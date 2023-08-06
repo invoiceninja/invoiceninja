@@ -14,6 +14,7 @@ namespace App\Services\Payment;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\BankTransaction;
 use Illuminate\Contracts\Container\BindingResolutionException;
 
 class DeletePayment
@@ -21,7 +22,7 @@ class DeletePayment
     private float $_paid_to_date_deleted = 0;
 
     /**
-     * @param mixed $payment
+     * @param Payment $payment
      * @return void
      */
     public function __construct(public Payment $payment, private bool $update_client_paid_to_date)
@@ -29,7 +30,7 @@ class DeletePayment
     }
 
     /**
-     * @return mixed
+     * @return Payment
      * @throws BindingResolutionException
      */
     public function run()
@@ -53,9 +54,15 @@ class DeletePayment
     /** @return $this  */
     private function cleanupPayment()
     {
+
         $this->payment->is_deleted = true;
         $this->payment->delete();
 
+        BankTransaction::where('payment_id', $this->payment->id)->cursor()->each(function ($bt){
+            $bt->payment_id = null;
+            $bt->save();
+        });
+        
         return $this;
     }
 
@@ -109,6 +116,8 @@ class DeletePayment
                     $paymentable_invoice->service()
                                         ->updatePaidToDate($net_deletable * -1)
                                         ->save();
+                    $paymentable_invoice->delete();
+
                 }
             });
         }
@@ -146,7 +155,7 @@ class DeletePayment
 
                 $client
                 ->service()
-                ->updatePaidToDate(($paymentable_credit->pivot->amount) * -1)
+                // ->updatePaidToDate(($paymentable_credit->pivot->amount) * -1)
                 ->adjustCreditBalance($paymentable_credit->pivot->amount)
                 ->save();
             });

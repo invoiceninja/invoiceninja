@@ -22,8 +22,6 @@ use League\Csv\Writer;
 
 class ClientExport extends BaseExport
 {
-    private $company;
-
     private $client_transformer;
 
     private $contact_transformer;
@@ -82,7 +80,6 @@ class ClientExport extends BaseExport
     ];
 
     public array $forced_keys = [
-        'status',
     ];
 
     public function __construct(Company $company, array $input)
@@ -132,6 +129,8 @@ class ClientExport extends BaseExport
 
         $transformed_client = $this->client_transformer->transform($client);
 
+        $transformed_contact = [];
+
         if ($contact = $client->contacts()->first()) {
             $transformed_contact = $this->contact_transformer->transform($contact);
         }
@@ -140,15 +139,13 @@ class ClientExport extends BaseExport
 
         foreach (array_values($this->input['report_keys']) as $key) {
             $parts = explode('.', $key);
-
-            $keyval = array_search($key, $this->entity_keys);
-
-            if ($parts[0] == 'client' && array_key_exists($parts[1], $transformed_client)) {
-                $entity[$keyval] = $transformed_client[$parts[1]];
-            } elseif ($parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {
-                $entity[$keyval] = $transformed_contact[$parts[1]];
+            
+            if (is_array($parts) && $parts[0] == 'client' && array_key_exists($parts[1], $transformed_client)) {
+                $entity[$key] = $transformed_client[$parts[1]];
+            } elseif (is_array($parts) && $parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {
+                $entity[$key] = $transformed_contact[$parts[1]];
             } else {
-                $entity[$keyval] = '';
+                $entity[$key] = '';
             }
         }
 
@@ -157,23 +154,29 @@ class ClientExport extends BaseExport
 
     private function decorateAdvancedFields(Client $client, array $entity) :array
     {
+        if (in_array('client.user', $this->input['report_keys'])) {
+            $entity['client.user'] = $client->user->present()->name();
+        }
+
+        if (in_array('client.assigned_user', $this->input['report_keys'])) {
+            $entity['client.assigned_user'] = $client->assigned_user ? $client->user->present()->name() : '';
+        }
+
         if (in_array('client.country_id', $this->input['report_keys'])) {
-            $entity['country'] = $client->country ? ctrans("texts.country_{$client->country->name}") : '';
+            $entity['client.country_id'] = $client->country ? ctrans("texts.country_{$client->country->name}") : '';
         }
 
         if (in_array('client.shipping_country_id', $this->input['report_keys'])) {
-            $entity['shipping_country'] = $client->shipping_country ? ctrans("texts.country_{$client->shipping_country->name}") : '';
+            $entity['client.shipping_country_id'] = $client->shipping_country ? ctrans("texts.country_{$client->shipping_country->name}") : '';
         }
 
-        if (in_array('client.currency', $this->input['report_keys'])) {
-            $entity['currency'] = $client->currency() ? $client->currency()->code : $client->company->currency()->code;
+        if (in_array('client.currency_id', $this->input['report_keys'])) {
+            $entity['client.currency_id'] = $client->currency() ? $client->currency()->code : $client->company->currency()->code;
         }
 
         if (in_array('client.industry_id', $this->input['report_keys'])) {
             $entity['industry_id'] = $client->industry ? ctrans("texts.industry_{$client->industry->name}") : '';
         }
-
-        $entity['status'] = $this->calculateStatus($client);
 
         return $entity;
     }
@@ -185,7 +188,7 @@ class ClientExport extends BaseExport
         }
 
         if ($client->deleted_at) {
-            return ctrans('texts.arcvived');
+            return ctrans('texts.archived');
         }
 
         return ctrans('texts.active');

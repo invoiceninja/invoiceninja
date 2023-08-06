@@ -12,6 +12,7 @@
 
 namespace App\PaymentDrivers\Square;
 
+use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -42,7 +43,7 @@ class CreditCard implements MethodInterface
      * Authorization page for credit card.
      *
      * @param array $data
-     * @return View
+     * @return \Illuminate\View\View         
      */
     public function authorizeView($data): View
     {
@@ -99,6 +100,7 @@ class CreditCard implements MethodInterface
         );
 
         if ($request->shouldUseToken()) {
+            /** @var \App\Models\ClientGatewayToken $cgt **/
             $cgt = ClientGatewayToken::where('token', $request->token)->first();
             $token = $cgt->token;
         }
@@ -113,18 +115,23 @@ class CreditCard implements MethodInterface
         $body->setLocationId($this->square_driver->company_gateway->getConfigField('locationId'));
         $body->setReferenceId(Str::random(16));
 
-        if ($request->has('verificationToken') && $request->input('verificationToken')) {
-            $body->setVerificationToken($request->input('verificationToken'));
-        }
-
         if ($request->shouldUseToken()) {
             $body->setCustomerId($cgt->gateway_customer_reference);
+        }elseif ($request->has('verificationToken') && $request->input('verificationToken')) {
+            $body->setVerificationToken($request->input('verificationToken'));
         }
 
         /** @var ApiResponse */
         $response = $this->square_driver->square->getPaymentsApi()->createPayment($body);
 
         if ($response->isSuccess()) {
+
+            $body = json_decode($response->getBody());
+
+            if($request->store_card){
+                $this->createCard($body->payment->id);
+            }
+
             return $this->processSuccessfulPayment($response);
         }
 
@@ -159,6 +166,52 @@ class CreditCard implements MethodInterface
         ];
 
         return $this->square_driver->processUnsuccessfulTransaction($data);
+    }
+
+    private function createCard($source_id)
+    {
+        
+        $square_card = new \Square\Models\Card();
+        $square_card->setCustomerId($this->findOrCreateClient());
+
+        $body = new \Square\Models\CreateCardRequest(uniqid("st", true), $source_id, $square_card);
+        
+        $api_response = $this->square_driver
+                             ->init()
+                             ->square
+                             ->getCardsApi()
+                             ->createCard($body);
+
+        $body = json_decode($api_response->getBody());
+
+        if ($api_response->isSuccess()) {
+
+            try {
+                $payment_meta = new \stdClass;
+                $payment_meta->exp_month = (string) $body->card->exp_month;
+                $payment_meta->exp_year = (string) $body->card->exp_year;
+                $payment_meta->brand = (string) $body->card->card_brand;
+                $payment_meta->last4 = (string) $body->card->last_4;
+                $payment_meta->type = GatewayType::CREDIT_CARD;
+
+                $data = [
+                    'payment_meta' => $payment_meta,
+                    'token' => $body->card->id,
+                    'payment_method_id' => GatewayType::CREDIT_CARD,
+                ];
+
+                $this->square_driver->storeGatewayToken($data, ['gateway_customer_reference' => $body->card->customer_id]);
+
+            } catch (\Exception $e) {
+                return $this->square_driver->processInternallyFailedPayment($this->square_driver, $e);
+            }
+
+        }
+        else {
+            throw new PaymentFailed($body->errors[0]->detail, 500);
+        }
+
+        return false;
     }
 
     private function findOrCreateClient()

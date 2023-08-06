@@ -37,7 +37,6 @@ class BankAccountsCreated extends GenericMixedMetric
      *
      * date("Y-m-d H:i:s")
      *
-     * @var \DateTime
      */
     public $datetime;
 

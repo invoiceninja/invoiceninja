@@ -183,7 +183,6 @@ class PdfMock
     /**
      * getStubVariables
      *
-     * @return void
      */
     public function getStubVariables()
     {

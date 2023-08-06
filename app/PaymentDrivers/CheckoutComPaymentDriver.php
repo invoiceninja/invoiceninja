@@ -27,6 +27,7 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\CheckoutCom\CreditCard;
 use App\PaymentDrivers\CheckoutCom\Utilities;
+use App\PaymentDrivers\CheckoutCom\CheckoutWebhook;
 use App\Utils\Traits\SystemLogTrait;
 use Checkout\CheckoutApi;
 use Checkout\CheckoutApiException;
@@ -167,7 +168,7 @@ class CheckoutComPaymentDriver extends BaseDriver
      * Payment View
      *
      * @param array $data Payment data array
-     * @return view         The payment view
+     * @return \Illuminate\View\View         
      */
     public function processPaymentView(array $data)
     {
@@ -178,7 +179,7 @@ class CheckoutComPaymentDriver extends BaseDriver
      * Process the payment response
      *
      * @param Request $request The payment request
-     * @return view             The payment response view
+     * @return \Illuminate\View\View         
      */
     public function processPaymentResponse($request)
     {
@@ -334,7 +335,7 @@ class CheckoutComPaymentDriver extends BaseDriver
         $paymentRequest->amount = $this->convertToCheckoutAmount($amount, $this->client->getCurrencyCode());
         $paymentRequest->reference = '#'.$invoice->number.' - '.now();
         $paymentRequest->customer = $this->getCustomer();
-        $paymentRequest->metadata = ['udf1' => 'Invoice Ninja'];
+        $paymentRequest->metadata = ['udf1' => 'Invoice Ninja', 'udf2' => $payment_hash->hash];
         $paymentRequest->currency = $this->client->getCurrencyCode();
 
         $request = new PaymentResponseRequest();
@@ -421,7 +422,19 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     public function processWebhookRequest(PaymentWebhookRequest $request)
     {
-        return true;
+
+        header('Content-Type: text/plain');
+        $webhook_payload = file_get_contents('php://input');
+
+        if($request->header('cko-signature') == hash_hmac('sha256', $webhook_payload, $this->company_gateway->company->company_key)) {
+            CheckoutWebhook::dispatch($request->all(), $request->company_key, $this->company_gateway->id)->delay(10);
+        }
+        else {
+            nlog("Hash Mismatch = {$request->header('cko-signature')} ".hash_hmac('sha256', $webhook_payload, $this->company_gateway->company->company_key));
+            nlog($request->all());
+        }
+
+        return response()->json(['success' => true]);
     }
 
     public function process3dsConfirmation(Checkout3dsRequest $request)
@@ -439,6 +452,9 @@ class CheckoutComPaymentDriver extends BaseDriver
             $payment = $this->gateway->getPaymentsClient()->getPaymentDetails(
                 $request->query('cko-session-id')
             );
+
+            nlog("checkout3ds");
+            nlog($payment);
 
             if (isset($payment['approved']) && $payment['approved']) {
                 return $this->processSuccessfulPayment($payment);

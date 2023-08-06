@@ -1,0 +1,171 @@
+<?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
+
+namespace App\Export\CSV;
+
+use App\Libraries\MultiDB;
+use App\Models\Vendor;
+use App\Models\Company;
+use App\Transformers\VendorContactTransformer;
+use App\Transformers\VendorTransformer;
+use App\Utils\Ninja;
+use Illuminate\Support\Facades\App;
+use League\Csv\Writer;
+
+class VendorExport extends BaseExport
+{
+
+    private $vendor_transformer;
+
+    private $contact_transformer;
+
+    public Writer $csv;
+
+    public string $date_key = 'created_at';
+
+    public array $entity_keys = [
+        'address1' => 'vendor.address1',
+        'address2' => 'vendor.address2',
+        'city' => 'vendor.city',
+        'country' => 'vendor.country_id',
+        'custom_value1' => 'vendor.custom_value1',
+        'custom_value2' => 'vendor.custom_value2',
+        'custom_value3' => 'vendor.custom_value3',
+        'custom_value4' => 'vendor.custom_value4',
+        'id_number' => 'vendor.id_number',
+        'name' => 'vendor.name',
+        'number' => 'vendor.number',
+        'phone' => 'vendor.phone',
+        'postal_code' => 'vendor.postal_code',
+        'private_notes' => 'vendor.private_notes',
+        'public_notes' => 'vendor.public_notes',
+        'state' => 'vendor.state',
+        'vat_number' => 'vendor.vat_number',
+        'website' => 'vendor.website',
+        'currency' => 'vendor.currency',
+        'first_name' => 'vendor_contact.first_name',
+        'last_name' => 'vendor_contact.last_name',
+        'contact_phone' => 'vendor_contact.phone',
+        'contact_custom_value1' => 'vendor_contact.custom_value1',
+        'contact_custom_value2' => 'vendor_contact.custom_value2',
+        'contact_custom_value3' => 'vendor_contact.custom_value3',
+        'contact_custom_value4' => 'vendor_contact.custom_value4',
+        'email' => 'vendor_contact.email',
+        'status' => 'vendor.status'
+    ];
+
+    private array $decorate_keys = [
+        'vendor.country_id',
+        'vendor.currency',
+    ];
+
+    public array $forced_keys = [
+        // 'vendor.status'
+    ];
+
+    public function __construct(Company $company, array $input)
+    {
+        $this->company = $company;
+        $this->input = $input;
+        $this->vendor_transformer = new VendorTransformer();
+        $this->contact_transformer = new VendorContactTransformer();
+    }
+
+    public function run()
+    {
+        MultiDB::setDb($this->company->db);
+        App::forgetInstance('translator');
+        App::setLocale($this->company->locale());
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($this->company->settings));
+
+        //load the CSV document from a string
+        $this->csv = Writer::createFromString();
+
+        if (count($this->input['report_keys']) == 0) {
+            $this->input['report_keys'] = array_values($this->entity_keys);
+        }
+        
+        //insert the header
+        $this->csv->insertOne($this->buildHeader());
+
+        $query = Vendor::query()->with('contacts')
+                                ->withTrashed()
+                                ->where('company_id', $this->company->id)
+                                ->where('is_deleted', 0);
+
+        $query = $this->addDateRange($query);
+
+        $query->cursor()
+              ->each(function ($vendor) {
+                  $this->csv->insertOne($this->buildRow($vendor));
+              });
+
+        return $this->csv->toString();
+    }
+
+    private function buildRow(Vendor $vendor) :array
+    {
+        $transformed_contact = [];
+
+        $transformed_vendor = $this->vendor_transformer->transform($vendor);
+
+        if ($contact = $vendor->contacts()->first()) {
+            $transformed_contact = $this->contact_transformer->transform($contact);
+        }
+
+        $entity = [];
+
+        foreach (array_values($this->input['report_keys']) as $key) {
+            $parts = explode('.', $key);
+
+            $keyval = array_search($key, $this->entity_keys);
+
+            if (is_array($parts) && $parts[0] == 'vendor' && array_key_exists($parts[1], $transformed_vendor)) {
+                $entity[$keyval] = $transformed_vendor[$parts[1]];
+            } elseif (is_array($parts) && $parts[0] == 'vendor_contact' && array_key_exists($parts[1], $transformed_contact)) {
+                $entity[$keyval] = $transformed_contact[$parts[1]];
+            } else {
+                $entity[$keyval] = '';
+            }
+        }
+
+        return $this->decorateAdvancedFields($vendor, $entity);
+    }
+
+    private function decorateAdvancedFields(Vendor $vendor, array $entity) :array
+    {
+        if (in_array('vendor.country_id', $this->input['report_keys'])) {
+            $entity['country'] = $vendor->country ? ctrans("texts.country_{$vendor->country->name}") : '';
+        }
+
+        if (in_array('vendor.currency', $this->input['report_keys'])) {
+            $entity['currency'] = $vendor->currency() ? $vendor->currency()->code : $vendor->company->currency()->code;
+        }
+
+        $entity['status'] = $this->calculateStatus($vendor);
+
+        return $entity;
+    }
+
+    private function calculateStatus($vendor)
+    {
+        if ($vendor->is_deleted) {
+            return ctrans('texts.deleted');
+        }
+
+        if ($vendor->deleted_at) {
+            return ctrans('texts.archived');
+        }
+
+        return ctrans('texts.active');
+    }
+}

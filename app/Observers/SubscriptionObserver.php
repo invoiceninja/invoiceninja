@@ -16,9 +16,9 @@ use App\Models\Subscription;
 class SubscriptionObserver
 {
     /**
-     * Handle the billing_subscription "created" event.
+     * Handle the subscription "created" event.
      *
-     * @param Subscription $billing_subscription
+     * @param Subscription $subscription
      * @return void
      */
     public function created(Subscription $subscription)
@@ -27,9 +27,9 @@ class SubscriptionObserver
     }
 
     /**
-     * Handle the billing_subscription "updated" event.
+     * Handle the subscription "updated" event.
      *
-     * @param Subscription $billing_subscription
+     * @param Subscription $subscription
      * @return void
      */
     public function updated(Subscription $subscription)
@@ -38,9 +38,9 @@ class SubscriptionObserver
     }
 
     /**
-     * Handle the billing_subscription "deleted" event.
+     * Handle the subscription "deleted" event.
      *
-     * @param Subscription $billing_subscription
+     * @param Subscription $subscription
      * @return void
      */
     public function deleted(Subscription $subscription)
@@ -49,9 +49,9 @@ class SubscriptionObserver
     }
 
     /**
-     * Handle the billing_subscription "restored" event.
+     * Handle the subscription "restored" event.
      *
-     * @param Subscription $billing_subscription
+     * @param Subscription $subscription
      * @return void
      */
     public function restored(Subscription $subscription)
@@ -60,9 +60,9 @@ class SubscriptionObserver
     }
 
     /**
-     * Handle the billing_subscription "force deleted" event.
+     * Handle the subscription "force deleted" event.
      *
-     * @param Subscription $billing_subscription
+     * @param Subscription $subscription
      * @return void
      */
     public function forceDeleted(Subscription $subscription)

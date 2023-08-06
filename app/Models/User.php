@@ -57,7 +57,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property int|null $avatar_width
  * @property int|null $avatar_height
  * @property int|null $avatar_size
- * @property int $is_deleted
+ * @property bool $is_deleted
  * @property string|null $last_login
  * @property string|null $signature
  * @property string $password
@@ -74,19 +74,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property int $has_password
  * @property Carbon|null $oauth_user_token_expiry
  * @property string|null $sms_verification_code
- * @property int $verified_phone_number
+ * @property bool $verified_phone_number
  * @property-read \App\Models\Account $account
  * @property-read \App\Models\Company $company
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Client> $clients
- * @property-read int|null $clients_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
- * @property-read int|null $companies_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyUser> $company_users
- * @property-read int|null $company_users_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientContact> $contacts
- * @property-read int|null $contacts_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read int|null $documents_count
  * @property-read mixed $hashed_id
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
@@ -98,53 +88,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @method static \Illuminate\Database\Eloquent\Builder|User newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|User onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|User query()
- * @method static \Illuminate\Database\Eloquent\Builder|User whereAcceptedTermsVersion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereAvatar($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereAvatarHeight($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereAvatarSize($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereAvatarWidth($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereConfirmationCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereCustomValue1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereCustomValue2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereCustomValue3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereCustomValue4($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereDeviceToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereEmail($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereEmailVerifiedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereFailedLogins($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereFirstName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereGoogle2faSecret($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereHasPassword($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereIp($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereIsDeleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereLastConfirmedEmailAddress($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereLastLogin($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereLastName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereOauthProviderId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereOauthUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereOauthUserRefreshToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereOauthUserToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereOauthUserTokenExpiry($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User wherePassword($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User wherePhone($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereReferralCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereRememberToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereSignature($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereSmsVerificationCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereThemeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereVerifiedPhoneNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User where($column, $value)
  * @method static \Illuminate\Database\Eloquent\Builder|User withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|User withoutTrashed()
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Client> $clients
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyUser> $company_users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientContact> $contacts
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens
  * @method bool hasPermissionTo(string $permission)
@@ -284,7 +231,7 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function companies()
+    public function companies(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Company::class)->using(CompanyUser::class)->withPivot('permissions', 'settings', 'is_admin', 'is_owner', 'is_locked')->withTimestamps();
     }
@@ -336,14 +283,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->getCompany();
     }
 
-    // private function setCompanyByGuard()
-    // {
-    //     if (Auth::guard('contact')->check()) {
-    //         $this->setCompany(auth()->user()->client->company);
-    //     }
-    // }
-
-    public function company_users()
+    public function company_users(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(CompanyUser::class)->withTrashed();
     }
@@ -373,8 +313,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
         return $this->token()->cu;
 
-        // return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'user_id', 'id', 'user_id')
-        // ->withTrashed();
     }
 
     /**
@@ -387,7 +325,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->company()->id;
     }
 
-    public function clients()
+    public function clients(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Client::class);
     }
@@ -412,7 +350,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return json_decode($this->token()->cu->settings);
 
-        //return json_decode($this->company_user->settings);
     }
 
     /**
@@ -424,14 +361,12 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->token()->cu->is_admin;
 
-        // return $this->company_user->is_admin;
     }
 
     public function isOwner() : bool
     {
         return $this->token()->cu->is_owner;
 
-        // return $this->company_user->is_owner;
     }
 
     /**
@@ -449,7 +384,7 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function contacts()
+    public function contacts(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ClientContact::class);
     }
@@ -641,12 +576,12 @@ class User extends Authenticatable implements MustVerifyEmail
         return false;
     }
 
-    public function documents()
+    public function documents(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
     }
 
-    public function isVerified()
+    public function isVerified(): bool
     {
         return is_null($this->email_verified_at) ? false : true;
     }

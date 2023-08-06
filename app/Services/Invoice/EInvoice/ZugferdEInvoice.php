@@ -23,7 +23,7 @@ use horstoeko\zugferd\codelists\ZugferdDutyTaxFeeCategories;
 class ZugferdEInvoice extends AbstractService
 {
 
-    public function __construct(public Invoice $invoice, private bool $alterPDF, private string $custom_pdf_path = "", private array $tax_map = [])
+    public function __construct(public Invoice $invoice, private array $tax_map = [])
     {
     }
 
@@ -98,7 +98,9 @@ class ZugferdEInvoice extends AbstractService
                 if (!empty($item->notes)){
                    $xrechnung->setDocumentPositionProductDetails($item->product_key, $item->notes);
                 }
-                $xrechnung->setDocumentPositionProductDetails($item->product_key);
+                else {
+                    $xrechnung->setDocumentPositionProductDetails($item->product_key);
+                }
             }
             else {
                 if (!empty($item->notes)){
@@ -159,13 +161,7 @@ class ZugferdEInvoice extends AbstractService
             }
         }
 
-
-        if ($this->invoice->isPartial()) {
-            $xrechnung->setDocumentSummation($this->invoice->amount, $this->invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), null, $this->invoice->partial);
-        } else {
-            $xrechnung->setDocumentSummation($this->invoice->amount, $this->invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), null, 0.0);
-        }
-
+        $xrechnung->setDocumentSummation($this->invoice->amount, $this->invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), 0.0, $this->invoice->amount-$this->invoice->balance);
 
         foreach ($this->tax_map as $item){
             $xrechnung->addDocumentTax($item["tax_type"], "VAT", $item["net_amount"], $item["tax_rate"]*$item["net_amount"], $item["tax_rate"]*100);
@@ -178,22 +174,6 @@ class ZugferdEInvoice extends AbstractService
 
         $xrechnung->writeFile(Storage::disk($disk)->path($client->e_invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName("xml")));
         // The validity can be checked using https://portal3.gefeg.com/invoice/validation or https://e-rechnung.bayern.de/app/#/upload
-
-        if ($this->alterPDF) {
-            if ($this->custom_pdf_path != "") {
-                $pdfBuilder = new ZugferdDocumentPdfBuilder($xrechnung, $this->custom_pdf_path);
-                $pdfBuilder->generateDocument();
-                $pdfBuilder->saveDocument($this->custom_pdf_path);
-            } else {
-                $filepath_pdf = $client->invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName();
-                $file = Storage::disk($disk)->exists($filepath_pdf);
-                if ($file) {
-                    $pdfBuilder = new ZugferdDocumentPdfBuilder($xrechnung, Storage::disk($disk)->path($filepath_pdf));
-                    $pdfBuilder->generateDocument();
-                    $pdfBuilder->saveDocument(Storage::disk($disk)->path($filepath_pdf));
-                }
-            }
-        }
 
         return $client->e_invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName("xml");
     }
@@ -236,7 +216,8 @@ class ZugferdEInvoice extends AbstractService
         }
         return $tax_type;
     }
-    private function addtoTaxMap(string $tax_type, float $net_amount, float $tax_rate){
+    private function addtoTaxMap(string $tax_type, float $net_amount, float $tax_rate): void
+    {
         $hash = hash("md5", $tax_type."-".$tax_rate);
         if (array_key_exists($hash, $this->tax_map)){
             $this->tax_map[$hash]["net_amount"] += $net_amount;

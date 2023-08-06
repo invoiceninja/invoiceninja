@@ -187,6 +187,16 @@ class ACH
 
         $intent = false;
 
+        if (count($data['tokens']) == 1) {
+        
+            $token = $data['tokens'][0];
+
+            $meta = $token->meta;
+
+            if(isset($meta->state) && $meta->state == 'unauthorized')
+                return redirect()->route('client.payment_methods.show', $token->hashed_id);
+        }
+
         if (count($data['tokens']) == 0) {
             $intent =
             $this->stripe->createPaymentIntent(

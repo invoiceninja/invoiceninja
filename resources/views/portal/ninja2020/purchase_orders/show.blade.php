@@ -46,19 +46,27 @@
     @endif
 
     @include('portal.ninja2020.components.entity-documents', ['entity' => $purchase_order])
-    @include('portal.ninja2020.components.pdf-viewer', ['entity' => $purchase_order, 'invitation' => $invitation])
+    @livewire('pdf-slot', ['entity' => $purchase_order, 'invitation' => $invitation, 'db' => $invitation->company->db])
+
+@endsection
+
+@section('footer')
     @include('portal.ninja2020.invoices.includes.terms', ['entities' => [$purchase_order], 'entity_type' => ctrans('texts.purchase_order')])
     @include('portal.ninja2020.invoices.includes.signature')
 @endsection
 
-@section('footer')
-    <script src="{{ asset('js/clients/purchase_orders/accept.js') }}"></script>
-    <script src="{{ asset('vendor/clipboard.min.js') }}"></script>
+@push('head')
+    <script src="{{ asset('js/clients/purchase_orders/accept.js') }}" defer></script>
+    <script src="{{ asset('vendor/clipboard.min.js') }}"  defer></script>
 
     <script type="text/javascript">
 
-        var clipboard = new ClipboardJS('.btn');
+        document.addEventListener('DOMContentLoaded', () => {
+
+            var clipboard = new ClipboardJS('.btn');
+
+        });
 
     </script>
-@endsection
+@endpush
 

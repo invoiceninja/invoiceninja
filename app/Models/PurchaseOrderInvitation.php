@@ -15,6 +15,7 @@ use App\Utils\Ninja;
 use App\Utils\Traits\Inviteable;
 use App\Utils\Traits\MakesDates;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -102,49 +103,37 @@ class PurchaseOrderInvitation extends BaseModel
         return PurchaseOrder::class;
     }
 
-    /**
-     * @return mixed
-     */
-    public function purchase_order()
+    public function purchase_order(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(PurchaseOrder::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
-    public function entity()
+    public function entity(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(PurchaseOrder::class)->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
-    public function contact()
+    public function contact(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(VendorContact::class, 'vendor_contact_id', 'id')->withTrashed();
     }
 
-    /**
-     * @return mixed
-     */
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
 
-    public function company()
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function getName()
+    public function getName(): string
     {
         return $this->key;
     }
 
-    public function markViewed()
+    public function markViewed(): void
     {
         $this->viewed_date = Carbon::now();
         $this->save();

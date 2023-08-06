@@ -37,6 +37,7 @@ class TaskTransformer extends EntityTransformer
         'status',
         'project',
         'user',
+        'invoice',
     ];
 
     public function includeDocuments(Task $task)
@@ -44,6 +45,17 @@ class TaskTransformer extends EntityTransformer
         $transformer = new DocumentTransformer($this->serializer);
 
         return $this->includeCollection($task->documents, $transformer, Document::class);
+    }
+
+    public function includeInvoice(Task $task): ?Item
+    {
+        $transformer = new InvoiceTransformer($this->serializer);
+
+        if (!$task->user) {
+            return null;
+        }
+
+        return $this->includeItem($task->invoice, $transformer, Invoice::class);
     }
 
     public function includeUser(Task $task): ?Item
@@ -118,6 +130,7 @@ class TaskTransformer extends EntityTransformer
             'status_sort_order' => (int) $task->status_sort_order, //deprecated 5.0.34
             'is_date_based' => (bool) $task->is_date_based,
             'status_order' => is_null($task->status_order) ? null : (int) $task->status_order,
+            'date' => $task->calculated_start_date ?: '',
         ];
     }
 }

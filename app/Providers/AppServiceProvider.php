@@ -113,13 +113,6 @@ class AppServiceProvider extends ServiceProvider
             return $this;
         });
 
-        /* Extension for custom mailers */
-
-        /* Convenience helper for testing s*/
-        ParallelTesting::setUpTestDatabase(function ($database, $token) {
-            Artisan::call('db:seed');
-        });
-
     }
 
     public function register(): void

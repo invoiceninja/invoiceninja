@@ -28,6 +28,7 @@ class ProfileController extends BaseController
 
     public function show(Request $request)
     {
+        /** @var \App\Models\Company $company */ 
         $company = Company::where('company_key', $request->header('X-API-COMPANY-KEY'))->first();
 
         if (! $company->enable_shop_api) {

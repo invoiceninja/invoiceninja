@@ -172,11 +172,10 @@ class PaymentRepository extends BaseRepository
 
             $credits = Credit::whereIn('id', array_column($data['credits'], 'credit_id'))->get();
 
-            // $payment->credits()->saveMany($credits);
-
             //todo optimize into a single query
             foreach ($data['credits'] as $paid_credit) {
 
+                /** @var \App\Models\Credit $credit **/
                 $credit = $credits->firstWhere('id', $paid_credit['credit_id']);
                 
                 if ($credit) {
@@ -189,7 +188,7 @@ class PaymentRepository extends BaseRepository
                     $paymentable->save();
 
                     $credit = $credit->service()->markSent()->save();
-                    (new ApplyCreditPayment($credit, $payment, $paid_credit['amount'], $credit->company))->handle();
+                    (new ApplyCreditPayment($credit, $payment, $paid_credit['amount']))->handle();
                 }
             }
         }

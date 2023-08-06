@@ -148,7 +148,10 @@ class RecurringQuoteController extends BaseController
      */
     public function create(CreateRecurringQuoteRequest $request)
     {
-        $recurring_quote = RecurringQuoteFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $recurring_quote = RecurringQuoteFactory::create($user->company()->id, $user->id);
 
         return $this->itemResponse($recurring_quote);
     }
@@ -193,7 +196,10 @@ class RecurringQuoteController extends BaseController
      */
     public function store(StoreRecurringQuoteRequest $request)
     {
-        $recurring_quote = $this->recurring_quote_repo->save($request, RecurringQuoteFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $recurring_quote = $this->recurring_quote_repo->save($request, RecurringQuoteFactory::create($user->company()->id, $user->id));
 
         return $this->itemResponse($recurring_quote);
     }
@@ -429,7 +435,7 @@ class RecurringQuoteController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Collection
+     * @return \Illuminate\Support\Collection
      *
      *
      * @OA\Post(
@@ -479,14 +485,17 @@ class RecurringQuoteController extends BaseController
      */
     public function bulk()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $action = request()->input('action');
 
         $ids = request()->input('ids');
 
         $recurring_quotes = RecurringQuote::withTrashed()->find($this->transformKeys($ids));
 
-        $recurring_quotes->each(function ($recurring_quote, $key) use ($action) {
-            if (auth()->user()->can('edit', $recurring_quote)) {
+        $recurring_quotes->each(function ($recurring_quote, $key) use ($action, $user) {
+            if ($user->can('edit', $recurring_quote)) {
                 $this->recurring_quote_repo->{$action}($recurring_quote);
             }
         });
@@ -573,11 +582,11 @@ class RecurringQuoteController extends BaseController
           //      return $this->itemResponse($recurring_invoice);
                 break;
             case 'clone_to_quote':
-                $quote = CloneRecurringQuoteToQuoteFactory::create($recurring_invoice, auth()->user()->id);
-                $this->entity_transformer = QuoteTransformer::class;
-                $this->entity_type = Quote::class;
+                // $quote = CloneRecurringQuoteToQuoteFactory::create($recurring_invoice, auth()->user()->id);
+                // $this->entity_transformer = QuoteTransformer::class;
+                // $this->entity_type = Quote::class;
 
-                return $this->itemResponse($quote);
+                // return $this->itemResponse($quote);
                 break;
             case 'history':
                 // code...

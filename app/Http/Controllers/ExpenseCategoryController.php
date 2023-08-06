@@ -138,8 +138,7 @@ class ExpenseCategoryController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param StoreInvoiceRequest $request  The request
-     *
+     * @param StoreExpenseCategoryRequest $request  
      * @return Response
      *
      *
@@ -175,7 +174,10 @@ class ExpenseCategoryController extends BaseController
      */
     public function store(StoreExpenseCategoryRequest $request)
     {
-        $expense_category = ExpenseCategoryFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user **/
+        $user = auth()->user();
+
+        $expense_category = ExpenseCategoryFactory::create($user->company()->id, $user->id);
         $expense_category->fill($request->all());
         $expense_category->save();
 
@@ -454,14 +456,17 @@ class ExpenseCategoryController extends BaseController
      */
     public function bulk()
     {
+        /** @var \App\Models\User $user **/
+        $user = auth()->user();
+
         $action = request()->input('action');
 
         $ids = request()->input('ids');
 
         $expense_categories = ExpenseCategory::withTrashed()->find($this->transformKeys($ids));
 
-        $expense_categories->each(function ($expense_category, $key) use ($action) {
-            if (auth()->user()->can('edit', $expense_category)) {
+        $expense_categories->each(function ($expense_category, $key) use ($action, $user) {
+            if ($user->can('edit', $expense_category)) {
                 $this->base_repo->{$action}($expense_category);
             }
         });

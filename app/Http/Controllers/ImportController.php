@@ -81,7 +81,8 @@ class ImportController extends Controller
         /** @var UploadedFile $file */
         foreach ($request->files->get('files') as $entityType => $file) {
             $contents = file_get_contents($file->getPathname());
-            // $contents = mb_convert_encoding($contents, 'UTF-16LE', 'UTF-8');
+
+            $contents = $this->convertEncoding($contents);
 
             // Store the csv in cache with an expiry of 10 minutes
             Cache::put($hash.'-'.$entityType, base64_encode($contents), 600);
@@ -98,6 +99,18 @@ class ImportController extends Controller
         }
 
         return response()->json($data);
+    }
+
+    private function convertEncoding($data)
+    {
+        
+        $enc = mb_detect_encoding($data, mb_list_encodings(), true);
+        
+        if($enc !== false) {
+            $data = mb_convert_encoding($data, "UTF-8", $enc);
+        }
+
+        return $data;
     }
 
     public function import(ImportRequest $request)
@@ -157,22 +170,27 @@ class ImportController extends Controller
         return $data;
     }
 
-    public function detectDelimiter($csvfile)
+    /**
+     * Returns the best delimiter
+     *
+     * @param string $csvfile
+     * @return string
+     */
+    public function detectDelimiter($csvfile): string
     {
         $delimiters = [',', '.', ';'];
         $bestDelimiter = ' ';
         $count = 0;
+
         foreach ($delimiters as $delimiter) {
-            // if (substr_count($csvfile, $delimiter) > $count) {
-            //     $count = substr_count($csvfile, $delimiter);
-            //     $bestDelimiter = $delimiter;
-            // }
-            
-            if (substr_count(strstr($csvfile, "\n", true), $delimiter) > $count) {
-                $count = substr_count($csvfile, $delimiter);
-                $bestDelimiter = $delimiter;
+
+            if (substr_count(strstr($csvfile, "\n", true), $delimiter) >= $count) {
+                $count = substr_count(strstr($csvfile, "\n", true), $delimiter);
+                $bestDelimiter = $delimiter;        
             }
+        
         }
+
         return $bestDelimiter;
     }
 }

@@ -20,7 +20,6 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
 use App\Http\Middleware\ThrottleRequestsWithPredis;
 use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Routing\Middleware\ThrottleRequestsWithRedis;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 
@@ -58,7 +57,7 @@ class RouteServiceProvider extends ServiceProvider
             if (Ninja::isSelfHost()) {
                 return Limit::none();
             } else {
-                return Limit::perMinute(50)->by($request->ip());
+                return Limit::perMinute(30)->by($request->ip());
             }
         });
 
@@ -89,6 +88,11 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('honeypot', function (Request $request) {
             return Limit::perMinute(2)->by($request->ip());
         });
+
+        RateLimiter::for('portal', function (Request $request) {
+            return Limit::perMinute(15)->by($request->ip());
+        });
+
 
     }
 

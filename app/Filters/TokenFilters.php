@@ -21,7 +21,7 @@ class TokenFilters extends QueryFilters
     /**
      * Filter based on search text.
      *
-     * @param string query filter
+     * @param string $filter
      * @return Builder
      * @deprecated
      */
@@ -36,10 +36,16 @@ class TokenFilters extends QueryFilters
         });
     }
 
+
+    public function is_system(string $value = 'false'): Builder
+    {
+        return $this->builder->where('is_system', $value == 'false' ? false : true);
+    }
+
     /**
      * Sorts the list based on $sort.
      *
-     * @param string sort formatted as column|asc
+     * @param string $sort formatted as column|asc
      * @return Builder
      */
     public function sort(string $sort = ''): Builder

@@ -37,7 +37,7 @@ class ProductTransformer extends EntityTransformer
     /**
      * @param Product $product
      *
-     * @return Collection
+     * @return \Illuminate\Support\Collection
      */
     public function includeUser(Product $product)
     {
@@ -49,7 +49,7 @@ class ProductTransformer extends EntityTransformer
     /**
      * @param Product $product
      *
-     * @return Collection
+     * @return \Illuminate\Support\Collection
      */
     public function includeCompany(Product $product)
     {
