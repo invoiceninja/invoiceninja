@@ -302,6 +302,8 @@ class TemplateEngine
             'company_id' => $user->company()->id,
         ]);
 
+        
+        /** @var \App\Models\ClientContact $contact */
         $contact = ClientContact::factory()->create([
             'user_id' => $user->id,
             'company_id' => $user->company()->id,

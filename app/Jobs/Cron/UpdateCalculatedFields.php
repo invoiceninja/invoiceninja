@@ -61,7 +61,7 @@ class UpdateCalculatedFields
                 MultiDB::setDB($db);
 
 
-            Project::with('tasks')->whereHas('tasks', function ($query){
+            Project::query()->with('tasks')->whereHas('tasks', function ($query){
                     $query->where('updated_at', '>', now()->subHours(2));
             })
                 ->cursor()
