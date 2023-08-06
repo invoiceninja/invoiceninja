@@ -163,7 +163,7 @@ trait UserNotifies
      * Underrated method right here, last ones
      * are always the best
      *
-     * @param  CompanyUser $company_user
+     * @param  \App\Models\CompanyUser $company_user
      * @param  Invoice | Quote | Credit | PurchaseOrder | Product $entity
      * @param  array $required_notification
      *

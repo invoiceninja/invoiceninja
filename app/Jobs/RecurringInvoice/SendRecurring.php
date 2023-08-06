@@ -168,7 +168,8 @@ class SendRecurring implements ShouldQueue
     private function createRecurringInvitations($invoice) :Invoice
     {
         if ($this->recurring_invoice->invitations->count() == 0) {
-            $this->recurring_invoice = $this->recurring_invoice->service()->createInvitations()->save();
+            $this->recurring_invoice->service()->createInvitations()->save();
+            $this->recurring_invoice = $this->recurring_invoice->fresh();
         }
 
         $this->recurring_invoice->invitations->each(function ($recurring_invitation) use ($invoice) {
@@ -196,17 +197,3 @@ class SendRecurring implements ShouldQueue
         nlog(print_r($exception->getMessage(), 1));
     }
 }
-
-
-/**
- *
- * 1/8/2022
- *
- * Improvements here include moving the emailentity and autobilling into the queue.
- *
- * Further improvements could using the CompanyRecurringCron.php stub which divides
- * the recurring invoices into companies and spins them off into their own queue to
- * improve parallel processing.
- *
- * Need to be careful we do not overload redis and OOM.
-*/

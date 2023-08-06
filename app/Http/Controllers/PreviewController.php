@@ -188,19 +188,19 @@ class PreviewController extends BaseController
 
         if ($request->input('entity') == 'quote') {
             $repo = new QuoteRepository();
-            $entity_obj = QuoteFactory::create($company->id, auth()->user()->id);
+            $entity_obj = QuoteFactory::create($company->id, $user->id);
             $class = Quote::class;
         } elseif ($request->input('entity') == 'credit') {
             $repo = new CreditRepository();
-            $entity_obj = CreditFactory::create($company->id, auth()->user()->id);
+            $entity_obj = CreditFactory::create($company->id, $user->id);
             $class = Credit::class;
         } elseif ($request->input('entity') == 'recurring_invoice') {
             $repo = new RecurringInvoiceRepository();
-            $entity_obj = RecurringInvoiceFactory::create($company->id, auth()->user()->id);
+            $entity_obj = RecurringInvoiceFactory::create($company->id, $user->id);
             $class = RecurringInvoice::class;
         } else { //assume it is either an invoice or a null object
             $repo = new InvoiceRepository();
-            $entity_obj = InvoiceFactory::create($company->id, auth()->user()->id);
+            $entity_obj = InvoiceFactory::create($company->id, $user->id);
             $class = Invoice::class;
         }
 
@@ -210,12 +210,16 @@ class PreviewController extends BaseController
             if ($request->has('entity_id')) {
 
                 /** @var \App\Models\Quote | \App\Models\Invoice | \App\Models\RecurringInvoice | \App\Models\Credit $class */
-                $entity_obj = $class::on(config('database.default'))
+                $temp_obj = $class::on(config('database.default'))
                                     ->with('client.company')
                                     ->where('id', $this->decodePrimaryKey($request->input('entity_id')))
                                     ->where('company_id', $company->id)
                                     ->withTrashed()
                                     ->first();
+                                    
+                /** Prevents null values from being passed into entity_obj */
+                if($temp_obj)
+                    $entity_obj = $temp_obj;
             }
 
             if ($request->has('footer') && !$request->filled('footer') && $request->input('entity') == 'recurring_invoice') {

@@ -49,7 +49,7 @@ class Helpers
      * @param mixed|null $custom_fields
      * @param mixed $field
      * @param mixed $value
-     * @param \App\Models\Client|null $client
+     * @param \App\Models\Client|null $entity
      *
      * @return null|string
      */
@@ -143,7 +143,7 @@ class Helpers
      * Process reserved keywords on PDF.
      *
      * @param string $value
-     * @param Client|Company|Vendor $entity
+     * @param \App\Models\Client|\App\Models\Company|\App\Models\Vendor $entity
      * @param null|Carbon $currentDateTime
      * @return null|string
      */
