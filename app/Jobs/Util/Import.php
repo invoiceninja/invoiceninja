@@ -1482,7 +1482,7 @@ class Import implements ShouldQueue
                 
                 try {
                     $invoice_id = $this->transformId('invoices', $resource['invoice_id']);
-                    $entity = Invoice::where('id', $invoice_id)->withTrashed()->first();
+                    $entity = Invoice::query()->where('id', $invoice_id)->withTrashed()->first();
                 } catch(\Exception $e) {
                     nlog("i couldn't find the invoice document {$resource['invoice_id']}, perhaps it is a quote?");
                     nlog($e->getMessage());
@@ -1493,7 +1493,7 @@ class Import implements ShouldQueue
                 if ($try_quote && array_key_exists('quotes', $this->ids)) {
                     try {
                         $quote_id = $this->transformId('quotes', $resource['invoice_id']);
-                        $entity = Quote::where('id', $quote_id)->withTrashed()->first();
+                        $entity = Quote::query()->where('id', $quote_id)->withTrashed()->first();
                     } catch(\Exception $e) {
                         nlog("i couldn't find the quote document {$resource['invoice_id']}, perhaps it is a quote?");
                         nlog($e->getMessage());
@@ -1509,7 +1509,7 @@ class Import implements ShouldQueue
 
             if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && array_key_exists('expenses', $this->ids)) {
                 $expense_id = $this->transformId('expenses', $resource['expense_id']);
-                $entity = Expense::where('id', $expense_id)->withTrashed()->first();
+                $entity = Expense::query()->where('id', $expense_id)->withTrashed()->first();
             }
 
             $file_url = $resource['url'];

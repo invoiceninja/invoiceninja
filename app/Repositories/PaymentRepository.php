@@ -76,7 +76,7 @@ class PaymentRepository extends BaseRepository
             $is_existing_payment = false;
 
             \DB::connection(config('database.default'))->transaction(function () use ($data) {
-                $client = Client::where('id', $data['client_id'])->withTrashed()->lockForUpdate()->first();
+                $client = Client::query()->where('id', $data['client_id'])->withTrashed()->lockForUpdate()->first();
 
                 /*We only update the paid to date ONCE per payment*/
                 if (array_key_exists('invoices', $data) && is_array($data['invoices']) && count($data['invoices']) > 0) {

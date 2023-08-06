@@ -49,7 +49,7 @@ class UniqueQuoteNumberRule implements Rule
      */
     private function checkIfQuoteNumberUnique() : bool
     {
-        $quote = Quote::where('client_id', $this->input['client_id'])
+        $quote = Quote::query()->where('client_id', $this->input['client_id'])
                         ->where('number', $this->input['number'])
                         ->withTrashed()
                         ->exists();

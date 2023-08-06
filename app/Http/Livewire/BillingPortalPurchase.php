@@ -78,7 +78,6 @@ class BillingPortalPurchase extends Component
     /**
      * Rules for validating the form.
      *
-     * @var \string[][]
      */
     protected $rules = [
         'email' => ['required', 'email'],

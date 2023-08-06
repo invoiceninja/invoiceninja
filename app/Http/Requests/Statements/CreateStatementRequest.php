@@ -57,6 +57,6 @@ class CreateStatementRequest extends Request
 
     public function client(): ?Client
     {
-        return Client::without('company')->where('id', $this->client_id)->withTrashed()->first();
+        return Client::query()->without('company')->where('id', $this->client_id)->withTrashed()->first();
     }
 }

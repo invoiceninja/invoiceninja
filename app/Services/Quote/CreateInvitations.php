@@ -65,7 +65,7 @@ class CreateInvitations
             } else {
                 $contact = $contacts->first();
 
-                $invitation = QuoteInvitation::where('company_id', $this->quote->company_id)
+                $invitation = QuoteInvitation::query()->where('company_id', $this->quote->company_id)
                                         ->where('client_contact_id', $contact->id)
                                         ->where('quote_id', $this->quote->id)
                                         ->withTrashed()

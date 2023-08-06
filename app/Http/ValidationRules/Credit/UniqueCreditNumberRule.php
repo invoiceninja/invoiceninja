@@ -49,7 +49,7 @@ class UniqueCreditNumberRule implements Rule
      */
     private function checkIfCreditNumberUnique() : bool
     {
-        $credit = Credit::where('client_id', $this->input['client_id'])
+        $credit = Credit::query()->where('client_id', $this->input['client_id'])
                         ->where('number', $this->input['number'])
                         ->withTrashed()
                         ->exists();

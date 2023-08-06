@@ -49,7 +49,7 @@ class ProcessBankRules extends AbstractService
     private function matchCredit()
     {
         /** @var \Illuminate\Database\Eloquent\Collection<Invoice> $this->invoices */
-        $this->invoices = Invoice::where('company_id', $this->bank_transaction->company_id)
+        $this->invoices = Invoice::query()->where('company_id', $this->bank_transaction->company_id)
                                 ->whereIn('status_id', [1,2,3])
                                 ->where('is_deleted', 0)
                                 ->get();
@@ -153,7 +153,7 @@ class ProcessBankRules extends AbstractService
     {
         $category = $this->categories->firstWhere('highLevelCategoryId', $this->bank_transaction->category_id);
 
-        $ec = ExpenseCategory::where('company_id', $this->bank_transaction->company_id)->where('bank_category_id', $this->bank_transaction->category_id)->first();
+        $ec = ExpenseCategory::query()->where('company_id', $this->bank_transaction->company_id)->where('bank_category_id', $this->bank_transaction->category_id)->first();
 
         if ($ec) {
             return $ec->id;

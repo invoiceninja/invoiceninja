@@ -24,7 +24,7 @@ class BankService
     public function matchInvoiceNumber()
     {
         if (strlen($this->bank_transaction->description) > 1) {
-            $i = Invoice::where('company_id', $this->bank_transaction->company_id)
+            $i = Invoice::query()->where('company_id', $this->bank_transaction->company_id)
                     ->whereIn('status_id', [1,2,3])
                     ->where('is_deleted', 0)
                     ->where('number', 'LIKE', '%'.$this->bank_transaction->description.'%')

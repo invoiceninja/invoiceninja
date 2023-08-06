@@ -31,7 +31,7 @@ class BankMatchingService implements ShouldQueue
     {
         MultiDB::setDb($this->db);
 
-        BankTransaction::where('company_id', $this->company_id)
+        BankTransaction::query()->where('company_id', $this->company_id)
            ->where('status_id', BankTransaction::STATUS_UNMATCHED)
            ->cursor()
            ->each(function ($bt) {

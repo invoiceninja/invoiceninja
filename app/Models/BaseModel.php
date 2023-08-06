@@ -37,10 +37,12 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  * @property int $assigned_user_id
  * @method BaseModel service()
  * @property \App\Models\Company $company
+ * @property \App\Models\Vendor $vendor
  * @method static BaseModel find($value) 
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel<static> company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|Illuminate\Database\Eloquent\Relations\BelongsTo|\Awobaz\Compoships\Database\Eloquent\Relations\BelongsTo|\App\Models\Company company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|Illuminate\Database\Eloquent\Relations\HasMany|BaseModel orderBy()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel on(?string $connection = null)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel with($value)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newModelQuery($query)
@@ -55,6 +57,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel orderBy($column, $direction)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel invitations()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel whereHas($query)
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel without($query)
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation | \App\Models\CreditInvitation | \App\Models\QuoteInvitation | \App\Models\RecurringInvoiceInvitation> $invitations
  * @property-read int|null $invitations_count
  * @method int companyId()

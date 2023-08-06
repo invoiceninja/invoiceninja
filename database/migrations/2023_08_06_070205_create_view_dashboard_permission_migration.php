@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        \App\Models\CompanyUser::where('is_admin', 0)->cursor()->each(function ($cu) {
+        \App\Models\CompanyUser::query()->where('is_admin', 0)->cursor()->each(function ($cu) {
             $permissions = $cu->permissions;
 
             if (!$permissions || strlen($permissions) == 0) {

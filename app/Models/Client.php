@@ -79,50 +79,33 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
  * @property int|null $updated_at
  * @property int|null $deleted_at
  * @property string|null $id_number
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read int|null $activities_count
- * @property-read \App\Models\User|null $assigned_user
- * @property-read \App\Models\Company $company
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read int|null $company_ledger_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientContact> $contacts
- * @property-read int|null $contacts_count
- * @property-read \App\Models\Country|null $country
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
- * @property-read int|null $credits_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read int|null $documents_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
- * @property-read int|null $expenses_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientGatewayToken> $gateway_tokens
- * @property-read int|null $gateway_tokens_count
  * @property-read mixed $hashed_id
+ * @property-read \App\Models\User|null $assigned_user
+ * @property-read \App\Models\User $user
+ * @property-read \App\Models\Company $company
+ * @property-read \App\Models\Country|null $country
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientContact> $contacts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientGatewayToken> $gateway_tokens
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read int|null $invoices_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $ledger
- * @property-read int|null $ledger_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read int|null $payments_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientContact> $primary_contact
- * @property-read int|null $primary_contact_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Project> $projects
- * @property-read int|null $projects_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Quote> $quotes
- * @property-read int|null $quotes_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringExpense> $recurring_expenses
- * @property-read int|null $recurring_expenses_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoice> $recurring_invoices
- * @property-read int|null $recurring_invoices_count
- * @property-read \App\Models\Country|null $shipping_country
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SystemLog> $system_logs
- * @property-read int|null $system_logs_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoice> $recurring_invoices
- * @property-read int|null $tasks_count
- * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder|Client exclude($columns)
  * @method static \Database\Factories\ClientFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Client filter(\App\Filters\QueryFilters $filters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Client without()
  * @property string $payment_balance
  * @property mixed $tax_data
  * @property int $is_tax_exempt

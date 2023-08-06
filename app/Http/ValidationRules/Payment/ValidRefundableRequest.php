@@ -46,8 +46,7 @@ class ValidRefundableRequest implements Rule
             return false;
         }
 
-        /**@var \App\Models\Payment $payment **/
-        $payment = Payment::where('id', $this->input['id'])->withTrashed()->first();
+        $payment = Payment::query()->where('id', $this->input['id'])->withTrashed()->first();
 
         if (! $payment) {
             $this->error_msg = ctrans('texts.unable_to_retrieve_payment');
@@ -77,7 +76,7 @@ class ValidRefundableRequest implements Rule
     private function checkInvoiceIsPaymentable($invoice, $payment)
     {
         /**@var \App\Models\Invoice $invoice **/
-        $invoice = Invoice::where('id', $invoice['invoice_id'])->where('company_id', $payment->company_id)->withTrashed()->first();
+        $invoice = Invoice::query()->where('id', $invoice['invoice_id'])->where('company_id', $payment->company_id)->withTrashed()->first();
 
         if (! $invoice) {
             $this->error_msg = 'Invoice not found for refund';

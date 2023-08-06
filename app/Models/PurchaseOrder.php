@@ -112,6 +112,8 @@ use Illuminate\Support\Facades\Storage;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $invitations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
+ * @method static \Illuminate\Database\Eloquent\Builder|Task withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Task withoutTrashed()
  * @mixin \Eloquent
  */
 class PurchaseOrder extends BaseModel

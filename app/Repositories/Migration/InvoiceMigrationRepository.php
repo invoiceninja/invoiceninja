@@ -38,9 +38,9 @@ class InvoiceMigrationRepository extends BaseRepository
         $class = new ReflectionClass($model);
 
         if (array_key_exists('client_id', $data)) {
-            $client = Client::where('id', $data['client_id'])->withTrashed()->first();
+            $client = Client::query()->where('id', $data['client_id'])->withTrashed()->first();
         } else {
-            $client = Client::where('id', $model->client_id)->withTrashed()->first();
+            $client = Client::query()->where('id', $model->client_id)->withTrashed()->first();
         }
 
         $state = [];

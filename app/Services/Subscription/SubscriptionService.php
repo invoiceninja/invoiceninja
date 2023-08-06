@@ -347,7 +347,7 @@ class SubscriptionService
 
         $outstanding_amounts = $outstanding->sum('balance');
 
-        $outstanding_invoice = Invoice::where('client_id', $recurring_invoice->client_id)
+        $outstanding_invoice = Invoice::query()->where('client_id', $recurring_invoice->client_id)
                                          ->where('is_deleted', 0)
                                          ->where('is_proforma', 0)
                                          ->where('subscription_id', $this->subscription->id)
@@ -356,7 +356,7 @@ class SubscriptionService
 
         //sometimes the last document could be a credit if the user is paying for their service with credits.
         if (!$outstanding_invoice) {
-            $outstanding_invoice = Credit::where('subscription_id', $this->subscription->id)
+            $outstanding_invoice = Credit::query()->where('subscription_id', $this->subscription->id)
                                              ->where('client_id', $recurring_invoice->client_id)
                                              ->where('is_proforma', 0)
                                              ->where('is_deleted', 0)
@@ -655,7 +655,7 @@ class SubscriptionService
         $pro_rata_refund_amount = 0;
         $is_credit = false;
 
-        $last_invoice = Invoice::where('subscription_id', $recurring_invoice->subscription_id)
+        $last_invoice = Invoice::query()->where('subscription_id', $recurring_invoice->subscription_id)
                                          ->where('client_id', $recurring_invoice->client_id)
                                          ->where('is_deleted', 0)
                                          ->withTrashed()
@@ -667,7 +667,7 @@ class SubscriptionService
         } elseif (!$last_invoice) {
             $is_credit = true;
 
-            $last_invoice = Credit::where('subscription_id', $recurring_invoice->subscription_id)
+            $last_invoice = Credit::query()->where('subscription_id', $recurring_invoice->subscription_id)
                                  ->where('client_id', $recurring_invoice->client_id)
                                  ->where('is_deleted', 0)
                                  ->withTrashed()
@@ -728,7 +728,7 @@ class SubscriptionService
         $pro_rata_charge_amount = 0;
         $pro_rata_refund_amount = 0;
 
-        $last_invoice = Invoice::where('subscription_id', $recurring_invoice->subscription_id)
+        $last_invoice = Invoice::query()->where('subscription_id', $recurring_invoice->subscription_id)
                                          ->where('client_id', $recurring_invoice->client_id)
                                          ->where('is_proforma', 0)
                                          ->where('is_deleted', 0)
@@ -773,7 +773,7 @@ class SubscriptionService
         $pro_rata_charge_amount = 0;
         $pro_rata_refund_amount = 0;
 
-        $last_invoice = Invoice::where('subscription_id', $recurring_invoice->subscription_id)
+        $last_invoice = Invoice::query()->where('subscription_id', $recurring_invoice->subscription_id)
                                          ->where('client_id', $recurring_invoice->client_id)
                                          ->where('is_deleted', 0)
                                          ->where('is_proforma', 0)
@@ -1127,7 +1127,7 @@ class SubscriptionService
             $body = $response->getStatusCode();
         }
 
-        $client = Client::where('id', $this->decodePrimaryKey($body['client']))->withTrashed()->first();
+        $client = Client::query()->where('id', $this->decodePrimaryKey($body['client']))->withTrashed()->first();
 
         SystemLogger::dispatch(
             $body,
@@ -1168,7 +1168,7 @@ class SubscriptionService
         if (is_array($keys)) {
             return Product::query()->whereIn('id', $keys)->get();
         } else {
-            return Product::where('id', $keys)->get();
+            return Product::query()->where('id', $keys)->get();
         }
     }
 
@@ -1188,7 +1188,7 @@ class SubscriptionService
         if (is_array($keys)) {
             return Product::query()->whereIn('id', $keys)->get();
         } else {
-            return Product::where('id', $keys)->get();
+            return Product::query()->where('id', $keys)->get();
         }
     }
 
@@ -1209,7 +1209,7 @@ class SubscriptionService
         if (is_array($keys)) {
             return Product::query()->whereIn('id', $keys)->get();
         } else {
-            return Product::where('id', $keys)->get();
+            return Product::query()->where('id', $keys)->get();
         }
     }
 
@@ -1229,7 +1229,7 @@ class SubscriptionService
         if (is_array($keys)) {
             return Product::query()->whereIn('id', $keys)->get();
         } else {
-            return Product::where('id', $keys)->get();
+            return Product::query()->where('id', $keys)->get();
         }
     }
 
@@ -1267,7 +1267,7 @@ class SubscriptionService
         $gateway_refund_attempted = false;
 
         //only refund if they are in the refund window.
-        $outstanding_invoice = Invoice::where('subscription_id', $this->subscription->id)
+        $outstanding_invoice = Invoice::query()->where('subscription_id', $this->subscription->id)
                                      ->where('client_id', $recurring_invoice->client_id)
                                      ->where('status_id', Invoice::STATUS_PAID)
                                      ->where('is_deleted', 0)

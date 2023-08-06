@@ -206,7 +206,7 @@ class PaymentMigrationRepository extends BaseRepository
             return $payment;
         }
 
-        $client = Client::where('id', $data['client_id'])->withTrashed()->first();
+        $client = Client::query()->where('id', $data['client_id'])->withTrashed()->first();
 
         $client_currency = $client->getSetting('currency_id');
         $company_currency = $client->company->settings->currency_id;

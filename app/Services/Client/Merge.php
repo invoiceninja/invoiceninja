@@ -71,7 +71,7 @@ class Merge extends AbstractService
     {
         $balance = 0;
 
-        $company_ledger = CompanyLedger::whereClientId($this->client->id)
+        $company_ledger = CompanyLedger::query()->whereClientId($this->client->id)
                                 ->orderBy('id', 'DESC')
                                 ->first();
 

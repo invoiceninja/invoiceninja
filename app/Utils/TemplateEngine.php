@@ -98,17 +98,17 @@ class TemplateEngine
         if (strlen($this->entity) > 1 && strlen($this->entity_id) > 1) {
             $class = 'App\Models\\' . ucfirst(Str::camel($this->entity));
             $this->entity_obj = $class::withTrashed()->where('id', $this->decodePrimaryKey($this->entity_id))->company()->first();
-        } elseif (stripos($this->template, 'quote') !== false && $quote = Quote::whereHas('invitations')->withTrashed()->company()->first()) {
+        } elseif (stripos($this->template, 'quote') !== false && $quote = Quote::query()->whereHas('invitations')->withTrashed()->company()->first()) {
             $this->entity = 'quote';
             $this->entity_obj = $quote;
-        } elseif (stripos($this->template, 'purchase') !== false && $purchase_order = PurchaseOrder::whereHas('invitations')->withTrashed()->company()->first()) {
+        } elseif (stripos($this->template, 'purchase') !== false && $purchase_order = PurchaseOrder::query()->whereHas('invitations')->withTrashed()->company()->first()) {
             $this->entity = 'purchase_order';
             $this->entity_obj = $purchase_order;
-        }elseif (stripos($this->template, 'payment') !== false && $payment = Payment::withTrashed()->company()->first()) {
+        }elseif (stripos($this->template, 'payment') !== false && $payment = Payment::query()->withTrashed()->company()->first()) {
             $this->entity = 'payment';
             $this->entity_obj = $payment;
         } 
-        elseif ($invoice = Invoice::whereHas('invitations')->withTrashed()->company()->first()) {
+        elseif ($invoice = Invoice::query()->whereHas('invitations')->withTrashed()->company()->first()) {
             $this->entity_obj = $invoice;
         } else {
             $this->mockEntity();

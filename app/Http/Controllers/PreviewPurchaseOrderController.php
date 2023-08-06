@@ -181,6 +181,7 @@ class PreviewPurchaseOrderController extends BaseController
             DB::connection(config('database.default'))->beginTransaction();
 
             if ($request->has('entity_id')) {
+                /** @var \Illuminate\Database\Eloquent\Builder|\App\Models\PurchaseOrder $entity_obj|\Illuminate\Database\Eloquent\SoftDeletes */
                 $entity_obj = $class::on(config('database.default'))
                                     ->with('vendor.company')
                                     ->where('id', $this->decodePrimaryKey($request->input('entity_id')))

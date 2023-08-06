@@ -26,6 +26,10 @@ class VendorContactHashLoginController extends Controller
         return redirect('/vendors/purchase_orders');
     }
 
+    /**
+    * @return \Illuminate\Support\Facades\Redirect
+    */
+
     public function magicLink(string $magic_link)
     {
         return redirect($this->setRedirectPath());
