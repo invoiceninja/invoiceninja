@@ -96,7 +96,7 @@ class QuoteController extends Controller
         $client_contact = auth()->user();
 
         $data['quotes'] = Quote::whereIn('id', $ids)
-                            ->whereClientId($client_contact->client->id)
+                            ->where('client_id', $client_contact->client_id)
                             ->withTrashed()
                             ->get();
 
@@ -195,10 +195,10 @@ class QuoteController extends Controller
                 }
             }
 
-            if (count($ids) == 1) {
+            if ($quotes->count() == 1) {
                 //forward client to the invoice if it exists
-                if ($quote->invoice()->exists()) {
-                    return redirect()->route('client.invoice.show', $quote->invoice->hashed_id);
+                if ($quotes->first()->invoice()->exists()) {
+                    return redirect()->route('client.invoice.show', $quotes->first()->invoice->hashed_id);
                 }
 
                 return redirect()->route('client.quote.show', $quotes->first()->hashed_id);
