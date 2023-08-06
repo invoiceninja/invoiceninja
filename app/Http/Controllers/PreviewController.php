@@ -188,19 +188,19 @@ class PreviewController extends BaseController
 
         if ($request->input('entity') == 'quote') {
             $repo = new QuoteRepository();
-            $entity_obj = QuoteFactory::create($company->id, auth()->user()->id);
+            $entity_obj = QuoteFactory::create($company->id, $user->id);
             $class = Quote::class;
         } elseif ($request->input('entity') == 'credit') {
             $repo = new CreditRepository();
-            $entity_obj = CreditFactory::create($company->id, auth()->user()->id);
+            $entity_obj = CreditFactory::create($company->id, $user->id);
             $class = Credit::class;
         } elseif ($request->input('entity') == 'recurring_invoice') {
             $repo = new RecurringInvoiceRepository();
-            $entity_obj = RecurringInvoiceFactory::create($company->id, auth()->user()->id);
+            $entity_obj = RecurringInvoiceFactory::create($company->id, $user->id);
             $class = RecurringInvoice::class;
         } else { //assume it is either an invoice or a null object
             $repo = new InvoiceRepository();
-            $entity_obj = InvoiceFactory::create($company->id, auth()->user()->id);
+            $entity_obj = InvoiceFactory::create($company->id, $user->id);
             $class = Invoice::class;
         }
 

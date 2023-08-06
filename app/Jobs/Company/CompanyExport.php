@@ -460,7 +460,9 @@ class CompanyExport implements ShouldQueue
         $zip->close();
 
         Storage::disk(config('filesystems.default'))->put('backups/'.$file_name, file_get_contents($zip_path));
-        unlink($zip_path);        
+
+        if(file_exists($zip_path))
+            unlink($zip_path);        
 
         if(Ninja::isSelfHost())
             $storage_path = 'backups/'.$file_name;
@@ -489,7 +491,9 @@ class CompanyExport implements ShouldQueue
 
         if (Ninja::isHosted()) {
             sleep(3);
-            unlink($zip_path);
+            
+            if(file_exists($zip_path))
+                unlink($zip_path);
         }
     }
 }
