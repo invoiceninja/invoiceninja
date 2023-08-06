@@ -91,6 +91,7 @@ class ZugferdEInvoice extends AbstractService
 
         //Create line items and calculate taxes
         foreach ($this->invoice->line_items as $index => $item) {
+            /** @var \App\DataMapper\InvoiceItem $item **/
             $xrechnung->addNewPosition($index)
                 ->setDocumentPositionGrossPrice($item->gross_line_total)
                 ->setDocumentPositionNetPrice($item->line_total);
