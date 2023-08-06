@@ -42,10 +42,14 @@ class ShowChartRequest extends Request
 
     public function prepareForValidation()
     {
+        
+        /**@var \App\Models\User auth()->user */
+        $user = auth()->user();
+
         $input = $this->all();
 
         if(isset($input['date_range'])) {
-            $dates = $this->calculateStartAndEndDates($input, auth()->user()->company());
+            $dates = $this->calculateStartAndEndDates($input, $user->company());
             $input['start_date'] = $dates[0];
             $input['end_date'] = $dates[1];
         }
