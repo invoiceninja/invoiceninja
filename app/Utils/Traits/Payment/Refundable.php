@@ -237,6 +237,7 @@ trait Refundable
         $adjustment_amount = 0;
 
         foreach ($data['invoices'] as $refunded_invoice) {
+            /** @var \App\Models\Invoice $invoice */
             $invoice = Invoice::find($refunded_invoice['invoice_id']);
 
             $invoice->service()->updateBalance($refunded_invoice['amount'])->save();
