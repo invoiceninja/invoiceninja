@@ -210,12 +210,16 @@ class PreviewController extends BaseController
             if ($request->has('entity_id')) {
 
                 /** @var \App\Models\Quote | \App\Models\Invoice | \App\Models\RecurringInvoice | \App\Models\Credit $class */
-                $entity_obj = $class::on(config('database.default'))
+                $temp_obj = $class::on(config('database.default'))
                                     ->with('client.company')
                                     ->where('id', $this->decodePrimaryKey($request->input('entity_id')))
                                     ->where('company_id', $company->id)
                                     ->withTrashed()
                                     ->first();
+                                    
+                /** Prevents null values from being passed into entity_obj */
+                if($temp_obj)
+                    $entity_obj = $temp_obj;
             }
 
             if ($request->has('footer') && !$request->filled('footer') && $request->input('entity') == 'recurring_invoice') {

@@ -103,7 +103,7 @@ class PdfMock
 
         switch ($this->request['entity_type']) {
             case 'invoice':
-                /** @var \App\Models\Invoice | \App\Models\Credit | \App\Models\Quote  $entity */
+                /** @var \App\Models\Invoice | \App\Models\Credit | \App\Models\Quote $entity */
                 $entity = Invoice::factory()->make();
                 $entity->client = Client::factory()->make(['settings' => $settings]);
                 $entity->invitation = InvoiceInvitation::factory()->make();
