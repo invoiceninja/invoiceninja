@@ -36,6 +36,7 @@ class ProductController extends BaseController
      */
     public function index(Request $request)
     {
+        /** @var \App\Models\Company $company */
         $company = Company::where('company_key', $request->header('X-API-COMPANY-KEY'))->firstOrFail();
 
         if (! $company->enable_shop_api) {
@@ -49,6 +50,7 @@ class ProductController extends BaseController
 
     public function show(Request $request, string $product_key)
     {
+        /** @var \App\Models\Company $company */
         $company = Company::where('company_key', $request->header('X-API-COMPANY-KEY'))->firstOrFail();
 
         if (! $company->enable_shop_api) {

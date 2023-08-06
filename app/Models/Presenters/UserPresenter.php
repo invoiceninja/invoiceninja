@@ -17,9 +17,11 @@ namespace App\Models\Presenters;
 class UserPresenter extends EntityPresenter
 {
     /**
+     * Returns the first and last names concatenated.
+     * 
      * @return string
      */
-    public function name()
+    public function name(): string
     {
         if (! $this->entity) {
             return 'No User Object Available';
@@ -30,8 +32,13 @@ class UserPresenter extends EntityPresenter
 
         return $first_name.' '.$last_name;
     }
-
-    public function getDisplayName()
+    
+    /**
+     * Returns a full name (with fallback) of the user
+     *
+     * @return string
+     */
+    public function getDisplayName(): string
     {
         if ($this->getFullName()) {
             return $this->getFullName();
@@ -43,6 +50,7 @@ class UserPresenter extends EntityPresenter
     }
 
     /**
+     * Returns the full name of the user
      * @return string
      */
     public function getFullName()
@@ -53,4 +61,35 @@ class UserPresenter extends EntityPresenter
             return '';
         }
     }
+    
+    /**
+     * Returns the first name of the user
+     *
+     * @return string
+     */
+    public function firstName(): string
+    {
+        if (! $this->entity) {
+            return 'No First Name Available';
+        }
+
+        return $this->entity->first_name ?? 'First Name';
+
+    }
+    
+    /**
+     * Returns the last name of the user
+     *
+     * @return string
+     */
+    public function lastName(): string
+    {
+        if (! $this->entity) {
+            return 'No Last Name Available';
+        }
+
+        return $this->entity->last_name ?? 'Last Name';
+    }
+
+
 }

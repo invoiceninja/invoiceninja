@@ -106,7 +106,7 @@ use Illuminate\Support\Facades\Storage;
  * @property-read int|null $payments_count
  * @property-read \App\Models\Project|null $project
  * @property-read \App\Models\User $user
- * @property-read \App\Models\Vendor|null $vendor
+ * @property \App\Models\Vendor|null $vendor
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Database\Factories\PurchaseOrderFactory factory($count = null, $state = [])

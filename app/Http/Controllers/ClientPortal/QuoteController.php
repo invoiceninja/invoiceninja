@@ -83,7 +83,7 @@ class QuoteController extends Controller
             return $this->downloadQuotes((array) $transformed_ids);
         }
 
-        if ($request->action = 'approve') {
+        if ($request->action == 'approve') {
             return $this->approve((array) $transformed_ids, $request->has('process'));
         }
 
@@ -92,8 +92,11 @@ class QuoteController extends Controller
 
     public function downloadQuotes($ids)
     {
+        /** @var \App\Models\ClientContact $client_contact **/
+        $client_contact = auth()->user();
+
         $data['quotes'] = Quote::whereIn('id', $ids)
-                            ->whereClientId(auth()->user()->client->id)
+                            ->whereClientId($client_contact->client->id)
                             ->withTrashed()
                             ->get();
 
@@ -113,8 +116,12 @@ class QuoteController extends Controller
 
     protected function downloadQuotePdf(array $ids)
     {
+
+        /** @var \App\Models\ClientContact $client_contact **/
+        $client_contact = auth()->user();
+
         $quotes = Quote::whereIn('id', $ids)
-            ->whereClientId(auth()->user()->client->id)
+            ->whereClientId($client_contact->client_id)
             ->withTrashed()
             ->get();
 

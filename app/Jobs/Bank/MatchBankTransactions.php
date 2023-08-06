@@ -218,7 +218,7 @@ class MatchBankTransactions implements ShouldQueue
 
     private function matchInvoicePayment($input) :self
     {
-        $this->bt = BankTransaction::find($input['id']);
+        $this->bt = BankTransaction::withTrashed()->find($input['id']);
 
         if (!$this->bt || $this->bt->status_id == BankTransaction::STATUS_CONVERTED) {
             return $this;

@@ -39,7 +39,6 @@ class PdfBuilder
     /**
      * The DOM Document;
      *
-     * @var $document
      */
     public DomDocument $document;
 
@@ -617,9 +616,8 @@ class PdfBuilder
     /**
      * Formats the line items for display.
      *
-     * @param mixed $items
+     * @param array<\App\DataMapper\InvoiceItem> $items
      * @param string $table_type
-     * @param mixed|null $custom_fields
      *
      * @return array
      */
@@ -956,7 +954,7 @@ class PdfBuilder
      * Performs a variable check to ensure
      * the variable exists
      *
-     * @param  string $variables
+     * @param  string $variable
      * @return bool
      *
      */
@@ -1313,7 +1311,7 @@ class PdfBuilder
      * Generates the custom values for the
      * entity.
      *
-     * @param  array
+     * @param  array $variables
      * @return array
      */
     public function genericDetailsBuilder(array $variables): array
@@ -1470,7 +1468,7 @@ class PdfBuilder
      * Passes an array of items by reference
      * and performs a nl2br
      *
-     * @param  array
+     * @param  array $items
      * @return void
      *
      */

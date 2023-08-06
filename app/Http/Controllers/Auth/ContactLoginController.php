@@ -52,6 +52,7 @@ class ContactLoginController extends Controller
             $company = Company::where('company_key', $company_key)->first();
         }
 
+        /** @var \App\Models\Company $company **/
         if ($company) {
             $account = $company->account;
         } elseif (! $company && strpos($request->getHost(), 'invoicing.co') !== false) {
@@ -63,6 +64,7 @@ class ContactLoginController extends Controller
 
             $company = Company::where('portal_domain', $request->getSchemeAndHttpHost())->first();
         } elseif (Ninja::isSelfHost()) {
+            /** @var \App\Models\Account $account **/
             $account = Account::first();
             $company = $account->default_company;
         } else {
@@ -97,6 +99,7 @@ class ContactLoginController extends Controller
         }
 
         if (Ninja::isHosted() && $request->has('password') && $company = Company::where('company_key', $request->input('company_key'))->first()) {
+            /** @var \App\Models\Company $company **/
             $contact = ClientContact::where(['email' => $request->input('email'), 'company_id' => $company->id])
                                      ->whereHas('client', function ($query) {
                                          $query->where('is_deleted', 0);

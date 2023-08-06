@@ -48,7 +48,7 @@ class InvoiceService
 
         return $this;
     }
-    
+
     /**
      * applyPaymentAmount
      *
@@ -194,9 +194,13 @@ class InvoiceService
 
     public function getEInvoice($contact = null)
     {
-        return (new GetInvoiceXInvoice($this->invoice, $contact))->run();
+        return (new GetInvoiceEInvoice($this->invoice, $contact))->run();
     }
 
+    public function mergeEInvoice($contact = null): void
+    {
+        (new MergeEInvoice($this->invoice, $contact))->run();
+    }
     public function sendEmail($contact = null)
     {
         $send_email = new SendEmail($this->invoice, null, $contact);

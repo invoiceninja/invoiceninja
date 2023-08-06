@@ -120,6 +120,7 @@ class PaymentFilters extends QueryFilters
      */
     public function match_transactions($value = 'true'): Builder
     {
+        
         if ($value == 'true') {
             return $this->builder
                         ->where('is_deleted', 0)
