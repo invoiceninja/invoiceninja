@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $hash
  * @property string $fee_total
  * @property int|null $fee_invoice_id
- * @property object|array $data
+ * @property mixed $data
  * @property int|null $payment_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

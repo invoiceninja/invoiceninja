@@ -16,18 +16,18 @@ use Illuminate\Support\Carbon;
 
 /**
  * Class MakesReminders.
+ * 
  */
 trait MakesReminders
 {
     /**
-     *
      * @param string $schedule_reminder
      * @param string $num_days_reminder
      * @return ?bool
      */
     public function inReminderWindow($schedule_reminder, $num_days_reminder)
     {
-        
+        /** @var \App\Models\Invoice | \App\Models\Quote | \App\Models\RecurringInvoice  | \App\Models\Credit $this **/
         $offset = $this->client->timezone_offset();
 
         switch ($schedule_reminder) {
@@ -44,14 +44,14 @@ trait MakesReminders
 
     public function calculateTemplate(string $entity_string): string
     {
-        //if invoice is currently a draft, or being marked as sent, this will be the initial email
+
+        /** @var \App\Models\Invoice | \App\Models\Quote | \App\Models\RecurringInvoice  | \App\Models\Credit $this **/
         $client = $this->client;
 
         if ($entity_string != 'invoice') {
             return $entity_string;
         }
 
-        //if the invoice
         if ($this->inReminderWindow(
             $client->getSetting('schedule_reminder1'),
             $client->getSetting('num_days_reminder1')

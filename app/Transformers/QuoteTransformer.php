@@ -11,10 +11,11 @@
 
 namespace App\Transformers;
 
-use App\Models\Activity;
-use App\Models\Backup;
-use App\Models\Document;
 use App\Models\Quote;
+use App\Models\Backup;
+use App\Models\Client;
+use App\Models\Activity;
+use App\Models\Document;
 use App\Models\QuoteInvitation;
 use App\Utils\Traits\MakesHash;
 use League\Fractal\Resource\Item;

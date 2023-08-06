@@ -42,7 +42,7 @@ class StubBuilder
 
     public $entity_type;
     
-    public mixed $recipient;
+    public \App\Models\Client | \App\Models\Vendor $recipient;
 
     public mixed $contact;
 

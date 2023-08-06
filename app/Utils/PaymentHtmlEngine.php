@@ -64,7 +64,7 @@ class PaymentHtmlEngine
         $data['$amount'] = &$data['$payment.amount'];
         $data['$payment.date'] = ['value' => $this->translateDate($this->payment->date, $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.payment_date')];
         $data['$transaction_reference'] = ['value' => $this->payment->transaction_reference, 'label' => ctrans('texts.transaction_reference')];
-        $data['$public_notes'] = ['value' => $this->payment->public_notes, 'label' => ctrans('texts.notes')];
+        // $data['$public_notes'] = ['value' => $this->payment->public_notes, 'label' => ctrans('texts.notes')];
 
         $data['$payment1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'payment1', $this->payment->custom_value1, $this->client) ?: ' ', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'payment1')];
         $data['$payment2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'payment2', $this->payment->custom_value2, $this->client) ?: ' ', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'payment2')];

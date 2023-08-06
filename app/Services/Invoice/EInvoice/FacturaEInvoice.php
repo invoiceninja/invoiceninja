@@ -482,6 +482,8 @@ class FacturaEInvoice extends AbstractService
             "fax" => "",
             "website" => substr($company->settings->website, 0, 50),
             "contactPeople" => substr($company->owner()->present()->name(), 0, 40),
+            "firstName" => $company->owner()->present()->firstName(),
+            "lastName" => $company->owner()->present()->lastName(),
             // 'centres' => $this->setFace(),
             // "cnoCnae" => "04647", // Clasif. Nacional de Act. Económicas
             // "ineTownCode" => "280796" // Cód. de municipio del INE

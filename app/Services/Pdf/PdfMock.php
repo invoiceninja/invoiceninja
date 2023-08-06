@@ -103,26 +103,31 @@ class PdfMock
 
         switch ($this->request['entity_type']) {
             case 'invoice':
+                /** @var \App\Models\Invoice | \App\Models\Credit | \App\Models\Quote $entity */
                 $entity = Invoice::factory()->make();
                 $entity->client = Client::factory()->make(['settings' => $settings]);
                 $entity->invitation = InvoiceInvitation::factory()->make();
                 break;
             case 'quote':
+                /** @var \App\Models\Invoice | \App\Models\Credit | \App\Models\Quote $entity */
                 $entity = Quote::factory()->make();
                 $entity->client = Client::factory()->make(['settings' => $settings]);
                 $entity->invitation = QuoteInvitation::factory()->make();
                 break;
             case 'credit':
+                /** @var \App\Models\Invoice | \App\Models\Credit | \App\Models\Quote $entity */
                 $entity = Credit::factory()->make();
                 $entity->client = Client::factory()->make(['settings' => $settings]);
                 $entity->invitation = CreditInvitation::factory()->make();
                 break;
             case 'purchase_order':
+                /** @var \App\Models\Invoice | \App\Models\Credit | \App\Models\Quote $entity */
                 $entity = PurchaseOrder::factory()->make();
                 $entity->client = Client::factory()->make(['settings' => $settings]);
                 $entity->invitation = PurchaseOrderInvitation::factory()->make();
                 break;
             case PurchaseOrder::class:
+                /** @var \App\Models\PurchaseOrder $entity */
                 $entity = PurchaseOrder::factory()->make();
                 $entity->invitation = PurchaseOrderInvitation::factory()->make();
                 $entity->vendor = Vendor::factory()->make();
