@@ -255,7 +255,6 @@ class MigrationController extends BaseController
      *       ),
      *     )
      * @param Request $request
-     * @param Company $company
      * @return \Illuminate\Http\JsonResponse|void
      */
     public function startMigration(Request $request)

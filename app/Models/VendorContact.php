@@ -63,9 +63,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read \App\Models\Company $company
  * @property-read mixed $contact_id
  * @property-read mixed $hashed_id
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $purchase_order_invitations
  * @property-read int|null $purchase_order_invitations_count
  * @property-read \App\Models\User $user
  * @property-read \App\Models\Vendor $vendor
@@ -74,64 +72,8 @@ use Laracasts\Presenter\PresentableTrait;
  * @method static \Illuminate\Database\Eloquent\Builder|VendorContact newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|VendorContact onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|VendorContact query()
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereAcceptedTermsVersion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereAvatar($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereAvatarSize($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereAvatarType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereCompanyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereConfirmationCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereConfirmed($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereContactKey($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereCustomValue1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereCustomValue2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereCustomValue3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereCustomValue4($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereEmail($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereEmailVerifiedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereFailedLogins($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereFirstName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereGoogle2faSecret($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereIsLocked($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereIsPrimary($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereLastLogin($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereLastName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereOauthProviderId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereOauthUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact wherePassword($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact wherePhone($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereRememberToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereSendEmail($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereVendorId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|VendorContact withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|VendorContact withoutTrashed()
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $purchase_order_invitations
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $purchase_order_invitations
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $purchase_order_invitations
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $purchase_order_invitations
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $purchase_order_invitations
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $purchase_order_invitations
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $purchase_order_invitations
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $purchase_order_invitations
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $purchase_order_invitations
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $purchase_order_invitations
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $purchase_order_invitations
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $purchase_order_invitations
  * @mixin \Eloquent
@@ -213,7 +155,7 @@ class VendorContact extends Authenticatable implements HasLocalePreference
         return $this->encodePrimaryKey($this->id);
     }
 
-    public function vendor()
+    public function vendor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Vendor::class)->withTrashed();
     }
@@ -223,12 +165,12 @@ class VendorContact extends Authenticatable implements HasLocalePreference
         return $this->where('is_primary', true);
     }
 
-    public function company()
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
     }

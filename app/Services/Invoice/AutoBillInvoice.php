@@ -310,25 +310,6 @@ class AutoBillInvoice extends AbstractService
         return $this;
     }
 
-    // private function applyPaymentToCredit($credit, $amount) :Credit
-    // {
-    //     $credit_item = new InvoiceItem;
-    //     $credit_item->type_id = '1';
-    //     $credit_item->product_key = ctrans('texts.credit');
-    //     $credit_item->notes = ctrans('texts.credit_payment', ['invoice_number' => $this->invoice->number]);
-    //     $credit_item->quantity = 1;
-    //     $credit_item->cost = $amount * -1;
-
-    //     $credit_items = $credit->line_items;
-    //     $credit_items[] = $credit_item;
-
-    //     $credit->line_items = $credit_items;
-
-    //     $credit = $credit->calc()->getCredit();
-    //     $credit->save();
-
-    //     return $credit;
-    // }
 
     /**
      * Harvests a client gateway token which passes the
@@ -371,37 +352,4 @@ class AutoBillInvoice extends AbstractService
         return false;
     }
 
-    /**
-     * Adds a gateway fee to the invoice.
-     *
-     * @param float $fee The fee amount.
-     * @return AutoBillInvoice
-     * @deprecated / unused
-     */
-    // private function addFeeToInvoice(float $fee)
-    // {
-    //     //todo if we increase the invoice balance here, we will also need to adjust UP the client balance and ledger?
-    //     $starting_amount = $this->invoice->amount;
-
-    //     $item = new InvoiceItem;
-    //     $item->quantity = 1;
-    //     $item->cost = $fee;
-    //     $item->notes = ctrans('texts.online_payment_surcharge');
-    //     $item->type_id = 3;
-
-    //     $items = (array) $this->invoice->line_items;
-    //     $items[] = $item;
-
-    //     $this->invoice->line_items = $items;
-    //     $this->invoice->saveQuietly();
-
-    //     $this->invoice = $this->invoice->calc()->getInvoice()->saveQuietly();
-
-    //     if ($starting_amount != $this->invoice->amount && $this->invoice->status_id != Invoice::STATUS_DRAFT) {
-    //         $this->invoice->client->service()->updateBalance($this->invoice->amount - $starting_amount)->save();
-    //         $this->invoice->ledger()->updateInvoiceBalance($this->invoice->amount - $starting_amount, "Invoice {$this->invoice->number} balance updated after stale gateway fee removed")->save();
-    //     }
-
-    //     return $this;
-    // }
 }

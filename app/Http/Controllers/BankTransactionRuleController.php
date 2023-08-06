@@ -85,7 +85,7 @@ class BankTransactionRuleController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     * @param BankTransactionFilters $filter
+     * @param BankTransactionRuleFilters $filters
      * @return Response|mixed
      */
     public function index(BankTransactionRuleFilters $filters)
@@ -302,7 +302,9 @@ class BankTransactionRuleController extends BaseController
      */
     public function create(CreateBankTransactionRuleRequest $request)
     {
-        $bank_transaction_rule = BankTransactionRuleFactory::create(auth()->user()->company()->id, auth()->user()->id, auth()->user()->account_id);
+        /** @var \App\Models\User $user **/
+        $user = auth()->user();
+        $bank_transaction_rule = BankTransactionRuleFactory::create($user->company()->id, $user->id);
 
         return $this->itemResponse($bank_transaction_rule);
     }
@@ -347,8 +349,11 @@ class BankTransactionRuleController extends BaseController
      */
     public function store(StoreBankTransactionRuleRequest $request)
     {
-        //stub to store the model
-        $bank_transaction_rule = $this->bank_transaction_repo->save($request->all(), BankTransactionRuleFactory::create(auth()->user()->company()->id, auth()->user()->id, auth()->user()->account_id));
+        
+        /** @var \App\Models\User $user **/
+        $user = auth()->user();
+
+        $bank_transaction_rule = $this->bank_transaction_repo->save($request->all(), BankTransactionRuleFactory::create($user->company()->id, $user->id));
 
         return $this->itemResponse($bank_transaction_rule);
     }

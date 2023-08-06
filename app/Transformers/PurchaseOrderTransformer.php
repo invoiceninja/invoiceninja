@@ -11,10 +11,12 @@
 
 namespace App\Transformers;
 
-use App\Models\PurchaseOrder;
-use App\Models\PurchaseOrderInvitation;
 use App\Models\Vendor;
+use App\Models\Expense;
+use App\Models\Document;
+use App\Models\PurchaseOrder;
 use App\Utils\Traits\MakesHash;
+use App\Models\PurchaseOrderInvitation;
 
 class PurchaseOrderTransformer extends EntityTransformer
 {

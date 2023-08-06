@@ -49,6 +49,7 @@ class UpdateCustomer implements ShouldQueue
 
         $company = Company::where('company_key', $this->company_key)->first();
 
+        /** @var \App\Models\CompanyGateway $company_gateway **/
         $company_gateway = CompanyGateway::find($this->company_gateway_id);
         $client = Client::withTrashed()->find($this->client_id);
 

@@ -50,8 +50,10 @@ class TemplateEngine
 
     public $template;
 
+    /** @var \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder | null $entity_obj **/
     private $entity_obj;
 
+    /** @var \App\Models\Company | \App\Models\Client | null $settings_entity **/
     private $settings_entity;
 
     private $settings;
@@ -117,14 +119,17 @@ class TemplateEngine
 
     private function setSettingsObject()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         if ($this->entity == 'purchaseOrder' || $this->entity == 'purchase_order') {
-            $this->settings_entity = auth()->user()->company();
+            $this->settings_entity = $user->company();
             $this->settings = $this->settings_entity->settings;
         } elseif ($this->entity_obj->client()->exists()) {
             $this->settings_entity = $this->entity_obj->client;
             $this->settings = $this->settings_entity->getMergedSettings();
         } else {
-            $this->settings_entity = auth()->user()->company();
+            $this->settings_entity = $user->company();
             $this->settings = $this->settings_entity->settings;
         }
 
@@ -219,13 +224,16 @@ class TemplateEngine
 
     private function renderTemplate()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         /* wrapper */
         $email_style = $this->settings_entity->getSetting('email_style');
 
         $data['title'] = '';
         $data['body'] = '$body';
         $data['footer'] = '';
-        $data['logo'] = auth()->user()->company()->present()->logo();
+        $data['logo'] = $user->company()->present()->logo();
 
         if ($this->entity_obj->client()->exists()) {
             $data = array_merge($data, Helpers::sharedEmailVariables($this->entity_obj->client));
@@ -284,16 +292,19 @@ class TemplateEngine
 
         DB::connection(config('database.default'))->beginTransaction();
 
-        $vendor = false;
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
+        $vendor = false;
+        /** @var \App\Models\Client $client */
         $client = Client::factory()->create([
-            'user_id' => auth()->user()->id,
-            'company_id' => auth()->user()->company()->id,
+            'user_id' => $user->id,
+            'company_id' => $user->company()->id,
         ]);
 
         $contact = ClientContact::factory()->create([
-            'user_id' => auth()->user()->id,
-            'company_id' => auth()->user()->company()->id,
+            'user_id' => $user->id,
+            'company_id' => $user->company()->id,
             'client_id' => $client->id,
             'is_primary' => 1,
             'send_email' => true,
@@ -301,26 +312,28 @@ class TemplateEngine
 
         if ($this->entity == 'payment') {
             $this->entity_obj = Payment::factory()->create([
-                'user_id' => auth()->user()->id,
-                'company_id' => auth()->user()->company()->id,
+                'user_id' => $user->id,
+                'company_id' => $user->company()->id,
                 'client_id' => $client->id,
                 'amount' => 10,
                 'applied' => 10,
                 'refunded' => 5,
             ]);
-
+            
+            /** @var \App\Models\Invoice $invoice */
             $invoice = Invoice::factory()->create([
-                'user_id' => auth()->user()->id,
-                'company_id' => auth()->user()->company()->id,
+                'user_id' => $user->id,
+                'company_id' => $user->company()->id,
                 'client_id' => $client->id,
                 'amount' => 10,
                 'balance' => 10,
                 'number' => rand(1, 10000)
             ]);
 
+            /** @var \App\Models\InvoiceInvitation $invitation */
             $invitation = InvoiceInvitation::factory()->create([
-                'user_id' => auth()->user()->id,
-                'company_id' => auth()->user()->company()->id,
+                'user_id' => $user->id,
+                'company_id' => $user->company()->id,
                 'invoice_id' => $invoice->id,
                 'client_contact_id' => $contact->id,
             ]);
@@ -332,16 +345,16 @@ class TemplateEngine
 
         if (!$this->entity || $this->entity == 'invoice') {
             $this->entity_obj = Invoice::factory()->create([
-                'user_id' => auth()->user()->id,
-                'company_id' => auth()->user()->company()->id,
+                'user_id' => $user->id,
+                'company_id' => $user->company()->id,
                 'client_id' => $client->id,
                 'amount' => '10',
                 'balance' => '10',
             ]);
 
             $invitation = InvoiceInvitation::factory()->create([
-                'user_id' => auth()->user()->id,
-                'company_id' => auth()->user()->company()->id,
+                'user_id' => $user->id,
+                'company_id' => $user->company()->id,
                 'invoice_id' => $this->entity_obj->id,
                 'client_contact_id' => $contact->id,
             ]);
@@ -349,14 +362,14 @@ class TemplateEngine
 
         if ($this->entity == 'quote') {
             $this->entity_obj = Quote::factory()->create([
-                'user_id' => auth()->user()->id,
-                'company_id' => auth()->user()->company()->id,
+                'user_id' => $user->id,
+                'company_id' => $user->company()->id,
                 'client_id' => $client->id,
             ]);
 
             $invitation = QuoteInvitation::factory()->create([
-                'user_id' => auth()->user()->id,
-                'company_id' => auth()->user()->company()->id,
+                'user_id' => $user->id,
+                'company_id' => $user->company()->id,
                 'quote_id' => $this->entity_obj->id,
                 'client_contact_id' => $contact->id,
             ]);
@@ -364,13 +377,13 @@ class TemplateEngine
 
         if ($this->entity == 'purchaseOrder') {
             $vendor = Vendor::factory()->create([
-                'user_id' => auth()->user()->id,
-                'company_id' => auth()->user()->company()->id,
+                'user_id' => $user->id,
+                'company_id' => $user->company()->id,
             ]);
 
             $contact = VendorContact::factory()->create([
-                'user_id' => auth()->user()->id,
-                'company_id' => auth()->user()->company()->id,
+                'user_id' => $user->id,
+                'company_id' => $user->company()->id,
                 'vendor_id' => $vendor->id,
                 'is_primary' => 1,
                 'send_email' => true,
@@ -378,14 +391,14 @@ class TemplateEngine
 
 
             $this->entity_obj = PurchaseOrder::factory()->create([
-                'user_id' => auth()->user()->id,
-                'company_id' => auth()->user()->company()->id,
+                'user_id' => $user->id,
+                'company_id' => $user->company()->id,
                 'vendor_id' => $vendor->id,
             ]);
 
             $invitation = PurchaseOrderInvitation::factory()->create([
-                'user_id' => auth()->user()->id,
-                'company_id' => auth()->user()->company()->id,
+                'user_id' => $user->id,
+                'company_id' => $user->company()->id,
                 'purchase_order_id' => $this->entity_obj->id,
                 'vendor_contact_id' => $contact->id,
             ]);
@@ -394,16 +407,16 @@ class TemplateEngine
         if ($vendor) {
             $this->entity_obj->setRelation('invitations', $invitation);
             $this->entity_obj->setRelation('vendor', $vendor);
-            $this->entity_obj->setRelation('company', auth()->user()->company());
+            $this->entity_obj->setRelation('company', $user->company());
             $this->entity_obj->load('vendor');
-            $vendor->setRelation('company', auth()->user()->company());
+            $vendor->setRelation('company', $user->company());
             $vendor->load('company');
         } else {
             $this->entity_obj->setRelation('invitations', $invitation);
             $this->entity_obj->setRelation('client', $client);
-            $this->entity_obj->setRelation('company', auth()->user()->company());
+            $this->entity_obj->setRelation('company', $user->company());
             $this->entity_obj->load('client');
-            $client->setRelation('company', auth()->user()->company());
+            $client->setRelation('company', $user->company());
             $client->load('company');
         }
     }

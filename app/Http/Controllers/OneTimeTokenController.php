@@ -11,14 +11,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\OneTimeToken\OneTimeRouterRequest;
-use App\Http\Requests\OneTimeToken\OneTimeTokenRequest;
-use App\Models\Company;
 use App\Models\User;
+use App\Models\Company;
+use App\Libraries\MultiDB;
+use Illuminate\Support\Str;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
+use App\Http\Requests\OneTimeToken\OneTimeTokenRequest;
+use App\Http\Requests\OneTimeToken\OneTimeRouterRequest;
 
 class OneTimeTokenController extends BaseController
 {
@@ -33,7 +34,7 @@ class OneTimeTokenController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param CreateOneTimeTokenRequest $request
+     * @param OneTimeTokenRequest $request
      * @return Response
      *
      * @OA\Post(
@@ -64,11 +65,14 @@ class OneTimeTokenController extends BaseController
      */
     public function create(OneTimeTokenRequest $request)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $hash = Str::random(64);
 
         $data = [
-            'user_id' => auth()->user()->id,
-            'company_key'=> auth()->user()->company()->company_key,
+            'user_id' => $user->id,
+            'company_key'=> $user->company()->company_key,
             'context' => $request->input('context'),
         ];
 
@@ -82,10 +86,6 @@ class OneTimeTokenController extends BaseController
         $data = Cache::get($request->input('hash'));
 
         MultiDB::findAndSetDbByCompanyKey($data['company_key']);
-
-        // $user = User::findOrFail($data['user_id']);
-        // Auth::login($user, true);
-        // Cache::forget($request->input('hash'));
 
         $this->sendTo($data['context']);
     }

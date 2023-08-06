@@ -82,6 +82,7 @@ class ForgotPasswordController extends Controller
     {
         if ($request->has('company_key')) {
             MultiDB::findAndSetDbByCompanyKey($request->input('company_key'));
+            /** @var \App\Models\Company $company **/
             $company = Company::where('company_key', $request->input('company_key'))->first();
             $account = $company->account;
         } else {

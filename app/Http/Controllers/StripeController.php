@@ -27,8 +27,11 @@ class StripeController extends BaseController
 
     public function update()
     {
-        if (auth()->user()->isAdmin()) {
-            StripeUpdatePaymentMethods::dispatch(auth()->user()->company());
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if ($user->isAdmin()) {
+            StripeUpdatePaymentMethods::dispatch($user->company());
 
             return response()->json(['message' => 'Processing'], 200);
         }
@@ -38,10 +41,11 @@ class StripeController extends BaseController
 
     public function import()
     {
-        // return response()->json(['message' => 'Processing'], 200);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
-        if (auth()->user()->isAdmin()) {
-            ImportStripeCustomers::dispatch(auth()->user()->company());
+        if ($user->isAdmin()) {
+            ImportStripeCustomers::dispatch($user->company());
 
             return response()->json(['message' => 'Processing'], 200);
         }
@@ -51,10 +55,14 @@ class StripeController extends BaseController
 
     public function verify()
     {
-        if (auth()->user()->isAdmin()) {
-            MultiDB::findAndSetDbByCompanyKey(auth()->user()->company()->company_key);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
-            $company_gateway = CompanyGateway::where('company_id', auth()->user()->company()->id)
+        if ($user->isAdmin()) {
+            MultiDB::findAndSetDbByCompanyKey($user->company()->company_key);
+
+            /** @var \App\Models\CompanyGateway $company_gateway */
+            $company_gateway = CompanyGateway::where('company_id', $user->company()->id)
                                 ->where('is_deleted', 0)
                                 ->whereIn('gateway_key', $this->stripe_keys)
                                 ->first();
@@ -67,7 +75,11 @@ class StripeController extends BaseController
 
     public function disconnect(string $company_gateway_id)
     {
-        $company_gateway = CompanyGateway::where('company_id', auth()->user()->company()->id)
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        /** @var \App\Models\CompanyGateway $company_gateway */
+        $company_gateway = CompanyGateway::where('company_id', $user->company()->id)
                                          ->where('id', $this->decodePrimaryKey($company_gateway_id))
                                          ->whereIn('gateway_key', $this->stripe_keys)
                                          ->firstOrFail();

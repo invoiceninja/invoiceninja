@@ -17,7 +17,7 @@ use App\Models\Invoice;
 use App\Services\AbstractService;
 use Illuminate\Support\Facades\Storage;
 
-class GetInvoiceXInvoice extends AbstractService
+class GetInvoiceEInvoice extends AbstractService
 {
     public function __construct(public Invoice $invoice, public ?ClientContact $contact = null)
     {

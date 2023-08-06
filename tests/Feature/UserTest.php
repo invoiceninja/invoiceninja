@@ -224,6 +224,7 @@ class UserTest extends TestCase
                 'is_admin' => false,
                 'is_owner' => false,
                 'permissions' => 'create_client,create_invoice',
+                'notifications' => '',
             ],
             'phone' => "",
         ];
@@ -247,6 +248,7 @@ class UserTest extends TestCase
                 'is_admin' => false,
                 'is_owner' => false,
                 'permissions' => 'create_client,create_invoice',
+                'notifications' => '',
             ],
         ];
 
@@ -291,9 +293,6 @@ class UserTest extends TestCase
         $response->assertStatus(200);
 
         $arr = $response->json();
-
-        // $this->assertNotNull($user->company_user);
-        // $this->assertEquals($user->company_user->company_id, $this->company->id);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),

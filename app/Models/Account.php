@@ -185,42 +185,42 @@ class Account extends BaseModel
         return self::class;
     }
 
-    public function users()
+    public function users(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(User::class)->withTrashed();
     }
 
-    public function default_company()
+    public function default_company(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Company::class, 'id', 'default_company_id');
     }
 
-    public function payment()
+    public function payment(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Payment::class)->withTrashed();
     }
 
-    public function companies()
+    public function companies(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Company::class);
     }
 
-    public function bank_integrations()
+    public function bank_integrations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(BankIntegration::class);
     }
 
-    public function company_users()
+    public function company_users(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(CompanyUser::class);
     }
 
-    public function owner()
+    public function owner(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(CompanyUser::class)->where('is_owner', true)->first() ? $this->hasMany(CompanyUser::class)->where('is_owner', true)->first()->user : false;
     }
 
-    public function tokens()
+    public function tokens(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(CompanyToken::class)->withTrashed();
     }
@@ -293,12 +293,12 @@ class Account extends BaseModel
         }
     }
 
-    public function isPaid()
+    public function isPaid(): bool
     {
         return Ninja::isNinja() ? ($this->isPaidHostedClient() && ! $this->isTrial()) : $this->hasFeature(self::FEATURE_WHITE_LABEL);
     }
 
-    public function isPaidHostedClient()
+    public function isPaidHostedClient(): bool
     {
         if (! Ninja::isNinja()) {
             return false;
@@ -312,7 +312,7 @@ class Account extends BaseModel
         return $this->plan == 'pro' || $this->plan == 'enterprise';
     }
 
-    public function isFreeHostedClient()
+    public function isFreeHostedClient(): bool
     {
         if (! Ninja::isNinja()) {
             return false;
@@ -325,7 +325,7 @@ class Account extends BaseModel
         return $this->plan == 'free' || is_null($this->plan) || empty($this->plan);
     }
 
-    public function isEnterpriseClient()
+    public function isEnterpriseClient(): bool
     {
         if (! Ninja::isNinja()) {
             return false;
@@ -334,7 +334,7 @@ class Account extends BaseModel
         return $this->plan == 'enterprise';
     }
 
-    public function isTrial()
+    public function isTrial(): bool
     {
         if (! Ninja::isNinja()) {
             return false;
@@ -345,7 +345,7 @@ class Account extends BaseModel
         return $plan_details && $plan_details['trial'];
     }
 
-    public function startTrial($plan)
+    public function startTrial($plan): void
     {
         if (! Ninja::isNinja()) {
             return;

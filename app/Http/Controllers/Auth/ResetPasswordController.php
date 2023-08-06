@@ -60,6 +60,7 @@ class ResetPasswordController extends Controller
 
         if (Ninja::isHosted()) {
             MultiDB::findAndSetDbByCompanyKey($request->session()->get('company_key'));
+            /** @var \App\Models\Company $company **/
             $company = Company::where('company_key', $request->session()->get('company_key'))->first();
         }
 

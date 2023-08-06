@@ -111,6 +111,7 @@ class CompanyUserController extends BaseController
      */
     public function update(UpdateCompanyUserRequest $request, User $user)
     {
+
         $company = auth()->user()->company();
 
         $company_user = CompanyUser::whereUserId($user->id)->whereCompanyId($company->id)->first();
@@ -135,7 +136,7 @@ class CompanyUserController extends BaseController
 
     public function updatePreferences(UpdateCompanyUserPreferencesRequest $request, User $user)
     {
-        /** @var \App\Models\User $logged_in_user */
+
         $company = auth()->user()->company();
 
         $company_user = CompanyUser::whereUserId($user->id)->whereCompanyId($company->id)->first();

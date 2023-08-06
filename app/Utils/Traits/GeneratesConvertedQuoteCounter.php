@@ -650,7 +650,7 @@ trait GeneratesConvertedQuoteCounter
             $replace[] = str_pad(($user_id), 2, '0', STR_PAD_LEFT);
         }
 
-        $matches = false;
+        $matches = [];
         preg_match('/{\$date:(.*?)}/', $pattern, $matches);
         if (count($matches) > 1) {
             $format = $matches[1];

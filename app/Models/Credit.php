@@ -11,22 +11,23 @@
 
 namespace App\Models;
 
+use App\Utils\Ninja;
+use Illuminate\Support\Carbon;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesDates;
 use App\Helpers\Invoice\InvoiceSum;
-use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Jobs\Entity\CreateEntityPdf;
-use App\Models\Presenters\CreditPresenter;
+use App\Utils\Traits\MakesReminders;
 use App\Services\Credit\CreditService;
 use App\Services\Ledger\LedgerService;
-use App\Utils\Ninja;
-use App\Utils\Traits\MakesDates;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesInvoiceValues;
-use App\Utils\Traits\MakesReminders;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
+use App\Utils\Traits\MakesInvoiceValues;
 use Laracasts\Presenter\PresentableTrait;
+use App\Models\Presenters\CreditPresenter;
+use App\Helpers\Invoice\InvoiceSumInclusive;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * App\Models\Credit
@@ -215,32 +216,32 @@ class Credit extends BaseModel
         return $this->dateMutator($value);
     }
 
-    public function assigned_user()
+    public function assigned_user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
 
-    public function vendor()
+    public function vendor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Vendor::class);
     }
 
-    public function history()
+    public function history(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
         return $this->hasManyThrough(Backup::class, Activity::class);
     }
 
-    public function activities()
+    public function activities(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(50);
     }
 
-    public function company()
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
@@ -250,17 +251,12 @@ class Credit extends BaseModel
         return $this->belongsTo(Client::class)->withTrashed();
     }
 
-    // public function contacts()
-    // {
-    //     return $this->hasManyThrough(ClientContact::class, Client::class);
-    // }
-
-    public function invitations()
+    public function invitations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(CreditInvitation::class);
     }
 
-    public function project()
+    public function project(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Project::class)->withTrashed();
     }
@@ -268,17 +264,17 @@ class Credit extends BaseModel
     /**
      * The invoice which the credit has been created from.
      */
-    public function invoice()
+    public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Invoice::class);
     }
 
-    public function company_ledger()
+    public function company_ledger(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(CompanyLedger::class, 'company_ledgerable');
     }
 
-    public function ledger()
+    public function ledger(): \App\Services\Ledger\LedgerService
     {
         return new LedgerService($this);
     }
@@ -287,17 +283,17 @@ class Credit extends BaseModel
      * The invoice/s which the credit has
      * been applied to.
      */
-    public function invoices()
+    public function invoices(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Invoice::class)->using(Paymentable::class);
     }
 
-    public function payments()
+    public function payments(): \Illuminate\Database\Eloquent\Relations\MorphToMany
     {
         return $this->morphToMany(Payment::class, 'paymentable');
     }
 
-    public function documents()
+    public function documents(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
     }
@@ -320,7 +316,7 @@ class Credit extends BaseModel
         return $credit_calc->build();
     }
 
-    public function service()
+    public function service(): \App\Services\Credit\CreditService
     {
         return new CreditService($this);
     }
@@ -423,12 +419,12 @@ class Credit extends BaseModel
         ];
     }
 
-    public function translate_entity()
+    public function translate_entity(): string
     {
         return ctrans('texts.credit');
     }
 
-    public static function stringStatus(int $status)
+    public static function stringStatus(int $status): string
     {
         switch ($status) {
             case self::STATUS_DRAFT:
