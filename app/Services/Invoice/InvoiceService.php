@@ -468,6 +468,7 @@ class InvoiceService
                     if ($invitation->invoice->client->getSetting('enable_e_invoice') && $invitation instanceof InvoiceInvitation)
                     {
                         (new CreateEInvoice($invitation->invoice))->handle();
+                        (new MergeEInvoice($invitation->invoice))->run();
                     }
 
                 });

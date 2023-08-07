@@ -44,6 +44,8 @@ class GetInvoiceEInvoice extends AbstractService
 
         if (! $file) {
             $file_path = (new CreateEInvoice($this->invoice))->handle();
+            (new \App\Jobs\Invoice\MergeEInvoice($this->invoice))->handle();
+
         }
 
         return $file_path;
