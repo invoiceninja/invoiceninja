@@ -55,7 +55,7 @@ class CreateEntityPdf implements ShouldQueue
 
     private $disk;
 
-    public \App\Models\InvoiceInvitation | \App\Models\QuoteInvitation | \App\Models\CreditInvitation | \App\Models\RecurringInvoiceInvitation $invitation;
+    public \App\Models\InvoiceInvitation | \App\Models\QuoteInvitation | \App\Models\CreditInvitation | \App\Models\RecurringInvoiceInvitation | null $invitation;
 
     public string $entity_string = '';
 
