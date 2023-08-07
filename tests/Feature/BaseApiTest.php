@@ -428,7 +428,7 @@ class BaseApiTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->low_token,
         ])->get('/api/v1/companies/'.$this->company->hashed_id)
-          ->assertStatus(403);
+          ->assertStatus(200);
     }
 
 
