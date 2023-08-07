@@ -95,7 +95,7 @@ class BaseImport
             ini_set('auto_detect_line_endings', '1');
         }
 
-        /** @var strin $base64_encoded_csv */
+        /** @var string $base64_encoded_csv */
         $base64_encoded_csv = Cache::pull($this->hash.'-'.$entity_type);
 
         if (empty($base64_encoded_csv)) {

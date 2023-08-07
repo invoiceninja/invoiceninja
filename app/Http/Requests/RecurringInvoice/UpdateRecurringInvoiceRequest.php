@@ -31,11 +31,17 @@ class UpdateRecurringInvoiceRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->recurring_invoice);
+        /** @var \App\Models\User auth()->user() */
+        $user = auth()->user();
+
+        return $user->can('edit', $this->recurring_invoice);
     }
 
     public function rules()
     {
+        /** @var \App\Models\User auth()->user() */
+        $user = auth()->user();
+
         $rules = [];
 
         if ($this->file('documents') && is_array($this->file('documents'))) {
@@ -51,7 +57,7 @@ class UpdateRecurringInvoiceRequest extends Request
         }
 
         if ($this->number) {
-            $rules['number'] = Rule::unique('recurring_invoices')->where('company_id', auth()->user()->company()->id)->ignore($this->recurring_invoice->id);
+            $rules['number'] = Rule::unique('recurring_invoices')->where('company_id', $user->company()->id)->ignore($this->recurring_invoice->id);
         }
 
         $rules['project_id'] = ['bail', 'sometimes', new ValidProjectForClient($this->all())];

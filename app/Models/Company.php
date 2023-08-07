@@ -200,6 +200,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read int|null $vendors_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Webhook> $webhooks
  * @method static \Illuminate\Database\Eloquent\Builder|Company where($query)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company find($query)
  * @property-read int|null $webhooks_count
  * @property int $calculate_taxes
  * @property mixed $tax_data

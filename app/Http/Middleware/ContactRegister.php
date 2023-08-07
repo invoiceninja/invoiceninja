@@ -65,7 +65,7 @@ class ContactRegister
         // For self-hosted platforms with multiple companies, resolving is done using company key
         // if it doesn't resolve using a domain.
 
-        if ($request->company_key && Ninja::isSelfHost() && $company = Company::where('company_key', $request->company_key)->first()) {
+        if ($request->company_key && Ninja::isSelfHost() && $company = Company::query()->where('company_key', $request->company_key)->first()) {
             if (! (bool) $company->client_can_register) {
                 abort(400, 'Registration disabled');
             }
@@ -79,6 +79,7 @@ class ContactRegister
         // As a fallback for self-hosted, it will use default company in the system
         // if key isn't provided in the url.
         if (! $request->route()->parameter('company_key') && Ninja::isSelfHost()) {
+            /** @var \App\Models\Company $company */
             $company = Account::first()->default_company;
 
             if (! $company->client_can_register) {

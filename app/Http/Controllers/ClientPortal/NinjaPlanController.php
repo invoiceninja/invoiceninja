@@ -157,6 +157,8 @@ class NinjaPlanController extends Controller
 
         //create recurring invoice
         $subscription_repo = new SubscriptionRepository();
+
+        /** @var \App\Models\Subscription $subscription **/
         $subscription = Subscription::find(6);
 
         $recurring_invoice = RecurringInvoiceFactory::create($subscription->company_id, $subscription->user_id);
@@ -215,7 +217,7 @@ class NinjaPlanController extends Controller
         $data['late_invoice'] = false;
 
         if (MultiDB::findAndSetDbByAccountKey(Auth::guard('contact')->user()->client->custom_value2)) {
-            $account = Account::where('key', Auth::guard('contact')->user()->client->custom_value2)->first();
+            $account = Account::query()->where('key', Auth::guard('contact')->user()->client->custom_value2)->first();
 
             if ($account) {
                 //offer the option to have a free trial

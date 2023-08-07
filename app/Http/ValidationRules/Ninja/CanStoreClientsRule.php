@@ -21,7 +21,7 @@ class CanStoreClientsRule implements Rule
 {
     public $company_id;
 
-    public $company;
+    public \App\Models\Company $company;
 
     public function __construct($company_id)
     {

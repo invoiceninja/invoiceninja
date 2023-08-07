@@ -53,7 +53,7 @@ class BillingPortalPurchasev2 extends Component
     /**
      * Instance of subscription.
      *
-     * @var Subscription
+     * @var \App\Models\Subscription
      */
     public $subscription;
 
