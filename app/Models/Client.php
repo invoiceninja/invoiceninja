@@ -106,6 +106,7 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
  * @method static \Database\Factories\ClientFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Client filter(\App\Filters\QueryFilters $filters)
  * @method static \Illuminate\Database\Eloquent\Builder|Client without()
+ * @method static \Illuminate\Database\Eloquent\Builder|Client find()
  * @method static \Illuminate\Database\Eloquent\Builder|Client select()
  * @property string $payment_balance
  * @property mixed $tax_data

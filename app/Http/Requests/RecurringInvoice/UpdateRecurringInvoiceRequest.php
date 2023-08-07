@@ -138,7 +138,7 @@ class UpdateRecurringInvoiceRequest extends Request
      * off / optin / optout will reset the status of this field to off to allow
      * the client to choose whether to auto_bill or not.
      *
-     * @param enum $auto_bill off/always/optin/optout
+     * @param string $auto_bill off/always/optin/optout
      *
      * @return bool
      */

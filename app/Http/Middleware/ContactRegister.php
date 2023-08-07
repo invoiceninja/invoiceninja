@@ -50,7 +50,7 @@ class ContactRegister
                 'portal_mode' => 'domain',
             ];
 
-            if ($company = Company::where($query)->first()) {
+            if ($company = Company::query()->where($query)->first()) {
                 if (! $company->client_can_register) {
                     abort(400, 'Registration disabled');
                 }

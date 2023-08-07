@@ -125,7 +125,6 @@ class EmailController extends BaseController
             $this->entity_transformer = PurchaseOrderTransformer::class;
         }
 
-        // @phpstan-ignore-next-line
         return $this->itemResponse($entity_obj->fresh());
     }
 

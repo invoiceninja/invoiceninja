@@ -187,6 +187,7 @@ class ProductSalesExport extends BaseExport
         $product = $this->getProduct($entity['product_key']);
 
         $entity['cost'] = $product->cost ?? 0;
+        /** @var float $unit_cost */
         $unit_cost = $entity['cost'] == 0 ? 1 : $entity['cost'];
 
         $entity['client'] = $invoice->client->present()->name();

@@ -52,7 +52,6 @@ class PaymentWebhookRequest extends Request
     /**
      * Resolve payment hash.
      *
-     * @param string $hash
      * @return null|\App\Models\PaymentHash
      */
     public function getPaymentHash()

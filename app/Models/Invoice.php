@@ -709,9 +709,9 @@ class Invoice extends BaseModel
         return ctrans('texts.invoice');
     }
 
-    public function taxTypeString($id)
+    public function taxTypeString($id): string
     {
-        $tax_type  = false;
+        $tax_type  = '';
 
         match(intval($id)){
             Product::PRODUCT_TYPE_PHYSICAL => $tax_type = ctrans('texts.physical_goods'),

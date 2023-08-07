@@ -199,7 +199,7 @@ class WepaySignup extends Component
 
         if ($confirmation_required) {
             
-            /** @phpstan-ignore-next-line */
+            /** @phpstan-ignore-next-line **/
             request()->session()->flash('message', trans('texts.created_wepay_confirmation_required'));
         } else {
             $update_uri = $wepay->request('/account/get_update_uri', [
