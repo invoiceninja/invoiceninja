@@ -10,6 +10,7 @@ parameters:
         - 'app/Console/Commands/*'
         - 'app/DataMapper/Analytics/*'
         - 'app/PaymentDrivers/Authorize/*'
+        - 'app/Utils/Traits/*'
     universalObjectCratesClasses:
         - App\DataMapper\Tax\RuleInterface
         - App\DataMapper\FeesAndLimits
@@ -18,4 +19,5 @@ parameters:
         - '#Call to an undefined method [a-zA-Z0-9\\_]+::company\(\)#' 
         - '#Call to an undefined method [a-zA-Z0-9\\_]+::entityFilter\(\)#'
         - '#Call to an undefined method [a-zA-Z0-9\\_]+::exclude\(\)#'
+        - '#Array has 2 duplicate keys with value#'
         - '#Undefined method#'

@@ -165,7 +165,7 @@ class BillingPortalPurchasev2 extends Component
     {
         MultiDB::setDb($this->db);
 
-        $this->subscription = Subscription::with('company')->find($this->subscription);
+        $this->subscription = Subscription::query()->with('company')->find($this->subscription);
 
         $this->company = $this->subscription->company;
 

@@ -165,6 +165,7 @@ class WepaySignup extends Component
         }
 
         $wepay_account = $wepay->request('account/create/', $account_details);
+        $confirmation_required = false;
 
         try {
             $wepay->request('user/send_confirmation/', []);
@@ -173,6 +174,8 @@ class WepaySignup extends Component
             if ($ex->getMessage() == 'This access_token is already approved.') {
                 $confirmation_required = false;
             } else {
+                
+                /** @phpstan-ignore-next-line */
                 request()->session()->flash('message', $ex->getMessage());
             }
 
@@ -195,6 +198,8 @@ class WepaySignup extends Component
         $cg->save();
 
         if ($confirmation_required) {
+            
+            /** @phpstan-ignore-next-line */
             request()->session()->flash('message', trans('texts.created_wepay_confirmation_required'));
         } else {
             $update_uri = $wepay->request('/account/get_update_uri', [
