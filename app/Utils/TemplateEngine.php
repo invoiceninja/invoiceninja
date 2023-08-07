@@ -12,27 +12,29 @@
 
 namespace App\Utils;
 
-use App\DataMapper\EmailTemplateDefaults;
-use App\Mail\Engine\PaymentEmailEngine;
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Invoice;
-use App\Models\InvoiceInvitation;
-use App\Models\Payment;
-use App\Models\PurchaseOrder;
-use App\Models\PurchaseOrderInvitation;
-use App\Models\Quote;
-use App\Models\QuoteInvitation;
-use App\Models\Vendor;
-use App\Models\VendorContact;
-use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesInvoiceHtml;
-use App\Utils\Traits\MakesTemplateData;
 use DB;
-use Illuminate\Support\Facades\App;
+use App\Models\Quote;
+use App\Models\Client;
+use App\Models\Credit;
+use App\Models\Vendor;
+use App\Models\Invoice;
+use App\Models\Payment;
 use Illuminate\Support\Str;
+use App\Models\ClientContact;
+use App\Models\PurchaseOrder;
+use App\Models\VendorContact;
+use App\Models\QuoteInvitation;
+use App\Utils\Traits\MakesHash;
+use App\Models\RecurringInvoice;
+use App\Models\InvoiceInvitation;
+use Illuminate\Support\Facades\App;
+use App\Utils\Traits\MakesInvoiceHtml;
+use App\Mail\Engine\PaymentEmailEngine;
+use App\Models\PurchaseOrderInvitation;
+use App\Utils\Traits\MakesTemplateData;
+use App\DataMapper\EmailTemplateDefaults;
 use League\CommonMark\CommonMarkConverter;
+use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
 
 class TemplateEngine
 {
@@ -50,7 +52,7 @@ class TemplateEngine
 
     public $template;
 
-    /** @var \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder | null $entity_obj **/
+    /** @var Invoice | Quote | Credit | PurchaseOrder | RecurringInvoice | null $entity_obj **/
     private $entity_obj;
 
     /** @var \App\Models\Company | \App\Models\Client | null $settings_entity **/
@@ -340,6 +342,7 @@ class TemplateEngine
                 'client_contact_id' => $contact->id,
             ]);
 
+            /** @var \App\Models\Invoice $invoice */
             $this->entity_obj->invoices()->attach($invoice->id, [
                 'amount' => 10,
             ]);
@@ -378,11 +381,13 @@ class TemplateEngine
         }
 
         if ($this->entity == 'purchaseOrder') {
+            /** @var \App\Models\Vendor $vendor **/
             $vendor = Vendor::factory()->create([
                 'user_id' => $user->id,
                 'company_id' => $user->company()->id,
             ]);
 
+            /** @var \App\Models\VendorContact $contact **/
             $contact = VendorContact::factory()->create([
                 'user_id' => $user->id,
                 'company_id' => $user->company()->id,
@@ -391,13 +396,13 @@ class TemplateEngine
                 'send_email' => true,
             ]);
 
-
             $this->entity_obj = PurchaseOrder::factory()->create([
                 'user_id' => $user->id,
                 'company_id' => $user->company()->id,
                 'vendor_id' => $vendor->id,
             ]);
 
+            /** @var \App\Models\PurchaseOrderInvitation $invitation **/
             $invitation = PurchaseOrderInvitation::factory()->create([
                 'user_id' => $user->id,
                 'company_id' => $user->company()->id,
