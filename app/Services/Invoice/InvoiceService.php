@@ -343,6 +343,7 @@ class InvoiceService
                                      })->toArray();
 
         $this->deletePdf();
+        $this->deleteEInvoice();
 
         return $this;
     }
@@ -410,6 +411,7 @@ class InvoiceService
 
         $this->invoice = $this->invoice->calc()->getInvoice();
         $this->deletePdf();
+        $this->deleteEInvoice();
 
         /* 24-03-2022 */
         $new_balance = $this->invoice->balance;

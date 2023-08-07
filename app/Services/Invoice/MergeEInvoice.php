@@ -19,14 +19,15 @@ class MergeEInvoice
 
     public function run(): void
     {
-        $file_path = $this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()). $this->invoice->getFileName("xml");
-
+        $file_path_xml = $this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()). $this->invoice->getFileName("xml");
+        $file_path_pdf = $this->invoice->getFileName();
         // $disk = 'public';
         $disk = config('filesystems.default');
 
-        $file = Storage::disk($disk)->exists($file_path);
+        $file_xml = Storage::disk($disk)->exists($file_path_xml);
+        $file_pdf = Storage::disk($disk)->exists($file_path_pdf);
 
-        if (! $file) {
+        if ($file_xml && $file_pdf) {
             (new \App\Jobs\Invoice\MergeEInvoice($this->invoice))->handle();
         }
 
