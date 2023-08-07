@@ -28,6 +28,8 @@ class Office365MailTransport extends AbstractTransport
         $symfony_message = MessageConverter::toEmail($message->getOriginalMessage());
 
         $graph = new Graph();
+        
+        /** @phpstan-ignore-next-line **/
         $token = $symfony_message->getHeaders()->get('gmailtoken')->getValue();
         $symfony_message->getHeaders()->remove('gmailtoken');
 
@@ -38,6 +40,8 @@ class Office365MailTransport extends AbstractTransport
         $bcc_list = '';
 
         if ($bccs) {
+
+            /** @phpstan-ignore-next-line **/
             foreach ($bccs->getAddresses() as $address) {
                 $bcc_list .= 'Bcc: "'.$address->getAddress().'" <'.$address->getAddress().'>\r\n';
             }

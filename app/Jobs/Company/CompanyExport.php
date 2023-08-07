@@ -65,7 +65,7 @@ class CompanyExport implements ShouldQueue
     {
         MultiDB::setDb($this->company->db);
 
-        $this->company = Company::where('company_key', $this->company->company_key)->first();
+        $this->company = Company::query()->where('company_key', $this->company->company_key)->first();
 
         set_time_limit(0);
 

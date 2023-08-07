@@ -94,7 +94,7 @@ class InvoiceItemSumInclusive
 
     protected RecurringInvoice | Invoice | Quote | Credit | PurchaseOrder | RecurringQuote $invoice;
 
-    private $currency;
+    private \App\Models\Currency $currency;
 
     private $total_taxes;
 

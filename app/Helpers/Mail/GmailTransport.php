@@ -33,7 +33,6 @@ class GmailTransport extends AbstractTransport
         nlog("In Do Send");
         $message = MessageConverter::toEmail($message->getOriginalMessage());
 
-        
         /** @phpstan-ignore-next-line **/
         $token = $message->getHeaders()->get('gmailtoken')->getValue();
         $message->getHeaders()->remove('gmailtoken');
