@@ -213,7 +213,7 @@ class CreateEntityPdf implements ShouldQueue
             }
         }
         if ($this->entity_string == "invoice" && $this->client->getSetting('enable_e_invoice')){
-            (new CreateEInvoice($this->entity, true))->handle();
+            (new CreateEInvoice($this->entity))->handle();
         }
         $this->invitation = null;
         // $this->entity = null;

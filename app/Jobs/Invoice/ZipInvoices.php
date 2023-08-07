@@ -76,7 +76,7 @@ class ZipInvoices implements ShouldQueue
         $this->invoices->each(function ($invoice) {
             (new CreateEntityPdf($invoice->invitations()->first()))->handle();
             if ($invoice->client->getSetting('enable_e_invoice')){
-                (new CreateEInvoice($invoice, false))->handle();
+                (new CreateEInvoice($invoice))->handle();
             }
         });
 

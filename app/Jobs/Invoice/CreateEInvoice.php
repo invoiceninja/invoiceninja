@@ -29,7 +29,7 @@ class CreateEInvoice implements ShouldQueue
 
     public $deleteWhenMissingModels = true;
 
-    public function __construct(private Invoice $invoice, private bool $alterPDF, private string $custom_pdf_path = "")
+    public function __construct(private Invoice $invoice)
     {
     }
 

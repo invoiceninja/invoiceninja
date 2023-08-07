@@ -42,7 +42,7 @@ class EInvoiceTest extends TestCase
         $this->company->e_invoice_type = "EN16931";
         $this->invoice->client->routing_id = 'DE123456789';
         $this->invoice->client->save();
-        $xinvoice = (new CreateEInvoice($this->invoice, false))->handle();
+        $xinvoice = (new CreateEInvoice($this->invoice))->handle();
         $this->assertNotNull($xinvoice);
         $this->assertTrue(Storage::exists($xinvoice));
     }
@@ -56,7 +56,7 @@ class EInvoiceTest extends TestCase
          $this->invoice->client->routing_id = 'DE123456789';
          $this->invoice->client->save();
 
-         $xinvoice = (new CreateEInvoice($this->invoice, false))->handle();
+         $xinvoice = (new CreateEInvoice($this->invoice))->handle();
          nlog(Storage::path($xinvoice));
          $document = ZugferdDocumentReader::readAndGuessFromFile(Storage::path($xinvoice));
          $document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $documentcurrency, $taxcurrency, $taxname, $documentlangeuage, $rest);
@@ -69,7 +69,7 @@ class EInvoiceTest extends TestCase
      public function checkEmbededPDFFile()
      {
          $pdf = (new CreateEntityPdf($this->invoice->invitations()->first()))->handle();
-         (new CreateEInvoice($this->invoice, true, $pdf))->handle();
+         (new CreateEInvoice($this->invoice))->handle();
          $document = ZugferdDocumentReader::readAndGuessFromFile($pdf);
          $document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $documentcurrency, $taxcurrency, $taxname, $documentlangeuage, $rest);
          $this->assertEquals($this->invoice->number, $documentno);
