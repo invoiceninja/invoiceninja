@@ -48,9 +48,9 @@ class CompanyExport implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param Company $company
-     * @param User $user
-     * @param string $custom_token_name
+     * @param \App\Models\Company $company
+     * @param \App\Models\User $user
+     * @param string $hash
      */
     public function __construct(public Company $company, private User $user, public string $hash)
     {

@@ -45,7 +45,7 @@ class MarkOpened implements ShouldQueue
      * Execute the job.
      *
      *
-     * @return false
+     * @return void
      */
     public function handle()
     {

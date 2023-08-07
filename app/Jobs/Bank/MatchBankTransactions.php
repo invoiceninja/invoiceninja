@@ -47,6 +47,7 @@ class MatchBankTransactions implements ShouldQueue
 
     private array $input;
 
+    /** @var \App\Models\Company */
     protected ?Company $company;
 
     public Invoice $invoice;

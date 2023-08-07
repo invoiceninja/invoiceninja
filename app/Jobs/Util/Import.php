@@ -173,10 +173,11 @@ class Import implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param array $data
+     * @param string $file_path
      * @param Company $company
      * @param User $user
      * @param array $resources
+     * @param bool $silent_migration
      */
     public function __construct(string $file_path, Company $company, User $user, array $resources = [], $silent_migration = false)
     {
@@ -195,7 +196,6 @@ class Import implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @return bool
      */
     public function handle()
     {
@@ -302,7 +302,7 @@ class Import implements ShouldQueue
 
             // 10/02/21
             foreach ($client->payments as $payment) {
-                $credit_total_applied += $payment->paymentables()->where('paymentable_type', App\Models\Credit::class)->get()->sum(\DB::raw('amount'));
+                $credit_total_applied += $payment->paymentables()->where('paymentable_type', \App\Models\Credit::class)->get()->sum(\DB::raw('amount'));
             }
 
             if ($credit_total_applied < 0) {
@@ -319,7 +319,7 @@ class Import implements ShouldQueue
 
     private function setInitialCompanyLedgerBalances()
     {
-        Client::where('company_id', $this->company->id)->cursor()->each(function ($client) {
+        Client::query()->where('company_id', $this->company->id)->cursor()->each(function ($client) {
             $invoice_balances = $client->invoices->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
 
             $company_ledger = CompanyLedgerFactory::create($client->company_id, $client->user_id);
@@ -954,6 +954,7 @@ class Import implements ShouldQueue
                 $modified['vendor_id'] = $this->transformId('vendors', $resource['vendor_id']);
             }
 
+            /** @var \App\Models\Expense $expense */
             $expense = RecurringExpense::create($modified);
 
             if (array_key_exists('created_at', $modified)) {
@@ -1622,7 +1623,7 @@ class Import implements ShouldQueue
                 $modified['gateway_key'] = 'd14dd26a37cecc30fdd65700bfb55b23';
             }
 
-
+            /** @var \App\Models\CompanyGateway $company_gateway */
             $company_gateway = CompanyGateway::create($modified);
 
             $key = "company_gateways_{$resource['id']}";

@@ -25,21 +25,11 @@ class SendCompanyRecurring
 
     public $tries = 1;
 
-    /**
-     * Create a new job instance.
-     *
-     * @return void
-     */
-
+    /** @var \App\Models\Company $company */
     public $company;
 
-    public $db;
-
-    public function __construct($company_id, $db)
+    public function __construct(private int $company_id, private string $db)
     {
-        $this->company_id = $company_id;
-
-        $this->db = $db;
     }
 
     /**
