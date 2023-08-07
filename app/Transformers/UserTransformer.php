@@ -98,6 +98,7 @@ class UserTransformer extends EntityTransformer
     {
         if (! $user->company_id && request()->header('X-API-TOKEN')) {
             $company_token = CompanyToken::where('token', request()->header('X-API-TOKEN'))->first();
+            /** @var \App\Models\User $user */
             $user->company_id = $company_token->company_id;
         }
 

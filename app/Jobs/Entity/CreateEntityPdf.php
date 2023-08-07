@@ -49,9 +49,9 @@ class CreateEntityPdf implements ShouldQueue
 
     public \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\RecurringInvoice | null $entity;
 
-    public \App\Models\Company $company;
+    public \App\Models\Company | null $company;
 
-    public \App\Models\ClientContact$contact;
+    public \App\Models\ClientContact | null $contact;
 
     private $disk;
 
@@ -59,7 +59,7 @@ class CreateEntityPdf implements ShouldQueue
 
     public string $entity_string = '';
 
-    public \App\Models\Client $client;
+    public \App\Models\Client | null $client;
 
     public $deleteWhenMissingModels = true;
 

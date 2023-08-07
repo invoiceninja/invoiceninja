@@ -83,7 +83,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens
  * @property-read int|null $tokens_count
  * @property \App\Models\CompanyToken $token
- * @property int $company_id
  * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|User filter(\App\Filters\QueryFilters $filters)
  * @method static \Illuminate\Database\Eloquent\Builder|User newModelQuery()
