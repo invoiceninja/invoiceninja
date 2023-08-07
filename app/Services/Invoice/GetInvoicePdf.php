@@ -12,6 +12,8 @@
 namespace App\Services\Invoice;
 
 use App\Jobs\Entity\CreateEntityPdf;
+use App\Jobs\Invoice\CreateEInvoice;
+use App\Jobs\Invoice\MergeEInvoice;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Services\AbstractService;
@@ -47,7 +49,10 @@ class GetInvoicePdf extends AbstractService
         if (! $file) {
             $file_path = (new CreateEntityPdf($invitation))->handle();
         }
-
+        if ($this->invoice->client->getSetting('enable_e_invoice')){
+            (new CreateEInvoice($this->invoice))->handle();
+            (new MergeEInvoice($this->invoice))->handle();
+        }
         return $file_path;
     }
 }
