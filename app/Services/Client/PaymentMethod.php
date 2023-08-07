@@ -64,6 +64,9 @@ class PaymentMethod
         if ($company_gateways || $company_gateways == '0') {
             $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
 
+            if($company_gateways == '0')
+                $transformed_ids = [];
+
             $this->gateways = $this->client
                              ->company
                              ->company_gateways
@@ -92,6 +95,11 @@ class PaymentMethod
         //we need to check for "0" here as we disable a payment gateway for a client with the number "0"
         if ($company_gateways || $company_gateways == '0') {
             $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
+
+            if($company_gateways == '0') {
+                $transformed_ids = [];
+            }
+
 
             $this->gateways = $this->client
                              ->company
