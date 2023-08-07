@@ -79,8 +79,7 @@ class ContactRegister
         // As a fallback for self-hosted, it will use default company in the system
         // if key isn't provided in the url.
         if (! $request->route()->parameter('company_key') && Ninja::isSelfHost()) {
-            /** @var \App\Models\Company $company */
-            $company = Account::first()->default_company;
+            $company = Account::query()->first()->default_company;
 
             if (! $company->client_can_register) {
                 abort(400, 'Registration disabled');

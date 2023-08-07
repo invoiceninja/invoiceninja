@@ -72,7 +72,6 @@ class ValidRefundableInvoices implements Rule
 
             foreach ($this->input['invoices'] as $val) {
                 if ($val['invoice_id'] == $invoice->id) {
-                    /** @var \App\Models\Paymentable $pivot_record */
                     $pivot_record = $payment->paymentables->where('paymentable_id', $invoice->id)->first();
 
                     if ($val['amount'] > ($pivot_record->amount - $pivot_record->refunded)) {

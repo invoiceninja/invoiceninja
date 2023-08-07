@@ -74,8 +74,7 @@ class RegisterRequest extends FormRequest
         }
 
         if (! $this->route()->parameter('company_key') && Ninja::isSelfHost()) {
-            /** @var \App\Models\Company $company */
-            $company = Account::first()->default_company;
+            $company = Account::query()->first()->default_company;
 
             if (! $company->client_can_register) {
                 abort(403, 'This page is restricted');
