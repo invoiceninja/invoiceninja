@@ -12,6 +12,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Services\Invoice\GetInvoiceEInvoice;
 use App\Utils\Number;
 use Livewire\Component;
 use App\Utils\HtmlEngine;
@@ -38,7 +39,7 @@ class PdfSlot extends Component
     public $pdf;
 
     public $url;
-    
+
     private $settings;
 
     private $html_variables;
@@ -61,7 +62,7 @@ class PdfSlot extends Component
     }
 
     public function getPdf()
-    {        
+    {
         // $this->pdf = $this->entity->fullscreenPdfViewer($this->invitation);
 
         $blob = [
@@ -74,14 +75,14 @@ class PdfSlot extends Component
         $hash = Str::random(64);
 
         Cache::put($hash, $blob, now()->addMinutes(2));
-        
+
         $this->pdf = $hash;
 
     }
 
     public function downloadPdf()
     {
-        
+
         $file_name = $this->entity->numberFormatter().'.pdf';
 
         if($this->entity instanceof \App\Models\PurchaseOrder)
@@ -96,10 +97,24 @@ class PdfSlot extends Component
         }, $file_name, $headers);
 
     }
+    public function downloadEInvoice()
+    {
+
+        $file_name = $this->entity->numberFormatter().'.xml';
+
+        $file = (new GetInvoiceEInvoice($this->entity))->run();
+
+        $headers = ['Content-Type' => 'application/xml'];
+
+        return response()->streamDownload(function () use ($file) {
+            echo $file;
+        }, $file_name, $headers);
+
+    }
 
     public function render()
     {
-        
+
         $this->entity_type = $this->resolveEntityType();
 
         $this->settings = $this->entity->client ? $this->entity->client->getMergedSettings() : $this->entity->company->settings;
@@ -146,7 +161,7 @@ class PdfSlot extends Component
 
     private function getCompanyAddress()
     {
-        
+
         $company_address = "";
 
         foreach($this->settings->pdf_variables->company_address as $variable) {
@@ -166,7 +181,7 @@ class PdfSlot extends Component
         }
 
         return $this->convertVariables($company_details);
-  
+
     }
 
     private function getEntityDetails()
@@ -174,9 +189,9 @@ class PdfSlot extends Component
         $entity_details = "";
 
         if($this->entity_type == 'invoice' || $this->entity_type == 'recurring_invoice') {
-            foreach($this->settings->pdf_variables->invoice_details as $variable) 
+            foreach($this->settings->pdf_variables->invoice_details as $variable)
                 $entity_details .= "<div class='flex px-5 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-5 w-36 block entity-field'>{$variable}</p></div>";
-    
+
         }
         elseif($this->entity_type == 'quote'){
             foreach($this->settings->pdf_variables->quote_details as $variable)
@@ -190,7 +205,7 @@ class PdfSlot extends Component
             foreach($this->settings->pdf_variables->purchase_order_details as $variable)
                 $entity_details .= "<div class='flex px-5 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-5 w-36 block entity-field'>{$variable}</p></div>";
         }
-            
+
         return $this->convertVariables($entity_details);
 
     }
@@ -206,7 +221,7 @@ class PdfSlot extends Component
 
             $name = $this->settings->pdf_variables->client_details[0];
         }
-                
+
         return $this->convertVariables($name);
 
     }
@@ -225,7 +240,7 @@ class PdfSlot extends Component
                 $user_details .= "<p>{$variable}</p>";
             }
         }
-        
+
         return $this->convertVariables($user_details);
     }
 

@@ -12,6 +12,7 @@
 namespace App\Jobs\Entity;
 
 use App\Exceptions\FilePermissionsFailure;
+use App\Jobs\Invoice\MergeEInvoice;
 use App\Libraries\MultiDB;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
@@ -202,6 +203,9 @@ class CreateRawPdf implements ShouldQueue
         if ($pdf) {
             $maker =null;
             $state = null;
+            if ($this->invitation->invoice->client->getSetting('enable_e_invoice') && $this->entity == "invoice"){
+                (new \App\Services\Invoice\MergeEInvoice($this->invitation->invoice))->run();
+            };
             return $pdf;
         }
 
