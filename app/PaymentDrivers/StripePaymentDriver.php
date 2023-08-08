@@ -891,9 +891,11 @@ class StripePaymentDriver extends BaseDriver
         return Account::all();
     }
 
-    public function setClientFromCustomer($customer)
+    public function setClientFromCustomer($customer): self
     {
-        $this->client = ClientGatewayToken::query()->where('gateway_customer_reference', $customer)->client;
+        $this->client = ClientGatewayToken::query()->where('gateway_customer_reference', $customer)->first()->client;
+
+        return $this;
     }
 
     /**
