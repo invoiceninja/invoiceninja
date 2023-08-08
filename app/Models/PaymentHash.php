@@ -38,27 +38,37 @@ class PaymentHash extends Model
         'data' => 'object',
     ];
 
+
+    /**
+     * @return array
+     */
     public function invoices()
     {
         return $this->data->invoices;
     }
     
+    /**
+     * @return float|null
+     */
     public function amount_with_fee()
     {
         return $this->data->amount_with_fee;
     }
 
+    /**
+     * @return float
+     */
     public function credits_total()
     {
         return isset($this->data->credits) ? $this->data->credits : 0;
     }
 
-    public function payment()
+    public function payment(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Payment::class)->withTrashed();
     }
 
-    public function fee_invoice()
+    public function fee_invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Invoice::class, 'fee_invoice_id', 'id')->withTrashed();
     }

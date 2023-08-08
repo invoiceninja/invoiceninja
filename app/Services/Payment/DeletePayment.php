@@ -58,7 +58,7 @@ class DeletePayment
         $this->payment->is_deleted = true;
         $this->payment->delete();
 
-        BankTransaction::where('payment_id', $this->payment->id)->cursor()->each(function ($bt){
+        BankTransaction::query()->where('payment_id', $this->payment->id)->cursor()->each(function ($bt){
             $bt->payment_id = null;
             $bt->save();
         });

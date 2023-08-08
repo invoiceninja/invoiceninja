@@ -28,6 +28,7 @@ class ContactAccount
     public function handle($request, Closure $next)
     {
         if (! Ninja::isHosted()) {
+            /** @var \App\Models\Account $account */
             $account = Account::first();
 
             session()->put('account_key', $account->key);

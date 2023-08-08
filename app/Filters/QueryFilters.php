@@ -72,8 +72,8 @@ abstract class QueryFilters
     /**
      * Apply the filters to the builder.
      *
-     * @param  Builder $builder
-     * @return Builder
+     * @param  \Illuminate\Database\Eloquent\Builder $builder
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function apply(Builder $builder)
     {
@@ -239,7 +239,11 @@ abstract class QueryFilters
         }
     }
 
-
+    /**
+     *
+     * @param string $value
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public function is_deleted($value = 'true')
     {
         if ($value == 'true') {

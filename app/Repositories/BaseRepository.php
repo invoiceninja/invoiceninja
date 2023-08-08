@@ -224,7 +224,7 @@ class BaseRepository
             /* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
             $model->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) use ($resource) {
                 $invitation_class = sprintf('App\\Models\\%sInvitation', $resource);
-                $invitation = $invitation_class::where('key', $invitation)->first();
+                $invitation = $invitation_class::query()->where('key', $invitation)->first();
 
                 if ($invitation) {
                     $invitation->delete();

@@ -43,7 +43,7 @@ class CreateRecurringInvitations extends AbstractService
     {
         try {
             $this->entity->client->contacts->each(function ($contact) {
-                $invitation = $this->invitation_class::whereCompanyId($this->entity->company_id)
+                $invitation = $this->invitation_class::query()->whereCompanyId($this->entity->company_id)
                                             ->whereClientContactId($contact->id)
                                             ->where($this->entity_id_name, $this->entity->id)
                                             ->withTrashed()
@@ -64,7 +64,7 @@ class CreateRecurringInvitations extends AbstractService
         }
 
         if ($this->entity->invitations()->count() == 0) {
-            $invitation = $this->invitation_class::where('company_id', $this->entity->company_id)
+            $invitation = $this->invitation_class::query()->where('company_id', $this->entity->company_id)
                                     ->where($this->entity_id_name, $this->entity->id)
                                     ->withTrashed()
                                     ->first();

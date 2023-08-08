@@ -197,6 +197,7 @@ class CreateUbl implements ShouldQueue
 
         if ($this->invoice->discount != 0) {
             if ($this->invoice->is_amount_discount) {
+                /** @var float $invoice_total */
                 if ($invoice_total + $this->invoice->discount != 0) {
                     $total -= $invoice_total ? ($total / ($invoice_total + $this->invoice->discount) * $this->invoice->discount) : 0;
                 }

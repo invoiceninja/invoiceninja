@@ -39,20 +39,14 @@ class ProcessPostmarkWebhook implements ShouldQueue
 
     public $tries = 1;
 
-    private array $request;
-
     public $invitation;
+
     /**
      * Create a new job instance.
      *
-     * @param Payment $payment
-     * @param $email_builder
-     * @param $contact
-     * @param $company
      */
-    public function __construct(array $request)
+    public function __construct(private array $request)
     {
-        $this->request = $request;
     }
 
     /**

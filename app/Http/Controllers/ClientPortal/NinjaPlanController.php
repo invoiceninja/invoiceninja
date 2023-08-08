@@ -40,13 +40,13 @@ class NinjaPlanController extends Controller
     public function index(string $contact_key, string $account_or_company_key)
     {
         MultiDB::findAndSetDbByCompanyKey($account_or_company_key);
-        $company = Company::where('company_key', $account_or_company_key)->first();
+        $company = Company::query()->where('company_key', $account_or_company_key)->first();
 
         if (! $company) {
             MultiDB::findAndSetDbByAccountKey($account_or_company_key);
 
             /** @var \App\Models\Account $account **/
-            $account = Account::where('key', $account_or_company_key)->first();
+            $account = Account::query()->where('key', $account_or_company_key)->first();
         } else {
             $account = $company->account;
         }
@@ -157,6 +157,8 @@ class NinjaPlanController extends Controller
 
         //create recurring invoice
         $subscription_repo = new SubscriptionRepository();
+
+        /** @var \App\Models\Subscription $subscription **/
         $subscription = Subscription::find(6);
 
         $recurring_invoice = RecurringInvoiceFactory::create($subscription->company_id, $subscription->user_id);
@@ -181,7 +183,7 @@ class NinjaPlanController extends Controller
                  ->increment()
                  ->queue();
 
-        $old_recurring = RecurringInvoice::where('company_id', config('ninja.ninja_default_company_id'))
+        $old_recurring = RecurringInvoice::query()->where('company_id', config('ninja.ninja_default_company_id'))
                                             ->where('client_id', $client->id)
                                             ->where('id', '!=', $recurring_invoice->id)
                                             ->first();
@@ -215,7 +217,7 @@ class NinjaPlanController extends Controller
         $data['late_invoice'] = false;
 
         if (MultiDB::findAndSetDbByAccountKey(Auth::guard('contact')->user()->client->custom_value2)) {
-            $account = Account::where('key', Auth::guard('contact')->user()->client->custom_value2)->first();
+            $account = Account::query()->where('key', Auth::guard('contact')->user()->client->custom_value2)->first();
 
             if ($account) {
                 //offer the option to have a free trial

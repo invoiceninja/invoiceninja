@@ -95,6 +95,7 @@ class BaseImport
             ini_set('auto_detect_line_endings', '1');
         }
 
+        /** @var string $base64_encoded_csv */
         $base64_encoded_csv = Cache::pull($this->hash.'-'.$entity_type);
 
         if (empty($base64_encoded_csv)) {
@@ -103,7 +104,7 @@ class BaseImport
 
         $csv = base64_decode($base64_encoded_csv);
         $csv = mb_convert_encoding($csv, 'UTF-8', 'UTF-8');
- nlog($csv);
+
         $csv = Reader::createFromString($csv);
         $csvdelimiter = self::detectDelimiter($csv);
 

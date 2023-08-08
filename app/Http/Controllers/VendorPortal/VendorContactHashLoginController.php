@@ -19,12 +19,16 @@ class VendorContactHashLoginController extends Controller
     /**
      * Logs a user into the client portal using their contact_key
      * @param  string $contact_key  The contact key
-     * @return Auth|Redirect
+     * @return Auth|\Illuminate\Support\Facades\Redirect
      */
     public function login(string $contact_key)
     {
         return redirect('/vendors/purchase_orders');
     }
+
+    /**
+    * @return \Illuminate\Support\Facades\Redirect
+    */
 
     public function magicLink(string $magic_link)
     {

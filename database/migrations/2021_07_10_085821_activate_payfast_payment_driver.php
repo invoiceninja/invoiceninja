@@ -11,7 +11,7 @@ return new class extends Migration {
      */
     public function up()
     {
-        Gateway::whereIn('id', [11])->update(['visible' => 1]);
+        Gateway::query()->whereIn('id', [11])->update(['visible' => 1]);
     }
 
     /**

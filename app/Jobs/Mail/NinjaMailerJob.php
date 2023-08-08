@@ -51,7 +51,7 @@ class NinjaMailerJob implements ShouldQueue
 
     public $override;
 
-    /* @var Company $company*/
+    /* @var \App\Models\Company $company*/
     public ?Company $company;
 
     private $mailer;

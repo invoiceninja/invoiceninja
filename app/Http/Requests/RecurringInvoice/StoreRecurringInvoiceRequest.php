@@ -31,7 +31,11 @@ class StoreRecurringInvoiceRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('create', RecurringInvoice::class);
+
+        /** @var \App\Models\User auth()->user() */
+        $user = auth()->user();
+
+        return $user->can('create', RecurringInvoice::class);
     }
 
     public function rules()
@@ -137,7 +141,8 @@ class StoreRecurringInvoiceRequest extends Request
         if (isset($input['auto_bill'])) {
             $input['auto_bill_enabled'] = $this->setAutoBillFlag($input['auto_bill']);
         } else {
-            if (array_key_exists('client_id', $input) && $client = Client::find($input['client_id'])) {
+            if (array_key_exists('client_id', $input) && $client = Client::query()->find($input['client_id'])) {
+                /** @var \App\Models\Client $client */
                 $input['auto_bill'] = $client->getSetting('auto_bill');
                 $input['auto_bill_enabled'] = $this->setAutoBillFlag($input['auto_bill']);
             }

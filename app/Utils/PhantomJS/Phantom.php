@@ -44,6 +44,7 @@ class Phantom
     public function generate($invitation, $return_pdf = false)
     {
         $entity = false;
+        $path = '';
 
         if ($invitation instanceof InvoiceInvitation) {
             $entity = 'invoice';
@@ -106,7 +107,7 @@ class Phantom
         }
 
         if (! Storage::disk(config('filesystems.default'))->exists($path)) {
-            Storage::disk(config('filesystems.default'))->makeDirectory($path, 0775);
+            Storage::disk(config('filesystems.default'))->makeDirectory($path);
         }
 
         $instance = Storage::disk(config('filesystems.default'))->put($file_path, $pdf);
