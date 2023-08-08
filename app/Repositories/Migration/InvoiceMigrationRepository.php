@@ -136,7 +136,7 @@ class InvoiceMigrationRepository extends BaseRepository
 
         $state['finished_amount'] = $model->amount;
 
-        $model = $model->service()->applyNumber()->save();
+        $model = $model->service()->applyNumber()->setReminder()->save();
 
         if ($class->name == Invoice::class || $class->name == RecurringInvoice::class) {
             if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {

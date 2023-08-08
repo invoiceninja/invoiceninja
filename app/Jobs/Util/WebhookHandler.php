@@ -43,7 +43,6 @@ class WebhookHandler implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @return bool
      */
     public function handle()
     {
@@ -54,7 +53,8 @@ class WebhookHandler implements ShouldQueue
             return true;
         }
 
-        Webhook::where('company_id', $this->company->id)
+        Webhook::query()
+                ->where('company_id', $this->company->id)
                 ->where('event_id', $this->event_id)
                 ->cursor()
                 ->each(function ($subscription) {

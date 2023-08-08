@@ -137,7 +137,7 @@ class UserRepository extends BaseRepository
             $cu->forceDelete();
         }
 
-        event(new UserWasDeleted($user, auth()->user(), $company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        event(new UserWasDeleted($user, auth()->user(), auth()->user()->company(), Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         $user->delete();
 

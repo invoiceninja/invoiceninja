@@ -67,6 +67,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property bool $is_large
  * @property int $enable_shop_api
  * @property string $default_auto_bill
+ * @property string $custom_value1
+ * @property string $custom_value2
+ * @property string $custom_value3
+ * @property string $custom_value4
  * @property bool $mark_expenses_invoiceable
  * @property bool $mark_expenses_paid
  * @property bool $invoice_expense_documents

@@ -57,7 +57,7 @@ class UpdateQuoteRequest extends Request
         $rules['line_items'] = 'array';
         $rules['discount'] = 'sometimes|numeric';
         $rules['is_amount_discount'] = ['boolean'];
-        $rules['exchange_rate'] = 'bail|sometimes|gt:0';
+        $rules['exchange_rate'] = 'bail|sometimes|numeric';
 
         return $rules;
     }

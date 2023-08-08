@@ -31,7 +31,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\Company|null $company
  * @property-read mixed $hashed_id
  * @property-read \App\Models\User|null $user
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Illuminate\Database\Eloquent\Builder|Webhook filter(\App\Filters\QueryFilters $filters)
  * @method static \Illuminate\Database\Eloquent\Builder|Webhook newModelQuery()

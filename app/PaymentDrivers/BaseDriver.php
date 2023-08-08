@@ -56,7 +56,11 @@ class BaseDriver extends AbstractPaymentDriver
     /* The Invitation */
     public $invitation;
 
-    /* The client */
+    /**
+     * The Client
+     *
+     * @var \App\Models\Client|null $client 
+    */
     public $client;
 
     /* Gateway capabilities */

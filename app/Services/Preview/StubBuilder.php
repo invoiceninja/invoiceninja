@@ -42,7 +42,8 @@ class StubBuilder
 
     public $entity_type;
     
-    public \App\Models\Client | \App\Models\Vendor $recipient;
+    /** @var Client | Vendor $recipient **/
+    public Client | Vendor $recipient;
 
     public mixed $contact;
 
@@ -178,7 +179,7 @@ class StubBuilder
 
         $design_string = "{$this->entity_type}_design_id";
 
-        $design = DesignModel::withTrashed()->find($this->decodePrimaryKey($html->settings->{$design_string}));
+        $design = DesignModel::query()->withTrashed()->find($this->decodePrimaryKey($html->settings->{$design_string}));
 
         $template = new PdfMakerDesign(strtolower($design->name));
 

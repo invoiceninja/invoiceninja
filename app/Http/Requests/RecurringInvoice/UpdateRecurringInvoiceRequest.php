@@ -67,7 +67,7 @@ class UpdateRecurringInvoiceRequest extends Request
         $rules['tax_name1'] = 'bail|sometimes|string|nullable';
         $rules['tax_name2'] = 'bail|sometimes|string|nullable';
         $rules['tax_name3'] = 'bail|sometimes|string|nullable';
-        $rules['exchange_rate'] = 'bail|sometimes|gt:0';
+        $rules['exchange_rate'] = 'bail|sometimes|numeric';
 
         return $rules;
     }
@@ -132,7 +132,7 @@ class UpdateRecurringInvoiceRequest extends Request
             unset($input['documents']);
         }
 
-        if (array_key_exists('exchange_rate', $input) && (is_null($input['exchange_rate']) || $input['exchange_rate'] == 0)) {
+        if (array_key_exists('exchange_rate', $input) && (is_null($input['exchange_rate']) || $input['exchange_rate'] == 0) || !isset($input['exchange_rate'])) {
             $input['exchange_rate'] = 1;
         }
 
@@ -148,7 +148,7 @@ class UpdateRecurringInvoiceRequest extends Request
      *
      * @return bool
      */
-    private function setAutoBillFlag($auto_bill)
+    private function setAutoBillFlag($auto_bill): bool
     {
         if ($auto_bill == 'always' || $auto_bill == 'optout') {
             return true;

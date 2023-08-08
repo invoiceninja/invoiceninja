@@ -13,7 +13,9 @@ namespace App\Transformers;
 
 use App\Models\Account;
 use App\Models\BankIntegration;
+use App\Models\BankTransaction;
 use App\Utils\Traits\MakesHash;
+use App\Transformers\EntityTransformer;
 
 /**
  * Class BankIntegrationTransformer.

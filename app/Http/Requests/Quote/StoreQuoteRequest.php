@@ -30,14 +30,20 @@ class StoreQuoteRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('create', Quote::class);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('create', Quote::class);
     }
 
     public function rules()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $rules = [];
 
-        $rules['client_id'] = 'required|exists:clients,id,company_id,'.auth()->user()->company()->id;
+        $rules['client_id'] = 'required|exists:clients,id,company_id,'.$user->company()->id;
 
         if ($this->file('documents') && is_array($this->file('documents'))) {
             $rules['documents.*'] = $this->file_validation;
@@ -51,11 +57,11 @@ class StoreQuoteRequest extends Request
             $rules['file'] = $this->file_validation;
         }
         
-        $rules['number'] = ['nullable', Rule::unique('quotes')->where('company_id', auth()->user()->company()->id)];
+        $rules['number'] = ['nullable', Rule::unique('quotes')->where('company_id', $user->company()->id)];
         $rules['discount'] = 'sometimes|numeric';
 
         $rules['is_amount_discount'] = ['boolean'];
-        $rules['exchange_rate'] = 'bail|sometimes|gt:0';
+        $rules['exchange_rate'] = 'bail|sometimes|numeric';
 
         // $rules['number'] = new UniqueQuoteNumberRule($this->all());
         $rules['line_items'] = 'array';

@@ -167,17 +167,17 @@ class CompanyGateway extends BaseModel
                     ->take(50);
     }
 
-    public function company()
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function client_gateway_tokens()
+    public function client_gateway_tokens(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ClientGatewayToken::class);
     }
 
-    public function gateway()
+    public function gateway(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Gateway::class, 'gateway_key', 'key');
     }
@@ -190,8 +190,8 @@ class CompanyGateway extends BaseModel
     /* This is the public entry point into the payment superclass */
     public function driver(Client $client = null)
     {
-// $class = static::driver_class();
-$class = self::driver_class();
+        // $class = static::driver_class();
+        $class = self::driver_class();
 
         if (!$class) {
             return false;

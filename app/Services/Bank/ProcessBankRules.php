@@ -33,6 +33,9 @@ class ProcessBankRules extends AbstractService
 
     protected $invoices;
     
+    /**
+     * @param \App\Models\BankTransaction $bank_transaction
+     */
     public function __construct(public BankTransaction $bank_transaction)
     {
     }
@@ -48,14 +51,12 @@ class ProcessBankRules extends AbstractService
 
     private function matchCredit()
     {
-        /** @var \Illuminate\Database\Eloquent\Collection<Invoice> $this->invoices */
         $this->invoices = Invoice::query()->where('company_id', $this->bank_transaction->company_id)
                                 ->whereIn('status_id', [1,2,3])
                                 ->where('is_deleted', 0)
                                 ->get();
 
         $invoice = $this->invoices->first(function ($value, $key) {
-            /** @var \App\Models\Invoice $value */
             return str_contains($this->bank_transaction->description, $value->number);
         });
 

@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @property int $id
  * @property string $hash
- * @property string $fee_total
+ * @property float $fee_total
  * @property int|null $fee_invoice_id
  * @property mixed $data
  * @property int|null $payment_id

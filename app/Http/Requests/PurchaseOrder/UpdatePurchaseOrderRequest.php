@@ -63,7 +63,7 @@ class UpdatePurchaseOrderRequest extends Request
         }
 
         $rules['status_id'] = 'sometimes|integer|in:1,2,3,4,5';
-        $rules['exchange_rate'] = 'bail|sometimes|gt:0';
+        $rules['exchange_rate'] = 'bail|sometimes|numeric';
 
         return $rules;
     }
