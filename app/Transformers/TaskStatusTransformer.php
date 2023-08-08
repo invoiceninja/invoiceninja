@@ -24,7 +24,7 @@ class TaskStatusTransformer extends EntityTransformer
             'id'          => (string) $this->encodePrimaryKey($task_status->id),
             'name'        => (string) $task_status->name,
             'color'       => (string) $task_status->color,
-            'sort_order'  => (int) $task_status->sort_order, //deprecated
+            // 'sort_order'  => (int) $task_status->sort_order, //deprecated
             'is_deleted'  => (bool) $task_status->is_deleted,
             'created_at'  => (int) $task_status->created_at,
             'updated_at'  => (int) $task_status->updated_at,

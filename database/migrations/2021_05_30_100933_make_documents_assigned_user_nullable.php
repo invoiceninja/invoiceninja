@@ -18,14 +18,14 @@ return new class extends Migration {
             $table->unsignedInteger('assigned_user_id')->nullable()->change();
         });
 
-        Document::where('assigned_user_id', 0)->update(['assigned_user_id' => null]);
+        Document::query()->where('assigned_user_id', 0)->update(['assigned_user_id' => null]);
 
         if (config('ninja.db.multi_db_enabled')) {
             foreach (MultiDB::$dbs as $db) {
                 Document::on($db)->where('assigned_user_id', 0)->update(['assigned_user_id' => null]);
             }
         } else {
-            Document::where('assigned_user_id', 0)->update(['assigned_user_id' => null]);
+            Document::query()->where('assigned_user_id', 0)->update(['assigned_user_id' => null]);
         }
     }
 

@@ -78,6 +78,7 @@ class UpdateOrCreateProduct implements ShouldQueue
             return $item->type_id == 1;
         });
 
+        /** @var \App\DataMapper\InvoiceItem $item */
         foreach ($updateable_products as $item) {
             if (empty($item->product_key)) {
                 continue;
@@ -105,13 +106,6 @@ class UpdateOrCreateProduct implements ShouldQueue
             if (! $product->id) {
                 $product->quantity = isset($item->quantity) ? $item->quantity : 0;
             }
-
-            // $product->tax_name1 = isset($item->tax_name1) ? $item->tax_name1 : '';
-            // $product->tax_rate1 = isset($item->tax_rate1) ? $item->tax_rate1 : 0;
-            // $product->tax_name2 = isset($item->tax_name2) ? $item->tax_name2 : '';
-            // $product->tax_rate2 = isset($item->tax_rate2) ? $item->tax_rate2 : 0;
-            // $product->tax_name3 = isset($item->tax_name3) ? $item->tax_name3 : '';
-            // $product->tax_rate3 = isset($item->tax_rate3) ? $item->tax_rate3 : 0;
 
             if (isset($item->custom_value1) && strlen($item->custom_value1) >=1) {
                 $product->custom_value1 = $item->custom_value1;

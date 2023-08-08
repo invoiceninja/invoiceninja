@@ -257,7 +257,7 @@ class DirectDebit implements MethodInterface
     {
         $this->go_cardless->ensureMandateIsReady($request->source);
 
-        $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($this->go_cardless->payment_hash->invoices(), 'invoice_id')))
+        $invoice = Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->go_cardless->payment_hash->invoices(), 'invoice_id')))
                           ->withTrashed()
                           ->first();
 

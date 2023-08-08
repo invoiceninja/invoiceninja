@@ -203,7 +203,8 @@ class PurchaseOrderController extends Controller
 
     public function downloadInvoices($ids)
     {
-        $purchase_orders = PurchaseOrder::whereIn('id', $ids)
+        $purchase_orders = PurchaseOrder::query()
+                            ->whereIn('id', $ids)
                             ->where('vendor_id', auth()->guard('vendor')->user()->vendor_id)
                             ->withTrashed()
                             ->get();

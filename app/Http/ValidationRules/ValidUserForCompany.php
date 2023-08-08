@@ -26,7 +26,10 @@ class ValidUserForCompany implements Rule
      */
     public function passes($attribute, $value)
     {
-        return MultiDB::checkUserAndCompanyCoExist($value, auth()->user()->company()->company_key, auth()->user()->company()->id);
+        /** @var \App\Models\User auth()->user() */
+        $user = auth()->user();
+
+        return MultiDB::checkUserAndCompanyCoExist($value, $user->company()->company_key);
     }
 
     /**

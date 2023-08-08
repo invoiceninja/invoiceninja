@@ -14,7 +14,7 @@ return new class extends Migration {
     {
         Model::unguard();
 
-        $pt = PaymentType::where('name', 'Zelle')->first();
+        $pt = PaymentType::query()->where('name', 'Zelle')->first();
 
         if (! $pt) {
             $payment_type = new PaymentType();

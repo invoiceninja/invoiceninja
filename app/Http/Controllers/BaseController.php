@@ -530,10 +530,9 @@ class BaseController extends Controller
 
             $paginator = $query->paginate($limit);
 
-            /** @phpstan-ignore-next-line */
-            $query = $paginator->getCollection(); /** @phpstan-ignore-line */
-
-
+            /** @phpstan-ignore-next-line **/
+            $query = $paginator->getCollection(); 
+            
             $resource = new Collection($query, $transformer, $this->entity_type);
 
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
@@ -636,7 +635,7 @@ class BaseController extends Controller
 
             $paginator = $query->paginate($limit);
 
-            /** @phpstan-ignore-next-line */
+            /** @phpstan-ignore-next-line **/
             $query = $paginator->getCollection();
             $resource = new Collection($query, $transformer, $this->entity_type);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
@@ -885,7 +884,7 @@ class BaseController extends Controller
 
             $paginator = $query->paginate($limit);
 
-            /** @phpstan-ignore-next-line */
+            /** @phpstan-ignore-next-line **/
             $query = $paginator->getCollection();
 
             $resource = new Collection($query, $transformer, $this->entity_type);

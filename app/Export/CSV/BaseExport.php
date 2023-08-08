@@ -94,7 +94,6 @@ class BaseExport
         "state" => "client.state",
         "postal_code" => "client.postal_code",
         "country" => "client.country_id",
-        "custom_value4" => "contact.custom_value4",
         "shipping_address1" => "client.shipping_address1",
         "shipping_address2" => "client.shipping_address2",
         "shipping_city" => "client.shipping_city",
@@ -109,6 +108,15 @@ class BaseExport
         "first_name" => "contact.first_name",
         "last_name" => "contact.last_name",
         "email" => "contact.email",
+        'custom_value1' => 'client.custom_value1',
+        'custom_value2' => 'client.custom_value2',
+        'custom_value3' => 'client.custom_value3',
+        'custom_value4' => 'client.custom_value4',
+        "contact_custom_value1" => "contact.custom_value1",
+        "contact_custom_value2" => "contact.custom_value2",
+        "contact_custom_value3" => "contact.custom_value3",
+        "contact_custom_value4" => "contact.custom_value4",
+
     ];
 
     protected array $invoice_report_keys = [

@@ -327,7 +327,7 @@ class GoCardlessPaymentDriver extends BaseDriver
                 );
 
                 if ($billing_request->status === 'fulfilled') {
-                    $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($hash->invoices(), 'invoice_id')))->withTrashed()->get();
+                    $invoices = Invoice::query()->whereIn('id', $this->transformKeys(array_column($hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
                     $this->client = $invoices->first()->client;
 

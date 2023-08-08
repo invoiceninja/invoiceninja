@@ -81,7 +81,7 @@ class UserRepository extends BaseRepository
         $user->save();
 
         if (isset($data['company_user'])) {
-            $cu = CompanyUser::whereUserId($user->id)->whereCompanyId($company->id)->withTrashed()->first();
+            $cu = CompanyUser::query()->whereUserId($user->id)->whereCompanyId($company->id)->withTrashed()->first();
 
             /*No company user exists - attach the user*/
             if (! $cu) {
@@ -129,7 +129,7 @@ class UserRepository extends BaseRepository
 
             $company = auth()->user()->company();
 
-            $cu = CompanyUser::whereUserId($user->id)
+            $cu = CompanyUser::query()->whereUserId($user->id)
                              ->whereCompanyId($company->id)
                              ->first();
 
@@ -151,7 +151,7 @@ class UserRepository extends BaseRepository
     {
         $company = auth()->user()->company();
 
-        $cu = CompanyUser::whereUserId($user->id)
+        $cu = CompanyUser::query()->whereUserId($user->id)
                          ->whereCompanyId($company->id)
                          ->first();
 
@@ -190,7 +190,7 @@ class UserRepository extends BaseRepository
         }
 
         if (Ninja::isHosted()) {
-            $count = User::where('account_id', auth()->user()->account_id)->count();
+            $count = User::query()->where('account_id', auth()->user()->account_id)->count();
             if ($count >= auth()->user()->account->num_users) {
                 return;
             }

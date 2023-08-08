@@ -361,7 +361,7 @@ class EmailDefaults
             }
 
             if (count($expense_ids) > 0) {
-                Expense::whereIn('id', $this->transformKeys($expense_ids))
+                Expense::query()->whereIn('id', $this->transformKeys($expense_ids))
                         ->where('invoice_documents', 1)
                         ->cursor()
                         ->each(function ($expense) {
@@ -370,7 +370,7 @@ class EmailDefaults
             }
 
             if (count($task_ids) > 0 && $this->email->company->invoice_task_documents) {
-                Task::whereIn('id', $this->transformKeys($task_ids))
+                Task::query()->whereIn('id', $this->transformKeys($task_ids))
                     ->cursor()
                     ->each(function ($task) {
                         $this->email->email_object->documents = array_merge($this->email->email_object->documents, $task->documents->pluck('id')->toArray());

@@ -169,7 +169,7 @@ class PaymentController extends Controller
         $payment = $payment->service()->applyCredits($payment_hash)->save();
 
         /** @var \Illuminate\Database\Eloquent\Collection<\App\Models\Invoice> $invoices */
-        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')));
+        $invoices = Invoice::query()->whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')));
 
         $invoices->each(function ($invoice) {
             /** @var \App\Models\Invoice $invoice **/

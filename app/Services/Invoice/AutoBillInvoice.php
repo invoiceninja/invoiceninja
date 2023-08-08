@@ -250,7 +250,7 @@ class AutoBillInvoice extends AbstractService
      */
     private function applyCreditPayment(): self
     {
-        $available_credits = Credit::where('client_id', $this->client->id)
+        $available_credits = Credit::query()->where('client_id', $this->client->id)
                                   ->where('is_deleted', false)
                                   ->where('balance', '>', 0)
                                   ->orderBy('created_at')

@@ -11,12 +11,13 @@
 
 namespace App\Transformers;
 
-use App\Models\Activity;
 use App\Models\Backup;
+use App\Models\Client;
 use App\Models\Credit;
-use App\Models\CreditInvitation;
+use App\Models\Activity;
 use App\Models\Document;
 use App\Utils\Traits\MakesHash;
+use App\Models\CreditInvitation;
 use League\Fractal\Resource\Item;
 
 class CreditTransformer extends EntityTransformer

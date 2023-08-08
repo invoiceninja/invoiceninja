@@ -22,12 +22,12 @@ class TaskStatusRepository extends BaseRepository
     public function delete($task_status)
     {
         /** @var \App\Models\TaskStatus $ts **/
-        $ts = TaskStatus::where('company_id', $task_status->company_id)
+        $ts = TaskStatus::query()->where('company_id', $task_status->company_id)
                                  ->first();
 
         $new_status = $ts ? $ts->id : null;
 
-        Task::where('status_id', $task_status->id)
+        Task::query()->where('status_id', $task_status->id)
         ->where('company_id', $task_status->company_id)
         ->update(['status_id' => $new_status]);
 
@@ -60,7 +60,7 @@ class TaskStatusRepository extends BaseRepository
     public function reorder(TaskStatus $task_status)
     {
 
-        TaskStatus::where('company_id', $task_status->company_id)
+        TaskStatus::query()->where('company_id', $task_status->company_id)
                     ->where('id', '!=', $task_status->id)
                     ->orderByRaw('ISNULL(status_order), status_order ASC')
                     ->cursor()
@@ -77,7 +77,7 @@ class TaskStatusRepository extends BaseRepository
                     });
 
 
-        TaskStatus::where('company_id', $task_status->company_id)
+        TaskStatus::query()->where('company_id', $task_status->company_id)
                 ->orderByRaw('ISNULL(status_order), status_order ASC')
                 ->cursor()
                 ->each(function ($ts, $key) {

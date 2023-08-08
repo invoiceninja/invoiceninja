@@ -113,7 +113,7 @@ class ClientTest extends TestCase
 
         $c = $c->fresh();
 
-        nlog($c->contacts->pluck('email'));
+        // nlog($c->contacts->pluck('email'));
 
         $this->assertEquals(4, $c->contacts->count());
 

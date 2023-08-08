@@ -63,6 +63,7 @@ class EmailStats
     public static function clearCompanies($companies)
     {
         $companies->each(function ($company) {
+            /** @var \App\Models\Company $company */
             self::clear($company->company_key);
         });
     }

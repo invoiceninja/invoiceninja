@@ -22,7 +22,7 @@ return new class extends Migration {
             $g->save();
         }
 
-        CompanyGateway::where('gateway_key', 'f7ec488676d310683fb51802d076d713')->cursor()->each(function ($cg) {
+        CompanyGateway::query()->where('gateway_key', 'f7ec488676d310683fb51802d076d713')->cursor()->each(function ($cg) {
             $config = $cg->getConfig();
             $config->threeds = false;
             $cg->setConfig($config);
