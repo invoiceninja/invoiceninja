@@ -22,7 +22,7 @@ return new class extends Migration
         if(!$xag) {
 
             $xag = new \App\Models\Currency();
-            $xag->id = 115;
+            $xag->id = 116;
             $xag->code = 'XAG';
             $xag->name = 'Silver Troy Ounce';
             $xag->symbol = 'XAG';
