@@ -424,7 +424,7 @@ class BillingPortalPurchasev2 extends Component
         $client_repo = new ClientRepository(new ClientContactRepository());
         $data = [
             'name' => '',
-            'group_settings_id' => $this->encodePrimaryKey($this->subscription->group_id),
+            'group_settings_id' => $this->subscription->group_id,
             'contacts' => [
                 ['email' => $this->email],
             ],
