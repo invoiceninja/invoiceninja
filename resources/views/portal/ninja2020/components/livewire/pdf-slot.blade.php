@@ -1,5 +1,5 @@
 <div>
-  <div class="flex flex-col items-end mb-2" x-data>
+  <div class="flex flex-row-reverse items-end mb-2 float-right" x-data>
     <button wire:loading.attr="disabled" wire:click="downloadPdf" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold px-2 rounded inline-flex" type="button">
         <span>{{ ctrans('texts.download_pdf') }}</span>
         <div wire:loading wire:target="downloadPdf">
@@ -10,7 +10,7 @@
         </div>
     </button>
   <button wire:loading.attr="disabled" wire:click="downloadEInvoice" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold px-2 rounded inline-flex" type="button">
-          <span>{{ ctrans('texts.download_xml') }}</span>
+          <span>{{ ctrans('texts.download_e_invoice') }}</span>
           <div wire:loading wire:target="downloadEInvoice">
               <svg class="animate-spin h-5 w-5 text-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
