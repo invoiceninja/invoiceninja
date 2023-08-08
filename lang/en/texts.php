@@ -2404,7 +2404,7 @@ $LANG = array(
 
     'currency_cuban_peso' => 'Cuban Peso',
     'currency_bz_dollar' => 'BZ Dollar',
-    'currency_libyan_dinar' = 'Libyan Dinar',
+    'currency_libyan_dinar' => 'Libyan Dinar',
     'currency_silver_troy_ounce' => 'Silver Troy Ounce',
     'currency_gold_troy_ounce' => 'Gold Troy Ounce',
 
