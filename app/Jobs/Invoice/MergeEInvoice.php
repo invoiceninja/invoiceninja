@@ -48,8 +48,13 @@ class MergeEInvoice implements ShouldQueue
     {
         $filepath_pdf = $this->invoice->client->invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName();
         $e_invoice_path = $this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName("xml");
-        $document = ZugferdDocumentReader::readAndGuessFromFile($e_invoice_path);
         $disk = config('filesystems.default');
+        $file = Storage::disk($disk)->exists($e_invoice_path);
+        if (! $file){
+            (new CreateEInvoice($this->invoice))->handle();
+        }
+        $document = ZugferdDocumentReader::readAndGuessFromFile(Storage::disk($disk)->path($e_invoice_path));
+
 
         if (!Storage::disk($disk)->exists($this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()))) {
             Storage::makeDirectory($this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()));
