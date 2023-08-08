@@ -293,7 +293,7 @@ class ProfitLoss
 
                             foreach ($payment->paymentables as $pivot) {
                                 if ($pivot->paymentable_type == 'invoices') {
-                                    $invoice = Invoice::withTrashed()->find($pivot->paymentable_id);
+                                    $invoice = Invoice::query()->withTrashed()->find($pivot->paymentable_id);
 
                                     $amount_payment_paid += $pivot->amount - $pivot->refunded;
                                     $amount_payment_paid_converted += $amount_payment_paid / ($payment->exchange_rate ?: 1);

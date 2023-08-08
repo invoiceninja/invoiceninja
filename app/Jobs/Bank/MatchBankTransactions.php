@@ -400,7 +400,7 @@ class MatchBankTransactions implements ShouldQueue
 
         $category = $this->categories->firstWhere('highLevelCategoryId', $this->bt->category_id);
 
-        $ec = ExpenseCategory::where('company_id', $this->bt->company_id)->where('bank_category_id', $this->bt->category_id)->first();
+        $ec = ExpenseCategory::query()->where('company_id', $this->bt->company_id)->where('bank_category_id', $this->bt->category_id)->first();
 
         if ($ec) {
             return $ec->id;

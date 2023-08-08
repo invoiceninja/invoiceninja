@@ -47,8 +47,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $recurring_product_ids
  * @property string $name
  * @property int|null $group_id
- * @property string $price
- * @property string $promo_price
+ * @property float $price
+ * @property float $promo_price
  * @property int $registration_required
  * @property int $use_inventory_management
  * @property string|null $optional_product_ids
@@ -68,6 +68,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Subscription with($value)
  * @mixin \Eloquent
  */
 class Subscription extends BaseModel

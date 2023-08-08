@@ -155,7 +155,7 @@ class BillingPortalPurchase extends Component
     public $request_data;
 
     /**
-     * @var string
+     * @var float
      */
     public $price;
 

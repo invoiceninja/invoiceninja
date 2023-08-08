@@ -100,7 +100,7 @@ class InstantPayment
              * Determine the payable amount and the max payable. ie either partial or invoice balance
              */
 
-            $payable_amount = Number::roundValue(Number::parseFloat($payable_invoice['amount'], $client->currency()->precision));
+            $payable_amount = Number::roundValue(Number::parseFloat($payable_invoice['amount']), $client->currency()->precision);
             $invoice_balance = Number::roundValue(($invoice->partial > 0 ? $invoice->partial : $invoice->balance), $client->currency()->precision);
 
 
@@ -155,7 +155,7 @@ class InstantPayment
                 return $payable_invoice['invoice_id'] == $inv->hashed_id;
             });
 
-            $payable_amount = Number::roundValue(Number::parseFloat($payable_invoice['amount'], $client->currency()->precision));
+            $payable_amount = Number::roundValue(Number::parseFloat($payable_invoice['amount']), $client->currency()->precision);
             $invoice_balance = Number::roundValue($invoice->balance, $client->currency()->precision);
 
             $payable_invoice['due_date'] = $this->formatDate($invoice->due_date, $invoice->client->date_format());

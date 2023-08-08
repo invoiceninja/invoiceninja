@@ -213,7 +213,7 @@ class SubscriptionService
         $email_object->body = ctrans('texts.white_label_body', ['license_key' => $license_key]);
         $email_object->client_id = $invoice->client_id;
         $email_object->client_contact_id = $contact->id;
-        $email_object->invitation_key = $invitation->invitation_key;
+        $email_object->invitation_key = $invitation->key;
         $email_object->invitation_id = $invitation->id;
         $email_object->entity_id = $invoice->id;
         $email_object->entity_class = Invoice::class;
@@ -676,7 +676,7 @@ class SubscriptionService
 
             $pro_rata_refund_amount = $this->calculateProRataRefund($last_invoice, $old_subscription);
         } elseif ($last_invoice->balance > 0) {
-            $pro_rata_charge_amount = $this->calculateProRataCharge($last_invoice, $old_subscription);
+            $pro_rata_charge_amount = $this->calculateProRataCharge($last_invoice);
             nlog("pro rata charge = {$pro_rata_charge_amount}");
         } else {
             $pro_rata_refund_amount = $this->calculateProRataRefund($last_invoice, $old_subscription) * -1;
@@ -740,7 +740,7 @@ class SubscriptionService
         }
 
         if ($last_invoice->balance > 0) {
-            $pro_rata_charge_amount = $this->calculateProRataCharge($last_invoice, $old_subscription);
+            $pro_rata_charge_amount = $this->calculateProRataCharge($last_invoice);
             nlog("pro rata charge = {$pro_rata_charge_amount}");
         } else {
             $pro_rata_refund_amount = $this->calculateProRataRefund($last_invoice, $old_subscription) * -1;
@@ -807,7 +807,7 @@ class SubscriptionService
     {
         nlog("handle plan change");
 
-        $old_recurring_invoice = RecurringInvoice::find($this->decodePrimaryKey($payment_hash->data->billing_context->recurring_invoice));
+        $old_recurring_invoice = RecurringInvoice::query()->find($this->decodePrimaryKey($payment_hash->data->billing_context->recurring_invoice));
 
         if (!$old_recurring_invoice) {
             return $this->handleRedirect('/client/recurring_invoices/');
@@ -816,7 +816,7 @@ class SubscriptionService
         $recurring_invoice = $this->createNewRecurringInvoice($old_recurring_invoice);
 
         //update the invoice and attach to the recurring invoice!!!!!
-        $invoice = Invoice::find($payment_hash->fee_invoice_id);
+        $invoice = Invoice::query()->find($payment_hash->fee_invoice_id);
         $invoice->recurring_id = $recurring_invoice->id;
         $invoice->is_proforma = false;
         $invoice->save();
@@ -1243,7 +1243,7 @@ class SubscriptionService
     /**
      * Get available upgrades & downgrades for the plan.
      *
-     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getPlans()
     {

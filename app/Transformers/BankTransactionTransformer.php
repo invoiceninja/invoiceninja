@@ -11,9 +11,11 @@
 
 namespace App\Transformers;
 
-use App\Models\BankTransaction;
+use App\Models\Vendor;
 use App\Models\Company;
 use App\Models\Expense;
+use App\Models\Payment;
+use App\Models\BankTransaction;
 use App\Utils\Traits\MakesHash;
 
 /**
