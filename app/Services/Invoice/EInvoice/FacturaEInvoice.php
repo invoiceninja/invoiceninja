@@ -302,6 +302,7 @@ class FacturaEInvoice extends AbstractService
     private function resolvePaymentMethod(\App\Models\Payment $payment): array
     {
         $data = [];
+        $method = FacturaePayment::TYPE_CARD;
 
         match($payment->type_id){
             PaymentType::BANK_TRANSFER => $method = FacturaePayment::TYPE_TRANSFER	,

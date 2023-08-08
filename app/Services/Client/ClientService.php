@@ -166,7 +166,6 @@ class ClientService
      *
      * @param  mixed $pdf     The pdf blob
      * @param  array  $options The statement options array
-     * @return void
      */
     private function emailStatement($pdf, array $options): void
     {

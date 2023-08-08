@@ -537,8 +537,8 @@ class Client extends BaseModel implements HasLocalePreference
 
         foreach ($pms as $pm) {
             if ($pm['gateway_type_id'] == GatewayType::CREDIT_CARD) {
-                /**@var \App\Models\CompanyGateway $cg */
-                $cg = CompanyGateway::find($pm['company_gateway_id']);
+                
+                $cg = CompanyGateway::query()->find($pm['company_gateway_id']);
 
                 if ($cg && ! property_exists($cg->fees_and_limits, strval(GatewayType::CREDIT_CARD))) {
                     $fees_and_limits = $cg->fees_and_limits;
@@ -561,7 +561,7 @@ class Client extends BaseModel implements HasLocalePreference
 
         foreach ($pms as $pm) {
             if ($pm['gateway_type_id'] == GatewayType::BACS) {
-                $cg = CompanyGateway::find($pm['company_gateway_id']);
+                $cg = CompanyGateway::query()->find($pm['company_gateway_id']);
 
                 if ($cg && ! property_exists($cg->fees_and_limits, GatewayType::BACS)) {
                     $fees_and_limits = $cg->fees_and_limits;
@@ -587,7 +587,7 @@ class Client extends BaseModel implements HasLocalePreference
         if ($this->currency()->code == 'USD' && in_array(GatewayType::BANK_TRANSFER, array_column($pms, 'gateway_type_id'))) {
             foreach ($pms as $pm) {
                 if ($pm['gateway_type_id'] == GatewayType::BANK_TRANSFER) {
-                    $cg = CompanyGateway::find($pm['company_gateway_id']);
+                    $cg = CompanyGateway::query()->find($pm['company_gateway_id']);
 
                     if ($cg && ! property_exists($cg->fees_and_limits, GatewayType::BANK_TRANSFER)) {
                         $fees_and_limits = $cg->fees_and_limits;
@@ -606,7 +606,7 @@ class Client extends BaseModel implements HasLocalePreference
         if ($this->currency()->code == 'EUR' && (in_array(GatewayType::BANK_TRANSFER, array_column($pms, 'gateway_type_id')) || in_array(GatewayType::SEPA, array_column($pms, 'gateway_type_id')))) {
             foreach ($pms as $pm) {
                 if ($pm['gateway_type_id'] == GatewayType::SEPA) {
-                    $cg = CompanyGateway::find($pm['company_gateway_id']);
+                    $cg = CompanyGateway::query()->find($pm['company_gateway_id']);
 
                     if ($cg && $cg->fees_and_limits->{GatewayType::SEPA}->is_enabled) {
                         return $cg;
@@ -618,7 +618,7 @@ class Client extends BaseModel implements HasLocalePreference
         if (in_array(GatewayType::DIRECT_DEBIT, array_column($pms, 'gateway_type_id'))) {
             foreach ($pms as $pm) {
                 if ($pm['gateway_type_id'] == GatewayType::DIRECT_DEBIT) {
-                    $cg = CompanyGateway::find($pm['company_gateway_id']);
+                    $cg = CompanyGateway::query()->find($pm['company_gateway_id']);
 
                     if ($cg && $cg->fees_and_limits->{GatewayType::DIRECT_DEBIT}->is_enabled) {
                         return $cg;

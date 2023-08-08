@@ -280,7 +280,7 @@ class CompanyImport implements ShouldQueue
                     'errors'  => []
                 ];
 
-                $_company = Company::find($this->company->id);
+                $_company = Company::query()->find($this->company->id);
 
                 $nmo = new NinjaMailerObject;
                 $nmo->mailable = new ImportCompleted($_company, $data);

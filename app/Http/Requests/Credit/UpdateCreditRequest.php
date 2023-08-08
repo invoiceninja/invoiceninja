@@ -30,7 +30,10 @@ class UpdateCreditRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->credit);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('edit', $this->credit);
     }
 
     /**
@@ -40,6 +43,9 @@ class UpdateCreditRequest extends Request
      */
     public function rules()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $rules = [];
         
         if ($this->file('documents') && is_array($this->file('documents'))) {
@@ -55,7 +61,7 @@ class UpdateCreditRequest extends Request
         }
 
         if ($this->number) {
-            $rules['number'] = Rule::unique('credits')->where('company_id', auth()->user()->company()->id)->ignore($this->credit->id);
+            $rules['number'] = Rule::unique('credits')->where('company_id', $user->company()->id)->ignore($this->credit->id);
         }
 
         $rules['line_items'] = 'array';
@@ -67,7 +73,7 @@ class UpdateCreditRequest extends Request
         $rules['tax_name1'] = 'bail|sometimes|string|nullable';
         $rules['tax_name2'] = 'bail|sometimes|string|nullable';
         $rules['tax_name3'] = 'bail|sometimes|string|nullable';
-        $rules['exchange_rate'] = 'bail|sometimes|gt:0';
+        $rules['exchange_rate'] = 'bail|sometimes|numeric';
 
         return $rules;
     }

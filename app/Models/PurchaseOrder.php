@@ -50,12 +50,12 @@ use Illuminate\Support\Facades\Storage;
  * @property string|null $private_notes
  * @property string|null $terms
  * @property string|null $tax_name1
- * @property string $tax_rate1
+ * @property float $tax_rate1
  * @property string|null $tax_name2
- * @property string $tax_rate2
+ * @property float $tax_rate2
  * @property string|null $tax_name3
- * @property string $tax_rate3
- * @property string $total_taxes
+ * @property float $tax_rate3
+ * @property float $total_taxes
  * @property int $uses_inclusive_taxes
  * @property string|null $reminder1_sent
  * @property string|null $reminder2_sent
@@ -74,11 +74,11 @@ use Illuminate\Support\Facades\Storage;
  * @property int $custom_surcharge_tax2
  * @property int $custom_surcharge_tax3
  * @property int $custom_surcharge_tax4
- * @property string $exchange_rate
- * @property string $balance
+ * @property float $exchange_rate
+ * @property float $balance
  * @property float|null $partial
- * @property string $amount
- * @property string $paid_to_date
+ * @property float $amount
+ * @property float $paid_to_date
  * @property string|null $partial_due_date
  * @property string|null $last_viewed
  * @property int|null $deleted_at

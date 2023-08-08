@@ -11,16 +11,24 @@
 
 namespace App\Transformers;
 
-use App\Models\Activity;
-use App\Models\Backup;
-use App\Models\ClientContact;
-use App\Models\Invoice;
-use App\Models\PurchaseOrder;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Quote;
+use App\Models\Backup;
+use App\Models\Client;
+use App\Models\Credit;
 use App\Models\Vendor;
+use App\Models\Expense;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\Activity;
+use App\Models\ClientContact;
+use App\Models\PurchaseOrder;
 use App\Models\VendorContact;
 use App\Utils\Traits\MakesHash;
+use App\Models\RecurringInvoice;
+use App\Transformers\EntityTransformer;
+use App\Transformers\InvoiceHistoryTransformer;
 
 class ActivityTransformer extends EntityTransformer
 {
