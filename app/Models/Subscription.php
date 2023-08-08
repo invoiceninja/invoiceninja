@@ -53,11 +53,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $use_inventory_management
  * @property string|null $optional_product_ids
  * @property string|null $optional_recurring_product_ids
- * @property \App\Models\Company $company
+ * @property-read \App\Models\Company $company
  * @property-read mixed $hashed_id
  * @property-read \App\Models\GroupSetting|null $group_settings
  * @property-read \App\Models\User $user
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Database\Factories\SubscriptionFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription filter(\App\Filters\QueryFilters $filters)

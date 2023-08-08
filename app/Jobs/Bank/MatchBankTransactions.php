@@ -288,7 +288,7 @@ class MatchBankTransactions implements ShouldQueue
         $this->available_balance = $amount;
 
         \DB::connection(config('database.default'))->transaction(function () use ($invoices) {
-            $invoices->each(function ($invoice) use ($invoices) {
+            $invoices->each(function ($invoice) {
                 $this->invoice = Invoice::withTrashed()->where('id', $invoice->id)->lockForUpdate()->first();
 
                 $_amount = false;

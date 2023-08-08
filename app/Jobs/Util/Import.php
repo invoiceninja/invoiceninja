@@ -1803,7 +1803,8 @@ class Import implements ShouldQueue
                 $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
             }
 
-            $project = Project::Create($modified);
+            /** @var \App\Models\Project $project **/
+            $project = Project::create($modified);
 
             $key = "projects_{$resource['id']}";
 

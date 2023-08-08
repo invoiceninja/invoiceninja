@@ -40,6 +40,9 @@ class UpdateInvoiceRequest extends Request
 
     public function rules()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $rules = [];
 
         if ($this->file('documents') && is_array($this->file('documents'))) {
@@ -57,7 +60,7 @@ class UpdateInvoiceRequest extends Request
         $rules['id'] = new LockedInvoiceRule($this->invoice);
 
         if ($this->number) {
-            $rules['number'] = Rule::unique('invoices')->where('company_id', auth()->user()->company()->id)->ignore($this->invoice->id);
+            $rules['number'] = Rule::unique('invoices')->where('company_id', $user->company()->id)->ignore($this->invoice->id);
         }
 
         $rules['is_amount_discount'] = ['boolean'];
@@ -72,10 +75,7 @@ class UpdateInvoiceRequest extends Request
         $rules['tax_name2'] = 'bail|sometimes|string|nullable';
         $rules['tax_name3'] = 'bail|sometimes|string|nullable';
         $rules['status_id'] = 'bail|sometimes|not_in:5'; //do not allow cancelled invoices to be modfified.
-        $rules['exchange_rate'] = 'bail|sometimes|gt:0';
-        
-        // not needed.
-        // $rules['partial_due_date'] = 'bail|sometimes|required_unless:partial,0,null';
+        $rules['exchange_rate'] = 'bail|sometimes|numeric';
 
         return $rules;
     }

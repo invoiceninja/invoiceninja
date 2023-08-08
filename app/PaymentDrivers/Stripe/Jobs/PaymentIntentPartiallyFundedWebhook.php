@@ -39,7 +39,7 @@ class PaymentIntentPartiallyFundedWebhook implements ShouldQueue
     {
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
-        $company = Company::where('company_key', $this->company_key)->first();
+        $company = Company::query()->where('company_key', $this->company_key)->first();
 
         foreach ($this->stripe_request as $transaction) {
             $payment_intent = false;
@@ -65,7 +65,7 @@ class PaymentIntentPartiallyFundedWebhook implements ShouldQueue
                 nlog("paymentintent found but no payment");
             }
 
-            $company_gateway = CompanyGateway::find($this->company_gateway_id);
+            $company_gateway = CompanyGateway::query()->find($this->company_gateway_id);
             $stripe_driver = $company_gateway->driver()->init();
 
             $hash = isset($transaction['metadata']['payment_hash']) ? $transaction['metadata']['payment_hash'] : false;

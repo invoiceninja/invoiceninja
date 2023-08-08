@@ -501,7 +501,8 @@ class StripePaymentDriver extends BaseDriver
 
         $this->init();
 
-        $client_gateway_token = ClientGatewayToken::whereClientId($this->client->id)
+        $client_gateway_token = ClientGatewayToken::query()
+                                                  ->whereClientId($this->client->id)
                                                   ->whereCompanyGatewayId($this->company_gateway->id)
                                                   ->first();
 
@@ -892,7 +893,7 @@ class StripePaymentDriver extends BaseDriver
 
     public function setClientFromCustomer($customer)
     {
-        $this->client = ClientGatewayToken::where('gateway_customer_reference', $customer)->client;
+        $this->client = ClientGatewayToken::query()->where('gateway_customer_reference', $customer)->client;
     }
 
     /**

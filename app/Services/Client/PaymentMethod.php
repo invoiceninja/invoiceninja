@@ -25,7 +25,7 @@ class PaymentMethod
 
     private $amount;
 
-    /** @var \Illuminate\Support\Collection<CompanyGateway> $gateways */
+    /** @var \Illuminate\Support\Collection<CompanyGateway> $gateways **/
     private $gateways;
 
     private $payment_methods;

@@ -40,6 +40,9 @@ class StoreRecurringInvoiceRequest extends Request
 
     public function rules()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $rules = [];
 
         if ($this->file('documents') && is_array($this->file('documents'))) {
@@ -54,7 +57,7 @@ class StoreRecurringInvoiceRequest extends Request
             $rules['file'] = $this->file_validation;
         }
 
-        $rules['client_id'] = 'required|exists:clients,id,company_id,'.auth()->user()->company()->id;
+        $rules['client_id'] = 'required|exists:clients,id,company_id,'.$user->company()->id;
 
         $rules['invitations.*.client_contact_id'] = 'distinct';
 
@@ -71,7 +74,7 @@ class StoreRecurringInvoiceRequest extends Request
         $rules['tax_name2'] = 'bail|sometimes|string|nullable';
         $rules['tax_name3'] = 'bail|sometimes|string|nullable';
         $rules['due_date_days'] = 'bail|sometimes|string';
-        $rules['exchange_rate'] = 'bail|sometimes|gt:0';
+        $rules['exchange_rate'] = 'bail|sometimes|numeric';
 
         return $rules;
     }

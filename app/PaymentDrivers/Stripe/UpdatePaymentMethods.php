@@ -90,7 +90,7 @@ class UpdatePaymentMethods
         );
 
         foreach ($bank_methods->data as $method) {
-            $token = ClientGatewayToken::where([
+            $token = ClientGatewayToken::query()->where([
                 'gateway_customer_reference' => $customer->id,
                 'token' => $method->id,
                 'client_id' => $client->id,
@@ -140,7 +140,7 @@ class UpdatePaymentMethods
         }
 
         foreach ($sources->data as $method) {
-            $token_exists = ClientGatewayToken::where([
+            $token_exists = ClientGatewayToken::query()->where([
                 'gateway_customer_reference' => $customer->id,
                 'token' => $method->id,
                 'client_id' => $client->id,
@@ -176,7 +176,7 @@ class UpdatePaymentMethods
 
     private function addOrUpdateCard(PaymentMethod $method, $customer_reference, Client $client, $type_id)
     {
-        $token_exists = ClientGatewayToken::where([
+        $token_exists = ClientGatewayToken::query()->where([
             'gateway_customer_reference' => $customer_reference,
             'token' => $method->id,
             'client_id' => $client->id,
