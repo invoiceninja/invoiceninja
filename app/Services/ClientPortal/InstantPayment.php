@@ -273,7 +273,7 @@ class InstantPayment
             'is_recurring' => $this->request->is_recurring,
         ];
 
-        if ($is_credit_payment || $totals <= 0) {
+        if ($is_credit_payment) {
             return $this->processCreditPayment($this->request, $data);
         }
 

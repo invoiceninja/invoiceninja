@@ -185,6 +185,9 @@ class CheckData extends Command
                 if ($cu->company && $cu->user) {
                     (new CreateCompanyToken($cu->company, $cu->user, 'System'))->handle();
                 }
+                else {
+                    // $cu->forceDelete();
+                }
             }
         });
     }
