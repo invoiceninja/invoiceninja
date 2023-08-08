@@ -1,7 +1,7 @@
 <div>
   <div class="flex flex-col items-end mb-2" x-data>
-    <button wire:loading.attr="disabled" wire:click="downloadPdf" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold px-2 rounded inline-flex" type="button">
-        <span>{{ ctrans('texts.download_pdf') }}</span>
+    <button wire:loading.attr="disabled" wire:click="downloadPdf" class="bg-primary text-white px-4 py-4 lg:px-2 lg:py-2 rounded" type="button">
+        <span class="mr-0">{{ ctrans('texts.download_pdf') }}</span>
         <div wire:loading wire:target="downloadPdf">
             <svg class="animate-spin h-5 w-5 text-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
