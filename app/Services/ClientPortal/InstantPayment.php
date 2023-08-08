@@ -52,7 +52,7 @@ class InstantPayment
             $is_credit_payment = true;
         }
 
-        $gateway = CompanyGateway::find($this->request->input('company_gateway_id'));
+        $gateway = CompanyGateway::query()->find($this->request->input('company_gateway_id'));
 
         /**
          * find invoices

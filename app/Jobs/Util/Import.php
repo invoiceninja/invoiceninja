@@ -1654,8 +1654,8 @@ class Import implements ShouldQueue
             $modified['company_gateway_id'] = $this->transformId('company_gateways', $resource['company_gateway_id']);
             
             //$modified['user_id'] = $this->processUserId($resource);
-
-            $cgt = ClientGatewayToken::Create($modified);
+            /** @var \App\Models\ClientGatewayToken $cgt **/
+            $cgt = ClientGatewayToken::create($modified);
 
             $key = "client_gateway_tokens_{$resource['id']}";
 
@@ -1684,7 +1684,8 @@ class Import implements ShouldQueue
             $modified['company_id'] = $this->company->id;
             $modified['user_id'] = $this->processUserId($resource);
 
-            $task_status = TaskStatus::Create($modified);
+            /** @var \App\Models\TaskStatus $task_status **/
+            $task_status = TaskStatus::create($modified);
 
             $key = "task_statuses_{$resource['id']}";
 
@@ -1712,7 +1713,8 @@ class Import implements ShouldQueue
             $modified['company_id'] = $this->company->id;
             $modified['user_id'] = $this->processUserId($resource);
 
-            $expense_category = ExpenseCategory::Create($modified);
+            /** @var \App\Models\ExpenseCategory $expense_category **/
+            $expense_category = ExpenseCategory::create($modified);
 
             $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
 
@@ -1757,7 +1759,8 @@ class Import implements ShouldQueue
                 $modified['status_id'] = $this->transformId('task_statuses', $resource['status_id']);
             }
 
-            $task = Task::Create($modified);
+            /** @var \App\Models\Task $task **/
+            $task = Task::create($modified);
 
             if (array_key_exists('created_at', $modified)) {
                 $task->created_at = Carbon::parse($modified['created_at']);
@@ -1766,8 +1769,6 @@ class Import implements ShouldQueue
             if (array_key_exists('updated_at', $modified)) {
                 $task->updated_at = Carbon::parse($modified['updated_at']);
             }
-
-
 
             $task->save(['timestamps' => false]);
 
@@ -1871,6 +1872,7 @@ try {
 
     $modified['updated_at'] = $modified['created_at'];
 
+    /** @var \App\Models\Activity $act **/
     $act = Activity::make($modified);
 
     $act->save(['timestamps' => false]);
@@ -1921,7 +1923,8 @@ nlog("could not import activity: {$e->getMessage()}");
                 $modified['vendor_id'] = $this->transformId('vendors', $resource['vendor_id']);
             }
 
-            $expense = Expense::Create($modified);
+            /** @var \App\Models\Expense $expense **/
+            $expense = Expense::create($modified);
 
             if (array_key_exists('created_at', $modified)) {
                 $expense->created_at = Carbon::parse($modified['created_at']);
@@ -1930,8 +1933,6 @@ nlog("could not import activity: {$e->getMessage()}");
             if (array_key_exists('updated_at', $modified)) {
                 $expense->updated_at = Carbon::parse($modified['updated_at']);
             }
-
-
 
             $expense->save(['timestamps' => false]);
             

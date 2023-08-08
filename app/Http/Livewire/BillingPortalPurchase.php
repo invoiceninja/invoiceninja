@@ -64,9 +64,9 @@ class BillingPortalPurchase extends Component
     /**
      * Instance of subscription.
      *
-     * @var Subscription
+     * @var \App\Models\Subscription $subscription
      */
-    public $subscription;
+    public Subscription $subscription;
 
     /**
      * Instance of client contact.
