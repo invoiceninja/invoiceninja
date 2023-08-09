@@ -702,11 +702,11 @@ class HtmlEngine
         $tax_label = '';
 
         if (collect($this->entity->line_items)->contains('tax_id', \App\Models\Product::PRODUCT_TYPE_REVERSE_TAX)) {
-            $tax_label .= ctrans('texts.reverse_tax_info') . "\n";
+            $tax_label .= ctrans('texts.reverse_tax_info') . "<br>";
         }
 
         if($this->client->country_id !== (int)$this->company->settings->country_id){
-            $tax_label .= ctrans('texts.tax_info') . "\n";
+            $tax_label .= ctrans('texts.intracommunity_tax_info') . "<br>";
         }
 
         return $tax_label;
