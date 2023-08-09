@@ -705,7 +705,7 @@ class HtmlEngine
             $tax_label .= ctrans('texts.reverse_tax_info') . "<br>";
         }
 
-        if($this->client->country_id !== (int)$this->company->settings->country_id){
+        if((int)$this->client->country_id !== (int)$this->company->settings->country_id){
             $tax_label .= ctrans('texts.intracommunity_tax_info') . "<br>";
         }
 
