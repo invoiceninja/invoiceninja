@@ -39,6 +39,7 @@ class YodleeAuthRequest extends Request
         return [];
     }
 
+    /** @var $token */
     public function getTokenContent()
     {
         if ($this->state) {
