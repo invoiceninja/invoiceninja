@@ -124,6 +124,7 @@ class CreatePurchaseOrderPdf implements ShouldQueue
 
         /* Catch all in case migration doesn't pass back a valid design */
         if (!$design) {
+            /** @var \App\Models\Design $design */
             $design = Design::find(2);
         }
 

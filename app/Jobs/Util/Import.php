@@ -173,10 +173,11 @@ class Import implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param array $data
+     * @param string $file_path
      * @param Company $company
      * @param User $user
      * @param array $resources
+     * @param bool $silent_migration
      */
     public function __construct(string $file_path, Company $company, User $user, array $resources = [], $silent_migration = false)
     {
@@ -195,7 +196,6 @@ class Import implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @return bool
      */
     public function handle()
     {
@@ -302,7 +302,7 @@ class Import implements ShouldQueue
 
             // 10/02/21
             foreach ($client->payments as $payment) {
-                $credit_total_applied += $payment->paymentables()->where('paymentable_type', App\Models\Credit::class)->get()->sum(\DB::raw('amount'));
+                $credit_total_applied += $payment->paymentables()->where('paymentable_type', \App\Models\Credit::class)->get()->sum(\DB::raw('amount'));
             }
 
             if ($credit_total_applied < 0) {
@@ -319,7 +319,7 @@ class Import implements ShouldQueue
 
     private function setInitialCompanyLedgerBalances()
     {
-        Client::where('company_id', $this->company->id)->cursor()->each(function ($client) {
+        Client::query()->where('company_id', $this->company->id)->cursor()->each(function ($client) {
             $invoice_balances = $client->invoices->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
 
             $company_ledger = CompanyLedgerFactory::create($client->company_id, $client->user_id);
@@ -954,6 +954,7 @@ class Import implements ShouldQueue
                 $modified['vendor_id'] = $this->transformId('vendors', $resource['vendor_id']);
             }
 
+            /** @var \App\Models\Expense $expense */
             $expense = RecurringExpense::create($modified);
 
             if (array_key_exists('created_at', $modified)) {
@@ -1482,7 +1483,7 @@ class Import implements ShouldQueue
                 
                 try {
                     $invoice_id = $this->transformId('invoices', $resource['invoice_id']);
-                    $entity = Invoice::where('id', $invoice_id)->withTrashed()->first();
+                    $entity = Invoice::query()->where('id', $invoice_id)->withTrashed()->first();
                 } catch(\Exception $e) {
                     nlog("i couldn't find the invoice document {$resource['invoice_id']}, perhaps it is a quote?");
                     nlog($e->getMessage());
@@ -1493,7 +1494,7 @@ class Import implements ShouldQueue
                 if ($try_quote && array_key_exists('quotes', $this->ids)) {
                     try {
                         $quote_id = $this->transformId('quotes', $resource['invoice_id']);
-                        $entity = Quote::where('id', $quote_id)->withTrashed()->first();
+                        $entity = Quote::query()->where('id', $quote_id)->withTrashed()->first();
                     } catch(\Exception $e) {
                         nlog("i couldn't find the quote document {$resource['invoice_id']}, perhaps it is a quote?");
                         nlog($e->getMessage());
@@ -1509,7 +1510,7 @@ class Import implements ShouldQueue
 
             if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && array_key_exists('expenses', $this->ids)) {
                 $expense_id = $this->transformId('expenses', $resource['expense_id']);
-                $entity = Expense::where('id', $expense_id)->withTrashed()->first();
+                $entity = Expense::query()->where('id', $expense_id)->withTrashed()->first();
             }
 
             $file_url = $resource['url'];
@@ -1622,7 +1623,7 @@ class Import implements ShouldQueue
                 $modified['gateway_key'] = 'd14dd26a37cecc30fdd65700bfb55b23';
             }
 
-
+            /** @var \App\Models\CompanyGateway $company_gateway */
             $company_gateway = CompanyGateway::create($modified);
 
             $key = "company_gateways_{$resource['id']}";
@@ -1653,8 +1654,8 @@ class Import implements ShouldQueue
             $modified['company_gateway_id'] = $this->transformId('company_gateways', $resource['company_gateway_id']);
             
             //$modified['user_id'] = $this->processUserId($resource);
-
-            $cgt = ClientGatewayToken::Create($modified);
+            /** @var \App\Models\ClientGatewayToken $cgt **/
+            $cgt = ClientGatewayToken::create($modified);
 
             $key = "client_gateway_tokens_{$resource['id']}";
 
@@ -1683,7 +1684,8 @@ class Import implements ShouldQueue
             $modified['company_id'] = $this->company->id;
             $modified['user_id'] = $this->processUserId($resource);
 
-            $task_status = TaskStatus::Create($modified);
+            /** @var \App\Models\TaskStatus $task_status **/
+            $task_status = TaskStatus::create($modified);
 
             $key = "task_statuses_{$resource['id']}";
 
@@ -1711,7 +1713,8 @@ class Import implements ShouldQueue
             $modified['company_id'] = $this->company->id;
             $modified['user_id'] = $this->processUserId($resource);
 
-            $expense_category = ExpenseCategory::Create($modified);
+            /** @var \App\Models\ExpenseCategory $expense_category **/
+            $expense_category = ExpenseCategory::create($modified);
 
             $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
 
@@ -1756,7 +1759,8 @@ class Import implements ShouldQueue
                 $modified['status_id'] = $this->transformId('task_statuses', $resource['status_id']);
             }
 
-            $task = Task::Create($modified);
+            /** @var \App\Models\Task $task **/
+            $task = Task::create($modified);
 
             if (array_key_exists('created_at', $modified)) {
                 $task->created_at = Carbon::parse($modified['created_at']);
@@ -1765,8 +1769,6 @@ class Import implements ShouldQueue
             if (array_key_exists('updated_at', $modified)) {
                 $task->updated_at = Carbon::parse($modified['updated_at']);
             }
-
-
 
             $task->save(['timestamps' => false]);
 
@@ -1801,7 +1803,8 @@ class Import implements ShouldQueue
                 $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
             }
 
-            $project = Project::Create($modified);
+            /** @var \App\Models\Project $project **/
+            $project = Project::create($modified);
 
             $key = "projects_{$resource['id']}";
 
@@ -1870,6 +1873,7 @@ try {
 
     $modified['updated_at'] = $modified['created_at'];
 
+    /** @var \App\Models\Activity $act **/
     $act = Activity::make($modified);
 
     $act->save(['timestamps' => false]);
@@ -1920,7 +1924,8 @@ nlog("could not import activity: {$e->getMessage()}");
                 $modified['vendor_id'] = $this->transformId('vendors', $resource['vendor_id']);
             }
 
-            $expense = Expense::Create($modified);
+            /** @var \App\Models\Expense $expense **/
+            $expense = Expense::create($modified);
 
             if (array_key_exists('created_at', $modified)) {
                 $expense->created_at = Carbon::parse($modified['created_at']);
@@ -1929,8 +1934,6 @@ nlog("could not import activity: {$e->getMessage()}");
             if (array_key_exists('updated_at', $modified)) {
                 $expense->updated_at = Carbon::parse($modified['updated_at']);
             }
-
-
 
             $expense->save(['timestamps' => false]);
             

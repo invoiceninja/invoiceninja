@@ -99,7 +99,7 @@ class ClientSalesReport extends BaseExport
 
     private function buildRow(Client $client): array
     {
-        $query = Invoice::where('client_id', $client->id)
+        $query = Invoice::query()->where('client_id', $client->id)
                                 ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID]);
     
         $query = $this->addDateRange($query);

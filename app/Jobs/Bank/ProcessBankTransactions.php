@@ -158,7 +158,7 @@ class ProcessBankTransactions implements ShouldQueue
         $now = now();
         
         foreach ($transactions as $transaction) {
-            if (BankTransaction::where('transaction_id', $transaction['transaction_id'])->where('company_id', $this->company->id)->withTrashed()->exists()) {
+            if (BankTransaction::query()->where('transaction_id', $transaction['transaction_id'])->where('company_id', $this->company->id)->withTrashed()->exists()) {
                 continue;
             }
 

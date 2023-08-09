@@ -30,7 +30,9 @@ class StoreCompanyRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('create', Company::class);
+        /** @var \App\Models\User auth()->user */
+        $user = auth()->user();
+        return $user->can('create', Company::class);
     }
 
     public function rules()
@@ -47,7 +49,7 @@ class StoreCompanyRequest extends Request
             $rules['portal_domain'] = 'sometimes|url';
         } else {
             if (Ninja::isHosted()) {
-                $rules['subdomain'] = ['nullable', 'regex:/^[a-zA-Z0-9][a-zA-Z0-9.-]+[a-zA-Z0-9]$/', new ValidSubdomain($this->all())];
+                $rules['subdomain'] = ['nullable', 'regex:/^[a-zA-Z0-9][a-zA-Z0-9.-]+[a-zA-Z0-9]$/', new ValidSubdomain()];
             } else {
                 $rules['subdomain'] = 'nullable|alpha_num';
             }

@@ -53,7 +53,7 @@ class BillingPortalPurchasev2 extends Component
     /**
      * Instance of subscription.
      *
-     * @var Subscription
+     * @var \App\Models\Subscription
      */
     public $subscription;
 
@@ -122,7 +122,7 @@ class BillingPortalPurchasev2 extends Component
     /**
      * Instance of company.
      *
-     * @var Company
+     * @var \App\Models\Company
      */
     public $company;
 
@@ -165,7 +165,7 @@ class BillingPortalPurchasev2 extends Component
     {
         MultiDB::setDb($this->db);
 
-        $this->subscription = Subscription::with('company')->find($this->subscription);
+        $this->subscription = Subscription::query()->with('company')->find($this->subscription);
 
         $this->company = $this->subscription->company;
 
@@ -424,7 +424,7 @@ class BillingPortalPurchasev2 extends Component
         $client_repo = new ClientRepository(new ClientContactRepository());
         $data = [
             'name' => '',
-            'group_id' => $this->encodePrimaryKey($this->subscription->group_id),
+            'group_settings_id' => $this->subscription->group_id,
             'contacts' => [
                 ['email' => $this->email],
             ],
@@ -498,7 +498,7 @@ class BillingPortalPurchasev2 extends Component
     /**
      * Method to handle events before payments.
      *
-     * @return void
+     * @return self
      */
     public function handleBeforePaymentEvents() :self
     {

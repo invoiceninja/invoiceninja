@@ -50,12 +50,12 @@ use Illuminate\Support\Facades\Storage;
  * @property string|null $private_notes
  * @property string|null $terms
  * @property string|null $tax_name1
- * @property string $tax_rate1
+ * @property float $tax_rate1
  * @property string|null $tax_name2
- * @property string $tax_rate2
+ * @property float $tax_rate2
  * @property string|null $tax_name3
- * @property string $tax_rate3
- * @property string $total_taxes
+ * @property float $tax_rate3
+ * @property float $total_taxes
  * @property int $uses_inclusive_taxes
  * @property string|null $reminder1_sent
  * @property string|null $reminder2_sent
@@ -74,11 +74,11 @@ use Illuminate\Support\Facades\Storage;
  * @property int $custom_surcharge_tax2
  * @property int $custom_surcharge_tax3
  * @property int $custom_surcharge_tax4
- * @property string $exchange_rate
- * @property string $balance
+ * @property float $exchange_rate
+ * @property float $balance
  * @property float|null $partial
- * @property string $amount
- * @property string $paid_to_date
+ * @property float $amount
+ * @property float $paid_to_date
  * @property string|null $partial_due_date
  * @property string|null $last_viewed
  * @property int|null $deleted_at
@@ -86,29 +86,19 @@ use Illuminate\Support\Facades\Storage;
  * @property int|null $updated_at
  * @property int|null $expense_id
  * @property int|null $currency_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
  * @property-read int|null $activities_count
  * @property-read \App\Models\User|null $assigned_user
  * @property-read \App\Models\Client|null $client
  * @property-read \App\Models\Company $company
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read int|null $documents_count
  * @property-read \App\Models\Expense|null $expense
  * @property-read mixed $hashed_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read int|null $history_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $invitations
- * @property-read int|null $invitations_count
  * @property-read \App\Models\Invoice|null $invoice
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read int|null $invoices_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read int|null $payments_count
  * @property-read \App\Models\Project|null $project
  * @property-read \App\Models\User $user
  * @property \App\Models\Vendor|null $vendor
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder company()
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder exclude($columns)
  * @method static \Database\Factories\PurchaseOrderFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder filter(\App\Filters\QueryFilters $filters)
  * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder newModelQuery()
@@ -122,6 +112,8 @@ use Illuminate\Support\Facades\Storage;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $invitations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
+ * @method static \Illuminate\Database\Eloquent\Builder|Task withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Task withoutTrashed()
  * @mixin \Eloquent
  */
 class PurchaseOrder extends BaseModel
@@ -378,4 +370,42 @@ class PurchaseOrder extends BaseModel
     {
         return ctrans('texts.purchase_order');
     }
+
+    public function typeIdString($id): string
+    {
+        $type = '';
+        match($id) {
+            '1' => $type = ctrans('texts.product'),
+            '2' => $type = ctrans('texts.service'),
+            '3' => $type = ctrans('texts.gateway_fees'),
+            '4' => $type = ctrans('texts.gateway_fees'),
+            '5' => $type = ctrans('texts.late_fees'),
+            '6' => $type = ctrans('texts.expense'),
+            default => $type = ctrans('texts.product'),
+        };
+
+        return $type;
+
+    }
+
+    public function taxTypeString($id): string
+    {
+        $tax_type = '';
+
+        match(intval($id)){
+            Product::PRODUCT_TYPE_PHYSICAL => $tax_type = ctrans('texts.physical_goods'),
+            Product::PRODUCT_TYPE_SERVICE => $tax_type = ctrans('texts.services'),
+            Product::PRODUCT_TYPE_DIGITAL => $tax_type = ctrans('texts.digital_products'),
+            Product::PRODUCT_TYPE_SHIPPING => $tax_type = ctrans('texts.shipping'),
+            Product::PRODUCT_TYPE_EXEMPT => $tax_type = ctrans('texts.tax_exempt'),
+            Product::PRODUCT_TYPE_REDUCED_TAX => $tax_type = ctrans('texts.reduced_tax'),
+            Product::PRODUCT_TYPE_OVERRIDE_TAX => $tax_type = ctrans('texts.override_tax'),
+            Product::PRODUCT_TYPE_ZERO_RATED => $tax_type = ctrans('texts.zero_rated'),
+            Product::PRODUCT_TYPE_REVERSE_TAX => $tax_type = ctrans('texts.reverse_tax'),
+            default => $tax_type = ctrans('texts.physical_goods'),
+        };
+
+        return $tax_type;
+    }
+
 }

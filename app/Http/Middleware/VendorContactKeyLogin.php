@@ -49,7 +49,7 @@ class VendorContactKeyLogin
 
             $contact_email = $payload['email'];
 
-            if ($vendor_contact = VendorContact::where('email', $contact_email)->where('company_id', $payload['company_id'])->first()) {
+            if ($vendor_contact = VendorContact::query()->where('email', $contact_email)->where('company_id', $payload['company_id'])->first()) {
                 if (empty($vendor_contact->email)) {
                     $vendor_contact->email = Str::random(15).'@example.com';
                 }
@@ -65,7 +65,7 @@ class VendorContactKeyLogin
             }
         } elseif ($request->segment(3) && config('ninja.db.multi_db_enabled')) {
             if (MultiDB::findAndSetDbByVendorContactKey($request->segment(3))) {
-                if ($vendor_contact = VendorContact::where('contact_key', $request->segment(3))->first()) {
+                if ($vendor_contact = VendorContact::query()->where('contact_key', $request->segment(3))->first()) {
                     if (empty($vendor_contact->email)) {
                         $vendor_contact->email = Str::random(6).'@example.com';
                     }
@@ -81,7 +81,7 @@ class VendorContactKeyLogin
                 }
             }
         } elseif ($request->segment(2) && $request->segment(2) == 'key_login' && $request->segment(3)) {
-            if ($vendor_contact = VendorContact::where('contact_key', $request->segment(3))->first()) {
+            if ($vendor_contact = VendorContact::query()->where('contact_key', $request->segment(3))->first()) {
                 if (empty($vendor_contact->email)) {
                     $vendor_contact->email = Str::random(6).'@example.com';
                     $vendor_contact->save();
@@ -97,7 +97,7 @@ class VendorContactKeyLogin
             }
         } elseif ($request->has('vendor_hash') && config('ninja.db.multi_db_enabled')) {
             if (MultiDB::findAndSetDbByClientHash($request->input('vendor_hash'))) {
-                if ($client = Vendor::where('vendor_hash', $request->input('vendor_hash'))->first()) {
+                if ($client = Vendor::query()->where('vendor_hash', $request->input('vendor_hash'))->first()) {
                     $primary_contact = $client->primary_contact()->first();
 
                     if (empty($primary_contact->email)) {
@@ -111,7 +111,7 @@ class VendorContactKeyLogin
                 }
             }
         } elseif ($request->has('vendor_hash')) {
-            if ($client = Vendor::where('vendor_hash', $request->input('vendor_hash'))->first()) {
+            if ($client = Vendor::query()->where('vendor_hash', $request->input('vendor_hash'))->first()) {
                 $primary_contact = $client->primary_contact()->first();
 
                 if (empty($primary_contact->email)) {
@@ -124,7 +124,7 @@ class VendorContactKeyLogin
                 return redirect($this->setRedirectPath());
             }
         } elseif ($request->segment(3)) {
-            if ($vendor_contact = VendorContact::where('contact_key', $request->segment(3))->first()) {
+            if ($vendor_contact = VendorContact::query()->where('contact_key', $request->segment(3))->first()) {
                 if (empty($vendor_contact->email)) {
                     $vendor_contact->email = Str::random(6).'@example.com';
                     $vendor_contact->save();

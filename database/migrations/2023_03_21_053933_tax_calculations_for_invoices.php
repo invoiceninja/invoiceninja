@@ -42,7 +42,7 @@ return new class extends Migration
             $table->string('name', 191)->nullable()->change();
         });
                     
-        CompanyUser::where('is_admin', 0)->cursor()->each(function ($cu) {
+        CompanyUser::query()->where('is_admin', 0)->cursor()->each(function ($cu) {
             $permissions = $cu->permissions;
 
             if (!$permissions || strlen($permissions) == 0) {

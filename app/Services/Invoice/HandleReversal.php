@@ -44,7 +44,7 @@ class HandleReversal extends AbstractService
         $total_paid = $this->invoice->amount - $this->invoice->balance;
 
         /*Adjust payment applied and the paymentables to the correct amount */
-        $paymentables = Paymentable::wherePaymentableType('invoices')
+        $paymentables = Paymentable::query()->wherePaymentableType('invoices')
                                     ->wherePaymentableId($this->invoice->id)
                                     ->get();
 

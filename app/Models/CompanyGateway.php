@@ -28,7 +28,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property bool $update_details
  * @property bool $is_deleted
  * @property string $config
- * @property object $fees_and_limits
+ * @property mixed $fees_and_limits
  * @property string|null $custom_value1
  * @property string|null $custom_value2
  * @property string|null $custom_value3
@@ -51,8 +51,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\Company $company
  * @property-read \App\Models\Gateway $gateway
  * @property-read mixed $hashed_id
+ * @method getConfigField(string $field)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyGateway filter(\App\Filters\QueryFilters $filters)
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyGateway newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyGateway newQuery()
@@ -61,8 +61,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyGateway withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyGateway withoutTrashed()
- * @method static CompanyGateway find()
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientGatewayToken> $client_gateway_tokens
+ * @method static CompanyGateway find($value) 
  * @mixin \Eloquent
  */
 class CompanyGateway extends BaseModel
@@ -167,17 +167,17 @@ class CompanyGateway extends BaseModel
                     ->take(50);
     }
 
-    public function company()
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function client_gateway_tokens()
+    public function client_gateway_tokens(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ClientGatewayToken::class);
     }
 
-    public function gateway()
+    public function gateway(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Gateway::class, 'gateway_key', 'key');
     }
@@ -190,8 +190,8 @@ class CompanyGateway extends BaseModel
     /* This is the public entry point into the payment superclass */
     public function driver(Client $client = null)
     {
-// $class = static::driver_class();
-$class = self::driver_class();
+        // $class = static::driver_class();
+        $class = self::driver_class();
 
         if (!$class) {
             return false;

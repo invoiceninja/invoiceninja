@@ -42,7 +42,7 @@ class UpdateRecurring implements ShouldQueue
 
         $this->user->setCompany($this->company);
         
-        RecurringInvoice::where('company_id', $this->company->id)
+        RecurringInvoice::query()->where('company_id', $this->company->id)
             ->whereIn('id', $this->ids)
             ->chunk(100, function ($recurring_invoices) {
                 foreach ($recurring_invoices as $recurring_invoice) {

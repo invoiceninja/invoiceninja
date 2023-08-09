@@ -78,7 +78,7 @@ class ClientService
 
     public function updatePaymentBalance()
     {
-        $amount = Payment::where('client_id', $this->client->id)
+        $amount = Payment::query()->where('client_id', $this->client->id)
                         ->where('is_deleted', 0)
                         ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
                         ->sum(DB::Raw('amount - applied'));
@@ -115,7 +115,7 @@ class ClientService
 
     public function getCredits()
     {
-        return Credit::where('client_id', $this->client->id)
+        return Credit::query()->where('client_id', $this->client->id)
                   ->where('is_deleted', false)
                   ->where('balance', '>', 0)
                   ->where(function ($query) {
@@ -166,7 +166,6 @@ class ClientService
      *
      * @param  mixed $pdf     The pdf blob
      * @param  array  $options The statement options array
-     * @return void
      */
     private function emailStatement($pdf, array $options): void
     {

@@ -327,8 +327,11 @@ class TaskController extends BaseController
      *     )
      */
     public function create(CreateTaskRequest $request)
-    {
-        $task = TaskFactory::create(auth()->user()->company()->id, auth()->user()->id);
+    {   
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $task = TaskFactory::create($user->company()->id, $user->id);
 
         return $this->itemResponse($task);
     }
@@ -373,10 +376,13 @@ class TaskController extends BaseController
      */
     public function store(StoreTaskRequest $request)
     {
-        $task = $this->task_repo->save($request->all(), TaskFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $task = $this->task_repo->save($request->all(), TaskFactory::create($user->company()->id, $user->id));
         $task = $this->task_repo->triggeredActions($request, $task);
 
-        event(new TaskWasCreated($task, $task->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        event(new TaskWasCreated($task, $task->company, Ninja::eventVars($user->id)));
 
         event('eloquent.created: App\Models\Task', $task);
 
@@ -499,7 +505,9 @@ class TaskController extends BaseController
         $tasks = Task::withTrashed()->find($this->transformKeys($ids));
 
         $tasks->each(function ($task, $key) use ($action) {
-            if (auth()->user()->can('edit', $task)) {
+            /** @var \App\Models\User $user */
+                $user = auth()->user();
+            if ($user->can('edit', $task)) {
                 $this->task_repo->{$action}($task);
             }
         });
@@ -621,10 +629,13 @@ class TaskController extends BaseController
     {
         $task_statuses = $request->input('status_ids');
         $tasks = $request->input('task_ids');
+        
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
-        collect($task_statuses)->each(function ($task_status_hashed_id, $key) {
-            $task_status = TaskStatus::where('id', $this->decodePrimaryKey($task_status_hashed_id))
-                                     ->where('company_id', auth()->user()->company()->id)
+        collect($task_statuses)->each(function ($task_status_hashed_id, $key) use($user){
+            $task_status = TaskStatus::query()->where('id', $this->decodePrimaryKey($task_status_hashed_id))
+                                     ->where('company_id', $user->company()->id)
                                      ->withTrashed()
                                      ->first();
 
@@ -636,8 +647,8 @@ class TaskController extends BaseController
             $sort_status_id = $this->decodePrimaryKey($key);
 
             foreach ($task_list as $key => $task) {
-                $task_record = Task::where('id', $this->decodePrimaryKey($task))
-                             ->where('company_id', auth()->user()->company()->id)
+                $task_record = Task::query()->where('id', $this->decodePrimaryKey($task))
+                             ->where('company_id', $user->company()->id)
                              ->withTrashed()
                              ->first();
 

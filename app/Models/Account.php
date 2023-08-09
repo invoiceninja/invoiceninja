@@ -87,6 +87,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @method static \Illuminate\Database\Eloquent\Builder|Account first()
  * @method static \Illuminate\Database\Eloquent\Builder|Account with()
  * @method static \Illuminate\Database\Eloquent\Builder|Account count() 
+ * @method static \Illuminate\Database\Eloquent\Builder|Account where($query)
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankIntegration> $bank_integrations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyUser> $company_users
@@ -215,7 +216,11 @@ class Account extends BaseModel
         return $this->hasMany(CompanyUser::class);
     }
 
-    public function owner(): \Illuminate\Database\Eloquent\Relations\HasMany
+    /**
+     * Returns the owner of the Account - not a HasMany relation
+     * @return \App\Models\User | bool
+     */
+    public function owner()
     {
         return $this->hasMany(CompanyUser::class)->where('is_owner', true)->first() ? $this->hasMany(CompanyUser::class)->where('is_owner', true)->first()->user : false;
     }

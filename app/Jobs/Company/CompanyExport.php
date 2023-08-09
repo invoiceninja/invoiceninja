@@ -48,9 +48,9 @@ class CompanyExport implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param Company $company
-     * @param User $user
-     * @param string $custom_token_name
+     * @param \App\Models\Company $company
+     * @param \App\Models\User $user
+     * @param string $hash
      */
     public function __construct(public Company $company, private User $user, public string $hash)
     {
@@ -65,7 +65,7 @@ class CompanyExport implements ShouldQueue
     {
         MultiDB::setDb($this->company->db);
 
-        $this->company = Company::where('company_key', $this->company->company_key)->first();
+        $this->company = Company::query()->where('company_key', $this->company->company_key)->first();
 
         set_time_limit(0);
 
@@ -187,7 +187,7 @@ class CompanyExport implements ShouldQueue
         })->all();
 
 
-        $this->export_data['credit_invitations'] = CreditInvitation::where('company_id', $this->company->id)->withTrashed()->cursor()->map(function ($credit) {
+        $this->export_data['credit_invitations'] = CreditInvitation::query()->where('company_id', $this->company->id)->withTrashed()->cursor()->map(function ($credit) {
             $credit = $this->transformArrayOfKeys($credit, ['company_id', 'user_id', 'client_contact_id', 'credit_id']);
 
             return $credit->makeVisible(['id']);
@@ -236,7 +236,7 @@ class CompanyExport implements ShouldQueue
         })->all();
 
 
-        $this->export_data['invoice_invitations'] = InvoiceInvitation::where('company_id', $this->company->id)->withTrashed()->cursor()->map(function ($invoice) {
+        $this->export_data['invoice_invitations'] = InvoiceInvitation::query()->where('company_id', $this->company->id)->withTrashed()->cursor()->map(function ($invoice) {
             $invoice = $this->transformArrayOfKeys($invoice, ['company_id', 'user_id', 'client_contact_id', 'invoice_id']);
 
             return $invoice->makeVisible(['id']);
@@ -280,7 +280,7 @@ class CompanyExport implements ShouldQueue
         })->all();
 
 
-        $this->export_data['quote_invitations'] = QuoteInvitation::where('company_id', $this->company->id)->withTrashed()->cursor()->map(function ($quote) {
+        $this->export_data['quote_invitations'] = QuoteInvitation::query()->where('company_id', $this->company->id)->withTrashed()->cursor()->map(function ($quote) {
             $quote = $this->transformArrayOfKeys($quote, ['company_id', 'user_id', 'client_contact_id', 'quote_id']);
 
             return $quote->makeVisible(['id']);
@@ -301,7 +301,7 @@ class CompanyExport implements ShouldQueue
         })->all();
 
 
-        $this->export_data['recurring_invoice_invitations'] = RecurringInvoiceInvitation::where('company_id', $this->company->id)->withTrashed()->cursor()->map(function ($ri) {
+        $this->export_data['recurring_invoice_invitations'] = RecurringInvoiceInvitation::query()->where('company_id', $this->company->id)->withTrashed()->cursor()->map(function ($ri) {
             $ri = $this->transformArrayOfKeys($ri, ['company_id', 'user_id', 'client_contact_id', 'recurring_invoice_id']);
 
             return $ri;
@@ -381,7 +381,7 @@ class CompanyExport implements ShouldQueue
                                         'company_id',]);
         })->all();
 
-        $this->export_data['purchase_order_invitations'] = PurchaseOrderInvitation::where('company_id', $this->company->id)->withTrashed()->cursor()->map(function ($purchase_order) {
+        $this->export_data['purchase_order_invitations'] = PurchaseOrderInvitation::query()->where('company_id', $this->company->id)->withTrashed()->cursor()->map(function ($purchase_order) {
             $purchase_order = $this->transformArrayOfKeys($purchase_order, ['company_id', 'user_id', 'vendor_contact_id', 'purchase_order_id']);
 
             return $purchase_order->makeVisible(['id']);

@@ -60,7 +60,7 @@ class AuthorizeTransaction
 
         if ($this->authorize->payment_hash->data) {
             $invoice_numbers = collect($this->authorize->payment_hash->data->invoices)->pluck('invoice_number')->implode(',');
-            $invObj = Invoice::whereIn('id', $this->transformKeys(array_column($this->authorize->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
+            $invObj = Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->authorize->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
             $po_numbers = $invObj->pluck('po_number')->implode(',');
 

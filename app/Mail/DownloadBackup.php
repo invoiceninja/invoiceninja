@@ -36,7 +36,7 @@ class DownloadBackup extends Mailable
     {
         App::setLocale($this->company->getLocale());
 
-        $company = Company::where('company_key', $this->company->company_key)->first();
+        $company = Company::query()->where('company_key', $this->company->company_key)->first();
 
         return $this->from(config('mail.from.address'), config('mail.from.name'))
             ->subject(ctrans('texts.download_backup_subject', ['company' => $company->present()->name()]))

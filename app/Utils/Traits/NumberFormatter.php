@@ -16,7 +16,14 @@ namespace App\Utils\Traits;
  */
 trait NumberFormatter
 {
-    private function formatValue($value, $precision) : string
+    /**
+     * Undocumented function
+     *
+     * @param float $value
+     * @param int $precision
+     * @return string|float
+     */
+    private function formatValue($value, $precision)
     {
         /* 08-01-2022 allow increased precision means we need to transform from scientific notation to a regular string */
 
@@ -27,7 +34,6 @@ trait NumberFormatter
      * Parse a float value that may be delimited with either a comma or decimal point.
      *
      * @param      string $value  The value
-     *
      * @return     float   Consumable float value
      */
     private function parseFloat($value) : float

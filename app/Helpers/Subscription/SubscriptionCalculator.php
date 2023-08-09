@@ -40,7 +40,7 @@ class SubscriptionCalculator
      */
     public function isPaidUp() :bool
     {
-        $outstanding_invoices_exist = Invoice::whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+        $outstanding_invoices_exist = Invoice::query()->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                              ->where('subscription_id', $this->invoice->subscription_id)
                                              ->where('client_id', $this->invoice->client_id)
                                              ->where('balance', '>', 0)

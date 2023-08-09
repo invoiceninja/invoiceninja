@@ -123,11 +123,11 @@ class CreateRawPdf implements ShouldQueue
 
         $entity_design_id = $this->entity->design_id ? $this->entity->design_id : $this->decodePrimaryKey($this->entity->client->getSetting($entity_design_id));
 
-        $design = Design::withTrashed()->find($entity_design_id);
+        $design = Design::query()->withTrashed()->find($entity_design_id);
 
         /* Catch all in case migration doesn't pass back a valid design */
         if (! $design) {
-            $design = Design::find(2);
+            $design = Design::query()->find(2);
         }
 
         $html = new HtmlEngine($this->invitation);

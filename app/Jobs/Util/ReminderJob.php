@@ -159,7 +159,7 @@ class ReminderJob implements ShouldQueue
         }
     }
 
-    private function addFeeToNewInvoice(Invoice $over_due_invoice, string $reminder_template, array $fees): void
+    private function addFeeToNewInvoice(Invoice $over_due_invoice, string $reminder_template, array $fees)
     {
 
         $amount = $fees[0];

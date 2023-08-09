@@ -48,19 +48,19 @@ class CreateEntityPdf implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter, MakesInvoiceHtml, PdfMaker, MakesHash, PageNumbering;
 
-    public $entity;
+    public \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\RecurringInvoice | null $entity;
 
-    public $company;
+    public \App\Models\Company | null $company;
 
-    public $contact;
+    public \App\Models\ClientContact | null $contact;
 
     private $disk;
 
-    public $invitation;
+    public \App\Models\InvoiceInvitation | \App\Models\QuoteInvitation | \App\Models\CreditInvitation | \App\Models\RecurringInvoiceInvitation | null $invitation;
 
-    public $entity_string = '';
+    public string $entity_string = '';
 
-    public $client;
+    public \App\Models\Client | null $client;
 
     public $deleteWhenMissingModels = true;
 
@@ -136,6 +136,7 @@ class CreateEntityPdf implements ShouldQueue
 
         $entity_design_id = $this->entity->design_id ? $this->entity->design_id : $this->decodePrimaryKey($this->client->getSetting($entity_design_id));
 
+        /** @var \App\Models\Design $design */
         $design = Design::withTrashed()->find($entity_design_id);
 
         /* Catch all in case migration doesn't pass back a valid design */

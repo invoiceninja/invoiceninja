@@ -25,7 +25,7 @@ return new class extends Migration {
         ];
 
         foreach ($currencies as $currency) {
-            $record = Currency::whereCode($currency['code'])->first();
+            $record = Currency::query()->whereCode($currency['code'])->first();
             if ($record) {
                 $record->name = $currency['name'];
                 $record->symbol = $currency['symbol'];

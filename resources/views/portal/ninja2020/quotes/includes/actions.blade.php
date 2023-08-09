@@ -29,7 +29,7 @@
                 @yield('quote-not-approved-right-side')
 
                 <div class="inline-flex rounded-md shadow-sm">
-                    <input type="hidden" name="action" value="payment">
+                    <input type="hidden" name="action" value="approve">
                     <button onclick="setTimeout(() => this.disabled = true, 0); return true;" type="button"
                         class="button button-primary bg-primary"
                         id="approve-button">{{ ctrans('texts.approve') }}</button>

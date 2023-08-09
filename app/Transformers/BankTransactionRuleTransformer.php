@@ -43,7 +43,7 @@ class BankTransactionRuleTransformer extends EntityTransformer
     ];
 
     /**
-     * @param BankTransaction $bank_integration
+     * @param BankTransactionRule $bank_transaction_rule
      * @return array
      */
     public function transform(BankTransactionRule $bank_transaction_rule)

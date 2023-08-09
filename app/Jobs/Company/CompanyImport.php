@@ -244,7 +244,7 @@ class CompanyImport implements ShouldQueue
     {
         MultiDB::setDb($this->company->db);
 
-        $this->company = Company::where('company_key', $this->company->company_key)->firstOrFail();
+        $this->company = Company::query()->where('company_key', $this->company->company_key)->firstOrFail();
         $this->account = $this->company->account;
         $this->company_owner = $this->company->owner();
 
@@ -280,7 +280,7 @@ class CompanyImport implements ShouldQueue
                     'errors'  => []
                 ];
 
-                $_company = Company::find($this->company->id);
+                $_company = Company::query()->find($this->company->id);
 
                 $nmo = new NinjaMailerObject;
                 $nmo->mailable = new ImportCompleted($_company, $data);
@@ -591,6 +591,7 @@ class CompanyImport implements ShouldQueue
             unset($obj_array['id']);
             unset($obj_array['tax_rate_id']);
 
+            /** @var \App\Models\TaxRate $new_obj */
             $new_obj = TaxRate::firstOrNew(
                 ['name' => $obj->name, 'company_id' => $this->company->id, 'rate' => $obj->rate],
                 $obj_array,
@@ -1427,7 +1428,7 @@ class CompanyImport implements ShouldQueue
             if ($class == 'App\Models\Subscription') {
                 $obj_array['product_ids'] = $this->recordProductIds($obj_array['product_ids']);
                 $obj_array['recurring_product_ids'] = $this->recordProductIds($obj_array['recurring_product_ids']);
-                $obj_array['webhook_configuration'] = json_encode($obj_array['webhook_configuration']);
+                $obj_array['webhook_configuration'] = \json_encode($obj_array['webhook_configuration']);
             }
 
             $new_obj = $class::firstOrNew(

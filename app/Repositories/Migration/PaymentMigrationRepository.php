@@ -120,7 +120,7 @@ class PaymentMigrationRepository extends BaseRepository
             $invoice_totals = array_sum(array_column($data['invoices'], 'amount'));
             $refund_totals = array_sum(array_column($data['invoices'], 'refunded'));
 
-            $invoices = Invoice::whereIn('id', array_column($data['invoices'], 'invoice_id'))->withTrashed()->get();
+            $invoices = Invoice::query()->whereIn('id', array_column($data['invoices'], 'invoice_id'))->withTrashed()->get();
 
             $payment->invoices()->saveMany($invoices); // 1:1 relationship so this is ok
 
@@ -150,7 +150,7 @@ class PaymentMigrationRepository extends BaseRepository
             /** @var float $credit_totals **/
             $credit_totals = array_sum(array_column($data['credits'], 'amount'));
 
-            $credits = Credit::whereIn('id', array_column($data['credits'], 'credit_id'))->withTrashed()->get();
+            $credits = Credit::query()->whereIn('id', array_column($data['credits'], 'credit_id'))->withTrashed()->get();
 
             $payment->credits()->saveMany($credits);
 
@@ -206,7 +206,7 @@ class PaymentMigrationRepository extends BaseRepository
             return $payment;
         }
 
-        $client = Client::where('id', $data['client_id'])->withTrashed()->first();
+        $client = Client::query()->where('id', $data['client_id'])->withTrashed()->first();
 
         $client_currency = $client->getSetting('currency_id');
         $company_currency = $client->company->settings->currency_id;

@@ -238,7 +238,8 @@ class RefundPayment
     private function adjustInvoices()
     {
         if (isset($this->refund_data['invoices']) && count($this->refund_data['invoices']) > 0) {
-            foreach ($this->refund_data['invoices'] as $refunded_invoice) {
+            foreach ($this->refund_data['invoices'] as $refunded_invoice) 
+            {
                 $invoice = Invoice::withTrashed()->find($refunded_invoice['invoice_id']);
 
                 if ($invoice->trashed()) {
@@ -265,10 +266,10 @@ class RefundPayment
 
                 $invoice->saveQuietly();
 
-                //06-09-2022
+                //08-08-2023
                 $client = $invoice->client
                                   ->service()
-                                  ->updateBalance($refunded_invoice['amount'])
+                                  ->updateBalanceAndPaidToDate($refunded_invoice['amount'], -1 * $refunded_invoice['amount'])
                                   ->save();
 
                 if ($invoice->is_deleted) {
@@ -276,13 +277,6 @@ class RefundPayment
                 }
             }
 
-            $client = $this->payment->client->fresh();
-
-            if ($client->trashed()) {
-                $client->restore();
-            }
-
-            $client->service()->updatePaidToDate(-1 * $refunded_invoice['amount'])->save();
         } else {
             //if we are refunding and no payments have been tagged, then we need to decrement the client->paid_to_date by the total refund amount.
 
