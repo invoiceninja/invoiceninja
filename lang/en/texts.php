@@ -5143,6 +5143,9 @@ $LANG = array(
     'is_tax_exempt' => 'Tax Exempt',
     'drop_files_here' => 'Drop files here',
     'upload_files' => 'Upload Files',
+    'triangular_tax_info' => 'Intra-community triangular transaction',
+    'intracommunity_tax_info' => 'Tax-free intra-community delivery',
+    'reverse_tax_info' => 'Please note that this supply is subject to reverse charge',
 );
 
 return $LANG;
