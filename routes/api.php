@@ -157,6 +157,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::resource('clients', ClientController::class); // name = (clients. index / create / show / update / destroy / edit
     Route::put('clients/{client}/upload', [ClientController::class, 'upload'])->name('clients.upload');
     Route::post('clients/{client}/purge', [ClientController::class, 'purge'])->name('clients.purge')->middleware('password_protected');
+    Route::post('clients/{client}/updateTaxData', [ClientController::class, 'updateTaxData'])->name('clients.update_tax_data')->middleware('throttle:3,1');
     Route::post('clients/{client}/{mergeable_client}/merge', [ClientController::class, 'merge'])->name('clients.merge')->middleware('password_protected');
     Route::post('clients/bulk', [ClientController::class, 'bulk'])->name('clients.bulk');
 
@@ -171,11 +172,11 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
 
     Route::post('companies/purge/{company}', [MigrationController::class, 'purgeCompany'])->middleware('password_protected');
     Route::post('companies/purge_save_settings/{company}', [MigrationController::class, 'purgeCompanySaveSettings'])->middleware('password_protected');
-
     Route::resource('companies', CompanyController::class); // name = (companies. index / create / show / update / destroy / edit
 
     Route::put('companies/{company}/upload', [CompanyController::class, 'upload']);
     Route::post('companies/{company}/default', [CompanyController::class, 'default']);
+    Route::post('companies/updateOriginTaxData/{company}', [CompanyController::class, 'updateOriginTaxData'])->middleware('throttle:3,1');
 
     Route::get('company_ledger', [CompanyLedgerController::class, 'index'])->name('company_ledger.index');
 
@@ -382,6 +383,8 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('subscriptions/bulk', [SubscriptionController::class, 'bulk'])->name('subscriptions.bulk');
     Route::get('statics', StaticController::class);
     // Route::post('apple_pay/upload_file','ApplyPayController::class, 'upload');
+
+    Route::post('api/v1/yodlee/status/{account_number}', [YodleeController::class, 'accountStatus']);
 });
 
 Route::post('api/v1/sms_reset', [TwilioController::class, 'generate2faResetCode'])->name('sms_reset.generate')->middleware('throttle:10,1');

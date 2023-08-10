@@ -102,7 +102,7 @@ class CreatePurchaseOrderPdf implements ShouldQueue
         /* Init a new copy of the translator*/
         $t = app('translator');
         /* Set the locale*/
-        App::setLocale($this->company->locale());
+        App::setLocale($this->vendor->locale());
 
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->company->settings));

@@ -11,12 +11,14 @@
 
 namespace App\Http\Controllers\Bank;
 
+use App\Helpers\Bank\Yodlee\DTO\AccountSummary;
+use Illuminate\Http\Request;
+use App\Models\BankIntegration;
 use App\Helpers\Bank\Yodlee\Yodlee;
 use App\Http\Controllers\BaseController;
-use App\Http\Requests\Yodlee\YodleeAuthRequest;
 use App\Jobs\Bank\ProcessBankTransactions;
-use App\Models\BankIntegration;
-use Illuminate\Http\Request;
+use App\Http\Requests\Yodlee\YodleeAuthRequest;
+use App\Http\Requests\Yodlee\YodleeAdminRequest;
 
 class YodleeController extends BaseController
 {
@@ -276,5 +278,28 @@ class YodleeController extends BaseController
         //
 
         // return response()->json(['message' => 'Unauthorized'], 403);
+    }
+
+    public function accountStatus(YodleeAdminRequest $request, $account_number)
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $bank_integration = BankIntegration::query()
+                                           ->withTrashed()
+                                           ->where('company_id', $user->company()->id)
+                                           ->where('account_id', $account_number)
+                                           ->exists();
+
+        if(!$bank_integration)
+            return response()->json(['message' => 'Account does not exist.'], 400);
+
+        $yodlee = new Yodlee($user->account->bank_integration_account_id);
+
+        $summary = $yodlee->getAccountSummary($account_number);
+        
+        $transformed_summary = AccountSummary::from($summary[0]);
+
+        return response()->json($transformed_summary, 200);
     }
 }

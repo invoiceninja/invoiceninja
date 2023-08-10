@@ -58,7 +58,7 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
  * @property string|null $city
  * @property string|null $state
  * @property string|null $postal_code
- * @property string|null $country_id
+ * @property int|null $country_id
  * @property string|null $custom_value1
  * @property string|null $custom_value2
  * @property string|null $custom_value3

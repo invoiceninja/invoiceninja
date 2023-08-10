@@ -58,6 +58,78 @@ class PaymentV2Test extends TestCase
         );
     }
 
+    public function testUsingDraftCreditsForPayments()
+    {
+
+        $invoice = Invoice::factory()->create([ 
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'status_id' => Invoice::STATUS_SENT,
+            'uses_inclusive_taxes' => false,
+            'amount' => 20,
+            'balance' => 20,
+            'discount' => 0,
+            'number' => uniqid("st", true),
+            'line_items' => []
+        ]);
+
+        $item = InvoiceItemFactory::generateCredit();
+        $item['cost'] = 20;
+        $item['quantity'] = 1;
+
+        $credit = Credit::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'status_id' => Credit::STATUS_DRAFT,
+            'uses_inclusive_taxes' => false,
+            'amount' => 20,
+            'balance' => 0,
+            'discount' => 0,
+            'number' => uniqid("st", true),
+            'line_items' => [
+                $item
+            ]
+        ]);
+
+        $data = [
+                    'client_id' => $this->client->hashed_id,
+                    'invoices' => [
+                        [
+                            'invoice_id' => $invoice->hashed_id,
+                            'amount' => 20,
+                        ],
+                    ],
+                    'credits' => [
+                        [
+                            'credit_id' => $credit->hashed_id,
+                            'amount' => 20,
+                        ],
+                    ],
+                    'date' => '2020/12/12',
+
+                ];
+
+        $response = null;
+
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/payments?include=invoices', $data);
+
+        $arr = $response->json();
+        $response->assertStatus(200);
+
+        $payment_id = $arr['data']['id'];
+        $this->assertEquals(Credit::STATUS_APPLIED, $credit->fresh()->status_id);
+        $this->assertEquals(Invoice::STATUS_PAID, $invoice->fresh()->status_id);
+
+        $this->assertEquals(0, $credit->fresh()->balance);
+        $this->assertEquals(0, $invoice->fresh()->balance);
+
+    }
+
     public function testStorePaymentWithCreditsThenDeletingInvoices()
     {
         $client = Client::factory()->create(['company_id' =>$this->company->id, 'user_id' => $this->user->id, 'balance' => 20, 'paid_to_date' => 0]);

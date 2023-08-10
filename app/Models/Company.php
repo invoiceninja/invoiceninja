@@ -58,7 +58,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $portal_domain
  * @property int $enable_modules
  * @property object $custom_fields
- * @property object $settings
+ * @property \App\DataMapper\CompanySettings $settings
  * @property string $slack_webhook_url
  * @property string $google_analytics_key
  * @property int|null $created_at

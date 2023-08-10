@@ -11,14 +11,16 @@
 
 namespace App\Http\Middleware;
 
-use App\Libraries\MultiDB;
-use App\Models\Vendor;
-use App\Models\VendorContact;
 use Auth;
 use Closure;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
+use App\Utils\Ninja;
+use App\Models\Vendor;
+use App\Libraries\MultiDB;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Models\VendorContact;
+use Illuminate\Support\Facades\Cache;
+use App\Events\Vednor\VendorContactLoggedIn;
 
 class VendorContactKeyLogin
 {
@@ -56,6 +58,8 @@ class VendorContactKeyLogin
                 $vendor_contact->save();
 
                 auth()->guard('vendor')->loginUsingId($vendor_contact->id, true);
+                
+                event(new VendorContactLoggedIn($vendor_contact, $vendor_contact->company, Ninja::eventVars()));
 
                 if ($request->query('redirect') && ! empty($request->query('redirect'))) {
                     return redirect()->to($request->query('redirect'));
@@ -72,7 +76,7 @@ class VendorContactKeyLogin
                     $vendor_contact->save();
 
                     auth()->guard('vendor')->loginUsingId($vendor_contact->id, true);
-
+                    event(new VendorContactLoggedIn($vendor_contact, $vendor_contact->company, Ninja::eventVars()));
                     if ($request->query('next')) {
                         return redirect()->to($request->query('next'));
                     }
