@@ -42,9 +42,45 @@ class VendorApiTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
+    }
 
-        // $this->withoutExceptionHandling();
+    public function testVendorLocale()
+    {
+        $v = \App\Models\Vendor::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id
+        ]);
 
+        $this->assertNotNull($v->locale());
+    }
+
+    public function testVendorLocaleEn()
+    {
+        $v = \App\Models\Vendor::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'language_id' => '1'
+        ]);
+
+        $this->assertEquals('en', $v->locale());
+    }
+
+    public function testVendorLocaleEnCompanyFallback()
+    { 
+        $settings = $this->company->settings;
+        $settings->language_id = '2';
+
+        $c = \App\Models\Company::factory()->create([
+            'account_id' => $this->account->id,
+            'settings' => $settings,
+        ]);
+
+        $v = \App\Models\Vendor::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $c->id
+        ]);
+
+        $this->assertEquals('it', $v->locale());
     }
 
     public function testVendorGetFilter()

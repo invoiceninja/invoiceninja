@@ -172,12 +172,12 @@ class Vendor extends BaseModel
         return $this->hasMany(VendorContact::class)->where('is_primary', true);
     }
 
-    public function documents()
+    public function documents(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
     }
 
-    public function assigned_user()
+    public function assigned_user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
@@ -214,12 +214,12 @@ class Vendor extends BaseModel
         return $this->company->timezone();
     }
 
-    public function company()
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
@@ -268,24 +268,29 @@ class Vendor extends BaseModel
         return $this->company->settings;
     }
 
-    public function purchase_order_filepath($invitation)
+    public function purchase_order_filepath($invitation): string
     {
         $contact_key = $invitation->contact->contact_key;
 
         return $this->company->company_key.'/'.$this->vendor_hash.'/'.$contact_key.'/purchase_orders/';
     }
 
-    public function locale()
+    public function locale(): string
     {
-        return $this->company->locale();
+        return $this->language ? $this->language->locale : $this->company->locale();
     }
 
-    public function country()
+    public function language(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Language::class);
+    }
+
+    public function country(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Country::class);
     }
 
-    public function date_format()
+    public function date_format(): string
     {
         return $this->company->date_format();
     }
