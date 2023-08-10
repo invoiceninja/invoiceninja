@@ -32,7 +32,6 @@ return new class extends Migration
             $table->timestamp('last_login')->nullable();
         });
 
-
     }
 
     /**
