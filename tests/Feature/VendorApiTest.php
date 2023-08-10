@@ -11,13 +11,15 @@
 
 namespace Tests\Feature;
 
+use Tests\TestCase;
+use App\Utils\Ninja;
+use Tests\MockAccountData;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
+use App\Events\Vendor\VendorContactLoggedIn;
 use Illuminate\Validation\ValidationException;
-use Tests\MockAccountData;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * @test
@@ -42,6 +44,34 @@ class VendorApiTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
+    }
+
+    public function testVendorLoggedInEvents()
+    {
+        $v = \App\Models\Vendor::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id
+        ]);
+
+        $vc = \App\Models\VendorContact::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'vendor_id' => $v->id
+        ]);
+
+        $this->assertNull($v->last_login);
+        $this->assertNull($vc->last_login);
+        
+        event(new VendorContactLoggedIn($vc, $this->company, Ninja::eventVars()));
+
+        $this->expectsEvents([VendorContactLoggedIn::class]);
+        
+        // $vc->fresh();
+        // $v->fresh();
+
+        // $this->assertNotNull($vc->fresh()->last_login);
+        // $this->assertNotNull($v->fresh()->last_login);
+
     }
 
     public function testVendorLocale()
