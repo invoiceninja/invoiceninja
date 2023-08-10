@@ -36,7 +36,7 @@ class VendorLocale
             $locale = $request->input('lang');
             App::setLocale($locale);
         } elseif (auth()->guard('vendor')->user()) {
-            App::setLocale(auth()->guard('vendor')->user()->company->locale());
+            App::setLocale(auth()->guard('vendor')->user()->vendor->locale());
         } elseif (auth()->user()) {
             try {
                 App::setLocale(auth()->user()->company()->getLocale());

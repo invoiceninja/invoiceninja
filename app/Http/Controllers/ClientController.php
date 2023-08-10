@@ -11,30 +11,31 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\Client\ClientWasCreated;
-use App\Events\Client\ClientWasUpdated;
+use App\Utils\Ninja;
+use App\Models\Client;
+use App\Models\Account;
+use Illuminate\Http\Response;
 use App\Factory\ClientFactory;
 use App\Filters\ClientFilters;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\Uploadable;
+use App\Utils\Traits\BulkOptions;
+use App\Jobs\Client\UpdateTaxData;
+use App\Utils\Traits\SavesDocuments;
+use App\Repositories\ClientRepository;
+use App\Events\Client\ClientWasCreated;
+use App\Events\Client\ClientWasUpdated;
+use App\Transformers\ClientTransformer;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\Client\BulkClientRequest;
-use App\Http\Requests\Client\CreateClientRequest;
-use App\Http\Requests\Client\DestroyClientRequest;
 use App\Http\Requests\Client\EditClientRequest;
-use App\Http\Requests\Client\PurgeClientRequest;
 use App\Http\Requests\Client\ShowClientRequest;
+use App\Http\Requests\Client\PurgeClientRequest;
 use App\Http\Requests\Client\StoreClientRequest;
+use App\Http\Requests\Client\CreateClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Http\Requests\Client\UploadClientRequest;
-use App\Models\Account;
-use App\Models\Client;
-use App\Repositories\ClientRepository;
-use App\Transformers\ClientTransformer;
-use App\Utils\Ninja;
-use App\Utils\Traits\BulkOptions;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\SavesDocuments;
-use App\Utils\Traits\Uploadable;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\Client\DestroyClientRequest;
 
 /**
  * Class ClientController.
@@ -284,5 +285,19 @@ class ClientController extends BaseController
         $merged_client = $client->service()->merge($m_client)->save();
 
         return $this->itemResponse($merged_client);
+    }
+    
+    /**
+     * Updates the client's tax data
+     *
+     * @param  PurgeClientRequest $request
+     * @param  Client $client
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateTaxData(PurgeClientRequest $request, Client $client)
+    {
+        (new UpdateTaxData($client, $client->company))->handle();
+        
+        return $this->itemResponse($client->fresh());
     }
 }

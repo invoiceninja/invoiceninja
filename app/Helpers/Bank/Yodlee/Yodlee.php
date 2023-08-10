@@ -297,4 +297,71 @@ class Yodlee
             'secret' => $this->client_secret,
         ];
     }
+
+    /**
+     * updateEligibility
+     * 
+     * ALLOW_UPDATE
+     * ALLOW_UPDATE_WITH_CREDENTIALS
+     * DISALLOW_UPDATE
+     */
+
+    /**
+     * additionalStatus
+     * 
+     * LOGIN_IN_PROGRESS
+     * DATA_RETRIEVAL_IN_PROGRESS
+     * ACCT_SUMMARY_RECEIVED
+     * AVAILABLE_DATA_RETRIEVED
+     * PARTIAL_DATA_RETRIEVED
+     * DATA_RETRIEVAL_FAILED
+     * DATA_NOT_AVAILABLE
+     * ACCOUNT_LOCKED
+     * ADDL_AUTHENTICATION_REQUIRED
+     * BETA_SITE_DEV_IN_PROGRESS
+     * CREDENTIALS_UPDATE_NEEDED
+     * INCORRECT_CREDENTIALS
+     * PROPERTY_VALUE_NOT_AVAILABLE
+     * INVALID_ADDL_INFO_PROVIDED
+     * REQUEST_TIME_OUT
+     * SITE_BLOCKING_ERROR
+     * UNEXPECTED_SITE_ERROR
+     * SITE_NOT_SUPPORTED
+     * SITE_UNAVAILABLE
+     * TECH_ERROR
+     * USER_ACTION_NEEDED_AT_SITE
+     * SITE_SESSION_INVALIDATED
+     * NEW_AUTHENTICATION_REQUIRED
+     * DATASET_NOT_SUPPORTED
+     * ENROLLMENT_REQUIRED_FOR_DATASET
+     * CONSENT_REQUIRED
+     * CONSENT_EXPIRED
+     * CONSENT_REVOKED
+     * INCORRECT_OAUTH_TOKEN
+     * MIGRATION_IN_PROGRESS
+     */    
+
+    /**
+     * IN_PROGRESS	LOGIN_IN_PROGRESS	 	Provider login is in progress.
+     * IN_PROGRESS	USER_INPUT_REQUIRED	 	Provider site requires MFA-based authentication and needs user input for login.
+     * IN_PROGRESS	LOGIN_SUCCESS	 	Provider login is successful.
+     * IN_PROGRESS	ACCOUNT_SUMMARY_RETRIEVED	 	Account summary info may not have the complete info of accounts that are available in the provider site. This depends on the sites behaviour. Account summary info may not be available at all times.
+     * FAILED	NEVER_INITIATED	 	The add or update provider account was not triggered due to techincal reasons. This is a rare occurrence and usually resolves quickly.
+     * FAILED	LOGIN_FAILED	 	Provider login failed.
+     * FAILED	REQUEST_TIME_OUT	 	The process timed out.
+     * FAILED	 	DATA_RETRIEVAL_FAILED	All accounts under the provider account failed with same or different errors, though login was successful.
+     * FAILED	 	 	No additional status or information will be provided when there are errors other than the ones listed above.
+     * PARTIAL_SUCCESS	PARTIAL_DATA_RETRIEVED	DATA_RETRIEVAL_FAILED_PARTIALLY	One/few accounts data gathered and one/few accounts failed.
+     * PARTIAL_SUCCESS	PARTIAL_DATA_RETRIEVED_REM_SCHED	DATA_RETRIEVAL_FAILED_PARTIALLY	One/few accounts data gathered One/few accounts failed
+     * SUCCESS	 	 	All accounts under the provider was added or updated successfully.
+     */
+
+     /**
+     * updateEligibility
+     * 
+     * ALLOW_UPDATE	                       The status indicates that the account is eligible for the next update and applies to both MFA and non-MFA accounts. For MFA-based accounts, the user may have to provide the MFA details during account refresh.
+     * ALLOW_UPDATE_WITH_CREDENTIALS	The status indicates updating or refreshing the account by directing the user to edit the provided credentials.
+     * DISALLOW_UPDATE	                The status indicates the account is not eligible for the update or refresh process due to a site issue or a technical error.
+     */
+
 }

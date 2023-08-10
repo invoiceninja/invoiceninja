@@ -70,13 +70,13 @@ use App\Events\Quote\QuoteWasRestored;
 use App\Events\Client\ClientWasCreated;
 use App\Events\Client\ClientWasDeleted;
 use App\Events\Client\ClientWasUpdated;
-use App\Events\Design\DesignWasDeleted;
-use App\Events\Design\DesignWasUpdated;
 use App\Events\Contact\ContactLoggedIn;
 use App\Events\Credit\CreditWasCreated;
 use App\Events\Credit\CreditWasDeleted;
 use App\Events\Credit\CreditWasEmailed;
 use App\Events\Credit\CreditWasUpdated;
+use App\Events\Design\DesignWasDeleted;
+use App\Events\Design\DesignWasUpdated;
 use App\Events\Vendor\VendorWasCreated;
 use App\Events\Vendor\VendorWasDeleted;
 use App\Events\Vendor\VendorWasUpdated;
@@ -85,10 +85,10 @@ use App\Observers\SubscriptionObserver;
 use Illuminate\Mail\Events\MessageSent;
 use App\Events\Client\ClientWasArchived;
 use App\Events\Client\ClientWasRestored;
-use App\Events\Design\DesignWasRestored;
 use App\Events\Credit\CreditWasArchived;
 use App\Events\Credit\CreditWasRestored;
 use App\Events\Design\DesignWasArchived;
+use App\Events\Design\DesignWasRestored;
 use App\Events\Invoice\InvoiceWasViewed;
 use App\Events\Misc\InvitationWasViewed;
 use App\Events\Payment\PaymentWasVoided;
@@ -133,6 +133,7 @@ use App\Listeners\User\UpdateUserLastLogin;
 use App\Events\Document\DocumentWasArchived;
 use App\Events\Document\DocumentWasRestored;
 use App\Events\Invoice\InvoiceWasMarkedSent;
+use App\Events\Vendor\VendorContactLoggedIn;
 use App\Listeners\Quote\QuoteViewedActivity;
 use App\Listeners\User\ArchivedUserActivity;
 use App\Listeners\User\RestoredUserActivity;
@@ -220,6 +221,7 @@ use App\Listeners\Invoice\InvoiceEmailFailedActivity;
 use App\Events\PurchaseOrder\PurchaseOrderWasAccepted;
 use App\Events\PurchaseOrder\PurchaseOrderWasArchived;
 use App\Events\PurchaseOrder\PurchaseOrderWasRestored;
+use App\Listeners\Vendor\UpdateVendorContactLastLogin;
 use App\Events\RecurringQuote\RecurringQuoteWasCreated;
 use App\Events\RecurringQuote\RecurringQuoteWasDeleted;
 use App\Events\RecurringQuote\RecurringQuoteWasUpdated;
@@ -614,6 +616,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         VendorWasUpdated::class => [
             VendorUpdatedActivity::class,
+        ],
+        VendorContactLoggedIn::class => [
+            UpdateVendorContactLastLogin::class,
         ],
         \SocialiteProviders\Manager\SocialiteWasCalled::class => [
             // ... Manager won't register drivers that are not added to this listener.

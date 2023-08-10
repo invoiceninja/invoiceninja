@@ -51,6 +51,8 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $vendor_hash
  * @property string|null $public_notes
  * @property string|null $id_number
+ * @property string|null $language_id
+ * @property int|null $last_login
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
  * @property-read int|null $activities_count
  * @property-read \App\Models\User|null $assigned_user
@@ -140,6 +142,7 @@ class Vendor extends BaseModel
         'custom_value3',
         'custom_value4',
         'number',
+        'language_id',
     ];
 
     protected $casts = [
@@ -149,6 +152,7 @@ class Vendor extends BaseModel
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
+        'last_login' => 'timestamp',
     ];
 
     protected $touches = [];
@@ -169,12 +173,12 @@ class Vendor extends BaseModel
         return $this->hasMany(VendorContact::class)->where('is_primary', true);
     }
 
-    public function documents()
+    public function documents(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
     }
 
-    public function assigned_user()
+    public function assigned_user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
@@ -211,12 +215,12 @@ class Vendor extends BaseModel
         return $this->company->timezone();
     }
 
-    public function company()
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
@@ -265,24 +269,29 @@ class Vendor extends BaseModel
         return $this->company->settings;
     }
 
-    public function purchase_order_filepath($invitation)
+    public function purchase_order_filepath($invitation): string
     {
         $contact_key = $invitation->contact->contact_key;
 
         return $this->company->company_key.'/'.$this->vendor_hash.'/'.$contact_key.'/purchase_orders/';
     }
 
-    public function locale()
+    public function locale(): string
     {
-        return $this->company->locale();
+        return $this->language ? $this->language->locale : $this->company->locale();
     }
 
-    public function country()
+    public function language(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Language::class);
+    }
+
+    public function country(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Country::class);
     }
 
-    public function date_format()
+    public function date_format(): string
     {
         return $this->company->date_format();
     }
