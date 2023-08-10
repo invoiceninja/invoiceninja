@@ -112,7 +112,7 @@ class VendorHtmlEngine
 
         App::forgetInstance('translator');
         $t = app('translator');
-        App::setLocale($this->company->locale());
+        App::setLocale($this->vendor->locale());
         $t->replace(Ninja::transformTranslations($this->settings));
 
         $data = [];
@@ -126,16 +126,16 @@ class VendorHtmlEngine
         $data['$total_tax_values'] = ['value' => $this->totalTaxValues(), 'label' => ctrans('texts.taxes')];
         $data['$line_tax_labels'] = ['value' => $this->lineTaxLabels(), 'label' => ctrans('texts.taxes')];
         $data['$line_tax_values'] = ['value' => $this->lineTaxValues(), 'label' => ctrans('texts.taxes')];
-        $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->company->date_format(), $this->company->locale()) ?: '&nbsp;', 'label' => ctrans('texts.date')];
+        $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->company->date_format(), $this->vendor->locale()) ?: '&nbsp;', 'label' => ctrans('texts.date')];
 
-        $data['$due_date'] = ['value' => $this->translateDate($this->entity->due_date, $this->company->date_format(), $this->company->locale()) ?: '&nbsp;', 'label' => ctrans('texts.due_date')];
+        $data['$due_date'] = ['value' => $this->translateDate($this->entity->due_date, $this->company->date_format(), $this->vendor->locale()) ?: '&nbsp;', 'label' => ctrans('texts.due_date')];
 
-        $data['$partial_due_date'] = ['value' => $this->translateDate($this->entity->partial_due_date, $this->company->date_format(), $this->company->locale()) ?: '&nbsp;', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
+        $data['$partial_due_date'] = ['value' => $this->translateDate($this->entity->partial_due_date, $this->company->date_format(), $this->vendor->locale()) ?: '&nbsp;', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
         
         $data['$dueDate'] = &$data['$due_date'];
         $data['$purchase_order.due_date'] = &$data['$due_date'];
 
-        $data['$payment_due'] = ['value' => $this->translateDate($this->entity->due_date, $this->company->date_format(), $this->company->locale()) ?: '&nbsp;', 'label' => ctrans('texts.payment_due')];
+        $data['$payment_due'] = ['value' => $this->translateDate($this->entity->due_date, $this->company->date_format(), $this->vendor->locale()) ?: '&nbsp;', 'label' => ctrans('texts.payment_due')];
         $data['$purchase_order.po_number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.po_number')];
 
         $data['$poNumber'] = &$data['$purchase_order.po_number'];
@@ -153,7 +153,7 @@ class VendorHtmlEngine
         $data['$viewButton'] = &$data['$view_link'];
         $data['$view_button'] = &$data['$view_link'];
         $data['$view_url'] = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_invoice')];
-        $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->company->date_format(), $this->company->locale()) ?: '&nbsp;', 'label' => ctrans('texts.date')];
+        $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->company->date_format(), $this->vendor->locale()) ?: '&nbsp;', 'label' => ctrans('texts.date')];
 
         $data['$purchase_order.number'] = &$data['$number'];
         $data['$purchase_order.date'] = &$data['$date'];
@@ -177,7 +177,7 @@ class VendorHtmlEngine
             $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
             $data['$balance_due_raw'] = ['value' => $this->entity->partial, 'label' => ctrans('texts.partial_due')];
             $data['$amount_raw'] = ['value' => $this->entity->partial, 'label' => ctrans('texts.partial_due')];
-            $data['$due_date'] = ['value' => $this->translateDate($this->entity->partial_due_date, $this->company->date_format(), $this->company->locale()) ?: '&nbsp;', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
+            $data['$due_date'] = ['value' => $this->translateDate($this->entity->partial_due_date, $this->company->date_format(), $this->vendor->locale()) ?: '&nbsp;', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
         } else {
             if ($this->entity->status_id == 1) {
                 $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->amount, $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
