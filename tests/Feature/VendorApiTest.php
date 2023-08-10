@@ -29,6 +29,8 @@ class VendorApiTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
+    public $faker;
+
     protected function setUp() :void
     {
         parent::setUp();
@@ -40,6 +42,9 @@ class VendorApiTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
+
+        // $this->withoutExceptionHandling();
+
     }
 
     public function testVendorGetFilter()
@@ -52,10 +57,79 @@ class VendorApiTest extends TestCase
         $response->assertStatus(200);
     }
 
+
+    public function testAddVendorLanguage200()
+    {
+        $data = [
+            'name' => $this->faker->firstName(),
+            'language_id' => 2,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/vendors', $data)->assertStatus(200);
+
+        $arr = $response->json();
+        $this->assertEquals('2', $arr['data']['language_id']);
+
+        $id = $arr['data']['id'];
+
+        $data = [
+            'language_id' => 3,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/vendors/{$id}", $data);
+        
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+        $this->assertEquals('3', $arr['data']['language_id']);
+        
+    }
+
+    public function testAddVendorLanguage422()
+    {
+        $data = [
+            'name' => $this->faker->firstName(),
+            'language_id' => '4431',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/vendors', $data)->assertStatus(422);
+        
+    }
+
+
+    public function testAddVendorLanguage()
+    {
+        $data = [
+            'name' => $this->faker->firstName(),
+            'language_id' => '1',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/vendors', $data);
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+        
+        $this->assertEquals('1', $arr['data']['language_id']);
+    }
+
+
     public function testAddVendorToInvoice()
     {
         $data = [
             'name' => $this->faker->firstName(),
+            'language_id' => '',
         ];
 
         $response = $this->withHeaders([

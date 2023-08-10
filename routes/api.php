@@ -157,7 +157,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::resource('clients', ClientController::class); // name = (clients. index / create / show / update / destroy / edit
     Route::put('clients/{client}/upload', [ClientController::class, 'upload'])->name('clients.upload');
     Route::post('clients/{client}/purge', [ClientController::class, 'purge'])->name('clients.purge')->middleware('password_protected');
-    Route::post('clients/{client}/updateTaxData', [ClientController::class, 'updateTaxData'])->name('clients.purge')->middleware('throttle:3,1');
+    Route::post('clients/{client}/updateTaxData', [ClientController::class, 'updateTaxData'])->name('clients.update_tax_data')->middleware('throttle:3,1');
     Route::post('clients/{client}/{mergeable_client}/merge', [ClientController::class, 'merge'])->name('clients.merge')->middleware('password_protected');
     Route::post('clients/bulk', [ClientController::class, 'bulk'])->name('clients.bulk');
 

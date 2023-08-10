@@ -28,17 +28,21 @@ class UpdateVendorRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->vendor);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        
+        return $user->can('edit', $this->vendor);
     }
 
     public function rules()
     {
-        /* Ensure we have a client name, and that all emails are unique*/
-
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        
         $rules['country_id'] = 'integer';
 
         if ($this->number) {
-            $rules['number'] = Rule::unique('vendors')->where('company_id', auth()->user()->company()->id)->ignore($this->vendor->id);
+            $rules['number'] = Rule::unique('vendors')->where('company_id', $user->company()->id)->ignore($this->vendor->id);
         }
         
         $rules['contacts.*.email'] = 'nullable|distinct';
@@ -55,6 +59,8 @@ class UpdateVendorRequest extends Request
         } elseif ($this->file('file')) {
             $rules['file'] = $this->file_validation;
         }
+
+        $rules['language_id'] = 'bail|nullable|sometimes|exists:languages,id';
 
         return $rules;
     }

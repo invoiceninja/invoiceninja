@@ -51,6 +51,8 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $vendor_hash
  * @property string|null $public_notes
  * @property string|null $id_number
+ * @property string|null $language_id
+ * @property int|null $last_login
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
  * @property-read int|null $activities_count
  * @property-read \App\Models\User|null $assigned_user
@@ -140,6 +142,7 @@ class Vendor extends BaseModel
         'custom_value3',
         'custom_value4',
         'number',
+        'language_id',
     ];
 
     protected $casts = [

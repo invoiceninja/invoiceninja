@@ -5147,6 +5147,15 @@ $LANG = array(
     'intracommunity_tax_info' => 'Tax-free intra-community delivery',
     'reverse_tax_info' => 'Please note that this supply is subject to reverse charge',
     'currency_nicaraguan_cordoba' => 'Nicaraguan Córdoba',
+    'public' => 'Public',
+    'private' => 'Private',
+    'image' => 'Image',
+    'other' => 'Other',
+    'linked_to' => 'Linked To',
+    'file_saved_in_path' => 'The file has been saved in :path',
+    'unlinked_transactions' => 'Successfully unlinked :count transactions',
+    'unlinked_transaction' => 'Successfully unlinked transaction',
+    'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
 );
 
 return $LANG;
