@@ -155,7 +155,8 @@ class ClientService
                 return false;
             }
 
-            return $this->emailStatement($pdf, $statement->options);
+            $this->emailStatement($pdf, $statement->options);
+            return;
         }
 
         return $pdf;

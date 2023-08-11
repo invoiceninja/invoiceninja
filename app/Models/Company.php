@@ -395,6 +395,9 @@ class Company extends BaseModel
         return $this->calculate_taxes && in_array($this->getSetting('country_id'), $this->tax_coverage_countries);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<Document>
+     */
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');

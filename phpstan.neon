@@ -1,5 +1,6 @@
 includes:
     - ./vendor/nunomaduro/larastan/extension.neon
+    - ./vendor/spaze/phpstan-stripe/extension.neon
 parameters:
     level: 2
     paths:

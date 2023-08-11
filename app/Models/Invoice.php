@@ -31,6 +31,7 @@ use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Utils\Traits\Invoice\ActionsInvoice;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Events\Invoice\InvoiceReminderWasEmailed;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
  * App\Models\Invoice
@@ -99,12 +100,13 @@ use App\Events\Invoice\InvoiceReminderWasEmailed;
  * @property int $auto_bill_tries
  * @property bool $is_proforma
  * @property-read int|null $activities_count
- * @property-read \App\Models\User|null $assigned_user
+ * @property \App\Models\User|null $assigned_user
  * @property \App\Models\Client $client
- * @property-read \App\Models\Company $company
+ * @property \App\Models\InvoiceInvitation $invitation
+ * @property \App\Models\Company $company
  * @property-read int|null $company_ledger_count
  * @property-read int|null $credits_count
- * @property-read \App\Models\Design|null $design
+ * @property \App\Models\Design|null $design
  * @property-read int|null $documents_count
  * @property-read \App\Models\Expense|null $expense
  * @property-read int|null $expenses_count
@@ -301,16 +303,25 @@ class Invoice extends BaseModel
         return $this->belongsTo(Subscription::class)->withTrashed();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<Document>
+     */
     public function documents(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany<Payment>
+     */
     public function payments(): \Illuminate\Database\Eloquent\Relations\MorphToMany
     {
         return $this->morphToMany(Payment::class, 'paymentable')->withTrashed()->withPivot('amount', 'refunded')->withTimestamps();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<CompanyLedger>
+     */
     public function company_ledger(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(CompanyLedger::class, 'company_ledgerable');
@@ -321,32 +332,41 @@ class Invoice extends BaseModel
         return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(50);
     }
 
-    public function history()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough<Backup>
+     */
+    public function history(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
         return $this->hasManyThrough(Backup::class, Activity::class);
     }
 
-    public function credits()
+    public function credits(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Credit::class);
     }
 
-    public function tasks()
+    public function tasks(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Task::class);
     }
 
-    public function task()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<Task>
+     */
+    public function task(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Task::class);
     }
 
-    public function expenses()
+    public function expenses(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Expense::class);
     }
 
-    public function expense()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<Expense>
+     */
+    public function expense(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Expense::class);
     }
@@ -744,5 +764,56 @@ class Invoice extends BaseModel
 
         return $type;
 
+    }
+
+    public function reminderSchedule(): string
+    {
+        $reminder_schedule = '';
+        $settings = $this->client->getMergedSettings();
+
+        $send_email_enabled =  ctrans('texts.send_email') . " " .ctrans('texts.enabled');
+        $send_email_disabled =  ctrans('texts.send_email') . " " .ctrans('texts.disabled');
+
+        $sends_email_1 = $settings->enable_reminder2 ? $send_email_enabled : $send_email_disabled;
+        $days_1 = $settings->num_days_reminder1 . " " . ctrans('texts.days');
+        $schedule_1 = ctrans("texts.{$settings->schedule_reminder1}"); //after due date etc or disabled
+        $label_1 = ctrans('texts.reminder1');
+
+        $sends_email_2 = $settings->enable_reminder2 ? $send_email_enabled : $send_email_disabled;
+        $days_2 = $settings->num_days_reminder2 . " " . ctrans('texts.days');
+        $schedule_2 = ctrans("texts.{$settings->schedule_reminder2}"); //after due date etc or disabled
+        $label_2 = ctrans('texts.reminder2');
+
+        $sends_email_3 = $settings->enable_reminder2 ? $send_email_enabled : $send_email_disabled;      
+        $days_3 = $settings->num_days_reminder3 . " " . ctrans('texts.days');
+        $schedule_3 = ctrans("texts.{$settings->schedule_reminder3}"); //after due date etc or disabled
+        $label_3 = ctrans('texts.reminder3');
+
+        $sends_email_endless = $settings->enable_reminder_endless  ? $send_email_enabled : $send_email_disabled;
+        $days_endless = \App\Models\RecurringInvoice::frequencyForKey($settings->endless_reminder_frequency_id);
+        $label_endless = ctrans('texts.reminder_endless');
+
+        if($schedule_1 == ctrans('texts.disabled') || $settings->schedule_reminder1 == 'disabled' || $settings->schedule_reminder1 == '')
+            $reminder_schedule .= "{$label_1}: " . ctrans('texts.disabled') ."<br>";
+        else 
+            $reminder_schedule .= "{$label_1}: {$days_1} {$schedule_1} [{$sends_email_1}]<br>";
+
+        if($schedule_2 == ctrans('texts.disabled') || $settings->schedule_reminder2 == 'disabled' || $settings->schedule_reminder2 == '') 
+            $reminder_schedule .= "{$label_2}: " . ctrans('texts.disabled') ."<br>";
+        else 
+            $reminder_schedule .= "{$label_2}: {$days_2} {$schedule_2} [{$sends_email_2}]<br>";
+        
+        if($schedule_3 == ctrans('texts.disabled') || $settings->schedule_reminder3 == 'disabled' || $settings->schedule_reminder3 == '') 
+            $reminder_schedule .= "{$label_3}: " . ctrans('texts.disabled') ."<br>";
+        else 
+            $reminder_schedule .= "{$label_3}: {$days_3} {$schedule_3} [{$sends_email_3}]<br>";
+        
+        if($sends_email_endless == ctrans('texts.disabled') || $settings->endless_reminder_frequency_id == '0' || $settings->endless_reminder_frequency_id == '') 
+            $reminder_schedule .= "{$label_endless}: " . ctrans('texts.disabled') ."<br>";
+        else 
+            $reminder_schedule .= "{$label_endless}: {$days_endless} [{$sends_email_endless}]<br>";
+        
+
+        return $reminder_schedule;
     }
 }

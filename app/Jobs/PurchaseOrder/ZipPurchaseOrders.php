@@ -62,9 +62,6 @@ class ZipPurchaseOrders implements ShouldQueue
      * Execute the job.
      *
      * @return void
-     * @throws \ZipStream\Exception\FileNotFoundException
-     * @throws \ZipStream\Exception\FileNotReadableException
-     * @throws \ZipStream\Exception\OverflowException
      */
     public function handle()
     {
