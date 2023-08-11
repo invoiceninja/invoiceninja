@@ -87,7 +87,7 @@ class InvoiceTransformer extends EntityTransformer
 
     public function transform(Invoice $invoice)
     {
-        return [
+        $data = [
             'id' => $this->encodePrimaryKey($invoice->id),
             'user_id' => $this->encodePrimaryKey($invoice->user_id),
             'project_id' => $this->encodePrimaryKey($invoice->project_id),
@@ -151,5 +151,12 @@ class InvoiceTransformer extends EntityTransformer
             'auto_bill_enabled' => (bool) $invoice->auto_bill_enabled,
             'tax_info' => $invoice->tax_data ?: new \stdClass,
         ];
+
+        if (request()->has('reminder_schedule') && request()->query('reminder_schedule') == 'true') {
+            $data['reminder_schedule'] = (string) $invoice->reminderSchedule();
+        }
+
+        return $data;
+
     }
 }
