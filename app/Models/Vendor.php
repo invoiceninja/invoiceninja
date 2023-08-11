@@ -66,7 +66,6 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendorContact> $primary_contact
  * @property-read int|null $primary_contact_count
  * @property-read \App\Models\User $user
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Database\Factories\VendorFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Vendor filter(\App\Filters\QueryFilters $filters)
@@ -75,35 +74,6 @@ use Laracasts\Presenter\PresentableTrait;
  * @method static \Illuminate\Database\Eloquent\Builder|Vendor onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Vendor query()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereAddress1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereAddress2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereAssignedUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereCity($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereCompanyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereCountryId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereCurrencyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereCustomValue1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereCustomValue2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereCustomValue3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereCustomValue4($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereIdNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereIsDeleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor wherePhone($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor wherePostalCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor wherePrivateNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor wherePublicNotes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereState($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereTransactionName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereVatNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereVendorHash($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereWebsite($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Vendor withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Vendor withoutTrashed()
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
@@ -215,6 +185,9 @@ class Vendor extends BaseModel
         return $this->company->timezone();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
@@ -225,7 +198,7 @@ class Vendor extends BaseModel
         return $this->belongsTo(User::class)->withTrashed();
     }
 
-    public function translate_entity()
+    public function translate_entity(): string
     {
         return ctrans('texts.vendor');
     }
@@ -253,7 +226,13 @@ class Vendor extends BaseModel
         return $defaults;
     }
 
-    public function getSetting($setting)
+    /**
+     * Returns a vendor settings proxying company setting
+     *
+     * @param string $setting
+     * @return string
+     */
+    public function getSetting($setting): string
     {
         if ((property_exists($this->company->settings, $setting) != false) && (isset($this->company->settings->{$setting}) !== false)) {
             return $this->company->settings->{$setting};

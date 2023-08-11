@@ -50,7 +50,7 @@ class PaymentIntentFailureWebhook implements ShouldQueue
     {
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
-        $company = Company::where('company_key', $this->company_key)->first();
+        $company = Company::query()->where('company_key', $this->company_key)->first();
 
         foreach ($this->stripe_request as $transaction) {
             if (array_key_exists('payment_intent', $transaction)) {
@@ -78,7 +78,7 @@ class PaymentIntentFailureWebhook implements ShouldQueue
                 $payment->status_id = Payment::STATUS_FAILED;
                 $payment->save();
 
-                $payment_hash = PaymentHash::where('payment_id', $payment->id)->first();
+                $payment_hash = PaymentHash::query()->where('payment_id', $payment->id)->first();
 
                 if ($payment_hash) {
                     $error = ctrans('texts.client_payment_failure_body', [

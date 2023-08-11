@@ -820,6 +820,8 @@ class CompanySettings extends BaseSettings
     {
         $company_settings = (object) get_class_vars(self::class);
 
+        $settings = new \stdClass;
+        
         foreach ($company_settings as $key => $value) {
             if (! property_exists($settings, $key)) {
                 $settings->{$key} = self::castAttribute($key, $company_settings->{$key});

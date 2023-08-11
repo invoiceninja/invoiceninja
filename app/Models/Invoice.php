@@ -99,12 +99,13 @@ use App\Events\Invoice\InvoiceReminderWasEmailed;
  * @property int $auto_bill_tries
  * @property bool $is_proforma
  * @property-read int|null $activities_count
- * @property-read \App\Models\User|null $assigned_user
+ * @property \App\Models\User|null $assigned_user
  * @property \App\Models\Client $client
- * @property-read \App\Models\Company $company
+ * @property \App\Models\InvoiceInvitation $invitation
+ * @property \App\Models\Company $company
  * @property-read int|null $company_ledger_count
  * @property-read int|null $credits_count
- * @property-read \App\Models\Design|null $design
+ * @property \App\Models\Design|null $design
  * @property-read int|null $documents_count
  * @property-read \App\Models\Expense|null $expense
  * @property-read int|null $expenses_count

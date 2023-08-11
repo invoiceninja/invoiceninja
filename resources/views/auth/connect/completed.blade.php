@@ -8,6 +8,6 @@
         </div>
 
         <p>Connecting your account using Stripe has been successfully completed.</p>
-        <span>Click <a class="font-semibold hover:underline" href="{{ url('/#/settings/company_gateways') }}">here</a> to continue.</span>
+        <span>Click <a class="font-semibold hover:underline" href="{{ $url ?? url('/#/settings/company_gateways') }}">here</a> to continue.</span>
     </div>
 @endsection

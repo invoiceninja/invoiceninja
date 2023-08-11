@@ -133,7 +133,7 @@ class PdfMock
                 $entity->vendor = Vendor::factory()->make();
                 break;
             default:
-                # code...
+                $entity = false;
                 break;
         }
 
@@ -152,11 +152,12 @@ class PdfMock
      */
     public function getMergedSettings() :object
     {
+        $settings = $this->company->settings;
+
         match ($this->request['settings_type']) {
             'group' => $settings = ClientSettings::buildClientSettings($this->company->settings, $this->request['settings']),
             'client' => $settings = ClientSettings::buildClientSettings($this->company->settings, $this->request['settings']),
-            'company' => $settings = (object)$this->request['settings'],
-            default => $settings = $this->company->settings,
+            'company' => $settings = (object)$this->request['settings']
         };
 
         $settings = CompanySettings::setProperties($settings);
@@ -168,9 +169,9 @@ class PdfMock
     /**
      * getTaxMap
      *
-     * @return void
+     * @return \Illuminate\Support\Collection
      */
-    private function getTaxMap()
+    private function getTaxMap(): \Illuminate\Support\Collection
     {
         return collect([['name' => 'GST', 'total' => 10]]);
     }
@@ -178,9 +179,9 @@ class PdfMock
     /**
      * getTotalTaxMap
      *
-     * @return void
+     * @return array
      */
-    private function getTotalTaxMap()
+    private function getTotalTaxMap(): array
     {
         return [['name' => 'GST', 'total' => 10]];
     }
@@ -188,8 +189,9 @@ class PdfMock
     /**
      * getStubVariables
      *
+     * @return array
      */
-    public function getStubVariables()
+    public function getStubVariables(): array
     {
         return ['values' =>
          [

@@ -87,17 +87,17 @@ use Illuminate\Support\Facades\Storage;
  * @property int|null $expense_id
  * @property int|null $currency_id
  * @property-read int|null $activities_count
- * @property-read \App\Models\User|null $assigned_user
- * @property-read \App\Models\Client|null $client
- * @property-read \App\Models\Company $company
+ * @property \App\Models\User|null $assigned_user
+ * @property \App\Models\Client|null $client
+ * @property \App\Models\Company $company
  * @property-read int|null $documents_count
- * @property-read \App\Models\Expense|null $expense
- * @property-read mixed $hashed_id
- * @property-read \App\Models\Invoice|null $invoice
- * @property-read \App\Models\Project|null $project
- * @property-read \App\Models\User $user
- * @property \App\Models\Vendor|null $vendor
- * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder company()
+ * @property \App\Models\Expense|null $expense
+ * @property string $hashed_id
+ * @property \App\Models\Invoice|null $invoice
+ * @property \App\Models\Project|null $project
+ * @property \App\Models\User $user
+ * @property \App\Models\Vendor $vendor
+ * @property \App\Models\PurchaseOrderInvitation $invitation
  * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder exclude($columns)
  * @method static \Database\Factories\PurchaseOrderFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder filter(\App\Filters\QueryFilters $filters)
@@ -110,10 +110,8 @@ use Illuminate\Support\Facades\Storage;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $invitations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @method static \Illuminate\Database\Eloquent\Builder|Task withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Task withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder withoutTrashed()
  * @mixin \Eloquent
  */
 class PurchaseOrder extends BaseModel
@@ -236,6 +234,9 @@ class PurchaseOrder extends BaseModel
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function vendor(): \Illuminate\Database\Eloquent\Relations\BelongsTo 
     {
         return $this->belongsTo(Vendor::class)->withTrashed();
