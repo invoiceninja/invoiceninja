@@ -131,16 +131,15 @@ class CompanyUser extends Pivot
     }
 
     /**
-     * @return \Awobaz\Compoships\Database\Eloquent\Relations\HasOne<User>
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<User>
      */
-
     public function user_pivot()
     {
         return $this->hasOne(User::class)->withPivot('permissions', 'settings', 'react_settings', 'is_admin', 'is_owner', 'is_locked', 'slack_webhook_url', 'migrating');
     }
 
     /**
-     * @return \Awobaz\Compoships\Database\Eloquent\Relations\HasOne<Company>
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<Company>
      */
     public function company_pivot()
     {
