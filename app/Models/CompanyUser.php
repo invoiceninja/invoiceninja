@@ -131,17 +131,17 @@ class CompanyUser extends Pivot
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne<User>
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function user_pivot()
+    public function user_pivot(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(User::class)->withPivot('permissions', 'settings', 'react_settings', 'is_admin', 'is_owner', 'is_locked', 'slack_webhook_url', 'migrating');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne<Company>
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function company_pivot()
+    public function company_pivot(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Company::class)->withPivot('permissions', 'settings', 'react_settings', 'is_admin', 'is_owner', 'is_locked', 'slack_webhook_url', 'migrating');
     }
