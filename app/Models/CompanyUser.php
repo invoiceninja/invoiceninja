@@ -44,28 +44,6 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property-read \App\Models\User $user
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
  * @property-read int|null $users_count
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser authCompany()
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser query()
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereCompanyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereIsAdmin($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereIsLocked($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereIsOwner($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereNinjaPortalUrl($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereNotifications($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser wherePermissions($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser wherePermissionsUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereReactSettings($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereSettings($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereSlackWebhookUrl($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser withoutTrashed()
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $token
@@ -130,18 +108,18 @@ class CompanyUser extends Pivot
 
     /**
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<User>
      */
-    public function user_pivot()
+    public function user_pivot(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(User::class)->withPivot('permissions', 'settings', 'react_settings', 'is_admin', 'is_owner', 'is_locked', 'slack_webhook_url', 'migrating');
     }
 
     /**
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<Company>
      */
-    public function company_pivot()
+    public function company_pivot(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Company::class)->withPivot('permissions', 'settings', 'react_settings', 'is_admin', 'is_owner', 'is_locked', 'slack_webhook_url', 'migrating');
     }
@@ -156,6 +134,9 @@ class CompanyUser extends Pivot
         return $this->belongsTo(Company::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function users(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(User::class)->withTrashed();

@@ -227,6 +227,9 @@ class Quote extends BaseModel
         return $this->belongsTo(Vendor::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough<Backup>
+     */
     public function history(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
         return $this->hasManyThrough(Backup::class, Activity::class);
@@ -267,6 +270,9 @@ class Quote extends BaseModel
         return $this->hasMany(QuoteInvitation::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<Document>
+     */
     public function documents(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');

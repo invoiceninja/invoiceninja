@@ -124,7 +124,6 @@ class BaseModel extends Model
 
     /**
     * @param  \Illuminate\Database\Eloquent\Builder  $query
-    * @extends \Illuminate\Database\Eloquent\Builder
     * @return \Illuminate\Database\Eloquent\Builder
     */
     public function scopeCompany($query): \Illuminate\Database\Eloquent\Builder

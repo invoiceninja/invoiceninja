@@ -270,6 +270,9 @@ class Credit extends BaseModel
         return $this->belongsTo(Invoice::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<CompanyLedger>
+     */
     public function company_ledger(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(CompanyLedger::class, 'company_ledgerable');
@@ -289,11 +292,17 @@ class Credit extends BaseModel
         return $this->belongsToMany(Invoice::class)->using(Paymentable::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany<Payment>
+     */
     public function payments(): \Illuminate\Database\Eloquent\Relations\MorphToMany
     {
         return $this->morphToMany(Payment::class, 'paymentable');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<Document>
+     */
     public function documents(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');

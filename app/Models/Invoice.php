@@ -31,6 +31,7 @@ use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Utils\Traits\Invoice\ActionsInvoice;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Events\Invoice\InvoiceReminderWasEmailed;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
  * App\Models\Invoice
@@ -302,16 +303,25 @@ class Invoice extends BaseModel
         return $this->belongsTo(Subscription::class)->withTrashed();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<Document>
+     */
     public function documents(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany<Payment>
+     */
     public function payments(): \Illuminate\Database\Eloquent\Relations\MorphToMany
     {
         return $this->morphToMany(Payment::class, 'paymentable')->withTrashed()->withPivot('amount', 'refunded')->withTimestamps();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<CompanyLedger>
+     */
     public function company_ledger(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(CompanyLedger::class, 'company_ledgerable');
@@ -322,32 +332,41 @@ class Invoice extends BaseModel
         return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(50);
     }
 
-    public function history()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough<Backup>
+     */
+    public function history(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
         return $this->hasManyThrough(Backup::class, Activity::class);
     }
 
-    public function credits()
+    public function credits(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Credit::class);
     }
 
-    public function tasks()
+    public function tasks(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Task::class);
     }
 
-    public function task()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<Task>
+     */
+    public function task(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Task::class);
     }
 
-    public function expenses()
+    public function expenses(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Expense::class);
     }
 
-    public function expense()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<Expense>
+     */
+    public function expense(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Expense::class);
     }
