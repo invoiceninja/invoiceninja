@@ -11,11 +11,12 @@
 
 namespace App\Transformers;
 
-use App\Models\CompanyGateway;
+use stdClass;
+use App\Models\Gateway;
 use App\Models\SystemLog;
+use App\Models\CompanyGateway;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use stdClass;
 
 /**
  * Class CompanyGatewayTransformer.

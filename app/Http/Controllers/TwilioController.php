@@ -123,6 +123,10 @@ class TwilioController extends BaseController
             return response()->json(['message' => 'Unable to retrieve user.'], 400);
         }
 
+        if (!$user->phone || $user->phone == '') {
+            return response()->json(['message' => 'User found, but no valid phone number on file, please contact support.'], 400);
+        }
+
         $sid = config('ninja.twilio_account_sid');
         $token = config('ninja.twilio_auth_token');
 

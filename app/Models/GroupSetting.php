@@ -102,7 +102,10 @@ class GroupSetting extends StaticModel
         return $this->hasMany(Client::class, 'id', 'group_settings_id');
     }
 
-    public function documents()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<Document>
+     */
+    public function documents(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
     }

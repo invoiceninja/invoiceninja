@@ -52,8 +52,8 @@ class TemplateEngine
 
     public $template;
 
-    /** @var Invoice | Quote | Credit | PurchaseOrder | RecurringInvoice | null $entity_obj **/
-    private $entity_obj;
+    /** @var \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder | \App\Models\RecurringInvoice $entity_obj **/
+    private \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder | \App\Models\RecurringInvoice $entity_obj;
 
     /** @var \App\Models\Company | \App\Models\Client | null $settings_entity **/
     private $settings_entity;
@@ -81,7 +81,7 @@ class TemplateEngine
 
         $this->template = $template;
 
-        $this->entity_obj = null;
+        // $this->entity_obj = null;
 
         $this->settings_entity = null;
     }
@@ -99,7 +99,7 @@ class TemplateEngine
     {
         if (strlen($this->entity) > 1 && strlen($this->entity_id) > 1) {
             $class = 'App\Models\\' . ucfirst(Str::camel($this->entity));
-            $this->entity_obj = $class::withTrashed()->where('id', $this->decodePrimaryKey($this->entity_id))->company()->first();
+            $this->entity_obj = $class::query()->withTrashed()->where('id', $this->decodePrimaryKey($this->entity_id))->company()->first();
         } elseif (stripos($this->template, 'quote') !== false && $quote = Quote::query()->whereHas('invitations')->withTrashed()->company()->first()) {
             $this->entity = 'quote';
             $this->entity_obj = $quote;
@@ -111,6 +111,7 @@ class TemplateEngine
             $this->entity_obj = $payment;
         } 
         elseif ($invoice = Invoice::query()->whereHas('invitations')->withTrashed()->company()->first()) {
+            /** @var \App\Models\Invoice $invoice */
             $this->entity_obj = $invoice;
         } else {
             $this->mockEntity();
@@ -286,6 +287,8 @@ class TemplateEngine
 
     private function mockEntity()
     {
+        $invitation = false;
+
         if (!$this->entity && $this->template && str_contains($this->template, 'purchase_order')) {
             $this->entity = 'purchaseOrder';
         } elseif (str_contains($this->template, 'payment')) {
@@ -304,7 +307,6 @@ class TemplateEngine
             'company_id' => $user->company()->id,
         ]);
 
-        
         /** @var \App\Models\ClientContact $contact */
         $contact = ClientContact::factory()->create([
             'user_id' => $user->id,
@@ -315,7 +317,8 @@ class TemplateEngine
         ]);
 
         if ($this->entity == 'payment') {
-            $this->entity_obj = Payment::factory()->create([
+            /** @var \App\Models\Payment $payment */
+            $payment = Payment::factory()->create([
                 'user_id' => $user->id,
                 'company_id' => $user->company()->id,
                 'client_id' => $client->id,
@@ -324,6 +327,8 @@ class TemplateEngine
                 'refunded' => 5,
             ]);
             
+            $this->entity_obj = $payment;
+
             /** @var \App\Models\Invoice $invoice */
             $invoice = Invoice::factory()->create([
                 'user_id' => $user->id,
@@ -349,13 +354,16 @@ class TemplateEngine
         }
 
         if (!$this->entity || $this->entity == 'invoice') {
-            $this->entity_obj = Invoice::factory()->create([
+            /** @var \App\Models\Invoice $invoice */
+            $invoice = Invoice::factory()->create([
                 'user_id' => $user->id,
                 'company_id' => $user->company()->id,
                 'client_id' => $client->id,
                 'amount' => '10',
                 'balance' => '10',
             ]);
+
+            $this->entity_obj = $invoice;
 
             $invitation = InvoiceInvitation::factory()->create([
                 'user_id' => $user->id,
@@ -366,11 +374,14 @@ class TemplateEngine
         }
 
         if ($this->entity == 'quote') {
-            $this->entity_obj = Quote::factory()->create([
+            /** @var \App\Models\Quote $quote */
+            $quote = Quote::factory()->create([
                 'user_id' => $user->id,
                 'company_id' => $user->company()->id,
                 'client_id' => $client->id,
             ]);
+            
+            $this->entity_obj = $quote;
 
             $invitation = QuoteInvitation::factory()->create([
                 'user_id' => $user->id,
@@ -395,12 +406,15 @@ class TemplateEngine
                 'is_primary' => 1,
                 'send_email' => true,
             ]);
-
-            $this->entity_obj = PurchaseOrder::factory()->create([
+            
+            /** @var \App\Models\PurchaseOrder $purchase_order **/
+            $purchase_order = PurchaseOrder::factory()->create([
                 'user_id' => $user->id,
                 'company_id' => $user->company()->id,
                 'vendor_id' => $vendor->id,
             ]);
+            
+            $this->entity_obj = $purchase_order;
 
             /** @var \App\Models\PurchaseOrderInvitation $invitation **/
             $invitation = PurchaseOrderInvitation::factory()->create([

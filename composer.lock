@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "be16996524279f340c44e2f6c9a0ba53",
+    "content-hash": "9d7348352c913eb82fcca2e67670e1f8",
     "packages": [
         {
             "name": "adrienrn/php-mimetyper",
@@ -17897,6 +17897,68 @@
                 }
             ],
             "time": "2023-01-03T19:28:04+00:00"
+        },
+        {
+            "name": "spaze/phpstan-stripe",
+            "version": "v3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spaze/phpstan-stripe.git",
+                "reference": "6e5debe4f65b15192a28bd01f01670ced8250443"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spaze/phpstan-stripe/zipball/6e5debe4f65b15192a28bd01f01670ced8250443",
+                "reference": "6e5debe4f65b15192a28bd01f01670ced8250443",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.0",
+                "phpstan/phpstan": "^1.7"
+            },
+            "require-dev": {
+                "nikic/php-parser": "^4.13",
+                "php-parallel-lint/php-console-highlighter": "^1.0",
+                "php-parallel-lint/php-parallel-lint": "^1.2",
+                "spaze/coding-standard": "^1.1",
+                "stripe/stripe-php": "^8.7|^9.9|^10.8"
+            },
+            "suggest": {
+                "phpstan/extension-installer": "Allows automatic requirement of extension.neon"
+            },
+            "type": "phpstan-extension",
+            "extra": {
+                "phpstan": {
+                    "includes": [
+                        "extension.neon"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Spaze\\PHPStan\\Stripe\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Michal Špaček",
+                    "email": "mail@michalspacek.cz",
+                    "homepage": "https://www.michalspacek.cz"
+                }
+            ],
+            "description": "Stripe SDK extension for PHPStan",
+            "keywords": [
+                "static analysis"
+            ],
+            "support": {
+                "issues": "https://github.com/spaze/phpstan-stripe/issues",
+                "source": "https://github.com/spaze/phpstan-stripe/tree/v3.0.0"
+            },
+            "time": "2023-03-06T00:39:29+00:00"
         },
         {
             "name": "symfony/polyfill-php81",

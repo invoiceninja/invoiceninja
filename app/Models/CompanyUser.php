@@ -13,6 +13,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Awobaz\Compoships\Exceptions\InvalidUsageException;
+use Awobaz\Compoships\Database\Eloquent\Relations\HasMany;
 
 /**
  * App\Models\CompanyUser
@@ -129,50 +131,62 @@ class CompanyUser extends Pivot
     }
 
     /**
-     *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function user_pivot()
+    public function user_pivot(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(User::class)->withPivot('permissions', 'settings', 'react_settings', 'is_admin', 'is_owner', 'is_locked', 'slack_webhook_url', 'migrating');
     }
 
     /**
-     *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function company_pivot()
+    public function company_pivot(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Company::class)->withPivot('permissions', 'settings', 'react_settings', 'is_admin', 'is_owner', 'is_locked', 'slack_webhook_url', 'migrating');
     }
 
-    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user() 
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
 
-    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function company()
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function users(): \Illuminate\Database\Eloquent\Relations\HasMany
+    /**
+     * @return HasMany
+     */
+    public function users()
     {
         return $this->hasMany(User::class)->withTrashed();
     }
 
-    /*todo monitor this function - may fail under certain conditions*/
+    /**
+     * @return HasMany
+     */
     public function token()
     {
         return $this->hasMany(CompanyToken::class, 'user_id', 'user_id');
     }
 
-    public function tokens(): \Illuminate\Database\Eloquent\Relations\HasMany
+    /**
+     * @return HasMany  
+     */
+    public function tokens()
     {
         return $this->hasMany(CompanyToken::class, 'user_id', 'user_id');
     }
 
-    public function scopeAuthCompany($query)
+    public function scopeAuthCompany($query): \Illuminate\Database\Eloquent\Builder
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -187,7 +201,7 @@ class CompanyUser extends Pivot
      *
      * @return bool
      */
-    public function portalType():bool
+    public function portalType(): bool
     {
         return isset($this->react_settings->react_notification_link) && $this->react_settings->react_notification_link;
     }

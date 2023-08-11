@@ -812,14 +812,14 @@ class CompanySettings extends BaseSettings
      * need to provide a fallback catch on old settings objects which will
      * set new properties to the object prior to being returned.
      *
-     * @param $settings
+     * @param \stdClass $settings
      *
      * @return stdClass
      */
     public static function setProperties($settings): stdClass
     {
         $company_settings = (object) get_class_vars(self::class);
-
+        
         foreach ($company_settings as $key => $value) {
             if (! property_exists($settings, $key)) {
                 $settings->{$key} = self::castAttribute($key, $company_settings->{$key});
