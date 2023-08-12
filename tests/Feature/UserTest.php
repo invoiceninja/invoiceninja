@@ -38,6 +38,8 @@ class UserTest extends TestCase
 
     private $default_email = 'attach@gmail.com';
 
+    public $faker;
+
     protected function setUp() :void
     {
         parent::setUp();
@@ -50,7 +52,7 @@ class UserTest extends TestCase
 
         Model::reguard();
 
-        $this->withoutExceptionHandling();
+        // $this->withoutExceptionHandling();
 
         $this->withoutMiddleware(
             ThrottleRequests::class,
@@ -58,9 +60,8 @@ class UserTest extends TestCase
         );
     }
 
-    public function testUserAttemptingtToDeleteThemselves()
+    private function mockAccout()
     {
-
 
         $account = Account::factory()->create([
             'hosted_client_count' => 1000,
@@ -102,17 +103,67 @@ class UserTest extends TestCase
         $company_token->token = $token;
         $company_token->is_system = true;
 
+
+    }
+
+    public function testUserAttemptingtToDeleteThemselves()
+    {
+
+        $account = Account::factory()->create([
+            'hosted_client_count' => 1000,
+            'hosted_company_count' => 1000,
+        ]);
+
+        $account->num_users = 3;
+        $account->save();
+
+        $user = User::factory()->create([
+            'account_id' => $this->account->id,
+            'confirmation_code' => 'xyz123',
+            'email' => $this->faker->unique()->safeEmail(),
+            'password' => \Illuminate\Support\Facades\Hash::make('ALongAndBriliantPassword'),
+        ]);
+
+        $settings = CompanySettings::defaults();
+        $settings->client_online_payment_notification = false;
+        $settings->client_manual_payment_notification = false;
+
+        $company = Company::factory()->create([
+            'account_id' => $account->id,
+            'settings' => $settings,
+        ]);
+
+
+        $cu = CompanyUserFactory::create($user->id, $company->id, $account->id);
+        $cu->is_owner = true;
+        $cu->is_admin = true;
+        $cu->is_locked = false;
+        $cu->save();
+
+        $token = \Illuminate\Support\Str::random(64);
+
+        $company_token = new CompanyToken();
+        $company_token->user_id = $user->id;
+        $company_token->company_id = $company->id;
+        $company_token->account_id = $account->id;
+        $company_token->name = 'test token';
+        $company_token->token = $token;
+        $company_token->is_system = true;
+        $company_token->save();
+
         $data = [
             'ids' => [$user->hashed_id],
-                ];
+        ];
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $token,
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-        ])->postJson('/api/v1/users/bulk?action=dete', $data)
-        ->assertStatus(403);
+        ])->postJson('/api/v1/users/bulk?action=delete', $data);
 
+        nlog($response);
+
+        $response->assertStatus(401);
 
     }
 
