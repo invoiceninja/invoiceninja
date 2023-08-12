@@ -60,7 +60,7 @@ class UserTest extends TestCase
         );
     }
 
-    private function mockAccout()
+    private function mockAccount()
     {
 
         $account = Account::factory()->create([
@@ -75,6 +75,7 @@ class UserTest extends TestCase
             'account_id' => $this->account->id,
             'confirmation_code' => 'xyz123',
             'email' => $this->faker->unique()->safeEmail(),
+            'password' => \Illuminate\Support\Facades\Hash::make('ALongAndBriliantPassword'),
         ]);
 
         $settings = CompanySettings::defaults();
@@ -102,6 +103,68 @@ class UserTest extends TestCase
         $company_token->name = 'test token';
         $company_token->token = $token;
         $company_token->is_system = true;
+        $company_token->save();
+
+        return $company_token;
+
+    }
+
+    public function testUserResponse()
+    {
+        $company_token = $this->mockAccount();
+
+        $data = [
+                'first_name' => 'hey',
+                'last_name' => 'you',
+                'email' => 'normal_user@gmail.com',
+                'company_user' => [
+                    'is_admin' => true,
+                    'is_owner' => false,
+                    'permissions' => 'create_client,create_invoice',
+                ],
+                'phone' => null,
+            ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $company_token->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->post('/api/v1/users?include=company_user', $data);
+
+        $response->assertStatus(200);
+
+        $user = $response->json();
+        $user_id = $user['data']['id'];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $company_token->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->get('/api/v1/users', $data);
+
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+
+        $this->assertCount(2, $arr['data']);
+
+            //archive the user we just created:
+
+            $data = [
+                'action' => 'archive',
+                'ids' => [$user_id],
+            ];
+
+
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $company_token->token,
+                'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+            ])->postJson('/api/v1/users/bulk', $data);
+
+            $response->assertStatus(200);
+
+            $this->assertCount(1, $response->json()['data']);
 
 
     }
