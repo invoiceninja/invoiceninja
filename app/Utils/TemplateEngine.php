@@ -52,8 +52,8 @@ class TemplateEngine
 
     public $template;
 
-    /** @var \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder | \App\Models\RecurringInvoice $entity_obj **/
-    private \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder | \App\Models\RecurringInvoice $entity_obj;
+    /** @var \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder | \App\Models\RecurringInvoice | \App\Models\Payment $entity_obj **/
+    private \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder | \App\Models\RecurringInvoice | \App\Models\Payment $entity_obj;
 
     /** @var \App\Models\Company | \App\Models\Client | null $settings_entity **/
     private $settings_entity;
