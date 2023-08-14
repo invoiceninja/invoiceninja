@@ -166,8 +166,8 @@ class PaymentNotification implements ShouldQueue
         $product = $item;
         $gateway_reference = $client->gateway_tokens()->count() >= 1 ? ($client->gateway_tokens()->first()->gateway_customer_reference ?? '') : '';
 
-        LightLogs::create(new RevenueTrack($email, $account_key, 1, $amount, $product, $gateway_reference, $entity_number))
-                 ->batch();
+        // LightLogs::create(new RevenueTrack($email, $account_key, 1, $amount, $product, $gateway_reference, $entity_number))
+        //          ->batch();
 
     }
 
