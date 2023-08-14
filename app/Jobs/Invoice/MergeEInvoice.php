@@ -55,8 +55,14 @@ class MergeEInvoice implements ShouldQueue
         else {
            $realpath_pdf = Storage::disk($disk)->path($filepath_pdf);
         }
-        $pdfBuilder = new ZugferdDocumentPdfBuilder($e_rechnung, $realpath_pdf);
-        $pdfBuilder->generateDocument();
-        $pdfBuilder->saveDocument($realpath_pdf);
+        if (file_exists($realpath_pdf)){
+            $pdfBuilder = new ZugferdDocumentPdfBuilder($e_rechnung, $realpath_pdf);
+            $pdfBuilder->generateDocument();
+            $pdfBuilder->saveDocument($realpath_pdf);
+        }
+        else{
+            nlog("E_Invoice Merge failed - file to merge not found");
+        }
+
     }
 }
