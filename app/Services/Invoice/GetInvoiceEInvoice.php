@@ -47,7 +47,6 @@ class GetInvoiceEInvoice extends AbstractService
             (new \App\Jobs\Invoice\MergeEInvoice($this->invoice))->handle();
 
         }
-
         return $file_path;
     }
 }

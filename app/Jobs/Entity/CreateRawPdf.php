@@ -203,8 +203,11 @@ class CreateRawPdf implements ShouldQueue
         if ($pdf) {
             $maker =null;
             $state = null;
-            if ($this->invitation->invoice->client->getSetting('enable_e_invoice') && $this->entity == "invoice"){
-                (new \App\Services\Invoice\MergeEInvoice($this->invitation->invoice))->run();
+            if ($this->invitation->invoice->client->getSetting('enable_e_invoice') && $this->entity_string == "invoice"){
+                $filename = tempnam(sys_get_temp_dir(), 'InvoiceNinja').".pdf";
+                file_put_contents($filename, $pdf);
+                (new \App\Services\Invoice\MergeEInvoice($this->invitation->invoice, $filename))->run();
+                return file_get_contents($filename);
             };
             return $pdf;
         }

@@ -11,7 +11,7 @@ use horstoeko\zugferd\ZugferdDocumentReader;
 
 class MergeEInvoice implements ShouldQueue
 {
-    public function __construct(public Invoice $invoice, public ?ClientContact $contact = null)
+    public function __construct(public Invoice $invoice, private string $pdf_path = "")
     {
     }
 
@@ -46,14 +46,17 @@ class MergeEInvoice implements ShouldQueue
      */
     private function embedEInvoiceZuGFerD(): void
     {
-        $filepath_pdf = $this->invoice->client->invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName();
+        $filepath_pdf = !empty($this->pdf_path) ? $this->pdf_path : $this->invoice->service()->getInvoicePdf();
         $disk = config('filesystems.default');
-        $xrechnung = (new CreateEInvoice($this->invoice, true))->handle();
-        if (!Storage::disk($disk)->exists($this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()))) {
-            Storage::makeDirectory($this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()));
+        $e_rechnung = (new CreateEInvoice($this->invoice, true))->handle();
+        if (!empty($this->pdf_path)){
+            $realpath_pdf = $filepath_pdf;
         }
-        $pdfBuilder = new ZugferdDocumentPdfBuilder($xrechnung, Storage::disk($disk)->path($filepath_pdf));
+        else {
+           $realpath_pdf = Storage::disk($disk)->path($filepath_pdf);
+        }
+        $pdfBuilder = new ZugferdDocumentPdfBuilder($e_rechnung, $realpath_pdf);
         $pdfBuilder->generateDocument();
-        $pdfBuilder->saveDocument(Storage::disk($disk)->path($filepath_pdf));
+        $pdfBuilder->saveDocument($realpath_pdf);
     }
 }

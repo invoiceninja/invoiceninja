@@ -51,7 +51,7 @@ class GetInvoicePdf extends AbstractService
         }
         if ($this->invoice->client->getSetting('enable_e_invoice')){
             (new CreateEInvoice($this->invoice))->handle();
-            (new MergeEInvoice($this->invoice))->handle();
+           (new MergeEInvoice($this->invoice, $file_path))->handle();
         }
         return $file_path;
     }
