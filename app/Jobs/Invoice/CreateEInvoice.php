@@ -14,6 +14,7 @@ namespace App\Jobs\Invoice;
 
 use App\Utils\Ninja;
 use App\Models\Invoice;
+use horstoeko\zugferd\ZugferdDocumentBuilder;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\App;
 use Illuminate\Queue\SerializesModels;
@@ -29,7 +30,7 @@ class CreateEInvoice implements ShouldQueue
 
     public $deleteWhenMissingModels = true;
 
-    public function __construct(private Invoice $invoice)
+    public function __construct(private Invoice $invoice, private bool $returnObject = false)
     {
     }
 
@@ -39,7 +40,7 @@ class CreateEInvoice implements ShouldQueue
      *
      * @return string
      */
-    public function handle(): string
+    public function handle(): string|ZugferdDocumentBuilder
     {
         /* Forget the singleton*/
         App::forgetInstance('translator');
@@ -63,13 +64,13 @@ class CreateEInvoice implements ShouldQueue
             case "XInvoice-Extended":
             case "XInvoice-BasicWL":
             case "XInvoice-Basic":
-                return (new ZugferdEInvoice($this->invoice))->run();
+                return (new ZugferdEInvoice($this->invoice, $this->returnObject))->run();
             case "Facturae_3.2":
             case "Facturae_3.2.1":
             case "Facturae_3.2.2":
                 return (new FacturaEInvoice($this->invoice, str_replace("Facturae_", "", $e_invoice_type)))->run();
             default:
-                return (new ZugferdEInvoice($this->invoice))->run();
+                return (new ZugferdEInvoice($this->invoice, $this->returnObject))->run();
 
         }
 

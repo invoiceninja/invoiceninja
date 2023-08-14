@@ -47,19 +47,12 @@ class MergeEInvoice implements ShouldQueue
     private function embedEInvoiceZuGFerD(): void
     {
         $filepath_pdf = $this->invoice->client->invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName();
-        $e_invoice_path = $this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName("xml");
         $disk = config('filesystems.default');
-        $file = Storage::disk($disk)->exists($e_invoice_path);
-        if (! $file){
-            (new CreateEInvoice($this->invoice))->handle();
-        }
-        $document = ZugferdDocumentReader::readAndGuessFromFile(Storage::disk($disk)->path($e_invoice_path));
-
-
+        $xrechnung = (new CreateEInvoice($this->invoice, true))->handle();
         if (!Storage::disk($disk)->exists($this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()))) {
             Storage::makeDirectory($this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()));
         }
-        $pdfBuilder = new ZugferdDocumentPdfBuilder($document, Storage::disk($disk)->path($filepath_pdf));
+        $pdfBuilder = new ZugferdDocumentPdfBuilder($xrechnung, Storage::disk($disk)->path($filepath_pdf));
         $pdfBuilder->generateDocument();
         $pdfBuilder->saveDocument(Storage::disk($disk)->path($filepath_pdf));
     }

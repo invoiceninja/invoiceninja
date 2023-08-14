@@ -23,11 +23,11 @@ use horstoeko\zugferd\codelists\ZugferdDutyTaxFeeCategories;
 class ZugferdEInvoice extends AbstractService
 {
 
-    public function __construct(public Invoice $invoice, private array $tax_map = [])
+    public function __construct(public Invoice $invoice, private readonly bool $returnObject = false, private array $tax_map = [])
     {
     }
 
-    public function run()
+    public function run(): string|ZugferdDocumentBuilder
     {
 
         $company = $this->invoice->company;
@@ -175,7 +175,9 @@ class ZugferdEInvoice extends AbstractService
 
         $xrechnung->writeFile(Storage::disk($disk)->path($client->e_invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName("xml")));
         // The validity can be checked using https://portal3.gefeg.com/invoice/validation or https://e-rechnung.bayern.de/app/#/upload
-
+        if ($this->returnObject){
+            return $xrechnung;
+        }
         return $client->e_invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName("xml");
     }
 
