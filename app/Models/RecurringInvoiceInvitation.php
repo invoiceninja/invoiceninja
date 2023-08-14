@@ -37,11 +37,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $viewed_date
  * @property string|null $opened_date
  * @property string|null $email_status
- * @property-read \App\Models\Company $company
- * @property-read \App\Models\ClientContact $contact
- * @property-read mixed $hashed_id
- * @property-read \App\Models\RecurringInvoice $recurring_invoice
- * @property-read \App\Models\User $user
+ * @property \App\Models\Company $company
+ * @property \App\Models\ClientContact $contact
+ * @property string $hashed_id
+ * @property \App\Models\RecurringInvoice $recurring_invoice
+ * @property \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Illuminate\Database\Eloquent\Builder|RecurringInvoiceInvitation newModelQuery()

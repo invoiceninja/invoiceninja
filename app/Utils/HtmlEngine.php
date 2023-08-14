@@ -35,16 +35,22 @@ class HtmlEngine
     use MakesHash;
     use DesignCalculator;
     
+    /** @var  \App\Models\Invoice | \App\Models\Credit | \App\Models\RecurringInvoice | \App\Models\Quote $entity **/
     public $entity;
 
+    /** @var  \App\Models\CreditInvitation | CreditInvitation | \App\Models\RecurringInvoiceInvitation | \App\Models\QuoteInvitation $invitation **/
     public $invitation;
 
+    /** @var \App\Models\Client $client */
     public $client;
 
+    /** @var \App\Models\ClientContact $contact */
     public $contact;
 
+    /** @var \App\Models\Company $company */
     public $company;
 
+    /** @var \App\DataMapper\CompanySettings $settings **/
     public $settings;
 
     public $entity_calc;
@@ -53,6 +59,13 @@ class HtmlEngine
 
     private $helpers;
 
+        
+    /**
+     * __construct
+     *
+     * @param  InvoiceInvitation | CreditInvitation | RecurringInvoiceInvitation | QuoteInvitation $invitation
+     * @return void
+     */
     public function __construct($invitation)
     {
         $this->invitation = $invitation;
@@ -150,7 +163,9 @@ class HtmlEngine
         $data['$payment_link'] = ['value' => $this->invitation->getPaymentLink(), 'label' => ctrans('texts.pay_now')];
         $data['$payment_qrcode'] = ['value' => $this->invitation->getPaymentQrCode(), 'label' => ctrans('texts.pay_now')];
         $data['$exchange_rate'] = ['value' => $this->entity->exchange_rate ?: ' ', 'label' => ctrans('texts.exchange_rate')];
-
+        $data['$triangular_tax'] = ['value' => ctrans('texts.triangular_tax'), 'label' => ''];
+        $data['$tax_info'] = ['value' => $this->taxLabel(), 'label' => ''];
+        
         if ($this->entity_string == 'invoice' || $this->entity_string == 'recurring_invoice') {
             $data['$entity'] = ['value' => ctrans('texts.invoice'), 'label' => ctrans('texts.invoice')];
             $data['$number'] = ['value' => $this->entity->number ?: ' ', 'label' => ctrans('texts.invoice_number')];
@@ -675,6 +690,26 @@ class HtmlEngine
         array_multisort($arrKeysLength, SORT_DESC, $data);
 
         return $data;
+    }
+    
+    /**
+     * Returns a localized string for tax compliance purposes
+     *
+     * @return string
+     */
+    private function taxLabel(): string
+    {
+        $tax_label = '';
+
+        if (collect($this->entity->line_items)->contains('tax_id', \App\Models\Product::PRODUCT_TYPE_REVERSE_TAX)) {
+            $tax_label .= ctrans('texts.reverse_tax_info') . "<br>";
+        }
+
+        if((int)$this->client->country_id !== (int)$this->company->settings->country_id){
+            $tax_label .= ctrans('texts.intracommunity_tax_info') . "<br>";
+        }
+
+        return $tax_label;
     }
 
     private function getBalance()

@@ -216,21 +216,24 @@ class Payment extends BaseModel
     }
 
     /**
-     * @return MorphedByMany
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany<Paymentable>
      */
-    public function invoices()
+    public function invoices(): \Illuminate\Database\Eloquent\Relations\MorphToMany
     {
         return $this->morphedByMany(Invoice::class, 'paymentable')->withTrashed()->withPivot('amount', 'refunded')->withTimestamps();
     }
 
     /**
-     * @return MorphedByMany
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany<Paymentable>
      */
-    public function credits()
+    public function credits(): \Illuminate\Database\Eloquent\Relations\MorphToMany
     {
         return $this->morphedByMany(Credit::class, 'paymentable')->withTrashed()->withPivot('amount', 'refunded')->withTimestamps();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<CompanyLedger>
+     */
     public function company_ledger(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(CompanyLedger::class, 'company_ledgerable');
@@ -266,7 +269,7 @@ class Payment extends BaseModel
         return $this->belongsTo(Project::class);
     }
 
-    public function translatedType()
+    public function translatedType(): string
     {
         if (! $this->type_id) {
             return '';

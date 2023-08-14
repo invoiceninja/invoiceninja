@@ -91,9 +91,10 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $reminder_last_sent
  * @property string $paid_to_date
  * @property int|null $subscription_id
- * @property-read \App\Models\User|null $assigned_user
- * @property-read \App\Models\Client $client
- * @property-read \App\Models\Company $company
+ * @property \App\Models\User|null $assigned_user
+ * @property \App\Models\Client $client
+ * @property \App\Models\Company $company
+ * @property \App\Models\QuoteInvitation $invitation
  * @property-read mixed $balance_due
  * @property-read mixed $hashed_id
  * @property-read mixed $total
@@ -226,6 +227,9 @@ class Quote extends BaseModel
         return $this->belongsTo(Vendor::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough<Backup>
+     */
     public function history(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
         return $this->hasManyThrough(Backup::class, Activity::class);
@@ -266,6 +270,9 @@ class Quote extends BaseModel
         return $this->hasMany(QuoteInvitation::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<Document>
+     */
     public function documents(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');

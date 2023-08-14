@@ -17,6 +17,11 @@ use App\Models\Company;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * @class \App\Http\Requests\Yodlee\YodleeAuthRequest
+ * @property string $token
+ * @property string $state
+ */
 class YodleeAuthRequest extends Request
 {
     /**

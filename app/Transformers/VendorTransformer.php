@@ -103,6 +103,7 @@ class VendorTransformer extends EntityTransformer
             'archived_at' => (int) $vendor->deleted_at,
             'created_at' => (int) $vendor->created_at,
             'number' => (string) $vendor->number ?: '',
+            'language_id' => (string) $vendor->language_id ?: '',
         ];
     }
 }

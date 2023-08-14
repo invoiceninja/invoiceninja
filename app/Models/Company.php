@@ -58,7 +58,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $portal_domain
  * @property int $enable_modules
  * @property object $custom_fields
- * @property object $settings
+ * @property \App\DataMapper\CompanySettings $settings
  * @property string $slack_webhook_url
  * @property string $google_analytics_key
  * @property int|null $created_at
@@ -395,6 +395,9 @@ class Company extends BaseModel
         return $this->calculate_taxes && in_array($this->getSetting('country_id'), $this->tax_coverage_countries);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<Document>
+     */
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');

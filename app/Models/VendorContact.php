@@ -106,6 +106,7 @@ class VendorContact extends Authenticatable implements HasLocalePreference
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
+        'last_login' => 'timestamp',
     ];
 
     protected $fillable = [

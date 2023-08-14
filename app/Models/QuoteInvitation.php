@@ -41,11 +41,11 @@ use Illuminate\Support\Facades\Storage;
  * @property int|null $deleted_at
  * @property string|null $signature_ip
  * @property string|null $email_status
- * @property-read \App\Models\Company $company
- * @property-read \App\Models\ClientContact $contact
- * @property-read mixed $hashed_id
- * @property-read \App\Models\Quote $quote
- * @property-read \App\Models\User $user
+ * @property \App\Models\Company $company
+ * @property \App\Models\ClientContact $contact
+ * @property mixed $hashed_id
+ * @property \App\Models\Quote $quote
+ * @property \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Database\Factories\QuoteInvitationFactory factory($count = null, $state = [])
