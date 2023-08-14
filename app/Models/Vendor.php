@@ -230,9 +230,9 @@ class Vendor extends BaseModel
      * Returns a vendor settings proxying company setting
      *
      * @param string $setting
-     * @return string
+     * @return mixed
      */
-    public function getSetting($setting): string
+    public function getSetting($setting): mixed
     {
         if ((property_exists($this->company->settings, $setting) != false) && (isset($this->company->settings->{$setting}) !== false)) {
             return $this->company->settings->{$setting};
