@@ -66,8 +66,6 @@ class Webhook
 
     /**
      * Lists the workflows in Checkout
-     *
-     * @return void
      */
     public function getWorkFlows()
     {

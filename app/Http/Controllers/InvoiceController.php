@@ -966,16 +966,17 @@ class InvoiceController extends BaseController
      */
     public function upload(UploadInvoiceRequest $request, Invoice $invoice)
     {
+
         if (! $this->checkFeature(Account::FEATURE_DOCUMENTS)) {
             return $this->featureFailure();
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $invoice);
+            $this->saveDocuments($request->file('documents'), $invoice, $request->input('is_public', true));
         }
 
         if ($request->has('file')) {
-            $this->saveDocuments($request->file('documents'), $invoice);
+            $this->saveDocuments($request->file('documents'), $invoice, $request->input('is_public', true));
         }
 
         return $this->itemResponse($invoice->fresh());

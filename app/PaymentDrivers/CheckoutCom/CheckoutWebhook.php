@@ -88,14 +88,15 @@ class CheckoutWebhook implements ShouldQueue
 
             $driver = $this->company_gateway->driver($payment_hash->fee_invoice->client)->init()->setPaymentMethod();
 
-            $payment_hash->data = array_merge((array) $payment_hash->data, $this->webhook_array);
-            $payment_hash->save();
-            $driver->setPaymentHash($payment_hash);
+            $payment_hash->data = array_merge((array) $payment_hash->data, $this->webhook_array); // @phpstan-ignore-line
+            $payment_hash->save(); 
+            $driver->setPaymentHash($payment_hash); 
 
+            // @phpstan-ignore-line
             $data = [
                 'payment_method' => isset($this->webhook_array['source']['id']) ? $this->webhook_array['source']['id'] : '',
                 'payment_type' => PaymentType::CREDIT_CARD_OTHER,
-                'amount' => $payment_hash->data->raw_value,
+                'amount' => $payment_hash->data->raw_value, // @phpstan-ignore-line
                 'transaction_reference' => $payment_object['id'],
                 'gateway_type_id' => GatewayType::CREDIT_CARD,
             ];
