@@ -40,7 +40,7 @@ class PaymentHash extends Model
 
 
     /**
-     * @return array
+     * @return mixed
      */
     public function invoices()
     {

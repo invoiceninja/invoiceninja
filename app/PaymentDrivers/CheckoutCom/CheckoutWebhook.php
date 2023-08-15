@@ -69,7 +69,7 @@ class CheckoutWebhook implements ShouldQueue
     {
         $payment_object = $this->webhook_array['data'];
 
-        $payment = Payment::withTrashed()->where('transaction_reference', $payment_object['id'])->first();
+        $payment = Payment::query()->withTrashed()->where('transaction_reference', $payment_object['id'])->first();
 
         if($payment && $payment->status_id == Payment::STATUS_COMPLETED)
             return;
@@ -84,7 +84,7 @@ class CheckoutWebhook implements ShouldQueue
             
             $metadata = $this->webhook_array['metadata'];
             
-            $payment_hash = PaymentHash::where('hash', $metadata['udf2'])->first();
+            $payment_hash = PaymentHash::query()->where('hash', $metadata['udf2'])->first();
 
             $driver = $this->company_gateway->driver($payment_hash->fee_invoice->client)->init()->setPaymentMethod();
 
