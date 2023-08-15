@@ -70,6 +70,8 @@ class RevenueTrack extends GenericMixedMetric
 
     public $string_metric9 = 'entity_reference';
 
+    public $string_metric10 = 'gateway_type';
+
     /**
      * The counter
      * set to 1.
@@ -85,7 +87,7 @@ class RevenueTrack extends GenericMixedMetric
      */
     public $double_metric2 = 0;
 
-    public function __construct($string_metric5, $string_metric6, $int_metric1, $double_metric2, $string_metric7, $string_metric8, $string_metric9)
+    public function __construct($string_metric5, $string_metric6, $int_metric1, $double_metric2, $string_metric7, $string_metric8, $string_metric9, $string_metric10)
     {
         $this->int_metric1 = $int_metric1;
         $this->double_metric2 = $double_metric2;
@@ -94,5 +96,6 @@ class RevenueTrack extends GenericMixedMetric
         $this->string_metric7 = $string_metric7;
         $this->string_metric8 = $string_metric8;
         $this->string_metric9 = $string_metric9;
+        $this->string_metric10 = $string_metric10;
     }
 }
