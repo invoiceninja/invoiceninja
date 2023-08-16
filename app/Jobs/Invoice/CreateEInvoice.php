@@ -37,7 +37,6 @@ class CreateEInvoice implements ShouldQueue
     /**
      * Execute the job.
      *
-     *
      * @return string|ZugferdDocumentBuilder
      */
     public function handle(): string|ZugferdDocumentBuilder
@@ -64,13 +63,18 @@ class CreateEInvoice implements ShouldQueue
             case "XInvoice-Extended":
             case "XInvoice-BasicWL":
             case "XInvoice-Basic":
-                return (new ZugferdEInvoice($this->invoice, $this->returnObject))->run();
+                $zugferd = (new ZugferdEInvoice($this->invoice))->run();
+
+                return $this->returnObject ? $zugferd->xrechnung : $zugferd->getXml();
             case "Facturae_3.2":
             case "Facturae_3.2.1":
             case "Facturae_3.2.2":
                 return (new FacturaEInvoice($this->invoice, str_replace("Facturae_", "", $e_invoice_type)))->run();
             default:
-                return (new ZugferdEInvoice($this->invoice, $this->returnObject))->run();
+                
+                $zugferd = (new ZugferdEInvoice($this->invoice))->run();
+
+                return $this->returnObject ? $zugferd : $zugferd->getXml();
 
         }
 

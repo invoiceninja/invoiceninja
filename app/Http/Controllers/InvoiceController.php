@@ -850,6 +850,7 @@ class InvoiceController extends BaseController
         $invoice = $invitation->invoice;
 
         $file = $invoice->service()->getEInvoice($contact);
+        $file_name = $invoice->getFileName("xml");
 
         $headers = ['Content-Type' => 'application/xml'];
 
@@ -858,8 +859,8 @@ class InvoiceController extends BaseController
         }
 
         return response()->streamDownload(function () use ($file) {
-            echo Storage::get($file);
-        }, basename($file), $headers);
+            echo $file;
+        }, $file_name, $headers);
     }
 
     /**

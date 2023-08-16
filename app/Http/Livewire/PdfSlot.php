@@ -12,7 +12,6 @@
 
 namespace App\Http\Livewire;
 
-use App\Services\Invoice\GetInvoiceEInvoice;
 use App\Utils\Number;
 use Livewire\Component;
 use App\Utils\HtmlEngine;
@@ -22,10 +21,12 @@ use App\Models\QuoteInvitation;
 use App\Utils\VendorHtmlEngine;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
+use App\Jobs\Invoice\CreateEInvoice;
 use Illuminate\Support\Facades\Cache;
 use App\Models\PurchaseOrderInvitation;
 use App\Models\RecurringInvoiceInvitation;
 use App\Jobs\Vendor\CreatePurchaseOrderPdf;
+use App\Services\Invoice\GetInvoiceEInvoice;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
 
 class PdfSlot extends Component
@@ -102,7 +103,7 @@ class PdfSlot extends Component
 
         $file_name = $this->entity->numberFormatter().'.xml';
 
-        $file = (new GetInvoiceEInvoice($this->entity))->run();
+        $file = (new CreateEInvoice($this->entity))->handle();
 
         $headers = ['Content-Type' => 'application/xml'];
 

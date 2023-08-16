@@ -276,6 +276,7 @@ class BaseModel extends Model
 
     /**
      * Returns the base64 encoded PDF string of the entity
+     * @deprecated - unused implementation
      */
     public function fullscreenPdfViewer($invitation = null): string
     {
