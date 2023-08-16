@@ -84,7 +84,7 @@ class ZipInvoices implements ShouldQueue
                 }
 
                 $file = $invoice->service()->getRawInvoicePdf();
-$zip_file_name = $invoice->getFileName();
+                $zip_file_name = $invoice->getFileName();
                 $zipFile->addFromString($zip_file_name, $file);
             }
 
