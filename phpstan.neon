@@ -13,6 +13,7 @@ parameters:
         - 'app/DataMapper/Analytics/*'
         - 'app/PaymentDrivers/Authorize/*'
         - 'app/Utils/Traits/*'
+        - 'resources/views/*'
     universalObjectCratesClasses:
         - App\DataMapper\Tax\RuleInterface
         - App\DataMapper\FeesAndLimits

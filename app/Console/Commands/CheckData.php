@@ -35,6 +35,7 @@ use App\Models\BankTransaction;
 use App\Models\QuoteInvitation;
 use Illuminate\Console\Command;
 use App\Models\CreditInvitation;
+use App\Models\RecurringInvoice;
 use App\Models\InvoiceInvitation;
 use App\DataMapper\ClientSettings;
 use Illuminate\Support\Facades\DB;

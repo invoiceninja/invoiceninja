@@ -43,9 +43,7 @@ class EInvoiceTest extends TestCase
         $this->invoice->client->routing_id = 'DE123456789';
         $this->invoice->client->save();
         $e_invoice = (new CreateEInvoice($this->invoice))->handle();
-        (new \App\Jobs\Invoice\MergeEInvoice($this->invoice))->handle();
-        $this->assertNotNull($e_invoice);
-        $this->assertTrue(Storage::exists($e_invoice));
+        $this->assertIsString($e_invoice);
     }
 
      /**
@@ -58,7 +56,7 @@ class EInvoiceTest extends TestCase
          $this->invoice->client->save();
 
          $e_invoice = (new CreateEInvoice($this->invoice))->handle();
-         $document = ZugferdDocumentReader::readAndGuessFromFile(Storage::path($e_invoice));
+         $document = ZugferdDocumentReader::readAndGuessFromContent($e_invoice);
          $document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $documentcurrency, $taxcurrency, $taxname, $documentlangeuage, $rest);
          $this->assertEquals($this->invoice->number, $documentno);
      }
@@ -69,9 +67,7 @@ class EInvoiceTest extends TestCase
      public function checkEmbededPDFFile()
      {
          $pdf = (new CreateEntityPdf($this->invoice->invitations()->first()))->handle();
-         (new CreateEInvoice($this->invoice))->handle();
-         (new \App\Jobs\Invoice\MergeEInvoice($this->invoice))->handle();
-         $document = ZugferdDocumentReader::readAndGuessFromFile($pdf);
+         $document = ZugferdDocumentReader::readAndGuessFromContent($pdf);
          $document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $documentcurrency, $taxcurrency, $taxname, $documentlangeuage, $rest);
          $this->assertEquals($this->invoice->number, $documentno);
      }

@@ -79,7 +79,7 @@ trait Inviteable
         if (Ninja::isHosted()) {
             $domain = $this->company->domain();
         } else {
-            $domain = strlen($this->company->portal_domain) > 5 ? $this->company->portal_domain : config('ninja.app_url');
+            $domain = strlen($this->company->portal_domain ?? '') > 5 ? $this->company->portal_domain : config('ninja.app_url');
         }
 
         $entity_type = Str::snake(class_basename($this->entityType()));
@@ -94,7 +94,7 @@ trait Inviteable
         if (Ninja::isHosted()) {
             $domain = $this->company->domain();
         } else {
-            $domain = strlen($this->company->portal_domain) > 5 ? $this->company->portal_domain : config('ninja.app_url');
+            $domain = strlen($this->company->portal_domain ?? '') > 5 ? $this->company->portal_domain : config('ninja.app_url');
         }
 
         switch ($this->company->portal_mode) {
@@ -119,7 +119,7 @@ trait Inviteable
         if (Ninja::isHosted()) {
             $domain = $this->company->domain();
         } else {
-            $domain = strlen($this->company->portal_domain) > 5 ? $this->company->portal_domain : config('ninja.app_url');
+            $domain = strlen($this->company->portal_domain ?? '') > 5 ? $this->company->portal_domain : config('ninja.app_url');
         }
 
         switch ($this->company->portal_mode) {
