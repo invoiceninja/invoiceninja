@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $hash
  * @property float $fee_total
  * @property int|null $fee_invoice_id
- * @property mixed $data
+ * @property \stdClass $data
  * @property int|null $payment_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -38,9 +38,16 @@ class PaymentHash extends Model
         'data' => 'object',
     ];
 
+        /**
+        * @class \App\Models\PaymentHash $this
+        * @property \App\Models\PaymentHash $data
+        * @class \stdClass $data
+        * @property string $raw_value
+        */
+
 
     /**
-     * @return array
+     * @return mixed
      */
     public function invoices()
     {
@@ -75,9 +82,8 @@ class PaymentHash extends Model
 
     public function withData(string $property, $value): self
     {
-        $this->data = array_merge((array) $this->data, [$property => $value]);
-        $this->save();
-
-        return $this;
+        $this->data = array_merge((array) $this->data, [$property => $value]); // @phpstan-ignore-line
+        $this->save();// @phpstan-ignore-line
+        return $this; // @phpstan-ignore-line
     }
 }

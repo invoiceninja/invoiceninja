@@ -1821,7 +1821,7 @@ class Import implements ShouldQueue
 
     private function processActivities(array $data): void
     {
-        Activity::where('company_id', $this->company->id)->cursor()->each(function ($a){
+        Activity::query()->where('company_id', $this->company->id)->cursor()->each(function ($a){
             $a->forceDelete();
             nlog("deleting {$a->id}");
         });

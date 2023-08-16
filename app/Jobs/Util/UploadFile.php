@@ -53,7 +53,7 @@ class UploadFile implements ShouldQueue
 
     public $disk;
     
-    public function __construct($file, $type, $user, $company, $entity, $disk = null, $is_public = false)
+    public function __construct($file, $type, $user, $company, $entity, $disk = null, $is_public = true)
     {
         $this->file = $file;
         $this->type = $type;

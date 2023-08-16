@@ -11,14 +11,16 @@
 
 namespace App\Listeners\Payment;
 
+use App\Utils\Ninja;
+use App\Libraries\MultiDB;
 use App\Jobs\Mail\NinjaMailer;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
-use App\Libraries\MultiDB;
 use App\Mail\Admin\EntityPaidObject;
-use App\Utils\Ninja;
-use App\Utils\Traits\Notifications\UserNotifies;
+use Turbo124\Beacon\Facades\LightLogs;
+use App\DataMapper\Analytics\RevenueTrack;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Utils\Traits\Notifications\UserNotifies;
 
 class PaymentNotification implements ShouldQueue
 {
@@ -158,6 +160,15 @@ class PaymentNotification implements ShouldQueue
 
         $url = $base."&t=item&in={$item}&ip={$amount}&iq=1";
         $this->sendAnalytics($url);
+
+        $email = $client->present()->email();
+        $account_key = $client->custom_value2 ?? 'unknown';
+        $product = $item;
+        $gateway_reference = $client->gateway_tokens()->count() >= 1 ? ($client->gateway_tokens()->first()->gateway_customer_reference ?? '') : '';
+
+        // LightLogs::create(new RevenueTrack($email, $account_key, 1, $amount, $product, $gateway_reference, $entity_number))
+        //          ->batch();
+
     }
 
     /**

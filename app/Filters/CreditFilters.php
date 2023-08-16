@@ -88,6 +88,11 @@ class CreditFilters extends QueryFilters
                           ->orWhere('credits.custom_value4', 'like', '%'.$filter.'%')
                           ->orWhereHas('client', function ($q) use ($filter) {
                               $q->where('name', 'like', '%'.$filter.'%');
+                          })
+                          ->orWhereHas('client.contacts', function ($q) use ($filter) {
+                              $q->where('first_name', 'like', '%'.$filter.'%')
+                                ->orWhere('last_name', 'like', '%'.$filter.'%')
+                                ->orWhere('email', 'like', '%'.$filter.'%');
                           });
         });
     }
