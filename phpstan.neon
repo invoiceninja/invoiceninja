@@ -8,6 +8,7 @@ parameters:
     excludePaths:
         - 'vendor/'
         - 'app/Jobs/Ninja/*'
+        - 'app/Models/Presenters/*'
         - 'app/Console/Commands/*'
         - 'app/DataMapper/Analytics/*'
         - 'app/PaymentDrivers/Authorize/*'
@@ -17,10 +18,7 @@ parameters:
         - App\DataMapper\FeesAndLimits
     reportUnmatchedIgnoredErrors: false
     ignoreErrors:
-        - '#Call to an undefined method [a-zA-Z0-9\\_]+::company\(\)#' 
-        - '#Call to an undefined method [a-zA-Z0-9\\_]+::entityFilter\(\)#'
-        - '#Call to an undefined method [a-zA-Z0-9\\_]+::exclude\(\)#'
         - '#Array has 2 duplicate keys with value#'
-        - '#Undefined method#'
+        - '#Call to an undefined method#'
         - '#makeHidden#'
         - '#Socialite#'

@@ -13,6 +13,7 @@ namespace App\Jobs\Entity;
 
 use App\Exceptions\FilePermissionsFailure;
 use App\Jobs\Invoice\CreateEInvoice;
+use App\Jobs\Invoice\MergeEInvoice;
 use App\Libraries\MultiDB;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
@@ -214,7 +215,9 @@ class CreateEntityPdf implements ShouldQueue
             }
         }
         if ($this->entity_string == "invoice" && $this->client->getSetting('enable_e_invoice')){
-            (new CreateEInvoice($this->entity, true))->handle();
+            (new CreateEInvoice($this->entity))->handle();
+            (new MergeEInvoice($this->entity))->handle();
+
         }
         $this->invitation = null;
         // $this->entity = null;

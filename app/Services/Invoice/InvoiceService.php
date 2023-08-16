@@ -343,6 +343,7 @@ class InvoiceService
                                      })->toArray();
 
         $this->deletePdf();
+        $this->deleteEInvoice();
 
         return $this;
     }
@@ -410,6 +411,7 @@ class InvoiceService
 
         $this->invoice = $this->invoice->calc()->getInvoice();
         $this->deletePdf();
+        $this->deleteEInvoice();
 
         /* 24-03-2022 */
         $new_balance = $this->invoice->balance;
@@ -465,7 +467,8 @@ class InvoiceService
 
                     if ($invitation->invoice->client->getSetting('enable_e_invoice') && $invitation instanceof InvoiceInvitation)
                     {
-                        (new CreateEInvoice($invitation->invoice, true))->handle();
+                        (new CreateEInvoice($invitation->invoice))->handle();
+                        (new MergeEInvoice($invitation->invoice))->run();
                     }
 
                 });
@@ -478,7 +481,7 @@ class InvoiceService
                 CreateEntityPdf::dispatch($invitation);
 
                 if ($invitation->invoice->client->getSetting('enable_e_invoice') && $invitation instanceof InvoiceInvitation) {
-                    CreateEInvoice::dispatch($invitation->invoice, true);
+                    CreateEInvoice::dispatch($invitation->invoice);
                 }
 
             });

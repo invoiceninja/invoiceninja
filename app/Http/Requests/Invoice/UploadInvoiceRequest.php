@@ -23,7 +23,9 @@ class UploadInvoiceRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->invoice);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        return $user->can('edit', $this->invoice);
     }
 
     public function rules()
@@ -42,6 +44,8 @@ class UploadInvoiceRequest extends Request
             $rules['file'] = $this->file_validation;
         }
 
+        $rules['is_public'] = 'sometimes|boolean';
+        
         return $rules;
     }
 
