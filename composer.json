@@ -53,7 +53,7 @@
         "halaxa/json-machine": "^0.7.0",
         "hashids/hashids": "^4.0",
         "hedii/laravel-gelf-logger": "^7.0",
-        "horstoeko/zugferd": "dev-master",
+        "horstoeko/zugferd": "^1",
         "imdhemy/laravel-purchases": "^1.7",
         "intervention/image": "^2.5",
         "invoiceninja/inspector": "^1.0",
@@ -170,11 +170,5 @@
         }
     },
     "minimum-stability": "dev",
-    "prefer-stable": true,
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/turbo124/zugferd.git"
-        }
-    ]
+    "prefer-stable": true
 }
