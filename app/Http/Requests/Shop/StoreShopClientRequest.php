@@ -108,7 +108,7 @@ class StoreShopClientRequest extends Request
             $settings->currency_id = $this->getCurrencyCode($input['currency_code']);
         }
 
-        $input['settings'] = $settings;
+        $input['settings'] = (array)$settings;
 
         if (isset($input['contacts'])) {
             foreach ($input['contacts'] as $key => $contact) {
