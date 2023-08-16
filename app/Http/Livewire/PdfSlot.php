@@ -26,7 +26,6 @@ use Illuminate\Support\Facades\Cache;
 use App\Models\PurchaseOrderInvitation;
 use App\Models\RecurringInvoiceInvitation;
 use App\Jobs\Vendor\CreatePurchaseOrderPdf;
-use App\Services\Invoice\GetInvoiceEInvoice;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
 
 class PdfSlot extends Component
