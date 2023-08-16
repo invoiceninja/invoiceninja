@@ -57,7 +57,7 @@ class PurchaseOrderExpense
 
         $expense->number = empty($expense->number) ? $this->getNextExpenseNumber($expense) : $expense->number;
 
-        $expense->save();
+        $expense->saveQuietly();
         event('eloquent.created: App\Models\Expense', $expense);
 
         $this->purchase_order->expense_id = $expense->id;

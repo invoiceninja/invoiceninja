@@ -35,6 +35,7 @@ use App\Models\BankTransaction;
 use App\Models\QuoteInvitation;
 use Illuminate\Console\Command;
 use App\Models\CreditInvitation;
+use App\Models\RecurringInvoice;
 use App\Models\InvoiceInvitation;
 use App\DataMapper\ClientSettings;
 use Illuminate\Support\Facades\DB;
@@ -471,7 +472,7 @@ class CheckData extends Command
             $ii->saveQuietly();
         });
 
-        collect([Invoice::class, Quote::class, Credit::class, PurchaseOrder::class])->each(function ($entity) {
+        collect([Invoice::class, Quote::class, Credit::class, PurchaseOrder::class, RecurringInvoice::class])->each(function ($entity) {
             if ($entity::doesntHave('invitations')->count() > 0) {
                 $entity::doesntHave('invitations')->cursor()->each(function ($entity) {
                     $client_vendor_key = 'client_id';
@@ -694,7 +695,7 @@ class CheckData extends Command
     {
         $this->wrong_balances = 0;
 
-        Client::cursor()->where('is_deleted', 0)->where('clients.updated_at', '>', now()->subDays(2))->each(function ($client) {
+        Client::query()->cursor()->where('is_deleted', 0)->where('clients.updated_at', '>', now()->subDays(2))->each(function ($client) {
             $client->invoices->where('is_deleted', false)->whereIn('status_id', '!=', Invoice::STATUS_DRAFT)->each(function ($invoice) use ($client) {
                 $total_paid = $invoice->payments()
                                     ->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
@@ -876,7 +877,7 @@ class CheckData extends Command
         $this->wrong_balances = 0;
         $this->wrong_paid_to_dates = 0;
 
-        foreach (Client::where('is_deleted', 0)->where('clients.updated_at', '>', now()->subDays(2))->cursor() as $client) {
+        foreach (Client::query()->where('is_deleted', 0)->where('clients.updated_at', '>', now()->subDays(2))->cursor() as $client) {
             $invoice_balance = $client->invoices()->where('is_deleted', false)->whereIn('status_id', [2,3])->sum('balance');
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 

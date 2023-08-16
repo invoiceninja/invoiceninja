@@ -322,10 +322,10 @@ class EmailDefaults
         }
         /** E-Invoice xml file */
         if ($this->email->email_object->settings->enable_e_invoice && $this->email->email_object->entity instanceof Invoice) {
-            $xinvoice_path = $this->email->email_object->entity->service()->getEInvoice();
+            $xml_string = $this->email->email_object->entity->service()->getEInvoice();
 
-            if(Storage::disk(config('filesystems.default'))->exists($xinvoice_path))
-                $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode(Storage::get($xinvoice_path)), 'name' => explode(".", $this->email->email_object->entity->getFileName('xml'))[0]."-e_invoice.xml"]]);
+            if($xml_string)
+                $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($xml_string), 'name' => explode(".", $this->email->email_object->entity->getFileName('xml'))[0]."-e_invoice.xml"]]);
         }
 
         if (!$this->email->email_object->settings->document_email_attachment || !$this->email->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {

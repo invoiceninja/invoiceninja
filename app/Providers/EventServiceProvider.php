@@ -94,6 +94,7 @@ use App\Events\Misc\InvitationWasViewed;
 use App\Events\Payment\PaymentWasVoided;
 use App\Events\Vendor\VendorWasArchived;
 use App\Events\Vendor\VendorWasRestored;
+use App\Events\Account\StripeConnectFailure;
 use App\Listeners\Mail\MailSentListener;
 use App\Observers\ClientContactObserver;
 use App\Observers\PurchaseOrderObserver;
@@ -198,6 +199,8 @@ use App\Listeners\Invoice\InvoiceRestoredActivity;
 use App\Listeners\Invoice\InvoiceReversedActivity;
 use App\Listeners\Payment\PaymentRestoredActivity;
 use App\Listeners\Quote\QuoteApprovedNotification;
+use SocialiteProviders\Apple\AppleExtendSocialite;
+use SocialiteProviders\Manager\SocialiteWasCalled;
 use App\Events\Subscription\SubscriptionWasCreated;
 use App\Events\Subscription\SubscriptionWasDeleted;
 use App\Events\Subscription\SubscriptionWasUpdated;
@@ -221,10 +224,12 @@ use App\Listeners\Invoice\InvoiceEmailFailedActivity;
 use App\Events\PurchaseOrder\PurchaseOrderWasAccepted;
 use App\Events\PurchaseOrder\PurchaseOrderWasArchived;
 use App\Events\PurchaseOrder\PurchaseOrderWasRestored;
+use App\Listeners\Payment\PaymentEmailFailureActivity;
 use App\Listeners\Vendor\UpdateVendorContactLastLogin;
 use App\Events\RecurringQuote\RecurringQuoteWasCreated;
 use App\Events\RecurringQuote\RecurringQuoteWasDeleted;
 use App\Events\RecurringQuote\RecurringQuoteWasUpdated;
+use App\Listeners\Account\StripeConnectFailureListener;
 use App\Listeners\Activity\CreatedSubscriptionActivity;
 use App\Listeners\Activity\SubscriptionDeletedActivity;
 use App\Listeners\Activity\SubscriptionUpdatedActivity;
@@ -234,6 +239,7 @@ use App\Events\RecurringQuote\RecurringQuoteWasRestored;
 use App\Listeners\Activity\SubscriptionArchivedActivity;
 use App\Listeners\Activity\SubscriptionRestoredActivity;
 use App\Listeners\Invoice\InvoiceFailedEmailNotification;
+use SocialiteProviders\Microsoft\MicrosoftExtendSocialite;
 use App\Events\RecurringExpense\RecurringExpenseWasCreated;
 use App\Events\RecurringExpense\RecurringExpenseWasDeleted;
 use App\Events\RecurringExpense\RecurringExpenseWasUpdated;
@@ -586,6 +592,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         TaskWasRestored::class => [
             TaskRestoredActivity::class,
+        ],
+        StripeConnectFailure::class => [
+            StripeConnectFailureListener::class,
         ],
         SubscriptionWasCreated::class => [
             CreatedSubscriptionActivity::class,

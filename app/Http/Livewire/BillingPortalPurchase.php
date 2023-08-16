@@ -62,11 +62,11 @@ class BillingPortalPurchase extends Component
     public $password;
 
     /**
-     * Instance of subscription.
+     * This arrives as an int and we resolve in the mount method
      *
-     * @var \App\Models\Subscription $subscription
+     * @var int|Subscription
      */
-    public Subscription $subscription;
+    public $subscription;
 
     /**
      * Instance of client contact.

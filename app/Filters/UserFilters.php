@@ -127,8 +127,7 @@ class UserFilters extends QueryFilters
         $user_array = $this->transformKeys(explode(',', $user_id));
 
         return  $this->builder->where(function ($query) use ($user_array) {
-            $query->whereNotIn('id', $user_array)
-                  ->where('account_id', auth()->user()->account_id);
+            $query->whereNotIn('id', $user_array);
         });
     }
 }

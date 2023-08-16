@@ -237,6 +237,15 @@ class BaseModel extends Model
         return $this->numberFormatter().'.'.$extension;
     }
 
+     /**
+     * @param string $extension
+     * @return string
+     */
+    public function getEFileName($extension = 'pdf')
+    {
+        return ctrans("texts.e_invoice"). "_" . $this->numberFormatter().'.'.$extension;
+    }
+
     public function numberFormatter()
     {
         $number = strlen($this->number) >= 1 ? $this->translate_entity() . "_" . $this->number : class_basename($this) . "_" . Str::random(5);
@@ -276,6 +285,7 @@ class BaseModel extends Model
 
     /**
      * Returns the base64 encoded PDF string of the entity
+     * @deprecated - unused implementation
      */
     public function fullscreenPdfViewer($invitation = null): string
     {
