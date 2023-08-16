@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9d7348352c913eb82fcca2e67670e1f8",
+    "content-hash": "b48cfe4230f3fd18612bc2852ae2e029",
     "packages": [
         {
             "name": "adrienrn/php-mimetyper",
@@ -3344,16 +3344,16 @@
         },
         {
             "name": "horstoeko/zugferd",
-            "version": "v1.0.20",
+            "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/horstoeko/zugferd.git",
-                "reference": "725c130ec0a09d72cf54b3d819840f3959a5502c"
+                "url": "https://github.com/turbo124/zugferd.git",
+                "reference": "2d27efab66d948266dd439db5caeeb8ed1756b4c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/horstoeko/zugferd/zipball/725c130ec0a09d72cf54b3d819840f3959a5502c",
-                "reference": "725c130ec0a09d72cf54b3d819840f3959a5502c",
+                "url": "https://api.github.com/repos/turbo124/zugferd/zipball/2d27efab66d948266dd439db5caeeb8ed1756b4c",
+                "reference": "2d27efab66d948266dd439db5caeeb8ed1756b4c",
                 "shasum": ""
             },
             "require": {
@@ -3379,17 +3379,60 @@
                 "sebastian/phpcpd": "^6",
                 "squizlabs/php_codesniffer": "^3"
             },
+            "default-branch": true,
             "type": "package",
             "autoload": {
                 "psr-4": {
                     "horstoeko\\zugferd\\": "src",
+                    "horstoeko\\zugferd\\rsm\\": "src/entities/rsm",
                     "horstoeko\\zugferd\\qdt\\": "src/entities/qdt",
                     "horstoeko\\zugferd\\ram\\": "src/entities/ram",
-                    "horstoeko\\zugferd\\rsm\\": "src/entities/rsm",
                     "horstoeko\\zugferd\\udt\\": "src/entities/udt"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "horstoeko\\zugferd\\tests\\": "tests"
+                }
+            },
+            "scripts": {
+                "tests": [
+                    "./vendor/bin/phpunit ./tests/"
+                ],
+                "testsreal": [
+                    "./vendor/bin/phpunit --configuration ./build/phpunit.xml"
+                ],
+                "phpcs": [
+                    "./vendor/bin/phpcs --standard=./build/phpcsrules.xml --extensions=php --ignore=autoload.php ./src ./tests"
+                ],
+                "phpcs12": [
+                    "./vendor/bin/phpcs --standard=./build/phpcsrules_psr12.xml --extensions=php --ignore=autoload.php ./src ./tests"
+                ],
+                "phpcbf": [
+                    "./vendor/bin/phpcbf -q ./src ./tests"
+                ],
+                "phpcbf1": [
+                    "./vendor/bin/phpcbf --standard=./build/phpcsrules_psr1.xml -q ./src ./tests"
+                ],
+                "phpcbf2": [
+                    "./vendor/bin/phpcbf --standard=./build/phpcsrules_psr2.xml -q ./src ./tests"
+                ],
+                "phpcbf12": [
+                    "./vendor/bin/phpcbf --standard=./build/phpcsrules_psr12.xml -q ./src ./tests"
+                ],
+                "phpcbfsq": [
+                    "./vendor/bin/phpcbf --standard=./build/phpcsrules_squiz.xml -q ./src ./tests"
+                ],
+                "phpstan": [
+                    "./vendor/bin/phpstan analyze -c ./build/phpstan.neon --autoload-file=vendor/autoload.php --no-interaction --no-progress --xdebug"
+                ],
+                "phpstan_cs": [
+                    "./vendor/bin/phpstan analyze -c ./build/phpstan.neon --autoload-file=vendor/autoload.php --no-interaction --no-progress --error-format=checkstyle --xdebug"
+                ],
+                "makedoc": [
+                    "phing -f ./build.xml projectdoc"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -3403,17 +3446,16 @@
             "description": "A library for creating and reading european electronic invoices",
             "homepage": "https://github.com/horstoeko/zugferd",
             "keywords": [
-                "ZUGFeRD",
                 "electronic",
                 "factur-x",
                 "invoice",
-                "xrechnung"
+                "xrechnung",
+                "zugferd"
             ],
             "support": {
-                "issues": "https://github.com/horstoeko/zugferd/issues",
-                "source": "https://github.com/horstoeko/zugferd/tree/v1.0.20"
+                "source": "https://github.com/turbo124/zugferd/tree/add_string_output_for_pdf"
             },
-            "time": "2023-07-04T15:21:32+00:00"
+            "time": "2023-08-16T10:23:41+00:00"
         },
         {
             "name": "http-interop/http-factory-guzzle",
@@ -6248,24 +6290,28 @@
         },
         {
             "name": "nesbot/carbon",
-            "version": "2.68.1",
+            "version": "2.69.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/briannesbitt/Carbon.git",
-                "reference": "4f991ed2a403c85efbc4f23eb4030063fdbe01da"
+                "reference": "4308217830e4ca445583a37d1bf4aff4153fa81c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/4f991ed2a403c85efbc4f23eb4030063fdbe01da",
-                "reference": "4f991ed2a403c85efbc4f23eb4030063fdbe01da",
+                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/4308217830e4ca445583a37d1bf4aff4153fa81c",
+                "reference": "4308217830e4ca445583a37d1bf4aff4153fa81c",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
                 "php": "^7.1.8 || ^8.0",
+                "psr/clock": "^1.0",
                 "symfony/polyfill-mbstring": "^1.0",
                 "symfony/polyfill-php80": "^1.16",
                 "symfony/translation": "^3.4 || ^4.0 || ^5.0 || ^6.0"
+            },
+            "provide": {
+                "psr/clock-implementation": "1.0"
             },
             "require-dev": {
                 "doctrine/dbal": "^2.0 || ^3.1.4",
@@ -6346,7 +6392,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-06-20T18:29:04+00:00"
+            "time": "2023-08-03T09:00:52+00:00"
         },
         {
             "name": "nette/schema",
@@ -18319,6 +18365,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "horstoeko/zugferd": 20,
         "webpatser/laravel-countries": 20
     },
     "prefer-stable": true,
