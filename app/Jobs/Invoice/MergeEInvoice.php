@@ -46,23 +46,25 @@ class MergeEInvoice implements ShouldQueue
      */
     private function embedEInvoiceZuGFerD(): void
     {
-        $filepath_pdf = !empty($this->pdf_path) ? $this->pdf_path : $this->invoice->service()->getInvoicePdf();
-        $disk = config('filesystems.default');
-        $e_rechnung = (new CreateEInvoice($this->invoice, true))->handle();
-        if (!empty($this->pdf_path)){
-            $realpath_pdf = $filepath_pdf;
-        }
-        else {
-           $realpath_pdf = Storage::disk($disk)->path($filepath_pdf);
-        }
-        if (file_exists($realpath_pdf)){
-            $pdfBuilder = new ZugferdDocumentPdfBuilder($e_rechnung, $realpath_pdf);
-            $pdfBuilder->generateDocument();
-            $pdfBuilder->saveDocument($realpath_pdf);
-        }
-        else{
-            nlog("E_Invoice Merge failed - file to merge not found");
-        }
+        try {
+            $filepath_pdf = !empty($this->pdf_path) ? $this->pdf_path : $this->invoice->service()->getInvoicePdf();
+            $disk = config('filesystems.default');
+            $e_rechnung = (new CreateEInvoice($this->invoice, true))->handle();
+            if (!empty($this->pdf_path)) {
+                $realpath_pdf = $filepath_pdf;
+            } else {
+                $realpath_pdf = Storage::disk($disk)->path($filepath_pdf);
+            }
+            if (file_exists($realpath_pdf)) {
+                $pdfBuilder = new ZugferdDocumentPdfBuilder($e_rechnung, $realpath_pdf);
+                $pdfBuilder->generateDocument();
+                $pdfBuilder->saveDocument($realpath_pdf);
+            } else {
+                nlog("E_Invoice Merge failed - file to merge not found");
+            }
 
+        } catch (\Exception $e) {
+            nlog("E_Invoice Merge failed - " . $e->getMessage());
+        }
     }
 }

@@ -178,7 +178,10 @@ class ZugferdEInvoice extends AbstractService
         if ($this->returnObject){
             return $xrechnung;
         }
-        return $client->e_invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName("xml");
+
+        throw new \Exception("Invalid e invoice object");
+
+        // return $client->e_invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName("xml");
     }
 
     private function getTaxType($name): string

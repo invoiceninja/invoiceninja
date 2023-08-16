@@ -38,7 +38,7 @@ class CreateEInvoice implements ShouldQueue
      * Execute the job.
      *
      *
-     * @return string
+     * @return string|ZugferdDocumentBuilder
      */
     public function handle(): string|ZugferdDocumentBuilder
     {
