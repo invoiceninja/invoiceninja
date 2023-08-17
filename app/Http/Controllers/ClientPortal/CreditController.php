@@ -30,7 +30,8 @@ class CreditController extends Controller
     {
         set_time_limit(0);
 
-        $invitation = $credit->invitations()->where('client_contact_id', auth()->user()->id)->first();
+        // $invitation = $credit->invitations()->where('client_contact_id', auth()->user()->id)->first();
+        $invitation = $credit->invitations()->where('client_contact_id', auth()->guard('contact')->user()->id)->first();
 
         $data = [
             'credit' => $credit,
