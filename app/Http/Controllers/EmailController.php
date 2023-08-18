@@ -78,7 +78,9 @@ class EmailController extends BaseController
                 $entity_obj->service()->markSent()->save();
 
                 $mo->invitation_id = $invitation->id;
-
+                $mo->client_id = $invitation->contact->client_id ?? null;
+                $mo->vendor_id = $invitation->contact->vendor_id ?? null;
+                
                 Email::dispatch($mo, $invitation->company);
             }
         });

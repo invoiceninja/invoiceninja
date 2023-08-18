@@ -53,7 +53,7 @@ class QuoteController extends Controller
     {
         /* If the quote is expired, convert the status here */
 
-        $invitation = $quote->invitations()->where('client_contact_id', auth()->user()->id)->first();
+        $invitation = $quote->invitations()->where('client_contact_id', auth()->guard('contact')->user()->id)->first();
 
         $data = [
             'quote' => $quote,

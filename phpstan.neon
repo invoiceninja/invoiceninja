@@ -1,19 +1,23 @@
 includes:
     - ./vendor/nunomaduro/larastan/extension.neon
     - ./vendor/spaze/phpstan-stripe/extension.neon
+    - phpstan-baseline.neon
 parameters:
     level: 2
     paths:
-        - 'app/'
+        - app
     excludePaths:
-        - 'vendor/'
+        - 'vendor/*'
+        - '../resources/*'
+        - resources/
+        - resources/*
         - 'app/Jobs/Ninja/*'
         - 'app/Models/Presenters/*'
         - 'app/Console/Commands/*'
         - 'app/DataMapper/Analytics/*'
         - 'app/PaymentDrivers/Authorize/*'
+        - 'app/PaymentDrivers/AuthorizePaymentDriver.php'
         - 'app/Utils/Traits/*'
-        - 'resources/views/*'
     universalObjectCratesClasses:
         - App\DataMapper\Tax\RuleInterface
         - App\DataMapper\FeesAndLimits

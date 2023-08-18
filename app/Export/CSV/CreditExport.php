@@ -11,13 +11,15 @@
 
 namespace App\Export\CSV;
 
-use App\Libraries\MultiDB;
-use App\Models\Company;
-use App\Models\Credit;
-use App\Transformers\CreditTransformer;
 use App\Utils\Ninja;
-use Illuminate\Support\Facades\App;
+use App\Utils\Number;
+use App\Models\Credit;
 use League\Csv\Writer;
+use App\Models\Company;
+use App\Libraries\MultiDB;
+use Illuminate\Support\Facades\App;
+use App\Transformers\CreditTransformer;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 
 class CreditExport extends BaseExport
 {
@@ -80,23 +82,57 @@ class CreditExport extends BaseExport
         $this->credit_transformer = new CreditTransformer();
     }
 
-    public function run()
+    public function returnJson()
     {
+        $query = $this->init();
+
+        $header = $this->buildHeader();
+
+        $report = $query->cursor()
+                ->map(function ($credit) {
+                    $row = $this->buildRow($credit);
+                    return $this->processMetaData($row, $credit);
+                })->toArray();
+
+        return array_merge([$header], $report);
+    }
+
+    private function processMetaData(array $row, Credit $credit): array
+    {
+        $clean_row = [];
+
+        foreach ($this->input['report_keys'] as $key => $value) {
+            
+            $report_keys = explode(".", $value);
+            
+            $column_key = str_replace("credit.", "", $value);
+            $clean_row[$key]['entity'] = $report_keys[0];
+            $clean_row[$key]['id'] = $report_keys[1];
+            $clean_row[$key]['hashed_id'] = $report_keys[0] == 'credit' ? null : $credit->{$report_keys[0]}->hashed_id ?? null;
+            $clean_row[$key]['value'] = $row[$column_key];
+
+            if(in_array($report_keys[1], ['amount', 'balance', 'partial', 'refunded', 'applied','unit_cost','cost','price']))
+                $clean_row[$key]['display_value'] = Number::formatMoney($row[$column_key], $credit->client);
+            else
+                $clean_row[$key]['display_value'] = $row[$column_key];
+
+        }
+
+        return $clean_row;
+    }
+
+    private function init(): Builder
+    {
+
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
         App::setLocale($this->company->locale());
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
-        //load the CSV document from a string
-        $this->csv = Writer::createFromString();
-
         if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = array_values($this->entity_keys);
         }
-
-        //insert the header
-        $this->csv->insertOne($this->buildHeader());
 
         $query = Credit::query()
                         ->withTrashed()
@@ -105,8 +141,22 @@ class CreditExport extends BaseExport
 
         $query = $this->addDateRange($query);
 
+        return $query;
+    }
+
+    public function run(): string
+    {
+        $query = $this->init();
+        //load the CSV document from a string
+        $this->csv = Writer::createFromString();
+
+        //insert the header
+        $this->csv->insertOne($this->buildHeader());
+// nlog($this->input['report_keys']);
+
         $query->cursor()
             ->each(function ($credit) {
+                nlog($this->buildRow($credit));
                 $this->csv->insertOne($this->buildRow($credit));
             });
 
