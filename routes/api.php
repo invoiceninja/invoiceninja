@@ -312,7 +312,9 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('reports/client_sales_report', ClientSalesReportController::class);
     Route::post('reports/tax_summary_report', TaxSummaryReportController::class);
     Route::post('reports/user_sales_report', UserSalesReportController::class);
-    
+    Route::post('reports/preview/{hash}', UserSalesReportController::class);
+
+
     Route::resource('task_schedulers', TaskSchedulerController::class);
     Route::post('task_schedulers/bulk', [TaskSchedulerController::class, 'bulk'])->name('task_schedulers.bulk');
 

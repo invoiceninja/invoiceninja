@@ -16,6 +16,7 @@ use App\Models\Company;
 use App\Models\Credit;
 use App\Transformers\CreditTransformer;
 use App\Utils\Ninja;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
@@ -80,14 +81,40 @@ class CreditExport extends BaseExport
         $this->credit_transformer = new CreditTransformer();
     }
 
-    public function run()
+    public function returnJson(string $hash)
     {
+        $query = $this->init();
+
+        $header = $this->buildHeader();
+
+        $report = $query->cursor()
+              ->map(function ($credit) {
+                  return $this->buildRow($credit);
+              })->toJson();
+    }
+
+    private function init(): Builder
+    {
+
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
         App::setLocale($this->company->locale());
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
+        $query = Credit::query()
+                        ->withTrashed()
+                        ->with('client')->where('company_id', $this->company->id)
+                        ->where('is_deleted', 0);
+
+        $query = $this->addDateRange($query);
+
+        return $query;
+    }
+
+    public function run()
+    {
+        $query = $this->init();
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
 
@@ -98,12 +125,7 @@ class CreditExport extends BaseExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        $query = Credit::query()
-                        ->withTrashed()
-                        ->with('client')->where('company_id', $this->company->id)
-                        ->where('is_deleted', 0);
-
-        $query = $this->addDateRange($query);
+        
 
         $query->cursor()
             ->each(function ($credit) {
