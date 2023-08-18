@@ -32,7 +32,6 @@ class ReportPreviewRequest extends Request
     public function rules()
     {
         return [
-            'hash' => 'bail|required|string',
         ];
     }
 

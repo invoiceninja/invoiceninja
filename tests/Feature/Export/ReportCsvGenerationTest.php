@@ -676,33 +676,57 @@ class ReportCsvGenerationTest extends TestCase
 
     public function testCreditJsonReport()
     {
-        
-        // Credit::factory()->create([
-        //         'user_id' => $this->user->id,
-        //         'company_id' => $this->company->id,
-        //         'client_id' => $this->client->id,
-        //         'amount' => 100,
-        //         'balance' => 50,
-        //         'number' => '1234',
-        //         'status_id' => 2,
-        //         'discount' => 10,
-        //         'po_number' => '1234',
-        //         'public_notes' => 'Public',
-        //         'private_notes' => 'Private',
-        //         'terms' => 'Terms',
-        //     ]);
 
-        // $data = [
-        //     'date_range' => 'all',
-        //     'report_keys' => ["client.name","credit.number","credit.amount","payment.date", "payment.amount"],
-        //     'send_email' => false,
-        // ];
+        Credit::factory()->create([
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'client_id' => $this->client->id,
+                'amount' => 100,
+                'balance' => 50,
+                'number' => '1234',
+                'status_id' => 2,
+                'discount' => 10,
+                'po_number' => '1234',
+                'public_notes' => 'Public',
+                'private_notes' => 'Private',
+                'terms' => 'Terms',
+            ]);
 
-        // $response = $this->withHeaders([
-        //     'X-API-SECRET' => config('ninja.api_secret'),
-        //     'X-API-TOKEN' => $this->token,
-        // ])->post('/api/v1/reports/credits?output=json', $data);
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => ["client.name","credit.number","credit.amount","payment.date", "payment.amount"],
+            'send_email' => false,
+        ];
 
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/reports/credits?output=json', $data);
+
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        nlog($arr['message']);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/reports/preview/'.$arr['message']);
+
+        $response->assertStatus(409);
+
+        sleep(1);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/reports/preview/'.$arr['message']);
+
+        $response->assertStatus(200);
+
+        nlog($response->json());
 
     }
 

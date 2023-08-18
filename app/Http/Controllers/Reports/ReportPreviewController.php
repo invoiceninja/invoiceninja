@@ -27,8 +27,6 @@ class ReportPreviewController extends BaseController
 
     public function __invoke(ReportPreviewRequest $request, ?string $hash)
     {
-        /** @var \App\Models\User $user */
-        $user = auth()->user();
 
         $report = Cache::get($hash);
 

@@ -14,6 +14,7 @@ namespace App\Http\Controllers\Reports;
 use App\Export\CSV\CreditExport;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Report\GenericReportRequest;
+use App\Jobs\Report\PreviewReport;
 use App\Jobs\Report\SendToAdmin;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
@@ -72,16 +73,16 @@ class CreditReportController extends BaseController
         }
         // expect a list of visible fields, or use the default
 
-        $export = new CreditExport($user->company(), $request->all());
-
         if($request->has('output') && $request->input('output') == 'json') {
 
             $hash = \Illuminate\Support\Str::uuid();
 
-            $data = $export->returnJson($hash);
+            PreviewReport::dispatch($user->company(), $request->all(), CreditExport::class, $hash);
 
             return response()->json(['message' => $hash], 200);
         }
+        
+        $export = new CreditExport($user->company(), $request->all());
 
         $csv = $export->run();
 
