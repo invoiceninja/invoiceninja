@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Model;
  * App\Models\PaymentHash
  *
  * @property int $id
- * @property string $hash
+ * @property string $hash 32 char length AlphaNum
  * @property float $fee_total
  * @property int|null $fee_invoice_id
  * @property \stdClass $data
@@ -41,6 +41,7 @@ class PaymentHash extends Model
         /**
         * @class \App\Models\PaymentHash $this
         * @property \App\Models\PaymentHash $data
+        * @property \App\Modes\PaymentHash $hash 32 char length AlphaNum
         * @class \stdClass $data
         * @property string $raw_value
         */

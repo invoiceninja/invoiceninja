@@ -20,8 +20,12 @@ use App\Models\PaymentType;
 use Square\Http\ApiResponse;
 use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
+use Square\Utils\WebhooksHelper;
 use App\Models\ClientGatewayToken;
+use Square\Models\WebhookSubscription;
 use App\PaymentDrivers\Square\CreditCard;
+use App\PaymentDrivers\Square\SquareWebhook;
+use Square\Models\CreateWebhookSubscriptionRequest;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use Square\Models\Builders\RefundPaymentRequestBuilder;
 
@@ -230,6 +234,8 @@ class SquarePaymentDriver extends BaseDriver
         $body = new \Square\Models\CreatePaymentRequest($cgt->token, \Illuminate\Support\Str::random(32), $amount_money);
         $body->setCustomerId($cgt->gateway_customer_reference);
         $body->setAmountMoney($amount_money);
+        $body->setReferenceId($payment_hash->hash);
+        $body->setNote(substr($description,0,500));
 
         /** @var ApiResponse */
         $response = $this->square->getPaymentsApi()->createPayment($body);
@@ -284,16 +290,34 @@ class SquarePaymentDriver extends BaseDriver
         $this->init();
 
         $event_types = ['payment.created', 'payment.updated'];
-        $subscription = new \Square\Models\WebhookSubscription();
-        $subscription->setName('Invoice Ninja Webhook Subscription');
+        $subscription = new WebhookSubscription();
+        $subscription->setName('Invoice_Ninja_Webhook_Subscription');
         $subscription->setEventTypes($event_types);
         $subscription->setNotificationUrl($this->company_gateway->webhookUrl());
         // $subscription->setApiVersion('2021-12-15');
 
-        $body = new \Square\Models\CreateWebhookSubscriptionRequest($subscription);
+        $body = new CreateWebhookSubscriptionRequest($subscription);
         $body->setIdempotencyKey(\Illuminate\Support\Str::uuid());
 
         $api_response = $this->square->getWebhookSubscriptionsApi()->createWebhookSubscription($body);
+
+// {
+//   "subscription": {
+//     "id": "wbhk_b35f6b3145074cf9ad513610786c19d5",
+//     "name": "Example Webhook Subscription",
+//     "enabled": true,
+//     "event_types": [
+//         "payment.created",
+//         "order.updated",
+//         "invoice.created"
+//     ],
+//     "notification_url": "https://example-webhook-url.com",
+//     "api_version": "2021-12-15",
+//     "signature_key": "1k9bIJKCeTmSQwyagtNRLg",
+//     "created_at": "2022-08-17 23:29:48 +0000 UTC",
+//     "updated_at": "2022-08-17 23:29:48 +0000 UTC"
+//   }
+// }
 
         if ($api_response->isSuccess()) {
             $result = $api_response->getResult();
@@ -303,21 +327,29 @@ class SquarePaymentDriver extends BaseDriver
 
     }
 
-    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
+    public function processWebhookRequest(PaymentWebhookRequest $request)
     {
 
+        $signature_key = $this->company_gateway->getConfigField('signatureKey');
+        $notification_url = $this->company_gateway->webhookUrl();
+        
         // header('Content-Type: text/plain');
         // $webhook_payload = file_get_contents('php://input');
 
-        // if($request->header('cko-signature') == hash_hmac('sha256', $webhook_payload, $this->company_gateway->company->company_key)) {
-        //     CheckoutWebhook::dispatch($request->all(), $request->company_key, $this->company_gateway->id)->delay(10);
-        // } else {
-        //     nlog("Hash Mismatch = {$request->header('cko-signature')} ".hash_hmac('sha256', $webhook_payload, $this->company_gateway->company->company_key));
-        //     nlog($request->all());
-        // }
+        $body = '';   
+        $handle = fopen('php://input', 'r');
+        while(!feof($handle)) {
+            $body .= fread($handle, 1024);
+        }
 
-        // return response()->json(['success' => true]);
+        if (WebhooksHelper::isValidWebhookEventSignature($body, $request->header('x-square-hmacsha256-signature'), $signature_key, $notification_url)) {
+            SquareWebhook::dispatch($request->all(), $request->company_key, $this->company_gateway->id)->delay(5);
+        } else {
+            nlog("Square Hash Mismatch");
+            nlog($request->all());
+        }
 
+        return response()->json(['success' => true]);
 
     }
 
