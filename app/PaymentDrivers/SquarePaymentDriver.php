@@ -177,8 +177,46 @@ class SquarePaymentDriver extends BaseDriver
         return false;
     }
 
+    public function createWebhooks()
+    {
+        $this->init();
+
+        $event_types = ['payment.created', 'payment.updated'];
+        $subscription = new \Square\Models\WebhookSubscription();
+        $subscription->setName('Invoice Ninja Webhook Subscription');
+        $subscription->setEventTypes($event_types);
+        $subscription->setNotificationUrl($this->company_gateway->webhookUrl());
+        // $subscription->setApiVersion('2021-12-15');
+
+        $body = new \Square\Models\CreateWebhookSubscriptionRequest($subscription);
+        $body->setIdempotencyKey(\Illuminate\Support\Str::uuid());
+
+        $api_response = $this->square->getWebhookSubscriptionsApi()->createWebhookSubscription($body);
+
+        if ($api_response->isSuccess()) {
+            $result = $api_response->getResult();
+        } else {
+            $errors = $api_response->getErrors();
+        }
+
+    }
+
     public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
     {
+
+        // header('Content-Type: text/plain');
+        // $webhook_payload = file_get_contents('php://input');
+
+        // if($request->header('cko-signature') == hash_hmac('sha256', $webhook_payload, $this->company_gateway->company->company_key)) {
+        //     CheckoutWebhook::dispatch($request->all(), $request->company_key, $this->company_gateway->id)->delay(10);
+        // } else {
+        //     nlog("Hash Mismatch = {$request->header('cko-signature')} ".hash_hmac('sha256', $webhook_payload, $this->company_gateway->company->company_key));
+        //     nlog($request->all());
+        // }
+
+        // return response()->json(['success' => true]);
+
+
     }
 
     public function convertAmount($amount)
