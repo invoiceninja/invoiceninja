@@ -11,18 +11,19 @@
 
 namespace App\PaymentDrivers;
 
-use App\Http\Requests\Payments\PaymentWebhookRequest;
-use App\Jobs\Util\SystemLogger;
-use App\Models\ClientGatewayToken;
-use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\SystemLog;
+use App\Models\GatewayType;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use App\Models\SystemLog;
-use App\PaymentDrivers\Square\CreditCard;
-use App\Utils\Traits\MakesHash;
 use Square\Http\ApiResponse;
+use App\Jobs\Util\SystemLogger;
+use App\Utils\Traits\MakesHash;
+use App\Models\ClientGatewayToken;
+use App\PaymentDrivers\Square\CreditCard;
+use App\Http\Requests\Payments\PaymentWebhookRequest;
+use Square\Models\Builders\RefundPaymentRequestBuilder;
 
 class SquarePaymentDriver extends BaseDriver
 {
@@ -96,15 +97,115 @@ class SquarePaymentDriver extends BaseDriver
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
         $this->init();
+        $this->client = $payment->client;
 
         $amount_money = new \Square\Models\Money();
         $amount_money->setAmount($this->convertAmount($amount));
         $amount_money->setCurrency($this->client->currency()->code);
 
-        $body = new \Square\Models\RefundPaymentRequest(\Illuminate\Support\Str::random(32), $amount_money, $payment->transaction_reference);
+        $body = RefundPaymentRequestBuilder::init(\Illuminate\Support\Str::random(32), $amount_money)
+                ->paymentId($payment->transaction_reference)
+                ->reason('Refund Request')
+                ->build();
 
-        /** @var ApiResponse */
-        $response = $this->square->getRefundsApi()->refund($body);
+        $apiResponse = $this->square->getRefundsApi()->refundPayment($body);
+
+        if ($apiResponse->isSuccess()) {
+
+            $refundPaymentResponse = $apiResponse->getResult();
+
+            nlog($refundPaymentResponse);
+
+            /**
+            * - `PENDING` - Awaiting approval.
+            * - `COMPLETED` - Successfully completed.
+            * - `REJECTED` - The refund was rejected.
+            * - `FAILED` - An error occurred.
+            */
+
+            $status = $refundPaymentResponse->getRefund()->getStatus();
+
+            if(in_array($status, ['COMPLETED', 'PENDING'])){
+
+                $transaction_reference = $refundPaymentResponse->getRefund()->getId();
+
+                $data = [
+                    'transaction_reference' => $transaction_reference,
+                    'transaction_response' => json_encode($refundPaymentResponse->getRefund()->jsonSerialize()),
+                    'success' => true,
+                    'description' => $refundPaymentResponse->getRefund()->getReason(),
+                    'code' => $refundPaymentResponse->getRefund()->getReason(),
+                ];
+
+                SystemLogger::dispatch(
+                    [
+                        'server_response' => $data,
+                        'data' => request()->all()
+                    ],
+                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                    SystemLog::EVENT_GATEWAY_SUCCESS,
+                    SystemLog::TYPE_SQUARE,
+                    $this->client,
+                    $this->client->company
+                );
+
+                return $data;
+            }
+            elseif(in_array($status, ['REJECTED', 'FAILED'])) {
+
+                $transaction_reference = $refundPaymentResponse->getRefund()->getId();
+
+                $data = [
+                    'transaction_reference' => $transaction_reference,
+                    'transaction_response' => json_encode($refundPaymentResponse->getRefund()->jsonSerialize()),
+                    'success' => false,
+                    'description' => $refundPaymentResponse->getRefund()->getReason(),
+                    'code' => $refundPaymentResponse->getRefund()->getReason(),
+                ];
+
+                SystemLogger::dispatch(
+                    [
+                        'server_response' => $data,
+                        'data' => request()->all()
+                    ],
+                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                    SystemLog::EVENT_GATEWAY_FAILURE,
+                    SystemLog::TYPE_SQUARE,
+                    $this->client,
+                    $this->client->company
+                );
+
+                return $data;
+            }
+
+        } else {
+            
+            /** @var \Square\Models\Error $error */
+            $error = end($apiResponse->getErrors());
+
+            $data = [
+                    'transaction_reference' => $payment->transaction_reference,
+                    'transaction_response' => $error->jsonSerialize(),
+                    'success' => false,
+                    'description' => $error->getDetail(),
+                    'code' => $error->getCode(),
+                ];
+
+                SystemLogger::dispatch(
+                    [
+                                        'server_response' => $data,
+                                        'data' => request()->all()
+                                    ],
+                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                    SystemLog::EVENT_GATEWAY_FAILURE,
+                    SystemLog::TYPE_SQUARE,
+                    $this->client,
+                    $this->client->company
+                );
+
+            return $data;
+        }
+
     }
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
