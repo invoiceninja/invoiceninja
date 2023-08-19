@@ -103,32 +103,21 @@ class SquareWebhook implements ShouldQueue
         $status = $this->webhook_array['data']['object']['payment']['status'] ?? false;
         $payment_id = $this->webhook_array['data']['object']['payment']['id'] ?? null;
 
-        $payment = $this->retrieveOrCreatePayment($payment_id);
+        match($status){
+            'APPROVED' => $payment_status = Payment::STATUS_COMPLETED,
+            'COMPLETED' => $payment_status = Payment::STATUS_COMPLETED,
+            'PENDING' => $payment_status = Payment::STATUS_PENDING,
+            'CANCELED' => $payment_status = Payment::STATUS_CANCELLED,
+            'FAILED' => $payment_status = Payment::STATUS_FAILED,
+            default => $payment_status = Payment::STATUS_FAILED,
+        };
 
-        // APPROVED, PENDING, COMPLETED, CANCELED, or FAILED
-        if(in_array($status, ['APPROVED', 'COMPLETED'])){
+        $payment = $this->retrieveOrCreatePayment($payment_id, $payment_status);
 
-        }
-        elseif(in_array($status, ['PENDING'])){
-
-        }
-        elseif(in_array($status, ['CANCELED', 'FAILED'])){
-
-        }
-        else{
-            nlog("Square Webhook status not handled: $status");
-        }
-
-        // if(!isset($this->webhook_array['type']))
-        //     nlog("Checkout Webhook type not set");
-
-        // match($this->webhook_array['type']){
-        //     'payment_approved' => $this->paymentApproved(),
-        // };
-
+        //toggle pending to completed.
     }
 
-    private function retrieveOrCreatePayment(?string $payment_reference): \App\Models\Payment
+    private function retrieveOrCreatePayment(?string $payment_reference, int $payment_status): \App\Models\Payment
     {
 
         $payment = Payment::withTrashed()->where('transaction_reference', $payment_reference)->first();
@@ -227,7 +216,7 @@ class SquareWebhook implements ShouldQueue
                 'gateway_type_id' => GatewayType::BANK_TRANSFER,
             ];
 
-            $payment = $square->createPayment($data, Payment::STATUS_COMPLETED);
+            $payment = $square->createPayment($data, $payment_status);
 
             SystemLogger::dispatch(
                 ['response' => $this->webhook_array, 'data' => $square_payment],
