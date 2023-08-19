@@ -12,20 +12,22 @@
 
 namespace App\PaymentDrivers\Square;
 
-use App\Exceptions\PaymentFailed;
-use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Models\ClientGatewayToken;
-use App\Models\GatewayType;
 use App\Models\Payment;
-use App\Models\PaymentType;
-use App\PaymentDrivers\Common\MethodInterface;
-use App\PaymentDrivers\SquarePaymentDriver;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use App\Models\SystemLog;
 use Illuminate\View\View;
+use App\Models\GatewayType;
+use App\Models\PaymentType;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use Square\Http\ApiResponse;
+use App\Jobs\Util\SystemLogger;
+use App\Utils\Traits\MakesHash;
+use App\Exceptions\PaymentFailed;
+use App\Models\ClientGatewayToken;
+use Illuminate\Http\RedirectResponse;
+use App\PaymentDrivers\SquarePaymentDriver;
+use App\PaymentDrivers\Common\MethodInterface;
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 
 class CreditCard implements MethodInterface
 {
@@ -151,6 +153,20 @@ class CreditCard implements MethodInterface
         $payment_record['transaction_reference'] = $body->payment->id;
 
         $payment = $this->square_driver->createPayment($payment_record, Payment::STATUS_COMPLETED);
+
+        $message = [
+            'server_response' => $body,
+            'data' => $this->square_driver->payment_hash->data,
+        ];
+
+        SystemLogger::dispatch(
+            $message,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_SQUARE,
+            $this->square_driver->client,
+            $this->square_driver->client->company,
+        );
 
         return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
     }
