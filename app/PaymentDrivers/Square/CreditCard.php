@@ -112,6 +112,7 @@ class CreditCard implements MethodInterface
         $amount_money->setCurrency($this->square_driver->client->currency()->code);
 
         $body = new \Square\Models\CreatePaymentRequest($token, $request->idempotencyKey, $amount_money);
+        $body->setAmountMoney($amount_money);
 
         $body->setAutocomplete(true);
         $body->setLocationId($this->square_driver->company_gateway->getConfigField('locationId'));

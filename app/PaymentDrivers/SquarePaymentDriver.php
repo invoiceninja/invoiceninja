@@ -128,6 +128,7 @@ class SquarePaymentDriver extends BaseDriver
 
         $body = new \Square\Models\CreatePaymentRequest($cgt->token, \Illuminate\Support\Str::random(32), $amount_money);
         $body->setCustomerId($cgt->gateway_customer_reference);
+        $body->setAmountMoney($amount_money);
 
         /** @var ApiResponse */
         $response = $this->square->getPaymentsApi()->createPayment($body);
