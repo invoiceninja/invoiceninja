@@ -34,11 +34,8 @@ class CreditCard implements MethodInterface
 {
     use MakesHash;
 
-    public $square_driver;
-
-    public function __construct(SquarePaymentDriver $square_driver)
+    public function __construct(public SquarePaymentDriver $square_driver)
     {
-        $this->square_driver = $square_driver;
         $this->square_driver->init();
     }
 
@@ -103,8 +100,7 @@ class CreditCard implements MethodInterface
         );
 
         if ($request->shouldUseToken()) {
-            /** @var \App\Models\ClientGatewayToken $cgt **/
-            $cgt = ClientGatewayToken::where('token', $request->token)->first();
+            $cgt = ClientGatewayToken::query()->where('token', $request->token)->first();
             $token = $cgt->token;
         }
 
@@ -122,7 +118,6 @@ class CreditCard implements MethodInterface
 
         $body = new \Square\Models\CreatePaymentRequest($token, $request->idempotencyKey, $amount_money);
         $body->setAmountMoney($amount_money);
-
         $body->setAutocomplete(true);
         $body->setLocationId($this->square_driver->company_gateway->getConfigField('locationId'));
         $body->setReferenceId($this->square_driver->payment_hash->hash);
@@ -134,7 +129,6 @@ class CreditCard implements MethodInterface
             $body->setVerificationToken($request->input('verificationToken'));
         }
 
-        /** @var ApiResponse */
         $response = $this->square_driver->square->getPaymentsApi()->createPayment($body);
 
         if ($response->isSuccess()) {

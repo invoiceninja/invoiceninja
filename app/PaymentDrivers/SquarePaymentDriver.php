@@ -17,7 +17,6 @@ use App\Models\SystemLog;
 use App\Models\GatewayType;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use Square\Http\ApiResponse;
 use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
 use Square\Utils\WebhooksHelper;
@@ -25,7 +24,6 @@ use App\Models\ClientGatewayToken;
 use Square\Models\WebhookSubscription;
 use App\PaymentDrivers\Square\CreditCard;
 use App\PaymentDrivers\Square\SquareWebhook;
-use Square\Models\ListWebhookSubscriptionsRequest;
 use Square\Models\CreateWebhookSubscriptionRequest;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use Square\Models\Builders\RefundPaymentRequestBuilder;
@@ -238,7 +236,6 @@ class SquarePaymentDriver extends BaseDriver
         $body->setReferenceId($payment_hash->hash);
         $body->setNote(substr($description,0,500));
 
-        /** @var ApiResponse */
         $response = $this->square->getPaymentsApi()->createPayment($body);
         $body = json_decode($response->getBody());
 
@@ -310,7 +307,6 @@ class SquarePaymentDriver extends BaseDriver
         return false;
     }
 
-
     // {
     //   "subscription": {
     //     "id": "wbhk_b35f6b3145074cf9ad513610786c19d5",
@@ -341,9 +337,9 @@ class SquarePaymentDriver extends BaseDriver
         $subscription->setName('Invoice_Ninja_Webhook_Subscription');
         $subscription->setEventTypes($event_types);
 
-$subscription->setNotificationUrl('https://invoicing.co');
+        // $subscription->setNotificationUrl('https://invoicing.co');
 
-// $subscription->setNotificationUrl($this->company_gateway->webhookUrl());
+        $subscription->setNotificationUrl($this->company_gateway->webhookUrl());
         // $subscription->setApiVersion('2021-12-15');
 
         $body = new CreateWebhookSubscriptionRequest($subscription);
@@ -354,7 +350,7 @@ $subscription->setNotificationUrl('https://invoicing.co');
         if ($api_response->isSuccess()) {
             $subscription = $api_response->getResult()->getSubscription();
             $signatureKey = $subscription->getSignatureKey();
-            
+
             $this->company_gateway->setConfigField('signatureKey', $signatureKey);
             
         } else {
