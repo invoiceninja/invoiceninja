@@ -25,6 +25,7 @@ use App\Models\ClientGatewayToken;
 use Square\Models\WebhookSubscription;
 use App\PaymentDrivers\Square\CreditCard;
 use App\PaymentDrivers\Square\SquareWebhook;
+use Square\Models\ListWebhookSubscriptionsRequest;
 use Square\Models\CreateWebhookSubscriptionRequest;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use Square\Models\Builders\RefundPaymentRequestBuilder;
@@ -197,9 +198,9 @@ class SquarePaymentDriver extends BaseDriver
 
                 SystemLogger::dispatch(
                     [
-                                        'server_response' => $data,
-                                        'data' => request()->all()
-                                    ],
+                        'server_response' => $data,
+                        'data' => request()->all()
+                    ],
                     SystemLog::CATEGORY_GATEWAY_RESPONSE,
                     SystemLog::EVENT_GATEWAY_FAILURE,
                     SystemLog::TYPE_SQUARE,
@@ -285,15 +286,64 @@ class SquarePaymentDriver extends BaseDriver
         return false;
     }
 
-    public function createWebhooks()
+    public function checkWebhooks(): bool
     {
+        $this->init();
+        
+        $api_response = $this->square->getWebhookSubscriptionsApi()->listWebhookSubscriptions();
+
+        if ($api_response->isSuccess()) {
+            
+            //array of WebhookSubscription objects
+            foreach($api_response->getResult()->getSubscriptions() as $subscription)
+            {
+                if($subscription->getName() == 'Invoice_Ninja_Webhook_Subscription')
+                    return true;  
+            }
+                       
+        } else {
+            $errors = $api_response->getErrors();
+            nlog($errors);
+
+        }
+
+        return false;
+    }
+
+
+    // {
+    //   "subscription": {
+    //     "id": "wbhk_b35f6b3145074cf9ad513610786c19d5",
+    //     "name": "Example Webhook Subscription",
+    //     "enabled": true,
+    //     "event_types": [
+    //         "payment.created",
+    //         "order.updated",
+    //         "invoice.created"
+    //     ],
+    //     "notification_url": "https://example-webhook-url.com",
+    //     "api_version": "2021-12-15",
+    //     "signature_key": "1k9bIJKCeTmSQwyagtNRLg",
+    //     "created_at": "2022-08-17 23:29:48 +0000 UTC",
+    //     "updated_at": "2022-08-17 23:29:48 +0000 UTC"
+    //   }
+    // }
+    public function createWebhooks(): void
+    {
+        
+        if($this->checkWebhooks())
+            return;
+
         $this->init();
 
         $event_types = ['payment.created', 'payment.updated'];
         $subscription = new WebhookSubscription();
         $subscription->setName('Invoice_Ninja_Webhook_Subscription');
         $subscription->setEventTypes($event_types);
-        $subscription->setNotificationUrl($this->company_gateway->webhookUrl());
+
+$subscription->setNotificationUrl('https://invoicing.co');
+
+// $subscription->setNotificationUrl($this->company_gateway->webhookUrl());
         // $subscription->setApiVersion('2021-12-15');
 
         $body = new CreateWebhookSubscriptionRequest($subscription);
@@ -301,28 +351,15 @@ class SquarePaymentDriver extends BaseDriver
 
         $api_response = $this->square->getWebhookSubscriptionsApi()->createWebhookSubscription($body);
 
-// {
-//   "subscription": {
-//     "id": "wbhk_b35f6b3145074cf9ad513610786c19d5",
-//     "name": "Example Webhook Subscription",
-//     "enabled": true,
-//     "event_types": [
-//         "payment.created",
-//         "order.updated",
-//         "invoice.created"
-//     ],
-//     "notification_url": "https://example-webhook-url.com",
-//     "api_version": "2021-12-15",
-//     "signature_key": "1k9bIJKCeTmSQwyagtNRLg",
-//     "created_at": "2022-08-17 23:29:48 +0000 UTC",
-//     "updated_at": "2022-08-17 23:29:48 +0000 UTC"
-//   }
-// }
-
         if ($api_response->isSuccess()) {
-            $result = $api_response->getResult();
+            $subscription = $api_response->getResult()->getSubscription();
+            $signatureKey = $subscription->getSignatureKey();
+            
+            $this->company_gateway->setConfigField('signatureKey', $signatureKey);
+            
         } else {
             $errors = $api_response->getErrors();
+            nlog($errors);
         }
 
     }
