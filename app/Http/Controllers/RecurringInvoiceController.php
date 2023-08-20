@@ -550,7 +550,7 @@ class RecurringInvoiceController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $recurring_invoice);
+            $this->saveDocuments($request->file('documents'), $recurring_invoice, $request->input('is_public', true));
         }
 
         return $this->itemResponse($recurring_invoice->fresh());

@@ -25,6 +25,7 @@ class UploadInvoiceRequest extends Request
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
+        
         return $user->can('edit', $this->invoice);
     }
 
@@ -50,25 +51,6 @@ class UploadInvoiceRequest extends Request
     }
 
     public function prepareForValidation()
-    {
-
-        //tests to see if upload via binary data works.
-        
-        // if(request()->getContent())
-        // {
-        //     // $file = new UploadedFile(request()->getContent(), request()->header('filename'));
-        //     $file = new UploadedFile(request()->getContent(), 'something.png');
-        //     // request()->files->set('documents', $file);
-     
-        //     $this->files->add(['file' => $file]);
-
-        //     // Merge it in request also (As I found this is not needed in every case)
-        //     $this->merge(['file' => $file]);
-
-
-        // }
-       
-
-
+    {      
     }
 }

@@ -609,7 +609,7 @@ class RecurringExpenseController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $recurring_expense);
+            $this->saveDocuments($request->file('documents'), $recurring_expense, $request->input('is_public', true));
         }
 
         return $this->itemResponse($recurring_expense->fresh());

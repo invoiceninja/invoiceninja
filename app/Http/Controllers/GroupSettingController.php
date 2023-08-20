@@ -144,7 +144,7 @@ class GroupSettingController extends BaseController
         $this->uploadLogo($request->file('company_logo'), $group_setting->company, $group_setting);
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->input('documents'), $group_setting, false);
+            $this->saveDocuments($request->input('documents'), $group_setting, $request->input('is_public', true));
         }
 
         return $this->itemResponse($group_setting);
@@ -217,7 +217,7 @@ class GroupSettingController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $group_setting);
+            $this->saveDocuments($request->file('documents'), $group_setting, $request->input('is_public', true));
         }
 
         return $this->itemResponse($group_setting->fresh());

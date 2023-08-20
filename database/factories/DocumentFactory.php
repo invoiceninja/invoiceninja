@@ -25,7 +25,7 @@ class DocumentFactory extends Factory
         return [
             'is_default' => true,
             'is_public' => true,
-            'name' => true,
+            'name' => $this->faker->word().".png",
         ];
     }
 }

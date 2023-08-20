@@ -34,14 +34,30 @@ class UpdateDocumentRequest extends Request
     public function rules()
     {
         return [
-            'name' => 'sometimes'
+            'name' => 'sometimes',
+            'is_public' => 'sometimes|boolean',
         ];
     }
 
+    
     public function prepareForValidation()
     {
         $input = $this->all();
 
+        if(isset($input['is_public'])) 
+            $input['is_public'] = $this->toBoolean($input['is_public']);
+
         $this->replace($input);
+    }
+
+    /**
+     * Convert to boolean
+     *
+     * @param $bool
+     * @return bool
+     */
+    private function toBoolean($bool): bool
+    {
+        return filter_var($bool, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
     }
 }

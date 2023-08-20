@@ -751,7 +751,7 @@ class PurchaseOrderController extends BaseController
         }
         
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $purchase_order);
+            $this->saveDocuments($request->file('documents'), $purchase_order, $request->input('is_public', true));
         }
 
         return $this->itemResponse($purchase_order->fresh());
