@@ -109,12 +109,12 @@ trait MockAccountData
     public $recurring_quote;
 
     /**
-     * @var
+     * @var \App\Models\Credit
      */
     public $credit;
 
     /**
-     * @var
+     * @var \App\Models\Invoice
      */
     public $invoice;
 
