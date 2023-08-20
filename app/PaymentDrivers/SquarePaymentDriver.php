@@ -283,7 +283,7 @@ class SquarePaymentDriver extends BaseDriver
         return false;
     }
 
-    public function checkWebhooks(): bool
+    public function checkWebhooks(): mixed
     {
         $this->init();
         
@@ -295,7 +295,7 @@ class SquarePaymentDriver extends BaseDriver
             foreach($api_response->getResult()->getSubscriptions() as $subscription)
             {
                 if($subscription->getName() == 'Invoice_Ninja_Webhook_Subscription')
-                    return true;  
+                    return $subscription->getId();  
             }
                        
         } else {
@@ -394,8 +394,12 @@ class SquarePaymentDriver extends BaseDriver
         $body->setEventType('payment.created');
 
         //getsubscriptionid here
+        $subscription_id = $this->checkWebhooks();
 
-        $api_response = $this->square->getWebhookSubscriptionsApi()->testWebhookSubscription('subscription_id0', $body);
+        if(!$subscription_id)
+            return nlog('No Subscription Found');
+
+        $api_response = $this->square->getWebhookSubscriptionsApi()->testWebhookSubscription($subscription_id, $body);
 
         if ($api_response->isSuccess()) {
             $result = $api_response->getResult();
