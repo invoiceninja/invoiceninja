@@ -386,6 +386,27 @@ class SquarePaymentDriver extends BaseDriver
 
     }
 
+    public function testWebhook()
+    {
+        $this->init();
+
+        $body = new \Square\Models\TestWebhookSubscriptionRequest();
+        $body->setEventType('payment.created');
+
+        //getsubscriptionid here
+
+        $api_response = $this->square->getWebhookSubscriptionsApi()->testWebhookSubscription('subscription_id0', $body);
+
+        if ($api_response->isSuccess()) {
+            $result = $api_response->getResult();
+            nlog($result);
+        } else {
+            $errors = $api_response->getErrors();
+            nlog($errors);
+        }
+
+    }
+
     public function convertAmount($amount)
     {
         $precision = $this->client->currency()->precision;

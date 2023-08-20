@@ -272,7 +272,7 @@ class SquareWebhook implements ShouldQueue
 
         }
         else{
-            nlog("Square Webhook - Payment not found: $payment_reference");
+            nlog("Square Webhook - Payment not found: {$payment_reference}");
             nlog($apiResponse->getErrors());
             return null;
         }
