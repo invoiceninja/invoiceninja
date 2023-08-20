@@ -292,7 +292,7 @@ class SquarePaymentDriver extends BaseDriver
         if ($api_response->isSuccess()) {
             
             //array of WebhookSubscription objects
-            foreach($api_response->getResult()->getSubscriptions() as $subscription)
+            foreach($api_response->getResult()->getSubscriptions() ?? [] as $subscription)
             {
                 if($subscription->getName() == 'Invoice_Ninja_Webhook_Subscription')
                     return $subscription->getId();  
@@ -301,7 +301,7 @@ class SquarePaymentDriver extends BaseDriver
         } else {
             $errors = $api_response->getErrors();
             nlog($errors);
-
+            return false;
         }
 
         return false;
