@@ -30,11 +30,22 @@ class UploadTaskRequest extends Request
 
     public function rules()
     {
-        $rules = [
-            'documents' => 'bail|sometimes|file|mimes:csv,png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:2000000',
-            'is_public' => 'sometimes|boolean',
-        ];
+        $rules = [];
 
+        if ($this->file('documents') && is_array($this->file('documents'))) {
+            $rules['documents.*'] = $this->file_validation;
+        } elseif ($this->file('documents')) {
+            $rules['documents'] = $this->file_validation;
+        }
+
+        if ($this->file('file') && is_array($this->file('file'))) {
+            $rules['file.*'] = $this->file_validation;
+        } elseif ($this->file('file')) {
+            $rules['file'] = $this->file_validation;
+        }
+
+        $rules['is_public'] = 'sometimes|boolean';
+        
         return $rules;
     }
 
