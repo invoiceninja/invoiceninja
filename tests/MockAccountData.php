@@ -719,7 +719,6 @@ trait MockAccountData
         $this->invoice->save();
 
         $this->invoice->ledger()->updateInvoiceBalance($this->invoice->amount);
-        // UpdateCompanyLedgerWithInvoice::dispatchNow($this->invoice, $this->invoice->amount, $this->invoice->company);
 
         $user_id = $this->invoice->user_id;
 

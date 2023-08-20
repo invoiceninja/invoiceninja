@@ -66,7 +66,7 @@
         "laravel/ui": "^4.0",
         "league/csv": "^9.6",
         "league/flysystem-aws-s3-v3": "^3.0",
-        "league/fractal": "^0.17.0",
+        "league/fractal": "^0.20.0",
         "league/omnipay": "^3.1",
         "livewire/livewire": "^2.10",
         "microsoft/microsoft-graph": "^1.69",

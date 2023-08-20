@@ -296,7 +296,6 @@ class RandomDataSeeder extends Seeder
 
                 // $payment->service()->updateInvoicePayment($payment_hash);
 
-                //            UpdateInvoicePayment::dispatchNow($payment, $payment->company);
             }
         });
 
