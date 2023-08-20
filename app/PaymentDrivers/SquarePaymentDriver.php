@@ -366,8 +366,6 @@ class SquarePaymentDriver extends BaseDriver
 
         $signature_key = $this->company_gateway->getConfigField('signatureKey');
         $notification_url = $this->company_gateway->webhookUrl();
-        nlog($signature_key);
-        nlog($notification_url);
 
         $body = '';   
         $handle = fopen('php://input', 'r');
