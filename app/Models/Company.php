@@ -880,6 +880,13 @@ class Company extends BaseModel
         return $data;
     }
 
+    public function utc_offset(): int
+    {
+        $timezone = $this->timezone();
+
+        return $timezone->utc_offset ?? 0;
+    }
+
     public function timezone_offset(): int
     {
         $offset = 0;
