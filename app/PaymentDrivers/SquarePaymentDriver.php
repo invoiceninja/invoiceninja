@@ -230,7 +230,7 @@ class SquarePaymentDriver extends BaseDriver
         $amount_money->setAmount($amount);
         $amount_money->setCurrency($this->client->currency()->code);
 
-        $body = new \Square\Models\CreatePaymentRequest($cgt->token, \Illuminate\Support\Str::random(32), $amount_money);
+        $body = new \Square\Models\CreatePaymentRequest($cgt->token, \Illuminate\Support\Str::random(32));
         $body->setCustomerId($cgt->gateway_customer_reference);
         $body->setAmountMoney($amount_money);
         $body->setReferenceId($payment_hash->hash);

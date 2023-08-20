@@ -104,12 +104,14 @@ class SquareWebhook implements ShouldQueue
 
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
-        $this->company_gateway = CompanyGateway::queyr()->withTrashed()->find($this->company_gateway_id);
+        $this->company_gateway = CompanyGateway::query()->withTrashed()->find($this->company_gateway_id);
         $this->driver = $this->company_gateway->driver()->init();
         $this->square = $this->driver->square;
 
         $status = $this->webhook_array['data']['object']['payment']['status'] ?? false;
         $payment_id = $this->webhook_array['data']['object']['payment']['id'] ?? null;
+
+        $payment_status = false;
 
         match($status){
             'APPROVED' => $payment_status = false,
@@ -130,7 +132,6 @@ class SquareWebhook implements ShouldQueue
         /** If the status was pending and now is reporting as Failed / Cancelled - process failure path */
         if($payment->status_id == Payment::STATUS_PENDING && in_array($payment_status, [Payment::STATUS_CANCELLED, Payment::STATUS_FAILED])){
             $payment->service()->deletePayment();
-
 
             if ($this->driver->payment_hash) {
                 $error = ctrans('texts.client_payment_failure_body', [
@@ -157,7 +158,7 @@ class SquareWebhook implements ShouldQueue
         //toggle pending to completed.
     }
 
-    private function retrieveOrCreatePayment(?string $payment_reference, int $payment_status): \App\Models\Payment
+    private function retrieveOrCreatePayment(?string $payment_reference, int $payment_status): ?\App\Models\Payment
     {
 
         $payment = Payment::withTrashed()->where('transaction_reference', $payment_reference)->first();
@@ -273,6 +274,7 @@ class SquareWebhook implements ShouldQueue
         else{
             nlog("Square Webhook - Payment not found: $payment_reference");
             nlog($apiResponse->getErrors());
+            return null;
         }
     }
 }
