@@ -125,11 +125,11 @@ class StripeConnectController extends BaseController
         $company_gateway->save();
 
         // StripeWebhook::dispatch($company->company_key, $company_gateway->id);
-        if(isset($request->getTokenContent()['is_react']) && $request->getTokenContent()['is_react']) {
+        // if(isset($request->getTokenContent()['is_react']) && $request->getTokenContent()['is_react']) {
             $redirect_uri = 'https://app.invoicing.co/#/settings/online_payments';
-        } else {
-            $redirect_uri = 'https://invoicing.co/stripe/completed';
-        }
+        // } else {
+        //     $redirect_uri = 'https://invoicing.co/stripe/completed';
+        // }
 
         //response here
         return view('auth.connect.completed', ['url' => $redirect_uri]);
