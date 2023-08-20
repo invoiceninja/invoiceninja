@@ -12,6 +12,7 @@
 
 namespace App\PaymentDrivers\Square;
 
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\SystemLog;
 use Illuminate\View\View;
@@ -33,11 +34,8 @@ class CreditCard implements MethodInterface
 {
     use MakesHash;
 
-    public $square_driver;
-
-    public function __construct(SquarePaymentDriver $square_driver)
+    public function __construct(public SquarePaymentDriver $square_driver)
     {
-        $this->square_driver = $square_driver;
         $this->square_driver->init();
     }
 
@@ -102,28 +100,35 @@ class CreditCard implements MethodInterface
         );
 
         if ($request->shouldUseToken()) {
-            /** @var \App\Models\ClientGatewayToken $cgt **/
-            $cgt = ClientGatewayToken::where('token', $request->token)->first();
+            $cgt = ClientGatewayToken::query()->where('token', $request->token)->first();
             $token = $cgt->token;
+        }
+
+        $invoice = Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->square_driver->payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
+
+        if ($invoice) {
+            $description = "Invoice {$invoice->number} for {$amount} for client {$this->square_driver->client->present()->name()}";
+        } else {
+            $description = "Payment with no invoice for amount {$amount} for client {$this->square_driver->client->present()->name()}";
         }
 
         $amount_money = new \Square\Models\Money();
         $amount_money->setAmount($amount);
         $amount_money->setCurrency($this->square_driver->client->currency()->code);
 
-        $body = new \Square\Models\CreatePaymentRequest($token, $request->idempotencyKey, $amount_money);
-
+        $body = new \Square\Models\CreatePaymentRequest($token, $request->idempotencyKey);
+        $body->setAmountMoney($amount_money);
         $body->setAutocomplete(true);
         $body->setLocationId($this->square_driver->company_gateway->getConfigField('locationId'));
-        $body->setReferenceId(Str::random(16));
-
+        $body->setReferenceId($this->square_driver->payment_hash->hash);
+        $body->setNote($description);
+        
         if ($request->shouldUseToken()) {
             $body->setCustomerId($cgt->gateway_customer_reference);
         }elseif ($request->has('verificationToken') && $request->input('verificationToken')) {
             $body->setVerificationToken($request->input('verificationToken'));
         }
 
-        /** @var ApiResponse */
         $response = $this->square_driver->square->getPaymentsApi()->createPayment($body);
 
         if ($response->isSuccess()) {
