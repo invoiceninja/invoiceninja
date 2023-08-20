@@ -134,7 +134,7 @@ class CreditExport extends BaseExport
 
             $this->input['report_keys'] = collect(array_values($this->entity_keys))->map(function ($value){
                 return 'credit.'.$value;
-            });
+            })->toArray();
             
         }
 

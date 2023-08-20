@@ -56,48 +56,6 @@ class SquareWebhook implements ShouldQueue
     {
     }
 
-
-/**
-  * {
-  * "merchant_id": "6SSW7HV8K2ST5",
-  * "type": "payment.created",
-  * "event_id": "13b867cf-db3d-4b1c-90b6-2f32a9d78124",
-  * "created_at": "2020-02-06T21:27:30.792Z",
-  * "data": {
-    * "type": "payment",
-    * "id": "KkAkhdMsgzn59SM8A89WgKwekxLZY",
-    * "object": {
-      * "payment": {
-        * "id": "hYy9pRFVxpDsO1FB05SunFWUe9JZY",
-        * "created_at": "2020-11-22T21:16:51.086Z",
-        * "updated_at": "2020-11-22T21:16:51.198Z",
-        * "amount_money": {
-          * "amount": 100,
-          * "currency": "USD"
-        * },
-        * "status": "APPROVED",
-        * "delay_duration": "PT168H",
-        * "source_type": "CARD",
-        * "card_details": {
-          * "status": "AUTHORIZED",
-          * "card": {
-            * "card_brand": "MASTERCARD",
-            * "last_4": "9029",
-            * "exp_month": 11,
-            * "exp_year": 2022,
-            * "fingerprint": "sq-1-Tvruf3vPQxlvI6n0IcKYfBukrcv6IqWr8UyBdViWXU2yzGn5VMJvrsHMKpINMhPmVg",
-            * "card_type": "CREDIT",
-            * "prepaid_type": "NOT_PREPAID",
-            * "bin": "540988"
-          * },
-          * "entry_method": "KEYED",
-          * "cvv_status": "CVV_ACCEPTED",
-          * "avs_status": "AVS_ACCEPTED",
-          * "statement_description": "SQ *DEFAULT TEST ACCOUNT",
-          * "card_payment_timeline": {
-          * "authorized_at": "2020-11-22T21:16:51.198Z"
-          *     
-        */
     public function handle()
     {
         nlog("Square Webhook");
@@ -155,7 +113,6 @@ class SquareWebhook implements ShouldQueue
             $payment->save();
         }
             
-        //toggle pending to completed.
     }
 
     private function retrieveOrCreatePayment(?string $payment_reference, int $payment_status): ?\App\Models\Payment
@@ -163,86 +120,23 @@ class SquareWebhook implements ShouldQueue
 
         $payment = Payment::withTrashed()->where('transaction_reference', $payment_reference)->first();
 
-        if($payment)
+        if($payment) {
+            nlog("payment found, returning");
             return $payment;
+        }
 
         /** Handles the edge case where for some reason the payment has not yet been recorded in Invoice Ninja */
         $apiResponse = $this->square->getPaymentsApi()->getPayment($payment_reference);
 
-// {
-//   "payment": {
-//     "id": "bP9mAsEMYPUGjjGNaNO5ZDVyLhSZY",
-//     "created_at": "2021-10-13T19:34:33.524Z",
-//     "updated_at": "2021-10-13T19:34:34.339Z",
-//     "amount_money": {
-//       "amount": 555,
-//       "currency": "USD"
-//     },
-//     "status": "COMPLETED",
-//     "delay_duration": "PT168H",
-//     "source_type": "CARD",
-//     "card_details": {
-//       "status": "CAPTURED",
-//       "card": {
-//         "card_brand": "VISA",
-//         "last_4": "1111",
-//         "exp_month": 11,
-//         "exp_year": 2022,
-//         "fingerprint": "sq-1-Hxim77tbdcbGejOejnoAklBVJed2YFLTmirfl8Q5XZzObTc8qY_U8RkwzoNL8dCEcQ",
-//         "card_type": "DEBIT",
-//         "prepaid_type": "NOT_PREPAID",
-//         "bin": "411111"
-//       },
-//       "entry_method": "KEYED",
-//       "cvv_status": "CVV_ACCEPTED",
-//       "avs_status": "AVS_ACCEPTED",
-//       "auth_result_code": "2Nkw7q",
-//       "statement_description": "SQ *EXAMPLE TEST GOSQ.C",
-//       "card_payment_timeline": {
-//         "authorized_at": "2021-10-13T19:34:33.680Z",
-//         "captured_at": "2021-10-13T19:34:34.340Z"
-//       }
-//     },
-//     "location_id": "L88917AVBK2S5",
-//     "order_id": "d7eKah653Z579f3gVtjlxpSlmUcZY",
-//     "processing_fee": [
-//       {
-//         "effective_at": "2021-10-13T21:34:35.000Z",
-//         "type": "INITIAL",
-//         "amount_money": {
-//           "amount": 34,
-//           "currency": "USD"
-//         }
-//       }
-//     ],
-//     "note": "Test Note",
-//     "total_money": {
-//       "amount": 555,
-//       "currency": "USD"
-//     },
-//     "approved_money": {
-//       "amount": 555,
-//       "currency": "USD"
-//     },
-//     "employee_id": "TMoK_ogh6rH1o4dV",
-//     "receipt_number": "bP9m",
-//     "receipt_url": "https://squareup.com/receipt/preview/bP9mAsEMYPUGjjGNaNO5ZDVyLhSZY",
-//     "delay_action": "CANCEL",
-//     "delayed_until": "2021-10-20T19:34:33.524Z",
-//     "team_member_id": "TMoK_ogh6rH1o4dV",
-//     "application_details": {
-//       "square_product": "VIRTUAL_TERMINAL",
-//       "application_id": "sq0ids-Pw67AZAlLVB7hsRmwlJPuA"
-//     },
-//     "version_token": "56pRkL3slrzet2iQrTp9n0bdJVYTB9YEWdTNjQfZOPV6o"
-//   }
-// }
+        nlog("searching square for payment");
 
         if($apiResponse->isSuccess()){
 
+            nlog("Searching by payment hash");
+
             $payment_hash_id = $apiResponse->getPayment()->getReferenceId() ?? false;
             $square_payment = $apiResponse->getPayment()->jsonSerialize();
-            $payment_hash = PaymentHash::where('hash', $payment_hash_id)->firstOrFail();
+            $payment_hash = PaymentHash::query()->where('hash', $payment_hash_id)->firstOrFail();
 
             $payment_hash->data = array_merge((array) $payment_hash->data, (array)$square_payment);
             $payment_hash->save();
@@ -258,6 +152,8 @@ class SquareWebhook implements ShouldQueue
             ];
 
             $payment = $this->driver->createPayment($data, $payment_status);
+            
+            nlog("Creating payment");
 
             SystemLogger::dispatch(
                 ['response' => $this->webhook_array, 'data' => $square_payment],
