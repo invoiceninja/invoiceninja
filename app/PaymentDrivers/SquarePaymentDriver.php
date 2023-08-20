@@ -363,13 +363,11 @@ class SquarePaymentDriver extends BaseDriver
     public function processWebhookRequest(PaymentWebhookRequest $request)
     {
         nlog("square webhook");
-        nlog($request->all());
 
         $signature_key = $this->company_gateway->getConfigField('signatureKey');
         $notification_url = $this->company_gateway->webhookUrl();
-        
-        // header('Content-Type: text/plain');
-        // $webhook_payload = file_get_contents('php://input');
+        nlog($signature_key);
+        nlog($notification_url);
 
         $body = '';   
         $handle = fopen('php://input', 'r');
