@@ -22,7 +22,10 @@ class UploadPaymentRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->payment);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('edit', $this->payment);
     }
 
     public function rules()

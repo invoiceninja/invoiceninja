@@ -22,7 +22,10 @@ class UploadQuoteRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->quote);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('edit', $this->quote);
     }
 
     public function rules()

@@ -22,7 +22,10 @@ class UploadPurchaseOrderRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->purchase_order);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('edit', $this->purchase_order);
     }
 
     public function rules()

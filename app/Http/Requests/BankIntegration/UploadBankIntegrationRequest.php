@@ -22,7 +22,10 @@ class UploadBankIntegrationRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->bank_integration);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('edit', $this->bank_integration);
     }
 
     public function rules()

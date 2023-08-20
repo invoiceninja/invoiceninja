@@ -22,7 +22,10 @@ class UploadBankTransactionRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->bank_transaction);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('edit', $this->bank_transaction);
     }
 
     public function rules()
