@@ -131,7 +131,11 @@ class CreditExport extends BaseExport
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
         if (count($this->input['report_keys']) == 0) {
-            $this->input['report_keys'] = array_values($this->entity_keys);
+
+            $this->input['report_keys'] = collect(array_values($this->entity_keys))->map(function ($value){
+                return 'credit.'.$value;
+            });
+            
         }
 
         $query = Credit::query()

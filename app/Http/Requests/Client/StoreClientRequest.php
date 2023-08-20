@@ -33,11 +33,17 @@ class StoreClientRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('create', Client::class);
+        /** @var  \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('create', Client::class);
     }
 
     public function rules()
     {
+        /** @var  \App\Models\User $user */
+        $user = auth()->user();
+
         if ($this->file('documents') && is_array($this->file('documents'))) {
             $rules['documents.*'] = $this->file_validation;
         } elseif ($this->file('documents')) {
@@ -51,7 +57,7 @@ class StoreClientRequest extends Request
         }
 
         if (isset($this->number)) {
-            $rules['number'] = Rule::unique('clients')->where('company_id', auth()->user()->company()->id);
+            $rules['number'] = Rule::unique('clients')->where('company_id', $user->company()->id);
         }
 
         $rules['country_id'] = 'integer|nullable';
@@ -81,12 +87,12 @@ class StoreClientRequest extends Request
             //'regex:/[@$!%*#?&.]/', // must contain a special character
         ];
 
-        if (auth()->user()->company()->account->isFreeHostedClient()) {
-            $rules['id'] = new CanStoreClientsRule(auth()->user()->company()->id);
+        if ($user->company()->account->isFreeHostedClient()) {
+            $rules['id'] = new CanStoreClientsRule($user->company()->id);
         }
 
-        $rules['number'] = ['bail', 'nullable', Rule::unique('clients')->where('company_id', auth()->user()->company()->id)];
-        $rules['id_number'] = ['bail', 'nullable', Rule::unique('clients')->where('company_id', auth()->user()->company()->id)];
+        $rules['number'] = ['bail', 'nullable', Rule::unique('clients')->where('company_id', $user->company()->id)];
+        $rules['id_number'] = ['bail', 'nullable', Rule::unique('clients')->where('company_id', $user->company()->id)];
 
         return $rules;
     }
@@ -94,7 +100,9 @@ class StoreClientRequest extends Request
     public function prepareForValidation()
     {
         $input = $this->all();
-
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        
         /* Default settings */
         $settings = (array)ClientSettings::defaults();
 
@@ -130,10 +138,10 @@ class StoreClientRequest extends Request
             if ($group_settings && property_exists($group_settings->settings, 'currency_id') && isset($group_settings->settings->currency_id)) {
                 $input['settings']['currency_id'] = (string) $group_settings->settings->currency_id;
             } else {
-                $input['settings']['currency_id'] = (string) auth()->user()->company()->settings->currency_id;
+                $input['settings']['currency_id'] = (string) $user->company()->settings->currency_id;
             }
         } elseif (! array_key_exists('currency_id', $input['settings'])) {
-            $input['settings']['currency_id'] = (string) auth()->user()->company()->settings->currency_id;
+            $input['settings']['currency_id'] = (string) $user->company()->settings->currency_id;
         }
 
         if (isset($input['currency_code'])) {

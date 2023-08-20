@@ -109,12 +109,12 @@ trait MockAccountData
     public $recurring_quote;
 
     /**
-     * @var
+     * @var \App\Models\Credit
      */
     public $credit;
 
     /**
-     * @var
+     * @var \App\Models\Invoice
      */
     public $invoice;
 
@@ -186,6 +186,10 @@ trait MockAccountData
 
     public $contact;
     
+    public $product;
+
+    public $recurring_invoice;
+
     public function makeTestData()
     {
         config(['database.default' => config('ninja.db.default')]);
@@ -366,6 +370,17 @@ trait MockAccountData
         ]);
 
         $this->project = Project::factory()->create([
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+        ]);
+
+        $this->product = Product::factory()->create([
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $this->recurring_invoice = RecurringInvoice::factory()->create([
             'user_id' => $user_id,
             'company_id' => $this->company->id,
             'client_id' => $this->client->id,

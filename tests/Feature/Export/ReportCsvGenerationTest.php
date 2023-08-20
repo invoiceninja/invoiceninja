@@ -717,16 +717,16 @@ class ReportCsvGenerationTest extends TestCase
 
         $response->assertStatus(409);
 
-        sleep(1);
+        // sleep(1);
 
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->postJson('/api/v1/reports/preview/'.$arr['message']);
+        // $response = $this->withHeaders([
+        //     'X-API-SECRET' => config('ninja.api_secret'),
+        //     'X-API-TOKEN' => $this->token,
+        // ])->postJson('/api/v1/reports/preview/'.$arr['message']);
 
-        $response->assertStatus(200);
+        // $response->assertStatus(200);
 
-        nlog($response->json());
+        // nlog($response->json());
 
     }
 

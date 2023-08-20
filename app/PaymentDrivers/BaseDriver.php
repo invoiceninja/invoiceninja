@@ -263,6 +263,8 @@ class BaseDriver extends AbstractPaymentDriver
     public function setClient(Client $client)
     {
         $this->client = $client;
+        
+        return $this;
     }
     /************************** Helper methods *************************************/
 

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9d7348352c913eb82fcca2e67670e1f8",
+    "content-hash": "673ca66ddfdb05c3ea29012594a196d3",
     "packages": [
         {
             "name": "adrienrn/php-mimetyper",
@@ -99,21 +99,121 @@
             "time": "2023-05-02T15:11:17+00:00"
         },
         {
-            "name": "apimatic/jsonmapper",
-            "version": "v2.0.3",
+            "name": "apimatic/core",
+            "version": "0.3.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/apimatic/jsonmapper.git",
-                "reference": "f7588f1ab692c402a9118e65cb9fd42b74e5e0db"
+                "url": "https://github.com/apimatic/core-lib-php.git",
+                "reference": "32238fb83ce9a3ebef38c726b497c0f218d6e6c9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/apimatic/jsonmapper/zipball/f7588f1ab692c402a9118e65cb9fd42b74e5e0db",
-                "reference": "f7588f1ab692c402a9118e65cb9fd42b74e5e0db",
+                "url": "https://api.github.com/repos/apimatic/core-lib-php/zipball/32238fb83ce9a3ebef38c726b497c0f218d6e6c9",
+                "reference": "32238fb83ce9a3ebef38c726b497c0f218d6e6c9",
                 "shasum": ""
             },
+            "require": {
+                "apimatic/core-interfaces": "~0.1.0",
+                "apimatic/jsonmapper": "^3.1.1",
+                "ext-curl": "*",
+                "ext-dom": "*",
+                "ext-json": "*",
+                "ext-libxml": "*",
+                "php": "^7.2 || ^8.0",
+                "php-jsonpointer/php-jsonpointer": "^3.0.2"
+            },
             "require-dev": {
-                "phpunit/phpunit": "^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0",
+                "phan/phan": "5.4.2",
+                "phpunit/phpunit": "^7.5 || ^8.5 || ^9.5",
+                "squizlabs/php_codesniffer": "^3.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Core\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Core logic and the utilities for the Apimatic's PHP SDK",
+            "homepage": "https://github.com/apimatic/core-lib-php",
+            "keywords": [
+                "apimatic",
+                "core",
+                "corelib",
+                "php"
+            ],
+            "support": {
+                "issues": "https://github.com/apimatic/core-lib-php/issues",
+                "source": "https://github.com/apimatic/core-lib-php/tree/0.3.2"
+            },
+            "time": "2023-07-11T09:30:32+00:00"
+        },
+        {
+            "name": "apimatic/core-interfaces",
+            "version": "0.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/apimatic/core-interfaces-php.git",
+                "reference": "183214195a79784c382a446795c46ca8c1f43cc1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/apimatic/core-interfaces-php/zipball/183214195a79784c382a446795c46ca8c1f43cc1",
+                "reference": "183214195a79784c382a446795c46ca8c1f43cc1",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.2 || ^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "CoreInterfaces\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Definition of the behavior of apimatic/core, apimatic/unirest-php and Apimatic's PHP SDK",
+            "homepage": "https://github.com/apimatic/core-interfaces-php",
+            "keywords": [
+                "apimatic",
+                "core",
+                "corelib",
+                "interface",
+                "php",
+                "unirest"
+            ],
+            "support": {
+                "issues": "https://github.com/apimatic/core-interfaces-php/issues",
+                "source": "https://github.com/apimatic/core-interfaces-php/tree/0.1.2"
+            },
+            "time": "2023-04-04T06:40:52+00:00"
+        },
+        {
+            "name": "apimatic/jsonmapper",
+            "version": "3.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/apimatic/jsonmapper.git",
+                "reference": "6673a946c21f2ceeec0cb60d17541c11a22bc79d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/apimatic/jsonmapper/zipball/6673a946c21f2ceeec0cb60d17541c11a22bc79d",
+                "reference": "6673a946c21f2ceeec0cb60d17541c11a22bc79d",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": "^5.6 || ^7.0 || ^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0 || ^9.0.0",
                 "squizlabs/php_codesniffer": "^3.0.0"
             },
             "type": "library",
@@ -144,37 +244,38 @@
             "support": {
                 "email": "mehdi.jaffery@apimatic.io",
                 "issues": "https://github.com/apimatic/jsonmapper/issues",
-                "source": "https://github.com/apimatic/jsonmapper/tree/v2.0.3"
+                "source": "https://github.com/apimatic/jsonmapper/tree/3.1.2"
             },
-            "time": "2021-07-16T09:02:23+00:00"
+            "time": "2023-06-08T04:27:10+00:00"
         },
         {
             "name": "apimatic/unirest-php",
-            "version": "2.3.0",
+            "version": "4.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/apimatic/unirest-php.git",
-                "reference": "52e226fb3b7081dc9ef64aee876142a240a5f0f9"
+                "reference": "e16754010c16be5473289470f129d87a0f41b55e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/apimatic/unirest-php/zipball/52e226fb3b7081dc9ef64aee876142a240a5f0f9",
-                "reference": "52e226fb3b7081dc9ef64aee876142a240a5f0f9",
+                "url": "https://api.github.com/repos/apimatic/unirest-php/zipball/e16754010c16be5473289470f129d87a0f41b55e",
+                "reference": "e16754010c16be5473289470f129d87a0f41b55e",
                 "shasum": ""
             },
             "require": {
+                "apimatic/core-interfaces": "^0.1.0",
                 "ext-curl": "*",
-                "php": ">=5.6.0"
+                "ext-json": "*",
+                "php": "^7.2 || ^8.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^5 || ^6 || ^7 || ^8 || ^9"
-            },
-            "suggest": {
-                "ext-json": "Allows using JSON Bodies for sending and parsing requests"
+                "phan/phan": "5.4.2",
+                "phpunit/phpunit": "^7.5 || ^8.5 || ^9.5",
+                "squizlabs/php_codesniffer": "^3.5"
             },
             "type": "library",
             "autoload": {
-                "psr-0": {
+                "psr-4": {
                     "Unirest\\": "src/"
                 }
             },
@@ -208,9 +309,9 @@
             "support": {
                 "email": "opensource@apimatic.io",
                 "issues": "https://github.com/apimatic/unirest-php/issues",
-                "source": "https://github.com/apimatic/unirest-php/tree/2.3.0"
+                "source": "https://github.com/apimatic/unirest-php/tree/4.0.5"
             },
-            "time": "2022-06-15T08:29:49+00:00"
+            "time": "2023-04-25T14:19:45+00:00"
         },
         {
             "name": "asm/php-ansible",
@@ -424,16 +525,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.279.0",
+            "version": "3.279.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "7b3d38cfccd393add0ea0ce281de91846967c61e"
+                "reference": "ebd5e47c5be0425bb5cf4f80737850ed74767107"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/7b3d38cfccd393add0ea0ce281de91846967c61e",
-                "reference": "7b3d38cfccd393add0ea0ce281de91846967c61e",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/ebd5e47c5be0425bb5cf4f80737850ed74767107",
+                "reference": "ebd5e47c5be0425bb5cf4f80737850ed74767107",
                 "shasum": ""
             },
             "require": {
@@ -513,9 +614,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.279.0"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.279.2"
             },
-            "time": "2023-08-16T18:18:34+00:00"
+            "time": "2023-08-18T18:13:09+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -1351,16 +1452,16 @@
         },
         {
             "name": "doctrine/dbal",
-            "version": "3.6.5",
+            "version": "3.6.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/dbal.git",
-                "reference": "96d5a70fd91efdcec81fc46316efc5bf3da17ddf"
+                "reference": "63646ffd71d1676d2f747f871be31b7e921c7864"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/dbal/zipball/96d5a70fd91efdcec81fc46316efc5bf3da17ddf",
-                "reference": "96d5a70fd91efdcec81fc46316efc5bf3da17ddf",
+                "url": "https://api.github.com/repos/doctrine/dbal/zipball/63646ffd71d1676d2f747f871be31b7e921c7864",
+                "reference": "63646ffd71d1676d2f747f871be31b7e921c7864",
                 "shasum": ""
             },
             "require": {
@@ -1376,10 +1477,11 @@
                 "doctrine/coding-standard": "12.0.0",
                 "fig/log-test": "^1",
                 "jetbrains/phpstorm-stubs": "2023.1",
-                "phpstan/phpstan": "1.10.21",
+                "phpstan/phpstan": "1.10.29",
                 "phpstan/phpstan-strict-rules": "^1.5",
                 "phpunit/phpunit": "9.6.9",
                 "psalm/plugin-phpunit": "0.18.4",
+                "slevomat/coding-standard": "8.13.1",
                 "squizlabs/php_codesniffer": "3.7.2",
                 "symfony/cache": "^5.4|^6.0",
                 "symfony/console": "^4.4|^5.4|^6.0",
@@ -1443,7 +1545,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/dbal/issues",
-                "source": "https://github.com/doctrine/dbal/tree/3.6.5"
+                "source": "https://github.com/doctrine/dbal/tree/3.6.6"
             },
             "funding": [
                 {
@@ -1459,7 +1561,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-07-17T09:15:50+00:00"
+            "time": "2023-08-17T05:38:17+00:00"
         },
         {
             "name": "doctrine/deprecations",
@@ -3348,16 +3450,16 @@
         },
         {
             "name": "horstoeko/zugferd",
-            "version": "v1.0.23",
+            "version": "v1.0.26",
             "source": {
                 "type": "git",
                 "url": "https://github.com/horstoeko/zugferd.git",
-                "reference": "bb55417be4c4de8deb0113e832feeaf7b4d3984e"
+                "reference": "2a7541a35f00499c206391273f30159dc2c7072a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/horstoeko/zugferd/zipball/bb55417be4c4de8deb0113e832feeaf7b4d3984e",
-                "reference": "bb55417be4c4de8deb0113e832feeaf7b4d3984e",
+                "url": "https://api.github.com/repos/horstoeko/zugferd/zipball/2a7541a35f00499c206391273f30159dc2c7072a",
+                "reference": "2a7541a35f00499c206391273f30159dc2c7072a",
                 "shasum": ""
             },
             "require": {
@@ -3415,9 +3517,9 @@
             ],
             "support": {
                 "issues": "https://github.com/horstoeko/zugferd/issues",
-                "source": "https://github.com/horstoeko/zugferd/tree/v1.0.23"
+                "source": "https://github.com/horstoeko/zugferd/tree/v1.0.26"
             },
-            "time": "2023-08-16T17:39:36+00:00"
+            "time": "2023-08-18T03:05:43+00:00"
         },
         {
             "name": "http-interop/http-factory-guzzle",
@@ -7665,6 +7767,62 @@
             "time": "2020-07-07T09:29:14+00:00"
         },
         {
+            "name": "php-jsonpointer/php-jsonpointer",
+            "version": "v3.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/raphaelstolt/php-jsonpointer.git",
+                "reference": "4428f86c6f23846e9faa5a420c4ef14e485b3afb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/raphaelstolt/php-jsonpointer/zipball/4428f86c6f23846e9faa5a420c4ef14e485b3afb",
+                "reference": "4428f86c6f23846e9faa5a420c4ef14e485b3afb",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^1.11",
+                "phpunit/phpunit": "4.6.*"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Rs\\Json": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Raphael Stolt",
+                    "email": "raphael.stolt@gmail.com",
+                    "homepage": "http://raphaelstolt.blogspot.com/"
+                }
+            ],
+            "description": "Implementation of JSON Pointer (http://tools.ietf.org/html/rfc6901)",
+            "homepage": "https://github.com/raphaelstolt/php-jsonpointer",
+            "keywords": [
+                "json",
+                "json pointer",
+                "json traversal"
+            ],
+            "support": {
+                "issues": "https://github.com/raphaelstolt/php-jsonpointer/issues",
+                "source": "https://github.com/raphaelstolt/php-jsonpointer/tree/master"
+            },
+            "time": "2016-08-29T08:51:01+00:00"
+        },
+        {
             "name": "phpdocumentor/reflection-common",
             "version": "2.2.0",
             "source": {
@@ -10037,29 +10195,28 @@
         },
         {
             "name": "square/square",
-            "version": "13.0.0.20210721",
+            "version": "30.0.0.20230816",
             "source": {
                 "type": "git",
                 "url": "https://github.com/square/square-php-sdk.git",
-                "reference": "03d90445854cd3b500f75061a9c63956799b8ecf"
+                "reference": "fedfea8b6c6f16b6a90ef0d629743ae9ae25e13d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/square/square-php-sdk/zipball/03d90445854cd3b500f75061a9c63956799b8ecf",
-                "reference": "03d90445854cd3b500f75061a9c63956799b8ecf",
+                "url": "https://api.github.com/repos/square/square-php-sdk/zipball/fedfea8b6c6f16b6a90ef0d629743ae9ae25e13d",
+                "reference": "fedfea8b6c6f16b6a90ef0d629743ae9ae25e13d",
                 "shasum": ""
             },
             "require": {
-                "apimatic/jsonmapper": "^2.0.2",
-                "apimatic/unirest-php": "^2.0",
-                "ext-curl": "*",
+                "apimatic/core": "~0.3.0",
+                "apimatic/core-interfaces": "~0.1.0",
+                "apimatic/unirest-php": "^4.0.0",
                 "ext-json": "*",
-                "ext-mbstring": "*",
-                "php": ">=7.2"
+                "php": "^7.2 || ^8.0"
             },
             "require-dev": {
-                "phan/phan": "^3.0",
-                "phpunit/phpunit": "^7.5 || ^8.5",
+                "phan/phan": "5.4.2",
+                "phpunit/phpunit": "^7.5 || ^8.5 || ^9.5",
                 "squizlabs/php_codesniffer": "^3.5"
             },
             "type": "library",
@@ -10088,9 +10245,9 @@
             ],
             "support": {
                 "issues": "https://github.com/square/square-php-sdk/issues",
-                "source": "https://github.com/square/square-php-sdk/tree/13.0.0.20210721"
+                "source": "https://github.com/square/square-php-sdk/tree/30.0.0.20230816"
             },
-            "time": "2021-07-21T06:43:15+00:00"
+            "time": "2023-08-15T21:45:55+00:00"
         },
         {
             "name": "stripe/stripe-php",

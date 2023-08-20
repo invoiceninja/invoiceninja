@@ -264,7 +264,7 @@ class ProjectController extends BaseController
         $project->saveQuietly();
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->input('documents'), $project);
+            $this->saveDocuments($request->input('documents'), $project, $request->input('is_public', true));
         }
 
         event('eloquent.updated: App\Models\Project', $project);
@@ -373,7 +373,7 @@ class ProjectController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->input('documents'), $project);
+            $this->saveDocuments($request->input('documents'), $project, $request->input('is_public', true));
         }
 
         event('eloquent.created: App\Models\Project', $project);
@@ -565,7 +565,7 @@ class ProjectController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $project);
+            $this->saveDocuments($request->file('documents'), $project, $request->input('is_public', true));
         }
 
         return $this->itemResponse($project->fresh());

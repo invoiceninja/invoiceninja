@@ -51,7 +51,7 @@ class NinjaMailerJob implements ShouldQueue
 
     public $override;
 
-    /** @var \App\Models\Company $company | null **/
+    /** @var null|\App\Models\Company $company  **/
     public ?Company $company;
 
     private $mailer;
@@ -143,8 +143,6 @@ class NinjaMailerJob implements ShouldQueue
             LightLogs::create(new EmailSuccess($this->nmo->company->company_key))
                      ->send();
 
-            $this->nmo = null;
-            $this->company = null;
         } catch(\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
             $this->fail();
@@ -194,6 +192,9 @@ class NinjaMailerJob implements ShouldQueue
 
             $this->release($this->backoff()[$this->attempts()-1]);
         }
+
+        $this->nmo = null;
+        $this->company = null;
 
         /*Clean up mailers*/
         $this->cleanUpMailers();
