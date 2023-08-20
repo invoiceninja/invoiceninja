@@ -46,15 +46,4 @@ class StoreDocumentRequest extends Request
         $this->replace($input);
     }
 
-    /**
-     * Convert to boolean
-     *
-     * @param $bool
-     * @return bool
-     */
-    private function toBoolean($bool): bool
-    {
-        return filter_var($bool, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-    }
-
 }

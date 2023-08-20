@@ -2,7 +2,7 @@
 /**
  * Product Ninja (https://paymentninja.com).
  *
- * @link https://github.com/paymentninja/paymentninja source repository
+ * @link https://github.com/invoiceninja/invoiceninja source repository
  *
  * @copyright Copyright (c) 2022. Product Ninja LLC (https://paymentninja.com)
  *
@@ -40,6 +40,20 @@ class UploadProductRequest extends Request
             $rules['file'] = $this->file_validation;
         }
 
+        $rules['is_public'] = 'sometimes|boolean';
+
         return $rules;
+    }
+
+    public function prepareForValidation()
+    {
+        $input = $this->all();
+
+        if(isset($input['is_public'])) {
+            $input['is_public'] = $this->toBoolean($input['is_public']);
+        }
+
+        $this->replace($input);
+      
     }
 }
