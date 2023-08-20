@@ -70,7 +70,47 @@ class ReportCsvGenerationTest extends TestCase
 
     public $cu;
 
-    private $all_client_report_keys =  ["client.name","client.user","client.assigned_user","client.balance","client.paid_to_date","client.currency_id","client.website","client.private_notes","client.industry_id","client.size_id","client.address1","client.address2","client.city","client.state","client.postal_code","client.country_id","contact.custom_value4","client.shipping_address1","client.shipping_address2","client.shipping_city","client.shipping_state","client.shipping_postal_code","client.shipping_country_id","client.payment_terms","client.vat_number","client.id_number","client.public_notes","client.phone","contact.first_name","contact.last_name","contact.email","contact.phone"];
+    private $all_client_report_keys =  [
+        "client.name",
+        "client.user",
+        "client.assigned_user",
+        "client.balance",
+        "client.address1",
+        "client.address2",
+        "client.city",
+        "client.country_id",
+        "client.currency_id",
+        "client.custom_value1",
+        "client.custom_value2",
+        "client.custom_value3",
+        "client.custom_value4",
+        "client.industry_id",
+        "client.id_number",
+        "client.paid_to_date",
+        "client.payment_terms",
+        "client.phone",
+        "client.postal_code",
+        "client.private_notes",
+        "client.public_notes",
+        "client.size_id",
+        "client.shipping_address1",
+        "client.shipping_address2",
+        "client.shipping_city",
+        "client.shipping_state",
+        "client.shipping_postal_code",
+        "client.shipping_country_id",
+        "client.state",
+        "client.vat_number",
+        "client.website",
+        "contact.first_name",
+        "contact.last_name",
+        "contact.email",
+        "contact.phone",
+        "contact.custom_value1",
+        "contact.custom_value2",
+        "contact.custom_value3",
+        "contact.custom_value4",
+    ];
 
     private $all_payment_report_keys = [  
             'payment.date',
@@ -1366,7 +1406,7 @@ class ReportCsvGenerationTest extends TestCase
         $response->assertStatus(200);
 
         $csv = $response->streamedContent();
-
+nlog($csv);
         $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Amount'));
         $this->assertEquals('50', $this->getFirstValueByColumn($csv, 'Balance'));
         $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Discount'));

@@ -839,7 +839,7 @@ class BaseExport
         foreach (array_merge($this->input['report_keys'], $this->forced_keys) as $value) {
 
             $key = array_search($value, $this->entity_keys);
-            
+            nlog("{$key} => {$value}");
             $prefix = '';
 
             if(!$key) {
@@ -861,7 +861,6 @@ class BaseExport
                 $prefix = ctrans('texts.payment')." ";
                 $key = array_search($value, $this->payment_report_keys);
             }
-
 
             if(!$key) {
                 $prefix = ctrans('texts.quote')." ";
@@ -914,7 +913,7 @@ class BaseExport
             $key = str_replace('contact.', '', $key);
             $key = str_replace('payment.', '', $key);
             $key = str_replace('expense.', '', $key);
-
+// nlog($key);
             if(in_array($key, ['quote1','quote2','quote3','quote4','credit1','credit2','credit3','credit4','purchase_order1','purchase_order2','purchase_order3','purchase_order4']))
             {
                 $number = substr($key, -1);

@@ -40,7 +40,7 @@ class PreviewReport implements ShouldQueue
         $export = new $this->report_class($this->company, $this->request);
         $report = $export->returnJson();
 
-        nlog($report);
+        // nlog($report);
         Cache::put($this->hash, $report, 60 * 60);
     }
 

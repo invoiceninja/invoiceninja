@@ -34,11 +34,12 @@ class CreditExport extends BaseExport
         'amount' => 'amount',
         'balance' => 'balance',
         'client' => 'client_id',
+        'country' => 'country_id',
         'custom_surcharge1' => 'custom_surcharge1',
         'custom_surcharge2' => 'custom_surcharge2',
         'custom_surcharge3' => 'custom_surcharge3',
         'custom_surcharge4' => 'custom_surcharge4',
-        'country' => 'country_id',
+        'currency' => 'currency',
         'custom_value1' => 'custom_value1',
         'custom_value2' => 'custom_value2',
         'custom_value3' => 'custom_value3',
@@ -65,7 +66,6 @@ class CreditExport extends BaseExport
         'tax_rate3' => 'tax_rate3',
         'terms' => 'terms',
         'total_taxes' => 'total_taxes',
-        'currency' => 'currency',
     ];
 
     private array $decorate_keys = [
@@ -106,12 +106,14 @@ class CreditExport extends BaseExport
             $report_keys = explode(".", $value);
             
             $column_key = str_replace("credit.", "", $value);
+            $column_key = array_search($column_key, $this->entity_keys);
+
             $clean_row[$key]['entity'] = $report_keys[0];
-            $clean_row[$key]['id'] = $report_keys[1];
+            $clean_row[$key]['id'] = $report_keys[1] ?? $report_keys[0];
             $clean_row[$key]['hashed_id'] = $report_keys[0] == 'credit' ? null : $credit->{$report_keys[0]}->hashed_id ?? null;
             $clean_row[$key]['value'] = $row[$column_key];
 
-            if(in_array($report_keys[1], ['amount', 'balance', 'partial', 'refunded', 'applied','unit_cost','cost','price']))
+            if(in_array($clean_row[$key]['id'], ['amount', 'balance', 'partial', 'refunded', 'applied','unit_cost','cost','price']))
                 $clean_row[$key]['display_value'] = Number::formatMoney($row[$column_key], $credit->client);
             else
                 $clean_row[$key]['display_value'] = $row[$column_key];
@@ -131,10 +133,14 @@ class CreditExport extends BaseExport
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
         if (count($this->input['report_keys']) == 0) {
+            $this->input['report_keys'] = array_values($this->entity_keys);
+            // $this->input['report_keys'] = collect(array_values($this->entity_keys))->map(function ($value){
 
-            $this->input['report_keys'] = collect(array_values($this->entity_keys))->map(function ($value){
-                return 'credit.'.$value;
-            })->toArray();
+            //     // if(in_array($value,['client_id','country_id']))
+            //     //     return $value;
+            //     // else
+            //         return 'credit.'.$value;
+            // })->toArray();
             
         }
 
@@ -156,11 +162,11 @@ class CreditExport extends BaseExport
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
-// nlog($this->input['report_keys']);
+        // nlog($this->input['report_keys']);
 
         $query->cursor()
             ->each(function ($credit) {
-                nlog($this->buildRow($credit));
+                // nlog($this->buildRow($credit));
                 $this->csv->insertOne($this->buildRow($credit));
             });
 
