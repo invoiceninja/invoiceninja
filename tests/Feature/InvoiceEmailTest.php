@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Bus;
 
 /**
  * @test
@@ -115,16 +116,16 @@ class InvoiceEmailTest extends TestCase
 
         $this->invoice->save();
 
+        Bus::fake();
+
+
         $this->invoice->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
                 EmailEntity::dispatch($invitation, $invitation->company);
-
-                Event::fake();
-                Event::assertDispatched(EmailEntity::class);
+                Bus::assertDispatched(EmailEntity::class);
             }
         });
 
-        $this->assertTrue(true);
     }
 
     public function testTemplateThemes()
@@ -144,13 +145,14 @@ class InvoiceEmailTest extends TestCase
 
         $this->invoice->save();
 
+        Bus::fake();
+
         $this->invoice->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
                 EmailEntity::dispatch($invitation, $invitation->company);
 
                 
-Event::fake();
-Event::assertDispatched(EmailEntity::class);
+        Bus::assertDispatched(EmailEntity::class);
 
             }
         });
@@ -174,14 +176,14 @@ Event::assertDispatched(EmailEntity::class);
 
         $this->invoice->setRelation('client', $this->client);
         $this->invoice->save();
+        Bus::fake();
 
         $this->invoice->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
                 EmailEntity::dispatch($invitation, $invitation->company);
 
                 
-Event::fake();
-Event::assertDispatched(EmailEntity::class);
+Bus::assertDispatched(EmailEntity::class);
 
             }
         });
@@ -200,14 +202,14 @@ Event::assertDispatched(EmailEntity::class);
         $this->invoice->setRelation('client', $this->client);
 
         $this->invoice->save();
+        Bus::fake();
 
         $this->invoice->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
                 EmailEntity::dispatch($invitation, $invitation->company);
 
                 
-Event::fake();
-Event::assertDispatched(EmailEntity::class);
+Bus::assertDispatched(EmailEntity::class);
 
             }
         });
