@@ -63,9 +63,9 @@ class VendorApiTest extends TestCase
         $this->assertNull($v->last_login);
         $this->assertNull($vc->last_login);
         
+        Event::fake();
         event(new VendorContactLoggedIn($vc, $this->company, Ninja::eventVars()));
 
-        Event::fake();
 
         Event::assertDispatched(VendorContactLoggedIn::class);
         
