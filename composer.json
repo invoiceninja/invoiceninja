@@ -86,7 +86,7 @@
         "socialiteproviders/microsoft": "^4.1",
         "spatie/laravel-data": "^3.5",
         "sprain/swiss-qr-bill": "^3.2",
-        "square/square": "13.0.0.20210721",
+        "square/square": "30.0.0.*",
         "stripe/stripe-php": "^7.50",
         "symfony/http-client": "^6.0",
         "symfony/mailgun-mailer": "^6.1",

@@ -564,7 +564,7 @@ class ExpenseController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $expense);
+            $this->saveDocuments($request->file('documents'), $expense, $request->input('is_public', true));
         }
 
         return $this->itemResponse($expense->fresh());

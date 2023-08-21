@@ -31,12 +31,17 @@ class UpdateClientRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->client);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('edit', $this->client);
     }
 
     public function rules()
     {
         /* Ensure we have a client name, and that all emails are unique*/
+        /** @var  \App\Models\User $user */
+        $user = auth()->user();
 
         if ($this->file('documents') && is_array($this->file('documents'))) {
             $rules['documents.*'] = $this->file_validation;
@@ -55,15 +60,13 @@ class UpdateClientRequest extends Request
         $rules['size_id'] = 'integer|nullable';
         $rules['country_id'] = 'integer|nullable';
         $rules['shipping_country_id'] = 'integer|nullable';
-        //$rules['id_number'] = 'unique:clients,id_number,,id,company_id,' . auth()->user()->company()->id;
-        //$rules['id_number'] = 'unique:clients,id_number,'.$this->id.',id,company_id,'.$this->company_id;
 
         if ($this->id_number) {
-            $rules['id_number'] = Rule::unique('clients')->where('company_id', auth()->user()->company()->id)->ignore($this->client->id);
+            $rules['id_number'] = Rule::unique('clients')->where('company_id', $user->company()->id)->ignore($this->client->id);
         }
 
         if ($this->number) {
-            $rules['number'] = Rule::unique('clients')->where('company_id', auth()->user()->company()->id)->ignore($this->client->id);
+            $rules['number'] = Rule::unique('clients')->where('company_id', $user->company()->id)->ignore($this->client->id);
         }
 
         $rules['settings'] = new ValidClientGroupSettingsRule();
@@ -99,9 +102,12 @@ class UpdateClientRequest extends Request
     {
         $input = $this->all();
 
+        /** @var  \App\Models\User $user */
+        $user = auth()->user();
+
         /* If the user removes the currency we must always set the default */
         if (array_key_exists('settings', $input) && ! array_key_exists('currency_id', $input['settings'])) {
-            $input['settings']['currency_id'] = (string) auth()->user()->company()->settings->currency_id;
+            $input['settings']['currency_id'] = (string) $user->company()->settings->currency_id;
         }
 
         if (isset($input['language_code'])) {

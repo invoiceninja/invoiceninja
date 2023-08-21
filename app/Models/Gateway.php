@@ -171,7 +171,7 @@ class Gateway extends StaticModel
                 ];
             case 57:
                 return [
-                    GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => true], //Square
+                    GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true], //Square
                 ];
             case 52:
                 return [

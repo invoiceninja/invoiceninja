@@ -977,7 +977,7 @@ class InvoiceController extends BaseController
         }
 
         if ($request->has('file')) {
-            $this->saveDocuments($request->file('documents'), $invoice, $request->input('is_public', true));
+            $this->saveDocuments($request->file('file'), $invoice, $request->input('is_public', true));
         }
 
         return $this->itemResponse($invoice->fresh());

@@ -582,7 +582,7 @@ class TaskController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $task);
+            $this->saveDocuments($request->file('documents'), $task, $request->input('is_public', true));
         }
 
         return $this->itemResponse($task->fresh());

@@ -34,7 +34,7 @@ class UploadController extends Controller
         /** @var \App\Models\ClientContact $client_contact **/
         $client_contact = auth()->user();
 
-        $this->saveDocuments($request->getFile(), $client_contact->client, true);
+        $this->saveDocuments($request->getFile(), $client_contact->client, $request->input('is_public', true));
 
         return response([], 200);
     }

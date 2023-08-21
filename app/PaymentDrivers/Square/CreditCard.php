@@ -12,30 +12,30 @@
 
 namespace App\PaymentDrivers\Square;
 
-use App\Exceptions\PaymentFailed;
-use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Models\ClientGatewayToken;
-use App\Models\GatewayType;
+use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\PaymentType;
-use App\PaymentDrivers\Common\MethodInterface;
-use App\PaymentDrivers\SquarePaymentDriver;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use App\Models\SystemLog;
 use Illuminate\View\View;
+use App\Models\GatewayType;
+use App\Models\PaymentType;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use Square\Http\ApiResponse;
+use App\Jobs\Util\SystemLogger;
+use App\Utils\Traits\MakesHash;
+use App\Exceptions\PaymentFailed;
+use App\Models\ClientGatewayToken;
+use Illuminate\Http\RedirectResponse;
+use App\PaymentDrivers\SquarePaymentDriver;
+use App\PaymentDrivers\Common\MethodInterface;
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 
 class CreditCard implements MethodInterface
 {
     use MakesHash;
 
-    public $square_driver;
-
-    public function __construct(SquarePaymentDriver $square_driver)
+    public function __construct(public SquarePaymentDriver $square_driver)
     {
-        $this->square_driver = $square_driver;
         $this->square_driver->init();
     }
 
@@ -100,28 +100,35 @@ class CreditCard implements MethodInterface
         );
 
         if ($request->shouldUseToken()) {
-            /** @var \App\Models\ClientGatewayToken $cgt **/
-            $cgt = ClientGatewayToken::where('token', $request->token)->first();
+            $cgt = ClientGatewayToken::query()->where('token', $request->token)->first();
             $token = $cgt->token;
+        }
+
+        $invoice = Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->square_driver->payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
+
+        if ($invoice) {
+            $description = "Invoice {$invoice->number} for {$amount} for client {$this->square_driver->client->present()->name()}";
+        } else {
+            $description = "Payment with no invoice for amount {$amount} for client {$this->square_driver->client->present()->name()}";
         }
 
         $amount_money = new \Square\Models\Money();
         $amount_money->setAmount($amount);
         $amount_money->setCurrency($this->square_driver->client->currency()->code);
 
-        $body = new \Square\Models\CreatePaymentRequest($token, $request->idempotencyKey, $amount_money);
-
+        $body = new \Square\Models\CreatePaymentRequest($token, $request->idempotencyKey);
+        $body->setAmountMoney($amount_money);
         $body->setAutocomplete(true);
         $body->setLocationId($this->square_driver->company_gateway->getConfigField('locationId'));
-        $body->setReferenceId(Str::random(16));
-
+        $body->setReferenceId($this->square_driver->payment_hash->hash);
+        $body->setNote($description);
+        
         if ($request->shouldUseToken()) {
             $body->setCustomerId($cgt->gateway_customer_reference);
         }elseif ($request->has('verificationToken') && $request->input('verificationToken')) {
             $body->setVerificationToken($request->input('verificationToken'));
         }
 
-        /** @var ApiResponse */
         $response = $this->square_driver->square->getPaymentsApi()->createPayment($body);
 
         if ($response->isSuccess()) {
@@ -151,6 +158,20 @@ class CreditCard implements MethodInterface
         $payment_record['transaction_reference'] = $body->payment->id;
 
         $payment = $this->square_driver->createPayment($payment_record, Payment::STATUS_COMPLETED);
+
+        $message = [
+            'server_response' => $body,
+            'data' => $this->square_driver->payment_hash->data,
+        ];
+
+        SystemLogger::dispatch(
+            $message,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_SQUARE,
+            $this->square_driver->client,
+            $this->square_driver->client->company,
+        );
 
         return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
     }

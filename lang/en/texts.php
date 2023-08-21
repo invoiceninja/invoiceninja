@@ -3342,9 +3342,9 @@ $LANG = array(
     'freq_three_years' => 'Three Years',
     'military_time_help' => '24 Hour Display',
     'click_here_capital' => 'Click here',
-    'marked_invoice_as_paid' => 'Successfully marked invoice as sent',
+    'marked_invoice_as_paid' => 'Successfully marked invoice as paid',
     'marked_invoices_as_sent' => 'Successfully marked invoices as sent',
-    'marked_invoices_as_paid' => 'Successfully marked invoices as sent',
+    'marked_invoices_as_paid' => 'Successfully marked invoices as paid',
     'activity_57' => 'System failed to email invoice :invoice',
     'custom_value3' => 'Custom Value 3',
     'custom_value4' => 'Custom Value 4',
@@ -5157,6 +5157,8 @@ $LANG = array(
     'unlinked_transactions' => 'Successfully unlinked :count transactions',
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
+    'marked_sent_credits' => 'Successfully marked credits sent',
+
 );
 
 return $LANG;

@@ -30,6 +30,7 @@ class TaskTransformer extends EntityTransformer
 
     protected $defaultIncludes = [
         'documents',
+        'project',
     ];
 
     /**

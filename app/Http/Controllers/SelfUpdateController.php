@@ -53,7 +53,7 @@ class SelfUpdateController extends BaseController
 
         nlog('Test filesystem is writable');
 
-        // $this->testWritable();
+        $this->testWritable();
 
         nlog('Clear cache directory');
 
@@ -61,10 +61,20 @@ class SelfUpdateController extends BaseController
 
         nlog('copying release file');
 
-        if (copy($this->getDownloadUrl(), storage_path("app/{$this->filename}"))) {
-            nlog('Copied file from URL');
-        } else {
+        $file_headers = @get_headers($this->getDownloadUrl());
+
+        if (stripos($file_headers[0], "404 Not Found") >0  || (stripos($file_headers[0], "302 Found") > 0 && stripos($file_headers[7], "404 Not Found") > 0)) {
             return response()->json(['message' => 'Download not yet available. Please try again shortly.'], 410);
+        }
+
+        try {
+            if (copy($this->getDownloadUrl(), storage_path("app/{$this->filename}"))) {
+                nlog('Copied file from URL');
+            }
+        }
+        catch(\Exception $e) {
+            nlog($e->getMessage());
+            return response()->json(['message' => 'File exists on the server, however there was a problem downloading and copying to the local filesystem'], 500);
         }
 
         nlog('Finished copying');

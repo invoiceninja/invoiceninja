@@ -9,12 +9,11 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Http\Requests\Document;
+namespace App\Http\Requests\Report;
 
 use App\Http\Requests\Request;
-use App\Models\Document;
 
-class CreateDocumentRequest extends Request
+class ReportPreviewRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,6 +25,17 @@ class CreateDocumentRequest extends Request
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        return $user->can('create', Document::class);
+        return $user->isAdmin() || $user->hasPermission('view_reports');
+        
+    }
+
+    public function rules()
+    {
+        return [
+        ];
+    }
+
+    public function prepareForValidation()
+    {
     }
 }

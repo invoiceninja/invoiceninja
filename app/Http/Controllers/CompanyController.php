@@ -424,7 +424,7 @@ class CompanyController extends BaseController
         $company = $this->company_repo->save($request->all(), $company);
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->input('documents'), $company, false);
+            $this->saveDocuments($request->input('documents'), $company, $request->input('is_public', true));
         }
 
         if($request->has('e_invoice_certificate') && !is_null($request->file("e_invoice_certificate"))){
@@ -616,7 +616,7 @@ class CompanyController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $company);
+            $this->saveDocuments($request->file('documents'), $company, $request->input('is_public', true));
         }
 
         return $this->itemResponse($company->fresh());
