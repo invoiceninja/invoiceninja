@@ -732,9 +732,14 @@ class BaseImport
 
     protected function findUser($user_hash)
     {
+        $user = false;
+
         if(is_numeric($user_hash)) {
         
-            $user = User::query()->find($user_hash);
+            $user = User::query()
+                        ->where('account_id', $this->company->account->id)
+                        ->where('id', $user_hash)
+                        ->first();
 
         }
 

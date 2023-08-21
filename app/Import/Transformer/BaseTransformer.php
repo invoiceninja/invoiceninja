@@ -238,7 +238,7 @@ class BaseTransformer
      */
     public function hasClient($name)
     {
-        nlog("has client");
+        
         return Client::query()->where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' , '')) = ?", [

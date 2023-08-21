@@ -15,6 +15,7 @@ use Tests\TestCase;
 use App\Utils\Ninja;
 use Tests\MockAccountData;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Session;
 use App\Events\Vendor\VendorContactLoggedIn;
@@ -64,7 +65,9 @@ class VendorApiTest extends TestCase
         
         event(new VendorContactLoggedIn($vc, $this->company, Ninja::eventVars()));
 
-        $this->expectsEvents([VendorContactLoggedIn::class]);
+        Event::fake();
+
+        Event::assertDispatched(VendorContactLoggedIn::class);
         
         // $vc->fresh();
         // $v->fresh();

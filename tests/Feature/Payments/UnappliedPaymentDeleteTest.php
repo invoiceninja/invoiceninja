@@ -17,7 +17,6 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\WithoutEvents;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Validation\ValidationException;
 use Tests\MockUnitData;
@@ -31,8 +30,7 @@ class UnappliedPaymentDeleteTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockUnitData;
-    use WithoutEvents;
-
+    
     protected function setUp() :void
     {
         parent::setUp();

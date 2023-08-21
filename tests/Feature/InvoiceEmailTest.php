@@ -11,14 +11,15 @@
 
 namespace Tests\Feature;
 
+use Tests\TestCase;
+use Tests\MockAccountData;
 use App\Jobs\Entity\EmailEntity;
+use Illuminate\Support\Facades\Event;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
-use Tests\MockAccountData;
-use Tests\TestCase;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * @test
@@ -118,7 +119,8 @@ class InvoiceEmailTest extends TestCase
             if ($invitation->contact->send_email && $invitation->contact->email) {
                 EmailEntity::dispatch($invitation, $invitation->company);
 
-                $this->expectsJobs(EmailEntity::class);
+                Event::fake();
+                Event::assertDispatched(EmailEntity::class);
             }
         });
 
@@ -146,7 +148,10 @@ class InvoiceEmailTest extends TestCase
             if ($invitation->contact->send_email && $invitation->contact->email) {
                 EmailEntity::dispatch($invitation, $invitation->company);
 
-                $this->expectsJobs(EmailEntity::class);
+                
+Event::fake();
+Event::assertDispatched(EmailEntity::class);
+
             }
         });
 
@@ -174,7 +179,10 @@ class InvoiceEmailTest extends TestCase
             if ($invitation->contact->send_email && $invitation->contact->email) {
                 EmailEntity::dispatch($invitation, $invitation->company);
 
-                $this->expectsJobs(EmailEntity::class);
+                
+Event::fake();
+Event::assertDispatched(EmailEntity::class);
+
             }
         });
 
@@ -197,7 +205,10 @@ class InvoiceEmailTest extends TestCase
             if ($invitation->contact->send_email && $invitation->contact->email) {
                 EmailEntity::dispatch($invitation, $invitation->company);
 
-                $this->expectsJobs(EmailEntity::class);
+                
+Event::fake();
+Event::assertDispatched(EmailEntity::class);
+
             }
         });
 
