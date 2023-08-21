@@ -11,16 +11,15 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Tests\MockAccountData;
 use App\Jobs\Entity\EmailEntity;
-use Illuminate\Support\Facades\Event;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\ValidationException;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test
@@ -51,10 +50,10 @@ class InvoiceEmailTest extends TestCase
     public function testTemplateValidation()
     {
         $data = [
-            "body" => "hey what's up", 
-            "entity" => 'invoice', 
-            "entity_id"=> $this->invoice->hashed_id, 
-            "subject"=> 'Reminder $number', 
+            "body" => "hey what's up",
+            "entity" => 'invoice',
+            "entity_id"=> $this->invoice->hashed_id,
+            "subject"=> 'Reminder $number',
             "template"=> "first_custom"
         ];
 
@@ -152,7 +151,7 @@ class InvoiceEmailTest extends TestCase
                 EmailEntity::dispatch($invitation, $invitation->company);
 
                 
-        Bus::assertDispatched(EmailEntity::class);
+                Bus::assertDispatched(EmailEntity::class);
 
             }
         });
@@ -183,7 +182,7 @@ class InvoiceEmailTest extends TestCase
                 EmailEntity::dispatch($invitation, $invitation->company);
 
                 
-Bus::assertDispatched(EmailEntity::class);
+                Bus::assertDispatched(EmailEntity::class);
 
             }
         });
@@ -209,7 +208,7 @@ Bus::assertDispatched(EmailEntity::class);
                 EmailEntity::dispatch($invitation, $invitation->company);
 
                 
-Bus::assertDispatched(EmailEntity::class);
+                Bus::assertDispatched(EmailEntity::class);
 
             }
         });

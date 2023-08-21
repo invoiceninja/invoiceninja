@@ -40,7 +40,7 @@
         "authorizenet/authorizenet": "^2.0",
         "awobaz/compoships": "^2.1",
         "bacon/bacon-qr-code": "^2.0",
-        "beganovich/snappdf": "^3",
+        "beganovich/snappdf": "^4",
         "braintree/braintree_php": "^6.0",
         "checkout/checkout-sdk-php": "^3.0",
         "cleverit/ubl_invoice": "^1.3",

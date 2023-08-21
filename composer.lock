@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c6e70e26e10d4836ad93323a7efd7eb5",
+    "content-hash": "8e1e0864e98afc97b30e13631480c86b",
     "packages": [
         {
             "name": "adrienrn/php-mimetyper",
@@ -674,24 +674,24 @@
         },
         {
             "name": "beganovich/snappdf",
-            "version": "v3.1.0",
+            "version": "v4.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/beganovich/snappdf.git",
-                "reference": "b2656c2c67be086b535cd13a704e27caaf5a7570"
+                "reference": "e3ba325281fa35faa139add57b6183e22ed71cc1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/beganovich/snappdf/zipball/b2656c2c67be086b535cd13a704e27caaf5a7570",
-                "reference": "b2656c2c67be086b535cd13a704e27caaf5a7570",
+                "url": "https://api.github.com/repos/beganovich/snappdf/zipball/e3ba325281fa35faa139add57b6183e22ed71cc1",
+                "reference": "e3ba325281fa35faa139add57b6183e22ed71cc1",
                 "shasum": ""
             },
             "require": {
                 "ext-zip": "*",
-                "php": "^8.0|^8.1",
-                "symfony/console": "^6.0",
-                "symfony/filesystem": "^6.0",
-                "symfony/process": "^6.0"
+                "php": "^8.1|^8.2",
+                "symfony/console": "^6.2",
+                "symfony/filesystem": "^6.2",
+                "symfony/process": "^6.2"
             },
             "require-dev": {
                 "ext-fileinfo": "*",
@@ -720,9 +720,9 @@
             "description": "Convert webpages or HTML into the PDF file using Chromium or Google Chrome.",
             "support": {
                 "issues": "https://github.com/beganovich/snappdf/issues",
-                "source": "https://github.com/beganovich/snappdf/tree/v3.1.0"
+                "source": "https://github.com/beganovich/snappdf/tree/v4.0.0"
             },
-            "time": "2022-09-14T10:35:47+00:00"
+            "time": "2023-04-22T07:49:46+00:00"
         },
         {
             "name": "braintree/braintree_php",
@@ -2586,16 +2586,16 @@
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.312.0",
+            "version": "v0.312.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-api-php-client-services.git",
-                "reference": "45d47fed73b28254c511882bc743b1690a99558d"
+                "reference": "d13797cf251ec0d62f00b70dfa8642aa9550900d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/45d47fed73b28254c511882bc743b1690a99558d",
-                "reference": "45d47fed73b28254c511882bc743b1690a99558d",
+                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/d13797cf251ec0d62f00b70dfa8642aa9550900d",
+                "reference": "d13797cf251ec0d62f00b70dfa8642aa9550900d",
                 "shasum": ""
             },
             "require": {
@@ -2624,9 +2624,9 @@
             ],
             "support": {
                 "issues": "https://github.com/googleapis/google-api-php-client-services/issues",
-                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.312.0"
+                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.312.1"
             },
-            "time": "2023-08-14T00:56:12+00:00"
+            "time": "2023-08-21T00:52:13+00:00"
         },
         {
             "name": "google/auth",
