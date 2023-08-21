@@ -15,6 +15,7 @@ use Tests\TestCase;
 use App\Models\Quote;
 use App\Models\Invoice;
 use Tests\MockAccountData;
+use App\Models\PurchaseOrder;
 use App\Utils\Traits\MakesHash;
 use App\Events\Task\TaskWasCreated;
 use App\Events\Task\TaskWasDeleted;
@@ -92,6 +93,8 @@ class EventTest extends TestCase
     use MockAccountData;
     use MakesHash;
     use DatabaseTransactions;
+
+    public $faker;
 
     public function setUp(): void
     {
@@ -586,7 +589,7 @@ class EventTest extends TestCase
                 'X-API-TOKEN' => $this->token,
             ])->postJson('/api/v1/recurring_invoices/', $data);
         } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
+            // $message = json_decode($e->validator->getMessageBag(), 1);
         }
 
         $response->assertStatus(200);
@@ -846,16 +849,15 @@ class EventTest extends TestCase
     }
 
 
-    public function PurchaseOrderEvents()
+    public function testPurchaseOrderEvents()
     {
         /* Test fire new invoice */
         $data = [
-            'client_id' => $this->vendor->hashed_id,
+            'vendor_id' => $this->vendor->hashed_id,
             'number' => 'dude',
         ];
 
         Event::fake();
-
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -867,7 +869,7 @@ class EventTest extends TestCase
         $arr = $response->json();
 
         $data = [
-            'client_id' => $this->vendor->hashed_id,
+            'vendor_id' => $this->vendor->hashed_id,
             'number' => 'dude2',
         ];
 
