@@ -18,7 +18,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v1
         with:
-          ref: laravel10
+          ref: Laravel10
           
       - name: Copy .env file
         run: |
