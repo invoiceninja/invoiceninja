@@ -87,9 +87,6 @@ class BankTransactionRule extends BaseModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];
-
-    protected $dates = [
-    ];
     
     protected array $search_keys = [
         'description' => 'string',

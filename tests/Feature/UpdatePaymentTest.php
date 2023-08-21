@@ -33,7 +33,6 @@ class UpdatePaymentTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
-    use WithoutEvents;
 
     public $faker;
 

@@ -564,7 +564,7 @@ class CheckData extends Command
          GROUP BY clients.id
          HAVING payments_applied != client_paid_to_date
          ORDER BY clients.id;
-        "));
+        ")->getValue(DB::connection()->getQueryGrammar()));
     
         return $results;
     }
@@ -583,7 +583,7 @@ class CheckData extends Command
         AND paymentables.amount > 0
         AND payments.is_deleted = 0
         AND payments.client_id = ?;
-        "), [App\Models\Credit::class, $client->id]);
+        ")->getValue(DB::connection()->getQueryGrammar()), [App\Models\Credit::class, $client->id]);
     
         return $results;
     }
@@ -636,7 +636,7 @@ class CheckData extends Command
                     ->where('clients.updated_at', '>', now()->subDays(2))
                     ->groupBy('clients.id')
                     ->havingRaw('clients.paid_to_date != sum(coalesce(payments.amount - payments.refunded, 0))')
-                    ->get(['clients.id', 'clients.paid_to_date', DB::raw('sum(coalesce(payments.amount - payments.refunded, 0)) as amount')]);
+                    ->get(['clients.id', 'clients.paid_to_date', DB::raw('sum(coalesce(payments.amount - payments.refunded, 0)) as amount')->getValue(DB::connection()->getQueryGrammar())]);
 
         /* Due to accounting differences we need to perform a second loop here to ensure there actually is an issue */
         $clients->each(function ($client_record) use ($credit_total_applied) {
@@ -656,7 +656,7 @@ class CheckData extends Command
             $p = Payment::where('client_id', $client->id)
             ->where('is_deleted', 0)
             ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
-            ->sum(DB::Raw('amount - applied'));
+            ->sum(DB::Raw('amount - applied')->getValue(DB::connection()->getQueryGrammar()));
 
             $total_invoice_payments += $p;
 
@@ -736,7 +736,7 @@ class CheckData extends Command
         GROUP BY clients.id
         HAVING invoice_balance != clients.balance
         ORDER BY clients.id;
-        "));
+        ")->getValue(DB::connection()->getQueryGrammar()));
     
         return $results;
     }
@@ -827,7 +827,7 @@ class CheckData extends Command
         GROUP BY clients.id
         HAVING(invoices_balance != clients.balance)
         ORDER BY clients.id;
-        "));
+        ")->getValue(DB::connection()->getQueryGrammar()));
     
         return $results;
     }
@@ -961,7 +961,7 @@ class CheckData extends Command
                 }
                 $records = DB::table($table)
                                 ->join($tableName, "{$tableName}.id", '=', "{$table}.{$field}_id")
-                                ->where("{$table}.{$company_id}", '!=', DB::raw("{$tableName}.company_id"))
+                                ->where("{$table}.{$company_id}", '!=', DB::raw("{$tableName}.company_id")->getValue(DB::connection()->getQueryGrammar()))
                                 ->get(["{$table}.id"]);
 
                 if ($records->count()) {

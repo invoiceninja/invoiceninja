@@ -15,10 +15,11 @@ use App\Jobs\Entity\EmailEntity;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\TestCase;
-use Illuminate\Validation\ValidationException;
 
 /**
  * @test
@@ -49,10 +50,10 @@ class InvoiceEmailTest extends TestCase
     public function testTemplateValidation()
     {
         $data = [
-            "body" => "hey what's up", 
-            "entity" => 'invoice', 
-            "entity_id"=> $this->invoice->hashed_id, 
-            "subject"=> 'Reminder $number', 
+            "body" => "hey what's up",
+            "entity" => 'invoice',
+            "entity_id"=> $this->invoice->hashed_id,
+            "subject"=> 'Reminder $number',
             "template"=> "first_custom"
         ];
 
@@ -114,15 +115,16 @@ class InvoiceEmailTest extends TestCase
 
         $this->invoice->save();
 
+        Bus::fake();
+
+
         $this->invoice->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
                 EmailEntity::dispatch($invitation, $invitation->company);
-
-                $this->expectsJobs(EmailEntity::class);
+                Bus::assertDispatched(EmailEntity::class);
             }
         });
 
-        $this->assertTrue(true);
     }
 
     public function testTemplateThemes()
@@ -142,11 +144,15 @@ class InvoiceEmailTest extends TestCase
 
         $this->invoice->save();
 
+        Bus::fake();
+
         $this->invoice->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
                 EmailEntity::dispatch($invitation, $invitation->company);
 
-                $this->expectsJobs(EmailEntity::class);
+                
+                Bus::assertDispatched(EmailEntity::class);
+
             }
         });
 
@@ -169,12 +175,15 @@ class InvoiceEmailTest extends TestCase
 
         $this->invoice->setRelation('client', $this->client);
         $this->invoice->save();
+        Bus::fake();
 
         $this->invoice->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
                 EmailEntity::dispatch($invitation, $invitation->company);
 
-                $this->expectsJobs(EmailEntity::class);
+                
+                Bus::assertDispatched(EmailEntity::class);
+
             }
         });
 
@@ -192,12 +201,15 @@ class InvoiceEmailTest extends TestCase
         $this->invoice->setRelation('client', $this->client);
 
         $this->invoice->save();
+        Bus::fake();
 
         $this->invoice->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
                 EmailEntity::dispatch($invitation, $invitation->company);
 
-                $this->expectsJobs(EmailEntity::class);
+                
+                Bus::assertDispatched(EmailEntity::class);
+
             }
         });
 

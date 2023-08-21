@@ -23,7 +23,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Session;
 use App\DataMapper\Schedule\EmailStatement;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Foundation\Testing\WithoutEvents;
 use App\Services\Scheduler\EmailStatementService;
 use App\Services\Scheduler\EmailReport;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -37,7 +36,6 @@ class SchedulerTest extends TestCase
 {
     use MakesHash;
     use MockAccountData;
-    use WithoutEvents;
     use DatabaseTransactions;
 
     protected $faker;

@@ -20,9 +20,9 @@ class DocumentTransformer extends EntityTransformer
 
     protected $serializer;
 
-    protected $defaultIncludes = [];
+    protected array $defaultIncludes = [];
 
-    protected $availableIncludes = [];
+    protected array $availableIncludes = [];
 
     public function __construct($serializer = null)
     {

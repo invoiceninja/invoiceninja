@@ -21,11 +21,6 @@ use App\Models\RecurringInvoice;
 use App\Factory\SchedulerFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Session;
-use App\DataMapper\Schedule\EmailStatement;
-use App\Services\Scheduler\SchedulerService;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Foundation\Testing\WithoutEvents;
-use App\Services\Scheduler\EmailStatementService;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
@@ -36,7 +31,6 @@ class ScheduleEntityTest extends TestCase
 {
     use MakesHash;
     use MockAccountData;
-    use WithoutEvents;
 
     protected function setUp(): void
     {
