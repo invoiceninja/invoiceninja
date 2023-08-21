@@ -88,17 +88,17 @@ class MarkInvoiceDeleted extends AbstractService
             $payment_adjustment = $payment->paymentables
                                             ->where('paymentable_type', '=', 'invoices')
                                             ->where('paymentable_id', $this->invoice->id)
-                                            ->sum(DB::raw('amount'));
+                                            ->sum(DB::raw('amount')->getValue(DB::connection()->getQueryGrammar()));
 
             $payment_adjustment -= $payment->paymentables
                                             ->where('paymentable_type', '=', 'invoices')
                                             ->where('paymentable_id', $this->invoice->id)
-                                            ->sum(DB::raw('refunded'));
+                                            ->sum(DB::raw('refunded')->getValue(DB::connection()->getQueryGrammar()));
 
             //14-07-2023 - Do not include credits in the payment adjustment.
             $payment_adjustment -= $payment->paymentables
                                             ->where('paymentable_type', '=', 'App\Models\Credit')
-                                            ->sum(DB::raw('amount'));
+                                            ->sum(DB::raw('amount')->getValue(DB::connection()->getQueryGrammar()));
 
             $payment->amount -= $payment_adjustment;
             $payment->applied -= $payment_adjustment;

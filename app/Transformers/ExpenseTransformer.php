@@ -30,14 +30,14 @@ class ExpenseTransformer extends EntityTransformer
     use MakesHash;
     use SoftDeletes;
     
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'documents',
     ];
 
     /**
      * @var array
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'client',
         'vendor',
         'category',

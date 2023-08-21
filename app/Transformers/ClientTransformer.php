@@ -29,7 +29,7 @@ class ClientTransformer extends EntityTransformer
 {
     use MakesHash;
 
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'contacts',
         'documents',
         'gateway_tokens',
@@ -38,7 +38,7 @@ class ClientTransformer extends EntityTransformer
     /**
      * @var array
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'activities',
         'ledger',
         'system_logs',

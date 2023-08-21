@@ -28,7 +28,7 @@ class TaskTransformer extends EntityTransformer
 {
     use MakesHash;
 
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'documents',
         'project',
     ];
@@ -36,7 +36,7 @@ class TaskTransformer extends EntityTransformer
     /**
      * @var array
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'client',
         'status',
         'project',

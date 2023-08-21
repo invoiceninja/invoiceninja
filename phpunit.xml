@@ -23,6 +23,7 @@
     <env name="MAIL_MAILER" value="array"/>
     <env name="DB_CONNECTION" value="sqlite"/>
     <env name="DB_DATABASE" value=":memory:"/>
+    <env name="DB_STRICT" value="FALSE"/>
   </php>
   <logging/>
 </phpunit>

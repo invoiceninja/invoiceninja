@@ -734,7 +734,7 @@ class BaseImport
     {
         $user = User::where('account_id', $this->company->account->id)
             ->where(
-                \DB::raw('CONCAT_WS(" ", first_name, last_name)'),
+                \DB::raw('CONCAT_WS(" ", first_name, last_name)')->getValue(DB::connection()->getQueryGrammar()),
                 'like',
                 '%'.$user_hash.'%'
             )

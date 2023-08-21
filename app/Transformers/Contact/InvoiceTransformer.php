@@ -19,11 +19,11 @@ class InvoiceTransformer extends EntityTransformer
 {
     use MakesHash;
 
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         //    'invoice_items',
     ];
 
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
     ];
 
     public function transform(Invoice $invoice)

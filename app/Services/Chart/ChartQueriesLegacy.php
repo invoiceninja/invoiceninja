@@ -23,6 +23,7 @@ trait ChartQueriesLegacy
      */
     public function getExpenseQuery($start_date, $end_date)
     {
+        
         return DB::select(DB::raw('
             SELECT sum(expenses.amount) as amount,
             IFNULL(expenses.currency_id, :company_currency) as currency_id
@@ -31,7 +32,7 @@ trait ChartQueriesLegacy
             AND expenses.company_id = :company_id
             AND (expenses.date BETWEEN :start_date AND :end_date)
             GROUP BY currency_id
-        '), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
+        ')->getValue(DB::connection()->getQueryGrammar()), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
     }
 
     public function getExpenseChartQuery($start_date, $end_date, $currency_id)
@@ -47,7 +48,7 @@ trait ChartQueriesLegacy
             AND expenses.is_deleted = 0
             GROUP BY expenses.date
             HAVING currency_id = :currency_id
-        '), [
+        ')->getValue(DB::connection()->getQueryGrammar()), [
             'company_currency' => $this->company->settings->currency_id,
             'currency_id' => $currency_id,
             'company_id' => $this->company->id,
@@ -69,7 +70,7 @@ trait ChartQueriesLegacy
             AND payments.company_id = :company_id
             AND (payments.date BETWEEN :start_date AND :end_date)
             GROUP BY currency_id
-        '), [
+        ')->getValue(DB::connection()->getQueryGrammar()), [
             'company_currency' => $this->company->settings->currency_id,
             'company_id' => $this->company->id,
             'start_date' => $start_date,
@@ -91,7 +92,7 @@ trait ChartQueriesLegacy
             AND payments.is_deleted = 0
             GROUP BY payments.date
             HAVING currency_id = :currency_id
-        '), [
+        ')->getValue(DB::connection()->getQueryGrammar()), [
             'company_currency' => $this->company->settings->currency_id,
             'currency_id' => $currency_id,
             'company_id' => $this->company->id,
@@ -119,7 +120,7 @@ trait ChartQueriesLegacy
             AND invoices.is_deleted = 0
             AND (invoices.date BETWEEN :start_date AND :end_date)
             GROUP BY currency_id
-        "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
+        ")->getValue(DB::connection()->getQueryGrammar()), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
     }
 
     public function getRevenueQuery($start_date, $end_date)
@@ -158,7 +159,7 @@ trait ChartQueriesLegacy
             AND invoices.is_deleted = 0
             GROUP BY invoices.date
             HAVING currency_id = :currency_id
-        "), [
+        ")->getValue(DB::connection()->getQueryGrammar()), [
             'company_currency' => (int) $this->company->settings->currency_id,
             'currency_id' => $currency_id,
             'company_id' => $this->company->id,

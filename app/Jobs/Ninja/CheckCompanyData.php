@@ -158,17 +158,6 @@ class CheckCompanyData implements ShouldQueue
                 $total_invoice_payments += ($total_amount - $total_refund);
             }
 
-            //10/02/21
-            // foreach ($client->payments as $payment) {
-            //     $credit_total_applied += $payment->paymentables->where('paymentable_type', App\Models\Credit::class)->sum(DB::raw('amount'));
-            // }
-
-            // if ($credit_total_applied < 0) {
-            //     $total_invoice_payments += $credit_total_applied;
-            // } //todo this is contentious
-
-            // nlog("total invoice payments = {$total_invoice_payments} with client paid to date of of {$client->paid_to_date}");
-
             if (round($total_invoice_payments, 2) != round($client->paid_to_date, 2)) {
                 $wrong_paid_to_dates++;
 
@@ -287,7 +276,7 @@ class CheckCompanyData implements ShouldQueue
         //     $clients->where('clients.id', '=', $this->option('client_id'));
         // }
 
-        $clients = $clients->get(['clients.id', DB::raw('count(client_contacts.id)')]);
+        $clients = $clients->get(['clients.id', DB::raw('count(client_contacts.id)')->getValue(DB::connection()->getQueryGrammar())]);
         $this->company_data[] = $clients->count().' clients without a single primary contact';
 
         if ($clients->count() > 0) {
@@ -326,7 +315,7 @@ class CheckCompanyData implements ShouldQueue
                 }
                 $records = DB::table($table)
                                 ->join($tableName, "{$tableName}.id", '=', "{$table}.{$field}_id")
-                                ->where("{$table}.{$company_id}", '!=', DB::raw("{$tableName}.company_id"))
+                                ->where("{$table}.{$company_id}", '!=', DB::raw("{$tableName}.company_id")->getValue(DB::connection()->getQueryGrammar()))
                                 ->get(["{$table}.id"]);
 
                 if ($records->count()) {

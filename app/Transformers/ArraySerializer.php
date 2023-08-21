@@ -24,7 +24,7 @@ class ArraySerializer extends FractalArraySerializer
      *
      * @return array
      */
-    public function collection($resourceKey, array $data)
+    public function collection(?string $resourceKey, array $data): array
     {
         return $data;
     }
@@ -35,7 +35,7 @@ class ArraySerializer extends FractalArraySerializer
      *
      * @return array
      */
-    public function item($resourceKey, array $data)
+    public function item(?string $resourceKey, array $data): array
     {
         return $data;
     }

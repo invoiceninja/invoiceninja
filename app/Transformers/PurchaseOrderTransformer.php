@@ -22,12 +22,12 @@ class PurchaseOrderTransformer extends EntityTransformer
 {
     use MakesHash;
 
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'invitations',
         'documents'
     ];
 
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'expense',
         'vendor',
     ];

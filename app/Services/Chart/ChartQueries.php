@@ -34,7 +34,7 @@ trait ChartQueries
             AND (expenses.date BETWEEN :start_date AND :end_date)
             {$user_filter}
             GROUP BY currency_id
-        "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
+        ")->getValue(DB::connection()->getQueryGrammar()), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
     }
 
     public function getExpenseChartQuery($start_date, $end_date, $currency_id)
@@ -54,7 +54,7 @@ trait ChartQueries
             {$user_filter}
             GROUP BY expenses.date
             HAVING currency_id = :currency_id
-        "), [
+        ")->getValue(DB::connection()->getQueryGrammar()), [
             'company_currency' => $this->company->settings->currency_id,
             'currency_id' => $currency_id,
             'company_id' => $this->company->id,
@@ -80,7 +80,7 @@ trait ChartQueries
             AND payments.company_id = :company_id
             AND (payments.date BETWEEN :start_date AND :end_date)
             GROUP BY currency_id
-        "), [
+        ")->getValue(DB::connection()->getQueryGrammar()), [
             'company_currency' => $this->company->settings->currency_id,
             'company_id' => $this->company->id,
             'start_date' => $start_date,
@@ -106,7 +106,7 @@ trait ChartQueries
             AND (payments.date BETWEEN :start_date AND :end_date)
             GROUP BY payments.date
             HAVING currency_id = :currency_id
-        "), [
+        ")->getValue(DB::connection()->getQueryGrammar()), [
             'company_currency' => $this->company->settings->currency_id,
             'currency_id' => $currency_id,
             'company_id' => $this->company->id,
@@ -139,7 +139,7 @@ trait ChartQueries
             AND invoices.balance > 0
             AND (invoices.date BETWEEN :start_date AND :end_date)
             GROUP BY currency_id
-        "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
+        ")->getValue(DB::connection()->getQueryGrammar()), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
     }
 
     public function getRevenueQueryX($start_date, $end_date)
@@ -161,7 +161,7 @@ trait ChartQueries
             AND invoices.status_id IN (3,4)
             AND (invoices.date BETWEEN :start_date AND :end_date)
             GROUP BY currency_id
-        "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
+        ")->getValue(DB::connection()->getQueryGrammar()), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
     }
 
     public function getRevenueQuery($start_date, $end_date)
@@ -179,7 +179,7 @@ trait ChartQueries
             AND payments.status_id IN (1,4,5,6)
             AND (payments.date BETWEEN :start_date AND :end_date)
             GROUP BY payments.currency_id
-        "), ['company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
+        ")->getValue(DB::connection()->getQueryGrammar()), ['company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
     }
 
     public function getInvoicesQuery($start_date, $end_date)
@@ -201,7 +201,7 @@ trait ChartQueries
             AND invoices.is_deleted = 0
             AND (invoices.date BETWEEN :start_date AND :end_date)
             GROUP BY currency_id
-        "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
+        ")->getValue(DB::connection()->getQueryGrammar()), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
     }
 
     public function getOutstandingChartQuery($start_date, $end_date, $currency_id)
@@ -224,7 +224,7 @@ trait ChartQueries
             AND (invoices.date BETWEEN :start_date AND :end_date)
             GROUP BY invoices.date
             HAVING currency_id = :currency_id
-        "), [
+        ")->getValue(DB::connection()->getQueryGrammar()), [
             'company_currency' => (int) $this->company->settings->currency_id,
             'currency_id' => $currency_id,
             'company_id' => $this->company->id,
@@ -254,7 +254,7 @@ trait ChartQueries
             AND (invoices.date BETWEEN :start_date AND :end_date)
             GROUP BY invoices.date
             HAVING currency_id = :currency_id
-        "), [
+        ")->getValue(DB::connection()->getQueryGrammar()), [
             'company_currency' => (int) $this->company->settings->currency_id,
             'currency_id' => $currency_id,
             'company_id' => $this->company->id,
