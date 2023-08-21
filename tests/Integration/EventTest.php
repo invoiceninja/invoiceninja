@@ -903,7 +903,7 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->postJson('/api/v1/purchase_orders/bulk?action=approve', $data)
+        ])->postJson('/api/v1/purchase_orders/bulk?action=mark_sent', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([

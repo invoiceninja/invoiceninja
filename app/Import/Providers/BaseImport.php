@@ -732,6 +732,15 @@ class BaseImport
 
     protected function findUser($user_hash)
     {
+        if(is_numeric($user_hash)) {
+        
+            $user = User::query()->find($user_hash);
+
+        }
+
+        if($user)
+            return $user->id;
+
         $user = User::where('account_id', $this->company->account->id)
             ->where(
                 \DB::raw('CONCAT_WS(" ", first_name, last_name)')->getValue(\DB::connection()->getQueryGrammar()),
