@@ -121,12 +121,12 @@ class MarkInvoiceDeleted extends AbstractService
             $this->adjustment_amount += $payment->paymentables
                                                 ->where('paymentable_type', '=', 'invoices')
                                                 ->where('paymentable_id', $this->invoice->id)
-                                                ->sum(DB::raw('amount'));
+                                                ->sum(DB::raw('amount')->getValue(DB::connection()->getQueryGrammar()));
 
             $this->adjustment_amount -= $payment->paymentables
                                                 ->where('paymentable_type', '=', 'invoices')
                                                 ->where('paymentable_id', $this->invoice->id)
-                                                ->sum(DB::raw('refunded'));
+                                                ->sum(DB::raw('refunded')->getValue(DB::connection()->getQueryGrammar()));
         }
 
         $this->total_payments = $this->invoice->payments->sum('amount') - $this->invoice->payments->sum('refunded');
