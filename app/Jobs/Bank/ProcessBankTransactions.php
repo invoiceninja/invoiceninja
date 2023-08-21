@@ -111,6 +111,7 @@ class ProcessBankTransactions implements ShouldQueue
                 if($account[0]['current_balance']) {
                     $this->bank_integration->balance = $account[0]['current_balance'];
                     $this->bank_integration->currency = $account[0]['account_currency'];
+                    $this->bank_integration->bank_account_status = $account[0]['account_status'];
                     $this->bank_integration->save();
                 }
                 
