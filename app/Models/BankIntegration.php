@@ -73,9 +73,6 @@ class BankIntegration extends BaseModel
         'auto_sync',
     ];
 
-    protected $dates = [
-    ];
-
     public function getEntityType()
     {
         return self::class;

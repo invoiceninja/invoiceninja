@@ -128,23 +128,14 @@ class Account extends BaseModel
         'num_users',
     ];
 
-    /**
-     * @var array
-     */
-    protected $dates = [
-        'deleted_at',
-        'promo_expires',
-        'discount_expires',
-        // 'trial_started',
-        // 'plan_expires'
-    ];
-
     protected $casts = [
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'onboarding' => 'object',
-        'set_react_as_default_ap' => 'bool'
+        'set_react_as_default_ap' => 'bool',
+        'promo_expires' => 'date',
+        'discount_expires' => 'date',
     ];
 
     const PLAN_FREE = 'free';
