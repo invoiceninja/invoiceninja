@@ -18,7 +18,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v1
         with:
-          ref: laravel10
+          ref: Laravel10
           
       - name: Copy .env file
         run: |
@@ -32,9 +32,9 @@ jobs:
       - name: Prepare Laravel Application
         run: |
           cp .env.example .env
-          php artisan key:generate
+          php artisan key:generate --force
           php artisan optimize
-          php artisan storage:link
+          php artisan storage:link --force
           sudo php artisan cache:clear
           sudo find ./vendor/bin/ -type f -exec chmod +x {} \;
           sudo find ./ -type d -exec chmod 755 {} \;
