@@ -1150,7 +1150,7 @@ $LANG = array(
     'plan_status' => 'Plan Status',
 
     'plan_upgrade' => 'Upgrade',
-    'plan_change' => 'Change Plan',
+    'plan_change' => 'Manage Plan',
     'pending_change_to' => 'Changes To',
     'plan_changes_to' => ':plan on :date',
     'plan_term_changes_to' => ':plan (:term) on :date',
@@ -4330,7 +4330,7 @@ $LANG = array(
     'include_drafts' => 'Include Drafts',
     'include_drafts_help' => 'Include draft records in reports',
     'is_invoiced' => 'Is Invoiced',
-    'change_plan' => 'Change Plan',
+    'change_plan' => 'Manage Plan',
     'persist_data' => 'Persist Data',
     'customer_count' => 'Customer Count',
     'verify_customers' => 'Verify Customers',
