@@ -73,5 +73,6 @@ class ReportPreviewTest extends TestCase
         ])->postJson('/api/v1/reports/credits?output=json', $data)
         ->assertStatus(200);
 
+    
     }
 }
