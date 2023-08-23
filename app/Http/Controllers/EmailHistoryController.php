@@ -11,15 +11,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Quote;
-use App\Models\Client;
-use App\Models\Invoice;
-use App\Models\SystemLog;
-use App\Models\PurchaseOrder;
-use App\Utils\Traits\MakesHash;
-use App\Models\RecurringInvoice;
 use App\Http\Requests\Email\ClientEmailHistoryRequest;
 use App\Http\Requests\Email\EntityEmailHistoryRequest;
+use App\Models\Client;
+use App\Models\SystemLog;
+use App\Utils\Traits\MakesHash;
 
 class EmailHistoryController extends BaseController
 {
@@ -33,17 +29,22 @@ class EmailHistoryController extends BaseController
     {
         $data = SystemLog::where('client_id', $client->id)
                  ->where('category_id', SystemLog::CATEGORY_MAIL)
-                 ->orderBy('id','DESC')
-                 ->map(function ($system_log){
-                    if($system_log->log['history'] ?? false) {
-                        return json_decode($system_log->log['history'], true);
-                    }
+                 ->orderBy('id', 'DESC')
+                 ->map(function ($system_log) {
+                     if($system_log->log['history'] ?? false) {
+                         return json_decode($system_log->log['history'], true);
+                     }
                  });
 
         return response()->json($data, 200);
 
     }
-
+    
+    /**
+     * May need to expand on this using
+     * just the message-id and search for the
+     * entity in the invitations
+     */
     public function entityHistory(EntityEmailHistoryRequest $request)
     {
         /** @var \App\Models\User $user */
