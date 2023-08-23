@@ -38,15 +38,15 @@ class ProcessPostmarkWebhook implements ShouldQueue
 
     public $invitation;
 
-    private array $default_response = [
-            'subject' => 'Message not found.',
-            'status' => '',
-            'recipient' =>  '',
-            'type' => '',
-            'delivery_message' => '',
-            'server' => '',
-            'server_ip' => '',
-        ];
+    private $entity;
+
+    private array $default_response =  [
+        'recipients' => '',
+        'subject' => 'Message not found.',
+        'entity' => '',
+        'entity_id' => '',
+        'events' => [],
+    ];
 
     /**
      * Create a new job instance.
@@ -275,14 +275,19 @@ class ProcessPostmarkWebhook implements ShouldQueue
         $invitation = false;
 
         if ($invitation = InvoiceInvitation::where('message_id', $message_id)->first()) {
+            $this->entity = 'invoice';
             return $invitation;
         } elseif ($invitation = QuoteInvitation::where('message_id', $message_id)->first()) {
+            $this->entity = 'quote';
             return $invitation;
         } elseif ($invitation = RecurringInvoiceInvitation::where('message_id', $message_id)->first()) {
+            $this->entity = 'recurring_invoice';
             return $invitation;
         } elseif ($invitation = CreditInvitation::where('message_id', $message_id)->first()) {
+            $this->entity = 'credit';
             return $invitation;
         } elseif ($invitation = PurchaseOrderInvitation::where('message_id', $message_id)->first()) {
+            $this->entity = 'purchase_order';
             return $invitation;
         } else {
             return $invitation;
@@ -297,19 +302,33 @@ class ProcessPostmarkWebhook implements ShouldQueue
     
         try {
 
-            $postmark = new PostmarkClient(config('services.postmark.secret'));
+            $postmark = new PostmarkClient(config('services.postmark.token'));
             $messageDetail = $postmark->getOutboundMessageDetails($this->request['MessageID']);
-                
+
+            $recipients = collect($messageDetail['recipients'])->flatten()->implode(',');
+            $subject = $messageDetail->subject ?? '';
+
+            $events =  collect($messageDetail->messageevents)->map(function ($event) {
+
+                return [
+                        'recipient' => $event->Recipient ?? '',
+                        'status' => $event->Type ?? '',
+                        'delivery_message' => $event->Details->DeliveryMessage ?? $event->Details->Summary ?? '',
+                        'server' => $event->Details->DestinationServer ??  '',
+                        'server_ip' => $event->Details->DestinationIP ?? '',
+                        'date' => \Carbon\Carbon::parse($event->ReceivedAt)->format('Y-m-d H:m:s') ?? '',
+                    ];
+
+            })->toArray();
+
             return [
-                'subject' => $messageDetail->subject ?? '',
-                'status' => $messageDetail->status ?? '',
-                'recipient' => $messageDetail->messageevents[0]['Recipient'] ?? '',
-                'type' => $messageDetail->messageevents[0]->Type ?? '',
-                'subject' => $messageDetail->messageevents[0]->Details->DeliveryMessage ?? '',
-                'server' => $messageDetail->messageevents[0]->Details->DestinationServer ?? '',
-                'server_ip' => $messageDetail->messageevents[0]->Details->DestinationIP ?? '',
+                'recipients' => $recipients,
+                'subject' => $subject,
+                'entity' => $this->entity ?? '',
+                'entity_id' => $this->invitation->{$this->entity}->hashed_id ?? '',
+                'events' => $events,
             ];
-        
+
         }
         catch (\Exception $e) {
 

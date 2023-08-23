@@ -16,6 +16,7 @@ use App\Models\SystemLog;
 use Postmark\PostmarkClient;
 use App\Services\AbstractService;
 
+/** @deprecated */
 class EmailHistory extends AbstractService
 {
     private string $postmark_token;
@@ -27,7 +28,7 @@ class EmailHistory extends AbstractService
             'status' => '',
             'recipient' =>  '',
             'type' => '',
-            'subject' => '',
+            'delivery_message' => '',
             'server' => '',
             'server_ip' => '',
         ];
