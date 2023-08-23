@@ -86,15 +86,23 @@ class CreditExport extends BaseExport
     {
         $query = $this->init();
 
-        $header = $this->buildHeader();
+        $headerdisplay = $this->buildHeader();
+        $header = [];
+
+        foreach ($this->input['report_keys'] as $key => $value) {
+            $header[] = ['identifier' => $value, 'display_value' => $headerdisplay[$key]];
+        }
 
         $report = $query->cursor()
                 ->map(function ($credit) {
                     $row = $this->buildRow($credit);
                     return $this->processMetaData($row, $credit);
                 })->toArray();
+        
+        nlog(array_merge(['column' => $header], $report));
 
-        return array_merge([$header], $report);
+
+        return array_merge(['column' => $header], $report);
     }
 
     private function processMetaData(array $row, Credit $credit): array
@@ -112,7 +120,8 @@ class CreditExport extends BaseExport
             $clean_row[$key]['id'] = $report_keys[1] ?? $report_keys[0];
             $clean_row[$key]['hashed_id'] = $report_keys[0] == 'credit' ? null : $credit->{$report_keys[0]}->hashed_id ?? null;
             $clean_row[$key]['value'] = $row[$column_key];
-
+            $clean_row[$key]['identifier'] = $value;
+            
             if(in_array($clean_row[$key]['id'], ['amount', 'balance', 'partial', 'refunded', 'applied','unit_cost','cost','price']))
                 $clean_row[$key]['display_value'] = Number::formatMoney($row[$column_key], $credit->client);
             else
@@ -134,14 +143,6 @@ class CreditExport extends BaseExport
 
         if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = array_values($this->entity_keys);
-            // $this->input['report_keys'] = collect(array_values($this->entity_keys))->map(function ($value){
-
-            //     // if(in_array($value,['client_id','country_id']))
-            //     //     return $value;
-            //     // else
-            //         return 'credit.'.$value;
-            // })->toArray();
-            
         }
 
         $query = Credit::query()
