@@ -87,6 +87,12 @@ class InvoiceEmailTest extends TestCase
 
         $this->assertEquals('invoice', $arr[0]['entity_type']);
 
+        $count = SystemLog::where('client_id', $this->client->id)
+                ->where('category_id', SystemLog::CATEGORY_MAIL)
+                ->orderBy('id', 'DESC')
+                ->count();
+
+            $this->assertEquals(1, $count);
     }
 
     public function testEntityEmailHistory()
@@ -133,6 +139,13 @@ class InvoiceEmailTest extends TestCase
 
         $this->assertEquals('invoice', $arr[0]['entity_type']);
         $this->assertEquals($this->invoice->hashed_id, $arr[0]['entity_id']);
+
+        $count = SystemLog::where('company_id', $this->company->id)
+                ->where('category_id', SystemLog::CATEGORY_MAIL)
+                ->whereJsonContains('log->history->entity_id', $this->invoice->hashed_id)
+                ->count();
+
+        $this->assertEquals(1, $count);
 
     }
 
