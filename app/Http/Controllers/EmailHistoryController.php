@@ -30,9 +30,11 @@ class EmailHistoryController extends BaseController
         $data = SystemLog::where('client_id', $client->id)
                  ->where('category_id', SystemLog::CATEGORY_MAIL)
                  ->orderBy('id', 'DESC')
+                 ->cursor()
                  ->map(function ($system_log) {
                      if($system_log->log['history'] ?? false) {
-                         return json_decode($system_log->log['history'], true);
+                        return $system_log->log['history'];
+                        //  return json_decode($system_log->log['history'], true);
                      }
                  });
 
@@ -54,9 +56,11 @@ class EmailHistoryController extends BaseController
                 ->where('category_id', SystemLog::CATEGORY_MAIL)
                 ->whereJsonContains('log->history->entity_id', $this->encodePrimaryKey($request->entity_id))
                 ->orderBy('id', 'DESC')
+                ->cursor()
                 ->map(function ($system_log) {
                     if($system_log->log['history'] ?? false) {
-                        return json_decode($system_log->log['history'], true);
+                        return $system_log->log['history'];
+                        // return json_decode($system_log->log['history'], true);
                     }
                 });
 
