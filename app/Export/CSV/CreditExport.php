@@ -99,10 +99,7 @@ class CreditExport extends BaseExport
                     return $this->processMetaData($row, $credit);
                 })->toArray();
         
-        nlog(array_merge(['column' => $header], $report));
-
-
-        return array_merge(['column' => $header], $report);
+        return array_merge(['columns' => $header], $report);
     }
 
     private function processMetaData(array $row, Credit $credit): array
@@ -121,7 +118,7 @@ class CreditExport extends BaseExport
             $clean_row[$key]['hashed_id'] = $report_keys[0] == 'credit' ? null : $credit->{$report_keys[0]}->hashed_id ?? null;
             $clean_row[$key]['value'] = $row[$column_key];
             $clean_row[$key]['identifier'] = $value;
-            
+
             if(in_array($clean_row[$key]['id'], ['amount', 'balance', 'partial', 'refunded', 'applied','unit_cost','cost','price']))
                 $clean_row[$key]['display_value'] = Number::formatMoney($row[$column_key], $credit->client);
             else
