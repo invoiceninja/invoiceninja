@@ -845,7 +845,7 @@ class BaseExport
             $key = array_search($value, $this->entity_keys);
             $original_key = $key;
 
-            nlog("{$key} => {$value}");
+            // nlog("{$key} => {$value}");
             $prefix = '';
 
             if(!$key) {
@@ -938,20 +938,15 @@ class BaseExport
 
                 }
                 elseif(count($parts) == 2 && stripos($parts[0], 'contact') !== false) {
-                   nlog("2");
                     $entity = "contact".substr($parts[1], -1);
                     $custom_field_string = strlen($helper->makeCustomField($this->company->custom_fields, $entity)) > 1 ? $helper->makeCustomField($this->company->custom_fields, $entity) : ctrans("texts.{$parts[1]}");
                     $header[] = ctrans("texts.{$parts[0]}") . " " . $custom_field_string;
                 }
                 elseif(count($parts) == 2 && in_array(substr($original_key, 0, -1), ['credit','quote','invoice','purchase_order','recurring_invoice'])){
-                   nlog("3");
-
                     $custom_field_string = strlen($helper->makeCustomField($this->company->custom_fields, "product".substr($original_key,-1))) > 1 ? $helper->makeCustomField($this->company->custom_fields, "product".substr($original_key,-1)) : ctrans("texts.{$parts[1]}");
-                    nlog(ctrans("texts.{$parts[0]}") . " " . $custom_field_string);
                     $header[] = ctrans("texts.{$parts[0]}") . " " . $custom_field_string;
                 }
                 else{
-                    nlog("else".$key);
                     $header[] = "{$prefix}" . ctrans("texts.{$key}");
                 }
 
@@ -961,7 +956,9 @@ class BaseExport
                 $header[] = "{$prefix}" . ctrans("texts.{$key}");
             }
         }
-nlog($header);
+
+        nlog($header);
+        
         return $header;
     }
 }

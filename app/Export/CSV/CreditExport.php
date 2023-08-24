@@ -41,13 +41,12 @@ class CreditExport extends BaseExport
     {
         $query = $this->init();
 
-        $header = [];
         $headerdisplay = $this->buildHeader();
 
-        foreach ($this->input['report_keys'] as $key => $value) {
-            $header[] = ['identifier' => $value, 'display_value' => $headerdisplay[$key]];
-        }
-        
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
+            return ['identifier' => $value, 'display_value' => $headerdisplay[$key]];
+        })->toArray();
+
         $report = $query->cursor()
                 ->map(function ($credit) {
                     $row = $this->buildRow($credit);
