@@ -925,21 +925,27 @@ class BaseExport
             {
                 $parts = explode(".", $value);
 
-                if(in_array($parts[0], ['credit','quote','invoice','purchase_order','recurring_invoice'])){
+                if(count($parts) == 2 && in_array($parts[0], ['credit','quote','invoice','purchase_order','recurring_invoice'])){
                     $entity = "invoice".substr($parts[1], -1);
+                    $header[] = "{$prefix}" . $helper->makeCustomField($this->company->custom_fields, $entity);
                 }
-                else {
-                    $entity = $parts[0].substr($parts[1], -1);
+                elseif(count($parts) == 2 && stripos($parts[0], 'contact') !== false) {
+                    $entity = "contact".substr($parts[1], -1);
+                    $custom_field_string = strlen($helper->makeCustomField($this->company->custom_fields, $entity)) > 1 ? $helper->makeCustomField($this->company->custom_fields, $entity) : ctrans("texts.{$parts[1]}");
+                    $header[] = ctrans("texts.{$parts[0]}") . " " . $custom_field_string;
                 }
-                
-                $header[] = $helper->makeCustomField($this->company->custom_fields, $entity);
+                else{
+                    nlog("else".$key);
+                    $header[] = "{$prefix}" . ctrans("texts.{$key}");
+                }
+
             }
             else
             {
                 $header[] = "{$prefix}" . ctrans("texts.{$key}");
             }
         }
-
+nlog($header);
         return $header;
     }
 }

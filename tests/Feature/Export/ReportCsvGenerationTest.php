@@ -673,7 +673,7 @@ class ReportCsvGenerationTest extends TestCase
         ])->post('/api/v1/reports/clients', $data);
        
         $csv = $response->streamedContent();
-
+nlog($csv);
         $reader = Reader::createFromString($csv);
         $reader->setHeaderOffset(0);
         
