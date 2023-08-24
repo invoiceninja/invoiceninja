@@ -840,11 +840,11 @@ class BaseExport
 
         $header = [];
 
-        // nlog($this->input['report_keys']);
-
         foreach ($this->input['report_keys'] as $value) {
 
             $key = array_search($value, $this->entity_keys);
+            $original_key = $key;
+
             nlog("{$key} => {$value}");
             $prefix = '';
 
@@ -920,18 +920,34 @@ class BaseExport
             $key = str_replace('payment.', '', $key);
             $key = str_replace('expense.', '', $key);
 
-            // if( in_array($key, ['quote1','quote2','quote3','quote4','credit1','credit2','credit3','credit4','purchase_order1','purchase_order2','purchase_order3','purchase_order4']))
             if(stripos($value, 'custom_value') !== false)
             {
                 $parts = explode(".", $value);
 
                 if(count($parts) == 2 && in_array($parts[0], ['credit','quote','invoice','purchase_order','recurring_invoice'])){
                     $entity = "invoice".substr($parts[1], -1);
-                    $header[] = "{$prefix}" . $helper->makeCustomField($this->company->custom_fields, $entity);
+                    $prefix = ctrans("texts.".$parts[0]);
+                    $fallback = "custom_value".substr($parts[1], -1);
+                    $custom_field_label = $helper->makeCustomField($this->company->custom_fields, $entity);
+
+                    if(strlen($custom_field_label) > 1)
+                        $header[] = $custom_field_label;
+                    else {
+                        $header[] = $prefix . " ". ctrans("texts.{$fallback}");
+                    }
+
                 }
                 elseif(count($parts) == 2 && stripos($parts[0], 'contact') !== false) {
+                   nlog("2");
                     $entity = "contact".substr($parts[1], -1);
                     $custom_field_string = strlen($helper->makeCustomField($this->company->custom_fields, $entity)) > 1 ? $helper->makeCustomField($this->company->custom_fields, $entity) : ctrans("texts.{$parts[1]}");
+                    $header[] = ctrans("texts.{$parts[0]}") . " " . $custom_field_string;
+                }
+                elseif(count($parts) == 2 && in_array(substr($original_key, 0, -1), ['credit','quote','invoice','purchase_order','recurring_invoice'])){
+                   nlog("3");
+
+                    $custom_field_string = strlen($helper->makeCustomField($this->company->custom_fields, "product".substr($original_key,-1))) > 1 ? $helper->makeCustomField($this->company->custom_fields, "product".substr($original_key,-1)) : ctrans("texts.{$parts[1]}");
+                    nlog(ctrans("texts.{$parts[0]}") . " " . $custom_field_string);
                     $header[] = ctrans("texts.{$parts[0]}") . " " . $custom_field_string;
                 }
                 else{
