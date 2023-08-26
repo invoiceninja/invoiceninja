@@ -656,8 +656,8 @@ class CheckData extends Command
             $p = Payment::where('client_id', $client->id)
             ->where('is_deleted', 0)
             ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
-            ->sum(DB::Raw('amount - applied')->getValue(DB::connection()->getQueryGrammar()));
-
+            // ->sum(DB::Raw('amount - applied')->getValue(DB::connection()->getQueryGrammar()));
+            ->selectRaw('SUM(payments.amount - payments.applied) as amount')->first()->amount ?? 0;
             $total_invoice_payments += $p;
 
             // 10/02/21
