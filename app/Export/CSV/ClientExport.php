@@ -79,9 +79,6 @@ class ClientExport extends BaseExport
         'client.industry',
     ];
 
-    public array $forced_keys = [
-    ];
-
     public function __construct(Company $company, array $input)
     {
         $this->company = $company;

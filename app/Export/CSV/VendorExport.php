@@ -67,10 +67,6 @@ class VendorExport extends BaseExport
         'vendor.currency',
     ];
 
-    public array $forced_keys = [
-        // 'vendor.status'
-    ];
-
     public function __construct(Company $company, array $input)
     {
         $this->company = $company;

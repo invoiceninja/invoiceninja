@@ -13,6 +13,7 @@ namespace App\Export\CSV;
 
 use App\Utils\Number;
 use App\Models\Client;
+use App\Utils\Helpers;
 use App\Models\Company;
 use App\Models\Expense;
 use App\Models\Invoice;
@@ -28,7 +29,7 @@ use League\Fractal\Serializer\ArraySerializer;
 class BaseExport
 {
     use MakesHash;
-
+    
     public Company $company;
     
     public array $input;
@@ -42,8 +43,6 @@ class BaseExport
     public string $end_date = '';
 
     public string $client_description = 'All Clients';
-
-    public array $forced_keys = [];
 
     protected array $vendor_report_keys = [
         'address1' => 'vendor.address1',
@@ -271,6 +270,7 @@ class BaseExport
         "date" => "credit.date",
         "due_date" => "credit.due_date",
         "terms" => "credit.terms",
+        "discount" => "credit.discount",
         "footer" => "credit.footer",
         "status" => "credit.status",
         "public_notes" => "credit.public_notes",
@@ -283,6 +283,10 @@ class BaseExport
         "surcharge2" => "credit.custom_surcharge2",
         "surcharge3" => "credit.custom_surcharge3",
         "surcharge4" => "credit.custom_surcharge4",
+        "custom_value1" => "credit.custom_value1",
+        "custom_value2" => "credit.custom_value2",
+        "custom_value3" => "credit.custom_value3",
+        "custom_value4" => "credit.custom_value4",
         "exchange_rate" => "credit.exchange_rate",
         "tax_amount" => "credit.total_taxes",
         "assigned_user" => "credit.assigned_user_id",
@@ -832,14 +836,16 @@ class BaseExport
 
     public function buildHeader() :array
     {
+        $helper = new Helpers();
+
         $header = [];
 
-        // nlog($this->input['report_keys']);
-
-        foreach (array_merge($this->input['report_keys'], $this->forced_keys) as $value) {
+        foreach ($this->input['report_keys'] as $value) {
 
             $key = array_search($value, $this->entity_keys);
-            nlog("{$key} => {$value}");
+            $original_key = $key;
+
+            // nlog("{$key} => {$value}");
             $prefix = '';
 
             if(!$key) {
@@ -913,11 +919,37 @@ class BaseExport
             $key = str_replace('contact.', '', $key);
             $key = str_replace('payment.', '', $key);
             $key = str_replace('expense.', '', $key);
-// nlog($key);
-            if(in_array($key, ['quote1','quote2','quote3','quote4','credit1','credit2','credit3','credit4','purchase_order1','purchase_order2','purchase_order3','purchase_order4']))
+
+            if(stripos($value, 'custom_value') !== false)
             {
-                $number = substr($key, -1);
-                $header[] = ctrans('texts.item') . " ". ctrans("texts.custom_value{$number}"); 
+                $parts = explode(".", $value);
+
+                if(count($parts) == 2 && in_array($parts[0], ['credit','quote','invoice','purchase_order','recurring_invoice'])){
+                    $entity = "invoice".substr($parts[1], -1);
+                    $prefix = ctrans("texts.".$parts[0]);
+                    $fallback = "custom_value".substr($parts[1], -1);
+                    $custom_field_label = $helper->makeCustomField($this->company->custom_fields, $entity);
+
+                    if(strlen($custom_field_label) > 1)
+                        $header[] = $custom_field_label;
+                    else {
+                        $header[] = $prefix . " ". ctrans("texts.{$fallback}");
+                    }
+
+                }
+                elseif(count($parts) == 2 && stripos($parts[0], 'contact') !== false) {
+                    $entity = "contact".substr($parts[1], -1);
+                    $custom_field_string = strlen($helper->makeCustomField($this->company->custom_fields, $entity)) > 1 ? $helper->makeCustomField($this->company->custom_fields, $entity) : ctrans("texts.{$parts[1]}");
+                    $header[] = ctrans("texts.{$parts[0]}") . " " . $custom_field_string;
+                }
+                elseif(count($parts) == 2 && in_array(substr($original_key, 0, -1), ['credit','quote','invoice','purchase_order','recurring_invoice'])){
+                    $custom_field_string = strlen($helper->makeCustomField($this->company->custom_fields, "product".substr($original_key,-1))) > 1 ? $helper->makeCustomField($this->company->custom_fields, "product".substr($original_key,-1)) : ctrans("texts.{$parts[1]}");
+                    $header[] = ctrans("texts.{$parts[0]}") . " " . $custom_field_string;
+                }
+                else{
+                    $header[] = "{$prefix}" . ctrans("texts.{$key}");
+                }
+
             }
             else
             {
@@ -925,8 +957,8 @@ class BaseExport
             }
         }
 
-        // nlog($header);
-
+        nlog($header);
+        
         return $header;
     }
 }
