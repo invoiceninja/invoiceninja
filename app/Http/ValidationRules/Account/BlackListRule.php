@@ -19,6 +19,7 @@ use Illuminate\Contracts\Validation\Rule;
 class BlackListRule implements Rule
 {
     private array $blacklist = [
+        'pretreer.com',
         'candassociates.com',
         'vusra.com',
         'fourthgenet.com',
