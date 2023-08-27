@@ -73,13 +73,6 @@ class ClientExport extends BaseExport
         'status' => 'status'
     ];
 
-    private array $decorate_keys = [
-        'client.country_id',
-        'client.shipping_country_id',
-        'client.currency',
-        'client.industry',
-    ];
-
     public function __construct(Company $company, array $input)
     {
         $this->company = $company;

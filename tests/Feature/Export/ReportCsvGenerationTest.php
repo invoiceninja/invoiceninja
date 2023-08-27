@@ -1347,17 +1347,17 @@ nlog($csv);
         $reader = Reader::createFromString($csv);
         $reader->setHeaderOffset(0);
         
-        $res = $reader->fetchColumnByName('First Name');
+        $res = $reader->fetchColumnByName('Contact First Name');
         $res = iterator_to_array($res, true);
 
         $this->assertEquals('john', $res[1]);
 
-        $res = $reader->fetchColumnByName('Last Name');
+        $res = $reader->fetchColumnByName('Contact Last Name');
         $res = iterator_to_array($res, true);
 
         $this->assertEquals('doe', $res[1]);
 
-        $res = $reader->fetchColumnByName('Email');
+        $res = $reader->fetchColumnByName('Contact Email');
         $res = iterator_to_array($res, true);
 
         $this->assertEquals('john@doe.com', $res[1]);
@@ -1696,10 +1696,10 @@ nlog($csv);
 
         $csv = $response->streamedContent();
 
-        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Amount'));
-        $this->assertEquals('Public', $this->getFirstValueByColumn($csv, 'Public Notes'));
-        $this->assertEquals('Private', $this->getFirstValueByColumn($csv, 'Private Notes'));
-        $this->assertEquals($this->user->present()->name(), $this->getFirstValueByColumn($csv, 'User'));
+        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Expense Amount'));
+        $this->assertEquals('Public', $this->getFirstValueByColumn($csv, 'Expense Public Notes'));
+        $this->assertEquals('Private', $this->getFirstValueByColumn($csv, 'Expense Private Notes'));
+        $this->assertEquals($this->user->present()->name(), $this->getFirstValueByColumn($csv, 'Expense User'));
         
 
         $data = [
@@ -1758,8 +1758,8 @@ nlog($csv);
 
         $this->assertEquals('bob', $this->getFirstValueByColumn($csv, 'Client Name'));
         $this->assertEquals('Vendor 1', $this->getFirstValueByColumn($csv, 'Vendor Name'));
-        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Amount'));
-        $this->assertEquals('USD', $this->getFirstValueByColumn($csv, 'Currency'));
+        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Expense Amount'));
+        $this->assertEquals('USD', $this->getFirstValueByColumn($csv, 'Expense Currency'));
         
     }
 

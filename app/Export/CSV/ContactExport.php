@@ -112,14 +112,13 @@ class ContactExport extends BaseExport
 
         foreach (array_values($this->input['report_keys']) as $key) {
             $parts = explode('.', $key);
-            $keyval = array_search($key, $this->entity_keys);
 
             if ($parts[0] == 'client' && array_key_exists($parts[1], $transformed_client)) {
-                $entity[$keyval] = $transformed_client[$parts[1]];
+                $entity[$key] = $transformed_client[$parts[1]];
             } elseif ($parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {
-                $entity[$keyval] = $transformed_contact[$parts[1]];
+                $entity[$key] = $transformed_contact[$parts[1]];
             } else {
-                $entity[$keyval] = '';
+                $entity[$key] = '';
             }
         }
 
