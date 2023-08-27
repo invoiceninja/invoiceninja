@@ -11,11 +11,15 @@
 
 namespace Tests\Feature\Export;
 
+use App\Export\CSV\ActivityExport;
 use Tests\TestCase;
 use Tests\MockAccountData;
 use App\Utils\Traits\MakesHash;
+use App\Export\CSV\ClientExport;
 use App\Export\CSV\CreditExport;
+use App\Export\CSV\ContactExport;
 use App\Jobs\Report\PreviewReport;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
@@ -59,6 +63,56 @@ class ReportPreviewTest extends TestCase
         ])->postJson('/api/v1/reports/clients?output=json', $data)
         ->assertStatus(200);
 
+        $data = [
+            'send_email' => false,
+            'date_range' => 'all',
+            'report_keys' => ['client.name','client.balance'],
+        ];
+
+
+        $p = (new PreviewReport($this->company, $data, ClientExport::class, 'client_export1'))->handle();
+
+        $this->assertNull($p);
+
+        $r = Cache::pull('client_export1');
+
+        $this->assertNotNull($r);
+
+
+    }
+
+    public function testClientContactExportJsonLimitedKeys()
+    {
+
+        $data = [
+            'send_email' => false,
+            'date_range' => 'all',
+            'report_keys' => [],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/reports/client_contacts?output=json', $data)
+        ->assertStatus(200);
+
+        $data = [
+            'send_email' => false,
+            'date_range' => 'all',
+            'report_keys' => ['client.name','client.balance','contact.email'],
+        ];
+
+
+        $p = (new PreviewReport($this->company, $data, ContactExport::class, '123'))->handle();
+
+        $this->assertNull($p);
+
+
+        $r = Cache::pull('123');
+
+        $this->assertNotNull($r);
+
+        nlog($r);
     }
 
     public function testActivityCSVExportJson()
@@ -75,6 +129,16 @@ class ReportPreviewTest extends TestCase
         ])->postJson('/api/v1/reports/activities?output=json', $data)
         ->assertStatus(200);
 
+
+        $p = (new PreviewReport($this->company, $data, ActivityExport::class, '123'))->handle();
+
+        $this->assertNull($p);
+
+        $r = Cache::pull('123');
+
+        $this->assertNotNull($r);
+
+
     }
 
     public function testCreditExportPreview()
@@ -90,6 +154,10 @@ class ReportPreviewTest extends TestCase
 
         $this->assertNull($p);
 
+        $r = Cache::pull('123');
+
+        $this->assertNotNull($r);
+        
     }
 
     public function testCreditPreview()
