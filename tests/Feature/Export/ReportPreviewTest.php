@@ -44,6 +44,39 @@ class ReportPreviewTest extends TestCase
 
     }
 
+
+    public function testClientExportJson()
+    {
+        $data = [
+            'send_email' => false,
+            'date_range' => 'all',
+            'report_keys' => [],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/reports/clients?output=json', $data)
+        ->assertStatus(200);
+
+    }
+
+    public function testActivityCSVExportJson()
+    {
+        $data = [
+            'send_email' => false,
+            'date_range' => 'all',
+            'report_keys' => [],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/reports/activities?output=json', $data)
+        ->assertStatus(200);
+
+    }
+
     public function testCreditExportPreview()
     {
         
