@@ -237,12 +237,12 @@ class BaseExport
         "cost" => "item.cost",
         "product_key" => "item.product_key",
         "notes" => "item.notes",
-        "item_tax1" => "item.tax_name1",
-        "item_tax_rate1" => "item.tax_rate1",
-        "item_tax2" => "item.tax_name2",
-        "item_tax_rate2" => "item.tax_rate2",
-        "item_tax3" => "item.tax_name3",
-        "item_tax_rate3" => "item.tax_rate3",
+        "tax_name1" => "item.tax_name1",
+        "tax_rate1" => "item.tax_rate1",
+        "tax_name2" => "item.tax_name2",
+        "tax_rate2" => "item.tax_rate2",
+        "tax_name3" => "item.tax_name3",
+        "tax_rate3" => "item.tax_rate3",
         "custom_value1" => "item.custom_value1",
         "custom_value2" => "item.custom_value2",
         "custom_value3" => "item.custom_value3",
@@ -250,6 +250,9 @@ class BaseExport
         "discount" => "item.discount",
         "type" => "item.type_id",
         "tax_category" => "item.tax_id",
+        'is_amount_discount' => 'item.is_amount_discount',
+        'line_total' => 'item.line_total',
+        'gross_line_total' => 'item.gross_line_total',
     ];
 
     protected array $quote_report_keys = [
@@ -860,6 +863,19 @@ class BaseExport
                 $this->end_date = now()->format('Y-m-d');
                 return $query->whereBetween($this->date_key, [now()->startOfYear(), now()])->orderBy($this->date_key, 'ASC');
         }
+    }
+    
+    /**
+     * Returns the merged array of 
+     * the entity with the matching
+     * item report keys
+     *
+     * @param  string $entity_report_keys
+     * @return array
+     */
+    public function mergeItemsKeys(string $entity_report_keys): array
+    {
+        return array_merge($this->{$entity_report_keys}, $this->item_report_keys);
     }
 
     public function buildHeader() :array
