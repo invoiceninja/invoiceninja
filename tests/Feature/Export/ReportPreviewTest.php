@@ -82,7 +82,7 @@ class ReportPreviewTest extends TestCase
 
         $this->assertNotNull($r);
         
-        nlog($r);
+        //nlog($r);
 
     }
 
@@ -143,7 +143,7 @@ class ReportPreviewTest extends TestCase
         $r = Cache::pull('123');
 
         $this->assertNotNull($r);
-nlog($r);
+//nlog($r);
     }
 
     public function testDocumentJsonExport()
@@ -174,7 +174,7 @@ nlog($r);
         $r = Cache::pull('123');
 
         $this->assertNotNull($r);
-nlog($r);
+//nlog($r);
     }
 
     public function testClientExportJson()

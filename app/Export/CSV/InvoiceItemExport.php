@@ -12,7 +12,6 @@
 namespace App\Export\CSV;
 
 use App\Libraries\MultiDB;
-use App\Models\Client;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Transformers\InvoiceTransformer;
@@ -126,10 +125,6 @@ class InvoiceItemExport extends BaseExport
 
                     $key = str_replace("item.", "", $key);
                     
-                    // $keyval = $key;
-
-                    // $key = str_replace("custom_value", "invoice", $key);
-
                     if($key == 'type_id')
                         $key = 'type';
 
@@ -144,26 +139,12 @@ class InvoiceItemExport extends BaseExport
                     }
                 }
             }
-nlog($item_array);
-            // $entity = [];
-
-            // foreach (array_values($this->input['report_keys']) as $key) { //create an array of report keys only 
-            //     // $keyval = array_search($key, $this->entity_keys); 
-            //     $key = str_replace("item.", "", $key);
-
-            //     if (array_key_exists($key, $transformed_items)) {
-            //         $entity[$key] = $transformed_items[$key];
-            //     } else {
-            //         $entity[$key] = "";
-            //     }
-            // }
-
+            
             $transformed_items = array_merge($transformed_invoice, $item_array);
             $entity = $this->decorateAdvancedFields($invoice, $transformed_items);
 
             $this->storage_array[] = $entity;
 
-            // $this->csv->insertOne($entity);
         }
     }
 
@@ -174,15 +155,7 @@ nlog($item_array);
         $entity = [];
 
         foreach (array_values($this->input['report_keys']) as $key) {
-            // $keyval = array_search($key, $this->entity_keys);
-
-            // if(!$keyval) {
-            //     $keyval = array_search(str_replace("invoice.", "", $key), $this->entity_keys) ?? $key;
-            // }
-
-            // if(!$keyval) {
-            //     $keyval = $key;
-            // }
+           
             $parts = explode('.', $key);
 
             if(is_array($parts) && $parts[0] == 'item')
@@ -193,10 +166,7 @@ nlog($item_array);
             }else if (array_key_exists($key, $transformed_invoice)) {
                 $entity[$key] = $transformed_invoice[$key];
             } 
-            // elseif (array_key_exists($keyval, $transformed_invoice)) {
-            //     $entity[$keyval] = $transformed_invoice[$keyval];
-            // }
-             else {
+            else {
                 $entity[$key] = $this->resolveKey($key, $invoice, $this->invoice_transformer);
             }
         }

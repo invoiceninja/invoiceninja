@@ -1082,15 +1082,15 @@ nlog($csv);
 
         $this->assertEquals('bob', $this->getFirstValueByColumn($csv, 'Client Name'));
         $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Quote Number'));
-        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Quantity'));
-        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Cost'));
-        $this->assertEquals('1000', $this->getFirstValueByColumn($csv, 'Line Total'));
-        $this->assertEquals('0', $this->getFirstValueByColumn($csv, 'Discount'));
-        $this->assertEquals('item notes', $this->getFirstValueByColumn($csv, 'Notes'));
-        $this->assertEquals('product key', $this->getFirstValueByColumn($csv, 'Product'));
+        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Item Quantity'));
+        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Item Cost'));
+        $this->assertEquals('1000', $this->getFirstValueByColumn($csv, 'Item Line Total'));
+        $this->assertEquals('0', $this->getFirstValueByColumn($csv, 'Item Discount'));
+        $this->assertEquals('item notes', $this->getFirstValueByColumn($csv, 'Item Notes'));
+        $this->assertEquals('product key', $this->getFirstValueByColumn($csv, 'Item Product'));
         $this->assertEquals('custom 1', $this->getFirstValueByColumn($csv, 'Item Custom Value 1'));
-        $this->assertEquals('GST', $this->getFirstValueByColumn($csv, 'Tax Name 1'));
-        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Tax Rate 1'));
+        $this->assertEquals('GST', $this->getFirstValueByColumn($csv, 'Item Tax Name 1'));
+        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Item Tax Rate 1'));
 
 
         $data = [
