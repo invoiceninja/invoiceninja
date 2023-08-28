@@ -60,6 +60,7 @@ class ReportPreviewTest extends TestCase
         \App\Models\Invoice::factory()->count(5)->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
         ]);
         
         $data = [
