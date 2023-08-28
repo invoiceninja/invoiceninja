@@ -126,6 +126,7 @@ class InvoiceExport extends BaseExport
 
     private function decorateAdvancedFields(Invoice $invoice, array $entity) :array
     {
+        nlog($entity);
         if (in_array('invoice.country_id', $this->input['report_keys'])) {
             $entity['invoice.country_id'] = $invoice->client->country ? ctrans("texts.country_{$invoice->client->country->name}") : '';
         }
@@ -135,11 +136,11 @@ class InvoiceExport extends BaseExport
         }
 
         if (in_array('invoice.client_id', $this->input['report_keys'])) {
-            $entity['invoice.clientstatus_id'] = $invoice->client->present()->name();
+            $entity['invoice.client_id'] = $invoice->client->present()->name();
         }
 
         if (in_array('invoice.status', $this->input['report_keys'])) {
-            $entity['invoice.status_id'] = $invoice->stringStatus($invoice->status_id);
+            $entity['invoice.status'] = $invoice->stringStatus($invoice->status_id);
         }
         
         return $entity;
