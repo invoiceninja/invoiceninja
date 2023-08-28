@@ -133,6 +133,7 @@ class BaseExport
         "private_notes" => "invoice.private_notes",
         "uses_inclusive_taxes" => "invoice.uses_inclusive_taxes",
         "is_amount_discount" => "invoice.is_amount_discount",
+        "discount" => "invoice.discount",
         "partial" => "invoice.partial",
         "partial_due_date" => "invoice.partial_due_date",
         "surcharge1" => "invoice.custom_surcharge1",
@@ -143,6 +144,16 @@ class BaseExport
         "tax_amount" => "invoice.total_taxes",
         "assigned_user" => "invoice.assigned_user_id",
         "user" => "invoice.user_id",
+        "custom_value1" => "invoice.custom_value1",
+        "custom_value2" => "invoice.custom_value2",
+        "custom_value3" => "invoice.custom_value3",
+        "custom_value4" => "invoice.custom_value4",
+        'tax_name1' => 'invoice.tax_name1',
+        'tax_name2' => 'invoice.tax_name2',
+        'tax_name3' => 'invoice.tax_name3',
+        'tax_rate1' => 'invoice.tax_rate1',
+        'tax_rate2' => 'invoice.tax_rate2',
+        'tax_rate3' => 'invoice.tax_rate3',
     ];
 
     protected array $recurring_invoice_report_keys = [    
@@ -160,6 +171,7 @@ class BaseExport
         "private_notes" => "recurring_invoice.private_notes",
         "uses_inclusive_taxes" => "recurring_invoice.uses_inclusive_taxes",
         "is_amount_discount" => "recurring_invoice.is_amount_discount",
+        "discount" => "recurring_invoice.discount",
         "partial" => "recurring_invoice.partial",
         "partial_due_date" => "recurring_invoice.partial_due_date",
         "surcharge1" => "recurring_invoice.custom_surcharge1",
@@ -171,7 +183,17 @@ class BaseExport
         "assigned_user" => "recurring_invoice.assigned_user_id",
         "user" => "recurring_invoice.user_id",
         "frequency_id" => "recurring_invoice.frequency_id",
-        "next_send_date" => "recurring_invoice.next_send_date"
+        "next_send_date" => "recurring_invoice.next_send_date",
+        "custom_value1" => "recurring_invoice.custom_value1",
+        "custom_value2" => "recurring_invoice.custom_value2",
+        "custom_value3" => "recurring_invoice.custom_value3",
+        "custom_value4" => "recurring_invoice.custom_value4",
+        'tax_name1' => 'recurring_invoice.tax_name1',
+        'tax_name2' => 'recurring_invoice.tax_name2',
+        'tax_name3' => 'recurring_invoice.tax_name3',
+        'tax_rate1' => 'recurring_invoice.tax_rate1',
+        'tax_rate2' => 'recurring_invoice.tax_rate2',
+        'tax_rate3' => 'recurring_invoice.tax_rate3',
     ];
 
     protected array $purchase_order_report_keys = [
@@ -259,6 +281,12 @@ class BaseExport
         "tax_amount" => "quote.total_taxes",
         "assigned_user" => "quote.assigned_user_id",
         "user" => "quote.user_id",
+        'tax_name1' => 'quote.tax_name1',
+        'tax_name2' => 'quote.tax_name2',
+        'tax_name3' => 'quote.tax_name3',
+        'tax_rate1' => 'quote.tax_rate1',
+        'tax_rate2' => 'quote.tax_rate2',
+        'tax_rate3' => 'quote.tax_rate3',
     ];
 
     protected array $credit_report_keys = [
@@ -957,7 +985,7 @@ class BaseExport
             }
         }
 
-        nlog($header);
+        // nlog($header);
         
         return $header;
     }

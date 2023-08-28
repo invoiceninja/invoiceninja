@@ -23,6 +23,7 @@ use App\Export\CSV\ContactExport;
 use App\Export\CSV\ExpenseExport;
 use App\Export\CSV\ActivityExport;
 use App\Export\CSV\DocumentExport;
+use App\Export\CSV\InvoiceExport;
 use App\Jobs\Report\PreviewReport;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Routing\Middleware\ThrottleRequests;
@@ -53,6 +54,35 @@ class ReportPreviewTest extends TestCase
 
     }
 
+
+    public function testInvoiceJsonExport()
+    {
+        \App\Models\Invoice::factory()->count(5)->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+        ]);
+        
+        $data = [
+            'send_email' => false,
+            'date_range' => 'all',
+            'report_keys' => [],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/reports/invoices?output=json', $data)
+        ->assertStatus(200);
+
+        $p = (new PreviewReport($this->company, $data, InvoiceExport::class, '123'))->handle();
+
+        $this->assertNull($p);
+
+        $r = Cache::pull('123');
+
+        $this->assertNotNull($r);
+nlog($r);
+    }
 
     public function testExpenseJsonExport()
     {
