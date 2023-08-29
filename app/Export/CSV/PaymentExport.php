@@ -28,39 +28,39 @@ class PaymentExport extends BaseExport
 
     public Writer $csv;
 
-    public array $entity_keys = [
-        'amount' => 'amount',
-        'applied' => 'applied',
-        'client' => 'client_id',
-        'currency' => 'currency_id',
-        'custom_value1' => 'custom_value1',
-        'custom_value2' => 'custom_value2',
-        'custom_value3' => 'custom_value3',
-        'custom_value4' => 'custom_value4',
-        'date' => 'date',
-        'exchange_currency' => 'exchange_currency_id',
-        'gateway' => 'gateway_type_id',
-        'number' => 'number',
-        'private_notes' => 'private_notes',
-        'project' => 'project_id',
-        'refunded' => 'refunded',
-        'status' => 'status_id',
-        'transaction_reference' => 'transaction_reference',
-        'type' => 'type_id',
-        'vendor' => 'vendor_id',
-        'invoices' => 'invoices',
-    ];
+    // public array $entity_keys = [
+    //     'amount' => 'amount',
+    //     'applied' => 'applied',
+    //     'client' => 'client_id',
+    //     'currency' => 'currency_id',
+    //     'custom_value1' => 'custom_value1',
+    //     'custom_value2' => 'custom_value2',
+    //     'custom_value3' => 'custom_value3',
+    //     'custom_value4' => 'custom_value4',
+    //     'date' => 'date',
+    //     'exchange_currency' => 'exchange_currency_id',
+    //     'gateway' => 'gateway_type_id',
+    //     'number' => 'number',
+    //     'private_notes' => 'private_notes',
+    //     'project' => 'project_id',
+    //     'refunded' => 'refunded',
+    //     'status' => 'status_id',
+    //     'transaction_reference' => 'transaction_reference',
+    //     'type' => 'type_id',
+    //     'vendor' => 'vendor_id',
+    //     'invoices' => 'invoices',
+    // ];
 
-    private array $decorate_keys = [
-        'vendor',
-        'status',
-        'project',
-        'client',
-        'currency',
-        'exchange_currency',
-        'type',
-        'invoices',
-    ];
+    // private array $decorate_keys = [
+    //     'vendor',
+    //     'status',
+    //     'project',
+    //     'client',
+    //     'currency',
+    //     'exchange_currency',
+    //     'type',
+    //     'invoices',
+    // ];
 
     public function __construct(Company $company, array $input)
     {
@@ -137,26 +137,17 @@ class PaymentExport extends BaseExport
         $entity = [];
 
         foreach (array_values($this->input['report_keys']) as $key) {
-            // $keyval = array_search($key, $this->entity_keys);
-            
+    
             $parts = explode('.', $key);
 
-            // if(!$keyval) {
-            //     $keyval = array_search(str_replace("payment.", "", $key), $this->entity_keys) ?? $key;
-            // }
-
-            // if(!$keyval) {
-            //     $keyval = $key;
-            // }
-
-            if (array_key_exists($key, $transformed_entity)) {
-                $entity[$keyval] = $transformed_entity[$key];
-            }  elseif (array_key_exists($keyval, $transformed_entity)) {
-                $entity[$keyval] = $transformed_entity[$keyval];
+            if (is_array($parts) && $parts[0] == 'payment' && array_key_exists($parts[1], $transformed_entity)) {
+                $entity[$key] = $transformed_entity[$parts[1]];
+            } elseif (array_key_exists($key, $transformed_entity)) {
+                $entity[$key] = $transformed_entity[$key];
+            } else {
+                $entity[$key] = $this->resolveKey($key, $payment, $this->entity_transformer);
             }
-            else {
-                $entity[$keyval] = $this->resolveKey($keyval, $payment, $this->entity_transformer);
-            }
+
         }
 
         return $this->decorateAdvancedFields($payment, $entity);

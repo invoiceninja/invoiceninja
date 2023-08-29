@@ -59,8 +59,6 @@ class ReportApiTest extends TestCase
 
     }
 
-
-
     public function testUserSalesReportApiRoute()
     {
         $data = [

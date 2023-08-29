@@ -649,11 +649,11 @@ class ReportCsvGenerationTest extends TestCase
        
         $csv = $response->streamedContent();
 
-        $this->assertEquals(500, $this->getFirstValueByColumn($csv, 'Amount'));
-        $this->assertEquals(0, $this->getFirstValueByColumn($csv, 'Applied'));
-        $this->assertEquals(0, $this->getFirstValueByColumn($csv, 'Refunded'));
-        $this->assertEquals('2020-01-01', $this->getFirstValueByColumn($csv, 'Date'));
-        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Transaction Reference'));
+        $this->assertEquals(500, $this->getFirstValueByColumn($csv, 'Payment Amount'));
+        $this->assertEquals(0, $this->getFirstValueByColumn($csv, 'Payment Applied'));
+        $this->assertEquals(0, $this->getFirstValueByColumn($csv, 'Payment Refunded'));
+        $this->assertEquals('2020-01-01', $this->getFirstValueByColumn($csv, 'Payment Date'));
+        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Payment Transaction Reference'));
     
     }
 
@@ -1491,7 +1491,6 @@ nlog($csv);
         $response->assertStatus(200);
 
         $csv = $response->streamedContent();
-nlog($csv);
 
         $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Invoice Amount'));
         $this->assertEquals('50', $this->getFirstValueByColumn($csv, 'Invoice Balance'));
