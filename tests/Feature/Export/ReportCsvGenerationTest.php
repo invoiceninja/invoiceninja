@@ -527,7 +527,7 @@ class ReportCsvGenerationTest extends TestCase
         ])->post('/api/v1/reports/products', $data);
        
         $csv = $response->streamedContent();
-nlog($csv);
+// nlog($csv);
         $this->assertEquals('product_key', $this->getFirstValueByColumn($csv, 'Product'));
         $this->assertEquals('notes', $this->getFirstValueByColumn($csv, 'Notes'));
         $this->assertEquals(100, $this->getFirstValueByColumn($csv, 'Cost'));
@@ -673,7 +673,7 @@ nlog($csv);
         ])->post('/api/v1/reports/clients', $data);
        
         $csv = $response->streamedContent();
-nlog($csv);
+// nlog($csv);
         $reader = Reader::createFromString($csv);
         $reader->setHeaderOffset(0);
         
@@ -748,7 +748,7 @@ nlog($csv);
 
         $arr = $response->json();
 
-        nlog($arr['message']);
+        // nlog($arr['message']);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -849,7 +849,7 @@ nlog($csv);
         ])->post('/api/v1/reports/invoices', $data);
        
         $csv = $response->streamedContent();
-nlog($csv);
+// nlog($csv);
         $this->assertEquals('bob', $this->getFirstValueByColumn($csv, 'Client Name'));
         $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Invoice Invoice Number'));
         $this->assertEquals('Unpaid', $this->getFirstValueByColumn($csv, 'Payment Amount'));
@@ -985,7 +985,7 @@ nlog($csv);
         ])->post('/api/v1/reports/invoice_items', $data);
        
         $csv = $response->streamedContent();
-nlog($csv);
+// nlog($csv);//
         $this->assertEquals('bob', $this->getFirstValueByColumn($csv, 'Client Name'));
         $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Invoice Invoice Number'));
         $this->assertEquals('Unpaid', $this->getFirstValueByColumn($csv, 'Payment Amount'));
@@ -1643,7 +1643,7 @@ nlog($csv);
 
         $csv = $response->streamedContent();
         
-        nlog($csv);
+        //nlog($csv);
 
         $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Quote Amount'));
         $this->assertEquals('50', $this->getFirstValueByColumn($csv, 'Quote Balance'));
