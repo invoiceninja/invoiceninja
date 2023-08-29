@@ -527,7 +527,7 @@ class ReportCsvGenerationTest extends TestCase
         ])->post('/api/v1/reports/products', $data);
        
         $csv = $response->streamedContent();
-
+nlog($csv);
         $this->assertEquals('product_key', $this->getFirstValueByColumn($csv, 'Product'));
         $this->assertEquals('notes', $this->getFirstValueByColumn($csv, 'Notes'));
         $this->assertEquals(100, $this->getFirstValueByColumn($csv, 'Cost'));

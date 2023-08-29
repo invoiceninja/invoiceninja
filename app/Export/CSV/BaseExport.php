@@ -228,6 +228,26 @@ class BaseExport
         'currency_id' => 'purchase_order.currency_id',
     ];
 
+    protected array $product_report_keys  = [
+        'project' => 'project_id',
+        'vendor' => 'vendor_id',
+        'custom_value1' => 'custom_value1',
+        'custom_value2' => 'custom_value2',
+        'custom_value3' => 'custom_value3',
+        'custom_value4' => 'custom_value4',
+        'product_key' => 'product_key',
+        'notes' => 'notes',
+        'cost' => 'cost',
+        'price' => 'price',
+        'quantity' => 'quantity',
+        'tax_rate1' => 'tax_rate1',
+        'tax_rate2' => 'tax_rate2',
+        'tax_rate3' => 'tax_rate3',
+        'tax_name1' => 'tax_name1',
+        'tax_name2' => 'tax_name2',
+        'tax_name3' => 'tax_name3',
+    ];
+
     protected array $item_report_keys = [
         "quantity" => "item.quantity",
         "cost" => "item.cost",
@@ -881,10 +901,10 @@ class BaseExport
         $header = [];
 
         foreach ($this->input['report_keys'] as $value) {
-
+            
             $key = array_search($value, $this->entity_keys);
             $original_key = $key;
-
+        
             // nlog("{$key} => {$value}");
             $prefix = '';
 
@@ -945,6 +965,11 @@ class BaseExport
 
             if(!$key) {
                 $prefix = '';
+                $key = array_search($value, $this->product_report_keys);
+            }
+
+            if(!$key) {
+                $prefix = '';
             }
 
             $key = str_replace('item.', '', $key);
@@ -959,6 +984,7 @@ class BaseExport
             $key = str_replace('contact.', '', $key);
             $key = str_replace('payment.', '', $key);
             $key = str_replace('expense.', '', $key);
+            $key = str_replace('product.', '', $key);
 
             if(stripos($value, 'custom_value') !== false)
             {
