@@ -1222,15 +1222,15 @@ nlog($csv);
 
         $this->assertEquals('Vendor 1', $this->getFirstValueByColumn($csv, 'Vendor Name'));
         $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Purchase Order Number'));
-        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Quantity'));
-        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Cost'));
-        $this->assertEquals('1000', $this->getFirstValueByColumn($csv, 'Line Total'));
-        $this->assertEquals('0', $this->getFirstValueByColumn($csv, 'Discount'));
-        $this->assertEquals('item notes', $this->getFirstValueByColumn($csv, 'Notes'));
-        $this->assertEquals('product key', $this->getFirstValueByColumn($csv, 'Product'));
+        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Item Quantity'));
+        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Item Cost'));
+        $this->assertEquals('1000', $this->getFirstValueByColumn($csv, 'Item Line Total'));
+        $this->assertEquals('0', $this->getFirstValueByColumn($csv, 'Item Discount'));
+        $this->assertEquals('item notes', $this->getFirstValueByColumn($csv, 'Item Notes'));
+        $this->assertEquals('product key', $this->getFirstValueByColumn($csv, 'Item Product'));
         $this->assertEquals('custom 1', $this->getFirstValueByColumn($csv, 'Item Custom Value 1'));
-        $this->assertEquals('GST', $this->getFirstValueByColumn($csv, 'Tax Name 1'));
-        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Tax Rate 1'));
+        $this->assertEquals('GST', $this->getFirstValueByColumn($csv, 'Item Tax Name 1'));
+        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Item Tax Rate 1'));
 
     }
 
@@ -1642,30 +1642,32 @@ nlog($csv);
         $response->assertStatus(200);
 
         $csv = $response->streamedContent();
+        
+        nlog($csv);
 
-        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Amount'));
-        $this->assertEquals('50', $this->getFirstValueByColumn($csv, 'Balance'));
-        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Discount'));
-        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'PO Number'));
-        $this->assertEquals('Public', $this->getFirstValueByColumn($csv, 'Public Notes'));
-        $this->assertEquals('Private', $this->getFirstValueByColumn($csv, 'Private Notes'));
-        $this->assertEquals('Terms', $this->getFirstValueByColumn($csv, 'Terms'));
-        $this->assertEquals('2020-01-01', $this->getFirstValueByColumn($csv, 'Date'));
-        $this->assertEquals('2020-01-01', $this->getFirstValueByColumn($csv, 'Valid Until'));
-        $this->assertEquals('2021-01-03', $this->getFirstValueByColumn($csv, 'Partial Due Date'));
-        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Partial/Deposit'));
-        $this->assertEquals('Custom 1', $this->getFirstValueByColumn($csv, 'Custom Value 1'));
-        $this->assertEquals('Custom 2', $this->getFirstValueByColumn($csv, 'Custom Value 2'));
-        $this->assertEquals('Custom 3', $this->getFirstValueByColumn($csv, 'Custom Value 3'));
-        $this->assertEquals('Custom 4', $this->getFirstValueByColumn($csv, 'Custom Value 4'));
-        $this->assertEquals('Footer', $this->getFirstValueByColumn($csv, 'Footer'));
-        $this->assertEquals('Tax 1', $this->getFirstValueByColumn($csv, 'Tax Name 1'));
-        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Tax Rate 1'));
-        $this->assertEquals('Tax 2', $this->getFirstValueByColumn($csv, 'Tax Name 2'));
-        $this->assertEquals('20', $this->getFirstValueByColumn($csv, 'Tax Rate 2'));
-        $this->assertEquals('Tax 3', $this->getFirstValueByColumn($csv, 'Tax Name 3'));
-        $this->assertEquals('30', $this->getFirstValueByColumn($csv, 'Tax Rate 3'));
-        $this->assertEquals('Expired', $this->getFirstValueByColumn($csv, 'Status'));
+        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Quote Amount'));
+        $this->assertEquals('50', $this->getFirstValueByColumn($csv, 'Quote Balance'));
+        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Quote Discount'));
+        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Quote PO Number'));
+        $this->assertEquals('Public', $this->getFirstValueByColumn($csv, 'Quote Public Notes'));
+        $this->assertEquals('Private', $this->getFirstValueByColumn($csv, 'Quote Private Notes'));
+        $this->assertEquals('Terms', $this->getFirstValueByColumn($csv, 'Quote Terms'));
+        $this->assertEquals('2020-01-01', $this->getFirstValueByColumn($csv, 'Quote Date'));
+        $this->assertEquals('2020-01-01', $this->getFirstValueByColumn($csv, 'Quote Valid Until'));
+        $this->assertEquals('2021-01-03', $this->getFirstValueByColumn($csv, 'Quote Partial Due Date'));
+        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Quote Partial/Deposit'));
+        $this->assertEquals('Custom 1', $this->getFirstValueByColumn($csv, 'Quote Custom Value 1'));
+        $this->assertEquals('Custom 2', $this->getFirstValueByColumn($csv, 'Quote Custom Value 2'));
+        $this->assertEquals('Custom 3', $this->getFirstValueByColumn($csv, 'Quote Custom Value 3'));
+        $this->assertEquals('Custom 4', $this->getFirstValueByColumn($csv, 'Quote Custom Value 4'));
+        $this->assertEquals('Footer', $this->getFirstValueByColumn($csv, 'Quote Footer'));
+        $this->assertEquals('Tax 1', $this->getFirstValueByColumn($csv, 'Quote Tax Name 1'));
+        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Quote Tax Rate 1'));
+        $this->assertEquals('Tax 2', $this->getFirstValueByColumn($csv, 'Quote Tax Name 2'));
+        $this->assertEquals('20', $this->getFirstValueByColumn($csv, 'Quote Tax Rate 2'));
+        $this->assertEquals('Tax 3', $this->getFirstValueByColumn($csv, 'Quote Tax Name 3'));
+        $this->assertEquals('30', $this->getFirstValueByColumn($csv, 'Quote Tax Rate 3'));
+        $this->assertEquals('Expired', $this->getFirstValueByColumn($csv, 'Quote Status'));
 
     }
 

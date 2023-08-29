@@ -290,6 +290,7 @@ class BaseExport
         "private_notes" => "quote.private_notes",
         "uses_inclusive_taxes" => "quote.uses_inclusive_taxes",
         "is_amount_discount" => "quote.is_amount_discount",
+        "discount" => "quote.discount",
         "partial" => "quote.partial",
         "partial_due_date" => "quote.partial_due_date",
         "surcharge1" => "quote.custom_surcharge1",

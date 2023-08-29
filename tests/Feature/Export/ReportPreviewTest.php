@@ -16,6 +16,7 @@ use App\Models\Client;
 use App\Models\Expense;
 use App\Models\Document;
 use Tests\MockAccountData;
+use App\Export\CSV\QuoteExport;
 use App\Utils\Traits\MakesHash;
 use App\Export\CSV\ClientExport;
 use App\Export\CSV\CreditExport;
@@ -28,6 +29,7 @@ use App\Export\CSV\ActivityExport;
 use App\Export\CSV\DocumentExport;
 use App\Jobs\Report\PreviewReport;
 use Illuminate\Support\Facades\Cache;
+use App\Export\CSV\PurchaseOrderExport;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
@@ -117,6 +119,72 @@ class ReportPreviewTest extends TestCase
 
     }
 
+
+    public function testPurchaseOrderItemJsonExport()
+    {
+        \App\Models\PurchaseOrder::factory()->count(5)->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'vendor_id' => $this->vendor->id,
+        ]);
+        
+        $data = [
+            'send_email' => false,
+            'date_range' => 'all',
+            'report_keys' => [],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/reports/purchase_order_items?output=json', $data)
+        ->assertStatus(200);
+
+        $p = (new PreviewReport($this->company, $data, \App\Export\CSV\PurchaseOrderItemExport::class, '123'))->handle();
+
+        $this->assertNull($p);
+
+        $r = Cache::pull('123');
+
+        $this->assertNotNull($r);
+        
+        //nlog($r);
+
+    }
+
+    public function testQuoteItemJsonExport()
+    {
+        \App\Models\Quote::factory()->count(5)->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+        ]);
+        
+        $data = [
+            'send_email' => false,
+            'date_range' => 'all',
+            'report_keys' => [],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/reports/quote_items?output=json', $data)
+        ->assertStatus(200);
+
+        $p = (new PreviewReport($this->company, $data, \App\Export\CSV\QuoteItemExport::class, '123'))->handle();
+
+        $this->assertNull($p);
+
+        $r = Cache::pull('123');
+
+        $this->assertNotNull($r);
+        
+        //nlog($r);
+
+    }
+
+
     public function testInvoiceItemJsonExport()
     {
         \App\Models\Invoice::factory()->count(5)->create([
@@ -149,6 +217,67 @@ class ReportPreviewTest extends TestCase
 
     }
 
+
+
+    public function testPurchaseOrderJsonExport()
+    {
+        \App\Models\PurchaseOrder::factory()->count(5)->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'vendor_id' => $this->vendor->id,
+        ]);
+        
+        $data = [
+            'send_email' => false,
+            'date_range' => 'all',
+            'report_keys' => [],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/reports/purchase_orders?output=json', $data)
+        ->assertStatus(200);
+
+        $p = (new PreviewReport($this->company, $data, PurchaseOrderExport::class, '123'))->handle();
+
+        $this->assertNull($p);
+
+        $r = Cache::pull('123');
+
+        $this->assertNotNull($r);
+
+    }
+
+    public function testQuoteJsonExport()
+    {
+        \App\Models\Quote::factory()->count(5)->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+        ]);
+        
+        $data = [
+            'send_email' => false,
+            'date_range' => 'all',
+            'report_keys' => [],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/reports/quotes?output=json', $data)
+        ->assertStatus(200);
+
+        $p = (new PreviewReport($this->company, $data, QuoteExport::class, '123'))->handle();
+
+        $this->assertNull($p);
+
+        $r = Cache::pull('123');
+
+        $this->assertNotNull($r);
+
+    }
 
     public function testInvoiceJsonExport()
     {
