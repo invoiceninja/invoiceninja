@@ -16,6 +16,7 @@ use App\Models\Company;
 use App\Models\Payment;
 use App\Transformers\PaymentTransformer;
 use App\Utils\Ninja;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
@@ -27,39 +28,39 @@ class PaymentExport extends BaseExport
 
     public Writer $csv;
 
-    public array $entity_keys = [
-        'amount' => 'amount',
-        'applied' => 'applied',
-        'client' => 'client_id',
-        'currency' => 'currency_id',
-        'custom_value1' => 'custom_value1',
-        'custom_value2' => 'custom_value2',
-        'custom_value3' => 'custom_value3',
-        'custom_value4' => 'custom_value4',
-        'date' => 'date',
-        'exchange_currency' => 'exchange_currency_id',
-        'gateway' => 'gateway_type_id',
-        'number' => 'number',
-        'private_notes' => 'private_notes',
-        'project' => 'project_id',
-        'refunded' => 'refunded',
-        'status' => 'status_id',
-        'transaction_reference' => 'transaction_reference',
-        'type' => 'type_id',
-        'vendor' => 'vendor_id',
-        'invoices' => 'invoices',
-    ];
+    // public array $entity_keys = [
+    //     'amount' => 'amount',
+    //     'applied' => 'applied',
+    //     'client' => 'client_id',
+    //     'currency' => 'currency_id',
+    //     'custom_value1' => 'custom_value1',
+    //     'custom_value2' => 'custom_value2',
+    //     'custom_value3' => 'custom_value3',
+    //     'custom_value4' => 'custom_value4',
+    //     'date' => 'date',
+    //     'exchange_currency' => 'exchange_currency_id',
+    //     'gateway' => 'gateway_type_id',
+    //     'number' => 'number',
+    //     'private_notes' => 'private_notes',
+    //     'project' => 'project_id',
+    //     'refunded' => 'refunded',
+    //     'status' => 'status_id',
+    //     'transaction_reference' => 'transaction_reference',
+    //     'type' => 'type_id',
+    //     'vendor' => 'vendor_id',
+    //     'invoices' => 'invoices',
+    // ];
 
-    private array $decorate_keys = [
-        'vendor',
-        'status',
-        'project',
-        'client',
-        'currency',
-        'exchange_currency',
-        'type',
-        'invoices',
-    ];
+    // private array $decorate_keys = [
+    //     'vendor',
+    //     'status',
+    //     'project',
+    //     'client',
+    //     'currency',
+    //     'exchange_currency',
+    //     'type',
+    //     'invoices',
+    // ];
 
     public function __construct(Company $company, array $input)
     {
@@ -68,23 +69,18 @@ class PaymentExport extends BaseExport
         $this->entity_transformer = new PaymentTransformer();
     }
 
-    public function run()
+    private function init(): Builder
     {
+
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
         App::setLocale($this->company->locale());
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
-        //load the CSV document from a string
-        $this->csv = Writer::createFromString();
-
         if (count($this->input['report_keys']) == 0) {
-            $this->input['report_keys'] = array_values($this->entity_keys);
+            $this->input['report_keys'] = array_values($this->payment_report_keys);
         }
-
-        //insert the header
-        $this->csv->insertOne($this->buildHeader());
 
         $query = Payment::query()
                             ->withTrashed()
@@ -92,6 +88,39 @@ class PaymentExport extends BaseExport
                             ->where('is_deleted', 0);
 
         $query = $this->addDateRange($query);
+
+        return $query;
+    }
+
+    public function returnJson()
+    {
+
+        $query = $this->init();
+
+        $headerdisplay = $this->buildHeader();
+
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
+            return ['identifier' => $value, 'display_value' => $headerdisplay[$value]];
+        })->toArray();
+
+        $report = $query->cursor()
+                ->map(function ($resource) {
+                    return $this->buildRow($resource);
+                })->toArray();
+                
+        return array_merge(['columns' => $header], $report);
+
+
+    }
+
+    public function run()
+    {
+        $query =  $this->init();
+        //load the CSV document from a string
+        $this->csv = Writer::createFromString();
+
+        //insert the header
+        $this->csv->insertOne($this->buildHeader());
 
         $query->cursor()
               ->each(function ($entity) {
@@ -108,24 +137,17 @@ class PaymentExport extends BaseExport
         $entity = [];
 
         foreach (array_values($this->input['report_keys']) as $key) {
-            $keyval = array_search($key, $this->entity_keys);
+    
+            $parts = explode('.', $key);
 
-            if(!$keyval) {
-                $keyval = array_search(str_replace("payment.", "", $key), $this->entity_keys) ?? $key;
+            if (is_array($parts) && $parts[0] == 'payment' && array_key_exists($parts[1], $transformed_entity)) {
+                $entity[$key] = $transformed_entity[$parts[1]];
+            } elseif (array_key_exists($key, $transformed_entity)) {
+                $entity[$key] = $transformed_entity[$key];
+            } else {
+                $entity[$key] = $this->resolveKey($key, $payment, $this->entity_transformer);
             }
 
-            if(!$keyval) {
-                $keyval = $key;
-            }
-
-            if (array_key_exists($key, $transformed_entity)) {
-                $entity[$keyval] = $transformed_entity[$key];
-            }  elseif (array_key_exists($keyval, $transformed_entity)) {
-                $entity[$keyval] = $transformed_entity[$keyval];
-            }
-            else {
-                $entity[$keyval] = $this->resolveKey($keyval, $payment, $this->entity_transformer);
-            }
         }
 
         return $this->decorateAdvancedFields($payment, $entity);

@@ -42,6 +42,23 @@ class ReportApiTest extends TestCase
 
     }
 
+
+    public function testActivityCSVExport()
+    {
+        $data = [
+            'send_email' => false,
+            'date_range' => 'all',
+            'report_keys' => [],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/reports/activities', $data)
+        ->assertStatus(200);
+
+    }
+
     public function testUserSalesReportApiRoute()
     {
         $data = [
@@ -124,6 +141,8 @@ class ReportApiTest extends TestCase
         ->assertStatus(200);
 
     }
+
+
 
     public function testClientBalanceReportApiRoute()
     {
