@@ -65,14 +65,16 @@ class PurchaseOrderTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->get("/api/v1/purchase_orders/{$this->purchase_order->hashed_id}?include=history")
+        ])->get("/api/v1/purchase_orders/{$this->purchase_order->hashed_id}?include=activities.history")
         ->assertStatus(200);
 
         $arr = $response->json();
 
-        $history = $arr['data']['history'];
+        $activities = $arr['data']['activities'];
 
-        $this->assertTrue(count($history) >= 1);
+        foreach($activities as $activity) {
+            $this->assertTrue(count($activity['history']) >= 1);
+        }
 
     }
 
