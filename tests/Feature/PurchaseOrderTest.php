@@ -11,20 +11,28 @@
 
 namespace Tests\Feature;
 
+use Tests\TestCase;
+use App\Utils\Ninja;
+use App\Models\Activity;
+use Tests\MockAccountData;
+use Illuminate\Support\Str;
 use App\Models\PurchaseOrder;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Str;
-use Tests\MockAccountData;
-use Tests\TestCase;
+use App\Repositories\ActivityRepository;
+use App\Events\PurchaseOrder\PurchaseOrderWasCreated;
+use App\Events\PurchaseOrder\PurchaseOrderWasUpdated;
+use App\Events\PurchaseOrder\PurchaseOrderWasAccepted;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class PurchaseOrderTest extends TestCase
 {
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
+
+    public $faker;
 
     protected function setUp(): void
     {
@@ -37,6 +45,35 @@ class PurchaseOrderTest extends TestCase
         Model::reguard();
 
         $this->makeTestData();
+    }
+
+    public function testPurchaseOrderHistory()
+    {
+        event(new PurchaseOrderWasUpdated($this->purchase_order, $this->company, Ninja::eventVars($this->company, $this->user)));
+        event(new PurchaseOrderWasCreated($this->purchase_order, $this->company, Ninja::eventVars($this->company, $this->user)));
+
+        $ar = new ActivityRepository();
+        $fields = new \stdClass;
+        $fields->user_id = $this->purchase_order->user_id;
+        $fields->vendor_id = $this->purchase_order->vendor_id;
+        $fields->company_id = $this->purchase_order->company_id;
+        $fields->activity_type_id = Activity::UPDATE_PURCHASE_ORDER;
+        $fields->purchase_order_id = $this->purchase_order->id;
+
+        $ar->save($fields, $this->purchase_order, Ninja::eventVars($this->company, $this->user));
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get("/api/v1/purchase_orders/{$this->purchase_order->hashed_id}?include=history")
+        ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $history = $arr['data']['history'];
+
+        $this->assertTrue(count($history) >= 1);
+
     }
 
     public function testPurchaseOrderBulkActions()
@@ -194,7 +231,7 @@ class PurchaseOrderTest extends TestCase
 
         $x = $purchase_order->service()->markSent()->getPurchaseOrderPdf();
 
-        nlog($x);
+        // nlog($x);
     }
 
     public function testPurchaseOrderRest()

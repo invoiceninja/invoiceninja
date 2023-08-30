@@ -274,4 +274,9 @@ class Vendor extends BaseModel
     {
         return $this->company->date_format();
     }
+
+    public function backup_path() :string
+    {
+        return $this->company->company_key.'/'.$this->vendor_hash.'/backups';
+    }
 }

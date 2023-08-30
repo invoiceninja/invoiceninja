@@ -11,6 +11,7 @@
 
 namespace App\Transformers;
 
+use App\Models\Backup;
 use App\Models\Vendor;
 use App\Models\Expense;
 use App\Models\Document;
@@ -30,6 +31,7 @@ class PurchaseOrderTransformer extends EntityTransformer
     protected $availableIncludes = [
         'expense',
         'vendor',
+        'history',
     ];
 
     public function includeInvitations(PurchaseOrder $purchase_order)
@@ -39,6 +41,12 @@ class PurchaseOrderTransformer extends EntityTransformer
         return $this->includeCollection($purchase_order->invitations, $transformer, PurchaseOrderInvitation::class);
     }
 
+    public function includeHistory(PurchaseOrder $purchase_order)
+    {
+        $transformer = new PurchaseOrderHistoryTransformer($this->serializer);
+
+        return $this->includeCollection($purchase_order->history, $transformer, Backup::class);
+    }
 
     public function includeDocuments(PurchaseOrder $purchase_order)
     {
