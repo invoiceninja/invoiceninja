@@ -113,6 +113,11 @@ class ExpenseRepository extends BaseRepository
             $expense->saveQuietly();
 
             $expense->transaction->expense_id = $exp_ids;
+
+            if(strlen($exp_ids) <= 2) {
+                $expense->transaction->status_id = 1;
+            }
+
             $expense->transaction->saveQuietly();
 
         }

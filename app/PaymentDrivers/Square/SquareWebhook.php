@@ -146,7 +146,7 @@ class SquareWebhook implements ShouldQueue
 
             $data = [
                 'payment_type' => $this->source_type[$square_payment->source_type],
-                'amount' => $payment_hash->amount_with_fee,
+                'amount' => $payment_hash->amount_with_fee(),
                 'transaction_reference' => $square_payment->id,
                 'gateway_type_id' => GatewayType::BANK_TRANSFER,
             ];

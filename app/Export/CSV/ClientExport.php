@@ -17,6 +17,7 @@ use App\Models\Company;
 use App\Transformers\ClientContactTransformer;
 use App\Transformers\ClientTransformer;
 use App\Utils\Ninja;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
@@ -72,16 +73,6 @@ class ClientExport extends BaseExport
         'status' => 'status'
     ];
 
-    private array $decorate_keys = [
-        'client.country_id',
-        'client.shipping_country_id',
-        'client.currency',
-        'client.industry',
-    ];
-
-    public array $forced_keys = [
-    ];
-
     public function __construct(Company $company, array $input)
     {
         $this->company = $company;
@@ -90,7 +81,27 @@ class ClientExport extends BaseExport
         $this->contact_transformer = new ClientContactTransformer();
     }
 
-    public function run()
+    public function returnJson()
+    {
+        $query = $this->init();
+
+        $headerdisplay = $this->buildHeader();
+
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
+                return ['identifier' => $value, 'display_value' => $headerdisplay[$value]];
+            })->toArray();
+
+        $report = $query->cursor()
+                ->map(function ($client) {
+                    return $this->buildRow($client);
+                })->toArray();
+        
+        return array_merge(['columns' => $header], $report);
+    }
+
+
+
+    public function init(): Builder
     {
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
@@ -98,15 +109,9 @@ class ClientExport extends BaseExport
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
-        //load the CSV document from a string
-        $this->csv = Writer::createFromString();
-
         if (count($this->input['report_keys']) == 0) {
-            $this->input['report_keys'] = array_values($this->entity_keys);
+            $this->input['report_keys'] = array_values($this->client_report_keys);
         }
-        
-        //insert the header
-        $this->csv->insertOne($this->buildHeader());
 
         $query = Client::query()->with('contacts')
                                 ->withTrashed()
@@ -114,6 +119,20 @@ class ClientExport extends BaseExport
                                 ->where('is_deleted', 0);
 
         $query = $this->addDateRange($query);
+
+            return $query;
+            
+    }
+
+    public function run()
+    {
+        $query = $this->init();
+
+        //load the CSV document from a string
+        $this->csv = Writer::createFromString();
+        
+        //insert the header
+        $this->csv->insertOne($this->buildHeader());
 
         $query->cursor()
               ->each(function ($client) {

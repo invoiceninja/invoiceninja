@@ -240,7 +240,6 @@ class Email implements ShouldQueue
         }
 
         if ($this->client_mailgun_secret) {
-
             $mailer->mailgun_config($this->client_mailgun_secret, $this->client_mailgun_domain, $this->client_mailgun_endpoint);
         }
 
@@ -254,6 +253,7 @@ class Email implements ShouldQueue
 
             LightLogs::create(new EmailSuccess($this->company->company_key))
                      ->send();
+
         } catch(\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
             $this->fail();
