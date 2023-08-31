@@ -168,7 +168,6 @@ class Scheduler extends BaseModel
                 $next_run =  null;
         }
 
-
         $this->next_run_client = $next_run ?: null;
         $this->next_run = $next_run ? $next_run->copy()->addSeconds($offset) : null;
         $this->save();

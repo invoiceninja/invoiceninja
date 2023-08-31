@@ -109,7 +109,7 @@ class PurchaseOrderItemExport extends BaseExport
         $transformed_purchase_order = $this->buildRow($purchase_order);
 
         $transformed_items = [];
-nlog($purchase_order->toArray());
+
         foreach ($purchase_order->line_items as $item) {
             $item_array = [];
 

@@ -11,21 +11,23 @@
 
 namespace App\Repositories;
 
-use App\Models\Activity;
+use App\Models\User;
+use App\Models\Quote;
 use App\Models\Backup;
-use App\Models\CompanyToken;
 use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Invoice;
-use App\Models\Quote;
+use App\Models\Activity;
+use App\Utils\HtmlEngine;
+use App\Models\CompanyToken;
+use App\Models\PurchaseOrder;
+use App\Utils\Traits\MakesHash;
+use App\Utils\VendorHtmlEngine;
 use App\Models\RecurringInvoice;
-use App\Models\User;
+use App\Utils\Traits\MakesInvoiceHtml;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker as PdfMakerService;
-use App\Utils\HtmlEngine;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesInvoiceHtml;
 
 /**
  * Class for activity repository.
@@ -85,13 +87,30 @@ class ActivityRepository extends BaseRepository
         ) {
             $backup = new Backup();
             $entity->load('client');
-            $contact = $entity->client->primary_contact()->first();
             $backup->amount = $entity->amount;
             $backup->activity_id = $activity->id;
             $backup->json_backup = '';
             $backup->save();
 
             $backup->storeRemotely($this->generateHtml($entity), $entity->client);
+
+            return;
+        }
+
+        if(get_class($entity) == PurchaseOrder::class)
+        {
+           
+            $backup = new Backup();
+            $entity->load('client');
+            $backup->amount = $entity->amount;
+            $backup->activity_id = $activity->id;
+            $backup->json_backup = '';
+            $backup->save();
+
+            $backup->storeRemotely($this->generateVendorHtml($entity), $entity->vendor);
+
+            return;
+
         }
     }
 
@@ -107,6 +126,58 @@ class ActivityRepository extends BaseRepository
         }
 
         return false;
+    }
+
+    private function generateVendorHtml($entity)
+    {
+        $entity_design_id = $entity->design_id ? $entity->design_id : $this->decodePrimaryKey($entity->vendor->getSetting('purchase_order_design_id'));
+        
+        $design = Design::withTrashed()->find($entity_design_id);
+
+        if (! $entity->invitations()->exists() || ! $design) {
+            nlog("No invitations for entity {$entity->id} - {$entity->number}");
+            return '';
+        }
+
+        $entity->load('vendor.company', 'invitations');
+
+        $html = new VendorHtmlEngine($entity->invitations->first()->load('purchase_order', 'contact'));
+
+        if ($design->is_custom) {
+            $options = [
+                'custom_partials' => json_decode(json_encode($design->design), true),
+            ];
+            $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
+        } else {
+            $template = new PdfMakerDesign(strtolower($design->name));
+        }
+
+        $state = [
+            'template' => $template->elements([
+                'vendor' => $entity->vendor,
+                'entity' => $entity,
+                'pdf_variables' => (array) $entity->company->settings->pdf_variables,
+                '$product' => $design->design->product,
+            ]),
+            'variables' => $html->generateLabelsAndValues(),
+            'options' => [
+                'all_pages_header' => $entity->vendor->getSetting('all_pages_header'),
+                'all_pages_footer' => $entity->vendor->getSetting('all_pages_footer'),
+            ],
+            'process_markdown' => $entity->vendor->company->markdown_enabled,
+        ];
+
+        $maker = new PdfMakerService($state);
+
+        $html = $maker->design($template)
+                    ->build()
+                    ->getCompiledHTML(true);
+
+        $maker = null;
+        $state = null;
+                
+        return $html;
+
     }
 
     private function generateHtml($entity)
@@ -127,8 +198,6 @@ class ActivityRepository extends BaseRepository
             $entity_type = 'credit';
             $entity_design_id = 'credit_design_id';
         }
-
-        // $entity->load('client.company');
 
         $entity_design_id = $entity->design_id ? $entity->design_id : $this->decodePrimaryKey($entity->client->getSetting($entity_design_id));
 

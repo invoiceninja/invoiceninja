@@ -182,6 +182,11 @@ trait MockAccountData
      */
     public $scheduler;
 
+    /**
+     * @var
+     */
+    public $purchase_order;
+
     public $contact;
     
     public $product;
