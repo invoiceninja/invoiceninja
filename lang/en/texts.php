@@ -660,7 +660,7 @@ $LANG = array(
     'customize_help' => '<p>We use :pdfmake_link to define the invoice designs declaratively. The pdfmake :playground_link provides a great way to see the library in action.</p>
                         <p>If you need help figuring something out post a question to our :forum_link with the design you\'re using.</p>',
     'playground' => 'playground',
-    'support_forum' => 'support forum',
+    'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Due Date',
     'quote_due_date' => 'Valid Until',
     'valid_until' => 'Valid Until',

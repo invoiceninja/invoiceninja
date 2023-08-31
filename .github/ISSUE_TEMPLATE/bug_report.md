@@ -14,6 +14,11 @@ https://invoiceninja.github.io/docs/self-host-troubleshooting/ -->
 - Version: <!-- i.e. v4.5.25 / v5.0.30 -->
 - Environment: <!-- Docker/Shared Hosting/ZIP/Other -->
 
+## Interface
+- Flutter: []
+- React: []
+- Both: []
+
 ## Checklist
 - Can you replicate the issue on our v5 demo site https://demo.invoiceninja.com or https://react.invoicing.co/demo?
 - Have you searched existing issues?
