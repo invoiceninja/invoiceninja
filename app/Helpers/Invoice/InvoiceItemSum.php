@@ -198,7 +198,7 @@ class InvoiceItemSum
 
     private function push(): self
     {
-        $this->sub_total += $this->getLineTotal();
+        $this->sub_total += round($this->getLineTotal(), $this->currency->precision);
 
         $this->gross_sub_total += $this->getGrossLineTotal();
 
@@ -331,6 +331,18 @@ class InvoiceItemSum
         $this->item->line_total = $total;
 
         return $this;
+    }
+
+    public function getRoundedLineTotal(): float
+    {
+        $total = 0;
+
+        foreach($this->line_items as $item)
+        {
+            $total += round($item->line_total, $this->currency->precision);
+        }
+
+        return $total;
     }
 
     public function getLineTotal()
