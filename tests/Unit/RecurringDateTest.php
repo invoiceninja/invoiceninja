@@ -41,4 +41,19 @@ class RecurringDateTest extends TestCase
 
         $this->assertequals($trial_ends->format('Y-m-d'), '2021-12-03');
     }
+
+    public function testDateOverflowsForEndOfMonth()
+    {
+        $today = Carbon::parse('2022-01-31');
+
+        $next_month = $today->addMonthNoOverflow();
+
+        $this->assertEquals('2022-02-28', $next_month->format('Y-m-d'));
+
+        // $next_month = $today->addMonthNoOverflow();
+
+        // $this->assertEquals('2022-03-31', $next_month->format('Y-m-d'));
+
+    }
+
 }

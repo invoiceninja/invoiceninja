@@ -182,6 +182,11 @@ trait MockAccountData
      */
     public $scheduler;
 
+    /**
+     * @var
+     */
+    public $purchase_order;
+
     public $contact;
     
     public $product;
@@ -571,6 +576,8 @@ trait MockAccountData
         $this->purchase_order->tax_rate1 = 0;
         $this->purchase_order->tax_rate2 = 0;
         $this->purchase_order->tax_rate3 = 0;
+
+        $this->purchase_order->line_items = InvoiceItemFactory::generate(5);
 
         $this->purchase_order->uses_inclusive_taxes = false;
         $this->purchase_order->save();

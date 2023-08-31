@@ -58,6 +58,7 @@ use App\Http\Controllers\TaskStatusController;
 use App\Http\Controllers\Bank\YodleeController;
 use App\Http\Controllers\CompanyUserController;
 use App\Http\Controllers\PaymentTermController;
+use App\Http\Controllers\EmailHistoryController;
 use App\Http\Controllers\GroupSettingController;
 use App\Http\Controllers\OneTimeTokenController;
 use App\Http\Controllers\SubscriptionController;
@@ -202,6 +203,8 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('documents/bulk', [DocumentController::class, 'bulk'])->name('documents.bulk');
 
     Route::post('emails', [EmailController::class, 'send'])->name('email.send')->middleware('user_verified');
+    Route::post('emails/clientHistory/{client}', [EmailHistoryController::class, 'clientHistory'])->name('email.clientHistory');
+    Route::post('emails/entityHistory', [EmailHistoryController::class, 'entityHistory'])->name('email.entityHistory');
 
     Route::resource('expenses', ExpenseController::class); // name = (expenses. index / create / show / update / destroy / edit
     Route::put('expenses/{expense}/upload', [ExpenseController::class, 'upload']);

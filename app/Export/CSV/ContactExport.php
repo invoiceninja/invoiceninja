@@ -18,6 +18,7 @@ use App\Models\Company;
 use App\Transformers\ClientContactTransformer;
 use App\Transformers\ClientTransformer;
 use App\Utils\Ninja;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
@@ -32,54 +33,6 @@ class ContactExport extends BaseExport
 
     public string $date_key = 'created_at';
 
-    public array $entity_keys = [
-        'address1' => 'client.address1',
-        'address2' => 'client.address2',
-        'balance' => 'client.balance',
-        'city' => 'client.city',
-        'country' => 'client.country_id',
-        'credit_balance' => 'client.credit_balance',
-        'custom_value1' => 'client.custom_value1',
-        'custom_value2' => 'client.custom_value2',
-        'custom_value3' => 'client.custom_value3',
-        'custom_value4' => 'client.custom_value4',
-        'id_number' => 'client.id_number',
-        'industry' => 'client.industry_id',
-        'last_login' => 'client.last_login',
-        'name' => 'client.name',
-        'number' => 'client.number',
-        'paid_to_date' => 'client.paid_to_date',
-        'client_phone' => 'client.phone',
-        'postal_code' => 'client.postal_code',
-        'private_notes' => 'client.private_notes',
-        'public_notes' => 'client.public_notes',
-        'shipping_address1' => 'client.shipping_address1',
-        'shipping_address2' => 'client.shipping_address2',
-        'shipping_city' => 'client.shipping_city',
-        'shipping_country' => 'client.shipping_country_id',
-        'shipping_postal_code' => 'client.shipping_postal_code',
-        'shipping_state' => 'client.shipping_state',
-        'state' => 'client.state',
-        'vat_number' => 'client.vat_number',
-        'website' => 'client.website',
-        'currency' => 'client.currency',
-        'first_name' => 'contact.first_name',
-        'last_name' => 'contact.last_name',
-        'contact_phone' => 'contact.phone',
-        'contact_custom_value1' => 'contact.custom_value1',
-        'contact_custom_value2' => 'contact.custom_value2',
-        'contact_custom_value3' => 'contact.custom_value3',
-        'contact_custom_value4' => 'contact.custom_value4',
-        'email' => 'contact.email',
-    ];
-
-    private array $decorate_keys = [
-        'client.country_id',
-        'client.shipping_country_id',
-        'client.currency',
-        'client.industry',
-    ];
-
     public function __construct(Company $company, array $input)
     {
         $this->company = $company;
@@ -88,28 +41,38 @@ class ContactExport extends BaseExport
         $this->contact_transformer = new ClientContactTransformer();
     }
 
-    public function run()
+    private function init(): Builder
     {
+
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
         App::setLocale($this->company->locale());
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
-        //load the CSV document from a string
-        $this->csv = Writer::createFromString();
-
         if (count($this->input['report_keys']) == 0) {
-            $this->input['report_keys'] = array_values($this->entity_keys);
+            $this->input['report_keys'] = array_values($this->client_report_keys);
         }
-
-        //insert the header
-        $this->csv->insertOne($this->buildHeader());
 
         $query = ClientContact::query()
                         ->where('company_id', $this->company->id);
 
         $query = $this->addDateRange($query);
+
+        return $query;
+
+    }
+
+    public function run()
+    {
+        
+        $query = $this->init();
+
+        //load the CSV document from a string
+        $this->csv = Writer::createFromString();
+
+        //insert the header
+        $this->csv->insertOne($this->buildHeader());
 
         $query->cursor()->each(function ($contact) {
             $this->csv->insertOne($this->buildRow($contact));
@@ -117,6 +80,26 @@ class ContactExport extends BaseExport
 
         return $this->csv->toString();
     }
+
+
+    public function returnJson()
+    {
+        $query = $this->init();
+
+        $headerdisplay = $this->buildHeader();
+
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
+                return ['identifier' => $value, 'display_value' => $headerdisplay[$value]];
+            })->toArray();
+
+        $report = $query->cursor()
+                ->map(function ($contact) {
+                    return $this->buildRow($contact);
+                })->toArray();
+        
+        return array_merge(['columns' => $header], $report);
+    }
+
 
     private function buildRow(ClientContact $contact) :array
     {
@@ -129,14 +112,13 @@ class ContactExport extends BaseExport
 
         foreach (array_values($this->input['report_keys']) as $key) {
             $parts = explode('.', $key);
-            $keyval = array_search($key, $this->entity_keys);
 
             if ($parts[0] == 'client' && array_key_exists($parts[1], $transformed_client)) {
-                $entity[$keyval] = $transformed_client[$parts[1]];
+                $entity[$key] = $transformed_client[$parts[1]];
             } elseif ($parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {
-                $entity[$keyval] = $transformed_contact[$parts[1]];
+                $entity[$key] = $transformed_contact[$parts[1]];
             } else {
-                $entity[$keyval] = '';
+                $entity[$key] = '';
             }
         }
 
