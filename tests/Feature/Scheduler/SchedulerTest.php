@@ -19,15 +19,15 @@ use Tests\MockAccountData;
 use App\Utils\Traits\MakesHash;
 use App\Models\RecurringInvoice;
 use App\Factory\SchedulerFactory;
+use App\Services\Scheduler\EmailReport;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Session;
 use App\DataMapper\Schedule\EmailStatement;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\WithoutEvents;
 use App\Services\Scheduler\EmailStatementService;
-use App\Services\Scheduler\EmailReport;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * @test
@@ -95,7 +95,7 @@ class SchedulerTest extends TestCase
         $data = [
             'name' => 'A test product sales scheduler',
             'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
-            'next_run' => now()->format('Y-m-d'),
+            'next_run' => now()->startOfDay()->format('Y-m-d'),
             'template' => 'email_report',
             'parameters' => [
                 'date_range' => EmailStatement::LAST_MONTH,
@@ -132,8 +132,10 @@ class SchedulerTest extends TestCase
         $this->assertNotNull($scheduler);
 
         $export = (new EmailReport($scheduler))->run();
+              
 
-        $this->assertEquals(now()->addMonth()->format('Y-m-d'), $scheduler->next_run->format('Y-m-d'));
+        nlog($scheduler->fresh()->toArray());
+        $this->assertEquals(now()->startOfDay()->addMonthNoOverflow()->format('Y-m-d'), $scheduler->next_run->format('Y-m-d'));
 
     }
 
@@ -179,7 +181,7 @@ class SchedulerTest extends TestCase
 
         $export = (new EmailReport($scheduler))->run();
 
-        $this->assertEquals(now()->addMonth()->format('Y-m-d'), $scheduler->next_run->format('Y-m-d'));
+        $this->assertEquals(now()->addMonthNoOverflow()->format('Y-m-d'), $scheduler->next_run->format('Y-m-d'));
 
     }
 
@@ -222,7 +224,7 @@ class SchedulerTest extends TestCase
 
         $export = (new EmailReport($scheduler))->run();
 
-        $this->assertEquals(now()->addMonth()->format('Y-m-d'), $scheduler->next_run->format('Y-m-d'));
+        $this->assertEquals(now()->addMonthNoOverflow()->format('Y-m-d'), $scheduler->next_run->format('Y-m-d'));
 
     }
 
