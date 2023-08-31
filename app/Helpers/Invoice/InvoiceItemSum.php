@@ -333,18 +333,6 @@ class InvoiceItemSum
         return $this;
     }
 
-    public function getRoundedLineTotal(): float
-    {
-        $total = 0;
-
-        foreach($this->line_items as $item)
-        {
-            $total += round($item->line_total, $this->currency->precision);
-        }
-
-        return $total;
-    }
-
     public function getLineTotal()
     {
         return $this->item->line_total;
