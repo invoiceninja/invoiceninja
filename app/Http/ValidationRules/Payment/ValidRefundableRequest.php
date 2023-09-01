@@ -57,9 +57,10 @@ class ValidRefundableRequest implements Rule
         $request_invoices = request()->has('invoices') ? $this->input['invoices'] : [];
 
         if ($payment->invoices()->exists()) {
-            foreach ($payment->invoices as $paymentable_invoice) {
-                $this->checkInvoice($paymentable_invoice, $request_invoices);
-            }
+            $this->checkInvoice($payment->invoices, $request_invoices);
+            // foreach ($payment->invoices as $paymentable_invoice) {
+            //     $this->checkInvoice($paymentable_invoice, $request_invoices);
+            // }
         }
 
         foreach ($request_invoices as $request_invoice) {
@@ -119,22 +120,25 @@ class ValidRefundableRequest implements Rule
     //     }
     // }
 
-    private function checkInvoice($paymentable, $request_invoices)
+    private function checkInvoice($paymentables, $request_invoices)
     {
         $record_found = false;
 
-        foreach ($request_invoices as $request_invoice) {
-            if ($request_invoice['invoice_id'] == $paymentable->pivot->paymentable_id) {
-                $record_found = true;
+        foreach($paymentables as $paymentable) {
+            foreach ($request_invoices as $request_invoice) {
 
-                $refundable_amount = ($paymentable->pivot->amount - $paymentable->pivot->refunded);
+                if ($request_invoice['invoice_id'] == $paymentable->pivot->paymentable_id) {
+                    $record_found = true;
 
-                if ($request_invoice['amount'] > $refundable_amount) {
-                    $invoice = $paymentable;
+                    $refundable_amount = ($paymentable->pivot->amount - $paymentable->pivot->refunded);
 
-                    $this->error_msg = ctrans('texts.max_refundable_invoice', ['invoice' => $invoice->hashed_id, 'amount' => $refundable_amount]);
+                    if ($request_invoice['amount'] > $refundable_amount) {
+                        $invoice = $paymentable;
 
-                    return false;
+                        $this->error_msg = ctrans('texts.max_refundable_invoice', ['invoice' => $invoice->hashed_id, 'amount' => $refundable_amount]);
+
+                        return false;
+                    }
                 }
             }
         }
