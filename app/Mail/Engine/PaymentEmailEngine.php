@@ -199,6 +199,12 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$client.vat_number'] = &$data['$vat_number'];
         $data['$client.website'] = &$data['$website'];
         $data['$client.phone'] = &$data['$phone'];
+        $data['$city'] = ['value' => $this->client->city ?: '&nbsp;', 'label' => ctrans('texts.city')];
+        $data['$client.city'] = &$data['$city'];
+        $data['$state'] = ['value' => $this->client->state ?: '&nbsp;', 'label' => ctrans('texts.state')];
+        $data['$client.state'] = &$data['$state'];
+        $data['$postal_code'] = ['value' => $this->client->postal_code ?: '&nbsp;', 'label' => ctrans('texts.postal_code')];
+        $data['$client.postal_code'] = &$data['$postal_code'];
         $data['$city_state_postal'] = ['value' => $this->client->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, false) ?: '&nbsp;', 'label' => ctrans('texts.city_state_postal')];
         $data['$client.city_state_postal'] = &$data['$city_state_postal'];
         $data['$postal_city_state'] = ['value' => $this->client->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city_state')];
