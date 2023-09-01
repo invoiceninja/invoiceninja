@@ -100,26 +100,6 @@ class ValidRefundableRequest implements Rule
         }
     }
 
-    // private function checkCreditIsPaymentable($credit, $payment)
-    // {   
-    //     /** @var \App\Models\Credit $credit */
-    //     $credit = Credit::whereId($credit['credit_id'])->whereCompanyId($payment->company_id)->first();
-
-    //     if ($payment->credits()->exists()) {
-    //         $paymentable_credit = $payment->credits->where('id', $credit->id)->first();
-
-    //         if (! $paymentable_credit) {
-    //             $this->error_msg = ctrans('texts.credit_not_related_to_payment', ['credit' => $credit->hashed_id]);
-
-    //             return false;
-    //         }
-    //     } else {
-    //         $this->error_msg = ctrans('texts.credit_not_related_to_payment', ['credit' => $credit->hashed_id]);
-
-    //         return false;
-    //     }
-    // }
-
     private function checkInvoice($paymentables, $request_invoices)
     {
         $record_found = false;
@@ -149,33 +129,6 @@ class ValidRefundableRequest implements Rule
             return false;
         }
     }
-
-    // private function checkCredit($paymentable, $request_credits)
-    // {
-    //     $record_found = null;
-
-    //     foreach ($request_credits as $request_credit) {
-    //         if ($request_credit['credit_id'] == $paymentable->pivot->paymentable_id) {
-    //             $record_found = true;
-
-    //             $refundable_amount = ($paymentable->pivot->amount - $paymentable->pivot->refunded);
-
-    //             if ($request_credit['amount'] > $refundable_amount) {
-    //                 $credit = $paymentable;
-
-    //                 $this->error_msg = ctrans('texts.max_refundable_credit', ['credit' => $credit->hashed_id, 'amount' => $refundable_amount]);
-
-    //                 return false;
-    //             }
-    //         }
-    //     }
-
-    //     if (! $record_found) {
-    //         $this->error_msg = ctrans('texts.refund_without_credits');
-
-    //         return false;
-    //     }
-    // }
 
     /**
      * @return string
