@@ -22,8 +22,8 @@ return new class extends Migration {
      */
     public function up()
     {
-        DB::raw('SET GLOBAL innodb_file_per_table=1;');
-        DB::raw('SET GLOBAL innodb_file_format=Barracuda;');
+        DB::raw('SET GLOBAL innodb_file_per_table=1;')->getValue(DB::connection()->getQueryGrammar());
+        DB::raw('SET GLOBAL innodb_file_format=Barracuda;')->getValue(DB::connection()->getQueryGrammar());
 
         Schema::create('languages', function ($table) {
             $table->increments('id');

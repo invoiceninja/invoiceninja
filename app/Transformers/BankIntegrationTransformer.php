@@ -28,7 +28,7 @@ class BankIntegrationTransformer extends EntityTransformer
     /**
      * @var array
      */
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         //'default_company',
         //'user',
         //'company_users'
@@ -37,7 +37,7 @@ class BankIntegrationTransformer extends EntityTransformer
     /**
      * @var array
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'company',
         'account',
         'bank_transactions',

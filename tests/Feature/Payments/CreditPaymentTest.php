@@ -20,7 +20,6 @@ use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\WithoutEvents;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
@@ -35,7 +34,6 @@ class CreditPaymentTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockUnitData;
-    use WithoutEvents;
 
     protected function setUp() :void
     {

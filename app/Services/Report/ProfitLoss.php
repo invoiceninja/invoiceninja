@@ -250,7 +250,7 @@ class ProfitLoss
             AND invoices.is_deleted = 0
             AND (invoices.date BETWEEN :start_date AND :end_date)
             GROUP BY currency_id
-        "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $this->start_date, 'end_date' => $this->end_date]);
+        ")->getValue(\DB::connection()->getQueryGrammar()), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $this->start_date, 'end_date' => $this->end_date]);
     }
 
     /**
@@ -421,7 +421,7 @@ class ProfitLoss
             AND invoices.is_deleted = 0
             AND (invoices.date BETWEEN :start_date AND :end_date)
             GROUP BY currency_id
-        "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $this->start_date, 'end_date' => $this->end_date]);
+        ")->getValue(\DB::connection()->getQueryGrammar()), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $this->start_date, 'end_date' => $this->end_date]);
     }
 
     /**
@@ -447,7 +447,7 @@ class ProfitLoss
              AND (payments.date BETWEEN :start_date AND :end_date)
              GROUP BY currency_id
              ORDER BY currency_id;
-        '), ['company_id' => $this->company->id, 'start_date' => $this->start_date, 'end_date' => $this->end_date]);
+        ')->getValue(\DB::connection()->getQueryGrammar()), ['company_id' => $this->company->id, 'start_date' => $this->start_date, 'end_date' => $this->end_date]);
     }
 
     private function expenseData()
@@ -553,7 +553,7 @@ class ProfitLoss
             AND expenses.company_id = :company_id
             AND (expenses.date BETWEEN :start_date AND :end_date)
             GROUP BY currency_id
-        '), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $this->start_date, 'end_date' => $this->end_date]);
+        ')->getValue(\DB::connection()->getQueryGrammar()), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $this->start_date, 'end_date' => $this->end_date]);
     }
 
     private function setBillingReportType()

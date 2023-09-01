@@ -87,8 +87,6 @@ class BankTransaction extends BaseModel
         'amount'
     ];
 
-    protected $dates = [
-    ];
     
     public function getInvoiceIds()
     {
