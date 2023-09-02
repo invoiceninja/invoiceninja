@@ -195,7 +195,7 @@ class UserController extends BaseController
     public function destroy(DestroyUserRequest $request, User $user)
     {
         if ($user->isOwner()) {
-            return response()->json(['message', 'Cannot detach owner.'], 400);
+            return response()->json(['message', 'Cannot detach owner.'], 401);
         }
 
         /* If the user passes the company user we archive the company user */

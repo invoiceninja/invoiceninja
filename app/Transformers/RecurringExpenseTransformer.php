@@ -27,14 +27,14 @@ class RecurringExpenseTransformer extends EntityTransformer
     use MakesHash;
     use SoftDeletes;
 
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'documents',
     ];
 
     /**
      * @var array
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'documents',
         'client',
         'vendor',

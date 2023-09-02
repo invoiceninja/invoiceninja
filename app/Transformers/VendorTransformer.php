@@ -25,7 +25,7 @@ class VendorTransformer extends EntityTransformer
 {
     use MakesHash;
 
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'contacts',
         'documents',
     ];
@@ -33,7 +33,7 @@ class VendorTransformer extends EntityTransformer
     /**
      * @var array
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'activities',
     ];
 

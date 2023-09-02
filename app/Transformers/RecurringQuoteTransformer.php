@@ -22,12 +22,12 @@ class RecurringQuoteTransformer extends EntityTransformer
 {
     use MakesHash;
 
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'invitations',
         'documents',
     ];
 
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'invitations',
         'documents',
         'activities',

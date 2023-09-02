@@ -23,13 +23,13 @@ class ExpenseCategoryTransformer extends EntityTransformer
     use MakesHash;
     use SoftDeletes;
 
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
     ];
 
     /**
      * @var array
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
     ];
 
     /**

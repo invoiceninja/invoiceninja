@@ -467,7 +467,6 @@ class ReminderTest extends TestCase
 
         $this->assertEquals(Carbon::parse($this->invoice->next_send_date)->format('Y-m-d'), Carbon::now()->addDays(7)->format('Y-m-d'));
 
-        //   ReminderJob::dispatchNow();
     }
 
     public function testReminderHitsScenarioH1()
@@ -492,7 +491,6 @@ class ReminderTest extends TestCase
 
         $this->assertEquals(Carbon::parse($this->invoice->next_send_date)->format('Y-m-d'), Carbon::now()->addDays(30)->subDays(2)->format('Y-m-d'));
 
-        //   ReminderJob::dispatchNow();
     }
 
     /* Cant set a reminder in the past so need to skip reminder 2 and go straigh to reminder 3*/
