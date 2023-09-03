@@ -656,7 +656,7 @@ Nemôžete nájsť faktúru? Potrebujete poradiť? Radi Vám pomôžeme         
     'help' => 'Pomoc',
     'customize_help' => '<p>Na deklaratívne definovanie návrhov faktúr používame :pdfmake_link. pdfmake :playground_link poskytuje skvelý spôsob, ako vidieť knižnicu v akcii.</p><p> Ak potrebujete pomôcť niečo vymyslieť, položte otázku na náš :forum_link s dizajnom, ktorý používate.</p>',
     'playground' => 'ihrisko',
-    'support_forum' => 'podporné fórum',
+    'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Dátum splatnosti',
     'quote_due_date' => 'Platné do',
     'valid_until' => 'Platné do',
@@ -1134,7 +1134,7 @@ Nemôžete nájsť faktúru? Potrebujete poradiť? Radi Vám pomôžeme         
     'plan_status' => 'Stav plánu',
 
     'plan_upgrade' => 'Vylepšiť',
-    'plan_change' => 'Zmeniť plán',
+    'plan_change' => 'Manage Plan',
     'pending_change_to' => 'Zmeniť na',
     'plan_changes_to' => ':plan ku :date',
     'plan_term_changes_to' => ':plan (:term) ku :date',
@@ -4313,7 +4313,7 @@ Nemôžete nájsť faktúru? Potrebujete poradiť? Radi Vám pomôžeme         
     'include_drafts' => 'Zahrnúť koncepty',
     'include_drafts_help' => 'Zahrňte do správ koncepty záznamov',
     'is_invoiced' => 'Je fakturované',
-    'change_plan' => 'Zmeniť plán',
+    'change_plan' => 'Manage Plan',
     'persist_data' => 'Trvalé údaje',
     'customer_count' => 'Počet zákazníkov',
     'verify_customers' => 'Overiť zákazníkov',
@@ -5141,8 +5141,7 @@ Nemôžete nájsť faktúru? Potrebujete poradiť? Radi Vám pomôžeme         
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
-
-);
+); 
 
 return $LANG;
 

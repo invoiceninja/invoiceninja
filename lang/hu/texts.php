@@ -646,7 +646,7 @@ $LANG = array(
     'help' => 'Segítség',
     'customize_help' => 'Testreszabás súgója',
     'playground' => 'Játszótér',
-    'support_forum' => 'Támogatói fórum',
+    'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Számla fizetési határideje',
     'quote_due_date' => 'Árajánlat érvényessége',
     'valid_until' => 'Érvényes',
@@ -1124,7 +1124,7 @@ $LANG = array(
     'plan_status' => 'Csomag állapota',
 
     'plan_upgrade' => 'Csomagfrissítés',
-    'plan_change' => 'Csomagváltoztatás',
+    'plan_change' => 'Manage Plan',
     'pending_change_to' => 'Függőben lévő váltás erre:',
     'plan_changes_to' => 'A csomag változik erre:',
     'plan_term_changes_to' => 'A csomag időtartama változik erre:',
@@ -4307,7 +4307,7 @@ adva :date',
     'include_drafts' => 'Vázlatok belefoglalása',
     'include_drafts_help' => 'Segítség a vázlatok belefoglalásához',
     'is_invoiced' => 'Számlázott',
-    'change_plan' => 'Terv megváltoztatása',
+    'change_plan' => 'Manage Plan',
     'persist_data' => 'Adatok tartása',
     'customer_count' => 'Ügyfél száma',
     'verify_customers' => 'Ügyfelek ellenőrzése',
@@ -5135,8 +5135,7 @@ adva :date',
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
-
-);
+); 
 
 return $LANG;
 

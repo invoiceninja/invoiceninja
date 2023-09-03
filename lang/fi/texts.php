@@ -660,7 +660,7 @@ $LANG = array(
     'customize_help' => '<p>We use :pdfmake_link  define  lasku designs declaratively. The pdfmake :playground_link provides  great way  see  library in action.</p>
                         <p>If you need help figuring something out post  question  our :forum_link with  design you\'re using.</p>',
     'playground' => 'playground',
-    'support_forum' => 'support forum',
+    'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Eräpäivä',
     'quote_due_date' => 'Voimassa',
     'valid_until' => 'Voimassa',
@@ -1150,7 +1150,7 @@ $LANG = array(
     'plan_status' => 'Plan tila',
 
     'plan_upgrade' => 'Päivitä',
-    'plan_change' => 'Change Plan',
+    'plan_change' => 'Manage Plan',
     'pending_change_to' => 'Changes To',
     'plan_changes_to' => ':plan on :päivämäärä',
     'plan_term_changes_to' => ':plan (:ehto) on :päivämäärä',
@@ -4330,7 +4330,7 @@ Kun saat summat, palaa tälle maksutapasivulle ja klikkaa "Saata loppuun todenta
     'include_drafts' => 'Include Drafts',
     'include_drafts_help' => 'Include draft records in reports',
     'is_invoiced' => 'Laskutettu',
-    'change_plan' => 'Change Plan',
+    'change_plan' => 'Manage Plan',
     'persist_data' => 'Persist Data',
     'customer_count' => 'Customer Count',
     'verify_customers' => 'Verify Customers',
@@ -5158,8 +5158,7 @@ Kun saat summat, palaa tälle maksutapasivulle ja klikkaa "Saata loppuun todenta
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
-
-);
+); 
 
 return $LANG;
 

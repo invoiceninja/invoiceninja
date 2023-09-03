@@ -657,7 +657,7 @@ Não consegue encontrar a nota de pagamento? Precisa de ajuda? Ficamos felizes e
     'customize_help' => '<p>Usamos :pdfmake_link para defenir os estilos da nota de pagamento de forma declarativa. O pdfmake :playground_link oferece uma ótima forma de ver a biblioteca em ação.</p>
                         <p>Se você precisa de ajuda para descobrir alguma coisa, pergunte no nosso forum :forum_link com o estilo que está usando.</p>',
     'playground' => 'rascunho',
-    'support_forum' => 'fórum de suporte',
+    'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Data de Vencimento',
     'quote_due_date' => 'Valido até',
     'valid_until' => 'Válido até',
@@ -1144,7 +1144,7 @@ Não consegue encontrar a nota de pagamento? Precisa de ajuda? Ficamos felizes e
     'plan_status' => 'Estado do Plano',
 
     'plan_upgrade' => 'Atualizar',
-    'plan_change' => 'Alterar Plano',
+    'plan_change' => 'Manage Plan',
     'pending_change_to' => 'Altera Para',
     'plan_changes_to' => ':plan em :date',
     'plan_term_changes_to' => ':plan (:term) em :date',
@@ -4327,7 +4327,7 @@ O envio de E-mails foi suspenso. Será retomado às 23:00 UTC.',
     'include_drafts' => 'Incluir Rascunhos',
     'include_drafts_help' => 'Incluir rascunhos de registros em relatórios',
     'is_invoiced' => 'é faturado',
-    'change_plan' => 'Alterar Plano',
+    'change_plan' => 'Manage Plan',
     'persist_data' => 'dados persistentes',
     'customer_count' => 'Contagem de clientes',
     'verify_customers' => 'Verificar clientes',
@@ -5155,8 +5155,7 @@ O envio de E-mails foi suspenso. Será retomado às 23:00 UTC.',
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
-
-);
+); 
 
 return $LANG;
 

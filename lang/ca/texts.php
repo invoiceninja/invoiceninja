@@ -660,7 +660,7 @@ $LANG = array(
     'customize_help' => '<p>We use :pdfmake_link to define the invoice designs declaratively. The pdfmake :playground_link provides a great way to see the library in action.</p>
                         <p>If you need help figuring something out post a question to our :forum_link with the design you\'re using.</p>',
     'playground' => 'playground',
-    'support_forum' => 'support forum',
+    'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Data de venciment',
     'quote_due_date' => 'Valid Until',
     'valid_until' => 'Valid Until',
@@ -1150,7 +1150,7 @@ $LANG = array(
     'plan_status' => 'Plan Status',
 
     'plan_upgrade' => 'Upgrade',
-    'plan_change' => 'Change Plan',
+    'plan_change' => 'Manage Plan',
     'pending_change_to' => 'Changes To',
     'plan_changes_to' => ':plan on :date',
     'plan_term_changes_to' => ':plan (:term) on :date',
@@ -4330,7 +4330,7 @@ $LANG = array(
     'include_drafts' => 'Include Drafts',
     'include_drafts_help' => 'Include draft records in reports',
     'is_invoiced' => 'Is Invoiced',
-    'change_plan' => 'Change Plan',
+    'change_plan' => 'Manage Plan',
     'persist_data' => 'Persist Data',
     'customer_count' => 'Customer Count',
     'verify_customers' => 'Verify Customers',
@@ -5158,8 +5158,7 @@ $LANG = array(
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
-
-);
+); 
 
 return $LANG;
 

@@ -661,7 +661,7 @@ $LANG = array(
     'customize_help' => '<p>Ние използваме :pdfmake_link за декларативно дефиниране на дизайна на фактурите. Инструментът pdfmake :playground_link осигурява чудесен начин да видите библиотеката в действие.</p>
                         <p>Ако се нуждаете от помощ, задайте въпрос в нашия :forum_link с дизайна, който използвайте.</p>',
     'playground' => 'playground',
-    'support_forum' => 'Форум за поддръжка',
+    'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Падеж',
     'quote_due_date' => 'Валидна до',
     'valid_until' => 'Валидна до',
@@ -1151,7 +1151,7 @@ $LANG = array(
     'plan_status' => 'Статус на плана',
 
     'plan_upgrade' => 'Upgrade',
-    'plan_change' => 'Промяна на плана',
+    'plan_change' => 'Manage Plan',
     'pending_change_to' => 'Промяна към',
     'plan_changes_to' => ':plan на :date',
     'plan_term_changes_to' => ':plan (:term) на :date',
@@ -4331,7 +4331,7 @@ $LANG = array(
     'include_drafts' => 'Include Drafts',
     'include_drafts_help' => 'Include draft records in reports',
     'is_invoiced' => 'Is Invoiced',
-    'change_plan' => 'Change Plan',
+    'change_plan' => 'Manage Plan',
     'persist_data' => 'Persist Data',
     'customer_count' => 'Customer Count',
     'verify_customers' => 'Verify Customers',
@@ -5159,8 +5159,7 @@ $LANG = array(
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
-
-);
+); 
 
 return $LANG;
 

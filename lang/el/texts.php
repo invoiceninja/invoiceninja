@@ -660,7 +660,7 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'customize_help' => '<p>Χρησιμοποιούμε το :pdfmake_link για να ορίσουμε τα σχέδια των τιμολογίων. Το pdfmake :playground_link προσφέρει ένα υπέροχο τρόπο για να δείτε τη βιβλιοθήκη στην πράξη.</p>
                         <p>Εάν χρειάζεστε βοήθεια στην κατανόηση κάποιου θέματος μπορείτε να υποβάλετε μία ερώτηση στο :forum_link με την εμφάνιση που χρησιμοποιείτε.</p>',
     'playground' => 'παιδότοπος',
-    'support_forum' => 'φόρουμ υποστήριξης',
+    'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Ημερομηνία Ολοκλήρωσης',
     'quote_due_date' => 'Έγκυρο Έως',
     'valid_until' => 'Έγκυρο Έως',
@@ -1150,7 +1150,7 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'plan_status' => 'Κατάσταση Πλάνου',
 
     'plan_upgrade' => 'Αναβάθμιση',
-    'plan_change' => 'Αλλαγή Πλάνου',
+    'plan_change' => 'Manage Plan',
     'pending_change_to' => 'Αλλαγή Σε',
     'plan_changes_to' => ':plan σε :date',
     'plan_term_changes_to' => ':plan (:term) σε :date',
@@ -4330,7 +4330,7 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'include_drafts' => 'Include Drafts',
     'include_drafts_help' => 'Include draft records in reports',
     'is_invoiced' => 'Is Invoiced',
-    'change_plan' => 'Change Plan',
+    'change_plan' => 'Manage Plan',
     'persist_data' => 'Persist Data',
     'customer_count' => 'Customer Count',
     'verify_customers' => 'Verify Customers',
@@ -5158,8 +5158,7 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
-
-);
+); 
 
 return $LANG;
 

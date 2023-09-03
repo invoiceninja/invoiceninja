@@ -646,7 +646,7 @@ $LANG = array(
     'help' => 'ជំនួយ',
     'customize_help' => '<p>យើងប្រើ :pdfmake_link ដើម្បីកំណត់ការរចនាវិក្កយបត្រដោយប្រកាស។ pdfmake :playground_link ផ្តល់នូវវិធីដ៏ល្អមួយដើម្បីមើលបណ្ណាល័យដែលកំពុងដំណើរការ។</p><p> ប្រសិនបើអ្នកត្រូវការជំនួយក្នុងការស្វែងរកអ្វីមួយ សូមបង្ហោះសំណួរទៅកាន់ :forum_link របស់យើងជាមួយនឹងការរចនាដែលអ្នកកំពុងប្រើ។</p>',
     'playground' => 'សួនកុមារ',
-    'support_forum' => 'វេទិកាគាំទ្រ',
+    'support_forum' => 'Support Forums',
     'invoice_due_date' => 'កាលបរិច្ឆេទ​កំណត់',
     'quote_due_date' => 'មាន​សុពលភាព​ដល់',
     'valid_until' => 'មាន​សុពលភាព​ដល់',
@@ -1124,7 +1124,7 @@ $LANG = array(
     'plan_status' => 'ស្ថានភាពផែនការ',
 
     'plan_upgrade' => 'ធ្វើឱ្យប្រសើរឡើង',
-    'plan_change' => 'ផ្លាស់ប្តូរផែនការ',
+    'plan_change' => 'Manage Plan',
     'pending_change_to' => 'ការផ្លាស់ប្តូរទៅ',
     'plan_changes_to' => ': ផែនការនៅលើ :date',
     'plan_term_changes_to' => ':plan (:term) នៅលើ :date',
@@ -4303,7 +4303,7 @@ $LANG = array(
     'include_drafts' => 'រួមបញ្ចូលសេចក្តីព្រាង',
     'include_drafts_help' => 'រួមបញ្ចូលកំណត់ត្រាព្រាងនៅក្នុងរបាយការណ៍',
     'is_invoiced' => 'ត្រូវបានចេញវិក្កយបត្រ',
-    'change_plan' => 'ផ្លាស់ប្តូរផែនការ',
+    'change_plan' => 'Manage Plan',
     'persist_data' => 'ទិន្នន័យបន្ត',
     'customer_count' => 'ចំនួនអតិថិជន',
     'verify_customers' => 'ផ្ទៀងផ្ទាត់អតិថិជន',
@@ -5131,8 +5131,7 @@ $LANG = array(
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
-
-);
+); 
 
 return $LANG;
 
