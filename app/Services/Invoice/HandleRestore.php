@@ -96,17 +96,22 @@ class HandleRestore extends AbstractService
             $this->adjustment_amount += $payment->paymentables
                                                 ->where('paymentable_type', '=', 'invoices')
                                                 ->where('paymentable_id', $this->invoice->id)
-                                                ->sum(DB::raw('amount')->getValue(DB::connection()->getQueryGrammar()));
-
+                                                ->sum('amount');
+                                                // ->sum(DB::raw('amount')->getValue(DB::connection()->getQueryGrammar()));
+nlog($this->adjustment_amount);
             $this->adjustment_amount += $payment->paymentables
                                                 ->where('paymentable_type', '=', 'invoices')
                                                 ->where('paymentable_id', $this->invoice->id)
-                                                ->sum(DB::raw('refunded')->getValue(DB::connection()->getQueryGrammar()));
+                                                ->sum('amount');
+                                                // ->sum(DB::raw('refunded')->getValue(DB::connection()->getQueryGrammar()));
+nlog($this->adjustment_amount);
 
             //14/07/2023 - do not include credits in the payment amount
             $this->adjustment_amount -= $payment->paymentables
                                             ->where('paymentable_type', '=', 'App\Models\Credit')
-                                            ->sum(DB::raw('amount')->getValue(DB::connection()->getQueryGrammar()));
+                                            ->sum('amount');
+                                            // ->sum(DB::raw('amount')->getValue(DB::connection()->getQueryGrammar()));
+nlog($this->adjustment_amount);
 
         }
 
