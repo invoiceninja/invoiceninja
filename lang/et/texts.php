@@ -657,7 +657,7 @@ $LANG = array(
     'customize_help' => '<p>Arve kujunduse deklaratiivseks määratlemiseks kasutame :pdfmake_link. PDFmake :playground_link pakub suurepärast võimalust näha andmekogu töös .
  <p>Kui vajate millegi väljamõtlemisel abi, postitage meie :forum_linkile küsimus koos kasutatava kujundusega.</p>',
     'playground' => 'playground',
-    'support_forum' => 'Tugifoorum',
+    'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Tähtaeg',
     'quote_due_date' => 'Kehtib Kuni',
     'valid_until' => 'Kehtib Kuni',
@@ -1147,7 +1147,7 @@ $LANG = array(
     'plan_status' => 'Paketi Staatus',
 
     'plan_upgrade' => 'Uuenda',
-    'plan_change' => 'Muuda Paketti',
+    'plan_change' => 'Manage Plan',
     'pending_change_to' => 'Changes To',
     'plan_changes_to' => ':plan :date',
     'plan_term_changes_to' => ':plan (:term) kuupäeval :date',
@@ -4327,7 +4327,7 @@ $LANG = array(
     'include_drafts' => 'Kaasa mustandid',
     'include_drafts_help' => 'Kaasake aruannetesse kirjete mustandid',
     'is_invoiced' => 'Is Invoiced',
-    'change_plan' => 'Muuda plaani',
+    'change_plan' => 'Manage Plan',
     'persist_data' => 'Persist Data',
     'customer_count' => 'Klientide arv',
     'verify_customers' => 'Kinnitage kliendid',
@@ -5155,8 +5155,7 @@ $LANG = array(
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
-
-);
+); 
 
 return $LANG;
 

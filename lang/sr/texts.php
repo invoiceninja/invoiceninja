@@ -660,7 +660,7 @@ $LANG = array(
     'customize_help' => '<p>Koristimo :pdfmake_link za deklarativno definisanje dezajna računa. Pdfmake :playground_link je dobar način da se vidi kako ova biblioteka funkcioniše.</p>
                         <p>Ukoliko Vam je potrebna pomoć, pošaljite pitanje na naš :forum_link, sa dizajnom koji koristite.</p>',
     'playground' => 'igralište',
-    'support_forum' => 'forum podrške',
+    'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Datum dospeća',
     'quote_due_date' => 'Važi do',
     'valid_until' => 'Važi do',
@@ -1150,7 +1150,7 @@ $LANG = array(
     'plan_status' => 'Status plana',
 
     'plan_upgrade' => 'Nadogradi',
-    'plan_change' => 'Promena plana',
+    'plan_change' => 'Manage Plan',
     'pending_change_to' => 'Plan se menja u',
     'plan_changes_to' => ':plan na :date',
     'plan_term_changes_to' => ':plan (:term) na :date',
@@ -4330,7 +4330,7 @@ Kada budete imali iznose, vratite se na ovu stranicu sa načinima plaćanja i k
     'include_drafts' => 'Include Drafts',
     'include_drafts_help' => 'Include draft records in reports',
     'is_invoiced' => 'Is Invoiced',
-    'change_plan' => 'Change Plan',
+    'change_plan' => 'Manage Plan',
     'persist_data' => 'Persist Data',
     'customer_count' => 'Customer Count',
     'verify_customers' => 'Verify Customers',
@@ -5158,8 +5158,7 @@ Kada budete imali iznose, vratite se na ovu stranicu sa načinima plaćanja i k
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
-
-);
+); 
 
 return $LANG;
 

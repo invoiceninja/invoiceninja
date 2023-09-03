@@ -654,7 +654,7 @@ $LANG = array(
     'customize_help' => '<p>We gebruiken :pdfmake_link om de factuurontwerpen declaratief te definieren. De pdfmake :playground_link biedt een interessante manier om de library in actie te zien.</p>
                         <p>Als je ergens hulp bij nodig hebt, stel dan een vraag op ons support forum met het design dat je gebruikt.</p>',
     'playground' => 'playground',
-    'support_forum' => 'Support Forum',
+    'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Vervaldatum',
     'quote_due_date' => 'Geldig tot',
     'valid_until' => 'Geldig tot',
@@ -1141,7 +1141,7 @@ $LANG = array(
     'plan_status' => 'Status abonnement',
 
     'plan_upgrade' => 'Upgraden',
-    'plan_change' => 'Abonnement wijzigen',
+    'plan_change' => 'Manage Plan',
     'pending_change_to' => 'Veranderd naar',
     'plan_changes_to' => ':plan op :date',
     'plan_term_changes_to' => ':plan (:term) op :date',
@@ -4324,7 +4324,7 @@ Email: :email<b><br><b>',
     'include_drafts' => 'Voeg concepten toe',
     'include_drafts_help' => 'Neem conceptrecords op in rapporten',
     'is_invoiced' => 'Is gefactureerd',
-    'change_plan' => 'Wijzig plan',
+    'change_plan' => 'Manage Plan',
     'persist_data' => 'Gegevens behouden',
     'customer_count' => 'Klantenteller',
     'verify_customers' => 'Klanten verifiëren',
@@ -5152,8 +5152,7 @@ Email: :email<b><br><b>',
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
-
-);
+); 
 
 return $LANG;
 

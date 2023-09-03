@@ -654,7 +654,7 @@ $LANG = array(
     'customize_help' => '<p>Nous utilisons :pdfmake_link pour définir la présentation graphique des factures de manière déclarative. Pdfmake playground_link fournit une excellente façon de voir la librairie en action.</p>
                         <p>Si vous avez besoin d\'aide à ce sujet, vous pouvez publier une question sur notre :forum_link avec la présentation graphique que vous utilisez.</p>',
     'playground' => 'environnement',
-    'support_forum' => 'Forum de support',
+    'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Échéance',
     'quote_due_date' => 'Valide jusqu\'au',
     'valid_until' => 'Valide jusqu\'au',
@@ -1141,7 +1141,7 @@ $LANG = array(
     'plan_status' => 'État du plan',
 
     'plan_upgrade' => 'Mise à jour',
-    'plan_change' => 'Changer de plan',
+    'plan_change' => 'Manage Plan',
     'pending_change_to' => 'Changer pour',
     'plan_changes_to' => ':plan le :date',
     'plan_term_changes_to' => ':plan (:term) le :date',
@@ -4322,7 +4322,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'include_drafts' => 'Include Drafts',
     'include_drafts_help' => 'Include draft records in reports',
     'is_invoiced' => 'Is Invoiced',
-    'change_plan' => 'Change Plan',
+    'change_plan' => 'Manage Plan',
     'persist_data' => 'Persist Data',
     'customer_count' => 'Customer Count',
     'verify_customers' => 'Verify Customers',
@@ -5150,8 +5150,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
-
-);
+); 
 
 return $LANG;
 

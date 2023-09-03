@@ -657,7 +657,7 @@ Não consegue achar a fatura? Precisa de mais ajuda? Ficaremos feliz em ajudar
     'customize_help' => '<p>Nós usamos :pdfmake_link para definir declaradamente os designs de faturas. O PDFMake :playground_link provê uma ótima maneira de ver a biblioteca em ação.</p>
 <p>Se você precisar de ajuda para entender algo poste uma questão em nosso :forum_link com o design que você está usando.</p>',
     'playground' => 'rascunho',
-    'support_forum' => 'fórum de suporte',
+    'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Data de Vencimento',
     'quote_due_date' => 'Valido Até',
     'valid_until' => 'Válido Até',
@@ -1144,7 +1144,7 @@ Não consegue achar a fatura? Precisa de mais ajuda? Ficaremos feliz em ajudar
     'plan_status' => 'Status do Plano',
 
     'plan_upgrade' => 'Upgrade',
-    'plan_change' => 'Alterar Plano',
+    'plan_change' => 'Manage Plan',
     'pending_change_to' => 'Muda para',
     'plan_changes_to' => ':plan em :date',
     'plan_term_changes_to' => ':plan (:term) em :date',
@@ -4324,7 +4324,7 @@ Quando tiver as quantias, volte a esta página de formas de pagamento e clique "
     'include_drafts' => 'Include Drafts',
     'include_drafts_help' => 'Include draft records in reports',
     'is_invoiced' => 'Is Invoiced',
-    'change_plan' => 'Change Plan',
+    'change_plan' => 'Manage Plan',
     'persist_data' => 'Persist Data',
     'customer_count' => 'Customer Count',
     'verify_customers' => 'Verify Customers',
@@ -5152,8 +5152,7 @@ Quando tiver as quantias, volte a esta página de formas de pagamento e clique "
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
-
-);
+); 
 
 return $LANG;
 

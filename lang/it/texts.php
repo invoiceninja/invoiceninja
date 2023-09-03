@@ -654,7 +654,7 @@ $LANG = array(
     'customize_help' => '<p>Usiamo :pdfmake_link per definire gli stili delle fatture in modo dichiarativo. Il link pdfmake :playground_link fornisce un ottimo modo per vedere la libreria in azione.</p>
 <p>Se hai bisogno di aiuto per capire qualcosa, scrivi una domanda al nostro :forum_link con il design che stai usando.</p>',
     'playground' => 'terreno di gioco',
-    'support_forum' => 'Forum di supporto',
+    'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Scadenza fattura',
     'quote_due_date' => 'Valido fino a',
     'valid_until' => 'Valido fino a',
@@ -1132,7 +1132,7 @@ $LANG = array(
     'plan_status' => 'Stato del piano',
 
     'plan_upgrade' => 'Upgrade',
-    'plan_change' => 'Cambia piano',
+    'plan_change' => 'Manage Plan',
     'pending_change_to' => 'Changes To',
     'plan_changes_to' => ':plan on :date',
     'plan_term_changes_to' => ':plan (:term) on :date',
@@ -4315,7 +4315,7 @@ $LANG = array(
     'include_drafts' => 'Includi bozze',
     'include_drafts_help' => 'Includere bozze di record nei report',
     'is_invoiced' => 'Viene fatturato',
-    'change_plan' => 'Cambia piano',
+    'change_plan' => 'Manage Plan',
     'persist_data' => 'Dati persistenti',
     'customer_count' => 'Conteggio clienti',
     'verify_customers' => 'Verifica i clienti',
@@ -5143,8 +5143,7 @@ $LANG = array(
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
-
-);
+); 
 
 return $LANG;
 

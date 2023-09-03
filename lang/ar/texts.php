@@ -646,7 +646,7 @@ $LANG = array(
     'help' => 'يساعد',
     'customize_help' => '<p style=";text-align:right;direction:rtl">نستخدم :pdfmake_link لتعريف تصميمات الفواتير بشكل إعلاني. يوفر pdfmake :playground_link طريقة رائعة لمشاهدة المكتبة أثناء العمل.</p><p style=";text-align:right;direction:rtl"> إذا كنت بحاجة إلى مساعدة في اكتشاف شيء ما ، فقم بإرسال سؤال إلى :forum_link بالتصميم الذي تستخدمه.</p>',
     'playground' => 'ملعب',
-    'support_forum' => 'منتدى الدعم',
+    'support_forum' => 'Support Forums',
     'invoice_due_date' => 'تاريخ الاستحقاق',
     'quote_due_date' => 'صالح حتى',
     'valid_until' => 'صالح حتى',
@@ -1124,7 +1124,7 @@ $LANG = array(
     'plan_status' => 'حالة الخطة',
 
     'plan_upgrade' => 'يرقي',
-    'plan_change' => 'خطة التغيير',
+    'plan_change' => 'Manage Plan',
     'pending_change_to' => 'تغيير الى',
     'plan_changes_to' => ': خطة على a0b70e20 definitelyeeaz0',
     'plan_term_changes_to' => ': خطة (: term) في a0b70e20 definitelyeeaz0',
@@ -4304,7 +4304,7 @@ $LANG = array(
     'include_drafts' => 'قم بتضمين المسودات',
     'include_drafts_help' => 'تضمين مسودة السجلات في التقارير',
     'is_invoiced' => 'مفوتر',
-    'change_plan' => 'خطة التغيير',
+    'change_plan' => 'Manage Plan',
     'persist_data' => 'استمرارية البيانات',
     'customer_count' => 'عدد العملاء',
     'verify_customers' => 'تحقق من العملاء',
@@ -5132,8 +5132,7 @@ $LANG = array(
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
-
-);
+); 
 
 return $LANG;
 

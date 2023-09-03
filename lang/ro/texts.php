@@ -662,7 +662,7 @@ Nu găsești factura? Ai nevoie de asistență suplimentară? Suntem aici sa aju
 <p>Pentru orice informație, nu ezitați să accesați :forum_link, unde puteți publica întrebări specifice design-ului pe care îl utilizați.
 </p>',
     'playground' => 'mediu de lucru',
-    'support_forum' => 'forum suport',
+    'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Data Scadenta',
     'quote_due_date' => 'Valabil până la',
     'valid_until' => 'Valabil până la',
@@ -1152,7 +1152,7 @@ Nu găsești factura? Ai nevoie de asistență suplimentară? Suntem aici sa aju
     'plan_status' => 'Starea planului',
 
     'plan_upgrade' => 'Upgrade',
-    'plan_change' => 'Modificați planul',
+    'plan_change' => 'Manage Plan',
     'pending_change_to' => 'Se schimbă în',
     'plan_changes_to' => ':plan la :date',
     'plan_term_changes_to' => ':plan (:term) la :date',
@@ -4333,7 +4333,7 @@ Odată ce sumele au ajuns la dumneavoastră, reveniți la pagina cu metode de pl
     'include_drafts' => 'Includeți schițe',
     'include_drafts_help' => 'Includeți înregistrările-schițe în raport',
     'is_invoiced' => 'A fost trimis(ă)',
-    'change_plan' => 'Modificați planul',
+    'change_plan' => 'Manage Plan',
     'persist_data' => 'Stocheaza datele permanent',
     'customer_count' => 'Contor client',
     'verify_customers' => 'Verificați clienți',
@@ -5161,8 +5161,7 @@ Odată ce sumele au ajuns la dumneavoastră, reveniți la pagina cu metode de pl
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
-
-);
+); 
 
 return $LANG;
 

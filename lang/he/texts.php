@@ -652,7 +652,7 @@ $LANG = array(
     'customize_help' => '<p>We use :pdfmake_link to define the invoice designs declaratively. The pdfmake :playground_link provides a great way to see the library in action.</p>
                         <p>If you need help figuring something out post a question to our :forum_link with the design you\'re using.</p>',
     'playground' => 'אזור ניסוי',
-    'support_forum' => 'טופס עזרה',
+    'support_forum' => 'Support Forums',
     'invoice_due_date' => 'תאריך לביצוע',
     'quote_due_date' => 'בתוקף עד',
     'valid_until' => 'בתוקף עד',
@@ -1142,7 +1142,7 @@ $LANG = array(
     'plan_status' => 'Plan Status',
 
     'plan_upgrade' => 'Upgrade',
-    'plan_change' => 'Change Plan',
+    'plan_change' => 'Manage Plan',
     'pending_change_to' => 'Changes To',
     'plan_changes_to' => ':plan on :date',
     'plan_term_changes_to' => ':plan (:term) on :date',
@@ -4322,7 +4322,7 @@ $LANG = array(
     'include_drafts' => 'כלול טיוטות',
     'include_drafts_help' => 'כלול טיוטות רשומות בדוחות',
     'is_invoiced' => 'Is Invoiced',
-    'change_plan' => 'שנה תוכנית',
+    'change_plan' => 'Manage Plan',
     'persist_data' => 'נתונים מתמשכים',
     'customer_count' => 'ספירת לקוחות',
     'verify_customers' => 'אמת לקוחות',
@@ -5150,8 +5150,7 @@ $LANG = array(
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
-
-);
+); 
 
 return $LANG;
 
