@@ -14,6 +14,8 @@
         "@tailwindcss/aspect-ratio": "^0.4.2",
         "cypress": "^12.5.1",
         "laravel-mix-purgecss": "^6.0.0",
+        "laravel-vite-plugin": "^0.8.0",
+        "vite": "^4.4.9",
         "vue-template-compiler": "^2.6.14"
     },
     "dependencies": {
