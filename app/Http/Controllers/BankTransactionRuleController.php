@@ -12,9 +12,7 @@
 namespace App\Http\Controllers;
 
 use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Collection;
 use App\Models\BankTransactionRule;
-use App\Filters\BankTransactionFilters;
 use App\Factory\BankTransactionRuleFactory;
 use App\Filters\BankTransactionRuleFilters;
 use App\Repositories\BankTransactionRuleRepository;
