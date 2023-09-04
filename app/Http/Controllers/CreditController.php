@@ -592,10 +592,7 @@ class CreditController extends BaseController
                 }
                 break;
             case 'download':
-                // $file = $credit->pdf_file_path();
                 $file = $credit->service()->getCreditPdf($credit->invitations->first());
-
-                // return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
 
                 return response()->streamDownload(function () use ($file) {
                     echo Storage::get($file);
