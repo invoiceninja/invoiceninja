@@ -1,19 +1,18 @@
 /**
- * Axios
+ * Invoice Ninja (https://invoiceninja.com).
  *
- * Promise based HTTP client for the browser and node.js
- * https://github.com/axios/axios
- */
-window.axios = require('axios');
-
-/**
- * card-validator
+ * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * Validate credit cards as users type.
- * https://github.com/braintree/card-validator
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
  */
-window.valid = require('card-validator');
 
+import axios from 'axios';
+import cardValidator from 'card-validator';
+
+window.axios = axios;
+window.valid = cardValidator;
 
 /**
  * Remove flashing message div after 3 seconds.
