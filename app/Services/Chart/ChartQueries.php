@@ -25,7 +25,7 @@ trait ChartQueries
     {
         $user_filter = $this->is_admin ? '' : 'AND expenses.user_id = '.$this->user->id;
 
-        return DB::select(DB::raw("
+        return DB::select("
             SELECT sum(expenses.amount) as amount,
             IFNULL(expenses.currency_id, :company_currency) as currency_id
             FROM expenses
@@ -34,7 +34,7 @@ trait ChartQueries
             AND (expenses.date BETWEEN :start_date AND :end_date)
             {$user_filter}
             GROUP BY currency_id
-        ")->getValue(DB::connection()->getQueryGrammar()), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
+        ", ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
     }
 
     public function getExpenseChartQuery($start_date, $end_date, $currency_id)
@@ -42,7 +42,7 @@ trait ChartQueries
 
         $user_filter = $this->is_admin ? '' : 'AND expenses.user_id = '.$this->user->id;
 
-        return DB::select(DB::raw("
+        return DB::select("
             SELECT
             sum(expenses.amount) as total,
             expenses.date,
@@ -54,7 +54,7 @@ trait ChartQueries
             {$user_filter}
             GROUP BY expenses.date
             HAVING currency_id = :currency_id
-        ")->getValue(DB::connection()->getQueryGrammar()), [
+        ", [
             'company_currency' => $this->company->settings->currency_id,
             'currency_id' => $currency_id,
             'company_id' => $this->company->id,
@@ -71,7 +71,7 @@ trait ChartQueries
         
         $user_filter = $this->is_admin ? '' : 'AND payments.user_id = '.$this->user->id;
 
-        return DB::select(DB::raw("
+        return DB::select("
             SELECT sum(payments.amount) as amount,
             IFNULL(payments.currency_id, :company_currency) as currency_id
             FROM payments
@@ -80,7 +80,7 @@ trait ChartQueries
             AND payments.company_id = :company_id
             AND (payments.date BETWEEN :start_date AND :end_date)
             GROUP BY currency_id
-        ")->getValue(DB::connection()->getQueryGrammar()), [
+        ", [
             'company_currency' => $this->company->settings->currency_id,
             'company_id' => $this->company->id,
             'start_date' => $start_date,
@@ -93,7 +93,7 @@ trait ChartQueries
 
         $user_filter = $this->is_admin ? '' : 'AND payments.user_id = '.$this->user->id;
 
-        return DB::select(DB::raw("
+        return DB::select("
             SELECT
             sum(payments.amount - payments.refunded) as total,
             payments.date,
@@ -106,7 +106,7 @@ trait ChartQueries
             AND (payments.date BETWEEN :start_date AND :end_date)
             GROUP BY payments.date
             HAVING currency_id = :currency_id
-        ")->getValue(DB::connection()->getQueryGrammar()), [
+        ", [
             'company_currency' => $this->company->settings->currency_id,
             'currency_id' => $currency_id,
             'company_id' => $this->company->id,
@@ -123,7 +123,7 @@ trait ChartQueries
         
         $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
 
-        return DB::select(DB::raw("
+        return DB::select("
             SELECT
             sum(invoices.balance) as amount,
             COUNT(*) as outstanding_count, 
@@ -139,14 +139,14 @@ trait ChartQueries
             AND invoices.balance > 0
             AND (invoices.date BETWEEN :start_date AND :end_date)
             GROUP BY currency_id
-        ")->getValue(DB::connection()->getQueryGrammar()), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
+        ", ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
     }
 
     public function getRevenueQueryX($start_date, $end_date)
     {
         $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
 
-        return DB::select(DB::raw("
+        return DB::select("
             SELECT
             sum(invoices.paid_to_date) as paid_to_date,
             IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT( clients.settings, '$.currency_id' )) AS SIGNED), :company_currency) AS currency_id
@@ -161,14 +161,14 @@ trait ChartQueries
             AND invoices.status_id IN (3,4)
             AND (invoices.date BETWEEN :start_date AND :end_date)
             GROUP BY currency_id
-        ")->getValue(DB::connection()->getQueryGrammar()), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
+        ", ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
     }
 
     public function getRevenueQuery($start_date, $end_date)
     {
         $user_filter = $this->is_admin ? '' : 'AND payments.user_id = '.$this->user->id;
 
-        return DB::select(DB::raw("
+        return DB::select(("
             SELECT
             sum(payments.amount - payments.refunded) as paid_to_date,
             payments.currency_id AS currency_id
@@ -179,14 +179,14 @@ trait ChartQueries
             AND payments.status_id IN (1,4,5,6)
             AND (payments.date BETWEEN :start_date AND :end_date)
             GROUP BY payments.currency_id
-        ")->getValue(DB::connection()->getQueryGrammar()), ['company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
+        ", ['company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
     }
 
     public function getInvoicesQuery($start_date, $end_date)
     {
         $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
 
-        return DB::select(DB::raw("
+        return DB::select("
             SELECT
             sum(invoices.amount) as invoiced_amount,
             IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT( clients.settings, '$.currency_id' )) AS SIGNED), :company_currency) AS currency_id
@@ -201,14 +201,14 @@ trait ChartQueries
             AND invoices.is_deleted = 0
             AND (invoices.date BETWEEN :start_date AND :end_date)
             GROUP BY currency_id
-        ")->getValue(DB::connection()->getQueryGrammar()), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
+        ", ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
     }
 
     public function getOutstandingChartQuery($start_date, $end_date, $currency_id)
     {
         $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
 
-        return DB::select(DB::raw("
+        return DB::select("
             SELECT
             sum(invoices.balance) as total,
             invoices.date,
@@ -224,7 +224,7 @@ trait ChartQueries
             AND (invoices.date BETWEEN :start_date AND :end_date)
             GROUP BY invoices.date
             HAVING currency_id = :currency_id
-        ")->getValue(DB::connection()->getQueryGrammar()), [
+        ", [
             'company_currency' => (int) $this->company->settings->currency_id,
             'currency_id' => $currency_id,
             'company_id' => $this->company->id,
@@ -238,7 +238,7 @@ trait ChartQueries
     {
         $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
 
-        return DB::select(DB::raw("
+        return DB::select("
             SELECT
             sum(invoices.amount) as total,
             invoices.date,
@@ -254,7 +254,7 @@ trait ChartQueries
             AND (invoices.date BETWEEN :start_date AND :end_date)
             GROUP BY invoices.date
             HAVING currency_id = :currency_id
-        ")->getValue(DB::connection()->getQueryGrammar()), [
+        ", [
             'company_currency' => (int) $this->company->settings->currency_id,
             'currency_id' => $currency_id,
             'company_id' => $this->company->id,

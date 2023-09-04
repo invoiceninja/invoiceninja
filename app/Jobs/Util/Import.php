@@ -302,7 +302,7 @@ class Import implements ShouldQueue
 
             // 10/02/21
             foreach ($client->payments as $payment) {
-                $credit_total_applied += $payment->paymentables()->where('paymentable_type', \App\Models\Credit::class)->get()->sum(\DB::raw('amount')->getValue(DB::connection()->getQueryGrammar()));
+                $credit_total_applied += $payment->paymentables()->where('paymentable_type', \App\Models\Credit::class)->get()->sum('amount');
             }
 
             if ($credit_total_applied < 0) {
