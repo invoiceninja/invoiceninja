@@ -43,7 +43,7 @@ class Ninja
 
     public static function getDebugInfo()
     {
-        $mysql_version = DB::select(DB::raw('select version() as version')->getValue(DB::connection()->getQueryGrammar()))[0]->version;
+        $mysql_version = DB::select('select version() as version')[0]->version;
 
         $version = request()->input('version', 'No Version Supplied.');
 

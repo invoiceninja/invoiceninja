@@ -75,8 +75,6 @@ class TaxSummaryReport extends BaseExport
             $this->input['report_keys'] = $this->report_keys;
         }
 
-        $this->csv->insertOne($this->buildHeader());
-
         $query = Invoice::query()
             ->withTrashed()
             ->whereIn('status_id', [2,3,4])
@@ -109,18 +107,18 @@ class TaxSummaryReport extends BaseExport
                 $accrual_map[$key]['tax_amount'] += $tax['total'];
 
                 //cash
+                $key = $tax['name'];
+
+                if(!isset($cash_map[$key])) {
+                    $cash_map[$key]['tax_amount'] = 0;
+                }
+                
                 if(in_array($invoice->status_id, [Invoice::STATUS_PARTIAL,Invoice::STATUS_PAID])){
 
-                    $key = $tax['name'];
-
-                    if(!isset($cash_map[$key])) {
-                        $cash_map[$key]['tax_amount'] = 0;
-                    }
-
-                    if($invoice->status_id == Invoice::STATUS_PAID)
-                        $cash_map[$key]['tax_amount'] += $tax['total'];
-                    else 
-                        $cash_map[$key]['tax_amount'] += (($invoice->amount - $invoice->balance) / $invoice->balance) * $tax['total'] ?? 0;
+                if($invoice->status_id == Invoice::STATUS_PAID)
+                    $cash_map[$key]['tax_amount'] += $tax['total'];
+                else 
+                    $cash_map[$key]['tax_amount'] += (($invoice->amount - $invoice->balance) / $invoice->balance) * $tax['total'] ?? 0;
 
                 }
             }
@@ -129,6 +127,8 @@ class TaxSummaryReport extends BaseExport
 
         $this->csv->insertOne([]);
         $this->csv->insertOne([ctrans('texts.cash_vs_accrual')]);
+        $this->csv->insertOne($this->buildHeader());
+
 
         foreach($accrual_map as $key => $value)
         {
@@ -137,6 +137,7 @@ class TaxSummaryReport extends BaseExport
 
         $this->csv->insertOne([]);
         $this->csv->insertOne([ctrans('texts.cash_accounting')]);
+        $this->csv->insertOne($this->buildHeader());
 
         foreach($cash_map as $key => $value) {
             $this->csv->insertOne([$key, Number::formatMoney($value['tax_amount'], $this->company)]);

@@ -746,12 +746,7 @@ class BaseImport
         if($user)
             return $user->id;
 
-        $user = User::where('account_id', $this->company->account->id)
-            ->where(
-                \DB::raw('CONCAT_WS(" ", first_name, last_name)')->getValue(\DB::connection()->getQueryGrammar()),
-                'like',
-                '%'.$user_hash.'%'
-            )
+        $user = User::whereRaw("account_id = ? AND CONCAT_WS(' ', first_name, last_name) like ?", [$this->company->account_id, '%'.$user_hash.'%'])
             ->first();
 
         if ($user) {

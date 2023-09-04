@@ -88,17 +88,17 @@ class MarkInvoiceDeleted extends AbstractService
             $payment_adjustment = $payment->paymentables
                                             ->where('paymentable_type', '=', 'invoices')
                                             ->where('paymentable_id', $this->invoice->id)
-                                            ->sum(DB::raw('amount')->getValue(DB::connection()->getQueryGrammar()));
+                                            ->sum('amount');
 
             $payment_adjustment -= $payment->paymentables
                                             ->where('paymentable_type', '=', 'invoices')
                                             ->where('paymentable_id', $this->invoice->id)
-                                            ->sum(DB::raw('refunded')->getValue(DB::connection()->getQueryGrammar()));
+                                            ->sum('refunded');
 
             //14-07-2023 - Do not include credits in the payment adjustment.
             $payment_adjustment -= $payment->paymentables
                                             ->where('paymentable_type', '=', 'App\Models\Credit')
-                                            ->sum(DB::raw('amount')->getValue(DB::connection()->getQueryGrammar()));
+                                            ->sum('amount');
 
             $payment->amount -= $payment_adjustment;
             $payment->applied -= $payment_adjustment;
@@ -121,12 +121,12 @@ class MarkInvoiceDeleted extends AbstractService
             $this->adjustment_amount += $payment->paymentables
                                                 ->where('paymentable_type', '=', 'invoices')
                                                 ->where('paymentable_id', $this->invoice->id)
-                                                ->sum(DB::raw('amount')->getValue(DB::connection()->getQueryGrammar()));
+                                                ->sum('amount');
 
             $this->adjustment_amount -= $payment->paymentables
                                                 ->where('paymentable_type', '=', 'invoices')
                                                 ->where('paymentable_id', $this->invoice->id)
-                                                ->sum(DB::raw('refunded')->getValue(DB::connection()->getQueryGrammar()));
+                                                ->sum('refunded');
         }
 
         $this->total_payments = $this->invoice->payments->sum('amount') - $this->invoice->payments->sum('refunded');

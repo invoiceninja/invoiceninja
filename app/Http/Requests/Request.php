@@ -20,7 +20,7 @@ class Request extends FormRequest
     use MakesHash;
     use RuntimeFormRequest;
 
-    protected $file_validation = 'sometimes|file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx,webp,xml,zip|max:100000';
+    protected $file_validation = 'sometimes|file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx,webp,xml,zip,csv|max:100000';
     /**
      * Get the validation rules that apply to the request.
      *

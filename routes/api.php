@@ -111,6 +111,7 @@ use App\Http\Controllers\Reports\ClientContactReportController;
 use App\Http\Controllers\Reports\PurchaseOrderReportController;
 use App\Http\Controllers\Reports\RecurringInvoiceReportController;
 use App\Http\Controllers\Reports\PurchaseOrderItemReportController;
+use App\Http\Controllers\SearchController;
 
 Route::group(['middleware' => ['throttle:api', 'api_secret_check']], function () {
     Route::post('api/v1/signup', [AccountController::class, 'store'])->name('signup.submit');
@@ -317,7 +318,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('reports/tax_summary_report', TaxSummaryReportController::class);
     Route::post('reports/user_sales_report', UserSalesReportController::class);
     Route::post('reports/preview/{hash}', ReportPreviewController::class);
-
+    Route::post('search', SearchController::class);
 
     Route::resource('task_schedulers', TaskSchedulerController::class);
     Route::post('task_schedulers/bulk', [TaskSchedulerController::class, 'bulk'])->name('task_schedulers.bulk');

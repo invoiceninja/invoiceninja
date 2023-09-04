@@ -248,19 +248,6 @@ class CheckCompanyData implements ShouldQueue
             $this->is_valid = false;
         }
 
-        // if ($this->option('fix') == 'true') {
-        //     foreach ($clients as $client) {
-        //         $contact = new ClientContact();
-        //         $contact->company_id = $client->company_id;
-        //         $contact->user_id = $client->user_id;
-        //         $contact->client_id = $client->id;
-        //         $contact->is_primary = true;
-        //         $contact->send_invoice = true;
-        //         $contact->contact_key = str_random(config('ninja.key_length'));
-        //         $contact->save();
-        //     }
-        // }
-
         // check for more than one primary contact
         $clients = DB::table('clients')
                     ->where('clients.company_id', $this->company->id)
@@ -272,11 +259,7 @@ class CheckCompanyData implements ShouldQueue
                     ->groupBy('clients.id')
                     ->havingRaw('count(client_contacts.id) != 1');
 
-        // if ($this->option('client_id')) {
-        //     $clients->where('clients.id', '=', $this->option('client_id'));
-        // }
-
-        $clients = $clients->get(['clients.id', DB::raw('count(client_contacts.id)')->getValue(DB::connection()->getQueryGrammar())]);
+        $clients = $clients->get(['clients.id', DB::raw('count(client_contacts.id)')]);
         $this->company_data[] = $clients->count().' clients without a single primary contact';
 
         if ($clients->count() > 0) {
@@ -315,7 +298,7 @@ class CheckCompanyData implements ShouldQueue
                 }
                 $records = DB::table($table)
                                 ->join($tableName, "{$tableName}.id", '=', "{$table}.{$field}_id")
-                                ->where("{$table}.{$company_id}", '!=', DB::raw("{$tableName}.company_id")->getValue(DB::connection()->getQueryGrammar()))
+                                ->where("{$table}.{$company_id}", '!=', "{$tableName}.company_id")
                                 ->get(["{$table}.id"]);
 
                 if ($records->count()) {

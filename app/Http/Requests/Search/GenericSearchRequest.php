@@ -9,16 +9,12 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Http\Requests\Client;
+namespace App\Http\Requests\Search;
 
 use App\Http\Requests\Request;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Validation\Rule;
 
-class BulkClientRequest extends Request
+class GenericSearchRequest extends Request
 {
-    use MakesHash;
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -31,22 +27,16 @@ class BulkClientRequest extends Request
 
     public function rules()
     {
-        /** @var \App\Models\User $user */
-        $user = auth()->user();
-
-        return [
-            'ids' => ['required','bail','array',Rule::exists('clients', 'id')->where('company_id', $user->company()->id)],
-            'action' => 'in:archive,restore,delete'
+        $rules = [
+            'search' => 'bail|sometimes|string'
         ];
+
+        return $rules;
     }
 
     public function prepareForValidation()
     {
         $input = $this->all();
-
-        if (isset($input['ids'])) {
-            $input['ids'] = $this->transformKeys($input['ids']);
-        }
 
         $this->replace($input);
     }

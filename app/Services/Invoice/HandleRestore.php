@@ -96,17 +96,17 @@ class HandleRestore extends AbstractService
             $this->adjustment_amount += $payment->paymentables
                                                 ->where('paymentable_type', '=', 'invoices')
                                                 ->where('paymentable_id', $this->invoice->id)
-                                                ->sum(DB::raw('amount')->getValue(DB::connection()->getQueryGrammar()));
 
+                                                ->sum('amount');
             $this->adjustment_amount += $payment->paymentables
                                                 ->where('paymentable_type', '=', 'invoices')
                                                 ->where('paymentable_id', $this->invoice->id)
-                                                ->sum(DB::raw('refunded')->getValue(DB::connection()->getQueryGrammar()));
+                                                ->sum('amount');
 
             //14/07/2023 - do not include credits in the payment amount
             $this->adjustment_amount -= $payment->paymentables
                                             ->where('paymentable_type', '=', 'App\Models\Credit')
-                                            ->sum(DB::raw('amount')->getValue(DB::connection()->getQueryGrammar()));
+                                            ->sum('amount');
 
         }
 
@@ -129,16 +129,16 @@ class HandleRestore extends AbstractService
             $payment_adjustment = $payment->paymentables
                                             ->where('paymentable_type', '=', 'invoices')
                                             ->where('paymentable_id', $this->invoice->id)
-                                            ->sum(DB::raw('amount')->getValue(DB::connection()->getQueryGrammar()));
+                                            ->sum('amount');
 
             $payment_adjustment -= $payment->paymentables
                                             ->where('paymentable_type', '=', 'invoices')
                                             ->where('paymentable_id', $this->invoice->id)
-                                            ->sum(DB::raw('refunded')->getValue(DB::connection()->getQueryGrammar()));
+                                            ->sum('refunded');
 
             $payment_adjustment -= $payment->paymentables
                         ->where('paymentable_type', '=', 'App\Models\Credit')
-                        ->sum(DB::raw('amount')->getValue(DB::connection()->getQueryGrammar()));
+                        ->sum('amount');
  
             $payment->amount += $payment_adjustment;
             $payment->applied += $payment_adjustment;
