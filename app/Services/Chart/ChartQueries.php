@@ -168,7 +168,7 @@ trait ChartQueries
     {
         $user_filter = $this->is_admin ? '' : 'AND payments.user_id = '.$this->user->id;
 
-        return DB::select(("
+        return DB::select("
             SELECT
             sum(payments.amount - payments.refunded) as paid_to_date,
             payments.currency_id AS currency_id

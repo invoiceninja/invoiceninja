@@ -139,7 +139,7 @@ trait ChartQueriesLegacy
             AND invoices.is_deleted = 0
             AND (invoices.date BETWEEN :start_date AND :end_date)
             GROUP BY currency_id
-        "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
+        ", ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
     }
 
     public function getInvoiceChartQuery($start_date, $end_date, $currency_id)
