@@ -1,12 +1,9 @@
 {
     "private": true,
     "scripts": {
-        "dev": "npm run development",
-        "development": "mix",
-        "watch": "mix watch",
-        "watch-poll": "mix watch -- --watch-options-poll=1000",
-        "hot": "mix watch --hot",
-        "production": "mix --production"
+        "dev": "vite",
+        "build": "vite build",
+        "production": "vite build"
     },
     "devDependencies": {
         "@babel/compat-data": "7.15.0",
