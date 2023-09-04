@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7c3f126aafc640beb01f58c7047f6e23",
+    "content-hash": "fe4e98a48b87b1d62a7c93b6f56c57cc",
     "packages": [
         {
             "name": "adrienrn/php-mimetyper",
@@ -2586,16 +2586,16 @@
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.313.0",
+            "version": "v0.314.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-api-php-client-services.git",
-                "reference": "e41289c4488563af75bd291972f0fa00949e084a"
+                "reference": "fe2f7513dc5a4a6cf82715fd0edf7589423d6535"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/e41289c4488563af75bd291972f0fa00949e084a",
-                "reference": "e41289c4488563af75bd291972f0fa00949e084a",
+                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/fe2f7513dc5a4a6cf82715fd0edf7589423d6535",
+                "reference": "fe2f7513dc5a4a6cf82715fd0edf7589423d6535",
                 "shasum": ""
             },
             "require": {
@@ -2624,9 +2624,9 @@
             ],
             "support": {
                 "issues": "https://github.com/googleapis/google-api-php-client-services/issues",
-                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.313.0"
+                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.314.0"
             },
-            "time": "2023-08-25T01:10:13+00:00"
+            "time": "2023-09-03T01:04:12+00:00"
         },
         {
             "name": "google/auth",
@@ -6800,30 +6800,30 @@
         },
         {
             "name": "nwidart/laravel-modules",
-            "version": "v8.3.0",
+            "version": "v10.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nWidart/laravel-modules.git",
-                "reference": "ee06dc0ac019cc392bd66a1c3e6cec0412fcc52d"
+                "reference": "35e514f13cb8ae8dce093e9794785fea27319d81"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nWidart/laravel-modules/zipball/ee06dc0ac019cc392bd66a1c3e6cec0412fcc52d",
-                "reference": "ee06dc0ac019cc392bd66a1c3e6cec0412fcc52d",
+                "url": "https://api.github.com/repos/nWidart/laravel-modules/zipball/35e514f13cb8ae8dce093e9794785fea27319d81",
+                "reference": "35e514f13cb8ae8dce093e9794785fea27319d81",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "php": ">=7.3"
+                "php": ">=8.1"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.16",
-                "laravel/framework": "^8.0",
-                "mockery/mockery": "~1.0",
-                "orchestra/testbench": "^6.2",
-                "phpstan/phpstan": "^0.12.14",
-                "phpunit/phpunit": "^8.5",
-                "spatie/phpunit-snapshot-assertions": "^2.1.0|^4.2"
+                "friendsofphp/php-cs-fixer": "^3.6",
+                "laravel/framework": "^10.0",
+                "mockery/mockery": "^1.5",
+                "orchestra/testbench": "^8.0",
+                "phpstan/phpstan": "^1.4",
+                "phpunit/phpunit": "^10.0",
+                "spatie/phpunit-snapshot-assertions": "^5.0"
             },
             "type": "library",
             "extra": {
@@ -6836,7 +6836,7 @@
                     }
                 },
                 "branch-alias": {
-                    "dev-master": "8.0-dev"
+                    "dev-master": "10.0-dev"
                 }
             },
             "autoload": {
@@ -6869,7 +6869,7 @@
             ],
             "support": {
                 "issues": "https://github.com/nWidart/laravel-modules/issues",
-                "source": "https://github.com/nWidart/laravel-modules/tree/v8.3.0"
+                "source": "https://github.com/nWidart/laravel-modules/tree/v10.0.0"
             },
             "funding": [
                 {
@@ -6877,7 +6877,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-02-10T20:30:19+00:00"
+            "time": "2023-02-16T11:08:15+00:00"
         },
         {
             "name": "nyholm/psr7",
@@ -15068,16 +15068,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.25.0",
+            "version": "v3.25.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "9025b7d2b6e1d90a63d0ac0905018ce5d03ec88d"
+                "reference": "8e21d69801de6b5ecb0dbe0bcdf967b335b1260b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/9025b7d2b6e1d90a63d0ac0905018ce5d03ec88d",
-                "reference": "9025b7d2b6e1d90a63d0ac0905018ce5d03ec88d",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/8e21d69801de6b5ecb0dbe0bcdf967b335b1260b",
+                "reference": "8e21d69801de6b5ecb0dbe0bcdf967b335b1260b",
                 "shasum": ""
             },
             "require": {
@@ -15151,7 +15151,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.25.0"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.25.1"
             },
             "funding": [
                 {
@@ -15159,7 +15159,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-08-31T21:27:18+00:00"
+            "time": "2023-09-04T01:22:52+00:00"
         },
         {
             "name": "hamcrest/hamcrest-php",
