@@ -34,7 +34,6 @@ class EmailHistoryController extends BaseController
                  ->map(function ($system_log) {
                      if($system_log->log['history'] ?? false) {
                         return $system_log->log['history'];
-                        //  return json_decode($system_log->log['history'], true);
                      }
                  });
 
@@ -60,7 +59,6 @@ class EmailHistoryController extends BaseController
                 ->map(function ($system_log) {
                     if($system_log->log['history'] ?? false) {
                         return $system_log->log['history'];
-                        // return json_decode($system_log->log['history'], true);
                     }
                 });
 

@@ -5160,6 +5160,7 @@ $LANG = array(
     'marked_sent_credits' => 'Successfully marked credits sent',
     'show_document_preview' => 'Show Document Preview',
     'cash_accounting' => 'Cash accounting',
+    'click_or_drop_files_here' => 'Click or drop files here',
 ); 
 
 return $LANG;
