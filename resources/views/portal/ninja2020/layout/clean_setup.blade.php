@@ -85,7 +85,7 @@
 
         <!-- Styles -->
         @if(strpos(Request::url(),'setup') === false)
-            @vite('sass/app.scss')
+            @vite('resources/sass/app.scss')
         @else
             <link href="{{ str_replace("setup", "", Request::url())}}css/app.css" rel="stylesheet">
         @endif

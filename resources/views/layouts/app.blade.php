@@ -28,7 +28,7 @@
         </style>
 
     <!-- Styles -->
-    @vite('sass/app.scss')
+    @vite('resources/sass/app.scss')
 </head>
 <body>
     <div id="app">

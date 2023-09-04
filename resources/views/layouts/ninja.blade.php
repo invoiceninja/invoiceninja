@@ -67,7 +67,7 @@
         </style>
 
         <!-- Styles -->
-        @vite('sass/app.scss')
+        @vite('resources/sass/app.scss')
         <link rel="canonical" href="{{ config('ninja.site_url') }}/{{ request()->path() }}"/>
 
 

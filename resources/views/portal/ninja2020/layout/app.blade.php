@@ -80,7 +80,7 @@
             }
         </style>
         <!-- Styles -->
-        @vite('sass/app.scss')
+        @vite('resources/sass/app.scss')
 
         @if(auth()->guard('contact')->user() && !auth()->guard('contact')->user()->user->account->isPaid())
             <link href="{{ asset('favicon.png') }}" rel="shortcut icon" type="image/png">
