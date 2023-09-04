@@ -29,6 +29,7 @@ class SearchController extends Controller
             'clients' => $this->clientMap($user),
             'client_contacts' => $this->clientContactMap($user),
             'invoices' => $this->invoiceMap($user),
+            'settings' => $this->settingsMap(),
         ], 200);
 
     }
@@ -88,4 +89,99 @@ class SearchController extends Controller
                         ];
                      });
     }
+
+    private function settingsMap() {
+
+        $paths = [
+            'user_details' => 'settings/user_details',
+            'password' => 'settings/user_details/password',
+            'connect' => 'settings/user_details/connect',
+            'accent_color' => 'settings/user_details/accent_color',
+            'notifications' => 'settings/user_details/notifications',
+            'enable_two_factor' => 'settings/user_details/enable_two_factor',
+            'custom_fields' => 'settings/user_details/custom_fields',
+            'preferences' => 'settings/user_details/preferences',
+            'company_details' => 'settings/company_details',
+            'company_details,details' => 'settings/company_details/details',
+            'company_details,address' => 'settings/company_details/address',
+            'company_details,logo' => 'settings/company_details/logo',
+            'company_details,defaults' => 'settings/company_details/defaults',
+            'company_details,documents' => 'settings/company_details/documents',
+            'company_details,custom_fields' => 'settings/company_details/custom_fields',
+            'localization' => 'settings/localization',
+            'localization,custom_labels' => 'settings/localization/custom_labels',
+            'online_payments' => 'settings/online_payments',
+            'tax_settings' => 'settings/tax_settings',
+            'product_settings' => 'settings/product_settings',
+            'task_settings' => 'settings/task_settings',
+            'expense_settings' => 'settings/expense_settings',
+            'workflow_settings' => 'settings/workflow_settings',
+            'import_export' => 'settings/import_export',
+            'account_management' => 'settings/account_management',
+            'account_management,overview' => 'settings/account_management/overview',
+            'account_management,enabled_modules' => 'settings/account_management/enabled_modules',
+            'account_management,integrations' => 'settings/account_management/integrations',
+            'account_management,security_settings' => 'settings/account_management/security_settings',
+            'account_management,danger_zone' => 'settings/account_management/danger_zone',
+            'backup_restore' => 'settings/backup_restore',
+            'backup_restore,restore' => 'settings/backup_restore/restore',
+            'backup_restore,backup' => 'settings/backup_restore/backup',
+            'custom_fields' => 'settings/custom_fields',
+            'custom_fields,company' => 'settings/custom_fields/company',
+            'custom_fields,clients' => 'settings/custom_fields/clients',
+            'custom_fields,products' => 'settings/custom_fields/products',
+            'custom_fields,invoices' => 'settings/custom_fields/invoices',
+            'custom_fields,payments' => 'settings/custom_fields/payments',
+            'custom_fields,projects' => 'settings/custom_fields/projects',
+            'custom_fields,tasks' => 'settings/custom_fields/tasks',
+            'custom_fields,vendors' => 'settings/custom_fields/vendors',
+            'custom_fields,expenses' => 'settings/custom_fields/expenses',
+            'custom_fields,users' => 'settings/custom_fields/users',
+            'custom_fields,quotes' => 'settings/custom_fields/quotes',
+            'custom_fields,credits' => 'settings/custom_fields/credits',
+            'generated_numbers' => 'settings/generated_numbers',
+            'client_portal' => 'settings/client_portal',
+            'email_settings' => 'settings/email_settings',
+            'templates_and_reminders' => 'settings/templates_and_reminders',
+            'bank_accounts' => 'settings/bank_accounts',
+            'group_settings' => 'settings/group_settings',
+            'subscriptions' => 'settings/subscriptions',
+            'schedules' => 'settings/schedules',
+            'users' => 'settings/users',
+            'system_logs' => 'settings/system_logs',
+            'payment_terms' => 'settings/payment_terms',
+            'tax_rates' => 'settings/tax_rates',
+            'task_statuses' => 'settings/task_statuses',
+            'expense_categories' => 'settings/expense_categories',
+            'integrations' => 'settings/integrations',
+            'integrations,api_tokens' => 'settings/integrations/api_tokens',
+            'integrations,api_webhooks' => 'settings/integrations/api_webhooks',
+            'integrations,analytics' => 'settings/integrations/analytics',
+            'gateways' => 'settings/gateways',
+            'gateways,create' => 'settings/gateways/create',
+            'bank_accounts,transaction_rules' => 'settings/bank_accounts/transaction_rules',
+            'bank_accounts,transaction_rules/create' => 'settings/bank_accounts/transaction_rules/create',
+        ];
+
+        $data = [];
+
+        foreach($paths as $key => $value) {
+
+            $translation = '';
+
+            foreach(explode(",", $key) as $transkey) {
+                $translation .= ctrans("texts.{$transkey}")." ";
+            }
+
+            $translation = rtrim($translation, " ");
+
+            $data[$translation] = $value;
+
+        }
+
+        ksort($data);
+
+        return $data;
+    }
+
 }
