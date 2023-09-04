@@ -959,11 +959,17 @@ class SubscriptionService
             'date' => now()->format('Y-m-d'),
         ];
 
-        return $invoice_repo->save($data, $invoice)
+        $invoice_repo->save($data, $invoice)
                             ->service()
                             ->markSent()
                             ->fillDefaults()
                             ->save();
+
+        if($invoice->fresh()->balance == 0){
+            $invoice->service()->markPaid()->save();
+        }
+
+        return $invoice;
     }
 
 
