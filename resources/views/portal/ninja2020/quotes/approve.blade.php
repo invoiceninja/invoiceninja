@@ -92,5 +92,5 @@
 @endsection
 
 @push('footer')
-    <script src="{{ asset('js/clients/quotes/approve.js') }}"></script>
+    @vite('resources/js/clients/quotes/approve.js')
 @endpush

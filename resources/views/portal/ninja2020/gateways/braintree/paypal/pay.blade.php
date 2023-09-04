@@ -65,5 +65,5 @@
 @endsection
 
 @section('gateway_footer')
-    <script src="{{ asset('js/clients/payments/braintree-paypal.js') }}"></script>
+    @vite('resources/js/clients/payments/braintree-paypal.js')
 @endsection

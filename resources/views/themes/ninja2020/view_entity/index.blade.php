@@ -54,5 +54,5 @@
 @endsection
 
 @section('footer')
-    <script src="{{ asset('js/clients/shared/pdf.js') }}"></script>
+    @vite('resources/js/clients/shared/pdf.js')
 @endsection

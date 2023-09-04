@@ -93,6 +93,6 @@
 
 @if($mobile)
     @push('footer')
-        <script src="{{ asset('js/clients/shared/pdf.js') }}" defer></script>
+        @vite('resources/js/clients/shared/pdf.js')
     @endpush
 @endif

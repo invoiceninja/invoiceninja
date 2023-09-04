@@ -97,5 +97,5 @@
     </script>
 
     <script src="https://js.stripe.com/v3/"></script>
-    <script src="{{ asset('js/clients/payments/stripe-credit-card.js') }}"></script>
+    @vite('resources/js/clients/payments/stripe-credit-card.js')
 @endsection

@@ -48,7 +48,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <!-- Scripts -->
-        <script src="{{ mix('js/app.js') }}" defer></script>
+        @vite('resources/js/app.js')
         <script src="{{ asset('vendor/alpinejs@2.8.2/alpine.js') }}" defer></script>
 
         <!-- Fonts -->
@@ -67,7 +67,7 @@
         </style>
 
         <!-- Styles -->
-        <link href="{{ mix('css/app.css') }}" rel="stylesheet" defer>
+        @vite('sass/app.scss')
         <link rel="canonical" href="{{ config('ninja.site_url') }}/{{ request()->path() }}"/>
 
 

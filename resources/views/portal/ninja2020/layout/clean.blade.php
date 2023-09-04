@@ -73,7 +73,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <!-- Scripts -->
-        <script src="{{ mix('js/app.js') }}" defer></script>
+        @vite('resources/js/app.js')
         <script src="{{ asset('vendor/alpinejs@2.8.2/alpine.js') }}" defer></script>
 
         <!-- Fonts -->
@@ -90,7 +90,7 @@
         </style>
 
         <!-- Styles -->
-        <link href="{{ mix('css/app.css') }}" rel="stylesheet">
+        @vite('sass/app.scss')
         @if(auth()->guard('contact')->user() && !auth()->guard('contact')->user()->user->account->isPaid())
         {{-- <link href="{{ mix('favicon.png') }}" rel="shortcut icon" type="image/png"> --}}
         @endif

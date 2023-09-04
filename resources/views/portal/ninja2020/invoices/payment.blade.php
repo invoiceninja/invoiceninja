@@ -156,5 +156,5 @@
 @endsection
 
 @push('footer')
-    <script src="{{ asset('js/clients/invoices/payment.js') }}"></script>
+    @vite('resources/js/clients/invoices/payment.js')
 @endpush

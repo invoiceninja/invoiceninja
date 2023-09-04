@@ -105,7 +105,7 @@
 @endsection
 
 @push('head')
-    <script src="{{ asset('js/clients/invoices/payment.js') }}" defer></script>
+    @vite('resources/js/clients/invoices/payment.js')
     <script src="{{ asset('vendor/clipboard.min.js') }}" defer></script>
 
     <script type="text/javascript">
