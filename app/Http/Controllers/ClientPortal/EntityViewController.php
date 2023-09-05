@@ -17,6 +17,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
+/**
+ * EntityViewController
+ * @deprecated 5.7 ?
+ */
 class EntityViewController extends Controller
 {
     use MakesHash;
