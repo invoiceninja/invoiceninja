@@ -60,7 +60,80 @@ class PaymentTest extends TestCase
         );
     }
 
-    public function testPatymentGetClientStatus()
+    public function testPaymentGetBetweenQuery1()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/payments?date_range=date,2023-01-01,2023-02-01');
+
+        $response->assertStatus(200);
+    }
+
+    public function testPaymentGetBetweenQuery2()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/payments?date_range=');
+
+        $response->assertStatus(200);
+    }
+
+    public function testPaymentGetBetweenQuery3()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/payments?date_range=1,1,1,1,1');
+
+        $response->assertStatus(200);
+    }
+
+    public function testPaymentGetBetweenQuery4()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/payments?date_range=date,34343,34343434343');
+
+        $response->assertStatus(200);
+    }
+
+    public function testPaymentGetBetweenQuery5()
+    {
+        Payment::factory()->count(10)->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'date' => '2023-01-02',
+        ]);
+        
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/payments?date_range=date,2023-01-01,2023-01-03');
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertCount(10, $arr['data']);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/payments?date_range=date,2053-10-01,2053-10-03');
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertCount(0, $arr['data']);
+
+    }
+
+    public function testPaymentGetClientStatus()
     {
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),

@@ -12,8 +12,9 @@
 namespace App\Filters;
 
 use App\Models\Payment;
-use Illuminate\Contracts\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Contracts\Database\Eloquent\Builder as EloquentBuilder;
 
 /**
  * PaymentFilters.
@@ -175,6 +176,33 @@ class PaymentFilters extends QueryFilters
 
 
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+    }
+
+    public function date_range(string $date_range = ''): Builder
+    {
+        $parts = explode(",", $date_range);
+
+        if (count($parts) != 3) {
+            return $this->builder;
+        }
+
+        if(!in_array($parts[0], ['date'])) {
+            return $this->builder;
+        }
+
+        try{
+
+            $start_date = Carbon::parse($parts[1]);
+            $end_date = Carbon::parse($parts[2]);
+
+            return $this->builder->whereBetween($parts[0], [$start_date, $end_date]);
+        }
+        
+        catch(\Exception $e){
+            return $this->builder;
+        }
+
+        return $this->builder;
     }
 
     /**
