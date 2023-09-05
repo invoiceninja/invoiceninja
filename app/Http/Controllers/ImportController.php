@@ -123,6 +123,7 @@ class ImportController extends Controller
 
             $hit = false;
             $unsetKey = false;
+            // array_multisort(array_column($translated_keys, 'label'), SORT_ASC, $translated_keys);
             
             foreach($translated_keys as $tkey => $tvalue)
             {
@@ -131,10 +132,10 @@ class ImportController extends Controller
                     $hit = $available_keys[$tvalue['key']];
                     $unsetKey = $tkey;
                 }
-                elseif($this->testMatch($value, $tvalue['index'])) {
-                    $hit = $available_keys[$tvalue['key']];
-                    $unsetKey = $tkey;
-                }
+                // elseif($this->testMatch($value, $tvalue['index'])) {
+                //     $hit = $available_keys[$tvalue['key']];
+                //     $unsetKey = $tkey;
+                // }
              
             }
 
@@ -148,13 +149,13 @@ class ImportController extends Controller
            
         }
 
+        nlog($translated_keys);
+
         return $hints;
     }
 
     private function testMatch($haystack, $needle): bool
-    {   nlog("needle = {$needle}");
-        nlog("haystack = {$haystack}");
-
+    {  
         return stripos($haystack, $needle) !== false;
     }
 
