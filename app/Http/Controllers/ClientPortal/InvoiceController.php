@@ -89,7 +89,7 @@ class InvoiceController extends Controller
         $data = Cache::get($hash);
         $invitation = false;
         
-        match($data['entity_type']){
+        match($data['entity_type'] ?? false){
             'invoice' => $invitation = InvoiceInvitation::withTrashed()->find($data['invitation_id']),
             'quote' => $invitation = QuoteInvitation::withTrashed()->find($data['invitation_id']),
             'credit' => $invitation = CreditInvitation::withTrashed()->find($data['invitation_id']),
