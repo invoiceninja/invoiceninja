@@ -116,7 +116,7 @@ class QuoteService
             $this->invoice
                  ->service()
                  ->markSent()
-                 ->deletePdf()
+                //  ->deletePdf()
                  ->save();
         }
 

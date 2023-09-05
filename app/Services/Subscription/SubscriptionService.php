@@ -188,7 +188,7 @@ class SubscriptionService
         //update the invoice and attach to the recurring invoice!!!!!
         $invoice->recurring_id = $recurring_invoice->id;
         $invoice->is_proforma = false;
-        $invoice->service()->deletePdf();
+        // $invoice->service()->deletePdf();
         $invoice->save();
 
         $contact = $invoice->client->contacts()->whereNotNull('email')->first();
@@ -959,11 +959,17 @@ class SubscriptionService
             'date' => now()->format('Y-m-d'),
         ];
 
-        return $invoice_repo->save($data, $invoice)
+        $invoice_repo->save($data, $invoice)
                             ->service()
                             ->markSent()
                             ->fillDefaults()
                             ->save();
+
+        if($invoice->fresh()->balance == 0){
+            $invoice->service()->markPaid()->save();
+        }
+
+        return $invoice;
     }
 
 

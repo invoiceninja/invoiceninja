@@ -395,8 +395,8 @@ class QuoteController extends BaseController
         $quote = $this->quote_repo->save($request->all(), $quote);
 
         $quote->service()
-              ->triggeredActions($request)
-              ->deletePdf();
+              ->triggeredActions($request);
+            //   ->deletePdf();
 
         event(new QuoteWasUpdated($quote, $quote->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
@@ -524,16 +524,15 @@ class QuoteController extends BaseController
             return response(['message' => 'Please verify your account to send emails.'], 400);
         }
 
-        $quotes = Quote::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
+        $quotes = Quote::query()->with('invitations')->withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
         if (! $quotes) {
             return response()->json(['message' => ctrans('texts.quote_not_found')]);
         }
 
         /*
-         * Download Invoice/s
+         * Download Quote/s
          */
-
         if ($action == 'bulk_download' && $quotes->count() >= 1) {
             $quotes->each(function ($quote) use($user){
                 if ($user->cannot('view', $quote)) {
@@ -541,7 +540,7 @@ class QuoteController extends BaseController
                 }
             });
 
-            ZipQuotes::dispatch($quotes, $quotes->first()->company, auth()->user());
+            ZipQuotes::dispatch($quotes->pluck('id')->toArray(), $quotes->first()->company, auth()->user());
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
@@ -561,7 +560,7 @@ class QuoteController extends BaseController
 
         if ($action == 'bulk_print' && $user->can('view', $quotes->first())) {
             $paths = $quotes->map(function ($quote) {
-                return $quote->service()->getQuotePdf();
+                return (new \App\Jobs\Entity\CreateRawPdf($quote->invitations->first(), $quote->company->db))->handle();
             });
 
             $merge = (new PdfMerge($paths->toArray()))->run();
@@ -720,7 +719,6 @@ class QuoteController extends BaseController
                 break;
             case 'download':
 
-                //$file = $quote->pdf_file_path();
                 $file = $quote->service()->getQuotePdf();
 
                 return response()->streamDownload(function () use ($file) {

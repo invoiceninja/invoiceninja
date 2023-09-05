@@ -42,7 +42,7 @@ class MarkSent
              ->setStatus(Credit::STATUS_SENT)
              ->applyNumber()
              ->adjustBalance($this->credit->amount)
-             ->deletePdf()
+            //  ->deletePdf()
              ->save();
 
         $this->client
