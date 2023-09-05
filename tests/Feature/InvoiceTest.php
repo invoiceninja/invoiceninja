@@ -48,6 +48,70 @@ class InvoiceTest extends TestCase
         $this->makeTestData();
     }
 
+    public function testInvoiceGetDatesBetween()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/invoices?date_range=date,2023-01-01,2023-01-01', )
+        ->assertStatus(200);
+    }
+
+    public function testInvoiceGetDatesBetween2()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/invoices?date_range=date', )
+        ->assertStatus(200);
+    }
+
+    public function testInvoiceGetDatesBetween3()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/invoices?date_range=x', )
+        ->assertStatus(200);
+    }
+
+    public function testInvoiceGetDatesBetween4()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/invoices?date_range=date,2023223123,312312321', )
+        ->assertStatus(200);
+    }
+
+    public function testInvoiceGetDatesBetween5()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/invoices?date_range=date,x,23423', )
+        ->assertStatus(200);
+    }
+
+    public function testInvoiceGetDatesBetween6()
+    {
+        Invoice::factory()->count(10)->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'date' => '1971-01-02',
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/invoices?date_range=date,1971-01-01,1971-01-03', )
+        ->assertStatus(200);
+        
+        $arr = $response->json();
+
+        $this->assertCount(10, $arr['data']);
+    }
 
     public function testInvoiceGetPaidReversedInvoice()
     {
@@ -65,7 +129,6 @@ class InvoiceTest extends TestCase
 
         $this->assertCount(1, $arr['data']);
     }
-
 
     public function testInvoiceGetPaidInvoices()
     {
