@@ -527,7 +527,7 @@ class InvoiceController extends BaseController
 
         if ($action == 'bulk_print' && $user->can('view', $invoices->first())) {
             $paths = $invoices->map(function ($invoice) {
-                return $invoice->service()->getInvoicePdf();
+                return (new \App\Jobs\Entity\CreateRawPdf($invoice->invitations->first(), $invoice->company->db))->handle();
             });
 
             $merge = (new PdfMerge($paths->toArray()))->run();

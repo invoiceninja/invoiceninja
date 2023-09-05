@@ -542,7 +542,7 @@ class CreditController extends BaseController
 
         if ($action == 'bulk_print' && $user->can('view', $credits->first())) {
             $paths = $credits->map(function ($credit) {
-                return $credit->service()->getCreditPdf($credit->invitations->first());
+                return (new \App\Jobs\Entity\CreateRawPdf($credit->invitations->first(), $credit->company->db))->handle();
             });
 
             $merge = (new PdfMerge($paths->toArray()))->run();

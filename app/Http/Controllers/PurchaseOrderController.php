@@ -475,11 +475,14 @@ class PurchaseOrderController extends BaseController
      */
     public function bulk(BulkPurchaseOrderRequest $request)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $action = $request->input('action');
 
         $ids = $request->input('ids');
 
-        if (Ninja::isHosted() && (stripos($action, 'email') !== false) && !auth()->user()->company()->account->account_sms_verified) {
+        if (Ninja::isHosted() && (stripos($action, 'email') !== false) && !$user->company()->account->account_sms_verified) {
             return response(['message' => 'Please verify your account to send emails.'], 400);
         }
 
@@ -493,8 +496,8 @@ class PurchaseOrderController extends BaseController
          * Download Purchase Order/s
          */
         if ($action == 'bulk_download' && $purchase_orders->count() >= 1) {
-            $purchase_orders->each(function ($purchase_order) {
-                if (auth()->user()->cannot('view', $purchase_order)) {
+            $purchase_orders->each(function ($purchase_order) use ($user){
+                if ($user->cannot('view', $purchase_order)) {
                     return response()->json(['message' => ctrans('text.access_denied')]);
                 }
             });
@@ -504,9 +507,9 @@ class PurchaseOrderController extends BaseController
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
 
-        if ($action == 'bulk_print' && auth()->user()->can('view', $purchase_orders->first())) {
+        if ($action == 'bulk_print' && $user->can('view', $purchase_orders->first())) {
             $paths = $purchase_orders->map(function ($purchase_order) {
-                return $purchase_order->service()->getPurchaseOrderPdf();
+                return (new \App\Jobs\Vendor\CreatePurchaseOrderPdf($purchase_order->invitations->first()))->rawPdf();
             });
 
             $merge = (new PdfMerge($paths->toArray()))->run();
@@ -519,8 +522,8 @@ class PurchaseOrderController extends BaseController
         /*
          * Send the other actions to the switch
          */
-        $purchase_orders->each(function ($purchase_order, $key) use ($action) {
-            if (auth()->user()->can('edit', $purchase_order)) {
+        $purchase_orders->each(function ($purchase_order, $key) use ($action, $user) {
+            if ($user->can('edit', $purchase_order)) {
                 $this->performAction($purchase_order, $action, true);
             }
         });
