@@ -385,8 +385,8 @@ class CreditController extends BaseController
         $credit = $this->credit_repository->save($request->all(), $credit);
 
         $credit->service()
-               ->triggeredActions($request)
-               ->deletePdf();
+               ->triggeredActions($request);
+            //    ->deletePdf();
 
         /** @var \App\Models\User $user**/
         $user = auth()->user();
