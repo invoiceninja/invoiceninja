@@ -91,14 +91,71 @@ class ImportController extends Controller
             $csv_array = $this->getCsvData($contents);
 
             $class_map = $this->getEntityMap($entityType);
+            
+            $hints = $this->setImportHints($entityType, $class_map::importable(), $csv_array[0]);
 
             $data['mappings'][$entityType] = [
                 'available' => $class_map::importable(),
                 'headers'   => array_slice($csv_array, 0, 2),
+                'hints' => $hints,
             ];
         }
 
         return response()->json($data);
+    }
+
+    private function setImportHints($entity_type, $available_keys, $headers): array
+    {
+        $hints = [];
+
+        $translated_keys = collect($available_keys)->map(function ($value,$key){
+            
+            $parts = explode(".", $value);
+            $index = $parts[0];
+            $label = $parts[1] ?? $parts[0];
+
+            return ['key' => $key, 'index' => ctrans("texts.{$index}"), 'label' => ctrans("texts.{$label}")];
+
+        })->toArray();
+
+
+        foreach($headers as $key => $value) {
+
+            $hit = false;
+            $unsetKey = false;
+            
+            foreach($translated_keys as $tkey => $tvalue)
+            {
+                
+                if($this->testMatch($value, $tvalue['label'])) {
+                    $hit = $available_keys[$tvalue['key']];
+                    $unsetKey = $tkey;
+                }
+                elseif($this->testMatch($value, $tvalue['index'])) {
+                    $hit = $available_keys[$tvalue['key']];
+                    $unsetKey = $tkey;
+                }
+             
+            }
+
+            if($hit) {
+                $hints[$key] = $hit;
+                unset($translated_keys[$unsetKey]);
+            } else {
+                $hints[$key] = null;
+            }
+
+           
+        }
+
+        return $hints;
+    }
+
+    private function testMatch($haystack, $needle): bool
+    {   nlog("needle = {$needle}");
+        nlog("haystack = {$haystack}");
+
+        return stripos($haystack, $needle) !== false;
     }
 
     private function convertEncoding($data)
