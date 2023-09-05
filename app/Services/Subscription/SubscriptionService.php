@@ -188,7 +188,7 @@ class SubscriptionService
         //update the invoice and attach to the recurring invoice!!!!!
         $invoice->recurring_id = $recurring_invoice->id;
         $invoice->is_proforma = false;
-        $invoice->service()->deletePdf();
+        // $invoice->service()->deletePdf();
         $invoice->save();
 
         $contact = $invoice->client->contacts()->whereNotNull('email')->first();

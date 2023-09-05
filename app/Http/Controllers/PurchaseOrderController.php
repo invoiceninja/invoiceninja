@@ -139,7 +139,10 @@ class PurchaseOrderController extends BaseController
      */
     public function create(CreatePurchaseOrderRequest $request)
     {
-        $purchase_order = PurchaseOrderFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $purchase_order = PurchaseOrderFactory::create($user->company()->id, $user->id);
 
         return $this->itemResponse($purchase_order);
     }
@@ -183,7 +186,10 @@ class PurchaseOrderController extends BaseController
      */
     public function store(StorePurchaseOrderRequest $request)
     {
-        $purchase_order = $this->purchase_order_repository->save($request->all(), PurchaseOrderFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $purchase_order = $this->purchase_order_repository->save($request->all(), PurchaseOrderFactory::create($user->company()->id, $user->id));
 
         $purchase_order = $purchase_order->service()
             ->fillDefaults()
@@ -361,7 +367,7 @@ class PurchaseOrderController extends BaseController
 
         $purchase_order = $purchase_order->service()
             ->triggeredActions($request)
-            ->touchPdf()
+            // ->touchPdf()
             ->save();
 
         event(new PurchaseOrderWasUpdated($purchase_order, $purchase_order->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
