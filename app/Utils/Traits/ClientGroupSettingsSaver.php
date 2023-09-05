@@ -46,6 +46,14 @@ trait ClientGroupSettingsSaver
             unset($settings[$field]);
         }
 
+
+        foreach(['translations','pdf_variables'] as $field) {
+            if (isset($settings[$field])) {
+                unset($settings[$field]);
+            }
+        }
+
+
         /*
          * for clients and group settings, if a field is not set or is set to a blank value,
          * we unset it from the settings object
@@ -84,6 +92,12 @@ trait ClientGroupSettingsSaver
 
         if (property_exists($settings, 'translations')) {
             unset($settings->translations);
+        }
+
+        foreach(['translations','pdf_variables'] as $key){
+            if (property_exists($settings, $key)) {
+                unset($settings->{$key});
+            }
         }
 
         //18-07-2022 removed || empty($settings->{$key}) from this check to allow "0" values to persist
