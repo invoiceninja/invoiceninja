@@ -862,7 +862,7 @@ class CheckData extends Command
                 }
                 $records = DB::table($table)
                                 ->join($tableName, "{$tableName}.id", '=', "{$table}.{$field}_id")
-                                ->where("{$table}.{$company_id}", '!=', "{$tableName}.company_id")
+                                ->whereRaw("{$table}.{$company_id} != {$tableName}.company_id")
                                 ->get(["{$table}.id"]);
 
                 if ($records->count()) {
