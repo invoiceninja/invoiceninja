@@ -46,14 +46,6 @@ trait ClientGroupSettingsSaver
             unset($settings[$field]);
         }
 
-
-        foreach(['translations','pdf_variables'] as $field) {
-            if (isset($settings[$field])) {
-                unset($settings[$field]);
-            }
-        }
-
-
         /*
          * for clients and group settings, if a field is not set or is set to a blank value,
          * we unset it from the settings object
