@@ -502,7 +502,7 @@ class PurchaseOrderController extends BaseController
                 }
             });
 
-            ZipPurchaseOrders::dispatch($purchase_orders, $purchase_orders->first()->company, auth()->user());
+            ZipPurchaseOrders::dispatch($purchase_orders->pluck("id")->toArray(), $purchase_orders->first()->company, auth()->user());
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
