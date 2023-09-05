@@ -529,13 +529,11 @@ class CreditController extends BaseController
         if ($action == 'bulk_download' && $credits->count() > 1) {
             $credits->each(function ($credit) use($user){
                 if ($user->cannot('view', $credit)) {
-                    nlog('access denied');
-
                     return response()->json(['message' => ctrans('text.access_denied')]);
                 }
             });
 
-            ZipCredits::dispatch($credits, $credits->first()->company, $user);
+            ZipCredits::dispatch($credits->pluck('id')->toArray(), $credits->first()->company, $user);
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
