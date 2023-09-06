@@ -173,6 +173,9 @@ class ImportController extends Controller
 
     public function import(ImportRequest $request)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $data = $request->all();
 
         if (empty($data['hash'])) {
@@ -188,7 +191,7 @@ class ImportController extends Controller
         }
 
         unset($data['files']);
-        CSVIngest::dispatch($data, auth()->user()->company());
+        CSVIngest::dispatch($data, $user->company());
 
         return response()->json(['message' => ctrans('texts.import_started')], 200);
     }
