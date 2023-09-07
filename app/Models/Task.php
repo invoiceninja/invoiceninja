@@ -226,4 +226,15 @@ class Task extends BaseModel
     {
         return ctrans('texts.task');
     }
+
+    public function getRate(): float
+    {
+        if($this->project && $this->project->task_rate > 0)
+            return $this->project->task_rate;
+
+        if($this->client)
+            return $this->client->getSetting('default_task_rate');
+
+        return $this->company->settings->default_task_rate ?? 0;
+    }
 }
