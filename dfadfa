@@ -1,0 +1,575 @@
+[33mcommit e7e641a64420158c6ecfadda18de89e0cc7dae3f[m[33m ([m[1;36mHEAD -> [m[1;32mv6-develop-style[m[33m, [m[1;31morigin/v5-stable[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mv6-develop-alert[m[33m, [m[1;32mv5-stable[m[33m)[m
+Author: Jiawen_0101 <Jwjiawen1314@gmail.com>
+Date:   Thu Sep 7 09:18:29 2023 +0800
+
+    initial commit
+
+[33mcommit 28377fa73007aa32f702c0e014a44f9d64430c99[m[33m ([m[1;31mupstream/v5-stable[m[33m, [m[1;31mupstream/HEAD[m[33m, [m[1;31morigin/v6-develop-style[m[33m)[m
+Merge: 915a2737a efe6e5d45
+Author: David Bomba <turbo124@gmail.com>
+Date:   Tue Aug 22 17:21:10 2023 +1000
+
+    Merge pull request #8743 from turbo124/v5-stable
+    
+    v5.7.3
+
+[33mcommit efe6e5d45e90ef49b7975f6b38c031c5baf97763[m
+Merge: 39471152f 20b739146
+Author: David Bomba <turbo124@gmail.com>
+Date:   Tue Aug 22 17:20:13 2023 +1000
+
+    Merge pull request #8742 from turbo124/v5-develop
+    
+    v5.7.3
+
+[33mcommit 20b73914602ad64045295a4426ff0304626be455[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Tue Aug 22 17:19:50 2023 +1000
+
+    v5.7.3
+
+[33mcommit bcddd423c77533fe4ba23ea3381b878ef4fcdb09[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Tue Aug 22 09:41:24 2023 +1000
+
+    Adjustments for without_deleted_clients query
+
+[33mcommit 915a2737a541836a1a4c4ebd411d5dc33f0dc75b[m
+Merge: 7d748c788 39471152f
+Author: David Bomba <turbo124@gmail.com>
+Date:   Mon Aug 21 21:17:42 2023 +1000
+
+    Merge pull request #8736 from turbo124/v5-stable
+    
+    update version
+
+[33mcommit 39471152fb8ef26868f28de7624582d8db62262f[m
+Merge: 8e5772e3c ca90b4972
+Author: David Bomba <turbo124@gmail.com>
+Date:   Mon Aug 21 21:15:54 2023 +1000
+
+    Merge pull request #8735 from turbo124/v5-develop
+    
+    v5.7.0
+
+[33mcommit ca90b497225bf3ac211601ce95e88b6db753eb16[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Mon Aug 21 21:14:06 2023 +1000
+
+    version bump
+
+[33mcommit 81aa6932376286c386f8fe3859750f41bd062e83[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Mon Aug 21 09:13:23 2023 +1000
+
+    Rollback 8.3
+
+[33mcommit 8ae792e5cc985f30f5c6dc5c6f86ee007d2bc539[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Mon Aug 21 09:06:52 2023 +1000
+
+    Adjustments for client documents with private documents disabled
+
+[33mcommit 4a8f622fea7abe8209fdf77d1c468cb59c49514d[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Mon Aug 21 08:47:30 2023 +1000
+
+    Add PHP 8.3 to test suite
+
+[33mcommit c48cc0dadb6bf1a84ef224ee61d4bc22ddced430[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Mon Aug 21 08:32:35 2023 +1000
+
+    Update redirect URL
+
+[33mcommit 7b9c4a15893cd16934615411613b7a920d785366[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Mon Aug 21 08:30:04 2023 +1000
+
+    Fixes for tests
+
+[33mcommit e799ad48045183e85cf01fd8e479833230ac8ca6[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Mon Aug 21 08:26:08 2023 +1000
+
+    Set update for bank account status
+
+[33mcommit a7290dd251eddb6de9f95235233d9c1fc8f24384[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Mon Aug 21 08:20:51 2023 +1000
+
+    Fixes for utc offset for task start dates
+
+[33mcommit 8e5772e3c16a859a39cc699a011f4a50f3a9dc70[m
+Merge: df6e706a0 9b6def477
+Author: David Bomba <turbo124@gmail.com>
+Date:   Mon Aug 21 07:46:43 2023 +1000
+
+    Merge pull request #8732 from turbo124/v5-develop
+    
+    Fixes for report previews
+
+[33mcommit 9b6def477810ab1080c5bbb13bd8b8c2b8987370[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Mon Aug 21 07:46:14 2023 +1000
+
+    Tests for previews
+
+[33mcommit df6e706a0eab6ac561c6e07baa9315fa223d7e0a[m
+Merge: 790f5545b b3bb7fe43
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sun Aug 20 22:14:55 2023 +1000
+
+    Merge pull request #8731 from turbo124/v5-develop
+    
+    Fixes for collection to array conversion.
+
+[33mcommit b3bb7fe431dbe89b2679a0f6c3d2e8d248aba253[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sun Aug 20 22:14:31 2023 +1000
+
+    Convert collection to array
+
+[33mcommit 03b3170b8c6c95217230b27e8a67ba48c2254c01[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sun Aug 20 21:55:37 2023 +1000
+
+    cleanup
+
+[33mcommit a3433a7efc03677724cf7c6f0a7715e29b642659[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sun Aug 20 21:52:51 2023 +1000
+
+    Add square webhook tests
+
+[33mcommit 1cdd3ac8bc545e900610d1507df77f9f8d767e3f[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sun Aug 20 21:43:31 2023 +1000
+
+    Add square webhook tests
+
+[33mcommit 5334a9ab87e6717ba6e5b4b5cf6b6dd24691ecc6[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sun Aug 20 21:33:23 2023 +1000
+
+    Add square webhook tests
+
+[33mcommit cb539d5caa1736e5129802acde5aadb6db9a383d[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sun Aug 20 21:29:39 2023 +1000
+
+    Add square webhook tests
+
+[33mcommit 790f5545b8e292e05ac99a297925cbe8ef607cc3[m
+Merge: e819b9ba6 cb5bf6aff
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sun Aug 20 20:54:03 2023 +1000
+
+    Merge pull request #8730 from turbo124/v5-develop
+    
+    Fixes for report previews
+
+[33mcommit cb5bf6aff735e08ef0e4a068baaf4020e7a753ab[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sun Aug 20 20:53:31 2023 +1000
+
+    Fixes for all var export
+
+[33mcommit d9e482f5b733b000717667a96abc9309ad6f55d0[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sun Aug 20 20:33:41 2023 +1000
+
+    Minor fixes
+
+[33mcommit 6689a22f389a31c244f93dea51bd79afb696ad7c[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sun Aug 20 19:59:59 2023 +1000
+
+    Add square webhook tests
+
+[33mcommit fdd9501af69b52d14a5dc3bd2ceb9d6a94a7d39f[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sun Aug 20 19:20:12 2023 +1000
+
+    Add square webhook tests
+
+[33mcommit dfb19f9d4ac0c72ae4b64051af2547b190b7a48a[m
+Merge: 67336af5c 787400ff3
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sun Aug 20 19:17:41 2023 +1000
+
+    Merge branch 'upgrade_square_implementation' into v5-develop
+
+[33mcommit 787400ff3974b1195aa004f8f2ebfc6701353532[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sun Aug 20 19:17:21 2023 +1000
+
+    Fixes for squar
+
+[33mcommit 67336af5c61745f83eedffc6e1f39b0e34dd140b[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sun Aug 20 18:44:10 2023 +1000
+
+    Fixes for document public/private setting
+
+[33mcommit eb33ee7d786393678fe04d0edca6fedf0044a141[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sun Aug 20 18:18:55 2023 +1000
+
+    Fixes for document public/private setting
+
+[33mcommit 0457090226f6bcb1ac5bd4b0ed4dd2d9ace27b04[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sun Aug 20 14:44:07 2023 +1000
+
+    Static Analysis Cleanup
+
+[33mcommit dc63ead58ceefc2149828240a01a4bf578feb782[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sun Aug 20 14:36:22 2023 +1000
+
+    Add validation for is_public across entities
+
+[33mcommit 07d71b43fe3196cdcaed086bf11ffec1ad2fe1a3[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sun Aug 20 14:05:26 2023 +1000
+
+    Tests for document.is_public validation
+
+[33mcommit da05b44ac391f4b4684641a4e51aab4eaff46739[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sun Aug 20 13:00:33 2023 +1000
+
+    Updated translations
+
+[33mcommit 85b5398718943b3dbd0c622de7fd5f65d1d6f36b[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sat Aug 19 16:44:17 2023 +1000
+
+    Fixes for mailers
+
+[33mcommit 87d14dd052ec3bb238fe1ce0424f316e0b0af53f[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sat Aug 19 16:32:24 2023 +1000
+
+    Upgrades for Square
+
+[33mcommit d4aeca5ad1d998260761d0054be00f0f32341169[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sat Aug 19 15:55:00 2023 +1000
+
+    Tests for setting config fields
+
+[33mcommit 5fb51656a6ac2c9f8b284292d91033380cc81858[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sat Aug 19 15:52:37 2023 +1000
+
+    Handling square webhook events
+
+[33mcommit b35b8210ac0763563c6fdf426b284f7e519aeb3f[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sat Aug 19 12:31:35 2023 +1000
+
+    Handling square events
+
+[33mcommit cb9c3a0a770b91327200afbdcc960934de482135[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sat Aug 19 12:23:37 2023 +1000
+
+    Upgrades for Square
+
+[33mcommit 5bb40840d979233376af607b9dffb702db9dd81d[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sat Aug 19 11:13:52 2023 +1000
+
+    Working on square upgrades
+
+[33mcommit 984496d222bcfc07f8771e9ea16936ee3e90b363[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sat Aug 19 10:39:24 2023 +1000
+
+    Updates for Square payments
+
+[33mcommit cfde7414d75546319e1cff83c7b7cbfc69ead2d7[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sat Aug 19 10:14:46 2023 +1000
+
+    Square upgrades
+
+[33mcommit c0acc7a15efbaae073fd2c2bd22c64190c7306b1[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Sat Aug 19 10:03:56 2023 +1000
+
+    Add successful payments for square to system logs
+
+[33mcommit 2b6c92a711dbbc09563511dd584ab06603937861[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Fri Aug 18 23:56:07 2023 +1000
+
+    Clean up tests
+
+[33mcommit e819b9ba626bebbde02e5d65c0357817041182ed[m
+Merge: 5e955567b 10ad6e042
+Author: David Bomba <turbo124@gmail.com>
+Date:   Fri Aug 18 23:43:54 2023 +1000
+
+    Merge pull request #8728 from turbo124/v5-develop
+    
+    Report Previews for Credits
+
+[33mcommit 10ad6e04232e53f16a8a80c548bba0b099cf7eab[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Fri Aug 18 23:36:54 2023 +1000
+
+    Report previews
+
+[33mcommit 2752a2e65194b73465c964ddac339d354fc05d92[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Fri Aug 18 21:36:50 2023 +1000
+
+    Report previews
+
+[33mcommit 2900db2e9061f193835cc261e7b6bc6ef04231a8[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Fri Aug 18 19:33:40 2023 +1000
+
+    updated translations for react
+
+[33mcommit 9ff6a1225e0b0b4a5c5fae3705927bab69ecdef7[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Fri Aug 18 19:17:30 2023 +1000
+
+    Update translations
+
+[33mcommit 4586d9ddf51c98dd63baf9cf23728ef01918d7af[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Thu Aug 17 10:57:25 2023 +1000
+
+    Fixes for invitation resolution
+
+[33mcommit 820ca43020282502af0a353c1d816b263dbdbbff[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Thu Aug 17 10:57:06 2023 +1000
+
+    Fixes for invitation resolution
+
+[33mcommit 7d748c78815309e08f49efe6bc1a3e1edb0d8723[m[33m ([m[1;33mtag: v5.6.31[m[33m)[m
+Merge: a66e6681d 5e955567b
+Author: David Bomba <turbo124@gmail.com>
+Date:   Thu Aug 17 09:26:14 2023 +1000
+
+    Merge pull request #8723 from turbo124/v5-stable
+    
+    v5.6.31
+
+[33mcommit 5e955567b16c495c346dd87d4f631ac80b609a1a[m
+Merge: 035300bfc eee79c90a
+Author: David Bomba <turbo124@gmail.com>
+Date:   Thu Aug 17 09:25:18 2023 +1000
+
+    Merge pull request #8722 from turbo124/v5-develop
+    
+    Refactor for e-invoicing
+
+[33mcommit eee79c90a20bb6dddbd82d2aaec0d7cb00c21432[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Thu Aug 17 09:24:36 2023 +1000
+
+    Minor fixes for emails
+
+[33mcommit f10c880ffb1da0ad44d4a85b72a8ee7cda6890d0[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Thu Aug 17 09:07:49 2023 +1000
+
+    format documents
+
+[33mcommit 44956ce6b83344433de07788155c95474c3cdf18[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Thu Aug 17 09:06:30 2023 +1000
+
+    merge downloads into single action for e invoices
+
+[33mcommit 035b683eb74958baa35eaa51103a378a22446369[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Thu Aug 17 08:58:10 2023 +1000
+
+    Fixes for types
+
+[33mcommit 156aa5cc55748fb6c70eea12a9e28322594385a5[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Thu Aug 17 08:18:15 2023 +1000
+
+    Updates for composer
+
+[33mcommit 18f3b6522f97519134e2f42a0d94e33d91343f94[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Wed Aug 16 22:05:35 2023 +1000
+
+    Fixes for adding back xml e invoices when zipping in bulk
+
+[33mcommit 00ff163d4fe427dbcbceebc35b7f139a5ae90b66[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Wed Aug 16 20:59:42 2023 +1000
+
+    Fixes for tests
+
+[33mcommit 822aed5a6117e2836ef1526c352eb9aed6c93e81[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Wed Aug 16 20:52:01 2023 +1000
+
+    Fixes for einvoicing
+
+[33mcommit 8f5a63eb946006972a11c0687eeb0b2452c11835[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Wed Aug 16 19:57:03 2023 +1000
+
+    Cleanup
+
+[33mcommit 2ba713eeb84a7b3c70afb13ce8cde9e79a691527[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Wed Aug 16 19:55:35 2023 +1000
+
+    Refactor for einvoicing
+
+[33mcommit 33dd437d96063ed205892633951eac83a9dd974c[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Wed Aug 16 15:38:08 2023 +1000
+
+    Minor fixes for return types for e-invoices
+
+[33mcommit 035300bfcfebd1f1dfea13a32c59296925b4f2d2[m
+Merge: 591d715b0 4a1ad9170
+Author: David Bomba <turbo124@gmail.com>
+Date:   Wed Aug 16 15:03:04 2023 +1000
+
+    Merge pull request #8719 from turbo124/v5-develop
+    
+    v5.6.31
+
+[33mcommit 4a1ad9170db0b627677648a96be55d7e49cd1251[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Wed Aug 16 15:02:27 2023 +1000
+
+    v5.6.31
+
+[33mcommit 2497e4296d1a066944060ee25f601f56ebde2d39[m
+Merge: 2a1667605 ed32d4441
+Author: David Bomba <turbo124@gmail.com>
+Date:   Wed Aug 16 15:01:04 2023 +1000
+
+    Merge branch 'v5-develop' of https://github.com/turbo124/invoiceninja into v5-develop
+
+[33mcommit ed32d4441538e1d025a232033f74049b214508b6[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Wed Aug 16 14:52:43 2023 +1000
+
+    Updated lock
+
+[33mcommit 3366db305a71dc1f1161977c081af199c7364c11[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Wed Aug 16 09:45:08 2023 +1000
+
+    Disable quantity in previews for mobile
+
+[33mcommit 71b1428994001fc0bd0bfb464ad298064e105353[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Wed Aug 16 09:37:11 2023 +1000
+
+    Minor fixes
+
+[33mcommit f3b1e9387372684031e5fc909c467aa742e5a7e5[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Wed Aug 16 00:23:18 2023 +1000
+
+    Set public/private for documents
+
+[33mcommit eec0920d1d076e5b192b1692b29842510e1b3fd9[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Tue Aug 15 22:50:47 2023 +1000
+
+    Allow xml files to be uploads
+
+[33mcommit d2fbf34bebcb14fd26f2dbe328f091642e0fabfc[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Tue Aug 15 22:47:54 2023 +1000
+
+    Fixes for static analysis
+
+[33mcommit 16c907958315559c3a3c79ef540230a5f91426e5[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Tue Aug 15 22:14:00 2023 +1000
+
+    Add listener for Stripe Connect where users have not yet linked Stripe
+
+[33mcommit c91e093a414861eed3a96d29fd0eb21310e914d8[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Tue Aug 15 09:49:09 2023 +1000
+
+    Fixes for static analysis
+
+[33mcommit 17e4e901bddcfa72cf81132857042089be38a6a7[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Tue Aug 15 08:31:34 2023 +1000
+
+    Improve return types for vendor settings
+
+[33mcommit 8630acb41268c4783df2b5664a4b8a0045850f3f[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Mon Aug 14 21:26:51 2023 +1000
+
+    Block rev tracking
+
+[33mcommit 2a1667605d8b67afd7aaa31710cdcd504ad6ddcb[m
+Merge: 7fada967f 591d715b0
+Author: Lars Kusch <lars@lars-kusch.de>
+Date:   Mon Aug 14 12:10:39 2023 +0200
+
+    Merge branch 'v5-develop' into v5-develop
+
+[33mcommit 7fada967f364042e93c1723edccfa053b2d24e03[m
+Author: Lars Kusch <lars@lars-kusch.de>
+Date:   Mon Aug 14 12:10:21 2023 +0200
+
+    Bugfixes
+
+[33mcommit 19fcab3b357760d7b60bd434667d193e3e92e927[m
+Author: Lars Kusch <lars@lars-kusch.de>
+Date:   Mon Aug 14 12:08:25 2023 +0200
+
+    Bugfixes
+
+[33mcommit 1d7d55447ac6ba08d9d342d5598904c2c13daba2[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Mon Aug 14 20:01:28 2023 +1000
+
+    Add specific delays for some activities
+
+[33mcommit c5316f2ad20c83d00cb17f13ecc69631dfad21c2[m
+Author: Lars Kusch <lars@lars-kusch.de>
+Date:   Mon Aug 14 10:23:17 2023 +0200
+
+    Adopt classes for html attributes
+
+[33mcommit a4a23606abcaaa342f206e8c0df13374214542ac[m
+Author: Lars Kusch <lars@lars-kusch.de>
+Date:   Mon Aug 14 10:22:54 2023 +0200
+
+    Workaround for wrong conversion
+
+[33mcommit 6609f89d94333f3088c43e3758d024abf8315aab[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Mon Aug 14 07:54:51 2023 +1000
+
+    Fixes for list search
+
+[33mcommit fda2b1d4f0566e77f6d7827fb7c95ee3e27db2e9[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Mon Aug 14 07:38:17 2023 +1000
+
+    fixes for imports
+
+[33mcommit 68c817bdcd2a089ce2c55e7335a929e180eed26d[m
+Author: David Bomba <turbo124@gmail.com>
+Date:   Mon Aug 14 07:30:38 2023 +1000
+
+    Fixes for types
