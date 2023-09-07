@@ -161,9 +161,6 @@ class ImportController extends Controller
             
         }
 
-
-//        nlog($translated_keys);
-
         return $hints;
     }
 
