@@ -75,7 +75,7 @@ class QuoteTest extends TestCase
                 [
                     'type_id' => 2,
                     'unit_cost' => 200,
-                    'quantity' => 1,
+                    'quantity' => 2,
                     'notes' => 'Test200',
                 ],
                 [
@@ -99,7 +99,7 @@ class QuoteTest extends TestCase
 
         $p = $q->service()->convertToProject();
 
-        $this->assertEquals(2, $p->budgeted_hours);
+        $this->assertEquals(3, $p->budgeted_hours);
         $this->assertEquals(2, $p->tasks()->count());
 
         $t = $p->tasks()->where('description', 'Test200')->first();
