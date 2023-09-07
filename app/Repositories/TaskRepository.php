@@ -40,7 +40,7 @@ class TaskRepository extends BaseRepository
         if ($task->id) {
             $this->new_task = false;
         }
-nlog($data);
+
         $task->fill($data);
         $task->saveQuietly();
 
@@ -49,7 +49,6 @@ nlog($data);
         }
 
         if($this->new_task && (!$task->rate || $task->rate <= 0)) {
-            nlog($task->getRate());
             $task->rate = $task->getRate();
         }
 
@@ -58,7 +57,7 @@ nlog($data);
         if (isset($data['description'])) {
             $task->description = trim($data['description']);
         }
-nlog($task->toArray());
+
         //todo i can't set it - i need to calculate it.
         if (isset($data['status_order'])) {
             $task->status_order = $data['status_order'];
