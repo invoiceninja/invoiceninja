@@ -143,7 +143,6 @@ class ImportController extends Controller
         foreach($headers as $key => $value)
         {
             if(isset($hints[$key])) {
-                nlog($hints[$key]);
                 continue;
             }
 

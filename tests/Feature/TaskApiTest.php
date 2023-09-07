@@ -102,6 +102,28 @@ class TaskApiTest extends TestCase
         }
     }
     
+    public function testStatusSets()
+    {
+        
+        $data = [
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'description' => 'Test Task',
+            'time_log' => '[[1681165417,1681165432,"sumtin",true],[1681165446,0]]',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/tasks");
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+
+        $this->assertNotEmpty($arr['data']['status_id']);
+    }
+
     public function testStartDate()
     {
         $x = [];
