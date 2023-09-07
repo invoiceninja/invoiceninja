@@ -103,7 +103,7 @@
     @foreach($errors->all() as $error)
         <script>
             iziToast.error({
-                title: '',
+                title: '{{ $error }}',
                 position: 'topRight',
                 message: '{{ $error }}',
             });
