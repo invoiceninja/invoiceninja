@@ -120,36 +120,49 @@ class ImportController extends Controller
 
 
         foreach($headers as $key => $value) {
-
-            $hit = false;
-            $unsetKey = false;
-            // array_multisort(array_column($translated_keys, 'label'), SORT_ASC, $translated_keys);
             
             foreach($translated_keys as $tkey => $tvalue)
             {
                 
                 if($this->testMatch($value, $tvalue['label'])) {
-                    $hit = $available_keys[$tvalue['key']];
-                    $unsetKey = $tkey;
+                    $hit = $tvalue['key'];
+                    $hints[$key] = $hit;
+                    unset($translated_keys[$tkey]);
+                    break;
                 }
-                // elseif($this->testMatch($value, $tvalue['index'])) {
-                //     $hit = $available_keys[$tvalue['key']];
-                //     $unsetKey = $tkey;
-                // }
+                else {
+                    $hints[$key] = null;
+                }
              
-            }
-
-            if($hit) {
-                $hints[$key] = $hit;
-                unset($translated_keys[$unsetKey]);
-            } else {
-                $hints[$key] = null;
             }
 
            
         }
 
-        nlog($translated_keys);
+        //second pass using the index of the translation here
+        foreach($headers as $key => $value)
+        {
+            if(isset($hints[$key])) {
+                nlog($hints[$key]);
+                continue;
+            }
+
+            foreach($translated_keys as $tkey => $tvalue) 
+            {
+                if($this->testMatch($value, $tvalue['index'])) {
+                    $hit = $tvalue['key'];
+                    $hints[$key] = $hit;
+                    unset($translated_keys[$tkey]);
+                    break;
+                } else {
+                    $hints[$key] = null;
+                }
+            }
+            
+        }
+
+
+//        nlog($translated_keys);
 
         return $hints;
     }

@@ -115,7 +115,7 @@ class CompanyUserController extends BaseController
         $auth_user = auth()->user();
         $company = $auth_user->company();
 
-        $company_user = CompanyUser::whereUserId($user->id)->whereCompanyId($company->id)->first();
+        $company_user = CompanyUser::query()->where('user_id', $user->id)->where('company_id',$company->id)->first();
 
         if (! $company_user) {
             throw new ModelNotFoundException(ctrans('texts.company_user_not_found'));
@@ -128,6 +128,11 @@ class CompanyUserController extends BaseController
         } else {
             $company_user->settings = $request->input('company_user')['settings'];
             $company_user->notifications = $request->input('company_user')['notifications'];
+
+            if(isset($request->input('company_user')['react_settings'])) {
+                $company_user->react_settings = $request->input('company_user')['react_settings'];
+            }
+
         }
 
         $company_user->save();
