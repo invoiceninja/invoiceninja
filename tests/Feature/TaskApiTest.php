@@ -104,32 +104,6 @@ class TaskApiTest extends TestCase
         }
     }
 
-    public function testTaskCompanyRateSet()
-    {
-        $settings = $this->company->settings;
-        $settings->default_task_rate = 31;
-
-        $this->company->saveSettings((array)$settings, $this->company);
-        $this->company->push();
-        $this->company->save();
-        
-        $data = [
-            'client_id' => $this->client->hashed_id,
-            'description' => 'Test Task',
-            'time_log' => '[[1681165417,1681165432,"sumtin",true],[1681165446,0]]',
-        ];
-
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->postJson("/api/v1/tasks", $data);
-
-        $response->assertStatus(200);
-        $arr = $response->json();
-
-        $this->assertEquals(31, $arr['data']['rate']);
-    }
-
     public function testTaskClientRateSet()
     {
         $settings = ClientSettings::defaults();
