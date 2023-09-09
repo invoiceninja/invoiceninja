@@ -557,7 +557,7 @@ class QuoteController extends BaseController
                 }
             });
 
-            return $this->listResponse(Quote::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
+            return $this->listResponse(Quote::query()->withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
         }
 
         if ($action == 'bulk_print' && $user->can('view', $quotes->first())) {
@@ -587,7 +587,7 @@ class QuoteController extends BaseController
                 }
             });
 
-            return $this->listResponse(Quote::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
+            return $this->listResponse(Quote::query()->withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
         }
 
         /*
