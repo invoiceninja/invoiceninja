@@ -13,13 +13,14 @@ namespace App\Services\Quote;
 
 use App\Utils\Ninja;
 use App\Models\Quote;
-use App\Jobs\Util\UnlinkFile;
+use App\Models\Project;
 use App\Utils\Traits\MakesHash;
 use App\Exceptions\QuoteConversion;
 use App\Jobs\Entity\CreateEntityPdf;
 use App\Repositories\QuoteRepository;
 use App\Events\Quote\QuoteWasApproved;
 use Illuminate\Support\Facades\Storage;
+use App\Services\Quote\ConvertQuoteToProject;
 
 class QuoteService
 {
@@ -39,6 +40,13 @@ class QuoteService
         $this->quote = (new CreateInvitations($this->quote))->run();
 
         return $this;
+    }
+
+    public function convertToProject(): Project
+    {
+        $project = (new ConvertQuoteToProject($this->quote))->run();
+
+        return $project;
     }
 
     public function convert() :self

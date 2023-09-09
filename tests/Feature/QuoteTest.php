@@ -13,10 +13,12 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use App\Models\Quote;
+use App\Models\Client;
 use App\Models\Project;
 use Tests\MockAccountData;
 use App\Models\ClientContact;
 use App\Utils\Traits\MakesHash;
+use App\DataMapper\ClientSettings;
 use App\Exceptions\QuoteConversion;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Session;
@@ -52,6 +54,72 @@ class QuoteTest extends TestCase
         );
     }
 
+    public function testQuoteToProjectConversion2()
+    {
+        $settings = ClientSettings::defaults();
+        $settings->default_task_rate = 41;
+
+        $c = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'settings' => $settings,
+        ]);
+
+        $q = Quote::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $c->id,
+            'status_id' => 2,
+            'date' => now(),
+            'line_items' =>[
+                [
+                    'type_id' => 2,
+                    'unit_cost' => 200,
+                    'quantity' => 2,
+                    'notes' => 'Test200',
+                ],
+                [
+                    'type_id' => 2,
+                    'unit_cost' => 100,
+                    'quantity' => 1,
+                    'notes' => 'Test100',
+                ],
+                [
+                    'type_id' => 1,
+                    'unit_cost' => 10,
+                    'quantity' => 1,
+                    'notes' => 'Test',
+                ],
+
+            ],
+        ]);
+
+        $q->calc()->getQuote();
+        $q->fresh();
+
+        $p = $q->service()->convertToProject();
+
+        $this->assertEquals(3, $p->budgeted_hours);
+        $this->assertEquals(2, $p->tasks()->count());
+
+        $t = $p->tasks()->where('description', 'Test200')->first();
+
+        $this->assertEquals(200, $t->rate);
+        
+        $t = $p->tasks()->where('description', 'Test100')->first();
+
+        $this->assertEquals(100, $t->rate);
+
+
+    }
+
+    public function testQuoteToProjectConversion()
+    {
+        $project = $this->quote->service()->convertToProject();
+
+        $this->assertInstanceOf('\App\Models\Project', $project);
+    }
+
     public function testQuoteConversion()
     {
         $invoice = $this->quote->service()->convertToInvoice();
@@ -61,7 +129,6 @@ class QuoteTest extends TestCase
         $this->expectException(QuoteConversion::class);
 
         $invoice = $this->quote->service()->convertToInvoice();
-
 
     }
 

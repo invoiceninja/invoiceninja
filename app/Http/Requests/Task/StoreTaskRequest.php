@@ -28,23 +28,30 @@ class StoreTaskRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('create', Task::class);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('create', Task::class);
     }
 
     public function rules()
     {
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $rules = [];
 
         if (isset($this->number)) {
-            $rules['number'] = Rule::unique('tasks')->where('company_id', auth()->user()->company()->id);
+            $rules['number'] = Rule::unique('tasks')->where('company_id', $user->company()->id);
         }
 
         if (isset($this->client_id)) {
-            $rules['client_id'] = 'bail|required|exists:clients,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+            $rules['client_id'] = 'bail|required|exists:clients,id,company_id,'.$user->company()->id.',is_deleted,0';
         }
 
         if (isset($this->project_id)) {
-            $rules['project_id'] = 'bail|required|exists:projects,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+            $rules['project_id'] = 'bail|required|exists:projects,id,company_id,'.$user->company()->id.',is_deleted,0';
         }
 
         $rules['timelog'] = ['bail','array',function ($attribute, $values, $fail) {
@@ -77,9 +84,9 @@ class StoreTaskRequest extends Request
 
     public function prepareForValidation()
     {
-        $input = $this->all();
-        $input = $this->decodePrimaryKeys($this->all());
 
+        $input = $this->decodePrimaryKeys($this->all());
+        
         if (array_key_exists('status_id', $input) && is_string($input['status_id'])) {
             $input['status_id'] = $this->decodePrimaryKey($input['status_id']);
         }

@@ -45,7 +45,11 @@ class TaskRepository extends BaseRepository
         $task->saveQuietly();
 
         if ($this->new_task && ! $task->status_id) {
-            $this->setDefaultStatus($task);
+            $task->status_id = $this->setDefaultStatus($task);
+        }
+
+        if($this->new_task && (!$task->rate || $task->rate <= 0)) {
+            $task->rate = $task->getRate();
         }
 
         $task->number = empty($task->number) || ! array_key_exists('number', $data) ? $this->trySaving($task) : $data['number'];

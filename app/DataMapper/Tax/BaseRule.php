@@ -363,7 +363,15 @@ class BaseRule implements RuleInterface
 
     public function override($item): self
     {
+        $this->tax_rate1 = $item->tax_rate1;
+        $this->tax_name1 = $item->tax_name1;
+        $this->tax_rate2 = $item->tax_rate2;
+        $this->tax_name2 = $item->tax_name2;
+        $this->tax_rate3 = $item->tax_rate3;
+        $this->tax_name3 = $item->tax_name3;
+
         return $this;
+
     }
 
     public function calculateRates(): self

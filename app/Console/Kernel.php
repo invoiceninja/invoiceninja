@@ -107,7 +107,7 @@ class Kernel extends ConsoleKernel
             $schedule->job(new AdjustEmailQuota)->dailyAt('23:30')->withoutOverlapping();
 
             /* Pulls in bank transactions from third party services */
-            $schedule->job(new BankTransactionSync)->dailyAt('04:10')->withoutOverlapping()->name('bank-trans-sync-job')->onOneServer();
+            $schedule->job(new BankTransactionSync)->everyFourHours()->withoutOverlapping()->name('bank-trans-sync-job')->onOneServer();
 
             $schedule->command('ninja:check-data --database=db-ninja-01')->dailyAt('02:10')->withoutOverlapping()->name('check-data-db-1-job')->onOneServer();
 
