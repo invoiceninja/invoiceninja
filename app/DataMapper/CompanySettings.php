@@ -844,6 +844,23 @@ class CompanySettings extends BaseSettings
     }
 
     /**
+     * Stubs the notification defaults
+     *
+     * @return stdClass
+     */
+    public static function notificationAdminDefaults() :stdClass
+    {
+        $notification = new stdClass;
+        $notification->email = [];
+        $notification->email = ['invoice_sent_all'];
+
+        return $notification;
+    }
+
+
+
+
+    /**
      * Defines entity variables for PDF generation
      *
      * @return stdClass The stdClass of PDF variables
