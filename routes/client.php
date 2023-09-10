@@ -141,6 +141,7 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'clie
 });
 
 Route::get('phantom/{entity}/{invitation_key}', [Phantom::class, 'displayInvitation'])->middleware(['invite_db', 'phantom_secret'])->name('phantom_view');
+Route::get('blade/', [Phantom::class, 'blade'])->name('blade');
 
 Route::get('.env', function () {
 })->middleware('throttle:honeypot');

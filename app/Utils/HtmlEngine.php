@@ -744,6 +744,20 @@ class HtmlEngine
         return $data;
     }
 
+    public function makeValuesNoPrefix() :array
+    {
+        $data = [];
+
+        $values = $this->buildEntityDataArray();
+
+        foreach ($values as $key => $value) {
+            $data[str_replace(["$","."],["_","_"],$key)] = $value['value'];
+        }
+
+        return $data;
+    }
+
+
     public function generateLabelsAndValues()
     {
         $data = [];

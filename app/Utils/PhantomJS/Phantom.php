@@ -230,4 +230,123 @@ class Phantom
 
         return view('pdf.html', $data);
     }
+
+    public function blade()
+    {
+
+        $i = \App\Models\Invoice::first();
+
+        $html_variables = (new HtmlEngine($i->invitations->first()))->makeValuesNoPrefix();
+        $variables = (new HtmlEngine($i->invitations->first()))->makeValuesNoPrefix();
+
+        $html_variables = array_merge($html_variables, $variables);
+        // $smarty->assign($html_variables);
+
+        $template_string = '
+        display {$foo} here <?php echo time(); ?>
+        
+        {if $invoice.amount > 5}
+        <br>
+        ewwo {$invoice.amount * 5}
+        {/if}
+    <br>
+         {if isset($entry) && is_array($entry)}
+         I am a puppet
+         {/if}
+    <br>
+         {if 1 > 0}
+        1 is greater than 0
+        {/if}
+    <br>
+         {if 0 > 1}
+        0 is greater than 1
+        {/if}
+    <br>    
+         {foreach $countries as $country}
+        
+        {if $country.name = "Australia"}
+         {$country.name}<br>
+        {/if}
+        
+<br>
+
+
+         {/foreach}
+        
+
+{foreach $invoice.line_items as $item}
+ {$item->quantity} - {$item->cost} - {$item->notes} - {$item->line_total}<br>
+{/foreach}
+
+        echo "I am a puppet";
+
+        <script 
+        src="http://ajax.googleapis.com/ajax/libs/prototype/1.6.1.0/prototype.js"
+        type="text/javascript">
+        </script>
+        
+        ';
+
+$template_string = '
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ _invoice_number }}</title>
+</head>
+<body>
+    <h1>{{ _invoice_number }}</h1>
+    <h3>Athletes list</h3>
+    <ul>
+     {% for item in invoice.line_items %}
+        <li>{{ item.product_key|e }} {{ item.quantity|e }} {{ item.type_id|e }} {{ item.notes|e }} {{ item.line_total|e }}</li>
+     {% endfor %}
+
+    </ul>
+    
+{{ _invoiceDate }}<br>
+{{ _shipping }} <br>
+{{ _client_address|raw }}<br>
+{{ xx }}
+
+$invoice.amount<br>
+
+</body>
+</html>
+';
+
+$loader = new \Twig\Loader\FilesystemLoader(storage_path());
+// $tags = ['if','for','raw','html','sandbox'];
+// $filters = ['upper'];
+// $methods = [
+//     'Article' => ['getTitle', 'getBody'],
+// ];
+// $properties = [
+//     'Article' => ['title', 'body'],
+// ];
+// $functions = ['range'];
+// $policy = new \Twig\Sandbox\SecurityPolicy($tags, $filters, $methods, $properties, $functions);
+// $sandbox = new \Twig\Extension\SandboxExtension($policy);
+
+$twig = new \Twig\Environment($loader);
+// $twig->addExtension($sandbox);
+
+// $twig = new \Twig\Environment(new \Twig\Loader\ArrayLoader([]));
+$template = $twig->createTemplate($template_string);
+echo $template->render(array_merge([
+    'invoice' => $i->toArray(),
+], $html_variables));
+
+
+        // try{
+        //     $smarty->display('string:' . $template_string);
+        // }
+        // catch(\Throwable $e){
+        //     echo $e->getMessage();
+        //     exit;
+        // }
+
+        // $smarty->display('string:' . $template_string);
+
+    }
 }
