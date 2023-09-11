@@ -188,13 +188,6 @@ class InvoiceItemExport extends BaseExport
             $entity['tax_category'] = $invoice->taxTypeString($entity['tax_category']);
         }
 
-        // if($this->force_keys) {
-        //     $entity['client'] = $invoice->client->present()->name();
-        //     $entity['client_id_number'] = $invoice->client->id_number;
-        //     $entity['client_number'] = $invoice->client->number;
-        //     $entity['status'] = $invoice->stringStatus($invoice->status_id);
-        // }
-
         return $entity;
     }
 }

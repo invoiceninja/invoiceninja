@@ -13,6 +13,7 @@ namespace App\Export\CSV;
 
 use App\Utils\Number;
 use App\Models\Client;
+use App\Models\ClientContact;
 use App\Utils\Helpers;
 use App\Models\Company;
 use App\Models\Expense;
@@ -1028,4 +1029,35 @@ class BaseExport
         
         return $header;
     }
+
+    public function processMetaData(array $row, $resource): array
+    {
+        $class = get_class($resource);
+
+        match ($class) {
+            Invoice::class => $entity = 'invoice',
+            Expense::class => $entity = 'expense',
+            ClientContact::class => $entity = 'contact',
+            default => $entity = 'invoice',
+        };
+        
+        $clean_row = [];
+        
+        foreach (array_values($this->input['report_keys']) as $key => $value) {
+        
+            $report_keys = explode(".", $value);
+            
+            $column_key = $value;
+            $clean_row[$key]['entity'] = $report_keys[0];
+            $clean_row[$key]['id'] = $report_keys[1] ?? $report_keys[0];
+            $clean_row[$key]['hashed_id'] = $report_keys[0] == $entity ? null : $resource->{$report_keys[0]}->hashed_id ?? null;
+            $clean_row[$key]['value'] = $row[$column_key];
+            $clean_row[$key]['identifier'] = $value;
+            $clean_row[$key]['display_value'] = $row[$column_key];
+
+        }
+
+        return $clean_row;
+    }   
+
 }
