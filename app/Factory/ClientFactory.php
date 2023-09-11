@@ -32,7 +32,8 @@ class ClientFactory
         $client->is_deleted = 0;
         $client->client_hash = Str::random(40);
         $client->settings = ClientSettings::defaults();
-
+        $client->classification = '';
+        
         return $client;
     }
 }
