@@ -74,6 +74,28 @@ class PdfMaker
             $this->updateElementProperties($this->data['template']);
         }
 
+        if(isset($this->data['template'])) {
+            $contents= $this->document->getElementsByTagName('twig');
+
+            foreach ($contents as $content) {
+
+                $template = $content->ownerDocument->saveHTML($content);
+
+                $loader = new \Twig\Loader\FilesystemLoader(storage_path());
+                $twig = new \Twig\Environment($loader);
+                $template = $twig->createTemplate($template);
+                $template = $template->render([
+                    'invoice' => \App\Models\Invoice::first()->toArray(),
+                ]);
+
+                $f = $this->document->createDocumentFragment();
+                $f->appendXML($template);
+
+                $content->parentNode->replaceChild($f, $content);
+            }
+
+        }
+
         if (isset($this->data['variables'])) {
             $this->updateVariables($this->data['variables']);
         }
@@ -89,8 +111,9 @@ class PdfMaker
      */
     public function getCompiledHTML($final = false)
     {
-        $html = $this->document->saveHTML();
 
+        $html = $this->document->saveHTML();
+        nlog($html);
         return str_replace('%24', '$', $html);
     }
 }
