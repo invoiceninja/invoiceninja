@@ -576,14 +576,9 @@ class QuoteController extends BaseController
         if ($action == 'convert_to_project') {
             $quotes->each(function ($quote, $key) use ($user) {
                 if ($user->can('edit', $quote)) {
-                    $project = CloneQuoteToProjectFactory::create($quote, $user->id);
-                    
-                    if (empty($project->number)) {
-                        $project->number = $this->getNextProjectNumber($project);
-                    }
-                    $project->save();
-                    $quote->project_id = $project->id;
-                    $quote->save();
+
+                    $quote->service()->convertToProject();
+
                 }
             });
 
