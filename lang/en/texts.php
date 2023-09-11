@@ -657,8 +657,6 @@ $LANG = array(
     'created_by_invoice' => 'Created by :invoice',
     'primary_user' => 'Primary User',
     'help' => 'Help',
-    'customize_help' => '<p>We use :pdfmake_link to define the invoice designs declaratively. The pdfmake :playground_link provides a great way to see the library in action.</p>
-                        <p>If you need help figuring something out post a question to our :forum_link with the design you\'re using.</p>',
     'playground' => 'playground',
     'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Due Date',
@@ -1822,7 +1820,6 @@ $LANG = array(
     'bot_emailed_notify_paid' => 'I\'ll email you when it\'s paid.',
     'add_product_to_invoice' => 'Add 1 :product',
     'not_authorized' => 'You are not authorized',
-    'bot_get_email' => 'Hi! (wave)<br/>Thanks for trying the Invoice Ninja Bot.<br/>You need to create a free account to use this bot.<br/>Send me your account email address to get started.',
     'bot_get_code' => 'Thanks! I\'ve sent a you an email with your security code.',
     'bot_welcome' => 'That\'s it, your account is verified.<br/>',
     'email_not_found' => 'I wasn\'t able to find an available account for :email',
@@ -1830,7 +1827,6 @@ $LANG = array(
     'security_code_email_subject' => 'Security code for Invoice Ninja Bot',
     'security_code_email_line1' => 'This is your Invoice Ninja Bot security code.',
     'security_code_email_line2' => 'Note: it will expire in 10 minutes.',
-    'bot_help_message' => 'I currently support:<br/>• Create\update\email an invoice<br/>• List products<br/>For example:<br/><i>invoice bob for 2 tickets, set the due date to next thursday and the discount to 10 percent</i>',
     'list_products' => 'List Products',
 
     'include_item_taxes_inline' => 'Include <b>line item taxes in line total</b>',
@@ -1843,7 +1839,6 @@ $LANG = array(
     'update_invoiceninja_warning' => 'Before start upgrading Invoice Ninja create a backup of your database and files!',
     'update_invoiceninja_available' => 'A new version of Invoice Ninja is available.',
     'update_invoiceninja_unavailable' => 'No new version of Invoice Ninja available.',
-    'update_invoiceninja_instructions' => 'Please install the new version <strong>:version</strong> by clicking the <em>Update now</em> button below. Afterwards you\'ll be redirected to the dashboard.',
     'update_invoiceninja_update_start' => 'Update now',
     'update_invoiceninja_download_start' => 'Download :version',
     'create_new' => 'Create New',
@@ -5161,6 +5156,8 @@ $LANG = array(
     'show_document_preview' => 'Show Document Preview',
     'cash_accounting' => 'Cash accounting',
     'click_or_drop_files_here' => 'Click or drop files here',
+    'set_as_public' => 'Set as public',
+    'set_as_private' => 'Set as private',
 ); 
 
 return $LANG;

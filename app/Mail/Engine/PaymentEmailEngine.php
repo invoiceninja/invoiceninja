@@ -98,13 +98,13 @@ class PaymentEmailEngine extends BaseEmailEngine
 
                 //attach invoice documents also to payments
                 if ($this->client->getSetting('document_email_attachment') !== false) {
-                    foreach ($invoice->documents as $document) {
+                    $invoice->documents()->where('is_public', true)->cursor()->each(function ($document){
                         if ($document->size > $this->max_attachment_size) {
                             $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
                         } else {
                             $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null, ]]);
                         }
-                    }
+                    });
                 }
 
                 if($this->client->getSetting('enable_e_invoice'))

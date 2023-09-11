@@ -365,7 +365,7 @@ class EmailDefaults
                         ->where('invoice_documents', 1)
                         ->cursor()
                         ->each(function ($expense) {
-                            $this->email->email_object->documents = array_merge($this->email->email_object->documents, $expense->documents->pluck('id')->toArray());
+                            $this->email->email_object->documents = array_merge($this->email->email_object->documents, $expense->documents()->where('is_public',true)->pluck('id')->toArray());
                         });
             }
 
@@ -373,7 +373,7 @@ class EmailDefaults
                 Task::query()->whereIn('id', $this->transformKeys($task_ids))
                     ->cursor()
                     ->each(function ($task) {
-                        $this->email->email_object->documents = array_merge($this->email->email_object->documents, $task->documents->pluck('id')->toArray());
+                        $this->email->email_object->documents = array_merge($this->email->email_object->documents, $task->documents()->where('is_public',true)->pluck('id')->toArray());
                     });
             }
         }
