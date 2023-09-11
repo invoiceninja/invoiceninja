@@ -56,7 +56,7 @@ class CreditExport extends BaseExport
         return array_merge(['columns' => $header], $report);
     }
 
-    private function processMetaData(array $row, Credit $credit): array
+    public function processMetaData(array $row, $resource): array
     {
         $clean_row = [];
         foreach (array_values($this->input['report_keys']) as $key => $value) {
