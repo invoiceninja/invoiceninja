@@ -94,7 +94,8 @@ class ContactExport extends BaseExport
 
         $report = $query->cursor()
                 ->map(function ($contact) {
-                    return $this->buildRow($contact);
+                    $row = $this->buildRow($contact);
+                    return $this->processMetaData($row, $contact);
                 })->toArray();
         
         return array_merge(['columns' => $header], $report);

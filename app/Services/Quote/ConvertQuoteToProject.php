@@ -64,7 +64,7 @@ class ConvertQuoteToProject
                 $task->project_id = $this->quote->project_id;
                 $task->description = $item->notes;
                 $task->status_id = $task_status->id;
-                $task->rate = $item->unit_cost;
+                $task->rate = $item->cost;
                 $task_repo->save([], $task);
 
             });

@@ -56,10 +56,32 @@ class DocumentExport extends BaseExport
         $report = $query->cursor()
                 ->map(function ($document) {
                     $row = $this->buildRow($document);
+                    return $this->processMetaData($row, $document);
                 })->toArray();
         
         return array_merge(['columns' => $header], $report);
     }
+
+    private function processMetaData(array $row, Document $document): array
+    {
+        $clean_row = [];
+        foreach (array_values($this->input['report_keys']) as $key => $value) {
+        
+            $report_keys = explode(".", $value);
+            
+            $column_key = $value;
+            $clean_row[$key]['entity'] = $report_keys[0];
+            $clean_row[$key]['id'] = $report_keys[1] ?? $report_keys[0];
+            $clean_row[$key]['hashed_id'] = $report_keys[0] == 'document' ? null : $document->{$report_keys[0]}->hashed_id ?? null;
+            $clean_row[$key]['value'] = $row[$column_key];
+            $clean_row[$key]['identifier'] = $value;
+
+            $clean_row[$key]['display_value'] = $row[$column_key];
+
+        }
+
+        return $clean_row;
+    }   
 
     private function init(): Builder
     {

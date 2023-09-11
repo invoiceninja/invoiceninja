@@ -81,12 +81,16 @@ class InvoiceItemExport extends BaseExport
                 return ['identifier' => $value, 'display_value' => $headerdisplay[$value]];
             })->toArray();
 
-        $query->cursor()
-              ->each(function ($resource) {
+        $items =  $query->cursor()
+              ->map(function ($resource) {
                 $this->iterateItems($resource);
-               });
+                $row = $this->processMetaData($this->storage_array[0], $resource);
+                $this->storage_array = [];
+                return $row;
+               })->toArray();
         
-        return array_merge(['columns' => $header], $this->storage_array);
+               
+        return array_merge(['columns' => $header], $items);
     }
 
 
@@ -188,13 +192,36 @@ class InvoiceItemExport extends BaseExport
             $entity['tax_category'] = $invoice->taxTypeString($entity['tax_category']);
         }
 
-        // if($this->force_keys) {
-        //     $entity['client'] = $invoice->client->present()->name();
-        //     $entity['client_id_number'] = $invoice->client->id_number;
-        //     $entity['client_number'] = $invoice->client->number;
-        //     $entity['status'] = $invoice->stringStatus($invoice->status_id);
-        // }
-
         return $entity;
     }
+
+    public function processMetaData(array $row, $resource): array
+    {
+        $entity = 'invoice';
+        $clean_row = [];
+
+        foreach (array_values($this->input['report_keys']) as $key => $value) {
+        
+            $report_keys = explode(".", $value);
+            
+            $column_key = $value;
+
+            if($value == 'type_id' || $value == 'item.type_id')
+                $column_key = 'type';
+
+            if($value == 'tax_id' || $value == 'item.tax_id')
+                $column_key = 'tax_category';
+                
+            $clean_row[$key]['entity'] = $report_keys[0];
+            $clean_row[$key]['id'] = $report_keys[1] ?? $report_keys[0];
+            $clean_row[$key]['hashed_id'] = $report_keys[0] == $entity ? null : $resource->{$report_keys[0]}->hashed_id ?? null;
+            $clean_row[$key]['value'] = isset($row[$column_key]) ? $row[$column_key] : $row[$report_keys[1]];
+            $clean_row[$key]['identifier'] = $value;
+            $clean_row[$key]['display_value'] = isset($row[$column_key]) ? $row[$column_key] : $row[$report_keys[1]];
+
+        }
+
+        return $clean_row;
+    }   
+
 }
