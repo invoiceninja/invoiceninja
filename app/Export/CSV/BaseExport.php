@@ -33,6 +33,7 @@ use Illuminate\Database\Eloquent\Builder;
 use League\Fractal\Serializer\ArraySerializer;
 use App\Models\Product;
 use App\Models\Task;
+use App\Models\Vendor;
 
 class BaseExport
 {
@@ -656,7 +657,7 @@ class BaseExport
         // nlog("searching for {$column}");
         $transformed_invoice = false;
 
-        if($transformer instanceof PaymentTransformer) {
+        if($transformer instanceof PaymentTransformer && ($entity->invoice ?? false)) {
             $transformed_invoices = $transformer->includeInvoices($entity);
 
             $manager = new Manager();
@@ -678,7 +679,7 @@ class BaseExport
 
         }
 
-        if($transformer instanceof TaskTransformer) {
+        if($transformer instanceof TaskTransformer && ($entity->invoice ?? false)) {
             $transformed_invoice = $transformer->includeInvoice($entity);
 
             if(!$transformed_invoice)
@@ -1060,6 +1061,7 @@ class BaseExport
             Payment::class => $entity = 'payment',
             Product::class => $entity = 'product',
             Task::class => $entity = 'task',
+            Vendor::class => $entity = 'vendor',
             default => $entity = 'invoice',
         };
         

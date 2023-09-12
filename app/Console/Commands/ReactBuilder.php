@@ -12,6 +12,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Storage;
 
 class ReactBuilder extends Command
 {
@@ -47,6 +48,8 @@ class ReactBuilder extends Command
     public function handle()
     {
         $includes = '';
+        
+        Storage::makeDirectory(public_path('react'));
 
         $directoryIterator = new \RecursiveDirectoryIterator(public_path('react'), \RecursiveDirectoryIterator::SKIP_DOTS);
 

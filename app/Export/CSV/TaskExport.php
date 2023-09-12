@@ -38,31 +38,6 @@ class TaskExport extends BaseExport
 
     private array $storage_item_array = [];
 
-    public array $entity_keys = [
-        'start_date' => 'start_date',
-        'end_date' => 'end_date',
-        'duration' => 'duration',
-        'rate' => 'rate',
-        'number' => 'number',
-        'description' => 'description',
-        'custom_value1' => 'custom_value1',
-        'custom_value2' => 'custom_value2',
-        'custom_value3' => 'custom_value3',
-        'custom_value4' => 'custom_value4',
-        'status' => 'status_id',
-        'project' => 'project_id',
-     ];
-
-    private array $decorate_keys = [
-        'status',
-        'project',
-        'client',
-        'invoice',
-        'start_date',
-        'end_date',
-        'duration',
-    ];
-
     public function __construct(Company $company, array $input)
     {
         $this->company = $company;
@@ -140,7 +115,7 @@ class TaskExport extends BaseExport
 
                     $this->storage_array = [];
                 });
-        
+        nlog($this->storage_item_array);
         return array_merge(['columns' => $header], $this->storage_item_array);
     }
 
@@ -161,29 +136,11 @@ class TaskExport extends BaseExport
                 $entity[$key] = $this->resolveKey($key, $task, $this->entity_transformer);
             }
 
-            // $keyval = array_search($key, $this->entity_keys);
-
-            // if(!$keyval) {
-            //     $keyval = array_search(str_replace("task.", "", $key), $this->entity_keys) ?? $key;
-            // }
-
-            // if(!$keyval) {
-            //     $keyval = $key;
-            // }
-
-            // if (array_key_exists($key, $transformed_entity)) {
-            //     $entity[$keyval] = $transformed_entity[$key];
-            // } elseif (array_key_exists($keyval, $transformed_entity)) {
-            //     $entity[$keyval] = $transformed_entity[$keyval];
-            // }
-            // else {
-            //     $entity[$keyval] = $this->resolveKey($keyval, $task, $this->entity_transformer);
-            // }
         }
 
-        $entity['start_date'] = '';
-        $entity['end_date'] = '';
-        $entity['duration'] = '';
+        $entity['task.start_date'] = '';
+        $entity['task.end_date'] = '';
+        $entity['task.duration'] = '';
 
         if (is_null($task->time_log) || (is_array(json_decode($task->time_log, 1)) && count(json_decode($task->time_log, 1)) == 0)) {
             $this->storage_array[] = $entity;
@@ -233,23 +190,23 @@ class TaskExport extends BaseExport
             
             $this->storage_array[] = $entity;
             
-            unset($entity['start_date']);
-            unset($entity['end_date']);
-            unset($entity['duration']);
+            unset($entity['task.start_date']);
+            unset($entity['task.end_date']);
+            unset($entity['task.duration']);
         }
 
     }
 
     private function decorateAdvancedFields(Task $task, array $entity) :array
     {
-        if (in_array('status_id', $this->input['report_keys'])) {
-            $entity['status'] = $task->status()->exists() ? $task->status->name : '';
+        if (in_array('task.status_id', $this->input['report_keys'])) {
+            $entity['task.status_id'] = $task->status()->exists() ? $task->status->name : '';
         }
 
-        if (in_array('project_id', $this->input['report_keys'])) {
-            $entity['project'] = $task->project()->exists() ? $task->project->name : '';
+        if (in_array('task.project_id', $this->input['report_keys'])) {
+            $entity['task.project_id'] = $task->project()->exists() ? $task->project->name : '';
         }
-
+        
         return $entity;
     }
 }
