@@ -11,14 +11,14 @@
 
 namespace App\Export\CSV;
 
-use App\Libraries\MultiDB;
-use App\Models\Company;
-use App\Models\PurchaseOrder;
-use App\Transformers\PurchaseOrderTransformer;
 use App\Utils\Ninja;
-use Illuminate\Contracts\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
+use App\Models\Company;
+use App\Libraries\MultiDB;
+use App\Models\PurchaseOrder;
+use Illuminate\Support\Facades\App;
+use Illuminate\Database\Eloquent\Builder;
+use App\Transformers\PurchaseOrderTransformer;
 
 class PurchaseOrderItemExport extends BaseExport
 {
@@ -32,6 +32,8 @@ class PurchaseOrderItemExport extends BaseExport
     private bool $force_keys = false;
 
     private array $storage_array = [];
+
+    private array $storage_item_array = [];
 
     public function __construct(Company $company, array $input)
     {
@@ -50,7 +52,6 @@ class PurchaseOrderItemExport extends BaseExport
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
         if (count($this->input['report_keys']) == 0) {
-            // $this->force_keys = true;
             $this->input['report_keys'] = array_values($this->mergeItemsKeys('purchase_order_report_keys'));
         }
 
@@ -78,9 +79,18 @@ class PurchaseOrderItemExport extends BaseExport
         $query->cursor()
               ->each(function ($resource) {
                 $this->iterateItems($resource);
+                
+                $this->storage_item_array = [];
+
+                foreach($this->storage_array as $row) {
+                    $this->storage_item_array[] = $this->processMetaData($row, $resource);
+                }
+
+                $this->storage_array = [];
+                
                });
         
-        return array_merge(['columns' => $header], $this->storage_array);
+        return array_merge(['columns' => $header], $this->storage_item_array);
     }
 
     public function run()
@@ -113,7 +123,7 @@ class PurchaseOrderItemExport extends BaseExport
         foreach ($purchase_order->line_items as $item) {
             $item_array = [];
 
-            foreach (array_values($this->input['report_keys']) as $key) { //items iterator produces item array
+            foreach (array_values(array_intersect($this->input['report_keys'], $this->item_report_keys)) as $key) { //items iterator produces item array
                 
                 if (str_contains($key, "item.")) {
 
@@ -190,4 +200,33 @@ class PurchaseOrderItemExport extends BaseExport
 
         return $entity;
     }
+
+    public function processMetaData(array $row, $resource): array
+    {
+        $entity = 'purchase_order';
+        $clean_row = [];
+
+        foreach (array_values($this->input['report_keys']) as $key => $value) {
+        
+            $report_keys = explode(".", $value);
+            
+            $column_key = $value;
+
+            if($value == 'type_id' || $value == 'item.type_id')
+                $column_key = 'type';
+
+            if($value == 'tax_id' || $value == 'item.tax_id')
+                $column_key = 'tax_category';
+                
+            $clean_row[$key]['entity'] = $report_keys[0];
+            $clean_row[$key]['id'] = $report_keys[1] ?? $report_keys[0];
+            $clean_row[$key]['hashed_id'] = $report_keys[0] == $entity ? null : $resource->{$report_keys[0]}->hashed_id ?? null;
+            $clean_row[$key]['value'] = isset($row[$column_key]) ? $row[$column_key] : $row[$report_keys[1]];
+            $clean_row[$key]['identifier'] = $value;
+            $clean_row[$key]['display_value'] = isset($row[$column_key]) ? $row[$column_key] : $row[$report_keys[1]];
+
+        }
+
+        return $clean_row;
+    }   
 }

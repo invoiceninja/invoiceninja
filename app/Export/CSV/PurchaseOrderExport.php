@@ -19,7 +19,7 @@ use App\Libraries\MultiDB;
 use App\Models\PurchaseOrder;
 use Illuminate\Support\Facades\App;
 use App\Transformers\PurchaseOrderTransformer;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 
 class PurchaseOrderExport extends BaseExport
 {
@@ -119,7 +119,8 @@ class PurchaseOrderExport extends BaseExport
 
         $report = $query->cursor()
                 ->map(function ($resource) {
-                    return $this->buildRow($resource);
+                    $row = $this->buildRow($resource);
+                    return $this->processMetaData($row, $resource);
                 })->toArray();
         
         return array_merge(['columns' => $header], $report);

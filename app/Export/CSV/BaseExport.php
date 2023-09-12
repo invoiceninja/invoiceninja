@@ -13,13 +13,15 @@ namespace App\Export\CSV;
 
 use App\Utils\Number;
 use App\Models\Client;
-use App\Models\ClientContact;
 use App\Utils\Helpers;
 use App\Models\Company;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Document;
 use League\Fractal\Manager;
+use App\Models\ClientContact;
+use App\Models\PurchaseOrder;
 use Illuminate\Support\Carbon;
 use App\Utils\Traits\MakesHash;
 use App\Transformers\TaskTransformer;
@@ -1034,10 +1036,14 @@ class BaseExport
     {
         $class = get_class($resource);
 
+        $entity = '';
+        
         match ($class) {
             Invoice::class => $entity = 'invoice',
             Expense::class => $entity = 'expense',
+            Document::class => $entity = 'document',
             ClientContact::class => $entity = 'contact',
+            PurchaseOrder::class => $entity = 'purchase_order',
             default => $entity = 'invoice',
         };
         
