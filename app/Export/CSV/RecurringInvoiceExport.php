@@ -148,7 +148,7 @@ class RecurringInvoiceExport extends BaseExport
         }
 
         if (in_array('recurring_invoice.frequency_id', $this->input['report_keys']) || in_array('frequency_id', $this->input['report_keys'])) {
-            $entity['frequency_id'] = $invoice->frequencyForKey($invoice->frequency_id);
+            $entity['recurring_invoice.frequency_id'] = $invoice->frequencyForKey($invoice->frequency_id);
         }
 
         return $entity;

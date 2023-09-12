@@ -488,14 +488,14 @@ class ReportCsvGenerationTest extends TestCase
        
         $csv = $response->streamedContent();
 
-        $this->assertEquals(3600, $this->getFirstValueByColumn($csv, 'Duration'));
-        $this->assertEquals('test', $this->getFirstValueByColumn($csv, 'Description'));
-        $this->assertEquals('16/Jul/2023', $this->getFirstValueByColumn($csv, 'Start Date'));
-        $this->assertEquals('16/Jul/2023', $this->getFirstValueByColumn($csv, 'End Date'));
-        $this->assertEquals('Custom 1', $this->getFirstValueByColumn($csv, 'Custom Value 1'));
-        $this->assertEquals('Custom 2', $this->getFirstValueByColumn($csv, 'Custom Value 2'));
-        $this->assertEquals('Custom 3', $this->getFirstValueByColumn($csv, 'Custom Value 3'));
-        $this->assertEquals('Custom 4', $this->getFirstValueByColumn($csv, 'Custom Value 4'));
+        $this->assertEquals(3600, $this->getFirstValueByColumn($csv, 'Task Duration'));
+        $this->assertEquals('test', $this->getFirstValueByColumn($csv, 'Task Description'));
+        $this->assertEquals('16/Jul/2023', $this->getFirstValueByColumn($csv, 'Task Start Date'));
+        $this->assertEquals('16/Jul/2023', $this->getFirstValueByColumn($csv, 'Task End Date'));
+        $this->assertEquals('Custom 1', $this->getFirstValueByColumn($csv, 'Task Custom Value 1'));
+        $this->assertEquals('Custom 2', $this->getFirstValueByColumn($csv, 'Task Custom Value 2'));
+        $this->assertEquals('Custom 3', $this->getFirstValueByColumn($csv, 'Task Custom Value 3'));
+        $this->assertEquals('Custom 4', $this->getFirstValueByColumn($csv, 'Task Custom Value 4'));
 
     }
 
@@ -1567,29 +1567,29 @@ class ReportCsvGenerationTest extends TestCase
 
         $csv = $response->streamedContent();
 
-        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Amount'));
-        $this->assertEquals('50', $this->getFirstValueByColumn($csv, 'Balance'));
-        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Discount'));
-        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'PO Number'));
-        $this->assertEquals('Public', $this->getFirstValueByColumn($csv, 'Public Notes'));
-        $this->assertEquals('Private', $this->getFirstValueByColumn($csv, 'Private Notes'));
-        $this->assertEquals('Terms', $this->getFirstValueByColumn($csv, 'Terms'));
-        $this->assertEquals('2020-01-01', $this->getFirstValueByColumn($csv, 'Date'));
-        $this->assertEquals('2021-01-02', $this->getFirstValueByColumn($csv, 'Due Date'));
-        $this->assertEquals('2021-01-03', $this->getFirstValueByColumn($csv, 'Partial Due Date'));
-        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Partial/Deposit'));
-        $this->assertEquals('Custom 1', $this->getFirstValueByColumn($csv, 'Custom Value 1'));
-        $this->assertEquals('Custom 2', $this->getFirstValueByColumn($csv, 'Custom Value 2'));
-        $this->assertEquals('Custom 3', $this->getFirstValueByColumn($csv, 'Custom Value 3'));
-        $this->assertEquals('Custom 4', $this->getFirstValueByColumn($csv, 'Custom Value 4'));
-        $this->assertEquals('Footer', $this->getFirstValueByColumn($csv, 'Footer'));
-        $this->assertEquals('Tax 1', $this->getFirstValueByColumn($csv, 'Tax Name 1'));
-        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Tax Rate 1'));
-        $this->assertEquals('Tax 2', $this->getFirstValueByColumn($csv, 'Tax Name 2'));
-        $this->assertEquals('20', $this->getFirstValueByColumn($csv, 'Tax Rate 2'));
-        $this->assertEquals('Tax 3', $this->getFirstValueByColumn($csv, 'Tax Name 3'));
-        $this->assertEquals('30', $this->getFirstValueByColumn($csv, 'Tax Rate 3'));
-        $this->assertEquals('Daily', $this->getFirstValueByColumn($csv, 'How Often'));
+        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Recurring Invoice Amount'));
+        $this->assertEquals('50', $this->getFirstValueByColumn($csv, 'Recurring Invoice Balance'));
+        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Recurring Invoice Discount'));
+        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Recurring Invoice PO Number'));
+        $this->assertEquals('Public', $this->getFirstValueByColumn($csv, 'Recurring Invoice Public Notes'));
+        $this->assertEquals('Private', $this->getFirstValueByColumn($csv, 'Recurring Invoice Private Notes'));
+        $this->assertEquals('Terms', $this->getFirstValueByColumn($csv, 'Recurring Invoice Terms'));
+        $this->assertEquals('2020-01-01', $this->getFirstValueByColumn($csv, 'Recurring Invoice Date'));
+        $this->assertEquals('2021-01-02', $this->getFirstValueByColumn($csv, 'Recurring Invoice Due Date'));
+        $this->assertEquals('2021-01-03', $this->getFirstValueByColumn($csv, 'Recurring Invoice Partial Due Date'));
+        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Recurring Invoice Partial/Deposit'));
+        $this->assertEquals('Custom 1', $this->getFirstValueByColumn($csv, 'Recurring Invoice Custom Value 1'));
+        $this->assertEquals('Custom 2', $this->getFirstValueByColumn($csv, 'Recurring Invoice Custom Value 2'));
+        $this->assertEquals('Custom 3', $this->getFirstValueByColumn($csv, 'Recurring Invoice Custom Value 3'));
+        $this->assertEquals('Custom 4', $this->getFirstValueByColumn($csv, 'Recurring Invoice Custom Value 4'));
+        $this->assertEquals('Footer', $this->getFirstValueByColumn($csv, 'Recurring Invoice Footer'));
+        $this->assertEquals('Tax 1', $this->getFirstValueByColumn($csv, 'Recurring Invoice Tax Name 1'));
+        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Recurring Invoice Tax Rate 1'));
+        $this->assertEquals('Tax 2', $this->getFirstValueByColumn($csv, 'Recurring Invoice Tax Name 2'));
+        $this->assertEquals('20', $this->getFirstValueByColumn($csv, 'Recurring Invoice Tax Rate 2'));
+        $this->assertEquals('Tax 3', $this->getFirstValueByColumn($csv, 'Recurring Invoice Tax Name 3'));
+        $this->assertEquals('30', $this->getFirstValueByColumn($csv, 'Recurring Invoice Tax Rate 3'));
+        $this->assertEquals('Daily', $this->getFirstValueByColumn($csv, 'Recurring Invoice How Often'));
 
     }
 
