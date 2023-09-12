@@ -80,7 +80,6 @@ class InvoiceItemReportController extends BaseController
 
             return response()->json(['message' => $hash], 200);
         }
-
         
         $export = new InvoiceItemExport($user->company(), $request->all());
 

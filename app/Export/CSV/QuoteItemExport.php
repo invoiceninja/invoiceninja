@@ -16,7 +16,7 @@ use App\Models\Company;
 use App\Models\Quote;
 use App\Transformers\QuoteTransformer;
 use App\Utils\Ninja;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
@@ -29,7 +29,8 @@ class QuoteItemExport extends BaseExport
 
     public Writer $csv;
 
-    private array $storage_array;
+    private array $storage_array = [];
+    private array $storage_item_array = [];
 
     private array $decorate_keys = [
         'client',
@@ -77,12 +78,20 @@ class QuoteItemExport extends BaseExport
                 return ['identifier' => $value, 'display_value' => $headerdisplay[$value]];
             })->toArray();
 
-        $query->cursor()
-              ->each(function ($resource) {
-                $this->iterateItems($resource);
-               });
-        
-        return array_merge(['columns' => $header], $this->storage_array);
+            $query->cursor()
+                ->each(function ($resource) {
+                    $this->iterateItems($resource);
+                                    
+                    foreach($this->storage_array as $row) {
+                        $this->storage_item_array[] = $this->processItemMetaData($row, $resource);
+                    }
+
+                    $this->storage_array = [];
+                                    
+                });
+                            
+            return array_merge(['columns' => $header], $this->storage_item_array);
+
     }
 
 

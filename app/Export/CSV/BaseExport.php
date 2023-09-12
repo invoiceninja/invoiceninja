@@ -11,20 +11,29 @@
 
 namespace App\Export\CSV;
 
+use App\Models\Quote;
 use App\Utils\Number;
 use App\Models\Client;
+use App\Models\Credit;
 use App\Utils\Helpers;
 use App\Models\Company;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Document;
 use League\Fractal\Manager;
+use App\Models\ClientContact;
+use App\Models\PurchaseOrder;
+use App\Models\RecurringInvoice;
 use Illuminate\Support\Carbon;
 use App\Utils\Traits\MakesHash;
 use App\Transformers\TaskTransformer;
 use App\Transformers\PaymentTransformer;
 use Illuminate\Database\Eloquent\Builder;
 use League\Fractal\Serializer\ArraySerializer;
+use App\Models\Product;
+use App\Models\Task;
+use App\Models\Vendor;
 
 class BaseExport
 {
@@ -56,7 +65,7 @@ class BaseExport
         'id_number' => 'vendor.id_number',
         'name' => 'vendor.name',
         'number' => 'vendor.number',
-        'client_phone' => 'vendor.phone',
+        'phone' => 'vendor.phone',
         'postal_code' => 'vendor.postal_code',
         'private_notes' => 'vendor.private_notes',
         'public_notes' => 'vendor.public_notes',
@@ -229,8 +238,8 @@ class BaseExport
     ];
 
     protected array $product_report_keys  = [
-        'project' => 'project_id',
-        'vendor' => 'vendor_id',
+        // 'project' => 'project_id',
+        // 'vendor' => 'vendor_id',
         'custom_value1' => 'custom_value1',
         'custom_value2' => 'custom_value2',
         'custom_value3' => 'custom_value3',
@@ -246,6 +255,10 @@ class BaseExport
         'tax_name1' => 'tax_name1',
         'tax_name2' => 'tax_name2',
         'tax_name3' => 'tax_name3',
+        'image' => 'product_image',
+        'tax_category' => 'tax_id',
+        'max_quantity' => 'max_quantity',
+        'in_stock_quantity' => 'in_stock_quantity',
     ];
 
     protected array $item_report_keys = [
@@ -644,7 +657,7 @@ class BaseExport
         // nlog("searching for {$column}");
         $transformed_invoice = false;
 
-        if($transformer instanceof PaymentTransformer) {
+        if($transformer instanceof PaymentTransformer && ($entity->invoices ?? false)) {
             $transformed_invoices = $transformer->includeInvoices($entity);
 
             $manager = new Manager();
@@ -666,7 +679,7 @@ class BaseExport
 
         }
 
-        if($transformer instanceof TaskTransformer) {
+        if($transformer instanceof TaskTransformer && ($entity->invoice ?? false)) {
             $transformed_invoice = $transformer->includeInvoice($entity);
 
             if(!$transformed_invoice)
@@ -986,6 +999,7 @@ class BaseExport
             $key = str_replace('payment.', '', $key);
             $key = str_replace('expense.', '', $key);
             $key = str_replace('product.', '', $key);
+            $key = str_replace('task.', '', $key);
 
             if(stripos($value, 'custom_value') !== false)
             {
@@ -1009,7 +1023,7 @@ class BaseExport
                     $custom_field_string = strlen($helper->makeCustomField($this->company->custom_fields, $entity)) > 1 ? $helper->makeCustomField($this->company->custom_fields, $entity) : ctrans("texts.{$parts[1]}");
                     $header[] = ctrans("texts.{$parts[0]}") . " " . $custom_field_string;
                 }
-                elseif(count($parts) == 2 && in_array(substr($original_key, 0, -1), ['credit','quote','invoice','purchase_order','recurring_invoice'])){
+                elseif(count($parts) == 2 && in_array(substr($original_key, 0, -1), ['credit','quote','invoice','purchase_order','recurring_invoice','task'])){
                     $custom_field_string = strlen($helper->makeCustomField($this->company->custom_fields, "product".substr($original_key,-1))) > 1 ? $helper->makeCustomField($this->company->custom_fields, "product".substr($original_key,-1)) : ctrans("texts.{$parts[1]}");
                     $header[] = ctrans("texts.{$parts[0]}") . " " . $custom_field_string;
                 }
@@ -1028,4 +1042,102 @@ class BaseExport
         
         return $header;
     }
+
+    public function processMetaData(array $row, $resource): array
+    {
+        $class = get_class($resource);
+
+        $entity = '';
+
+        match ($class) {
+            Invoice::class => $entity = 'invoice',
+            RecurringInvoice::class => $entity = 'recurring_invoice',
+            Quote::class => $entity = 'quote',
+            Credit::class => $entity = 'credit',
+            Expense::class => $entity = 'expense',
+            Document::class => $entity = 'document',
+            ClientContact::class => $entity = 'contact',
+            PurchaseOrder::class => $entity = 'purchase_order',
+            Payment::class => $entity = 'payment',
+            Product::class => $entity = 'product',
+            Task::class => $entity = 'task',
+            Vendor::class => $entity = 'vendor',
+            default => $entity = 'invoice',
+        };
+        
+        $clean_row = [];
+        
+        foreach (array_values($this->input['report_keys']) as $key => $value) {
+        
+            $report_keys = explode(".", $value);
+            
+            $column_key = $value;
+            
+            if($value == 'product_image') {
+                $column_key = 'image';
+                $value = 'image';
+            }
+
+            if($value == 'tax_id') {         
+                $column_key = 'tax_category';
+                $value = 'tax_category';
+            }
+
+            $clean_row[$key]['entity'] = $report_keys[0];
+            $clean_row[$key]['id'] = $report_keys[1] ?? $report_keys[0];
+            $clean_row[$key]['hashed_id'] = $report_keys[0] == $entity ? null : $resource->{$report_keys[0]}->hashed_id ?? null;
+            $clean_row[$key]['value'] = $row[$column_key];
+            $clean_row[$key]['identifier'] = $value;
+            $clean_row[$key]['display_value'] = $row[$column_key];
+
+        }
+
+        nlog($clean_row);
+
+        return $clean_row;
+    }   
+
+    public function processItemMetaData(array $row, $resource): array
+    {
+        $class = get_class($resource);
+
+        $entity = '';
+
+        match ($class) {
+            Invoice::class => $entity = 'invoice',
+            Quote::class => $entity = 'quote',
+            Credit::class => $entity = 'credit',
+            Expense::class => $entity = 'expense',
+            Document::class => $entity = 'document',
+            ClientContact::class => $entity = 'contact',
+            PurchaseOrder::class => $entity = 'purchase_order',
+            default => $entity = 'invoice',
+        };
+
+        $clean_row = [];
+
+        foreach (array_values($this->input['report_keys']) as $key => $value) {
+        
+            $report_keys = explode(".", $value);
+            
+            $column_key = $value;
+
+            if($value == 'type_id' || $value == 'item.type_id')
+                $column_key = 'type';
+
+            if($value == 'tax_id' || $value == 'item.tax_id')
+                $column_key = 'tax_category';
+                
+            $clean_row[$key]['entity'] = $report_keys[0];
+            $clean_row[$key]['id'] = $report_keys[1] ?? $report_keys[0];
+            $clean_row[$key]['hashed_id'] = $report_keys[0] == $entity ? null : $resource->{$report_keys[0]}->hashed_id ?? null;
+            $clean_row[$key]['value'] = isset($row[$column_key]) ? $row[$column_key] : $row[$report_keys[1]];
+            $clean_row[$key]['identifier'] = $value;
+            $clean_row[$key]['display_value'] = isset($row[$column_key]) ? $row[$column_key] : $row[$report_keys[1]];
+
+        }
+
+        return $clean_row;
+    }   
+
 }

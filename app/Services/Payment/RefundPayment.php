@@ -88,7 +88,7 @@ class RefundPayment
     /**
      * Process the refund through the gateway.
      *
-     * @var array $response
+     * $response
      * [
      *  'transaction_reference' => (string),
      *  'transaction_response' => (string),

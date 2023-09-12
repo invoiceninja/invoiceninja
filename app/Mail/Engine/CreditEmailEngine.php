@@ -123,21 +123,21 @@ class CreditEmailEngine extends BaseEmailEngine
         //attach third party documents
         if ($this->client->getSetting('document_email_attachment') !== false && $this->credit->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
             // Storage::url
-            foreach ($this->credit->documents as $document) {
+            $this->credit->documents()->where('is_public',true)->cursor()->each(function($document) {
                 if ($document->size > $this->max_attachment_size) {
                     $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
                 } else {
                     $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null, 'file' => base64_encode($document->getFile())]]);
                 }
-            }
+            });
 
-            foreach ($this->credit->company->documents as $document) {
+            $this->credit->company->documents()->where('is_public',true)->cursor()->each(function($document) {
                 if ($document->size > $this->max_attachment_size) {
                     $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
                 } else {
                     $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null, 'file' => base64_encode($document->getFile())]]);
                 }
-            }
+            });
         }
 
         return $this;

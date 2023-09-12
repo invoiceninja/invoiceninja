@@ -20,7 +20,7 @@ use App\Libraries\MultiDB;
 use App\Export\CSV\BaseExport;
 use Illuminate\Support\Facades\App;
 use App\Transformers\InvoiceTransformer;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 
 class InvoiceExport extends BaseExport
 {
@@ -78,7 +78,8 @@ class InvoiceExport extends BaseExport
 
         $report = $query->cursor()
                 ->map(function ($resource) {
-                    return $this->buildRow($resource);
+                    $row = $this->buildRow($resource);
+                    return $this->processMetaData($row, $resource);
                 })->toArray();
         
         return array_merge(['columns' => $header], $report);
@@ -93,7 +94,6 @@ class InvoiceExport extends BaseExport
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
-
 
         $query->cursor()
             ->each(function ($invoice) {

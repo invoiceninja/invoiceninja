@@ -49,7 +49,8 @@ class ExpenseExport extends BaseExport
 
         $report = $query->cursor()
                 ->map(function ($resource) {
-                    return $this->buildRow($resource);
+                    $row = $this->buildRow($resource);
+                    return $this->processMetaData($row, $resource);
                 })->toArray();
         
         return array_merge(['columns' => $header], $report);

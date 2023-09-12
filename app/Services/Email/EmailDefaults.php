@@ -333,16 +333,16 @@ class EmailDefaults
         }
 
         /* Company Documents */
-        $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->company->documents->pluck('id')->toArray());
+        $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->company->documents()->where('is_public', true)->pluck('id')->toArray());
 
         /** Entity Documents */
         if ($this->email->email_object->entity?->documents) {
-            $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->email_object->entity->documents->pluck('id')->toArray());
+            $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->email_object->entity->documents()->where('is_public', true)->pluck('id')->toArray());
         }
 
         /** Recurring Invoice Documents */
         if ($this->email->email_object->entity instanceof Invoice && $this->email->email_object->entity->recurring_id != null) {
-            $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->email_object->entity->recurring_invoice->documents->pluck('id')->toArray());
+            $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->email_object->entity->recurring_invoice->documents()->where('is_public', true)->pluck('id')->toArray());
         }
 
         /** Task / Expense Documents */
@@ -365,7 +365,7 @@ class EmailDefaults
                         ->where('invoice_documents', 1)
                         ->cursor()
                         ->each(function ($expense) {
-                            $this->email->email_object->documents = array_merge($this->email->email_object->documents, $expense->documents->pluck('id')->toArray());
+                            $this->email->email_object->documents = array_merge($this->email->email_object->documents, $expense->documents()->where('is_public',true)->pluck('id')->toArray());
                         });
             }
 
@@ -373,7 +373,7 @@ class EmailDefaults
                 Task::query()->whereIn('id', $this->transformKeys($task_ids))
                     ->cursor()
                     ->each(function ($task) {
-                        $this->email->email_object->documents = array_merge($this->email->email_object->documents, $task->documents->pluck('id')->toArray());
+                        $this->email->email_object->documents = array_merge($this->email->email_object->documents, $task->documents()->where('is_public',true)->pluck('id')->toArray());
                     });
             }
         }
