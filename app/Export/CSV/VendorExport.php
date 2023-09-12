@@ -119,7 +119,7 @@ class VendorExport extends BaseExport
 
             if (is_array($parts) && $parts[0] == 'vendor' && array_key_exists($parts[1], $transformed_vendor)) {
                 $entity[$key] = $transformed_vendor[$parts[1]];
-            } elseif (is_array($parts) && $parts[0] == 'vendor_contact' && array_key_exists($parts[1], $transformed_contact)) {
+            } elseif (is_array($parts) && $parts[0] == 'vendor_contact' && isset($transformed_contact[$parts[1]])) {
                 $entity[$key] = $transformed_contact[$parts[1]];
             } else {
                 $entity[$key] = $this->resolveKey($key, $vendor, $this->vendor_transformer);

@@ -293,7 +293,7 @@ class ReportCsvGenerationTest extends TestCase
         ])->post('/api/v1/reports/vendors', $data);
        
         $csv = $response->streamedContent();
-
+nlog($csv);
         $this->assertEquals('Vendor 1', $this->getFirstValueByColumn($csv, 'Vendor Name'));
         $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Vendor Number'));
         $this->assertEquals('city', $this->getFirstValueByColumn($csv, 'Vendor City'));
@@ -345,9 +345,9 @@ class ReportCsvGenerationTest extends TestCase
        
         $csv = $response->streamedContent();
 
-        $this->assertEquals('Vendor 1', $this->getFirstValueByColumn($csv, 'Name'));
-        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Number'));
-        $this->assertEquals('city', $this->getFirstValueByColumn($csv, 'City'));
+        $this->assertEquals('Vendor 1', $this->getFirstValueByColumn($csv, 'Vendor Name'));
+        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Vendor Number'));
+        $this->assertEquals('city', $this->getFirstValueByColumn($csv, 'Vendor City'));
     }
 
 

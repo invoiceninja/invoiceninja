@@ -65,7 +65,7 @@ class BaseExport
         'id_number' => 'vendor.id_number',
         'name' => 'vendor.name',
         'number' => 'vendor.number',
-        'client_phone' => 'vendor.phone',
+        'phone' => 'vendor.phone',
         'postal_code' => 'vendor.postal_code',
         'private_notes' => 'vendor.private_notes',
         'public_notes' => 'vendor.public_notes',
@@ -657,7 +657,7 @@ class BaseExport
         // nlog("searching for {$column}");
         $transformed_invoice = false;
 
-        if($transformer instanceof PaymentTransformer && ($entity->invoice ?? false)) {
+        if($transformer instanceof PaymentTransformer && ($entity->invoices ?? false)) {
             $transformed_invoices = $transformer->includeInvoices($entity);
 
             $manager = new Manager();
