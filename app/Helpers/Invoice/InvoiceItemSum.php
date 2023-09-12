@@ -403,10 +403,6 @@ class InvoiceItemSum
             //$amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / $this->sub_total));
             $amount = ($this->sub_total > 0) ? $this->item->line_total - ($this->invoice->discount * ( $this->item->line_total / $this->sub_total)) : 0;
             
-            nlog("amount discount tax calcs : {$this->item->line_total} - {$this->sub_total} {$amount} {$this->item->line_total} {$this->invoice->discount} / {$this->sub_total}");
-            nlog(( $this->item->line_total / $this->sub_total));
-            nlog(($this->invoice->discount * ( $this->item->line_total / $this->sub_total)));
-
             $item_tax_rate1_total = $this->calcAmountLineTax($this->item->tax_rate1, $amount);
 
             $item_tax += $item_tax_rate1_total;
@@ -435,7 +431,6 @@ class InvoiceItemSum
             $this->item->tax_amount = $item_tax;
 
             $this->line_items[$key] = $this->item;
-            nlog("amount discount tax calcs : {$this->getLineTotal()} {$this->sub_total} {$amount} {$item_tax} {$this->item->gross_line_total} ");
 
             $this->setTotalTaxes($this->getTotalTaxes() + $item_tax);
 
