@@ -315,8 +315,9 @@ class InvoiceSumInclusive
 
     public function setTaxMap()
     {
-        if ($this->invoice->is_amount_discount == true) {
+        if ($this->invoice->is_amount_discount) {
             $this->invoice_items->calcTaxesWithAmountDiscount();
+            $this->invoice->line_items = $this->invoice_items->getLineItems();
         }
 
         $this->tax_map = collect();

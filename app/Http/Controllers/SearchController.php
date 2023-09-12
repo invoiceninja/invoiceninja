@@ -86,7 +86,7 @@ class SearchController extends Controller
                             'name' => $invoice->client->present()->name() . ' - ' . $invoice->number, 
                             'type' => '/invoice', 
                             'id' => $invoice->hashed_id,
-                            'path' => "/clients/{$invoice->hashed_id}/edit",
+                            'path' => "/invoices/{$invoice->hashed_id}/edit",
                             'heading' => ctrans('texts.invoices')
                         ];
                      });
@@ -104,7 +104,7 @@ class SearchController extends Controller
             'custom_fields' => '/settings/user_details/custom_fields',
             'preferences' => '/settings/user_details/preferences',
             'company_details' => '/settings/company_details',
-            'company_details,details' => '/settings/company_details/details',
+            'company_details,details' => '/settings/company_details/',
             'company_details,address' => '/settings/company_details/address',
             'company_details,logo' => '/settings/company_details/logo',
             'company_details,defaults' => '/settings/company_details/defaults',
