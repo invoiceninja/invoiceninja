@@ -36,7 +36,7 @@ class ConvertQuoteToProject
             });
 
         $project = ProjectFactory::create($this->quote->company_id, $this->quote->user_id);
-        $project->name = ctrans('texts.quote_number_short'). " " . $this->quote->number . "[{$this->quote->client->present()->name()}]";
+        $project->name = ctrans('texts.quote_number_short'). " " . $this->quote->number . " [{$this->quote->client->present()->name()}]";
         $project->client_id = $this->quote->client_id;
         $project->public_notes = $this->quote->public_notes;
         $project->private_notes = $this->quote->private_notes;

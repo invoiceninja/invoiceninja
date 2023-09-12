@@ -16,7 +16,7 @@ use App\Models\Company;
 use App\Models\Payment;
 use App\Transformers\PaymentTransformer;
 use App\Utils\Ninja;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
@@ -27,40 +27,6 @@ class PaymentExport extends BaseExport
     public string $date_key = 'date';
 
     public Writer $csv;
-
-    // public array $entity_keys = [
-    //     'amount' => 'amount',
-    //     'applied' => 'applied',
-    //     'client' => 'client_id',
-    //     'currency' => 'currency_id',
-    //     'custom_value1' => 'custom_value1',
-    //     'custom_value2' => 'custom_value2',
-    //     'custom_value3' => 'custom_value3',
-    //     'custom_value4' => 'custom_value4',
-    //     'date' => 'date',
-    //     'exchange_currency' => 'exchange_currency_id',
-    //     'gateway' => 'gateway_type_id',
-    //     'number' => 'number',
-    //     'private_notes' => 'private_notes',
-    //     'project' => 'project_id',
-    //     'refunded' => 'refunded',
-    //     'status' => 'status_id',
-    //     'transaction_reference' => 'transaction_reference',
-    //     'type' => 'type_id',
-    //     'vendor' => 'vendor_id',
-    //     'invoices' => 'invoices',
-    // ];
-
-    // private array $decorate_keys = [
-    //     'vendor',
-    //     'status',
-    //     'project',
-    //     'client',
-    //     'currency',
-    //     'exchange_currency',
-    //     'type',
-    //     'invoices',
-    // ];
 
     public function __construct(Company $company, array $input)
     {
@@ -105,11 +71,11 @@ class PaymentExport extends BaseExport
 
         $report = $query->cursor()
                 ->map(function ($resource) {
-                    return $this->buildRow($resource);
+                    $row = $this->buildRow($resource);
+                    return $this->processMetaData($row, $resource);
                 })->toArray();
                 
         return array_merge(['columns' => $header], $report);
-
 
     }
 

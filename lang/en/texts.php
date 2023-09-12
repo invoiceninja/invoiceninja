@@ -5164,6 +5164,7 @@ $LANG = array(
     'trust' => 'Trust',
     'charity' => 'Charity',
     'government' => 'Government',
+    'in_stock_quantity' => 'Stock quantity',
 ); 
 
 return $LANG;
