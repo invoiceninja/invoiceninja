@@ -447,6 +447,7 @@ class CheckoutComPaymentDriver extends BaseDriver
         //11-08-2022 check the user is authenticated
         if (!Auth::guard('contact')->check()) {
             $client = $request->getClient();
+            $this->client = $client;
             auth()->guard('contact')->loginUsingId($client->contacts()->first()->id, true);
         }
 
