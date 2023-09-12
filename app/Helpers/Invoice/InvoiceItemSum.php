@@ -391,15 +391,21 @@ class InvoiceItemSum
     {
         $this->setGroupedTaxes(collect([]));
 
-        $item_tax = 0;
+        
 
-        foreach ($this->line_items as $this->item) {
+        foreach ($this->line_items as $key => $this->item) {
             if ($this->item->line_total == 0) {
                 continue;
             }
+            
+            $item_tax = 0;
 
             //$amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / $this->sub_total));
-            $amount = ($this->sub_total > 0) ? $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / $this->sub_total)) : 0;
+            $amount = ($this->sub_total > 0) ? $this->item->line_total - ($this->invoice->discount * ( $this->item->line_total / $this->sub_total)) : 0;
+            
+            nlog("amount discount tax calcs : {$this->item->line_total} - {$this->sub_total} {$amount} {$this->item->line_total} {$this->invoice->discount} / {$this->sub_total}");
+            nlog(( $this->item->line_total / $this->sub_total));
+            nlog(($this->invoice->discount * ( $this->item->line_total / $this->sub_total)));
 
             $item_tax_rate1_total = $this->calcAmountLineTax($this->item->tax_rate1, $amount);
 
@@ -424,9 +430,20 @@ class InvoiceItemSum
             if ($item_tax_rate3_total != 0) {
                 $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
             }
+
+            $this->item->gross_line_total = $this->getLineTotal() + $item_tax;
+            $this->item->tax_amount = $item_tax;
+
+            $this->line_items[$key] = $this->item;
+            nlog("amount discount tax calcs : {$this->getLineTotal()} {$this->sub_total} {$amount} {$item_tax} {$this->item->gross_line_total} ");
+
+            $this->setTotalTaxes($this->getTotalTaxes() + $item_tax);
+
         }
 
-        $this->setTotalTaxes($item_tax);
+        
+
+        return $this;
     }
 
     /**
