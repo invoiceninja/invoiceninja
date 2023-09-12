@@ -46,7 +46,8 @@ class SearchController extends Controller
                             'name' => $client->present()->name(), 
                             'type' => '/client', 
                             'id' => $client->hashed_id,
-                            'path' => "/clients/{$client->hashed_id}/edit"
+                            'path' => "/clients/{$client->hashed_id}/edit",
+                            'heading' => ctrans('texts.clients')
                         ];
                      });
     }
@@ -65,7 +66,8 @@ class SearchController extends Controller
                             'name' => $contact->present()->search_display(), 
                             'type' => '/client_contact', 
                             'id' => $contact->client->hashed_id,
-                            'path' => "/clients/{$contact->client->hashed_id}"
+                            'path' => "/clients/{$contact->client->hashed_id}",
+                            'heading' => ctrans('texts.contacts')
                         ];
                      });
     }
@@ -84,7 +86,8 @@ class SearchController extends Controller
                             'name' => $invoice->client->present()->name() . ' - ' . $invoice->number, 
                             'type' => '/invoice', 
                             'id' => $invoice->hashed_id,
-                            'path' => "/clients/{$invoice->hashed_id}/edit"
+                            'path' => "/clients/{$invoice->hashed_id}/edit",
+                            'heading' => ctrans('texts.invoices')
                         ];
                      });
     }
@@ -179,6 +182,7 @@ class SearchController extends Controller
                 'path' => $value,
                 'type' => $transkey,
                 'name' => $translation,
+                'heading' => ctrans('texts.settings')
             ];
         }
 
