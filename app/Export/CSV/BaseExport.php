@@ -31,6 +31,8 @@ use App\Transformers\TaskTransformer;
 use App\Transformers\PaymentTransformer;
 use Illuminate\Database\Eloquent\Builder;
 use League\Fractal\Serializer\ArraySerializer;
+use App\Models\Product;
+use App\Models\Task;
 
 class BaseExport
 {
@@ -235,8 +237,8 @@ class BaseExport
     ];
 
     protected array $product_report_keys  = [
-        'project' => 'project_id',
-        'vendor' => 'vendor_id',
+        // 'project' => 'project_id',
+        // 'vendor' => 'vendor_id',
         'custom_value1' => 'custom_value1',
         'custom_value2' => 'custom_value2',
         'custom_value3' => 'custom_value3',
@@ -252,6 +254,10 @@ class BaseExport
         'tax_name1' => 'tax_name1',
         'tax_name2' => 'tax_name2',
         'tax_name3' => 'tax_name3',
+        'image' => 'product_image',
+        'tax_category' => 'tax_id',
+        'max_quantity' => 'max_quantity',
+        'in_stock_quantity' => 'in_stock_quantity',
     ];
 
     protected array $item_report_keys = [
@@ -992,6 +998,7 @@ class BaseExport
             $key = str_replace('payment.', '', $key);
             $key = str_replace('expense.', '', $key);
             $key = str_replace('product.', '', $key);
+            $key = str_replace('task.', '', $key);
 
             if(stripos($value, 'custom_value') !== false)
             {
@@ -1015,7 +1022,7 @@ class BaseExport
                     $custom_field_string = strlen($helper->makeCustomField($this->company->custom_fields, $entity)) > 1 ? $helper->makeCustomField($this->company->custom_fields, $entity) : ctrans("texts.{$parts[1]}");
                     $header[] = ctrans("texts.{$parts[0]}") . " " . $custom_field_string;
                 }
-                elseif(count($parts) == 2 && in_array(substr($original_key, 0, -1), ['credit','quote','invoice','purchase_order','recurring_invoice'])){
+                elseif(count($parts) == 2 && in_array(substr($original_key, 0, -1), ['credit','quote','invoice','purchase_order','recurring_invoice','task'])){
                     $custom_field_string = strlen($helper->makeCustomField($this->company->custom_fields, "product".substr($original_key,-1))) > 1 ? $helper->makeCustomField($this->company->custom_fields, "product".substr($original_key,-1)) : ctrans("texts.{$parts[1]}");
                     $header[] = ctrans("texts.{$parts[0]}") . " " . $custom_field_string;
                 }
@@ -1050,6 +1057,9 @@ class BaseExport
             Document::class => $entity = 'document',
             ClientContact::class => $entity = 'contact',
             PurchaseOrder::class => $entity = 'purchase_order',
+            Payment::class => $entity = 'payment',
+            Product::class => $entity = 'product',
+            Task::class => $entity = 'task',
             default => $entity = 'invoice',
         };
         
@@ -1060,6 +1070,17 @@ class BaseExport
             $report_keys = explode(".", $value);
             
             $column_key = $value;
+            
+            if($value == 'product_image') {
+                $column_key = 'image';
+                $value = 'image';
+            }
+
+            if($value == 'tax_id') {         
+                $column_key = 'tax_category';
+                $value = 'tax_category';
+            }
+
             $clean_row[$key]['entity'] = $report_keys[0];
             $clean_row[$key]['id'] = $report_keys[1] ?? $report_keys[0];
             $clean_row[$key]['hashed_id'] = $report_keys[0] == $entity ? null : $resource->{$report_keys[0]}->hashed_id ?? null;

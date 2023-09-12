@@ -5158,6 +5158,7 @@ $LANG = array(
     'click_or_drop_files_here' => 'Click or drop files here',
     'set_public' => 'Set public',
     'set_private' => 'Set private',
+    'in_stock_quantity' => 'Stock quantity',
 ); 
 
 return $LANG;

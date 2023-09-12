@@ -18,6 +18,7 @@ use App\Models\Task;
 use App\Models\Timezone;
 use App\Transformers\TaskTransformer;
 use App\Utils\Ninja;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
@@ -32,6 +33,10 @@ class TaskExport extends BaseExport
     private string $date_format = 'YYYY-MM-DD';
 
     public Writer $csv;
+
+    private array $storage_array = [];
+
+    private array $storage_item_array = [];
 
     public array $entity_keys = [
         'start_date' => 'start_date',
@@ -65,7 +70,7 @@ class TaskExport extends BaseExport
         $this->entity_transformer = new TaskTransformer();
     }
 
-    public function run()
+    public function init(): Builder
     {
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
@@ -74,18 +79,11 @@ class TaskExport extends BaseExport
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
         $this->date_format = DateFormat::find($this->company->settings->date_format_id)->format;
-
-        //load the CSV document from a string
-        $this->csv = Writer::createFromString();
-
         ksort($this->entity_keys);
 
         if (count($this->input['report_keys']) == 0) {
-            $this->input['report_keys'] = array_values($this->entity_keys);
+            $this->input['report_keys'] = array_values($this->task_report_keys);
         }
-
-        //insert the header
-        $this->csv->insertOne($this->buildHeader());
 
         $query = Task::query()
                         ->withTrashed()
@@ -94,12 +92,56 @@ class TaskExport extends BaseExport
 
         $query = $this->addDateRange($query);
 
+        return $query;
+
+    }
+
+    public function run()
+    {
+
+        $query = $this->init();
+
+        //load the CSV document from a string
+        $this->csv = Writer::createFromString();
+
+        //insert the header
+        $this->csv->insertOne($this->buildHeader());
+
         $query->cursor()
               ->each(function ($entity) {
                   $this->buildRow($entity);
               });
 
+        $this->csv->insertAll($this->storage_array);
+
         return $this->csv->toString();
+    }
+
+
+    public function returnJson()
+    {
+        $query = $this->init();
+
+        $headerdisplay = $this->buildHeader();
+
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
+                return ['identifier' => $value, 'display_value' => $headerdisplay[$value]];
+            })->toArray();
+
+        $query->cursor()
+                ->each(function ($resource) {
+        
+                    $this->buildRow($resource);
+        
+                    foreach($this->storage_array as $row)
+                    {
+                        $this->storage_item_array[] = $this->processMetaData($row, $resource);
+                    }
+
+                    $this->storage_array = [];
+                });
+        
+        return array_merge(['columns' => $header], $this->storage_item_array);
     }
 
     private function buildRow(Task $task)
@@ -108,37 +150,46 @@ class TaskExport extends BaseExport
         $transformed_entity = $this->entity_transformer->transform($task);
 
         foreach (array_values($this->input['report_keys']) as $key) {
-            $keyval = array_search($key, $this->entity_keys);
 
-            if(!$keyval) {
-                $keyval = array_search(str_replace("task.", "", $key), $this->entity_keys) ?? $key;
+            $parts = explode('.', $key);
+
+            if (is_array($parts) && $parts[0] == 'task' && array_key_exists($parts[1], $transformed_entity)) {
+                $entity[$key] = $transformed_entity[$parts[1]];
+            } elseif (array_key_exists($key, $transformed_entity)) {
+                $entity[$key] = $transformed_entity[$key];
+            } else {
+                $entity[$key] = $this->resolveKey($key, $task, $this->entity_transformer);
             }
 
-            if(!$keyval) {
-                $keyval = $key;
-            }
+            // $keyval = array_search($key, $this->entity_keys);
 
-            if (array_key_exists($key, $transformed_entity)) {
-                $entity[$keyval] = $transformed_entity[$key];
-            } elseif (array_key_exists($keyval, $transformed_entity)) {
-                $entity[$keyval] = $transformed_entity[$keyval];
-            }
-            else {
-                $entity[$keyval] = $this->resolveKey($keyval, $task, $this->entity_transformer);
-            }
+            // if(!$keyval) {
+            //     $keyval = array_search(str_replace("task.", "", $key), $this->entity_keys) ?? $key;
+            // }
+
+            // if(!$keyval) {
+            //     $keyval = $key;
+            // }
+
+            // if (array_key_exists($key, $transformed_entity)) {
+            //     $entity[$keyval] = $transformed_entity[$key];
+            // } elseif (array_key_exists($keyval, $transformed_entity)) {
+            //     $entity[$keyval] = $transformed_entity[$keyval];
+            // }
+            // else {
+            //     $entity[$keyval] = $this->resolveKey($keyval, $task, $this->entity_transformer);
+            // }
         }
 
         $entity['start_date'] = '';
         $entity['end_date'] = '';
         $entity['duration'] = '';
 
-
         if (is_null($task->time_log) || (is_array(json_decode($task->time_log, 1)) && count(json_decode($task->time_log, 1)) == 0)) {
-            $this->csv->insertOne($entity);
+            $this->storage_array[] = $entity;
         } else {
             $this->iterateLogs($task, $entity);
         }
-
         
     }
 
@@ -180,12 +231,13 @@ class TaskExport extends BaseExport
             
             $entity = $this->decorateAdvancedFields($task, $entity);
             
-            $this->csv->insertOne($entity);
+            $this->storage_array[] = $entity;
             
             unset($entity['start_date']);
             unset($entity['end_date']);
             unset($entity['duration']);
         }
+
     }
 
     private function decorateAdvancedFields(Task $task, array $entity) :array
