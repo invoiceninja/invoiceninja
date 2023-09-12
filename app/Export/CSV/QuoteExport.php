@@ -16,7 +16,7 @@ use App\Models\Company;
 use App\Models\Quote;
 use App\Transformers\QuoteTransformer;
 use App\Utils\Ninja;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
@@ -80,7 +80,8 @@ class QuoteExport extends BaseExport
 
         $report = $query->cursor()
                 ->map(function ($resource) {
-                    return $this->buildRow($resource);
+                    $row = $this->buildRow($resource);
+                    return $this->processMetaData($row, $resource);
                 })->toArray();
                 
         return array_merge(['columns' => $header], $report);

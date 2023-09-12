@@ -20,7 +20,7 @@ use App\Libraries\MultiDB;
 use App\Export\CSV\BaseExport;
 use Illuminate\Support\Facades\App;
 use App\Transformers\InvoiceTransformer;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 
 class InvoiceExport extends BaseExport
 {
@@ -94,7 +94,6 @@ class InvoiceExport extends BaseExport
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
-
 
         $query->cursor()
             ->each(function ($invoice) {

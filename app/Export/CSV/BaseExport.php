@@ -11,8 +11,10 @@
 
 namespace App\Export\CSV;
 
+use App\Models\Quote;
 use App\Utils\Number;
 use App\Models\Client;
+use App\Models\Credit;
 use App\Utils\Helpers;
 use App\Models\Company;
 use App\Models\Expense;
@@ -22,6 +24,7 @@ use App\Models\Document;
 use League\Fractal\Manager;
 use App\Models\ClientContact;
 use App\Models\PurchaseOrder;
+use App\Models\RecurringInvoice;
 use Illuminate\Support\Carbon;
 use App\Utils\Traits\MakesHash;
 use App\Transformers\TaskTransformer;
@@ -1037,9 +1040,12 @@ class BaseExport
         $class = get_class($resource);
 
         $entity = '';
-        
+
         match ($class) {
             Invoice::class => $entity = 'invoice',
+            RecurringInvoice::class => $entity = 'recurring_invoice',
+            Quote::class => $entity = 'quote',
+            Credit::class => $entity = 'credit',
             Expense::class => $entity = 'expense',
             Document::class => $entity = 'document',
             ClientContact::class => $entity = 'contact',
@@ -1060,6 +1066,49 @@ class BaseExport
             $clean_row[$key]['value'] = $row[$column_key];
             $clean_row[$key]['identifier'] = $value;
             $clean_row[$key]['display_value'] = $row[$column_key];
+
+        }
+
+        return $clean_row;
+    }   
+
+    public function processItemMetaData(array $row, $resource): array
+    {
+        $class = get_class($resource);
+
+        $entity = '';
+
+        match ($class) {
+            Invoice::class => $entity = 'invoice',
+            Quote::class => $entity = 'quote',
+            Credit::class => $entity = 'credit',
+            Expense::class => $entity = 'expense',
+            Document::class => $entity = 'document',
+            ClientContact::class => $entity = 'contact',
+            PurchaseOrder::class => $entity = 'purchase_order',
+            default => $entity = 'invoice',
+        };
+
+        $clean_row = [];
+
+        foreach (array_values($this->input['report_keys']) as $key => $value) {
+        
+            $report_keys = explode(".", $value);
+            
+            $column_key = $value;
+
+            if($value == 'type_id' || $value == 'item.type_id')
+                $column_key = 'type';
+
+            if($value == 'tax_id' || $value == 'item.tax_id')
+                $column_key = 'tax_category';
+                
+            $clean_row[$key]['entity'] = $report_keys[0];
+            $clean_row[$key]['id'] = $report_keys[1] ?? $report_keys[0];
+            $clean_row[$key]['hashed_id'] = $report_keys[0] == $entity ? null : $resource->{$report_keys[0]}->hashed_id ?? null;
+            $clean_row[$key]['value'] = isset($row[$column_key]) ? $row[$column_key] : $row[$report_keys[1]];
+            $clean_row[$key]['identifier'] = $value;
+            $clean_row[$key]['display_value'] = isset($row[$column_key]) ? $row[$column_key] : $row[$report_keys[1]];
 
         }
 

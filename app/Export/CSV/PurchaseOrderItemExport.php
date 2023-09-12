@@ -80,10 +80,8 @@ class PurchaseOrderItemExport extends BaseExport
               ->each(function ($resource) {
                 $this->iterateItems($resource);
                 
-                $this->storage_item_array = [];
-
                 foreach($this->storage_array as $row) {
-                    $this->storage_item_array[] = $this->processMetaData($row, $resource);
+                    $this->storage_item_array[] = $this->processItemMetaData($row, $resource);
                 }
 
                 $this->storage_array = [];
@@ -201,32 +199,4 @@ class PurchaseOrderItemExport extends BaseExport
         return $entity;
     }
 
-    public function processMetaData(array $row, $resource): array
-    {
-        $entity = 'purchase_order';
-        $clean_row = [];
-
-        foreach (array_values($this->input['report_keys']) as $key => $value) {
-        
-            $report_keys = explode(".", $value);
-            
-            $column_key = $value;
-
-            if($value == 'type_id' || $value == 'item.type_id')
-                $column_key = 'type';
-
-            if($value == 'tax_id' || $value == 'item.tax_id')
-                $column_key = 'tax_category';
-                
-            $clean_row[$key]['entity'] = $report_keys[0];
-            $clean_row[$key]['id'] = $report_keys[1] ?? $report_keys[0];
-            $clean_row[$key]['hashed_id'] = $report_keys[0] == $entity ? null : $resource->{$report_keys[0]}->hashed_id ?? null;
-            $clean_row[$key]['value'] = isset($row[$column_key]) ? $row[$column_key] : $row[$report_keys[1]];
-            $clean_row[$key]['identifier'] = $value;
-            $clean_row[$key]['display_value'] = isset($row[$column_key]) ? $row[$column_key] : $row[$report_keys[1]];
-
-        }
-
-        return $clean_row;
-    }   
 }
