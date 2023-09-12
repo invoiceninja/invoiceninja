@@ -294,16 +294,16 @@ class ReportCsvGenerationTest extends TestCase
        
         $csv = $response->streamedContent();
 
-        $this->assertEquals('Vendor 1', $this->getFirstValueByColumn($csv, 'Name'));
-        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Number'));
-        $this->assertEquals('city', $this->getFirstValueByColumn($csv, 'City'));
-        $this->assertEquals('address1', $this->getFirstValueByColumn($csv, 'Street'));
-        $this->assertEquals('address2', $this->getFirstValueByColumn($csv, 'Apt/Suite'));
-        $this->assertEquals('postal_code', $this->getFirstValueByColumn($csv, 'Postal Code'));
-        $this->assertEquals('work_phone', $this->getFirstValueByColumn($csv, 'Phone'));
-        $this->assertEquals('private_notes', $this->getFirstValueByColumn($csv, 'Private Notes'));
-        $this->assertEquals('public_notes', $this->getFirstValueByColumn($csv, 'Public Notes'));
-        $this->assertEquals('website', $this->getFirstValueByColumn($csv, 'Website'));
+        $this->assertEquals('Vendor 1', $this->getFirstValueByColumn($csv, 'Vendor Name'));
+        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Vendor Number'));
+        $this->assertEquals('city', $this->getFirstValueByColumn($csv, 'Vendor City'));
+        $this->assertEquals('address1', $this->getFirstValueByColumn($csv, 'Vendor Street'));
+        $this->assertEquals('address2', $this->getFirstValueByColumn($csv, 'Vendor Apt/Suite'));
+        $this->assertEquals('postal_code', $this->getFirstValueByColumn($csv, 'Vendor Postal Code'));
+        $this->assertEquals('work_phone', $this->getFirstValueByColumn($csv, 'Vendor Phone'));
+        $this->assertEquals('private_notes', $this->getFirstValueByColumn($csv, 'Vendor Private Notes'));
+        $this->assertEquals('public_notes', $this->getFirstValueByColumn($csv, 'Vendor Public Notes'));
+        $this->assertEquals('website', $this->getFirstValueByColumn($csv, 'Vendor Website'));
 
     }
 

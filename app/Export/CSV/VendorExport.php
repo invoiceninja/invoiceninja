@@ -53,7 +53,7 @@ class VendorExport extends BaseExport
         $this->csv = Writer::createFromString();
 
         if (count($this->input['report_keys']) == 0) {
-            $this->input['report_keys'] = array_values($this->entity_keys);
+            $this->input['report_keys'] = array_values($this->vendor_report_keys);
         }
                 
         $query = Vendor::query()->with('contacts')
@@ -104,7 +104,7 @@ class VendorExport extends BaseExport
 
     private function buildRow(Vendor $vendor) :array
     {
-        $transformed_contact = [];
+        $transformed_contact = false;
 
         $transformed_vendor = $this->vendor_transformer->transform($vendor);
 

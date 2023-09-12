@@ -1092,6 +1092,8 @@ class BaseExport
 
         }
 
+        nlog($clean_row);
+
         return $clean_row;
     }   
 
