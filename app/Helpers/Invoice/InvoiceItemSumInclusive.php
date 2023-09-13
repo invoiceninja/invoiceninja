@@ -385,7 +385,7 @@ class InvoiceItemSumInclusive
             }
 
             $this->setTotalTaxes($this->getTotalTaxes() + $item_tax);
-            $this->item->gross_line_total = $this->getLineTotal() + $item_tax;
+            $this->item->gross_line_total = $this->getLineTotal();
             
             $this->item->tax_amount = $item_tax;
 
