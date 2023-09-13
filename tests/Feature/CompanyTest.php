@@ -34,6 +34,8 @@ class CompanyTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
 
+    public $faker;
+
     protected function setUp() :void
     {
         parent::setUp();
@@ -47,6 +49,19 @@ class CompanyTest extends TestCase
         $this->makeTestData();
     }
 
+
+    public function testCompanyLogoInline()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/companies/{$this->company->hashed_id}/logo");
+
+        $response->assertStatus(200);
+        $response->streamedContent();
+
+    }
+
     public function testUpdateCompanyPropertyInvoiceTaskHours()
     {
         $company_update = [
@@ -56,9 +71,9 @@ class CompanyTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $company_update)
-            ->assertStatus(200);
+        ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $company_update);
 
+            $response->assertStatus(200);
 
         $arr = $response->json();
 
