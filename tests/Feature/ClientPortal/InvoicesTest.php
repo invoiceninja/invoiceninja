@@ -64,21 +64,21 @@ class InvoicesTest extends TestCase
             'company_id' => $company->id,
         ]);
 
-        $sent = Invoice::factory()->for($client)->create([
+        $sent = Invoice::factory()->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
             'client_id' => $client->id,
             'status_id' => Invoice::STATUS_SENT,
         ]);
 
-        $paid = Invoice::factory()->for($client)->create([
+        $paid = Invoice::factory()->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
             'client_id' => $client->id,
             'status_id' => Invoice::STATUS_PAID,
         ]);
 
-        $unpaid = Invoice::factory()->for($client)->create([
+        $unpaid = Invoice::factory()->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
             'client_id' => $client->id,
