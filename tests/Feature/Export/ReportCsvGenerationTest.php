@@ -26,7 +26,9 @@ use App\Models\ClientContact;
 use App\Export\CSV\TaskExport;
 use App\Utils\Traits\MakesHash;
 use App\Export\CSV\VendorExport;
+use App\Export\CSV\ProductExport;
 use App\DataMapper\CompanySettings;
+use App\Export\CSV\PaymentExport;
 use App\Factory\CompanyUserFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Services\Report\ARDetailReport;
@@ -580,7 +582,7 @@ class ReportCsvGenerationTest extends TestCase
         ])->post('/api/v1/reports/products', $data);
        
         $csv = $response->streamedContent();
-// nlog($csv);
+
         $this->assertEquals('product_key', $this->getFirstValueByColumn($csv, 'Product'));
         $this->assertEquals('notes', $this->getFirstValueByColumn($csv, 'Notes'));
         $this->assertEquals(100, $this->getFirstValueByColumn($csv, 'Cost'));
@@ -588,8 +590,22 @@ class ReportCsvGenerationTest extends TestCase
         $this->assertEquals('Custom 1', $this->getFirstValueByColumn($csv, 'Custom Value 1'));
         $this->assertEquals('Custom 2', $this->getFirstValueByColumn($csv, 'Custom Value 2'));
         $this->assertEquals('Custom 3', $this->getFirstValueByColumn($csv, 'Custom Value 3'));
-        $this->assertEquals('Custom 4', $this->getFirstValueByColumn($csv, 'Custom Value 4'));
-    
+        $this->assertEquals('Custom 4', $this->getFirstValueByColumn($csv, 'Custom Value 4'));    
+
+        $export = new ProductExport($this->company, $data);
+        $data = $export->returnJson();
+
+        $this->assertNotNull($data);
+
+        $this->assertEquals(0, $this->traverseJson($data, 'columns.0.identifier'));
+        $this->assertEquals('Custom Value 1', $this->traverseJson($data, 'columns.0.display_value'));
+        $this->assertEquals('custom_value1', $this->traverseJson($data, '0.0.entity'));
+        $this->assertEquals('custom_value1', $this->traverseJson($data, '0.0.id'));
+        $this->assertNull($this->traverseJson($data, '0.0.hashed_id'));
+        $this->assertEquals('Custom 1', $this->traverseJson($data, '0.0.value'));
+        $this->assertEquals('custom_value1', $this->traverseJson($data, '0.0.identifier'));
+        $this->assertEquals('Custom 1', $this->traverseJson($data, '0.0.display_value'));
+
     }
 
 
@@ -646,7 +662,26 @@ class ReportCsvGenerationTest extends TestCase
         $this->assertEquals('bob', $this->getFirstValueByColumn($csv, 'Client Name'));
         $this->assertEquals(0, $this->getFirstValueByColumn($csv, 'Client Balance'));
         $this->assertEquals(100, $this->getFirstValueByColumn($csv, 'Client Paid to Date'));
-    
+            
+        $export = new PaymentExport($this->company, $data);
+        $data = $export->returnJson();
+
+        $this->assertNotNull($data);
+
+        $this->assertEquals(0, $this->traverseJson($data, 'columns.0.identifier'));
+        $this->assertEquals('Payment Date', $this->traverseJson($data, 'columns.0.display_value'));
+        $this->assertEquals(1, $this->traverseJson($data, 'columns.1.identifier'));
+        $this->assertEquals('Payment Amount', $this->traverseJson($data, 'columns.1.display_value'));
+        $this->assertEquals(2, $this->traverseJson($data, 'columns.2.identifier'));
+        $this->assertEquals('Invoice Invoice Number', $this->traverseJson($data, 'columns.2.display_value'));
+        $this->assertEquals(4, $this->traverseJson($data, 'columns.4.identifier'));
+        $this->assertEquals('Client Name', $this->traverseJson($data, 'columns.4.display_value'));
+
+
+        $this->assertEquals('payment', $this->traverseJson($data, '0.0.entity'));
+        $this->assertEquals('date', $this->traverseJson($data, '0.0.id'));
+        $this->assertNull($this->traverseJson($data, '0.0.hashed_id'));
+        $this->assertEquals('payment.date', $this->traverseJson($data, '0.0.identifier'));
 
 
         $data = [
