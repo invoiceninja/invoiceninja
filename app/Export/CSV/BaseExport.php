@@ -11,6 +11,7 @@
 
 namespace App\Export\CSV;
 
+use App\Models\Activity;
 use App\Models\Quote;
 use App\Utils\Number;
 use App\Models\Client;
@@ -915,13 +916,13 @@ class BaseExport
         $helper = new Helpers();
 
         $header = [];
-        nlog("header");
+        // nlog("header");
         foreach ($this->input['report_keys'] as $value) {
             
             $key = array_search($value, $this->entity_keys);
             $original_key = $key;
         
-            nlog("{$key} => {$value}");
+            // nlog("{$key} => {$value}");
             $prefix = '';
 
             if(!$key) {
@@ -991,7 +992,7 @@ class BaseExport
                 $prefix = '';
             }
 
-            nlog("key => {$key}");
+            // nlog("key => {$key}");
 
             $key = str_replace('item.', '', $key);
             $key = str_replace('recurring_invoice.', '', $key);
@@ -1045,7 +1046,7 @@ class BaseExport
             }
         }
 
-        nlog($header);
+        // nlog($header);
         
         return $header;
     }
@@ -1057,6 +1058,7 @@ class BaseExport
         $entity = '';
 
         match ($class) {
+            Activity::class => $entity = 'activity',
             Invoice::class => $entity = 'invoice',
             RecurringInvoice::class => $entity = 'recurring_invoice',
             Quote::class => $entity = 'quote',
@@ -1079,7 +1081,9 @@ class BaseExport
             $report_keys = explode(".", $value);
             
             $column_key = $value;
-            
+            nlog($value);
+            nlog($report_keys);
+            nlog($row);
             if($value == 'product_image') {
                 $column_key = 'image';
                 $value = 'image';
