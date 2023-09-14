@@ -377,7 +377,7 @@ class BaseExport
     protected array $expense_report_keys = [
         'amount' => 'expense.amount',
         'category' => 'expense.category_id',
-        'client' => 'expense.client_id',
+        // 'client' => 'expense.client_id',
         'custom_value1' => 'expense.custom_value1',
         'custom_value2' => 'expense.custom_value2',
         'custom_value3' => 'expense.custom_value3',
@@ -591,31 +591,33 @@ class BaseExport
         $manager->setSerializer(new ArraySerializer());
         $transformed_client = $manager->createData($transformed_client)->toArray();
 
-        if($column == 'name')
+        if(in_array($column, ['client.name', 'name']))
             return $transformed_client['display_name'];
         
-        if($column == 'user_id')
+        if(in_array($column, ['client.user_id', 'user_id']))
             return $entity->client->user->present()->name();
 
-        if($column == 'country_id')
+        if(in_array($column, ['client.assigned_user_id', 'assigned_user_id'])) 
+            return $entity->client->assigned_user->present()->name();
+
+        if(in_array($column, ['client.country_id', 'country_id']))
             return $entity->client->country ? ctrans("texts.country_{$entity->client->country->name}") : '';
         
-        if($column == 'shipping_country_id')
+        if(in_array($column, ['client.shipping_country_id', 'shipping_country_id']))
             return $entity->client->shipping_country ? ctrans("texts.country_{$entity->client->shipping_country->name}") : '';
         
-        if($column == 'size_id')
+        if(in_array($column, ['client.size_id', 'size_id']))
             return $entity->client->size?->name ?? '';
 
-        if($column == 'industry_id')
+        if(in_array($column, ['client.industry_id', 'industry_id']))
             return $entity->client->industry?->name ?? '';
 
-        if ($column == 'currency_id') {
+        if (in_array($column, ['client.currency_id', 'currency_id']))
             return $entity->client->currency() ? $entity->client->currency()->code : $entity->company->currency()->code;
-        }
-
-        if($column == 'client.payment_terms') {
+        
+        if(in_array($column, ['payment_terms', 'client.payment_terms']))
             return $entity->client->getSetting('payment_terms');
-        }
+        
 
         if(array_key_exists($column, $transformed_client))
             return $transformed_client[$column];
