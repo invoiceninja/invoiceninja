@@ -30,6 +30,8 @@ class InvoicesTest extends TestCase
     use DatabaseTransactions;
     use AppSetup;
 
+    public $faker;
+    
     protected function setUp(): void
     {
         parent::setUp();
