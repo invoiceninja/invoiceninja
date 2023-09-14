@@ -915,13 +915,13 @@ class BaseExport
         $helper = new Helpers();
 
         $header = [];
-
+        nlog("header");
         foreach ($this->input['report_keys'] as $value) {
             
             $key = array_search($value, $this->entity_keys);
             $original_key = $key;
         
-            // nlog("{$key} => {$value}");
+            nlog("{$key} => {$value}");
             $prefix = '';
 
             if(!$key) {
@@ -962,6 +962,9 @@ class BaseExport
             if(!$key) {
                 $prefix = ctrans('texts.expense')." ";
                 $key = array_search($value, $this->expense_report_keys);
+                
+                    if(!$key && $value == 'expense.category')
+                        $key = 'category';
             }
 
             if(!$key) {
@@ -987,6 +990,8 @@ class BaseExport
             if(!$key) {
                 $prefix = '';
             }
+
+            nlog("key => {$key}");
 
             $key = str_replace('item.', '', $key);
             $key = str_replace('recurring_invoice.', '', $key);
@@ -1040,7 +1045,7 @@ class BaseExport
             }
         }
 
-        // nlog($header);
+        nlog($header);
         
         return $header;
     }
@@ -1093,8 +1098,6 @@ class BaseExport
             $clean_row[$key]['display_value'] = $row[$column_key];
 
         }
-
-        nlog($clean_row);
 
         return $clean_row;
     }   
