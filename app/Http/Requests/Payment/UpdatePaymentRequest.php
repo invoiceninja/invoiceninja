@@ -30,18 +30,25 @@ class UpdatePaymentRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->payment);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('edit', $this->payment);
     }
 
     public function rules()
     {
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $rules = [
             'invoices' => ['array', new PaymentAppliedValidAmount($this->all()), new ValidCreditsPresentRule($this->all())],
             'invoices.*.invoice_id' => 'distinct',
         ];
 
         if ($this->number) {
-            $rules['number'] = Rule::unique('payments')->where('company_id', auth()->user()->company()->id)->ignore($this->payment->id);
+            $rules['number'] = Rule::unique('payments')->where('company_id', $user->company()->id)->ignore($this->payment->id);
         }
 
         if ($this->file('documents') && is_array($this->file('documents'))) {
@@ -75,7 +82,8 @@ class UpdatePaymentRequest extends Request
 
         if (isset($input['invoices']) && is_array($input['invoices']) !== false) {
             foreach ($input['invoices'] as $key => $value) {
-                if (array_key_exists('invoice_id', $input['invoices'][$key])) {
+                if(isset($input['invoices'][$key]['invoice_id'])){
+                // if (array_key_exists('invoice_id', $input['invoices'][$key])) {
                     $input['invoices'][$key]['invoice_id'] = $this->decodePrimaryKey($value['invoice_id']);
                 }
             }
@@ -83,7 +91,8 @@ class UpdatePaymentRequest extends Request
 
         if (isset($input['credits']) && is_array($input['credits']) !== false) {
             foreach ($input['credits'] as $key => $value) {
-                if (array_key_exists('credits', $input['credits'][$key])) {
+                // if (array_key_exists('credits', $input['credits'][$key])) {
+                if (isset($input['credits'][$key]['credit_id'])) {
                     $input['credits'][$key]['credit_id'] = $this->decodePrimaryKey($value['credit_id']);
                 }
             }
