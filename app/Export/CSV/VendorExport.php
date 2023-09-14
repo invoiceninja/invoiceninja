@@ -55,7 +55,7 @@ class VendorExport extends BaseExport
         if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = array_values($this->vendor_report_keys);
         }
-                
+        
         $query = Vendor::query()->with('contacts')
                         ->withTrashed()
                         ->where('company_id', $this->company->id)
