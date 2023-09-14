@@ -55,7 +55,7 @@ class CompanyTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->postJson("/api/v1/companies/{$this->company->hashed_id}/logo");
+        ])->get("/api/v1/companies/{$this->company->hashed_id}/logo");
 
         $response->assertStatus(200);
         $response->streamedContent();
