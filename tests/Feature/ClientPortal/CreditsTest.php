@@ -41,7 +41,7 @@ class CreditsTest extends TestCase
 
         $this->faker = Factory::create();
         $this->buildCache(true);
-        $this->markTestSkipped('');
+        
     }
 
     public function testShowingOnlyCreditsWithDueDateLessOrEqualToNow()
