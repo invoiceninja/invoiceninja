@@ -24,6 +24,8 @@ class ClientSettingsTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
 
+    public $faker;
+
     protected function setUp() :void
     {
         parent::setUp();
@@ -32,6 +34,124 @@ class ClientSettingsTest extends TestCase
 
         $this->faker = \Faker\Factory::create();
     }
+
+
+    public function testClientValidSettingsWithBadProps()
+    {
+        $data = [
+            'name' => $this->faker->firstName(),
+            'id_number' => 'Coolio',
+            'settings' => [
+                'currency_id' => '43',
+                'language_id' => '1',
+                'website' => null,
+                'address1' => null,
+                'address2' => null,
+                'city' => null,
+                'state' => null,
+                'postal_code' => null,
+                'phone' => null,
+                'email' => null,
+                'vat_number' => null,
+                'id_number' => null,
+                'purchase_order_terms' => null,
+                'purchase_order_footer' => null,
+                'besr_id' => null,
+                'qr_iban' => null,
+                'name' => 'frank',
+                'custom_value1' => null,
+                'custom_value2' => null,
+                'custom_value3' => null,
+                'custom_value4' => null,
+                'invoice_terms' => null,
+                'quote_terms' =>null,
+                'quote_footer' => null,
+                'credit_terms' => null,
+                'credit_footer' => null,
+            ],
+        ];
+
+        $response = false;
+
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/clients/', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+        nlog($arr);
+        
+        $this->assertEquals('frank', $arr['data']['settings']['name']);
+
+        $client_id = $arr['data']['id'];
+
+        $data = [
+            'name' => $this->faker->firstName(),
+            'id_number' => 'Coolio',
+            'settings' => [
+                'currency_id' => '43',
+                'language_id' => '1',
+                'name' => 'white',
+            ],
+        ];
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/clients/'.$client_id, $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+        nlog($arr);
+        $this->assertEquals('white', $arr['data']['settings']['name']);
+
+        $data = [
+            'name' => $this->faker->firstName(),
+            'id_number' => 'Coolio',
+            'settings' => [
+                'currency_id' => '43',
+                'language_id' => '1',
+                'website' => null,
+                'address1' => null,
+                'besr_id' => null,
+                'qr_iban' => null,
+                'name' => 'white',
+                'custom_value1' => null,
+                'custom_value2' => null,
+                'custom_value3' => null,
+                'custom_value4' => null,
+                'invoice_terms' => null,
+                'quote_terms' =>null,
+                'quote_footer' => null,
+                'credit_terms' => null,
+                'credit_footer' => null,
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/clients/'.$client_id, $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+        nlog($arr);
+        $this->assertEquals('white', $arr['data']['settings']['name']);
+
+        // $this->assertEquals('1', $arr['data']['settings']['currency_id']);
+        // $this->assertEquals('1', $arr['data']['settings']['language_id']);
+        // $this->assertEquals('1', $arr['data']['settings']['payment_terms']);
+        // $this->assertEquals(10, $arr['data']['settings']['default_task_rate']);
+        // $this->assertEquals(true, $arr['data']['settings']['send_reminders']);
+        // $this->assertEquals('1', $arr['data']['settings']['valid_until']);
+    }
+
+
 
     public function testClientBaseline()
     {
