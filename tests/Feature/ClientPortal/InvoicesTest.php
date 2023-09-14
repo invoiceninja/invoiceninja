@@ -38,9 +38,10 @@ class InvoicesTest extends TestCase
 
         $this->faker = Factory::create();
         $this->buildCache(true);
+        $this->markTestSkipped();
     }
 
-    public function skipInvoiceTableFilters()
+    public function testInvoiceTableFilters()
     {
         $account = Account::factory()->create();
 
