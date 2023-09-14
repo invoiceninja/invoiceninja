@@ -1026,10 +1026,13 @@ class BaseExport
                     }
 
                 }
-                elseif(count($parts) == 2 && stripos($parts[0], 'contact') !== false) {
+                elseif(count($parts) == 2 && (stripos($parts[0], 'vendor_contact') !== false || stripos($parts[0], 'contact') !== false)) {
+                    $parts[0] = str_replace('vendor_contact', 'contact', $parts[0]);
+
                     $entity = "contact".substr($parts[1], -1);
                     $custom_field_string = strlen($helper->makeCustomField($this->company->custom_fields, $entity)) > 1 ? $helper->makeCustomField($this->company->custom_fields, $entity) : ctrans("texts.{$parts[1]}");
                     $header[] = ctrans("texts.{$parts[0]}") . " " . $custom_field_string;
+                    
                 }
                 elseif(count($parts) == 2 && in_array(substr($original_key, 0, -1), ['credit','quote','invoice','purchase_order','recurring_invoice','task'])){
                     $custom_field_string = strlen($helper->makeCustomField($this->company->custom_fields, "product".substr($original_key,-1))) > 1 ? $helper->makeCustomField($this->company->custom_fields, "product".substr($original_key,-1)) : ctrans("texts.{$parts[1]}");
@@ -1058,7 +1061,6 @@ class BaseExport
         $entity = '';
 
         match ($class) {
-            Activity::class => $entity = 'activity',
             Invoice::class => $entity = 'invoice',
             RecurringInvoice::class => $entity = 'recurring_invoice',
             Quote::class => $entity = 'quote',
@@ -1081,9 +1083,7 @@ class BaseExport
             $report_keys = explode(".", $value);
             
             $column_key = $value;
-            nlog($value);
-            nlog($report_keys);
-            nlog($row);
+            
             if($value == 'product_image') {
                 $column_key = 'image';
                 $value = 'image';
