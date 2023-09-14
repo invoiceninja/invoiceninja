@@ -81,7 +81,6 @@ class ClientSettingsTest extends TestCase
         $response->assertStatus(200);
 
         $arr = $response->json();
-        nlog($arr);
         
         $this->assertEquals('frank', $arr['data']['settings']['name']);
 
@@ -106,7 +105,7 @@ class ClientSettingsTest extends TestCase
         $response->assertStatus(200);
 
         $arr = $response->json();
-        nlog($arr);
+
         $this->assertEquals('white', $arr['data']['settings']['name']);
 
         $data = [
@@ -140,7 +139,6 @@ class ClientSettingsTest extends TestCase
         $response->assertStatus(200);
 
         $arr = $response->json();
-        nlog($arr);
         $this->assertEquals('white', $arr['data']['settings']['name']);
 
         // $this->assertEquals('1', $arr['data']['settings']['currency_id']);
@@ -169,7 +167,6 @@ class ClientSettingsTest extends TestCase
             ])->post('/api/v1/clients/', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
         }
 
         $response->assertStatus(200);
@@ -203,7 +200,6 @@ class ClientSettingsTest extends TestCase
             ])->post('/api/v1/clients/', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
         }
 
         $response->assertStatus(200);
@@ -235,17 +231,14 @@ class ClientSettingsTest extends TestCase
 
         $response = false;
 
-        try {
+        
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/clients/', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-        }
+            ])->postJson('/api/v1/clients/', $data);
+        
 
-        $response->assertStatus(302);
+        $response->assertStatus(422);
     }
 
     public function testClientIllegalLanguage()

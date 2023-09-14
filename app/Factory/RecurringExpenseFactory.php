@@ -34,7 +34,8 @@ class RecurringExpenseFactory
         $recurring_expense->tax_amount1 = 0;
         $recurring_expense->tax_amount2 = 0;
         $recurring_expense->tax_amount3 = 0;
-        $recurring_expense->date = null;
+        $recurring_expense->date = now()->format('Y-m-d');
+        $recurring_expense->next_send_date = now()->format('Y-m-d');
         $recurring_expense->payment_date = null;
         $recurring_expense->amount = 0;
         $recurring_expense->foreign_amount = 0;
@@ -47,6 +48,7 @@ class RecurringExpenseFactory
         $recurring_expense->custom_value4 = '';
         $recurring_expense->uses_inclusive_taxes = true;
         $recurring_expense->calculate_tax_by_amount = true;
+        $recurring_expense->remaining_cycles = -1;
 
         return $recurring_expense;
     }
