@@ -525,16 +525,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.281.6",
+            "version": "3.281.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "b83c543a9ff07fc1d9f11766ee77fc7f4deed2b9"
+                "reference": "926cea9a41a545ca9801ac304f2a9ffd23ac68c9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/b83c543a9ff07fc1d9f11766ee77fc7f4deed2b9",
-                "reference": "b83c543a9ff07fc1d9f11766ee77fc7f4deed2b9",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/926cea9a41a545ca9801ac304f2a9ffd23ac68c9",
+                "reference": "926cea9a41a545ca9801ac304f2a9ffd23ac68c9",
                 "shasum": ""
             },
             "require": {
@@ -614,9 +614,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.281.6"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.281.7"
             },
-            "time": "2023-09-13T18:07:28+00:00"
+            "time": "2023-09-14T18:05:11+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -14560,16 +14560,16 @@
         },
         {
             "name": "brianium/paratest",
-            "version": "v7.2.6",
+            "version": "v7.2.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paratestphp/paratest.git",
-                "reference": "7f372b5bb59b4271adedc67d3129df29b84c4173"
+                "reference": "1526eb4fd195f65075456dee394d14742ae0a66c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paratestphp/paratest/zipball/7f372b5bb59b4271adedc67d3129df29b84c4173",
-                "reference": "7f372b5bb59b4271adedc67d3129df29b84c4173",
+                "url": "https://api.github.com/repos/paratestphp/paratest/zipball/1526eb4fd195f65075456dee394d14742ae0a66c",
+                "reference": "1526eb4fd195f65075456dee394d14742ae0a66c",
                 "shasum": ""
             },
             "require": {
@@ -14639,7 +14639,7 @@
             ],
             "support": {
                 "issues": "https://github.com/paratestphp/paratest/issues",
-                "source": "https://github.com/paratestphp/paratest/tree/v7.2.6"
+                "source": "https://github.com/paratestphp/paratest/tree/v7.2.7"
             },
             "funding": [
                 {
@@ -14651,7 +14651,7 @@
                     "type": "paypal"
                 }
             ],
-            "time": "2023-08-29T07:47:39+00:00"
+            "time": "2023-09-14T14:10:09+00:00"
         },
         {
             "name": "composer/class-map-generator",
