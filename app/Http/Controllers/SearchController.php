@@ -14,12 +14,11 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Client;
 use App\Models\ClientContact;
-use App\Http\Requests\Search\GenericSearchRequest;
 use App\Models\Invoice;
 
 class SearchController extends Controller
 {
-    public function __invoke(GenericSearchRequest $request)
+    public function __invoke()
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
