@@ -106,7 +106,7 @@ class InvoicesTest extends TestCase
             ->assertSee($paid->number)
             ->assertDontSee($unpaid->number);
 
-        $user->forceDelete();
+        $account->delete();
 
     }
 }
