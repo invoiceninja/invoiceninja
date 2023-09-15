@@ -10112,16 +10112,16 @@
         },
         {
             "name": "spatie/laravel-data",
-            "version": "3.8.1",
+            "version": "3.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-data.git",
-                "reference": "7ead3d8f761846185a94d06e584bfe17e43b9239"
+                "reference": "21bad55113a1e1e5180a0f89b695f02ce1732aef"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-data/zipball/7ead3d8f761846185a94d06e584bfe17e43b9239",
-                "reference": "7ead3d8f761846185a94d06e584bfe17e43b9239",
+                "url": "https://api.github.com/repos/spatie/laravel-data/zipball/21bad55113a1e1e5180a0f89b695f02ce1732aef",
+                "reference": "21bad55113a1e1e5180a0f89b695f02ce1732aef",
                 "shasum": ""
             },
             "require": {
@@ -10183,7 +10183,7 @@
             ],
             "support": {
                 "issues": "https://github.com/spatie/laravel-data/issues",
-                "source": "https://github.com/spatie/laravel-data/tree/3.8.1"
+                "source": "https://github.com/spatie/laravel-data/tree/3.9.0"
             },
             "funding": [
                 {
@@ -10191,7 +10191,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-08-11T11:59:07+00:00"
+            "time": "2023-09-15T12:04:39+00:00"
         },
         {
             "name": "spatie/laravel-package-tools",
