@@ -11,22 +11,24 @@
 
 namespace App\Jobs\RecurringInvoice;
 
-use App\DataMapper\Analytics\SendRecurringFailure;
-use App\Factory\InvoiceInvitationFactory;
-use App\Factory\RecurringInvoiceToInvoiceFactory;
-use App\Jobs\Cron\AutoBill;
-use App\Jobs\Entity\EmailEntity;
+use Carbon\Carbon;
+use App\Utils\Ninja;
 use App\Models\Invoice;
+use App\Jobs\Cron\AutoBill;
+use Illuminate\Bus\Queueable;
+use App\Utils\Traits\MakesHash;
+use App\Jobs\Entity\EmailEntity;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\GeneratesCounter;
-use App\Utils\Traits\MakesHash;
-use Carbon\Carbon;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Turbo124\Beacon\Facades\LightLogs;
+use Illuminate\Queue\InteractsWithQueue;
+use App\Events\Invoice\InvoiceWasCreated;
+use App\Factory\InvoiceInvitationFactory;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use App\Factory\RecurringInvoiceToInvoiceFactory;
+use App\DataMapper\Analytics\SendRecurringFailure;
 
 class SendRecurring implements ShouldQueue
 {
@@ -105,6 +107,7 @@ class SendRecurring implements ShouldQueue
         $this->recurring_invoice->save();
 
         event('eloquent.created: App\Models\Invoice', $invoice);
+        event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars()));
 
         //auto bill, BUT NOT DRAFTS!!
         if ($invoice->auto_bill_enabled && $invoice->client->getSetting('auto_bill_date') == 'on_send_date' && $invoice->client->getSetting('auto_email_invoice')) {

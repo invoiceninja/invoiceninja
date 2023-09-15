@@ -481,8 +481,11 @@ class CompanySettings extends BaseSettings
 
     public $enable_e_invoice = false;
 
+    public $classification = ''; // individual, company, partnership, trust, charity, government, other
+
     public static $casts = [
         'enable_e_invoice'                   => 'bool', 
+        'classification'                     => 'string',
         'default_expense_payment_type_id'    => 'string',
         'e_invoice_type'                     => 'string',    
         'mailgun_endpoint'                   => 'string',    

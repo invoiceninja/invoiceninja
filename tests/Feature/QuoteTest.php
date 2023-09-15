@@ -171,7 +171,7 @@ class QuoteTest extends TestCase
 
         $project = Project::find($this->decodePrimaryKey($res['data'][0]['project_id']));
 
-        $this->assertEquals($project->name, ctrans('texts.quote_number_short') . " " . $this->quote->number."[{$this->quote->client->present()->name()}]");
+        $this->assertEquals($project->name, ctrans('texts.quote_number_short') . " " . $this->quote->number." [{$this->quote->client->present()->name()}]");
     }
 
     public function testQuoteList()

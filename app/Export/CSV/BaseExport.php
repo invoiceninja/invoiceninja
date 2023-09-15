@@ -11,6 +11,7 @@
 
 namespace App\Export\CSV;
 
+use App\Models\Activity;
 use App\Models\Quote;
 use App\Utils\Number;
 use App\Models\Client;
@@ -377,7 +378,7 @@ class BaseExport
     protected array $expense_report_keys = [
         'amount' => 'expense.amount',
         'category' => 'expense.category_id',
-        'client' => 'expense.client_id',
+        // 'client' => 'expense.client_id',
         'custom_value1' => 'expense.custom_value1',
         'custom_value2' => 'expense.custom_value2',
         'custom_value3' => 'expense.custom_value3',
@@ -591,31 +592,33 @@ class BaseExport
         $manager->setSerializer(new ArraySerializer());
         $transformed_client = $manager->createData($transformed_client)->toArray();
 
-        if($column == 'name')
+        if(in_array($column, ['client.name', 'name']))
             return $transformed_client['display_name'];
         
-        if($column == 'user_id')
+        if(in_array($column, ['client.user_id', 'user_id']))
             return $entity->client->user->present()->name();
 
-        if($column == 'country_id')
+        if(in_array($column, ['client.assigned_user_id', 'assigned_user_id'])) 
+            return $entity->client->assigned_user->present()->name();
+
+        if(in_array($column, ['client.country_id', 'country_id']))
             return $entity->client->country ? ctrans("texts.country_{$entity->client->country->name}") : '';
         
-        if($column == 'shipping_country_id')
+        if(in_array($column, ['client.shipping_country_id', 'shipping_country_id']))
             return $entity->client->shipping_country ? ctrans("texts.country_{$entity->client->shipping_country->name}") : '';
         
-        if($column == 'size_id')
+        if(in_array($column, ['client.size_id', 'size_id']))
             return $entity->client->size?->name ?? '';
 
-        if($column == 'industry_id')
+        if(in_array($column, ['client.industry_id', 'industry_id']))
             return $entity->client->industry?->name ?? '';
 
-        if ($column == 'currency_id') {
+        if (in_array($column, ['client.currency_id', 'currency_id']))
             return $entity->client->currency() ? $entity->client->currency()->code : $entity->company->currency()->code;
-        }
-
-        if($column == 'client.payment_terms') {
+        
+        if(in_array($column, ['payment_terms', 'client.payment_terms']))
             return $entity->client->getSetting('payment_terms');
-        }
+        
 
         if(array_key_exists($column, $transformed_client))
             return $transformed_client[$column];
@@ -913,7 +916,7 @@ class BaseExport
         $helper = new Helpers();
 
         $header = [];
-
+        // nlog("header");
         foreach ($this->input['report_keys'] as $value) {
             
             $key = array_search($value, $this->entity_keys);
@@ -960,6 +963,9 @@ class BaseExport
             if(!$key) {
                 $prefix = ctrans('texts.expense')." ";
                 $key = array_search($value, $this->expense_report_keys);
+                
+                    if(!$key && $value == 'expense.category')
+                        $key = 'category';
             }
 
             if(!$key) {
@@ -985,6 +991,8 @@ class BaseExport
             if(!$key) {
                 $prefix = '';
             }
+
+            // nlog("key => {$key}");
 
             $key = str_replace('item.', '', $key);
             $key = str_replace('recurring_invoice.', '', $key);
@@ -1018,10 +1026,13 @@ class BaseExport
                     }
 
                 }
-                elseif(count($parts) == 2 && stripos($parts[0], 'contact') !== false) {
+                elseif(count($parts) == 2 && (stripos($parts[0], 'vendor_contact') !== false || stripos($parts[0], 'contact') !== false)) {
+                    $parts[0] = str_replace('vendor_contact', 'contact', $parts[0]);
+
                     $entity = "contact".substr($parts[1], -1);
                     $custom_field_string = strlen($helper->makeCustomField($this->company->custom_fields, $entity)) > 1 ? $helper->makeCustomField($this->company->custom_fields, $entity) : ctrans("texts.{$parts[1]}");
                     $header[] = ctrans("texts.{$parts[0]}") . " " . $custom_field_string;
+                    
                 }
                 elseif(count($parts) == 2 && in_array(substr($original_key, 0, -1), ['credit','quote','invoice','purchase_order','recurring_invoice','task'])){
                     $custom_field_string = strlen($helper->makeCustomField($this->company->custom_fields, "product".substr($original_key,-1))) > 1 ? $helper->makeCustomField($this->company->custom_fields, "product".substr($original_key,-1)) : ctrans("texts.{$parts[1]}");
@@ -1091,8 +1102,6 @@ class BaseExport
             $clean_row[$key]['display_value'] = $row[$column_key];
 
         }
-
-        nlog($clean_row);
 
         return $clean_row;
     }   

@@ -57,9 +57,11 @@ class ActivityExport extends BaseExport
                 return ['identifier' => $value, 'display_value' => $headerdisplay[$value]];
             })->toArray();
 
-        $report = $query->cursor()
-                ->map(function ($credit) {
-                    return $this->buildActivityRow($credit);
+            
+            $report = $query->cursor()
+                ->map(function ($resource) {
+                    $row = $this->buildActivityRow($resource);
+                    return $this->processMetaData($row, $resource);
                 })->toArray();
         
         return array_merge(['columns' => $header], $report);
@@ -70,6 +72,8 @@ class ActivityExport extends BaseExport
             return [
             Carbon::parse($activity->created_at)->format($this->date_format),
             ctrans("texts.activity_{$activity->activity_type_id}",[
+                'payment_amount' => $activity->payment ? $activity->payment->amount : '',
+                'adjustment' => $activity->payment ? $activity->payment->refunded : '',
                 'client' => $activity->client ? $activity->client->present()->name() : '',
                 'contact' => $activity->contact ? $activity->contact->present()->name() : '',
                 'quote' => $activity->quote ? $activity->quote->number : '',
@@ -101,7 +105,7 @@ class ActivityExport extends BaseExport
 
         $this->date_format = DateFormat::find($this->company->settings->date_format_id)->format;
 
-        ksort($this->entity_keys);
+        // ksort($this->entity_keys);
 
         if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = array_values($this->entity_keys);
@@ -146,4 +150,27 @@ class ActivityExport extends BaseExport
     {
         return $entity;
     }
+
+
+    public function processMetaData(array $row, $resource): array
+    {
+
+        $clean_row = [];
+        
+        foreach (array_values($this->input['report_keys']) as $key => $value) {
+        
+            nlog("key: {$key}, value: {$value}");
+            nlog($row);
+            $clean_row[$key]['entity'] = 'activity';
+            $clean_row[$key]['id'] = $key;
+            $clean_row[$key]['hashed_id'] = null;
+            $clean_row[$key]['value'] = $row[$key];
+            $clean_row[$key]['identifier'] = $value;
+            $clean_row[$key]['display_value'] = $row[$key];
+
+        }
+
+        return $clean_row;
+    }   
+
 }

@@ -113,6 +113,7 @@ class Vendor extends BaseModel
         'custom_value4',
         'number',
         'language_id',
+        'classification',
     ];
 
     protected $casts = [

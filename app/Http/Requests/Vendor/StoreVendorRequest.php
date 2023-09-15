@@ -60,6 +60,7 @@ class StoreVendorRequest extends Request
         }
 
         $rules['language_id'] = 'bail|nullable|sometimes|exists:languages,id';
+        $rules['classification'] = 'bail|sometimes|nullable|in:individual,company,partnership,trust,charity,government,other';
 
         return $rules;
     }

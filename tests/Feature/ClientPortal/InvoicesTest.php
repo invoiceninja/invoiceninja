@@ -30,6 +30,8 @@ class InvoicesTest extends TestCase
     use DatabaseTransactions;
     use AppSetup;
 
+    public $faker;
+    
     protected function setUp(): void
     {
         parent::setUp();
@@ -62,28 +64,37 @@ class InvoicesTest extends TestCase
             'company_id' => $company->id,
         ]);
 
-        $sent = Invoice::factory()->for($client)->create([
+        $sent = Invoice::factory()->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
             'client_id' => $client->id,
+            'number' => 'testing-number-02',
+            'due_date' => now()->addMonth(),
             'status_id' => Invoice::STATUS_SENT,
         ]);
 
-        $paid = Invoice::factory()->for($client)->create([
+        $paid = Invoice::factory()->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
             'client_id' => $client->id,
+            'number' => 'testing-number-03',
             'status_id' => Invoice::STATUS_PAID,
         ]);
 
-        $unpaid = Invoice::factory()->for($client)->create([
+        $unpaid = Invoice::factory()->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
             'client_id' => $client->id,
+            'number' => 'testing-number-04',
+            'due_date' => '',
             'status_id' => Invoice::STATUS_UNPAID,
         ]);
 
-        $this->actingAs($client->contacts->first(), 'contact');
+        $sent->load('client');
+        $paid->load('client');
+        $unpaid->load('client');
+
+        $this->actingAs($client->contacts()->first(), 'contact');
 
         Livewire::test(InvoicesTable::class, ['company_id' => $company->id, 'db' => $company->db])
             ->assertSee($sent->number)
@@ -94,5 +105,8 @@ class InvoicesTest extends TestCase
             ->set('status', ['paid'])
             ->assertSee($paid->number)
             ->assertDontSee($unpaid->number);
+
+        $account->delete();
+
     }
 }

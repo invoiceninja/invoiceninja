@@ -391,8 +391,6 @@ class InvoiceItemSum
     {
         $this->setGroupedTaxes(collect([]));
 
-        
-
         foreach ($this->line_items as $key => $this->item) {
             if ($this->item->line_total == 0) {
                 continue;
