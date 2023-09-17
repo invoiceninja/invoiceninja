@@ -62,6 +62,40 @@ class PaymentTest extends TestCase
         );
     }
 
+
+    public function testCompletedPaymentLogic()
+    {
+        $payment = Payment::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'status_id' => Payment::STATUS_COMPLETED,
+            'amount' => 100
+        ]);
+
+        $data = [
+            'amount' => $this->invoice->amount,
+            'client_id' => $this->client->hashed_id,
+            'invoices' => [
+                [
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => $this->invoice->amount,
+                ],
+            ],
+            'date' => '2020/12/11',
+            'idempotency_key' => 'dsjafhajklsfhlaksjdhlkajsdjdfjdfljasdfhkjlsafhljfkfhsjlfhiuwayerfiuwaskjgbzmvnjzxnjcbgfkjhdgfoiwwrasdfasdfkashjdfkaskfjdasfda'
+
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/payments/'.$payment->hashed_id, $data);
+        
+        $response->assertStatus(200);
+
+    }
+
     public function testPendingPaymentLogic()
     {
         $payment = Payment::factory()->create([
@@ -94,9 +128,6 @@ class PaymentTest extends TestCase
         $response->assertStatus(422);
 
     }
-
-
-
 
     public function testPaymentGetBetweenQuery1()
     {
