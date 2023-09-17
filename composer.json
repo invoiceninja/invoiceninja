@@ -31,7 +31,7 @@
     ],
     "type": "project",
     "require": {
-        "php": "^8.1",
+        "php": "^8.1|^8.2",
         "ext-dom": "*",
         "ext-json": "*",
         "ext-libxml": "*",
@@ -84,7 +84,6 @@
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.3",
         "shopify/shopify-api": "^4.3",
-        "smarty/smarty": "^4.3",
         "socialiteproviders/apple": "^5.2",
         "socialiteproviders/microsoft": "^4.1",
         "spatie/laravel-data": "^3.5",
@@ -102,7 +101,7 @@
         "wildbit/postmark-php": "^4.0"
     },
     "require-dev": {
-        "php": "^8.1",
+        "php": "^8.1|^8.2",
         "barryvdh/laravel-debugbar": "^3.6",
         "barryvdh/laravel-ide-helper": "^2.13",
         "brianium/paratest": "^7",
