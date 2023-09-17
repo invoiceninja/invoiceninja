@@ -75,18 +75,20 @@ class TaxProvider
      */
     public function updateCompanyTaxData(): self
     {
-        $this->configureProvider($this->provider, $this->company->country()->iso_3166_2); //hard coded for now to one provider, but we'll be able to swap these out later
-
-        $company_details = [
-            'address2' => $this->company->settings->address2,
-            'address1' => $this->company->settings->address1,
-            'city' => $this->company->settings->city,
-            'state' => $this->company->settings->state,
-            'postal_code' => $this->company->settings->postal_code,
-            'country' => $this->company->country()->name,
-        ];
 
         try {
+
+        $this->configureProvider($this->provider, $this->company->country()->iso_3166_2); //hard coded for now to one provider, but we'll be able to swap these out later
+
+            $company_details = [
+                'address2' => $this->company->settings->address2,
+                'address1' => $this->company->settings->address1,
+                'city' => $this->company->settings->city,
+                'state' => $this->company->settings->state,
+                'postal_code' => $this->company->settings->postal_code,
+                'country' => $this->company->country()->name,
+            ];
+
             $tax_provider = new $this->provider($company_details);
 
             $tax_provider->setApiCredentials($this->api_credentials);
@@ -143,7 +145,7 @@ class TaxProvider
         
         $tax_data = $tax_provider->run();
 
-        nlog($tax_data);
+        // nlog($tax_data);
         
         if($tax_data) {
             $this->client->tax_data = $tax_data;
