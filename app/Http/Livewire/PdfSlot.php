@@ -195,15 +195,15 @@ class PdfSlot extends Component
 
         }
         elseif($this->entity_type == 'quote'){
-            foreach($this->settings->pdf_variables->quote_details as $variable)
+            foreach($this->settings->pdf_variables->quote_details ?? [] as $variable)
                 $entity_details .= "<div class='flex px-5 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-5 w-36 block entity-field'>{$variable}</p></div>";
         }
         elseif($this->entity_type == 'credit') {
-            foreach($this->settings->pdf_variables->credit_details as $variable)
+            foreach($this->settings->pdf_variables->credit_details ?? [] as $variable)
                 $entity_details .= "<div class='flex px-5 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-5 w-36 block entity-field'>{$variable}</p></div>";
         }
         elseif($this->entity_type == 'purchase_order'){
-            foreach($this->settings->pdf_variables->purchase_order_details as $variable)
+            foreach($this->settings->pdf_variables->purchase_order_details ?? [] as $variable)
                 $entity_details .= "<div class='flex px-5 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-5 w-36 block entity-field'>{$variable}</p></div>";
         }
 

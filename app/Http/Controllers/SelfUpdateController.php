@@ -11,13 +11,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\FilePermissionsFailure;
 use App\Utils\Ninja;
+use App\Models\Company;
 use App\Utils\Traits\AppSetup;
-use App\Utils\Traits\ClientGroupSettingsSaver;
-use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
+use App\Exceptions\FilePermissionsFailure;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Utils\Traits\ClientGroupSettingsSaver;
 
 class SelfUpdateController extends BaseController
 {
@@ -109,9 +110,31 @@ class SelfUpdateController extends BaseController
 
         $this->buildCache(true);
 
+        $this->runModelChecks();
+
         nlog('Called Artisan commands');
 
         return response()->json(['message' => 'Update completed'], 200);
+    }
+
+    private function runModelChecks()
+    {
+        Company::query()
+               ->cursor()
+               ->each(function ($company){
+
+                $settings = $company->settings;
+
+                if(property_exists($settings->pdf_variables, 'purchase_order_details'))
+                    return;
+
+                    $pdf_variables = $settings->pdf_variables;
+                    $pdf_variables->purchase_order_details = [];
+                    $settings->pdf_variables = $pdf_variables;
+                    $company->settings = $settings;
+                    $company->save();
+
+               });
     }
 
     private function clearCacheDir()
