@@ -36,6 +36,7 @@ class RecurringExpenseFactory
         $recurring_expense->tax_amount3 = 0;
         $recurring_expense->date = now()->format('Y-m-d');
         $recurring_expense->next_send_date = now()->format('Y-m-d');
+        $recurring_expense->next_send_date_client = now()->format('Y-m-d');
         $recurring_expense->payment_date = null;
         $recurring_expense->amount = 0;
         $recurring_expense->foreign_amount = 0;
