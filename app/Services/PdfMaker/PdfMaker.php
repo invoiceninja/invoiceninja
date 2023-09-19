@@ -75,25 +75,27 @@ class PdfMaker
         }
 
         if(isset($this->options)) {
-            $contents= $this->document->getElementsByTagName('ninja');
+
+            $replacements = [];
+            $contents = $this->document->getElementsByTagName('ninja');
 
             foreach ($contents as $content) {
                 
-                $content->removeChild($content->firstChild);
-                //$template = $content->ownerDocument->saveHTML($content);
-                $template = $content->ownerDocument->saveHTML($content->removeChild($content->firstChild));
+                $template = $content->ownerDocument->saveHTML($content);
 
                 $loader = new \Twig\Loader\FilesystemLoader(storage_path());
                 $twig = new \Twig\Environment($loader);
                 $template = $twig->createTemplate($template);
                 $template = $template->render($this->options);
 
-                nlog($template);
-
                 $f = $this->document->createDocumentFragment();
                 $f->appendXML($template);
+                $replacements[] = $f;
 
-                $content->parentNode->replaceChild($f, $content);
+            }
+
+            foreach($contents as $key => $content){
+                $content->parentNode->replaceChild($replacements[$key], $content);
             }
 
         }
