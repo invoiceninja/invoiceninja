@@ -52,7 +52,7 @@ jobs:
           extension="${filename##*.}"
           filename="${filename%.*}"
           version=${{ github.event.release.tag_name }}
-          cp dist/react/$file ../public/react/$filename"."$version"."$extension
+          cp $file ../public/react/$filename"."$version"."$extension
           done
 
           mkdir -p ../public/tinymce_6.4.2/tinymce/js/
