@@ -110,6 +110,10 @@ class PreviewController extends BaseController
                 ]),
                 'variables' => $html->generateLabelsAndValues(),
                 'process_markdown' => $entity_obj->client->company->markdown_enabled,
+                'options' => [
+                    'client' => $entity_obj->client,
+                    'entity' => $entity_obj,
+                ]
             ];
 
             $design = new Design(request()->design['name']);
@@ -274,6 +278,9 @@ class PreviewController extends BaseController
                 'options' => [
                     'all_pages_header' => $entity_obj->client->getSetting('all_pages_header'),
                     'all_pages_footer' => $entity_obj->client->getSetting('all_pages_footer'),
+                    'client' => $entity_obj->client,
+                    'entity' => $entity_obj,
+                    'variables' => $variables,
                 ],
                 'process_markdown' => $entity_obj->client->company->markdown_enabled,
             ];
@@ -375,6 +382,10 @@ class PreviewController extends BaseController
             ]),
             'variables' => $html->generateLabelsAndValues(),
             'process_markdown' => $invitation->invoice->client->company->markdown_enabled,
+            'options' => [
+                'client' => $invitation->invoice->client,
+                'entity' => $invitation->invoice,
+            ]
         ];
 
         $maker = new PdfMaker($state);
@@ -485,6 +496,10 @@ class PreviewController extends BaseController
             ]),
             'variables' => $html->generateLabelsAndValues(),
             'process_markdown' => $invoice->client->company->markdown_enabled,
+            'options' => [
+                'client' => $invitation->invoice->client,
+                'entity' => $invitation->invoice,
+            ]
         ];
 
         $maker = new PdfMaker($state);

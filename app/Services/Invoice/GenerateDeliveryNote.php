@@ -70,6 +70,11 @@ class GenerateDeliveryNote
                 'contact' => $this->contact,
             ], 'delivery_note'),
             'variables' => $html->generateLabelsAndValues(),
+            'options' => [
+                'client' => $this->invoice->client,
+                'entity' => $this->invoice,
+                'contact' => $this->contact,
+            ],
             'process_markdown' => $this->invoice->client->company->markdown_enabled,
         ];
 

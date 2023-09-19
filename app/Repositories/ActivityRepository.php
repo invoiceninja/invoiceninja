@@ -163,6 +163,8 @@ class ActivityRepository extends BaseRepository
             'options' => [
                 'all_pages_header' => $entity->vendor->getSetting('all_pages_header'),
                 'all_pages_footer' => $entity->vendor->getSetting('all_pages_footer'),
+                'vendor' => $entity->vendor,
+                'entity' => $entity,
             ],
             'process_markdown' => $entity->vendor->company->markdown_enabled,
         ];
@@ -233,6 +235,8 @@ class ActivityRepository extends BaseRepository
             'options' => [
                 'all_pages_header' => $entity->client->getSetting('all_pages_header'),
                 'all_pages_footer' => $entity->client->getSetting('all_pages_footer'),
+                'client' => $entity->client,
+                'entity' => $entity,
             ],
             'process_markdown' => $entity->client->company->markdown_enabled,
         ];

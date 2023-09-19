@@ -76,7 +76,15 @@ class Statement
                 'aging' => $this->getAging(),
             ], \App\Services\PdfMaker\Design::STATEMENT),
             'variables' => $variables,
-            'options' => [],
+            'options' => [
+                'client' => $this->client,
+                'entity' => $this->entity,
+                'variables' => $variables,
+                'invoices' => $this->getInvoices(),
+                'payments' => $this->getPayments(),
+                'credits' => $this->getCredits(),
+                'aging' => $this->getAging(),
+            ],
             'process_markdown' => $this->entity->client->company->markdown_enabled,
         ];
 

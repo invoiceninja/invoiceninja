@@ -74,19 +74,21 @@ class PdfMaker
             $this->updateElementProperties($this->data['template']);
         }
 
-        if(isset($this->data['template'])) {
-            $contents= $this->document->getElementsByTagName('twig');
+        if(isset($this->options)) {
+            $contents= $this->document->getElementsByTagName('ninja');
 
             foreach ($contents as $content) {
-
-                $template = $content->ownerDocument->saveHTML($content);
+                
+                $content->removeChild($content->firstChild);
+                //$template = $content->ownerDocument->saveHTML($content);
+                $template = $content->ownerDocument->saveHTML($content->removeChild($content->firstChild));
 
                 $loader = new \Twig\Loader\FilesystemLoader(storage_path());
                 $twig = new \Twig\Environment($loader);
                 $template = $twig->createTemplate($template);
-                $template = $template->render([
-                    'invoice' => \App\Models\Invoice::first()->toArray(),
-                ]);
+                $template = $template->render($this->options);
+
+                nlog($template);
 
                 $f = $this->document->createDocumentFragment();
                 $f->appendXML($template);

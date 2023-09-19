@@ -192,6 +192,10 @@ class StubBuilder
             ]),
             'variables' => $html->generateLabelsAndValues(),
             'process_markdown' => $this->company->markdown_enabled,
+            'options' => [
+                'client' => $this->recipient,
+                'entity' => $this->entity,
+            ],
         ];
 
         $maker = new PdfMaker($state);
