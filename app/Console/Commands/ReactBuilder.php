@@ -51,7 +51,7 @@ class ReactBuilder extends Command
         $directoryIterator = new \RecursiveDirectoryIterator(public_path('react'), \RecursiveDirectoryIterator::SKIP_DOTS);
 
         foreach (new \RecursiveIteratorIterator($directoryIterator) as $file) {
-            if ($file->getExtension() == 'js') {
+            if ($file->getExtension() == 'js' && stripos($file->getFileName(), config('ninja.app_version')) !== false) {
                 if (str_contains($file->getFileName(), 'index-')) {
                     $includes .= '<script type="module" crossorigin src="/react/'.$file->getFileName().'"></script>'."\n";
                 } else {
@@ -59,7 +59,7 @@ class ReactBuilder extends Command
                 }
             }
 
-            if (str_contains($file->getFileName(), '.css')) {
+            if (str_contains($file->getFileName(), '.css' && stripos($file->getFileName(), config('ninja.app_version')) !== false) {
                 $includes .= '<link rel="stylesheet" href="/react/'.$file->getFileName().'">'."\n";
             }
         }
