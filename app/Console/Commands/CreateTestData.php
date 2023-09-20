@@ -61,6 +61,8 @@ class CreateTestData extends Command
 
     protected $invoice_repo;
 
+    protected $count;
+    
     /**
      * Execute the console command.
      *
