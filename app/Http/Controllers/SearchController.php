@@ -11,14 +11,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Http\Requests\Search\GenericSearchRequest;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Invoice;
+use App\Models\User;
 
 class SearchController extends Controller
 {
-    public function __invoke()
+    public function __invoke(GenericSearchRequest $request)
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -32,66 +33,75 @@ class SearchController extends Controller
 
     }
 
-    private function clientMap(User $user) {
+    private function clientMap(User $user)
+    {
 
         return Client::query()
                      ->company()
-                     ->when($user->cannot('view_all') || $user->cannot('view_client'), function ($query) use($user) {
+                     ->where('is_deleted', 0)
+                     ->when($user->cannot('view_all') || $user->cannot('view_client'), function ($query) use ($user) {
                          $query->where('user_id', $user->id);
                      })
                      ->cursor()
-                     ->map(function ($client){
-                        return [
-                            'name' => $client->present()->name(), 
-                            'type' => '/client', 
-                            'id' => $client->hashed_id,
-                            'path' => "/clients/{$client->hashed_id}/edit",
-                            'heading' => ctrans('texts.clients')
-                        ];
+                     ->map(function ($client) {
+                         return [
+                             'name' => $client->present()->name(),
+                             'type' => '/client',
+                             'id' => $client->hashed_id,
+                             'path' => "/clients/{$client->hashed_id}/edit"
+                         ];
                      });
     }
 
-    private function clientContactMap(User $user) {
+    private function clientContactMap(User $user)
+    {
 
         return ClientContact::query()
                      ->company()
                      ->with('client')
-                     ->when($user->cannot('view_all') || $user->cannot('view_client'), function ($query) use($user) {
+                     ->whereHas('client', function ($q) {
+                         $q->where('is_deleted', 0);
+                     })
+                     ->when($user->cannot('view_all') || $user->cannot('view_client'), function ($query) use ($user) {
                          $query->where('user_id', $user->id);
                      })
                      ->cursor()
-                     ->map(function ($contact){
-                        return [
-                            'name' => $contact->present()->search_display(), 
-                            'type' => '/client_contact', 
-                            'id' => $contact->client->hashed_id,
-                            'path' => "/clients/{$contact->client->hashed_id}",
-                            'heading' => ctrans('texts.contacts')
-                        ];
+                     ->map(function ($contact) {
+                         return [
+                             'name' => $contact->present()->search_display(),
+                             'type' => '/client_contact',
+                             'id' => $contact->client->hashed_id,
+                             'path' => "/clients/{$contact->client->hashed_id}"
+                         ];
                      });
     }
 
-    private function invoiceMap(User $user) {
+    private function invoiceMap(User $user)
+    {
 
         return Invoice::query()
                      ->company()
                      ->with('client')
-                     ->when($user->cannot('view_all') || $user->cannot('view_invoice'), function ($query) use($user) {
+                     ->where('is_deleted', 0)
+                     ->whereHas('client', function ($q) {
+                         $q->where('is_deleted', 0);
+                     })
+                     ->when($user->cannot('view_all') || $user->cannot('view_invoice'), function ($query) use ($user) {
                          $query->where('user_id', $user->id);
                      })
                      ->cursor()
-                     ->map(function ($invoice){
-                        return [
-                            'name' => $invoice->client->present()->name() . ' - ' . $invoice->number, 
-                            'type' => '/invoice', 
-                            'id' => $invoice->hashed_id,
-                            'path' => "/invoices/{$invoice->hashed_id}/edit",
-                            'heading' => ctrans('texts.invoices')
-                        ];
+                     ->map(function ($invoice) {
+                         return [
+                             'name' => $invoice->client->present()->name() . ' - ' . $invoice->number,
+                             'type' => '/invoice',
+                             'id' => $invoice->hashed_id,
+                             'path' => "/clients/{$invoice->hashed_id}/edit"
+                         ];
                      });
     }
 
-    private function settingsMap() {
+    private function settingsMap()
+    {
 
         $paths = [
             'user_details' => '/settings/user_details',
@@ -103,7 +113,7 @@ class SearchController extends Controller
             'custom_fields' => '/settings/user_details/custom_fields',
             'preferences' => '/settings/user_details/preferences',
             'company_details' => '/settings/company_details',
-            'company_details,details' => '/settings/company_details/',
+            'company_details,details' => '/settings/company_details/details',
             'company_details,address' => '/settings/company_details/address',
             'company_details,logo' => '/settings/company_details/logo',
             'company_details,defaults' => '/settings/company_details/defaults',
@@ -181,7 +191,6 @@ class SearchController extends Controller
                 'path' => $value,
                 'type' => $transkey,
                 'name' => $translation,
-                'heading' => ctrans('texts.settings')
             ];
         }
 
