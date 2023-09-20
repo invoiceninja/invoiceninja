@@ -654,7 +654,6 @@ Nemôžete nájsť faktúru? Potrebujete poradiť? Radi Vám pomôžeme         
     'created_by_invoice' => 'Vytvorené :invoice',
     'primary_user' => 'Primárny používateľ',
     'help' => 'Pomoc',
-    'customize_help' => '<p>Na deklaratívne definovanie návrhov faktúr používame :pdfmake_link. pdfmake :playground_link poskytuje skvelý spôsob, ako vidieť knižnicu v akcii.</p><p> Ak potrebujete pomôcť niečo vymyslieť, položte otázku na náš :forum_link s dizajnom, ktorý používate.</p>',
     'playground' => 'ihrisko',
     'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Dátum splatnosti',
@@ -1805,7 +1804,6 @@ Nemôžete nájsť faktúru? Potrebujete poradiť? Radi Vám pomôžeme         
     'bot_emailed_notify_paid' => 'Keď to bude zaplatené, pošlem vám e-mail.',
     'add_product_to_invoice' => 'Pridať 1 :product',
     'not_authorized' => 'Nemáte oprávnenie',
-    'bot_get_email' => 'Ahoj! (mávať)<br/> Ďakujeme, že ste vyskúšali Invoice Ninja Bot.<br/> Ak chcete používať tohto robota, musíte si vytvoriť bezplatný účet.<br/> Ak chcete začať, pošlite mi e-mailovú adresu svojho účtu.',
     'bot_get_code' => 'Ďakujem! Zaslali sme Vám email s Vašim bezpečnostným kódom.',
     'bot_welcome' => 'Váš účet je overený.',
     'email_not_found' => 'Nepodarilo sa mi nájsť dostupný účet pre :email',
@@ -1813,7 +1811,6 @@ Nemôžete nájsť faktúru? Potrebujete poradiť? Radi Vám pomôžeme         
     'security_code_email_subject' => 'Bezpečnostný kód pre bota Invoice Ninja',
     'security_code_email_line1' => 'Váš bezpečnostný kód pre bota Invoice Ninja.',
     'security_code_email_line2' => 'Poznámka: Vyprší za 10 minút.',
-    'bot_help_message' => 'Momentálne podporujem:<br/> • Vytvorte\aktualizujte\e-mailom faktúru<br/> • Zoznam produktov<br/> Napríklad:<br/> <i>faktúra bob na 2 lístky, splatnosť si nastavte na budúci štvrtok a zľavu na 10 percent</i>',
     'list_products' => 'Zoznam produktov',
 
     'include_item_taxes_inline' => 'Zahrnúť <b>dane z riadkových položiek do súčtu riadkov</b>',
@@ -1826,7 +1823,6 @@ Nemôžete nájsť faktúru? Potrebujete poradiť? Radi Vám pomôžeme         
     'update_invoiceninja_warning' => 'Pred aktualizáciou Invoice Ninja, vytvorte zálohu vašich súborov a databázy!',
     'update_invoiceninja_available' => 'Je dostupná nová verzia Invoice Ninja.',
     'update_invoiceninja_unavailable' => 'Nieje dostupná nová verzia Invoice Ninja.',
-    'update_invoiceninja_instructions' => 'Nainštalujte si novú verziu <strong>:version</strong> kliknutím na tlačidlo <em>Aktualizovať</em> nižšie. Potom budete presmerovaní na palubnú dosku.',
     'update_invoiceninja_update_start' => 'Aktualizovať teraz',
     'update_invoiceninja_download_start' => 'Stiahnuť :version',
     'create_new' => 'Vytvoriť nový',
@@ -5141,6 +5137,20 @@ Nemôžete nájsť faktúru? Potrebujete poradiť? Radi Vám pomôžeme         
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
+    'show_document_preview' => 'Show Document Preview',
+    'cash_accounting' => 'Cash accounting',
+    'click_or_drop_files_here' => 'Click or drop files here',
+    'set_public' => 'Set public',
+    'set_private' => 'Set private',
+    'individual' => 'Individual',
+    'business' => 'Business',
+    'partnership' => 'partnership',
+    'trust' => 'Trust',
+    'charity' => 'Charity',
+    'government' => 'Government',
+    'in_stock_quantity' => 'Stock quantity',
+    'vendor_contact' => 'Vendor Contact',
+
 ); 
 
 return $LANG;

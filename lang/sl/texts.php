@@ -656,8 +656,6 @@ Pošljite nam sporočilo na contact@invoiceninja.com',
     'created_by_invoice' => 'Naredil: :invoice',
     'primary_user' => 'Primarni uporabnik',
     'help' => 'Pomoč',
-    'customize_help' => '<p>Uporabljamo :pdfmake_link, da deklarativno definiramo oblike računov. Pdfmake :playground_link je odličen način za ogled knjižnice v akciji.</p>
-<p>Če potrebujete pomoč nam pošljite vprašanje na :forum_link z zasnovo, ki jo uporabljate.</p>',
     'playground' => 'peskovnik',
     'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Rok plačila',
@@ -1822,7 +1820,6 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'bot_emailed_notify_paid' => 'Ob plačilu pošljemo e-poštno sporočilo.',
     'add_product_to_invoice' => 'Dodaj 1 :product',
     'not_authorized' => 'Nimate dovoljenja',
-    'bot_get_email' => 'Živjo! (wave)<br/>Hvala za preizkus Invoice Ninja Bot-a.<br/>Za uporabo je potreben brezplačen račun.<br/>Za nadaljevanje mi pošlji svoj naslov elektronske pošte.',
     'bot_get_code' => 'Hvala! Poslali smo vam e-poštno sporočilo z varnostno kodo.',
     'bot_welcome' => 'To je to!  Vaš račun je preverjen.<br/>',
     'email_not_found' => 'Za :email ni bilo mogoče najti razpoložljivega računa',
@@ -1830,7 +1827,6 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'security_code_email_subject' => 'Varnostna koda za Invoice Ninja Robot',
     'security_code_email_line1' => 'Ta je vaša varnostna koda za Invoice Ninja Robot',
     'security_code_email_line2' => 'Opomba: poteče v 10 minutah.',
-    'bot_help_message' => 'Trenutno podpiram:<br/>• Ustvari\posodobi\pošlji račun<br/>• Seznam izdelkov<br/>N primer:<br/><i>Izstavi račun za 2 karti, nastavi zapadlost na naslednji četrtek in 10 odstotkov popusta</i>',
     'list_products' => 'Seznam izdelkov',
 
     'include_item_taxes_inline' => 'Prikaži <b>davke v vrstici skupno</b>',
@@ -1843,7 +1839,6 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'update_invoiceninja_warning' => 'Preden začnete nadgradnjo ustvarite varnostno kopijo baze podatkov in datotek!',
     'update_invoiceninja_available' => 'Nova različica Invoice Ninje je na voljo.',
     'update_invoiceninja_unavailable' => 'Nove različice Invoice Ninje ni na voljo.',
-    'update_invoiceninja_instructions' => 'Prosim namestite novo različico <strong>:version</strong> z klikom na  <em>Nadgradi Zdaj</em> gumba spodaj. Nato boste preusmerjeni na nadzorno ploščo.',
     'update_invoiceninja_update_start' => 'Posodobi zdaj',
     'update_invoiceninja_download_start' => 'Prenesi :version',
     'create_new' => 'Ustvari',
@@ -5158,6 +5153,20 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
+    'show_document_preview' => 'Show Document Preview',
+    'cash_accounting' => 'Cash accounting',
+    'click_or_drop_files_here' => 'Click or drop files here',
+    'set_public' => 'Set public',
+    'set_private' => 'Set private',
+    'individual' => 'Individual',
+    'business' => 'Business',
+    'partnership' => 'partnership',
+    'trust' => 'Trust',
+    'charity' => 'Charity',
+    'government' => 'Government',
+    'in_stock_quantity' => 'Stock quantity',
+    'vendor_contact' => 'Vendor Contact',
+
 ); 
 
 return $LANG;

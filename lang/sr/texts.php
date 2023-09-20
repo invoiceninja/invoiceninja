@@ -657,8 +657,6 @@ $LANG = array(
     'created_by_invoice' => 'Kreiran od :invoice',
     'primary_user' => 'Primarni korisnik',
     'help' => 'Pomoć',
-    'customize_help' => '<p>Koristimo :pdfmake_link za deklarativno definisanje dezajna računa. Pdfmake :playground_link je dobar način da se vidi kako ova biblioteka funkcioniše.</p>
-                        <p>Ukoliko Vam je potrebna pomoć, pošaljite pitanje na naš :forum_link, sa dizajnom koji koristite.</p>',
     'playground' => 'igralište',
     'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Datum dospeća',
@@ -1822,7 +1820,6 @@ Kada budete imali iznose, vratite se na ovu stranicu sa načinima plaćanja i k
     'bot_emailed_notify_paid' => 'Poslaću vam email kada bude plaćeno.',
     'add_product_to_invoice' => 'Dodaj 1 :product',
     'not_authorized' => 'Niste ovlašćeni',
-    'bot_get_email' => 'Zdravo! (wave)<br/>Hvala što isprobavate Invoice Ninja Bot.<br/>Potrebno je da napravite besplatan nalog da biste ga koristili.<br/>Pošaljite email adresu Vašeg naloga pa možemo početi.',
     'bot_get_code' => 'Hvala! Poslat je e-mail sa vašim sigurnosnim kodom.',
     'bot_welcome' => 'To je to, vaš nalog je verifikovan.',
     'email_not_found' => 'Nisam uspeo/la da pronađem dostupan nalog za :email',
@@ -1830,7 +1827,6 @@ Kada budete imali iznose, vratite se na ovu stranicu sa načinima plaćanja i k
     'security_code_email_subject' => 'Sigurnosni kod za Invoice Ninja Bot',
     'security_code_email_line1' => 'Ovo je vaš Invoice Ninja Bot sigurnosni kod.',
     'security_code_email_line2' => 'Note: ističe za 10 minuta.',
-    'bot_help_message' => 'Trenutno je podržano:<br/>• Kreiranje\ažuriranje\slanje email-om računa<br/>• Lista proizvoda<br/>Na primer:<br/><i>Fakturiši Peri 2 ulaznice, podesi datum prispeća na naredni četvrtak i postavi 10 posto popusta </i>',
     'list_products' => 'Lista proizvoda',
 
     'include_item_taxes_inline' => 'Uključite <b>ukupan iznos poreza na stavke porudžbine</b>',
@@ -1843,7 +1839,6 @@ Kada budete imali iznose, vratite se na ovu stranicu sa načinima plaćanja i k
     'update_invoiceninja_warning' => 'Pre početka nadogradnje Invoice Ninja napravite rezervnu kopiju vaše baze podataka i datoteka!',
     'update_invoiceninja_available' => 'Nova verzija Invoice Ninja je dostupna.',
     'update_invoiceninja_unavailable' => 'Nema dostupne nove verzije Invoice Ninja.',
-    'update_invoiceninja_instructions' => 'Instalirajte novu verziju <strong>:version </strong>klikom na<em> dugme Ažuriraj </em>odmah ispod. Nakon toga ćete biti preusmereni na kontrolnu tablu.',
     'update_invoiceninja_update_start' => 'Ažuriraj odmah',
     'update_invoiceninja_download_start' => 'Preuzmi :version',
     'create_new' => 'Kreiraj novo',
@@ -5158,6 +5153,20 @@ Kada budete imali iznose, vratite se na ovu stranicu sa načinima plaćanja i k
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
+    'show_document_preview' => 'Show Document Preview',
+    'cash_accounting' => 'Cash accounting',
+    'click_or_drop_files_here' => 'Click or drop files here',
+    'set_public' => 'Set public',
+    'set_private' => 'Set private',
+    'individual' => 'Individual',
+    'business' => 'Business',
+    'partnership' => 'partnership',
+    'trust' => 'Trust',
+    'charity' => 'Charity',
+    'government' => 'Government',
+    'in_stock_quantity' => 'Stock quantity',
+    'vendor_contact' => 'Vendor Contact',
+
 ); 
 
 return $LANG;

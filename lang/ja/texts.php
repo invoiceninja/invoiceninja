@@ -657,7 +657,6 @@ $LANG = array(
     'created_by_invoice' => 'Created by :invoice',
     'primary_user' => 'プライマリ・ユーザ',
     'help' => 'ヘルプ',
-    'customize_help' => '<p>:pdfmake_link を使用して、請求書のデザインを宣言的に定義します。 pdfmake :playground_link は、ライブラリの動作を確認する優れた方法を提供します。</p><p>何かを理解するのに助けが必要な場合は、使用しているデザインで :forum_link に質問を投稿してください。</p>',
     'playground' => 'playground',
     'support_forum' => 'Support Forums',
     'invoice_due_date' => '支払期日',
@@ -1821,7 +1820,6 @@ $LANG = array(
     'bot_emailed_notify_paid' => 'I\'ll email you when it\'s paid.',
     'add_product_to_invoice' => '1 :product を追加',
     'not_authorized' => 'You are not authorized',
-    'bot_get_email' => 'Hi! (wave)<br/>Thanks for trying the Invoice Ninja Bot.<br/>You need to create a free account to use this bot.<br/>Send me your account email address to get started.',
     'bot_get_code' => 'Thanks! I\'ve sent a you an email with your security code.',
     'bot_welcome' => 'That\'s it, your account is verified.<br/>',
     'email_not_found' => ':email の利用可能なアカウントが見つかりませんでした',
@@ -1829,7 +1827,6 @@ $LANG = array(
     'security_code_email_subject' => 'Security code for Invoice Ninja Bot',
     'security_code_email_line1' => 'This is your Invoice Ninja Bot security code.',
     'security_code_email_line2' => '注: 有効期限は 10 分です。',
-    'bot_help_message' => '私は現在サポートしています：<br/> • 請求書を作成\更新\メールで送信<br/>• 商品の一覧表示<br/>例えば：<br/><i>ボブに 2 枚のチケットを請求し、期日を次の木曜日に設定し、割引を 10% に設定します。</i>',
     'list_products' => '商品の一覧',
 
     'include_item_taxes_inline' => 'Include <b>line item taxes in line total</b>',
@@ -1842,7 +1839,6 @@ $LANG = array(
     'update_invoiceninja_warning' => 'Before start upgrading Invoice Ninja create a backup of your database and files!',
     'update_invoiceninja_available' => 'Invoice Ninjaの新しいバージョンが利用可能です。',
     'update_invoiceninja_unavailable' => 'Invoice Ninjaの新しいバージョンはありません。',
-    'update_invoiceninja_instructions' => '下の<em>[今すぐ更新]</em>ボタンをクリックして、新しいバージョン<strong>:version</strong>をインストールしてください。 その後、ダッシュボードにリダイレクトされます。 ',
     'update_invoiceninja_update_start' => '今すぐアップデート',
     'update_invoiceninja_download_start' => ':version をダウンロード',
     'create_new' => 'Create New',
@@ -5157,6 +5153,20 @@ $LANG = array(
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
+    'show_document_preview' => 'Show Document Preview',
+    'cash_accounting' => 'Cash accounting',
+    'click_or_drop_files_here' => 'Click or drop files here',
+    'set_public' => 'Set public',
+    'set_private' => 'Set private',
+    'individual' => 'Individual',
+    'business' => 'Business',
+    'partnership' => 'partnership',
+    'trust' => 'Trust',
+    'charity' => 'Charity',
+    'government' => 'Government',
+    'in_stock_quantity' => 'Stock quantity',
+    'vendor_contact' => 'Vendor Contact',
+
 ); 
 
 return $LANG;

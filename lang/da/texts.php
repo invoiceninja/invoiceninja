@@ -657,8 +657,6 @@ $LANG = array(
     'created_by_invoice' => 'Oprettet fra :invoice',
     'primary_user' => 'Primær bruger',
     'help' => 'Hjælp',
-    'customize_help' => '<p>Vi bruger :pdfmake_link til at definere fakturadesigns deklarativt. Pdfmaker :playground_link tilbyder en glimrende mulighed for at se biblioteket i aktion.</p>
-<p>Hvis du har brug for hjælp, send et spørgsmål til vores: forum_link med det design, du bruger.</p>',
     'playground' => 'legeplads',
     'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Due Date',
@@ -1821,7 +1819,6 @@ $LANG = array(
     'bot_emailed_notify_paid' => 'Jeg sender dig en e-mail, når den er betalt',
     'add_product_to_invoice' => 'Tilføj 1 :product',
     'not_authorized' => 'Du er ikke autoriseret',
-    'bot_get_email' => 'Hej!<br/>Tak, fordi du prøvede Invoice Ninja Bot.<br/>Du skal oprette en gratis konto for at bruge denne bot.<br/>Send mig din e-mail-adresse til din konto for at komme i gang.',
     'bot_get_code' => 'Tak! Jeg har sendt dig en e-mail med din sikkerhedskode.',
     'bot_welcome' => 'Det er det, din konto er verificeret.<br/>',
     'email_not_found' => 'Jeg kunne ikke finde en tilgængelig konto til :e-mail',
@@ -1829,7 +1826,6 @@ $LANG = array(
     'security_code_email_subject' => 'Sikkerhedskode til Invoice Ninja Bot',
     'security_code_email_line1' => 'Dette er din Invoice Ninja Bot sikkerhedskode.',
     'security_code_email_line2' => 'Bemærk: den udløber om 10 minutter.',
-    'bot_help_message' => 'Jeg understøtter i øjeblikket:<br/>• Opret \ opdater \ e-mail en faktura<br/>• Vis produkter<br/>For eksempel:<br/><i>fakturerer bob for 2 billetter, indstil forfaldsdato til næste torsdag og rabatten til 10 procent</i>',
     'list_products' => 'Liste over produkter',
 
     'include_item_taxes_inline' => 'Inkluder<b>linjepost skatter i linjen i alt</b>',
@@ -1842,7 +1838,6 @@ $LANG = array(
     'update_invoiceninja_warning' => 'Før du starter opgraderingen af Invoice Ninja, opret en sikkerhedskopi af din database og filer!',
     'update_invoiceninja_available' => 'En ny version af Invoice Ninja er tilgængelig.',
     'update_invoiceninja_unavailable' => 'Der er ingen ny version af Invoice Ninja tilgængelig.',
-    'update_invoiceninja_instructions' => 'Installér venligst den nyeste version <strong>:version</strong> ved at klikke på knappen <em>Opdatér nu</em> nedenfor. Efterfølgende vil du blive dirigeret til oversigten.',
     'update_invoiceninja_update_start' => 'Opdatér nu',
     'update_invoiceninja_download_start' => 'Download :version',
     'create_new' => 'Opret ny',
@@ -5157,6 +5152,20 @@ $LANG = array(
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
+    'show_document_preview' => 'Show Document Preview',
+    'cash_accounting' => 'Cash accounting',
+    'click_or_drop_files_here' => 'Click or drop files here',
+    'set_public' => 'Set public',
+    'set_private' => 'Set private',
+    'individual' => 'Individual',
+    'business' => 'Business',
+    'partnership' => 'partnership',
+    'trust' => 'Trust',
+    'charity' => 'Charity',
+    'government' => 'Government',
+    'in_stock_quantity' => 'Stock quantity',
+    'vendor_contact' => 'Vendor Contact',
+
 ); 
 
 return $LANG;
