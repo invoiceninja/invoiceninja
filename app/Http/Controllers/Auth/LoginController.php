@@ -423,7 +423,7 @@ class LoginController extends BaseController
         if ($user) {
             $account = request()->input('account');
 
-            $email = $user->getMail() ?: $user->getUserPrincipalName();
+            $email = $user->getUserPrincipalName() ?: $user->getMail();
 
             $query = [
                 'oauth_user_id' => $user->getId(),
