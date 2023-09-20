@@ -651,8 +651,6 @@ $LANG = array(
     'created_by_invoice' => 'Creato da :invoice',
     'primary_user' => 'Utente principale',
     'help' => 'Aiuto',
-    'customize_help' => '<p>Usiamo :pdfmake_link per definire gli stili delle fatture in modo dichiarativo. Il link pdfmake :playground_link fornisce un ottimo modo per vedere la libreria in azione.</p>
-<p>Se hai bisogno di aiuto per capire qualcosa, scrivi una domanda al nostro :forum_link con il design che stai usando.</p>',
     'playground' => 'terreno di gioco',
     'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Scadenza fattura',
@@ -1806,7 +1804,6 @@ $LANG = array(
     'bot_emailed_notify_paid' => 'Ti mando una mail quando è pagata.',
     'add_product_to_invoice' => 'Aggiungi 1 :product',
     'not_authorized' => 'Non hai l\'autorizzazione',
-    'bot_get_email' => 'CIAO! (onda)<br/> Grazie per aver provato Invoice Ninja Bot.<br/> Devi creare un account gratuito per utilizzare questo bot.<br/> Inviami l&#39;indirizzo email del tuo account per iniziare.',
     'bot_get_code' => 'Grazie! Ti ho inviato un\'email con il tuo codice di sicurezza',
     'bot_welcome' => 'Fatto, il tuo account è stato verificato.',
     'email_not_found' => 'Nessun account trovato per :email',
@@ -1814,7 +1811,6 @@ $LANG = array(
     'security_code_email_subject' => 'Codice di sicurezza per il Bot Invoice Ninja',
     'security_code_email_line1' => 'Questo è il codice di sicurezza del tuo Bot Invoice Ninja',
     'security_code_email_line2' => 'Nota: scadrà in 10 minuti',
-    'bot_help_message' => 'Attualmente posso:<br/>• Creare\aggiornare\emettere una fattura<br/>• Elencare i prodotti<br/>Per esempio:<br/><i>fatturare bob per 2 biglietti, impostare la data di scadenza a giovedì prossimo e fare uno sconto al 10 per cento</i>',
     'list_products' => 'Lista prodotti',
 
     'include_item_taxes_inline' => 'Includi <b>tasse di riga articolo in totale riga</b>',
@@ -1827,7 +1823,6 @@ $LANG = array(
     'update_invoiceninja_warning' => 'Prima di aggiornare Invoice Ninja, crea un backup del database e dei files!',
     'update_invoiceninja_available' => 'Una nuova versione di Invoice Ninja è disponibile.',
     'update_invoiceninja_unavailable' => 'Non ci sono disponibili nuove versioni di Invoice Ninja.',
-    'update_invoiceninja_instructions' => 'Installa la nuova versione <strong>:version</strong> facendo clic sul pulsante <em>Aggiorna ora</em> in basso. Successivamente verrai reindirizzato alla dashboard.',
     'update_invoiceninja_update_start' => 'Aggiorna ora',
     'update_invoiceninja_download_start' => 'Scarica :version',
     'create_new' => 'Crea Nuovo',
@@ -5143,6 +5138,20 @@ $LANG = array(
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
+    'show_document_preview' => 'Show Document Preview',
+    'cash_accounting' => 'Cash accounting',
+    'click_or_drop_files_here' => 'Click or drop files here',
+    'set_public' => 'Set public',
+    'set_private' => 'Set private',
+    'individual' => 'Individual',
+    'business' => 'Business',
+    'partnership' => 'partnership',
+    'trust' => 'Trust',
+    'charity' => 'Charity',
+    'government' => 'Government',
+    'in_stock_quantity' => 'Stock quantity',
+    'vendor_contact' => 'Vendor Contact',
+
 ); 
 
 return $LANG;

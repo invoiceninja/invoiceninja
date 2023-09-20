@@ -654,8 +654,6 @@ $LANG = array(
     'created_by_invoice' => '由 :invoice 建立',
     'primary_user' => '首要的使用者',
     'help' => '說明',
-    'customize_help' => '<p>我們使用 :pdfmake_link 來以宣告方式定義發票的設計。 PDF 製作 :playground_link 能清楚呈現程式庫的運作。</p>
-                        <p>如果您需要釋疑，請在我們的 :forum_link 就您的設計發問。</p>',
     'playground' => 'playground',
     'support_forum' => 'Support Forums',
     'invoice_due_date' => '應付款日期',
@@ -1819,7 +1817,6 @@ $LANG = array(
     'bot_emailed_notify_paid' => '我將在這筆款項支付後以電子郵件寄給您。',
     'add_product_to_invoice' => '新增 1 :product',
     'not_authorized' => '您未經授權',
-    'bot_get_email' => '嗨! (wave)<br/>感謝您試用 Invoice Ninja 機器人。<br/>您需建立一個免費帳號以使用這個機器人。<br/>寄給我您的帳號所使用的電子郵件地址，以開始使用它。',
     'bot_get_code' => '感謝! 我已寄給您一封電子郵件，內有您的安全密碼。',
     'bot_welcome' => '好了，您的帳戶已經過驗證。<br/>',
     'email_not_found' => '我無法找到 :email 的可用帳戶',
@@ -1827,7 +1824,6 @@ $LANG = array(
     'security_code_email_subject' => 'Invoice Ninja 機器人的安全密碼',
     'security_code_email_line1' => '這是您的 Invoice Ninja 機器人安全密碼。',
     'security_code_email_line2' => '注意: 它將在 10 分鐘後失效。',
-    'bot_help_message' => '我目前支援:<br/>â€¢ 建立\\更新\\透過電子郵件傳送票證<br/>â€¢ 列出產品<br/>例如:<br/><i>2 張票的發票，將到期日期設定為下週四，折扣定為 10%</i>',
     'list_products' => '將所有產品列表',
 
     'include_item_taxes_inline' => '包含 <b>單項產品稅金於該項目的總金額</b>',
@@ -1840,7 +1836,6 @@ $LANG = array(
     'update_invoiceninja_warning' => '在開始更新 Invoice Ninja 之前，先備份您的資料庫與檔案!',
     'update_invoiceninja_available' => '有新版的 Invoice Ninja 可用。',
     'update_invoiceninja_unavailable' => 'Invoice Ninja 無更新的版本。',
-    'update_invoiceninja_instructions' => '請點擊以下的<em>現在更新</em>按鈕以安裝新版本 <strong>:version</strong>。然後，您將會被轉引到總覽頁。',
     'update_invoiceninja_update_start' => '現在更新',
     'update_invoiceninja_download_start' => '下載 :version',
     'create_new' => '建立新的',
@@ -5155,6 +5150,20 @@ $LANG = array(
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
+    'show_document_preview' => 'Show Document Preview',
+    'cash_accounting' => 'Cash accounting',
+    'click_or_drop_files_here' => 'Click or drop files here',
+    'set_public' => 'Set public',
+    'set_private' => 'Set private',
+    'individual' => 'Individual',
+    'business' => 'Business',
+    'partnership' => 'partnership',
+    'trust' => 'Trust',
+    'charity' => 'Charity',
+    'government' => 'Government',
+    'in_stock_quantity' => 'Stock quantity',
+    'vendor_contact' => 'Vendor Contact',
+
 ); 
 
 return $LANG;

@@ -423,7 +423,7 @@ class LoginController extends BaseController
         if ($user) {
             $account = request()->input('account');
 
-            $email = $user->getUserPrincipalName() ?: $user->getMail();
+            $email = $user->getUserPrincipalName() ?? false;
 
             $query = [
                 'oauth_user_id' => $user->getId(),
@@ -438,17 +438,16 @@ class LoginController extends BaseController
                 return $this->existingOauthUser($existing_user);
             }
 
-            //If this is a result user/email combo - lets add their OAuth details details
-            // if ($existing_login_user = MultiDB::hasUser(['email' => $email])) {
-            //     if (!$existing_login_user->account) {
-            //         return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
-            //     }
+            // If this is a result user/email combo - lets add their OAuth details details
+            if ($email && $existing_login_user = MultiDB::hasUser(['email' => $email])) {
+                if (!$existing_login_user->account) {
+                    return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
+                }
 
-            //     Auth::login($existing_login_user, true);
+                Auth::login($existing_login_user, true);
 
-            //     return $this->existingLoginUser($user->getId(), 'microsoft');
-            // }
-
+                return $this->existingLoginUser($user->getId(), 'microsoft');
+            }
 
             // Signup!
             if (request()->has('create') && request()->input('create') == 'true') {

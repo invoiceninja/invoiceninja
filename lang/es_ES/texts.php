@@ -651,8 +651,6 @@ $LANG = array(
     'created_by_invoice' => 'Creado por :invoice',
     'primary_user' => 'Usuario Principal',
     'help' => 'Ayuda',
-    'customize_help' => '<p>Usamos :pdfmake_link para definir los diseños de la factura. Pdfmake :playground_link provee de una buena forma de ver la librería en acción.</p>
-                        <p>Si necesitas ayuda para modificar algo, escríbenos una pregunta a nuestro :forum_link con el diseño que estés usando.</p>',
     'playground' => 'playground',
     'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Fecha Límite de Pago',
@@ -1812,7 +1810,6 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
     'bot_emailed_notify_paid' => 'Te enviaré un correo electrónico cuando se pague.',
     'add_product_to_invoice' => 'Añadir 1 :product',
     'not_authorized' => 'No está autorizado',
-    'bot_get_email' => '¡Hola! (wave) <br/>Gracias por probar el Bot Invoice Ninja. <br/>Necesitas crear una cuenta gratuita para usar este bot.<br/>Envíanme la dirección de correo electrónico de tu cuenta para comenzar.',
     'bot_get_code' => '¡Gracias! Le envié un correo electrónico con su código de seguridad.',
     'bot_welcome' => 'Eso es todo, tu cuenta está verificada.<br/>',
     'email_not_found' => 'No pude encontrar una cuenta disponible para :email',
@@ -1820,7 +1817,6 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
     'security_code_email_subject' => 'Código de seguridad para Invoice Ninja Bot',
     'security_code_email_line1' => 'Este es su código de seguridad Invoice Ninja Bot.',
     'security_code_email_line2' => 'Nota: caducará en 10 minutos.',
-    'bot_help_message' => 'Actualmente sopota: <br/>• Crear \ actualizar \ enviar por correo electrónico una factura <br/>• Lista de productos<br/>Por ejemplo:<br/> <i>bobina de factura para 2 boletos, establecer la fecha de vencimiento para el próximo jueves y el descuento para 10 por ciento</i>',
     'list_products' => 'Lista de Productos',
 
     'include_item_taxes_inline' => 'Incluir total del <b>impuesto para cada concepto de Factura</b>',
@@ -1833,7 +1829,6 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
     'update_invoiceninja_warning' => '¡Antes de comenzar a actualizar Invoice Ninja cree una copia de seguridad de su base de datos y archivos!',
     'update_invoiceninja_available' => 'Está disponible una nueva versión de Invoice Ninja.',
     'update_invoiceninja_unavailable' => 'No hay ninguna versión nueva de Invoice Ninja.',
-    'update_invoiceninja_instructions' => 'Instale la nueva versión <strong>:version</strong> haciendo clic en el botón <em>Actualizar ahora</em> a continuación. Luego, serás redirigido al Cuadro de Mandos.',
     'update_invoiceninja_update_start' => 'Actualizar ahora',
     'update_invoiceninja_download_start' => 'Descargar :version',
     'create_new' => 'Crear Nuevo',
@@ -5149,6 +5144,20 @@ De lo contrario, este campo deberá dejarse en blanco.',
     'unlinked_transaction' => 'Transacción desvinculada exitosamente',
     'view_dashboard_permission' => 'Permitir que el usuario acceda al panel, los datos están limitados a los permisos disponibles',
     'marked_sent_credits' => 'Créditos enviados, marcados con éxito',
+    'show_document_preview' => 'Show Document Preview',
+    'cash_accounting' => 'Cash accounting',
+    'click_or_drop_files_here' => 'Click or drop files here',
+    'set_public' => 'Set public',
+    'set_private' => 'Set private',
+    'individual' => 'Individual',
+    'business' => 'Business',
+    'partnership' => 'partnership',
+    'trust' => 'Trust',
+    'charity' => 'Charity',
+    'government' => 'Government',
+    'in_stock_quantity' => 'Stock quantity',
+    'vendor_contact' => 'Vendor Contact',
+
 ); 
 
 return $LANG;
