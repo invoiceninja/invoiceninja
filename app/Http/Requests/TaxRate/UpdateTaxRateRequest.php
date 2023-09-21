@@ -38,7 +38,7 @@ class UpdateTaxRateRequest extends Request
 
         $rules = [];
 
-        $rules['rate'] = 'required|numeric';
+        $rules['rate'] = 'sometimes|numeric';
 
         if ($this->name) {
             $rules['name'] = Rule::unique('tax_rates')->where('company_id', $user->company()->id)->ignore($this->tax_rate->id);
