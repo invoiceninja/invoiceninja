@@ -47,6 +47,7 @@ class DesignTransformer extends EntityTransformer
             'name' => (string) $design->name,
             'is_custom' => (bool) $design->is_custom,
             'is_active' => (bool) $design->is_active,
+            'is_template' => (bool) $design->is_template,
             'design' => $design->design,
             'updated_at' => (int) $design->updated_at,
             'archived_at' => (int) $design->deleted_at,
