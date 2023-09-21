@@ -51,7 +51,6 @@ We offer a $30 per year white-label license to remove the Invoice Ninja branding
 
 ```sh
 git clone --single-branch --branch v5-stable https://github.com/invoiceninja/invoiceninja.git
-git checkout v5-stable
 cp .env.example .env
 composer i -o --no-dev
 php artisan key:generate
