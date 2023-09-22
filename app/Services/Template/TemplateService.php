@@ -32,6 +32,7 @@ use App\Transformers\PaymentTransformer;
 use App\Transformers\ProjectTransformer;
 use App\Transformers\PurchaseOrderTransformer;
 use League\Fractal\Serializer\ArraySerializer;
+use League\Fractal\Serializer\JsonApiSerializer;
 
 class TemplateService
 {
@@ -39,30 +40,6 @@ class TemplateService
     private \DomDocument $document;
 
     private string $compiled_html = '';
-
-    private array $standard_excludes = [
-            'id',
-            'client_id',
-            'assigned_user_id',
-            'project_id',
-            'vendor_id',
-            'design_id',
-            'company_id',
-            'recurring_id',
-            'subscription_id'
-    ];
-
-    private array $purchase_excludes = [
-            'id',
-            'vendor_id',
-            'assigned_user_id',
-            'project_id',
-            'vendor_id',
-            'design_id',
-            'company_id',
-            'recurring_id',
-            'subscription_id'
-    ];
 
     public function __construct(public Design $template)
     {
@@ -114,7 +91,7 @@ class TemplateService
     {
         $data = $this->preProcessDataBlocks($data);
         $replacements = [];
-nlog($data);
+
         $contents = $this->document->getElementsByTagName('ninja');
 
         foreach ($contents as $content) {
@@ -253,6 +230,7 @@ nlog($data);
         $it = new InvoiceTransformer();
         $it->setDefaultIncludes(['client']);
         $manager = new Manager();
+        // $manager->setSerializer(new JsonApiSerializer());
         $resource = new \League\Fractal\Resource\Collection($invoices, $it, Invoice::class);
         $i = $manager->createData($resource)->toArray();
         return $i['data'];

@@ -67,6 +67,40 @@ class TemplateTest extends TestCase
             
             ';
 
+        private string $nested_body = '
+            
+                <ninja>
+                    $company.name
+                    <table class="min-w-full text-left text-sm font-light">
+                        <thead class="border-b font-medium dark:border-neutral-500">
+                            <tr class="text-sm leading-normal">
+                                <th scope="col" class="px-6 py-4">Item #</th>
+                                <th scope="col" class="px-6 py-4">Description</th>
+                                <th scope="col" class="px-6 py-4">Ordered</th>
+                                <th scope="col" class="px-6 py-4">Delivered</th>
+                                <th scope="col" class="px-6 py-4">Outstanding</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for entity in invoices %}
+                        Client Name: {{ entity.client.name }}
+                        Client Name with variables = $client.name
+                        {% for item in entity.line_items|filter(item => item.type_id == "1") %}
+                            <tr class="border-b dark:border-neutral-500">
+                                <td class="whitespace-nowrap px-6 py-4 font-medium">{{ item.product_key }}</td>
+                                <td class="whitespace-nowrap px-6 py-4 font-medium">{{ item.notes }}</td>
+                                <td class="whitespace-nowrap px-6 py-4 font-medium">{{ item.quantity }}</td>
+                                <td class="whitespace-nowrap px-6 py-4 font-medium">{{ item.quantity }}</td>
+                                <td class="whitespace-nowrap px-6 py-4 font-medium">0</td>
+                            </tr>
+                        {% endfor %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </ninja>
+            
+            ';
+
     protected function setUp() :void
     {
         parent::setUp();
@@ -77,6 +111,37 @@ class TemplateTest extends TestCase
             ThrottleRequests::class
         );
         
+    }
+
+    public function testDoubleEntityNestedDataTemplateServiceBuild()
+    {
+        $design_model = Design::find(2);
+
+        $replicated_design = $design_model->replicate();
+        $design = $replicated_design->design;
+        $design->body .= $this->nested_body;
+        $replicated_design->design = $design;
+        $replicated_design->is_custom = true;
+        $replicated_design->save();
+
+        $i2 = Invoice::factory()
+        ->for($this->client)
+        ->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'status_id' => Invoice::STATUS_SENT,
+            'design_id' => $replicated_design->id,
+            'balance' => 100,
+        ]);
+
+        $data = [];
+        $data['invoices'] = collect([$this->invoice, $i2]);
+
+        $ts = $replicated_design->service()->build($data);
+        
+        nlog("results = ");
+        nlog($ts->getHtml());
+        $this->assertNotNull($ts->getHtml());
     }
 
     public function testDoubleEntityTemplateServiceBuild()
