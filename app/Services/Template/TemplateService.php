@@ -12,9 +12,10 @@
 namespace App\Services\Template;
 
 use App\Models\Design;
+use App\Utils\HtmlEngine;
 use App\Utils\VendorHtmlEngine;
 use App\Utils\PaymentHtmlEngine;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 
 class TemplateService
 {
@@ -46,7 +47,7 @@ class TemplateService
             'recurring_id',
             'subscription_id'
     ];
-    
+
     public function __construct(public Design $template)
     {
         $this->template = $template;
@@ -73,7 +74,7 @@ class TemplateService
      * @param array $data - the payload to be passed into the template
      * @return self
      */
-    private function build(array $data): self
+    public function build(array $data): self
     {
         $this->compose()
              ->parseNinjaBlocks($data)
@@ -97,7 +98,7 @@ class TemplateService
     {
         $data = $this->preProcessDataBlocks($data);
         $replacements = [];
-
+nlog($data);
         $contents = $this->document->getElementsByTagName('ninja');
 
         foreach ($contents as $content) {
@@ -131,15 +132,17 @@ class TemplateService
     
     /**
      * Parses all variables in the document
-     *
+     * @param array $data
      * @return self
      */
-    private function parseVariables(): self
+    private function parseVariables(array $data): self
     {
-        $variables = $this->resolveHtmlEngine();
+        $variables = $this->resolveHtmlEngine($data);
+
+        $html = $this->getHtml();
 
         foreach($variables as $key => $variable) {
-            $html = strtr($this->getHtml(), $variable['labels']);
+            $html = strtr($html, $variable['labels']);
             $html = strtr($html, $variable['values']);
         }
 
@@ -188,18 +191,18 @@ class TemplateService
      */
     private function resolveHtmlEngine(array $data): array
     {
-        return collect($data)->map(function ($key, $value) {
-
-            $processed[$key] = [];
+        return collect($data)->map(function ($value, $key) {
+            
+            $processed = [];
 
             match ($key) {
-                'invoices' => $processed[$key] = (new HtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues(),
-                'quotes' => $processed[$key] = (new HtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues(),
-                'credits' => $processed[$key] = (new HtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues(),
-                'payments' => $processed[$key] = (new PaymentHtmlEngine($value->first(), $value->first()->client->contacts()->first()))->generateLabelsAndValues(),
-                'tasks' => $processed[$key] = [],
-                'projects' => $processed[$key] = [],
-                'purchase_orders' => $processed[$key] = (new VendorHtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues(),
+                'invoices' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues(),
+                'quotes' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues(),
+                'credits' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues(),
+                'payments' => $processed = (new PaymentHtmlEngine($value->first(), $value->first()->client->contacts()->first()))->generateLabelsAndValues(),
+                'tasks' => $processed = [],
+                'projects' => $processed = [],
+                'purchase_orders' => $processed = (new VendorHtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues(),
             };
 
             return $processed;
@@ -210,18 +213,18 @@ class TemplateService
 
     private function preProcessDataBlocks($data): array
     {
-        return collect($data)->map(function ($key, $value){
+        return collect($data)->map(function ($value, $key){
 
-            $processed[$key] = [];
+            $processed = [];
 
             match ($key) {
-                'invoices' => $processed[$key] = $this->processInvoices($value),
-                'quotes' => $processed[$key] = $this->processQuotes($value),
-                'credits' => $processed[$key] = $this->processCredits($value),
-                'payments' => $processed[$key] = $this->processPayments($value),
-                'tasks' => $processed[$key] = $this->processTasks($value),
-                'projects' => $processed[$key] = $this->processProjects($value),
-                'purchase_orders' => $processed[$key] = $this->processPurchaseOrders($value),
+                'invoices' => $processed = $this->processInvoices($value),
+                'quotes' => $processed = $this->processQuotes($value),
+                'credits' => $processed = $this->processCredits($value),
+                'payments' => $processed = $this->processPayments($value),
+                'tasks' => $processed = $this->processTasks($value),
+                'projects' => $processed = $this->processProjects($value),
+                'purchase_orders' => $processed = $this->processPurchaseOrders($value),
             };
 
             return $processed;
@@ -231,7 +234,9 @@ class TemplateService
 
     private function processInvoices($invoices): Collection
     {
-        return $invoices->makeHidden($this->standard_excludes);
+        return $invoices->map(function($invoice){
+            return $invoice->makeHidden($this->standard_excludes);
+        });
     }
 
     private function processQuotes($quotes): Collection
@@ -269,7 +274,7 @@ class TemplateService
 
     private function processTasks($tasks): Collection
     {
-        return $task->makeHidden([
+        return $tasks->makeHidden([
             'id',
             'user_id',
             'assigned_user_id',
@@ -298,7 +303,7 @@ class TemplateService
 
     private function processPurchaseOrders($purchase_orders): array
     {
-        return $projects->makeHidden($this->purchase_excludes);
+        return $purchase_orders->makeHidden($this->purchase_excludes);
 
         // return $purchase_orders->map(function ($purchase_order){
         // })->toArray();

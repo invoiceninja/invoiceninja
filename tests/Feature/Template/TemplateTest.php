@@ -20,7 +20,6 @@ use Tests\MockAccountData;
 use App\Services\PdfMaker\PdfMaker;
 use Illuminate\Support\Facades\App;
 use App\Jobs\Entity\CreateEntityPdf;
-use App\Services\PdfMaker\Design as DesignMaker;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\Template\TemplateService;
@@ -51,6 +50,7 @@ class TemplateTest extends TestCase
                             </tr>
                         </thead>
                         <tbody>
+                        {% for entity in invoices %}
                         {% for item in entity.line_items|filter(item => item.type_id == "1") %}
                             <tr class="border-b dark:border-neutral-500">
                                 <td class="whitespace-nowrap px-6 py-4 font-medium">{{ item.product_key }}</td>
@@ -59,6 +59,7 @@ class TemplateTest extends TestCase
                                 <td class="whitespace-nowrap px-6 py-4 font-medium">{{ item.quantity }}</td>
                                 <td class="whitespace-nowrap px-6 py-4 font-medium">0</td>
                             </tr>
+                        {% endfor %}
                         {% endfor %}
                         </tbody>
                     </table>
@@ -78,7 +79,7 @@ class TemplateTest extends TestCase
         
     }
 
-    public function testTemplateService()
+    public function testTemplateServiceBuild()
     {
         $design_model = Design::find(2);
 
@@ -89,6 +90,25 @@ class TemplateTest extends TestCase
         $replicated_design->is_custom = true;
         $replicated_design->save();
 
+        $data = [];
+        $data['invoices'] = collect([$this->invoice]);
+
+        $ts = $replicated_design->service()->build($data);
+        
+        nlog($ts->getHtml());
+        $this->assertNotNull($ts->getHtml());
+    }
+
+    public function testTemplateService()
+    {
+        $design_model = Design::find(2);
+
+        $replicated_design = $design_model->replicate();
+        $design = $replicated_design->design;
+        $design->body .= $this->body;
+        $replicated_design->design = $design;
+        $replicated_design->is_custom = true;
+        $replicated_design->save();
 
         $this->assertNotNull($replicated_design->service());
         $this->assertInstanceOf(TemplateService::class, $replicated_design->service());
