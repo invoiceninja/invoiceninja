@@ -54,6 +54,8 @@ class DesignTransformer extends EntityTransformer
             'created_at' => (int) $design->created_at,
             'is_deleted' => (bool) $design->is_deleted,
             'is_free' => ($design->id <= 4) ? true : false,
+            'is_template' => (bool) $design->is_template,
+            'entities' => (string) $design->entities ?: '',
         ];
     }
 }

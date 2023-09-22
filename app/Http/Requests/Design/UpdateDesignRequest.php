@@ -30,7 +30,10 @@ class UpdateDesignRequest extends Request
 
     public function rules()
     {
-        return [];
+        return [
+            'is_template' => 'sometimes|boolean',
+            'entities' => 'sometimes|string'
+        ];
     }
 
     public function prepareForValidation()

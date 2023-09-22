@@ -69,6 +69,17 @@ class DesignFilters extends QueryFilters
         });
     }
 
+    public function template(string $template = 'false'): Builder
+    {
+
+        if (strlen($template) == 0) {
+            return $this->builder;
+        }
+
+        $bool_val = $template == 'true' ? true : false;
+
+        return $this->builder->where('is_template', $bool_val);
+    }
     /**
      * Filter the designs by `is_custom` column.
      *

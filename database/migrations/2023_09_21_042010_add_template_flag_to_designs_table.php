@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::table('designs', function (Blueprint $table) {
             $table->boolean('is_template')->default(false);
+            $table->text('entities')->nullable();
         });
     }
 

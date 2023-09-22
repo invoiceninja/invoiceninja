@@ -23,20 +23,29 @@ class StoreDesignRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->isAdmin() && auth()->user()->account->hasFeature(Account::FEATURE_API);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->isAdmin() && $user->account->hasFeature(Account::FEATURE_API);
         ;
     }
 
     public function rules()
     {
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         return [
             //'name' => 'required',
-            'name' => 'required|unique:designs,name,null,null,company_id,'.auth()->user()->companyId(),
+            'name' => 'required|unique:designs,name,null,null,company_id,'.$user->companyId(),
             'design' => 'required|array',
             'design.header' => 'required|min:1',
             'design.body' => 'required|min:1',
             'design.footer' => 'required|min:1',
             'design.includes' => 'required|min:1',
+            'is_template' => 'sometimes|boolean',
+            'entities' => 'sometimes|string'
         ];
     }
 

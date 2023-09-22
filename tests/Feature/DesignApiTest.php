@@ -14,6 +14,7 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use App\Models\Design;
 use Tests\MockAccountData;
+use App\Factory\DesignFactory;
 use App\Utils\Traits\MakesHash;
 use App\Events\Design\DesignWasCreated;
 use App\Events\Design\DesignWasDeleted;
@@ -36,6 +37,8 @@ class DesignApiTest extends TestCase
 
     public $id;
 
+    public $faker;
+
     protected function setUp() :void
     {
         parent::setUp();
@@ -48,6 +51,58 @@ class DesignApiTest extends TestCase
 
         Model::reguard();
     }
+
+    public function testDesignTemplates()
+    {
+        $design = DesignFactory::create($this->company->id, $this->user->id);
+        $design->is_template = true;
+        $design->name = 'Test Template';
+        $design->save();
+        
+        $response = $this->withHeaders([
+          'X-API-SECRET' => config('ninja.api_secret'),
+          'X-API-TOKEN' => $this->token,
+          ])->get('/api/v1/designs?template=true');
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+        
+        $this->assertCount(1, $arr['data']);
+    }
+
+    public function testDesignTemplatesExcluded()
+    {
+        $design = DesignFactory::create($this->company->id, $this->user->id);
+        $design->is_template = true;
+        $design->name = 'Test Template';
+        $design->save();
+        
+        $response = $this->withHeaders([
+          'X-API-SECRET' => config('ninja.api_secret'),
+          'X-API-TOKEN' => $this->token,
+          ])->get('/api/v1/designs?template=false');
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+        
+        $this->assertCount(11, $arr['data']);
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+                ])->get('/api/v1/designs');
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+                
+        $this->assertCount(12, $arr['data']);
+
+
+    }
+
 
     public function testDesignPost()
     {
