@@ -79,6 +79,37 @@ class TemplateTest extends TestCase
         
     }
 
+    public function testDoubleEntityTemplateServiceBuild()
+    {
+        $design_model = Design::find(2);
+
+        $replicated_design = $design_model->replicate();
+        $design = $replicated_design->design;
+        $design->body .= $this->body;
+        $replicated_design->design = $design;
+        $replicated_design->is_custom = true;
+        $replicated_design->save();
+
+        $i2 = Invoice::factory()
+        ->for($this->client)
+        ->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'status_id' => Invoice::STATUS_SENT,
+            'design_id' => $replicated_design->id,
+            'balance' => 100,
+        ]);
+
+        $data = [];
+        $data['invoices'] = collect([$this->invoice, $i2]);
+
+        $ts = $replicated_design->service()->build($data);
+        
+        // nlog("results = ");
+        // nlog($ts->getHtml());
+        $this->assertNotNull($ts->getHtml());
+    }
+
     public function testTemplateServiceBuild()
     {
         $design_model = Design::find(2);
@@ -95,7 +126,8 @@ class TemplateTest extends TestCase
 
         $ts = $replicated_design->service()->build($data);
         
-        nlog($ts->getHtml());
+        // nlog("results = ");
+        // nlog($ts->getHtml());
         $this->assertNotNull($ts->getHtml());
     }
 
@@ -150,9 +182,7 @@ class TemplateTest extends TestCase
 
         nlog("Twig + PDF Gen Time: " . $end-$start);
 
-
     }
-
 
     public function testStaticPdfGeneration()
     {

@@ -11,11 +11,27 @@
 
 namespace App\Services\Template;
 
+use App\Models\Task;
+use App\Models\Quote;
+use App\Models\Credit;
 use App\Models\Design;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\Project;
 use App\Utils\HtmlEngine;
+use League\Fractal\Manager;
+use App\Models\PurchaseOrder;
 use App\Utils\VendorHtmlEngine;
 use App\Utils\PaymentHtmlEngine;
 use Illuminate\Support\Collection;
+use App\Transformers\TaskTransformer;
+use App\Transformers\QuoteTransformer;
+use App\Transformers\CreditTransformer;
+use App\Transformers\InvoiceTransformer;
+use App\Transformers\PaymentTransformer;
+use App\Transformers\ProjectTransformer;
+use App\Transformers\PurchaseOrderTransformer;
+use League\Fractal\Serializer\ArraySerializer;
 
 class TemplateService
 {
@@ -232,80 +248,81 @@ nlog($data);
         })->toArray();
     }
 
-    private function processInvoices($invoices): Collection
+    private function processInvoices($invoices): array
     {
-        return $invoices->map(function($invoice){
-            return $invoice->makeHidden($this->standard_excludes);
-        });
+        $it = new InvoiceTransformer();
+        $it->setDefaultIncludes(['client']);
+        $manager = new Manager();
+        $resource = new \League\Fractal\Resource\Collection($invoices, $it, Invoice::class);
+        $i = $manager->createData($resource)->toArray();
+        return $i['data'];
     }
 
     private function processQuotes($quotes): Collection
     {
-        return $quotes->makeHidden($this->standard_excludes);
-        // return $quotes->map(function ($quote){
-        // })->toArray();
+        $it = new QuoteTransformer();
+        $it->setDefaultIncludes(['client']);
+        $manager = new Manager();
+        $resource = new \League\Fractal\Resource\Collection($quotes, $it, Quote::class);
+        $i = $manager->createData($resource)->toArray();
+        return $i['data'];
+
     }
 
     private function processCredits($credits): Collection
     {
-        return $credits->makeHidden($this->standard_excludes);
-        // return $credits->map(function ($credit){
-        // })->toArray();
+        $it = new CreditTransformer();
+        $it->setDefaultIncludes(['client']);
+        $manager = new Manager();
+        $resource = new \League\Fractal\Resource\Collection($credits, $it, Credit::class);
+        $i = $manager->createData($resource)->toArray();
+        return $i['data'];
+
     }
 
     private function processPayments($payments): Collection
     {
-        return $payments->makeHidden([
-            'id',
-            'user_id',
-            'assigned_user_id',
-            'client_id',
-            'company_id',
-            'project_id',
-            'vendor_id',
-            'client_contact_id',
-            'invitation_id',
-            'company_gateway_id',
-            'transaction_id',
-        ]);
-        // return $payments->map(function ($payment){
-        // })->toArray();
+        $it = new PaymentTransformer();
+        $it->setDefaultIncludes(['client','invoices','paymentables']);
+        $manager = new Manager();
+        $resource = new \League\Fractal\Resource\Collection($payments, $it, Payment::class);
+        $i = $manager->createData($resource)->toArray();
+        return $i['data'];
+
     }
 
     private function processTasks($tasks): Collection
     {
-        return $tasks->makeHidden([
-            'id',
-            'user_id',
-            'assigned_user_id',
-            'client_id',
-            'company_id',
-            'project_id',
-            'invoice_id'
-        ]);
-        // return $tasks->map(function ($task){
-        // })->toArray();
+        $it = new TaskTransformer();
+        $it->setDefaultIncludes(['client','tasks','project','invoice']);
+        $manager = new Manager();
+        $resource = new \League\Fractal\Resource\Collection($tasks, $it, Task::class);
+        $i = $manager->createData($resource)->toArray();
+        return $i['data'];
+
     }
 
     private function processProjects($projects): Collection
     {
-        return $projects->makeHidden([
-            'id',
-            'client_id',
-            'company_id',
-            'user_id',
-            'assigned_user_id',
-            ]);
 
-        // return $projects->map(function ($project){
-        // })->toArray();
+        $it = new ProjectTransformer();
+        $it->setDefaultIncludes(['client','tasks']);
+        $manager = new Manager();
+        $resource = new \League\Fractal\Resource\Collection($projects, $it, Project::class);
+        $i = $manager->createData($resource)->toArray();
+        return $i['data'];
+
     }
 
     private function processPurchaseOrders($purchase_orders): array
     {
-        return $purchase_orders->makeHidden($this->purchase_excludes);
+        
+        $it = new PurchaseOrderTransformer();
+        $it->setDefaultIncludes(['vendor','expense']);
+        $manager = new Manager();
+        $resource = new \League\Fractal\Resource\Collection($purchase_orders, $it, PurchaseOrder::class);
+        $i = $manager->createData($resource)->toArray();
+        return $i['data'];
 
-        // return $purchase_orders->map(function ($purchase_order){
-        // })->toArray();
     }
 }
