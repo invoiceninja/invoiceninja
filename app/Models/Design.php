@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Services\Template\TemplateService;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -74,5 +75,10 @@ class Design extends BaseModel
     public function company()
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function service(): TemplateService
+    {
+        return new TemplateService($this);
     }
 }

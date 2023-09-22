@@ -12,7 +12,9 @@
 namespace App\Services\Template;
 
 use App\Models\Design;
-
+use App\Utils\VendorHtmlEngine;
+use App\Utils\PaymentHtmlEngine;
+use Illuminate\Database\Eloquent\Collection;
 
 class TemplateService
 {
@@ -21,6 +23,30 @@ class TemplateService
 
     private string $compiled_html = '';
 
+    private array $standard_excludes = [
+            'id',
+            'client_id',
+            'assigned_user_id',
+            'project_id',
+            'vendor_id',
+            'design_id',
+            'company_id',
+            'recurring_id',
+            'subscription_id'
+    ];
+
+    private array $purchase_excludes = [
+            'id',
+            'vendor_id',
+            'assigned_user_id',
+            'project_id',
+            'vendor_id',
+            'design_id',
+            'company_id',
+            'recurring_id',
+            'subscription_id'
+    ];
+    
     public function __construct(public Design $template)
     {
         $this->template = $template;
@@ -51,7 +77,7 @@ class TemplateService
     {
         $this->compose()
              ->parseNinjaBlocks($data)
-             ->parseVariables();        
+             ->parseVariables($data);        
 
         return $this;
     }
@@ -112,8 +138,10 @@ class TemplateService
     {
         $variables = $this->resolveHtmlEngine();
 
-        $html = strtr($this->getHtml(), $variables['labels']);
-        $html = strtr($html, $variables['values']);
+        foreach($variables as $key => $variable) {
+            $html = strtr($this->getHtml(), $variable['labels']);
+            $html = strtr($html, $variable['values']);
+        }
 
         @$this->document->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
         $this->save();
@@ -158,8 +186,25 @@ class TemplateService
      *
      * @return array
      */
-    private function resolveHtmlEngine(): array
+    private function resolveHtmlEngine(array $data): array
     {
+        return collect($data)->map(function ($key, $value) {
+
+            $processed[$key] = [];
+
+            match ($key) {
+                'invoices' => $processed[$key] = (new HtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues(),
+                'quotes' => $processed[$key] = (new HtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues(),
+                'credits' => $processed[$key] = (new HtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues(),
+                'payments' => $processed[$key] = (new PaymentHtmlEngine($value->first(), $value->first()->client->contacts()->first()))->generateLabelsAndValues(),
+                'tasks' => $processed[$key] = [],
+                'projects' => $processed[$key] = [],
+                'purchase_orders' => $processed[$key] = (new VendorHtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues(),
+            };
+
+            return $processed;
+
+        })->toArray();
 
     }
 
@@ -184,52 +229,78 @@ class TemplateService
         })->toArray();
     }
 
-    private function processInvoices($invoices): array
+    private function processInvoices($invoices): Collection
     {
-        return $invoices->map(function ($invoice){
-
-        })->toArray();
+        return $invoices->makeHidden($this->standard_excludes);
     }
 
-    private function processQuotes($quotes): array
+    private function processQuotes($quotes): Collection
     {
-        return $quotes->map(function ($quote){
-
-        })->toArray();
+        return $quotes->makeHidden($this->standard_excludes);
+        // return $quotes->map(function ($quote){
+        // })->toArray();
     }
 
-    private function processCredits($credits): array
+    private function processCredits($credits): Collection
     {
-        return $credits->map(function ($credit){
-
-        })->toArray();
+        return $credits->makeHidden($this->standard_excludes);
+        // return $credits->map(function ($credit){
+        // })->toArray();
     }
 
-    private function processPayments($payments): array
+    private function processPayments($payments): Collection
     {
-        return $payments->map(function ($payment){
-
-        })->toArray();
+        return $payments->makeHidden([
+            'id',
+            'user_id',
+            'assigned_user_id',
+            'client_id',
+            'company_id',
+            'project_id',
+            'vendor_id',
+            'client_contact_id',
+            'invitation_id',
+            'company_gateway_id',
+            'transaction_id',
+        ]);
+        // return $payments->map(function ($payment){
+        // })->toArray();
     }
 
-    private function processTasks($tasks): array
+    private function processTasks($tasks): Collection
     {
-        return $tasks->map(function ($task){
-
-        })->toArray();
+        return $task->makeHidden([
+            'id',
+            'user_id',
+            'assigned_user_id',
+            'client_id',
+            'company_id',
+            'project_id',
+            'invoice_id'
+        ]);
+        // return $tasks->map(function ($task){
+        // })->toArray();
     }
 
-    private function processProjects($projects): array
+    private function processProjects($projects): Collection
     {
-        return $projects->map(function ($project){
+        return $projects->makeHidden([
+            'id',
+            'client_id',
+            'company_id',
+            'user_id',
+            'assigned_user_id',
+            ]);
 
-        })->toArray();
+        // return $projects->map(function ($project){
+        // })->toArray();
     }
 
     private function processPurchaseOrders($purchase_orders): array
     {
-        return $purchase_orders->map(function ($purchase_order){
+        return $projects->makeHidden($this->purchase_excludes);
 
-        })->toArray();
+        // return $purchase_orders->map(function ($purchase_order){
+        // })->toArray();
     }
 }

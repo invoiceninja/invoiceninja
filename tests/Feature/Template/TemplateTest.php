@@ -23,6 +23,7 @@ use App\Jobs\Entity\CreateEntityPdf;
 use App\Services\PdfMaker\Design as DesignMaker;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
+use App\Services\Template\TemplateService;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
@@ -75,6 +76,22 @@ class TemplateTest extends TestCase
             ThrottleRequests::class
         );
         
+    }
+
+    public function testTemplateService()
+    {
+        $design_model = Design::find(2);
+
+        $replicated_design = $design_model->replicate();
+        $design = $replicated_design->design;
+        $design->body .= $this->body;
+        $replicated_design->design = $design;
+        $replicated_design->is_custom = true;
+        $replicated_design->save();
+
+
+        $this->assertNotNull($replicated_design->service());
+        $this->assertInstanceOf(TemplateService::class, $replicated_design->service());
     }
 
     public function testTimingOnCleanDesign()
