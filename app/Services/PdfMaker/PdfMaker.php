@@ -85,7 +85,11 @@ class PdfMaker
 
                 $loader = new \Twig\Loader\FilesystemLoader(storage_path());
                 $twig = new \Twig\Environment($loader);
-                $template = $twig->createTemplate($template);
+
+                $string_extension = new \Twig\Extension\StringLoaderExtension();
+                $twig->addExtension($string_extension);
+               
+                $template = $twig->createTemplate(html_entity_decode($template));
                 $template = $template->render($this->options);
 
                 $f = $this->document->createDocumentFragment();
@@ -110,14 +114,14 @@ class PdfMaker
     /**
      * Final method to get compiled HTML.
      *
-     * @param bool $final @deprecated // is it? i still see it being called elsewhere
+     * @param bool $final
      * @return mixed
      */
     public function getCompiledHTML($final = false)
     {
 
         $html = $this->document->saveHTML();
-        nlog($html);
+        // nlog($html);
         return str_replace('%24', '$', $html);
     }
 }
