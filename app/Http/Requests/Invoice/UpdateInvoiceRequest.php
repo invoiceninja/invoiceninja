@@ -65,6 +65,8 @@ class UpdateInvoiceRequest extends Request
 
         $rules['is_amount_discount'] = ['boolean'];
 
+        nlog($this->partial);
+
         $rules['line_items'] = 'array';
         $rules['discount'] = 'sometimes|numeric';
         $rules['project_id'] = ['bail', 'sometimes', new ValidProjectForClient($this->all())];
@@ -77,7 +79,7 @@ class UpdateInvoiceRequest extends Request
         $rules['status_id'] = 'bail|sometimes|not_in:5'; //do not allow cancelled invoices to be modfified.
         $rules['exchange_rate'] = 'bail|sometimes|numeric';
         $rules['partial'] = 'bail|sometimes|nullable|numeric';
-        $rules['partial_due_date'] = 'bail|sometimes|required_if:partial,>0|date';
+        $rules['partial_due_date'] = ['bail', 'sometimes', 'exclude_if:partial,0', Rule::requiredIf(fn () => $this->partial > 0), 'date'];
 
         return $rules;
     }
