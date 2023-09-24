@@ -497,8 +497,8 @@ class PreviewController extends BaseController
             'variables' => $html->generateLabelsAndValues(),
             'process_markdown' => $invoice->client->company->markdown_enabled,
             'options' => [
-                'client' => $invitation->invoice->client,
-                'entity' => $invitation->invoice,
+                'client' => $invoice->client,
+                'entity' => $invoice,
             ]
         ];
 

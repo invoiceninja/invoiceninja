@@ -47,8 +47,17 @@ class ApplyPayment extends AbstractService
 
                 $amount_paid = $this->payment_amount * -1;
 
-                $this->invoice->service()->clearPartial()->setDueDate()->setStatus(Invoice::STATUS_PARTIAL)->updateBalance($amount_paid)->save();
+                $this->invoice
+                     ->service()
+                     ->clearPartial()
+                     ->setDueDate()
+                     ->setStatus(Invoice::STATUS_PARTIAL)
+                     ->updateBalance($amount_paid)
+                     ->save();
             }
+
+            $this->invoice->service()->checkReminderStatus()->save();
+
         } else {
             if ($this->payment_amount == $this->invoice->balance) {
                 $amount_paid = $this->payment_amount * -1;
@@ -84,9 +93,6 @@ class ApplyPayment extends AbstractService
         /* Update Pivot Record amount */
         $this->payment->invoices->each(function ($inv) use ($amount_paid) {
             if ($inv->id == $this->invoice->id) {
-                // $inv->pivot->amount = ($amount_paid * -1);
-                // $inv->pivot->save();
-                //25-06-2023
                 $inv->paid_to_date += floatval($amount_paid * -1);
                 $inv->save();
             }
@@ -96,7 +102,6 @@ class ApplyPayment extends AbstractService
              ->service()
              ->applyNumber()
              ->workFlow()
-            //  ->deletePdf()
              ->save();
 
         return $this->invoice;

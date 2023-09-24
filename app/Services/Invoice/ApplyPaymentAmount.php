@@ -31,7 +31,7 @@ class ApplyPaymentAmount extends AbstractService
     }
 
     public function run()
-    {
+    {nlog("apply payment amount");
         if ($this->invoice->status_id == Invoice::STATUS_DRAFT) {
             $this->invoice = $this->invoice->service()->markSent()->save();
         }
@@ -65,15 +65,28 @@ class ApplyPaymentAmount extends AbstractService
             'amount' => $payment->amount,
         ]);
 
-        $this->invoice->next_send_date = null;
 
-        $this->invoice->service()
+        $has_partial = $this->invoice->hasPartial();
+
+        $invoice_service = $this->invoice->service()
                 ->setExchangeRate()
                 ->updateBalance($payment->amount * -1)
                 ->updatePaidToDate($payment->amount)
                 ->setCalculatedStatus()
-                ->applyNumber()
-                ->save();
+                ->applyNumber();
+
+        nlog("check for partials");
+
+        if ($has_partial) {
+            nlog("has partial");
+            $invoice_service->checkReminderStatus();
+        }
+
+        if($this->invoice->balance == 0){    
+            $this->invoice->next_send_date = null;
+        }
+
+        $this->invoice = $invoice_service->save();
 
         $this->invoice
             ->client

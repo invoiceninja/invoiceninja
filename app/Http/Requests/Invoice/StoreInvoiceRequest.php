@@ -73,6 +73,8 @@ class StoreInvoiceRequest extends Request
         $rules['tax_name2'] = 'bail|sometimes|string|nullable';
         $rules['tax_name3'] = 'bail|sometimes|string|nullable';
         $rules['exchange_rate'] = 'bail|sometimes|numeric';
+        $rules['partial'] = 'bail|sometimes|nullable|numeric';
+        $rules['partial_due_date'] = 'bail|sometimes|required_if:partial,>0|date';
 
         return $rules;
     }
