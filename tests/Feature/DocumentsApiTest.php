@@ -11,12 +11,13 @@
 
 namespace Tests\Feature;
 
+use Tests\TestCase;
+use App\Models\Document;
+use Tests\MockAccountData;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
-use Tests\MockAccountData;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * @test
@@ -27,6 +28,8 @@ class DocumentsApiTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
+
+    protected $faker;
 
     protected function setUp() :void
     {
@@ -39,6 +42,126 @@ class DocumentsApiTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
+    }
+
+    public function testIsPublicTypesForDocumentRequest()
+    {
+        $d = Document::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get("/api/v1/documents/{$d->hashed_id}");
+
+        $response->assertStatus(200);
+
+        $update = [
+            'is_public' => false,
+        ];
+
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->putJson("/api/v1/documents/{$d->hashed_id}", $update);
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+        $this->assertFalse($arr['data']['is_public']);
+
+        $update = [
+                    'is_public' => true,
+                ];
+
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->putJson("/api/v1/documents/{$d->hashed_id}", $update);
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+        $this->assertTrue($arr['data']['is_public']);
+
+        $update = [
+                    'is_public' => 'true',
+                ];
+
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->putJson("/api/v1/documents/{$d->hashed_id}", $update);
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+        $this->assertTrue($arr['data']['is_public']);
+
+        $update = [
+                    'is_public' => '1',
+                ];
+
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->putJson("/api/v1/documents/{$d->hashed_id}", $update);
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+        $this->assertTrue($arr['data']['is_public']);
+
+        $update = [
+                    'is_public' => 1,
+                ];
+
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->putJson("/api/v1/documents/{$d->hashed_id}", $update);
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+        $this->assertTrue($arr['data']['is_public']);
+
+        $update = [
+                    'is_public' => 'false',
+                ];
+
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->putJson("/api/v1/documents/{$d->hashed_id}", $update);
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+        $this->assertFalse($arr['data']['is_public']);
+
+        $update = [
+                    'is_public' => '0',
+                ];
+
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->putJson("/api/v1/documents/{$d->hashed_id}", $update);
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+        $this->assertFalse($arr['data']['is_public']);
+
+        $update = [
+                    'is_public' => 0,
+                ];
+
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->putJson("/api/v1/documents/{$d->hashed_id}", $update);
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+        $this->assertFalse($arr['data']['is_public']);
+
     }
 
     public function testClientDocuments()

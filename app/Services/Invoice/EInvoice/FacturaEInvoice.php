@@ -218,8 +218,10 @@ class FacturaEInvoice extends AbstractService
     private function setPoNumber(): self
     {
         $po = $this->invoice->po_number ?? '';
+        $transaction_reference = (isset($this->invoice->custom_value1) && strlen($this->invoice->custom_value1) > 2) ? substr($this->invoice->custom_value1, 0, 20) : null;
+        $contract_reference = (isset($this->invoice->custom_value2) && strlen($this->invoice->custom_value2) > 2) ? $this->invoice->custom_value2: null;
 
-        $this->fac->setReferences($po, substr($this->invoice->custom_value1, 0, 20), $this->invoice->custom_value2);        
+        $this->fac->setReferences($po, $transaction_reference, $contract_reference);        
 
         return $this;
     }
@@ -242,6 +244,9 @@ class FacturaEInvoice extends AbstractService
 
     private function setBillingPeriod(): self
     {
+        if(!$this->invoice->custom_value3)
+            return $this;
+
         try {
             if (\Carbon\Carbon::createFromFormat('Y-m-d', $this->invoice->custom_value3)->format('Y-m-d') === $this->invoice->custom_value3 &&
             \Carbon\Carbon::createFromFormat('Y-m-d', $this->invoice->custom_value4)->format('Y-m-d') === $this->invoice->custom_value4
@@ -302,6 +307,7 @@ class FacturaEInvoice extends AbstractService
     private function resolvePaymentMethod(\App\Models\Payment $payment): array
     {
         $data = [];
+        $method = FacturaePayment::TYPE_CARD;
 
         match($payment->type_id){
             PaymentType::BANK_TRANSFER => $method = FacturaePayment::TYPE_TRANSFER	,
@@ -482,8 +488,8 @@ class FacturaEInvoice extends AbstractService
             "fax" => "",
             "website" => substr($company->settings->website, 0, 50),
             "contactPeople" => substr($company->owner()->present()->name(), 0, 40),
-            "firstName" => $company->owner()->present()->firstName(),
-            "lastName" => $company->owner()->present()->lastName(),
+            "firstSurname" => $company->owner()->present()->firstName(),
+            "lastSurname" => $company->owner()->present()->lastName(),
             // 'centres' => $this->setFace(),
             // "cnoCnae" => "04647", // Clasif. Nacional de Act. Económicas
             // "ineTownCode" => "280796" // Cód. de municipio del INE

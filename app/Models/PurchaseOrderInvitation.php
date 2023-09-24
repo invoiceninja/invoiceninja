@@ -40,11 +40,11 @@ use Illuminate\Support\Str;
  * @property int|null $updated_at
  * @property int|null $deleted_at
  * @property string|null $email_status
- * @property-read \App\Models\Company $company
- * @property-read \App\Models\VendorContact $contact
- * @property-read mixed $hashed_id
- * @property-read \App\Models\PurchaseOrder $purchase_order
- * @property-read \App\Models\User $user
+ * @property \App\Models\Company $company
+ * @property \App\Models\VendorContact $contact
+ * @property string $hashed_id
+ * @property \App\Models\PurchaseOrder $purchase_order
+ * @property \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Database\Factories\PurchaseOrderInvitationFactory factory($count = null, $state = [])

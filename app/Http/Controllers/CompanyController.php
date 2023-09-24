@@ -11,38 +11,39 @@
 
 namespace App\Http\Controllers;
 
-use App\DataMapper\Analytics\AccountDeleted;
-use App\DataMapper\CompanySettings;
-use App\Http\Requests\Company\CreateCompanyRequest;
-use App\Http\Requests\Company\DefaultCompanyRequest;
-use App\Http\Requests\Company\DestroyCompanyRequest;
-use App\Http\Requests\Company\EditCompanyRequest;
-use App\Http\Requests\Company\ShowCompanyRequest;
-use App\Http\Requests\Company\StoreCompanyRequest;
-use App\Http\Requests\Company\UpdateCompanyRequest;
-use App\Http\Requests\Company\UploadCompanyRequest;
-use App\Jobs\Company\CreateCompany;
-use App\Jobs\Company\CreateCompanyPaymentTerms;
-use App\Jobs\Company\CreateCompanyTaskStatuses;
-use App\Jobs\Company\CreateCompanyToken;
-use App\Jobs\Mail\NinjaMailerJob;
-use App\Jobs\Mail\NinjaMailerObject;
-use App\Mail\Company\CompanyDeleted;
+use Str;
+use App\Utils\Ninja;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\CompanyUser;
-use App\Repositories\CompanyRepository;
-use App\Transformers\CompanyTransformer;
-use App\Transformers\CompanyUserTransformer;
-use App\Utils\Ninja;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\SavesDocuments;
-use App\Utils\Traits\Uploadable;
-use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Storage;
-use Str;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\Uploadable;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\DataMapper\CompanySettings;
+use App\Jobs\Company\CreateCompany;
+use App\Jobs\Company\CompanyTaxRate;
+use App\Jobs\Mail\NinjaMailerObject;
+use App\Mail\Company\CompanyDeleted;
+use App\Utils\Traits\SavesDocuments;
 use Turbo124\Beacon\Facades\LightLogs;
+use App\Repositories\CompanyRepository;
+use Illuminate\Support\Facades\Storage;
+use App\Jobs\Company\CreateCompanyToken;
+use App\Transformers\CompanyTransformer;
+use App\DataMapper\Analytics\AccountDeleted;
+use App\Transformers\CompanyUserTransformer;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Jobs\Company\CreateCompanyPaymentTerms;
+use App\Jobs\Company\CreateCompanyTaskStatuses;
+use App\Http\Requests\Company\EditCompanyRequest;
+use App\Http\Requests\Company\ShowCompanyRequest;
+use App\Http\Requests\Company\StoreCompanyRequest;
+use App\Http\Requests\Company\CreateCompanyRequest;
+use App\Http\Requests\Company\UpdateCompanyRequest;
+use App\Http\Requests\Company\UploadCompanyRequest;
+use App\Http\Requests\Company\DefaultCompanyRequest;
+use App\Http\Requests\Company\DestroyCompanyRequest;
 
 /**
  * Class CompanyController.
@@ -423,7 +424,7 @@ class CompanyController extends BaseController
         $company = $this->company_repo->save($request->all(), $company);
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->input('documents'), $company, false);
+            $this->saveDocuments($request->input('documents'), $company, $request->input('is_public', true));
         }
 
         if($request->has('e_invoice_certificate') && !is_null($request->file("e_invoice_certificate"))){
@@ -615,7 +616,7 @@ class CompanyController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $company);
+            $this->saveDocuments($request->file('documents'), $company, $request->input('is_public', true));
         }
 
         return $this->itemResponse($company->fresh());
@@ -678,5 +679,37 @@ class CompanyController extends BaseController
         $account->save();
 
         return $this->itemResponse($company->fresh());
+    }
+
+    public function updateOriginTaxData(DefaultCompanyRequest $request, Company $company)
+    {
+        
+        if($company->settings->country_id == "840" && !$company?->account->isFreeHostedClient())
+        {
+            try {
+                (new CompanyTaxRate($company))->handle();
+            } catch(\Exception $e) {
+                return response()->json(['message' => 'There was a problem updating the tax rates. Please try again.'], 400);
+            }
+        }
+        else 
+            return response()->json(['message' => 'Tax configuration not available due to settings / plan restriction.'], 400);
+
+        return $this->itemResponse($company->fresh());
+    }
+
+    public function logo()
+    {
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        $company = $user->company();
+        $logo = strlen($company->settings->company_logo) > 5 ? $company->settings->company_logo : 'https://pdf.invoicing.co/favicon-v2.png';
+        $headers = ['Content-Disposition' => 'inline'];
+     
+        return response()->streamDownload(function () use ($logo){
+            echo @file_get_contents($logo);
+        }, 'logo.png', $headers);
+
     }
 }

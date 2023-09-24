@@ -308,8 +308,9 @@ class InvoiceSum
 
     public function setTaxMap(): self
     {
-        if ($this->invoice->is_amount_discount == true) {
+        if ($this->invoice->is_amount_discount) {
             $this->invoice_items->calcTaxesWithAmountDiscount();
+            $this->invoice->line_items = $this->invoice_items->getLineItems();
         }
 
         $this->tax_map = collect();
@@ -326,8 +327,6 @@ class InvoiceSum
             $total_line_tax = $values->filter(function ($value, $k) use ($key) {
                 return $value['key'] == $key;
             })->sum('total');
-
-            //$total_line_tax -= $this->discount($total_line_tax);
 
             $this->tax_map[] = ['name' => $tax_name, 'total' => $total_line_tax];
 
@@ -377,16 +376,6 @@ class InvoiceSum
 
     public function purgeTaxes(): self
     {
-        // $this->tax_rate1 = 0;
-        // $this->tax_name1 = '';
-
-        // $this->tax_rate2 = 0;
-        // $this->tax_name2 = '';
-
-        // $this->tax_rate3 = 0;
-        // $this->tax_name3 = '';
-
-        // $this->discount = 0;
 
         $line_items = collect($this->invoice->line_items);
 

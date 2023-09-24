@@ -41,6 +41,8 @@ class ClientTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
+    public $faker;
+
     protected function setUp() :void
     {
         parent::setUp();
@@ -62,7 +64,6 @@ class ClientTest extends TestCase
 
         $this->makeTestData();
     }
-
 
     public function testClientMergeContactDrop()
     {
@@ -113,7 +114,7 @@ class ClientTest extends TestCase
 
         $c = $c->fresh();
 
-        nlog($c->contacts->pluck('email'));
+        // nlog($c->contacts->pluck('email'));
 
         $this->assertEquals(4, $c->contacts->count());
 

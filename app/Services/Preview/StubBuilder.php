@@ -42,7 +42,8 @@ class StubBuilder
 
     public $entity_type;
     
-    public \App\Models\Client | \App\Models\Vendor $recipient;
+    /** @var Client | Vendor $recipient **/
+    public Client | Vendor $recipient;
 
     public mixed $contact;
 
@@ -178,7 +179,7 @@ class StubBuilder
 
         $design_string = "{$this->entity_type}_design_id";
 
-        $design = DesignModel::withTrashed()->find($this->decodePrimaryKey($html->settings->{$design_string}));
+        $design = DesignModel::query()->withTrashed()->find($this->decodePrimaryKey($html->settings->{$design_string}));
 
         $template = new PdfMakerDesign(strtolower($design->name));
 
@@ -226,10 +227,13 @@ class StubBuilder
 
     private function createClient(): self
     {
-        $this->recipient = Client::factory()->create([
+        /** @var \App\Models\Client $client */
+        $client = Client::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
         ]);
+        
+        $this->recipient = $client;
 
         $this->contact = ClientContact::factory()->create([
             'user_id' => $this->user->id,
@@ -244,10 +248,13 @@ class StubBuilder
 
     private function createVendor(): self
     {
-        $this->recipient = Vendor::factory()->create([
+        /** @var \App\Models\Vendor $vendor */
+        $vendor = Vendor::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->user->company()->id,
         ]);
+        
+        $this->recipient = $vendor;
 
         $this->contact = VendorContact::factory()->create([
             'user_id' => $this->user->id,
@@ -275,7 +282,8 @@ class StubBuilder
 
     private function createInvoice()
     {
-        $this->entity = Invoice::factory()->create([
+        /** @var \App\Models\Invoice $invoice */
+        $invoice =  Invoice::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
             'client_id' => $this->recipient->id,
@@ -283,6 +291,8 @@ class StubBuilder
             'footer' => $this->company->settings->invoice_footer,
             'status_id' => Invoice::STATUS_PAID,
         ]);
+
+        $this->entity = $invoice;
 
         $this->invitation = InvoiceInvitation::factory()->create([
             'user_id' => $this->user->id,

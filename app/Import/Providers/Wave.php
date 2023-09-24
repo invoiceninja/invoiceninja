@@ -189,7 +189,7 @@ class Wave extends BaseImport implements ImportInterface
 
         $this->transformer = new ExpenseTransformer($this->company);
 
-        $expense_count = $this->ingestExpenses($data, $entity_type);
+        $expense_count = $this->ingestExpenses($data);
 
         $this->entity_count['expenses'] = $expense_count;
     }
@@ -200,7 +200,7 @@ class Wave extends BaseImport implements ImportInterface
 
     private function groupExpenses($csvData)
     {
-        $grouped_expense = [];
+        $grouped = [];
         $key = 'Transaction ID';
 
         foreach ($csvData as $expense) {

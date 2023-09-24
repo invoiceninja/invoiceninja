@@ -15,7 +15,7 @@ return new class extends Migration {
      */
     public function up()
     {
-        $gateway = Gateway::where('key', '3758e7f7c6f4cecf0f4f348b9a00f456')->first();
+        $gateway = Gateway::query()->where('key', '3758e7f7c6f4cecf0f4f348b9a00f456')->first();
 
         if ($gateway) {
             $fields = json_decode($gateway->fields);
@@ -25,7 +25,7 @@ return new class extends Migration {
             $gateway->save();
         }
 
-        CompanyGateway::where('gateway_key', '3758e7f7c6f4cecf0f4f348b9a00f456')->each(function ($checkout) {
+        CompanyGateway::query()->where('gateway_key', '3758e7f7c6f4cecf0f4f348b9a00f456')->each(function ($checkout) {
             $config = json_decode(decrypt($checkout->config));
 
             $config->threeds = false;

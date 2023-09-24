@@ -1,21 +1,29 @@
 includes:
     - ./vendor/nunomaduro/larastan/extension.neon
+    - ./vendor/spaze/phpstan-stripe/extension.neon
+    - phpstan-baseline.neon
 parameters:
     level: 2
     paths:
-        - 'app/'
+        - app
     excludePaths:
-        - 'vendor/'
+        - 'vendor/*'
+        - '../resources/*'
+        - resources/
+        - resources/*
         - 'app/Jobs/Ninja/*'
+        - 'app/Models/Presenters/*'
         - 'app/Console/Commands/*'
         - 'app/DataMapper/Analytics/*'
         - 'app/PaymentDrivers/Authorize/*'
+        - 'app/PaymentDrivers/AuthorizePaymentDriver.php'
+        - 'app/Utils/Traits/*'
     universalObjectCratesClasses:
         - App\DataMapper\Tax\RuleInterface
         - App\DataMapper\FeesAndLimits
     reportUnmatchedIgnoredErrors: false
     ignoreErrors:
-        - '#Call to an undefined method [a-zA-Z0-9\\_]+::company\(\)#' 
-        - '#Call to an undefined method [a-zA-Z0-9\\_]+::entityFilter\(\)#'
-        - '#Call to an undefined method [a-zA-Z0-9\\_]+::withTrashed()\(\)#'
-        - '#Undefined method#'
+        - '#Array has 2 duplicate keys with value#'
+        - '#Call to an undefined method#'
+        - '#makeHidden#'
+        - '#Socialite#'

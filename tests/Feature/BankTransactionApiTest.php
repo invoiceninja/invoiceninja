@@ -147,7 +147,7 @@ class BankTransactionApiTest extends TestCase
             'ids' => [$this->encodePrimaryKey($bank_transaction->id)],
         ];
 
-        nlog($bank_transaction->toArray());
+        // nlog($bank_transaction->toArray());
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,

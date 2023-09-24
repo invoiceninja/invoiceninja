@@ -42,7 +42,7 @@ class MarkSent
              ->service()
              ->setStatus(Quote::STATUS_SENT)
              ->applyNumber()
-             ->deletePdf()
+            //  ->deletePdf()
              ->save();
 
         event(new QuoteWasMarkedSent($this->quote, $this->quote->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));

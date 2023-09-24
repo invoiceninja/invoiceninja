@@ -105,7 +105,7 @@ class ConnectedAccountController extends BaseController
                       ->execute();
 
         if ($user) {
-            $email = $user->getMail() ?: $user->getUserPrincipalName();
+            $email = $user->getUserPrincipalName() ?? false;
 
             nlog("microsoft");
             nlog($email);

@@ -28,7 +28,7 @@ class PurchaseOrderInventory
         $line_items = $this->purchase_order->line_items;
 
         foreach ($line_items as $item) {
-            $p = Product::where('product_key', $item->product_key)->where('company_id', $this->purchase_order->company_id)->first();
+            $p = Product::query()->where('product_key', $item->product_key)->where('company_id', $this->purchase_order->company_id)->first();
 
             if (!$p) {
                 continue;

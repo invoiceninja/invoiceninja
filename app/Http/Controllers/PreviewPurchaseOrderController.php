@@ -95,7 +95,7 @@ class PreviewPurchaseOrderController extends BaseController
                 return response()->json(['message' => ctrans('texts.invalid_design_object')], 400);
             }
 
-            $entity_obj = PurchaseOrder::whereId($this->decodePrimaryKey(request()->input('entity_id')))->company()->first();
+            $entity_obj = PurchaseOrder::query()->whereId($this->decodePrimaryKey(request()->input('entity_id')))->company()->first();
 
             if (! $entity_obj) {
                 return $this->blankEntity();
@@ -181,7 +181,8 @@ class PreviewPurchaseOrderController extends BaseController
             DB::connection(config('database.default'))->beginTransaction();
 
             if ($request->has('entity_id')) {
-                $entity_obj = $class::on(config('database.default'))
+                /** @var \App\Models\PurchaseOrder|\Illuminate\Contracts\Database\Eloquent\Builder $entity_obj **/
+                $entity_obj = \App\Models\PurchaseOrder::on(config('database.default'))
                                     ->with('vendor.company')
                                     ->where('id', $this->decodePrimaryKey($request->input('entity_id')))
                                     ->where('company_id', $company->id)

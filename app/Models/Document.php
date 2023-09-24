@@ -78,6 +78,16 @@ class Document extends BaseModel
     ];
 
     /**
+     * @var array<string>
+     */
+    protected $casts = [
+        'is_public' => 'bool',
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
+    ];
+
+    /**
      * @var array
      */
     public static $types = [

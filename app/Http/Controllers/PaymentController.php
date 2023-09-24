@@ -749,7 +749,7 @@ class PaymentController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $payment);
+            $this->saveDocuments($request->file('documents'), $payment, $request->input('is_public', true));
         }
 
         return $this->itemResponse($payment->fresh());

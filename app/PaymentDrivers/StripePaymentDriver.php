@@ -39,6 +39,7 @@ use App\PaymentDrivers\Stripe\FPX;
 use App\PaymentDrivers\Stripe\GIROPAY;
 use App\PaymentDrivers\Stripe\iDeal;
 use App\PaymentDrivers\Stripe\ImportCustomers;
+use App\PaymentDrivers\Stripe\Jobs\ChargeRefunded;
 use App\PaymentDrivers\Stripe\Jobs\PaymentIntentFailureWebhook;
 use App\PaymentDrivers\Stripe\Jobs\PaymentIntentPartiallyFundedWebhook;
 use App\PaymentDrivers\Stripe\Jobs\PaymentIntentProcessingWebhook;
@@ -501,7 +502,8 @@ class StripePaymentDriver extends BaseDriver
 
         $this->init();
 
-        $client_gateway_token = ClientGatewayToken::whereClientId($this->client->id)
+        $client_gateway_token = ClientGatewayToken::query()
+                                                  ->whereClientId($this->client->id)
                                                   ->whereCompanyGatewayId($this->company_gateway->id)
                                                   ->first();
 
@@ -789,6 +791,12 @@ class StripePaymentDriver extends BaseDriver
             } elseif ($request->data['object']['status'] == "pending") {
                 return response()->json([], 200);
             }
+        } elseif ($request->type === "charge.refunded") {
+
+            ChargeRefunded::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(rand(5, 10)));
+            
+            return response()->json([], 200);
+
         }
 
         return response()->json([], 200);
@@ -890,9 +898,11 @@ class StripePaymentDriver extends BaseDriver
         return Account::all();
     }
 
-    public function setClientFromCustomer($customer)
+    public function setClientFromCustomer($customer): self
     {
-        $this->client = ClientGatewayToken::where('gateway_customer_reference', $customer)->client;
+        $this->client = ClientGatewayToken::query()->where('gateway_customer_reference', $customer)->first()->client;
+
+        return $this;
     }
 
     /**

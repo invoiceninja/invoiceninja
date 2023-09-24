@@ -26,7 +26,9 @@ class ShowDocumentRequest extends FormRequest
      */
     public function authorize()
     {
-        return auth()->guard('vendor')->user()->client_id == $this->document->documentable_id
+        
+        /** @var \App\Models\VendorContact auth()->guard('vendor')->user() */
+        return auth()->guard('vendor')->user()->vendor_id == $this->document->documentable_id
             || $this->document->company_id == auth()->guard('vendor')->user()->company_id;
     }
 

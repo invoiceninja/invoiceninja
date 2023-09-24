@@ -27,8 +27,8 @@ return new class extends Migration {
         Gateway::create($gateway);
 
         if (Ninja::isHosted()) {
-            Gateway::whereIn('id', [20])->update(['visible' => 0]);
-            Gateway::whereIn('id', [56])->update(['visible' => 1]);
+            Gateway::query()->whereIn('id', [20])->update(['visible' => 0]);
+            Gateway::query()->whereIn('id', [56])->update(['visible' => 1]);
         }
     }
 

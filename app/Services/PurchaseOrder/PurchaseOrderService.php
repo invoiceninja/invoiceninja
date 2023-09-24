@@ -20,11 +20,8 @@ class PurchaseOrderService
 {
     use MakesHash;
 
-    public PurchaseOrder $purchase_order;
-
-    public function __construct(PurchaseOrder $purchase_order)
+    public function __construct(public PurchaseOrder $purchase_order)
     {
-        $this->purchase_order = $purchase_order;
     }
 
     public function createInvitations()
@@ -156,7 +153,7 @@ class PurchaseOrderService
 
     /**
      * Saves the purchase order.
-     * @return \App\Models\PurchaseOrder object
+     * @return \App\Models\PurchaseOrder 
      */
     public function save(): ?PurchaseOrder
     {

@@ -139,7 +139,10 @@ class PurchaseOrderController extends BaseController
      */
     public function create(CreatePurchaseOrderRequest $request)
     {
-        $purchase_order = PurchaseOrderFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $purchase_order = PurchaseOrderFactory::create($user->company()->id, $user->id);
 
         return $this->itemResponse($purchase_order);
     }
@@ -183,7 +186,10 @@ class PurchaseOrderController extends BaseController
      */
     public function store(StorePurchaseOrderRequest $request)
     {
-        $purchase_order = $this->purchase_order_repository->save($request->all(), PurchaseOrderFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $purchase_order = $this->purchase_order_repository->save($request->all(), PurchaseOrderFactory::create($user->company()->id, $user->id));
 
         $purchase_order = $purchase_order->service()
             ->fillDefaults()
@@ -361,7 +367,7 @@ class PurchaseOrderController extends BaseController
 
         $purchase_order = $purchase_order->service()
             ->triggeredActions($request)
-            ->touchPdf()
+            // ->touchPdf()
             ->save();
 
         event(new PurchaseOrderWasUpdated($purchase_order, $purchase_order->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
@@ -475,11 +481,14 @@ class PurchaseOrderController extends BaseController
      */
     public function bulk(BulkPurchaseOrderRequest $request)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $action = $request->input('action');
 
         $ids = $request->input('ids');
 
-        if (Ninja::isHosted() && (stripos($action, 'email') !== false) && !auth()->user()->company()->account->account_sms_verified) {
+        if (Ninja::isHosted() && (stripos($action, 'email') !== false) && !$user->company()->account->account_sms_verified) {
             return response(['message' => 'Please verify your account to send emails.'], 400);
         }
 
@@ -493,20 +502,20 @@ class PurchaseOrderController extends BaseController
          * Download Purchase Order/s
          */
         if ($action == 'bulk_download' && $purchase_orders->count() >= 1) {
-            $purchase_orders->each(function ($purchase_order) {
-                if (auth()->user()->cannot('view', $purchase_order)) {
+            $purchase_orders->each(function ($purchase_order) use ($user){
+                if ($user->cannot('view', $purchase_order)) {
                     return response()->json(['message' => ctrans('text.access_denied')]);
                 }
             });
 
-            ZipPurchaseOrders::dispatch($purchase_orders, $purchase_orders->first()->company, auth()->user());
+            ZipPurchaseOrders::dispatch($purchase_orders->pluck("id")->toArray(), $purchase_orders->first()->company, auth()->user());
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
 
-        if ($action == 'bulk_print' && auth()->user()->can('view', $purchase_orders->first())) {
+        if ($action == 'bulk_print' && $user->can('view', $purchase_orders->first())) {
             $paths = $purchase_orders->map(function ($purchase_order) {
-                return $purchase_order->service()->getPurchaseOrderPdf();
+                return (new \App\Jobs\Vendor\CreatePurchaseOrderPdf($purchase_order->invitations->first()))->rawPdf();
             });
 
             $merge = (new PdfMerge($paths->toArray()))->run();
@@ -519,8 +528,8 @@ class PurchaseOrderController extends BaseController
         /*
          * Send the other actions to the switch
          */
-        $purchase_orders->each(function ($purchase_order, $key) use ($action) {
-            if (auth()->user()->can('edit', $purchase_order)) {
+        $purchase_orders->each(function ($purchase_order, $key) use ($action, $user) {
+            if ($user->can('edit', $purchase_order)) {
                 $this->performAction($purchase_order, $action, true);
             }
         });
@@ -751,7 +760,7 @@ class PurchaseOrderController extends BaseController
         }
         
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $purchase_order);
+            $this->saveDocuments($request->file('documents'), $purchase_order, $request->input('is_public', true));
         }
 
         return $this->itemResponse($purchase_order->fresh());

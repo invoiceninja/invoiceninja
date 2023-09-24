@@ -23,7 +23,7 @@ return new class extends Migration {
             $table->integer('default_password_timeout')->default(30);
         });
 
-        Company::whereNotNull('id')->update(['default_password_timeout' => 30]);
+        Company::query()->whereNotNull('id')->update(['default_password_timeout' => 30]);
     }
 
     /**

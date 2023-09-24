@@ -93,6 +93,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Mailer::macro('postmark_config', function (string $postmark_key) {
+            // @phpstan-ignore /** @phpstan-ignore-next-line **/
             Mailer::setSymfonyTransport(app('mail.manager')->createSymfonyTransport([
                 'transport' => 'postmark',
                 'token' => $postmark_key
@@ -101,8 +102,10 @@ class AppServiceProvider extends ServiceProvider
             return $this;
         });
         
+    
         Mailer::macro('mailgun_config', function (string $secret, string $domain, string $endpoint = 'api.mailgun.net') {
-            Mailer::setSymfonyTransport(app('mail.manager')->createSymfonyTransport([
+            // @phpstan-ignore /** @phpstan-ignore-next-line **/
+            Mailer::setSymfonyTransport(app('mail.manager')->createSymfonyTransport([ 
                 'transport' => 'mailgun',
                 'secret' => $secret,
                 'domain' => $domain,

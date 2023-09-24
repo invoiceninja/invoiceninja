@@ -250,8 +250,8 @@ class Rule extends BaseRule implements RuleInterface
         //         $this->reduced_tax_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->company->country()->iso_3166_2}->reduced_tax_rate;
         //     }
 
-        $this->tax_rate = $this->client->company->tax_data->regions->AU->subregions->{$this->client->company->country()->iso_3166_2}->tax_rate;
-        $this->reduced_tax_rate = $this->client->company->tax_data->regions->AU->subregions->{$this->client->company->country()->iso_3166_2}->tax_rate;
+        $this->tax_rate = $this->client->company->tax_data->regions->AU->subregions->{$this->client->company->country()->iso_3166_2}->tax_rate ?? 0;
+        $this->reduced_tax_rate = $this->client->company->tax_data->regions->AU->subregions->{$this->client->company->country()->iso_3166_2}->tax_rate ?? 0;
 
         return $this;
 

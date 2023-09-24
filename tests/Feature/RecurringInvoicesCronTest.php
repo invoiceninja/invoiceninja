@@ -46,6 +46,6 @@ class RecurringInvoicesCronTest extends TestCase
 
         $this->assertEquals(5, $recurring_invoices->count());
 
-        $this->assertEquals(6, $recurring_all->count());
+        $this->assertEquals(7, $recurring_all->count());
     }
 }

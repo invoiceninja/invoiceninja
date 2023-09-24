@@ -42,7 +42,8 @@ class CreateInvitations extends AbstractService
         }
 
         $contacts->each(function ($contact) {
-            $invitation = CreditInvitation::whereCompanyId($this->credit->company_id)
+            $invitation = CreditInvitation::query()
+                ->where('company_id', $this->credit->company_id)
                 ->whereClientContactId($contact->id)
                 ->whereCreditId($this->credit->id)
                 ->withTrashed()
@@ -65,7 +66,7 @@ class CreateInvitations extends AbstractService
             } else {
                 $contact = $contacts->first();
 
-                $invitation = CreditInvitation::where('company_id', $this->credit->company_id)
+                $invitation = CreditInvitation::query()->where('company_id', $this->credit->company_id)
                                 ->where('client_contact_id', $contact->id)
                                 ->where('credit_id', $this->credit->id)
                                 ->withTrashed()

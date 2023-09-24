@@ -2,7 +2,7 @@
 /**
  * Project Ninja (https://paymentninja.com).
  *
- * @link https://github.com/paymentninja/paymentninja source repository
+ * @link https://github.com/invoiceninja/invoiceninja source repository
  *
  * @copyright Copyright (c) 2022. Project Ninja LLC (https://paymentninja.com)
  *
@@ -22,7 +22,10 @@ class UploadProjectRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->project);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('edit', $this->project);
     }
 
     public function rules()
@@ -41,6 +44,20 @@ class UploadProjectRequest extends Request
             $rules['file'] = $this->file_validation;
         }
 
+        $rules['is_public'] = 'sometimes|boolean';
+
         return $rules;
+    }
+
+    public function prepareForValidation()
+    {
+        $input = $this->all();
+
+        if(isset($input['is_public'])) {
+            $input['is_public'] = $this->toBoolean($input['is_public']);
+        }
+
+        $this->replace($input);
+      
     }
 }

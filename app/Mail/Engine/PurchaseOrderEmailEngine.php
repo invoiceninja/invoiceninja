@@ -127,21 +127,21 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
         //attach third party documents
         if ($this->vendor->getSetting('document_email_attachment') !== false && $this->purchase_order->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
             // Storage::url
-            foreach ($this->purchase_order->documents as $document) {
+            $this->purchase_order->documents()->where('is_public', true)->cursor()->each(function ($document) {
                 if ($document->size > $this->max_attachment_size) {
                     $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
                 } else {
                     $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
                 }
-            }
+            });
 
-            foreach ($this->purchase_order->company->documents as $document) {
+            $this->purchase_order->company->documents()->where('is_public', true)->cursor()->each(function ($document) {
                 if ($document->size > $this->max_attachment_size) {
                     $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
                 } else {
                     $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
                 }
-            }
+            });
         }
 
         return $this;

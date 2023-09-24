@@ -73,27 +73,19 @@ class ZipInvoices implements ShouldQueue
         $invitation = $this->invoices->first()->invitations->first();
         $path = $this->invoices->first()->client->invoice_filepath($invitation);
 
-        $this->invoices->each(function ($invoice) {
-            (new CreateEntityPdf($invoice->invitations()->first()))->handle();
-            if ($invoice->client->getSetting('enable_e_invoice')){
-                (new CreateEInvoice($invoice, false))->handle();
-            }
-        });
-
         try {
 
+
             foreach ($this->invoices as $invoice) {
-                $file = $invoice->service()->getInvoicePdf();
-                $zip_file_name = basename($file);
-                $zipFile->addFromString($zip_file_name, Storage::get($file));
-
-                if($invoice->client->getSetting('enable_e_invoice')){
-
-                    $xinvoice = $invoice->service()->getEInvoice();
-                    $xinvoice_zip_file_name = basename($xinvoice);
-                    $zipFile->addFromString($xinvoice_zip_file_name, Storage::get($xinvoice));
-
+                
+                if ($invoice->client->getSetting('enable_e_invoice')) {
+                    $xml = $invoice->service()->getEInvoice();
+                    $zipFile->addFromString($invoice->getFileName("xml"), $xml);
                 }
+
+                $file = $invoice->service()->getRawInvoicePdf();
+                $zip_file_name = $invoice->getFileName();
+                $zipFile->addFromString($zip_file_name, $file);
             }
 
             Storage::put($path.$file_name, $zipFile->outputAsString());

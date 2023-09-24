@@ -87,6 +87,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @method static \Illuminate\Database\Eloquent\Builder|Account first()
  * @method static \Illuminate\Database\Eloquent\Builder|Account with()
  * @method static \Illuminate\Database\Eloquent\Builder|Account count() 
+ * @method static \Illuminate\Database\Eloquent\Builder|Account where($query)
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankIntegration> $bank_integrations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyUser> $company_users
@@ -127,23 +128,14 @@ class Account extends BaseModel
         'num_users',
     ];
 
-    /**
-     * @var array
-     */
-    protected $dates = [
-        'deleted_at',
-        'promo_expires',
-        'discount_expires',
-        // 'trial_started',
-        // 'plan_expires'
-    ];
-
     protected $casts = [
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'onboarding' => 'object',
-        'set_react_as_default_ap' => 'bool'
+        'set_react_as_default_ap' => 'bool',
+        'promo_expires' => 'date',
+        'discount_expires' => 'date',
     ];
 
     const PLAN_FREE = 'free';
@@ -215,7 +207,11 @@ class Account extends BaseModel
         return $this->hasMany(CompanyUser::class);
     }
 
-    public function owner(): \Illuminate\Database\Eloquent\Relations\HasMany
+    /**
+     * Returns the owner of the Account - not a HasMany relation
+     * @return \App\Models\User | bool
+     */
+    public function owner()
     {
         return $this->hasMany(CompanyUser::class)->where('is_owner', true)->first() ? $this->hasMany(CompanyUser::class)->where('is_owner', true)->first()->user : false;
     }

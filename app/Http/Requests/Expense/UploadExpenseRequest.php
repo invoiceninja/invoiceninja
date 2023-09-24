@@ -22,7 +22,10 @@ class UploadExpenseRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->expense);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('edit', $this->expense);
     }
 
     public function rules()
@@ -41,6 +44,20 @@ class UploadExpenseRequest extends Request
             $rules['file'] = $this->file_validation;
         }
 
+        $rules['is_public'] = 'sometimes|boolean';
+
         return $rules;
+    }
+
+    public function prepareForValidation()
+    {
+        $input = $this->all();
+
+        if(isset($input['is_public'])) {
+            $input['is_public'] = $this->toBoolean($input['is_public']);
+        }
+
+        $this->replace($input);
+      
     }
 }

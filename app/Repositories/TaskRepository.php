@@ -45,7 +45,11 @@ class TaskRepository extends BaseRepository
         $task->saveQuietly();
 
         if ($this->new_task && ! $task->status_id) {
-            $this->setDefaultStatus($task);
+            $task->status_id = $this->setDefaultStatus($task);
+        }
+
+        if($this->new_task && (!$task->rate || $task->rate <= 0)) {
+            $task->rate = $task->getRate();
         }
 
         $task->number = empty($task->number) || ! array_key_exists('number', $data) ? $this->trySaving($task) : $data['number'];
@@ -118,7 +122,7 @@ class TaskRepository extends BaseRepository
             $task->is_running = $data['is_running'] ? 1 : 0;
         }
 
-        $task->calculated_start_date = $this->harvestStartDate($time_log);
+        $task->calculated_start_date = $this->harvestStartDate($time_log, $task);
         
         $task->time_log = json_encode($time_log);
 
@@ -133,11 +137,11 @@ class TaskRepository extends BaseRepository
         return $task;
     }
 
-    private function harvestStartDate($time_log)
+    private function harvestStartDate($time_log, $task)
     {
         
         if(isset($time_log[0][0])){
-            return \Carbon\Carbon::createFromTimestamp($time_log[0][0]);
+            return \Carbon\Carbon::createFromTimestamp($time_log[0][0])->addSeconds($task->company->utc_offset());
         }
 
         return null;
@@ -218,7 +222,7 @@ class TaskRepository extends BaseRepository
 
             $log = array_merge($log, [[$start_time, 0]]);
             $task->time_log = json_encode($log);
-            $task->calculated_start_date = \Carbon\Carbon::createFromTimestamp($start_time);
+            $task->calculated_start_date = \Carbon\Carbon::createFromTimestamp($start_time)->addSeconds($task->company->utc_offset());
 
             $task->saveQuietly();
         }

@@ -90,7 +90,7 @@ class UpdatePaymentMethods
         );
 
         foreach ($bank_methods->data as $method) {
-            $token = ClientGatewayToken::where([
+            $token = ClientGatewayToken::query()->where([
                 'gateway_customer_reference' => $customer->id,
                 'token' => $method->id,
                 'client_id' => $client->id,
@@ -140,7 +140,7 @@ class UpdatePaymentMethods
         }
 
         foreach ($sources->data as $method) {
-            $token_exists = ClientGatewayToken::where([
+            $token_exists = ClientGatewayToken::query()->where([
                 'gateway_customer_reference' => $customer->id,
                 'token' => $method->id,
                 'client_id' => $client->id,
@@ -176,7 +176,7 @@ class UpdatePaymentMethods
 
     private function addOrUpdateCard(PaymentMethod $method, $customer_reference, Client $client, $type_id)
     {
-        $token_exists = ClientGatewayToken::where([
+        $token_exists = ClientGatewayToken::query()->where([
             'gateway_customer_reference' => $customer_reference,
             'token' => $method->id,
             'client_id' => $client->id,
@@ -208,17 +208,24 @@ class UpdatePaymentMethods
         switch ($type_id) {
             case GatewayType::CREDIT_CARD:
 
-                $payment_meta = new \stdClass;
-                $payment_meta->exp_month = (string) $method->card->exp_month;
-                $payment_meta->exp_year = (string) $method->card->exp_year;
-                $payment_meta->brand = (string) $method->card->brand;
-                $payment_meta->last4 = (string) $method->card->last4;
-                $payment_meta->type = GatewayType::CREDIT_CARD;
+            /** 
+             * @class \Stripe\PaymentMethod $method
+             * @property \Stripe\StripeObject $card
+             * @class \Stripe\StripeObject $card
+             * @property string $exp_year
+             * @property string $exp_month
+             * @property string $brand
+             * @property string $last4
+            */
+            
+            $payment_meta = new \stdClass;
+            $payment_meta->exp_month = (string) $method->card->exp_month;
+            $payment_meta->exp_year = (string) $method->card->exp_year;
+            $payment_meta->brand = (string) $method->card->brand;
+            $payment_meta->last4 = (string) $method->card->last4;
+            $payment_meta->type = GatewayType::CREDIT_CARD;
 
-                return $payment_meta;
-
-                break;
-
+            return $payment_meta;
             case GatewayType::ALIPAY:
             case GatewayType::SOFORT:
 

@@ -48,6 +48,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|TaxRate whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|TaxRate withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|TaxRate withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|TaxRate firstOrNew()
  * @mixin \Eloquent
  */
 class TaxRate extends BaseModel

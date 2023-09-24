@@ -93,29 +93,30 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  * @property string|null $reminder_last_sent
  * @property float $paid_to_date
  * @property int|null $subscription_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read int|null $activities_count
- * @property-read \App\Models\User|null $assigned_user
- * @property-read \App\Models\Client $client
- * @property-read \App\Models\Company $company
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read int|null $company_ledger_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read int|null $documents_count
- * @property-read mixed $hashed_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
- * @property-read int|null $history_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $invitations
- * @property-read int|null $invitations_count
- * @property-read \App\Models\Invoice|null $invoice
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read int|null $invoices_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read int|null $payments_count
- * @property-read \App\Models\Project|null $project
- * @property-read \App\Models\User $user
- * @property-read \App\Models\Client $client
- * @property-read \App\Models\Vendor|null $vendor
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property int|null $activities_count
+ * @property \App\Models\User|null $assigned_user
+ * @property \App\Models\Client $client
+ * @property \App\Models\Company $company
+ * @property \App\Models\CreditInvitation $invitation
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
+ * @property int|null $company_ledger_count
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property int|null $documents_count
+ * @property mixed $hashed_id
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
+ * @property int|null $history_count
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $invitations
+ * @property int|null $invitations_count
+ * @property \App\Models\Invoice|null $invoice
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
+ * @property int|null $invoices_count
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
+ * @property int|null $payments_count
+ * @property \App\Models\Project|null $project
+ * @property \App\Models\User $user
+ * @property \App\Models\Client $client
+ * @property \App\Models\Vendor|null $vendor
  * @property-read mixed $pivot
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
@@ -269,6 +270,9 @@ class Credit extends BaseModel
         return $this->belongsTo(Invoice::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<CompanyLedger>
+     */
     public function company_ledger(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(CompanyLedger::class, 'company_ledgerable');
@@ -288,11 +292,17 @@ class Credit extends BaseModel
         return $this->belongsToMany(Invoice::class)->using(Paymentable::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany<Payment>
+     */
     public function payments(): \Illuminate\Database\Eloquent\Relations\MorphToMany
     {
         return $this->morphToMany(Payment::class, 'paymentable');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<Document>
+     */
     public function documents(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');

@@ -122,7 +122,7 @@ class TypeCheck extends Command
             $client->save();
         });
 
-        Company::cursor()->each(function ($company) {
+        Company::query()->cursor()->each(function ($company) {
             $this->logMessage("Checking company {$company->id}");
             $company->saveSettings($company->settings, $company);
         });

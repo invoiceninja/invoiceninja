@@ -4,6 +4,7 @@
 @push('head')
     <meta name="show-quote-terms" content="{{ $settings->show_accept_quote_terms ? true : false }}">
     <meta name="require-quote-signature" content="{{ $client->company->account->hasFeature(\App\Models\Account::FEATURE_INVOICE_SETTINGS) && $settings->require_quote_signature }}">
+    <meta name="accept-user-input" content="{{ $client->getSetting('accept_client_input_quote_approval') }}">
     <script src="{{ asset('vendor/signature_pad@2.3.2/signature_pad.min.js') }}"></script>
 @endpush
 
@@ -41,7 +42,7 @@
                     <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-4">
                         <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
                             <h3 class="text-lg leading-6 font-medium text-gray-900">
-                                {{ ctrans('texts.invoice') }}
+                                {{ ctrans('texts.quote') }}
                                 <a class="button-link text-primary" href="{{ route('client.quote.show', $quote->hashed_id) }}">
                                     ({{ $quote->number }})
                                 </a>
@@ -82,11 +83,12 @@
             </div>
         </div>
     </div>
+@endsection
 
+@section('footer')
+    @include('portal.ninja2020.quotes.includes.user-input')
     @include('portal.ninja2020.invoices.includes.terms', ['entities' => $quotes, 'entity_type' => ctrans('texts.quote')])
     @include('portal.ninja2020.invoices.includes.signature')
-
-
 @endsection
 
 @push('footer')

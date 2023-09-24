@@ -53,7 +53,7 @@ class UniqueRecurringQuoteNumberRule implements Rule
             return true;
         }
 
-        $invoice = RecurringQuote::where('client_id', $this->input['client_id'])
+        $invoice = RecurringQuote::query()->where('client_id', $this->input['client_id'])
                         ->where('number', $this->input['number'])
                         ->withTrashed()
                         ->exists();

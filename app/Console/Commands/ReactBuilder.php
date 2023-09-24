@@ -48,7 +48,7 @@ class ReactBuilder extends Command
     {
         $includes = '';
 
-        $directoryIterator = new \RecursiveDirectoryIterator(public_path('react'), \RecursiveDirectoryIterator::SKIP_DOTS);
+        $directoryIterator = new \RecursiveDirectoryIterator(public_path('react/v'.config('ninja.app_version').'/'), \RecursiveDirectoryIterator::SKIP_DOTS);
 
         foreach (new \RecursiveIteratorIterator($directoryIterator) as $file) {
             if ($file->getExtension() == 'js') {

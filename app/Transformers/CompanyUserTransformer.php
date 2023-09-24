@@ -22,14 +22,14 @@ class CompanyUserTransformer extends EntityTransformer
     /**
      * @var array
      */
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         // 'user',
     ];
 
     /**
      * @var array
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'user',
         'company',
         'token',

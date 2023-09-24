@@ -102,7 +102,7 @@ class CreatePurchaseOrderPdf implements ShouldQueue
         /* Init a new copy of the translator*/
         $t = app('translator');
         /* Set the locale*/
-        App::setLocale($this->company->locale());
+        App::setLocale($this->vendor->locale());
 
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->company->settings));
@@ -124,6 +124,7 @@ class CreatePurchaseOrderPdf implements ShouldQueue
 
         /* Catch all in case migration doesn't pass back a valid design */
         if (!$design) {
+            /** @var \App\Models\Design $design */
             $design = Design::find(2);
         }
 

@@ -38,7 +38,10 @@ class ExpenseFilters extends QueryFilters
                 ->orWhere('custom_value1', 'like', '%'.$filter.'%')
                 ->orWhere('custom_value2', 'like', '%'.$filter.'%')
                 ->orWhere('custom_value3', 'like', '%'.$filter.'%')
-                ->orWhere('custom_value4', 'like', '%'.$filter.'%');
+                ->orWhere('custom_value4', 'like', '%'.$filter.'%')
+                ->orWhereHas('category', function ($q) use ($filter) {
+                              $q->where('name', 'like', '%'.$filter.'%');
+                          });
         });
     }
 
@@ -166,16 +169,27 @@ class ExpenseFilters extends QueryFilters
             return $this->builder;
         }
 
-        if ($sort_col[0] == 'client_id') {
-            return $this->builder->orderBy(\App\Models\Client::select('name')
+        if ($sort_col[0] == 'client_id' && in_array($sort_col[1], ['asc', 'desc'])) {
+            return $this->builder
+                    ->orderByRaw('ISNULL(client_id), client_id '. $sort_col[1])
+                    ->orderBy(\App\Models\Client::select('name')
                     ->whereColumn('clients.id', 'expenses.client_id'), $sort_col[1]);
         }
 
-        if ($sort_col[0] == 'vendor_id') {
-            return $this->builder->orderBy(\App\Models\Vendor::select('name')
+        if ($sort_col[0] == 'vendor_id' && in_array($sort_col[1], ['asc', 'desc'])) {
+            return $this->builder
+                    ->orderByRaw('ISNULL(vendor_id), vendor_id '. $sort_col[1])
+                    ->orderBy(\App\Models\Vendor::select('name')
                     ->whereColumn('vendors.id', 'expenses.vendor_id'), $sort_col[1]);
+
         }
 
+        if ($sort_col[0] == 'category_id' && in_array($sort_col[1], ['asc', 'desc'])) {
+            return $this->builder
+                    ->orderByRaw('ISNULL(category_id), category_id '. $sort_col[1])
+                    ->orderBy(\App\Models\ExpenseCategory::select('name')
+                    ->whereColumn('expense_categories.id', 'expenses.category_id'), $sort_col[1]);
+        }
 
         if (is_array($sort_col) && in_array($sort_col[1], ['asc', 'desc']) && in_array($sort_col[0], ['public_notes', 'date', 'id_number', 'custom_value1', 'custom_value2', 'custom_value3', 'custom_value4'])) {
             return $this->builder->orderBy($sort_col[0], $sort_col[1]);

@@ -135,31 +135,31 @@ class InvoiceEmailEngine extends BaseEmailEngine
         //attach third party documents
         if ($this->client->getSetting('document_email_attachment') !== false && $this->invoice->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
             if ($this->invoice->recurring_invoice()->exists()) {
-                foreach ($this->invoice->recurring_invoice->documents as $document) {
+                $this->invoice->recurring_invoice->documents()->where('is_public',true)->cursor()->each(function ($document) {
                     if ($document->size > $this->max_attachment_size) {
                         $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
                     } else {
                         $this->setAttachments([['file' => base64_encode($document->getFile()), 'path' => $document->filePath(), 'name' => $document->name, 'mime' => null, ]]);
                     }
-                }
+                });
             }
 
             // Storage::url
-            foreach ($this->invoice->documents as $document) {
+            $this->invoice->documents()->where('is_public',true)->cursor()->each(function ($document) {
                 if ($document->size > $this->max_attachment_size) {
                     $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
                 } else {
                     $this->setAttachments([['file' => base64_encode($document->getFile()), 'path' => $document->filePath(), 'name' => $document->name, 'mime' => null, ]]);
                 }
-            }
+            });
 
-            foreach ($this->invoice->company->documents as $document) {
+            $this->invoice->company->documents()->where('is_public',true)->cursor()->each(function ($document) {
                 if ($document->size > $this->max_attachment_size) {
                     $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
                 } else {
                     $this->setAttachments([['file' => base64_encode($document->getFile()), 'path' => $document->filePath(), 'name' => $document->name, 'mime' => null, ]]);
                 }
-            }
+            });
 
             $line_items = $this->invoice->line_items;
 
@@ -171,17 +171,17 @@ class InvoiceEmailEngine extends BaseEmailEngine
                 }
 
                 if (count($expense_ids) > 0) {
-                    $expenses = Expense::whereIn('id', $this->transformKeys($expense_ids))
+                    $expenses = Expense::query()->whereIn('id', $this->transformKeys($expense_ids))
                                        ->where('invoice_documents', 1)
                                        ->cursor()
                                        ->each(function ($expense) {
-                                           foreach ($expense->documents as $document) {
+                                           $expense->documents()->where('is_public',true)->cursor()->each(function ($document) {
                                                if ($document->size > $this->max_attachment_size) {
                                                    $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
                                                } else {
                                                    $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null, ]]);
                                                }
-                                           }
+                                           });
                                        });
                 }
 
@@ -192,16 +192,16 @@ class InvoiceEmailEngine extends BaseEmailEngine
                 }
 
                 if (count($task_ids) > 0 && $this->invoice->company->invoice_task_documents) {
-                    $tasks = Task::whereIn('id', $this->transformKeys($task_ids))
+                    $tasks = Task::query()->whereIn('id', $this->transformKeys($task_ids))
                                        ->cursor()
                                        ->each(function ($task) {
-                                           foreach ($task->documents as $document) {
+                                           $task->documents()->where('is_public', true)->cursor()->each(function ($document) {
                                                if ($document->size > $this->max_attachment_size) {
                                                    $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
                                                } else {
                                                    $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null, ]]);
                                                }
-                                           }
+                                           });
                                        });
                 }
             }

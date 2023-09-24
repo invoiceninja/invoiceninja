@@ -30,11 +30,19 @@ class StoreRecurringQuoteRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('create', RecurringQuote::class);
+        
+        /** @var \App\Models\User auth()->user() */
+        $user = auth()->user();
+
+        return $user->can('create', RecurringQuote::class);
     }
 
     public function rules()
     {
+        
+        /** @var \App\Models\User auth()->user() */
+        $user = auth()->user();
+
         $rules = [];
         
         if ($this->file('documents') && is_array($this->file('documents'))) {
@@ -49,7 +57,7 @@ class StoreRecurringQuoteRequest extends Request
             $rules['file'] = $this->file_validation;
         }
 
-        $rules['client_id'] = 'required|exists:clients,id,company_id,'.auth()->user()->company()->id;
+        $rules['client_id'] = 'required|exists:clients,id,company_id,'.$user->company()->id;
 
         $rules['invitations.*.client_contact_id'] = 'distinct';
 
@@ -71,6 +79,7 @@ class StoreRecurringQuoteRequest extends Request
             $input['auto_bill_enabled'] = $this->setAutoBillFlag($input['auto_bill']);
         } else {
             if ($client = Client::find($input['client_id'])) {
+                /** @var \App\Models\Client $client */
                 $input['auto_bill'] = $client->getSetting('auto_bill');
                 $input['auto_bill_enabled'] = $this->setAutoBillFlag($input['auto_bill']);
             }

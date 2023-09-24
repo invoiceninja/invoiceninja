@@ -35,6 +35,10 @@ class RefundPayment
 
     private $activity_repository;
 
+    private bool $refund_failed = false;
+    
+    private string $refund_failed_message = '';
+
     public function __construct($payment, $refund_data)
     {
         $this->payment = $payment;
@@ -50,12 +54,14 @@ class RefundPayment
 
     public function run()
     {
-        $this->payment = $this->calculateTotalRefund() //sets amount for the refund (needed if we are refunding multiple invoices in one payment)
+        $this->payment = $this
+                            ->calculateTotalRefund() //sets amount for the refund (needed if we are refunding multiple invoices in one payment)
+                            ->processGatewayRefund() //process the gateway refund if needed
                             ->setStatus() //sets status of payment
                             ->updateCreditables() //return the credits first
                             ->updatePaymentables() //update the paymentable items
                             ->adjustInvoices()
-                            ->processGatewayRefund() //process the gateway refund if needed
+                            ->finalize()
                             ->save();
 
         if (array_key_exists('email_receipt', $this->refund_data) && $this->refund_data['email_receipt'] == 'true') {
@@ -71,9 +77,28 @@ class RefundPayment
         return $this->payment;
     }
 
+    private function finalize(): self
+    {
+        if($this->refund_failed)
+            throw new PaymentRefundFailed($this->refund_failed_message);
+        
+        return $this;
+    }
+
     /**
      * Process the refund through the gateway.
      *
+     * $response
+     * [
+     *  'transaction_reference' => (string),
+     *  'transaction_response' => (string),
+     *  'success' => (bool),
+     *  'description' => (string),
+     *  'code' => (string),
+     *  'payment_id' => (int),
+     *  'amount' => (float),
+     * ];
+     * 
      * @return $this
      * @throws PaymentRefundFailed
      */
@@ -83,16 +108,27 @@ class RefundPayment
             if ($this->payment->company_gateway) {
                 $response = $this->payment->company_gateway->driver($this->payment->client)->refund($this->payment, $this->total_refund);
 
+                if($response['amount'] ?? false)
+                    $this->total_refund = $response['amount'];
+
+                if($response['voided'] ?? false)
+                {
+                    //When a transaction is voided - all invoices attached to the payment need to be reversed, this 
+                    //block prevents the edge case where a partial refund was attempted.
+                    $this->refund_data['invoices'] = $this->payment->invoices->map(function ($invoice){
+                        return [
+                            'invoice_id' => $invoice->id,
+                            'amount' => $invoice->pivot->amount,
+                        ];
+                    })->toArray();
+                }
+                
                 $this->payment->refunded += $this->total_refund;
 
                 if ($response['success'] == false) {
                     $this->payment->save();
-
-                    if (array_key_exists('description', $response)) {
-                        throw new PaymentRefundFailed($response['description']);
-                    } else {
-                        throw new PaymentRefundFailed();
-                    }
+                    $this->refund_failed = true;
+                    $this->refund_failed_message = $response['description'] ?? '';
                 }
             }
         } else {
@@ -238,7 +274,8 @@ class RefundPayment
     private function adjustInvoices()
     {
         if (isset($this->refund_data['invoices']) && count($this->refund_data['invoices']) > 0) {
-            foreach ($this->refund_data['invoices'] as $refunded_invoice) {
+            foreach ($this->refund_data['invoices'] as $refunded_invoice) 
+            {
                 $invoice = Invoice::withTrashed()->find($refunded_invoice['invoice_id']);
 
                 if ($invoice->trashed()) {
@@ -265,10 +302,10 @@ class RefundPayment
 
                 $invoice->saveQuietly();
 
-                //06-09-2022
+                //08-08-2023
                 $client = $invoice->client
                                   ->service()
-                                  ->updateBalance($refunded_invoice['amount'])
+                                  ->updateBalanceAndPaidToDate($refunded_invoice['amount'], -1 * $refunded_invoice['amount'])
                                   ->save();
 
                 if ($invoice->is_deleted) {
@@ -276,13 +313,6 @@ class RefundPayment
                 }
             }
 
-            $client = $this->payment->client->fresh();
-
-            if ($client->trashed()) {
-                $client->restore();
-            }
-
-            $client->service()->updatePaidToDate(-1 * $refunded_invoice['amount'])->save();
         } else {
             //if we are refunding and no payments have been tagged, then we need to decrement the client->paid_to_date by the total refund amount.
 

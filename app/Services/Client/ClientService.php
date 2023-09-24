@@ -78,10 +78,10 @@ class ClientService
 
     public function updatePaymentBalance()
     {
-        $amount = Payment::where('client_id', $this->client->id)
+        $amount = Payment::query()->where('client_id', $this->client->id)
                         ->where('is_deleted', 0)
                         ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
-                        ->sum(DB::Raw('amount - applied'));
+                        ->selectRaw('SUM(payments.amount - payments.applied) as amount')->first()->amount ?? 0;
 
         DB::connection(config('database.default'))->transaction(function () use ($amount) {
             $this->client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
@@ -115,7 +115,7 @@ class ClientService
 
     public function getCredits()
     {
-        return Credit::where('client_id', $this->client->id)
+        return Credit::query()->where('client_id', $this->client->id)
                   ->where('is_deleted', false)
                   ->where('balance', '>', 0)
                   ->where(function ($query) {
@@ -155,7 +155,8 @@ class ClientService
                 return false;
             }
 
-            return $this->emailStatement($pdf, $statement->options);
+            $this->emailStatement($pdf, $statement->options);
+            return;
         }
 
         return $pdf;
@@ -166,7 +167,6 @@ class ClientService
      *
      * @param  mixed $pdf     The pdf blob
      * @param  array  $options The statement options array
-     * @return void
      */
     private function emailStatement($pdf, array $options): void
     {

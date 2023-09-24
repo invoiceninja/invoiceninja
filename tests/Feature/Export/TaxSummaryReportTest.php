@@ -166,6 +166,8 @@ class TaxSummaryReportTest extends TestCase
         $pl = new TaxSummaryReport($this->company, $this->payload);
         $response = $pl->run();
 
+        nlog($response);
+
         $this->assertIsString($response);
 
         $this->account->delete();

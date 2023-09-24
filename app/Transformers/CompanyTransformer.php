@@ -59,14 +59,14 @@ class CompanyTransformer extends EntityTransformer
     /**
      * @var array
      */
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'documents',
     ];
 
     /**
      * @var array
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'documents',
         'users',
         'designs',

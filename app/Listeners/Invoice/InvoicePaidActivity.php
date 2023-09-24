@@ -21,6 +21,8 @@ class InvoicePaidActivity implements ShouldQueue
 {
     protected $activity_repo;
     
+    public $delay = 10;
+    
     /**
      * Create the event listener.
      *
@@ -47,6 +49,7 @@ class InvoicePaidActivity implements ShouldQueue
 
         $fields->user_id = $user_id;
         $fields->invoice_id = $event->invoice->id;
+        $fields->client_id = $event->invoice->client_id;
         $fields->company_id = $event->invoice->company_id;
         $fields->activity_type_id = Activity::PAID_INVOICE;
         $fields->payment_id = $event->payment->id;
