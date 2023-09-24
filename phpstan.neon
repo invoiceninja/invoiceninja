@@ -21,6 +21,7 @@ parameters:
     universalObjectCratesClasses:
         - App\DataMapper\Tax\RuleInterface
         - App\DataMapper\FeesAndLimits
+        - \Postmark\Models\DynamicResponseModel
     reportUnmatchedIgnoredErrors: false
     ignoreErrors:
         - '#Array has 2 duplicate keys with value#'
