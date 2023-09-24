@@ -109,8 +109,9 @@ class ProcessBankTransactions implements ShouldQueue
                 $account = $at->transform($account_summary);
 
                 if($account[0]['current_balance']) {
-                    $this->bank_integration->balance = $account['current_balance'];
-                    $this->bank_integration->currency = $account['account_currency'];
+                    $this->bank_integration->balance = $account[0]['current_balance'];
+                    $this->bank_integration->currency = $account[0]['account_currency'];
+                    $this->bank_integration->bank_account_status = $account[0]['account_status'];
                     $this->bank_integration->save();
                 }
                 
@@ -158,7 +159,7 @@ class ProcessBankTransactions implements ShouldQueue
         $now = now();
         
         foreach ($transactions as $transaction) {
-            if (BankTransaction::where('transaction_id', $transaction['transaction_id'])->where('company_id', $this->company->id)->withTrashed()->exists()) {
+            if (BankTransaction::query()->where('transaction_id', $transaction['transaction_id'])->where('company_id', $this->company->id)->withTrashed()->exists()) {
                 continue;
             }
 

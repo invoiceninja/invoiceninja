@@ -72,7 +72,7 @@ class AccountController extends BaseController
         
         MultiDB::findAndSetDbByAccountKey($account->key);
 
-        $cu = CompanyUser::where('user_id', $account->users()->first()->id);
+        $cu = CompanyUser::query()->where('user_id', $account->users()->first()->id);
 
         $company_user = $cu->first();
 

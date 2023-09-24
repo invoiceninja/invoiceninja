@@ -51,7 +51,7 @@ class NinjaMailerJob implements ShouldQueue
 
     public $override;
 
-    /* @var Company $company*/
+    /** @var null|\App\Models\Company $company  **/
     public ?Company $company;
 
     private $mailer;
@@ -83,7 +83,7 @@ class NinjaMailerJob implements ShouldQueue
         MultiDB::setDb($this->nmo->company->db);
 
         /* Serializing models from other jobs wipes the primary key */
-        $this->company = Company::where('company_key', $this->nmo->company->company_key)->first();
+        $this->company = Company::query()->where('company_key', $this->nmo->company->company_key)->first();
 
         /* If any pre conditions fail, we return early here */
         if (!$this->company || $this->preFlightChecksFail()) {
@@ -143,8 +143,6 @@ class NinjaMailerJob implements ShouldQueue
             LightLogs::create(new EmailSuccess($this->nmo->company->company_key))
                      ->send();
 
-            $this->nmo = null;
-            $this->company = null;
         } catch(\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
             $this->fail();
@@ -194,6 +192,9 @@ class NinjaMailerJob implements ShouldQueue
 
             $this->release($this->backoff()[$this->attempts()-1]);
         }
+
+        $this->nmo = null;
+        $this->company = null;
 
         /*Clean up mailers*/
         $this->cleanUpMailers();
@@ -552,7 +553,7 @@ class NinjaMailerJob implements ShouldQueue
      * Logs any errors to the SystemLog
      *
      * @param  string $errors
-     * @param  App\Models\User | App\Models\Client | null $recipient_object
+     * @param  \App\Models\User | \App\Models\Client | null $recipient_object
      * @return void
      */
     private function logMailError($errors, $recipient_object) :void

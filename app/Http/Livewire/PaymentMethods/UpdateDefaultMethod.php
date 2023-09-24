@@ -32,7 +32,7 @@ class UpdateDefaultMethod extends Component
 
         MultiDB::setDb($this->company->db);
 
-        $this->is_disabled = $this->token->is_default;
+        // $this->is_disabled = $this->token->is_default;
     }
 
     public function makeDefault(): void

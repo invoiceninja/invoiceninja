@@ -74,7 +74,7 @@ class StoreShopClientRequest extends Request
 
     public function prepareForValidation()
     {
-        $this->company = Company::where('company_key', request()->header('X-API-COMPANY-KEY'))->firstOrFail();
+        $this->company = Company::query()->where('company_key', request()->header('X-API-COMPANY-KEY'))->firstOrFail();
 
         $input = $this->all();
 
@@ -93,7 +93,7 @@ class StoreShopClientRequest extends Request
         //is no settings->currency_id is set then lets dive in and find either a group or company currency all the below may be redundant!!
         if (! property_exists($settings, 'currency_id') && isset($input['group_settings_id'])) {
             $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
-            $group_settings = GroupSetting::find($input['group_settings_id']);
+            $group_settings = GroupSetting::query()->find($input['group_settings_id']);
 
             if ($group_settings && property_exists($group_settings->settings, 'currency_id') && isset($group_settings->settings->currency_id)) {
                 $settings->currency_id = (string) $group_settings->settings->currency_id;
@@ -108,7 +108,7 @@ class StoreShopClientRequest extends Request
             $settings->currency_id = $this->getCurrencyCode($input['currency_code']);
         }
 
-        $input['settings'] = $settings;
+        $input['settings'] = (array)$settings;
 
         if (isset($input['contacts'])) {
             foreach ($input['contacts'] as $key => $contact) {

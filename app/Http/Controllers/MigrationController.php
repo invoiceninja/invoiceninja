@@ -301,6 +301,7 @@ class MigrationController extends BaseController
                 $user = auth()->user();
 
                 $company_count = $user->account->companies()->count();
+                $fresh_company = false;
 
                 // Look for possible existing company (based on company keys).
                 $existing_company = Company::whereRaw('BINARY `company_key` = ?', [$company['company_key']])->first();

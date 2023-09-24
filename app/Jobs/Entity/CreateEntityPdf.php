@@ -11,55 +11,56 @@
 
 namespace App\Jobs\Entity;
 
-use App\Exceptions\FilePermissionsFailure;
-use App\Jobs\Invoice\CreateEInvoice;
-use App\Libraries\MultiDB;
+use App\Utils\Ninja;
+use App\Models\Quote;
 use App\Models\Credit;
-use App\Models\CreditInvitation;
 use App\Models\Design;
 use App\Models\Invoice;
-use App\Models\InvoiceInvitation;
-use App\Models\Quote;
+use App\Utils\HtmlEngine;
+use App\Libraries\MultiDB;
+use Illuminate\Bus\Queueable;
 use App\Models\QuoteInvitation;
+use App\Utils\Traits\MakesHash;
+use App\Models\CreditInvitation;
 use App\Models\RecurringInvoice;
+use App\Utils\PhantomJS\Phantom;
+use App\Models\InvoiceInvitation;
+use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\Traits\Pdf\PdfMaker;
+use Illuminate\Support\Facades\App;
+use App\Jobs\Invoice\CreateEInvoice;
+use App\Utils\Traits\NumberFormatter;
+use App\Utils\Traits\MakesInvoiceHtml;
+use Illuminate\Queue\SerializesModels;
+use App\Utils\Traits\Pdf\PageNumbering;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Queue\InteractsWithQueue;
+use App\Exceptions\FilePermissionsFailure;
 use App\Models\RecurringInvoiceInvitation;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use horstoeko\zugferd\ZugferdDocumentPdfBuilder;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker as PdfMakerService;
-use App\Utils\HostedPDF\NinjaPdf;
-use App\Utils\HtmlEngine;
-use App\Utils\Ninja;
-use App\Utils\PhantomJS\Phantom;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesInvoiceHtml;
-use App\Utils\Traits\NumberFormatter;
-use App\Utils\Traits\Pdf\PageNumbering;
-use App\Utils\Traits\Pdf\PdfMaker;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Storage;
 
 class CreateEntityPdf implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter, MakesInvoiceHtml, PdfMaker, MakesHash, PageNumbering;
 
-    public $entity;
+    public \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\RecurringInvoice | null $entity;
 
-    public $company;
+    public \App\Models\Company | null $company;
 
-    public $contact;
+    public \App\Models\ClientContact | null $contact;
 
     private $disk;
 
-    public $invitation;
+    public \App\Models\InvoiceInvitation | \App\Models\QuoteInvitation | \App\Models\CreditInvitation | \App\Models\RecurringInvoiceInvitation | null $invitation;
 
-    public $entity_string = '';
+    public string $entity_string = '';
 
-    public $client;
+    public \App\Models\Client | null $client;
 
     public $deleteWhenMissingModels = true;
 
@@ -116,7 +117,8 @@ class CreateEntityPdf implements ShouldQueue
         }
 
         $entity_design_id = '';
-
+        $path = '';
+        
         if ($this->entity instanceof Invoice) {
             $path = $this->client->invoice_filepath($this->invitation);
             $entity_design_id = 'invoice_design_id';
@@ -135,6 +137,7 @@ class CreateEntityPdf implements ShouldQueue
 
         $entity_design_id = $this->entity->design_id ? $this->entity->design_id : $this->decodePrimaryKey($this->client->getSetting($entity_design_id));
 
+        /** @var \App\Models\Design $design */
         $design = Design::withTrashed()->find($entity_design_id);
 
         /* Catch all in case migration doesn't pass back a valid design */
@@ -205,6 +208,11 @@ class CreateEntityPdf implements ShouldQueue
             info($maker->getCompiledHTML());
         }
 
+        if($this->entity_string == "invoice" && $this->client->getSetting('enable_e_invoice'))
+        {
+            $pdf = $this->checkEInvoice($pdf);
+        }
+
         if ($pdf) {
             try {
                 Storage::disk($this->disk)->put($file_path, $pdf);
@@ -212,9 +220,7 @@ class CreateEntityPdf implements ShouldQueue
                 throw new FilePermissionsFailure($e->getMessage());
             }
         }
-        if ($this->entity_string == "invoice" && $this->client->getSetting('enable_e_invoice')){
-            (new CreateEInvoice($this->entity, true))->handle();
-        }
+        
         $this->invitation = null;
         // $this->entity = null;
         $this->company = null;
@@ -223,9 +229,64 @@ class CreateEntityPdf implements ShouldQueue
         $maker = null;
         $state = null;
 
-
         return $file_path;
     }
+
+    /**
+     * Switch to determine if we need to embed the xml into the PDF itself
+     *
+     * @param  string $pdf
+     * @return string
+     */
+    private function checkEInvoice(string $pdf): string
+    {
+        if(!$this->entity instanceof Invoice)
+            return $pdf;
+
+        $e_invoice_type = $this->entity->client->getSetting('e_invoice_type');
+
+        switch ($e_invoice_type) {
+            case "EN16931":
+            case "XInvoice_2_2":
+            case "XInvoice_2_1":
+            case "XInvoice_2_0":
+            case "XInvoice_1_0":
+            case "XInvoice-Extended":
+            case "XInvoice-BasicWL":
+            case "XInvoice-Basic":
+                return $this->embedEInvoiceZuGFerD($pdf) ?? $pdf;
+                //case "Facturae_3.2":
+                //case "Facturae_3.2.1":
+                //case "Facturae_3.2.2":
+                //
+            default:
+                return $pdf;
+        }
+
+    }
+    
+    /**
+     * Embed the .xml file into the PDF
+     *
+     * @param  string $pdf
+     * @return string
+     */
+    private function embedEInvoiceZuGFerD(string $pdf): string
+    {
+        try {
+
+            $e_rechnung = (new CreateEInvoice($this->entity, true))->handle();
+            $pdfBuilder = new ZugferdDocumentPdfBuilder($e_rechnung, $pdf);
+            $pdfBuilder->generateDocument();
+            return $pdfBuilder->downloadString(basename($this->entity->getFileName()));
+
+        } catch (\Exception $e) {
+            nlog("E_Invoice Merge failed - " . $e->getMessage());
+        }
+
+        return $pdf;
+    }
+
 
     public function failed($e)
     {

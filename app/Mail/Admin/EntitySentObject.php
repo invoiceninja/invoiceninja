@@ -73,7 +73,7 @@ class EntitySentObject
             );
             $mail_obj->data = [
                 'title' => $mail_obj->subject,
-                'message' => ctrans(
+                'content' => ctrans(
                     $this->template_body,
                     [
                         'amount' => $mail_obj->amount,
@@ -98,7 +98,7 @@ class EntitySentObject
             $mail_obj->markdown = 'email.admin.generic';
             $mail_obj->tag = $this->company->company_key;
         }
-        
+        nlog($mail_obj);
         return $mail_obj;
     }
 
@@ -186,7 +186,7 @@ class EntitySentObject
 
         return [
             'title' => $this->getSubject(),
-            'message' => $this->getMessage(),
+            'content' => $this->getMessage(),
             'url' => $this->invitation->getAdminLink($this->use_react_url),
             'button' => ctrans("texts.view_{$this->entity_type}"),
             'signature' => $settings->email_signature,

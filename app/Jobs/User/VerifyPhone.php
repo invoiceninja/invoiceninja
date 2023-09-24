@@ -37,7 +37,7 @@ class VerifyPhone implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @return User|null
+     * @return void
      */
     public function handle() : void
     {

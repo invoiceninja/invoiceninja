@@ -35,6 +35,7 @@ use App\Models\BankTransaction;
 use App\Models\QuoteInvitation;
 use Illuminate\Console\Command;
 use App\Models\CreditInvitation;
+use App\Models\RecurringInvoice;
 use App\Models\InvoiceInvitation;
 use App\DataMapper\ClientSettings;
 use Illuminate\Support\Facades\DB;
@@ -184,6 +185,9 @@ class CheckData extends Command
 
                 if ($cu->company && $cu->user) {
                     (new CreateCompanyToken($cu->company, $cu->user, 'System'))->handle();
+                }
+                else {
+                    // $cu->forceDelete();
                 }
             }
         });
@@ -468,7 +472,7 @@ class CheckData extends Command
             $ii->saveQuietly();
         });
 
-        collect([Invoice::class, Quote::class, Credit::class, PurchaseOrder::class])->each(function ($entity) {
+        collect([Invoice::class, Quote::class, Credit::class, PurchaseOrder::class, RecurringInvoice::class])->each(function ($entity) {
             if ($entity::doesntHave('invitations')->count() > 0) {
                 $entity::doesntHave('invitations')->cursor()->each(function ($entity) {
                     $client_vendor_key = 'client_id';
@@ -545,7 +549,7 @@ class CheckData extends Command
 
     private function clientPaidToDateQuery()
     {
-        $results = \DB::select(\DB::raw("
+        $results = \DB::select("
          SELECT 
          clients.id as client_id, 
          clients.paid_to_date as client_paid_to_date,
@@ -560,14 +564,14 @@ class CheckData extends Command
          GROUP BY clients.id
          HAVING payments_applied != client_paid_to_date
          ORDER BY clients.id;
-        "));
+        ");
     
         return $results;
     }
 
     private function clientCreditPaymentables($client)
     {
-        $results = \DB::select(\DB::raw("
+        $results = \DB::select("
         SELECT 
         SUM(paymentables.amount - paymentables.refunded) as credit_payment
         FROM payments
@@ -579,7 +583,7 @@ class CheckData extends Command
         AND paymentables.amount > 0
         AND payments.is_deleted = 0
         AND payments.client_id = ?;
-        "), [App\Models\Credit::class, $client->id]);
+        ", [App\Models\Credit::class, $client->id]);
     
         return $results;
     }
@@ -615,110 +619,11 @@ class CheckData extends Command
         }
 
         $this->logMessage("{$this->wrong_paid_to_dates} clients with incorrect paid to dates");
-    }
-
-    private function checkPaidToDates()
-    {
-        $this->wrong_paid_to_dates = 0;
-        $credit_total_applied = 0;
-
-        $clients = DB::table('clients')
-                    ->leftJoin('payments', function ($join) {
-                        $join->on('payments.client_id', '=', 'clients.id')
-                            ->where('payments.is_deleted', 0)
-                            ->whereIn('payments.status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED]);
-                    })
-                    ->where('clients.is_deleted', 0)
-                    ->where('clients.updated_at', '>', now()->subDays(2))
-                    ->groupBy('clients.id')
-                    ->havingRaw('clients.paid_to_date != sum(coalesce(payments.amount - payments.refunded, 0))')
-                    ->get(['clients.id', 'clients.paid_to_date', DB::raw('sum(coalesce(payments.amount - payments.refunded, 0)) as amount')]);
-
-        /* Due to accounting differences we need to perform a second loop here to ensure there actually is an issue */
-        $clients->each(function ($client_record) use ($credit_total_applied) {
-            $client = Client::withTrashed()->find($client_record->id);
-
-            $total_invoice_payments = 0;
-
-            foreach ($client->invoices()->where('is_deleted', false)->where('status_id', '>', 1)->get() as $invoice) {
-                $total_invoice_payments += $invoice->payments()
-                                                    ->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
-                                                    ->selectRaw('sum(paymentables.amount - paymentables.refunded) as p')
-                                                    ->pluck('p')
-                                                    ->first();
-            }
-
-            //commented IN 27/06/2021 - sums ALL client payments AND the unapplied amounts to match the client paid to date
-            $p = Payment::where('client_id', $client->id)
-            ->where('is_deleted', 0)
-            ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
-            ->sum(DB::Raw('amount - applied'));
-
-            $total_invoice_payments += $p;
-
-            // 10/02/21
-            foreach ($client->payments as $payment) {
-                $credit_total_applied += $payment->paymentables()
-                                                ->where('paymentable_type', App\Models\Credit::class)
-                                                ->selectRaw('sum(paymentables.amount - paymentables.refunded) as p')
-                                                ->pluck('p')
-                                                ->first();
-            }
-
-            if ($credit_total_applied < 0) {
-                $total_invoice_payments += $credit_total_applied;
-            }
-
-            if (round($total_invoice_payments, 2) != round($client->paid_to_date, 2)) {
-                $this->wrong_paid_to_dates++;
-
-                $this->logMessage($client->present()->name().' id = # '.$client->id." - Paid to date does not match Client Paid To Date = {$client->paid_to_date} - Invoice Payments = {$total_invoice_payments}");
-
-                $this->isValid = false;
-
-                if ($this->option('paid_to_date')) {
-                    $this->logMessage("# {$client->id} " . $client->present()->name().' - '.$client->number." Fixing {$client->paid_to_date} to {$total_invoice_payments}");
-                    $client->paid_to_date = $total_invoice_payments;
-                    $client->save();
-                }
-            }
-        });
-
-        $this->logMessage("{$this->wrong_paid_to_dates} clients with incorrect paid to dates");
-    }
-
-    private function checkInvoicePayments()
-    {
-        $this->wrong_balances = 0;
-
-        Client::cursor()->where('is_deleted', 0)->where('clients.updated_at', '>', now()->subDays(2))->each(function ($client) {
-            $client->invoices->where('is_deleted', false)->whereIn('status_id', '!=', Invoice::STATUS_DRAFT)->each(function ($invoice) use ($client) {
-                $total_paid = $invoice->payments()
-                                    ->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
-                                    ->selectRaw('sum(paymentables.amount - paymentables.refunded) as p')
-                                    ->pluck('p')
-                                    ->first();
-
-                $total_credit = $invoice->credits()->get()->sum('amount');
-
-                $calculated_paid_amount = $invoice->amount - $invoice->balance - $total_credit;
-
-                if ((string)$total_paid != (string)($invoice->amount - $invoice->balance - $total_credit)) {
-                    $this->wrong_balances++;
-
-                    $this->logMessage($client->present()->name().' - '.$client->id." - Total Paid = {$total_paid} != Calculated Total = {$calculated_paid_amount}");
-
-                    $this->isValid = false;
-                }
-            });
-        });
-
-        $this->logMessage("{$this->wrong_balances} clients with incorrect invoice balances");
-    }
+   }
 
     private function clientBalanceQuery()
     {
-        $results = \DB::select(\DB::raw("
+        $results = \DB::select("
         SELECT         
         SUM(invoices.balance) as invoice_balance, 
         clients.id as client_id, 
@@ -732,7 +637,7 @@ class CheckData extends Command
         GROUP BY clients.id
         HAVING invoice_balance != clients.balance
         ORDER BY clients.id;
-        "));
+        ");
     
         return $results;
     }
@@ -809,7 +714,7 @@ class CheckData extends Command
 
     private function invoiceBalanceQuery()
     {
-        $results = \DB::select(\DB::raw("
+        $results = \DB::select("
         SELECT 
         clients.id,
         clients.balance,
@@ -823,7 +728,7 @@ class CheckData extends Command
         GROUP BY clients.id
         HAVING(invoices_balance != clients.balance)
         ORDER BY clients.id;
-        "));
+        ");
     
         return $results;
     }
@@ -873,7 +778,7 @@ class CheckData extends Command
         $this->wrong_balances = 0;
         $this->wrong_paid_to_dates = 0;
 
-        foreach (Client::where('is_deleted', 0)->where('clients.updated_at', '>', now()->subDays(2))->cursor() as $client) {
+        foreach (Client::query()->where('is_deleted', 0)->where('clients.updated_at', '>', now()->subDays(2))->cursor() as $client) {
             $invoice_balance = $client->invoices()->where('is_deleted', false)->whereIn('status_id', [2,3])->sum('balance');
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
@@ -957,7 +862,7 @@ class CheckData extends Command
                 }
                 $records = DB::table($table)
                                 ->join($tableName, "{$tableName}.id", '=', "{$table}.{$field}_id")
-                                ->where("{$table}.{$company_id}", '!=', DB::raw("{$tableName}.company_id"))
+                                ->whereRaw("{$table}.{$company_id} != {$tableName}.company_id")
                                 ->get(["{$table}.id"]);
 
                 if ($records->count()) {
@@ -967,11 +872,6 @@ class CheckData extends Command
             }
         }
 
-        // foreach(User::cursor() as $user) {
-
-        //     $records = Company::where('account_id',)
-
-        // }
     }
 
     public function pluralizeEntityType($type)

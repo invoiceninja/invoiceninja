@@ -12,37 +12,17 @@ use Illuminate\Foundation\Bus\Dispatchable;
 class InjectSignature implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    /**
-     * @var \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder
-     */
-    public $entity;
-
-    /**
-     * @var string
-     */
-    public $signature;
-
-    public $contact_id;
-
-    public $ip;
-    
+   
     /**
      * Create a new job instance.
      *
-     * @param $entity
+     * @param \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder $entity
+     * @param int $contact_id
      * @param string $signature
+     * @param string $ip
      */
-    public function __construct($entity, $contact_id, string $signature, ?string $ip)
+    public function __construct(public \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder $entity, private int $contact_id, private string $signature, private ?string $ip)
     {
-        $this->entity = $entity;
-
-        $this->contact_id = $contact_id;
-
-        $this->signature = $signature;
-
-        $this->ip = $ip;
-
     }
 
     /**

@@ -31,7 +31,6 @@ class GetPurchaseOrderPdf extends AbstractService
 
         $invitation = $this->purchase_order->invitations()->where('vendor_contact_id', $this->contact->id)->first();
 
-
         if (! $invitation) {
             $invitation = $this->purchase_order->invitations()->first();
         }

@@ -42,13 +42,13 @@ class StripeUpdatePaymentMethods implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @return bool
      */
     public function handle()
     {
         MultiDB::setDb($this->company->db);
 
-        $cgs = CompanyGateway::where('company_id', $this->company->id)
+        $cgs = CompanyGateway::query()
+                            ->where('company_id', $this->company->id)
                             ->whereIn('gateway_key', $this->stripe_keys)
                             ->get();
 

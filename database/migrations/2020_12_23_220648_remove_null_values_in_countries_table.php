@@ -13,8 +13,8 @@ return new class extends Migration {
      */
     public function up()
     {
-        $countries = Country::whereNull('thousand_separator')->update(['thousand_separator' => '']);
-        $countries = Country::whereNull('decimal_separator')->update(['decimal_separator' => '']);
+        $countries = Country::query()->whereNull('thousand_separator')->update(['thousand_separator' => '']);
+        $countries = Country::query()->whereNull('decimal_separator')->update(['decimal_separator' => '']);
     }
 
     /**

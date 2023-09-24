@@ -49,6 +49,58 @@ class InvoiceTest extends TestCase
         $this->invoice_calc = new InvoiceSum($this->invoice);
     }
 
+public function testGrossTaxAmountCalcuations()
+    {
+        $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+        $invoice->client_id = $this->client->id;
+        $invoice->uses_inclusive_taxes = false;
+        $invoice->discount = 14191;
+        $invoice->is_amount_discount = true;
+        $invoice->status_id = 2;
+        $line_items = [];
+              
+        $line_item = new InvoiceItem;
+        $line_item->quantity = 1;
+        $line_item->cost = 8000;
+        $line_item->tax_rate1 = 5;
+        $line_item->tax_name1 = 'CA';
+        $line_item->product_key = 'line1';
+        $line_item->notes = 'Test';
+        $line_item->tax_id = 1;
+        $line_items[] = $line_item;
+
+        $line_item = new InvoiceItem;
+        $line_item->quantity = 1;
+        $line_item->cost = 9500;
+        $line_item->tax_rate1 = 5;
+        $line_item->tax_name1 = 'CA';
+        $line_item->product_key = 'line2';
+        $line_item->notes = 'Test';
+        $line_item->tax_id = 1;
+
+        $line_items[] = $line_item;
+
+        $invoice->line_items = $line_items;
+        $invoice->save();
+
+        $calc = $invoice->calc();
+        $invoice = $calc->getInvoice();
+
+        $this->assertEquals(3474.45, $invoice->amount);
+        $this->assertEquals(14191, $invoice->discount);
+        $this->assertEquals(165.45, $invoice->total_taxes);
+
+        $item = collect($invoice->line_items)->firstWhere('product_key', 'line1');
+        $this->assertEquals(75.63, $item->tax_amount);
+        $this->assertEquals(8075.63, $item->gross_line_total);
+
+        $item = collect($invoice->line_items)->firstWhere('product_key', 'line2');
+        $this->assertEquals(89.82, $item->tax_amount);
+        $this->assertEquals(9589.82, $item->gross_line_total);
+
+
+    }
+
     public function testTaskRoundingPrecisionThree()
     {
         $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
@@ -107,7 +159,7 @@ class InvoiceTest extends TestCase
 
         $invoice = $invoice->calc()->getInvoice();
 
-        $this->assertEquals(57.90, $invoice->amount);
+        $this->assertEquals(57.92, $invoice->amount);
 
     }
 

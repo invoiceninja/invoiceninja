@@ -568,7 +568,7 @@ class VendorController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $vendor);
+            $this->saveDocuments($request->file('documents'), $vendor, $request->input('is_public', true));
         }
 
         return $this->itemResponse($vendor->fresh());

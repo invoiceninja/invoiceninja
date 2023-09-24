@@ -47,6 +47,22 @@ class CompanyGatewayTest extends TestCase
         $this->assertNotNull($company_gateway);
     }
 
+    public function testSetConfigFields()
+    {
+        $company_gateway = CompanyGateway::first();
+        
+        $this->assertNotNull($company_gateway->getConfig());
+
+        $company_gateway->setConfigField('test', 'test');
+
+        $this->assertEquals('test', $company_gateway->getConfigField('test'));
+
+        $company_gateway->setConfigField('signatureKey', 'hero');
+
+        $this->assertEquals('hero', $company_gateway->getConfigField('signatureKey'));
+
+    }
+
     public function testFeesAndLimitsExists()
     {
         $data = [];

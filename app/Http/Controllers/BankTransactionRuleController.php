@@ -12,9 +12,7 @@
 namespace App\Http\Controllers;
 
 use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Collection;
 use App\Models\BankTransactionRule;
-use App\Filters\BankTransactionFilters;
 use App\Factory\BankTransactionRuleFactory;
 use App\Filters\BankTransactionRuleFilters;
 use App\Repositories\BankTransactionRuleRepository;
@@ -26,6 +24,7 @@ use App\Http\Requests\BankTransactionRule\StoreBankTransactionRuleRequest;
 use App\Http\Requests\BankTransactionRule\CreateBankTransactionRuleRequest;
 use App\Http\Requests\BankTransactionRule\UpdateBankTransactionRuleRequest;
 use App\Http\Requests\BankTransactionRule\DestroyBankTransactionRuleRequest;
+use App\Services\Bank\BankMatchingService;
 
 class BankTransactionRuleController extends BaseController
 {
@@ -256,8 +255,12 @@ class BankTransactionRuleController extends BaseController
      */
     public function update(UpdateBankTransactionRuleRequest $request, BankTransactionRule $bank_transaction_rule)
     {
-        //stubs for updating the model
-        $bank_transaction = $this->bank_transaction_repo->save($request->all(), $bank_transaction_rule);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $bank_transaction_rule = $this->bank_transaction_repo->save($request->all(), $bank_transaction_rule);
+
+        BankMatchingService::dispatch($user->company()->id, $user->company()->db);
 
         return $this->itemResponse($bank_transaction_rule->fresh());
     }
@@ -304,6 +307,7 @@ class BankTransactionRuleController extends BaseController
     {
         /** @var \App\Models\User $user **/
         $user = auth()->user();
+
         $bank_transaction_rule = BankTransactionRuleFactory::create($user->company()->id, $user->id);
 
         return $this->itemResponse($bank_transaction_rule);
@@ -354,6 +358,8 @@ class BankTransactionRuleController extends BaseController
         $user = auth()->user();
 
         $bank_transaction_rule = $this->bank_transaction_repo->save($request->all(), BankTransactionRuleFactory::create($user->company()->id, $user->id));
+
+        BankMatchingService::dispatch($user->company()->id, $user->company()->db);
 
         return $this->itemResponse($bank_transaction_rule);
     }

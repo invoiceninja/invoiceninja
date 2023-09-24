@@ -43,7 +43,8 @@ class CompanyPolicy extends EntityPolicy
         return ($user->isAdmin() && $entity->id == $user->companyId())
             || ($user->hasPermission('view_'.strtolower(class_basename($entity))) && $entity->id == $user->companyId())
             // || ($user->hasPermission('view_all') && $entity->id == $user->companyId())
-            || $user->owns($entity);
+            || $user->owns($entity)
+            || $user->companyId() == $entity->id;
     }
 
     /**

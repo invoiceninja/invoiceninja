@@ -35,36 +35,42 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  * @property int $id
  * @property int $user_id
  * @property int $assigned_user_id
+ * @method BaseModel service()
  * @property \App\Models\Company $company
+ * @method static BaseModel find($value) 
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel<static> company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|Illuminate\Database\Eloquent\Relations\BelongsTo|\Awobaz\Compoships\Database\Eloquent\Relations\BelongsTo|\App\Models\Company company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|Illuminate\Database\Eloquent\Relations\HasMany|BaseModel orderBy()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel on(?string $connection = null)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel with($value)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newModelQuery($query)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newQuery($query)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel query()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude(array $excludeable)
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|\Illuminate\Database\Query\Builder withTrashed(bool $withTrashed = true)
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scopeExclude($query)
- * @method static BaseModel find($value) 
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel whereId($query)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel whereIn($query)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel where($query)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel count()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel create($query)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel insert($query)
- * @method BaseModel service()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel orderBy($column, $direction)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel invitations()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel whereHas($query)
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel without($query)
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation | \App\Models\CreditInvitation | \App\Models\QuoteInvitation | \App\Models\RecurringInvoiceInvitation> $invitations
  * @property-read int|null $invitations_count
- * @method static \Illuminate\Database\Eloquent\Builder<static> company()
  * @method int companyId()
  * @method createInvitations()
  * @method Builder scopeCompany(Builder $builder)
+ * @method static \Illuminate\Database\Eloquent\Builder<static> company()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|\Illuminate\Database\Query\Builder withTrashed(bool $withTrashed = true)
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|\Illuminate\Database\Query\Builder onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|\Illuminate\Database\Query\Builder withoutTrashed()
  * @mixin \Eloquent
  * @mixin \Illuminate\Database\Eloquent\Builder
+ * 
+ * @property \Illuminate\Support\Collection $tax_map
+ * @property array $total_tax_map
  */
 class BaseModel extends Model
 {
@@ -99,24 +105,27 @@ class BaseModel extends Model
         return $value;
     }
 
-    public function __call($method, $params)
-    {
-        $entity = strtolower(class_basename($this));
+    // public function __call($method, $params)
+    // {
+    //     $entity = strtolower(class_basename($this));
 
-        if ($entity) {
-            $configPath = "modules.relations.$entity.$method";
+    //     if ($entity) {
+    //         $configPath = "modules.relations.$entity.$method";
 
-            if (config()->has($configPath)) {
-                $function = config()->get($configPath);
+    //         if (config()->has($configPath)) {
+    //             $function = config()->get($configPath);
 
-                return call_user_func_array([$this, $function[0]], $function[1]);
-            }
-        }
+    //             return call_user_func_array([$this, $function[0]], $function[1]);
+    //         }
+    //     }
 
-        return parent::__call($method, $params);
-    }
+    //     return parent::__call($method, $params);
+    // }
 
-    
+    /**
+    * @param  \Illuminate\Database\Eloquent\Builder  $query
+    * @return \Illuminate\Database\Eloquent\Builder
+    */
     public function scopeCompany($query): \Illuminate\Database\Eloquent\Builder
     {
         /** @var \App\Models\User $user */
@@ -228,6 +237,15 @@ class BaseModel extends Model
         return $this->numberFormatter().'.'.$extension;
     }
 
+     /**
+     * @param string $extension
+     * @return string
+     */
+    public function getEFileName($extension = 'pdf')
+    {
+        return ctrans("texts.e_invoice"). "_" . $this->numberFormatter().'.'.$extension;
+    }
+
     public function numberFormatter()
     {
         $number = strlen($this->number) >= 1 ? $this->translate_entity() . "_" . $this->number : class_basename($this) . "_" . Str::random(5);
@@ -267,6 +285,7 @@ class BaseModel extends Model
 
     /**
      * Returns the base64 encoded PDF string of the entity
+     * @deprecated - unused implementation
      */
     public function fullscreenPdfViewer($invitation = null): string
     {

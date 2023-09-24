@@ -481,8 +481,11 @@ class CompanySettings extends BaseSettings
 
     public $enable_e_invoice = false;
 
+    public $classification = ''; // individual, company, partnership, trust, charity, government, other
+
     public static $casts = [
         'enable_e_invoice'                   => 'bool', 
+        'classification'                     => 'string',
         'default_expense_payment_type_id'    => 'string',
         'e_invoice_type'                     => 'string',    
         'mailgun_endpoint'                   => 'string',    
@@ -812,14 +815,14 @@ class CompanySettings extends BaseSettings
      * need to provide a fallback catch on old settings objects which will
      * set new properties to the object prior to being returned.
      *
-     * @param $settings
+     * @param \stdClass $settings
      *
      * @return stdClass
      */
     public static function setProperties($settings): stdClass
     {
         $company_settings = (object) get_class_vars(self::class);
-
+        
         foreach ($company_settings as $key => $value) {
             if (! property_exists($settings, $key)) {
                 $settings->{$key} = self::castAttribute($key, $company_settings->{$key});
@@ -842,6 +845,23 @@ class CompanySettings extends BaseSettings
 
         return $notification;
     }
+
+    /**
+     * Stubs the notification defaults
+     *
+     * @return stdClass
+     */
+    public static function notificationAdminDefaults() :stdClass
+    {
+        $notification = new stdClass;
+        $notification->email = [];
+        $notification->email = ['invoice_sent_all'];
+
+        return $notification;
+    }
+
+
+
 
     /**
      * Defines entity variables for PDF generation

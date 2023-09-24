@@ -91,6 +91,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read \App\Models\User|null $assigned_user
  * @property-read \App\Models\Client $client
  * @property-read \App\Models\Company $company
+ * @property \App\Models\RecurringInvoiceInvitation $invitation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read int|null $documents_count
  * @property-read mixed $hashed_id

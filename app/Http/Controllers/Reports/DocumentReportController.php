@@ -11,12 +11,13 @@
 
 namespace App\Http\Controllers\Reports;
 
+use Illuminate\Http\Response;
+use App\Utils\Traits\MakesHash;
+use App\Jobs\Report\SendToAdmin;
 use App\Export\CSV\DocumentExport;
+use App\Jobs\Report\PreviewReport;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Report\GenericReportRequest;
-use App\Jobs\Report\SendToAdmin;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Response;
 
 class DocumentReportController extends BaseController
 {
@@ -62,14 +63,27 @@ class DocumentReportController extends BaseController
      */
     public function __invoke(GenericReportRequest $request)
     {
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         if ($request->has('send_email') && $request->get('send_email')) {
-            SendToAdmin::dispatch(auth()->user()->company(), $request->all(), DocumentExport::class, $this->filename);
+            SendToAdmin::dispatch($user->company(), $request->all(), DocumentExport::class, $this->filename);
 
             return response()->json(['message' => 'working...'], 200);
         }
         // expect a list of visible fields, or use the default
 
-        $export = new DocumentExport(auth()->user()->company(), $request->all());
+        if($request->has('output') && $request->input('output') == 'json') {
+
+            $hash = \Illuminate\Support\Str::uuid();
+
+            PreviewReport::dispatch($user->company(), $request->all(), DocumentExport::class, $hash);
+
+            return response()->json(['message' => $hash], 200);
+        }
+
+        $export = new DocumentExport($user->company(), $request->all());
 
         $csv = $export->run();
 

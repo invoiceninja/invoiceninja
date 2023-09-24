@@ -11,10 +11,12 @@
 
 namespace Tests\Feature\Export;
 
-use App\Utils\Traits\MakesHash;
-use Illuminate\Routing\Middleware\ThrottleRequests;
-use Tests\MockAccountData;
 use Tests\TestCase;
+use Tests\MockAccountData;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Foundation\Testing\Concerns\InteractsWithExceptionHandling;
 
 /**
  * @test
@@ -23,7 +25,7 @@ class ReportApiTest extends TestCase
 {
     use MakesHash;
     use MockAccountData;
-
+    
     public $faker;
 
     protected function setUp() :void
@@ -36,9 +38,25 @@ class ReportApiTest extends TestCase
             ThrottleRequests::class
         );
 
-        $this->withoutExceptionHandling();
-
+        // $this->withoutExceptionHandling();
         $this->makeTestData();
+
+    }
+
+
+    public function testActivityCSVExport()
+    {
+        $data = [
+            'send_email' => false,
+            'date_range' => 'all',
+            'report_keys' => [],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/reports/activities', $data)
+        ->assertStatus(200);
 
     }
 
@@ -124,6 +142,8 @@ class ReportApiTest extends TestCase
         ->assertStatus(200);
 
     }
+
+
 
     public function testClientBalanceReportApiRoute()
     {

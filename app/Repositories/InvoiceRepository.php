@@ -49,7 +49,7 @@ class InvoiceRepository extends BaseRepository
 
     public function getInvitationByKey($key) :?InvoiceInvitation
     {
-        return InvoiceInvitation::where('key', $key)->first();
+        return InvoiceInvitation::query()->where('key', $key)->first();
     }
 
     /**

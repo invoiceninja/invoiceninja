@@ -95,6 +95,7 @@ class BaseImport
             ini_set('auto_detect_line_endings', '1');
         }
 
+        /** @var string $base64_encoded_csv */
         $base64_encoded_csv = Cache::pull($this->hash.'-'.$entity_type);
 
         if (empty($base64_encoded_csv)) {
@@ -103,7 +104,7 @@ class BaseImport
 
         $csv = base64_decode($base64_encoded_csv);
         $csv = mb_convert_encoding($csv, 'UTF-8', 'UTF-8');
- nlog($csv);
+
         $csv = Reader::createFromString($csv);
         $csvdelimiter = self::detectDelimiter($csv);
 
@@ -731,12 +732,21 @@ class BaseImport
 
     protected function findUser($user_hash)
     {
-        $user = User::where('account_id', $this->company->account->id)
-            ->where(
-                \DB::raw('CONCAT_WS(" ", first_name, last_name)'),
-                'like',
-                '%'.$user_hash.'%'
-            )
+        $user = false;
+
+        if(is_numeric($user_hash)) {
+        
+            $user = User::query()
+                        ->where('account_id', $this->company->account->id)
+                        ->where('id', $user_hash)
+                        ->first();
+
+        }
+
+        if($user)
+            return $user->id;
+
+        $user = User::whereRaw("account_id = ? AND CONCAT_WS(' ', first_name, last_name) like ?", [$this->company->account_id, '%'.$user_hash.'%'])
             ->first();
 
         if ($user) {

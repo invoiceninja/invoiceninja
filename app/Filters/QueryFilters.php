@@ -72,8 +72,8 @@ abstract class QueryFilters
     /**
      * Apply the filters to the builder.
      *
-     * @param  Builder $builder
-     * @return Builder
+     * @param  \Illuminate\Database\Eloquent\Builder $builder
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function apply(Builder $builder)
     {
@@ -239,7 +239,11 @@ abstract class QueryFilters
         }
     }
 
-
+    /**
+     *
+     * @param string $value
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public function is_deleted($value = 'true')
     {
         if ($value == 'true') {
@@ -294,7 +298,7 @@ abstract class QueryFilters
     {
         return $this->builder->where(function ($query) {
             $query->whereHas('client', function ($sub_query) {
-                $sub_query->where('is_deleted', 0);
+                $sub_query->where('is_deleted', 0)->where('deleted_at', null);
             })->orWhere('client_id', null);
         });
     }
@@ -306,7 +310,7 @@ abstract class QueryFilters
     {
         return $this->builder->where(function ($query) {
             $query->whereHas('vendor', function ($sub_query) {
-                $sub_query->where('is_deleted', 0);
+                $sub_query->where('is_deleted', 0)->where('deleted_at', null);
             })->orWhere('vendor_id', null);
         });
     }

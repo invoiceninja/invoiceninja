@@ -43,16 +43,16 @@ class ClientLedgerBalanceUpdate implements ShouldQueue
 
         MultiDB::setDb($this->company->db);
 
-        CompanyLedger::where('balance', 0)->where('client_id', $this->client->id)->orderBy('updated_at', 'ASC')->cursor()->each(function ($company_ledger) {
+        CompanyLedger::query()->where('balance', 0)->where('client_id', $this->client->id)->orderBy('updated_at', 'ASC')->cursor()->each(function ($company_ledger) {
             if ($company_ledger->balance == 0) {
-                $last_record = CompanyLedger::where('client_id', $company_ledger->client_id)
+                $last_record = CompanyLedger::query()->where('client_id', $company_ledger->client_id)
                                 ->where('company_id', $company_ledger->company_id)
                                 ->where('balance', '!=', 0)
                                 ->orderBy('id', 'DESC')
                                 ->first();
 
                 if (! $last_record) {
-                    $last_record = CompanyLedger::where('client_id', $company_ledger->client_id)
+                    $last_record = CompanyLedger::query()->where('client_id', $company_ledger->client_id)
                     ->where('company_id', $company_ledger->company_id)
                     ->orderBy('id', 'DESC')
                     ->first();

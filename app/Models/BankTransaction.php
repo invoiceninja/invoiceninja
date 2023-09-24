@@ -87,8 +87,6 @@ class BankTransaction extends BaseModel
         'amount'
     ];
 
-    protected $dates = [
-    ];
     
     public function getInvoiceIds()
     {
@@ -156,7 +154,7 @@ class BankTransaction extends BaseModel
 
     public function account(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Account::class)->withTrashed();
+        return $this->belongsTo(Account::class);
     }
 
     public function payment(): \Illuminate\Database\Eloquent\Relations\BelongsTo

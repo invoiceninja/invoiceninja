@@ -94,6 +94,16 @@ trait Utilities
             $error_message = 'Error processing payment.';
         }
 
+        if(isset($_payment['actions'][0]['response_summary']) ?? false) {
+            $error_message = $_payment['actions'][0]['response_summary'];
+        }
+
+        if(isset($_payment['actions'][0]['response_code']) ?? false) {
+            $error_code = $_payment['actions'][0]['response_code'];
+        }
+        else 
+            $error_code = 400;
+
         $this->getParent()->sendFailureMail($error_message);
 
         $message = [
@@ -111,7 +121,7 @@ trait Utilities
         );
 
         if ($throw_exception) {
-            throw new PaymentFailed($error_message, 500);
+            throw new PaymentFailed($error_message, $error_code);
         }
     }
 

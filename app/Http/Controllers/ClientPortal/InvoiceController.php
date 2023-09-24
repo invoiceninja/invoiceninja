@@ -87,13 +87,18 @@ class InvoiceController extends Controller
     public function showBlob($hash)
     {
         $data = Cache::get($hash);
-
-        match($data['entity_type']){
+        $invitation = false;
+        
+        match($data['entity_type'] ?? false){
             'invoice' => $invitation = InvoiceInvitation::withTrashed()->find($data['invitation_id']),
             'quote' => $invitation = QuoteInvitation::withTrashed()->find($data['invitation_id']),
             'credit' => $invitation = CreditInvitation::withTrashed()->find($data['invitation_id']),
             'recurring_invoice' => $invitation = RecurringInvoiceInvitation::withTrashed()->find($data['invitation_id']),
         };
+
+        if (! $invitation) {
+            return redirect('/');
+        }
 
         $file = (new \App\Jobs\Entity\CreateRawPdf($invitation, $invitation->company->db))->handle();
         
@@ -128,7 +133,8 @@ class InvoiceController extends Controller
 
     public function downloadInvoices($ids)
     {
-        $data['invoices'] = Invoice::whereIn('id', $ids)
+        $data['invoices'] = Invoice::query()
+                            ->whereIn('id', $ids)
                             ->whereClientId(auth()->guard('contact')->user()->client->id)
                             ->withTrashed()
                             ->get();
@@ -153,7 +159,8 @@ class InvoiceController extends Controller
      */
     private function makePayment(array $ids)
     {
-        $invoices = Invoice::whereIn('id', $ids)
+        $invoices = Invoice::query()
+                            ->whereIn('id', $ids)
                             ->whereClientId(auth()->guard('contact')->user()->client->id)
                             ->withTrashed()
                             ->get();
@@ -215,7 +222,8 @@ class InvoiceController extends Controller
      */
     private function downloadInvoicePDF(array $ids)
     {
-        $invoices = Invoice::whereIn('id', $ids)
+        $invoices = Invoice::query()
+                            ->whereIn('id', $ids)
                             ->withTrashed()
                             ->whereClientId(auth()->guard('contact')->user()->client->id)
                             ->get();
@@ -244,10 +252,19 @@ class InvoiceController extends Controller
         // create new archive
         $zipFile = new \PhpZip\ZipFile();
         try {
+
             foreach ($invoices as $invoice) {
-                //add it to the zip
-                $zipFile->addFromString(basename($invoice->pdf_file_path()), file_get_contents($invoice->pdf_file_path(null, 'url', true)));
+                            
+                if ($invoice->client->getSetting('enable_e_invoice')) {
+                    $xml = $invoice->service()->getEInvoice();
+                    $zipFile->addFromString($invoice->getFileName("xml"), $xml);
+                }
+
+                $file = $invoice->service()->getRawInvoicePdf();
+                $zip_file_name = $invoice->getFileName();
+                $zipFile->addFromString($zip_file_name, $file);
             }
+
 
             $filename = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip';
             $filepath = sys_get_temp_dir().'/'.$filename;

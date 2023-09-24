@@ -138,7 +138,9 @@ class Email implements ShouldQueue
 
         $this->email_object->company = $this->company;
 
-        $this->email_object->client_id ? $this->email_object->settings  = $this->email_object->client->getMergedSettings() : $this->email_object->settings = $this->company->settings;
+        $this->email_object->client_id ? $this->email_object->settings = $this->email_object->client->getMergedSettings() : $this->email_object->settings = $this->company->settings;
+
+        $this->email_object->client_id ? nlog("client settings") : nlog("company settings ");
 
         $this->email_object->whitelabel = $this->company->account->isPaid() ? true : false;
 
@@ -238,7 +240,6 @@ class Email implements ShouldQueue
         }
 
         if ($this->client_mailgun_secret) {
-
             $mailer->mailgun_config($this->client_mailgun_secret, $this->client_mailgun_domain, $this->client_mailgun_endpoint);
         }
 
@@ -252,6 +253,7 @@ class Email implements ShouldQueue
 
             LightLogs::create(new EmailSuccess($this->company->company_key))
                      ->send();
+
         } catch(\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
             $this->fail();

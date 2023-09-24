@@ -62,9 +62,9 @@ class BillingPortalPurchase extends Component
     public $password;
 
     /**
-     * Instance of subscription.
+     * This arrives as an int and we resolve in the mount method
      *
-     * @var Subscription
+     * @var int|Subscription
      */
     public $subscription;
 
@@ -78,7 +78,6 @@ class BillingPortalPurchase extends Component
     /**
      * Rules for validating the form.
      *
-     * @var \string[][]
      */
     protected $rules = [
         'email' => ['required', 'email'],
@@ -156,7 +155,7 @@ class BillingPortalPurchase extends Component
     public $request_data;
 
     /**
-     * @var string
+     * @var float
      */
     public $price;
 
@@ -187,7 +186,7 @@ class BillingPortalPurchase extends Component
     {
         MultiDB::setDb($this->db);
 
-        $this->subscription = Subscription::with('company')->find($this->subscription);
+        $this->subscription = Subscription::query()->with('company')->find($this->subscription);
 
         $this->company = $this->subscription->company;
 

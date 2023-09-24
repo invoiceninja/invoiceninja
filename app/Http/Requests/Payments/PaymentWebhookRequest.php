@@ -39,7 +39,6 @@ class PaymentWebhookRequest extends Request
     /**
      * Resolve company gateway.
      *
-     * @param mixed $id
      * @return null|\App\Models\CompanyGateway
      */
     public function getCompanyGateway()
@@ -52,7 +51,6 @@ class PaymentWebhookRequest extends Request
     /**
      * Resolve payment hash.
      *
-     * @param string $hash
      * @return null|\App\Models\PaymentHash
      */
     public function getPaymentHash()

@@ -96,17 +96,17 @@ class HandleRestore extends AbstractService
             $this->adjustment_amount += $payment->paymentables
                                                 ->where('paymentable_type', '=', 'invoices')
                                                 ->where('paymentable_id', $this->invoice->id)
-                                                ->sum(DB::raw('amount'));
 
+                                                ->sum('amount');
             $this->adjustment_amount += $payment->paymentables
                                                 ->where('paymentable_type', '=', 'invoices')
                                                 ->where('paymentable_id', $this->invoice->id)
-                                                ->sum(DB::raw('refunded'));
+                                                ->sum('amount');
 
             //14/07/2023 - do not include credits in the payment amount
             $this->adjustment_amount -= $payment->paymentables
                                             ->where('paymentable_type', '=', 'App\Models\Credit')
-                                            ->sum(DB::raw('amount'));
+                                            ->sum('amount');
 
         }
 
@@ -129,16 +129,16 @@ class HandleRestore extends AbstractService
             $payment_adjustment = $payment->paymentables
                                             ->where('paymentable_type', '=', 'invoices')
                                             ->where('paymentable_id', $this->invoice->id)
-                                            ->sum(DB::raw('amount'));
+                                            ->sum('amount');
 
             $payment_adjustment -= $payment->paymentables
                                             ->where('paymentable_type', '=', 'invoices')
                                             ->where('paymentable_id', $this->invoice->id)
-                                            ->sum(DB::raw('refunded'));
+                                            ->sum('refunded');
 
             $payment_adjustment -= $payment->paymentables
                         ->where('paymentable_type', '=', 'App\Models\Credit')
-                        ->sum(DB::raw('amount'));
+                        ->sum('amount');
  
             $payment->amount += $payment_adjustment;
             $payment->applied += $payment_adjustment;
@@ -165,7 +165,7 @@ class HandleRestore extends AbstractService
         }
 
         try {
-            $exists = Invoice::where(['company_id' => $this->invoice->company_id, 'number' => $new_invoice_number])->exists();
+            $exists = Invoice::query()->where(['company_id' => $this->invoice->company_id, 'number' => $new_invoice_number])->exists();
 
             if ($exists) {
                 $this->invoice->number = $this->getNextInvoiceNumber($this->invoice->client, $this->invoice, $this->invoice->recurring_id);

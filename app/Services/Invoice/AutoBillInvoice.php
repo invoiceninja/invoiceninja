@@ -194,7 +194,7 @@ class AutoBillInvoice extends AbstractService
         $current_credit = false;
 
         foreach ($this->used_credit as $credit) {
-            $current_credit = Credit::find($credit['credit_id']);
+            $current_credit = Credit::query()->find($credit['credit_id']);
             $payment->credits()
                     ->attach($current_credit->id, ['amount' => $credit['amount']]);
 
@@ -250,7 +250,7 @@ class AutoBillInvoice extends AbstractService
      */
     private function applyCreditPayment(): self
     {
-        $available_credits = Credit::where('client_id', $this->client->id)
+        $available_credits = Credit::query()->where('client_id', $this->client->id)
                                   ->where('is_deleted', false)
                                   ->where('balance', '>', 0)
                                   ->orderBy('created_at')

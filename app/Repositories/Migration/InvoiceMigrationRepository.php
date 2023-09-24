@@ -38,9 +38,9 @@ class InvoiceMigrationRepository extends BaseRepository
         $class = new ReflectionClass($model);
 
         if (array_key_exists('client_id', $data)) {
-            $client = Client::where('id', $data['client_id'])->withTrashed()->first();
+            $client = Client::query()->where('id', $data['client_id'])->withTrashed()->first();
         } else {
-            $client = Client::where('id', $model->client_id)->withTrashed()->first();
+            $client = Client::query()->where('id', $model->client_id)->withTrashed()->first();
         }
 
         $state = [];
@@ -137,6 +137,10 @@ class InvoiceMigrationRepository extends BaseRepository
         $state['finished_amount'] = $model->amount;
 
         $model = $model->service()->applyNumber()->save();
+
+        if ($class->name == Invoice::class) {
+            $model->service()->setReminder()->save();
+        }
 
         if ($class->name == Invoice::class || $class->name == RecurringInvoice::class) {
             if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {

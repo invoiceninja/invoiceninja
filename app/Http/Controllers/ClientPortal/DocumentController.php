@@ -71,7 +71,7 @@ class DocumentController extends Controller
     public function downloadMultiple(DownloadMultipleDocumentsRequest $request)
     {
         /** @var \Illuminate\Database\Eloquent\Collection<Document> $documents **/
-        $documents = Document::whereIn('id', $this->transformKeys($request->file_hash))
+        $documents = Document::query()->whereIn('id', $this->transformKeys($request->file_hash))
             ->where('company_id', auth()->guard('contact')->user()->company_id)
             ->get();
 

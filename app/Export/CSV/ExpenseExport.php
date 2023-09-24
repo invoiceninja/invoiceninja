@@ -16,6 +16,7 @@ use App\Models\Company;
 use App\Models\Expense;
 use App\Transformers\ExpenseTransformer;
 use App\Utils\Ninja;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
@@ -28,51 +29,6 @@ class ExpenseExport extends BaseExport
 
     public Writer $csv;
 
-    public array $entity_keys = [
-        'amount' => 'expense.amount',
-        'category' => 'expense.category',
-        'client' => 'expense.client_id',
-        'custom_value1' => 'expense.custom_value1',
-        'custom_value2' => 'expense.custom_value2',
-        'custom_value3' => 'expense.custom_value3',
-        'custom_value4' => 'expense.custom_value4',
-        'currency' => 'expense.currency_id',
-        'date' => 'expense.date',
-        'exchange_rate' => 'expense.exchange_rate',
-        'converted_amount' => 'expense.foreign_amount',
-        'invoice_currency_id' => 'expense.invoice_currency_id',
-        'payment_date' => 'expense.payment_date',
-        'number' => 'expense.number',
-        'payment_type_id' => 'expense.payment_type_id',
-        'private_notes' => 'expense.private_notes',
-        'project' => 'expense.project_id',
-        'public_notes' => 'expense.public_notes',
-        'tax_amount1' => 'expense.tax_amount1',
-        'tax_amount2' => 'expense.tax_amount2',
-        'tax_amount3' => 'expense.tax_amount3',
-        'tax_name1' => 'expense.tax_name1',
-        'tax_name2' => 'expense.tax_name2',
-        'tax_name3' => 'expense.tax_name3',
-        'tax_rate1' => 'expense.tax_rate1',
-        'tax_rate2' => 'expense.tax_rate2',
-        'tax_rate3' => 'expense.tax_rate3',
-        'transaction_reference' => 'expense.transaction_reference',
-        'vendor' => 'expense.vendor_id',
-        'invoice' => 'expense.invoice_id',
-        'user' => 'expense.user',
-        'assigned_user' => 'expense.assigned_user',
-    ];
-
-    private array $decorate_keys = [
-        'client',
-        'currency',
-        'invoice',
-        'category',
-        'vendor',
-        'project',
-        'payment_type_id',
-    ];
-
     public function __construct(Company $company, array $input)
     {
         $this->company = $company;
@@ -80,23 +36,38 @@ class ExpenseExport extends BaseExport
         $this->expense_transformer = new ExpenseTransformer();
     }
 
-    public function run()
+
+    public function returnJson()
     {
+        $query = $this->init();
+
+        $headerdisplay = $this->buildHeader();
+
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
+                return ['identifier' => $value, 'display_value' => $headerdisplay[$value]];
+            })->toArray();
+
+        $report = $query->cursor()
+                ->map(function ($resource) {
+                    $row = $this->buildRow($resource);
+                    return $this->processMetaData($row, $resource);
+                })->toArray();
+        
+        return array_merge(['columns' => $header], $report);
+    }
+
+    private function init(): Builder
+    {
+
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
         App::setLocale($this->company->locale());
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
-        //load the CSV document from a string
-        $this->csv = Writer::createFromString();
-
         if (count($this->input['report_keys']) == 0) {
-            $this->input['report_keys'] = array_values($this->entity_keys);
+            $this->input['report_keys'] = array_values($this->expense_report_keys);
         }
-
-        //insert the header
-        $this->csv->insertOne($this->buildHeader());
 
         $query = Expense::query()
                         ->with('client')
@@ -105,6 +76,20 @@ class ExpenseExport extends BaseExport
                         ->where('is_deleted', 0);
 
         $query = $this->addDateRange($query);
+
+        return $query;
+
+    }
+
+    public function run()
+    {
+        $query = $this->init();
+
+        //load the CSV document from a string
+        $this->csv = Writer::createFromString();
+
+        //insert the header
+        $this->csv->insertOne($this->buildHeader());
 
         $query->cursor()
                 ->each(function ($expense) {
@@ -122,7 +107,6 @@ class ExpenseExport extends BaseExport
 
         foreach (array_values($this->input['report_keys']) as $key) {
             $parts = explode('.', $key);
-            $keyval = array_search($key, $this->entity_keys);
 
             if (is_array($parts) && $parts[0] == 'expense' && array_key_exists($parts[1], $transformed_expense)) {
                 $entity[$key] = $transformed_expense[$parts[1]];
@@ -173,6 +157,10 @@ class ExpenseExport extends BaseExport
 
         if (in_array('expense.assigned_user', $this->input['report_keys'])) {
             $entity['expense.assigned_user'] = $expense->assigned_user ? $expense->assigned_user->present()->name() : '';
+        }
+
+        if (in_array('expense.category_id', $this->input['report_keys'])) {
+            $entity['expense.category_id'] = $expense->category ? $expense->category->name : '';
         }
 
         return $entity;

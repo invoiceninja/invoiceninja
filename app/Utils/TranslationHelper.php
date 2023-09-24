@@ -12,7 +12,7 @@
 namespace App\Utils;
 
 use App\Models\PaymentTerm;
-use Cache;
+use \Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class TranslationHelper

@@ -22,9 +22,10 @@ class SwitchCompanyController extends Controller
 
     public function __invoke(string $contact)
     {
-        $client_contact = ClientContact::where('email', auth()->user()->email)
-            ->where('id', $this->transformKeys($contact))
-            ->first();
+        $client_contact = ClientContact::query()
+                                       ->where('email', auth()->user()->email)
+                                       ->where('id', $this->transformKeys($contact))
+                                       ->firstOrFail();
 
         auth()->guard('contact')->loginUsingId($client_contact->id, true);
 

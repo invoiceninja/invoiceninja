@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        $ir = \App\Models\Currency::where('code', 'IDR')->first();
+        $ir = \App\Models\Currency::query()->where('code', 'IDR')->first();
 
         if($ir){
             $ir->thousand_separator = '.';

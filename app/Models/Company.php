@@ -58,7 +58,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $portal_domain
  * @property int $enable_modules
  * @property object $custom_fields
- * @property object $settings
+ * @property \App\DataMapper\CompanySettings $settings
  * @property string $slack_webhook_url
  * @property string $google_analytics_key
  * @property int|null $created_at
@@ -67,6 +67,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property bool $is_large
  * @property int $enable_shop_api
  * @property string $default_auto_bill
+ * @property string $custom_value1
+ * @property string $custom_value2
+ * @property string $custom_value3
+ * @property string $custom_value4
  * @property bool $mark_expenses_invoiceable
  * @property bool $mark_expenses_paid
  * @property bool $invoice_expense_documents
@@ -199,6 +203,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Vendor> $vendors
  * @property-read int|null $vendors_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Webhook> $webhooks
+ * @method static \Illuminate\Database\Eloquent\Builder|Company where($query)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company find($query)
  * @property-read int|null $webhooks_count
  * @property int $calculate_taxes
  * @property mixed $tax_data
@@ -389,6 +395,9 @@ class Company extends BaseModel
         return $this->calculate_taxes && in_array($this->getSetting('country_id'), $this->tax_coverage_countries);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<Document>
+     */
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');
@@ -439,7 +448,7 @@ class Company extends BaseModel
         return $this->encodePrimaryKey($this->id);
     }
 
-    public function account()
+    public function account(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Account::class);
     }
@@ -449,7 +458,10 @@ class Company extends BaseModel
         return $this->hasMany(ClientContact::class)->withTrashed();
     }
 
-    public function users()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     */
+    public function users(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
         return $this->hasManyThrough(User::class, CompanyUser::class, 'company_id', 'id', 'id', 'user_id')->withTrashed();
     }
@@ -508,7 +520,7 @@ class Company extends BaseModel
         return $this->hasMany(Vendor::class)->withTrashed();
     }
 
-    public function all_activities() :HasMany
+    public function all_activities() :\Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Activity::class);
     }
@@ -695,6 +707,7 @@ class Company extends BaseModel
     
     public function getSetting($setting)
     {
+        //todo $this->setting ?? false
         if (property_exists($this->settings, $setting) != false) {
             return $this->settings->{$setting};
         }
@@ -865,6 +878,13 @@ class Company extends BaseModel
         }
 
         return $data;
+    }
+
+    public function utc_offset(): int
+    {
+        $timezone = $this->timezone();
+
+        return $timezone->utc_offset ?? 0;
     }
 
     public function timezone_offset(): int

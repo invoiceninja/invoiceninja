@@ -69,27 +69,27 @@ class ClientGatewayToken extends BaseModel
         return self::class;
     }
 
-    public function client()
+    public function client(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Client::class)->withTrashed();
     }
 
-    public function gateway()
+    public function gateway(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(CompanyGateway::class, 'id', 'company_gateway_id');
     }
 
-    public function gateway_type()
+    public function gateway_type(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(GatewayType::class, 'id', 'gateway_type_id');
     }
 
-    public function company()
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
     }

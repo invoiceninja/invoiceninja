@@ -11,85 +11,57 @@
 
 namespace App\Jobs\Quote;
 
-use App\Jobs\Entity\CreateEntityPdf;
-use App\Jobs\Mail\NinjaMailerJob;
-use App\Jobs\Mail\NinjaMailerObject;
-use App\Jobs\Util\UnlinkFile;
+use App\Models\User;
+use App\Models\Company;
 use App\Libraries\MultiDB;
 use App\Mail\DownloadQuotes;
-use App\Models\Company;
-use App\Models\User;
+use App\Jobs\Util\UnlinkFile;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\QuoteInvitation;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 class ZipQuotes implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $quotes;
-
-    private $company;
-
-    private $user;
-
     public $settings;
 
     public $tries = 1;
 
-    /**
-     * @param $invoices
-     * @param Company $company
-     * @param $email
-     * @deprecated confirm to be deleted
-     * Create a new job instance.
-     */
-    public function __construct($quotes, Company $company, User $user)
+    public function __construct(protected array $quote_ids, protected Company $company, protected User $user)
     {
-        $this->quotes = $quotes;
-
-        $this->company = $company;
-
-        $this->user = $user;
-
-        $this->settings = $company->settings;
     }
 
     /**
      * Execute the job.
      *
      * @return void
-     * @throws \ZipStream\Exception\FileNotFoundException
-     * @throws \ZipStream\Exception\FileNotReadableException
-     * @throws \ZipStream\Exception\OverflowException
      */
     public function handle()
     {
         MultiDB::setDb($this->company->db);
+        
+        $this->settings = $this->company->settings;
 
         // create new zip object
         $zipFile = new \PhpZip\ZipFile();
-        $file_name = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.quotes')).'.zip';
-        $invitation = $this->quotes->first()->invitations->first();
-        $path = $this->quotes->first()->client->quote_filepath($invitation);
+        $file_name = now()->addSeconds($this->company->timezone_offset())->format('Y-m-d-h-m-s').'_'.str_replace(' ', '_', trans('texts.quotes')).'.zip';
 
-        $this->quotes->each(function ($quote) {
-            $quote->service()->createInvitations();
-
-            (new CreateEntityPdf($quote->invitations()->first()))->handle();
-        });
+        $invitations = QuoteInvitation::query()->with('quote')->whereIn('quote_id', $this->quote_ids)->get();
+        $invitation = $invitations->first();
+        $path = $invitation->contact->client->quote_filepath($invitation);
 
         try {
-            foreach ($this->quotes as $quote) {
-                $file = $quote->service()->getQuotePdf();
-                $zip_file_name = basename($file);
-                $zipFile->addFromString($zip_file_name, Storage::get($file));
 
-                // $download_file = file_get_contents($quote->pdf_file_path($invitation, 'url', true));
-                // $zipFile->addFromString(basename($quote->pdf_file_path($invitation)), $download_file);
+            foreach ($invitations as $invitation) {
+                $file = (new \App\Jobs\Entity\CreateRawPdf($invitation, $this->company->db))->handle();
+                $zipFile->addFromString($invitation->quote->numberFormatter() . '.pdf', $file);
             }
 
             Storage::put($path.$file_name, $zipFile->outputAsString());
@@ -103,8 +75,9 @@ class ZipQuotes implements ShouldQueue
             NinjaMailerJob::dispatch($nmo);
 
             UnlinkFile::dispatch(config('filesystems.default'), $path.$file_name)->delay(now()->addHours(1));
+
         } catch (\PhpZip\Exception\ZipException $e) {
-            // handle exception
+            nlog("zip build failed: ".$e->getMessage());
         } finally {
             $zipFile->close();
         }

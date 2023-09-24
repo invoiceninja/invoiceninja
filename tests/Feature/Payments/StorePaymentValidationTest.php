@@ -14,7 +14,6 @@ namespace Tests\Feature\Payments;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\WithoutEvents;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
@@ -29,7 +28,6 @@ class StorePaymentValidationTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
-    use WithoutEvents;
 
     protected function setUp() :void
     {

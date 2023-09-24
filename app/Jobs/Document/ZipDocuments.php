@@ -66,9 +66,6 @@ class ZipDocuments implements ShouldQueue
      * Execute the job.
      *
      * @return void
-     * @throws \ZipStream\Exception\FileNotFoundException
-     * @throws \ZipStream\Exception\FileNotReadableException
-     * @throws \ZipStream\Exception\OverflowException
      */
     public function handle()
     {
@@ -85,7 +82,7 @@ class ZipDocuments implements ShouldQueue
         $path = $this->company->file_path();
 
         try {
-            $documents = Document::whereIn('id', $this->document_ids)->get();
+            $documents = Document::query()->whereIn('id', $this->document_ids)->get();
 
             foreach ($documents as $document) {
                 $zipFile->addFromString($this->buildFileName($document), $document->getFile());

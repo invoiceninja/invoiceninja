@@ -51,7 +51,10 @@ class SendEmailRequest extends Request
     {
         $input = $this->all();
 
-        $settings = auth()->user()->company()->settings;
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $settings = $user->company()->settings;
 
         if (empty($input['template'])) {
             $input['template'] = '';

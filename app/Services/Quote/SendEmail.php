@@ -11,8 +11,10 @@
 
 namespace App\Services\Quote;
 
-use App\Jobs\Entity\EmailEntity;
+use App\Utils\Ninja;
 use App\Models\ClientContact;
+use App\Jobs\Entity\EmailEntity;
+use App\Events\Quote\QuoteWasEmailed;
 
 class SendEmail
 {
@@ -42,15 +44,15 @@ class SendEmail
             $this->reminder_template = $this->quote->calculateTemplate('quote');
         }
 
-
         $this->quote->service()->markSent()->save();
 
         $this->quote->invitations->each(function ($invitation) {
             if (! $invitation->contact->trashed() && $invitation->contact->email) {
                 EmailEntity::dispatch($invitation, $invitation->company, $this->reminder_template);
-
-                // MailEntity::dispatch($invitation, $invitation->company->db, $mo);
             }
         });
+
+
+
     }
 }

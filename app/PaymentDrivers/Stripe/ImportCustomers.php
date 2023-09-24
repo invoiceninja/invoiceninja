@@ -80,7 +80,7 @@ class ImportCustomers
     {
         $account = $this->stripe->company_gateway->company->account;
 
-        if (Ninja::isHosted() && ! $account->isPaidHostedClient() && Client::where('company_id', $this->stripe->company_gateway->company_id)->count() > config('ninja.quotas.free.clients')) {
+        if (Ninja::isHosted() && ! $account->isPaidHostedClient() && Client::query()->where('company_id', $this->stripe->company_gateway->company_id)->count() > config('ninja.quotas.free.clients')) {
             return;
         }
 
@@ -115,7 +115,7 @@ class ImportCustomers
             $client->phone = $customer->address->phone ? $customer->phone : '';
 
             if ($customer->address->country) {
-                $country = Country::where('iso_3166_2', $customer->address->country)->first();
+                $country = Country::query()->where('iso_3166_2', $customer->address->country)->first();
 
                 if ($country) {
                     $client->country_id = $country->id;
@@ -124,7 +124,7 @@ class ImportCustomers
         }
 
         if ($customer->currency) {
-            $currency = Currency::where('code', $customer->currency)->first();
+            $currency = Currency::query()->where('code', $customer->currency)->first();
 
             if ($currency) {
                 $settings = $client->settings;
@@ -209,7 +209,7 @@ class ImportCustomers
             // nlog(count($searchResults));
 
             if (count($searchResults) == 1) {
-                $cgt = ClientGatewayToken::where('gateway_customer_reference', $searchResults->data[0]->id)->where('company_id', $this->stripe->company_gateway->company->id)->exists();
+                $cgt = ClientGatewayToken::query()->where('gateway_customer_reference', $searchResults->data[0]->id)->where('company_id', $this->stripe->company_gateway->company->id)->exists();
 
                 if (! $cgt) {
                     nlog('customer '.$searchResults->data[0]->id.' does not exist.');

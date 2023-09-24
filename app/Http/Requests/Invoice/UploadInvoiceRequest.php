@@ -23,7 +23,10 @@ class UploadInvoiceRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->invoice);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        
+        return $user->can('edit', $this->invoice);
     }
 
     public function rules()
@@ -42,29 +45,20 @@ class UploadInvoiceRequest extends Request
             $rules['file'] = $this->file_validation;
         }
 
+        $rules['is_public'] = 'sometimes|boolean';
+        
         return $rules;
     }
 
     public function prepareForValidation()
     {
+        $input = $this->all();
 
-        //tests to see if upload via binary data works.
-        
-        // if(request()->getContent())
-        // {
-        //     // $file = new UploadedFile(request()->getContent(), request()->header('filename'));
-        //     $file = new UploadedFile(request()->getContent(), 'something.png');
-        //     // request()->files->set('documents', $file);
-     
-        //     $this->files->add(['file' => $file]);
+        if(isset($input['is_public'])) {
+            $input['is_public'] = $this->toBoolean($input['is_public']);
+        }
 
-        //     // Merge it in request also (As I found this is not needed in every case)
-        //     $this->merge(['file' => $file]);
-
-
-        // }
-       
-
-
+        $this->replace($input);
+      
     }
 }

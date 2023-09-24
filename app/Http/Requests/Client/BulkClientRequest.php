@@ -31,8 +31,11 @@ class BulkClientRequest extends Request
 
     public function rules()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         return [
-            'ids' => ['required','bail','array',Rule::exists('clients', 'id')->where('company_id', auth()->user()->company()->id)],
+            'ids' => ['required','bail','array',Rule::exists('clients', 'id')->where('company_id', $user->company()->id)],
             'action' => 'in:archive,restore,delete'
         ];
     }

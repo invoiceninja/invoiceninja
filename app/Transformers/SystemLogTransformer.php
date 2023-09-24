@@ -9,12 +9,12 @@ class SystemLogTransformer extends EntityTransformer
 {
     use MakesHash;
 
-    protected $defaultIncludes = [];
+    protected array $defaultIncludes = [];
 
     /**
      * @var array
      */
-    protected $availableIncludes = [];
+    protected array $availableIncludes = [];
 
     /**
      * @param SystemLog $system_log

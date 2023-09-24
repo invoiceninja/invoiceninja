@@ -52,7 +52,7 @@ class RequiredClientInfo extends Component
     public $contact;
 
     /**
-     * @var Client
+     * @var \App\Models\Client
      */
     public $client;
 
@@ -227,6 +227,7 @@ class RequiredClientInfo extends Component
             ->push();
 
         if ($contact_update && $client_update) {
+            /** @var \App\Models\CompanyGateway $cg */
             $cg = CompanyGateway::find($this->company_gateway_id);
 
             if ($cg && $cg->update_details) {

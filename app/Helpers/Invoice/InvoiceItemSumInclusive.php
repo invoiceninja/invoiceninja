@@ -94,7 +94,7 @@ class InvoiceItemSumInclusive
 
     protected RecurringInvoice | Invoice | Quote | Credit | PurchaseOrder | RecurringQuote $invoice;
 
-    private $currency;
+    private \App\Models\Currency $currency;
 
     private $total_taxes;
 
@@ -226,8 +226,10 @@ class InvoiceItemSumInclusive
 
         $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / 100));
 
+        /** @var float $item_tax_rate1_total */
         $item_tax_rate1_total = $this->calcInclusiveLineTax($this->item->tax_rate1, $amount);
-
+        
+        /** @var float $item_tax */
         $item_tax += $this->formatValue($item_tax_rate1_total, $this->currency->precision);
 
         if (strlen($this->item->tax_name1) > 1) {
@@ -347,14 +349,16 @@ class InvoiceItemSumInclusive
     {
         $this->setGroupedTaxes(collect([]));
 
-        $item_tax = 0;
 
         foreach ($this->line_items as $this->item) {
             if ($this->sub_total == 0) {
                 $amount = $this->item->line_total;
             } else {
-                $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / $this->sub_total));
+                $amount = ($this->sub_total > 0) ? $this->item->line_total - ($this->invoice->discount * ($this->item->line_total / $this->sub_total)) : 0;
+                // $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / $this->sub_total));
             }
+            
+            $item_tax = 0;
 
             $item_tax_rate1_total = $this->calcInclusiveLineTax($this->item->tax_rate1, $amount);
 
@@ -379,9 +383,17 @@ class InvoiceItemSumInclusive
             if ($item_tax_rate3_total != 0) {
                 $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
             }
+
+            $this->setTotalTaxes($this->getTotalTaxes() + $item_tax);
+            $this->item->gross_line_total = $this->getLineTotal();
+            
+            $this->item->tax_amount = $item_tax;
+
         }
 
-        $this->setTotalTaxes($item_tax);
+        return $this;
+
+        // $this->setTotalTaxes($item_tax);
     }
 
 

@@ -65,6 +65,7 @@ class RecurringExpenseToExpenseFactory
         $expense->tax_amount3 = $recurring_expense->tax_amount3 ?: 0;
         $expense->uses_inclusive_taxes = $recurring_expense->uses_inclusive_taxes;
         $expense->calculate_tax_by_amount = $recurring_expense->calculate_tax_by_amount;
+        $expense->invoice_currency_id = $recurring_expense->invoice_currency_id;
 
         return $expense;
     }

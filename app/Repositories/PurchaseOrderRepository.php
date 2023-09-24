@@ -36,7 +36,7 @@ class PurchaseOrderRepository extends BaseRepository
 
             /* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
             $purchase_order->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) {
-                $invitation = PurchaseOrderInvitation::where('key', $invitation)->first();
+                $invitation = PurchaseOrderInvitation::query()->where('key', $invitation)->first();
 
                 if ($invitation) {
                     $invitation->delete();
@@ -86,7 +86,7 @@ class PurchaseOrderRepository extends BaseRepository
 
     public function getInvitationByKey($key) :?PurchaseOrderInvitation
     {
-        return PurchaseOrderInvitation::where('key', $key)->first();
+        return PurchaseOrderInvitation::query()->where('key', $key)->first();
     }
 
     public function getInvitation($invitation, $resource = null)
@@ -95,7 +95,7 @@ class PurchaseOrderRepository extends BaseRepository
             return false;
         }
 
-        $invitation = PurchaseOrderInvitation::where('key', $invitation['key'])->first();
+        $invitation = PurchaseOrderInvitation::query()->where('key', $invitation['key'])->first();
 
         return $invitation;
     }

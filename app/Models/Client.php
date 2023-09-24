@@ -47,9 +47,9 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
  * @property string|null $logo
  * @property string|null $phone
  * @property string|null $routing_id
- * @property string $balance
- * @property string $paid_to_date
- * @property string $credit_balance
+ * @property float $balance
+ * @property float $paid_to_date
+ * @property float $credit_balance
  * @property int|null $last_login
  * @property int|null $industry_id
  * @property int|null $size_id
@@ -58,7 +58,7 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
  * @property string|null $city
  * @property string|null $state
  * @property string|null $postal_code
- * @property string|null $country_id
+ * @property int|null $country_id
  * @property string|null $custom_value1
  * @property string|null $custom_value2
  * @property string|null $custom_value3
@@ -79,50 +79,35 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
  * @property int|null $updated_at
  * @property int|null $deleted_at
  * @property string|null $id_number
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read int|null $activities_count
- * @property-read \App\Models\User|null $assigned_user
- * @property-read \App\Models\Company $company
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
- * @property-read int|null $company_ledger_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientContact> $contacts
- * @property-read int|null $contacts_count
- * @property-read \App\Models\Country|null $country
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
- * @property-read int|null $credits_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read int|null $documents_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
- * @property-read int|null $expenses_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientGatewayToken> $gateway_tokens
- * @property-read int|null $gateway_tokens_count
  * @property-read mixed $hashed_id
+ * @property-read \App\Models\User|null $assigned_user
+ * @property-read \App\Models\User $user
+ * @property-read \App\Models\Company $company
+ * @property-read \App\Models\Country|null $country
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientContact> $contacts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientGatewayToken> $gateway_tokens
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read int|null $invoices_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $ledger
- * @property-read int|null $ledger_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read int|null $payments_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientContact> $primary_contact
- * @property-read int|null $primary_contact_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Project> $projects
- * @property-read int|null $projects_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Quote> $quotes
- * @property-read int|null $quotes_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringExpense> $recurring_expenses
- * @property-read int|null $recurring_expenses_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoice> $recurring_invoices
- * @property-read int|null $recurring_invoices_count
- * @property-read \App\Models\Country|null $shipping_country
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SystemLog> $system_logs
- * @property-read int|null $system_logs_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoice> $recurring_invoices
- * @property-read int|null $tasks_count
- * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder|Client exclude($columns)
  * @method static \Database\Factories\ClientFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Client filter(\App\Filters\QueryFilters $filters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Client without()
+ * @method static \Illuminate\Database\Eloquent\Builder|Client find()
+ * @method static \Illuminate\Database\Eloquent\Builder|Client select()
  * @property string $payment_balance
  * @property mixed $tax_data
  * @property int $is_tax_exempt
@@ -184,6 +169,7 @@ class Client extends BaseModel implements HasLocalePreference
         'routing_id',
         'is_tax_exempt',
         'has_valid_vat_number',
+        'classification',
     ];
 
     protected $with = [
@@ -248,27 +234,30 @@ class Client extends BaseModel implements HasLocalePreference
         return self::class;
     }
 
-    public function ledger()
+    public function ledger(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(CompanyLedger::class)->orderBy('id', 'desc');
     }
 
-    public function company_ledger()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<CompanyLedger>
+     */
+    public function company_ledger(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(CompanyLedger::class, 'company_ledgerable');
     }
 
-    public function gateway_tokens()
+    public function gateway_tokens(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ClientGatewayToken::class)->orderBy('is_default', 'DESC');
     }
 
-    public function expenses()
+    public function expenses(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Expense::class)->withTrashed();
     }
 
-    public function projects()
+    public function projects(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Project::class)->withTrashed();
     }
@@ -292,17 +281,17 @@ class Client extends BaseModel implements HasLocalePreference
                     ->first();
     }
 
-    public function credits()
+    public function credits(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Credit::class)->withTrashed();
     }
 
-    public function purgeable_activities()
+    public function purgeable_activities(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Activity::class);
     }
 
-    public function activities()
+    public function activities(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Activity::class)->take(50)->orderBy('id', 'desc');
     }
@@ -367,7 +356,7 @@ class Client extends BaseModel implements HasLocalePreference
         return $this->hasMany(RecurringExpense::class)->withTrashed();
     }
 
-    public function shipping_country()
+    public function shipping_country():\Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Country::class, 'shipping_country_id', 'id');
     }
@@ -531,7 +520,10 @@ class Client extends BaseModel implements HasLocalePreference
         throw new \Exception('Could not find a settings object', 1);
     }
 
-    public function documents() :MorphMany
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<Document>
+     */
+    public function documents() :\Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
     }
@@ -552,8 +544,8 @@ class Client extends BaseModel implements HasLocalePreference
 
         foreach ($pms as $pm) {
             if ($pm['gateway_type_id'] == GatewayType::CREDIT_CARD) {
-                /**@var \App\Models\CompanyGateway $cg */
-                $cg = CompanyGateway::find($pm['company_gateway_id']);
+                
+                $cg = CompanyGateway::query()->find($pm['company_gateway_id']);
 
                 if ($cg && ! property_exists($cg->fees_and_limits, strval(GatewayType::CREDIT_CARD))) {
                     $fees_and_limits = $cg->fees_and_limits;
@@ -576,7 +568,7 @@ class Client extends BaseModel implements HasLocalePreference
 
         foreach ($pms as $pm) {
             if ($pm['gateway_type_id'] == GatewayType::BACS) {
-                $cg = CompanyGateway::find($pm['company_gateway_id']);
+                $cg = CompanyGateway::query()->find($pm['company_gateway_id']);
 
                 if ($cg && ! property_exists($cg->fees_and_limits, GatewayType::BACS)) {
                     $fees_and_limits = $cg->fees_and_limits;
@@ -602,7 +594,7 @@ class Client extends BaseModel implements HasLocalePreference
         if ($this->currency()->code == 'USD' && in_array(GatewayType::BANK_TRANSFER, array_column($pms, 'gateway_type_id'))) {
             foreach ($pms as $pm) {
                 if ($pm['gateway_type_id'] == GatewayType::BANK_TRANSFER) {
-                    $cg = CompanyGateway::find($pm['company_gateway_id']);
+                    $cg = CompanyGateway::query()->find($pm['company_gateway_id']);
 
                     if ($cg && ! property_exists($cg->fees_and_limits, GatewayType::BANK_TRANSFER)) {
                         $fees_and_limits = $cg->fees_and_limits;
@@ -621,7 +613,7 @@ class Client extends BaseModel implements HasLocalePreference
         if ($this->currency()->code == 'EUR' && (in_array(GatewayType::BANK_TRANSFER, array_column($pms, 'gateway_type_id')) || in_array(GatewayType::SEPA, array_column($pms, 'gateway_type_id')))) {
             foreach ($pms as $pm) {
                 if ($pm['gateway_type_id'] == GatewayType::SEPA) {
-                    $cg = CompanyGateway::find($pm['company_gateway_id']);
+                    $cg = CompanyGateway::query()->find($pm['company_gateway_id']);
 
                     if ($cg && $cg->fees_and_limits->{GatewayType::SEPA}->is_enabled) {
                         return $cg;
@@ -633,7 +625,7 @@ class Client extends BaseModel implements HasLocalePreference
         if (in_array(GatewayType::DIRECT_DEBIT, array_column($pms, 'gateway_type_id'))) {
             foreach ($pms as $pm) {
                 if ($pm['gateway_type_id'] == GatewayType::DIRECT_DEBIT) {
-                    $cg = CompanyGateway::find($pm['company_gateway_id']);
+                    $cg = CompanyGateway::query()->find($pm['company_gateway_id']);
 
                     if ($cg && $cg->fees_and_limits->{GatewayType::DIRECT_DEBIT}->is_enabled) {
                         return $cg;

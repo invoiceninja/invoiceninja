@@ -29,13 +29,13 @@ class BankTransactionRuleTransformer extends EntityTransformer
     /**
      * @var array
      */
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
     ];
 
     /**
      * @var array
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'company',
         'vendor',
         'client',
@@ -43,7 +43,7 @@ class BankTransactionRuleTransformer extends EntityTransformer
     ];
 
     /**
-     * @param BankTransaction $bank_integration
+     * @param BankTransactionRule $bank_transaction_rule
      * @return array
      */
     public function transform(BankTransactionRule $bank_transaction_rule)

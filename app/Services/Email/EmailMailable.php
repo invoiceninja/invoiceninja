@@ -57,7 +57,7 @@ class EmailMailable extends Mailable
      */
     public function content()
     {
-        $links = Document::whereIn('id', $this->email_object->documents)
+        $links = Document::query()->whereIn('id', $this->email_object->documents)
                 ->where('size', '>', $this->max_attachment_size)
                 ->cursor()
                 ->map(function ($document) {
@@ -94,7 +94,7 @@ class EmailMailable extends Mailable
             return Attachment::fromData(fn () => base64_decode($file['file']), $file['name']);
         });
 
-        $documents = Document::whereIn('id', $this->email_object->documents)
+        $documents = Document::query()->whereIn('id', $this->email_object->documents)
                 ->where('size', '<', $this->max_attachment_size)
                 ->cursor()
                 ->map(function ($document) {

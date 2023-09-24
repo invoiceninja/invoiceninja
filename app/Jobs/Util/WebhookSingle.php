@@ -71,13 +71,12 @@ class WebhookSingle implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @return bool
      */
     public function handle()
     {
         MultiDB::setDb($this->db);
 
-        $subscription = Webhook::with('company')->find($this->subscription_id);
+        $subscription = Webhook::query()->with('company')->find($this->subscription_id);
 
         if ($subscription) {
             // nlog("firing event ID {$subscription->event_id} company_id {$subscription->company_id}");

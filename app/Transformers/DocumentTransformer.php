@@ -20,9 +20,9 @@ class DocumentTransformer extends EntityTransformer
 
     protected $serializer;
 
-    protected $defaultIncludes = [];
+    protected array $defaultIncludes = [];
 
-    protected $availableIncludes = [];
+    protected array $availableIncludes = [];
 
     public function __construct($serializer = null)
     {
@@ -51,6 +51,7 @@ class DocumentTransformer extends EntityTransformer
             'archived_at' => (int) $document->deleted_at,
             'created_at' => (int) $document->created_at,
             'is_deleted' => (bool) false,
+            'is_public' => (bool) $document->is_public,
         ];
     }
 }

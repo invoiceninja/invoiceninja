@@ -41,11 +41,11 @@ use Illuminate\Support\Facades\Storage;
  * @property int|null $deleted_at
  * @property string|null $signature_ip
  * @property string|null $email_status
- * @property-read \App\Models\Company $company
- * @property-read \App\Models\ClientContact $contact
- * @property-read \App\Models\Credit $credit
- * @property-read mixed $hashed_id
- * @property-read \App\Models\User $user
+ * @property \App\Models\Company $company
+ * @property \App\Models\ClientContact $contact
+ * @property \App\Models\Credit $credit
+ * @property mixed $hashed_id
+ * @property \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Database\Factories\CreditInvitationFactory factory($count = null, $state = [])
@@ -106,40 +106,40 @@ class CreditInvitation extends BaseModel
     }
 
     /**
-     * @return mixed
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function credit()
+    public function credit(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Credit::class)->withTrashed();
     }
     
     /**
-     * @return mixed
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function entity()
+    public function entity(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Credit::class)->withTrashed();
     }
     /**
-     * @return mixed
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function contact()
+    public function contact(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ClientContact::class, 'client_contact_id', 'id')->withTrashed();
     }
 
     /**
-     * @return mixed
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company()
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
     }

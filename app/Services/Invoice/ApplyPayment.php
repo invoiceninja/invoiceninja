@@ -92,7 +92,12 @@ class ApplyPayment extends AbstractService
             }
         });
 
-        $this->invoice->service()->applyNumber()->workFlow()->deletePdf()->save();
+        $this->invoice
+             ->service()
+             ->applyNumber()
+             ->workFlow()
+            //  ->deletePdf()
+             ->save();
 
         return $this->invoice;
     }
