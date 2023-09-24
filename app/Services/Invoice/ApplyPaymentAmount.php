@@ -31,7 +31,7 @@ class ApplyPaymentAmount extends AbstractService
     }
 
     public function run()
-    {nlog("apply payment amount");
+    {
         if ($this->invoice->status_id == Invoice::STATUS_DRAFT) {
             $this->invoice = $this->invoice->service()->markSent()->save();
         }
@@ -75,10 +75,9 @@ class ApplyPaymentAmount extends AbstractService
                 ->setCalculatedStatus()
                 ->applyNumber();
 
-        nlog("check for partials");
 
         if ($has_partial) {
-            nlog("has partial");
+            $this->invoice->partial = max(0, $this->invoice->partial - $payment->amount);
             $invoice_service->checkReminderStatus();
         }
 

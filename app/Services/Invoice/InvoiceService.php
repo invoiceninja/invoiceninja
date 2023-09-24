@@ -304,6 +304,9 @@ class InvoiceService
     public function checkReminderStatus(): self
     {
         
+        if($this->invoice->partial == 0)
+            $this->invoice->partial_due_date = null;
+
         if($this->invoice->partial == 0 && $this->invoice->balance > 0)
         {
             $this->invoice->reminder1_sent = null;

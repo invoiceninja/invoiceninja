@@ -158,6 +158,189 @@ class ReminderTest extends TestCase
 
     }
 
+
+    public function testMultiplePartialDueDateReminderWithEndlessReminder()
+    {
+
+        $settings = $this->company->settings;
+        $settings->enable_reminder1 = true;
+        $settings->schedule_reminder1 = 'before_due_date';
+        $settings->num_days_reminder1 = 1;
+        $settings->enable_reminder2 = true;
+        $settings->schedule_reminder2 = 'after_due_date';
+        $settings->num_days_reminder2 = 0;
+        $settings->enable_reminder3 = true;
+        $settings->schedule_reminder3 = 'after_due_date';
+        $settings->num_days_reminder3 = 7;
+        $settings->timezone_id = '29';
+        $settings->entity_send_time = 0;
+        $settings->endless_reminder_frequency_id = '1';
+        $settings->enable_reminder_endless = true;
+
+        $this->buildData(($settings));
+
+        $this->invoice->reminder1_sent = null;
+        $this->invoice->reminder2_sent = null;
+        $this->invoice->reminder3_sent = null;
+        $this->invoice->date = now()->startOfDay();
+        $this->invoice->partial = 10;
+        $this->invoice->amount = 100;
+        $this->invoice->balance = 100;
+        $this->invoice->partial_due_date = now()->startOfDay()->addDays(7);
+        $this->invoice->due_date = now()->startOfDay()->addMonth();
+        $this->invoice->service()->setReminder($settings)->save();
+
+        $this->invoice = $this->invoice->fresh();
+
+        $this->assertEquals(now()->startOfDay()->addDays(6)->format('Y-m-d'), Carbon::parse($this->invoice->next_send_date)->format('Y-m-d'));
+        $this->assertTrue($this->invoice->hasPartial());
+        
+        // nlog("partial due date = {$this->invoice->partial_due_date}");
+        // nlog("due date = {$this->invoice->due_date}");
+        // nlog("travelling to: ". Carbon::parse($this->invoice->partial_due_date)->subDay()->addHour()->startOfDay()->format("Y-m-d"));
+        // nlog("Reminder 1 test");
+
+        $this->travelTo(Carbon::parse($this->invoice->partial_due_date)->subDay()->addHours(2)->startOfDay());
+        (new ReminderJob())->handle();
+
+        $this->invoice = $this->invoice->fresh();
+        $this->assertEquals(now()->format('Y-m-d'), Carbon::parse($this->invoice->reminder_last_sent)->format('Y-m-d'));
+        $this->assertNotNull($this->invoice->reminder1_sent);
+        $this->assertEquals(Carbon::parse($this->invoice->partial_due_date)->startOfDay()->format('Y-m-d'), Carbon::parse($this->invoice->next_send_date)->format('Y-m-d'));
+
+        $this->travelTo(Carbon::parse($this->invoice->partial_due_date)->startOfDay());
+        (new ReminderJob())->handle();
+        $this->invoice = $this->invoice->fresh();
+        $this->assertEquals(now()->format('Y-m-d'), Carbon::parse($this->invoice->reminder_last_sent)->format('Y-m-d'));
+        $this->assertNotNull($this->invoice->reminder2_sent);
+        $this->assertEquals(Carbon::parse($this->invoice->partial_due_date)->startOfDay()->addDays(7)->format('Y-m-d'), Carbon::parse($this->invoice->next_send_date)->format('Y-m-d'));
+
+        $this->travelTo(Carbon::parse($this->invoice->partial_due_date)->addDays(7)->startOfDay());
+        (new ReminderJob())->handle();
+        $this->invoice = $this->invoice->fresh();
+        $this->assertEquals(now()->format('Y-m-d'), Carbon::parse($this->invoice->reminder_last_sent)->format('Y-m-d'));
+        $this->assertNotNull($this->invoice->reminder3_sent);
+        $this->assertEquals(Carbon::parse($this->invoice->partial_due_date)->startOfDay()->addDays(8)->format('Y-m-d'), Carbon::parse($this->invoice->next_send_date)->format('Y-m-d'));
+
+        $this->invoice->service()->applyPaymentAmount(100)->save();
+        $this->invoice = $this->invoice->fresh();
+        $this->assertNull($this->invoice->next_send_date);
+        $this->assertEquals(0, $this->invoice->partial);
+        $this->assertNull($this->invoice->partial_due_date);    
+
+        $this->invoice->payments()->each(function ($payment) {
+            $payment->service()->deletePayment();
+        });
+
+        $this->invoice = $this->invoice->fresh();
+
+        $this->assertEquals(0, $this->invoice->partial);
+        $this->assertNull($this->invoice->partial_due_date);
+
+        $this->travelBack();
+
+    }
+
+
+    public function testMultiplePartialDueDateReminder()
+    {
+
+        $settings = $this->company->settings;
+        $settings->enable_reminder1 = true;
+        $settings->schedule_reminder1 = 'before_due_date';
+        $settings->num_days_reminder1 = 1;
+        $settings->enable_reminder2 = true;
+        $settings->schedule_reminder2 = 'after_due_date';
+        $settings->num_days_reminder2 = 0;
+        $settings->enable_reminder3 = true;
+        $settings->schedule_reminder3 = 'after_due_date';
+        $settings->num_days_reminder3 = 7;
+        $settings->timezone_id = '29';
+        $settings->entity_send_time = 0;
+        $settings->endless_reminder_frequency_id = '';
+        $settings->enable_reminder_endless = false;
+
+        $this->buildData(($settings));
+
+        $this->invoice->reminder1_sent = null;
+        $this->invoice->reminder2_sent = null;
+        $this->invoice->reminder3_sent = null;
+        $this->invoice->date = now()->startOfDay();
+        $this->invoice->partial = 10;
+        $this->invoice->amount = 100;
+        $this->invoice->balance = 100;
+        $this->invoice->partial_due_date = now()->startOfDay()->addDays(7);
+        $this->invoice->due_date = now()->startOfDay()->addMonth();
+        $this->invoice->service()->setReminder($settings)->save();
+
+        $this->invoice = $this->invoice->fresh();
+
+        $this->assertEquals(now()->startOfDay()->addDays(6)->format('Y-m-d'), Carbon::parse($this->invoice->next_send_date)->format('Y-m-d'));
+        $this->assertTrue($this->invoice->hasPartial());
+        
+        // nlog("partial due date = {$this->invoice->partial_due_date}");
+        // nlog("due date = {$this->invoice->due_date}");
+        // nlog("travelling to: ". Carbon::parse($this->invoice->partial_due_date)->subDay()->addHour()->startOfDay()->format("Y-m-d"));
+        // nlog("Reminder 1 test");
+
+        $this->travelTo(Carbon::parse($this->invoice->partial_due_date)->subDay()->addHours(2)->startOfDay());
+        (new ReminderJob())->handle();
+
+        $this->invoice = $this->invoice->fresh();
+        $this->assertEquals(now()->format('Y-m-d'), Carbon::parse($this->invoice->reminder_last_sent)->format('Y-m-d'));
+        $this->assertNotNull($this->invoice->reminder1_sent);
+        $this->assertEquals(Carbon::parse($this->invoice->partial_due_date)->startOfDay()->format('Y-m-d'), Carbon::parse($this->invoice->next_send_date)->format('Y-m-d'));
+
+        $this->travelTo(Carbon::parse($this->invoice->partial_due_date)->startOfDay());
+        (new ReminderJob())->handle();
+        $this->invoice = $this->invoice->fresh();
+        $this->assertEquals(now()->format('Y-m-d'), Carbon::parse($this->invoice->reminder_last_sent)->format('Y-m-d'));
+        $this->assertNotNull($this->invoice->reminder2_sent);
+        $this->assertEquals(Carbon::parse($this->invoice->partial_due_date)->startOfDay()->addDays(7)->format('Y-m-d'), Carbon::parse($this->invoice->next_send_date)->format('Y-m-d'));
+
+        // nlog("travelling to: ".Carbon::parse($this->invoice->partial_due_date)->addDays(7)->startOfDay()->format('Y-m-d'));
+
+        $this->travelTo(Carbon::parse($this->invoice->partial_due_date)->addDays(7)->startOfDay());
+        (new ReminderJob())->handle();
+        $this->invoice = $this->invoice->fresh();
+        $this->assertEquals(now()->format('Y-m-d'), Carbon::parse($this->invoice->reminder_last_sent)->format('Y-m-d'));
+        $this->assertNotNull($this->invoice->reminder3_sent);
+        $this->assertNull($this->invoice->next_send_date);
+
+        $this->invoice->service()->applyPaymentAmount(10)->save();
+        $this->invoice = $this->invoice->fresh();
+
+        /** Iterate through Due Date Reminders now */
+        $this->assertEquals(0, $this->invoice->partial);
+        $this->assertNull($this->invoice->partial_due_date);
+        $this->assertEquals(Carbon::parse($this->invoice->due_date)->subDay()->startOfDay(), Carbon::parse($this->invoice->next_send_date));
+        
+        $this->travelTo(Carbon::parse($this->invoice->due_date)->subDay()->startOfDay()->addHour());
+        (new ReminderJob())->handle();
+        $this->invoice = $this->invoice->fresh();
+
+        $this->assertNotNull($this->invoice->reminder1_sent);
+        $this->assertEquals(Carbon::parse($this->invoice->due_date)->subDay()->startOfDay(), Carbon::parse($this->invoice->reminder_last_sent)->startOfDay());
+
+        $this->travelTo(Carbon::parse($this->invoice->due_date)->startOfDay()->addHour());
+        (new ReminderJob())->handle();
+        $this->invoice = $this->invoice->fresh();
+        $this->assertNotNull($this->invoice->reminder2_sent);
+        $this->assertEquals(Carbon::parse($this->invoice->due_date)->startOfDay(), Carbon::parse($this->invoice->reminder_last_sent)->startOfDay());
+        $this->assertEquals(Carbon::parse($this->invoice->due_date)->addDays(7)->startOfDay(), Carbon::parse($this->invoice->next_send_date));
+
+        $this->travelTo(Carbon::parse($this->invoice->due_date)->addDays(7)->startOfDay()->addHour());
+        (new ReminderJob())->handle();
+        $this->invoice = $this->invoice->fresh();
+        $this->assertNotNull($this->invoice->reminder3_sent);
+        $this->assertEquals(now()->startOfDay(), Carbon::parse($this->invoice->reminder_last_sent)->startOfDay());
+        $this->assertNull($this->invoice->next_send_date);
+
+        $this->travelBack();
+
+    }
+
+
     public function testPartialDueDateReminder()
     {
 
