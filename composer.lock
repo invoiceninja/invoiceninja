@@ -7,46 +7,6 @@
     "content-hash": "f0ad0b9b101d54a8530ab494539e9590",
     "packages": [
         {
-            "name": "adrienrn/php-mimetyper",
-            "version": "0.2.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/adrienrn/php-mimetyper.git",
-                "reference": "702e00a604b4baed34d69730ce055e05c0f43932"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/adrienrn/php-mimetyper/zipball/702e00a604b4baed34d69730ce055e05c0f43932",
-                "reference": "702e00a604b4baed34d69730ce055e05c0f43932",
-                "shasum": ""
-            },
-            "require": {
-                "dflydev/apache-mime-types": "^1.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "MimeTyper\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Hussard",
-                    "email": "adrien.ricartnoblet@gmail.com"
-                }
-            ],
-            "description": "PHP mime type and extension mapping library: compatible with Symfony, powered by jshttp/mime-db",
-            "support": {
-                "issues": "https://github.com/adrienrn/php-mimetyper/issues",
-                "source": "https://github.com/adrienrn/php-mimetyper/tree/0.2.2"
-            },
-            "time": "2018-09-27T09:45:05+00:00"
-        },
-        {
             "name": "afosto/yaac",
             "version": "v1.5.2",
             "source": {
@@ -525,16 +485,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.281.11",
+            "version": "3.281.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "9d466efae67d5016ed132fd4ffa1566a7d4cab98"
+                "reference": "22a92f08758db2b152843ea0875eeee5a467d8ff"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/9d466efae67d5016ed132fd4ffa1566a7d4cab98",
-                "reference": "9d466efae67d5016ed132fd4ffa1566a7d4cab98",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/22a92f08758db2b152843ea0875eeee5a467d8ff",
+                "reference": "22a92f08758db2b152843ea0875eeee5a467d8ff",
                 "shasum": ""
             },
             "require": {
@@ -614,9 +574,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.281.11"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.281.12"
             },
-            "time": "2023-09-20T19:16:24+00:00"
+            "time": "2023-09-22T18:12:27+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -1148,65 +1108,6 @@
             "time": "2023-08-25T16:18:39+00:00"
         },
         {
-            "name": "dflydev/apache-mime-types",
-            "version": "v1.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/dflydev/dflydev-apache-mime-types.git",
-                "reference": "f30a57e59b7476e4c5270b6a0727d79c9c0eb861"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/dflydev/dflydev-apache-mime-types/zipball/f30a57e59b7476e4c5270b6a0727d79c9c0eb861",
-                "reference": "f30a57e59b7476e4c5270b6a0727d79c9c0eb861",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3"
-            },
-            "require-dev": {
-                "twig/twig": "1.*"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.0-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Dflydev\\ApacheMimeTypes": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Dragonfly Development Inc.",
-                    "email": "info@dflydev.com",
-                    "homepage": "http://dflydev.com"
-                },
-                {
-                    "name": "Beau Simensen",
-                    "email": "beau@dflydev.com",
-                    "homepage": "http://beausimensen.com"
-                }
-            ],
-            "description": "Apache MIME Types",
-            "keywords": [
-                "apache",
-                "mime",
-                "mimetypes"
-            ],
-            "support": {
-                "issues": "https://github.com/dflydev/dflydev-apache-mime-types/issues",
-                "source": "https://github.com/dflydev/dflydev-apache-mime-types/tree/v1.0.1"
-            },
-            "time": "2013-05-14T02:02:01+00:00"
-        },
-        {
             "name": "dflydev/dot-access-data",
             "version": "v3.0.2",
             "source": {
@@ -1452,16 +1353,16 @@
         },
         {
             "name": "doctrine/dbal",
-            "version": "3.6.6",
+            "version": "3.6.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/dbal.git",
-                "reference": "63646ffd71d1676d2f747f871be31b7e921c7864"
+                "reference": "8e0e268052b4a8974cb00215bb2892787021614f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/dbal/zipball/63646ffd71d1676d2f747f871be31b7e921c7864",
-                "reference": "63646ffd71d1676d2f747f871be31b7e921c7864",
+                "url": "https://api.github.com/repos/doctrine/dbal/zipball/8e0e268052b4a8974cb00215bb2892787021614f",
+                "reference": "8e0e268052b4a8974cb00215bb2892787021614f",
                 "shasum": ""
             },
             "require": {
@@ -1477,9 +1378,9 @@
                 "doctrine/coding-standard": "12.0.0",
                 "fig/log-test": "^1",
                 "jetbrains/phpstorm-stubs": "2023.1",
-                "phpstan/phpstan": "1.10.29",
+                "phpstan/phpstan": "1.10.34",
                 "phpstan/phpstan-strict-rules": "^1.5",
-                "phpunit/phpunit": "9.6.9",
+                "phpunit/phpunit": "9.6.12",
                 "psalm/plugin-phpunit": "0.18.4",
                 "slevomat/coding-standard": "8.13.1",
                 "squizlabs/php_codesniffer": "3.7.2",
@@ -1545,7 +1446,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/dbal/issues",
-                "source": "https://github.com/doctrine/dbal/tree/3.6.6"
+                "source": "https://github.com/doctrine/dbal/tree/3.6.7"
             },
             "funding": [
                 {
@@ -1561,7 +1462,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-08-17T05:38:17+00:00"
+            "time": "2023-09-19T20:15:41+00:00"
         },
         {
             "name": "doctrine/deprecations",
@@ -3386,6 +3287,61 @@
             "time": "2023-08-14T19:20:53+00:00"
         },
         {
+            "name": "horstoeko/mimedb",
+            "version": "v1.0.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/horstoeko/mimedb.git",
+                "reference": "2790b61cbff7f94ae8f40565761b15beb7792fcb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/horstoeko/mimedb/zipball/2790b61cbff7f94ae8f40565761b15beb7792fcb",
+                "reference": "2790b61cbff7f94ae8f40565761b15beb7792fcb",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.3|^7.4|^8.0|^8.1|^8.2|^8.3"
+            },
+            "require-dev": {
+                "pdepend/pdepend": "^2",
+                "phploc/phploc": "^7",
+                "phpmd/phpmd": "^2",
+                "phpstan/phpstan": "^1.8",
+                "phpunit/phpunit": "^9",
+                "sebastian/phpcpd": "^6",
+                "squizlabs/php_codesniffer": "^3"
+            },
+            "type": "package",
+            "autoload": {
+                "psr-4": {
+                    "horstoeko\\mimedb\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Daniel Erling",
+                    "email": "daniel@erling.com.de",
+                    "role": "lead"
+                }
+            ],
+            "description": "Get mimetypes by fileextensions and visa versa",
+            "homepage": "https://github.com/horstoeko/mimedb",
+            "keywords": [
+                "file extension",
+                "mimetype"
+            ],
+            "support": {
+                "issues": "https://github.com/horstoeko/mimedb/issues",
+                "source": "https://github.com/horstoeko/mimedb/tree/v1.0.5"
+            },
+            "time": "2023-09-22T20:17:48+00:00"
+        },
+        {
             "name": "horstoeko/stringmanagement",
             "version": "v1.0.11",
             "source": {
@@ -3441,22 +3397,22 @@
         },
         {
             "name": "horstoeko/zugferd",
-            "version": "v1.0.28",
+            "version": "v1.0.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/horstoeko/zugferd.git",
-                "reference": "be78b1b53a46e94a69b92dcff1e909180170583c"
+                "reference": "9fb81e2e9a16d10bec8bf655484aae11bdca1997"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/horstoeko/zugferd/zipball/be78b1b53a46e94a69b92dcff1e909180170583c",
-                "reference": "be78b1b53a46e94a69b92dcff1e909180170583c",
+                "url": "https://api.github.com/repos/horstoeko/zugferd/zipball/9fb81e2e9a16d10bec8bf655484aae11bdca1997",
+                "reference": "9fb81e2e9a16d10bec8bf655484aae11bdca1997",
                 "shasum": ""
             },
             "require": {
-                "adrienrn/php-mimetyper": "^0.2",
                 "ext-simplexml": "*",
                 "goetas-webservices/xsd2php-runtime": "^0.2.13",
+                "horstoeko/mimedb": "^1",
                 "horstoeko/stringmanagement": "^1",
                 "jms/serializer": "^3",
                 "php": "^7.3|^7.4|^8.0|^8.1",
@@ -3508,9 +3464,9 @@
             ],
             "support": {
                 "issues": "https://github.com/horstoeko/zugferd/issues",
-                "source": "https://github.com/horstoeko/zugferd/tree/v1.0.28"
+                "source": "https://github.com/horstoeko/zugferd/tree/v1.0.29"
             },
-            "time": "2023-09-12T14:54:01+00:00"
+            "time": "2023-09-23T06:15:04+00:00"
         },
         {
             "name": "http-interop/http-factory-guzzle",
@@ -5227,16 +5183,16 @@
         },
         {
             "name": "league/csv",
-            "version": "9.10.0",
+            "version": "9.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/csv.git",
-                "reference": "d24b0d484812313b07ab74b0fe4db9661606df6c"
+                "reference": "33149c4bea4949aa4fa3d03fb11ed28682168b39"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/csv/zipball/d24b0d484812313b07ab74b0fe4db9661606df6c",
-                "reference": "d24b0d484812313b07ab74b0fe4db9661606df6c",
+                "url": "https://api.github.com/repos/thephpleague/csv/zipball/33149c4bea4949aa4fa3d03fb11ed28682168b39",
+                "reference": "33149c4bea4949aa4fa3d03fb11ed28682168b39",
                 "shasum": ""
             },
             "require": {
@@ -5311,7 +5267,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-08-04T15:12:48+00:00"
+            "time": "2023-09-23T10:09:54+00:00"
         },
         {
             "name": "league/flysystem",
@@ -8531,16 +8487,16 @@
         },
         {
             "name": "psr/http-client",
-            "version": "1.0.2",
+            "version": "1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/http-client.git",
-                "reference": "0955afe48220520692d2d09f7ab7e0f93ffd6a31"
+                "reference": "bb5906edc1c324c9a05aa0873d40117941e5fa90"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/http-client/zipball/0955afe48220520692d2d09f7ab7e0f93ffd6a31",
-                "reference": "0955afe48220520692d2d09f7ab7e0f93ffd6a31",
+                "url": "https://api.github.com/repos/php-fig/http-client/zipball/bb5906edc1c324c9a05aa0873d40117941e5fa90",
+                "reference": "bb5906edc1c324c9a05aa0873d40117941e5fa90",
                 "shasum": ""
             },
             "require": {
@@ -8577,9 +8533,9 @@
                 "psr-18"
             ],
             "support": {
-                "source": "https://github.com/php-fig/http-client/tree/1.0.2"
+                "source": "https://github.com/php-fig/http-client"
             },
-            "time": "2023-04-10T20:12:12+00:00"
+            "time": "2023-09-23T14:17:50+00:00"
         },
         {
             "name": "psr/http-factory",
@@ -10374,16 +10330,16 @@
         },
         {
             "name": "stripe/stripe-php",
-            "version": "v12.3.0",
+            "version": "v12.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stripe/stripe-php.git",
-                "reference": "260aad072f92ddb05e03d47af13b3616d99b3444"
+                "reference": "7d0a90772fc1c179e370971264318208533324b9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/260aad072f92ddb05e03d47af13b3616d99b3444",
-                "reference": "260aad072f92ddb05e03d47af13b3616d99b3444",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/7d0a90772fc1c179e370971264318208533324b9",
+                "reference": "7d0a90772fc1c179e370971264318208533324b9",
                 "shasum": ""
             },
             "require": {
@@ -10396,8 +10352,7 @@
                 "friendsofphp/php-cs-fixer": "3.5.0",
                 "php-coveralls/php-coveralls": "^2.5",
                 "phpstan/phpstan": "^1.2",
-                "phpunit/phpunit": "^5.7 || ^9.0",
-                "squizlabs/php_codesniffer": "^3.3"
+                "phpunit/phpunit": "^5.7 || ^9.0"
             },
             "type": "library",
             "extra": {
@@ -10429,9 +10384,9 @@
             ],
             "support": {
                 "issues": "https://github.com/stripe/stripe-php/issues",
-                "source": "https://github.com/stripe/stripe-php/tree/v12.3.0"
+                "source": "https://github.com/stripe/stripe-php/tree/v12.4.0"
             },
-            "time": "2023-09-15T00:57:14+00:00"
+            "time": "2023-09-21T22:55:47+00:00"
         },
         {
             "name": "symfony/console",
@@ -15082,16 +15037,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.27.0",
+            "version": "v3.28.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "e73ccaae1208f017bb7860986eebb3da48bd25d6"
+                "reference": "113e09fea3d2306319ffaa2423fe3de768b28cff"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/e73ccaae1208f017bb7860986eebb3da48bd25d6",
-                "reference": "e73ccaae1208f017bb7860986eebb3da48bd25d6",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/113e09fea3d2306319ffaa2423fe3de768b28cff",
+                "reference": "113e09fea3d2306319ffaa2423fe3de768b28cff",
                 "shasum": ""
             },
             "require": {
@@ -15165,7 +15120,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.27.0"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.28.0"
             },
             "funding": [
                 {
@@ -15173,7 +15128,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-09-17T14:37:54+00:00"
+            "time": "2023-09-22T20:43:40+00:00"
         },
         {
             "name": "hamcrest/hamcrest-php",

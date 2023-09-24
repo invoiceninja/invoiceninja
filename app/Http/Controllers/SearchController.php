@@ -13,7 +13,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Search\GenericSearchRequest;
 use App\Models\Client;
-use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Models\User;
 
@@ -78,30 +77,6 @@ class SearchController extends Controller
 
     }
 
-    private function clientContactMap(User $user)
-    {
-
-        return ClientContact::query()
-                     ->company()
-                     ->with('client')
-                     ->whereHas('client', function ($q) {
-                         $q->where('is_deleted', 0);
-                     })
-                     ->when(!$user->hasPermission('view_all') || !$user->hasPermission('view_client'), function ($query) use ($user) {
-                         $query->where('user_id', $user->id);
-                     })
-                     ->orderBy('id', 'desc')
-                     ->cursor()
-                     ->map(function ($contact) {
-                         return [
-                             'name' => $contact->present()->search_display(),
-                             'type' => '/client_contact',
-                             'id' => $contact->client->hashed_id,
-                             'path' => "/clients/{$contact->client->hashed_id}"
-                         ];
-                     });
-    }
-
     private function invoiceMap(User $user)
     {
 
@@ -116,7 +91,7 @@ class SearchController extends Controller
                          $query->where('user_id', $user->id);
                      })
                      ->orderBy('id', 'desc')
-                    ->take(1000)
+                    ->take(3000)
                     ->get(); 
                     
                     foreach($invoices as $invoice) {
