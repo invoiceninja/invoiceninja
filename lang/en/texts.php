@@ -5166,7 +5166,16 @@ $LANG = array(
     'government' => 'Government',
     'in_stock_quantity' => 'Stock quantity',
     'vendor_contact' => 'Vendor Contact',
-
+    'expense_status_4' => 'Unpaid',
+    'expense_status_5' => 'Paid',
+    'ziptax_help' => 'Note: this feature requires a Zip-Tax API key to lookup US sales tax by address',
+    'cache_data' => 'Cache Data',
+    'unknown' => 'Unknown',
+    'webhook_failure' => 'Webhook Failure',
+    'email_opened' => 'Email Opened',
+    'email_delivered' => 'Email Delivered',
+    'log' => 'Log',
+    'classification' => 'Classification',
 ); 
 
 return $LANG;
