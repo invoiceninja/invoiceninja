@@ -579,12 +579,11 @@ class BaseApiTest extends TestCase
              ])->get('/api/v1/companies/'.$this->company->hashed_id)
                ->assertStatus(200);
 
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->low_token,
+        ])->get('/api/v1/client_gateway_tokens');
 
-        // $response = $this->withHeaders([
-        //     'X-API-SECRET' => config('ninja.api_secret'),
-        //     'X-API-TOKEN' => $this->low_token,
-        // ])->get('/api/v1/client_gateway_tokens');
-
-        // $response->assertStatus(403);
+        $response->assertStatus(403);
     }
 }
