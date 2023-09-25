@@ -62,7 +62,7 @@
 
         <!-- Scripts -->
         @if(strpos(Request::url(),'setup') === false)
-        <script src="{{ mix('js/app.js') }}" defer></script>
+        @vite('resources/js/app.js')
         @else
         <script src="{{ str_replace("setup", "", Request::url())}}js/app.js" defer></script>
         @endif
@@ -85,7 +85,7 @@
 
         <!-- Styles -->
         @if(strpos(Request::url(),'setup') === false)
-            <link href="{{ mix('css/app.css') }}" rel="stylesheet">
+            @vite('resources/sass/app.scss')
         @else
             <link href="{{ str_replace("setup", "", Request::url())}}css/app.css" rel="stylesheet">
         @endif

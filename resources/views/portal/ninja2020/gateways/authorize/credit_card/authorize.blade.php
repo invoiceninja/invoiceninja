@@ -9,7 +9,7 @@
     <meta name="authnet-require-cvv" content="{{ $gateway->company_gateway->require_cvv }}">
 
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-    <script src="{{ asset('js/clients/payments/card-js.min.js') }}"></script>
+    @vite('node_modules/card-js/card-js.min.js')
 
     <link href="{{ asset('css/card-js.min.css') }}" rel="stylesheet" type="text/css">
 @endsection
@@ -51,7 +51,7 @@
         <script src="https://js.authorize.net/v1/Accept.js" charset="utf-8"></script>
     @endif
 
-    <script src="{{ asset('js/clients/payment_methods/authorize-authorize-card.js') }}"></script>
+    @vite('resources/js/clients/payment_methods/authorize-authorize-card.js')
 @endsection
 
 @push('footer')

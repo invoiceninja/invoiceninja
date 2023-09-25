@@ -112,5 +112,5 @@
         <script type="text/javascript" src="https://web.squarecdn.com/v1/square.js"></script>
     @endif
 
-    <script src="{{ asset('js/clients/payments/square-credit-card.js') }}"></script>
+    @vite('resources/js/clients/payments/square-credit-card.js')
 @endsection

@@ -92,5 +92,5 @@
 @section('gateway_footer')
     <script src="https://js.braintreegateway.com/web/3.81.0/js/client.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.81.0/js/us-bank-account.min.js"></script>
-    <script src="{{ asset('js/clients/payment_methods/braintree-ach.js') }}"></script>
+    @vite('resources/js/clients/payment_methods/braintree-ach.js')
 @endsection

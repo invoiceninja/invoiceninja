@@ -5,7 +5,7 @@
     <meta name="authorize-login-id" content="{{ $api_login_id }}">
 
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-    <script src="{{ asset('js/clients/payments/card-js.min.js') }}"></script>
+    @vite('node_modules/card-js/card-js.min.js')
     <meta name="authnet-require-cvv" content="{{ $gateway->company_gateway->require_cvv }}">
 
     <link href="{{ asset('css/card-js.min.css') }}" rel="stylesheet" type="text/css">
@@ -71,7 +71,7 @@
         <script src="https://js.authorize.net/v1/Accept.js" charset="utf-8"></script>
     @endif
 
-    <script src="{{ asset('js/clients/payments/authorize-credit-card-payment.js') }}"></script>
+    @vite('resources/js/clients/payments/authorize-credit-card-payment.js')
 @endsection
 
 @push('footer')

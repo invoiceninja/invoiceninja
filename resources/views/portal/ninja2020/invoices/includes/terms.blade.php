@@ -43,5 +43,5 @@
 </div>
 
 @push('footer')
-    <script src="{{ asset('js/clients/linkify-urls.js') }}" defer></script>
+    @vite('resources/js/clients/linkify-urls.js')
 @endpush

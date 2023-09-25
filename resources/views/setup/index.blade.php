@@ -84,5 +84,5 @@
 @endsection
 
 @push('footer')
-    <script src="{{ asset('js/setup/setup.js') }}"></script>
+    @vite('resources/js/setup/setup.js')
 @endpush
