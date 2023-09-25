@@ -100,7 +100,7 @@ class TemplateService
         $data = $this->preProcessDataBlocks($data);
         $replacements = [];
 
-        // nlog($data);
+        nlog($data);
 
         $contents = $this->document->getElementsByTagName('ninja');
 
