@@ -49,22 +49,22 @@ class ZugferdEInvoice extends AbstractService
         $this->xrechnung = ZugferdDocumentBuilder::CreateNew($profile);
 
         $this->xrechnung
-            ->setDocumentSupplyChainEvent(date_create($this->invoice->date))
+            ->setDocumentSupplyChainEvent(date_create($this->invoice->date ?? now()->format('Y-m-d')))
             ->setDocumentSeller($company->getSetting('name'))
             ->setDocumentSellerAddress($company->getSetting("address1"), $company->getSetting("address2"), "", $company->getSetting("postal_code"), $company->getSetting("city"), $company->country()->iso_3166_2, $company->getSetting("state"))
             ->setDocumentSellerContact($this->invoice->user->first_name." ".$this->invoice->user->last_name, "", $this->invoice->user->phone, "", $this->invoice->user->email)
             ->setDocumentBuyer($client->name, $client->number)
             ->setDocumentBuyerAddress($client->address1, "", "", $client->postal_code, $client->city, $client->country->iso_3166_2, $client->state)
             ->setDocumentBuyerContact($client->primary_contact()->first()->first_name . " " . $client->primary_contact()->first()->last_name, "", $client->primary_contact()->first()->phone, "", $client->primary_contact()->first()->email)
-            ->addDocumentPaymentTerm(ctrans("texts.xinvoice_payable", ['payeddue' => date_create($this->invoice->date)->diff(date_create($this->invoice->due_date))->format("%d"), 'paydate' => $this->invoice->due_date]));
+            ->addDocumentPaymentTerm(ctrans("texts.xinvoice_payable", ['payeddue' => date_create($this->invoice->date ?? now()->format('Y-m-d'))->diff(date_create($this->invoice->due_date ?? now()->format('Y-m-d')))->format("%d"), 'paydate' => $this->invoice->due_date]));
 
             if (!empty($this->invoice->public_notes)) {
             $this->xrechnung->addDocumentNote($this->invoice->public_notes);
         }
 		if (empty($this->invoice->number)){
-        	$this->xrechnung->setDocumentInformation("DRAFT", "380", date_create($this->invoice->date), $this->invoice->client->getCurrencyCode());
+        	$this->xrechnung->setDocumentInformation("DRAFT", "380", date_create($this->invoice->date ?? now()->format('Y-m-d')), $this->invoice->client->getCurrencyCode());
         } else {
-          $this->xrechnung->setDocumentInformation($this->invoice->number, "380", date_create($this->invoice->date), $this->invoice->client->getCurrencyCode());
+          $this->xrechnung->setDocumentInformation($this->invoice->number, "380", date_create($this->invoice->date ?? now()->format('Y-m-d')), $this->invoice->client->getCurrencyCode());
         }
         if (!empty($this->invoice->po_number)) {
             $this->xrechnung->setDocumentBuyerOrderReferencedDocument($this->invoice->po_number);
