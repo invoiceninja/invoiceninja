@@ -2487,16 +2487,16 @@
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.316.0",
+            "version": "v0.317.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-api-php-client-services.git",
-                "reference": "08e3579d94363716cef2bc79643f3d30fdd914b5"
+                "reference": "a11658da6e5ba713e3d636544895bb0af3c27689"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/08e3579d94363716cef2bc79643f3d30fdd914b5",
-                "reference": "08e3579d94363716cef2bc79643f3d30fdd914b5",
+                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/a11658da6e5ba713e3d636544895bb0af3c27689",
+                "reference": "a11658da6e5ba713e3d636544895bb0af3c27689",
                 "shasum": ""
             },
             "require": {
@@ -2525,9 +2525,9 @@
             ],
             "support": {
                 "issues": "https://github.com/googleapis/google-api-php-client-services/issues",
-                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.316.0"
+                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.317.0"
             },
-            "time": "2023-09-17T01:06:13+00:00"
+            "time": "2023-09-24T01:06:13+00:00"
         },
         {
             "name": "google/auth",
@@ -13804,16 +13804,16 @@
         },
         {
             "name": "turbo124/beacon",
-            "version": "v1.5.0",
+            "version": "v1.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/turbo124/beacon.git",
-                "reference": "ffc0a7b229129f6503fa699adaabc1d9f300e41c"
+                "reference": "a737499198a3aff2d194d4f2a4c834257187d9b8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/turbo124/beacon/zipball/ffc0a7b229129f6503fa699adaabc1d9f300e41c",
-                "reference": "ffc0a7b229129f6503fa699adaabc1d9f300e41c",
+                "url": "https://api.github.com/repos/turbo124/beacon/zipball/a737499198a3aff2d194d4f2a4c834257187d9b8",
+                "reference": "a737499198a3aff2d194d4f2a4c834257187d9b8",
                 "shasum": ""
             },
             "require": {
@@ -13860,9 +13860,9 @@
                 "turbo124"
             ],
             "support": {
-                "source": "https://github.com/turbo124/beacon/tree/v1.5.0"
+                "source": "https://github.com/turbo124/beacon/tree/v1.5.1"
             },
-            "time": "2023-08-20T23:18:11+00:00"
+            "time": "2023-09-24T07:20:04+00:00"
         },
         {
             "name": "twilio/sdk",
@@ -16756,16 +16756,16 @@
         },
         {
             "name": "sebastian/exporter",
-            "version": "5.1.0",
+            "version": "5.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/exporter.git",
-                "reference": "c3fa8483f9539b190f7cd4bfc4a07631dd1df344"
+                "reference": "64f51654862e0f5e318db7e9dcc2292c63cdbddc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/exporter/zipball/c3fa8483f9539b190f7cd4bfc4a07631dd1df344",
-                "reference": "c3fa8483f9539b190f7cd4bfc4a07631dd1df344",
+                "url": "https://api.github.com/repos/sebastianbergmann/exporter/zipball/64f51654862e0f5e318db7e9dcc2292c63cdbddc",
+                "reference": "64f51654862e0f5e318db7e9dcc2292c63cdbddc",
                 "shasum": ""
             },
             "require": {
@@ -16779,7 +16779,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "5.0-dev"
+                    "dev-main": "5.1-dev"
                 }
             },
             "autoload": {
@@ -16822,7 +16822,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/exporter/issues",
                 "security": "https://github.com/sebastianbergmann/exporter/security/policy",
-                "source": "https://github.com/sebastianbergmann/exporter/tree/5.1.0"
+                "source": "https://github.com/sebastianbergmann/exporter/tree/5.1.1"
             },
             "funding": [
                 {
@@ -16830,7 +16830,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-09-18T07:15:37+00:00"
+            "time": "2023-09-24T13:22:09+00:00"
         },
         {
             "name": "sebastian/global-state",

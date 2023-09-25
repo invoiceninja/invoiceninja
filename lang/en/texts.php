@@ -5176,6 +5176,7 @@ $LANG = array(
     'email_delivered' => 'Email Delivered',
     'log' => 'Log',
     'classification' => 'Classification',
+    'stock_quantity' => 'Stock :quantity',
 ); 
 
 return $LANG;
