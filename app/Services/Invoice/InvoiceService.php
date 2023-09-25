@@ -346,7 +346,7 @@ class InvoiceService
                                          return $item;
                                      })->toArray();
 
-        $this->deletePdf();
+        // $this->deletePdf();
         $this->deleteEInvoice();
 
         return $this;
@@ -414,7 +414,7 @@ class InvoiceService
                                      })->toArray();
 
         $this->invoice = $this->invoice->calc()->getInvoice();
-        $this->deletePdf();
+        // $this->deletePdf();
         $this->deleteEInvoice();
 
         /* 24-03-2022 */

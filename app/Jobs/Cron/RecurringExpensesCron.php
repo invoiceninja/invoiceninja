@@ -11,12 +11,14 @@
 
 namespace App\Jobs\Cron;
 
+use App\Utils\Ninja;
 use App\Libraries\MultiDB;
 use Illuminate\Support\Carbon;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
 use Illuminate\Support\Facades\Auth;
 use App\Utils\Traits\GeneratesCounter;
+use App\Events\Expense\ExpenseWasCreated;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Factory\RecurringExpenseToExpenseFactory;
 
@@ -108,6 +110,9 @@ class RecurringExpensesCron
             
         $expense->number = $this->getNextExpenseNumber($expense);
         $expense->saveQuietly();
+
+        event(new ExpenseWasCreated($expense, $expense->company, Ninja::eventVars(null)));
+        event('eloquent.created: App\Models\Expense', $expense);
 
         $recurring_expense->next_send_date = $recurring_expense->nextSendDate();
         $recurring_expense->next_send_date_client = $recurring_expense->next_send_date;

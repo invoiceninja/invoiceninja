@@ -530,9 +530,9 @@ class BaseDriver extends AbstractPaymentDriver
 
             $invoices = Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
-            $invoices->each(function ($invoice) {
-                $invoice->service()->deletePdf();
-            });
+            // $invoices->each(function ($invoice) {
+            //     $invoice->service()->deletePdf();
+            // });
 
             $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
                 if ((bool) $invitation->contact->send_email !== false && $invitation->contact->email) {
@@ -575,9 +575,9 @@ class BaseDriver extends AbstractPaymentDriver
 
         $invoices = Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
-        $invoices->each(function ($invoice) {
-            $invoice->service()->deletePdf();
-        });
+        // $invoices->each(function ($invoice) {
+        //     $invoice->service()->deletePdf();
+        // });
 
         $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
             if (! $invitation->contact->trashed()) {

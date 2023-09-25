@@ -385,8 +385,8 @@ class CreditController extends BaseController
         $credit = $this->credit_repository->save($request->all(), $credit);
 
         $credit->service()
-               ->triggeredActions($request)
-               ->deletePdf();
+               ->triggeredActions($request);
+            //    ->deletePdf();
 
         /** @var \App\Models\User $user**/
         $user = auth()->user();
@@ -529,20 +529,18 @@ class CreditController extends BaseController
         if ($action == 'bulk_download' && $credits->count() > 1) {
             $credits->each(function ($credit) use($user){
                 if ($user->cannot('view', $credit)) {
-                    nlog('access denied');
-
                     return response()->json(['message' => ctrans('text.access_denied')]);
                 }
             });
 
-            ZipCredits::dispatch($credits, $credits->first()->company, $user);
+            ZipCredits::dispatch($credits->pluck('id')->toArray(), $credits->first()->company, $user);
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
 
         if ($action == 'bulk_print' && $user->can('view', $credits->first())) {
             $paths = $credits->map(function ($credit) {
-                return $credit->service()->getCreditPdf($credit->invitations->first());
+                return (new \App\Jobs\Entity\CreateRawPdf($credit->invitations->first(), $credit->company->db))->handle();
             });
 
             $merge = (new PdfMerge($paths->toArray()))->run();
@@ -592,10 +590,7 @@ class CreditController extends BaseController
                 }
                 break;
             case 'download':
-                // $file = $credit->pdf_file_path();
                 $file = $credit->service()->getCreditPdf($credit->invitations->first());
-
-                // return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
 
                 return response()->streamDownload(function () use ($file) {
                     echo Storage::get($file);

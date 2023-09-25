@@ -19,7 +19,7 @@ use App\Models\Company;
 use App\Libraries\MultiDB;
 use Illuminate\Support\Facades\App;
 use App\Transformers\CreditTransformer;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 
 class CreditExport extends BaseExport
 {
@@ -56,7 +56,7 @@ class CreditExport extends BaseExport
         return array_merge(['columns' => $header], $report);
     }
 
-    private function processMetaData(array $row, Credit $credit): array
+    public function processMetaData(array $row, $resource): array
     {
         $clean_row = [];
         foreach (array_values($this->input['report_keys']) as $key => $value) {
@@ -66,12 +66,12 @@ class CreditExport extends BaseExport
             $column_key = $value;
             $clean_row[$key]['entity'] = $report_keys[0];
             $clean_row[$key]['id'] = $report_keys[1] ?? $report_keys[0];
-            $clean_row[$key]['hashed_id'] = $report_keys[0] == 'credit' ? null : $credit->{$report_keys[0]}->hashed_id ?? null;
+            $clean_row[$key]['hashed_id'] = $report_keys[0] == 'credit' ? null : $resource->{$report_keys[0]}->hashed_id ?? null;
             $clean_row[$key]['value'] = $row[$column_key];
             $clean_row[$key]['identifier'] = $value;
 
             if(in_array($clean_row[$key]['id'], ['paid_to_date','total_taxes','amount', 'balance', 'partial', 'refunded', 'applied','unit_cost','cost','price']))
-                $clean_row[$key]['display_value'] = Number::formatMoney($row[$column_key], $credit->client);
+                $clean_row[$key]['display_value'] = Number::formatMoney($row[$column_key], $resource->client);
             else
                 $clean_row[$key]['display_value'] = $row[$column_key];
 

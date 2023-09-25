@@ -654,8 +654,6 @@ $LANG = array(
     'created_by_invoice' => 'Krijuar nga :invoice',
     'primary_user' => 'Përdoruesi kryesor',
     'help' => 'Ndihmë',
-    'customize_help' => '<p>We use :pdfmake_link to define the invoice designs declaratively. The pdfmake :playground_link provides a great way to see the library in action.</p>
-                        <p>If you need help figuring something out post a question to our :forum_link with the design you\'re using.</p>',
     'playground' => 'playground',
     'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Deri më datë',
@@ -1820,7 +1818,6 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'bot_emailed_notify_paid' => 'Do te te dergoj email kur te paguhet. ',
     'add_product_to_invoice' => 'Shto 1 :product',
     'not_authorized' => 'Nuk jeni i autorizuar. ',
-    'bot_get_email' => 'Hi! (wave)<br/>Thanks for trying the Invoice Ninja Bot.<br/>You need to create a free account to use this bot.<br/>Send me your account email address to get started.',
     'bot_get_code' => 'Faleminderit. Ju kam dergar nje email qe permban kodin tuaj te sigurise. ',
     'bot_welcome' => 'Llogaria juaj eshte verifikuar.<br/>',
     'email_not_found' => 'Nuk munda te gjej nje llogari te disponueshme per :email',
@@ -1828,7 +1825,6 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'security_code_email_subject' => 'Kodi i sigurise per Invoice Ninja Bot',
     'security_code_email_line1' => 'Ky eshte kodi juaj i sigurise per Invoice Ninja Bot. ',
     'security_code_email_line2' => 'Shenim: skadon per 10 minuta.',
-    'bot_help_message' => 'Momentalisht mund te bej:<br/>• Krijo/perditeso/dergo nje fature<br/>• Listo produktet<br/>Per shembull:<br/><i>Dergo fature Bobit per 2 bileta me date te fundit per te enjten tjeter dhe ul cmimin me 10 perqind<i>',
     'list_products' => 'Listo Produktet',
 
     'include_item_taxes_inline' => 'Perfshi <b>line item taxes in line total</b>',
@@ -1841,7 +1837,6 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'update_invoiceninja_warning' => 'Perpara se te perditesoni Invoice Ninja, ruani nje rezerve te skedareve dhe databazes!',
     'update_invoiceninja_available' => 'Nje version i ri i Invoice Ninja eshte i disponueshem. ',
     'update_invoiceninja_unavailable' => 'Nuk ka version te ri te disponueshem per Invoice Ninja. ',
-    'update_invoiceninja_instructions' => 'Ju lutem instaloni versionin e ri <strong>:version</strong> duke klikuar butonin <em>Perditeso Tani</em> me poshte. Pasi te mbaroje, do te dergoheni ne faqen kryesore.',
     'update_invoiceninja_update_start' => 'Perditeso tani',
     'update_invoiceninja_download_start' => 'Shkarko :version',
     'create_new' => 'Krijo',
@@ -5156,6 +5151,20 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
+    'show_document_preview' => 'Show Document Preview',
+    'cash_accounting' => 'Cash accounting',
+    'click_or_drop_files_here' => 'Click or drop files here',
+    'set_public' => 'Set public',
+    'set_private' => 'Set private',
+    'individual' => 'Individual',
+    'business' => 'Business',
+    'partnership' => 'partnership',
+    'trust' => 'Trust',
+    'charity' => 'Charity',
+    'government' => 'Government',
+    'in_stock_quantity' => 'Stock quantity',
+    'vendor_contact' => 'Vendor Contact',
+
 ); 
 
 return $LANG;

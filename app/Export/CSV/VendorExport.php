@@ -17,6 +17,7 @@ use App\Models\Company;
 use App\Transformers\VendorContactTransformer;
 use App\Transformers\VendorTransformer;
 use App\Utils\Ninja;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
@@ -31,42 +32,6 @@ class VendorExport extends BaseExport
 
     public string $date_key = 'created_at';
 
-    public array $entity_keys = [
-        'address1' => 'vendor.address1',
-        'address2' => 'vendor.address2',
-        'city' => 'vendor.city',
-        'country' => 'vendor.country_id',
-        'custom_value1' => 'vendor.custom_value1',
-        'custom_value2' => 'vendor.custom_value2',
-        'custom_value3' => 'vendor.custom_value3',
-        'custom_value4' => 'vendor.custom_value4',
-        'id_number' => 'vendor.id_number',
-        'name' => 'vendor.name',
-        'number' => 'vendor.number',
-        'phone' => 'vendor.phone',
-        'postal_code' => 'vendor.postal_code',
-        'private_notes' => 'vendor.private_notes',
-        'public_notes' => 'vendor.public_notes',
-        'state' => 'vendor.state',
-        'vat_number' => 'vendor.vat_number',
-        'website' => 'vendor.website',
-        'currency' => 'vendor.currency',
-        'first_name' => 'vendor_contact.first_name',
-        'last_name' => 'vendor_contact.last_name',
-        'contact_phone' => 'vendor_contact.phone',
-        'contact_custom_value1' => 'vendor_contact.custom_value1',
-        'contact_custom_value2' => 'vendor_contact.custom_value2',
-        'contact_custom_value3' => 'vendor_contact.custom_value3',
-        'contact_custom_value4' => 'vendor_contact.custom_value4',
-        'email' => 'vendor_contact.email',
-        'status' => 'vendor.status'
-    ];
-
-    private array $decorate_keys = [
-        'vendor.country_id',
-        'vendor.currency',
-    ];
-
     public function __construct(Company $company, array $input)
     {
         $this->company = $company;
@@ -75,8 +40,9 @@ class VendorExport extends BaseExport
         $this->contact_transformer = new VendorContactTransformer();
     }
 
-    public function run()
+    public function init(): Builder
     {
+
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
         App::setLocale($this->company->locale());
@@ -87,18 +53,46 @@ class VendorExport extends BaseExport
         $this->csv = Writer::createFromString();
 
         if (count($this->input['report_keys']) == 0) {
-            $this->input['report_keys'] = array_values($this->entity_keys);
+            $this->input['report_keys'] = array_values($this->vendor_report_keys);
         }
         
-        //insert the header
-        $this->csv->insertOne($this->buildHeader());
-
         $query = Vendor::query()->with('contacts')
-                                ->withTrashed()
-                                ->where('company_id', $this->company->id)
-                                ->where('is_deleted', 0);
+                        ->withTrashed()
+                        ->where('company_id', $this->company->id)
+                        ->where('is_deleted', 0);
 
         $query = $this->addDateRange($query);
+
+        return $query;
+
+    }
+
+    public function returnJson()
+    {
+        $query = $this->init();
+
+        $headerdisplay = $this->buildHeader();
+
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
+                return ['identifier' => $value, 'display_value' => $headerdisplay[$value]];
+            })->toArray();
+
+        $report = $query->cursor()
+                ->map(function ($resource) {
+                    $row = $this->buildRow($resource);
+                    return $this->processMetaData($row, $resource);
+                })->toArray();
+        
+        return array_merge(['columns' => $header], $report);
+    }
+
+    public function run()
+    {
+    
+        $query = $this->init();
+
+        //insert the header
+        $this->csv->insertOne($this->buildHeader());
 
         $query->cursor()
               ->each(function ($vendor) {
@@ -110,7 +104,7 @@ class VendorExport extends BaseExport
 
     private function buildRow(Vendor $vendor) :array
     {
-        $transformed_contact = [];
+        $transformed_contact = false;
 
         $transformed_vendor = $this->vendor_transformer->transform($vendor);
 
@@ -123,14 +117,12 @@ class VendorExport extends BaseExport
         foreach (array_values($this->input['report_keys']) as $key) {
             $parts = explode('.', $key);
 
-            $keyval = array_search($key, $this->entity_keys);
-
             if (is_array($parts) && $parts[0] == 'vendor' && array_key_exists($parts[1], $transformed_vendor)) {
-                $entity[$keyval] = $transformed_vendor[$parts[1]];
-            } elseif (is_array($parts) && $parts[0] == 'vendor_contact' && array_key_exists($parts[1], $transformed_contact)) {
-                $entity[$keyval] = $transformed_contact[$parts[1]];
+                $entity[$key] = $transformed_vendor[$parts[1]];
+            } elseif (is_array($parts) && $parts[0] == 'vendor_contact' && isset($transformed_contact[$parts[1]])) {
+                $entity[$key] = $transformed_contact[$parts[1]];
             } else {
-                $entity[$keyval] = '';
+                $entity[$key] = $this->resolveKey($key, $vendor, $this->vendor_transformer);
             }
         }
 

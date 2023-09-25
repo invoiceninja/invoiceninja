@@ -229,6 +229,32 @@ class InvoiceFilters extends QueryFilters
         return $this->builder->where('due_date', '>=', $date);
     }
 
+    public function date_range(string $date_range = ''): Builder
+    {
+        $parts = explode(",", $date_range);
+
+        if (count($parts) != 3) {
+            return $this->builder;
+        }
+
+        if(!in_array($parts[0], ['date','due_date'])) {
+            return $this->builder;
+        }
+
+        try{
+
+            $start_date = Carbon::parse($parts[1]);
+            $end_date = Carbon::parse($parts[2]);
+
+            return $this->builder->whereBetween($parts[0], [$start_date, $end_date]);
+        }
+        
+        catch(\Exception $e){
+            return $this->builder;
+        }
+
+        return $this->builder;
+    }
 
     /**
      * Sorts the list based on $sort.

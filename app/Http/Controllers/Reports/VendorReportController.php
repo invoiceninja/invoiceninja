@@ -11,11 +11,12 @@
 
 namespace App\Http\Controllers\Reports;
 
+use App\Utils\Traits\MakesHash;
 use App\Export\CSV\VendorExport;
+use App\Jobs\Report\SendToAdmin;
+use App\Jobs\Report\PreviewReport;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Report\GenericReportRequest;
-use App\Jobs\Report\SendToAdmin;
-use App\Utils\Traits\MakesHash;
 
 class VendorReportController extends BaseController
 {
@@ -30,14 +31,26 @@ class VendorReportController extends BaseController
 
     public function __invoke(GenericReportRequest $request)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         if ($request->has('send_email') && $request->get('send_email')) {
-            SendToAdmin::dispatch(auth()->user()->company(), $request->all(), VendorExport::class, $this->filename);
+            SendToAdmin::dispatch($user->company(), $request->all(), VendorExport::class, $this->filename);
 
             return response()->json(['message' => 'working...'], 200);
         }
         // expect a list of visible fields, or use the default
 
-        $export = new VendorExport(auth()->user()->company(), $request->all());
+        if($request->has('output') && $request->input('output') == 'json') {
+
+            $hash = \Illuminate\Support\Str::uuid();
+
+            PreviewReport::dispatch($user->company(), $request->all(), VendorExport::class, $hash);
+
+            return response()->json(['message' => $hash], 200);
+        }
+
+        $export = new VendorExport($user->company(), $request->all());
 
         $csv = $export->run();
 

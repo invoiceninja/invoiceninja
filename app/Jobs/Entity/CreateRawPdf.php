@@ -220,7 +220,7 @@ class CreateRawPdf implements ShouldQueue
      */
     private function checkEInvoice(string $pdf): string
     {
-        if(!$this->entity instanceof Invoice)
+        if(!$this->entity instanceof Invoice || !$this->company->getSetting('enable_e_invoice'))
             return $pdf;
 
         $e_invoice_type = $this->entity->client->getSetting('e_invoice_type');

@@ -151,6 +151,7 @@ class ClientTransformer extends EntityTransformer
             'is_tax_exempt' => (bool) $client->is_tax_exempt,
             'routing_id' => (string) $client->routing_id,
             'tax_info' => $client->tax_data ?: new \stdClass,
+            'classification' => $client->classification ?: '',
         ];
     }
 }

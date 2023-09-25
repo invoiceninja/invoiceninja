@@ -416,6 +416,9 @@ class Activity extends StaticModel
         if($this->vendor)
             $replacements['vendor'] = ['label' => $this?->vendor?->present()->name() ?? '', 'hashed_id' => $this->vendor->hashed_id ?? ''];
 
+        if($this->activity_type_id == 4 && $this->recurring_invoice)
+            $replacements['recurring_invoice'] = ['label' => $this?->recurring_invoice?->number ?? '', 'hashed_id' => $this->recurring_invoice->hashed_id ?? ''];
+
         $replacements['activity_type_id'] = $this->activity_type_id;
         $replacements['id'] = $this->id;
         $replacements['hashed_id'] = $this->hashed_id;

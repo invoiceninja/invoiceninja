@@ -16,7 +16,7 @@ use App\Models\Company;
 use App\Models\Invoice;
 use App\Transformers\InvoiceTransformer;
 use App\Utils\Ninja;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
@@ -32,6 +32,8 @@ class InvoiceItemExport extends BaseExport
     private bool $force_keys = false;
 
     private array $storage_array = [];
+
+    private array $storage_item_array = [];
 
     private array $decorate_keys = [
         'client',
@@ -62,7 +64,8 @@ class InvoiceItemExport extends BaseExport
 
         $query = Invoice::query()
                         ->withTrashed()
-                        ->with('client')->where('company_id', $this->company->id)
+                        ->with('client')
+                        ->where('company_id', $this->company->id)
                         ->where('is_deleted', 0);
 
         $query = $this->addDateRange($query);
@@ -81,12 +84,21 @@ class InvoiceItemExport extends BaseExport
                 return ['identifier' => $value, 'display_value' => $headerdisplay[$value]];
             })->toArray();
 
+
         $query->cursor()
-              ->each(function ($resource) {
+            ->each(function ($resource) {
                 $this->iterateItems($resource);
-               });
-        
-        return array_merge(['columns' => $header], $this->storage_array);
+                        
+                foreach($this->storage_array as $row) {
+                    $this->storage_item_array[] = $this->processItemMetaData($row, $resource);
+                }
+
+                $this->storage_array = [];
+                        
+            });
+                
+        return array_merge(['columns' => $header], $this->storage_item_array);
+               
     }
 
 
@@ -188,13 +200,7 @@ class InvoiceItemExport extends BaseExport
             $entity['tax_category'] = $invoice->taxTypeString($entity['tax_category']);
         }
 
-        // if($this->force_keys) {
-        //     $entity['client'] = $invoice->client->present()->name();
-        //     $entity['client_id_number'] = $invoice->client->id_number;
-        //     $entity['client_number'] = $invoice->client->number;
-        //     $entity['status'] = $invoice->stringStatus($invoice->status_id);
-        // }
-
         return $entity;
     }
+
 }

@@ -644,7 +644,6 @@ $LANG = array(
     'created_by_invoice' => 'تم إنشاؤه بواسطة :invoice',
     'primary_user' => 'المستخدم الأساسي',
     'help' => 'يساعد',
-    'customize_help' => '<p style=";text-align:right;direction:rtl">نستخدم :pdfmake_link لتعريف تصميمات الفواتير بشكل إعلاني. يوفر pdfmake :playground_link طريقة رائعة لمشاهدة المكتبة أثناء العمل.</p><p style=";text-align:right;direction:rtl"> إذا كنت بحاجة إلى مساعدة في اكتشاف شيء ما ، فقم بإرسال سؤال إلى :forum_link بالتصميم الذي تستخدمه.</p>',
     'playground' => 'ملعب',
     'support_forum' => 'Support Forums',
     'invoice_due_date' => 'تاريخ الاستحقاق',
@@ -1796,7 +1795,6 @@ $LANG = array(
     'bot_emailed_notify_paid' => 'سأرسل لك بريدًا إلكترونيًا عندما يتم الدفع.',
     'add_product_to_invoice' => 'أضف 1 :product',
     'not_authorized' => 'أنك غير مخول',
-    'bot_get_email' => 'أهلاً! (موجة)<br/> نشكرك على تجربة Invoice Ninja Bot.<br/> تحتاج إلى إنشاء حساب مجاني لاستخدام هذا الروبوت.<br/> أرسل لي عنوان البريد الإلكتروني لحسابك للبدء.',
     'bot_get_code' => 'شكرًا! لقد أرسلت إليك بريدًا إلكترونيًا يحتوي على رمز الأمان الخاص بك.',
     'bot_welcome' => 'هذا كل شيء ، تم التحقق من حسابك.<br/>',
     'email_not_found' => 'لم أتمكن من العثور على حساب متاح لـ :email',
@@ -1804,7 +1802,6 @@ $LANG = array(
     'security_code_email_subject' => 'رمز الحماية لـ Invoice Ninja Bot',
     'security_code_email_line1' => 'هذا هو رمز أمان Invoice Ninja Bot الخاص بك.',
     'security_code_email_line2' => 'ملحوظة: ستنتهي في غضون 10 دقائق.',
-    'bot_help_message' => 'أنا حاليا أدعم:<br/> • إنشاء \ تحديث \ فاتورة بالبريد الإلكتروني<br/> • قائمة المنتجات<br/> على سبيل المثال:<br/> <i>فاتورة bob لتذكرتين ، حدد تاريخ الاستحقاق ليوم الخميس التالي والخصم على 10 بالمائة</i>',
     'list_products' => 'قائمة المنتجات',
 
     'include_item_taxes_inline' => 'قم بتضمين <b>ضرائب البند في إجمالي السطر</b>',
@@ -1817,7 +1814,6 @@ $LANG = array(
     'update_invoiceninja_warning' => 'قبل البدء في ترقية Invoice Ninja ، قم بإنشاء نسخة احتياطية من قاعدة البيانات والملفات الخاصة بك!',
     'update_invoiceninja_available' => 'يتوفر إصدار جديد من Invoice Ninja.',
     'update_invoiceninja_unavailable' => 'لا يتوفر إصدار جديد من Invoice Ninja.',
-    'update_invoiceninja_instructions' => 'الرجاء تثبيت الإصدار الجديد <strong>:version</strong> بالنقر فوق الزر <em>&quot;تحديث الآن&quot;</em> أدناه. بعد ذلك ستتم إعادة توجيهك إلى لوحة القيادة.',
     'update_invoiceninja_update_start' => 'تحديث الان',
     'update_invoiceninja_download_start' => 'تنزيل :version',
     'create_new' => 'خلق جديد إبداع جديد',
@@ -5132,6 +5128,20 @@ $LANG = array(
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
+    'show_document_preview' => 'Show Document Preview',
+    'cash_accounting' => 'Cash accounting',
+    'click_or_drop_files_here' => 'Click or drop files here',
+    'set_public' => 'Set public',
+    'set_private' => 'Set private',
+    'individual' => 'Individual',
+    'business' => 'Business',
+    'partnership' => 'partnership',
+    'trust' => 'Trust',
+    'charity' => 'Charity',
+    'government' => 'Government',
+    'in_stock_quantity' => 'Stock quantity',
+    'vendor_contact' => 'Vendor Contact',
+
 ); 
 
 return $LANG;

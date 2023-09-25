@@ -658,8 +658,6 @@ $LANG = array(
     'created_by_invoice' => 'Erstellt durch :invoice',
     'primary_user' => 'Primärer Benutzer',
     'help' => 'Hilfe',
-    'customize_help' => '<p>Wir verwenden :pdfmake_link, um die Rechnungsdesigns deklarativ zu definieren. Der pdfmake :playground_link bietet eine gute Möglichkeit, die Bibliothek in Aktion zu sehen.</p>
- <p>Wenn du Hilfe bei der Suche nach etwas brauchst, schicke eine Frage an unseren :forum_link mit dem von dir verwendeten Design.</p>',
     'playground' => 'Spielplatz',
     'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Fälligkeitsdatum',
@@ -1823,7 +1821,6 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'bot_emailed_notify_paid' => 'Ich schicke Ihnen nach der Zahlung eine E-Mail.',
     'add_product_to_invoice' => 'Füge 1 :product hinzu',
     'not_authorized' => 'Du bist nicht autorisiert',
-    'bot_get_email' => 'Hallo! (Welle) <br/>Danke, dass du den Rechnungs Ninja Bot ausprobiert hast.<br/> Du musst ein kostenloses Konto erstellen, um diesen Bot zu nutzen. <br/>Schicke mir deine E-Mail-Adresse, um loszulegen.',
     'bot_get_code' => 'Danke! Ich habe dir eine E-Mail mit deinem Sicherheitscode geschickt.',
     'bot_welcome' => 'Das war es schon, dein Account ist verifiziert.<br/>',
     'email_not_found' => 'Ich konnte keinen verfügbaren Account für :email finden',
@@ -1831,7 +1828,6 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'security_code_email_subject' => 'Sicherheitscode für Invoice Ninja Bot',
     'security_code_email_line1' => 'Dies ist Ihr Invoice Ninja Bot Sicherheitscode.',
     'security_code_email_line2' => 'Anmerkung: Er wird in 10 Minuten ablaufen.',
-    'bot_help_message' => 'Ich unterstütze derzeit:<br/>• Erstellung\Aktualisierung\E-Mail-Versand von Rechnungen<br/>• Auflistung von Produkten<br/>Zum Beispiel:<br/><i>invoice bob for 2 tickets, set the due date to next thursday and the discount to 10 percent</i>',
     'list_products' => 'Produkte anzeigen',
 
     'include_item_taxes_inline' => 'Steuern für Belegpositionen <b>in der  Summe anzeigen</b>',
@@ -1844,7 +1840,6 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'update_invoiceninja_warning' => 'Vor dem Update von Invoice Ninja sollte ein Sicherungskopie der Datenbank und der Dateien erstellt werden!',
     'update_invoiceninja_available' => 'Eine neue Version von Invoice Ninja ist verfügbar.',
     'update_invoiceninja_unavailable' => 'Keine neue Version von Invoice Ninja verfügbar.',
-    'update_invoiceninja_instructions' => 'Bitte benutze den <em>Update durchführen</em>-Button, um die neue Version <strong>:version</strong> zu installieren. Du wirst danach zum Dashboard weitergeleitet.',
     'update_invoiceninja_update_start' => 'Update durchführen',
     'update_invoiceninja_download_start' => 'Download :version',
     'create_new' => 'Neu...',
@@ -5162,6 +5157,20 @@ Leistungsempfängers',
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
+    'show_document_preview' => 'Show Document Preview',
+    'cash_accounting' => 'Cash accounting',
+    'click_or_drop_files_here' => 'Click or drop files here',
+    'set_public' => 'Set public',
+    'set_private' => 'Set private',
+    'individual' => 'Individual',
+    'business' => 'Business',
+    'partnership' => 'partnership',
+    'trust' => 'Trust',
+    'charity' => 'Charity',
+    'government' => 'Government',
+    'in_stock_quantity' => 'Stock quantity',
+    'vendor_contact' => 'Vendor Contact',
+
 ); 
 
 return $LANG;

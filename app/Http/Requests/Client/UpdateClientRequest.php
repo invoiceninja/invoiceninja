@@ -60,6 +60,7 @@ class UpdateClientRequest extends Request
         $rules['size_id'] = 'integer|nullable';
         $rules['country_id'] = 'integer|nullable';
         $rules['shipping_country_id'] = 'integer|nullable';
+        $rules['classification'] = 'bail|sometimes|nullable|in:individual,company,partnership,trust,charity,government,other';
 
         if ($this->id_number) {
             $rules['id_number'] = Rule::unique('clients')->where('company_id', $user->company()->id)->ignore($this->client->id);

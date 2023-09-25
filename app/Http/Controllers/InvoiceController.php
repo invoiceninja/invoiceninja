@@ -415,7 +415,7 @@ class InvoiceController extends BaseController
 
         $invoice->service()
                 ->triggeredActions($request)
-                ->deletePdf()
+                // ->deletePdf()
                 ->adjustInventory($old_invoice);
 
         event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
@@ -527,7 +527,7 @@ class InvoiceController extends BaseController
 
         if ($action == 'bulk_print' && $user->can('view', $invoices->first())) {
             $paths = $invoices->map(function ($invoice) {
-                return $invoice->service()->getInvoicePdf();
+                return (new \App\Jobs\Entity\CreateRawPdf($invoice->invitations->first(), $invoice->company->db))->handle();
             });
 
             $merge = (new PdfMerge($paths->toArray()))->run();
@@ -700,7 +700,7 @@ class InvoiceController extends BaseController
                 }
                 break;
             case 'cancel':
-                $invoice = $invoice->service()->handleCancellation()->deletePdf()->save();
+                $invoice = $invoice->service()->handleCancellation()->save();
                 if (! $bulk) {
                     $this->itemResponse($invoice);
                 }

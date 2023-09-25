@@ -16,6 +16,7 @@ use App\Models\Quote;
 use App\Models\Client;
 use App\Models\Account;
 use App\Models\Invoice;
+use App\Models\Project;
 use Illuminate\Http\Request;
 use App\Factory\QuoteFactory;
 use App\Filters\QuoteFilters;
@@ -33,6 +34,7 @@ use App\Transformers\QuoteTransformer;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Support\Facades\Storage;
 use App\Transformers\InvoiceTransformer;
+use App\Transformers\ProjectTransformer;
 use App\Factory\CloneQuoteToInvoiceFactory;
 use App\Factory\CloneQuoteToProjectFactory;
 use App\Http\Requests\Quote\EditQuoteRequest;
@@ -395,8 +397,8 @@ class QuoteController extends BaseController
         $quote = $this->quote_repo->save($request->all(), $quote);
 
         $quote->service()
-              ->triggeredActions($request)
-              ->deletePdf();
+              ->triggeredActions($request);
+            //   ->deletePdf();
 
         event(new QuoteWasUpdated($quote, $quote->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
@@ -524,16 +526,15 @@ class QuoteController extends BaseController
             return response(['message' => 'Please verify your account to send emails.'], 400);
         }
 
-        $quotes = Quote::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
+        $quotes = Quote::query()->with('invitations')->withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
         if (! $quotes) {
             return response()->json(['message' => ctrans('texts.quote_not_found')]);
         }
 
         /*
-         * Download Invoice/s
+         * Download Quote/s
          */
-
         if ($action == 'bulk_download' && $quotes->count() >= 1) {
             $quotes->each(function ($quote) use($user){
                 if ($user->cannot('view', $quote)) {
@@ -541,7 +542,7 @@ class QuoteController extends BaseController
                 }
             });
 
-            ZipQuotes::dispatch($quotes, $quotes->first()->company, auth()->user());
+            ZipQuotes::dispatch($quotes->pluck('id')->toArray(), $quotes->first()->company, auth()->user());
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
@@ -556,12 +557,12 @@ class QuoteController extends BaseController
                 }
             });
 
-            return $this->listResponse(Quote::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
+            return $this->listResponse(Quote::query()->withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
         }
 
         if ($action == 'bulk_print' && $user->can('view', $quotes->first())) {
             $paths = $quotes->map(function ($quote) {
-                return $quote->service()->getQuotePdf();
+                return (new \App\Jobs\Entity\CreateRawPdf($quote->invitations->first(), $quote->company->db))->handle();
             });
 
             $merge = (new PdfMerge($paths->toArray()))->run();
@@ -575,18 +576,13 @@ class QuoteController extends BaseController
         if ($action == 'convert_to_project') {
             $quotes->each(function ($quote, $key) use ($user) {
                 if ($user->can('edit', $quote)) {
-                    $project = CloneQuoteToProjectFactory::create($quote, $user->id);
-                    
-                    if (empty($project->number)) {
-                        $project->number = $this->getNextProjectNumber($project);
-                    }
-                    $project->save();
-                    $quote->project_id = $project->id;
-                    $quote->save();
+
+                    $quote->service()->convertToProject();
+
                 }
             });
 
-            return $this->listResponse(Quote::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
+            return $this->listResponse(Quote::query()->withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
         }
 
         /*
@@ -684,15 +680,20 @@ class QuoteController extends BaseController
     private function performAction(Quote $quote, $action, $bulk = false)
     {
         switch ($action) {
-            case 'convert':
+            case 'convert_to_project':
+
+                $this->entity_type = Project::class;
+                $this->entity_transformer = ProjectTransformer::class;
+
+                return $this->itemResponse($quote->service()->convertToProject());
+
+                case 'convert':
             case 'convert_to_invoice':
 
                 $this->entity_type = Invoice::class;
                 $this->entity_transformer = InvoiceTransformer::class;
 
                 return $this->itemResponse($quote->service()->convertToInvoice());
-
-                break;
 
             case 'clone_to_invoice':
 
@@ -702,41 +703,38 @@ class QuoteController extends BaseController
                 $invoice = CloneQuoteToInvoiceFactory::create($quote, auth()->user()->id);
 
                 return $this->itemResponse($invoice);
-                break;
+
             case 'clone_to_quote':
                 $quote = CloneQuoteFactory::create($quote, auth()->user()->id);
 
                 return $this->itemResponse($quote);
-                break;
+
             case 'approve':
                 if (! in_array($quote->status_id, [Quote::STATUS_SENT, Quote::STATUS_DRAFT])) {
                     return response()->json(['message' => ctrans('texts.quote_unapprovable')], 400);
                 }
 
                 return $this->itemResponse($quote->service()->approveWithNoCoversion()->save());
-                break;
+
             case 'history':
                 // code...
                 break;
             case 'download':
 
-                //$file = $quote->pdf_file_path();
                 $file = $quote->service()->getQuotePdf();
 
                 return response()->streamDownload(function () use ($file) {
                     echo Storage::get($file);
                 }, basename($file), ['Content-Type' => 'application/pdf']);
 
-
-                break;
             case 'restore':
                 $this->quote_repo->restore($quote);
 
                 if (! $bulk) {
                     return $this->itemResponse($quote);
                 }
-
                 break;
+
             case 'archive':
                 $this->quote_repo->archive($quote);
 
@@ -754,16 +752,11 @@ class QuoteController extends BaseController
 
                 break;
             case 'email':
-                $quote->service()->sendEmail();
-
-                return response()->json(['message'=> ctrans('texts.sent_message')], 200);
-                break;
-
             case 'send_email':
+
                 $quote->service()->sendEmail();
 
                 return response()->json(['message'=> ctrans('texts.sent_message')], 200);
-                break;
 
             case 'mark_sent':
                 $quote->service()->markSent()->save();
