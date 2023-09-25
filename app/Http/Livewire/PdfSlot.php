@@ -63,7 +63,11 @@ class PdfSlot extends Component
 
     public function getPdf()
     {
-        // $this->pdf = $this->entity->fullscreenPdfViewer($this->invitation);
+
+        if(!$this->invitation){
+            $this->entity->service()->createInvitations();
+            $this->invitation = $this->entity->invitations()->first();
+        }
 
         $blob = [
             'entity_type' => $this->resolveEntityType(),
