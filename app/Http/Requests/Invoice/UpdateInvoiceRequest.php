@@ -65,8 +65,6 @@ class UpdateInvoiceRequest extends Request
 
         $rules['is_amount_discount'] = ['boolean'];
 
-        nlog($this->partial);
-
         $rules['line_items'] = 'array';
         $rules['discount'] = 'sometimes|numeric';
         $rules['project_id'] = ['bail', 'sometimes', new ValidProjectForClient($this->all())];

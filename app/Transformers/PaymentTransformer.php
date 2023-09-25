@@ -32,6 +32,7 @@ class PaymentTransformer extends EntityTransformer
     protected array $availableIncludes = [
         'client',
         'invoices',
+        'type',
     ];
 
     public function __construct($serializer = null)
@@ -67,6 +68,13 @@ class PaymentTransformer extends EntityTransformer
         $transformer = new DocumentTransformer($this->serializer);
 
         return $this->includeCollection($payment->documents, $transformer, Document::class);
+    }
+
+    public function includeType(Payment $payment)
+    {
+        return [
+            'type' => $payment->type->translatedType() ?? '',
+        ];
     }
 
     public function transform(Payment $payment)

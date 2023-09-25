@@ -20,10 +20,12 @@ use App\Models\Payment;
 use App\Models\Project;
 use App\Utils\HtmlEngine;
 use League\Fractal\Manager;
+use App\Models\ClientContact;
 use App\Models\PurchaseOrder;
 use App\Utils\VendorHtmlEngine;
 use App\Utils\PaymentHtmlEngine;
 use Illuminate\Support\Collection;
+use Twig\Extra\Intl\IntlExtension;
 use App\Transformers\TaskTransformer;
 use App\Transformers\QuoteTransformer;
 use App\Transformers\CreditTransformer;
@@ -91,7 +93,7 @@ class TemplateService
     {
         $data = $this->preProcessDataBlocks($data);
         $replacements = [];
-
+nlog($data);
         $contents = $this->document->getElementsByTagName('ninja');
 
         foreach ($contents as $content) {
@@ -103,9 +105,12 @@ class TemplateService
 
             $string_extension = new \Twig\Extension\StringLoaderExtension();
             $twig->addExtension($string_extension);
-                                    
+            $twig->addExtension(new IntlExtension());
+
             $template = $twig->createTemplate(html_entity_decode($template));
             $template = $template->render($data);
+
+            nlog($template);
 
             $f = $this->document->createDocumentFragment();
             $f->appendXML($template);
@@ -228,67 +233,92 @@ class TemplateService
     private function processInvoices($invoices): array
     {
         $it = new InvoiceTransformer();
-        $it->setDefaultIncludes(['client']);
+        $it->setDefaultIncludes(['client','payments']);
         $manager = new Manager();
-        // $manager->setSerializer(new JsonApiSerializer());
-        $resource = new \League\Fractal\Resource\Collection($invoices, $it, Invoice::class);
-        $i = $manager->createData($resource)->toArray();
-        return $i['data'];
+        $manager->parseIncludes(['client','payments','payments.type']);
+        $resource = new \League\Fractal\Resource\Collection($invoices, $it, null);
+        $invoices = $manager->createData($resource)->toArray();
+
+        // nlog($invoices);
+
+        foreach($invoices['data'] as $key => $invoice)
+        {
+
+            $invoices['data'][$key]['client'] = $invoice['client']['data'] ?? [];
+            $invoices['data'][$key]['client']['contacts'] = $invoice['client']['data']['contacts']['data'] ?? [];
+            $invoices['data'][$key]['payments'] = $invoice['payments']['data'] ?? [];
+
+            if($invoice['payments']['data'] ?? false) {
+                foreach($invoice['payments']['data'] as $keyx => $payment) {
+                    $invoices['data'][$key]['payments'][$keyx]['paymentables']= $payment['paymentables']['data'] ?? [];
+                }
+            }
+
+        }
+
+        return $invoices['data'];
     }
 
-    private function processQuotes($quotes): Collection
+    private function processQuotes($quotes): array
     {
         $it = new QuoteTransformer();
         $it->setDefaultIncludes(['client']);
         $manager = new Manager();
+        $manager->setSerializer(new ArraySerializer());
         $resource = new \League\Fractal\Resource\Collection($quotes, $it, Quote::class);
         $i = $manager->createData($resource)->toArray();
-        return $i['data'];
+
+        $i['client']['contacts'] = $i['client']['contacts'][ClientContact::class];
+        return $i[Quote::class];
 
     }
 
-    private function processCredits($credits): Collection
+    private function processCredits($credits): array
     {
         $it = new CreditTransformer();
         $it->setDefaultIncludes(['client']);
         $manager = new Manager();
+        $manager->setSerializer(new ArraySerializer());
         $resource = new \League\Fractal\Resource\Collection($credits, $it, Credit::class);
         $i = $manager->createData($resource)->toArray();
-        return $i['data'];
+        return $i[Credit::class];
 
     }
 
-    private function processPayments($payments): Collection
+    private function processPayments($payments): array
     {
         $it = new PaymentTransformer();
         $it->setDefaultIncludes(['client','invoices','paymentables']);
         $manager = new Manager();
+        $manager->setSerializer(new ArraySerializer());
         $resource = new \League\Fractal\Resource\Collection($payments, $it, Payment::class);
         $i = $manager->createData($resource)->toArray();
-        return $i['data'];
+        return $i[Payment::class];
 
     }
 
-    private function processTasks($tasks): Collection
+    private function processTasks($tasks): array
     {
         $it = new TaskTransformer();
         $it->setDefaultIncludes(['client','tasks','project','invoice']);
         $manager = new Manager();
+        $manager->setSerializer(new ArraySerializer());
         $resource = new \League\Fractal\Resource\Collection($tasks, $it, Task::class);
         $i = $manager->createData($resource)->toArray();
-        return $i['data'];
+        return $i[Task::class];
 
     }
 
-    private function processProjects($projects): Collection
+    private function processProjects($projects): array
     {
 
         $it = new ProjectTransformer();
         $it->setDefaultIncludes(['client','tasks']);
         $manager = new Manager();
+        $manager->setSerializer(new ArraySerializer());
         $resource = new \League\Fractal\Resource\Collection($projects, $it, Project::class);
         $i = $manager->createData($resource)->toArray();
-        return $i['data'];
+        return $i[Project::class];
 
     }
 
@@ -298,9 +328,10 @@ class TemplateService
         $it = new PurchaseOrderTransformer();
         $it->setDefaultIncludes(['vendor','expense']);
         $manager = new Manager();
+        $manager->setSerializer(new ArraySerializer());
         $resource = new \League\Fractal\Resource\Collection($purchase_orders, $it, PurchaseOrder::class);
         $i = $manager->createData($resource)->toArray();
-        return $i['data'];
+        return $i[PurchaseOrder::class];
 
     }
 }

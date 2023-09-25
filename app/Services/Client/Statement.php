@@ -29,11 +29,12 @@ use App\Utils\Traits\Pdf\PdfMaker as PdfMakerTrait;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Models\Credit;
+use App\Utils\Traits\MakesHash;
 
 class Statement
 {
     use PdfMakerTrait;
-
+    use MakesHash;
     /**
      * @var Invoice|Payment|null
      */
@@ -88,21 +89,44 @@ class Statement
             'process_markdown' => $this->entity->client->company->markdown_enabled,
         ];
 
-        $maker = new PdfMaker($state);
+        if($this->options['template'] ?? false){
 
-        $maker
-            ->design($template)
-            ->build();
+            $template = Design::where('id', $this->decodePrimaryKey($this->options['template']))
+                              ->where('company_id', $this->client->company_id)
+                              ->first();
 
-        $pdf = null;
+            $ts = $template->service()->build([
+                'client' => $this->client,
+                'entity' => $this->entity,
+                'variables' => $variables,
+                'invoices' => $this->getInvoices(),
+                'payments' => $this->getPayments(),
+                'credits' => $this->getCredits(),
+                'aging' => $this->getAging(),
+            ]);
+
+            $html = $ts->getHtml();
+            
+        }
+        else {
+
+            $maker = new PdfMaker($state);
+
+            $maker
+                ->design($template)
+                ->build();
+
+            $pdf = null;
+            $html = $maker->getCompiledHTML(true);
+        }
 
         try {
             if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-                $pdf = (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+                $pdf = (new Phantom)->convertHtmlToPdf($html);
             } elseif (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
-                $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
+                $pdf = (new NinjaPdf())->build($html);
             } else {
-                $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
+                $pdf = $this->makePdf(null, null, $html);
             }
         } catch (\Exception $e) {
             nlog(print_r($e->getMessage(), 1));

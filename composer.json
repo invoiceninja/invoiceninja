@@ -94,6 +94,7 @@
         "symfony/mailgun-mailer": "^6.1",
         "symfony/postmark-mailer": "^6.1",
         "turbo124/beacon": "^1.5",
+        "twig/intl-extra": "^3.7",
         "twig/twig": "^3",
         "twilio/sdk": "^6.40",
         "webpatser/laravel-countries": "dev-master#75992ad",

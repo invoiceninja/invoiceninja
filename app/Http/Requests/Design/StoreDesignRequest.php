@@ -45,7 +45,7 @@ class StoreDesignRequest extends Request
             'design.footer' => 'required|min:1',
             'design.includes' => 'required|min:1',
             'is_template' => 'sometimes|boolean',
-            'entities' => 'sometimes|string'
+            'entities' => 'sometimes|string|nullable'
         ];
     }
 

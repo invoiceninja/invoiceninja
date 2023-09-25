@@ -101,6 +101,59 @@ class TemplateTest extends TestCase
             
             ';
 
+        private string $payments_body = '
+            <ninja>
+                <table class="min-w-full text-left text-sm font-light">
+                    <thead class="border-b font-medium dark:border-neutral-500">
+                        <tr class="text-sm leading-normal">
+                            <th scope="col" class="px-6 py-4">Invoice #</th>
+                            <th scope="col" class="px-6 py-4">Date</th>
+                            <th scope="col" class="px-6 py-4">Due Date</th>
+                            <th scope="col" class="px-6 py-4">Total</th>
+                            <th scope="col" class="px-6 py-4">Transaction</th>
+                            <th scope="col" class="px-6 py-4">Outstanding</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for invoice in invoices %}
+                        <tr class="border-b dark:border-neutral-500">
+                            <td class="whitespace-nowrap px-6 py-4 font-medium">{{ invoice.number }}</td>
+                            <td class="whitespace-nowrap px-6 py-4 font-medium">{{ invoice.date }}</td>
+                            <td class="whitespace-nowrap px-6 py-4 font-medium">{{ invoice.due_date }}</td>
+                            <td class="whitespace-nowrap px-6 py-4 font-medium">{{ invoice.amount|format_currency("EUR") }}</td>
+                            <td class="whitespace-nowrap px-6 py-4 font-medium"></td>
+                            <td class="whitespace-nowrap px-6 py-4 font-medium">{{ invoice.balance|format_currency("EUR") }}</td>
+                        </tr>
+
+                        {% for payment in invoice.payments|filter(payment => payment.is_deleted == false) %}
+                        
+                            {% for pivot in payment.paymentables %}
+                            
+                            <tr class="border-b dark:border-neutral-500">
+                                <td class="whitespace-nowrap px-6 py-4 font-medium">{{ payment.number }}</td>
+                                <td class="whitespace-nowrap px-6 py-4 font-medium">{{ payment.date }}</td>
+                                <td class="whitespace-nowrap px-6 py-4 font-medium"></td>
+                                <td class="whitespace-nowrap px-6 py-4 font-medium">
+                                {% if pivot.amount > 0 %}
+                                    {{ pivot.amount|format_currency("EUR") }} - {{ payment.type.name }}
+                                {% else %}
+                                    ({{ pivot.refunded|format_currency("EUR") }})
+                                {% endif %}
+                                </td>
+                                <td class="whitespace-nowrap px-6 py-4 font-medium"></td>
+                                <td class="whitespace-nowrap px-6 py-4 font-medium"></td>
+                            </tr>
+
+                            {% endfor %}
+                        {% endfor %}
+                    {% endfor%}
+                    </tbody>
+                </table>
+                
+            </ninja>
+        ';
+
     protected function setUp() :void
     {
         parent::setUp();
@@ -111,6 +164,67 @@ class TemplateTest extends TestCase
             ThrottleRequests::class
         );
         
+    }
+
+    public function testVariableResolutionViaTransformersForPaymentsInStatements()
+    {
+        Invoice::factory()->count(20)->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'status_id' => Invoice::STATUS_SENT,
+            'amount' => 100,
+            'balance' => 100,
+        ]);
+
+        $i = Invoice::orderBy('id','desc')
+                    ->where('client_id', $this->client->id)
+                    ->where('status_id', 2)
+                    ->cursor()
+                    ->each(function ($i){
+                        $i->service()->applyPaymentAmount(random_int(1,100));
+                    });
+
+        $invoices = Invoice::withTrashed()
+            ->with('payments.type')
+            ->where('is_deleted', false)
+            ->where('company_id', $this->client->company_id)
+            ->where('client_id', $this->client->id)
+            ->whereIn('status_id', [2,3,4])
+            ->orderBy('due_date', 'ASC')
+            ->orderBy('date', 'ASC')
+            ->cursor();
+
+            $invoices->each(function ($i){
+
+                $rand = [1,2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,24,25,32,49,50];
+
+                $i->payments()->each(function ($p) use ($rand){
+                    shuffle($rand);
+                    $p->type_id = $rand[0];
+                    $p->save();
+                    
+                });
+            });
+
+            $design_model = Design::find(2);
+
+            $replicated_design = $design_model->replicate();
+            $design = $replicated_design->design;
+            $design->body .= $this->payments_body;
+            $replicated_design->design = $design;
+            $replicated_design->is_custom = true;
+            $replicated_design->is_template =true;
+            $replicated_design->entities = 'client';
+            $replicated_design->save();
+
+            $data['invoices'] = $invoices;
+            $ts = $replicated_design->service()->build($data);
+        
+            nlog("results = ");
+            nlog($ts->getHtml());
+            $this->assertNotNull($ts->getHtml());
+
     }
 
     public function testDoubleEntityNestedDataTemplateServiceBuild()

@@ -35,7 +35,7 @@ class UpdateDesignRequest extends Request
     {
         return [
             'is_template' => 'sometimes|boolean',
-            'entities' => 'sometimes|string'
+            'entities' => 'sometimes|string|nullable'
         ];
     }
 
