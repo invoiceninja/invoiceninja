@@ -576,7 +576,7 @@ class BaseApiTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->low_token,
-        ])->get('/api/v1/client_gateway_tokens/')
+        ])->get('/api/v1/client_gateway_tokens')
           ->assertStatus(403);
     }
 }
