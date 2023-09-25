@@ -11,42 +11,47 @@
 
 namespace App\Http\Controllers;
 
-use App\DataMapper\Analytics\LivePreview;
-use App\Factory\CreditFactory;
-use App\Factory\InvoiceFactory;
-use App\Factory\QuoteFactory;
-use App\Factory\RecurringInvoiceFactory;
-use App\Http\Requests\Preview\DesignPreviewRequest;
-use App\Http\Requests\Preview\PreviewInvoiceRequest;
-use App\Jobs\Util\PreviewPdf;
-use App\Libraries\MultiDB;
+use App\Models\Task;
+use App\Utils\Ninja;
+use App\Models\Quote;
 use App\Models\Client;
-use App\Models\ClientContact;
 use App\Models\Credit;
 use App\Models\Invoice;
-use App\Models\InvoiceInvitation;
-use App\Models\Quote;
-use App\Models\RecurringInvoice;
-use App\Repositories\CreditRepository;
-use App\Repositories\InvoiceRepository;
-use App\Repositories\QuoteRepository;
-use App\Repositories\RecurringInvoiceRepository;
+use App\Models\Payment;
+use App\Models\Project;
+use App\Utils\HtmlEngine;
+use App\Libraries\MultiDB;
+use App\Factory\QuoteFactory;
+use App\Jobs\Util\PreviewPdf;
+use App\Models\ClientContact;
 use App\Services\Pdf\PdfMock;
+use App\Factory\CreditFactory;
+use App\Factory\InvoiceFactory;
+use App\Utils\Traits\MakesHash;
+use App\Models\RecurringInvoice;
+use App\Utils\PhantomJS\Phantom;
+use App\Models\InvoiceInvitation;
 use App\Services\PdfMaker\Design;
+use App\Utils\HostedPDF\NinjaPdf;
+use Illuminate\Support\Facades\DB;
+use App\Services\PdfMaker\PdfMaker;
+use Illuminate\Support\Facades\App;
+use App\Repositories\QuoteRepository;
+use App\Repositories\CreditRepository;
+use App\Utils\Traits\MakesInvoiceHtml;
+use Turbo124\Beacon\Facades\LightLogs;
+use App\Repositories\InvoiceRepository;
+use App\Utils\Traits\Pdf\PageNumbering;
+use App\Factory\RecurringInvoiceFactory;
+use Illuminate\Support\Facades\Response;
+use App\DataMapper\Analytics\LivePreview;
+use App\Services\Template\TemplateService;
+use App\Repositories\RecurringInvoiceRepository;
+use App\Http\Requests\Preview\DesignPreviewRequest;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
-use App\Services\PdfMaker\PdfMaker;
-use App\Utils\HostedPDF\NinjaPdf;
-use App\Utils\HtmlEngine;
-use App\Utils\Ninja;
-use App\Utils\PhantomJS\Phantom;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesInvoiceHtml;
-use App\Utils\Traits\Pdf\PageNumbering;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Response;
-use Turbo124\Beacon\Facades\LightLogs;
+use App\Http\Requests\Preview\PreviewInvoiceRequest;
+use App\Models\PurchaseOrder;
 
 class PreviewController extends BaseController
 {
@@ -67,6 +72,11 @@ class PreviewController extends BaseController
 
     public function show()
     {
+        // if(request()->has('template')){
+            return $this->template();
+        // }
+nlog("wooops");
+
         if (request()->has('entity') &&
             request()->has('entity_id') &&
             ! empty(request()->input('entity')) &&
@@ -131,7 +141,6 @@ class PreviewController extends BaseController
             if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
                 return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
             }
-
 
             /** @var \App\Models\User $user */
             $user = auth()->user();
@@ -340,6 +349,64 @@ class PreviewController extends BaseController
 
 
         return $response;
+    }
+
+    private function template()
+    {
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        /** @var \App\Models\Company $company */
+        $company = $user->company();
+
+        // $template = request()->input('design');
+        $design_object = json_decode(json_encode(request()->input('design')),1);
+
+        $data = [
+            'invoices' => Invoice::whereHas('payments')->with('client','payments')->company()->orderBy('id','desc')->take(5)->get(),
+            'quotes' => Quote::query()->company()->with('client')->orderBy('id','desc')->take(5)->get(),
+            'credits' => Credit::query()->company()->with('client')->orderBy('id','desc')->take(5)->get(),
+            'payments' => Payment::query()->company()->with('client')->orderBy('id','desc')->take(5)->get(),
+            'purchase_orders' => PurchaseOrder::query()->with('vendor')->company()->orderBy('id','desc')->take(5)->get(),
+            'tasks' => Task::query()->with('client','invoice')->company()->orderBy('id','desc')->take(5)->get(),
+            'projects' => Project::query()->with('tasks','client')->company()->orderBy('id','desc')->take(5)->get(),
+        ];
+
+        nlog($design_object);
+        $ts = (new TemplateService());
+        $ts->setTemplate($design_object)
+           ->build($data);
+        
+        $html = $ts->getHtml();
+
+        if (request()->query('html') == 'true') {
+            return $html;
+        }
+
+        if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
+            return (new Phantom)->convertHtmlToPdf($html);
+        }
+
+        if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
+            $pdf = (new NinjaPdf())->build($html);
+
+            $numbered_pdf = $this->pageNumbering($pdf, $company);
+
+            if ($numbered_pdf) {
+                $pdf = $numbered_pdf;
+            }
+
+            return $pdf;
+        }
+
+        $file_path = (new PreviewPdf($html, $company))->handle();
+
+        $response = Response::make($file_path, 200);
+        $response->header('Content-Type', 'application/pdf');
+
+        return $response;
+
     }
 
     private function blankEntity()

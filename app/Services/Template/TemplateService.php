@@ -15,7 +15,6 @@ use App\Models\Task;
 use App\Models\Quote;
 use App\Models\Credit;
 use App\Models\Design;
-use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
 use App\Utils\HtmlEngine;
@@ -24,7 +23,6 @@ use App\Models\ClientContact;
 use App\Models\PurchaseOrder;
 use App\Utils\VendorHtmlEngine;
 use App\Utils\PaymentHtmlEngine;
-use Illuminate\Support\Collection;
 use Twig\Extra\Intl\IntlExtension;
 use App\Transformers\TaskTransformer;
 use App\Transformers\QuoteTransformer;
@@ -41,9 +39,11 @@ class TemplateService
  
     private \DomDocument $document;
 
+    public \Twig\Environment $twig;
+
     private string $compiled_html = '';
 
-    public function __construct(public Design $template)
+    public function __construct(public ?Design $template = null)
     {
         $this->template = $template;
         $this->init();
@@ -58,6 +58,12 @@ class TemplateService
     {
         $this->document = new \DOMDocument();
         $this->document->validateOnParse = true;
+
+        $loader = new \Twig\Loader\FilesystemLoader(storage_path());
+        $this->twig = new \Twig\Environment($loader);
+        $string_extension = new \Twig\Extension\StringLoaderExtension();
+        $this->twig->addExtension($string_extension);
+        $this->twig->addExtension(new IntlExtension());
 
         return $this;
     }
@@ -93,24 +99,19 @@ class TemplateService
     {
         $data = $this->preProcessDataBlocks($data);
         $replacements = [];
-nlog($data);
+
+        // nlog($data);
+
         $contents = $this->document->getElementsByTagName('ninja');
 
         foreach ($contents as $content) {
                                         
             $template = $content->ownerDocument->saveHTML($content);
 
-            $loader = new \Twig\Loader\FilesystemLoader(storage_path());
-            $twig = new \Twig\Environment($loader);
-
-            $string_extension = new \Twig\Extension\StringLoaderExtension();
-            $twig->addExtension($string_extension);
-            $twig->addExtension(new IntlExtension());
-
-            $template = $twig->createTemplate(html_entity_decode($template));
+            $template = $this->twig->createTemplate(html_entity_decode($template));
             $template = $template->render($data);
 
-            nlog($template);
+            // nlog($template);
 
             $f = $this->document->createDocumentFragment();
             $f->appendXML($template);
@@ -140,8 +141,12 @@ nlog($data);
         $html = $this->getHtml();
 
         foreach($variables as $key => $variable) {
-            $html = strtr($html, $variable['labels']);
-            $html = strtr($html, $variable['values']);
+            
+            if(isset($variable['labels']) && isset($variable['values']))
+            {
+                $html = strtr($html, $variable['labels']);
+                $html = strtr($html, $variable['values']);
+            }
         }
 
         @$this->document->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
@@ -169,6 +174,9 @@ nlog($data);
      */
     private function compose(): self
     {
+        if(!$this->template)
+            return $this;
+
         $html = '';
         $html .= $this->template->design->includes;
         $html .= $this->template->design->header;
@@ -181,6 +189,27 @@ nlog($data);
 
     }
     
+    /**
+     * Inject the template components 
+     * manually
+     *
+     * @return self
+     */
+    public function setTemplate(array $partials): self
+    {nlog($partials);
+
+        $html = '';
+        $html .= $partials['design']['includes'];
+        $html .= $partials['design']['header'];
+        $html .= $partials['design']['body'];
+        $html .= $partials['design']['footer'];
+
+        @$this->document->loadHTML($html);
+
+        return $this;
+
+    }
+
     /**
      * Resolves the labels and values needed to replace the string
      * holders in the template.
@@ -200,7 +229,7 @@ nlog($data);
                 'payments' => $processed = (new PaymentHtmlEngine($value->first(), $value->first()->client->contacts()->first()))->generateLabelsAndValues(),
                 'tasks' => $processed = [],
                 'projects' => $processed = [],
-                'purchase_orders' => $processed = (new VendorHtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues(),
+                'purchase_orders' => $processed = $value->first() && $value->first()->invitations()->first() ? (new VendorHtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues() : [],
             };
 
             return $processed;
@@ -251,6 +280,7 @@ nlog($data);
             if($invoice['payments']['data'] ?? false) {
                 foreach($invoice['payments']['data'] as $keyx => $payment) {
                     $invoices['data'][$key]['payments'][$keyx]['paymentables']= $payment['paymentables']['data'] ?? [];
+                    $invoices['data'][$key]['payments'][$keyx]['type']= $payment['type']['data'] ?? [];
                 }
             }
 
@@ -264,12 +294,22 @@ nlog($data);
         $it = new QuoteTransformer();
         $it->setDefaultIncludes(['client']);
         $manager = new Manager();
-        $manager->setSerializer(new ArraySerializer());
-        $resource = new \League\Fractal\Resource\Collection($quotes, $it, Quote::class);
-        $i = $manager->createData($resource)->toArray();
+        $manager->parseIncludes(['client']);
+        $resource = new \League\Fractal\Resource\Collection($quotes, $it, null);
+        $resources = $manager->createData($resource)->toArray();
 
-        $i['client']['contacts'] = $i['client']['contacts'][ClientContact::class];
-        return $i[Quote::class];
+        foreach($resources['data'] as $key => $resource) {
+
+            $resources['data'][$key]['client'] = $resource['client']['data'] ?? [];
+            $resources['data'][$key]['client']['contacts'] = $resource['client']['data']['contacts']['data'] ?? [];
+            
+        }
+
+        return $resources['data'];
+
+        
+
+
 
     }
 
@@ -278,10 +318,18 @@ nlog($data);
         $it = new CreditTransformer();
         $it->setDefaultIncludes(['client']);
         $manager = new Manager();
-        $manager->setSerializer(new ArraySerializer());
         $resource = new \League\Fractal\Resource\Collection($credits, $it, Credit::class);
-        $i = $manager->createData($resource)->toArray();
-        return $i[Credit::class];
+        $resources = $manager->createData($resource)->toArray();
+
+        foreach($resources['data'] as $key => $resource) {
+
+            $resources['data'][$key]['client'] = $resource['client']['data'] ?? [];
+            $resources['data'][$key]['client']['contacts'] = $resource['client']['data']['contacts']['data'] ?? [];
+
+        }
+
+        return $resources['data'];
+
 
     }
 
@@ -290,22 +338,40 @@ nlog($data);
         $it = new PaymentTransformer();
         $it->setDefaultIncludes(['client','invoices','paymentables']);
         $manager = new Manager();
-        $manager->setSerializer(new ArraySerializer());
-        $resource = new \League\Fractal\Resource\Collection($payments, $it, Payment::class);
-        $i = $manager->createData($resource)->toArray();
-        return $i[Payment::class];
+        $resource = new \League\Fractal\Resource\Collection($payments, $it, null);
+        $resources = $manager->createData($resource)->toArray();
+
+        foreach($resources['data'] as $key => $resource) {
+
+            $resources['data'][$key]['client'] = $resource['client']['data'] ?? [];
+            $resources['data'][$key]['client']['contacts'] = $resource['client']['data']['contacts']['data'] ?? [];
+            $resources['data'][$key]['invoices'] = $invoice['invoices']['data'] ?? [];
+
+        }
+
+        return $resources['data'];
 
     }
 
     private function processTasks($tasks): array
     {
         $it = new TaskTransformer();
-        $it->setDefaultIncludes(['client','tasks','project','invoice']);
+        $it->setDefaultIncludes(['client','project','invoice']);
         $manager = new Manager();
-        $manager->setSerializer(new ArraySerializer());
-        $resource = new \League\Fractal\Resource\Collection($tasks, $it, Task::class);
-        $i = $manager->createData($resource)->toArray();
-        return $i[Task::class];
+        $resource = new \League\Fractal\Resource\Collection($tasks, $it, null);
+        $resources = $manager->createData($resource)->toArray();
+
+        foreach($resources['data'] as $key => $resource) {
+
+            $resources['data'][$key]['client'] = $resource['client']['data'] ?? [];
+            $resources['data'][$key]['client']['contacts'] = $resource['client']['data']['contacts']['data'] ?? [];
+            $resources['data'][$key]['project'] = $resource['project']['data'] ?? [];
+            $resources['data'][$key]['invoice'] = $resource['invoice'] ?? [];
+                    
+        }
+
+        return $resources['data'];
+
 
     }
 

@@ -55,7 +55,7 @@ class TaskTransformer extends EntityTransformer
     {
         $transformer = new InvoiceTransformer($this->serializer);
 
-        if (!$task->user) {
+        if (!$task->invoice) {
             return null;
         }
 

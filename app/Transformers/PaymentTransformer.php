@@ -12,10 +12,11 @@
 namespace App\Transformers;
 
 use App\Models\Client;
-use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Document;
 use App\Models\Paymentable;
+use App\Models\PaymentType;
 use App\Utils\Traits\MakesHash;
 
 class PaymentTransformer extends EntityTransformer
@@ -72,9 +73,7 @@ class PaymentTransformer extends EntityTransformer
 
     public function includeType(Payment $payment)
     {
-        return [
-            'type' => $payment->type->translatedType() ?? '',
-        ];
+        return $this->includeItem($payment, new PaymentTypeTransformer, PaymentType::class);
     }
 
     public function transform(Payment $payment)

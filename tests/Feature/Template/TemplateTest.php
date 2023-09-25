@@ -102,7 +102,13 @@ class TemplateTest extends TestCase
             ';
 
         private string $payments_body = '
-            <ninja>
+            CoName: $company.name
+            ClName: $client.name
+            InNumber: $invoice.number
+        <ninja>
+            CoName: $company.name
+            ClName: $client.name
+            InNumber: $invoice.number
                 <table class="min-w-full text-left text-sm font-light">
                     <thead class="border-b font-medium dark:border-neutral-500">
                         <tr class="text-sm leading-normal">
@@ -129,7 +135,7 @@ class TemplateTest extends TestCase
                         {% for payment in invoice.payments|filter(payment => payment.is_deleted == false) %}
                         
                             {% for pivot in payment.paymentables %}
-                            
+
                             <tr class="border-b dark:border-neutral-500">
                                 <td class="whitespace-nowrap px-6 py-4 font-medium">{{ payment.number }}</td>
                                 <td class="whitespace-nowrap px-6 py-4 font-medium">{{ payment.date }}</td>
@@ -221,8 +227,8 @@ class TemplateTest extends TestCase
             $data['invoices'] = $invoices;
             $ts = $replicated_design->service()->build($data);
         
-            nlog("results = ");
-            nlog($ts->getHtml());
+            // nlog("results = ");
+            // nlog($ts->getHtml());
             $this->assertNotNull($ts->getHtml());
 
     }
@@ -253,8 +259,8 @@ class TemplateTest extends TestCase
 
         $ts = $replicated_design->service()->build($data);
         
-        nlog("results = ");
-        nlog($ts->getHtml());
+        // nlog("results = ");
+        // nlog($ts->getHtml());
         $this->assertNotNull($ts->getHtml());
     }
 

@@ -12,6 +12,7 @@
 
 namespace App\Services\PdfMaker;
 
+use App\Services\Template\TemplateService;
 use League\CommonMark\CommonMarkConverter;
 
 class PdfMaker
@@ -78,17 +79,13 @@ class PdfMaker
 
             $replacements = [];
             $contents = $this->document->getElementsByTagName('ninja');
+            
+            $twig = (new TemplateService())->twig;
 
             foreach ($contents as $content) {
                 
                 $template = $content->ownerDocument->saveHTML($content);
 
-                $loader = new \Twig\Loader\FilesystemLoader(storage_path());
-                $twig = new \Twig\Environment($loader);
-
-                $string_extension = new \Twig\Extension\StringLoaderExtension();
-                $twig->addExtension($string_extension);
-               
                 $template = $twig->createTemplate(html_entity_decode($template));
                 $template = $template->render($this->options);
 
