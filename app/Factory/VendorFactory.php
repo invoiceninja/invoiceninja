@@ -28,7 +28,7 @@ class VendorFactory
         $vendor->country_id = 4;
         $vendor->is_deleted = 0;
         $vendor->vendor_hash = Str::random(40);
-        $vendor->classification = '';
+        // $vendor->classification = '';
 
         return $vendor;
     }
