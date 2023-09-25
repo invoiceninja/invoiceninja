@@ -50,7 +50,11 @@ class InvitationTest extends TestCase
 
         $this->assertEquals(1, count($invites));
 
-        $this->invoice->invitations = $invites;
+        $this->invoice->invitations()->each(function ($invite){
+
+            if(!$invite->contact->is_primary)
+                $invite->forceDelete();
+        });
 
         $this->invoice->line_items = [];
 
@@ -80,7 +84,6 @@ class InvitationTest extends TestCase
         $new_invite->key = $this->createDbHash(config('database.default'));
 
         $invitations = $this->invoice->invitations()->get();
-
         $invitations->push($new_invite);
 
         $this->invoice->invitations = $invitations->toArray();
