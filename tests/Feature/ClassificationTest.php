@@ -73,7 +73,7 @@ class ClassificationTest extends TestCase
 
     public function testValidation2Classification()
     {
-        $this->client->classification = 'company';
+        $this->client->classification = 'business';
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -84,7 +84,7 @@ class ClassificationTest extends TestCase
 
         $arr = $response->json();
 
-        $this->assertEquals('company', $arr['data']['classification']);
+        $this->assertEquals('business', $arr['data']['classification']);
     }
 
     public function testValidation3Classification()
