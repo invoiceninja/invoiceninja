@@ -121,21 +121,24 @@ class CheckoutComPaymentDriver extends BaseDriver
         
             $this->is_four_api = true; //was four api, now known as previous.
 
+            /** @phpstan-ignore-next-line **/
             $builder = CheckoutSdk::builder()
                     ->previous()
+                    ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production()) /** phpstan-ignore-line **/
                     ->staticKeys()
-                    ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production())
                     ->publicKey($this->company_gateway->getConfigField('publicApiKey'))
                     ->secretKey($this->company_gateway->getConfigField('secretApiKey'));
 
             $this->gateway = $builder->build();
                 
         } else {
-            
-            $builder = CheckoutSdk::builder()->staticKeys()
+
+            /** @phpstan-ignore-next-line **/
+            $builder = CheckoutSdk::builder()
+                    ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production()) /** phpstan-ignore-line **/
+                    ->staticKeys()
                     ->publicKey($this->company_gateway->getConfigField('publicApiKey'))
-                    ->secretKey($this->company_gateway->getConfigField('secretApiKey'))
-                    ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production());
+                    ->secretKey($this->company_gateway->getConfigField('secretApiKey'));
 
             $this->gateway = $builder->build();
 
@@ -268,12 +271,13 @@ class CheckoutComPaymentDriver extends BaseDriver
             $request = new CustomerRequest();
                     
             $phone = new Phone();
-            // $phone->number = $this->client->present()->phone();
             $phone->number = substr(str_pad($this->client->present()->phone(), 6, "0", STR_PAD_RIGHT), 0, 24);
-
             $request->email = $this->client->present()->email();
             $request->name = $this->client->present()->name();
             $request->phone = $phone;
+
+            // if($this->company_gateway->update_details)
+            //     $this->updateCustomer();
 
             try {
                 $response = $this->gateway->getCustomersClient()->create($request);
@@ -301,6 +305,27 @@ class CheckoutComPaymentDriver extends BaseDriver
         }
     }
     
+    public function updateCustomer()
+    {
+        $phone = new Phone();
+        $phone->number = substr(str_pad($this->client->present()->phone(), 6, "0", STR_PAD_RIGHT), 0, 24);
+
+        $request = new CustomerRequest();
+
+        $request->email = $this->client->present()->email();
+        $request->name = $this->client->present()->name();
+        $request->phone = $phone;
+
+        try {
+            $response = $this->gateway->getCustomersClient()->update("customer_id", $request);
+        } catch (CheckoutApiException $e) {
+
+        } catch (CheckoutAuthorizationException $e) {
+
+        }
+
+    }
+
     /**
      * Boots a request for a token payment
      *
