@@ -142,6 +142,11 @@ class CreditCard implements MethodInterface
             return $this->processSuccessfulPayment($response);
         }
 
+        if(is_array($response)) {
+            nlog("square");
+            nlog($response);
+        }
+
         return $this->processUnsuccessfulPayment($response);
     }
 
