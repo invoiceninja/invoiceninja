@@ -72,10 +72,8 @@ class PreviewController extends BaseController
 
     public function show()
     {
-        // if(request()->has('template')){
+        if(request()->has('template'))
             return $this->template();
-        // }
-nlog("wooops");
 
         if (request()->has('entity') &&
             request()->has('entity_id') &&

@@ -222,14 +222,17 @@ class TemplateService
             
             $processed = [];
 
+            if(in_array($key, ['tasks','projects']) || !$value->first() || !$value->first()->invitations()->first())
+                return $processed;
+
             match ($key) {
-                'invoices' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues(),
-                'quotes' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues(),
-                'credits' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues(),
-                'payments' => $processed = (new PaymentHtmlEngine($value->first(), $value->first()->client->contacts()->first()))->generateLabelsAndValues(),
+                'invoices' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues() ?? [],
+                'quotes' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues() ?? [],
+                'credits' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues() ?? [],
+                'payments' => $processed = (new PaymentHtmlEngine($value->first(), $value->first()->client->contacts()->first()))->generateLabelsAndValues() ?? [],
                 'tasks' => $processed = [],
                 'projects' => $processed = [],
-                'purchase_orders' => $processed = $value->first() && $value->first()->invitations()->first() ? (new VendorHtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues() : [],
+                'purchase_orders' => (new VendorHtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues() ?? [],
             };
 
             return $processed;
