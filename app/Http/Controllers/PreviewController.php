@@ -361,23 +361,23 @@ class PreviewController extends BaseController
 
         $design_object = json_decode(json_encode(request()->input('design')),1);
 
-        $client_id = Invoice::whereHas('payments')->company()->where('is_deleted', 0)->orderBy('id','desc')->first()->client_id;
-        $vendor_id = PurchaseOrder::query()->company()->where('is_deleted', 0)->orderBy('id', 'desc')->first()->vendor_id;
+        // $client_id = Invoice::whereHas('payments')->company()->where('is_deleted', 0)->orderBy('id','desc')->first()->client_id;
+        // $vendor_id = PurchaseOrder::query()->company()->where('is_deleted', 0)->orderBy('id', 'desc')->first()->vendor_id;
 
-        $data = [
-            'invoices' => Invoice::whereHas('payments')->company()->with('client','payments')->where('client_id', $client_id)->orderBy('id','desc')->take(4)->get(),
-            'quotes' => Quote::query()->company()->with('client')->where('client_id', $client_id)->orderBy('id','desc')->take(4)->get(),
-            'credits' => Credit::query()->company()->with('client')->where('client_id', $client_id)->orderBy('id','desc')->take(4)->get(),
-            'payments' => Payment::query()->company()->with('client')->where('client_id', $client_id)->orderBy('id','desc')->take(4)->get(),
-            'purchase_orders' => PurchaseOrder::query()->company()->with('vendor')->where('vendor_id', $vendor_id)->orderBy('id','desc')->take(5)->get(),
-            'tasks' => Task::query()->company()->with('client','invoice')->where('client_id', $client_id)->orderBy('id','desc')->take(2)->get(),
-            'projects' => Project::query()->company()->with('tasks','client')->where('client_id', $client_id)->orderBy('id','desc')->take(2)->get(),
-        ];
+        // $data = [
+        //     'invoices' => Invoice::whereHas('payments')->company()->with('client','payments')->where('client_id', $client_id)->orderBy('id','desc')->take(4)->get(),
+        //     'quotes' => Quote::query()->company()->with('client')->where('client_id', $client_id)->orderBy('id','desc')->take(4)->get(),
+        //     'credits' => Credit::query()->company()->with('client')->where('client_id', $client_id)->orderBy('id','desc')->take(4)->get(),
+        //     'payments' => Payment::query()->company()->with('client')->where('client_id', $client_id)->orderBy('id','desc')->take(4)->get(),
+        //     'purchase_orders' => PurchaseOrder::query()->company()->with('vendor')->where('vendor_id', $vendor_id)->orderBy('id','desc')->take(5)->get(),
+        //     'tasks' => Task::query()->company()->with('client','invoice')->where('client_id', $client_id)->orderBy('id','desc')->take(2)->get(),
+        //     'projects' => Project::query()->company()->with('tasks','client')->where('client_id', $client_id)->orderBy('id','desc')->take(2)->get(),
+        // ];
 
         $ts = (new TemplateService());
         $ts->setCompany($company)
             ->setTemplate($design_object)
-            ->build($data);
+            ->mock();
         
         $html = $ts->getHtml();
 

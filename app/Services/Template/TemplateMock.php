@@ -44,16 +44,14 @@ class TemplateMock
             return $this->createVariables($type);
         })->toArray();
 
-        $this->engines = [
-            'invoices' => json_decode($this->invoice_data, true),
-            'quotes' => json_decode($this->quote_data, true),
-            'credits' => json_decode($this->credit_data, true),
-            'tasks' => json_decode($this->task_data, true),
-            'projects' => json_decode($this->project_data, true),
-            'payments' => json_decode($this->payment_data, true),
-            'purchase_orders' => json_decode($this->purchase_order_data, true),
-        ];
-
+        $this->engines['invoices'] = json_decode($this->invoice_data, true);
+        $this->engines['quotes'] = json_decode($this->quote_data, true);
+        $this->engines['credits'] = json_decode($this->credit_data, true);
+        $this->engines['tasks'] = json_decode($this->task_data, true);
+        $this->engines['projects'] = json_decode($this->project_data, true);
+        $this->engines['payments'] = json_decode($this->payment_data, true);
+        $this->engines['purchase_orders'] = json_decode($this->purchase_order_data, true);
+        
         return $this;
             
     }

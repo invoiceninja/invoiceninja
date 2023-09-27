@@ -46,6 +46,8 @@ class TemplateService
 
     private array $data = [];
 
+    private array $variables = [];
+
     public ?Company $company;
 
     public function __construct(public ?Design $template = null)
@@ -85,18 +87,28 @@ class TemplateService
         $this->compose()
              ->processData($data)
              ->parseNinjaBlocks()
-             ->parseVariables($data);        
+             ->processVariables($data)
+             ->parseVariables();        
 
         return $this;
     }
     
+    private function processVariables($data): self
+    {
+        $this->variables = $this->resolveHtmlEngine($data);
+
+        return $this;
+    }
     public function mock(): self
     {
         $tm = new TemplateMock($this->company);
+        $tm->init();
+
         $this->data = $tm->engines;
+        $this->variables = $tm->variables[0];
 
         $this->parseNinjaBlocks()
-             ->parseVariables($tm->variables);
+             ->parseVariables();
 
         return $this;
     }
@@ -153,13 +165,12 @@ class TemplateService
      * @param array $data
      * @return self
      */
-    private function parseVariables(array $data): self
+    private function parseVariables(): self
     {
-        $variables = $this->resolveHtmlEngine($data);
 
         $html = $this->getHtml();
 
-        foreach($variables as $key => $variable) {
+        foreach($this->variables as $key => $variable) {
             
             if(isset($variable['labels']) && isset($variable['values']))
             {
