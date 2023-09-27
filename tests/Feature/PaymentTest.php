@@ -497,7 +497,7 @@ class PaymentTest extends TestCase
             'is_primary' => 1,
         ]);
 
-
+        /** @var \App\Models\Invoice $invoice */
         $invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $invoice->client_id = $client->id;
 

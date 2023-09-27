@@ -123,11 +123,14 @@ class ClientController extends BaseController
             return $request->disallowUpdate();
         }
 
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $client = $this->client_repo->save($request->all(), $client);
 
         $this->uploadLogo($request->file('company_logo'), $client->company, $client);
 
-        event(new ClientWasUpdated($client, $client->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        event(new ClientWasUpdated($client, $client->company, Ninja::eventVars($user ? $user->id : null)));
 
         return $this->itemResponse($client->fresh());
     }
@@ -141,7 +144,10 @@ class ClientController extends BaseController
      */
     public function create(CreateClientRequest $request)
     {
-        $client = ClientFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $client = ClientFactory::create($user->company()->id, $user->id);
 
         return $this->itemResponse($client);
     }
@@ -155,7 +161,10 @@ class ClientController extends BaseController
      */
     public function store(StoreClientRequest $request)
     {
-        $client = $this->client_repo->save($request->all(), ClientFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $client = $this->client_repo->save($request->all(), ClientFactory::create($user->company()->id, $user->id));
 
         $client->load('contacts', 'primary_contact');
 
@@ -166,7 +175,7 @@ class ClientController extends BaseController
 
         $this->uploadLogo($request->file('company_logo'), $client->company, $client);
 
-        event(new ClientWasCreated($client, $client->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        event(new ClientWasCreated($client, $client->company, Ninja::eventVars(auth()->user() ? $user->id : null)));
 
         return $this->itemResponse($client);
     }
@@ -273,9 +282,12 @@ class ClientController extends BaseController
 
     public function merge(PurgeClientRequest $request, Client $client, string $mergeable_client)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $m_client = Client::withTrashed()
                             ->where('id', $this->decodePrimaryKey($mergeable_client))
-                            ->where('company_id', auth()->user()->company()->id)
+                            ->where('company_id', $user->company()->id)
                             ->first();
 
         if (!$m_client) {
