@@ -222,7 +222,7 @@ class TemplateService
             
             $processed = [];
 
-            if(in_array($key, ['tasks','projects']) || !$value->first() || !$value->first()->invitations()->first())
+            if(in_array($key, ['tasks','projects']) || !$value->first() )
                 return $processed;
 
             match ($key) {
