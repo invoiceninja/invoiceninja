@@ -304,7 +304,7 @@ class TemplateService
         return $invoices['data'];
     }
 
-    private function processQuotes($quotes): array
+    public function processQuotes($quotes): array
     {
         $it = new QuoteTransformer();
         $it->setDefaultIncludes(['client']);
@@ -331,7 +331,7 @@ class TemplateService
      * @param  mixed $credits
      * @return array
      */
-    private function processCredits($credits): array
+    public function processCredits($credits): array
     {
         $it = new CreditTransformer();
         $it->setDefaultIncludes(['client']);
@@ -357,7 +357,7 @@ class TemplateService
      * @param  mixed $payments
      * @return array
      */
-    private function processPayments($payments): array
+    public function processPayments($payments): array
     {
         $it = new PaymentTransformer();
         $it->setDefaultIncludes(['client','invoices','paymentables']);
@@ -377,7 +377,7 @@ class TemplateService
 
     }
 
-    private function processTasks($tasks): array
+    public function processTasks($tasks): array
     {
         $it = new TaskTransformer();
         $it->setDefaultIncludes(['client','project','invoice']);
@@ -399,7 +399,7 @@ class TemplateService
 
     }
 
-    private function processProjects($projects): array
+    public function processProjects($projects): array
     {
 
         $it = new ProjectTransformer();
@@ -412,7 +412,7 @@ class TemplateService
 
     }
 
-    private function processPurchaseOrders($purchase_orders): array
+    public function processPurchaseOrders($purchase_orders): array
     {
         
         $it = new PurchaseOrderTransformer();
