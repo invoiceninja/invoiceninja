@@ -1310,15 +1310,14 @@ class PaymentTest extends TestCase
 
         ];
 
-        try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/payments?include=invoices', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            $this->assertNotNull($message);
-        }
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments?include=invoices', $data);
+
+        $response->assertStatus(422);
+
     }
 
     public function testPaymentWithSameInvoiceMultipleTimes()
