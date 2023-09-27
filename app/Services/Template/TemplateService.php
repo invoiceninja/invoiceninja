@@ -100,7 +100,7 @@ class TemplateService
         $data = $this->preProcessDataBlocks($data);
         $replacements = [];
 
-        nlog($data);
+        // nlog($data);
 
         $contents = $this->document->getElementsByTagName('ninja');
 
@@ -310,12 +310,15 @@ class TemplateService
 
         return $resources['data'];
 
-        
-
-
-
     }
-
+    
+    /**
+     * Pushes credits through the appropriate transformer
+     * and builds any required relationships
+     *
+     * @param  mixed $credits
+     * @return array
+     */
     private function processCredits($credits): array
     {
         $it = new CreditTransformer();
@@ -335,7 +338,13 @@ class TemplateService
 
 
     }
-
+    
+    /**
+     * Pushes payments through the appropriate transformer
+     *
+     * @param  mixed $payments
+     * @return array
+     */
     private function processPayments($payments): array
     {
         $it = new PaymentTransformer();

@@ -362,16 +362,15 @@ class PreviewController extends BaseController
         $design_object = json_decode(json_encode(request()->input('design')),1);
 
         $data = [
-            'invoices' => Invoice::whereHas('payments')->with('client','payments')->company()->orderBy('id','desc')->take(5)->get(),
-            'quotes' => Quote::query()->company()->with('client')->orderBy('id','desc')->take(5)->get(),
-            'credits' => Credit::query()->company()->with('client')->orderBy('id','desc')->take(5)->get(),
-            'payments' => Payment::query()->company()->with('client')->orderBy('id','desc')->take(5)->get(),
+            'invoices' => Invoice::whereHas('payments')->with('client','payments')->company()->orderBy('id','desc')->take(4)->get(),
+            'quotes' => Quote::query()->company()->with('client')->orderBy('id','desc')->take(4)->get(),
+            'credits' => Credit::query()->company()->with('client')->orderBy('id','desc')->take(4)->get(),
+            'payments' => Payment::query()->company()->with('client')->orderBy('id','desc')->take(4)->get(),
             'purchase_orders' => PurchaseOrder::query()->with('vendor')->company()->orderBy('id','desc')->take(5)->get(),
-            'tasks' => Task::query()->with('client','invoice')->company()->orderBy('id','desc')->take(5)->get(),
-            'projects' => Project::query()->with('tasks','client')->company()->orderBy('id','desc')->take(5)->get(),
+            'tasks' => Task::query()->with('client','invoice')->company()->orderBy('id','desc')->take(2)->get(),
+            'projects' => Project::query()->with('tasks','client')->company()->orderBy('id','desc')->take(2)->get(),
         ];
 
-        nlog($design_object);
         $ts = (new TemplateService());
         $ts->setTemplate($design_object)
            ->build($data);
@@ -405,6 +404,11 @@ class PreviewController extends BaseController
 
         return $response;
 
+    }
+
+    private function stubTemplateData()
+    {
+        
     }
 
     private function blankEntity()

@@ -12,6 +12,7 @@
 namespace App\Transformers;
 
 use App\Models\Client;
+use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Document;
@@ -34,6 +35,7 @@ class PaymentTransformer extends EntityTransformer
         'client',
         'invoices',
         'type',
+        'credits',
     ];
 
     public function __construct($serializer = null)
@@ -48,6 +50,13 @@ class PaymentTransformer extends EntityTransformer
         $transformer = new InvoiceTransformer($this->serializer);
 
         return $this->includeCollection($payment->invoices, $transformer, Invoice::class);
+    }
+
+    public function includeCredits(Payment $payment)
+    {
+        $transformer = new CreditTransformer($this->serializer);
+
+        return $this->includeCollection($payment->credits, $transformer, Credit::class);
     }
 
     public function includeClient(Payment $payment)
