@@ -124,8 +124,8 @@ class CheckoutComPaymentDriver extends BaseDriver
             /** @phpstan-ignore-next-line **/
             $builder = CheckoutSdk::builder()
                     ->previous()
-                    ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production()) /** phpstan-ignore-line **/
                     ->staticKeys()
+                    ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production()) /** phpstan-ignore-line **/
                     ->publicKey($this->company_gateway->getConfigField('publicApiKey'))
                     ->secretKey($this->company_gateway->getConfigField('secretApiKey'));
 
@@ -135,8 +135,8 @@ class CheckoutComPaymentDriver extends BaseDriver
 
             /** @phpstan-ignore-next-line **/
             $builder = CheckoutSdk::builder()
-                    ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production()) /** phpstan-ignore-line **/
                     ->staticKeys()
+                    ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production()) /** phpstan-ignore-line **/
                     ->publicKey($this->company_gateway->getConfigField('publicApiKey'))
                     ->secretKey($this->company_gateway->getConfigField('secretApiKey'));
 
