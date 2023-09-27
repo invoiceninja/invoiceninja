@@ -298,7 +298,7 @@ class CreditCard implements MethodInterface
         $body->setFamilyName('');
         $body->setEmailAddress($this->square_driver->client->present()->email());
         $body->setAddress($billing_address);
-        $body->setPhoneNumber($this->square_driver->client->phone);
+        // $body->setPhoneNumber($this->square_driver->client->phone);
         $body->setReferenceId($this->square_driver->client->number);
         $body->setNote('Created by Invoice Ninja.');
 
@@ -314,8 +314,8 @@ class CreditCard implements MethodInterface
             return $result->getCustomer()->getId();
         } else {
             $errors = $api_response->getErrors();
-
-            return $this->processUnsuccessfulPayment($errors);
+            nlog($errors);
+            return $this->processUnsuccessfulPayment($api_response);
         }
     }
 }
