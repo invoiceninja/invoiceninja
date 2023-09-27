@@ -43,6 +43,8 @@ class TemplateService
 
     private string $compiled_html = '';
 
+    private array $data = [];
+
     public function __construct(public ?Design $template = null)
     {
         $this->template = $template;
@@ -78,29 +80,42 @@ class TemplateService
     public function build(array $data): self
     {
         $this->compose()
-             ->parseNinjaBlocks($data)
+             ->processData($data)
+             ->parseNinjaBlocks()
              ->parseVariables($data);        
 
         return $this;
     }
     
+    public function mock(): self
+    {
+
+        return $this;
+    }
+
     public function getHtml(): string
     {
         return $this->compiled_html;
     }
+
+    private function processData($data): self
+    {
+
+        $this->data = $this->preProcessDataBlocks($data);
+
+        nlog(json_encode($this->data));
+
+        return $this;
+    }
+
     /**
      * Parses all Ninja tags in the document
-     *
-     * @param  array $data
      * 
      * @return self
      */
-    private function parseNinjaBlocks(array $data): self
+    private function parseNinjaBlocks(): self
     {
-        $data = $this->preProcessDataBlocks($data);
         $replacements = [];
-
-        // nlog($data);
 
         $contents = $this->document->getElementsByTagName('ninja');
 
@@ -109,9 +124,7 @@ class TemplateService
             $template = $content->ownerDocument->saveHTML($content);
 
             $template = $this->twig->createTemplate(html_entity_decode($template));
-            $template = $template->render($data);
-
-            // nlog($template);
+            $template = $template->render($this->data);
 
             $f = $this->document->createDocumentFragment();
             $f->appendXML($template);
@@ -196,7 +209,7 @@ class TemplateService
      * @return self
      */
     public function setTemplate(array $partials): self
-    {nlog($partials);
+    {
 
         $html = '';
         $html .= $partials['design']['includes'];
@@ -262,16 +275,14 @@ class TemplateService
         })->toArray();
     }
 
-    private function processInvoices($invoices): array
+    public function processInvoices($invoices): array
     {
         $it = new InvoiceTransformer();
-        $it->setDefaultIncludes(['client','payments']);
+        $it->setDefaultIncludes(['client','payments', 'credits']);
         $manager = new Manager();
-        $manager->parseIncludes(['client','payments','payments.type']);
+        $manager->parseIncludes(['client','payments','payments.type','credits']);
         $resource = new \League\Fractal\Resource\Collection($invoices, $it, null);
         $invoices = $manager->createData($resource)->toArray();
-
-        // nlog($invoices);
 
         foreach($invoices['data'] as $key => $invoice)
         {
@@ -279,11 +290,12 @@ class TemplateService
             $invoices['data'][$key]['client'] = $invoice['client']['data'] ?? [];
             $invoices['data'][$key]['client']['contacts'] = $invoice['client']['data']['contacts']['data'] ?? [];
             $invoices['data'][$key]['payments'] = $invoice['payments']['data'] ?? [];
+            $invoices['data'][$key]['credits'] = $invoice['credits']['data'] ?? [];
 
             if($invoice['payments']['data'] ?? false) {
                 foreach($invoice['payments']['data'] as $keyx => $payment) {
-                    $invoices['data'][$key]['payments'][$keyx]['paymentables']= $payment['paymentables']['data'] ?? [];
-                    $invoices['data'][$key]['payments'][$keyx]['type']= $payment['type']['data'] ?? [];
+                    $invoices['data'][$key]['payments'][$keyx]['paymentables'] = $payment['paymentables']['data'] ?? [];
+                    $invoices['data'][$key]['payments'][$keyx]['type'] = $payment['type']['data'] ?? [];
                 }
             }
 
