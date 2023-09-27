@@ -375,8 +375,9 @@ class PreviewController extends BaseController
         ];
 
         $ts = (new TemplateService());
-        $ts->setTemplate($design_object)
-           ->build($data);
+        $ts->setCompany($company)
+            ->setTemplate($design_object)
+            ->build($data);
         
         $html = $ts->getHtml();
 

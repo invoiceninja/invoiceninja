@@ -79,6 +79,6 @@ class Design extends BaseModel
 
     public function service(): TemplateService
     {
-        return new TemplateService($this);
+        return (new TemplateService($this))->setCompany($this->company);
     }
 }

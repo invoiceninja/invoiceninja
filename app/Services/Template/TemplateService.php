@@ -15,6 +15,7 @@ use App\Models\Task;
 use App\Models\Quote;
 use App\Models\Credit;
 use App\Models\Design;
+use App\Models\Company;
 use App\Models\Payment;
 use App\Models\Project;
 use App\Utils\HtmlEngine;
@@ -44,6 +45,8 @@ class TemplateService
     private string $compiled_html = '';
 
     private array $data = [];
+
+    public ?Company $company;
 
     public function __construct(public ?Design $template = null)
     {
@@ -89,6 +92,11 @@ class TemplateService
     
     public function mock(): self
     {
+        $tm = new TemplateMock($this->company);
+        $this->data = $tm->engines;
+
+        $this->parseNinjaBlocks()
+             ->parseVariables($tm->variables);
 
         return $this;
     }
@@ -102,8 +110,6 @@ class TemplateService
     {
 
         $this->data = $this->preProcessDataBlocks($data);
-
-        nlog(json_encode($this->data));
 
         return $this;
     }
@@ -423,5 +429,17 @@ class TemplateService
         $i = $manager->createData($resource)->toArray();
         return $i[PurchaseOrder::class];
 
+    }
+
+    public function setCompany(Company $company): self
+    {
+        $this->company = $company;
+        
+        return $this;
+    }
+
+    public function getCompany(): Company
+    {
+        return $this->company;
     }
 }
