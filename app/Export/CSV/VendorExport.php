@@ -139,6 +139,10 @@ class VendorExport extends BaseExport
             $entity['currency'] = $vendor->currency() ? $vendor->currency()->code : $vendor->company->currency()->code;
         }
 
+        if (in_array('vendor.classification', $this->input['report_keys']) && isset($vendor->classification)) {
+            $entity['vendor.classification'] = ctrans("texts.{$vendor->classification}") ?? '';
+        }
+
         $entity['status'] = $this->calculateStatus($vendor);
 
         return $entity;
