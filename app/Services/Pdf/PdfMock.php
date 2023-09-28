@@ -310,7 +310,7 @@ class PdfMock
     '$created_by_user' => 'Derrick Monahan DDS Erna Wunsch',
     '$client.currency' => 'USD',
     '$company.country' => 'United States',
-    '$company.address' => 'United States<br/>',
+    '$company.address' => 'Christiansen Garden<br/>70218 Lori Station Suite 529<br/>New Loy, Delaware 29359<br/>United States<br/>Phone: 1-240-886-2233<br/>Email: immanuel53@example.net<br/>',
     '$tech_hero_image' => 'http://ninja.test:8000/images/pdf-designs/tech-hero-image.jpg',
     '$task.tax_name1' => '',
     '$task.tax_name2' => '',

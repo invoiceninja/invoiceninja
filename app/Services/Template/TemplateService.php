@@ -379,6 +379,7 @@ class TemplateService
         $it = new PaymentTransformer();
         $it->setDefaultIncludes(['client','invoices','paymentables']);
         $manager = new Manager();
+        $manager->parseIncludes(['client','invoices','paymentables']);
         $resource = new \League\Fractal\Resource\Collection($payments, $it, null);
         $resources = $manager->createData($resource)->toArray();
 
