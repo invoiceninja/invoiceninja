@@ -143,7 +143,7 @@ class VendorExport extends BaseExport
             $entity['vendor.classification'] = ctrans("texts.{$vendor->classification}") ?? '';
         }
 
-        $entity['status'] = $this->calculateStatus($vendor);
+        // $entity['status'] = $this->calculateStatus($vendor);
 
         return $entity;
     }
