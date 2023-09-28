@@ -224,6 +224,16 @@ class CheckoutComPaymentDriver extends BaseDriver
 
             $response = $this->gateway->getPaymentsClient()->refundPayment($payment->transaction_reference, $request);
 
+
+            SystemLogger::dispatch(
+                array_merge(['message' => "Gateway Refund"], $response),
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_SUCCESS,
+                SystemLog::TYPE_CHECKOUT,
+                $payment->client,
+                $payment->company,
+            );
+
             return [
                 'transaction_reference' => $response['action_id'],
                 'transaction_response' => json_encode($response),
@@ -231,13 +241,21 @@ class CheckoutComPaymentDriver extends BaseDriver
                 'description' => $response['reference'],
                 'code' => 202,
             ];
+
         } catch (CheckoutApiException $e) {
             // API error
             throw new PaymentFailed($e->getMessage(), $e->getCode());
         } catch (CheckoutArgumentException $e) {
             // Bad arguments
 
-            // throw new PaymentFailed($e->getMessage(), $e->getCode());
+            SystemLogger::dispatch(
+                $e->getMessage(),
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_CHECKOUT,
+                $payment->client,
+                $payment->company,
+            );
 
             return [
                 'transaction_reference' => null,
@@ -246,9 +264,17 @@ class CheckoutComPaymentDriver extends BaseDriver
                 'description' => $e->getMessage(),
                 'code' => $e->getCode(),
             ];
+
         } catch (CheckoutAuthorizationException $e) {
 
-            // throw new PaymentFailed("The was a problem with the Checkout Gateway Credentials.", $e->getCode());
+            SystemLogger::dispatch(
+                $e->getMessage(),
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_CHECKOUT,
+                $payment->client,
+                $payment->company,
+            );
 
             return [
                 'transaction_reference' => null,
