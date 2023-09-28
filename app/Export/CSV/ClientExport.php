@@ -71,7 +71,9 @@ class ClientExport extends BaseExport
         'contact_custom_value3' => 'contact.custom_value3',
         'contact_custom_value4' => 'contact.custom_value4',
         'email' => 'contact.email',
-        'status' => 'status'
+        'status' => 'status',
+        'payment_balance' => 'client.payment_balance',
+        'credit_balance' => 'client.credit_balance',
     ];
 
     public function __construct(Company $company, array $input)
