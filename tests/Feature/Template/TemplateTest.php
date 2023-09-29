@@ -179,6 +179,7 @@ class TemplateTest extends TestCase
 
     public function testDataMaps()
     {
+        $start = microtime(true);
 
         Invoice::factory()->count(10)->create([
             'company_id' => $this->company->id,
@@ -233,6 +234,8 @@ class TemplateTest extends TestCase
 
         // nlog($p->toArray());
 
+        $start = microtime(true);
+
         $p = Payment::with('client','invoices','paymentables','credits')
         ->where('id', $this->decodePrimaryKey($arr['data']['id']))
         ->cursor()
@@ -242,9 +245,15 @@ class TemplateTest extends TestCase
 
         })->toArray();
 
+
+        nlog("end payments = " . microtime(true) - $start);
+
         $this->assertIsArray($data);
 
-        $invoices = Invoice::with('client','payments','credits')
+        $start = microtime(true);
+\DB::enableQueryLog();
+
+        $invoices = Invoice::with('client','payments.client','payments.paymentables','payments.credits','credits.client')
         ->orderBy('id','desc')
         ->where('client_id', $this->client->id)
         ->take(10)
@@ -252,6 +261,7 @@ class TemplateTest extends TestCase
         ->map(function($invoice){
 
             $payments = $invoice->payments->map(function ($payment){
+                nlog(microtime(true));
                 return $this->transformPayment($payment);
             })->toArray();
 
@@ -312,7 +322,14 @@ class TemplateTest extends TestCase
             ];
         })->toArray();
 
+        $queries = \DB::getQueryLog();
+        $count = count($queries);
+
+        nlog("query count = {$count}");
+        nlog($invoices);
         $this->assertIsArray($invoices);
+
+        nlog("end invoices = " . microtime(true) - $start);
 
     }
 
