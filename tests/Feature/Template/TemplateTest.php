@@ -13,16 +13,20 @@ namespace Tests\Feature\Template;
 
 use Tests\TestCase;
 use App\Utils\Ninja;
+use App\Utils\Number;
+use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Utils\HtmlEngine;
 use Tests\MockAccountData;
+use App\Utils\Traits\MakesDates;
 use App\Services\PdfMaker\PdfMaker;
 use Illuminate\Support\Facades\App;
 use App\Jobs\Entity\CreateEntityPdf;
+use App\Services\Template\TemplateService;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
-use App\Services\Template\TemplateService;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
@@ -34,6 +38,7 @@ class TemplateTest extends TestCase
 {
     use DatabaseTransactions;
     use MockAccountData;
+    use MakesDates;
 
     private string $body = '
             
@@ -172,6 +177,219 @@ class TemplateTest extends TestCase
         
     }
 
+    public function testDataMaps()
+    {
+
+        Invoice::factory()->count(10)->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'status_id' => Invoice::STATUS_SENT,
+            'amount' => 100,
+            'balance' => 100,
+        ]);
+
+        $invoices = Invoice::orderBy('id','desc')->where('client_id', $this->client->id)->take(10)->get()->map(function($c){
+            return $c->service()->markSent()->applyNumber()->save();
+        })->map(function ($i){
+            return ['invoice_id' => $i->hashed_id, 'amount' => rand(0, $i->balance)];
+        })->toArray();
+
+        Credit::factory()->count(2)->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'status_id' => Invoice::STATUS_SENT,
+            'amount' => 50,
+            'balance' => 50,
+        ]);
+
+        $credits = Credit::orderBy('id', 'desc')->where('client_id', $this->client->id)->take(2)->get()->map(function($c){
+            return $c->service()->markSent()->applyNumber()->save();
+        })->map(function ($i) {
+            return ['credit_id' => $i->hashed_id, 'amount' => rand(0, $i->balance)];
+        })->toArray();
+
+        $data = [
+            'invoices' => $invoices,
+            'credits' => $credits,
+            'date' => now()->format('Y-m-d'),
+            'client_id' => $this->client->hashed_id,
+            'transaction_reference' => 'My Batch Payment',
+            'type_id' => "5",
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments/', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        // $p = Payment::with('client','invoices','paymentables','credits')
+        // ->where('id', $this->decodePrimaryKey($arr['data']['id']))->first();
+
+        // nlog($p->toArray());
+
+        $p = Payment::with('client','invoices','paymentables','credits')
+        ->where('id', $this->decodePrimaryKey($arr['data']['id']))
+        ->cursor()
+        ->map(function ($payment){
+
+            $this->transformPayment($payment);
+
+        })->toArray();
+
+        $this->assertIsArray($data);
+
+        $invoices = Invoice::with('client','payments','credits')
+        ->orderBy('id','desc')
+        ->where('client_id', $this->client->id)
+        ->take(10)
+        ->get()
+        ->map(function($invoice){
+
+            $payments = $invoice->payments->map(function ($payment){
+                return $this->transformPayment($payment);
+            })->toArray();
+
+            return [
+                'amount' => Number::formatMoney($invoice->amount, $invoice->client),
+                'balance' => Number::formatMoney($invoice->balance, $invoice->client),
+                'balance_raw' => $invoice->balance,
+                'number' => $invoice->number ?: '',
+                'discount' => $invoice->discount,
+                'po_number' => $invoice->po_number ?: '',
+                'date' => $this->translateDate($invoice->date, $invoice->client->date_format(), $invoice->client->locale()),
+                'last_sent_date' => $this->translateDate($invoice->last_sent_date, $invoice->client->date_format(), $invoice->client->locale()),
+                'next_send_date' => $this->translateDate($invoice->next_send_date, $invoice->client->date_format(), $invoice->client->locale()),
+                'due_date' => $this->translateDate($invoice->due_date, $invoice->client->date_format(), $invoice->client->locale()),
+                'terms' => $invoice->terms ?: '',
+                'public_notes' => $invoice->public_notes ?: '',
+                'private_notes' => $invoice->private_notes ?: '',
+                'uses_inclusive_taxes' => (bool) $invoice->uses_inclusive_taxes,
+                'tax_name1' => $invoice->tax_name1 ?? '',
+                'tax_rate1' => (float) $invoice->tax_rate1,
+                'tax_name2' => $invoice->tax_name2 ?? '',
+                'tax_rate2' => (float) $invoice->tax_rate2,
+                'tax_name3' => $invoice->tax_name3 ?? '',
+                'tax_rate3' => (float) $invoice->tax_rate3,
+                'total_taxes' => Number::formatMoney($invoice->total_taxes, $invoice->client),
+                'total_taxes_raw' => $invoice->total_taxes,
+                'is_amount_discount' => (bool) $invoice->is_amount_discount ?? false,
+                'footer' => $invoice->footer ?? '',
+                'partial' => $invoice->partial ?? 0,
+                'partial_due_date' => $this->translateDate($invoice->partial_due_date, $invoice->client->date_format(), $invoice->client->locale()),
+                'custom_value1' => (string) $invoice->custom_value1 ?: '',
+                'custom_value2' => (string) $invoice->custom_value2 ?: '',
+                'custom_value3' => (string) $invoice->custom_value3 ?: '',
+                'custom_value4' => (string) $invoice->custom_value4 ?: '',
+                'custom_surcharge1' => (float) $invoice->custom_surcharge1,
+                'custom_surcharge2' => (float) $invoice->custom_surcharge2,
+                'custom_surcharge3' => (float) $invoice->custom_surcharge3,
+                'custom_surcharge4' => (float) $invoice->custom_surcharge4,
+                'exchange_rate' => (float) $invoice->exchange_rate,
+                'custom_surcharge_tax1' => (bool) $invoice->custom_surcharge_tax1,
+                'custom_surcharge_tax2' => (bool) $invoice->custom_surcharge_tax2,
+                'custom_surcharge_tax3' => (bool) $invoice->custom_surcharge_tax3,
+                'custom_surcharge_tax4' => (bool) $invoice->custom_surcharge_tax4,
+                'line_items' => $invoice->line_items ?: (array) [],
+                'reminder1_sent' => $this->translateDate($invoice->reminder1_sent, $invoice->client->date_format(), $invoice->client->locale()),
+                'reminder2_sent' => $this->translateDate($invoice->reminder2_sent, $invoice->client->date_format(), $invoice->client->locale()),
+                'reminder3_sent' => $this->translateDate($invoice->reminder3_sent, $invoice->client->date_format(), $invoice->client->locale()),
+                'reminder_last_sent' => $this->translateDate($invoice->reminder_last_sent, $invoice->client->date_format(), $invoice->client->locale()),
+                'paid_to_date' => Number::formatMoney($invoice->paid_to_date, $invoice->client),
+                'auto_bill_enabled' => (bool) $invoice->auto_bill_enabled,
+                'client' => [
+                    'name' => $invoice->client->present()->name(),
+                    'balance' => $invoice->client->balance,
+                    'payment_balance' => $invoice->client->payment_balance,
+                    'credit_balance' => $invoice->client->credit_balance,
+                ],
+                'payments' => $payments
+            ];
+        })->toArray();
+
+        $this->assertIsArray($invoices);
+
+    }
+
+    private function transformPayment(Payment $payment): array
+    {
+
+        $data = [];
+                
+        $credits = $payment->credits->map(function ($credit) use ($payment) {
+            return [
+                'credit' => $credit->number,
+                'amount_raw' => $credit->pivot->amount,
+                'refunded_raw' => $credit->pivot->refunded,
+                'net_raw' => $credit->pivot->amount - $credit->pivot->refunded,
+                'amount' => Number::formatMoney($credit->pivot->amount, $payment->client),
+                'refunded' => Number::formatMoney($credit->pivot->refunded, $payment->client),
+                'net' => Number::formatMoney($credit->pivot->amount - $credit->pivot->refunded, $payment->client),
+                'is_credit' => true,
+                'created_at' => $this->translateDate($credit->pivot->created_at, $payment->client->date_format(), $payment->client->locale()),
+                'updated_at' => $this->translateDate($credit->pivot->updated_at, $payment->client->date_format(), $payment->client->locale()),
+                'timestamp' => $credit->pivot->created_at->timestamp,
+            ];
+        });
+
+        $pivot = $payment->invoices->map(function ($invoice) use ($payment) {
+            return [
+                'invoice' => $invoice->number,
+                'amount_raw' => $invoice->pivot->amount,
+                'refunded_raw' => $invoice->pivot->refunded,
+                'net_raw' => $invoice->pivot->amount - $invoice->pivot->refunded,
+                'amount' => Number::formatMoney($invoice->pivot->amount, $payment->client),
+                'refunded' => Number::formatMoney($invoice->pivot->refunded, $payment->client),
+                'net' => Number::formatMoney($invoice->pivot->amount - $invoice->pivot->refunded, $payment->client),
+                'is_credit' => false,
+                'created_at' => $this->translateDate($invoice->pivot->created_at, $payment->client->date_format(), $payment->client->locale()),
+                'updated_at' => $this->translateDate($invoice->pivot->updated_at, $payment->client->date_format(), $payment->client->locale()),
+                'timestamp' => $invoice->pivot->created_at->timestamp,
+            ];
+        })->merge($credits)->sortBy('timestamp')->toArray();
+
+        return [
+            'status' => $payment->stringStatus($payment->status_id),
+            'badge' => $payment->badgeForStatus($payment->status_id),
+            'amount' => Number::formatMoney($payment->amount, $payment->client),
+            'applied' => Number::formatMoney($payment->applied, $payment->client),
+            'balance' => Number::formatMoney(($payment->amount - $payment->refunded - $payment->applied), $payment->client),
+            'refunded' => Number::formatMoney($payment->refunded, $payment->client),
+            'amount_raw' => $payment->amount,
+            'applied_raw' => $payment->applied,
+            'refunded_raw' => $payment->refunded,
+            'balance_raw' => ($payment->amount - $payment->refunded - $payment->applied),
+            'date' => $this->translateDate($payment->date, $payment->client->date_format(), $payment->client->locale()),
+            'method' => $payment->translatedType(),
+            'currency' => $payment->currency->code,
+            'exchange_rate' => $payment->exchange_rate,
+            'transaction_reference' => $payment->transaction_reference,
+            'is_manual' => $payment->is_manual,
+            'number' => $payment->number,
+            'custom_value1' => $payment->custom_value1 ?? '',
+            'custom_value2' => $payment->custom_value2 ?? '',
+            'custom_value3' => $payment->custom_value3 ?? '',
+            'custom_value4' => $payment->custom_value4 ?? '',
+            'client' => [
+                'name' => $payment->client->present()->name(),
+                'balance' => $payment->client->balance,
+                'payment_balance' => $payment->client->payment_balance,
+                'credit_balance' => $payment->client->credit_balance,
+            ],
+            'paymentables' => $pivot,
+        ];
+            
+        return $data;
+
+
+
+    }
+
     public function testVariableResolutionViaTransformersForPaymentsInStatements()
     {
         Invoice::factory()->count(20)->create([
@@ -216,6 +434,8 @@ class TemplateTest extends TestCase
             $design_model = Design::find(2);
 
             $replicated_design = $design_model->replicate();
+            $replicated_design->company_id = $this->company->id;
+            $replicated_design->user_id = $this->user->id;
             $design = $replicated_design->design;
             $design->body .= $this->payments_body;
             $replicated_design->design = $design;
@@ -238,6 +458,8 @@ class TemplateTest extends TestCase
         $design_model = Design::find(2);
 
         $replicated_design = $design_model->replicate();
+        $replicated_design->company_id = $this->company->id;
+        $replicated_design->user_id = $this->user->id;
         $design = $replicated_design->design;
         $design->body .= $this->nested_body;
         $replicated_design->design = $design;
@@ -269,6 +491,8 @@ class TemplateTest extends TestCase
         $design_model = Design::find(2);
 
         $replicated_design = $design_model->replicate();
+        $replicated_design->company_id = $this->company->id;
+        $replicated_design->user_id = $this->user->id;
         $design = $replicated_design->design;
         $design->body .= $this->body;
         $replicated_design->design = $design;
@@ -298,8 +522,9 @@ class TemplateTest extends TestCase
     public function testTemplateServiceBuild()
     {
         $design_model = Design::find(2);
-
         $replicated_design = $design_model->replicate();
+        $replicated_design->company_id = $this->company->id;
+        $replicated_design->user_id = $this->user->id;
         $design = $replicated_design->design;
         $design->body .= $this->body;
         $replicated_design->design = $design;
@@ -321,6 +546,8 @@ class TemplateTest extends TestCase
         $design_model = Design::find(2);
 
         $replicated_design = $design_model->replicate();
+        $replicated_design->company_id = $this->company->id;
+        $replicated_design->user_id = $this->user->id;
         $design = $replicated_design->design;
         $design->body .= $this->body;
         $replicated_design->design = $design;
@@ -336,6 +563,8 @@ class TemplateTest extends TestCase
         $design_model = Design::find(2);
 
         $replicated_design = $design_model->replicate();
+        $replicated_design->company_id = $this->company->id;
+        $replicated_design->user_id = $this->user->id;
         $design = $replicated_design->design;
         $design->body .= $this->body;
         $replicated_design->design = $design;
