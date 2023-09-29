@@ -182,9 +182,9 @@ class FacturaEInvoice extends AbstractService
             Storage::makeDirectory($this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()));
         }
 
-        $this->fac->export(Storage::disk($disk)->path($this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName("xsig")));
-
-        return $this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName("xsig");
+        // $this->fac->export(Storage::disk($disk)->path($this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName("xsig")));
+        return $this->fac->export();
+        // return $this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName("xsig");
 
     }
 
@@ -468,8 +468,11 @@ class FacturaEInvoice extends AbstractService
     {
         $company = $this->invoice->company;
 
+        if($company->getSetting('classification'))
+            return $this->setIndividualSeller();
+
         $seller = new FacturaeParty([
-            "isLegalEntity" => $company->custom_value1, // Se asume true si se omite
+            "isLegalEntity" => true,
             "taxNumber" => $company->settings->vat_number,
             "name" => substr($company->present()->name(), 0, 40),
             "address" => substr($company->settings->address1, 0, 80),
@@ -500,11 +503,49 @@ class FacturaEInvoice extends AbstractService
         return $this;
     }
 
+
+    private function setIndividualSeller(): self
+    {
+
+        $company = $this->invoice->company;
+
+        $seller = new FacturaeParty([
+            "isLegalEntity" => false,
+            "taxNumber" => $company->settings->vat_number,
+            "name" => $company->getSetting('classification') === 'individual' ? substr($company->owner()->present()->name(), 0, 40) : substr($company->present()->name(), 0, 40),
+            "address" => substr($company->settings->address1, 0, 80),
+            "postCode" => substr($this->invoice->client->postal_code, 0, 5),
+            "town" => substr($company->settings->city, 0, 50),
+            "province" => substr($company->settings->state, 0, 20),
+            "countryCode" => $company->country()->iso_3166_3,  // Se asume España si se omite
+            // "book" => "0",  // Libro
+            // "merchantRegister" => "RG", // Registro Mercantil
+            // "sheet" => "1",  // Hoja
+            // "folio" => "2",  // Folio
+            // "section" => "3",  // Sección
+            // "volume" => "4",  // Tomo
+            "email" => substr($company->settings->email, 0, 60),
+            "phone" => substr($company->settings->phone, 0, 15),
+            "fax" => "",
+            "website" => substr($company->settings->website, 0, 50),
+            // "contactPeople" => substr($company->owner()->present()->name(), 0, 40),
+            "firstSurname" => $company->owner()->present()->firstName(),
+            "lastSurname" => $company->owner()->present()->lastName(),
+        ]);
+
+        $this->fac->setSeller($seller);
+                
+        return $this;
+
+
+    }
+
+
     private function buildBuyer(): self
     {
 
         $buyer = new FacturaeParty([
-        "isLegalEntity" => $this->invoice->client->has_valid_vat_number,
+        "isLegalEntity" => $this->invoice->client->classification === 'individual' ? false : true,
         "taxNumber"     => $this->invoice->client->vat_number,
         "name"          => substr($this->invoice->client->present()->name(),0, 40),
         "firstSurname"  => substr($this->invoice->client->present()->first_name(),0, 40),

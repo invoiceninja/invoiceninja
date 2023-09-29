@@ -73,7 +73,10 @@ class TaskStatusController extends BaseController
      */
     public function create(CreateTaskStatusRequest $request)
     {
-        $task_status = TaskStatusFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $task_status = TaskStatusFactory::create($user->company()->id, auth()->user()->id);
 
         return $this->itemResponse($task_status);
     }
@@ -87,8 +90,10 @@ class TaskStatusController extends BaseController
     */
     public function store(StoreTaskStatusRequest $request)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
-        $task_status = TaskStatusFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        $task_status = TaskStatusFactory::create($user->company()->id, auth()->user()->id);
         $task_status->fill($request->all());
 
         $task_status->save();

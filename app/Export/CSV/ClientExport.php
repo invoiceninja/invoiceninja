@@ -71,7 +71,11 @@ class ClientExport extends BaseExport
         'contact_custom_value3' => 'contact.custom_value3',
         'contact_custom_value4' => 'contact.custom_value4',
         'email' => 'contact.email',
-        'status' => 'status'
+        'status' => 'status',
+        'payment_balance' => 'client.payment_balance',
+        'credit_balance' => 'client.credit_balance',
+        'classification' => 'client.classification',
+
     ];
 
     public function __construct(Company $company, array $input)
@@ -221,6 +225,10 @@ class ClientExport extends BaseExport
 
         if (in_array('client.industry_id', $this->input['report_keys'])) {
             $entity['industry_id'] = $client->industry ? ctrans("texts.industry_{$client->industry->name}") : '';
+        }
+
+        if (in_array('client.classification', $this->input['report_keys']) && isset($client->classification)) {
+            $entity['client.classification'] = ctrans("texts.{$client->classification}") ?? '';
         }
 
         return $entity;

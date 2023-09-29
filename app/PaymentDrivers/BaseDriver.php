@@ -330,7 +330,7 @@ class BaseDriver extends AbstractPaymentDriver
         $payment->gateway_type_id = $data['gateway_type_id'];
 
         $client_contact = $this->getContact();
-        $client_contact_id = $client_contact ? $client_contact->id : null;
+        $client_contact_id = $client_contact ? $client_contact->id : $this->client->contacts()->first()->id;
 
         $payment->amount = $data['amount'];
         $payment->type_id = $data['payment_type'];
@@ -430,9 +430,9 @@ class BaseDriver extends AbstractPaymentDriver
     public function getContact()
     {
         if ($this->invitation) {
-            return ClientContact::find($this->invitation->client_contact_id);
+            return ClientContact::withTrashed()->find($this->invitation->client_contact_id);
         } elseif (auth()->guard('contact')->user()) {
-            return auth()->user();
+            return auth()->guard('contact')->user();
         } else {
             return false;
         }
