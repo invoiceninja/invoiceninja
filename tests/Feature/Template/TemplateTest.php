@@ -132,9 +132,9 @@ class TemplateTest extends TestCase
                             <td class="whitespace-nowrap px-6 py-4 font-medium">{{ invoice.number }}</td>
                             <td class="whitespace-nowrap px-6 py-4 font-medium">{{ invoice.date }}</td>
                             <td class="whitespace-nowrap px-6 py-4 font-medium">{{ invoice.due_date }}</td>
-                            <td class="whitespace-nowrap px-6 py-4 font-medium">{{ invoice.amount|format_currency("EUR") }}</td>
+                            <td class="whitespace-nowrap px-6 py-4 font-medium">{{ invoice.amount }}</td>
                             <td class="whitespace-nowrap px-6 py-4 font-medium"></td>
-                            <td class="whitespace-nowrap px-6 py-4 font-medium">{{ invoice.balance|format_currency("EUR") }}</td>
+                            <td class="whitespace-nowrap px-6 py-4 font-medium">{{ invoice.balance }}</td>
                         </tr>
 
                         {% for payment in invoice.payments|filter(payment => payment.is_deleted == false) %}
@@ -146,10 +146,10 @@ class TemplateTest extends TestCase
                                 <td class="whitespace-nowrap px-6 py-4 font-medium">{{ payment.date }}</td>
                                 <td class="whitespace-nowrap px-6 py-4 font-medium"></td>
                                 <td class="whitespace-nowrap px-6 py-4 font-medium">
-                                {% if pivot.amount > 0 %}
-                                    {{ pivot.amount|format_currency("EUR") }} - {{ payment.type.name }}
+                                {% if pivot.amount_raw > 0 %}
+                                    {{ pivot.amount }} - {{ payment.type.name }}
                                 {% else %}
-                                    ({{ pivot.refunded|format_currency("EUR") }})
+                                    ({{ pivot.refunded }})
                                 {% endif %}
                                 </td>
                                 <td class="whitespace-nowrap px-6 py-4 font-medium"></td>

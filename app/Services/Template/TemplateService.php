@@ -111,7 +111,6 @@ class TemplateService
         $this->data = $tm->engines;
         $this->variables = $tm->variables[0];
 
-        nlog($this->data);
 
         $this->parseNinjaBlocks()
              ->parseVariables();
@@ -151,7 +150,8 @@ class TemplateService
             $template = $template->render($this->data);
 
             $f = $this->document->createDocumentFragment();
-            $f->appendXML($template);
+            nlog($template);
+            $f->appendXML(html_entity_decode($template));
             $replacements[] = $f;
 
         }
@@ -219,7 +219,7 @@ class TemplateService
         $html .= $this->template->design->body;
         $html .= $this->template->design->footer;
 
-        @$this->document->loadHTML($html);
+        @$this->document->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
 
         return $this;
 
@@ -240,7 +240,7 @@ class TemplateService
         $html .= $partials['design']['body'];
         $html .= $partials['design']['footer'];
 
-        @$this->document->loadHTML($html);
+        @$this->document->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
 
         return $this;
 
@@ -400,7 +400,7 @@ class TemplateService
         return $invoices['data'];
     }
 
-private function transformPayment(Payment $payment): array
+    private function transformPayment(Payment $payment): array
     {
 
         $data = [];
@@ -530,22 +530,29 @@ private function transformPayment(Payment $payment): array
      */
     public function processPayments($payments): array
     {
-        $it = new PaymentTransformer();
-        $it->setDefaultIncludes(['client','invoices','paymentables']);
-        $manager = new Manager();
-        $manager->parseIncludes(['client','invoices','paymentables']);
-        $resource = new \League\Fractal\Resource\Collection($payments, $it, null);
-        $resources = $manager->createData($resource)->toArray();
 
-        foreach($resources['data'] as $key => $resource) {
+        $payments = $payments->map(function ($payment) {
+            // nlog(microtime(true));
+            return $this->transformPayment($payment);
+        })->toArray();
 
-            $resources['data'][$key]['client'] = $resource['client']['data'] ?? [];
-            $resources['data'][$key]['client']['contacts'] = $resource['client']['data']['contacts']['data'] ?? [];
-            $resources['data'][$key]['invoices'] = $invoice['invoices']['data'] ?? [];
+        return $payments;
+        // $it = new PaymentTransformer();
+        // $it->setDefaultIncludes(['client','invoices','paymentables']);
+        // $manager = new Manager();
+        // $manager->parseIncludes(['client','invoices','paymentables']);
+        // $resource = new \League\Fractal\Resource\Collection($payments, $it, null);
+        // $resources = $manager->createData($resource)->toArray();
 
-        }
+        // foreach($resources['data'] as $key => $resource) {
 
-        return $resources['data'];
+        //     $resources['data'][$key]['client'] = $resource['client']['data'] ?? [];
+        //     $resources['data'][$key]['client']['contacts'] = $resource['client']['data']['contacts']['data'] ?? [];
+        //     $resources['data'][$key]['invoices'] = $invoice['invoices']['data'] ?? [];
+
+        // }
+
+        // return $resources['data'];
 
     }
 
