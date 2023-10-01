@@ -229,11 +229,6 @@ class TemplateTest extends TestCase
 
         $arr = $response->json();
 
-        // $p = Payment::with('client','invoices','paymentables','credits')
-        // ->where('id', $this->decodePrimaryKey($arr['data']['id']))->first();
-
-        // nlog($p->toArray());
-
         $start = microtime(true);
 
         $p = Payment::with('client','invoices','paymentables','credits')
@@ -251,7 +246,8 @@ class TemplateTest extends TestCase
         $this->assertIsArray($data);
 
         $start = microtime(true);
-\DB::enableQueryLog();
+        
+        \DB::enableQueryLog();
 
         $invoices = Invoice::with('client','payments.client','payments.paymentables','payments.credits','credits.client')
         ->orderBy('id','desc')
@@ -260,8 +256,9 @@ class TemplateTest extends TestCase
         ->get()
         ->map(function($invoice){
 
+            $payments = [];
             $payments = $invoice->payments->map(function ($payment){
-                nlog(microtime(true));
+                // nlog(microtime(true));
                 return $this->transformPayment($payment);
             })->toArray();
 
@@ -318,16 +315,19 @@ class TemplateTest extends TestCase
                     'payment_balance' => $invoice->client->payment_balance,
                     'credit_balance' => $invoice->client->credit_balance,
                 ],
-                'payments' => $payments
+                'payments' => $payments,
             ];
-        })->toArray();
+        });
 
         $queries = \DB::getQueryLog();
         $count = count($queries);
 
         nlog("query count = {$count}");
-        nlog($invoices);
-        $this->assertIsArray($invoices);
+
+        $x = $invoices->toArray();
+        nlog(json_encode(htmlspecialchars(json_encode($x), ENT_QUOTES, 'UTF-8')));
+        // nlog($invoices->toJson());
+        $this->assertIsArray($invoices->toArray());
 
         nlog("end invoices = " . microtime(true) - $start);
 
