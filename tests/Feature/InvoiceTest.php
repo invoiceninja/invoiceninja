@@ -11,17 +11,18 @@
 
 namespace Tests\Feature;
 
-use App\Helpers\Invoice\InvoiceSum;
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Invoice;
-use App\Repositories\InvoiceRepository;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\Session;
-use Tests\MockAccountData;
 use Tests\TestCase;
+use App\Models\Client;
+use App\Models\Invoice;
+use App\Models\Project;
+use Tests\MockAccountData;
+use App\Models\ClientContact;
+use App\Utils\Traits\MakesHash;
+use App\Helpers\Invoice\InvoiceSum;
+use App\Repositories\InvoiceRepository;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * @test
@@ -47,6 +48,41 @@ class InvoiceTest extends TestCase
 
         $this->makeTestData();
     }
+
+    public function testPostNewInvoiceWithProjectButNoClient()
+    {
+
+        $p = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+        ]);
+        
+        $invoice = [
+            'status_id' => 1,
+            'number' => 'dfdfd',
+            'discount' => 0,
+            'is_amount_discount' => 1,
+            'po_number' => '3434343',
+            'public_notes' => 'notes',
+            'is_deleted' => 0,
+            'custom_value1' => 0,
+            'custom_value2' => 0,
+            'custom_value3' => 0,
+            'custom_value4' => 0,
+            'status' => 1,
+            'project_id' => $p->hashed_id
+            // 'client_id' => $this->encodePrimaryKey($this->client->id),
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/invoices/', $invoice)
+            ->assertStatus(422);
+
+    }
+
 
     public function testInvoiceGetDatesBetween()
     {
