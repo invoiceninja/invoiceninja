@@ -59,11 +59,16 @@ class PdfSlot extends Component
     public function mount()
     {
         MultiDB::setDb($this->db);
+
+        if(!$this->invitation) {
+            $this->entity->service()->createInvitations();
+            $this->invitation = $this->entity->invitations()->first();
+        }
+
     }
 
     public function getPdf()
     {
-        // $this->pdf = $this->entity->fullscreenPdfViewer($this->invitation);
 
         $blob = [
             'entity_type' => $this->resolveEntityType(),
@@ -74,7 +79,7 @@ class PdfSlot extends Component
 
         $hash = Str::random(64);
 
-        Cache::put($hash, $blob, now()->addMinutes(2));
+        Cache::put($hash, $blob, 1800);
 
         $this->pdf = $hash;
 

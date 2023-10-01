@@ -46,7 +46,7 @@
     </section>
 </div>
 
-@livewire('pdf-slot', ['entity' => $entity, 'invitation' => $invitation, 'db' => $invitation->company->db])
+@livewire('pdf-slot', ['entity' => $entity, 'invitation' => $invitation, 'db' => $entity->company->db])
 
 @if($mobile)
     @push('footer')

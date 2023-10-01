@@ -87,6 +87,12 @@ class InvoiceController extends Controller
     public function showBlob($hash)
     {
         $data = Cache::get($hash);
+
+        if(!$data){
+            usleep(200000);
+            $data = Cache::get($hash);
+        }
+
         $invitation = false;
         
         match($data['entity_type'] ?? false){
