@@ -323,10 +323,11 @@ class TemplateTest extends TestCase
         $count = count($queries);
 
         nlog("query count = {$count}");
-
         $x = $invoices->toArray();
-        nlog(json_encode(htmlspecialchars(json_encode($x), ENT_QUOTES, 'UTF-8')));
+        nlog(json_encode($x));
+        // nlog(json_encode(htmlspecialchars(json_encode($x), ENT_QUOTES, 'UTF-8')));
         // nlog($invoices->toJson());
+
         $this->assertIsArray($invoices->toArray());
 
         nlog("end invoices = " . microtime(true) - $start);
