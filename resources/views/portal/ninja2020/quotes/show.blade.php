@@ -100,7 +100,7 @@
     @endif
 
     @include('portal.ninja2020.components.entity-documents', ['entity' => $quote])
-    @livewire('pdf-slot', ['entity' => $quote, 'invitation' => $invitation, 'db' => $invitation->company->db])
+    @livewire('pdf-slot', ['entity' => $quote, 'invitation' => $invitation, 'db' => $quote->company->db])
 
 @endsection
 

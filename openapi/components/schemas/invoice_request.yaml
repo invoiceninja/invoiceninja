@@ -234,4 +234,8 @@
           description: 'Toggles charging taxes on custom surcharge amounts'
           type: boolean
           example: true
+        project_id:
+          description: 'The project associated with this invoice'
+          type: string
+          example: Opnel5aKBz
       type: object

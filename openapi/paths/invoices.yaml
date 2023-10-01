@@ -132,7 +132,22 @@
       tags:
         - invoices
       summary: "Create invoice"
-      description: "Adds a invoice to a company"
+      description: | 
+        Adds a invoice to a company
+
+        Triggered actions are available when updating or creating an invoice.  
+        These are query parameters that can be chained in order to perform additional actions on the entity, these include:
+
+          ```
+          ?send_email=true [Saves and sends the invoice]
+          ?mark_sent=true [Saves and marks the invoice as sent]
+          ?paid=true [Saves and marks the invoice as paid]
+          ?amount_paid=100 [Saves and marks the invoice as paid with the given amount]
+          ?cancel=true [Saves and marks the invoice as cancelled]
+          ?save_default_footer=true [Saves the current footer as the default footer]
+          ?save_default_terms=true [Saves the current terms as the default terms]
+          ```
+
       operationId: storeInvoice
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -221,7 +236,22 @@
       tags:
         - invoices
       summary: "Update invoice"
-      description: "Handles the updating of an invoice by id"
+      description: |
+        Handles the updating of an invoice by id.
+
+        Triggered actions are available when updating or creating an invoice.  
+        These are query parameters that can be chained in order to perform additional actions on the entity, these include:
+
+          ```
+          ?send_email=true [Saves and sends the invoice]
+          ?mark_sent=true [Saves and marks the invoice as sent]
+          ?paid=true [Saves and marks the invoice as paid]
+          ?amount_paid=100 [Saves and marks the invoice as paid with the given amount]
+          ?cancel=true [Saves and marks the invoice as cancelled]
+          ?save_default_footer=true [Saves the current footer as the default footer]
+          ?save_default_terms=true [Saves the current terms as the default terms]
+          ```
+
       operationId: updateInvoice
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"

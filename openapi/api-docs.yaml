@@ -2766,11 +2766,15 @@ paths:
       parameters:
         - $ref: "#/components/parameters/X-Requested-With"
       requestBody:
-        description: "The template subject and body"
+        description: "Required fields to send an email"
         required: true
         content:
           application/json:
             schema:
+              required:
+                - entity
+                - entity_id
+                - template
               properties:
                 subject:
                   description: "The email subject"
@@ -2784,9 +2788,13 @@ paths:
                 entity_id:
                   description: "The entity_id"
                   type: string
+                cc_email:
+                  description: "The email address of a user to be CC'd on the email"
+                  type: string
                 template:
                   description: "The template required"
                   type: string
+                  example: invoice,quote,credit,purchase_order,payment,payment_partial,reminder1,reminder2,reminder3,reminder_endless
               type: object
       responses:
         200:
@@ -11226,7 +11234,22 @@ paths:
       tags:
         - invoices
       summary: "Create invoice"
-      description: "Adds a invoice to a company"
+      description: | 
+        Adds a invoice to a company
+
+        Triggered actions are available when updating or creating an invoice.  
+        These are query parameters that can be chained in order to perform additional actions on the entity, these include:
+
+          ```
+          ?send_email=true [Saves and sends the invoice]
+          ?mark_sent=true [Saves and marks the invoice as sent]
+          ?paid=true [Saves and marks the invoice as paid]
+          ?amount_paid=100 [Saves and marks the invoice as paid with the given amount]
+          ?cancel=true [Saves and marks the invoice as cancelled]
+          ?save_default_footer=true [Saves the current footer as the default footer]
+          ?save_default_terms=true [Saves the current terms as the default terms]
+          ```
+
       operationId: storeInvoice
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -11315,7 +11338,22 @@ paths:
       tags:
         - invoices
       summary: "Update invoice"
-      description: "Handles the updating of an invoice by id"
+      description: |
+        Handles the updating of an invoice by id.
+
+        Triggered actions are available when updating or creating an invoice.  
+        These are query parameters that can be chained in order to perform additional actions on the entity, these include:
+
+          ```
+          ?send_email=true [Saves and sends the invoice]
+          ?mark_sent=true [Saves and marks the invoice as sent]
+          ?paid=true [Saves and marks the invoice as paid]
+          ?amount_paid=100 [Saves and marks the invoice as paid with the given amount]
+          ?cancel=true [Saves and marks the invoice as cancelled]
+          ?save_default_footer=true [Saves the current footer as the default footer]
+          ?save_default_terms=true [Saves the current terms as the default terms]
+          ```
+
       operationId: updateInvoice
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -16746,6 +16784,10 @@ components:
           description: 'Toggles charging taxes on custom surcharge amounts'
           type: boolean
           example: true
+        project_id:
+          description: 'The project associated with this invoice'
+          type: string
+          example: Opnel5aKBz
       type: object
     FillableInvoice:
       properties:
@@ -19032,6 +19074,10 @@ components:
           description: 'Toggles charging taxes on custom surcharge amounts'
           type: boolean
           example: true
+        project_id:
+          description: 'The project associated with this invoice'
+          type: string
+          example: Opnel5aKBz
       type: object
     ClientRequest:
       required:
