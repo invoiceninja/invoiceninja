@@ -34,6 +34,7 @@ use App\Transformers\CreditTransformer;
 use App\Transformers\InvoiceTransformer;
 use App\Transformers\PaymentTransformer;
 use App\Transformers\ProjectTransformer;
+use App\Services\Template\LogoTokenParser;
 use App\Transformers\PurchaseOrderTransformer;
 use League\Fractal\Serializer\ArraySerializer;
 use League\Fractal\Serializer\JsonApiSerializer;
@@ -75,6 +76,11 @@ class TemplateService
         $string_extension = new \Twig\Extension\StringLoaderExtension();
         $this->twig->addExtension($string_extension);
         $this->twig->addExtension(new IntlExtension());
+
+        $function = new \Twig\TwigFunction('img', function ($string, $style = '') {
+            return '<img src="'.$string.'" style="'.$style.'"></img>';
+        });
+        $this->twig->addFunction($function);
 
         return $this;
     }
@@ -156,10 +162,16 @@ class TemplateService
             }
 
             $template = $template->render($this->data);
-
+nlog($template);
             $f = $this->document->createDocumentFragment();
-            
-            $f->appendXML(html_entity_decode($template));
+            // nlog($template);
+            // $f->appendChild(html_entity_decode($template));
+            // $template = html_entity_decode(htmlentities($template, ENT_QUOTES, 'UTF-8'));
+
+// $f->appendXML(html_encode$template);
+$f->appendXML(html_entity_decode($template));
+            // $f->appendChild($this->document->createTextNode($template));
+
             $replacements[] = $f;
 
         }
