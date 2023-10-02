@@ -36,6 +36,9 @@
                             @if($company && !is_null($company))
                             <input type="hidden" name="company_key" value="{{$company->company_key}}">
                             @endif
+                            @if($is_react)
+                            <input type="hidden" name="react" value="true">
+                            @endif
                             <input type="email" name="email" id="email"
                                    class="input"
                                    value="{{ request()->query('email') ?? old('email') }}"

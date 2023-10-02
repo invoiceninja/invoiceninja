@@ -19,6 +19,7 @@ use App\Utils\Traits\MakesHash;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Services\User\UserService;
 use App\Utils\Traits\UserSettings;
+use Illuminate\Support\Facades\App;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Mail\Admin\ResetPasswordObject;
 use Illuminate\Database\Eloquent\Model;
@@ -61,6 +62,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property string|null $last_login
  * @property string|null $signature
  * @property string $password
+ * @property string $language_id
  * @property string|null $remember_token
  * @property string|null $custom_value1
  * @property string|null $custom_value2
@@ -153,6 +155,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'custom_value4',
         'is_deleted',
         'shopify_user_id',
+        'language_id',
         // 'oauth_user_token',
         // 'oauth_user_refresh_token',
     ];
@@ -633,20 +636,36 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function sendPasswordResetNotification($token)
     {
+        $is_react = request()->has('react') || request()->hasHeader('X-React') ? true : false;
+
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer((new ResetPasswordObject($token, $this, $this->account->default_company))->build());
+        $nmo->mailable = new NinjaMailer((new ResetPasswordObject($token, $this, $this->account->default_company, $is_react))->build());
         $nmo->to_user = $this;
         $nmo->settings = $this->account->default_company->settings;
         $nmo->company = $this->account->default_company;
 
         NinjaMailerJob::dispatch($nmo, true);
 
-        //$this->notify(new ResetPasswordNotification($token));
     }
 
     public function service()
     {
         return new UserService($this);
+    }
+
+    public function language()
+    {
+        return $this->belongsTo(Language::class);
+    }
+
+    public function getLocale()
+    {
+        $locale = $this->language->locale ?? false;
+    
+        if($locale)
+            App::setLocale($locale);
+
+        return $locale;
     }
 
     public function translate_entity()

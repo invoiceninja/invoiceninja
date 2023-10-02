@@ -14306,29 +14306,46 @@ components:
     
     TaskStatus:
       properties:
+        id:
+          description: 'The task status hashed id'
+          type: string
+          example: Opnel5aKBz
+          readOnly: true
         name:
           description: 'The task status name'
           type: string
           example: Backlog
+        color:
+          description: 'The task status color - hex value'
+          type: string
+          example: '#000000'
+        task_status_order:
+          description: 'The order of the task status'
+          type: integer
+          example: '4'
         created_at:
           description: Timestamp
           type: number
           format: integer
           example: '134341234234'
+          readOnly: true
         is_deleted:
           description: 'A boolean flag determining if the task status has been deleted'
           type: boolean
           example: true
+          readOnly: true
         updated_at:
           description: Timestamp
           type: number
           format: integer
           example: '134341234234'
+          readOnly: true
         archived_at:
           description: Timestamp
           type: number
           format: integer
           example: '134341234234'
+          readOnly: true
       type: object
     TaxRate:
       properties:
@@ -14336,6 +14353,7 @@ components:
           description: 'Thie hashed id of the tax'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         name:
           description: 'The tax name'
           type: string
@@ -16116,6 +16134,10 @@ components:
           description: 'The email signature for emails'
           type: string
           example: 'Bob Smith'
+        classification:
+          description: 'The classification for the company'
+          type: string
+          example: 'individual'
       type: object
     SystemLog:
       properties:
@@ -17682,13 +17704,17 @@ components:
           type: string
           example: 'A wonder task to work on'
         duration:
-          description: 'The task duration'
+          description: 'The task duration in seconds'
           type: integer
-          example: ''
+          example: '3600'
         task_status_order:
           description: 'The order of the task'
           type: integer
           example: '4'
+        rate:
+          description: 'The task rate'
+          type: number
+          example: 10.00
         custom_value1:
           description: 'A custom value'
           type: string
@@ -17705,21 +17731,37 @@ components:
           description: 'A custom value'
           type: string
           example: INV-3343
+        is_date_based:
+          description: 'Boolean flag determining if the task is date based'
+          type: boolean
+          example: true
+        calculated_start_date:
+          description: 'The calculated start date of the task'
+          type: string
+          example: '2022-10-10'
+          readOnly: true
+        invoice_documents:
+          description: "Boolean flags which determines whether to include the task documents on the invoice"
+          type: boolean
+          example: true
         created_at:
           description: Timestamp
           type: number
           format: integer
           example: '1434342123'
+          readOnly: true
         updated_at:
           description: Timestamp
           type: number
           format: integer
           example: '1434342123'
+          readOnly: true
         archived_at:
           description: Timestamp
           type: number
           format: integer
           example: '1434342123'
+          readOnly: true
       type: object
     ClientContact:
       properties:
@@ -17888,6 +17930,7 @@ components:
           description: 'The hashed id of the vendor contact'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         user_id:
           description: 'The hashed id of the user id'
           type: string
@@ -17941,16 +17984,19 @@ components:
           type: number
           format: integer
           example: '134341234234'
+          readOnly: true
         updated_at:
           description: Timestamp
           type: number
           format: integer
           example: '134341234234'
+          readOnly: true
         deleted_at:
           description: Timestamp
           type: number
           format: integer
           example: '134341234234'
+          readOnly: true
       type: object
     Subscription:
       properties:
@@ -18859,10 +18905,12 @@ components:
           description: 'The invoice hashed id'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         user_id:
           description: 'The user hashed id'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         assigned_user_id:
           description: 'The assigned user hashed id'
           type: string
@@ -18871,6 +18919,7 @@ components:
           description: 'The company hashed id'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         client_id:
           description: 'The client hashed id'
           type: string
@@ -19078,6 +19127,20 @@ components:
           description: 'The project associated with this invoice'
           type: string
           example: Opnel5aKBz
+        auto_bill_tries:
+          description: 'The number of times the invoice has attempted to be auto billed'
+          type: integer
+          example: '1'
+          readOnly: true
+        auto_bill_enabled:
+          description: 'Boolean flag determining if the invoice is set to auto bill'
+          type: boolean
+          example: true
+        subscription_id:
+          description: 'The subscription associated with this invoice'
+          type: string
+          example: Opnel5aKBz
+        
       type: object
     ClientRequest:
       required:
@@ -19217,134 +19280,160 @@ components:
           type: boolean
           example: false
           readOnly: true
+        classification:
+          description: 'The classification of the client'
+          type: string
+          example: 'individual'
         settings:
           $ref: '#/components/schemas/ClientSettings'
       type: object
     Vendor:
       properties:
         id:
-          description: 'The hashed id of the vendor'
+          description: 'The hashed id of the vendor. This is a unique identifier for the vendor.'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         user_id:
-          description: 'The hashed id of the user who created the vendor'
+          description: 'The hashed id of the user who created the vendor. This is a unique identifier for the user.'
           type: string
           example: Opnel5aKBz
         assigned_user_id:
-          description: 'The hashed id of the assigned user to this vendor'
+          description: 'The hashed id of the assigned user to this vendor. This is a unique identifier for the user.'
           type: string
           example: Opnel5aKBz
         company_id:
-          description: 'The hashed id of the company'
+          description: 'The hashed id of the company. This is a unique identifier for the company.'
           type: string
           example: Opnel5aKBz
         client_id:
-          description: 'The hashed id of the client'
+          description: 'The hashed id of the client. This is a unique identifier for the client.'
           type: string
           example: Opnel5aKBz
         contacts:
           type: array
           items:
             $ref: '#/components/schemas/VendorContact'
+          description: 'An array of contacts associated with the vendor.'
         name:
-          description: 'The vendor name'
+          description: 'The name of the vendor.'
           type: string
-          example: 'Harry''s cafe de wheels'
+          example: 'Harry cafe de wheels'
+        classification:
+          description: 'The classification of the vendor.'
+          type: string
+          example: 'individual'
         website:
-          description: 'The website of the vendor'
+          description: 'The website of the vendor.'
           type: string
           example: www.harry.com
         private_notes:
-          description: 'The private notes of the vendor'
+          description: 'The private notes of the vendor. These notes are only visible to users with appropriate permissions.'
           type: string
-          example: 'Shhh, don''t tell the vendor'
+          example: 'Shhh, do not tell the vendor'
         industry_id:
-          description: 'The industry id of the vendor'
+          description: 'The industry id of the vendor. This is a unique identifier for the industry.'
           type: string
           example: '1'
         size_id:
-          description: ________
+          description: 'The size id of the vendor. This is a unique identifier for the size of the vendor.'
           type: string
           example: ''
         address1:
-          description: ________
+          description: 'The first line of the vendor''s address.'
           type: string
           example: ''
         address2:
-          description: ________
+          description: 'The second line of the vendor''s address.'
           type: string
           example: ''
         city:
-          description: ________
+          description: 'The city of the vendor''s address.'
           type: string
           example: ''
         state:
-          description: ________
+          description: 'The state of the vendor''s address.'
           type: string
           example: ''
         postal_code:
-          description: ________
+          description: 'The postal code of the vendor''s address.'
           type: string
           example: ''
         phone:
-          description: 'The client phone number'
+          description: 'The phone number of the vendor.'
           type: string
           example: 555-3434-3434
         country_id:
-          description: ________
+          description: 'The country id of the vendor. This is a unique identifier for the country.'
           type: string
           example: ''
         currency_id:
-          description: ________
+          description: 'The currency id of the vendor. This is a unique identifier for the currency.'
           type: string
           example: '4'
         custom_value1:
-          description: ________
+          description: 'The value of the first custom field for the vendor.'
           type: string
           example: ''
         custom_value2:
-          description: ________
+          description: 'The value of the second custom field for the vendor.'
           type: string
           example: ''
         custom_value3:
-          description: ________
+          description: 'The value of the third custom field for the vendor.'
           type: string
           example: ''
         custom_value4:
-          description: ________
+          description: 'The value of the fourth custom field for the vendor.'
           type: string
           example: ''
         vat_number:
-          description: ________
+          description: 'The VAT number of the vendor.'
           type: string
           example: ''
         id_number:
-          description: ________
+          description: 'The ID number of the vendor.'
           type: string
           example: ''
         number:
-          description: ________
+          description: 'The number of the vendor'
           type: string
-          example: ''
+          example: '11234'
         is_deleted:
-          description: ________
+          description: 'Boolean flag determining if the vendor has been deleted'
           type: boolean
           example: true
+        language_id:
+          description: 'The language id of the vendor. This is a unique identifier for the language.'
+          type: string
+          example: '1'
+        vendor_hash:
+          description: 'The vendor hash of the vendor. This is a unique identifier for the vendor.'
+          type: string
+          example: 'aaa-sss-www'
+          readOnly: true
+        transaction_name:
+          description: 'The transaction name of the vendor.'
+          type: string
+          example: 'aaa-sss-www'
         last_login:
           description: Timestamp
           type: number
           format: integer
           example: '134341234234'
+          readOnly: true
         created_at:
           description: Timestamp
           type: number
           format: integer
           example: '134341234234'
+          readOnly: true
         updated_at:
           description: Timestamp
           type: number
           format: integer
           example: '134341234234'
+          readOnly: true
         settings:
           $ref: '#/components/schemas/CompanySettings'
       type: object
@@ -20713,6 +20802,7 @@ components:
           description: 'The hashed id of the user'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         first_name:
           description: 'The first name of the user'
           type: string
@@ -20741,14 +20831,72 @@ components:
           description: 'The version of the invoice ninja terms that has been accepted by the user'
           type: string
           example: 1.0.1
+          readOnly: true
         oauth_user_id:
           description: 'The provider id of the oauth entity'
           type: string
           example: jkhasdf789as6f675sdf768sdfs
+          readOnly: true
         oauth_provider_id:
           description: 'The oauth entity id'
           type: string
           example: google
+          readOnly: true
+        language_id:
+          description: 'The language id of the user'
+          type: string
+          example: 1  
+        verified_phone_number:
+          description: 'Boolean flag if the user has their phone verified. Required to settings up 2FA'
+          type: boolean
+          example: true
+          readOnly: true
+        sms_verification_code:
+          description: 'The sms verification code for the user. Required to settings up 2FA'
+          type: string
+          example: '123456'
+          readOnly: true
+        oauth_user_token_expiry:
+          description: 'The expiry date of the oauth token'
+          type: string
+          example: '2022-10-10'
+          readOnly: true
+        has_password:
+          description: 'Boolean flag determining if the user has a password'
+          type: boolean
+          example: true
+          readOnly: true
+        last_confirmed_email_address:
+          description: 'The last confirmed email address of the user'
+          type: string
+          example: 'bob@gmail.com'
+          readOnly: true
+        custom_value1:
+          description: 'A custom value'
+          type: string
+          example: 'Custom value 1'
+        custom_value2:
+          description: 'A custom value'
+          type: string
+          example: '$1000'
+        custom_value3:
+          description: 'A custom value'
+          type: string
+          example: 'Custom value 3'
+        custom_value4:
+          description: 'A custom value'
+          type: string
+          example: 'Custom value 4'
+        is_deleted:
+          description: 'Boolean flag determining if the user has been deleted'
+          type: boolean
+          example: true
+          readOnly: true
+        google_2fa_secret:
+          description: 'The google 2fa secret for the user'
+          type: string
+          example: '123456'
+          readOnly: true
       type: object
     Account:
       properties:

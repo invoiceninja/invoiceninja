@@ -90,6 +90,8 @@ class ForgotPasswordController extends Controller
             $account = Account::find($account_id);
         }
 
-        return $this->render('auth.passwords.request', ['root' => 'themes', 'account' => $account]);
+         $is_react = request()->has('react') ? true : false;
+
+        return $this->render('auth.passwords.request', ['root' => 'themes', 'account' => $account, 'is_react' => $is_react]);
     }
 }

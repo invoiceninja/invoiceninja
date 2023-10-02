@@ -835,4 +835,8 @@
           description: 'The email signature for emails'
           type: string
           example: 'Bob Smith'
+        classification:
+          description: 'The classification for the company'
+          type: string
+          example: 'individual'
       type: object
