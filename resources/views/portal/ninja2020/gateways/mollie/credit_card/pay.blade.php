@@ -7,8 +7,8 @@ ctrans('texts.credit_card')])
 
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     
-    <script src="{{ asset('build/public/js/card-js.min.js/card-js.min.js') }}"></script>
-    <link href="{{ asset('build/public/css/card-js.min.css/card-js.min.css') }}" rel="stylesheet" type="text/css">
+    <script src="https://www.unpkg.com/card-js@1.0.13/card-js.min.js"></script>
+    <link href="https://www.unpkg.com/card-js@1.0.13/card-js.min.css" rel="stylesheet" type="text/css">
 @endsection
 
 @section('gateway_content')
