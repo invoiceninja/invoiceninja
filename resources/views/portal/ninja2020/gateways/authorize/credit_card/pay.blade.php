@@ -5,10 +5,10 @@
     <meta name="authorize-login-id" content="{{ $api_login_id }}">
 
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-    @vite('node_modules/card-js/card-js.min.js')
     <meta name="authnet-require-cvv" content="{{ $gateway->company_gateway->require_cvv }}">
 
-    <link href="{{ asset('css/card-js.min.css') }}" rel="stylesheet" type="text/css">
+    <script src="{{ asset('build/public/js/card-js.min.js/card-js.min.js') }}"></script>
+    <link href="{{ asset('build/public/css/card-js.min.css/card-js.min.css') }}" rel="stylesheet" type="text/css">
 @endsection
 
 @section('gateway_content')
