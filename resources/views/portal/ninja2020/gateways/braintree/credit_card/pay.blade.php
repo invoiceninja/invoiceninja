@@ -75,7 +75,9 @@
 @endsection
 
 @section('gateway_footer')
-    @vite('resources/js/clients/payments/braintree-credit-card.js')
+
+    <script defer src="{{ asset('js/clients/payments/braintree-credit-card.js') }}"></script>
+
 @endsection
 
 <div id="threeds"></div>
