@@ -374,11 +374,20 @@ class PreviewController extends BaseController
         //     'projects' => Project::query()->company()->with('tasks','client')->where('client_id', $client_id)->orderBy('id','desc')->take(2)->get(),
         // ];
 
+
         $ts = (new TemplateService());
-        $ts->setCompany($company)
-            ->setTemplate($design_object)
-            ->mock();
-        
+        try {
+                $ts->setCompany($company)
+                    ->setTemplate($design_object)
+                    ->mock();
+        }
+        catch(\Twig\Error\SyntaxError $e)
+        {
+
+            // return response()->json(['message' => 'Twig syntax is invalid.', 'errors' => new \stdClass], 422);
+
+        }
+
         $html = $ts->getHtml();
 
         if (request()->query('html') == 'true') {

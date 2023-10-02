@@ -29,6 +29,7 @@ use App\Utils\Traits\MakesDates;
 use Twig\Extra\Intl\IntlExtension;
 use App\Transformers\TaskTransformer;
 use App\Transformers\QuoteTransformer;
+use App\Services\Template\TemplateMock;
 use App\Transformers\CreditTransformer;
 use App\Transformers\InvoiceTransformer;
 use App\Transformers\PaymentTransformer;
@@ -146,11 +147,18 @@ class TemplateService
                                         
             $template = $content->ownerDocument->saveHTML($content);
 
-            $template = $this->twig->createTemplate(html_entity_decode($template));
+            try {
+                $template = $this->twig->createTemplate(html_entity_decode($template));
+            }
+            catch(\Twig\Error\SyntaxError $e) {
+                nlog($e->getMessage());
+                throw ($e);
+            }
+
             $template = $template->render($this->data);
 
             $f = $this->document->createDocumentFragment();
-            nlog($template);
+            
             $f->appendXML(html_entity_decode($template));
             $replacements[] = $f;
 
