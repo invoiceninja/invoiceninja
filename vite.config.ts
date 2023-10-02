@@ -54,14 +54,6 @@ export default defineConfig({
         viteStaticCopy({
             targets: [
                 {
-                    src: 'node_modules/card-js/card-js.min.js',
-                    dest: 'public/js/card-js.min.js',
-                },
-                {
-                    src: 'node_modules/card-js/card-js.min.css',
-                    dest: 'public/css/card-js.min.css',
-                },
-                {
                     src: 'node_modules/clipboard/dist/clipboard.min.js',
                     dest: 'public/vendor/clipboard.min.js',
                 },
