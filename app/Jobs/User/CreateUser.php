@@ -81,7 +81,7 @@ class CreateUser
         ]);
 
         if (! Ninja::isSelfHost()) {
-            event(new UserWasCreated($user, $user, $this->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+            event(new UserWasCreated($user, $user, $this->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), request()->hasHeader('X-REACT') ?? false));
         }
 
         return $user;

@@ -21,6 +21,9 @@
                 <form action="{{ route('password.update') }}" method="post" class="mt-6">
                     @csrf
                     <input type="hidden" name="token" value="{{ $token }}">
+                    @if(request()->has('react') && request()->react == 'true')
+                        <input type="hidden" name="react" value="true">
+                    @endif
                     <div class="flex flex-col">
                         <label for="email" class="input-label">{{ ctrans('texts.email_address') }}</label>
                         <input type="email" name="email" id="email"

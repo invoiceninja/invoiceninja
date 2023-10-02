@@ -11,22 +11,16 @@
 
 namespace App\Mail\Admin;
 
+use App\Models\Company;
+use App\Models\User;
 use App\Utils\Ninja;
 use Illuminate\Support\Facades\App;
 
 class ResetPasswordObject
 {
-    public $user;
 
-    public $token;
-
-    public $company;
-
-    public function __construct($token, $user, $company)
+    public function __construct(private string $token, protected User $user, protected Company $company, protected bool $is_react)
     {
-        $this->token = $token;
-        $this->user = $user;
-        $this->company = $company;
     }
 
     public function build()
@@ -42,7 +36,7 @@ class ResetPasswordObject
         $data = [
             'title' => ctrans('texts.your_password_reset_link'),
             'message' => ctrans('texts.reset_password'),
-            'url' => route('password.reset', ['token' => $this->token, 'email' => $this->user->email]),
+            'url' => route('password.reset', ['token' => $this->token, 'email' => $this->user->email, 'react' => $this->is_react ? 'true' : 'false']),
             'button' => ctrans('texts.reset'),
             'signature' => $this->company->settings->email_signature,
             'settings' => $this->company->settings,

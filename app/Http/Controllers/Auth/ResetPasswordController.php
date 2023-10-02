@@ -70,6 +70,7 @@ class ResetPasswordController extends Controller
             $account = Account::first();
         }
 
+        
         return $this->render('auth.passwords.reset', ['root' => 'themes', 'token' => $token, 'account' => $account, 'email' => $request->email]);
     }
 
@@ -110,6 +111,9 @@ class ResetPasswordController extends Controller
     {
         auth()->logout();
 
+        if(request()->has('react') || request()->hasHeader('X-React'))
+            return redirect(config('ninja.react_url').'/#/login');
+
         return redirect('/');
     }
 
@@ -126,10 +130,10 @@ class ResetPasswordController extends Controller
             return new JsonResponse(['message' => trans($response)], 200);
         }
 
-        if($request->hasHeader('X-React')){
+        if($request->hasHeader('X-REACT') || $request->has('react')){
             return redirect(config('ninja.react_url').'/#/login');
         }
-        elseif($request->hasHeader('X-React'))
+        else
             return redirect('/#/login');    
 
         return redirect($this->redirectPath())

@@ -636,15 +636,16 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function sendPasswordResetNotification($token)
     {
+        $is_react = request()->has('react') || request()->hasHeader('X-React') ? true : false;
+
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer((new ResetPasswordObject($token, $this, $this->account->default_company))->build());
+        $nmo->mailable = new NinjaMailer((new ResetPasswordObject($token, $this, $this->account->default_company, $is_react))->build());
         $nmo->to_user = $this;
         $nmo->settings = $this->account->default_company->settings;
         $nmo->company = $this->account->default_company;
 
         NinjaMailerJob::dispatch($nmo, true);
 
-        //$this->notify(new ResetPasswordNotification($token));
     }
 
     public function service()
