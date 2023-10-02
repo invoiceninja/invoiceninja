@@ -6,9 +6,9 @@ ctrans('texts.credit_card')])
     <meta name="mollie-profileId" content="{{ $gateway->company_gateway->getConfigField('profileId') }}">
 
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-    @vite('node_modules/card-js/card-js.min.js')
     
-    <link href="{{ asset('css/card-js.min.css') }}" rel="stylesheet" type="text/css">
+    <script src="{{ asset('build/public/js/card-js.min.js/card-js.min.js') }}"></script>
+    <link href="{{ asset('build/public/css/card-js.min.css/card-js.min.css') }}" rel="stylesheet" type="text/css">
 @endsection
 
 @section('gateway_content')

@@ -25,7 +25,6 @@ export default defineConfig({
             'resources/js/clients/quotes/approve.js',
             'resources/js/clients/payments/stripe-credit-card.js',
             'resources/js/setup/setup.js',
-            'node_modules/card-js/card-js.min.js',
             'resources/js/clients/shared/pdf.js',
             'resources/js/clients/shared/multiple-downloads.js',
             'resources/js/clients/linkify-urls.js',
@@ -54,6 +53,10 @@ export default defineConfig({
         ]),
         viteStaticCopy({
             targets: [
+                {
+                    src: 'node_modules/card-js/card-js.min.js',
+                    dest: 'public/js/card-js.min.js',
+                },
                 {
                     src: 'node_modules/card-js/card-js.min.css',
                     dest: 'public/css/card-js.min.css',
