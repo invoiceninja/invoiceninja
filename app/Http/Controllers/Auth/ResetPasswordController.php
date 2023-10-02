@@ -126,8 +126,8 @@ class ResetPasswordController extends Controller
             return new JsonResponse(['message' => trans($response)], 200);
         }
 
-        if(Ninja::isHosted() &&  $request->hasHeader('X-React')){
-            return redirect('https://app.invoicing.co/#/login');
+        if($request->hasHeader('X-React')){
+            return redirect(config('ninja.react_url').'/#/login');
         }
         elseif($request->hasHeader('X-React'))
             return redirect('/#/login');    

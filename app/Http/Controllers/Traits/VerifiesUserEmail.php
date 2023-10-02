@@ -42,7 +42,6 @@ trait VerifiesUserEmail
         }
 
         $user->email_verified_at = now();
-        // $user->confirmation_code = null; //this prevented the form from showing validation errors.
         $user->save();
 
         if (isset($user->oauth_user_id)) {
@@ -69,7 +68,6 @@ trait VerifiesUserEmail
         $user = User::where('id', $this->decodePrimaryKey(request()->user_id))->firstOrFail();
 
         $validator = Validator::make(request()->all(), [
-            //'password' => ['required', 'min:6'],
             'password' => 'min:6|required_with:password_confirmation|same:password_confirmation',
             'password_confirmation' => 'min:6'
         ]);
