@@ -101,6 +101,9 @@ class PaymentRepository extends BaseRepository
                     $client->saveQuietly();
                 }
             }, 1);
+
+            $client = Client::query()->where('id', $data['client_id'])->withTrashed()->first();
+
         }
 
         /*Fill the payment*/
