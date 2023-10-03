@@ -132,6 +132,7 @@ class BaseExport
     ];
 
     protected array $invoice_report_keys = [
+        'name' => 'client.name',
         "invoice_number" => "invoice.number",
         "amount" => "invoice.amount",
         "balance" => "invoice.balance",
