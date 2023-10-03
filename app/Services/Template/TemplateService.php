@@ -14,6 +14,7 @@ namespace App\Services\Template;
 use App\Models\Task;
 use App\Models\Quote;
 use App\Utils\Number;
+use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Company;
@@ -162,16 +163,10 @@ class TemplateService
             }
 
             $template = $template->render($this->data);
-nlog($template);
+
             $f = $this->document->createDocumentFragment();
-            // nlog($template);
-            // $f->appendChild(html_entity_decode($template));
-            // $template = html_entity_decode(htmlentities($template, ENT_QUOTES, 'UTF-8'));
-
-// $f->appendXML(html_encode$template);
-$f->appendXML(html_entity_decode($template));
-            // $f->appendChild($this->document->createTextNode($template));
-
+            $f->appendXML(html_entity_decode($template));
+            
             $replacements[] = $f;
 
         }
@@ -368,7 +363,7 @@ $f->appendXML(html_entity_decode($template));
                 'custom_surcharge_tax2' => (bool) $invoice->custom_surcharge_tax2,
                 'custom_surcharge_tax3' => (bool) $invoice->custom_surcharge_tax3,
                 'custom_surcharge_tax4' => (bool) $invoice->custom_surcharge_tax4,
-                'line_items' => $invoice->line_items ?: (array) [],
+                'line_items' => $invoice->line_items ? $this->padLineItems($invoice->line_items, $invoice->client): (array) [],
                 'reminder1_sent' => $this->translateDate($invoice->reminder1_sent, $invoice->client->date_format(), $invoice->client->locale()),
                 'reminder2_sent' => $this->translateDate($invoice->reminder2_sent, $invoice->client->date_format(), $invoice->client->locale()),
                 'reminder3_sent' => $this->translateDate($invoice->reminder3_sent, $invoice->client->date_format(), $invoice->client->locale()),
@@ -386,9 +381,34 @@ $f->appendXML(html_entity_decode($template));
 
         });
 
-        nlog($invoices->count());
         return $invoices->toArray();
 
+    }
+
+    public function padLineItems(array $items, Client $client): array
+    {
+        return collect($items)->map(function ($item) use ($client){
+
+            $item->cost_raw = $item->cost;
+            $item->discount_raw = $item->discount;
+            $item->line_total_raw = $item->line_total;
+            $item->gross_line_total_raw = $item->gross_line_total;
+            $item->tax_amount_raw = $item->tax_amount;
+            $item->product_cost_raw = $item->product_cost;
+
+            $item->cost = Number::formatMoney($item->cost_raw, $client);
+            
+            if($item->is_amount_discount)
+                $item->discount = Number::formatMoney($item->discount_raw, $client);
+            
+            $item->line_total = Number::formatMoney($item->line_total_raw, $client);
+            $item->gross_line_total = Number::formatMoney($item->gross_line_total_raw, $client);
+            $item->tax_amount = Number::formatMoney($item->tax_amount_raw, $client);
+            $item->product_cost = Number::formatMoney($item->product_cost_raw, $client);
+
+            return $item;
+
+        })->toArray();
     }
 
     public function processInvoicesBak($invoices): array
