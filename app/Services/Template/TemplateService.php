@@ -285,7 +285,7 @@ class TemplateService
                 'projects' => $processed = [],
                 'purchase_orders' => (new VendorHtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues() ?? [],
             };
-
+            
             return $processed;
 
         })->toArray();
@@ -377,6 +377,8 @@ class TemplateService
                     'credit_balance' => $invoice->client->credit_balance,
                 ],
                 'payments' => $payments,
+                'total_tax_map' => $invoice->calc()->getTotalTaxMap(),
+                'line_tax_map' => $invoice->calc()->getTaxMap(),
             ];
 
         });
