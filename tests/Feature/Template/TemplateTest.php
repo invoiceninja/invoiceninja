@@ -324,7 +324,7 @@ class TemplateTest extends TestCase
 
         nlog("query count = {$count}");
         $x = $invoices->toArray();
-        nlog(json_encode($x));
+        // nlog(json_encode($x));
         // nlog(json_encode(htmlspecialchars(json_encode($x), ENT_QUOTES, 'UTF-8')));
         // nlog($invoices->toJson());
 
@@ -337,8 +337,8 @@ class TemplateTest extends TestCase
     private function transformPayment(Payment $payment): array
     {
 
-        $data = [];
-                
+      $data = [];
+                        
         $credits = $payment->credits->map(function ($credit) use ($payment) {
             return [
                 'credit' => $credit->number,
@@ -401,8 +401,9 @@ class TemplateTest extends TestCase
             ],
             'paymentables' => $pivot,
         ];
-            
+                    
         return $data;
+
 
 
 

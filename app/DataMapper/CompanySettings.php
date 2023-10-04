@@ -481,13 +481,21 @@ class CompanySettings extends BaseSettings
 
     public $enable_e_invoice = false;
 
-    public $statement_design_id = 'VolejRejNm';
+    public $delivery_note_design_id = '';
+    
+    public $statement_design_id = '';
+    
+    public $payment_receipt_design_id = '';
 
-    public $delivery_note_design_id = 'VolejRejNm';
+    public $payment_refund_design_id = '';
 
     public $classification = ''; // individual, business, partnership, trust, charity, government, other
 
     public static $casts = [
+        'statement_design_id'                => 'string',
+        'delivery_note_design_id'            => 'string',
+        'payment_receipt_design_id'          => 'string',
+        'payment_refund_design_id'           => 'string',
         'classification'                     => 'string',
         'enable_e_invoice'                   => 'bool', 
         'default_expense_payment_type_id'    => 'string',
@@ -718,8 +726,6 @@ class CompanySettings extends BaseSettings
         'portal_custom_js'                   => 'string',
         'client_portal_enable_uploads'       => 'bool',
         'purchase_order_number_counter'      => 'integer',
-        'statement_design_id'                => 'string',
-        'delivery_note_design_id'            => 'string',
     ];
 
     public static $free_plan_casts = [

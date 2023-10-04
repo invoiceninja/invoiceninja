@@ -18,6 +18,10 @@ class UpdateDesignRequest extends Request
 {
     use ChecksEntityStatus;
 
+    private array $valid_entities = [
+        'invoice',
+    ];
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -66,6 +70,21 @@ class UpdateDesignRequest extends Request
         if (! array_key_exists('body', $input['design']) || is_null($input['design']['body'])) {
             $input['design']['body'] = '';
         }
+
+        if(array_key_exists('entities', $input)) {
+            $user_entities = explode(",", $input['entities']);
+
+            $e = [];
+
+            foreach ($user_entities as $entity) {
+                if (in_array($entity, $this->valid_entities)) {
+                    $e[] = $entity;
+                }
+            }
+
+            $input['entities'] = implode(",", $e);
+        }
+
 
         $this->replace($input);
     }

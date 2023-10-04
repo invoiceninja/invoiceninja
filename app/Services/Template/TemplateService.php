@@ -11,8 +11,6 @@
 
 namespace App\Services\Template;
 
-use App\Models\Task;
-use App\Models\Quote;
 use App\Utils\Number;
 use App\Models\Client;
 use App\Models\Credit;
@@ -22,27 +20,25 @@ use App\Models\Payment;
 use App\Models\Project;
 use App\Utils\HtmlEngine;
 use League\Fractal\Manager;
-use App\Models\ClientContact;
 use App\Models\PurchaseOrder;
 use App\Utils\VendorHtmlEngine;
 use App\Utils\PaymentHtmlEngine;
 use App\Utils\Traits\MakesDates;
+use App\Utils\HostedPDF\NinjaPdf;
 use Twig\Extra\Intl\IntlExtension;
 use App\Transformers\TaskTransformer;
 use App\Transformers\QuoteTransformer;
 use App\Services\Template\TemplateMock;
 use App\Transformers\CreditTransformer;
 use App\Transformers\InvoiceTransformer;
-use App\Transformers\PaymentTransformer;
 use App\Transformers\ProjectTransformer;
-use App\Services\Template\LogoTokenParser;
 use App\Transformers\PurchaseOrderTransformer;
 use League\Fractal\Serializer\ArraySerializer;
-use League\Fractal\Serializer\JsonApiSerializer;
+use App\Utils\Traits\Pdf\PdfMaker;
 
 class TemplateService
 {
-    use MakesDates;
+    use MakesDates, PdfMaker;
     
     private \DomDocument $document;
 
@@ -129,6 +125,19 @@ class TemplateService
     public function getHtml(): string
     {
         return $this->compiled_html;
+    }
+
+    public function getPdf(): mixed
+    {
+
+        if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
+            $pdf = (new NinjaPdf())->build($this->compiled_html);
+        } else {
+            $pdf = $this->makePdf(null, null, $this->compiled_html);
+        }
+
+        return $pdf;
+
     }
 
     private function processData($data): self
@@ -318,10 +327,14 @@ class TemplateService
         $invoices = collect($invoices)
                 ->map(function ($invoice){
 
-            $payments = $invoice->payments->map(function ($payment) {
-                // nlog(microtime(true));
-                return $this->transformPayment($payment);
-            })->toArray();
+            $payments = [];
+            nlog($invoice);
+            if($invoice->payments) {
+                $payments = $invoice->payments->map(function ($payment) {
+                    // nlog(microtime(true));
+                    return $this->transformPayment($payment);
+                })->toArray();
+            }
 
             return [
                 'amount' => Number::formatMoney($invoice->amount, $invoice->client),
@@ -391,12 +404,12 @@ class TemplateService
     {
         return collect($items)->map(function ($item) use ($client){
 
-            $item->cost_raw = $item->cost;
-            $item->discount_raw = $item->discount;
-            $item->line_total_raw = $item->line_total;
-            $item->gross_line_total_raw = $item->gross_line_total;
-            $item->tax_amount_raw = $item->tax_amount;
-            $item->product_cost_raw = $item->product_cost;
+            $item->cost_raw = $item->cost ?? 0;
+            $item->discount_raw = $item->discount ?? 0;
+            $item->line_total_raw = $item->line_total ?? 0;
+            $item->gross_line_total_raw = $item->gross_line_total ?? 0;
+            $item->tax_amount_raw = $item->tax_amount ?? 0;
+            $item->product_cost_raw = $item->product_cost ?? 0;
 
             $item->cost = Number::formatMoney($item->cost_raw, $client);
             

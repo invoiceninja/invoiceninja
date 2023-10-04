@@ -70,6 +70,7 @@ class Design extends BaseModel
         'design',
         'is_active',
         'is_template',
+        'entities',
     ];
 
     public function company()

@@ -911,8 +911,12 @@ class InvoiceController extends BaseController
         $file = $invoice->service()->getInvoiceDeliveryNote($invoice, $invoice->invitations->first()->contact);
 
         return response()->streamDownload(function () use ($file) {
-            echo Storage::get($file);
+            echo $file;
         }, basename($file), ['Content-Type' => 'application/pdf']);
+
+        // return response()->streamDownload(function () use ($file) {
+        //     echo Storage::get($file);
+        // }, basename($file), ['Content-Type' => 'application/pdf']);
     }
 
     /**
