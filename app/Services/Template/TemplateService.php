@@ -328,7 +328,7 @@ class TemplateService
                 ->map(function ($invoice){
 
             $payments = [];
-            nlog($invoice);
+            
             if($invoice->payments) {
                 $payments = $invoice->payments->map(function ($payment) {
                     // nlog(microtime(true));
