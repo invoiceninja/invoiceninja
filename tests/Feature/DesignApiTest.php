@@ -79,7 +79,6 @@ class DesignApiTest extends TestCase
         $arr = $response->json();
         $this->assertCount(1, $arr['data']);
 
-
         $response = $this->withHeaders([
         'X-API-SECRET' => config('ninja.api_secret'),
         'X-API-TOKEN' => $this->token,
