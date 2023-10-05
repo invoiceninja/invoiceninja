@@ -158,6 +158,44 @@ class ReminderTest extends TestCase
 
     }
 
+    public function testReminderInThePast()
+    {
+       
+        $translations = new \stdClass;
+        $translations->late_fee_added = "Fee added :date";
+
+        $settings = $this->company->settings;
+        $settings->enable_reminder1 = false;
+        $settings->schedule_reminder1 = '';
+        $settings->num_days_reminder1 = 1;
+        $settings->enable_reminder2 = false;
+        $settings->schedule_reminder2 = '';
+        $settings->num_days_reminder2 = 2;
+        $settings->enable_reminder3 = false;
+        $settings->schedule_reminder3 = '';
+        $settings->num_days_reminder3 = 3;
+        $settings->timezone_id = '29';
+        $settings->entity_send_time = 0;
+        $settings->endless_reminder_frequency_id = '5';
+        $settings->enable_reminder_endless = true;
+        $settings->translations = $translations;
+        $settings->late_fee_amount1 = '0';
+        $settings->late_fee_amount2 = '0';
+        $settings->late_fee_amount3 = '0';
+
+        $this->buildData(($settings));
+
+        $this->invoice->date = now()->subMonths(2)->format('Y-m-d');
+        $this->invoice->due_date = now()->subMonth()->format('Y-m-d');
+        $this->invoice->last_sent_date = now();
+
+        $this->invoice->service()->setReminder($settings)->save();
+
+        $this->invoice = $this->invoice->fresh();
+
+        $this->assertEquals(now()->startOfDay()->addMonth()->format('Y-m-d'), \Carbon\Carbon::parse($this->invoice->next_send_date)->startOfDay()->format('Y-m-d'));
+    }
+
     public function testsForTranslationsInReminders()
     {
 
