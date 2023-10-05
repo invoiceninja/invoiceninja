@@ -54,6 +54,19 @@ class DesignFilters extends QueryFilters
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }
 
+    public function entities(string $entities = ''): Builder
+    {
+
+        if (strlen($entities) == 0 || str_contains($entities, ',')) {
+            return $this->builder;
+        }
+
+        return $this->builder
+                    ->where('is_template', true)
+                    ->whereRaw('FIND_IN_SET( ? ,entities)', [trim($entities)]);
+
+    }
+
     /**
      * Filters the query by the users company ID.
      *
