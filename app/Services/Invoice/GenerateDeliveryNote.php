@@ -43,7 +43,7 @@ class GenerateDeliveryNote
     {
 
         $delivery_note_design_id = $this->invoice->client->getSetting('delivery_note_design_id');
-        $design = Design::find($this->decodePrimaryKey($delivery_note_design_id));
+        $design = Design::withTrashed()->find($this->decodePrimaryKey($delivery_note_design_id));
 
         if($design && $design->is_template)
         {
