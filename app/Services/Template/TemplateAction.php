@@ -93,12 +93,12 @@ class TemplateAction implements ShouldQueue
         $pdf = $template_service->build($data)->getPdf();
 
         if($this->send_email)
-            return $this->sendEmail($pdf);
-
-        return $pdf;
+            $this->sendEmail($pdf);
+        else
+            return $pdf;
     }
 
-    private function sendEmail(mixed $pdf): void
+    private function sendEmail(mixed $pdf): mixed
     {
         //send the email.
     }
