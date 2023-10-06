@@ -135,6 +135,7 @@ class RefundTest extends TestCase
 
         $this->assertEquals(50, $arr['data']['refunded']);
         $this->assertEquals(Payment::STATUS_REFUNDED, $arr['data']['status_id']);
+
     }
 
     /**
@@ -289,6 +290,12 @@ class RefundTest extends TestCase
         $this->assertNotNull($payment->invoices());
         $this->assertEquals(1, $payment->invoices()->count());
 
+
+        $i = $this->invoice->fresh();
+
+        $this->assertEquals(0, $i->balance);
+        $this->assertEquals(round($this->invoice->amount,2), round($i->paid_to_date,2));
+
         $data = [
             'id' => $this->encodePrimaryKey($payment->id),
             'amount' => 50,
@@ -309,6 +316,12 @@ class RefundTest extends TestCase
         ])->post('/api/v1/payments/refund', $data);
 
         $response->assertStatus(200);
+
+        $i = $this->invoice->fresh();
+
+        $this->assertEquals($i->amount, $i->balance);
+        $this->assertEquals(0, round($i->paid_to_date, 2));
+
     }
 
     /**
