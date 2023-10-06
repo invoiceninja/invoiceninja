@@ -69,31 +69,15 @@ class ApplyPayment extends AbstractService
             }
         }
 
-        nlog($this->invoice->id. " " . $this->invoice->paid_to_date);
         $this->payment
              ->ledger()
              ->updatePaymentBalance($amount_paid);
-
-        // nlog("updating client balance by amount {$amount_paid}");
 
         $this->invoice
              ->client
              ->service()
              ->updateBalance($amount_paid)
              ->save();
-
-        // /* Update Pivot Record amount */
-        // $this->payment->invoices->each(function ($inv) use ($amount_paid) {
-        //     if ($inv->id == $this->invoice->id) {
-        //         // $inv->pivot->amount = ($amount_paid * -1);
-        //         // $inv->pivot->save();
-        //         //25-06-2023
-        //         nlog($inv);
-        //         nlog($amount_paid);
-        //         $inv->paid_to_date += floatval($amount_paid * -1);
-        //         $inv->save();
-        //     }
-        // });
 
         $this->invoice
              ->service()
