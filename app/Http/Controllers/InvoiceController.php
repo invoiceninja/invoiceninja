@@ -540,10 +540,16 @@ class InvoiceController extends BaseController
 
         if($action == 'template' && $user->can('view', $invoices->first())){
 
-            
             $hash_or_response = $request->boolean('send_email') ? 'email sent' :  \Illuminate\Support\Str::uuid();
             
-            TemplateAction::dispatch($ids, $request->template_id, Invoice::class, $user->id, $user->company(), $user->company()->db, $hash_or_response, $request->boolean('send_email'));
+            TemplateAction::dispatch($ids, 
+                            $request->template_id, 
+                            Invoice::class, 
+                            $user->id, 
+                            $user->company(), 
+                            $user->company()->db, 
+                            $hash_or_response, 
+                            $request->boolean('send_email'));
             
             return response()->json(['message' => $hash_or_response], 200);
         }

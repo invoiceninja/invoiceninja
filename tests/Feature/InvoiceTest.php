@@ -11,17 +11,19 @@
 
 namespace Tests\Feature;
 
-use App\Helpers\Invoice\InvoiceSum;
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Invoice;
-use App\Repositories\InvoiceRepository;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\Session;
-use Tests\MockAccountData;
 use Tests\TestCase;
+use App\Models\Client;
+use App\Models\Design;
+use App\Models\Invoice;
+use Tests\MockAccountData;
+use App\Models\ClientContact;
+use App\Utils\Traits\MakesHash;
+use App\Helpers\Invoice\InvoiceSum;
+use App\Repositories\InvoiceRepository;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Session;
+use App\Services\Template\TemplateAction;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * @test
@@ -47,6 +49,45 @@ class InvoiceTest extends TestCase
 
         $this->makeTestData();
     }
+
+    public function testTemplateBulkAction()
+    {
+
+        $design_model = Design::find(2);
+
+        $replicated_design = $design_model->replicate();
+        $replicated_design->company_id = $this->company->id;
+        $replicated_design->user_id = $this->user->id;
+        $replicated_design->is_template = true;
+        $replicated_design->is_custom = true;
+        $replicated_design->save();
+
+        //delete invoice
+        $data = [
+            'ids' => [$this->invoice->hashed_id],
+            'action' => 'template',
+            'template_id' => $replicated_design->hashed_id,
+            'send_email' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/invoices/bulk', $data)
+        ->assertStatus(200);
+
+
+        (new TemplateAction([$this->invoice->hashed_id], 
+                                $replicated_design->hashed_id, 
+                                Invoice::class, 
+                                $this->user->id, 
+                                $this->company,
+                                $this->company->db, 
+                                'dd',
+                                false))->handle();
+    }
+
+    
 
     public function testInvoiceGetDatesBetween()
     {
