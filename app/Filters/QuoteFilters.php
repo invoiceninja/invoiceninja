@@ -113,7 +113,7 @@ class QuoteFilters extends QueryFilters
                 });
             }
 
-            if(in_array('convert', $status_parameters)) {
+            if(in_array('converted', $status_parameters)) {
                 $query->orWhere(function ($q) {
                     $q->whereNotNull('invoice_id');
                 });

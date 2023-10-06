@@ -41,15 +41,17 @@ class EpcQrGenerator
 
     public function getQrCode()
     {
-        $renderer = new ImageRenderer(
-            new RendererStyle(200),
-            new SvgImageBackEnd()
-        );
-        $writer = new Writer($renderer);
-
-        $this->validateFields();
-
+        $qr = '';
+        
         try {
+            $renderer = new ImageRenderer(
+                new RendererStyle(200),
+                new SvgImageBackEnd()
+            );
+            $writer = new Writer($renderer);
+
+            $this->validateFields();
+
             $qr = $writer->writeString($this->encodeMessage(), 'utf-8');
         } catch(\Throwable $e) {
             return '';
