@@ -34,6 +34,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Transformers\InvoiceTransformer;
 use App\Events\Invoice\InvoiceWasCreated;
 use App\Events\Invoice\InvoiceWasUpdated;
+use App\Services\Template\TemplateAction;
 use App\Factory\CloneInvoiceToQuoteFactory;
 use App\Http\Requests\Invoice\BulkInvoiceRequest;
 use App\Http\Requests\Invoice\EditInvoiceRequest;
@@ -537,6 +538,16 @@ class InvoiceController extends BaseController
             }, 'print.pdf', ['Content-Type' => 'application/pdf']);
         }
 
+        if($action == 'template' && $user->can('view', $invoices->first())){
+
+            
+            $hash_or_response = $request->boolean('send_email') ? 'email sent' :  \Illuminate\Support\Str::uuid();
+            
+            TemplateAction::dispatch($request->ids, $request->template, Invoice::class, $user->id, $user->company(), $user->company()->db, $hash_or_response, $request->boolean('send_email'));
+            
+            return response()->json(['message' => $hash_or_response], 200);
+        }
+
         /*
          * Send the other actions to the switch
          */
@@ -718,8 +729,7 @@ class InvoiceController extends BaseController
                     return response()->json(['message' => 'email sent'], 200);
                 }
                 break;
-
-
+            
             default:
                 return response()->json(['message' => ctrans('texts.action_unavailable', ['action' => $action])], 400);
         }

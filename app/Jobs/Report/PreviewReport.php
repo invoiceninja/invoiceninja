@@ -39,9 +39,7 @@ class PreviewReport implements ShouldQueue
         /** @var \App\Export\CSV\CreditExport $export */
         $export = new $this->report_class($this->company, $this->request);
         $report = $export->returnJson();
-        nlog($report);
-        nlog($this->report_class);
-        // nlog($report);
+
         Cache::put($this->hash, $report, 60 * 60);
     }
 

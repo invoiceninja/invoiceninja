@@ -29,6 +29,7 @@ use Illuminate\Bus\Queueable;
 use App\Utils\Traits\MakesHash;
 use App\Models\RecurringInvoice;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -59,6 +60,7 @@ class TemplateAction implements ShouldQueue
                                 private int $user_id, 
                                 private Company $company,
                                 private string $db, 
+                                private string $hash,
                                 private bool $send_email = false)
     {
     }
@@ -94,13 +96,18 @@ class TemplateAction implements ShouldQueue
 
         if($this->send_email)
             $this->sendEmail($pdf);
-        else
-            return $pdf;
+        else {
+
+            $filename = "templates/{$this->hash}.pdf";
+            Storage::disk(config('filesystems.default'))->put($filename, $pdf);
+
+        }
     }
 
     private function sendEmail(mixed $pdf): mixed
     {
         //send the email.
+        return $pdf;
     }
 
     /**
