@@ -87,7 +87,7 @@ class TemplateAction implements ShouldQueue
                ->where('company_id', $this->company->id);
 
                if($this->entity == Invoice::class)
-                    $resource->with('payments');
+                    $resource->with('payments','client');
 
         $resource->get();
 
