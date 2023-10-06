@@ -329,7 +329,7 @@ class TemplateService
 
             $payments = [];
             
-            if($invoice->payments) {
+            if($invoice->payments ?? false) {
                 $payments = $invoice->payments->map(function ($payment) {
                     // nlog(microtime(true));
                     return $this->transformPayment($payment);
