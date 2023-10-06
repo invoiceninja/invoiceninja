@@ -75,23 +75,23 @@ class TemplateAction implements ShouldQueue
 
         $key = $this->resolveEntityString();
 
-        $entity = new $this->entity();
+        $resource = $this->entity::query();
 
         $template = Design::withTrashed()->find($this->decodePrimaryKey($this->template));
 
         $template_service = new TemplateService($template);
         
-        $resource = $entity->query()
-               ->withTrashed()
-               ->whereIn('id', $this->transformKeys($this->ids))
-               ->where('company_id', $this->company->id);
+        if($this->entity == Invoice::class) {
+            $resource->with('payments', 'client');
+        }
 
-               if($this->entity == Invoice::class)
-                    $resource->with('payments','client');
+        $resource->withTrashed()
+            ->whereIn('id', $this->transformKeys($this->ids))
+            ->where('company_id', $this->company->id);
 
         $resource->get();
 
-        if(count($resource) <= 1)
+        if($resource->count() <= 1)
             $data[$key] = [$resource];
         else 
             $data[$key] = $resource;
