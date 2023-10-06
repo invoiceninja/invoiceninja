@@ -87,8 +87,6 @@ class InvoiceTest extends TestCase
                                 false))->handle();
     }
 
-    
-
     public function testInvoiceGetDatesBetween()
     {
         $response = $this->withHeaders([

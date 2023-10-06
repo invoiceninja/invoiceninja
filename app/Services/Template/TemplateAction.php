@@ -85,16 +85,16 @@ class TemplateAction implements ShouldQueue
             $resource->with('payments', 'client');
         }
 
-        $resource->withTrashed()
+        $result = $resource->withTrashed()
             ->whereIn('id', $this->transformKeys($this->ids))
-            ->where('company_id', $this->company->id);
+            ->where('company_id', $this->company->id)
+            ->get();
 
-        $resource->get();
-
-        if($resource->count() <= 1)
-            $data[$key] = [$resource];
+            
+        if($result->count() <= 1)
+            $data[$key] = collect($result);
         else 
-            $data[$key] = $resource;
+            $data[$key] = $result;
 
         $pdf = $template_service->build($data)->getPdf();
 
