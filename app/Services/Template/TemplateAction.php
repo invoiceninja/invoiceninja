@@ -56,7 +56,7 @@ class TemplateAction implements ShouldQueue
      */
     public function __construct(public array $ids, 
                                 private string $template, 
-                                private Builder | Invoice | Quote | Task | Credit | RecurringInvoice | Project | Expense | Client | Payment | Product | PurchaseOrder | Vendor $entity, 
+                                private string $entity, 
                                 private int $user_id, 
                                 private Company $company,
                                 private string $db, 
