@@ -95,45 +95,53 @@ class PaymentEmailEngine extends BaseEmailEngine
             ->setViewText('');
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
-            $this->payment->invoices->each(function ($invoice) {
 
-                if($this->is_refund && strlen($invoice->client->getSetting('payment_refund_design_id')) > 2) {
-                    $pdf = (new TemplateAction(
-                        [$this->payment->hashed_id],
-                        $invoice->client->getSetting('payment_refund_design_id'),
-                        Payment::class,
-                        $this->payment->user_id,
-                        $this->payment->company,
-                        $this->payment->company->db,
-                        'nohash',
-                        false
-                    ))->handle();
+            $template_in_use = false;
 
-                    $file_name = ctrans('texts.payment_refund_receipt', ['number' => $this->payment->number ]) . '.pdf';
-                    $file_name = str_replace(' ', '_', $file_name);
+            if($this->is_refund && strlen($this->payment->client->getSetting('payment_refund_design_id')) > 2) {
+                $pdf = (new TemplateAction(
+                    [$this->payment->hashed_id],
+                    $this->payment->client->getSetting('payment_refund_design_id'),
+                    Payment::class,
+                    $this->payment->user_id,
+                    $this->payment->company,
+                    $this->payment->company->db,
+                    'nohash',
+                    false
+                ))->handle();
 
-                }
-                elseif(!$this->is_refund && strlen($invoice->client->getSetting('payment_receipt_design_id')) > 2){
-                    $pdf = (new TemplateAction(
-                        [$this->payment->hashed_id], 
-                        $invoice->client->getSetting('payment_refund_design_id'), 
-                        Payment::class, 
-                        $this->payment->user_id, 
-                        $this->payment->company, 
-                        $this->payment->company->db,
-                        'nohash',
-                        false))->handle(); 
-                                     
-                    $file_name = ctrans('texts.payment_receipt', ['number' => $this->payment->number ]) . '.pdf';
-                    $file_name = str_replace(' ', '_', $file_name);
+                $file_name = ctrans('texts.payment_refund_receipt', ['number' => $this->payment->number ]) . '.pdf';
+                $file_name = str_replace(' ', '_', $file_name);
+                $this->setAttachments([['file' => base64_encode($pdf), 'name' => $file_name]]);
+                $template_in_use = true;
 
-                }
-                else {
+            } elseif(!$this->is_refund && strlen($this->payment->client->getSetting('payment_receipt_design_id')) > 2) {
+                $pdf = (new TemplateAction(
+                    [$this->payment->hashed_id],
+                    $this->payment->client->getSetting('payment_receipt_design_id'),
+                    Payment::class,
+                    $this->payment->user_id,
+                    $this->payment->company,
+                    $this->payment->company->db,
+                    'nohash',
+                    false
+                ))->handle();
+                                                
+                $file_name = ctrans('texts.payment_receipt', ['number' => $this->payment->number ]) . '.pdf';
+                $file_name = str_replace(' ', '_', $file_name);
+                $this->setAttachments([['file' => base64_encode($pdf), 'name' => $file_name]]);
+                $template_in_use = true;
+
+            }
+
+            $this->payment->invoices->each(function ($invoice) use($template_in_use){
+
+                if(!$template_in_use) 
+                {
                     $pdf = ((new CreateRawPdf($invoice->invitations->first(), $invoice->company->db))->handle());
                     $file_name = $invoice->numberFormatter().'.pdf';
+                    $this->setAttachments([['file' => base64_encode($pdf), 'name' => $file_name]]);
                 }
-
-                $this->setAttachments([['file' => base64_encode($pdf), 'name' => $file_name]]);
 
                 //attach invoice documents also to payments
                 if ($this->client->getSetting('document_email_attachment') !== false) {
