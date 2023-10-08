@@ -18,6 +18,7 @@ use App\Models\Design;
 use App\Models\Company;
 use App\Models\Payment;
 use App\Models\Project;
+use App\Models\Activity;
 use App\Utils\HtmlEngine;
 use League\Fractal\Manager;
 use App\Models\PurchaseOrder;
@@ -25,6 +26,7 @@ use App\Utils\VendorHtmlEngine;
 use App\Utils\PaymentHtmlEngine;
 use App\Utils\Traits\MakesDates;
 use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\Traits\Pdf\PdfMaker;
 use Twig\Extra\Intl\IntlExtension;
 use App\Transformers\TaskTransformer;
 use App\Transformers\QuoteTransformer;
@@ -34,7 +36,6 @@ use App\Transformers\InvoiceTransformer;
 use App\Transformers\ProjectTransformer;
 use App\Transformers\PurchaseOrderTransformer;
 use League\Fractal\Serializer\ArraySerializer;
-use App\Utils\Traits\Pdf\PdfMaker;
 
 class TemplateService
 {
@@ -525,13 +526,43 @@ class TemplateService
                 'credit_balance' => $payment->client->credit_balance,
             ],
             'paymentables' => $pivot,
+            'refund_activity' => $this->getPaymentRefundActivity($payment),
         ];
-            
+
         return $data;
 
+    }
 
+    private function getPaymentRefundActivity(Payment $payment): array
+    {
+
+        return Activity::where('activity_type_id', 40)
+        ->where('payment_id', $payment->id)
+        ->where('company_id', $payment->company_id)
+        ->orderBy('id', 'asc')
+        ->cursor()
+        ->map(function ($a) use ($payment){
+
+            $date = \Carbon\Carbon::parse($a->created_at)->addSeconds($a->payment->client->timezone_offset());
+            $date = $this->translateDate($date, $a->payment->client->date_format(), $a->payment->client->locale());
+            $notes = explode("-", $a->notes);
+            
+            try {
+                $amount = explode(":", reset($notes));
+                $amount = Number::formatMoney(end($amount), $payment->client);
+                $notes = ctrans('texts.status_partially_refunded_amount', ['amount' => $amount]);
+            }
+            catch(\Exception $e){
+            }
+
+            $entity = ctrans('texts.invoice');
+
+            return "{$date} {$entity} #{$a->invoice->number} {$notes}\n";
+
+        })->toArray();
 
     }
+
 
 
     public function processQuotes($quotes): array
