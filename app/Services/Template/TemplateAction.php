@@ -12,6 +12,7 @@
 namespace App\Services\Template;
 
 use App\Models\Task;
+use App\Models\User;
 use App\Models\Quote;
 use App\Models\Client;
 use App\Models\Credit;
@@ -28,6 +29,9 @@ use App\Models\PurchaseOrder;
 use Illuminate\Bus\Queueable;
 use App\Utils\Traits\MakesHash;
 use App\Models\RecurringInvoice;
+use App\Services\Email\AdminEmail;
+use App\Services\Email\EmailObject;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Queue\InteractsWithQueue;
@@ -47,7 +51,7 @@ class TemplateAction implements ShouldQueue
      *
      * @param array $ids The array of entity IDs
      * @param string $template The template id
-     * @param Builder | Invoice | Quote | Task | Credit | RecurringInvoice | Project | Expense | Client | Payment | Product | PurchaseOrder | Vendor $entity The entity class name
+     * @param string $entity The entity class name
      * @param int $user_id requesting the template
      * @param string $db The database name
      * @param bool $send_email Determines whether to send an email
@@ -96,10 +100,13 @@ class TemplateAction implements ShouldQueue
         else 
             $data[$key] = $result;
 
-        $pdf = $template_service->build($data)->getPdf();
+        $ts = $template_service->build($data);
+        
+        nlog($ts->getHtml());
+        $pdf = $ts->getPdf();
 
         if($this->send_email)
-            $this->sendEmail($pdf);
+            $this->sendEmail($pdf, $template);
         else {
 
             $filename = "templates/{$this->hash}.pdf";
@@ -108,10 +115,25 @@ class TemplateAction implements ShouldQueue
         }
     }
 
-    private function sendEmail(mixed $pdf): mixed
+    private function sendEmail(mixed $pdf, Design $template)
     {
-        //send the email.
-        return $pdf;
+        $user = $this->user_id ? User::find($this->user_id) : $this->company->owner();
+
+        $template_name = " [{$template->name}]";
+        $email_object = new EmailObject;
+        $email_object->to = [new Address($user->email, $user->present()->name())];
+        $email_object->attachments = [['file' => base64_encode($pdf), 'name' => ctrans('texts.template') . ".pdf"]];
+        $email_object->company_key = $this->company->company_key;
+        $email_object->company = $this->company;
+        $email_object->settings = $this->company->settings;
+        $email_object->logo = $this->company->present()->logo();
+        $email_object->whitelabel = $this->company->account->isPaid() ? true : false;
+        $email_object->user_id = $user->id;
+        $email_object->text_body = ctrans('texts.download_report_description') . $template_name;
+        $email_object->body = ctrans('texts.download_report_description') . $template_name;
+        $email_object->subject = ctrans('texts.download_report_description') . $template_name;
+
+        (new AdminEmail($email_object, $this->company))->handle();
     }
 
     /**
