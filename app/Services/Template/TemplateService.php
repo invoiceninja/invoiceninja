@@ -514,6 +514,8 @@ class TemplateService
             'custom_value2' => $payment->custom_value2 ?? '',
             'custom_value3' => $payment->custom_value3 ?? '',
             'custom_value4' => $payment->custom_value4 ?? '',
+            'created_at' => $this->translateDate($payment->created_at, $payment->client->date_format(), $payment->client->locale()),
+            'updated_at' => $this->translateDate($payment->updated_at, $payment->client->date_format(), $payment->client->locale()),
             'client' => [
                 'name' => $payment->client->present()->name(),
                 'balance' => $payment->client->balance,
@@ -587,27 +589,11 @@ class TemplateService
     {
 
         $payments = $payments->map(function ($payment) {
-            // nlog(microtime(true));
             return $this->transformPayment($payment);
         })->toArray();
-
+        
         return $payments;
-        // $it = new PaymentTransformer();
-        // $it->setDefaultIncludes(['client','invoices','paymentables']);
-        // $manager = new Manager();
-        // $manager->parseIncludes(['client','invoices','paymentables']);
-        // $resource = new \League\Fractal\Resource\Collection($payments, $it, null);
-        // $resources = $manager->createData($resource)->toArray();
 
-        // foreach($resources['data'] as $key => $resource) {
-
-        //     $resources['data'][$key]['client'] = $resource['client']['data'] ?? [];
-        //     $resources['data'][$key]['client']['contacts'] = $resource['client']['data']['contacts']['data'] ?? [];
-        //     $resources['data'][$key]['invoices'] = $invoice['invoices']['data'] ?? [];
-
-        // }
-
-        // return $resources['data'];
 
     }
 

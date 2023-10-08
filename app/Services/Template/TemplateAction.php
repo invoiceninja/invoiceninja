@@ -74,7 +74,8 @@ class TemplateAction implements ShouldQueue
      *
      */
     public function handle()
-    {
+    {   nlog("inside template action");
+
         MultiDB::setDb($this->db);
 
         $key = $this->resolveEntityString();
@@ -85,16 +86,22 @@ class TemplateAction implements ShouldQueue
 
         $template_service = new TemplateService($template);
         
-        if($this->entity == Invoice::class) {
-            $resource->with('payments', 'client');
-        }
+        match($this->entity){
+            Invoice::class => $resource->with('payments', 'client'),
+            Quote::class => $resource->with('client'),
+            Task::class => $resource->with('client'),
+            Credit::class => $resource->with('client'),
+            RecurringInvoice::class => $resource->with('client'),
+            Project::class => $resource->with('client'),
+            Expense::class => $resource->with('client'),
+            Payment::class => $resource->with('invoices', 'client'),
+        };
 
         $result = $resource->withTrashed()
             ->whereIn('id', $this->transformKeys($this->ids))
             ->where('company_id', $this->company->id)
             ->get();
 
-            
         if($result->count() <= 1)
             $data[$key] = collect($result);
         else 
@@ -103,15 +110,16 @@ class TemplateAction implements ShouldQueue
         $ts = $template_service->build($data);
         
         nlog($ts->getHtml());
-        $pdf = $ts->getPdf();
 
-        if($this->send_email)
+        if($this->send_email) {
+            $pdf = $ts->getPdf();
             $this->sendEmail($pdf, $template);
+        }
         else {
-
+            $pdf = $ts->getPdf();
             $filename = "templates/{$this->hash}.pdf";
             Storage::disk(config('filesystems.default'))->put($filename, $pdf);
-
+            return $pdf;
         }
     }
 

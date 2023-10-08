@@ -31,13 +31,7 @@ class EmailPayment implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $payment;
-
     public $email_builder;
-
-    private $contact;
-
-    private $company;
 
     public $settings;
 
@@ -49,11 +43,8 @@ class EmailPayment implements ShouldQueue
      * @param $contact
      * @param $company
      */
-    public function __construct(Payment $payment, Company $company, ?ClientContact $contact)
+    public function __construct(public Payment $payment, private Company $company, private ?ClientContact $contact)
     {
-        $this->payment = $payment;
-        $this->contact = $contact;
-        $this->company = $company;
         $this->settings = $payment->client->getMergedSettings();
     }
 
