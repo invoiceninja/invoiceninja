@@ -16,6 +16,7 @@ use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Company;
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
 use App\Models\Activity;
@@ -529,37 +530,56 @@ class TemplateService
             'refund_activity' => $this->getPaymentRefundActivity($payment),
         ];
 
+        nlog($this->getPaymentRefundActivity($payment));
+
         return $data;
 
     }
 
+    /**
+     *  [
+      "id" => 12,
+      "date" => "2023-10-08",
+      "invoices" => [
+        [
+          "amount" => 1,
+          "invoice_id" => 23,
+          "id" => null,
+        ],
+      ],
+      "q" => "/api/v1/payments/refund",
+      "email_receipt" => "true",
+      "gateway_refund" => false,
+      "send_email" => false,
+    ],
+     *
+     * @param Payment $payment
+     * @return array
+     */
     private function getPaymentRefundActivity(Payment $payment): array
     {
 
-        return Activity::where('activity_type_id', 40)
-        ->where('payment_id', $payment->id)
-        ->where('company_id', $payment->company_id)
-        ->orderBy('id', 'asc')
-        ->cursor()
-        ->map(function ($a) use ($payment){
+        return collect($payment->refund_meta ?? [])
+        ->map(function ($refund) use($payment){
 
-            $date = \Carbon\Carbon::parse($a->created_at)->addSeconds($a->payment->client->timezone_offset());
-            $date = $this->translateDate($date, $a->payment->client->date_format(), $a->payment->client->locale());
-            $notes = explode("-", $a->notes);
-            
-            try {
-                $amount = explode(":", reset($notes));
-                $amount = Number::formatMoney(end($amount), $payment->client);
-                $notes = ctrans('texts.status_partially_refunded_amount', ['amount' => $amount]);
-            }
-            catch(\Exception $e){
-            }
-
+            $date = \Carbon\Carbon::parse($refund['date'])->addSeconds($payment->client->timezone_offset());
+            $date = $this->translateDate($date, $payment->client->date_format(), $payment->client->locale());
             $entity = ctrans('texts.invoice');
 
-            return "{$date} {$entity} #{$a->invoice->number} {$notes}\n";
+            $map = [];
 
-        })->toArray();
+            foreach($refund['invoices'] as $refunded_invoice) {
+                $invoice = Invoice::withTrashed()->find($refunded_invoice['invoice_id']);    
+                $amount = Number::formatMoney($refunded_invoice['amount'], $payment->client);
+                $notes = ctrans('texts.status_partially_refunded_amount', ['amount' => $amount]);
+
+                array_push($map, "{$date} {$entity} #{$invoice->number} {$notes}\n");
+
+            }
+
+            return $map;
+
+        })->flatten()->toArray();
 
     }
 

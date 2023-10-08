@@ -74,7 +74,8 @@ class TemplateAction implements ShouldQueue
      *
      */
     public function handle()
-    {   nlog("inside template action");
+    {   
+        // nlog("inside template action");
 
         MultiDB::setDb($this->db);
 
@@ -109,7 +110,7 @@ class TemplateAction implements ShouldQueue
 
         $ts = $template_service->build($data);
         
-        nlog($ts->getHtml());
+        // nlog($ts->getHtml());
 
         if($this->send_email) {
             $pdf = $ts->getPdf();
