@@ -115,7 +115,7 @@ class TaskExport extends BaseExport
 
                     $this->storage_array = [];
                 });
-        nlog($this->storage_item_array);
+        // nlog($this->storage_item_array);
         return array_merge(['columns' => $header], $this->storage_item_array);
     }
 

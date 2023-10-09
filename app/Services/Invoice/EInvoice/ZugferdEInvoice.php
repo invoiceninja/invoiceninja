@@ -138,7 +138,7 @@ class ZugferdEInvoice extends AbstractService
                     $this->xrechnung->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate3);
                     $this->addtoTaxMap($taxtype, $linenetamount, $item->tax_rate3);
                 } else {
-                    nlog("Can't add correct tax position");
+                    // nlog("Can't add correct tax position");
                 }
             } else {
                 if (!empty($this->invoice->tax_name1)) {
@@ -157,7 +157,7 @@ class ZugferdEInvoice extends AbstractService
                     $taxtype = ZugferdDutyTaxFeeCategories::ZERO_RATED_GOODS;
                     $this->xrechnung->addDocumentPositionTax($taxtype, 'VAT', 0);
                     $this->addtoTaxMap($taxtype, $linenetamount, 0);
-                    nlog("Can't add correct tax position");
+                    // nlog("Can't add correct tax position");
                 }
             }
         }

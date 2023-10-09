@@ -320,6 +320,14 @@ class Invoice extends BaseModel
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany<Payment>
+     */
+    public function net_payments(): \Illuminate\Database\Eloquent\Relations\MorphToMany
+    {
+        return $this->morphToMany(Payment::class, 'paymentable')->withTrashed()->where('is_deleted',0)->withPivot('amount', 'refunded', 'deleted_at')->withTimestamps();
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany<CompanyLedger>
      */
     public function company_ledger(): \Illuminate\Database\Eloquent\Relations\MorphMany

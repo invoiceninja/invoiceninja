@@ -158,9 +158,7 @@ class ActivityExport extends BaseExport
         $clean_row = [];
         
         foreach (array_values($this->input['report_keys']) as $key => $value) {
-        
-            nlog("key: {$key}, value: {$value}");
-            nlog($row);
+    
             $clean_row[$key]['entity'] = 'activity';
             $clean_row[$key]['id'] = $key;
             $clean_row[$key]['hashed_id'] = null;
