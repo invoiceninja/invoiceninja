@@ -156,7 +156,6 @@ class DeletePayment
 
                 $client
                 ->service()
-                // ->updatePaidToDate(($paymentable_credit->pivot->amount) * -1)
                 ->adjustCreditBalance($paymentable_credit->pivot->amount)
                 ->save();
             });
