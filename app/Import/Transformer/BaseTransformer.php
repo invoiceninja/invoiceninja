@@ -47,6 +47,9 @@ class BaseTransformer
 
     public function parseDate($date)
     {
+        if(stripos($date,"/") !== false && $this->company->settings->country_id != 840)
+            $date = str_replace('/', '-', $date);
+        
         try {
             $parsed_date = Carbon::parse($date);
 
