@@ -402,7 +402,7 @@ class InvoiceService
         $balance = $this->invoice->balance;
 
         //return early if type three does not exist.
-        if (! collect($this->invoice->line_items)->contains('type_id', 3)) {
+        if (! collect($this->invoice->line_items)->contains('type_id', '3')) {
             return $this;
         }
 

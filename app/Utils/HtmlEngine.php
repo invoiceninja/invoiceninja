@@ -1042,8 +1042,6 @@ html {
 
         $dom = null;
         
-        nlog($html);
-
         return $html;
     }
     
