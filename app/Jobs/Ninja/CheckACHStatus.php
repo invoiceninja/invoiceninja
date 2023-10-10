@@ -11,6 +11,7 @@
 
 namespace App\Jobs\Ninja;
 
+use App\Models\Payment;
 use App\Libraries\MultiDB;
 use Illuminate\Bus\Queueable;
 use App\Models\ClientGatewayToken;
@@ -74,6 +75,53 @@ class CheckACHStatus implements ShouldQueue
                 }
 
             });
+
+            Payment::where('status_id', 1)
+            ->whereHas('company_gateway', function ($q){
+                $q->whereIn('gateway_key', ['d14dd26a47cecc30fdd65700bfb67b34', 'd14dd26a37cecc30fdd65700bfb55b23']);
+            })
+            ->cursor()
+            ->each(function ($p) {
+
+                try {
+                    $stripe = $p->company_gateway->driver($p->client)->init();
+                } catch(\Exception $e) {
+                    return;
+                }
+
+                $pi = false;
+
+                try {
+                    $pi = $stripe->getPaymentIntent($p->transaction_reference);
+                } catch(\Exception $e) {
+    
+                }
+
+                if(!$pi) {
+
+                    try {
+                        $pi = \Stripe\Charge::retrieve($p->transaction_reference, $stripe->stripe_connect_auth);
+                    } catch(\Exception $e) {
+                        return;
+                    }
+
+                }
+
+                if($pi && $pi->status == 'succeeded') {
+                    $p->status_id = Payment::STATUS_COMPLETED;
+                    $p->saveQuietly();
+                } else {
+
+                    if($pi) {
+                        nlog("{$p->id} did not complete {$p->transaction_reference}");
+                    } else {
+                        nlog("did not find a payment intent {$p->transaction_reference}");
+                    }
+
+                }
+
+            });
+
         }
     }
 }
