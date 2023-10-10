@@ -7,7 +7,7 @@ on:
     branches:
       - v5-develop
 
-name: phpunit
+name: playwright
 jobs:
   run:
     runs-on: ${{ matrix.operating-system }}
