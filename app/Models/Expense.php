@@ -220,7 +220,7 @@ class Expense extends BaseModel
 
     public function transaction(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(BankTransaction::class);
+        return $this->belongsTo(BankTransaction::class)->withTrashed();
     }
 
     public function stringStatus()

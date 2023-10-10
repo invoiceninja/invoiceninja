@@ -355,7 +355,7 @@ class ProfitLoss
 
         $csv->insertOne(['--------------------']);
 
-        $csv->insertOne([ctrans('texts.total_revenue'), Number::formatMoney($this->income - $this->income_taxes, $this->company)]);
+        $csv->insertOne([ctrans('texts.total_revenue'), Number::formatMoney($this->income, $this->company)]);
 
         //total taxes
 

@@ -5178,6 +5178,7 @@ $LANG = array(
     'classification' => 'Classification',
     'stock_quantity_number' => 'Stock :quantity',
     'upcoming' => 'Upcoming',
+    'client_contact' => 'Client Contact',
 ); 
 
 return $LANG;

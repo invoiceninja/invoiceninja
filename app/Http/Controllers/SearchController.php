@@ -99,7 +99,7 @@ class SearchController extends Controller
                                 'name' => $invoice->client->present()->name() . ' - ' . $invoice->number,
                                 'type' => '/invoice',
                                 'id' => $invoice->hashed_id,
-                                'path' => "/clients/{$invoice->hashed_id}/edit"
+                                'path' => "/invoices/{$invoice->hashed_id}/edit"
                             ];
                     }
                     

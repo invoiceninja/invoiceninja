@@ -76,14 +76,12 @@ class MarkInvoiceDeleted extends AbstractService
     private function adjustPayments()
     {
         //if total payments = adjustment amount - that means we need to delete the payments as well.
-
         if ($this->adjustment_amount == $this->total_payments) {
             $this->invoice->payments()->update(['payments.deleted_at' => now(), 'payments.is_deleted' => true]);
         }
       
 
         //adjust payments down by the amount applied to the invoice payment.
-
         $this->invoice->payments->each(function ($payment) {
             $payment_adjustment = $payment->paymentables
                                             ->where('paymentable_type', '=', 'invoices')

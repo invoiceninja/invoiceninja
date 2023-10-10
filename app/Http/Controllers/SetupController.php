@@ -182,7 +182,8 @@ class SetupController extends Controller
      * @return Application|ResponseFactory|JsonResponse|Response
      */
     public function checkDB(CheckDatabaseRequest $request)
-    {nlog("trying");
+    {
+        
         try {
             $status = SystemHealth::dbCheck($request);
 
