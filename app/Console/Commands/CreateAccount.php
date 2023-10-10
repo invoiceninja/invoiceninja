@@ -74,6 +74,7 @@ class CreateAccount extends Command
         $company->save();
         
         $account->default_company_id = $company->id;
+        $account->set_react_as_default_ap = true;
         $account->save();
 
         $email = $this->option('email') ?? 'admin@example.com';
