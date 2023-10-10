@@ -1013,9 +1013,9 @@ html {
      */
     protected function generateEntityImagesMarkup()
     {
-        if ($this->client->getSetting('embed_documents') === false) {
-            return '';
-        }
+        // if ($this->client->getSetting('embed_documents') === false) {
+        //     return '';
+        // }
 
         $dom = new \DOMDocument('1.0', 'UTF-8');
 
@@ -1029,7 +1029,7 @@ html {
 
             $image = $dom->createElement('img');
 
-            $image->setAttribute('src', $document->generateUrl());
+            $image->setAttribute('src', "data:image/png;base64,".base64_encode($document->getFile()));
             $image->setAttribute('style', 'max-height: 100px; margin-top: 20px;');
 
             $container->appendChild($image);
@@ -1040,6 +1040,8 @@ html {
         $html = $dom->saveHTML();
 
         $dom = null;
+        
+        nlog($html);
 
         return $html;
     }

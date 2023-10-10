@@ -89,10 +89,16 @@ class RandomDataSeeder extends Seeder
         Model::unguard();
 
         $faker = \Faker\Factory::create();
-
+        $settings= CompanySettings::defaults();
+        
+        $settings->name = "Random Test Company";
+        $settings->currency_id = '1';
+        $settings->language_id = '1';
+        
         $account = Account::factory()->create();
         $company = Company::factory()->create([
             'account_id' => $account->id,
+            'settings' => $settings,
         ]);
 
         $account->default_company_id = $company->id;

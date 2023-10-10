@@ -841,6 +841,8 @@ class CompanySettings extends BaseSettings
     {
         $notification = new stdClass;
         $notification->email = [];
+        $notification->email = ['invoice_sent_all'];
+
         // $notification->email = ['all_notifications'];
 
         return $notification;
