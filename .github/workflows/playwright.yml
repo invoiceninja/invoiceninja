@@ -2,7 +2,6 @@ on:
   push:
     branches:
       - v5-develop
-      - v5-stable
   pull_request:
     branches:
       - v5-develop
@@ -13,12 +12,10 @@ jobs:
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
-        operating-system: ['ubuntu-20.04', 'ubuntu-22.04']
-        php-versions: ['8.1','8.2']
+        operating-system: ['ubuntu-20.04']
+        php-versions: ['8.2']
         phpunit-versions: ['latest']
-        ci_node_total: [ 8 ]
-        ci_node_index: [ 0, 1, 2, 3, 4, 5, 6, 7]
-        laravel: [9.*]
+        laravel: [10.*]
         dependency-version: [prefer-stable]
 
     env:
@@ -137,7 +134,7 @@ jobs:
         mkdir -p ../public/tinymce_6.4.2/tinymce/js/
         cp -r node_modules/tinymce ../public/tinymce_6.4.2/tinymce/js/
         cd ..
-        rm -rf ui
         php artisan ninja:react
+        cd ui
         npx playwright install
         npx playwright test --workers=1
