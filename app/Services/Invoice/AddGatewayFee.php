@@ -29,7 +29,7 @@ class AddGatewayFee extends AbstractService
     {
         $gateway_fee = round($this->company_gateway->calcGatewayFee($this->amount, $this->gateway_type_id, $this->invoice->uses_inclusive_taxes), $this->invoice->client->currency()->precision);
 
-        if (! $gateway_fee) {
+        if (! $gateway_fee || $gateway_fee == 0) {
             return $this->invoice;
         }
 
@@ -52,6 +52,7 @@ class AddGatewayFee extends AbstractService
         $invoice_items = collect($invoice_items)->filter(function ($item) {
             return $item->type_id != '3';
         });
+        // })->toArray();
 
         $this->invoice->line_items = $invoice_items;
 
@@ -150,7 +151,7 @@ class AddGatewayFee extends AbstractService
 
             $this->invoice
             ->ledger()
-            ->updateInvoiceBalance($adjustment * -1, 'Adjustment for adding gateway fee');
+            ->updateInvoiceBalance($adjustment * -1, 'Adjustment for adding gateway DISCOUNT');
         }
 
         return $this->invoice;
