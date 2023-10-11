@@ -95,6 +95,29 @@ class LateFeeTest extends TestCase
         return $client;
     }
 
+    public function testAddLateFeeAppropriately()
+    {
+        $invoice_item = new InvoiceItem;
+        $invoice_item->type_id = '5';
+        $invoice_item->product_key = trans('texts.fee');
+        $invoice_item->notes = ctrans('texts.late_fee_added', ['date' => 'xyz']);
+        $invoice_item->quantity = 1;
+        $invoice_item->cost = 20;
+
+        $invoice_items = $this->invoice->line_items;
+        $invoice_items[] = $invoice_item;
+
+        $this->invoice->line_items = $invoice_items;
+        
+        $this->assertGreaterThan(1, count($this->invoice->line_items));
+
+        /**Refresh Invoice values*/
+        $invoice = $this->invoice->calc()->getInvoice();
+
+        $this->assertGreaterThan(1, count($this->invoice->line_items));
+
+    }
+
     public function testModelBehaviourInsideMap()
     {
         $i = Invoice::factory()->count(5)
