@@ -71,10 +71,13 @@ class TemplateService
         $this->document->validateOnParse = true;
 
         $loader = new \Twig\Loader\FilesystemLoader(storage_path());
-        $this->twig = new \Twig\Environment($loader);
+        $this->twig = new \Twig\Environment($loader,[
+                'debug' => true,
+        ]);
         $string_extension = new \Twig\Extension\StringLoaderExtension();
         $this->twig->addExtension($string_extension);
         $this->twig->addExtension(new IntlExtension());
+        $this->twig->addExtension(new \Twig\Extension\DebugExtension());
 
         $function = new \Twig\TwigFunction('img', function ($string, $style = '') {
             return '<img src="'.$string.'" style="'.$style.'"></img>';
@@ -123,7 +126,12 @@ class TemplateService
 
         return $this;
     }
-
+    
+    /**
+     * Returns the HTML as string
+     *
+     * @return string
+     */
     public function getHtml(): string
     {
         return $this->compiled_html;
@@ -170,6 +178,22 @@ class TemplateService
             }
             catch(\Twig\Error\SyntaxError $e) {
                 nlog($e->getMessage());
+                throw ($e);
+            }
+            catch(\Twig\Error\Error $e) {
+                nlog("error = " .$e->getMessage());
+                throw ($e);
+            }
+            catch(\Twig\Error\RuntimeError $e) {
+                nlog("runtime = " .$e->getMessage());
+                throw ($e);
+            }
+            catch(\Twig\Error\LoaderError $e) {
+                nlog("loader = " . $e->getMessage());
+                throw ($e);
+            }
+            catch(\Twig\Error\SecurityError $e) {
+                nlog("security = " . $e->getMessage());
                 throw ($e);
             }
 
@@ -284,7 +308,7 @@ class TemplateService
             
             $processed = [];
 
-            if(in_array($key, ['tasks','projects']) || !$value->first() )
+            if(in_array($key, ['tasks','projects','aging']) || is_array($value) || !$value->first() )
                 return $processed;
 
             match ($key) {
@@ -295,6 +319,8 @@ class TemplateService
                 'tasks' => $processed = [],
                 'projects' => $processed = [],
                 'purchase_orders' => (new VendorHtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues() ?? [],
+                'aging' => $processed = [],
+                default => $processed = [],
             };
             
             return $processed;
@@ -317,6 +343,8 @@ class TemplateService
                 'tasks' => $processed = $this->processTasks($value),
                 'projects' => $processed = $this->processProjects($value),
                 'purchase_orders' => $processed = $this->processPurchaseOrders($value),
+                'aging' => $processed = $value,
+                default => $processed = [],
             };
 
             return $processed;
@@ -333,7 +361,6 @@ class TemplateService
             
             if($invoice->payments ?? false) {
                 $payments = $invoice->payments->map(function ($payment) {
-                    // nlog(microtime(true));
                     return $this->transformPayment($payment);
                 })->toArray();
             }
@@ -530,8 +557,8 @@ class TemplateService
             'refund_activity' => $this->getPaymentRefundActivity($payment),
         ];
 
-        nlog($this->getPaymentRefundActivity($payment));
-
+        nlog($data);
+        
         return $data;
 
     }
