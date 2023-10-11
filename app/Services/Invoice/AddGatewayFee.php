@@ -52,7 +52,6 @@ class AddGatewayFee extends AbstractService
         $invoice_items = collect($invoice_items)->filter(function ($item) {
             return $item->type_id != '3';
         });
-        // })->toArray();
 
         $this->invoice->line_items = $invoice_items;
 

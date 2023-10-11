@@ -177,7 +177,6 @@ class LateFeeTest extends TestCase
         });
 
         $invoices = Invoice::whereIn('id', $ids)->cursor()->map(function ($invoice){
-            nlog("line item count = ".count($invoice->line_items));
             $this->assertGreaterThan(0, count($invoice->line_items));
             
             $invoice->service()->removeUnpaidGatewayFees();
@@ -188,7 +187,6 @@ class LateFeeTest extends TestCase
         });
 
         $invoices->each(function ($invoice) {
-            nlog($invoice->line_items);
             $this->assertGreaterThan(0, count($invoice->line_items));
         });
 

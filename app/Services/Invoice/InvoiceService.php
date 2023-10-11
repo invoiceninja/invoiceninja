@@ -414,10 +414,9 @@ class InvoiceService
                                      })->toArray();
 
         $this->invoice->line_items = array_values($items);
-        
+
         $this->invoice = $this->invoice->calc()->getInvoice();
-        // $this->deletePdf();
-        $this->deleteEInvoice();
+        $this->deleteEInvoice(); //@deprecated
 
         /* 24-03-2022 */
         $new_balance = $this->invoice->balance;
