@@ -16,8 +16,10 @@ use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Company;
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
+use App\Models\Activity;
 use App\Utils\HtmlEngine;
 use League\Fractal\Manager;
 use App\Models\PurchaseOrder;
@@ -25,6 +27,7 @@ use App\Utils\VendorHtmlEngine;
 use App\Utils\PaymentHtmlEngine;
 use App\Utils\Traits\MakesDates;
 use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\Traits\Pdf\PdfMaker;
 use Twig\Extra\Intl\IntlExtension;
 use App\Transformers\TaskTransformer;
 use App\Transformers\QuoteTransformer;
@@ -34,7 +37,6 @@ use App\Transformers\InvoiceTransformer;
 use App\Transformers\ProjectTransformer;
 use App\Transformers\PurchaseOrderTransformer;
 use League\Fractal\Serializer\ArraySerializer;
-use App\Utils\Traits\Pdf\PdfMaker;
 
 class TemplateService
 {
@@ -470,6 +472,7 @@ class TemplateService
                 'refunded' => Number::formatMoney($credit->pivot->refunded, $payment->client),
                 'net' => Number::formatMoney($credit->pivot->amount - $credit->pivot->refunded, $payment->client),
                 'is_credit' => true,
+                'date' => $this->translateDate($credit->date, $payment->client->date_format(), $payment->client->locale()),
                 'created_at' => $this->translateDate($credit->pivot->created_at, $payment->client->date_format(), $payment->client->locale()),
                 'updated_at' => $this->translateDate($credit->pivot->updated_at, $payment->client->date_format(), $payment->client->locale()),
                 'timestamp' => $credit->pivot->created_at->timestamp,
@@ -486,6 +489,7 @@ class TemplateService
                 'refunded' => Number::formatMoney($invoice->pivot->refunded, $payment->client),
                 'net' => Number::formatMoney($invoice->pivot->amount - $invoice->pivot->refunded, $payment->client),
                 'is_credit' => false,
+                'date' => $this->translateDate($invoice->date, $payment->client->date_format(), $payment->client->locale()),
                 'created_at' => $this->translateDate($invoice->pivot->created_at, $payment->client->date_format(), $payment->client->locale()),
                 'updated_at' => $this->translateDate($invoice->pivot->updated_at, $payment->client->date_format(), $payment->client->locale()),
                 'timestamp' => $invoice->pivot->created_at->timestamp,
@@ -514,6 +518,8 @@ class TemplateService
             'custom_value2' => $payment->custom_value2 ?? '',
             'custom_value3' => $payment->custom_value3 ?? '',
             'custom_value4' => $payment->custom_value4 ?? '',
+            'created_at' => $this->translateDate($payment->created_at, $payment->client->date_format(), $payment->client->locale()),
+            'updated_at' => $this->translateDate($payment->updated_at, $payment->client->date_format(), $payment->client->locale()),
             'client' => [
                 'name' => $payment->client->present()->name(),
                 'balance' => $payment->client->balance,
@@ -521,13 +527,62 @@ class TemplateService
                 'credit_balance' => $payment->client->credit_balance,
             ],
             'paymentables' => $pivot,
+            'refund_activity' => $this->getPaymentRefundActivity($payment),
         ];
-            
+
+        nlog($this->getPaymentRefundActivity($payment));
+
         return $data;
 
+    }
 
+    /**
+     *  [
+      "id" => 12,
+      "date" => "2023-10-08",
+      "invoices" => [
+        [
+          "amount" => 1,
+          "invoice_id" => 23,
+          "id" => null,
+        ],
+      ],
+      "q" => "/api/v1/payments/refund",
+      "email_receipt" => "true",
+      "gateway_refund" => false,
+      "send_email" => false,
+    ],
+     *
+     * @param Payment $payment
+     * @return array
+     */
+    private function getPaymentRefundActivity(Payment $payment): array
+    {
+
+        return collect($payment->refund_meta ?? [])
+        ->map(function ($refund) use($payment){
+
+            $date = \Carbon\Carbon::parse($refund['date'])->addSeconds($payment->client->timezone_offset());
+            $date = $this->translateDate($date, $payment->client->date_format(), $payment->client->locale());
+            $entity = ctrans('texts.invoice');
+
+            $map = [];
+
+            foreach($refund['invoices'] as $refunded_invoice) {
+                $invoice = Invoice::withTrashed()->find($refunded_invoice['invoice_id']);    
+                $amount = Number::formatMoney($refunded_invoice['amount'], $payment->client);
+                $notes = ctrans('texts.status_partially_refunded_amount', ['amount' => $amount]);
+
+                array_push($map, "{$date} {$entity} #{$invoice->number} {$notes}\n");
+
+            }
+
+            return $map;
+
+        })->flatten()->toArray();
 
     }
+
 
 
     public function processQuotes($quotes): array
@@ -587,27 +642,11 @@ class TemplateService
     {
 
         $payments = $payments->map(function ($payment) {
-            // nlog(microtime(true));
             return $this->transformPayment($payment);
         })->toArray();
-
+        
         return $payments;
-        // $it = new PaymentTransformer();
-        // $it->setDefaultIncludes(['client','invoices','paymentables']);
-        // $manager = new Manager();
-        // $manager->parseIncludes(['client','invoices','paymentables']);
-        // $resource = new \League\Fractal\Resource\Collection($payments, $it, null);
-        // $resources = $manager->createData($resource)->toArray();
 
-        // foreach($resources['data'] as $key => $resource) {
-
-        //     $resources['data'][$key]['client'] = $resource['client']['data'] ?? [];
-        //     $resources['data'][$key]['client']['contacts'] = $resource['client']['data']['contacts']['data'] ?? [];
-        //     $resources['data'][$key]['invoices'] = $invoice['invoices']['data'] ?? [];
-
-        // }
-
-        // return $resources['data'];
 
     }
 

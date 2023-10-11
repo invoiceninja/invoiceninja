@@ -5161,6 +5161,8 @@ $LANG = array(
     'show_document_preview' => 'Show Document Preview',
     'cash_accounting' => 'Cash accounting',
     'click_or_drop_files_here' => 'Click or drop files here',
+    'payment_refund_receipt' => 'Payment Refund Receipt # :number',
+    'payment_receipt' => 'Payment Receipt # :number',
 ); 
 
 return $LANG;

@@ -121,4 +121,8 @@ class EmailObject
     public ?string $template = null; //invoice //quote //reminder1
 
     public array $links = [];
+
+    public ?string $button = null;
+
+    public ?string $url = null;
 }
