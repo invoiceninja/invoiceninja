@@ -30,12 +30,15 @@ use App\Services\PdfMaker\PdfMaker;
 use App\Factory\InvoiceInvitationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
+use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\Pdf\PdfMaker as PdfMakerTrait;
 
 class Statement
 {
     use PdfMakerTrait;
     use MakesHash;
+    use MakesDates;
+
     /**
      * @var Invoice|Payment|null
      */
@@ -55,11 +58,19 @@ class Statement
 
         $html = new HtmlEngine($this->getInvitation());
 
-        $variables = $html->generateLabelsAndValues();
+        $variables = [];
 
         if($this->client->getSetting('statement_design_id') != '') {
+
+            $variables['values']['$start_date'] = $this->translateDate($this->options['start_date'], $this->client->date_format(), $this->client->locale());
+            $variables['values']['$end_date'] = $this->translateDate($this->options['end_date'], $this->client->date_format(), $this->client->locale());
+            $variables['labels']['$start_date_label'] = ctrans('texts.start_date');
+            $variables['labels']['$end_date_label'] = ctrans('texts.end_date');
+
             return $this->templateStatement($variables);
         }   
+
+        $variables = $html->generateLabelsAndValues();
 
         if ($this->getDesign()->is_custom) {
             $this->options['custom_partials'] = \json_decode(\json_encode($this->getDesign()->design), true);
@@ -119,7 +130,7 @@ class Statement
     }
 
     private function templateStatement($variables)
-    {nlog($this->options);
+    {
         if(isset($this->options['template']))
             $statement_design_id = $this->options['template'];
         else
@@ -130,11 +141,11 @@ class Statement
                             ->first();
 
         $ts = $template->service()->build([
-            'variables' => $variables,
+            'variables' => collect([$variables]),
             'invoices' => $this->getInvoices()->get(),
-            'payments' => $this->getPayments()->get(),
-            'credits' => $this->getCredits()->get(),
-            'aging' => $this->getAging(),
+            'payments' => $this->options['show_payments_table'] ? $this->getPayments()->get() : collect([]),
+            'credits' => $this->options['show_credits_table'] ? $this->getCredits()->get() : [],
+            'aging' => $this->options['show_aging_table'] ? $this->getAging() : [],
         ]);
 
         $html = $ts->getHtml();
@@ -305,7 +316,6 @@ class Statement
             case 'unpaid':
                 return [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL];
                 
-
             default:
                 return [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID];
                 
@@ -337,7 +347,7 @@ class Statement
     protected function getCredits(): Builder
     {
         return Credit::withTrashed()
-            ->with('client.country', 'invoices')
+            ->with('client.country','invoice')
             ->where('is_deleted', false)
             ->where('company_id', $this->client->company_id)
             ->where('client_id', $this->client->id)
@@ -386,7 +396,7 @@ class Statement
      * @param mixed $range
      * @return string
      */
-    private function getAgingAmount($range)
+    private function getAgingAmount($range): string
     {
         $ranges = $this->calculateDateRanges($range);
 
