@@ -290,10 +290,14 @@ class PreviewController extends BaseController
                 return $maker->getCompiledHTML();
             }
         } catch(\Exception $e) {
-            // nlog($e->getMessage());
+
             DB::connection(config('database.default'))->rollBack();
 
-            return;
+            if (DB::connection(config('database.default'))->transactionLevel() > 0) {
+                DB::connection(config('database.default'))->rollBack();
+            }
+
+            return response()->json(['message' => 'Error generating preview. Please retry again shortly.'], 400);
         }
 
             //if phantom js...... inject here..

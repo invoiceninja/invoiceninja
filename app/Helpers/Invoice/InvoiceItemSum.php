@@ -144,7 +144,7 @@ class InvoiceItemSum
 
     public function process(): self
     {
-        if (!$this->invoice->line_items || !is_array($this->invoice->line_items)) {
+        if (!$this->invoice->line_items || !is_iterable($this->invoice->line_items)) {
             $this->items = [];
             return $this;
         }
