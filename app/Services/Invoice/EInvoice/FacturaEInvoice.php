@@ -468,7 +468,7 @@ class FacturaEInvoice extends AbstractService
     {
         $company = $this->invoice->company;
 
-        if($company->getSetting('classification'))
+        if($company->getSetting('classification') == 'individual')
             return $this->setIndividualSeller();
 
         $seller = new FacturaeParty([
@@ -512,7 +512,7 @@ class FacturaEInvoice extends AbstractService
         $seller = new FacturaeParty([
             "isLegalEntity" => false,
             "taxNumber" => $company->settings->vat_number,
-            "name" => $company->getSetting('classification') === 'individual' ? substr($company->owner()->present()->name(), 0, 40) : substr($company->present()->name(), 0, 40),
+            // "name" => $company->getSetting('classification') === 'individual' ? substr($company->owner()->present()->name(), 0, 40) : substr($company->present()->name(), 0, 40),
             "address" => substr($company->settings->address1, 0, 80),
             "postCode" => substr($this->invoice->client->postal_code, 0, 5),
             "town" => substr($company->settings->city, 0, 50),
@@ -529,7 +529,8 @@ class FacturaEInvoice extends AbstractService
             "fax" => "",
             "website" => substr($company->settings->website, 0, 50),
             // "contactPeople" => substr($company->owner()->present()->name(), 0, 40),
-            "firstSurname" => $company->owner()->present()->firstName(),
+            "name" => $company->owner()->present()->firstName(),
+            // "firstSurname" => $company->owner()->present()->firstName(),
             "lastSurname" => $company->owner()->present()->lastName(),
         ]);
 
