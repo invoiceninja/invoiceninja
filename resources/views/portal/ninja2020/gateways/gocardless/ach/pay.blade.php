@@ -37,7 +37,9 @@
         @endcomponent
     @endif
 
-    @include('portal.ninja2020.gateways.includes.pay_now')
+    @if (count($tokens) > 0)
+        @include('portal.ninja2020.gateways.includes.pay_now')
+    @endif
 @endsection
 
 @push('footer')
