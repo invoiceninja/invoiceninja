@@ -40,5 +40,5 @@
 @endsection
 
 @section('gateway_footer')
-    <script src="{{ asset('js/clients/payment_methods/authorize-checkout-card.js') }}"></script>
+    @vite('resources/js/clients/payment_methods/authorize-checkout-card.js')
 @endsection

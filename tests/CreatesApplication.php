@@ -16,6 +16,8 @@ trait CreatesApplication
     {
         $app = require __DIR__.'/../bootstrap/app.php';
 
+        define('STDIN', fopen("php://stdin", "r"));
+
         $app->make(Kernel::class)->bootstrap();
 
         Hash::setRounds(4);

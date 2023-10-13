@@ -114,7 +114,7 @@ class PaymentFilters extends QueryFilters
             }
 
             if(in_array('partially_unapplied', $status_parameters)) {
-                $query->where('amount', '>', 'applied')->where('refunded', 0);
+                $query->whereColumn('amount', '>', 'applied')->where('refunded', 0);
             }
         });
 

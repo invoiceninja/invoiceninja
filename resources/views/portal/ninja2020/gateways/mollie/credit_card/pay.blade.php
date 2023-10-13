@@ -6,9 +6,9 @@ ctrans('texts.credit_card')])
     <meta name="mollie-profileId" content="{{ $gateway->company_gateway->getConfigField('profileId') }}">
 
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-    <script src="{{ asset('js/clients/payments/card-js.min.js') }}"></script>
     
-    <link href="{{ asset('css/card-js.min.css') }}" rel="stylesheet" type="text/css">
+    <script src="{{ asset('build/public/js/card-js.min.js/card-js.min.js') }}"></script>
+    <link href="{{ asset('build/public/css/card-js.min.css/card-js.min.css') }}" rel="stylesheet" type="text/css">
 @endsection
 
 @section('gateway_content')
@@ -86,5 +86,5 @@ ctrans('texts.credit_card')])
 
 @section('gateway_footer')
     <script src="https://js.mollie.com/v1/mollie.js"></script>
-    <script src="{{ asset('js/clients/payments/mollie-credit-card.js') }}"></script>
+    @vite('resources/js/clients/payments/mollie-credit-card.js')
 @endsection

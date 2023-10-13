@@ -46,7 +46,7 @@
     @endif
 
     @include('portal.ninja2020.components.entity-documents', ['entity' => $purchase_order])
-    @livewire('pdf-slot', ['entity' => $purchase_order, 'invitation' => $invitation, 'db' => $invitation->company->db])
+    @livewire('pdf-slot', ['entity' => $purchase_order, 'invitation' => $invitation, 'db' => $purchase_order->company->db])
 
 @endsection
 
@@ -56,7 +56,7 @@
 @endsection
 
 @push('head')
-    <script src="{{ asset('js/clients/purchase_orders/accept.js') }}" defer></script>
+    @vite('resources/js/clients/purchase_orders/accept.js')
     <script src="{{ asset('vendor/clipboard.min.js') }}"  defer></script>
 
     <script type="text/javascript">

@@ -107,16 +107,15 @@ class PaymentEmailEngine extends BaseEmailEngine
                     });
                 }
 
-                if($this->client->getSetting('enable_e_invoice'))
-                {
+                // if($this->client->getSetting('enable_e_invoice'))
+                // {
 
-                    $e_invoice_filepath = $invoice->service()->getEInvoice($this->contact);
+                //     $e_invoice_filepath = $invoice->service()->getEInvoice($this->contact);
 
-                    if(Storage::disk(config('filesystems.default'))->exists($e_invoice_filepath)) {
-                        $this->setAttachments([['path' => Storage::disk(config('filesystems.default'))->path($e_invoice_filepath), 'name' => $invoice->getFileName("xml"), 'mime' => null]]);
-                    }
+                //     if($e_invoice_filepath && strlen($e_invoice_filepath) > 1)
+                //         $this->setAttachments([['file' => base64_encode($e_invoice_filepath), 'name' => $invoice->getFileName("xml")]]);
 
-                }
+                // }
 
             });
         }

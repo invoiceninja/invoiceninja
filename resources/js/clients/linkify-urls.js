@@ -8,7 +8,7 @@
  * @license https://www.elastic.co/licensing/elastic-license 
  */
 
-const linkifyUrls = require('linkify-urls');
+import linkifyUrls from 'linkify-urls';
 
 document
     .querySelectorAll('[data-ref=entity-terms]')

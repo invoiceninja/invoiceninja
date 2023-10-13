@@ -206,6 +206,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
             'transactionId' => $this->payment_hash->hash.'-'.time(),
             'ButtonSource' => 'InvoiceNinja_SP',
             'solutionType' => 'Sole',
+            'no_shipping' => $this->company_gateway->require_shipping_address ? 0 : 1,
         ];
     }
 

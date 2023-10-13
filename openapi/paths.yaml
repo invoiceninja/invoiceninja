@@ -2742,11 +2742,15 @@ paths:
       parameters:
         - $ref: "#/components/parameters/X-Requested-With"
       requestBody:
-        description: "The template subject and body"
+        description: "Required fields to send an email"
         required: true
         content:
           application/json:
             schema:
+              required:
+                - entity
+                - entity_id
+                - template
               properties:
                 subject:
                   description: "The email subject"
@@ -2760,9 +2764,13 @@ paths:
                 entity_id:
                   description: "The entity_id"
                   type: string
+                cc_email:
+                  description: "The email address of a user to be CC'd on the email"
+                  type: string
                 template:
                   description: "The template required"
                   type: string
+                  example: invoice,quote,credit,purchase_order,payment,payment_partial,reminder1,reminder2,reminder3,reminder_endless
               type: object
       responses:
         200:

@@ -43,7 +43,7 @@
 @endsection
 
 @push('footer')
-    <script>
+    <script defer>
         Array
             .from(document.getElementsByClassName('toggle-payment-with-token'))
             .forEach((element) => element.addEventListener('click', (element) => {

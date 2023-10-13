@@ -101,6 +101,9 @@ class PaymentRepository extends BaseRepository
                     $client->saveQuietly();
                 }
             }, 1);
+
+            $client = Client::query()->where('id', $data['client_id'])->withTrashed()->first();
+
         }
 
         /*Fill the payment*/
@@ -108,7 +111,7 @@ class PaymentRepository extends BaseRepository
         $payment->is_manual = true;
         $payment->status_id = Payment::STATUS_COMPLETED;
 
-        if (! $payment->currency_id && $client) {
+        if ((!$payment->currency_id || $payment->currency_id == 0) && $client) {
             if (property_exists($client->settings, 'currency_id')) {
                 $payment->currency_id = $client->settings->currency_id;
             } else {

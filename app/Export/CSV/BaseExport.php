@@ -83,6 +83,7 @@ class BaseExport
         'contact_custom_value4' => 'vendor_contact.custom_value4',
         'email' => 'vendor_contact.email',
         'status' => 'vendor.status',
+        'classification' => 'vendor.classification',
     ];
 
     protected array $client_report_keys = [
@@ -125,10 +126,13 @@ class BaseExport
         "contact_custom_value2" => "contact.custom_value2",
         "contact_custom_value3" => "contact.custom_value3",
         "contact_custom_value4" => "contact.custom_value4",
-
+        'payment_balance' => 'client.payment_balance',
+        'credit_balance' => 'client.credit_balance',
+        'classification' => 'client.classification',
     ];
 
     protected array $invoice_report_keys = [
+        'name' => 'client.name',
         "invoice_number" => "invoice.number",
         "amount" => "invoice.amount",
         "balance" => "invoice.balance",

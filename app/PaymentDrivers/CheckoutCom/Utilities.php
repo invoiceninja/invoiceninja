@@ -98,11 +98,8 @@ trait Utilities
             $error_message = $_payment['actions'][0]['response_summary'];
         }
 
-        if(isset($_payment['actions'][0]['response_code']) ?? false) {
-            $error_code = $_payment['actions'][0]['response_code'];
-        }
-        else 
-            $error_code = 400;
+        //checkout does not return a integer status code as an alias for a http status code.
+        $error_code = 400;
 
         $this->getParent()->sendFailureMail($error_message);
 

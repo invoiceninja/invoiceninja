@@ -30,21 +30,21 @@ use League\CommonMark\CommonMarkConverter;
  * @property string|null $custom_value4
  * @property string|null $product_key
  * @property string|null $notes
- * @property string $cost
- * @property string $price
- * @property string $quantity
+ * @property float $cost
+ * @property float $price
+ * @property float $quantity
  * @property string|null $tax_name1
- * @property string $tax_rate1
+ * @property float $tax_rate1
  * @property string|null $tax_name2
- * @property string $tax_rate2
+ * @property float $tax_rate2
  * @property string|null $tax_name3
- * @property string $tax_rate3
+ * @property float $tax_rate3
  * @property int|null $deleted_at
  * @property int|null $created_at
  * @property int|null $updated_at
- * @property int $is_deleted
- * @property int $in_stock_quantity
- * @property int $stock_notification
+ * @property bool $is_deleted
+ * @property float $in_stock_quantity
+ * @property bool $stock_notification
  * @property int $stock_notification_threshold
  * @property int|null $max_quantity
  * @property string|null $product_image

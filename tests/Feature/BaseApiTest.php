@@ -62,6 +62,10 @@ class BaseApiTest extends TestCase
 {
     use MockAccountData;
 
+    public CompanyUser $owner_cu;
+
+    public CompanyUser $low_cu;
+
     private $list_routes = [
         'products',
         'clients',
@@ -94,9 +98,11 @@ class BaseApiTest extends TestCase
         'bank_transaction_rules',
     ];
 
-    private string $low_token;
+    public string $low_token;
 
-    private string $owner_token;
+    public string $owner_token;
+
+    public $faker;
 
     protected function setUp() :void
     {
@@ -576,7 +582,8 @@ class BaseApiTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->low_token,
-        ])->get('/api/v1/client_gateway_tokens/')
-          ->assertStatus(403);
+        ])->get('/api/v1/client_gateway_tokens');
+
+        $response->assertStatus(403);
     }
 }

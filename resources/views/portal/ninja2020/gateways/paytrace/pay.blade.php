@@ -64,5 +64,5 @@
     @else
     <script src='https://protect.paytrace.com/js/protect.min.js'></script>
     @endif
-    <script src="{{ asset('js/clients/payments/paytrace-credit-card.js') }}"></script>
+    @vite('resources/js/clients/payments/paytrace-credit-card.js')
 @endsection

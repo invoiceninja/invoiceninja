@@ -16,11 +16,9 @@ use App\Models\PurchaseOrder;
 
 class PurchaseOrderInventory
 {
-    private PurchaseOrder $purchase_order;
 
-    public function __construct(PurchaseOrder $purchase_order)
+    public function __construct(private PurchaseOrder $purchase_order)
     {
-        $this->purchase_order = $purchase_order;
     }
 
     public function run()
@@ -31,7 +29,19 @@ class PurchaseOrderInventory
             $p = Product::query()->where('product_key', $item->product_key)->where('company_id', $this->purchase_order->company_id)->first();
 
             if (!$p) {
-                continue;
+                $p = new Product();
+                $p->user_id = $this->purchase_order->user_id;
+                $p->company_id = $this->purchase_order->company_id;
+                $p->project_id = $this->purchase_order->project_id;
+                $p->vendor_id = $this->purchase_order->vendor_id;
+                $p->product_key = $item->product_key;
+                $p->notes = $item->notes ?? '';
+                $p->price = $item->cost ?? 0;
+                $p->quantity = $item->quantity ?? 0;
+                $p->custom_value1 = $item->custom_value1 ?? '';
+                $p->custom_value2 = $item->custom_value2 ?? '';
+                $p->custom_value3 = $item->custom_value3 ?? '';
+                $p->custom_value4 = $item->custom_value4 ?? '';
             }
 
             $p->in_stock_quantity += $item->quantity;

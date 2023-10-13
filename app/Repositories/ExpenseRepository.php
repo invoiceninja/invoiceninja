@@ -67,9 +67,12 @@ class ExpenseRepository extends BaseRepository
      */
     public function create($expense): ?Expense
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         return $this->save(
             $expense,
-            ExpenseFactory::create(auth()->user()->company()->id, auth()->user()->id)
+            ExpenseFactory::create($user->company()->id, $user->id)
         );
     }
 

@@ -44,6 +44,19 @@ class ClientService
             }, 2);
         } catch (\Throwable $throwable) {
             nlog("DB ERROR " . $throwable->getMessage());
+            DB::connection(config('database.default'))->rollBack();
+
+            if (DB::connection(config('database.default'))->transactionLevel() > 0) {
+                DB::connection(config('database.default'))->rollBack();
+            }
+
+        } catch(\Exception $exception){
+            nlog("DB ERROR " . $exception->getMessage());
+            DB::connection(config('database.default'))->rollBack();
+
+            if (DB::connection(config('database.default'))->transactionLevel() > 0) {
+                DB::connection(config('database.default'))->rollBack();
+            }
         }
 
         return $this;
@@ -60,6 +73,17 @@ class ClientService
             }, 2);
         } catch (\Throwable $throwable) {
             nlog("DB ERROR " . $throwable->getMessage());
+
+            if (DB::connection(config('database.default'))->transactionLevel() > 0) {
+                DB::connection(config('database.default'))->rollBack();
+            }
+
+        } catch(\Exception $exception){
+            nlog("DB ERROR " . $exception->getMessage());
+
+            if (DB::connection(config('database.default'))->transactionLevel() > 0) {
+                DB::connection(config('database.default'))->rollBack();
+            }
         }
    
         return $this;
@@ -67,11 +91,27 @@ class ClientService
 
     public function updatePaidToDate(float $amount)
     {
-        DB::connection(config('database.default'))->transaction(function () use ($amount) {
-            $this->client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
-            $this->client->paid_to_date += $amount;
-            $this->client->saveQuietly();
-        }, 2);
+        try {
+            DB::connection(config('database.default'))->transaction(function () use ($amount) {
+                $this->client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
+                $this->client->paid_to_date += $amount;
+                $this->client->saveQuietly();
+            }, 2);
+        }
+        catch (\Throwable $throwable) {
+            nlog("DB ERROR " . $throwable->getMessage());
+
+            if (DB::connection(config('database.default'))->transactionLevel() > 0) {
+                DB::connection(config('database.default'))->rollBack();
+            }
+
+        } catch(\Exception $exception){
+            nlog("DB ERROR " . $exception->getMessage());
+
+            if (DB::connection(config('database.default'))->transactionLevel() > 0) {
+                DB::connection(config('database.default'))->rollBack();
+            }
+        }
 
         return $this;
     }

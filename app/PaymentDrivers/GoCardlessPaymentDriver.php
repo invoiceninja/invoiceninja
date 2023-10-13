@@ -98,10 +98,17 @@ class GoCardlessPaymentDriver extends BaseDriver
 
     public function init(): self
     {
-        $this->gateway = new \GoCardlessPro\Client([
-            'access_token' => $this->company_gateway->getConfigField('accessToken'),
-            'environment'  => $this->company_gateway->getConfigField('testMode') ? \GoCardlessPro\Environment::SANDBOX : \GoCardlessPro\Environment::LIVE,
-        ]);
+        try {
+            $this->gateway = new \GoCardlessPro\Client([
+                'access_token' => $this->company_gateway->getConfigField('accessToken'),
+                'environment'  => $this->company_gateway->getConfigField('testMode') ? \GoCardlessPro\Environment::SANDBOX : \GoCardlessPro\Environment::LIVE,
+            ]);
+        }
+        catch(\GoCardlessPro\Core\Exception\AuthenticationException $e){
+
+            throw new \Exception('GoCardless: Invalid Access Token', 403);
+            
+        }
 
         return $this;
     }

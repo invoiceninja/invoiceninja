@@ -27,8 +27,8 @@ use Illuminate\Support\Facades\Storage;
  * @property int $id
  * @property int $company_id
  * @property int $user_id
- * @property int $client_contact_id
- * @property int $invoice_id
+ * @property int|null $client_contact_id
+ * @property int|null $invoice_id
  * @property string $key
  * @property string|null $transaction_reference
  * @property string|null $message_id

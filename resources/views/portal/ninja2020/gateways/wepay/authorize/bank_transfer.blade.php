@@ -29,5 +29,5 @@
 @endsection
 
 @section('gateway_footer')
-    <script src="{{ asset('js/clients/payment_methods/wepay-bank-account.js') }}"></script>
+    @vite('resources/js/clients/payment_methods/wepay-bank-account.js')
 @endsection

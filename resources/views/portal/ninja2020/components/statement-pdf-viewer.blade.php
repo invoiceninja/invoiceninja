@@ -45,5 +45,4 @@
         </div>
     </section>
 </div>
-
 <iframe id="pdf-iframe" src="{{ $url }}" class="h-screen w-full border-0 mt-4"></iframe>

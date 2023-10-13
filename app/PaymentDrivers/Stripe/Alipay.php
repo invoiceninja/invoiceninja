@@ -87,7 +87,9 @@ class Alipay
                 return $this->processSuccesfulRedirect($pi);
             }
 
-            if ($pi->status == 'requires_source_action') {
+            /** @phpstan-ignore-next-line */
+            if ($pi->status == 'requires_source_action' && $pi->next_action->alipay_handle_redirect) {
+                /** @phpstan-ignore-next-line */
                 return redirect($pi->next_action->alipay_handle_redirect->url);
             }
         }
