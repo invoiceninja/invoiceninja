@@ -425,8 +425,8 @@ class BillingPortalPurchase extends Component
         return $this->subscription->service()->startTrial([
             'email' => $this->email ?? $this->contact->email,
             'quantity' => $this->quantity,
-            'contact_id' => $this->contact->id,
-            'client_id' => $this->contact->client->id,
+            'contact_id' => $this->contact->hashed_id,
+            'client_id' => $this->contact->client->hashed_id,
         ]);
     }
 
