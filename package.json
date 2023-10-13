@@ -31,7 +31,7 @@
         "laravel-mix": "^6.0.34",
         "linkify-urls": "^4.0.0",
         "lodash": "^4.17.21",
-        "postcss": "^8.3.11",
+        "postcss": "^8.4.31",
         "resolve-url-loader": "^4.0.0",
         "sass": "^1.43.4",
         "sass-loader": "^12.3.0",
