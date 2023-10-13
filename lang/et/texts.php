@@ -654,10 +654,8 @@ $LANG = array(
     'created_by_invoice' => 'Loodud :invoice',
     'primary_user' => 'Peamine Kasutaja',
     'help' => 'Abi',
-    'customize_help' => '<p>Arve kujunduse deklaratiivseks määratlemiseks kasutame :pdfmake_link. PDFmake :playground_link pakub suurepärast võimalust näha andmekogu töös .
- <p>Kui vajate millegi väljamõtlemisel abi, postitage meie :forum_linkile küsimus koos kasutatava kujundusega.</p>',
     'playground' => 'playground',
-    'support_forum' => 'Tugifoorum',
+    'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Tähtaeg',
     'quote_due_date' => 'Kehtib Kuni',
     'valid_until' => 'Kehtib Kuni',
@@ -1147,7 +1145,7 @@ $LANG = array(
     'plan_status' => 'Paketi Staatus',
 
     'plan_upgrade' => 'Uuenda',
-    'plan_change' => 'Muuda Paketti',
+    'plan_change' => 'Manage Plan',
     'pending_change_to' => 'Changes To',
     'plan_changes_to' => ':plan :date',
     'plan_term_changes_to' => ':plan (:term) kuupäeval :date',
@@ -1818,7 +1816,6 @@ $LANG = array(
     'bot_emailed_notify_paid' => 'Saadan teile meili, kui see on tasutud.',
     'add_product_to_invoice' => 'Lisa 1 :product',
     'not_authorized' => 'Teil pole volitusi',
-    'bot_get_email' => 'Tere! (lehvitus)<br/>Täname Invoice Ninja Boti proovimise eest.<br/>Selle boti kasutamiseks peate looma tasuta konto.<br/>Alustamiseks saatke mulle oma konto meiliaadress.',
     'bot_get_code' => 'Aitäh! Saatsin teile turvakoodiga meili.',
     'bot_welcome' => 'See on kõik, teie konto on kinnitatud.<br/>',
     'email_not_found' => 'Ma ei leidnud saadaolevat kontot :email jaoks',
@@ -1826,8 +1823,6 @@ $LANG = array(
     'security_code_email_subject' => 'InvoiceNinja Boti turvakood',
     'security_code_email_line1' => 'See on teie Invoice Ninja Boti turvakood.',
     'security_code_email_line2' => 'Märkus: see aegub 10 minuti pärast.',
-    'bot_help_message' => 'Hetkel toetan:<br/>• Loo\uuenda\e-posti teel arve<br/>• Toodete loend<br/>Näiteks:<br/><i>arve bob 2 pileti eest, tähtpäevaks määra järgmine neljapäev ja allahindlus 10 protsenti</i>
- ',
     'list_products' => 'Toodete loend',
 
     'include_item_taxes_inline' => 'Include <b>line item taxes in line total</b>',
@@ -1840,7 +1835,6 @@ $LANG = array(
     'update_invoiceninja_warning' => 'Enne Invoice Ninja versiooniuuenduse alustamist looge oma andmebaasist ja failidest varukoopia!',
     'update_invoiceninja_available' => 'Invoice Ninja uus versioon on saadaval.',
     'update_invoiceninja_unavailable' => 'Invoice Ninja uut versiooni pole saadaval.',
-    'update_invoiceninja_instructions' => 'Palun installige uus versioon <strong>:version</strong> klõpsates nuppu <em>Uuendage kohe</em> allpool. Pärast seda suunatakse teid juhtpaneelile.',
     'update_invoiceninja_update_start' => 'Uuendage kohe',
     'update_invoiceninja_download_start' => 'Laadi alla :version',
     'create_new' => 'Loo Uus',
@@ -4327,7 +4321,7 @@ $LANG = array(
     'include_drafts' => 'Kaasa mustandid',
     'include_drafts_help' => 'Kaasake aruannetesse kirjete mustandid',
     'is_invoiced' => 'Is Invoiced',
-    'change_plan' => 'Muuda plaani',
+    'change_plan' => 'Manage Plan',
     'persist_data' => 'Persist Data',
     'customer_count' => 'Klientide arv',
     'verify_customers' => 'Kinnitage kliendid',
@@ -5155,8 +5149,21 @@ $LANG = array(
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
+    'show_document_preview' => 'Show Document Preview',
+    'cash_accounting' => 'Cash accounting',
+    'click_or_drop_files_here' => 'Click or drop files here',
+    'set_public' => 'Set public',
+    'set_private' => 'Set private',
+    'individual' => 'Individual',
+    'business' => 'Business',
+    'partnership' => 'partnership',
+    'trust' => 'Trust',
+    'charity' => 'Charity',
+    'government' => 'Government',
+    'in_stock_quantity' => 'Stock quantity',
+    'vendor_contact' => 'Vendor Contact',
 
-);
+); 
 
 return $LANG;
 

@@ -11,14 +11,15 @@
 
 namespace App\Export\CSV;
 
-use App\Libraries\MultiDB;
-use App\Models\Company;
-use App\Models\PurchaseOrder;
-use App\Transformers\PurchaseOrderTransformer;
 use App\Utils\Ninja;
 use App\Utils\Number;
-use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
+use App\Models\Company;
+use App\Libraries\MultiDB;
+use App\Models\PurchaseOrder;
+use Illuminate\Support\Facades\App;
+use App\Transformers\PurchaseOrderTransformer;
+use Illuminate\Database\Eloquent\Builder;
 
 class PurchaseOrderExport extends BaseExport
 {
@@ -81,24 +82,19 @@ class PurchaseOrderExport extends BaseExport
         $this->purchase_order_transformer = new PurchaseOrderTransformer();
     }
 
-    public function run()
+
+    public function init(): Builder
     {
+
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
         App::setLocale($this->company->locale());
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
-        //load the CSV document from a string
-        $this->csv = Writer::createFromString();
-
         if (count($this->input['report_keys']) == 0) {
-            $this->input['report_keys'] = array_values($this->entity_keys);
+            $this->input['report_keys'] = array_values($this->purchase_order_report_keys);
         }
-
-        //insert the header
-        $this->csv->insertOne($this->buildHeader());
-
         $query = PurchaseOrder::query()
                         ->withTrashed()
                         ->with('vendor')
@@ -107,9 +103,39 @@ class PurchaseOrderExport extends BaseExport
 
         $query = $this->addDateRange($query);
 
-        // if(isset($this->input['status'])) {
-        //     $query = $this->addPurchaseOrderStatusFilter($query, $this->input['status']);
-        // }
+        return $query;
+
+    }
+
+    public function returnJson()
+    {
+        $query = $this->init();
+
+        $headerdisplay = $this->buildHeader();
+
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
+                return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
+            })->toArray();
+
+        $report = $query->cursor()
+                ->map(function ($resource) {
+                    $row = $this->buildRow($resource);
+                    return $this->processMetaData($row, $resource);
+                })->toArray();
+        
+        return array_merge(['columns' => $header], $report);
+    }
+
+
+    public function run()
+    {
+        $query = $this->init();
+
+        //load the CSV document from a string
+        $this->csv = Writer::createFromString();
+
+        //insert the header
+        $this->csv->insertOne($this->buildHeader());
 
         $query->cursor()
             ->each(function ($purchase_order) {
@@ -126,23 +152,16 @@ class PurchaseOrderExport extends BaseExport
         $entity = [];
 
         foreach (array_values($this->input['report_keys']) as $key) {
-            $keyval = array_search($key, $this->entity_keys);
 
-            if(!$keyval) {
-                $keyval = array_search(str_replace("purchase_order.", "", $key), $this->entity_keys) ?? $key;
-            }
+            $parts = explode('.', $key);
 
-            if(!$keyval) {
-                $keyval = $key;
-            }
-
-            if (array_key_exists($key, $transformed_purchase_order)) {
-                $entity[$keyval] = $transformed_purchase_order[$key];
-            } elseif (array_key_exists($keyval, $transformed_purchase_order)) {
-                $entity[$keyval] = $transformed_purchase_order[$keyval];
+            if (is_array($parts) && $parts[0] == 'purchase_order' && array_key_exists($parts[1], $transformed_purchase_order)) {
+                $entity[$key] = $transformed_purchase_order[$parts[1]];
             } else {
-                $entity[$keyval] = $this->resolveKey($keyval, $purchase_order, $this->purchase_order_transformer);
+                $entity[$key] = $this->resolveKey($key, $purchase_order, $this->purchase_order_transformer);
             }
+
+            
         }
 
         return $this->decorateAdvancedFields($purchase_order, $entity);

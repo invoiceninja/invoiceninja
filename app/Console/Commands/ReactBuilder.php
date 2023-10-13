@@ -48,8 +48,16 @@ class ReactBuilder extends Command
     {
         $includes = '';
 
-        $directoryIterator = new \RecursiveDirectoryIterator(public_path('react'), \RecursiveDirectoryIterator::SKIP_DOTS);
+        $directoryIterator = false;
 
+        try {
+            $directoryIterator = new \RecursiveDirectoryIterator(public_path('react/v'.config('ninja.app_version').'/'), \RecursiveDirectoryIterator::SKIP_DOTS);
+        }
+        catch (\Exception $e) {
+            $this->error('React files not found');
+            return;
+        }
+        
         foreach (new \RecursiveIteratorIterator($directoryIterator) as $file) {
             if ($file->getExtension() == 'js') {
                 if (str_contains($file->getFileName(), 'index-')) {

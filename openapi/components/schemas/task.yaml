@@ -53,13 +53,17 @@
           type: string
           example: 'A wonder task to work on'
         duration:
-          description: 'The task duration'
+          description: 'The task duration in seconds'
           type: integer
-          example: ''
+          example: '3600'
         task_status_order:
           description: 'The order of the task'
           type: integer
           example: '4'
+        rate:
+          description: 'The task rate'
+          type: number
+          example: 10.00
         custom_value1:
           description: 'A custom value'
           type: string
@@ -76,19 +80,35 @@
           description: 'A custom value'
           type: string
           example: INV-3343
+        is_date_based:
+          description: 'Boolean flag determining if the task is date based'
+          type: boolean
+          example: true
+        calculated_start_date:
+          description: 'The calculated start date of the task'
+          type: string
+          example: '2022-10-10'
+          readOnly: true
+        invoice_documents:
+          description: "Boolean flags which determines whether to include the task documents on the invoice"
+          type: boolean
+          example: true
         created_at:
           description: Timestamp
           type: number
           format: integer
           example: '1434342123'
+          readOnly: true
         updated_at:
           description: Timestamp
           type: number
           format: integer
           example: '1434342123'
+          readOnly: true
         archived_at:
           description: Timestamp
           type: number
           format: integer
           example: '1434342123'
+          readOnly: true
       type: object

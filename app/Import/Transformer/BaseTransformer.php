@@ -47,6 +47,9 @@ class BaseTransformer
 
     public function parseDate($date)
     {
+        if(stripos($date,"/") !== false && $this->company->settings->country_id != 840)
+            $date = str_replace('/', '-', $date);
+        
         try {
             $parsed_date = Carbon::parse($date);
 
@@ -238,14 +241,15 @@ class BaseTransformer
      */
     public function hasClient($name)
     {
+        
         return Client::query()->where('company_id', $this->company->id)
             ->where('is_deleted', false)
-            ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
+            ->whereRaw("LOWER(REPLACE(`name`, ' ' , '')) = ?", [
                 strtolower(str_replace(' ', '', $name)),
             ])
             ->exists();
     }
-
+    
     public function hasClientIdNumber($id_number)
     {
         return Client::query()->where('company_id', $this->company->id)

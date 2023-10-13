@@ -12,37 +12,37 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Google_Client;
-use App\Models\User;
-use App\Utils\Ninja;
-use App\Models\Account;
-use App\Libraries\MultiDB;
-use App\Utils\TruthSource;
-use Microsoft\Graph\Model;
-use App\Models\CompanyUser;
-use App\Models\CompanyToken;
-use Illuminate\Http\Request;
-use App\Libraries\OAuth\OAuth;
-use App\Events\User\UserLoggedIn;
-use Illuminate\Http\JsonResponse;
-use PragmaRX\Google2FA\Google2FA;
-use App\Jobs\Account\CreateAccount;
-use Illuminate\Support\Facades\Auth;
-use App\Utils\Traits\User\LoginCache;
-use Illuminate\Support\Facades\Cache;
-use Turbo124\Beacon\Facades\LightLogs;
-use App\Http\Controllers\BaseController;
-use App\Jobs\Company\CreateCompanyToken;
-use Illuminate\Support\Facades\Response;
-use Laravel\Socialite\Facades\Socialite;
-use App\Http\Requests\Login\LoginRequest;
-use App\Libraries\OAuth\Providers\Google;
-use Illuminate\Database\Eloquent\Builder;
 use App\DataMapper\Analytics\LoginFailure;
 use App\DataMapper\Analytics\LoginSuccess;
-use App\Utils\Traits\UserSessionAttributes;
+use App\Events\User\UserLoggedIn;
+use App\Http\Controllers\BaseController;
+use App\Http\Requests\Login\LoginRequest;
+use App\Jobs\Account\CreateAccount;
+use App\Jobs\Company\CreateCompanyToken;
+use App\Libraries\MultiDB;
+use App\Libraries\OAuth\OAuth;
+use App\Libraries\OAuth\Providers\Google;
+use App\Models\Account;
+use App\Models\CompanyToken;
+use App\Models\CompanyUser;
+use App\Models\User;
 use App\Transformers\CompanyUserTransformer;
+use App\Utils\Ninja;
+use App\Utils\Traits\User\LoginCache;
+use App\Utils\Traits\UserSessionAttributes;
+use App\Utils\TruthSource;
+use Google_Client;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Response;
+use Laravel\Socialite\Facades\Socialite;
+use Microsoft\Graph\Model;
+use PragmaRX\Google2FA\Google2FA;
+use Turbo124\Beacon\Facades\LightLogs;
 
 class LoginController extends BaseController
 {
@@ -418,10 +418,12 @@ class LoginController extends BaseController
             ->setReturnType(Model\User::class)
             ->execute();
 
+        nlog($user);
+
         if ($user) {
             $account = request()->input('account');
 
-            $email = $user->getMail() ?: $user->getUserPrincipalName();
+            $email = $user->getUserPrincipalName() ?? false;
 
             $query = [
                 'oauth_user_id' => $user->getId(),
@@ -436,8 +438,8 @@ class LoginController extends BaseController
                 return $this->existingOauthUser($existing_user);
             }
 
-            //If this is a result user/email combo - lets add their OAuth details details
-            if ($existing_login_user = MultiDB::hasUser(['email' => $email])) {
+            // If this is a result user/email combo - lets add their OAuth details details
+            if ($email && $existing_login_user = MultiDB::hasUser(['email' => $email])) {
                 if (!$existing_login_user->account) {
                     return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
                 }
@@ -446,7 +448,6 @@ class LoginController extends BaseController
 
                 return $this->existingLoginUser($user->getId(), 'microsoft');
             }
-
 
             // Signup!
             if (request()->has('create') && request()->input('create') == 'true') {
@@ -640,8 +641,9 @@ class LoginController extends BaseController
             $parameters = ['response_type' => 'code', 'redirect_uri' => config('ninja.app_url') . "/auth/microsoft"];
         }
 
-        if(request()->hasHeader('X-REACT') || request()->query('react'))
+        if(request()->hasHeader('X-REACT') || request()->query('react')) {
             Cache::put("react_redir:".auth()->user()?->account->key, 'true', 300);
+        }
 
         if (request()->has('code')) {
             return $this->handleProviderCallback($provider);
@@ -698,7 +700,7 @@ class LoginController extends BaseController
         $request_from_react = Cache::pull("react_redir:".auth()->user()?->account?->key);
 
         // if($request_from_react)
-            $redirect_url = config('ninja.react_url')."/#/settings/user_details/connect";
+        $redirect_url = config('ninja.react_url')."/#/settings/user_details/connect";
 
         return redirect($redirect_url);
     }

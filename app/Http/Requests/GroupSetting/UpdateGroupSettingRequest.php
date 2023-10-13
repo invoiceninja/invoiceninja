@@ -24,16 +24,19 @@ class UpdateGroupSettingRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->group_setting);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('edit', $this->group_setting);
     }
 
     public function rules()
     {
-        $rules['settings'] = new ValidClientGroupSettingsRule();
+        
+        return [
+            'settings' => [new ValidClientGroupSettingsRule()],
+        ];
 
-//        $rules['name'] = 'unique:group_settings,name,'.$this->id.',id,company_id,'.$this->group_setting->company_id;
-
-        return $rules;
     }
 
     public function prepareForValidation()

@@ -656,10 +656,8 @@ $LANG = array(
     'created_by_invoice' => 'Skapad av :invoice',
     'primary_user' => 'Primär användare',
     'help' => 'Hjälp',
-    'customize_help' => '<p>We use :pdfmake_link to define the invoice designs declaratively. The pdfmake :playground_link provides a great way to see the library in action.</p>
-                        <p>If you need help figuring something out post a question to our :forum_link with the design you\'re using.</p>',
     'playground' => 'Sandlåda',
-    'support_forum' => 'Supportforum',
+    'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Förfallodatum',
     'quote_due_date' => 'Giltig till',
     'valid_until' => 'Giltig till',
@@ -1149,7 +1147,7 @@ $LANG = array(
     'plan_status' => 'Nivå status',
 
     'plan_upgrade' => 'Uppgradera',
-    'plan_change' => 'Byta nivå',
+    'plan_change' => 'Manage Plan',
     'pending_change_to' => 'Ändras till',
     'plan_changes_to' => ':plan den :date',
     'plan_term_changes_to' => ':plan (:term) den :date',
@@ -1828,7 +1826,6 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'bot_emailed_notify_paid' => 'Jag e-postar dig när den är betald.',
     'add_product_to_invoice' => 'Lägg till 1 :produkt',
     'not_authorized' => 'Du är inte behörig.',
-    'bot_get_email' => 'Hi! (wave)<br/>Thanks for trying the Invoice Ninja Bot.<br/>You need to create a free account to use this bot.<br/>Send me your account email address to get started.',
     'bot_get_code' => 'Tack! Jag har skickat ett mejl till dig med din säkerhetskod.',
     'bot_welcome' => 'Ditt konto är verifierat.',
     'email_not_found' => 'Jag kunde inte hitta ett tillgängligt konto för :email',
@@ -1836,7 +1833,6 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'security_code_email_subject' => 'Säkerhetskod för Invoice Ninja Bot.',
     'security_code_email_line1' => 'Detta är din Invoice Ninja Bot säkerhetskod.',
     'security_code_email_line2' => 'Notering: Upphör om 10 minuter.',
-    'bot_help_message' => 'Jag stöder för närvarande: <br/> • Skapa \ Uppdatera \ Mejla en faktura <br/> • Produktlista <br/> Till exempel: <br/> <i> Fakturera bob för 2 biljetter, ange ett slutdatum på nästa torsdag och rabatten till 10 procent </ i>',
     'list_products' => 'Lista produkter',
 
     'include_item_taxes_inline' => 'Inkludera <b>rad moms i totalmoms</b>',
@@ -1849,7 +1845,6 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'update_invoiceninja_warning' => 'Innan ni uppgraderar Invoice Ninja, skapa en backup av er databaser och filer!',
     'update_invoiceninja_available' => 'En ny version av Invoice Ninja finns tillgänglig.',
     'update_invoiceninja_unavailable' => 'Ingen ny version av Invoice Ninja finns tillgänglig.',
-    'update_invoiceninja_instructions' => 'Vänligen installera <strong>:version</strong> genom att klicka på <em>Uppdatera nu</em> knappen nedan. Ni blir sedan omdirigerad till instrumentpanelen.',
     'update_invoiceninja_update_start' => 'Uppdatera nu',
     'update_invoiceninja_download_start' => 'Ladda ner :version',
     'create_new' => 'Skapa Ny',
@@ -4337,7 +4332,7 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'include_drafts' => 'Include Drafts',
     'include_drafts_help' => 'Include draft records in reports',
     'is_invoiced' => 'Is Invoiced',
-    'change_plan' => 'Change Plan',
+    'change_plan' => 'Manage Plan',
     'persist_data' => 'Persist Data',
     'customer_count' => 'Customer Count',
     'verify_customers' => 'Verify Customers',
@@ -5165,8 +5160,21 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
+    'show_document_preview' => 'Show Document Preview',
+    'cash_accounting' => 'Cash accounting',
+    'click_or_drop_files_here' => 'Click or drop files here',
+    'set_public' => 'Set public',
+    'set_private' => 'Set private',
+    'individual' => 'Individual',
+    'business' => 'Business',
+    'partnership' => 'partnership',
+    'trust' => 'Trust',
+    'charity' => 'Charity',
+    'government' => 'Government',
+    'in_stock_quantity' => 'Stock quantity',
+    'vendor_contact' => 'Vendor Contact',
 
-);
+); 
 
 return $LANG;
 

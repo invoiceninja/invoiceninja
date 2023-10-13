@@ -11,8 +11,10 @@
 
 namespace App\Transformers;
 
+use App\Models\Backup;
 use App\Models\Vendor;
 use App\Models\Expense;
+use App\Models\Activity;
 use App\Models\Document;
 use App\Models\PurchaseOrder;
 use App\Utils\Traits\MakesHash;
@@ -22,15 +24,23 @@ class PurchaseOrderTransformer extends EntityTransformer
 {
     use MakesHash;
 
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'invitations',
         'documents'
     ];
 
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'expense',
         'vendor',
+        'activities',
     ];
+
+    public function includeActivities(PurchaseOrder $purchase_order)
+    {
+        $transformer = new ActivityTransformer($this->serializer);
+
+        return $this->includeCollection($purchase_order->activities, $transformer, Activity::class);
+    }
 
     public function includeInvitations(PurchaseOrder $purchase_order)
     {
@@ -39,6 +49,12 @@ class PurchaseOrderTransformer extends EntityTransformer
         return $this->includeCollection($purchase_order->invitations, $transformer, PurchaseOrderInvitation::class);
     }
 
+    public function includeHistory(PurchaseOrder $purchase_order)
+    {
+        $transformer = new PurchaseOrderHistoryTransformer($this->serializer);
+
+        return $this->includeCollection($purchase_order->history, $transformer, Backup::class);
+    }
 
     public function includeDocuments(PurchaseOrder $purchase_order)
     {

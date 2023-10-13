@@ -80,6 +80,7 @@ class ContactForgotPasswordController extends Controller
             'passwordEmailRoute' => 'client.password.email',
             'account' => $account,
             'company' => $company,
+            'is_react' => false,
         ]);
     }
 

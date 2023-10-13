@@ -394,8 +394,10 @@ class SquarePaymentDriver extends BaseDriver
         //getsubscriptionid here
         $subscription_id = $this->checkWebhooks();
 
-        if(!$subscription_id)
-            return nlog('No Subscription Found');
+        if(!$subscription_id){
+             nlog('No Subscription Found');
+            return;
+        }
 
         $api_response = $this->square->getWebhookSubscriptionsApi()->testWebhookSubscription($subscription_id, $body);
 

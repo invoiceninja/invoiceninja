@@ -9,7 +9,7 @@
             </svg>
         </div>
     </button>
-    @if($settings->enable_e_invoice && $entity_type == 'invoice')
+    @if($entity_type == 'invoice' && $settings->enable_e_invoice)
     <button wire:loading.attr="disabled" wire:click="downloadEInvoice" class="bg-primary text-white px-4 py-4 lg:px-2 lg:py-2 rounded" type="button">
         <span>{{ ctrans('texts.download_e_invoice') }}</span>
         <div wire:loading wire:target="downloadEInvoice">

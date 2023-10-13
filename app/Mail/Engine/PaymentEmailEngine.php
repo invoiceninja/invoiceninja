@@ -98,25 +98,24 @@ class PaymentEmailEngine extends BaseEmailEngine
 
                 //attach invoice documents also to payments
                 if ($this->client->getSetting('document_email_attachment') !== false) {
-                    foreach ($invoice->documents as $document) {
+                    $invoice->documents()->where('is_public', true)->cursor()->each(function ($document){
                         if ($document->size > $this->max_attachment_size) {
                             $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
                         } else {
                             $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null, ]]);
                         }
-                    }
+                    });
                 }
 
-                if($this->client->getSetting('enable_e_invoice'))
-                {
+                // if($this->client->getSetting('enable_e_invoice'))
+                // {
 
-                    $e_invoice_filepath = $invoice->service()->getEInvoice($this->contact);
+                //     $e_invoice_filepath = $invoice->service()->getEInvoice($this->contact);
 
-                    if(Storage::disk(config('filesystems.default'))->exists($e_invoice_filepath)) {
-                        $this->setAttachments([['path' => Storage::disk(config('filesystems.default'))->path($e_invoice_filepath), 'name' => $invoice->getFileName("xml"), 'mime' => null]]);
-                    }
+                //     if($e_invoice_filepath && strlen($e_invoice_filepath) > 1)
+                //         $this->setAttachments([['file' => base64_encode($e_invoice_filepath), 'name' => $invoice->getFileName("xml")]]);
 
-                }
+                // }
 
             });
         }
@@ -159,6 +158,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$entity'] = ['value' => '', 'label' => ctrans('texts.payment')];
         $data['$payment.amount'] = ['value' => Number::formatMoney($this->payment->amount, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.amount')];
         $data['$payment.refunded'] = ['value' => Number::formatMoney($this->payment->refunded, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.refund')];
+        $data['$payment.unapplied'] = ['value' => Number::formatMoney(($this->payment->amount - $this->payment->refunded - $this->payment->applied), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.refund')];
         $data['$amount'] = &$data['$payment.amount'];
         $data['$payment.date'] = ['value' => $this->translateDate($this->payment->date, $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.payment_date')];
         $data['$transaction_reference'] = ['value' => $this->payment->transaction_reference, 'label' => ctrans('texts.transaction_reference')];
@@ -198,6 +198,12 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$client.vat_number'] = &$data['$vat_number'];
         $data['$client.website'] = &$data['$website'];
         $data['$client.phone'] = &$data['$phone'];
+        $data['$city'] = ['value' => $this->client->city ?: '&nbsp;', 'label' => ctrans('texts.city')];
+        $data['$client.city'] = &$data['$city'];
+        $data['$state'] = ['value' => $this->client->state ?: '&nbsp;', 'label' => ctrans('texts.state')];
+        $data['$client.state'] = &$data['$state'];
+        $data['$postal_code'] = ['value' => $this->client->postal_code ?: '&nbsp;', 'label' => ctrans('texts.postal_code')];
+        $data['$client.postal_code'] = &$data['$postal_code'];
         $data['$city_state_postal'] = ['value' => $this->client->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, false) ?: '&nbsp;', 'label' => ctrans('texts.city_state_postal')];
         $data['$client.city_state_postal'] = &$data['$city_state_postal'];
         $data['$postal_city_state'] = ['value' => $this->client->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city_state')];

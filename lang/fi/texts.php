@@ -657,10 +657,8 @@ $LANG = array(
     'created_by_invoice' => 'Luotu laskulla :invoice',
     'primary_user' => 'Pääasiallinen käyttäjä',
     'help' => 'Ohje',
-    'customize_help' => '<p>We use :pdfmake_link  define  lasku designs declaratively. The pdfmake :playground_link provides  great way  see  library in action.</p>
-                        <p>If you need help figuring something out post  question  our :forum_link with  design you\'re using.</p>',
     'playground' => 'playground',
-    'support_forum' => 'support forum',
+    'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Eräpäivä',
     'quote_due_date' => 'Voimassa',
     'valid_until' => 'Voimassa',
@@ -1150,7 +1148,7 @@ $LANG = array(
     'plan_status' => 'Plan tila',
 
     'plan_upgrade' => 'Päivitä',
-    'plan_change' => 'Change Plan',
+    'plan_change' => 'Manage Plan',
     'pending_change_to' => 'Changes To',
     'plan_changes_to' => ':plan on :päivämäärä',
     'plan_term_changes_to' => ':plan (:ehto) on :päivämäärä',
@@ -1822,7 +1820,6 @@ Kun saat summat, palaa tälle maksutapasivulle ja klikkaa "Saata loppuun todenta
     'bot_emailed_notify_paid' => 'Lähetän sinulle sähköpostia kun se on maksettu.',
     'add_product_to_invoice' => 'Lisää 1 :product',
     'not_authorized' => 'Sinulla ei ole oikeutta',
-    'bot_get_email' => 'Hi! (wave)<br/>kiitos  trying  Lasku Ninja Bot.<br/>You need  create  free tili  use this bot.<br/>lähetä me tilisi sähköposti osoite  get aloitettu.',
     'bot_get_code' => 'Kiitos! Lähetän sinulle sähköpostin, jossa on turvakoodisi.',
     'bot_welcome' => 'Valmista tuli, käyttäjätilisi on varmennettu.<br/>',
     'email_not_found' => 'En pystynyt löytämään käytössä olevaa sähköpostitiliä :sähköposti',
@@ -1830,7 +1827,6 @@ Kun saat summat, palaa tälle maksutapasivulle ja klikkaa "Saata loppuun todenta
     'security_code_email_subject' => 'Turvakoodi Lasku Ninja Bot -palveluun',
     'security_code_email_line1' => 'Tämä on sinun turvakoodisi Lasku Ninja Bot -palveluun.',
     'security_code_email_line2' => 'Huom: se vanhenee 10 minuutissa.',
-    'bot_help_message' => 'I currently support:<br/>• luo\update\sähköposti  lasku<br/>• listaa tuotteet<br/>For esimerkki:<br/><i>lasku bob  2 tiketit, set  erä päivämäärä  next thursday ja  discount  10 percent</i>',
     'list_products' => 'Listaa tuotteet',
 
     'include_item_taxes_inline' => 'Sisällytä <b>tuoterivin verot rivin summaan</b>',
@@ -1843,7 +1839,6 @@ Kun saat summat, palaa tälle maksutapasivulle ja klikkaa "Saata loppuun todenta
     'update_invoiceninja_warning' => 'Ennen kuin aloitat Lasku Ninjan päivityksen luo  varmuuskopio  tietokannasta ja tiedostoista!',
     'update_invoiceninja_available' => 'Uusi versio  Lasku Ninjasta on saatavilla.',
     'update_invoiceninja_unavailable' => 'Ei uutta versiota  Lasku Ninjasta saatavilla.',
-    'update_invoiceninja_instructions' => 'Ole hyvä ja asenna  uusi versio <strong>:versio</strong> napsauttamalla <em>Päivitä nyt</em> nappia alla. Sinut ohjatan myöhemmin hallintapaneeliin. ',
     'update_invoiceninja_update_start' => 'päivitä nyt',
     'update_invoiceninja_download_start' => 'Lataa :versio',
     'create_new' => 'luo uusi',
@@ -4330,7 +4325,7 @@ Kun saat summat, palaa tälle maksutapasivulle ja klikkaa "Saata loppuun todenta
     'include_drafts' => 'Include Drafts',
     'include_drafts_help' => 'Include draft records in reports',
     'is_invoiced' => 'Laskutettu',
-    'change_plan' => 'Change Plan',
+    'change_plan' => 'Manage Plan',
     'persist_data' => 'Persist Data',
     'customer_count' => 'Customer Count',
     'verify_customers' => 'Verify Customers',
@@ -5158,8 +5153,21 @@ Kun saat summat, palaa tälle maksutapasivulle ja klikkaa "Saata loppuun todenta
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
+    'show_document_preview' => 'Show Document Preview',
+    'cash_accounting' => 'Cash accounting',
+    'click_or_drop_files_here' => 'Click or drop files here',
+    'set_public' => 'Set public',
+    'set_private' => 'Set private',
+    'individual' => 'Individual',
+    'business' => 'Business',
+    'partnership' => 'partnership',
+    'trust' => 'Trust',
+    'charity' => 'Charity',
+    'government' => 'Government',
+    'in_stock_quantity' => 'Stock quantity',
+    'vendor_contact' => 'Vendor Contact',
 
-);
+); 
 
 return $LANG;
 

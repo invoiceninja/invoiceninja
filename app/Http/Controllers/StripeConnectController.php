@@ -15,11 +15,9 @@ use App\DataMapper\FeesAndLimits;
 use App\Factory\CompanyGatewayFactory;
 use App\Http\Requests\StripeConnect\InitializeStripeConnectRequest;
 use App\Libraries\MultiDB;
-use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
-use App\PaymentDrivers\Stripe\Jobs\StripeWebhook;
 use Stripe\Exception\ApiErrorException;
 
 class StripeConnectController extends BaseController
@@ -124,12 +122,27 @@ class StripeConnectController extends BaseController
         $company_gateway->setConfig($payload);
         $company_gateway->save();
 
+        try{
+            $stripe = $company_gateway->driver()->init();
+            $a = \Stripe\Account::retrieve($response->stripe_user_id, $stripe->stripe_connect_auth);
+            
+            if($a->business_name ?? false) {
+                $company_gateway->label = substr("Stripe - {$a->business_name}", 0, 250);
+                $company_gateway->save();
+            }
+        }
+        catch(\Exception $e){
+            nlog("could not harvest stripe company name");
+        }
+
+        // nlog("Stripe Connect Redirect URI = {$redirect_uri}");
+
         // StripeWebhook::dispatch($company->company_key, $company_gateway->id);
-        // if(isset($request->getTokenContent()['is_react']) && $request->getTokenContent()['is_react']) {
+        if(isset($request->getTokenContent()['is_react']) && $request->getTokenContent()['is_react']) {
             $redirect_uri = 'https://app.invoicing.co/#/settings/online_payments';
-        // } else {
-        //     $redirect_uri = 'https://invoicing.co/stripe/completed';
-        // }
+        } else {
+            $redirect_uri = 'https://invoicing.co/stripe/completed';
+        }
 
         //response here
         return view('auth.connect.completed', ['url' => $redirect_uri]);

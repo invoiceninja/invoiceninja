@@ -25,14 +25,14 @@ class UserTransformer extends EntityTransformer
     /**
      * @var array
      */
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         //'company_user'
     ];
 
     /**
      * @var array
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'companies',
         'company_users',
         'company_user',
@@ -62,7 +62,8 @@ class UserTransformer extends EntityTransformer
             'google_2fa_secret' => (bool) $user->google_2fa_secret,
             'has_password' => (bool) empty($user->password) ? false : true,
             'oauth_user_token' => empty($user->oauth_user_token) ? '' : '***',
-            'verified_phone_number' => (bool) $user->verified_phone_number
+            'verified_phone_number' => (bool) $user->verified_phone_number,
+            'language_id' => (string) $user->language_id ?? '',
         ];
     }
 

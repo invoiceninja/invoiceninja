@@ -12,14 +12,15 @@
 
 namespace App\PaymentDrivers\Authorize;
 
-use App\Exceptions\GenericPaymentDriverFailure;
 use App\Models\Client;
 use App\PaymentDrivers\AuthorizePaymentDriver;
-use net\authorize\api\contract\v1\CreateCustomerProfileRequest;
+use App\Exceptions\GenericPaymentDriverFailure;
+use net\authorize\api\contract\v1\CustomerAddressType;
 use net\authorize\api\contract\v1\CustomerProfileType;
 use net\authorize\api\contract\v1\GetCustomerProfileRequest;
-use net\authorize\api\controller\CreateCustomerProfileController;
 use net\authorize\api\controller\GetCustomerProfileController;
+use net\authorize\api\contract\v1\CreateCustomerProfileRequest;
+use net\authorize\api\controller\CreateCustomerProfileController;
 
 /**
  * Class BaseDriver.
@@ -52,6 +53,28 @@ class AuthorizeCreateCustomer
         $customerProfile->setDescription($this->client->present()->name());
         $customerProfile->setMerchantCustomerId('M_'.time());
         $customerProfile->setEmail($this->client->present()->email());
+
+        // if($this->client) {
+
+        //     $primary_contact = $this->client->primary_contact()->first() ?? $this->client->contacts()->first();
+
+        //     $shipTo = new CustomerAddressType();
+        //     $shipTo->setFirstName(substr($primary_contact->present()->first_name(), 0, 50));
+        //     $shipTo->setLastName(substr($primary_contact->present()->last_name(), 0, 50));
+        //     $shipTo->setCompany(substr($this->client->present()->name(), 0, 50));
+        //     $shipTo->setAddress(substr($this->client->shipping_address1, 0, 60));
+        //     $shipTo->setCity(substr($this->client->shipping_city, 0, 40));
+        //     $shipTo->setState(substr($this->client->shipping_state, 0, 40));
+        //     $shipTo->setZip(substr($this->client->shipping_postal_code, 0, 20));
+
+        //     if ($this->client->country_id) {
+        //         $shipTo->setCountry($this->client->shipping_country->name);
+        //     }
+
+        //     $shipTo->setPhoneNumber(substr($this->client->phone, 0, 20));
+        //     $customerProfile->setShipToList([$shipTo]);
+
+        // }
 
         // Assemble the complete transaction request
         $request = new CreateCustomerProfileRequest();

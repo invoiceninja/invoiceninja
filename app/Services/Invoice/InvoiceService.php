@@ -346,7 +346,7 @@ class InvoiceService
                                          return $item;
                                      })->toArray();
 
-        $this->deletePdf();
+        // $this->deletePdf();
         $this->deleteEInvoice();
 
         return $this;
@@ -408,14 +408,15 @@ class InvoiceService
 
         $pre_count = count($this->invoice->line_items);
 
-        $this->invoice->line_items = collect($this->invoice->line_items)
+        $items = collect($this->invoice->line_items)
                                      ->reject(function ($item) {
                                          return $item->type_id == '3';
                                      })->toArray();
 
+        $this->invoice->line_items = array_values($items);
+
         $this->invoice = $this->invoice->calc()->getInvoice();
-        $this->deletePdf();
-        $this->deleteEInvoice();
+        $this->deleteEInvoice(); //@deprecated
 
         /* 24-03-2022 */
         $new_balance = $this->invoice->balance;

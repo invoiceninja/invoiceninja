@@ -60,6 +60,7 @@ class DeletePayment
 
         BankTransaction::query()->where('payment_id', $this->payment->id)->cursor()->each(function ($bt){
             $bt->payment_id = null;
+            $bt->status_id = 1;
             $bt->save();
         });
         
@@ -155,7 +156,6 @@ class DeletePayment
 
                 $client
                 ->service()
-                // ->updatePaidToDate(($paymentable_credit->pivot->amount) * -1)
                 ->adjustCreditBalance($paymentable_credit->pivot->amount)
                 ->save();
             });

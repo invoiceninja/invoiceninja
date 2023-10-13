@@ -302,7 +302,7 @@ class Import implements ShouldQueue
 
             // 10/02/21
             foreach ($client->payments as $payment) {
-                $credit_total_applied += $payment->paymentables()->where('paymentable_type', \App\Models\Credit::class)->get()->sum(\DB::raw('amount'));
+                $credit_total_applied += $payment->paymentables()->where('paymentable_type', \App\Models\Credit::class)->get()->sum('amount');
             }
 
             if ($credit_total_applied < 0) {
@@ -1097,6 +1097,9 @@ class Import implements ShouldQueue
             $modified['user_id'] = $this->processUserId($resource);
             $modified['company_id'] = $this->company->id;
             $modified['line_items'] = $this->cleanItems($modified['line_items']);
+            
+            //31/08-2023 set correct paid to date here:
+            $modified['paid_to_date'] = $modified['amount'] - $modified['balance'] ?? 0;
 
             unset($modified['id']);
                 

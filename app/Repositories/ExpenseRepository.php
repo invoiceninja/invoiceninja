@@ -67,9 +67,12 @@ class ExpenseRepository extends BaseRepository
      */
     public function create($expense): ?Expense
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         return $this->save(
             $expense,
-            ExpenseFactory::create(auth()->user()->company()->id, auth()->user()->id)
+            ExpenseFactory::create($user->company()->id, $user->id)
         );
     }
 
@@ -113,6 +116,11 @@ class ExpenseRepository extends BaseRepository
             $expense->saveQuietly();
 
             $expense->transaction->expense_id = $exp_ids;
+
+            if(strlen($exp_ids) <= 2) {
+                $expense->transaction->status_id = 1;
+            }
+
             $expense->transaction->saveQuietly();
 
         }

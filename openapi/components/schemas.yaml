@@ -161,29 +161,46 @@
     
     TaskStatus:
       properties:
+        id:
+          description: 'The task status hashed id'
+          type: string
+          example: Opnel5aKBz
+          readOnly: true
         name:
           description: 'The task status name'
           type: string
           example: Backlog
+        color:
+          description: 'The task status color - hex value'
+          type: string
+          example: '#000000'
+        task_status_order:
+          description: 'The order of the task status'
+          type: integer
+          example: '4'
         created_at:
           description: Timestamp
           type: number
           format: integer
           example: '134341234234'
+          readOnly: true
         is_deleted:
           description: 'A boolean flag determining if the task status has been deleted'
           type: boolean
           example: true
+          readOnly: true
         updated_at:
           description: Timestamp
           type: number
           format: integer
           example: '134341234234'
+          readOnly: true
         archived_at:
           description: Timestamp
           type: number
           format: integer
           example: '134341234234'
+          readOnly: true
       type: object
     TaxRate:
       properties:
@@ -191,6 +208,7 @@
           description: 'Thie hashed id of the tax'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         name:
           description: 'The tax name'
           type: string

@@ -644,9 +644,8 @@ $LANG = array(
     'created_by_invoice' => 'បង្កើតឡើងដោយ :invoice',
     'primary_user' => 'អ្នកប្រើប្រាស់បឋម',
     'help' => 'ជំនួយ',
-    'customize_help' => '<p>យើងប្រើ :pdfmake_link ដើម្បីកំណត់ការរចនាវិក្កយបត្រដោយប្រកាស។ pdfmake :playground_link ផ្តល់នូវវិធីដ៏ល្អមួយដើម្បីមើលបណ្ណាល័យដែលកំពុងដំណើរការ។</p><p> ប្រសិនបើអ្នកត្រូវការជំនួយក្នុងការស្វែងរកអ្វីមួយ សូមបង្ហោះសំណួរទៅកាន់ :forum_link របស់យើងជាមួយនឹងការរចនាដែលអ្នកកំពុងប្រើ។</p>',
     'playground' => 'សួនកុមារ',
-    'support_forum' => 'វេទិកាគាំទ្រ',
+    'support_forum' => 'Support Forums',
     'invoice_due_date' => 'កាលបរិច្ឆេទ​កំណត់',
     'quote_due_date' => 'មាន​សុពលភាព​ដល់',
     'valid_until' => 'មាន​សុពលភាព​ដល់',
@@ -1124,7 +1123,7 @@ $LANG = array(
     'plan_status' => 'ស្ថានភាពផែនការ',
 
     'plan_upgrade' => 'ធ្វើឱ្យប្រសើរឡើង',
-    'plan_change' => 'ផ្លាស់ប្តូរផែនការ',
+    'plan_change' => 'Manage Plan',
     'pending_change_to' => 'ការផ្លាស់ប្តូរទៅ',
     'plan_changes_to' => ': ផែនការនៅលើ :date',
     'plan_term_changes_to' => ':plan (:term) នៅលើ :date',
@@ -1795,7 +1794,6 @@ $LANG = array(
     'bot_emailed_notify_paid' => 'ខ្ញុំនឹងផ្ញើអ៊ីមែលទៅអ្នក នៅពេលដែលវាត្រូវបានបង់។',
     'add_product_to_invoice' => 'ថែម  1 :product',
     'not_authorized' => 'អ្នកមិនត្រូវបានអនុញ្ញាតទេ។',
-    'bot_get_email' => 'សួស្តី! (រលក)<br/> អរគុណសម្រាប់ការសាកល្បង Invoice Ninja Bot។<br/> អ្នក​ត្រូវ​បង្កើត​គណនី​មិន​គិត​ថ្លៃ​ដើម្បី​ប្រើ bot នេះ។<br/> សូមផ្ញើអាសយដ្ឋានអ៊ីមែលគណនីរបស់អ្នកមកខ្ញុំ ដើម្បីចាប់ផ្តើម។',
     'bot_get_code' => 'អរគុណ! ខ្ញុំបានផ្ញើអ៊ីមែលទៅអ្នកជាមួយនឹងលេខកូដសុវត្ថិភាពរបស់អ្នក។',
     'bot_welcome' => 'នោះហើយជាវា គណនីរបស់អ្នកត្រូវបានផ្ទៀងផ្ទាត់។<br/>',
     'email_not_found' => 'ខ្ញុំមិនអាចស្វែងរកគណនីដែលមានសម្រាប់ :email បានទេ។',
@@ -1803,7 +1801,6 @@ $LANG = array(
     'security_code_email_subject' => 'លេខកូដសុវត្ថិភាពសម្រាប់ Invoice Ninja Bot',
     'security_code_email_line1' => 'នេះគឺជាលេខកូដសុវត្ថិភាព Invoice Ninja Bot របស់អ្នក។',
     'security_code_email_line2' => 'ចំណាំ៖ វានឹងផុតកំណត់ក្នុងរយៈពេល 10 នាទី។',
-    'bot_help_message' => 'បច្ចុប្បន្នខ្ញុំគាំទ្រ៖<br/> • បង្កើត\update\email វិក្កយបត្រ<br/> • រាយបញ្ជីផលិតផល<br/> ឧទាហរណ៍:<br/> <i>វិក្កយបត្រ bob សម្រាប់សំបុត្រ 2 កំណត់កាលបរិច្ឆេទដល់ថ្ងៃព្រហស្បត្តិ៍បន្ទាប់ និងការបញ្ចុះតម្លៃដល់ 10 ភាគរយ</i>',
     'list_products' => 'រាយផលិតផល',
 
     'include_item_taxes_inline' => 'រួមបញ្ចូល <b>ពន្ធលើទំនិញក្នុងជួរសរុប</b>',
@@ -1816,7 +1813,6 @@ $LANG = array(
     'update_invoiceninja_warning' => 'មុនពេលចាប់ផ្តើមដំឡើងកំណែ Invoice Ninja បង្កើតការបម្រុងទុកនៃមូលដ្ឋានទិន្នន័យ និងឯកសាររបស់អ្នក!',
     'update_invoiceninja_available' => 'កំណែថ្មីនៃ Invoice Ninja មានហើយ។',
     'update_invoiceninja_unavailable' => 'មិនមានកំណែថ្មីនៃ Invoice Ninja ទេ។',
-    'update_invoiceninja_instructions' => 'សូមដំឡើងកំណែថ្មី <strong>:version</strong> ដោយចុចប៊ូតុង <em>អាប់ដេតឥឡូវនេះ</em> ខាងក្រោម។ បន្ទាប់មក អ្នកនឹងត្រូវបានបញ្ជូនបន្តទៅកាន់ផ្ទាំងគ្រប់គ្រង។',
     'update_invoiceninja_update_start' => 'ធ្វើបច្ចុប្បន្នភាពឥឡូវនេះ',
     'update_invoiceninja_download_start' => 'ទាញយក :version',
     'create_new' => 'បង្កើត​ថ្មី',
@@ -4303,7 +4299,7 @@ $LANG = array(
     'include_drafts' => 'រួមបញ្ចូលសេចក្តីព្រាង',
     'include_drafts_help' => 'រួមបញ្ចូលកំណត់ត្រាព្រាងនៅក្នុងរបាយការណ៍',
     'is_invoiced' => 'ត្រូវបានចេញវិក្កយបត្រ',
-    'change_plan' => 'ផ្លាស់ប្តូរផែនការ',
+    'change_plan' => 'Manage Plan',
     'persist_data' => 'ទិន្នន័យបន្ត',
     'customer_count' => 'ចំនួនអតិថិជន',
     'verify_customers' => 'ផ្ទៀងផ្ទាត់អតិថិជន',
@@ -5131,8 +5127,21 @@ $LANG = array(
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
+    'show_document_preview' => 'Show Document Preview',
+    'cash_accounting' => 'Cash accounting',
+    'click_or_drop_files_here' => 'Click or drop files here',
+    'set_public' => 'Set public',
+    'set_private' => 'Set private',
+    'individual' => 'Individual',
+    'business' => 'Business',
+    'partnership' => 'partnership',
+    'trust' => 'Trust',
+    'charity' => 'Charity',
+    'government' => 'Government',
+    'in_stock_quantity' => 'Stock quantity',
+    'vendor_contact' => 'Vendor Contact',
 
-);
+); 
 
 return $LANG;
 

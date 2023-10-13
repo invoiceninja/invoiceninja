@@ -36,7 +36,6 @@ class TaxSummaryReport extends BaseExport
 
     public array $report_keys = [
         'tax_name',
-        // 'taxable_amount',
         'tax_amount',
     ];
 
@@ -70,14 +69,15 @@ class TaxSummaryReport extends BaseExport
         $this->csv->insertOne([]);
         $this->csv->insertOne([ctrans('texts.tax_summary')]);
         $this->csv->insertOne([ctrans('texts.created_on'),' ',$this->translateDate(now()->format('Y-m-d'), $this->company->date_format(), $this->company->locale())]);
+        $this->csv->insertOne([ctrans('texts.date_range'),' ',$this->translateDate($this->input['start_date'], $this->company->date_format(), $this->company->locale()),' - ',$this->translateDate($this->input['end_date'], $this->company->date_format(), $this->company->locale())]);
 
         if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = $this->report_keys;
         }
 
-        $this->csv->insertOne($this->buildHeader());
-
         $query = Invoice::query()
+            ->withTrashed()
+            ->whereIn('status_id', [2,3,4])
             ->where('company_id', $this->company->id)
             ->where('is_deleted', 0)
             ->orderBy('balance', 'desc');
@@ -85,33 +85,62 @@ class TaxSummaryReport extends BaseExport
         $query = $this->addDateRange($query);
 
         $query = $this->filterByClients($query);
-        $map = [];
+        $accrual_map = [];
+        $cash_map = [];
 
         foreach($query->cursor() as $invoice) 
         {
+            $calc = $invoice->calc();
+            
+            //Combine the line taxes with invoice taxes here to get a total tax amount
+            $taxes = array_merge($calc->getTaxMap()->merge($calc->getTotalTaxMap())->toArray());
 
-            $taxes = $invoice->calc()->getTaxMap();
-
+            //filter into two arrays for accrual + cash
             foreach($taxes as $tax) 
             {
                 $key = $tax['name'];
 
-                if(!isset($map[$key])) {
-                    $map[$key]['tax_amount'] = 0;
-                    // $map[$key]['taxable_amount'] = 0;
+                if(!isset($accrual_map[$key])) {
+                    $accrual_map[$key]['tax_amount'] = 0;
                 }
 
-                $map[$key]['tax_amount'] += $tax['total'];
-                // $map[$key]['taxable_amount'] += $invoice->amount;
+                $accrual_map[$key]['tax_amount'] += $tax['total'];
 
+                //cash
+                $key = $tax['name'];
+
+                if(!isset($cash_map[$key])) {
+                    $cash_map[$key]['tax_amount'] = 0;
+                }
+                
+                if(in_array($invoice->status_id, [Invoice::STATUS_PARTIAL,Invoice::STATUS_PAID])){
+
+                if($invoice->status_id == Invoice::STATUS_PAID)
+                    $cash_map[$key]['tax_amount'] += $tax['total'];
+                else 
+                    $cash_map[$key]['tax_amount'] += (($invoice->amount - $invoice->balance) / $invoice->balance) * $tax['total'] ?? 0;
+
+                }
             }
 
         }
 
-        foreach($map as $key => $value)
+        $this->csv->insertOne([]);
+        $this->csv->insertOne([ctrans('texts.cash_vs_accrual')]);
+        $this->csv->insertOne($this->buildHeader());
+
+
+        foreach($accrual_map as $key => $value)
         {
             $this->csv->insertOne([$key, Number::formatMoney($value['tax_amount'], $this->company)]);
-            // $this->csv->insertOne([$key, Number::formatMoney($value['taxable_amount'], $this->company), Number::formatMoney($value['tax_amount'], $this->company)]);
+        }
+
+        $this->csv->insertOne([]);
+        $this->csv->insertOne([ctrans('texts.cash_accounting')]);
+        $this->csv->insertOne($this->buildHeader());
+
+        foreach($cash_map as $key => $value) {
+            $this->csv->insertOne([$key, Number::formatMoney($value['tax_amount'], $this->company)]);
         }
 
 

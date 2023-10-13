@@ -651,10 +651,8 @@ $LANG = array(
     'created_by_invoice' => 'Créée par :invoice',
     'primary_user' => 'Utilisateur principal',
     'help' => 'Aide',
-    'customize_help' => '<p>Nous utilisons :pdfmake_link pour définir la présentation graphique des factures de manière déclarative. Pdfmake playground_link fournit une excellente façon de voir la librairie en action.</p>
-                        <p>Si vous avez besoin d\'aide à ce sujet, vous pouvez publier une question sur notre :forum_link avec la présentation graphique que vous utilisez.</p>',
     'playground' => 'environnement',
-    'support_forum' => 'Forum de support',
+    'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Échéance',
     'quote_due_date' => 'Valide jusqu\'au',
     'valid_until' => 'Valide jusqu\'au',
@@ -1141,7 +1139,7 @@ $LANG = array(
     'plan_status' => 'État du plan',
 
     'plan_upgrade' => 'Mise à jour',
-    'plan_change' => 'Changer de plan',
+    'plan_change' => 'Manage Plan',
     'pending_change_to' => 'Changer pour',
     'plan_changes_to' => ':plan le :date',
     'plan_term_changes_to' => ':plan (:term) le :date',
@@ -1813,7 +1811,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'bot_emailed_notify_paid' => 'Recevez un courriel lorsqu\'elle sera payée.',
     'add_product_to_invoice' => 'Ajouter 1 :product',
     'not_authorized' => 'Vous n\'êtes pas autorisé',
-    'bot_get_email' => 'Salut! (wave)<br/>Merci d\'essayer le Bot de Invoice Ninja.<br/>Envoie-moi l\'adresse courriel de ton compte pour commencer.',
     'bot_get_code' => 'Merci! Je vous ai envoyé un courriel avec votre code de sécurité.',
     'bot_welcome' => 'Ça y est, votre compte est maintenant vérifié.>br/>',
     'email_not_found' => 'Je n\'ai pas pu trouver un compte disponible pour :email',
@@ -1821,7 +1818,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'security_code_email_subject' => 'Code de sécurité pour le Bot de Invoice Ninja',
     'security_code_email_line1' => 'Ceci est votre code de sécurité pour le Bot de Invoice Ninja.',
     'security_code_email_line2' => 'Note: il expirera dans 10 minutes.',
-    'bot_help_message' => 'Je supporte actuellement:<br/>• Créer\mettre à jour\envoyer une facture<br/>• Lister les produits<br/>Par exemple:<br/><i>Facturer 2 billets à Simon, définir la date d\'échéance au prochain jeudi et l\'escompte à 10 %</i>',
     'list_products' => 'Liste des produits',
 
     'include_item_taxes_inline' => 'Inclure les<b>taxes par ligne dans le total des lignes</b>',
@@ -1834,7 +1830,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'update_invoiceninja_warning' => 'Invoice Ninja crée une sauvegarde de votre base de données et de vos fichiers avant la mise à jour.',
     'update_invoiceninja_available' => 'Une nouvelle version de Invoice Ninja est disponible.',
     'update_invoiceninja_unavailable' => 'Aucune mise à jour de Invoice Ninja disponible.',
-    'update_invoiceninja_instructions' => 'Veuillez installer la nouvelle version <strong>:version</strong> en cliquant sur le bouton <em>Mettre à jour</em> ci-dessous. Ensuite, vous serez redirigé vers le tableau de bord.',
     'update_invoiceninja_update_start' => 'Mettre à jour',
     'update_invoiceninja_download_start' => 'Télécharger :version',
     'create_new' => 'Créer',
@@ -4322,7 +4317,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'include_drafts' => 'Include Drafts',
     'include_drafts_help' => 'Include draft records in reports',
     'is_invoiced' => 'Is Invoiced',
-    'change_plan' => 'Change Plan',
+    'change_plan' => 'Manage Plan',
     'persist_data' => 'Persist Data',
     'customer_count' => 'Customer Count',
     'verify_customers' => 'Verify Customers',
@@ -5150,8 +5145,21 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
+    'show_document_preview' => 'Show Document Preview',
+    'cash_accounting' => 'Cash accounting',
+    'click_or_drop_files_here' => 'Click or drop files here',
+    'set_public' => 'Set public',
+    'set_private' => 'Set private',
+    'individual' => 'Individual',
+    'business' => 'Business',
+    'partnership' => 'partnership',
+    'trust' => 'Trust',
+    'charity' => 'Charity',
+    'government' => 'Government',
+    'in_stock_quantity' => 'Stock quantity',
+    'vendor_contact' => 'Vendor Contact',
 
-);
+); 
 
 return $LANG;
 

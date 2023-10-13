@@ -11,28 +11,29 @@
 
 namespace App\Console;
 
-use App\Jobs\Cron\AutoBillCron;
-use App\Jobs\Cron\RecurringExpensesCron;
-use App\Jobs\Cron\RecurringInvoicesCron;
-use App\Jobs\Cron\SubscriptionCron;
-use App\Jobs\Cron\UpdateCalculatedFields;
-use App\Jobs\Invoice\InvoiceCheckLateWebhook;
-use App\Jobs\Ninja\AdjustEmailQuota;
-use App\Jobs\Ninja\BankTransactionSync;
-use App\Jobs\Ninja\CompanySizeCheck;
+use App\Utils\Ninja;
+use App\Models\Account;
 use App\Jobs\Ninja\QueueSize;
-use App\Jobs\Ninja\SystemMaintenance;
-use App\Jobs\Ninja\TaskScheduler;
-use App\Jobs\Quote\QuoteCheckExpired;
-use App\Jobs\Subscription\CleanStaleInvoiceOrder;
 use App\Jobs\Util\DiskCleanup;
 use App\Jobs\Util\ReminderJob;
-use App\Jobs\Util\SchedulerCheck;
-use App\Jobs\Util\UpdateExchangeRates;
+use App\Jobs\Cron\AutoBillCron;
 use App\Jobs\Util\VersionCheck;
-use App\Models\Account;
-use App\Utils\Ninja;
+use App\Jobs\Ninja\TaskScheduler;
+use App\Jobs\Util\SchedulerCheck;
+use App\Jobs\Ninja\CheckACHStatus;
+use App\Jobs\Cron\SubscriptionCron;
+use App\Jobs\Ninja\AdjustEmailQuota;
+use App\Jobs\Ninja\CompanySizeCheck;
+use App\Jobs\Ninja\SystemMaintenance;
+use App\Jobs\Quote\QuoteCheckExpired;
+use App\Jobs\Util\UpdateExchangeRates;
+use App\Jobs\Ninja\BankTransactionSync;
+use App\Jobs\Cron\RecurringExpensesCron;
+use App\Jobs\Cron\RecurringInvoicesCron;
+use App\Jobs\Cron\UpdateCalculatedFields;
 use Illuminate\Console\Scheduling\Schedule;
+use App\Jobs\Invoice\InvoiceCheckLateWebhook;
+use App\Jobs\Subscription\CleanStaleInvoiceOrder;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
@@ -107,7 +108,10 @@ class Kernel extends ConsoleKernel
             $schedule->job(new AdjustEmailQuota)->dailyAt('23:30')->withoutOverlapping();
 
             /* Pulls in bank transactions from third party services */
-            $schedule->job(new BankTransactionSync)->dailyAt('04:10')->withoutOverlapping()->name('bank-trans-sync-job')->onOneServer();
+            $schedule->job(new BankTransactionSync)->everyFourHours()->withoutOverlapping()->name('bank-trans-sync-job')->onOneServer();
+
+            /* Checks ACH verification status and updates state to authorize when verified */
+            $schedule->job(new CheckACHStatus)->everySixHours()->withoutOverlapping()->name('ach-status-job')->onOneServer();
 
             $schedule->command('ninja:check-data --database=db-ninja-01')->dailyAt('02:10')->withoutOverlapping()->name('check-data-db-1-job')->onOneServer();
 

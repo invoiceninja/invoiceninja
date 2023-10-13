@@ -154,7 +154,7 @@ class CreditService
     {
         $this->credit = (new ApplyPayment($this->credit, $invoice, $amount, $payment))->run();
 
-        $this->deletePdf();
+        // $this->deletePdf();
 
         return $this;
     }

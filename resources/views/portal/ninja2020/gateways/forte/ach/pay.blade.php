@@ -49,5 +49,5 @@
         <script type="text/javascript" src="https://api.forte.net/js/v1"></script>
     @endif
     
-    <script src="{{ asset('js/clients/payments/forte-ach-payment.js') }}"></script>
+    @vite('resources/js/clients/payments/forte-ach-payment.js')
 @endsection

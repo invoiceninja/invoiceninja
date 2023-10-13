@@ -649,10 +649,8 @@ $LANG = array(
     'created_by_invoice' => 'נוצר על ידי :חשבונית',
     'primary_user' => 'משתמש ראשי',
     'help' => 'עזרה',
-    'customize_help' => '<p>We use :pdfmake_link to define the invoice designs declaratively. The pdfmake :playground_link provides a great way to see the library in action.</p>
-                        <p>If you need help figuring something out post a question to our :forum_link with the design you\'re using.</p>',
     'playground' => 'אזור ניסוי',
-    'support_forum' => 'טופס עזרה',
+    'support_forum' => 'Support Forums',
     'invoice_due_date' => 'תאריך לביצוע',
     'quote_due_date' => 'בתוקף עד',
     'valid_until' => 'בתוקף עד',
@@ -1142,7 +1140,7 @@ $LANG = array(
     'plan_status' => 'Plan Status',
 
     'plan_upgrade' => 'Upgrade',
-    'plan_change' => 'Change Plan',
+    'plan_change' => 'Manage Plan',
     'pending_change_to' => 'Changes To',
     'plan_changes_to' => ':plan on :date',
     'plan_term_changes_to' => ':plan (:term) on :date',
@@ -1814,7 +1812,6 @@ $LANG = array(
     'bot_emailed_notify_paid' => 'אני אשלח דוא"ל כאשר התשלום יעבור.',
     'add_product_to_invoice' => 'הוסף 1: :product',
     'not_authorized' => 'אינך מורשה',
-    'bot_get_email' => 'Hi! (wave)<br/>Thanks for trying the Invoice Ninja Bot.<br/>You need to create a free account to use this bot.<br/>Send me your account email address to get started.',
     'bot_get_code' => 'Thanks! I\'ve sent a you an email with your security code.',
     'bot_welcome' => 'That\'s it, your account is verified.<br/>',
     'email_not_found' => 'I wasn\'t able to find an available account for :email',
@@ -1822,7 +1819,6 @@ $LANG = array(
     'security_code_email_subject' => 'Security code for Invoice Ninja Bot',
     'security_code_email_line1' => 'This is your Invoice Ninja Bot security code.',
     'security_code_email_line2' => 'Note: it will expire in 10 minutes.',
-    'bot_help_message' => 'I currently support:<br/>• Create\update\email an invoice<br/>• List products<br/>For example:<br/><i>invoice bob for 2 tickets, set the due date to next thursday and the discount to 10 percent</i>',
     'list_products' => 'רשימת מוצרים',
 
     'include_item_taxes_inline' => 'Include <b>line item taxes in line total</b>',
@@ -1835,7 +1831,6 @@ $LANG = array(
     'update_invoiceninja_warning' => 'Before start upgrading Invoice Ninja create a backup of your database and files!',
     'update_invoiceninja_available' => 'A new version of Invoice Ninja is available.',
     'update_invoiceninja_unavailable' => 'No new version of Invoice Ninja available.',
-    'update_invoiceninja_instructions' => 'Please install the new version <strong>:version</strong> by clicking the <em>Update now</em> button below. Afterwards you\'ll be redirected to the dashboard.',
     'update_invoiceninja_update_start' => 'Update now',
     'update_invoiceninja_download_start' => 'Download :version',
     'create_new' => 'צור חדש',
@@ -4322,7 +4317,7 @@ $LANG = array(
     'include_drafts' => 'כלול טיוטות',
     'include_drafts_help' => 'כלול טיוטות רשומות בדוחות',
     'is_invoiced' => 'Is Invoiced',
-    'change_plan' => 'שנה תוכנית',
+    'change_plan' => 'Manage Plan',
     'persist_data' => 'נתונים מתמשכים',
     'customer_count' => 'ספירת לקוחות',
     'verify_customers' => 'אמת לקוחות',
@@ -5150,8 +5145,21 @@ $LANG = array(
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
+    'show_document_preview' => 'Show Document Preview',
+    'cash_accounting' => 'Cash accounting',
+    'click_or_drop_files_here' => 'Click or drop files here',
+    'set_public' => 'Set public',
+    'set_private' => 'Set private',
+    'individual' => 'Individual',
+    'business' => 'Business',
+    'partnership' => 'partnership',
+    'trust' => 'Trust',
+    'charity' => 'Charity',
+    'government' => 'Government',
+    'in_stock_quantity' => 'Stock quantity',
+    'vendor_contact' => 'Vendor Contact',
 
-);
+); 
 
 return $LANG;
 

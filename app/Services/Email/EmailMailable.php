@@ -96,6 +96,7 @@ class EmailMailable extends Mailable
 
         $documents = Document::query()->whereIn('id', $this->email_object->documents)
                 ->where('size', '<', $this->max_attachment_size)
+                ->where('is_public',1)
                 ->cursor()
                 ->map(function ($document) {
                     return Attachment::fromData(fn () => $document->getFile(), $document->name);

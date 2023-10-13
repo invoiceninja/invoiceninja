@@ -109,6 +109,24 @@ class UserTest extends TestCase
 
     }
 
+    public function testUserLocale()
+    {
+        $this->user->language_id = "13";
+        $this->user->save();
+
+        $this->assertEquals("fr_CA", $this->user->getLocale());
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/statics');
+
+        $response->assertStatus(200);
+
+    }
+
+
+
     public function testUserResponse()
     {
         $company_token = $this->mockAccount();

@@ -34,7 +34,7 @@ class ProductFactory
         $product->custom_value2 = '';
         $product->custom_value3 = '';
         $product->custom_value4 = '';
-        $product->is_deleted = 0;
+        $product->is_deleted = false;
         $product->tax_id = 1;
         
         return $product;

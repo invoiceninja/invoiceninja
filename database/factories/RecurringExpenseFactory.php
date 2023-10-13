@@ -35,6 +35,12 @@ class RecurringExpenseFactory extends Factory
             'private_notes' => $this->faker->text(50),
             'transaction_reference' => $this->faker->text(5),
             'invoice_id' => null,
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'tax_name1' => '',
+            'tax_name2' => '',
+            'tax_name3' => '',
         ];
     }
 }

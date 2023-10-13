@@ -153,7 +153,7 @@ class BaseRepository
             $model->client_id = $data['client_id'];
         }
 
-        $client = Client::with('group_settings')->where('id', $model->client_id)->withTrashed()->firstOrFail();
+        $client = Client::query()->with('group_settings')->where('id', $model->client_id)->withTrashed()->firstOrFail();
 
         $state = [];
 

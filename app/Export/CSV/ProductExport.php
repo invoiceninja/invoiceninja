@@ -13,10 +13,10 @@ namespace App\Export\CSV;
 
 use App\Libraries\MultiDB;
 use App\Models\Company;
-use App\Models\Document;
 use App\Models\Product;
 use App\Transformers\ProductTransformer;
 use App\Utils\Ninja;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
@@ -28,31 +28,6 @@ class ProductExport extends BaseExport
 
     public Writer $csv;
 
-    public array $entity_keys = [
-        'project' => 'project_id',
-        'vendor' => 'vendor_id',
-        'custom_value1' => 'custom_value1',
-        'custom_value2' => 'custom_value2',
-        'custom_value3' => 'custom_value3',
-        'custom_value4' => 'custom_value4',
-        'product_key' => 'product_key',
-        'notes' => 'notes',
-        'cost' => 'cost',
-        'price' => 'price',
-        'quantity' => 'quantity',
-        'tax_rate1' => 'tax_rate1',
-        'tax_rate2' => 'tax_rate2',
-        'tax_rate3' => 'tax_rate3',
-        'tax_name1' => 'tax_name1',
-        'tax_name2' => 'tax_name2',
-        'tax_name3' => 'tax_name3',
-    ];
-
-    private array $decorate_keys = [
-        'vendor',
-        'project',
-    ];
-
     public function __construct(Company $company, array $input)
     {
         $this->company = $company;
@@ -60,23 +35,37 @@ class ProductExport extends BaseExport
         $this->entity_transformer = new ProductTransformer();
     }
 
-    public function run()
+    public function returnJson()
     {
+        $query = $this->init();
+
+        $headerdisplay = $this->buildHeader();
+
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
+                return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
+            })->toArray();
+
+        $report = $query->cursor()
+                ->map(function ($resource) {
+                    $row = $this->buildRow($resource);
+                    return $this->processMetaData($row, $resource);    
+                })->toArray();
+        
+        return array_merge(['columns' => $header], $report);
+    }
+
+    private function init(): Builder
+    {
+
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
         App::setLocale($this->company->locale());
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
-        //load the CSV document from a string
-        $this->csv = Writer::createFromString();
-
         if (count($this->input['report_keys']) == 0) {
-            $this->input['report_keys'] = array_values($this->entity_keys);
+            $this->input['report_keys'] = array_values($this->product_report_keys);
         }
-
-        //insert the header
-        $this->csv->insertOne($this->buildHeader());
 
         $query = Product::query()
                         ->withTrashed()
@@ -84,6 +73,21 @@ class ProductExport extends BaseExport
                         ->where('is_deleted', 0);
 
         $query = $this->addDateRange($query);
+
+        return $query;
+
+    }
+
+    public function run()
+    {
+        
+        $query = $this->init();
+
+        //load the CSV document from a string
+        $this->csv = Writer::createFromString();
+
+        //insert the header
+        $this->csv->insertOne($this->buildHeader());
 
         $query->cursor()
               ->each(function ($entity) {
@@ -100,7 +104,7 @@ class ProductExport extends BaseExport
         $entity = [];
 
         foreach (array_values($this->input['report_keys']) as $key) {
-            $keyval = array_search($key, $this->entity_keys);
+            $keyval = array_search($key, $this->product_report_keys);
 
             if (array_key_exists($key, $transformed_entity)) {
                 $entity[$keyval] = $transformed_entity[$key];

@@ -20,6 +20,7 @@ use App\Libraries\MultiDB;
 use App\Models\DateFormat;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
+use Illuminate\Database\Eloquent\Builder;
 use App\Transformers\ActivityTransformer;
 
 class ActivityExport extends BaseExport
@@ -39,10 +40,6 @@ class ActivityExport extends BaseExport
         'address' => 'address',
     ];
 
-    private array $decorate_keys = [
-
-    ];
-
     public function __construct(Company $company, array $input)
     {
         $this->company = $company;
@@ -50,47 +47,33 @@ class ActivityExport extends BaseExport
         $this->entity_transformer = new ActivityTransformer();
     }
 
-    public function run()
+    public function returnJson()
     {
-        MultiDB::setDb($this->company->db);
-        App::forgetInstance('translator');
-        App::setLocale($this->company->locale());
-        $t = app('translator');
-        $t->replace(Ninja::transformTranslations($this->company->settings));
+        $query = $this->init();
 
-        $this->date_format = DateFormat::find($this->company->settings->date_format_id)->format;
+        $headerdisplay = $this->buildHeader();
 
-        //load the CSV document from a string
-        $this->csv = Writer::createFromString();
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
+                return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
+            })->toArray();
 
-        ksort($this->entity_keys);
-
-        if (count($this->input['report_keys']) == 0) {
-            $this->input['report_keys'] = array_values($this->entity_keys);
-        }
-
-        //insert the header
-        $this->csv->insertOne($this->buildHeader());
-
-        $query = Activity::query()
-                        ->where('company_id', $this->company->id);
-
-        $query = $this->addDateRange($query);
-
-        $query->cursor()
-              ->each(function ($entity) {
-                  $this->buildRow($entity);
-              });
-
-        return $this->csv->toString();
+            
+            $report = $query->cursor()
+                ->map(function ($resource) {
+                    $row = $this->buildActivityRow($resource);
+                    return $this->processMetaData($row, $resource);
+                })->toArray();
+        
+        return array_merge(['columns' => $header], $report);
     }
 
-    private function buildRow(Activity $activity)
+    private function buildActivityRow(Activity $activity): array
     {
-       
-        $this->csv->insertOne([
+            return [
             Carbon::parse($activity->created_at)->format($this->date_format),
             ctrans("texts.activity_{$activity->activity_type_id}",[
+                'payment_amount' => $activity->payment ? $activity->payment->amount : '',
+                'adjustment' => $activity->payment ? $activity->payment->refunded : '',
                 'client' => $activity->client ? $activity->client->present()->name() : '',
                 'contact' => $activity->contact ? $activity->contact->present()->name() : '',
                 'quote' => $activity->quote ? $activity->quote->number : '',
@@ -108,7 +91,57 @@ class ActivityExport extends BaseExport
                 'recurring_expense' => $activity->recurring_expense ? $activity->recurring_expense->number : '',
             ]),
             $activity->ip,
-        ]);
+        ];
+        
+    }
+
+    private function init(): Builder
+    {
+        MultiDB::setDb($this->company->db);
+        App::forgetInstance('translator');
+        App::setLocale($this->company->locale());
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($this->company->settings));
+
+        $this->date_format = DateFormat::find($this->company->settings->date_format_id)->format;
+
+        // ksort($this->entity_keys);
+
+        if (count($this->input['report_keys']) == 0) {
+            $this->input['report_keys'] = array_values($this->entity_keys);
+        }
+
+        $query = Activity::query()
+                        ->where('company_id', $this->company->id);
+
+        $query = $this->addDateRange($query);
+
+        return $query;
+    }
+
+    public function run()
+    {
+        $query = $this->init();
+        
+        //load the CSV document from a string
+        $this->csv = Writer::createFromString();
+
+        //insert the header
+        $this->csv->insertOne($this->buildHeader());
+
+
+        $query->cursor()
+              ->each(function ($entity) {
+                  $this->buildRow($entity);
+              });
+
+        return $this->csv->toString();
+    }
+
+    private function buildRow(Activity $activity)
+    {
+       
+        $this->csv->insertOne($this->buildActivityRow($activity));
 
 
     }
@@ -117,4 +150,25 @@ class ActivityExport extends BaseExport
     {
         return $entity;
     }
+
+
+    public function processMetaData(array $row, $resource): array
+    {
+
+        $clean_row = [];
+        
+        foreach (array_values($this->input['report_keys']) as $key => $value) {
+    
+            $clean_row[$key]['entity'] = 'activity';
+            $clean_row[$key]['id'] = $key;
+            $clean_row[$key]['hashed_id'] = null;
+            $clean_row[$key]['value'] = $row[$key];
+            $clean_row[$key]['identifier'] = $value;
+            $clean_row[$key]['display_value'] = $row[$key];
+
+        }
+
+        return $clean_row;
+    }   
+
 }

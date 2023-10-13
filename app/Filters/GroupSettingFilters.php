@@ -25,7 +25,8 @@ class GroupSettingFilters extends QueryFilters
      * @return Builder
      */
     public function name(string $name = ''): Builder
-    {nlog("filter");
+    {
+        
         if (strlen($name) == 0) {
             return $this->builder;
         }

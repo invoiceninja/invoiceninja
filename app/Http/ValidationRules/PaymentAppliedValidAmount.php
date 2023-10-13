@@ -90,6 +90,12 @@ class PaymentAppliedValidAmount implements Rule
                     return false;
                 }
             }
+
+            if(count($this->input['invoices']) >=1 && $payment->status_id == Payment::STATUS_PENDING){
+                $this->message = 'Cannot apply a payment until the status is completed.';
+                return false;
+            }
+
         }
 
         if (round($payment_amounts, 3) >= round($invoice_amounts, 3)) {

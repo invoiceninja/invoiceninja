@@ -27,14 +27,14 @@ class RecurringExpenseTransformer extends EntityTransformer
     use MakesHash;
     use SoftDeletes;
 
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'documents',
     ];
 
     /**
      * @var array
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'documents',
         'client',
         'vendor',
@@ -90,7 +90,6 @@ class RecurringExpenseTransformer extends EntityTransformer
             'currency_id' => (string) $recurring_expense->currency_id ?: '',
             'category_id' => $this->encodePrimaryKey($recurring_expense->category_id),
             'payment_type_id' => (string) $recurring_expense->payment_type_id ?: '',
-            'recurring_recurring_expense_id' => (string) $recurring_expense->recurring_recurring_expense_id ?: '',
             'is_deleted' => (bool) $recurring_expense->is_deleted,
             'should_be_invoiced' => (bool) $recurring_expense->should_be_invoiced,
             'invoice_documents' => (bool) $recurring_expense->invoice_documents,

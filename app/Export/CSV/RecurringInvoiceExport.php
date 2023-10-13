@@ -16,6 +16,7 @@ use App\Models\Company;
 use App\Models\RecurringInvoice;
 use App\Transformers\RecurringInvoiceTransformer;
 use App\Utils\Ninja;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
@@ -28,55 +29,6 @@ class RecurringInvoiceExport extends BaseExport
 
     public Writer $csv;
 
-    public array $entity_keys = [
-        'amount' => 'amount',
-        'balance' => 'balance',
-        'client' => 'client_id',
-        // 'custom_surcharge1' => 'custom_surcharge1',
-        // 'custom_surcharge2' => 'custom_surcharge2',
-        // 'custom_surcharge3' => 'custom_surcharge3',
-        // 'custom_surcharge4' => 'custom_surcharge4',
-        'custom_value1' => 'custom_value1',
-        'custom_value2' => 'custom_value2',
-        'custom_value3' => 'custom_value3',
-        'custom_value4' => 'custom_value4',
-        'date' => 'date',
-        'discount' => 'discount',
-        'due_date' => 'due_date',
-        'exchange_rate' => 'exchange_rate',
-        'footer' => 'footer',
-        'number' => 'number',
-        'paid_to_date' => 'paid_to_date',
-        'partial' => 'partial',
-        'partial_due_date' => 'partial_due_date',
-        'po_number' => 'po_number',
-        'private_notes' => 'private_notes',
-        'public_notes' => 'public_notes',
-        'next_send_date' => 'next_send_date',
-        'status' => 'status_id',
-        'tax_name1' => 'tax_name1',
-        'tax_name2' => 'tax_name2',
-        'tax_name3' => 'tax_name3',
-        'tax_rate1' => 'tax_rate1',
-        'tax_rate2' => 'tax_rate2',
-        'tax_rate3' => 'tax_rate3',
-        'terms' => 'terms',
-        'total_taxes' => 'total_taxes',
-        'currency' => 'currency_id',
-        'vendor' => 'vendor_id',
-        'project' => 'project_id',
-        'frequency_id' => 'frequency_id',
-    ];
-
-    private array $decorate_keys = [
-        'country',
-        'client',
-        'currency',
-        'status',
-        'vendor',
-        'project',
-    ];
-
     public function __construct(Company $company, array $input)
     {
         $this->company = $company;
@@ -84,7 +36,7 @@ class RecurringInvoiceExport extends BaseExport
         $this->invoice_transformer = new RecurringInvoiceTransformer();
     }
 
-    public function run()
+    public function init(): Builder
     {
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
@@ -92,22 +44,32 @@ class RecurringInvoiceExport extends BaseExport
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
-        //load the CSV document from a string
-        $this->csv = Writer::createFromString();
-
         if (count($this->input['report_keys']) == 0) {
-            $this->input['report_keys'] = array_values($this->entity_keys);
+            $this->input['report_keys'] = array_values($this->recurring_invoice_report_keys);
         }
-
-        //insert the header
-        $this->csv->insertOne($this->buildHeader());
 
         $query = RecurringInvoice::query()
                         ->withTrashed()
-                        ->with('client')->where('company_id', $this->company->id)
+                        ->with('client')
+                        ->where('company_id', $this->company->id)
                         ->where('is_deleted', 0);
 
         $query = $this->addDateRange($query);
+
+        return $query;
+
+    }
+
+    public function run()
+    {
+
+        $query  = $this->init();
+
+        //load the CSV document from a string
+        $this->csv = Writer::createFromString();
+
+        //insert the header
+        $this->csv->insertOne($this->buildHeader());
 
         $query->cursor()
             ->each(function ($invoice) {
@@ -117,6 +79,27 @@ class RecurringInvoiceExport extends BaseExport
         return $this->csv->toString();
     }
 
+
+    public function returnJson()
+    {
+        $query = $this->init();
+
+        $headerdisplay = $this->buildHeader();
+
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
+                return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
+            })->toArray();
+
+        $report = $query->cursor()
+                ->map(function ($resource) {
+                    $row = $this->buildRow($resource);
+                    return $this->processMetaData($row, $resource);
+                })->toArray();
+        
+        return array_merge(['columns' => $header], $report);
+    }
+
+
     private function buildRow(RecurringInvoice $invoice) :array
     {
         $transformed_invoice = $this->invoice_transformer->transform($invoice);
@@ -124,22 +107,13 @@ class RecurringInvoiceExport extends BaseExport
         $entity = [];
 
         foreach (array_values($this->input['report_keys']) as $key) {
-            $keyval = array_search($key, $this->entity_keys);
 
-            if(!$keyval) {
-                $keyval = array_search(str_replace("recurring_invoice.", "", $key), $this->entity_keys) ?? $key;
-            }
+            $parts = explode('.', $key);
 
-            if(!$keyval) {
-                $keyval = $key;
-            }
-
-            if (array_key_exists($key, $transformed_invoice)) {
-                $entity[$keyval] = $transformed_invoice[$key];
-            } elseif (array_key_exists($keyval, $transformed_invoice)) {
-                $entity[$keyval] = $transformed_invoice[$keyval];
+            if (is_array($parts) && $parts[0] == 'recurring_invoice' && array_key_exists($parts[1], $transformed_invoice)) {
+                $entity[$key] = $transformed_invoice[$parts[1]];
             } else {
-                $entity[$keyval] = $this->resolveKey($keyval, $invoice, $this->invoice_transformer);
+                $entity[$key] = $this->resolveKey($key, $invoice, $this->invoice_transformer);
             }
 
         }
@@ -174,7 +148,7 @@ class RecurringInvoiceExport extends BaseExport
         }
 
         if (in_array('recurring_invoice.frequency_id', $this->input['report_keys']) || in_array('frequency_id', $this->input['report_keys'])) {
-            $entity['frequency_id'] = $invoice->frequencyForKey($invoice->frequency_id);
+            $entity['recurring_invoice.frequency_id'] = $invoice->frequencyForKey($invoice->frequency_id);
         }
 
         return $entity;

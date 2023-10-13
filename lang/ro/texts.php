@@ -657,12 +657,8 @@ Nu găsești factura? Ai nevoie de asistență suplimentară? Suntem aici sa aju
     'created_by_invoice' => 'Creat de :invoice',
     'primary_user' => 'Utilizator Principal',
     'help' => 'Ajutor',
-    'customize_help' => '<p>Utilizăm :pdfmake_link pentru a stabili design-ul facturii. pdfmake :playground_link vă poate ajuta să foloți biblioteca.
-</p>
-<p>Pentru orice informație, nu ezitați să accesați :forum_link, unde puteți publica întrebări specifice design-ului pe care îl utilizați.
-</p>',
     'playground' => 'mediu de lucru',
-    'support_forum' => 'forum suport',
+    'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Data Scadenta',
     'quote_due_date' => 'Valabil până la',
     'valid_until' => 'Valabil până la',
@@ -1152,7 +1148,7 @@ Nu găsești factura? Ai nevoie de asistență suplimentară? Suntem aici sa aju
     'plan_status' => 'Starea planului',
 
     'plan_upgrade' => 'Upgrade',
-    'plan_change' => 'Modificați planul',
+    'plan_change' => 'Manage Plan',
     'pending_change_to' => 'Se schimbă în',
     'plan_changes_to' => ':plan la :date',
     'plan_term_changes_to' => ':plan (:term) la :date',
@@ -1824,7 +1820,6 @@ Odată ce sumele au ajuns la dumneavoastră, reveniți la pagina cu metode de pl
     'bot_emailed_notify_paid' => 'Veți fi notificat după efectuarea plății.',
     'add_product_to_invoice' => 'Adăugați 1 :product',
     'not_authorized' => 'Nu ești autorizat',
-    'bot_get_email' => 'Bună ziua! (wave)<br/>Vă mulțumim că încercați să folosiți Invoice Ninja Bot.<br/>Este necesar să aveți un cont gratui pentru a folosi acest bot.<br/>Pentru a începe, este necesar să ne trimiteți adresa dumneavoastră de email. ',
     'bot_get_code' => 'Vă mulțumim! V-am trimis codul de securitate pe email.',
     'bot_welcome' => 'Asta este tot. Contul dumneavoastră a fost verificat.<br/>',
     'email_not_found' => 'Nu am reușit să găsim un cont disponibil pentru :email',
@@ -1832,7 +1827,6 @@ Odată ce sumele au ajuns la dumneavoastră, reveniți la pagina cu metode de pl
     'security_code_email_subject' => 'Cod de securitate pentru Invoice Ninja Bot',
     'security_code_email_line1' => 'Acesta este codul dumneavoastră de securitate Invoice Ninja Bot.',
     'security_code_email_line2' => 'Notă: va expira în 10 minute.',
-    'bot_help_message' => 'Momentan, suportăm <br/>• Crearea\actualizarea\trimiterea de facturi<br/>• Listarea de produse<br/>Spre exemplu:<br/><i>facturarea a câte două tichete, setarea scadenței pentru joia viitoare și reducerea cu 10 la sută</i>',
     'list_products' => 'Listați produsele',
 
     'include_item_taxes_inline' => 'Includeți <b>line item taxes in line total</b>',
@@ -1845,7 +1839,6 @@ Odată ce sumele au ajuns la dumneavoastră, reveniți la pagina cu metode de pl
     'update_invoiceninja_warning' => 'Înainte de a face un upgrade la Invoice Ninja, creați un backup pentru baza dumneavoastră de date și pentru fișiere! ',
     'update_invoiceninja_available' => 'Este disponibila o nouă versiune pentru Invoice Ninja.',
     'update_invoiceninja_unavailable' => 'Nu există o nouă versiune disponibilă pentru Invoice Ninja.',
-    'update_invoiceninja_instructions' => 'Instalați noua versiune <strong>:version</strong>, apăsând butonul <em>Update now</em> de mai jos. Apoi veți fi redirecționar către panoul de control.',
     'update_invoiceninja_update_start' => 'Actualizează acum',
     'update_invoiceninja_download_start' => 'Descarcă :version',
     'create_new' => 'Nou',
@@ -4333,7 +4326,7 @@ Odată ce sumele au ajuns la dumneavoastră, reveniți la pagina cu metode de pl
     'include_drafts' => 'Includeți schițe',
     'include_drafts_help' => 'Includeți înregistrările-schițe în raport',
     'is_invoiced' => 'A fost trimis(ă)',
-    'change_plan' => 'Modificați planul',
+    'change_plan' => 'Manage Plan',
     'persist_data' => 'Stocheaza datele permanent',
     'customer_count' => 'Contor client',
     'verify_customers' => 'Verificați clienți',
@@ -5161,8 +5154,21 @@ Odată ce sumele au ajuns la dumneavoastră, reveniți la pagina cu metode de pl
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
+    'show_document_preview' => 'Show Document Preview',
+    'cash_accounting' => 'Cash accounting',
+    'click_or_drop_files_here' => 'Click or drop files here',
+    'set_public' => 'Set public',
+    'set_private' => 'Set private',
+    'individual' => 'Individual',
+    'business' => 'Business',
+    'partnership' => 'partnership',
+    'trust' => 'Trust',
+    'charity' => 'Charity',
+    'government' => 'Government',
+    'in_stock_quantity' => 'Stock quantity',
+    'vendor_contact' => 'Vendor Contact',
 
-);
+); 
 
 return $LANG;
 

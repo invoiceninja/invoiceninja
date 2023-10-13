@@ -220,7 +220,7 @@ class Payment extends BaseModel
      */
     public function invoices(): \Illuminate\Database\Eloquent\Relations\MorphToMany
     {
-        return $this->morphedByMany(Invoice::class, 'paymentable')->withTrashed()->withPivot('amount', 'refunded')->withTimestamps();
+        return $this->morphedByMany(Invoice::class, 'paymentable')->withTrashed()->withPivot('amount', 'refunded', 'deleted_at')->withTimestamps();
     }
 
     /**
@@ -228,7 +228,7 @@ class Payment extends BaseModel
      */
     public function credits(): \Illuminate\Database\Eloquent\Relations\MorphToMany
     {
-        return $this->morphedByMany(Credit::class, 'paymentable')->withTrashed()->withPivot('amount', 'refunded')->withTimestamps();
+        return $this->morphedByMany(Credit::class, 'paymentable')->withTrashed()->withPivot('amount', 'refunded', 'deleted_at')->withTimestamps();
     }
 
     /**
@@ -251,7 +251,7 @@ class Payment extends BaseModel
 
     public function transaction(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(BankTransaction::class);
+        return $this->belongsTo(BankTransaction::class)->withTrashed();
     }
 
     public function exchange_currency(): \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -361,6 +361,24 @@ class Payment extends BaseModel
         return new PaymentService($this);
     }
 
+    /**
+     * $data = [
+            'id' => $payment->id,
+            'amount' => 10,
+            'invoices' => [
+                [
+                    'invoice_id' => $invoice->id,
+                    'amount' => 10,
+                ],
+            ],
+            'date' => '2020/12/12',
+            'gateway_refund' => false,
+            'email_receipt' => false,
+        ];
+     *
+     * @param array $data
+     * @return self
+     */
     public function refund(array $data) :self
     {
         return $this->service()->refundPayment($data);

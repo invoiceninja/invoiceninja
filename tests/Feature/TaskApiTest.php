@@ -11,8 +11,10 @@
 
 namespace Tests\Feature;
 
+use App\DataMapper\ClientSettings;
 use Tests\TestCase;
 use App\Models\Task;
+use App\Models\Client;
 use App\Models\Project;
 use Tests\MockAccountData;
 use App\Utils\Traits\MakesHash;
@@ -101,7 +103,88 @@ class TaskApiTest extends TestCase
             return true;
         }
     }
-    
+
+    public function testTaskClientRateSet()
+    {
+        $settings = ClientSettings::defaults();
+        $settings->default_task_rate = 41;
+
+        $c = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'settings' => $settings,
+        ]);
+
+        $data = [
+            'client_id' => $c->hashed_id,
+            'description' => 'Test Task',
+            'time_log' => '[[1681165417,1681165432,"sumtin",true],[1681165446,0]]',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/tasks", $data);
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+
+        $this->assertEquals(41, $arr['data']['rate']);
+    }
+
+    public function testTaskProjectRateSet()
+    {
+        
+        $p = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'name' => 'proggy',
+            'task_rate' => 101,
+        ]);
+
+        $data = [
+            'project_id' => $p->hashed_id,
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'description' => 'Test Task',
+            'time_log' => '[[1681165417,1681165432,"sumtin",true],[1681165446,0]]',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/tasks", $data);
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+
+        $this->assertEquals(101, $arr['data']['rate']);
+    }
+
+    public function testStatusSet()
+    {
+        
+        $data = [
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'description' => 'Test Task',
+            'time_log' => '[[1681165417,1681165432,"sumtin",true],[1681165446,0]]',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/tasks");
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+
+        $this->assertNotEmpty($arr['data']['status_id']);
+    }
+
     public function testStartDate()
     {
         $x = [];

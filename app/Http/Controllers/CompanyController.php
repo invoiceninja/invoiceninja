@@ -697,4 +697,19 @@ class CompanyController extends BaseController
 
         return $this->itemResponse($company->fresh());
     }
+
+    public function logo()
+    {
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        $company = $user->company();
+        $logo = strlen($company->settings->company_logo) > 5 ? $company->settings->company_logo : 'https://pdf.invoicing.co/favicon-v2.png';
+        $headers = ['Content-Disposition' => 'inline'];
+     
+        return response()->streamDownload(function () use ($logo){
+            echo @file_get_contents($logo);
+        }, 'logo.png', $headers);
+
+    }
 }

@@ -27,27 +27,35 @@ class StoreRecurringExpenseRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('create', RecurringExpense::class);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        
+        return $user->can('create', RecurringExpense::class);
     }
 
     public function rules()
     {
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $rules = [];
 
         if ($this->number) {
-            $rules['number'] = Rule::unique('recurring_expenses')->where('company_id', auth()->user()->company()->id);
+            $rules['number'] = Rule::unique('recurring_expenses')->where('company_id', $user->company()->id);
         }
 
         if (! empty($this->client_id)) {
-            $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.auth()->user()->company()->id;
+            $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.$user->company()->id;
         }
 
-        $rules['category_id'] = 'bail|nullable|sometimes|exists:expense_categories,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+        $rules['category_id'] = 'bail|nullable|sometimes|exists:expense_categories,id,company_id,'.$user->company()->id.',is_deleted,0';
         $rules['frequency_id'] = 'required|integer|digits_between:1,12';
         $rules['tax_amount1'] = 'numeric';
         $rules['tax_amount2'] = 'numeric';
         $rules['tax_amount3'] = 'numeric';
-
+        $rules['currency_id'] = 'bail|required|integer|exists:currencies,id';
+        
         if ($this->file('documents') && is_array($this->file('documents'))) {
             $rules['documents.*'] = $this->file_validation;
         } elseif ($this->file('documents')) {
@@ -65,6 +73,10 @@ class StoreRecurringExpenseRequest extends Request
 
     public function prepareForValidation()
     {
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $input = $this->all();
 
         $input = $this->decodePrimaryKeys($input);
@@ -74,7 +86,7 @@ class StoreRecurringExpenseRequest extends Request
         }
 
         if (! array_key_exists('currency_id', $input) || strlen($input['currency_id']) == 0) {
-            $input['currency_id'] = (string) auth()->user()->company()->settings->currency_id;
+            $input['currency_id'] = (string) $user->company()->settings->currency_id;
         }
 
         if (array_key_exists('color', $input) && is_null($input['color'])) {

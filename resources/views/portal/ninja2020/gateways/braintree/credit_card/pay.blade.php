@@ -75,7 +75,9 @@
 @endsection
 
 @section('gateway_footer')
-    <script src="{{ asset('js/clients/payments/braintree-credit-card.js') }}"></script>
+
+    <script defer src="{{ asset('js/clients/payments/braintree-credit-card.js') }}"></script>
+
 @endsection
 
 <div id="threeds"></div>
