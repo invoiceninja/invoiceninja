@@ -54,7 +54,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
  * @property string|null $last_sent_date
  * @property string|null $due_date
  * @property bool $is_deleted
- * @property object|array $line_items
+ * @property object|array|string $line_items
  * @property object|null $backup
  * @property string|null $footer
  * @property string|null $public_notes

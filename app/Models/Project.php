@@ -15,10 +15,10 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int $company_id
  * @property int|null $client_id
  * @property string $name
- * @property string $task_rate
+ * @property float $task_rate
  * @property string|null $due_date
  * @property string|null $private_notes
- * @property string $budgeted_hours
+ * @property float $budgeted_hours
  * @property string|null $custom_value1
  * @property string|null $custom_value2
  * @property string|null $custom_value3
@@ -27,7 +27,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int|null $updated_at
  * @property int|null $deleted_at
  * @property string|null $public_notes
- * @property int $is_deleted
+ * @property bool $is_deleted
  * @property string|null $number
  * @property string $color
  * @property-read \App\Models\Client|null $client
