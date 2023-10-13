@@ -43,6 +43,8 @@ class CompanyLedgerTest extends TestCase
 
     public $account;
 
+    public $faker;
+    
     protected function setUp() :void
     {
         parent::setUp();

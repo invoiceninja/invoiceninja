@@ -98,7 +98,7 @@ class EntitySentObject
             $mail_obj->markdown = 'email.admin.generic';
             $mail_obj->tag = $this->company->company_key;
         }
-        nlog($mail_obj);
+        // nlog($mail_obj);
         return $mail_obj;
     }
 

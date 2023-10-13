@@ -35,5 +35,5 @@
 
 @section('gateway_footer')
     <script src="https://js.stripe.com/v3/"></script>
-    <script src="{{ asset('js/clients/payments/stripe-browserpay.js') }}"></script>
+    @vite('resources/js/clients/payments/stripe-browserpay.js')
 @endsection

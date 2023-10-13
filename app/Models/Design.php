@@ -20,10 +20,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $user_id
  * @property int|null $company_id
  * @property string $name
- * @property int $is_custom
- * @property int $is_active
+ * @property bool $is_custom
+ * @property bool $is_active
  * @property object|null $design
- * @property int $is_deleted
+ * @property bool $is_deleted
+ * @property bool $is_template
  * @property int|null $created_at
  * @property int|null $updated_at
  * @property int|null $deleted_at

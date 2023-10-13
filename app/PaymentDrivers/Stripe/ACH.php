@@ -307,6 +307,7 @@ class ACH
 
             switch ($e) {
                 case $e instanceof CardException:
+                    /** @var CardException $e */
                     $data['status'] = $e->getHttpStatus();
                     $data['error_type'] = $e->getError()->type;
                     $data['error_code'] = $e->getError()->code;

@@ -95,7 +95,7 @@
     @endif
 
     @include('portal.ninja2020.components.entity-documents', ['entity' => $invoice])
-    @livewire('pdf-slot', ['entity' => $invoice, 'invitation' => $invitation, 'db' => $invitation->company->db])
+    @livewire('pdf-slot', ['entity' => $invoice, 'invitation' => $invitation, 'db' => $invoice->company->db])
 
 @endsection
 
@@ -105,7 +105,7 @@
 @endsection
 
 @push('head')
-    <script src="{{ asset('js/clients/invoices/payment.js') }}" defer></script>
+    @vite('resources/js/clients/invoices/payment.js')
     <script src="{{ asset('vendor/clipboard.min.js') }}" defer></script>
 
     <script type="text/javascript">

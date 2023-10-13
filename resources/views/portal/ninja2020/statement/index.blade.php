@@ -49,5 +49,5 @@
 @endsection
 
 @push('footer')
-    <script src="{{ asset('js/clients/statements/view.js') }}"></script>
+    @vite('resources/js/clients/statements/view.js')
 @endpush

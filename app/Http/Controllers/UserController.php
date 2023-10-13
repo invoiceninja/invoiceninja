@@ -109,9 +109,11 @@ class UserController extends BaseController
 
         $user_agent = request()->input('token_name') ?: request()->server('HTTP_USER_AGENT');
 
+        $is_react = $request->hasHeader('X-React') ?? false;
+
         $ct = (new CreateCompanyToken($company, $user, $user_agent))->handle();
 
-        event(new UserWasCreated($user, auth()->user(), $company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        event(new UserWasCreated($user, auth()->user(), $company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $is_react));
 
         $user->setCompany($company);
         $user->company_id = $company->id;
@@ -176,7 +178,7 @@ class UserController extends BaseController
             $user->oauth_user_token = null;
             $user->save();
             
-            UserEmailChanged::dispatch($new_user, json_decode($old_user), $logged_in_user->company());
+            UserEmailChanged::dispatch($new_user, json_decode($old_user), $logged_in_user->company(), $request->hasHeader('X-React'));
         }
 
         event(new UserWasUpdated($user, $logged_in_user, $logged_in_user->company(), Ninja::eventVars($logged_in_user->id)));
@@ -292,7 +294,7 @@ class UserController extends BaseController
         /** @var \App\Models\User $logged_in_user */
         $logged_in_user = auth()->user();
 
-        $user->service()->invite($logged_in_user->company());
+        $user->service()->invite($logged_in_user->company(), $request->hasHeader('X-REACT'));
 
         return response()->json(['message' => ctrans('texts.confirmation_resent')], 200);
     }
@@ -310,7 +312,7 @@ class UserController extends BaseController
         /** @var \App\Models\User $logged_in_user */
         $logged_in_user = auth()->user();
 
-        $user->service()->invite($logged_in_user->company());
+        $user->service()->invite($logged_in_user->company(), $request->hasHeader('X-REACT'));
 
         return response()->json(['message' => ctrans('texts.confirmation_resent')], 200);
     }

@@ -234,6 +234,9 @@ class SubscriptionService
         // Redirects from here work just fine. Livewire will respect it.
         $client_contact = ClientContact::find($this->decodePrimaryKey($data['contact_id']));
 
+        if(is_string($data['client_id']))
+            $data['client_id'] = $this->decodePrimaryKey($data['client_id']);
+            
         if (!$this->subscription->trial_enabled) {
             return new \Exception("Trials are disabled for this product");
         }
@@ -256,7 +259,7 @@ class SubscriptionService
         if (array_key_exists('coupon', $data) && ($data['coupon'] == $this->subscription->promo_code) && $this->subscription->promo_discount > 0) {
             $recurring_invoice->discount = $this->subscription->promo_discount;
             $recurring_invoice->is_amount_discount = $this->subscription->is_amount_discount;
-        } elseif (strlen($this->subscription->promo_code) == 0 && $this->subscription->promo_discount > 0) {
+        } elseif (strlen($this->subscription->promo_code ?? '') == 0 && $this->subscription->promo_discount > 0) {
             $recurring_invoice->discount = $this->subscription->promo_discount;
             $recurring_invoice->is_amount_discount = $this->subscription->is_amount_discount;
         }

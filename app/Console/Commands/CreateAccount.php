@@ -63,17 +63,25 @@ class CreateAccount extends Command
 
     private function createAccount()
     {
+        $settings = CompanySettings::defaults();
+
+        $settings->name = "Untitled Company";
+        $settings->currency_id = '1';
+        $settings->language_id = '1';
+
         $account = Account::factory()->create();
         $company = Company::factory()->create([
             'account_id' => $account->id,
             'portal_domain' => config('ninja.app_url'),
             'portal_mode' => 'domain',
+            'settings' => $settings,
         ]);
         
         $company->client_registration_fields = ClientRegistrationFields::generate();
         $company->save();
         
         $account->default_company_id = $company->id;
+        $account->set_react_as_default_ap = true;
         $account->save();
 
         $email = $this->option('email') ?? 'admin@example.com';

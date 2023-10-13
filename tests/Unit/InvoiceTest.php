@@ -49,7 +49,36 @@ class InvoiceTest extends TestCase
         $this->invoice_calc = new InvoiceSum($this->invoice);
     }
 
-public function testGrossTaxAmountCalcuations()
+    public function testMarkPaidWithPartial()
+    {
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 50;              
+        $line_items[] = $item;
+
+        $this->invoice->partial = 5;
+        $this->invoice->partial_due_date = now()->addDay();
+        $this->invoice->due_date = now()->addDays(10);
+        $this->invoice->line_items = $line_items;
+        $this->invoice->save();
+
+        $invoice_calc = new InvoiceSum($this->invoice);
+
+        $invoice = $invoice_calc->build()->getInvoice()->service()->markSent()->save();
+
+        $this->assertEquals(5, $invoice->partial);
+        $this->assertNotNull($invoice->partial_due_date);
+        $this->assertEquals(50, $invoice->amount);
+
+        $invoice = $invoice->service()->markPaid()->save();
+
+        $this->assertEquals(0, $invoice->partial);
+        $this->assertEquals(0, $invoice->balance);
+
+        $this->assertNull($invoice->partial_due_date);
+    }
+
+    public function testGrossTaxAmountCalcuations()
     {
         $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
         $invoice->client_id = $this->client->id;

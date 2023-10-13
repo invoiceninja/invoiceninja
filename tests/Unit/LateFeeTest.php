@@ -22,6 +22,8 @@ use App\Jobs\Util\ReminderJob;
 use App\DataMapper\InvoiceItem;
 use App\DataMapper\FeesAndLimits;
 use App\DataMapper\CompanySettings;
+use App\Factory\InvoiceItemFactory;
+use App\Factory\ClientGatewayTokenFactory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
@@ -91,6 +93,313 @@ class LateFeeTest extends TestCase
         ]);
 
         return $client;
+    }
+
+    public function testAddLateFeeAppropriately()
+    {
+        $invoice_item = new InvoiceItem;
+        $invoice_item->type_id = '5';
+        $invoice_item->product_key = trans('texts.fee');
+        $invoice_item->notes = ctrans('texts.late_fee_added', ['date' => 'xyz']);
+        $invoice_item->quantity = 1;
+        $invoice_item->cost = 20;
+
+        $invoice_items = $this->invoice->line_items;
+        $invoice_items[] = $invoice_item;
+
+        $this->invoice->line_items = $invoice_items;
+        
+        $this->assertGreaterThan(1, count($this->invoice->line_items));
+
+        /**Refresh Invoice values*/
+        $invoice = $this->invoice->calc()->getInvoice();
+
+        $this->assertGreaterThan(1, count($this->invoice->line_items));
+
+    }
+
+    public function testModelBehaviourInsideMap()
+    {
+        $i = Invoice::factory()->count(5)
+        ->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+            'discount' => 0,
+        ]);
+
+        $i->each(function($invoice){
+            $this->assertGreaterThan(1, count($invoice->line_items));
+        });
+
+        $this->assertCount(5, $i);
+
+        $invoices = $i->map(function ($invoice) {
+            $invoice->service()->removeUnpaidGatewayFees();
+            return $invoice;
+        });
+
+        $invoices->each(function ($invoice) {
+            $this->assertGreaterThan(1, count($invoice->line_items));
+        });
+
+        $ids = $invoices->pluck('id');
+
+        $invoices = $i->map(function ($invoice) {
+            
+            $line_items = $invoice->line_items;            
+
+            $item = new InvoiceItem;
+            $item->type_id = '3';
+            $item->product_key = trans('texts.fee');
+            $item->quantity = 1;
+            $item->cost = 10;
+
+            $line_items[] = $item;
+
+            $item = new InvoiceItem;
+            $item->type_id = '5';
+            $item->product_key = trans('texts.fee');
+            $item->quantity = 1;
+            $item->cost = 10;
+
+            $line_items[] = $item;
+            $invoice->line_items = $line_items;
+            $invoice->saveQuietly();
+
+            return $invoice;
+        });
+
+        $invoices = Invoice::whereIn('id', $ids)->cursor()->map(function ($invoice){
+            $this->assertGreaterThan(0, count($invoice->line_items));
+            
+            $invoice->service()->removeUnpaidGatewayFees();
+            $invoice = $invoice->fresh();
+            $this->assertGreaterThan(0, count($invoice->line_items));
+
+            return $invoice;
+        });
+
+        $invoices->each(function ($invoice) {
+            $this->assertGreaterThan(0, count($invoice->line_items));
+        });
+
+    }
+
+    public function testCollectionPassesIsArray()
+    {
+        $line_items = collect($this->invoice->line_items);
+        $this->assertTrue(is_array($this->invoice->line_items));
+        $this->assertTrue(is_iterable($line_items));
+        $this->assertFalse(is_array($line_items));
+    }
+
+    public function testLineItemResiliency()
+    {
+        $line_count = count($this->invoice->line_items);
+        $this->assertGreaterThan(0, $line_count);
+
+        $this->invoice->service()->removeUnpaidGatewayFees();
+
+        $this->invoice = $this->invoice->fresh();
+        
+        $this->assertCount($line_count, $this->invoice->line_items);
+    }
+
+    public function testCollectionAsLineItemArray()
+    {
+
+        $i = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+            'discount' => 0,
+        ]);
+
+        $line_items = [];
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 10;
+        $item->type_id = '1';
+
+        $line_items[] = $item;
+
+        $item = new InvoiceItem;
+        $item->type_id = '5';
+        $item->product_key = trans('texts.fee');
+        $item->quantity = 1;
+        $item->cost = 10;
+
+        $line_items[] = $item;
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 1;
+        $item->type_id = '3';
+
+        $line_items[] = $item;
+
+        $i->line_items = $line_items;
+
+        $this->assertEquals(3, count($line_items));
+
+        $i = $i->calc()->getInvoice();
+
+        $this->assertEquals(3, count($i->line_items));
+        $this->assertEquals(21, $i->amount);
+
+        // $invoice_items = collect($invoice_items)->filter(function ($item) {
+        //     return $item->type_id != '3';
+        // });
+
+        // $this->invoice->line_items = $invoice_items;
+
+    }
+
+    public function testLateFeeRemovals()
+    {
+
+        $data = [];
+        $data[1]['min_limit'] = -1;
+        $data[1]['max_limit'] = -1;
+        $data[1]['fee_amount'] = 0.00;
+        $data[1]['fee_percent'] = 1;
+        $data[1]['fee_tax_name1'] = '';
+        $data[1]['fee_tax_rate1'] = 0;
+        $data[1]['fee_tax_name2'] = '';
+        $data[1]['fee_tax_rate2'] = 0;
+        $data[1]['fee_tax_name3'] = '';
+        $data[1]['fee_tax_rate3'] = 0;
+        $data[1]['adjust_fee_percent'] = false;
+        $data[1]['fee_cap'] = 0;
+        $data[1]['is_enabled'] = true;
+
+        $cg = new \App\Models\CompanyGateway;
+        $cg->company_id = $this->company->id;
+        $cg->user_id = $this->user->id;
+        $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
+        $cg->require_cvv = true;
+        $cg->require_billing_address = true;
+        $cg->require_shipping_address = true;
+        $cg->update_details = true;
+        $cg->config = encrypt(config('ninja.testvars.stripe'));
+        $cg->fees_and_limits = $data;
+        $cg->save();
+
+        $cgt = ClientGatewayTokenFactory::create($this->company->id);
+        $cgt->client_id = $this->client->id;
+        $cgt->token = '';
+        $cgt->gateway_customer_reference = '';
+        $cgt->gateway_type_id = 1;
+        $cgt->company_gateway_id = $cg->id;
+        $cgt->save();
+
+
+        $i = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+            'discount' => 0,
+        ]);
+
+        $line_items = [];
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 10;
+        $item->type_id = '1';
+
+        $line_items[] = $item;
+
+        $item = new InvoiceItem;
+        $item->type_id = '5';
+        $item->product_key = trans('texts.fee');
+        $item->quantity = 1;
+        $item->cost = 10;
+
+        $line_items[] = $item;
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 1;
+        $item->type_id = '3';
+
+        $line_items[] = $item;
+
+        $i->line_items = $line_items;
+
+        $i = $i->calc()->getInvoice();
+
+        $this->assertEquals(3, count($i->line_items));
+        $this->assertEquals(21, $i->amount);
+
+        $invoice_items = (array) $i->line_items;
+
+        $invoice_items = collect($invoice_items)->filter(function ($item) {
+            return $item->type_id != '3';
+        });
+
+        $i->line_items = $invoice_items;
+
+        $i = $i->calc()->getInvoice();
+
+        $this->assertEquals(20, $i->amount);
+
+        $i->line_items = collect($i->line_items)
+                                    ->reject(function ($item) {
+                                        return $item->type_id == '3';
+                                    })->toArray();
+
+        $this->assertEquals(2, count($i->line_items));
+
+        $i->service()->autoBill();
+
+        $i = $i->fresh();
+
+        $this->assertCount(2, $i->line_items);
+        $this->assertEquals(20, $i->amount);
+
+        $line_items = $i->line_items;
+
+        $item = new InvoiceItem;
+        $item->type_id = '5';
+        $item->product_key = trans('texts.fee');
+        $item->quantity = 1;
+        $item->cost = 10;
+
+        $line_items[] = $item;
+
+        $i->line_items = $line_items;
+
+        $i = $i->calc()->getInvoice();
+        $this->assertEquals(30, $i->amount);
+        $this->assertCount(3, $i->line_items);
+
+        $i->service()->autoBill();
+        $i = $i->fresh();
+
+        $this->assertEquals(30, $i->amount);
+        $this->assertCount(3, $i->line_items);
+
     }
 
     public function testLateFeeAdded()

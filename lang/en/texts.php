@@ -5176,6 +5176,10 @@ $LANG = array(
     'email_delivered' => 'Email Delivered',
     'log' => 'Log',
     'classification' => 'Classification',
+    'stock_quantity_number' => 'Stock :quantity',
+    'upcoming' => 'Upcoming',
+    'client_contact' => 'Client Contact',
+    'uncategorized' => 'Uncategorized',
 ); 
 
 return $LANG;

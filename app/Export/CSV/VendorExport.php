@@ -74,7 +74,7 @@ class VendorExport extends BaseExport
         $headerdisplay = $this->buildHeader();
 
         $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
-                return ['identifier' => $value, 'display_value' => $headerdisplay[$value]];
+                return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
             })->toArray();
 
         $report = $query->cursor()
@@ -139,7 +139,11 @@ class VendorExport extends BaseExport
             $entity['currency'] = $vendor->currency() ? $vendor->currency()->code : $vendor->company->currency()->code;
         }
 
-        $entity['status'] = $this->calculateStatus($vendor);
+        if (in_array('vendor.classification', $this->input['report_keys']) && isset($vendor->classification)) {
+            $entity['vendor.classification'] = ctrans("texts.{$vendor->classification}") ?? '';
+        }
+
+        // $entity['status'] = $this->calculateStatus($vendor);
 
         return $entity;
     }

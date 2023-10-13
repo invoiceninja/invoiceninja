@@ -20,7 +20,6 @@ class ProjectFactory
         $project = new Project;
         $project->company_id = $company_id;
         $project->user_id = $user_id;
-
         $project->public_notes = '';
         $project->private_notes = '';
         $project->budgeted_hours = 0;
@@ -30,7 +29,7 @@ class ProjectFactory
         $project->custom_value2 = '';
         $project->custom_value3 = '';
         $project->custom_value4 = '';
-        $project->is_deleted = 0;
+        $project->is_deleted = false;
 
         return $project;
     }

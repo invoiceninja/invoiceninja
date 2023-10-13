@@ -81,8 +81,6 @@ class HandleRestore extends AbstractService
             Paymentable::query()
             ->withTrashed()
             ->where('payment_id', $payment->id)
-            // ->where('paymentable_type', '=', 'invoices')
-            // ->where('paymentable_id', $this->invoice->id)
             ->update(['deleted_at' => null]);
         });
 
@@ -96,11 +94,6 @@ class HandleRestore extends AbstractService
             $this->adjustment_amount += $payment->paymentables
                                                 ->where('paymentable_type', '=', 'invoices')
                                                 ->where('paymentable_id', $this->invoice->id)
-
-                                                ->sum('amount');
-            $this->adjustment_amount += $payment->paymentables
-                                                ->where('paymentable_type', '=', 'invoices')
-                                                ->where('paymentable_id', $this->invoice->id)
                                                 ->sum('amount');
 
             //14/07/2023 - do not include credits in the payment amount
@@ -108,6 +101,7 @@ class HandleRestore extends AbstractService
                                             ->where('paymentable_type', '=', 'App\Models\Credit')
                                             ->sum('amount');
 
+            nlog("Adjustment amount: {$this->adjustment_amount}");
         }
 
         $this->total_payments = $this->invoice->payments->sum('amount') - $this->invoice->payments->sum('refunded');
@@ -122,10 +116,12 @@ class HandleRestore extends AbstractService
         if ($this->adjustment_amount == $this->total_payments) {
             $this->invoice->payments()->update(['payments.deleted_at' => null, 'payments.is_deleted' => false]);
         }
+        else
+            $this->invoice->net_payments()->update(['payments.deleted_at' => null, 'payments.is_deleted' => false]);
 
         //adjust payments down by the amount applied to the invoice payment.
 
-        $this->invoice->payments->fresh()->each(function ($payment) {
+        $this->invoice->net_payments()->each(function ($payment) {
             $payment_adjustment = $payment->paymentables
                                             ->where('paymentable_type', '=', 'invoices')
                                             ->where('paymentable_id', $this->invoice->id)

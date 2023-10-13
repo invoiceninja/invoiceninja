@@ -74,7 +74,7 @@ class OneTimeTokenController extends BaseController
             'user_id' => $user->id,
             'company_key'=> $user->company()->company_key,
             'context' => $request->input('context'),
-            'is_react' => $request->request()->hasHeader('X-REACT') ? true : false,
+            'is_react' => $request->hasHeader('X-REACT') ? true : false,
         ];
 
         Cache::put($hash, $data, 3600);

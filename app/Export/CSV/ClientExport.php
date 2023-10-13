@@ -71,7 +71,11 @@ class ClientExport extends BaseExport
         'contact_custom_value3' => 'contact.custom_value3',
         'contact_custom_value4' => 'contact.custom_value4',
         'email' => 'contact.email',
-        'status' => 'status'
+        'status' => 'status',
+        'payment_balance' => 'client.payment_balance',
+        'credit_balance' => 'client.credit_balance',
+        'classification' => 'client.classification',
+
     ];
 
     public function __construct(Company $company, array $input)
@@ -89,7 +93,7 @@ class ClientExport extends BaseExport
         $headerdisplay = $this->buildHeader();
 
         $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
-                return ['identifier' => $value, 'display_value' => $headerdisplay[$value]];
+                return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
             })->toArray();
 
         $report = $query->cursor()
@@ -185,7 +189,7 @@ class ClientExport extends BaseExport
             $clean_row[$key]['id'] = $report_keys[1] ?? $report_keys[0];
             $clean_row[$key]['hashed_id'] = $report_keys[0] == 'client' ? null : $resource->{$report_keys[0]}->hashed_id ?? null;
             $clean_row[$key]['value'] = $row[$column_key];
-            $clean_row[$key]['identifier'] = $value;
+            $clean_row[$key]['identifier'] = $key;
 
             if(in_array($clean_row[$key]['id'], ['paid_to_date', 'balance', 'credit_balance','payment_balance']))
                 $clean_row[$key]['display_value'] = Number::formatMoney($row[$column_key], $resource);
@@ -221,6 +225,10 @@ class ClientExport extends BaseExport
 
         if (in_array('client.industry_id', $this->input['report_keys'])) {
             $entity['industry_id'] = $client->industry ? ctrans("texts.industry_{$client->industry->name}") : '';
+        }
+
+        if (in_array('client.classification', $this->input['report_keys']) && isset($client->classification)) {
+            $entity['client.classification'] = ctrans("texts.{$client->classification}") ?? '';
         }
 
         return $entity;

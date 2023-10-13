@@ -135,7 +135,6 @@ class ActivityRepository extends BaseRepository
         $design = Design::withTrashed()->find($entity_design_id);
 
         if (! $entity->invitations()->exists() || ! $design) {
-            nlog("No invitations for entity {$entity->id} - {$entity->number}");
             return '';
         }
 
@@ -204,8 +203,6 @@ class ActivityRepository extends BaseRepository
         $design = Design::withTrashed()->find($entity_design_id);
 
         if (! $entity->invitations()->exists() || ! $design) {
-            nlog("No invitations for entity {$entity->id} - {$entity->number}");
-
             return '';
         }
 

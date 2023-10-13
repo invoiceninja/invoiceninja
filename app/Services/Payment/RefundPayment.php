@@ -29,7 +29,9 @@ class RefundPayment
 
     private $credit_note;
 
-    private $total_refund;
+    private float $total_refund = 0;
+
+    private float $credits_used = 0;
 
     private $gateway_refund_status;
 
@@ -45,8 +47,6 @@ class RefundPayment
 
         $this->refund_data = $refund_data;
 
-        $this->total_refund = 0;
-
         $this->gateway_refund_status = false;
 
         $this->activity_repository = new ActivityRepository();
@@ -56,9 +56,9 @@ class RefundPayment
     {
         $this->payment = $this
                             ->calculateTotalRefund() //sets amount for the refund (needed if we are refunding multiple invoices in one payment)
+                            ->updateCreditables() //return the credits first
                             ->processGatewayRefund() //process the gateway refund if needed
                             ->setStatus() //sets status of payment
-                            ->updateCreditables() //return the credits first
                             ->updatePaymentables() //update the paymentable items
                             ->adjustInvoices()
                             ->finalize()
@@ -104,12 +104,14 @@ class RefundPayment
      */
     private function processGatewayRefund()
     {
-        if ($this->refund_data['gateway_refund'] !== false && $this->total_refund > 0) {
+        $net_refund = ($this->total_refund - $this->credits_used);
+
+        if ($this->refund_data['gateway_refund'] !== false && $net_refund > 0) {
             if ($this->payment->company_gateway) {
-                $response = $this->payment->company_gateway->driver($this->payment->client)->refund($this->payment, $this->total_refund);
+                $response = $this->payment->company_gateway->driver($this->payment->client)->refund($this->payment, $net_refund);
 
                 if($response['amount'] ?? false)
-                    $this->total_refund = $response['amount'];
+                    $net_refund = $response['amount'];
 
                 if($response['voided'] ?? false)
                 {
@@ -123,7 +125,7 @@ class RefundPayment
                     })->toArray();
                 }
                 
-                $this->payment->refunded += $this->total_refund;
+                $this->payment->refunded += $net_refund;
 
                 if ($response['success'] == false) {
                     $this->payment->save();
@@ -132,7 +134,7 @@ class RefundPayment
                 }
             }
         } else {
-            $this->payment->refunded += $this->total_refund;
+            $this->payment->refunded += $net_refund;
         }
 
         return $this;
@@ -227,23 +229,29 @@ class RefundPayment
      */
     private function updateCreditables()
     {
+        
         if ($this->payment->credits()->exists()) {
+        
+            $amount_to_refund = $this->total_refund;
+
             //Adjust credits first!!!
             foreach ($this->payment->credits as $paymentable_credit) {
                 $available_credit = $paymentable_credit->pivot->amount - $paymentable_credit->pivot->refunded;
 
-                if ($available_credit > $this->total_refund) {
-                    $paymentable_credit->pivot->refunded += $this->total_refund;
+                if ($available_credit > $amount_to_refund) {
+                    $paymentable_credit->pivot->refunded += $amount_to_refund;
                     $paymentable_credit->pivot->save();
 
                     $paymentable_credit->service()
                                        ->setStatus(Credit::STATUS_SENT)
-                                       ->updateBalance($this->total_refund)
-                                       ->updatePaidToDate($this->total_refund * -1)
+                                       ->adjustBalance($amount_to_refund)
+                                       ->updatePaidToDate($amount_to_refund * -1)
                                        ->save();
-                    
 
-                    $this->total_refund = 0;
+
+                    $this->credits_used += $amount_to_refund;
+                    $amount_to_refund = 0;
+
                 } else {
                     $paymentable_credit->pivot->refunded += $available_credit;
                     $paymentable_credit->pivot->save();
@@ -254,10 +262,12 @@ class RefundPayment
                                        ->updatePaidToDate($available_credit * -1)
                                        ->save();
 
-                    $this->total_refund -= $available_credit;
+                    $this->credits_used += $available_credit;
+                    $amount_to_refund -= $available_credit;
+
                 }
 
-                if ($this->total_refund == 0) {
+                if ($amount_to_refund == 0) {
                     break;
                 }
             }

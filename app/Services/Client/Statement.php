@@ -62,6 +62,7 @@ class Statement
         }
 
         $variables = $html->generateLabelsAndValues();
+        $variables['values']['$show_paid_stamp'] = 'none'; //do not show paid stamp on statement
 
         $state = [
             'template' => $template->elements([

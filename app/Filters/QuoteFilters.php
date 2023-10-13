@@ -112,6 +112,12 @@ class QuoteFilters extends QueryFilters
                       ->orderBy('due_date', 'DESC');
                 });
             }
+
+            if(in_array('converted', $status_parameters)) {
+                $query->orWhere(function ($q) {
+                    $q->whereNotNull('invoice_id');
+                });
+            }
         });
 
         return $this->builder;
