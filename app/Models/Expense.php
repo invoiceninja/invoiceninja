@@ -33,22 +33,22 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $payment_type_id
  * @property int|null $recurring_expense_id
  * @property bool $is_deleted
- * @property string $amount
- * @property string $foreign_amount
+ * @property float $amount
+ * @property float $foreign_amount
  * @property string $exchange_rate
  * @property string|null $tax_name1
- * @property string $tax_rate1
+ * @property float $tax_rate1
  * @property string|null $tax_name2
- * @property string $tax_rate2
+ * @property float $tax_rate2
  * @property string|null $tax_name3
- * @property string $tax_rate3
+ * @property float $tax_rate3
  * @property string|null $date
  * @property string|null $payment_date
  * @property string|null $private_notes
  * @property string|null $public_notes
  * @property string|null $transaction_reference
- * @property int $should_be_invoiced
- * @property int $invoice_documents
+ * @property bool $should_be_invoiced
+ * @property bool $invoice_documents
  * @property int|null $transaction_id
  * @property string|null $custom_value1
  * @property string|null $custom_value2
@@ -56,9 +56,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $custom_value4
  * @property string|null $number
  * @property int|null $project_id
- * @property string $tax_amount1
- * @property string $tax_amount2
- * @property string $tax_amount3
+ * @property float $tax_amount1
+ * @property float $tax_amount2
+ * @property float $tax_amount3
  * @property int $uses_inclusive_taxes
  * @property int $calculate_tax_by_amount
  * @property-read \App\Models\User|null $assigned_user
