@@ -144,8 +144,8 @@ class Statement
             'variables' => collect([$variables]),
             'invoices' => $this->getInvoices()->get(),
             'payments' => $this->options['show_payments_table'] ? $this->getPayments()->get() : collect([]),
-            'credits' => $this->options['show_credits_table'] ? $this->getCredits()->get() : [],
-            'aging' => $this->options['show_aging_table'] ? $this->getAging() : [],
+            'credits' => $this->options['show_credits_table'] ? $this->getCredits()->get() : collect([]),
+            'aging' => $this->options['show_aging_table'] ? $this->getAging() : collect([]),
         ]);
 
         $html = $ts->getHtml();

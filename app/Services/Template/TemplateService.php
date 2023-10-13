@@ -84,6 +84,12 @@ class TemplateService
         });
         $this->twig->addFunction($function);
 
+        $filter = new \Twig\TwigFilter('sum', function (array $array, string $column) {
+            return array_sum(array_column($array, $column));
+        });
+        
+        $this->twig->addFilter($filter);
+
         return $this;
     }
         

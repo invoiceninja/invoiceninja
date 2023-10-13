@@ -195,7 +195,6 @@ class PdfMock
     {
         return ['values' =>
          [
-    
     '$client.shipping_postal_code' => '46420',
     '$client.billing_postal_code' => '11243',
     '$company.city_state_postal' => 'Beveley Hills, CA, 90210',
@@ -496,6 +495,8 @@ class PdfMock
     '$show_shipping_address' => $this->settings->show_shipping_address ? 'flex' : 'none',
     '$show_shipping_address_block' => $this->settings->show_shipping_address ? 'block' : 'none',
     '$show_shipping_address_visibility' => $this->settings->show_shipping_address ? 'visible' : 'hidden',
+    '$start_date' => '31/01/2023',
+    '$end_date' => '31/12/2023',
   ],
   'labels' => $this->mockTranslatedLabels(),
 ];
@@ -811,21 +812,23 @@ class PdfMock
             '$tax_label' => ctrans('texts.tax'),
             '$dir_label' => '',
             '$to_label' => ctrans('texts.to'),
+            '$start_date_label' => ctrans('texts.start_date'),
+            '$end_date_label' => ctrans('texts.end_date'),
         ];
     }
-
+    
     private function getVendorStubVariables()
     {
         return ['values' => [
-          '$vendor.billing_postal_code' => '06270-5526',
-          '$company.postal_city_state' => '29359 New Loy, Delaware',
-          '$company.city_state_postal' => 'New Loy, Delaware 29359',
-          '$product.gross_line_total' => '',
-          '$purchase_order.po_number' => 'PO12345',
-          '$vendor.postal_city_state' => '06270-5526 Jameyhaven, West Virginia',
-          '$vendor.city_state_postal' => 'Jameyhaven, West Virginia 06270-5526',
-          '$purchase_order.due_date' => '02-12-2021',
-          '$vendor.billing_address1' => '589',
+            '$vendor.billing_postal_code' => '06270-5526',
+            '$company.postal_city_state' => '29359 New Loy, Delaware',
+            '$company.city_state_postal' => 'New Loy, Delaware 29359',
+            '$product.gross_line_total' => '',
+            '$purchase_order.po_number' => 'PO12345',
+            '$vendor.postal_city_state' => '06270-5526 Jameyhaven, West Virginia',
+            '$vendor.city_state_postal' => 'Jameyhaven, West Virginia 06270-5526',
+            '$purchase_order.due_date' => '02-12-2021',
+            '$vendor.billing_address1' => '589',
           '$vendor.billing_address2' => '761 Odessa Centers Suite 673',
           '$invoiceninja.whitelabel' => 'https://invoicing.co/images/new_logo.png',
           '$purchase_order.custom1' => 'Custom 1',
