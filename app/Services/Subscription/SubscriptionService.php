@@ -230,9 +230,9 @@ class SubscriptionService
         - we then return the user to either a predefined user endpoint, OR we return the user to the recurring invoice page.
     */
     public function startTrial(array $data)
-    {
+    {nlog($data);
         // Redirects from here work just fine. Livewire will respect it.
-        $client_contact = ClientContact::find($this->decodePrimaryKey($data['contact_id']));
+        $client_contact = ClientContact::find($data['contact_id']);
 
         if (!$this->subscription->trial_enabled) {
             return new \Exception("Trials are disabled for this product");
