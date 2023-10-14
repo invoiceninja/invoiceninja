@@ -51,7 +51,7 @@ class StorePaymentRequest extends Request
         $credits_total = 0;
 
         if (isset($input['client_id']) && is_string($input['client_id'])) {
-            $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
+            $input['client_id'] = $this->decodePrimaryKey($input['client_id'], true);
         }
 
         if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {

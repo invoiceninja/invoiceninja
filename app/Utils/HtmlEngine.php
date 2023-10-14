@@ -1014,17 +1014,17 @@ html {
      */
     protected function generateEntityImagesMarkup()
     {
-        // if (!$this->client->getSetting('embed_documents') && !$this->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
-        //     return '';
-        // }
+        if (!$this->client->getSetting('embed_documents') || !$this->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
+            return '';
+        }
 
         $dom = new \DOMDocument('1.0', 'UTF-8');
 
         $container =  $dom->createElement('div');
         $container->setAttribute('style', 'display:grid; grid-auto-flow: row; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr);justify-items: center;');
 
-        foreach ($this->entity->documents as $document) {
-            if (!$document->isImage()) {
+       foreach ($this->entity->documents()->where('is_public',true)->get() as $document) {
+             if (!$document->isImage()) {
                 continue;
             }
 
