@@ -198,7 +198,7 @@ class PaytracePaymentDriver extends BaseDriver
 
         $auth_data = json_decode($response);
 
-        if (! property_exists($auth_data, 'access_token')) {
+        if (!isset($auth_data) || ! property_exists($auth_data, 'access_token')) {
             throw new SystemError('Error authenticating with PayTrace');
         }
 
