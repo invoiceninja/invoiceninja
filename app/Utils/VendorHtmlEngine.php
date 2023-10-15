@@ -12,18 +12,19 @@
 
 namespace App\Utils;
 
-use App\Models\Country;
-use App\Models\CreditInvitation;
-use App\Models\InvoiceInvitation;
-use App\Models\PurchaseOrderInvitation;
-use App\Models\QuoteInvitation;
-use App\Models\RecurringInvoiceInvitation;
-use App\Utils\Traits\AppSetup;
-use App\Utils\Traits\DesignCalculator;
-use App\Utils\Traits\MakesDates;
 use Exception;
+use App\Models\Account;
+use App\Models\Country;
+use App\Utils\Traits\AppSetup;
+use App\Models\QuoteInvitation;
+use App\Models\CreditInvitation;
+use App\Utils\Traits\MakesDates;
+use App\Models\InvoiceInvitation;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
+use App\Utils\Traits\DesignCalculator;
+use App\Models\PurchaseOrderInvitation;
+use App\Models\RecurringInvoiceInvitation;
 
 /**
  * Note the premise used here is that any currencies will be formatted back to the company currency and not
@@ -775,31 +776,37 @@ html {
      */
     protected function generateEntityImagesMarkup()
     {
-        if ($this->company->getSetting('embed_documents') === false) {
+
+        if (!$this->vendor->getSetting('embed_documents') || !$this->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
             return '';
         }
 
         $dom = new \DOMDocument('1.0', 'UTF-8');
 
         $container =  $dom->createElement('div');
-        $container->setAttribute('style', 'display:grid; grid-auto-flow: row; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 1fr);');
-
-        foreach ($this->entity->documents as $document) {
+        $container->setAttribute('style', 'display:grid; grid-auto-flow: row; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr);justify-items: center;');
+ 
+        foreach ($this->entity->documents()->where('is_public',true)->get() as $document) {
             if (!$document->isImage()) {
                 continue;
             }
 
             $image = $dom->createElement('img');
 
-            $image->setAttribute('src', $document->generateUrl());
-            $image->setAttribute('style', 'max-height: 100px; margin-top: 20px;');
+            $image->setAttribute('src', "data:image/png;base64,".base64_encode($document->getFile()));
+            $image->setAttribute('style', 'max-width: 50%; margin-top: 20px;');
 
             $container->appendChild($image);
         }
 
         $dom->appendChild($container);
 
-        return $dom->saveHTML();
+        $html = $dom->saveHTML();
+
+        $dom = null;
+                
+        return $html;
+
     }
 
     /**

@@ -28,4 +28,15 @@ class ProcessInvoicesInBulkRequest extends FormRequest
             'invoices' => ['array'],
         ];
     }
+
+    public function prepareForValidation()
+    {
+        $input = $this->all();
+        
+        if(isset($input['invoices'])){
+            $input['invoices'] = array_unique($input['invoices']);
+        }
+
+        $this->replace($input);
+    }
 }
