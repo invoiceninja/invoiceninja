@@ -32,6 +32,8 @@
 <script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&components=buttons,funding-eligibility&intent=capture" data-client-token="{!! $token !!}"></script>
 <div id="paypal-button-container"></div>
 <script>
+
+//&buyer-country=US&currency=USD&enable-funding=venmo
     const fundingSource = "{!! $funding_source !!}";
     const testMode = {{ $gateway->company_gateway->getConfigField('testMode') }};
     const clientId = "{{ $gateway->company_gateway->getConfigField('clientId') }}";

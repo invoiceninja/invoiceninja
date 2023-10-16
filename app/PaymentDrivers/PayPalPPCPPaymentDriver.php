@@ -217,6 +217,8 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
         $response = json_decode($request['gateway_response'], true);
         
+        nlog($response);
+
         if($response['status'] == 'COMPLETED' && isset($response['purchase_units'])) {
 
             $data = [
