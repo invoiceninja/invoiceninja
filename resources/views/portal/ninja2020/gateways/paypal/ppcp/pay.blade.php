@@ -45,23 +45,24 @@
         env: testMode ? 'sandbox' : 'production',
         fundingSource: fundingSource,
         client: testMode ? sandbox : production,
-        // Order is created on the server and the order id is returned
         createOrder: function(data, actions) {
-        return orderId;  
+            return orderId;  
         },
-        // Finalize the transaction on the server after payer approval
         onApprove: function(data, actions) {
+            return actions.order.capture().then(function(details) {                                    
+                document.getElementById("gateway_response").value =JSON.stringify( details );
+                document.getElementById("server_response").submit();
+            });           
 
-        return actions.order.capture().then(function(details) {                                    
-            
-            document.getElementById("gateway_response").value =JSON.stringify( details );
-            document.getElementById("server_response").submit();
-
-        });           
-
+        },
+        onCancel: function() {
+            window.location.href = "/client/invoices/";
         },
         onError: function(err) {
-            console.log(err);
+            console.log("there was an error")
+            console.log(err)
+            // document.getElementById("gateway_response").value =JSON.stringify( err );
+            // document.getElementById("server_response").submit();
         }
     
     }).render('#paypal-button-container');

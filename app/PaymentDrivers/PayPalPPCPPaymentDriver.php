@@ -214,6 +214,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
     public function processPaymentResponse($request)
     {
+        nlog($request['gateway_response']);
 
         $response = json_decode($request['gateway_response'], true);
         
@@ -262,6 +263,8 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
         $_invoice = collect($this->payment_hash->data->invoices)->first();
 
+        nlog($_invoice);
+
         $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
 
         $order = [
@@ -275,8 +278,8 @@ class PayPalPPCPPaymentDriver extends BaseDriver
             "address" => [
                 "address_line_1" => $this->client->address1,
                 "address_line_2" => $this->client->address2,
-                "admin_area_1" => $this->client->city,
-                "admin_area_2" => $this->client->state,
+                "admin_area_2" => $this->client->city,
+                "admin_area_1" => $this->client->state,
                 "postal_code" => $this->client->postal_code,
                 "country_code" => $this->client->country->iso_3166_2,
             ]
