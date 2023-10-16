@@ -70,15 +70,21 @@ class PayPalPPCPPaymentDriver extends BaseDriver
     public function gatewayTypes(): array
     {
 
-        $funding_options = [];
-
-        foreach ($this->company_gateway->fees_and_limits as $key => $value) {
-            if ($value->is_enabled) {
-                $funding_options[] = $key;
-            }
-        }
-
-        return $funding_options;
+        // $funding_options = [];
+        
+        // foreach ($this->company_gateway->fees_and_limits as $key => $value) {
+        //     if ($value->is_enabled) {
+        //         $funding_options[] = (int)$key;
+        //     }
+        // }
+        return collect($this->company_gateway->fees_and_limits)
+                ->filter(function ($fee){
+                    return $fee->is_enabled;
+                })->map(function ($fee, $key){
+                    return (int)$key;
+                })->toArray();
+        
+        // return $funding_options;
 
     }
 
@@ -209,44 +215,44 @@ class PayPalPPCPPaymentDriver extends BaseDriver
     public function processPaymentResponse($request)
     {
 
-        // $response = json_decode($request['gateway_response'], true);
+        $response = json_decode($request['gateway_response'], true);
         
-        // if($response['status'] == 'COMPLETED' && isset($response['purchase_units'])) {
+        if($response['status'] == 'COMPLETED' && isset($response['purchase_units'])) {
 
-        //     $data = [
-        //         'payment_type' => PaymentType::PAYPAL,
-        //         'amount' => $response['purchase_units'][0]['amount']['value'],
-        //         'transaction_reference' => $response['purchase_units'][0]['payments']['captures'][0]['id'],
-        //         'gateway_type_id' => GatewayType::PAYPAL,
-        //     ];
+            $data = [
+                'payment_type' => PaymentType::PAYPAL,
+                'amount' => $response['purchase_units'][0]['amount']['value'],
+                'transaction_reference' => $response['purchase_units'][0]['payments']['captures'][0]['id'],
+                'gateway_type_id' => GatewayType::PAYPAL,
+            ];
 
-        //     $payment = $this->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
+            $payment = $this->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
 
-        //     SystemLogger::dispatch(
-        //         ['response' => $response, 'data' => $data],
-        //         SystemLog::CATEGORY_GATEWAY_RESPONSE,
-        //         SystemLog::EVENT_GATEWAY_SUCCESS,
-        //         SystemLog::TYPE_PAYPAL,
-        //         $this->client,
-        //         $this->client->company,
-        //     );
+            SystemLogger::dispatch(
+                ['response' => $response, 'data' => $data],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_SUCCESS,
+                SystemLog::TYPE_PAYPAL,
+                $this->client,
+                $this->client->company,
+            );
 
-        //     return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
+            return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
 
-        // } else {
+        } else {
 
-        //     SystemLogger::dispatch(
-        //         ['response' => $response],
-        //         SystemLog::CATEGORY_GATEWAY_RESPONSE,
-        //         SystemLog::EVENT_GATEWAY_FAILURE,
-        //         SystemLog::TYPE_PAYPAL,
-        //         $this->client,
-        //         $this->client->company,
-        //     );
+            SystemLogger::dispatch(
+                ['response' => $response],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_PAYPAL,
+                $this->client,
+                $this->client->company,
+            );
 
 
-        //     throw new PaymentFailed('Payment failed. Please try again.', 401);
-        // }
+            throw new PaymentFailed('Payment failed. Please try again.', 401);
+        }
     }
 
     private function createOrder(array $data): string
