@@ -36,7 +36,7 @@
 
         paypal.Buttons({
             env: "{{ $gateway->company_gateway->getConfigField('testMode') ? 'sandbox' : 'production' }}",
-            fundingSource: "card",
+            fundingSource: "{{ $funding_source }}",
             client: {
                 @if($gateway->company_gateway->getConfigField('testMode'))
                 sandbox: "{{ $gateway->company_gateway->getConfigField('clientId') }}"
