@@ -139,13 +139,13 @@ class StripePaymentDriver extends BaseDriver
         return $this;
     }
 
+    
     /**
      * Returns the gateway types.
      */
     public function gatewayTypes(): array
     {
         $types = [
-            // GatewayType::CRYPTO,
             GatewayType::CREDIT_CARD,
         ];
 

@@ -109,6 +109,11 @@ class BaseDriver extends AbstractPaymentDriver
         return $this;
     }
 
+    public function getAvailableMethods(): array
+    {
+        return self::$methods;
+    }
+
     /**
      * Required fields for client to fill, to proceed with gateway actions.
      *

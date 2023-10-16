@@ -84,6 +84,7 @@ return [
         'password' => 'password',
         'stripe' => env('STRIPE_KEYS', ''),
         'paypal' => env('PAYPAL_KEYS', ''),
+        'ppcp' =>  env('PPCP_KEYS', ''),
         'paypal_rest' => env('PAYPAL_REST_KEYS', ''),
         'authorize' => env('AUTHORIZE_KEYS', ''),
         'checkout' => env('CHECKOUT_KEYS', ''),
@@ -221,4 +222,8 @@ return [
         'client_id' => env('SHOPIFY_CLIENT_ID', null),
         'client_secret' => env('SHOPIFY_CLIENT_SECRET', null),
     ],
+    'paypal' => [
+        'secret' => env('PAYPAL_SECRET', null),
+        'client_id' => env('PAYPAL_CLIENT_ID', null),
+    ]
 ];

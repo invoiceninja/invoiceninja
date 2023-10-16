@@ -11,51 +11,52 @@
 
 namespace App\Console\Commands;
 
-use App\DataMapper\ClientRegistrationFields;
-use App\DataMapper\CompanySettings;
-use App\DataMapper\FeesAndLimits;
-use App\Events\Invoice\InvoiceWasCreated;
-use App\Events\RecurringInvoice\RecurringInvoiceWasCreated;
-use App\Factory\GroupSettingFactory;
-use App\Factory\InvoiceFactory;
-use App\Factory\InvoiceItemFactory;
-use App\Factory\RecurringInvoiceFactory;
-use App\Factory\SubscriptionFactory;
-use App\Helpers\Invoice\InvoiceSum;
-use App\Jobs\Company\CreateCompanyTaskStatuses;
-use App\Libraries\MultiDB;
-use App\Models\Account;
-use App\Models\BankIntegration;
-use App\Models\BankTransaction;
-use App\Models\BankTransactionRule;
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Company;
-use App\Models\CompanyGateway;
-use App\Models\CompanyToken;
-use App\Models\Country;
-use App\Models\Credit;
-use App\Models\Expense;
-use App\Models\Product;
-use App\Models\Project;
-use App\Models\Quote;
-use App\Models\RecurringInvoice;
-use App\Models\Task;
-use App\Models\TaxRate;
-use App\Models\User;
-use App\Models\Vendor;
-use App\Models\VendorContact;
-use App\Repositories\InvoiceRepository;
-use App\Utils\Ninja;
-use App\Utils\Traits\GeneratesCounter;
-use App\Utils\Traits\MakesHash;
+use stdClass;
 use Carbon\Carbon;
 use Faker\Factory;
+use App\Models\Task;
+use App\Models\User;
+use App\Utils\Ninja;
+use App\Models\Quote;
+use App\Models\Client;
+use App\Models\Credit;
+use App\Models\Vendor;
+use App\Models\Account;
+use App\Models\Company;
+use App\Models\Country;
+use App\Models\Expense;
+use App\Models\Gateway;
+use App\Models\Product;
+use App\Models\Project;
+use App\Models\TaxRate;
+use App\Libraries\MultiDB;
+use App\Models\CompanyToken;
+use App\Models\ClientContact;
+use App\Models\VendorContact;
+use App\Models\CompanyGateway;
+use App\Factory\InvoiceFactory;
+use App\Models\BankIntegration;
+use App\Models\BankTransaction;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Cache;
+use App\Models\RecurringInvoice;
+use App\DataMapper\FeesAndLimits;
+use App\DataMapper\CompanySettings;
+use App\Factory\InvoiceItemFactory;
+use App\Helpers\Invoice\InvoiceSum;
+use App\Models\BankTransactionRule;
+use App\Factory\GroupSettingFactory;
+use App\Factory\SubscriptionFactory;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
+use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Support\Facades\Schema;
-use stdClass;
+use App\Repositories\InvoiceRepository;
+use App\Factory\RecurringInvoiceFactory;
+use App\Events\Invoice\InvoiceWasCreated;
+use App\DataMapper\ClientRegistrationFields;
+use App\Jobs\Company\CreateCompanyTaskStatuses;
+use App\Events\RecurringInvoice\RecurringInvoiceWasCreated;
 
 class CreateSingleAccount extends Command
 {
@@ -883,6 +884,28 @@ class CreateSingleAccount extends Command
             $cg->fees_and_limits = $fees_and_limits;
             $cg->save();
         }
+
+        if (config('ninja.testvars.ppcp') && ($this->gateway == 'all' || $this->gateway == 'square')) {
+            $cg = new CompanyGateway;
+            $cg->company_id = $company->id;
+            $cg->user_id = $user->id;
+            $cg->gateway_key = '80af24a6a691230bbec33e930ab40666';
+            $cg->require_cvv = true;
+            $cg->require_billing_address = true;
+            $cg->require_shipping_address = true;
+            $cg->update_details = true;
+            $cg->config = encrypt(config('ninja.testvars.ppcp'));
+            $cg->save();
+
+            $fees_and_limits = new stdClass;
+            // $fees_and_limits->{$gateway_types[0]} = new FeesAndLimits;
+            $fees_and_limits->{3} = new FeesAndLimits;
+
+            $cg->fees_and_limits = $fees_and_limits;
+            $cg->save();
+
+        }
+
     }
 
     private function createRecurringInvoice($client)
