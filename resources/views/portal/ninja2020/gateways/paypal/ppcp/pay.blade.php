@@ -29,43 +29,40 @@
 
 @push('footer')
 
- <!-- Replace "test" with your own sandbox Business account app client ID -->
-        <script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&components=buttons,funding-eligibility&intent=capture" data-client-token="{!! $token !!}"></script>
-        <div id="paypal-button-container"></div>
-        <script>
+<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&components=buttons,funding-eligibility&intent=capture" data-client-token="{!! $token !!}"></script>
+<div id="paypal-button-container"></div>
+<script>
+    const fundingSource = "{!! $funding_source !!}";
+    const testMode = {{ $gateway->company_gateway->getConfigField('testMode') }};
+    const clientId = "{{ $gateway->company_gateway->getConfigField('clientId') }}";
+    const sandbox = { sandbox: clientId };
+    const production = { production: clientId };
+    const orderId = "{!! $order_id !!}";
 
-        paypal.Buttons({
-            env: "{{ $gateway->company_gateway->getConfigField('testMode') ? 'sandbox' : 'production' }}",
-            fundingSource: "{{ $funding_source }}",
-            client: {
-                @if($gateway->company_gateway->getConfigField('testMode'))
-                sandbox: "{{ $gateway->company_gateway->getConfigField('clientId') }}"
-                @else
-                production: "{{ $gateway->company_gateway->getConfigField('clientId') }}"
-                @endif
-            },  
-            // Order is created on the server and the order id is returned
-            createOrder: function(data, actions) {
-            return "{!! $order_id !!}"  
-            },
-            // Finalize the transaction on the server after payer approval
-            onApprove: function(data, actions) {
+    paypal.Buttons({
+        env: testMode ? 'sandbox' : 'production',
+        fundingSource: fundingSource,
+        client: testMode ? sandbox : production,
+        // Order is created on the server and the order id is returned
+        createOrder: function(data, actions) {
+        return orderId;  
+        },
+        // Finalize the transaction on the server after payer approval
+        onApprove: function(data, actions) {
 
-      return actions.order.capture().then(function(details) {                                    
-        
-          document.getElementById("gateway_response").value =JSON.stringify( details );
-          document.getElementById("server_response").submit();
+        return actions.order.capture().then(function(details) {                                    
+            
+            document.getElementById("gateway_response").value =JSON.stringify( details );
+            document.getElementById("server_response").submit();
 
-      });           
+        });           
 
-      },
-    onError: function(err) {
-          console.log(err);
-    }
+        },
+        onError: function(err) {
+            console.log(err);
+        }
     
     }).render('#paypal-button-container');
-
-
-    </script>
+</script>
 
 @endpush
