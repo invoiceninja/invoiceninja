@@ -41,7 +41,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
     private string $paypal_payment_method = '';
 
-    protected ?string $access_token = null;
+    protected mixed $access_token = null;
 
     protected ?Carbon $token_expiry = null;
 
@@ -61,6 +61,12 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         // 7 => 'sofort'
     ];
 
+    /**
+     * Return an array of 
+     * enabled gateway payment methods
+     *
+     * @return array
+     */
     public function gatewayTypes(): array
     {
 
@@ -141,16 +147,27 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         $this->init();
 
         $data['gateway'] = $this;
-        
         $this->payment_hash->data = array_merge((array) $this->payment_hash->data, ['amount' => $data['total']['amount_with_fee']]);
         $this->payment_hash->save();
 
         $data['client_id'] = $this->company_gateway->getConfigField('clientId');
-        $data['token'] = $this->access_token;
+        $data['token'] = $this->getClientToken();
         $data['order_id'] = $this->createOrder($data);
         $data['funding_options'] = $this->paypal_payment_method;
 
-        return render('gateways.paypal.pay', $data);
+        return render('gateways.paypal.credit_card.pay', $data);
+
+    }
+
+    private function getClientToken(): string
+    {
+
+        $r = $this->gatewayRequest('/v1/identity/generate-token', 'post', ['body' => '']);
+
+        if($r->successful()) 
+            return $r->json()['client_token'];
+        
+        throw new PaymentFailed('Unable to gain client token from Paypal. Check your configuration', 401);
 
     }
 
@@ -285,6 +302,8 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         ];
         
         $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
+
+        nlog($r->json());
 
         return $r->json()['id'];
 
