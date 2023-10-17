@@ -11,42 +11,43 @@
 
 namespace App\Http\Controllers;
 
-use App\DataMapper\Analytics\LivePreview;
-use App\Factory\CreditFactory;
-use App\Factory\InvoiceFactory;
-use App\Factory\QuoteFactory;
-use App\Factory\RecurringInvoiceFactory;
-use App\Http\Requests\Preview\DesignPreviewRequest;
-use App\Http\Requests\Preview\PreviewInvoiceRequest;
-use App\Jobs\Util\PreviewPdf;
-use App\Libraries\MultiDB;
+use App\Utils\Ninja;
+use App\Models\Quote;
 use App\Models\Client;
-use App\Models\ClientContact;
 use App\Models\Credit;
 use App\Models\Invoice;
-use App\Models\InvoiceInvitation;
-use App\Models\Quote;
-use App\Models\RecurringInvoice;
-use App\Repositories\CreditRepository;
-use App\Repositories\InvoiceRepository;
-use App\Repositories\QuoteRepository;
-use App\Repositories\RecurringInvoiceRepository;
+use App\Utils\HtmlEngine;
+use App\Libraries\MultiDB;
+use App\Factory\QuoteFactory;
+use App\Jobs\Util\PreviewPdf;
+use App\Models\ClientContact;
 use App\Services\Pdf\PdfMock;
+use App\Factory\CreditFactory;
+use App\Factory\InvoiceFactory;
+use App\Utils\Traits\MakesHash;
+use App\Models\RecurringInvoice;
+use App\Utils\PhantomJS\Phantom;
+use App\Models\InvoiceInvitation;
 use App\Services\PdfMaker\Design;
+use App\Utils\HostedPDF\NinjaPdf;
+use Illuminate\Support\Facades\DB;
+use App\Services\PdfMaker\PdfMaker;
+use Illuminate\Support\Facades\App;
+use App\Repositories\QuoteRepository;
+use Illuminate\Support\Facades\Cache;
+use App\Repositories\CreditRepository;
+use App\Utils\Traits\MakesInvoiceHtml;
+use Turbo124\Beacon\Facades\LightLogs;
+use App\Repositories\InvoiceRepository;
+use App\Utils\Traits\Pdf\PageNumbering;
+use App\Factory\RecurringInvoiceFactory;
+use Illuminate\Support\Facades\Response;
+use App\DataMapper\Analytics\LivePreview;
+use App\Repositories\RecurringInvoiceRepository;
+use App\Http\Requests\Preview\DesignPreviewRequest;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
-use App\Services\PdfMaker\PdfMaker;
-use App\Utils\HostedPDF\NinjaPdf;
-use App\Utils\HtmlEngine;
-use App\Utils\Ninja;
-use App\Utils\PhantomJS\Phantom;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesInvoiceHtml;
-use App\Utils\Traits\Pdf\PageNumbering;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Response;
-use Turbo124\Beacon\Facades\LightLogs;
+use App\Http\Requests\Preview\PreviewInvoiceRequest;
 
 class PreviewController extends BaseController
 {
@@ -56,7 +57,108 @@ class PreviewController extends BaseController
 
     public function __construct()
     {
-        parent::__construct();
+        parent::__construct();  
+    }
+
+    private function purgeCache()
+    {   nlog(auth()->user()->id);
+        Cache::pull("preview_".auth()->user()->id);
+    }
+
+    public function newLivePreview(PreviewInvoiceRequest $request)
+    {   
+
+        $time = time();
+        nlog($time);
+
+        $invitation = $request->resolveInvitation();
+
+        App::forgetInstance('translator');
+        $t = app('translator');
+        App::setLocale($invitation->contact->preferredLocale());
+        $t->replace(Ninja::transformTranslations($invitation->{$request->entity}->client->getMergedSettings()));
+
+        $html = new HtmlEngine($invitation);
+        $variables = $html->generateLabelsAndValues();
+
+        $entity_obj = $invitation->{$request->entity};
+
+        // if (! $invitation->{$request->entity}->id ?? true) {
+        //     $invitation->{$request->entity}->service()->fillDefaults();
+        // }
+
+        $design = \App\Models\Design::withTrashed()->find($entity_obj->design_id ?? 2);
+
+        /* Catch all in case migration doesn't pass back a valid design */
+        if (! $design) {
+            $design = \App\Models\Design::find(2);
+        }
+
+        if ($design->is_custom) {
+            $options = [
+                'custom_partials' => json_decode(json_encode($design->design), true),
+            ];
+            $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
+        } else {
+            $template = new PdfMakerDesign(strtolower($design->name));
+        }
+
+        $state = [
+            'template' => $template->elements([
+                'client' => $entity_obj->client,
+                'entity' => $entity_obj,
+                'pdf_variables' => (array) $entity_obj->company->settings->pdf_variables,
+                '$product' => $design->design->product,
+                'variables' => $variables,
+            ]),
+            'variables' => $variables,
+            'options' => [
+                'all_pages_header' => $entity_obj->client->getSetting('all_pages_header'),
+                'all_pages_footer' => $entity_obj->client->getSetting('all_pages_footer'),
+            ],
+            'process_markdown' => $entity_obj->client->company->markdown_enabled,
+        ];
+
+        $maker = new PdfMaker($state);
+
+        $maker
+            ->design($template)
+            ->build();
+
+        if (request()->query('html') == 'true') {
+            return $maker->getCompiledHTML();
+        }
+
+        //if phantom js...... inject here..
+        if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
+            return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+        }
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        $company = $user->company();
+
+        if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
+
+            $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
+
+            $numbered_pdf = $this->pageNumbering($pdf, $company);
+
+            if ($numbered_pdf) {
+                $pdf = $numbered_pdf;
+            }
+
+            return $pdf;
+        }
+
+        $pdf = (new PreviewPdf($maker->getCompiledHTML(true), $company))->handle();
+
+        nlog("merpy derp {$time}");
+
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf;
+        }, 'preview.pdf', ['Content-Type' => 'application/pdf','Cache-Control:' => 'no-cache']);
+
     }
 
     /**
@@ -173,10 +275,18 @@ class PreviewController extends BaseController
 
     public function live(PreviewInvoiceRequest $request)
     {
+
+        // if(Cache::has("preview_".auth()->user()->id))
+        //     return response()->json(['message' => 'Please wait a few seconds before trying again, this many requests are not good.'], 400);  
+
+        nlog("should not see a lot of these");
+
         if (Ninja::isHosted() && !in_array($request->getHost(), ['preview.invoicing.co','staging.invoicing.co'])) {
             return response()->json(['message' => 'This server cannot handle this request.'], 400);
         }
      
+        Cache::put("preview_".auth()->user()->id, 60);
+
         $start = microtime(true);
 
         /** @var \App\Models\User $user */
@@ -287,9 +397,13 @@ class PreviewController extends BaseController
             DB::connection(config('database.default'))->rollBack();
 
             if (request()->query('html') == 'true') {
+                $this->purgeCache();
                 return $maker->getCompiledHTML();
             }
+
         } catch(\Exception $e) {
+            
+            $this->purgeCache();
 
             DB::connection(config('database.default'))->rollBack();
 
@@ -302,6 +416,7 @@ class PreviewController extends BaseController
 
             //if phantom js...... inject here..
             if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
+                $this->purgeCache();
                 return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
             }
             
@@ -319,7 +434,7 @@ class PreviewController extends BaseController
                 if ($numbered_pdf) {
                     $pdf = $numbered_pdf;
                 }
-
+                $this->purgeCache();
                 return $pdf;
             }
 
@@ -335,7 +450,8 @@ class PreviewController extends BaseController
         $response->header('Content-Type', 'application/pdf');
         $response->header('Server-Timing', microtime(true)-$start);
 
-
+        nlog("returning a response");
+        $this->purgeCache();
         return $response;
     }
 
