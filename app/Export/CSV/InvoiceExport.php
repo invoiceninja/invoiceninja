@@ -142,6 +142,11 @@ class InvoiceExport extends BaseExport
         if (in_array('invoice.status', $this->input['report_keys'])) {
             $entity['invoice.status'] = $invoice->stringStatus($invoice->status_id);
         }
+
+        if (in_array('invoice.recurring_id', $this->input['report_keys'])) {
+            $entity['invoice.recurring_id'] = $invoice->recurring_invoice->number ?? '';
+        }
+
         
         return $entity;
     }

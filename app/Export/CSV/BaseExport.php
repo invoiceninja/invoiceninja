@@ -168,6 +168,7 @@ class BaseExport
         'tax_rate1' => 'invoice.tax_rate1',
         'tax_rate2' => 'invoice.tax_rate2',
         'tax_rate3' => 'invoice.tax_rate3',
+        'recurring_invoice' => 'invoice.recurring_id',
     ];
 
     protected array $recurring_invoice_report_keys = [    
