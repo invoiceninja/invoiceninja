@@ -14,6 +14,7 @@
         @csrf
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->company_gateway->id }}">
+        <input type="hidden" name="gateway_type_id" id="gateway_type_id" value="{{ $gateway_type_id }}">
         <input type="hidden" name="gateway_response" id="gateway_response">
         <input type="hidden" name="amount_with_fee" id="amount_with_fee" value="{{ $total['amount_with_fee'] }}"/>
     </form>
@@ -49,20 +50,17 @@
             return orderId;  
         },
         onApprove: function(data, actions) {
-            return actions.order.capture().then(function(details) {                                    
+            return actions.order.capture().then(function(details) {
                 document.getElementById("gateway_response").value =JSON.stringify( details );
                 document.getElementById("server_response").submit();
             });           
-
         },
         onCancel: function() {
             window.location.href = "/client/invoices/";
         },
-        onError: function(err) {
-            console.log("there was an error")
-            console.log(err)
-            // document.getElementById("gateway_response").value =JSON.stringify( err );
-            // document.getElementById("server_response").submit();
+        onError: function(error) {
+            document.getElementById("gateway_response").value = error;
+            document.getElementById("server_response").submit();
         }
     
     }).render('#paypal-button-container');

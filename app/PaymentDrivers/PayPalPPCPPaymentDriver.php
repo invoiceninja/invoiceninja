@@ -41,6 +41,8 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
     private string $paypal_payment_method = '';
 
+    private ?int $gateway_type_id = null;
+
     protected mixed $access_token = null;
 
     protected ?Carbon $token_expiry = null;
@@ -70,13 +72,6 @@ class PayPalPPCPPaymentDriver extends BaseDriver
     public function gatewayTypes(): array
     {
 
-        // $funding_options = [];
-        
-        // foreach ($this->company_gateway->fees_and_limits as $key => $value) {
-        //     if ($value->is_enabled) {
-        //         $funding_options[] = (int)$key;
-        //     }
-        // }
         return collect($this->company_gateway->fees_and_limits)
                 ->filter(function ($fee){
                     return $fee->is_enabled;
@@ -84,7 +79,53 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                     return (int)$key;
                 })->toArray();
         
-        // return $funding_options;
+    }
+
+    private function getPaymentMethod($gateway_type_id): int
+    {
+        $method = PaymentType::PAYPAL;
+
+        match($gateway_type_id){
+            "3" => $method = PaymentType::PAYPAL,
+            "1" => $method = PaymentType::CREDIT_CARD_OTHER,
+            "25" => $method = PaymentType::VENMO,
+        };
+
+        return $method;
+    }
+
+    private function getFundingOptions():string
+    {
+
+        $enums = [
+            3 => 'paypal',
+            1 => 'card',
+            25 => 'venmo',
+            // 9 => 'sepa',
+            // 12 => 'bancontact',
+            // 17 => 'eps',
+            // 15 => 'giropay',
+            // 13 => 'ideal',
+            // 26 => 'mercadopago',
+            // 27 => 'mybank',
+            // 28 => 'paylater',
+            // 16 => 'p24',
+            // 7 => 'sofort'
+        ];
+
+        $funding_options = '';
+
+        foreach($this->company_gateway->fees_and_limits as $key => $value) {
+
+            if($value->is_enabled) {
+
+                $funding_options .=$enums[$key].',';
+
+            }
+
+        }
+
+        return rtrim($funding_options, ',');
 
     }
 
@@ -129,6 +170,8 @@ class PayPalPPCPPaymentDriver extends BaseDriver
             return $this;
         }
 
+        $this->gateway_type_id = $payment_method_id;
+
         $this->paypal_payment_method = $this->funding_options[$payment_method_id];
 
         return $this;
@@ -160,6 +203,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         $data['token'] = $this->getClientToken();
         $data['order_id'] = $this->createOrder($data);
         $data['funding_source'] = $this->paypal_payment_method;
+        $data['gateway_type_id'] = $this->gateway_type_id;
 
         return render('gateways.paypal.ppcp.pay', $data);
 
@@ -177,53 +221,19 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
     }
 
-    private function getFundingOptions():string
-    {
-
-        $enums = [
-            3 => 'paypal',
-            1 => 'card',
-            25 => 'venmo',
-            // 9 => 'sepa',
-            // 12 => 'bancontact',
-            // 17 => 'eps',
-            // 15 => 'giropay',
-            // 13 => 'ideal',
-            // 26 => 'mercadopago',
-            // 27 => 'mybank',
-            // 28 => 'paylater',
-            // 16 => 'p24',
-            // 7 => 'sofort'
-        ];
-
-        $funding_options = '';
-
-        foreach($this->company_gateway->fees_and_limits as $key => $value) {
-
-            if($value->is_enabled) {
-
-                $funding_options .=$enums[$key].',';
-
-            }
-
-        }
-
-        return rtrim($funding_options, ',');
-
-    }
-
     public function processPaymentResponse($request)
     {
-        nlog($request['gateway_response']);
-
+        nlog($request->all());
+        
+        $request['gateway_response'] = str_replace("Error: ", "", $request['gateway_response']);
         $response = json_decode($request['gateway_response'], true);
         
         nlog($response);
 
-        if($response['status'] == 'COMPLETED' && isset($response['purchase_units'])) {
+        if(isset($response['status']) && $response['status'] == 'COMPLETED' && isset($response['purchase_units'])) {
 
             $data = [
-                'payment_type' => PaymentType::PAYPAL,
+                'payment_type' => $this->getPaymentMethod($request->gateway_type_id),
                 'amount' => $response['purchase_units'][0]['amount']['value'],
                 'transaction_reference' => $response['purchase_units'][0]['payments']['captures'][0]['id'],
                 'gateway_type_id' => GatewayType::PAYPAL,
@@ -244,6 +254,9 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
         } else {
 
+            if(isset($response['headers']) ?? false)
+                unset($response['headers']);
+            
             SystemLogger::dispatch(
                 ['response' => $response],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
@@ -253,8 +266,9 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                 $this->client->company,
             );
 
-
-            throw new PaymentFailed('Payment failed. Please try again.', 401);
+            $message = $response['body']['details'][0]['description'] ?? 'Payment failed. Please try again.';
+            
+            throw new PaymentFailed($message, 400);
         }
     }
 
