@@ -67,10 +67,14 @@ class PaymentExport extends BaseExport
 
         $headerdisplay = $this->buildHeader();
 
+        nlog($headerdisplay);
+
         $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
 
+        nlog($header);
+        
         $report = $query->cursor()
                 ->map(function ($resource) {
                     $row = $this->buildRow($resource);

@@ -32,6 +32,8 @@ class InvoiceEmailTest extends TestCase
     use DatabaseTransactions;
     use GeneratesCounter;
 
+    public $faker;
+    
     protected function setUp() :void
     {
         parent::setUp();

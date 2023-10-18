@@ -378,6 +378,7 @@ class BaseExport
         "custom_value4" => "payment.custom_value4",
         "user" => "payment.user_id",
         "assigned_user" => "payment.assigned_user_id",
+        
   ];
 
     protected array $expense_report_keys = [
@@ -431,11 +432,11 @@ class BaseExport
     ];
 
     protected array $forced_client_fields = [
-        "name" => "client.name",
+        "client.name",
     ];
 
     protected array $forced_vendor_fields = [
-        "name" => "vendor.name",
+        "vendor.name",
     ];
 
     protected function filterByClients($query)

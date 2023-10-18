@@ -413,6 +413,11 @@ class Email implements ShouldQueue
             if ($address_object->address == " ") {
                 return true;
             }
+
+            if ($address_object->address == "") {
+                return true;
+            }
+
         }
 
 
