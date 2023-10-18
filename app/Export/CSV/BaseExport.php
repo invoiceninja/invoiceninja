@@ -231,7 +231,7 @@ class BaseExport
         'po_number' => 'purchase_order.po_number',
         'private_notes' => 'purchase_order.private_notes',
         'public_notes' => 'purchase_order.public_notes',
-        'status' => 'purchase_order.status_id',
+        'status' => 'purchase_order.status',
         'tax_name1' => 'purchase_order.tax_name1',
         'tax_name2' => 'purchase_order.tax_name2',
         'tax_name3' => 'purchase_order.tax_name3',
@@ -428,6 +428,14 @@ class BaseExport
         'custom_value4' => 'task.custom_value4',
         'status' => 'task.status_id',
         'project' => 'task.project_id',
+    ];
+
+    protected array $forced_client_fields = [
+        "name" => "client.name",
+    ];
+
+    protected array $forced_vendor_fields = [
+        "name" => "vendor.name",
     ];
 
     protected function filterByClients($query)

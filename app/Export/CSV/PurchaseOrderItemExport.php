@@ -55,6 +55,8 @@ class PurchaseOrderItemExport extends BaseExport
             $this->input['report_keys'] = array_values($this->mergeItemsKeys('purchase_order_report_keys'));
         }
 
+        $this->input['report_keys'] = array_merge($this->input['report_keys'], array_diff($this->forced_vendor_fields, $this->input['report_keys']));
+
         $query = PurchaseOrder::query()
                         ->withTrashed()
                         ->with('vendor')->where('company_id', $this->company->id)
