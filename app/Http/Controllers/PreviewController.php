@@ -64,26 +64,39 @@ class PreviewController extends BaseController
     {   
         Cache::pull("preview_".auth()->user()->id);
     }
-
-    public function live(PreviewInvoiceRequest $request)
+    
+    /**
+     * Refactor - 2023-10-19
+     * 
+     * New method does not require Transactions.
+     *
+     * @param  PreviewInvoiceRequest $request
+     * @return mixed
+     */
+    public function live(PreviewInvoiceRequest $request): mixed
     {   
+
+        if (Ninja::isHosted() && !in_array($request->getHost(), ['preview.invoicing.co','staging.invoicing.co'])) {
+            return response()->json(['message' => 'This server cannot handle this request.'], 400);
+        }
 
         $start = microtime(true);
 
-nlog("1 ".$start);
+        /** Build models */
         $invitation = $request->resolveInvitation();
         $client = $request->getClient();
         $settings = $client->getMergedSettings();
 
+        /** Set translations */
         App::forgetInstance('translator');
         $t = app('translator');
         App::setLocale($invitation->contact->preferredLocale());
         $t->replace(Ninja::transformTranslations($settings));
 
-nlog("2 ".microtime(true));
         $entity_prop = str_replace("recurring_", "", $request->entity);
         $entity_obj = $invitation->{$request->entity};
 
+        /** Update necessary objecty props */
         if(!$entity_obj->id) {
             $entity_obj->design_id = intval($this->decodePrimaryKey($settings->{$entity_prop."_design_id"}));
             $entity_obj->footer = $settings->{$entity_prop."_footer"};
@@ -92,10 +105,10 @@ nlog("2 ".microtime(true));
             $invitation->{$request->entity} = $entity_obj;
         }
 
+        /** Generate variables */
         $html = new HtmlEngine($invitation);
         $html->settings = $settings;
         $variables = $html->generateLabelsAndValues();
-nlog("3 ".microtime(true));
 
         $design = \App\Models\Design::withTrashed()->find($entity_obj->design_id ?? 2);
 
@@ -135,15 +148,15 @@ nlog("3 ".microtime(true));
             ->design($template)
             ->build();
 
-nlog("4 ".microtime(true));
+        /** Generate HTML */
+        $html = $maker->getCompiledHTML(true);
 
-        if (request()->query('html') == 'true') {
-            return $maker->getCompiledHTML();
-        }
+        if (request()->query('html') == 'true')
+            return $html;
 
         //if phantom js...... inject here..
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-            return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+            return (new Phantom)->convertHtmlToPdf($html);
         }
 
         /** @var \App\Models\User $user */
@@ -152,34 +165,69 @@ nlog("4 ".microtime(true));
 
         if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
 
-            $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
-
+            $pdf = (new NinjaPdf())->build($html);
             $numbered_pdf = $this->pageNumbering($pdf, $company);
 
-            if ($numbered_pdf) {
+            if ($numbered_pdf) 
                 $pdf = $numbered_pdf;
-            }
 
             return $pdf;
         }
 
-        $pdf = (new PreviewPdf($maker->getCompiledHTML(true), $company))->handle();
+        $pdf = (new PreviewPdf($html, $company))->handle();
 
-nlog("5 ".microtime(true));
-nlog("total = ".microtime(true)-$start);
+        if (Ninja::isHosted()) {
+            LightLogs::create(new LivePreview())
+                        ->increment()
+                        ->batch();
+        }
 
+        /** Return PDF */
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf;
-        }, 'preview.pdf', ['Content-Disposition' => 'inline', 'Content-Type' => 'application/pdf','Cache-Control:' => 'no-cache', 'Server-Timing' => microtime(true)-$start]);
+        }, 'preview.pdf', [
+            'Content-Disposition' => 'inline', 
+            'Content-Type' => 'application/pdf', 
+            'Cache-Control:' => 'no-cache', 
+            'Server-Timing' => microtime(true)-$start
+        ]);
 
+    }
+
+    
+    /**
+     * Returns the mocked PDF for the invoice design preview.
+     *
+     * Only used in Settings > Invoice Design as a general overview
+     * 
+     * @param  DesignPreviewRequest $request
+     * @return mixed
+     */
+    public function design(DesignPreviewRequest $request): mixed
+    {
+        $start = microtime(true);
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        /** @var \App\Models\Company $company */
+        $company = $user->company();
+
+        $pdf = (new PdfMock($request->all(), $company))->build()->getPdf();
+
+        $response = Response::make($pdf, 200);
+        $response->header('Content-Type', 'application/pdf');
+        $response->header('Server-Timing', microtime(true)-$start);
+        
+        return $response;
     }
 
     /**
      * Returns a template filled with entity variables.
-     *
+     * 
+     * Used in the Custom Designer to preview design changes
      * @return mixed
      */
-
     public function show()
     {
         if (request()->has('entity') &&
@@ -187,6 +235,7 @@ nlog("total = ".microtime(true)-$start);
             ! empty(request()->input('entity')) &&
             ! empty(request()->input('entity_id')) &&
             request()->has('body')) {
+
             $design_object = json_decode(json_encode(request()->input('design')));
 
             if (! is_object($design_object)) {
@@ -243,56 +292,50 @@ nlog("total = ".microtime(true)-$start);
                 return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
             }
 
-
             /** @var \App\Models\User $user */
             $user = auth()->user();
-
             $company = $user->company();
 
             if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
 
                 $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
-
                 $numbered_pdf = $this->pageNumbering($pdf, $company);
-
-                if ($numbered_pdf) {
+                if ($numbered_pdf)
                     $pdf = $numbered_pdf;
-                }
 
                 return $pdf;
+
             }
 
-            $file_path = (new PreviewPdf($maker->getCompiledHTML(true), $company))->handle();
+            $pdf = (new PreviewPdf($maker->getCompiledHTML(true), $company))->handle();
 
-            return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
+            return response()->streamDownload(function () use ($pdf) {
+                echo $pdf;
+            }, 'preview.pdf', [
+                'Content-Disposition' => 'inline',
+                'Content-Type' => 'application/pdf',
+                'Cache-Control:' => 'no-cache',
+            ]);
+
+
         }
 
         return $this->blankEntity();
     }
 
-    public function design(DesignPreviewRequest $request)
-    {
-        /** @var \App\Models\User $user */
-        $user = auth()->user();
-
-        /** @var \App\Models\Company $company */
-        $company = $user->company();
-
-        $pdf = (new PdfMock($request->all(), $company))->build()->getPdf();
-
-        $response = Response::make($pdf, 200);
-        $response->header('Content-Type', 'application/pdf');
-
-        return $response;
-    }
-
+    
+    
+    /**
+     * @deprecated due to usage of transactions
+     *
+     * @param  mixed $request
+     * @return void
+     */
     public function livex(PreviewInvoiceRequest $request)
     {
 
-        // if(Cache::has("preview_".auth()->user()->id))
-        //     return response()->json(['message' => 'Please wait a few seconds before trying again, this many requests are not good.'], 400);  
-
-        nlog("should not see a lot of these");
+        if(Cache::has("preview_".auth()->user()->id))
+            return response()->json(['message' => 'Please wait a few seconds before trying again, this many requests are not good.'], 400);  
 
         if (Ninja::isHosted() && !in_array($request->getHost(), ['preview.invoicing.co','staging.invoicing.co'])) {
             return response()->json(['message' => 'This server cannot handle this request.'], 400);
@@ -463,7 +506,6 @@ nlog("total = ".microtime(true)-$start);
         $response->header('Content-Type', 'application/pdf');
         $response->header('Server-Timing', microtime(true)-$start);
 
-        nlog("returning a response");
         $this->purgeCache();
         return $response;
     }
@@ -652,7 +694,6 @@ nlog("total = ".microtime(true)-$start);
 
         $response = Response::make($file_path, 200);
         $response->header('Content-Type', 'application/pdf');
-
         return $response;
     }
 }
