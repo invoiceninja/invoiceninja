@@ -92,10 +92,10 @@ class PreviewInvoiceRequest extends Request
             return $this->stubInvitation();
 
         match($this->entity){
-         'invoice' => $invitation = Invoice::withTrashed()->where('invoice_id', $this->entity_id)->first(),
-         'quote' => $invitation = Quote::withTrashed()->where('quote_id', $this->entity_id)->first(),
-         'credit' => $invitation = Credit::withTrashed()->where('credit_id', $this->entity_id)->first(),
-         'recurring_invoice' => $invitation = RecurringInvoice::withTrashed()->where('recurring_invoice_id', $this->entity_id)->first(),
+         'invoice' => $invitation = InvoiceInvitation::withTrashed()->where('invoice_id', $this->entity_id)->first(),
+         'quote' => $invitation = QuoteInvitation::withTrashed()->where('quote_id', $this->entity_id)->first(),
+         'credit' => $invitation = CreditInvitation::withTrashed()->where('credit_id', $this->entity_id)->first(),
+         'recurring_invoice' => $invitation = RecurringInvoiceInvitation::withTrashed()->where('recurring_invoice_id', $this->entity_id)->first(),
         };
 
         if($invitation)

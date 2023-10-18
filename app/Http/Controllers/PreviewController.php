@@ -61,11 +61,11 @@ class PreviewController extends BaseController
     }
 
     private function purgeCache()
-    {   nlog(auth()->user()->id);
+    {   
         Cache::pull("preview_".auth()->user()->id);
     }
 
-    public function newLivePreview(PreviewInvoiceRequest $request)
+    public function live(PreviewInvoiceRequest $request)
     {   
 
         $time = time();
@@ -152,8 +152,6 @@ class PreviewController extends BaseController
         }
 
         $pdf = (new PreviewPdf($maker->getCompiledHTML(true), $company))->handle();
-
-        nlog("merpy derp {$time}");
 
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf;
@@ -273,7 +271,7 @@ class PreviewController extends BaseController
         return $response;
     }
 
-    public function live(PreviewInvoiceRequest $request)
+    public function livex(PreviewInvoiceRequest $request)
     {
 
         // if(Cache::has("preview_".auth()->user()->id))
