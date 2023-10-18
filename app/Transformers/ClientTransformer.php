@@ -17,6 +17,7 @@ use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
 use App\Models\CompanyLedger;
 use App\Models\Document;
+use App\Models\GroupSetting;
 use App\Models\SystemLog;
 use App\Utils\Traits\MakesHash;
 use League\Fractal\Resource\Collection;
@@ -42,6 +43,7 @@ class ClientTransformer extends EntityTransformer
         'activities',
         'ledger',
         'system_logs',
+        'group_settings',
     ];
 
     /**
@@ -94,6 +96,16 @@ class ClientTransformer extends EntityTransformer
         $transformer = new SystemLogTransformer($this->serializer);
 
         return $this->includeCollection($client->system_logs, $transformer, SystemLog::class);
+    }
+
+    public function includeGroupSettings(Client $client)
+    {
+        if (!$client->group_settings)
+            return null;
+        
+        $transformer = new GroupSettingTransformer($this->serializer);
+
+        return $this->includeItem($client->group_settings, $transformer, GroupSetting::class);
     }
 
     /**
