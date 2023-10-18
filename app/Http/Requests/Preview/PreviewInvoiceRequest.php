@@ -15,9 +15,7 @@ use App\Models\Quote;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
-use App\Libraries\MultiDB;
 use App\Http\Requests\Request;
-use App\Models\CompanyGateway;
 use App\Models\QuoteInvitation;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
@@ -34,6 +32,8 @@ class PreviewInvoiceRequest extends Request
 
     private string $entity_plural = '';
     
+    private ?Client $client = null;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -104,9 +104,25 @@ class PreviewInvoiceRequest extends Request
         $invitation = $this->stubInvitation();
     }
 
+    public function getClient(): ?Client
+    {
+        if(!$this->client)
+            $this->client = Client::query()->with('contacts', 'company', 'user')->withTrashed()->find($this->client_id);
+
+        return $this->client;
+    }
+
+    public function setClient(Client $client): self
+    {
+        $this->client = $client;
+
+        return $this;
+    }
+
     public function stubInvitation()
     {
         $client = Client::query()->with('contacts', 'company', 'user')->withTrashed()->find($this->client_id);
+        $this->setClient($client);
         $invitation = false;
 
         match($this->entity) {

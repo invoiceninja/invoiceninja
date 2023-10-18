@@ -68,24 +68,34 @@ class PreviewController extends BaseController
     public function live(PreviewInvoiceRequest $request)
     {   
 
-        $time = time();
-        nlog($time);
+        $start = microtime(true);
 
+nlog("1 ".$start);
         $invitation = $request->resolveInvitation();
+        $client = $request->getClient();
+        $settings = $client->getMergedSettings();
 
         App::forgetInstance('translator');
         $t = app('translator');
         App::setLocale($invitation->contact->preferredLocale());
-        $t->replace(Ninja::transformTranslations($invitation->{$request->entity}->client->getMergedSettings()));
+        $t->replace(Ninja::transformTranslations($settings));
 
-        $html = new HtmlEngine($invitation);
-        $variables = $html->generateLabelsAndValues();
-
+nlog("2 ".microtime(true));
+        $entity_prop = str_replace("recurring_", "", $request->entity);
         $entity_obj = $invitation->{$request->entity};
 
-        // if (! $invitation->{$request->entity}->id ?? true) {
-        //     $invitation->{$request->entity}->service()->fillDefaults();
-        // }
+        if(!$entity_obj->id) {
+            $entity_obj->design_id = intval($this->decodePrimaryKey($settings->{$entity_prop."_design_id"}));
+            $entity_obj->footer = $settings->{$entity_prop."_footer"};
+            $entity_obj->terms = $settings->{$entity_prop."_terms"};
+            $entity_obj->public_notes = $request->getClient()->public_notes;
+            $invitation->{$request->entity} = $entity_obj;
+        }
+
+        $html = new HtmlEngine($invitation);
+        $html->settings = $settings;
+        $variables = $html->generateLabelsAndValues();
+nlog("3 ".microtime(true));
 
         $design = \App\Models\Design::withTrashed()->find($entity_obj->design_id ?? 2);
 
@@ -105,18 +115,18 @@ class PreviewController extends BaseController
 
         $state = [
             'template' => $template->elements([
-                'client' => $entity_obj->client,
+                'client' => $client,
                 'entity' => $entity_obj,
-                'pdf_variables' => (array) $entity_obj->company->settings->pdf_variables,
+                'pdf_variables' => (array) $settings->pdf_variables,
                 '$product' => $design->design->product,
                 'variables' => $variables,
             ]),
             'variables' => $variables,
             'options' => [
-                'all_pages_header' => $entity_obj->client->getSetting('all_pages_header'),
-                'all_pages_footer' => $entity_obj->client->getSetting('all_pages_footer'),
+                'all_pages_header' => $client->getSetting('all_pages_header'),
+                'all_pages_footer' => $client->getSetting('all_pages_footer'),
             ],
-            'process_markdown' => $entity_obj->client->company->markdown_enabled,
+            'process_markdown' => $client->company->markdown_enabled,
         ];
 
         $maker = new PdfMaker($state);
@@ -124,6 +134,8 @@ class PreviewController extends BaseController
         $maker
             ->design($template)
             ->build();
+
+nlog("4 ".microtime(true));
 
         if (request()->query('html') == 'true') {
             return $maker->getCompiledHTML();
@@ -153,9 +165,12 @@ class PreviewController extends BaseController
 
         $pdf = (new PreviewPdf($maker->getCompiledHTML(true), $company))->handle();
 
+nlog("5 ".microtime(true));
+nlog("total = ".microtime(true)-$start);
+
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf;
-        }, 'preview.pdf', ['Content-Type' => 'application/pdf','Cache-Control:' => 'no-cache']);
+        }, 'preview.pdf', ['Content-Disposition' => 'inline', 'Content-Type' => 'application/pdf','Cache-Control:' => 'no-cache', 'Server-Timing' => microtime(true)-$start]);
 
     }
 
