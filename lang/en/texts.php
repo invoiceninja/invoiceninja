@@ -2405,7 +2405,7 @@ $LANG = array(
     'currency_nicaraguan_córdoba' => 'Nicaraguan Córdoba',
     'currency_malagasy_ariary' => 'Malagasy ariary',
     "currency_tongan_pa_anga" => "Tongan Pa'anga",
-    
+
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
 
@@ -5183,6 +5183,8 @@ $LANG = array(
     'upcoming' => 'Upcoming',
     'client_contact' => 'Client Contact',
     'uncategorized' => 'Uncategorized',
+    'login_notification' => 'Login Notification',
+    'login_notification_help' => 'Sends an email notifying that a login has taken place.'
 ); 
 
 return $LANG;
