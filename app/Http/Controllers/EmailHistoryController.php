@@ -32,7 +32,7 @@ class EmailHistoryController extends BaseController
                  ->orderBy('id', 'DESC')
                  ->cursor()
                 ->filter(function ($system_log) {
-                    return ($system_log->log['history'] && isset($system_log->log['history']['events']) && count($system_log->log['history']['events']) >=1) !== false;
+                    return (isset($system_log->log['history']) && isset($system_log->log['history']['events']) && count($system_log->log['history']['events']) >=1) !== false;
                 })->map(function  ($system_log) {
                     return $system_log->log['history'];
                 })->values()->all();
