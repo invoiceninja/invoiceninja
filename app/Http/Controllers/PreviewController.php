@@ -95,6 +95,7 @@ class PreviewController extends BaseController
 
         $entity_prop = str_replace("recurring_", "", $request->entity);
         $entity_obj = $invitation->{$request->entity};
+        $entity_obj->fill($request->all());
 
         /** Update necessary objecty props */
         if(!$entity_obj->id) {
