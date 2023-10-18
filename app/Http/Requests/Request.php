@@ -180,7 +180,7 @@ class Request extends FormRequest
                 }
 
                 //Filter the client contact password - if it is sent with ***** we should ignore it!
-                if (isset($contact['password'])) {
+                if (isset($contact['password']) && is_string($contact['password'])) {
                     if (strlen($contact['password']) == 0) {
                         $input['contacts'][$key]['password'] = '';
                     } else {

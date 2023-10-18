@@ -48,6 +48,8 @@ class RecurringInvoiceExport extends BaseExport
             $this->input['report_keys'] = array_values($this->recurring_invoice_report_keys);
         }
 
+        $this->input['report_keys'] = array_merge($this->input['report_keys'], array_diff($this->forced_client_fields, $this->input['report_keys']));
+
         $query = RecurringInvoice::query()
                         ->withTrashed()
                         ->with('client')
@@ -135,8 +137,8 @@ class RecurringInvoiceExport extends BaseExport
             $entity['client'] = $invoice->client->present()->name();
         }
 
-        if (in_array('status_id', $this->input['report_keys'])) {
-            $entity['status'] = $invoice->stringStatus($invoice->status_id);
+        if (in_array('recurring_invoice.status', $this->input['report_keys'])) {
+            $entity['recurring_invoice.status'] = $invoice->stringStatus($invoice->status_id);
         }
 
         if (in_array('project_id', $this->input['report_keys'])) {

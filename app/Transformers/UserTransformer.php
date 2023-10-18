@@ -64,6 +64,7 @@ class UserTransformer extends EntityTransformer
             'oauth_user_token' => empty($user->oauth_user_token) ? '' : '***',
             'verified_phone_number' => (bool) $user->verified_phone_number,
             'language_id' => (string) $user->language_id ?? '',
+            'user_logged_in_notification' => (bool) $user->user_logged_in_notification,
         ];
     }
 

@@ -134,8 +134,8 @@ class SquareWebhook implements ShouldQueue
 
             nlog("Searching by payment hash");
 
-            $payment_hash_id = $apiResponse->getPayment()->getReferenceId() ?? false;
-            $square_payment = $apiResponse->getPayment()->jsonSerialize();
+            $payment_hash_id = $apiResponse->getResult()->getPayment()->getReferenceId() ?? false;
+            $square_payment = $apiResponse->getResult()->getPayment()->jsonSerialize();
             $payment_hash = PaymentHash::query()->where('hash', $payment_hash_id)->firstOrFail();
 
             $payment_hash->data = array_merge((array) $payment_hash->data, (array)$square_payment);
