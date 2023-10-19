@@ -26,12 +26,18 @@ class StoreGroupSettingRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('create', GroupSetting::class) && auth()->user()->account->hasFeature(Account::FEATURE_API);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('create', GroupSetting::class) && $user->account->hasFeature(Account::FEATURE_API);
     }
 
     public function rules()
     {
-        $rules['name'] = 'required|unique:group_settings,name,null,null,company_id,'.auth()->user()->companyId();
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $rules['name'] = 'required|unique:group_settings,name,null,null,company_id,'.$user->companyId();
 
         $rules['settings'] = new ValidClientGroupSettingsRule();
 

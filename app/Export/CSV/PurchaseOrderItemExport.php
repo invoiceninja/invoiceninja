@@ -127,18 +127,18 @@ class PurchaseOrderItemExport extends BaseExport
                 
                 if (str_contains($key, "item.")) {
 
-                    $key = str_replace("item.", "", $key);
+                    $tmp_key = str_replace("item.", "", $key);
                     
-                    if($key == 'type_id') {
-                        $keyval = 'type';
+                    if($tmp_key == 'type_id') {
+                        $tmp_key = 'type';
                     }
 
-                    if($key == 'tax_id') {
-                        $keyval = 'tax_category';
+                    if($tmp_key == 'tax_id') {
+                        $tmp_key = 'tax_category';
                     }
 
-                    if (property_exists($item, $key)) {
-                        $item_array[$key] = $item->{$key};
+                    if (property_exists($item, $tmp_key)) {
+                        $item_array[$key] = $item->{$tmp_key};
                     } else {
                         $item_array[$key] = '';
                     }
