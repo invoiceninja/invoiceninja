@@ -152,6 +152,7 @@ class QuoteItemExport extends BaseExport
             
             $transformed_items = array_merge($transformed_quote, $item_array);
             $entity = $this->decorateAdvancedFields($quote, $transformed_items);
+            $entity = array_merge(array_flip(array_values($this->input['report_keys'])), $entity);
 
             $this->storage_array[] = $entity;
         }
