@@ -327,21 +327,13 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         ];
         
         $data['payee'] = [
-                    "email_address" => "seller@example.com",
+                    "merchant_id" => $this->company_gateway->getConfigField('merchantId'),
                 [
                     "payment_instruction" => [
-                    "disbursement_mode" => "INSTANT",
-                    "platform_fees" => [
-                                        [
-                                        "amount" => [
-                                            "currency_code" => $this->client->currency()->code,
-                                            "value" =>  (string)$data['amount_with_fee']
-                                        ],
-                                    ],
-                                ],
-                            ],
-                        ],
-            ];
+                        "disbursement_mode" => "INSTANT",
+                    ],
+                ],
+        ];
 
         $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
 
