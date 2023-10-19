@@ -225,6 +225,8 @@ class TaxProvider
      */
     private function configureEuTax(): self
     {
+        throw new \Exception("No tax region defined for this country");
+
         $this->provider = EuTax::class;
 
         return $this;

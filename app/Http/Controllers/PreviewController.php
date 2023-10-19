@@ -111,11 +111,12 @@ class PreviewController extends BaseController
         $html->settings = $settings;
         $variables = $html->generateLabelsAndValues();
 
-        $design = \App\Models\Design::withTrashed()->find($entity_obj->design_id ?? 2);
+
+        $design = \App\Models\Design::query()->withTrashed()->find($entity_obj->design_id ?? 2);
 
         /* Catch all in case migration doesn't pass back a valid design */
         if (! $design) {
-            $design = \App\Models\Design::find(2);
+            $design = \App\Models\Design::query()->find(2);
         }
 
         if ($design->is_custom) {
@@ -329,8 +330,8 @@ class PreviewController extends BaseController
     /**
      * @deprecated due to usage of transactions
      *
-     * @param  mixed $request
-     * @return void
+     * @param  PreviewInvoiceRequest $request
+     * @return mixed
      */
     public function livex(PreviewInvoiceRequest $request)
     {
