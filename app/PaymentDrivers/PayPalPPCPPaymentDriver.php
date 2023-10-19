@@ -22,6 +22,7 @@ use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Omnipay\Omnipay;
+use Str;
 
 class PayPalPPCPPaymentDriver extends BaseDriver
 {
@@ -365,7 +366,8 @@ class PayPalPPCPPaymentDriver extends BaseDriver
             'Accept' => 'application/json',
             'Content-type' => 'application/json',
             'Accept-Language' => 'en_US',
-            'PayPal-Partner-Attribution-Id' => 'invoiceninja_SP_PPCP'
+            'PayPal-Partner-Attribution-Id' => 'invoiceninja_SP_PPCP',
+            'PayPal-Request-Id' => Str::uuid(),
         ], $headers);
     }
 

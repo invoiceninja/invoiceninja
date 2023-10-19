@@ -14,7 +14,7 @@ return new class extends Migration
     public function up(): void
     {
 
-        if(!Gateway::find(61)) 
+        if(!Gateway::find(61) && Ninja::isHosted()) 
         {
 
             $fields = new \stdClass;
@@ -35,7 +35,7 @@ return new class extends Migration
         
         }
 
-        Gateway::whereIn('id', [60, 15])->update(['visible' => 0]);
+        Gateway::whereIn('id', [60, 15, 49])->update(['visible' => 0]);
         
     }
 
