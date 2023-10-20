@@ -1154,9 +1154,9 @@ class BaseExport
             $clean_row[$key]['entity'] = $report_keys[0];
             $clean_row[$key]['id'] = $report_keys[1] ?? $report_keys[0];
             $clean_row[$key]['hashed_id'] = $report_keys[0] == $entity ? null : $resource->{$report_keys[0]}->hashed_id ?? null;
-            $clean_row[$key]['value'] = isset($row[$column_key]) ? $row[$column_key] : $row[$report_keys[1]];
+            $clean_row[$key]['value'] = isset($row[$column_key]) ? $row[$column_key] : $row[$value];
             $clean_row[$key]['identifier'] = $value;
-            $clean_row[$key]['display_value'] = isset($row[$column_key]) ? $row[$column_key] : $row[$report_keys[1]];
+            $clean_row[$key]['display_value'] = isset($row[$column_key]) ? $row[$column_key] : $row[$value];
 
         }
 

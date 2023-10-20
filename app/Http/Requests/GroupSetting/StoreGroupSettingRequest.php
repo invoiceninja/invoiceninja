@@ -11,11 +11,13 @@
 
 namespace App\Http\Requests\GroupSetting;
 
-use App\DataMapper\ClientSettings;
-use App\Http\Requests\Request;
-use App\Http\ValidationRules\ValidClientGroupSettingsRule;
 use App\Models\Account;
 use App\Models\GroupSetting;
+use App\Http\Requests\Request;
+use App\DataMapper\ClientSettings;
+use App\DataMapper\CompanySettings;
+use App\DataMapper\Settings\SettingsData;
+use App\Http\ValidationRules\ValidClientGroupSettingsRule;
 
 class StoreGroupSettingRequest extends Request
 {
@@ -26,12 +28,18 @@ class StoreGroupSettingRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('create', GroupSetting::class) && auth()->user()->account->hasFeature(Account::FEATURE_API);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('create', GroupSetting::class) && $user->account->hasFeature(Account::FEATURE_API);
     }
 
     public function rules()
     {
-        $rules['name'] = 'required|unique:group_settings,name,null,null,company_id,'.auth()->user()->companyId();
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $rules['name'] = 'required|unique:group_settings,name,null,null,company_id,'.$user->companyId();
 
         $rules['settings'] = new ValidClientGroupSettingsRule();
 
@@ -42,15 +50,12 @@ class StoreGroupSettingRequest extends Request
     {
         $input = $this->all();
 
-        $group_settings = ClientSettings::defaults();
-
-        if (array_key_exists('settings', $input) && ! empty($input['settings'])) {
-            foreach ($input['settings'] as $key => $value) {
-                $group_settings->{$key} = $value;
-            }
+        if (array_key_exists('settings', $input)) {
+            $input['settings'] = $this->filterSaveableSettings($input['settings']);
         }
-
-        $input['settings'] = (array)$group_settings;
+        else {
+            $input['settings'] = (array)ClientSettings::defaults();
+        }
 
         $this->replace($input);
     }
@@ -61,4 +66,38 @@ class StoreGroupSettingRequest extends Request
             'settings' => 'settings must be a valid json structure',
         ];
     }
+
+    /**
+     * For the hosted platform, we restrict the feature settings.
+     *
+     * This method will trim the company settings object
+     * down to the free plan setting properties which
+     * are saveable
+     *
+     * @param  object $settings
+     * @return array $settings
+     */
+    private function filterSaveableSettings($settings)
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $settings_data = new SettingsData();
+        $settings = $settings_data->cast($settings)->toObject();
+
+        if (! $user->account->isFreeHostedClient()) {
+            return (array)$settings;
+        }
+
+        $saveable_casts = CompanySettings::$free_plan_casts;
+
+        foreach ($settings as $key => $value) {
+            if (! array_key_exists($key, $saveable_casts)) {
+                unset($settings->{$key});
+            }
+        }
+        
+        return (array)$settings;
+    }
+
 }

@@ -133,16 +133,16 @@ class QuoteItemExport extends BaseExport
                 
                 if (str_contains($key, "item.")) {
 
-                    $key = str_replace("item.", "", $key);
+                    $tmp_key = str_replace("item.", "", $key);
                     
-                    if($key == 'type_id')
-                        $key = 'type';
+                    if($tmp_key == 'type_id')
+                        $tmp_key = 'type';
 
-                    if($key == 'tax_id')
-                        $key = 'tax_category';
+                    if($tmp_key == 'tax_id')
+                        $tmp_key = 'tax_category';
 
-                    if (property_exists($item, $key)) {
-                        $item_array[$key] = $item->{$key};
+                    if (property_exists($item, $tmp_key)) {
+                        $item_array[$key] = $item->{$tmp_key};
                     } 
                     else {
                         $item_array[$key] = '';
@@ -152,6 +152,7 @@ class QuoteItemExport extends BaseExport
             
             $transformed_items = array_merge($transformed_quote, $item_array);
             $entity = $this->decorateAdvancedFields($quote, $transformed_items);
+            $entity = array_merge(array_flip(array_values($this->input['report_keys'])), $entity);
 
             $this->storage_array[] = $entity;
         }

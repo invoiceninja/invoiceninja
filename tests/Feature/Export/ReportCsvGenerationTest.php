@@ -1171,7 +1171,7 @@ class ReportCsvGenerationTest extends TestCase
     public function testQuoteItemsCustomColumnsCsvGeneration()
     {
         
-        \App\Models\Quote::factory()->create([
+        $q = \App\Models\Quote::factory()->create([
            'user_id' => $this->user->id,
            'company_id' => $this->company->id,
            'client_id' => $this->client->id,
@@ -1216,7 +1216,6 @@ class ReportCsvGenerationTest extends TestCase
         ])->post('/api/v1/reports/quote_items', $data);
        
         $csv = $response->streamedContent();
-
 
         $this->assertEquals('bob', $this->getFirstValueByColumn($csv, 'Client Name'));
         $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Quote Number'));
