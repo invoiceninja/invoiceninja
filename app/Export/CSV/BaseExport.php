@@ -88,6 +88,7 @@ class BaseExport
 
     protected array $client_report_keys = [
         "name" => "client.name",
+        "number" => "client.number",
         "user" => "client.user",
         "assigned_user" => "client.assigned_user",
         "balance" => "client.balance",
