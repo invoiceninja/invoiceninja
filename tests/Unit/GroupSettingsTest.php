@@ -28,6 +28,10 @@ class GroupSettingsTest extends TestCase
     use DatabaseTransactions;
     use ClientGroupSettingsSaver;
 
+    public $company_settings;
+    public $client_settings;
+    public $settings;
+    
     protected function setUp() :void
     {
         parent::setUp();

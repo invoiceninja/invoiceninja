@@ -11,19 +11,20 @@
 
 namespace Tests\Feature;
 
+use Tests\TestCase;
+use Tests\MockAccountData;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
-use Tests\MockAccountData;
-use Tests\TestCase;
+use App\DataMapper\Settings\SettingsData;
+use Spatie\LaravelData\Support\Wrapping\WrapExecutionType;
 
 class GroupSettingTest extends TestCase
 {
     use MakesHash;
-
-    //use DatabaseTransactions;
     use MockAccountData;
+
+    public $faker;
 
     protected function setUp(): void
     {
@@ -38,6 +39,85 @@ class GroupSettingTest extends TestCase
         $this->makeTestData();
     }
 
+    public function testCastingMagic()
+    {
+
+        $settings = new \stdClass;
+        $settings->currency_id = '1';
+        $settings->tax_name1 = '';
+        $settings->tax_rate1 = 0;
+        $s = new SettingsData();
+        $settings = $s->cast($settings)->toObject();
+
+        $this->assertEquals("", $settings->tax_name1);
+        $settings = null;
+
+        $settings = new \stdClass;
+        $settings->currency_id = '1';
+        $settings->tax_name1 = "1";
+        $settings->tax_rate1 = 0;
+
+        $settings = $s->cast($settings)->toObject();
+
+        $this->assertEquals("1", $settings->tax_name1);
+
+        $settings = $s->cast($settings)->toArray();
+        $this->assertEquals("1", $settings['tax_name1']);
+
+        $settings = new \stdClass;
+        $settings->currency_id = '1';
+        $settings->tax_name1 = [];
+        $settings->tax_rate1 = 0;
+
+        $settings = $s->cast($settings)->toObject();
+
+        $this->assertEquals("", $settings->tax_name1);
+
+        $settings = $s->cast($settings)->toArray();
+        $this->assertEquals("", $settings['tax_name1']);
+
+        $settings = new \stdClass;
+        $settings->currency_id = '1';
+        $settings->tax_name1 = new \stdClass;
+        $settings->tax_rate1 = 0;
+
+        $settings = $s->cast($settings)->toObject();
+
+        $this->assertEquals("", $settings->tax_name1);
+
+        $settings = $s->cast($settings)->toArray();
+        $this->assertEquals("", $settings['tax_name1']);
+
+
+
+        // nlog(json_encode($settings));
+    }
+
+    public function testTaxNameInGroupFilters()
+    {
+        $settings = new \stdClass;
+        $settings->currency_id = '1';
+        $settings->tax_name1 = '';
+        $settings->tax_rate1 = 0;
+
+        $data = [
+            'name' => 'testX',
+            'settings' => $settings,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/group_settings', $data);
+
+        $response->assertStatus(200);
+    
+        $arr = $response->json();
+
+        $this->assertEquals("", (string)NULL);
+        $this->assertNotNull($arr['data']['settings']['tax_name1']);
+    }
+            
 
     public function testAddGroupFilters()
     {
