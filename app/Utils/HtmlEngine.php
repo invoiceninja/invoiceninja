@@ -670,16 +670,16 @@ class HtmlEngine
         $data['$payment.transaction_reference'] = ['value' => '', 'label' => ctrans('texts.transaction_reference')];
 
 
-        if ($this->entity_string == 'invoice' && $this->entity->payments()->exists()) {
+        if ($this->entity_string == 'invoice' && $this->entity->net_payments()->exists()) {
             $payment_list = '<br><br>';
 
-            foreach ($this->entity->payments as $payment) {
+            foreach ($this->entity->net_payments as $payment) {
                 $payment_list .= ctrans('texts.payment_subject') . ": " . $this->formatDate($payment->date, $this->client->date_format()) . " :: " . Number::formatMoney($payment->amount, $this->client) ." :: ". GatewayType::getAlias($payment->gateway_type_id) . "<br>";
             }
 
             $data['$payments'] = ['value' => $payment_list, 'label' => ctrans('texts.payments')];
 
-            $payment = $this->entity->payments()->first();
+            $payment = $this->entity->net_payments()->first();
 
             $data['$payment.custom1'] = ['value' => $payment->custom_value1, 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'payment1')];
             $data['$payment.custom2'] = ['value' => $payment->custom_value2, 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'payment2')];
