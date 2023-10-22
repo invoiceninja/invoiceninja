@@ -23,7 +23,7 @@ class ProtectedDownloadController extends BaseController
 
     public function index(Request $request)
     {
-
+        /** @var string $hashed_path */
         $hashed_path = Cache::pull($request->hash);
         
         if (!$hashed_path) {

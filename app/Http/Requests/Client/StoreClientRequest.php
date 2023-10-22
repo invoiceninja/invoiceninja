@@ -180,8 +180,6 @@ class StoreClientRequest extends Request
     public function messages()
     {
         return [
-            // 'unique' => ctrans('validation.unique', ['attribute' => ['email','number']),
-            //'required' => trans('validation.required', ['attribute' => 'email']),
             'contacts.*.email.required' => ctrans('validation.email', ['attribute' => 'email']),
             'currency_code' => 'Currency code does not exist',
         ];

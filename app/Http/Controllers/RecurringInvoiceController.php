@@ -157,6 +157,7 @@ class RecurringInvoiceController extends BaseController
         $user = auth()->user();
 
         $recurring_invoice = RecurringInvoiceFactory::create($user->company()->id, $user->id);
+        $recurring_invoice->auto_bill = $user->company()->settings->auto_bill;
 
         return $this->itemResponse($recurring_invoice);
     }

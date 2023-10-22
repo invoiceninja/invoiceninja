@@ -23,7 +23,7 @@ class ClientPresenter extends EntityPresenter
      */
     public function name()
     {
-        if ($this->entity->name) {
+        if (strlen($this->entity->name) > 1) {
             return $this->entity->name;
         }
 

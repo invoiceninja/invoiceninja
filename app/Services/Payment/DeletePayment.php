@@ -109,7 +109,11 @@ class DeletePayment
 
                     if ($paymentable_invoice->balance == $paymentable_invoice->amount) {
                         $paymentable_invoice->service()->setStatus(Invoice::STATUS_SENT)->save();
-                    } else {
+                    } 
+                    elseif($paymentable_invoice->balance == 0){
+                        $paymentable_invoice->service()->setStatus(Invoice::STATUS_PAID)->save();
+                    }
+                    else {
                         $paymentable_invoice->service()->setStatus(Invoice::STATUS_PARTIAL)->save();
                     }
                 } else {
