@@ -308,7 +308,8 @@ class ClientController extends BaseController
      */
     public function updateTaxData(PurgeClientRequest $request, Client $client)
     {
-        (new UpdateTaxData($client, $client->company))->handle();
+        if($client->company->account->isPaid())
+            (new UpdateTaxData($client, $client->company))->handle();
         
         return $this->itemResponse($client->fresh());
     }

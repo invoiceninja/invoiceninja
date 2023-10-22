@@ -32,6 +32,8 @@ class InvoiceEmailTest extends TestCase
     use DatabaseTransactions;
     use GeneratesCounter;
 
+    public $faker;
+
     protected function setUp() :void
     {
         parent::setUp();
@@ -47,6 +49,14 @@ class InvoiceEmailTest extends TestCase
         // $this->withoutExceptionHandling();
 
     }
+
+    public function testInvalidEmailParsing()
+    {
+        $email = 'illegal@example.com';
+
+        $this->assertTrue(strpos($email, '@example.com') !== false);
+    }
+    
 
     public function testClientEmailHistory()
     {

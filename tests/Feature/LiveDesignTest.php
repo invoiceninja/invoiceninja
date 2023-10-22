@@ -13,7 +13,9 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use App\Models\Design;
+use App\Utils\HtmlEngine;
 use Tests\MockAccountData;
+use App\Models\InvoiceInvitation;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
@@ -39,6 +41,30 @@ class LiveDesignTest extends TestCase
         if (config('ninja.testvars.travis') !== false) {
             $this->markTestSkipped('Skip test for Travis');
         }
+    }
+
+    public function testSyntheticInvitations()
+    {
+        $this->assertGreaterThanOrEqual(1, $this->client->contacts->count());
+
+        $ii = InvoiceInvitation::factory()
+        ->for($this->invoice)
+        ->for($this->client->contacts->first(), 'contact')
+        ->for($this->company)
+        ->for($this->user)
+        ->make();
+
+        $this->assertInstanceOf(InvoiceInvitation::class, $ii);
+
+        $engine = new HtmlEngine($ii);
+
+        $this->assertNotNull($engine);
+        
+        $data = $engine->generateLabelsAndValues();
+
+        $this->assertIsArray($data);  
+
+        nlog($data);
     }
 
     public function testDesignRoute200()

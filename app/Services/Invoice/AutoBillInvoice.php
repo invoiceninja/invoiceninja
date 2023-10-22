@@ -120,7 +120,7 @@ class AutoBillInvoice extends AbstractService
         /* Build payment hash */
 
         $payment_hash = PaymentHash::create([
-            'hash' => Str::random(64),
+            'hash' => Str::random(32),
             'data' => [
                 'amount_with_fee' => $amount + $fee,
                 'invoices' => [

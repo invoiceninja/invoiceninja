@@ -50,6 +50,8 @@ class InvoiceExport extends BaseExport
             $this->input['report_keys'] = array_values($this->invoice_report_keys);
         }
 
+        $this->input['report_keys'] = array_merge($this->input['report_keys'], array_diff($this->forced_client_fields, $this->input['report_keys']));
+
         $query = Invoice::query()
                         ->withTrashed()
                         ->with('client')
@@ -142,6 +144,11 @@ class InvoiceExport extends BaseExport
         if (in_array('invoice.status', $this->input['report_keys'])) {
             $entity['invoice.status'] = $invoice->stringStatus($invoice->status_id);
         }
+
+        if (in_array('invoice.recurring_id', $this->input['report_keys'])) {
+            $entity['invoice.recurring_id'] = $invoice->recurring_invoice->number ?? '';
+        }
+
         
         return $entity;
     }

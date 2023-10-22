@@ -140,7 +140,7 @@ class Email implements ShouldQueue
 
         $this->email_object->client_id ? $this->email_object->settings = $this->email_object->client->getMergedSettings() : $this->email_object->settings = $this->company->settings;
 
-        $this->email_object->client_id ? nlog("client settings") : nlog("company settings ");
+        // $this->email_object->client_id ? nlog("client settings") : nlog("company settings ");
 
         $this->email_object->whitelabel = $this->company->account->isPaid() ? true : false;
 
@@ -411,6 +411,14 @@ class Email implements ShouldQueue
             }
 
             if ($address_object->address == " ") {
+                return true;
+            }
+
+            if ($address_object->address == "") {
+                return true;
+            }
+
+            if($address_object->name == " " || $address_object->name == "") {
                 return true;
             }
         }

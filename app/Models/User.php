@@ -73,7 +73,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property int|null $deleted_at
  * @property string|null $oauth_user_refresh_token
  * @property string|null $last_confirmed_email_address
- * @property int $has_password
+ * @property bool $has_password
+ * @property bool $user_logged_in_notification
  * @property Carbon|null $oauth_user_token_expiry
  * @property string|null $sms_verification_code
  * @property bool $verified_phone_number
@@ -140,6 +141,7 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      */
     protected $fillable = [
+        'user_logged_in_notification',
         'first_name',
         'last_name',
         'email',

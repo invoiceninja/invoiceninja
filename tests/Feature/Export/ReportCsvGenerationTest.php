@@ -20,7 +20,6 @@ use App\Models\Account;
 use App\Models\Company;
 use App\Models\Expense;
 use App\Models\Invoice;
-use Tests\MockAccountData;
 use App\Models\CompanyToken;
 use App\Models\ClientContact;
 use App\Export\CSV\TaskExport;
@@ -30,8 +29,6 @@ use App\Export\CSV\ProductExport;
 use App\DataMapper\CompanySettings;
 use App\Export\CSV\PaymentExport;
 use App\Factory\CompanyUserFactory;
-use App\Factory\InvoiceItemFactory;
-use App\Services\Report\ARDetailReport;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
@@ -262,6 +259,21 @@ class ReportCsvGenerationTest extends TestCase
 
     }
 
+    public function testForcedInsertionOfMandatoryColumns()
+    {
+        $forced = ['client.name'];
+
+        $report_keys = ['invoice.number','client.name', 'invoice.amount'];
+        $array = array_merge($report_keys, array_diff($forced, $report_keys));
+        
+        $this->assertEquals('client.name', $array[1]);
+
+        $report_keys = ['invoice.number','invoice.amount'];
+        $array = array_merge($report_keys, array_diff($forced, $report_keys));
+
+        $this->assertEquals('client.name', $array[2]);
+
+    }
 
     public function testVendorCsvGeneration()
     {
@@ -322,7 +334,7 @@ class ReportCsvGenerationTest extends TestCase
         $data = $export->returnJson();
 
         $this->assertNotNull($data);
-// nlog($data);
+        // nlog($data);
         // $this->assertEquals(0, $this->traverseJson($data, 'columns.0.identifier'));
         $this->assertEquals('Vendor Name', $this->traverseJson($data, 'columns.9.display_value'));
         $this->assertEquals('vendor', $this->traverseJson($data, '0.0.entity'));
@@ -1021,6 +1033,44 @@ class ReportCsvGenerationTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/reports/recurring_invoices', $data)->assertStatus(200);
 
+    }
+
+
+    public function testRecurringInvoiceColumnsCsvGeneration()
+    {
+        
+        \App\Models\RecurringInvoice::factory()->create([
+           'user_id' => $this->user->id,
+           'company_id' => $this->company->id,
+           'client_id' => $this->client->id,
+           'amount' => 100,
+           'balance' => 50,
+           'number' => '1234',
+           'status_id' => 2,
+           'discount' => 10,
+           'po_number' => '1234',
+           'public_notes' => 'Public',
+           'private_notes' => 'Private',
+           'terms' => 'Terms',
+           'frequency_id' => 1,
+       ]);
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => [],
+            'send_email' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/recurring_invoices', $data);
+       
+        $csv = $response->streamedContent();
+
+        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Recurring Invoice Invoice Number'));
+        $this->assertEquals('Daily', $this->getFirstValueByColumn($csv, 'Recurring Invoice How Often'));
+        $this->assertEquals('Active', $this->getFirstValueByColumn($csv, 'Recurring Invoice Status'));
 
     }
 
@@ -1121,7 +1171,7 @@ class ReportCsvGenerationTest extends TestCase
     public function testQuoteItemsCustomColumnsCsvGeneration()
     {
         
-        \App\Models\Quote::factory()->create([
+        $q = \App\Models\Quote::factory()->create([
            'user_id' => $this->user->id,
            'company_id' => $this->company->id,
            'client_id' => $this->client->id,
@@ -1166,7 +1216,6 @@ class ReportCsvGenerationTest extends TestCase
         ])->post('/api/v1/reports/quote_items', $data);
        
         $csv = $response->streamedContent();
-
 
         $this->assertEquals('bob', $this->getFirstValueByColumn($csv, 'Client Name'));
         $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Quote Number'));

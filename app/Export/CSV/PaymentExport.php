@@ -48,6 +48,8 @@ class PaymentExport extends BaseExport
             $this->input['report_keys'] = array_values($this->payment_report_keys);
         }
 
+        $this->input['report_keys'] = array_merge($this->input['report_keys'], array_diff($this->forced_client_fields, $this->input['report_keys']));
+
         $query = Payment::query()
                             ->withTrashed()
                             ->where('company_id', $this->company->id)
@@ -68,6 +70,8 @@ class PaymentExport extends BaseExport
         $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
+
+        nlog($header);
 
         $report = $query->cursor()
                 ->map(function ($resource) {

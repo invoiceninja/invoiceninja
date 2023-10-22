@@ -174,9 +174,14 @@ class SwissQrGenerator
 
             return $html;
         } catch (\Exception $e) {
-            foreach ($qrBill->getViolations() as $key => $violation) {
-                nlog("qr");
-                nlog($violation);
+
+            if(is_iterable($qrBill->getViolations())) {
+           
+                foreach ($qrBill->getViolations() as $key => $violation) {
+                    nlog("qr");
+                    nlog($violation);
+                }
+
             }
 
             nlog($e->getMessage());
