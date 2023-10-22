@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 use App\Utils\Ninja;
 use App\Models\Client;
 use App\Models\Account;
+use Postmark\PostmarkClient;
 use Illuminate\Http\Response;
 use App\Factory\ClientFactory;
 use App\Filters\ClientFilters;
@@ -36,6 +37,7 @@ use App\Http\Requests\Client\CreateClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Http\Requests\Client\UploadClientRequest;
 use App\Http\Requests\Client\DestroyClientRequest;
+use App\Http\Requests\Client\ReactivateClientEmailRequest;
 
 /**
  * Class ClientController.
@@ -312,5 +314,32 @@ class ClientController extends BaseController
             (new UpdateTaxData($client, $client->company))->handle();
         
         return $this->itemResponse($client->fresh());
+    }
+
+    /**
+     * Reactivate a client email
+     *
+     * @param  ReactivateClientEmailRequest $request
+     * @param  string $bounce_id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function reactivateEmail(ReactivateClientEmailRequest $request, string $bounce_id)
+    {
+        
+        $postmark = new PostmarkClient(config('services.postmark.token'));
+
+        try {
+            
+            $response = $postmark->activateBounce((int)$bounce_id);
+        
+            return response()->json(['message' => 'Success'], 200);
+
+        }
+        catch(\Exception $e){
+
+            return response()->json(['message' => $e->getMessage(), 400]);
+
+        }
+
     }
 }

@@ -356,6 +356,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
             $events =  collect($messageDetail->messageevents)->map(function ($event) {
 
                 return [
+                        'bounce_id' => $event?->Details?->BounceID ?? '',
                         'recipient' => $event->Recipient ?? '',
                         'status' => $event->Type ?? '',
                         'delivery_message' => $event->Details->DeliveryMessage ?? $event->Details->Summary ?? '',
