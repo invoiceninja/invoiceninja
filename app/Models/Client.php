@@ -306,10 +306,7 @@ class Client extends BaseModel implements HasLocalePreference
         return $this->hasMany(ClientContact::class)->where('is_primary', true);
     }
 
-    /**
-    * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-    */
-    public function company()
+    public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }

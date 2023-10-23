@@ -24,6 +24,7 @@ class PurchaseOrderInvitationTransformer extends EntityTransformer
             'created_at' => (int) $invitation->created_at,
             'email_status' => $invitation->email_status ?: '',
             'email_error' => (string) $invitation->email_error,
+            'message_id'        => (string) $invitation->message_id ?: '',
         ];
     }
 }
