@@ -276,7 +276,9 @@ use App\Listeners\RecurringExpense\RecurringExpenseArchivedActivity;
 use App\Listeners\RecurringExpense\RecurringExpenseRestoredActivity;
 use App\Listeners\RecurringInvoice\RecurringInvoiceArchivedActivity;
 use App\Listeners\RecurringInvoice\RecurringInvoiceRestoredActivity;
+use App\Listeners\Request\LogRequestSending;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Illuminate\Http\Client\Events\RequestSending;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -285,6 +287,16 @@ class EventServiceProvider extends ServiceProvider
      *
      */
     protected $listen = [
+        RequestSending::class => [
+            LogRequestSending::class,
+        ],
+    // 'Illuminate\Http\Client\Events\ResponseReceived' => [
+    //     'App\Listeners\LogResponseReceived',
+    // ],
+    // 'Illuminate\Http\Client\Events\ConnectionFailed' => [
+    //     'App\Listeners\LogConnectionFailed',
+    // ],
+
         AccountCreated::class => [
         ],
         MessageSending::class => [
