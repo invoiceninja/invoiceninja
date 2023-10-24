@@ -100,9 +100,9 @@ class PreviewController extends BaseController
         /** Update necessary objecty props */
         if(!$entity_obj->id) {
             $entity_obj->design_id = intval($this->decodePrimaryKey($settings->{$entity_prop."_design_id"}));
-            $entity_obj->footer = $settings->{$entity_prop."_footer"};
-            $entity_obj->terms = $settings->{$entity_prop."_terms"};
-            $entity_obj->public_notes = $request->getClient()->public_notes;
+            $entity_obj->footer = empty($entity_obj->footer) ? $settings->{$entity_prop."_footer"} : $entity_obj->footer;
+            $entity_obj->terms = empty($entity_obj->term) ? $settings->{$entity_prop."_terms"} : $entity_obj->terms;
+            $entity_obj->public_notes = empty($entity_obj->public_notes) ? $request->getClient()->public_notes : $entity_obj->public_notes;
             $invitation->{$request->entity} = $entity_obj;
         }
 
