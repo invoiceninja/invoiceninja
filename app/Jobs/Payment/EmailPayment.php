@@ -88,7 +88,7 @@ class EmailPayment implements ShouldQueue
             if ($this->payment->invoices && $this->payment->invoices->count() >= 1) {
 
                 if($this->contact){
-                    $invitation = $this->payment->invoices->first()->invitations()->where('contact_id', $this->contact->id)->first();
+                    $invitation = $this->payment->invoices->first()->invitations()->where('client_contact_id', $this->contact->id)->first();
                 }
                 else
                     $invitation = $this->payment->invoices->first()->invitations()->first();
