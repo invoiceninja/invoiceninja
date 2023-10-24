@@ -106,11 +106,13 @@ class PreviewController extends BaseController
             $invitation->{$request->entity} = $entity_obj;
         }
 
+        if(empty($entity_obj->design_id))
+            $entity_obj->design_id = intval($this->decodePrimaryKey($settings->{$entity_prop."_design_id"}));
+
         /** Generate variables */
         $html = new HtmlEngine($invitation);
         $html->settings = $settings;
         $variables = $html->generateLabelsAndValues();
-
 
         $design = \App\Models\Design::query()->withTrashed()->find($entity_obj->design_id ?? 2);
 
