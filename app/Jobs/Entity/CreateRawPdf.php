@@ -90,6 +90,17 @@ class CreateRawPdf implements ShouldQueue
 
     public function handle()
     {
+        /** Testing this override to improve PDF generation performance */
+        $ps = new PdfService($this->invitation, 'product', [
+            'client' => $this->entity->client,
+            "{$this->entity_string}s" => [$this->entity],
+        ]);
+
+        $pdf = $ps->boot()->getPdf();
+        nlog("pdf timer = ". $ps->execution_time);
+
+
+
         /* Forget the singleton*/
         App::forgetInstance('translator');
 
@@ -124,96 +135,87 @@ class CreateRawPdf implements ShouldQueue
 
         $file_path = $path.$this->entity->numberFormatter().'.pdf';
 
+        $entity_design_id = $this->entity->design_id ? $this->entity->design_id : $this->decodePrimaryKey($this->entity->client->getSetting($entity_design_id));
 
-$ps = new PdfService($this->invitation, 'product', [
-    'client' => $this->entity->client,
-    "{$this->entity_string}s" => [$this->entity],
-]);
+        $design = Design::query()->withTrashed()->find($entity_design_id);
 
-$pdf = $ps->boot()->getPdf();
+        /* Catch all in case migration doesn't pass back a valid design */
+        if (! $design) {
+            $design = Design::query()->find(2);
+        }
 
+        $html = new HtmlEngine($this->invitation);
 
-        // $entity_design_id = $this->entity->design_id ? $this->entity->design_id : $this->decodePrimaryKey($this->entity->client->getSetting($entity_design_id));
+        if ($design->is_custom) {
+            $options = [
+                'custom_partials' => json_decode(json_encode($design->design), true),
+            ];
+            $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
+        } else {
+            $template = new PdfMakerDesign(strtolower($design->name));
+        }
 
-        // $design = Design::query()->withTrashed()->find($entity_design_id);
+        $variables = $html->generateLabelsAndValues();
 
-        // /* Catch all in case migration doesn't pass back a valid design */
-        // if (! $design) {
-        //     $design = Design::query()->find(2);
-        // }
+        $state = [
+            'template' => $template->elements([
+                'client' => $this->entity->client,
+                'entity' => $this->entity,
+                'pdf_variables' => (array) $this->entity->company->settings->pdf_variables,
+                '$product' => $design->design->product,
+                'variables' => $variables,
+            ]),
+            'variables' => $variables,
+            'options' => [
+                'all_pages_header' => $this->entity->client->getSetting('all_pages_header'),
+                'all_pages_footer' => $this->entity->client->getSetting('all_pages_footer'),
+                'client' => $this->entity->client,
+                'entity' => $this->entity,
+                'variables' => $variables,
+            ],
+            'process_markdown' => $this->entity->client->company->markdown_enabled,
+        ];
 
-        // $html = new HtmlEngine($this->invitation);
+        $maker = new PdfMakerService($state);
 
-        // if ($design->is_custom) {
-        //     $options = [
-        //         'custom_partials' => json_decode(json_encode($design->design), true),
-        //     ];
-        //     $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
-        // } else {
-        //     $template = new PdfMakerDesign(strtolower($design->name));
-        // }
+        $maker
+            ->design($template)
+            ->build();
 
-        // $variables = $html->generateLabelsAndValues();
+        $pdf = null;
 
-        // $state = [
-        //     'template' => $template->elements([
-        //         'client' => $this->entity->client,
-        //         'entity' => $this->entity,
-        //         'pdf_variables' => (array) $this->entity->company->settings->pdf_variables,
-        //         '$product' => $design->design->product,
-        //         'variables' => $variables,
-        //     ]),
-        //     'variables' => $variables,
-        //     'options' => [
-        //         'all_pages_header' => $this->entity->client->getSetting('all_pages_header'),
-        //         'all_pages_footer' => $this->entity->client->getSetting('all_pages_footer'),
-        //         'client' => $this->entity->client,
-        //         'entity' => $this->entity,
-        //         'variables' => $variables,
-        //     ],
-        //     'process_markdown' => $this->entity->client->company->markdown_enabled,
-        // ];
+        try {
+            if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
+                $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
 
-        // $maker = new PdfMakerService($state);
+                $finfo = new \finfo(FILEINFO_MIME);
 
-        // $maker
-        //     ->design($template)
-        //     ->build();
+                //fallback in case hosted PDF fails.
+                if ($finfo->buffer($pdf) != 'application/pdf; charset=binary') {
+                    $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
 
-        // $pdf = null;
+                    $numbered_pdf = $this->pageNumbering($pdf, $this->company);
 
-        // try {
-        //     if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
-        //         $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
+                    if ($numbered_pdf) {
+                        $pdf = $numbered_pdf;
+                    }
+                }
+            } else {
+                $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
 
-        //         $finfo = new \finfo(FILEINFO_MIME);
+                $numbered_pdf = $this->pageNumbering($pdf, $this->company);
 
-        //         //fallback in case hosted PDF fails.
-        //         if ($finfo->buffer($pdf) != 'application/pdf; charset=binary') {
-        //             $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
+                if ($numbered_pdf) {
+                    $pdf = $numbered_pdf;
+                }
+            }
+        } catch (\Exception $e) {
+            nlog(print_r($e->getMessage(), 1));
+        }
 
-        //             $numbered_pdf = $this->pageNumbering($pdf, $this->company);
-
-        //             if ($numbered_pdf) {
-        //                 $pdf = $numbered_pdf;
-        //             }
-        //         }
-        //     } else {
-        //         $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
-
-        //         $numbered_pdf = $this->pageNumbering($pdf, $this->company);
-
-        //         if ($numbered_pdf) {
-        //             $pdf = $numbered_pdf;
-        //         }
-        //     }
-        // } catch (\Exception $e) {
-        //     nlog(print_r($e->getMessage(), 1));
-        // }
-
-        // if (config('ninja.log_pdf_html')) {
-        //     info($maker->getCompiledHTML());
-        // }
+        if (config('ninja.log_pdf_html')) {
+            info($maker->getCompiledHTML());
+        }
 
         if ($pdf) {
             $maker =null;
