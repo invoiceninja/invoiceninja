@@ -156,7 +156,12 @@ class TemplateService
 
     }
 
-    private function processData($data): self
+    public function getData(): array
+    {
+        return $this->data;
+    }
+    
+    public function processData($data): self
     {
 
         $this->data = $this->preProcessDataBlocks($data);

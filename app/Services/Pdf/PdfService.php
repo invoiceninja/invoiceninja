@@ -61,7 +61,7 @@ class PdfService
     }
 
     public function boot(): self
-    {
+    {nlog("booties");
         $this->init();
 
         return $this;
@@ -104,7 +104,7 @@ class PdfService
         $html = $this->builder->getCompiledHTML();
 
         if (config('ninja.log_pdf_html')) {
-            info($html);
+            nlog($html);
         }
 
         return $html;
