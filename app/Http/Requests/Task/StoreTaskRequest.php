@@ -54,7 +54,15 @@ class StoreTaskRequest extends Request
             $rules['project_id'] = 'bail|required|exists:projects,id,company_id,'.$user->company()->id.',is_deleted,0';
         }
 
-        $rules['timelog'] = ['bail','array',function ($attribute, $values, $fail) {
+        $rules['time_log'] = ['bail', function ($attribute, $values, $fail) {
+            
+            if(is_string($values)) 
+                $values = json_decode($values, 1);
+
+            if(!is_array($values)) {
+                return $fail('The '.$attribute.' is invalid. Must be an array.');
+            }
+
             foreach ($values as $k) {
                 if (!is_int($k[0]) || !is_int($k[1])) {
                     $fail('The '.$attribute.' - '.print_r($k, 1).' is invalid. Unix timestamps only.');

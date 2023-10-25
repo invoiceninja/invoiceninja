@@ -34,27 +34,43 @@ class UpdateTaskRequest extends Request
         if ($this->task->invoice_id && $this->task->company->invoice_task_lock) {
             return false;
         }
+        
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
-        return auth()->user()->can('edit', $this->task);
+        return $user->can('edit', $this->task);
     }
 
     public function rules()
     {
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $rules = [];
 
         if (isset($this->number)) {
-            $rules['number'] = Rule::unique('tasks')->where('company_id', auth()->user()->company()->id)->ignore($this->task->id);
+            $rules['number'] = Rule::unique('tasks')->where('company_id', $user->company()->id)->ignore($this->task->id);
         }
 
         if (isset($this->client_id)) {
-            $rules['client_id'] = 'bail|required|exists:clients,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+            $rules['client_id'] = 'bail|required|exists:clients,id,company_id,'.$user->company()->id.',is_deleted,0';
         }
 
         if (isset($this->project_id)) {
-            $rules['project_id'] = 'bail|required|exists:projects,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+            $rules['project_id'] = 'bail|required|exists:projects,id,company_id,'.$user->company()->id.',is_deleted,0';
         }
 
-        $rules['timelog'] = ['bail','array',function ($attribute, $values, $fail) {
+        $rules['time_log'] = ['bail',function ($attribute, $values, $fail) {
+
+            if(is_string($values)) {
+                $values = json_decode($values, 1);
+            }
+
+            if(!is_array($values)) {
+                return $fail('The '.$attribute.' is invalid. Must be an array.');
+            }
+
             foreach ($values as $k) {
                 if (!is_int($k[0]) || !is_int($k[1])) {
                     $fail('The '.$attribute.' - '.print_r($k, 1).' is invalid. Unix timestamps only.');
