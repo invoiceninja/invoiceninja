@@ -280,7 +280,7 @@ class PreviewController extends BaseController
                 'process_markdown' => $entity_obj->client->company->markdown_enabled,
                 'options' => [
                     'client' => $entity_obj->client,
-                    'entity' => $entity_obj,
+                    request()->input('entity_type', 'invoice')."s" => [$entity_obj],
                 ]
             ];
 
@@ -433,7 +433,7 @@ class PreviewController extends BaseController
             'process_markdown' => $invitation->invoice->client->company->markdown_enabled,
             'options' => [
                 'client' => $invitation->invoice->client,
-                'entity' => $invitation->invoice,
+                'invoices' => [$invitation->invoice],
             ]
         ];
 
@@ -485,79 +485,84 @@ class PreviewController extends BaseController
         /** @var \App\Models\Company $company */
         $company = $user->company();
 
+        try {
+            DB::connection($company->db)->beginTransaction();
 
-        DB::connection($company->db)->beginTransaction();
+            /** @var \App\Models\Client $client */
+            $client = Client::factory()->create([
+                'user_id' => auth()->user()->id,
+                'company_id' => $company->id,
+            ]);
 
-        /** @var \App\Models\Client $client */
-        $client = Client::factory()->create([
-            'user_id' => auth()->user()->id,
-            'company_id' => $company->id,
-        ]);
+            /** @var \App\Models\ClientContact $contact */
+            $contact = ClientContact::factory()->create([
+                'user_id' => auth()->user()->id,
+                'company_id' => $company->id,
+                'client_id' => $client->id,
+                'is_primary' => 1,
+                'send_email' => true,
+            ]);
 
-        /** @var \App\Models\ClientContact $contact */
-        $contact = ClientContact::factory()->create([
-            'user_id' => auth()->user()->id,
-            'company_id' => $company->id,
-            'client_id' => $client->id,
-            'is_primary' => 1,
-            'send_email' => true,
-        ]);
+            /** @var \App\Models\Invoice $invoice */
 
-        /** @var \App\Models\Invoice $invoice */
+            $invoice = Invoice::factory()->create([
+                'user_id' => auth()->user()->id,
+                'company_id' => $company->id,
+                'client_id' => $client->id,
+                'terms' => $company->settings->invoice_terms,
+                'footer' => $company->settings->invoice_footer,
+                'public_notes' => 'Sample Public Notes',
+            ]);
 
-        $invoice = Invoice::factory()->create([
-            'user_id' => auth()->user()->id,
-            'company_id' => $company->id,
-            'client_id' => $client->id,
-            'terms' => $company->settings->invoice_terms,
-            'footer' => $company->settings->invoice_footer,
-            'public_notes' => 'Sample Public Notes',
-        ]);
+            $invitation = InvoiceInvitation::factory()->create([
+                'user_id' => auth()->user()->id,
+                'company_id' => $company->id,
+                'invoice_id' => $invoice->id,
+                'client_contact_id' => $contact->id,
+            ]);
 
-        $invitation = InvoiceInvitation::factory()->create([
-            'user_id' => auth()->user()->id,
-            'company_id' => $company->id,
-            'invoice_id' => $invoice->id,
-            'client_contact_id' => $contact->id,
-        ]);
+            $invoice->setRelation('invitations', $invitation);
+            $invoice->setRelation('client', $client);
+            $invoice->setRelation('company', $company);
+            $invoice->load('client.company');
 
-        $invoice->setRelation('invitations', $invitation);
-        $invoice->setRelation('client', $client);
-        $invoice->setRelation('company', $company);
-        $invoice->load('client.company');
+            $design_object = json_decode(json_encode(request()->input('design')));
 
-        $design_object = json_decode(json_encode(request()->input('design')));
+            if (! is_object($design_object)) {
+                return response()->json(['message' => 'Invalid custom design object'], 400);
+            }
 
-        if (! is_object($design_object)) {
-            return response()->json(['message' => 'Invalid custom design object'], 400);
+            $html = new HtmlEngine($invoice->invitations()->first());
+
+            $design = new Design(Design::CUSTOM, ['custom_partials' => request()->design['design']]);
+
+            $state = [
+                'template' => $design->elements([
+                    'client' => $invoice->client,
+                    'entity' => $invoice,
+                    'pdf_variables' => (array) $invoice->company->settings->pdf_variables,
+                    'products' => request()->design['design']['product'],
+                ]),
+                'variables' => $html->generateLabelsAndValues(),
+                'process_markdown' => $invoice->client->company->markdown_enabled,
+                'options' => [
+                    'client' => $invoice->client,
+                    'invoices' => [$invoice],
+                ]
+            ];
+
+            $maker = new PdfMaker($state);
+
+            $maker
+                ->design($design)
+                ->build();
+
+            DB::connection($company->db)->rollBack();
         }
-
-        $html = new HtmlEngine($invoice->invitations()->first());
-
-        $design = new Design(Design::CUSTOM, ['custom_partials' => request()->design['design']]);
-
-        $state = [
-            'template' => $design->elements([
-                'client' => $invoice->client,
-                'entity' => $invoice,
-                'pdf_variables' => (array) $invoice->company->settings->pdf_variables,
-                'products' => request()->design['design']['product'],
-            ]),
-            'variables' => $html->generateLabelsAndValues(),
-            'process_markdown' => $invoice->client->company->markdown_enabled,
-            'options' => [
-                'client' => $invoice->client,
-                'entity' => $invoice,
-            ]
-        ];
-
-        $maker = new PdfMaker($state);
-
-        $maker
-            ->design($design)
-            ->build();
-
-        DB::connection($company->db)->rollBack();
+        catch(\Exception $e){
+            DB::connection($company->db)->rollBack();
+            return response()->json(['message' => $e->getMessage()], 400);
+        }
 
         if (request()->query('html') == 'true') {
             return $maker->getCompiledHTML();

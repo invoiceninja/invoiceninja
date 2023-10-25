@@ -79,7 +79,7 @@ class TemplateService
         $this->twig = new Environment($loader, [
                 'debug' => true,
         ]);
-        
+
         $string_extension = new StringLoaderExtension();
         $this->twig->addExtension($string_extension);
         $this->twig->addExtension(new IntlExtension());

@@ -125,7 +125,6 @@ use App\Events\Document\DocumentWasCreated;
 use App\Events\Document\DocumentWasDeleted;
 use App\Events\Document\DocumentWasUpdated;
 use App\Events\Invoice\InvoiceWasCancelled;
-use App\Listeners\Invoice\CreateInvoicePdf;
 use App\Listeners\Quote\QuoteEmailActivity;
 use App\Listeners\User\CreatedUserActivity;
 use App\Listeners\User\DeletedUserActivity;
@@ -378,7 +377,6 @@ class EventServiceProvider extends ServiceProvider
         ],
         CreditWasUpdated::class => [
             UpdatedCreditActivity::class,
-            CreateInvoicePdf::class,
         ],
         CreditWasEmailedAndFailed::class => [
         ],
@@ -459,7 +457,6 @@ class EventServiceProvider extends ServiceProvider
         ],
         InvoiceWasReversed::class => [
             InvoiceReversedActivity::class,
-            CreateInvoicePdf::class,
         ],
         InvoiceWasCancelled::class => [
             InvoiceCancelledActivity::class,
@@ -515,7 +512,6 @@ class EventServiceProvider extends ServiceProvider
         ],
         QuoteWasUpdated::class => [
             QuoteUpdatedActivity::class,
-            CreateInvoicePdf::class,
         ],
         QuoteWasEmailed::class => [
             QuoteEmailActivity::class,

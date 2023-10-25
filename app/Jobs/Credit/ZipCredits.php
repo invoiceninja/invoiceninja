@@ -11,7 +11,6 @@
 
 namespace App\Jobs\Credit;
 
-use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\UnlinkFile;
@@ -31,8 +30,6 @@ class ZipCredits implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $settings;
-
     public $tries = 1;
 
     public function __construct(protected array $credit_ids, protected Company $company, protected User $user)
@@ -48,7 +45,7 @@ class ZipCredits implements ShouldQueue
     {
         MultiDB::setDb($this->company->db);
 
-        $this->settings = $this->company->settings;
+        $settings = $this->company->settings;
         $zipFile = new \PhpZip\ZipFile();
         $file_name = now()->addSeconds($this->company->timezone_offset())->format('Y-m-d-h-m-s').'_'.str_replace(' ', '_', trans('texts.credits')).'.zip';
 
@@ -67,7 +64,7 @@ class ZipCredits implements ShouldQueue
             $nmo = new NinjaMailerObject;
             $nmo->mailable = new DownloadCredits(Storage::url($path.$file_name), $this->company);
             $nmo->to_user = $this->user;
-            $nmo->settings = $this->settings;
+            $nmo->settings = $settings;
             $nmo->company = $this->company;
 
             NinjaMailerJob::dispatch($nmo);
