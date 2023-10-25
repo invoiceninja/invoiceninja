@@ -105,6 +105,7 @@ class VendorTransformer extends EntityTransformer
             'number' => (string) $vendor->number ?: '',
             'language_id' => (string) $vendor->language_id ?: '',
             'classification' => (string) $vendor->classification ?: '',
+            'display_name' =>  (string) $vendor->present()->name(),
         ];
     }
 }
