@@ -349,15 +349,17 @@ class CreateSingleAccount extends Command
         });
 
         
-        Project::query()->cursor()->each(function ($p) {
+        Project::query()->with('client')->whereNotNull('client_id')->cursor()->each(function ($p) {
             
-            if(!isset($p->number)) {
+            if($p && $p->client && !isset($p->number)) {
                 $p->number = $this->getNextProjectNumber($p);
                 $p->save();
             }
 
         });
 
+        $this->info("finished");
+        
     }
 
     private function createSubsData($company, $user)
@@ -940,11 +942,11 @@ class CreateSingleAccount extends Command
         }
     }
 
-    private function createRecurringInvoice($client)
+    private function createRecurringInvoice(Client $client)
     {
         $faker = Factory::create();
 
-        $invoice = RecurringInvoiceFactory::create($client->company->id, $client->user->id); //stub the company and user_id
+        $invoice = RecurringInvoiceFactory::create($client->company_id, $client->user_id); //stub the company and user_id
         $invoice->client_id = $client->id;
         $dateable = Carbon::now()->subDays(rand(0, 90));
         $invoice->date = $dateable;

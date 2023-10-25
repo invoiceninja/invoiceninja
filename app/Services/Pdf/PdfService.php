@@ -66,7 +66,6 @@ class PdfService
 
     public function boot(): self
     {   
-        $this->start_time = microtime(true);
 
         $this->init();
 
@@ -109,6 +108,7 @@ class PdfService
      */
     public function getHtml(): string
     {
+
         $html = $this->builder->getCompiledHTML();
 
         if (config('ninja.log_pdf_html')) {
@@ -127,6 +127,8 @@ class PdfService
      */
     public function init(): self
     {
+        $this->start_time = microtime(true);
+
         $this->config = (new PdfConfiguration($this))->init();
 
 

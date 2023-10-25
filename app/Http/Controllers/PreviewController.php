@@ -11,31 +11,16 @@
 
 namespace App\Http\Controllers;
 
-<<<<<<< HEAD
-=======
-use App\Models\Task;
->>>>>>> support_for_custom_statement_designs
 use App\Utils\Ninja;
 use App\Models\Quote;
 use App\Models\Client;
 use App\Models\Credit;
-<<<<<<< HEAD
 use App\Models\Invoice;
-=======
-use App\Models\Vendor;
-use App\Models\Invoice;
-use App\Models\Payment;
-use App\Models\Project;
->>>>>>> support_for_custom_statement_designs
 use App\Utils\HtmlEngine;
 use App\Libraries\MultiDB;
 use App\Factory\QuoteFactory;
 use App\Jobs\Util\PreviewPdf;
 use App\Models\ClientContact;
-<<<<<<< HEAD
-=======
-use App\Models\PurchaseOrder;
->>>>>>> support_for_custom_statement_designs
 use App\Services\Pdf\PdfMock;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
@@ -49,10 +34,7 @@ use Illuminate\Support\Facades\DB;
 use App\Services\PdfMaker\PdfMaker;
 use Illuminate\Support\Facades\App;
 use App\Repositories\QuoteRepository;
-<<<<<<< HEAD
 use Illuminate\Support\Facades\Cache;
-=======
->>>>>>> support_for_custom_statement_designs
 use App\Repositories\CreditRepository;
 use App\Utils\Traits\MakesInvoiceHtml;
 use Turbo124\Beacon\Facades\LightLogs;
@@ -61,10 +43,7 @@ use App\Utils\Traits\Pdf\PageNumbering;
 use App\Factory\RecurringInvoiceFactory;
 use Illuminate\Support\Facades\Response;
 use App\DataMapper\Analytics\LivePreview;
-<<<<<<< HEAD
-=======
 use App\Services\Template\TemplateService;
->>>>>>> support_for_custom_statement_designs
 use App\Repositories\RecurringInvoiceRepository;
 use App\Http\Requests\Preview\DesignPreviewRequest;
 use App\Services\PdfMaker\Design as PdfDesignModel;
@@ -123,7 +102,7 @@ class PreviewController extends BaseController
         if(!$entity_obj->id) {
             $entity_obj->design_id = intval($this->decodePrimaryKey($settings->{$entity_prop."_design_id"}));
             $entity_obj->footer = empty($entity_obj->footer) ? $settings->{$entity_prop."_footer"} : $entity_obj->footer;
-            $entity_obj->terms = empty($entity_obj->term) ? $settings->{$entity_prop."_terms"} : $entity_obj->terms;
+            $entity_obj->terms = empty($entity_obj->terms) ? $settings->{$entity_prop."_terms"} : $entity_obj->terms;
             $entity_obj->public_notes = empty($entity_obj->public_notes) ? $request->getClient()->public_notes : $entity_obj->public_notes;
             $invitation->{$request->entity} = $entity_obj;
         }
