@@ -154,6 +154,10 @@ class CreatePurchaseOrderPdf implements ShouldQueue
             'options' => [
                 'all_pages_header' => $this->entity->company->getSetting('all_pages_header'),
                 'all_pages_footer' => $this->entity->company->getSetting('all_pages_footer'),
+                'client' => null,
+                'vendor' => $this->vendor,
+                'entity' => $this->entity,
+                'variables' => $variables,
             ],
             'process_markdown' => $this->entity->company->markdown_enabled,
         ];

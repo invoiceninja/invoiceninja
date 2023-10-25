@@ -17,7 +17,7 @@ use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Database\QueryException;
 
 /**
- * TaskRepository.
+ * App\Repositories\TaskRepository.
  */
 class TaskRepository extends BaseRepository
 {

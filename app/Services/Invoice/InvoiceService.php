@@ -290,6 +290,34 @@ class InvoiceService
 
         return $this;
     }
+    
+    /**
+     * Reset the reminders if only the
+     * partial has been paid.
+     * 
+     * We can _ONLY_ call this _IF_ a partial
+     * amount has been paid, otherwise we end up wiping
+     * all reminders regardless
+     *
+     * @return self
+     */
+    public function checkReminderStatus(): self
+    {
+        
+        if($this->invoice->partial == 0)
+            $this->invoice->partial_due_date = null;
+
+        if($this->invoice->partial == 0 && $this->invoice->balance > 0)
+        {
+            $this->invoice->reminder1_sent = null;
+            $this->invoice->reminder2_sent = null;
+            $this->invoice->reminder3_sent = null;
+
+            $this->setReminder();
+        }
+
+        return $this;
+    }
 
     public function setReminder($settings = null)
     {

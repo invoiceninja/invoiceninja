@@ -12,6 +12,7 @@
 
 namespace App\Services\PdfMaker;
 
+use App\Services\Template\TemplateService;
 use League\CommonMark\CommonMarkConverter;
 
 class PdfMaker
@@ -74,6 +75,32 @@ class PdfMaker
             $this->updateElementProperties($this->data['template']);
         }
 
+        if(isset($this->options)) {
+
+            $replacements = [];
+            $contents = $this->document->getElementsByTagName('ninja');
+            
+            $twig = (new TemplateService())->twig;
+
+            foreach ($contents as $content) {
+                
+                $template = $content->ownerDocument->saveHTML($content);
+
+                $template = $twig->createTemplate(html_entity_decode($template));
+                $template = $template->render($this->options);
+
+                $f = $this->document->createDocumentFragment();
+                $f->appendXML($template);
+                $replacements[] = $f;
+
+            }
+
+            foreach($contents as $key => $content){
+                $content->parentNode->replaceChild($replacements[$key], $content);
+            }
+
+        }
+
         if (isset($this->data['variables'])) {
             $this->updateVariables($this->data['variables']);
         }
@@ -84,13 +111,14 @@ class PdfMaker
     /**
      * Final method to get compiled HTML.
      *
-     * @param bool $final @deprecated // is it? i still see it being called elsewhere
+     * @param bool $final
      * @return mixed
      */
     public function getCompiledHTML($final = false)
     {
-        $html = $this->document->saveHTML();
 
+        $html = $this->document->saveHTML();
+        // nlog($html);
         return str_replace('%24', '$', $html);
     }
 }

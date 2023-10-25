@@ -42,7 +42,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Turbo124\Beacon\Facades\LightLogs;
 
-class Email implements ShouldQueue
+class AdminEmail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
 
@@ -83,8 +83,6 @@ class Email implements ShouldQueue
         MultiDB::setDb($this->company->db);
 
         $this->setOverride()
-             ->initModels()
-             ->setDefaults()
              ->buildMailable();
 
         if ($this->preFlightChecksFail()) {
@@ -93,7 +91,6 @@ class Email implements ShouldQueue
 
         $this->email();
 
-        $this->tearDown();
     }
     
     /**
@@ -109,114 +106,13 @@ class Email implements ShouldQueue
     }
     
     /**
-     * Initilializes the models
-     *
-     * @return self
-     */
-    public function initModels(): self
-    {
-        $this->email_object->entity_id ? $this->email_object->entity = $this->email_object->entity_class::withTrashed()->with('invitations')->find($this->email_object->entity_id) : $this->email_object->entity = null;
-
-        $this->email_object->invitation_id ? $this->email_object->invitation = $this->email_object->entity->invitations()->where('id', $this->email_object->invitation_id)->first() : $this->email_object->invitation = null;
-
-        $this->email_object->invitation_id ? $this->email_object->contact = $this->email_object->invitation->contact :  $this->email_object->contact = null;
-
-        $this->email_object->client_id ? $this->email_object->client = Client::withTrashed()->find($this->email_object->client_id) : $this->email_object->client = null;
-        
-        $this->email_object->vendor_id ? $this->email_object->vendor = Vendor::withTrashed()->find($this->email_object->vendor_id) : $this->email_object->vendor = null;
-   
-        if (!$this->email_object->contact) {
-            $this->email_object->vendor_contact_id ? $this->email_object->contact = VendorContact::withTrashed()->find($this->email_object->vendor_contact_id) :  null;
-
-            $this->email_object->client_contact_id ? $this->email_object->contact = ClientContact::withTrashed()->find($this->email_object->client_contact_id) :  null;
-        }
-
-        $this->email_object->user_id ? $this->email_object->user = User::withTrashed()->find($this->email_object->user_id) :  $this->email_object->user = $this->company->owner();
-
-        $this->email_object->company_key = $this->company->company_key;
-
-        $this->email_object->company = $this->company;
-
-        $this->email_object->client_id ? $this->email_object->settings = $this->email_object->client->getMergedSettings() : $this->email_object->settings = $this->company->settings;
-
-        // $this->email_object->client_id ? nlog("client settings") : nlog("company settings ");
-
-        $this->email_object->whitelabel = $this->company->account->isPaid() ? true : false;
-
-        $this->email_object->logo = $this->email_object->settings->company_logo;
-
-        $this->email_object->signature = $this->email_object->settings->email_signature;
-
-        $this->email_object->invitation_key = $this->email_object->invitation ? $this->email_object->invitation->key : null;
-        
-        $this->resolveVariables();
-
-        return $this;
-    }
-    
-    /**
-     * Generates the correct set of variables
-     *
-     * @return self
-     */
-    private function resolveVariables(): self
-    {
-        $_variables = $this->email_object->variables;
-        
-        match (class_basename($this->email_object->entity)) {
-            "Invoice" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),
-            "Quote" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),
-            "Credit" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),
-            "PurchaseOrder" => $this->email_object->variables = (new VendorHtmlEngine($this->email_object->invitation))->makeValues(),
-            default => $this->email_object->variables = []
-        };
-
-        /** If we have passed some variable overrides we insert them here */
-        foreach ($_variables as $key => $value) {
-            $this->email_object->variables[$key] = $value;
-        }
-
-        return $this;
-    }
-    
-    /**
-     * tearDown
-     *
-     * @return self
-     */
-    private function tearDown(): self
-    {
-        $this->email_object->entity = null;
-        $this->email_object->invitation = null;
-        $this->email_object->client = null;
-        $this->email_object->vendor = null;
-        $this->email_object->user = null;
-        $this->email_object->contact = null;
-        $this->email_object->settings = null;
-
-        return $this;
-    }
-    
-    /**
-     * Builds the email defaults
-     *
-     * @return self
-     */
-    public function setDefaults(): self
-    {
-        (new EmailDefaults($this))->run();
-
-        return $this;
-    }
-    
-    /**
      * Populates the mailable
      *
      * @return self
      */
     public function buildMailable(): self
     {
-        $this->mailable = new EmailMailable($this->email_object);
+        $this->mailable = new AdminEmailMailable($this->email_object);
         
         return $this;
     }
@@ -309,9 +205,6 @@ class Email implements ShouldQueue
                 }
             }
 
-            $this->tearDown();
-            /* Releasing immediately does not add in the backoff */
-
             sleep(rand(0, 3));
 
             $this->release($this->backoff()[$this->attempts()-1]);
@@ -322,13 +215,13 @@ class Email implements ShouldQueue
         $this->cleanUpMailers();
     }
 
-   /**
-     * On the hosted platform we scan all outbound email for
-     * spam. This sequence processes the filters we use on all
-     * emails.
-     *
-     * @return bool
-     */
+    /**
+      * On the hosted platform we scan all outbound email for
+      * spam. This sequence processes the filters we use on all
+      * emails.
+      *
+      * @return bool
+      */
     public function preFlightChecksFail(): bool
     {
         /* Always send if disabled */
@@ -412,21 +305,13 @@ class Email implements ShouldQueue
             if ($address_object->address == " ") {
                 return true;
             }
-
-            if ($address_object->address == "") {
-                return true;
-            }
-
-            if($address_object->name == " " || $address_object->name == "") {
-                return true;
-            }
         }
 
 
         return false;
     }
 
-        /**
+    /**
      * Sets the mail driver to use and applies any specific configuration
      * the the mailable
      */
@@ -466,7 +351,7 @@ class Email implements ShouldQueue
         return $this;
     }
 
-        /**
+    /**
      * Allows configuration of multiple mailers
      * per company for use by self hosted users
      */

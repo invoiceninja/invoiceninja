@@ -12,27 +12,32 @@
 
 namespace App\Services\Client;
 
-use App\Factory\InvoiceFactory;
-use App\Factory\InvoiceInvitationFactory;
-use App\Factory\InvoiceItemFactory;
+use App\Utils\Number;
 use App\Models\Client;
+use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Services\PdfMaker\Design as PdfMakerDesign;
-use App\Services\PdfMaker\PdfMaker;
-use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
-use App\Utils\Number;
-use App\Utils\PhantomJS\Phantom;
-use App\Utils\Traits\Pdf\PdfMaker as PdfMakerTrait;
 use Illuminate\Support\Carbon;
+use App\Factory\InvoiceFactory;
+use App\Utils\Traits\MakesHash;
+use App\Utils\PhantomJS\Phantom;
+use App\Utils\HostedPDF\NinjaPdf;
 use Illuminate\Support\Facades\DB;
-use App\Models\Credit;
+use App\Factory\InvoiceItemFactory;
+use App\Services\PdfMaker\PdfMaker;
+use App\Factory\InvoiceInvitationFactory;
+use Illuminate\Database\Eloquent\Builder;
+use App\Services\PdfMaker\Design as PdfMakerDesign;
+use App\Utils\Traits\MakesDates;
+use App\Utils\Traits\Pdf\PdfMaker as PdfMakerTrait;
 
 class Statement
 {
     use PdfMakerTrait;
+    use MakesHash;
+    use MakesDates;
 
     /**
      * @var Invoice|Payment|null
@@ -53,6 +58,20 @@ class Statement
 
         $html = new HtmlEngine($this->getInvitation());
 
+        $variables = [];
+
+        if($this->client->getSetting('statement_design_id') != '') {
+
+            $variables['values']['$start_date'] = $this->translateDate($this->options['start_date'], $this->client->date_format(), $this->client->locale());
+            $variables['values']['$end_date'] = $this->translateDate($this->options['end_date'], $this->client->date_format(), $this->client->locale());
+            $variables['labels']['$start_date_label'] = ctrans('texts.start_date');
+            $variables['labels']['$end_date_label'] = ctrans('texts.end_date');
+
+            return $this->templateStatement($variables);
+        }   
+
+        $variables = $html->generateLabelsAndValues();
+
         if ($this->getDesign()->is_custom) {
             $this->options['custom_partials'] = \json_decode(\json_encode($this->getDesign()->design), true);
 
@@ -71,15 +90,25 @@ class Statement
                 'pdf_variables' => (array) $this->entity->company->settings->pdf_variables,
                 '$product' => $this->getDesign()->design->product,
                 'variables' => $variables,
-                'invoices' => $this->getInvoices(),
-                'payments' => $this->getPayments(),
-                'credits' => $this->getCredits(),
+                'invoices' => $this->getInvoices()->cursor(),
+                'payments' => $this->getPayments()->cursor(),
+                'credits' => $this->getCredits()->cursor(),
                 'aging' => $this->getAging(),
             ], \App\Services\PdfMaker\Design::STATEMENT),
             'variables' => $variables,
-            'options' => [],
+            'options' => [
+                'client' => $this->client,
+                'entity' => $this->entity,
+                'variables' => $variables,
+                'invoices' => $this->getInvoices()->cursor(),
+                'payments' => $this->getPayments()->cursor(),
+                'credits' => $this->getCredits()->cursor(),
+                'aging' => $this->getAging(),
+            ],
             'process_markdown' => $this->entity->client->company->markdown_enabled,
         ];
+
+        
 
         $maker = new PdfMaker($state);
 
@@ -88,22 +117,14 @@ class Statement
             ->build();
 
         $pdf = null;
-
-        try {
-            if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-                $pdf = (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
-            } elseif (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
-                $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
-            } else {
-                $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
-            }
-        } catch (\Exception $e) {
-            nlog(print_r($e->getMessage(), 1));
-        }
+        $html = $maker->getCompiledHTML(true);
+    
 
         if ($this->rollback) {
             \DB::connection(config('database.default'))->rollBack();
         }
+
+        $pdf = $this->convertToPdf($html); 
 
         $maker = null;
         $state = null;
@@ -111,6 +132,49 @@ class Statement
         return $pdf;
     }
 
+    private function templateStatement($variables)
+    {
+        if(isset($this->options['template']))
+            $statement_design_id = $this->options['template'];
+        else
+            $statement_design_id = $this->client->getSetting('statement_design_id');
+
+        $template = Design::where('id', $this->decodePrimaryKey($statement_design_id))
+                            ->where('company_id', $this->client->company_id)
+                            ->first();
+
+        $ts = $template->service()->build([
+            'variables' => collect([$variables]),
+            'invoices' => $this->getInvoices()->get(),
+            'payments' => $this->options['show_payments_table'] ? $this->getPayments()->get() : collect([]),
+            'credits' => $this->options['show_credits_table'] ? $this->getCredits()->get() : collect([]),
+            'aging' => $this->options['show_aging_table'] ? $this->getAging() : collect([]),
+        ]);
+
+        $html = $ts->getHtml();
+        
+        return $this->convertToPdf($html);
+    }
+
+    private function convertToPdf(string $html): mixed
+    {
+        $pdf = false;
+
+        try {
+            if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
+                $pdf = (new Phantom)->convertHtmlToPdf($html);
+            } elseif (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
+                $pdf = (new NinjaPdf())->build($html);
+            } else {
+                $pdf = $this->makePdf(null, null, $html);
+            }
+        } catch (\Exception $e) {
+            nlog(print_r($e->getMessage(), 1));
+        }
+
+
+        return $pdf;
+    }
     /**
      * Setup correct entity instance.
      *
@@ -222,9 +286,9 @@ class Statement
     /**
      * The collection of invoices for the statement.
      *
-     * @return Invoice[]|\Illuminate\Support\LazyCollection
+     * @return Builder
      */
-    public function getInvoices(): \Illuminate\Support\LazyCollection
+    public function getInvoices(): Builder
     {
         return Invoice::withTrashed()
             ->with('payments.type')
@@ -234,8 +298,7 @@ class Statement
             ->whereIn('status_id', $this->invoiceStatuses())
             ->whereBetween('date', [Carbon::parse($this->options['start_date']), Carbon::parse($this->options['end_date'])])
             ->orderBy('due_date', 'ASC')
-            ->orderBy('date', 'ASC')
-            ->cursor();
+            ->orderBy('date', 'ASC');
     }
 
     private function invoiceStatuses() :array
@@ -256,7 +319,6 @@ class Statement
             case 'unpaid':
                 return [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL];
                 
-
             default:
                 return [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID];
                 
@@ -266,9 +328,9 @@ class Statement
     /**
      * The collection of payments for the statement.
      *
-     * @return Payment[]|\Illuminate\Support\LazyCollection
+     * @return Builder
      */
-    protected function getPayments(): \Illuminate\Support\LazyCollection
+    protected function getPayments(): Builder
     {
         return Payment::withTrashed()
             ->with('client.country', 'invoices')
@@ -277,19 +339,18 @@ class Statement
             ->where('client_id', $this->client->id)
             ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
             ->whereBetween('date', [Carbon::parse($this->options['start_date']), Carbon::parse($this->options['end_date'])])
-            ->orderBy('date', 'ASC')
-            ->cursor();
+            ->orderBy('date', 'ASC');
     }
 
     /**
      * The collection of credits for the statement.
      *
-     * @return Credit[]|\Illuminate\Support\LazyCollection
+     * @return Builder
      */
-    protected function getCredits(): \Illuminate\Support\LazyCollection
+    protected function getCredits(): Builder
     {
         return Credit::withTrashed()
-            ->with('client.country', 'invoices')
+            ->with('client.country','invoice')
             ->where('is_deleted', false)
             ->where('company_id', $this->client->company_id)
             ->where('client_id', $this->client->id)
@@ -299,8 +360,7 @@ class Statement
                 $query->whereDate('due_date', '>=', $this->options['end_date'])
                       ->orWhereNull('due_date');
             })
-            ->orderBy('date', 'ASC')
-            ->cursor();
+            ->orderBy('date', 'ASC');
     }
 
     /**
@@ -339,7 +399,7 @@ class Statement
      * @param mixed $range
      * @return string
      */
-    private function getAgingAmount($range)
+    private function getAgingAmount($range): string
     {
         $ranges = $this->calculateDateRanges($range);
 

@@ -301,7 +301,10 @@ class DesignController extends BaseController
      */
     public function create(CreateDesignRequest $request)
     {
-        $design = DesignFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $design = DesignFactory::create($user->company()->id, $user->id);
 
         return $this->itemResponse($design);
     }
@@ -346,7 +349,11 @@ class DesignController extends BaseController
      */
     public function store(StoreDesignRequest $request)
     {
-        $design = DesignFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $design = DesignFactory::create($user->company()->id, $user->id);
+
         $design->fill($request->all());
         $design->save();
 

@@ -322,8 +322,9 @@ class Design extends BaseDesign
     public function entityDetails(): array
     {
         if ($this->type === 'statement') {
-            // $s_date = $this->translateDate(now(), $this->client->date_format(), $this->client->locale());
             
+            $variables = $this->context['pdf_variables']['statement_details'] ?? [];
+
             $s_date = $this->translateDate($this->options['start_date'], $this->client->date_format(), $this->client->locale()) . " - " . $this->translateDate($this->options['end_date'], $this->client->date_format(), $this->client->locale());
 
             return [

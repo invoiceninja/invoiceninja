@@ -170,6 +170,9 @@ class CreateEntityPdf implements ShouldQueue
             'options' => [
                 'all_pages_header' => $this->entity->client->getSetting('all_pages_header'),
                 'all_pages_footer' => $this->entity->client->getSetting('all_pages_footer'),
+                'client' => $this->client,
+                'entity' => $this->entity,
+                'variables' => $variables,
             ],
             'process_markdown' => $this->entity->client->company->markdown_enabled,
         ];

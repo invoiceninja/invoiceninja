@@ -28,6 +28,15 @@ use App\Jobs\Company\CompanyTaxRate;
  */
 trait CompanySettingsSaver
 {
+
+    private array $string_ids = [
+        'payment_refund_design_id',
+        'payment_receipt_design_id',
+        'delivery_note_design_id',
+        'statement_design_id',
+        'besr_id',
+        'gmail_sending_user_id',
+    ];
     /**
      * Saves a setting object.
      *
@@ -131,7 +140,8 @@ trait CompanySettingsSaver
             elseif (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter') {
                 $value = 'integer';
 
-                if ($key == 'besr_id') {
+                if(in_array($key, $this->string_ids)) {
+                // if ($key == 'besr_id') {
                     $value = 'string';
                 }
 
@@ -199,13 +209,17 @@ trait CompanySettingsSaver
             if (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter') {
                 $value = 'integer';
 
-                if ($key == 'gmail_sending_user_id') {
-                    $value = 'string';
+                if(in_array($key, $this->string_ids)) {
+                    $value ='string';
                 }
 
-                if ($key == 'besr_id') {
-                    $value = 'string';
-                }
+                // if ($key == 'gmail_sending_user_id') {
+                //     $value = 'string';
+                // }
+
+                // if ($key == 'besr_id') {
+                //     $value = 'string';
+                // }
 
                 if (! property_exists($settings, $key)) {
                     continue;

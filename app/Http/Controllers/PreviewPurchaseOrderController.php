@@ -232,6 +232,12 @@ class PreviewPurchaseOrderController extends BaseController
                     '$product' => $design->design->product,
                 ]),
                 'variables' => $html->generateLabelsAndValues(),
+                'options' => [
+                    'client' => null,
+                    'vendor' => $entity_obj->vendor,
+                    'entity' => $entity_obj,
+                    'variables' => $html->generateLabelsAndValues(),
+                ],
                 'process_markdown' => $entity_obj->company->markdown_enabled,
             ];
 

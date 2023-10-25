@@ -23,11 +23,6 @@ use stdClass;
 
 class RefundPayment
 {
-    public $payment;
-
-    public $refund_data;
-
-    private $credit_note;
 
     private float $total_refund = 0;
 
@@ -41,12 +36,8 @@ class RefundPayment
     
     private string $refund_failed_message = '';
 
-    public function __construct($payment, $refund_data)
+    public function __construct(public Payment $payment, public array $refund_data)
     {
-        $this->payment = $payment;
-
-        $this->refund_data = $refund_data;
-
         $this->gateway_refund_status = false;
 
         $this->activity_repository = new ActivityRepository();
@@ -136,6 +127,8 @@ class RefundPayment
         } else {
             $this->payment->refunded += $net_refund;
         }
+
+        $this->payment->setRefundMeta($this->refund_data);
 
         return $this;
     }

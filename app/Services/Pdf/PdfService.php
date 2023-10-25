@@ -44,6 +44,10 @@ class PdfService
 
     public array $options;
 
+    private float $start_time;
+
+    public float $execution_time;
+
     const DELIVERY_NOTE = 'delivery_note';
     const STATEMENT = 'statement';
     const PURCHASE_ORDER = 'purchase_order';
@@ -61,7 +65,9 @@ class PdfService
     }
 
     public function boot(): self
-    {
+    {   
+        $this->start_time = microtime(true);
+
         $this->init();
 
         return $this;
@@ -90,6 +96,8 @@ class PdfService
             throw new \Exception($e->getMessage(), $e->getCode());
         }
 
+        $this->execution_time = microtime(true) - $this->start_time;
+        
         return $pdf;
     }
 
@@ -104,8 +112,10 @@ class PdfService
         $html = $this->builder->getCompiledHTML();
 
         if (config('ninja.log_pdf_html')) {
-            info($html);
+            nlog($html);
         }
+
+        $this->execution_time = microtime(true) - $this->start_time;
 
         return $html;
     }

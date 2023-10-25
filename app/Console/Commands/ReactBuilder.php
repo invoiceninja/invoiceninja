@@ -61,14 +61,14 @@ class ReactBuilder extends Command
         foreach (new \RecursiveIteratorIterator($directoryIterator) as $file) {
             if ($file->getExtension() == 'js') {
                 if (str_contains($file->getFileName(), 'index-')) {
-                    $includes .= '<script type="module" crossorigin src="/react/'.$file->getFileName().'"></script>'."\n";
+                    $includes .= '<script type="module" crossorigin src="/react/v'.config('ninja.app_version').'/'.$file->getFileName().'"></script>'."\n";
                 } else {
-                    $includes .= '<link rel="modulepreload" href="/react/'.$file->getFileName().'">'."\n";
+                    $includes .= '<link rel="modulepreload" href="/react/v'.config('ninja.app_version').'/'.$file->getFileName().'">'."\n";
                 }
             }
 
             if (str_contains($file->getFileName(), '.css')) {
-                $includes .= '<link rel="stylesheet" href="/react/'.$file->getFileName().'">'."\n";
+                $includes .= '<link rel="stylesheet" href="/react/v'.config('ninja.app_version').'/'.$file->getFileName().'">'."\n";
             }
         }
 

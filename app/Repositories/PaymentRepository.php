@@ -142,11 +142,8 @@ class PaymentRepository extends BaseRepository
 
             $invoices = Invoice::withTrashed()->whereIn('id', array_column($data['invoices'], 'invoice_id'))->get();
 
-            // $payment->invoices()->saveMany($invoices); //25-06-2023
-
             //todo optimize this into a single query
             foreach ($data['invoices'] as $paid_invoice) {
-                // $invoice = Invoice::withTrashed()->whereId($paid_invoice['invoice_id'])->first();
                 $invoice = $invoices->firstWhere('id', $paid_invoice['invoice_id']);
 
                 if ($invoice) {

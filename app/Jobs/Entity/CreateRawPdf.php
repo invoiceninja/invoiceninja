@@ -23,6 +23,7 @@ use App\Models\QuoteInvitation;
 use App\Utils\Traits\MakesHash;
 use App\Models\CreditInvitation;
 use App\Models\RecurringInvoice;
+use App\Services\Pdf\PdfService;
 use App\Utils\PhantomJS\Phantom;
 use App\Models\InvoiceInvitation;
 use App\Utils\HostedPDF\NinjaPdf;
@@ -89,6 +90,17 @@ class CreateRawPdf implements ShouldQueue
 
     public function handle()
     {
+        /** Testing this override to improve PDF generation performance */
+        $ps = new PdfService($this->invitation, 'product', [
+            'client' => $this->entity->client,
+            "{$this->entity_string}s" => [$this->entity],
+        ]);
+
+        $pdf = $ps->boot()->getPdf();
+        nlog("pdf timer = ". $ps->execution_time);
+
+
+
         /* Forget the singleton*/
         App::forgetInstance('translator');
 
@@ -157,6 +169,9 @@ class CreateRawPdf implements ShouldQueue
             'options' => [
                 'all_pages_header' => $this->entity->client->getSetting('all_pages_header'),
                 'all_pages_footer' => $this->entity->client->getSetting('all_pages_footer'),
+                'client' => $this->entity->client,
+                'entity' => $this->entity,
+                'variables' => $variables,
             ],
             'process_markdown' => $this->entity->client->company->markdown_enabled,
         ];

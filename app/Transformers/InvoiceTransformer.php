@@ -14,6 +14,7 @@ namespace App\Transformers;
 use App\Models\Activity;
 use App\Models\Backup;
 use App\Models\Client;
+use App\Models\Credit;
 use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
@@ -61,6 +62,13 @@ class InvoiceTransformer extends EntityTransformer
         $transformer = new PaymentTransformer($this->serializer);
 
         return $this->includeCollection($invoice->payments, $transformer, Payment::class);
+    }
+
+    public function includeCredits(Invoice $invoice)
+    {
+        $transformer = new CreditTransformer($this->serializer);
+
+        return $this->includeCollection($invoice->credits, $transformer, Credit::class);
     }
 
     /*

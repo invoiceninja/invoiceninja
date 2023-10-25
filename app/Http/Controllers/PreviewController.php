@@ -11,16 +11,31 @@
 
 namespace App\Http\Controllers;
 
+<<<<<<< HEAD
+=======
+use App\Models\Task;
+>>>>>>> support_for_custom_statement_designs
 use App\Utils\Ninja;
 use App\Models\Quote;
 use App\Models\Client;
 use App\Models\Credit;
+<<<<<<< HEAD
 use App\Models\Invoice;
+=======
+use App\Models\Vendor;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\Project;
+>>>>>>> support_for_custom_statement_designs
 use App\Utils\HtmlEngine;
 use App\Libraries\MultiDB;
 use App\Factory\QuoteFactory;
 use App\Jobs\Util\PreviewPdf;
 use App\Models\ClientContact;
+<<<<<<< HEAD
+=======
+use App\Models\PurchaseOrder;
+>>>>>>> support_for_custom_statement_designs
 use App\Services\Pdf\PdfMock;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
@@ -34,7 +49,10 @@ use Illuminate\Support\Facades\DB;
 use App\Services\PdfMaker\PdfMaker;
 use Illuminate\Support\Facades\App;
 use App\Repositories\QuoteRepository;
+<<<<<<< HEAD
 use Illuminate\Support\Facades\Cache;
+=======
+>>>>>>> support_for_custom_statement_designs
 use App\Repositories\CreditRepository;
 use App\Utils\Traits\MakesInvoiceHtml;
 use Turbo124\Beacon\Facades\LightLogs;
@@ -43,6 +61,10 @@ use App\Utils\Traits\Pdf\PageNumbering;
 use App\Factory\RecurringInvoiceFactory;
 use Illuminate\Support\Facades\Response;
 use App\DataMapper\Analytics\LivePreview;
+<<<<<<< HEAD
+=======
+use App\Services\Template\TemplateService;
+>>>>>>> support_for_custom_statement_designs
 use App\Repositories\RecurringInvoiceRepository;
 use App\Http\Requests\Preview\DesignPreviewRequest;
 use App\Services\PdfMaker\Design as PdfDesignModel;
@@ -234,6 +256,9 @@ class PreviewController extends BaseController
      */
     public function show()
     {
+        if(request()->has('template'))
+            return $this->template();
+
         if (request()->has('entity') &&
             request()->has('entity_id') &&
             ! empty(request()->input('entity')) &&
@@ -278,6 +303,10 @@ class PreviewController extends BaseController
                 ]),
                 'variables' => $html->generateLabelsAndValues(),
                 'process_markdown' => $entity_obj->client->company->markdown_enabled,
+                'options' => [
+                    'client' => $entity_obj->client,
+                    'entity' => $entity_obj,
+                ]
             ];
 
             $design = new Design(request()->design['name']);
@@ -444,6 +473,9 @@ class PreviewController extends BaseController
                 'options' => [
                     'all_pages_header' => $entity_obj->client->getSetting('all_pages_header'),
                     'all_pages_footer' => $entity_obj->client->getSetting('all_pages_footer'),
+                    'client' => $entity_obj->client,
+                    'entity' => $entity_obj,
+                    'variables' => $variables,
                 ],
                 'process_markdown' => $entity_obj->client->company->markdown_enabled,
             ];
@@ -514,6 +546,80 @@ class PreviewController extends BaseController
         return $response;
     }
 
+    private function template()
+    {
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        /** @var \App\Models\Company $company */
+        $company = $user->company();
+
+        $design_object = json_decode(json_encode(request()->input('design')),1);
+
+        // $client_id = Invoice::whereHas('payments')->company()->where('is_deleted', 0)->orderBy('id','desc')->first()->client_id;
+        // $vendor_id = PurchaseOrder::query()->company()->where('is_deleted', 0)->orderBy('id', 'desc')->first()->vendor_id;
+
+        // $data = [
+        //     'invoices' => Invoice::whereHas('payments')->company()->with('client','payments')->where('client_id', $client_id)->orderBy('id','desc')->take(4)->get(),
+        //     'quotes' => Quote::query()->company()->with('client')->where('client_id', $client_id)->orderBy('id','desc')->take(4)->get(),
+        //     'credits' => Credit::query()->company()->with('client')->where('client_id', $client_id)->orderBy('id','desc')->take(4)->get(),
+        //     'payments' => Payment::query()->company()->with('client')->where('client_id', $client_id)->orderBy('id','desc')->take(4)->get(),
+        //     'purchase_orders' => PurchaseOrder::query()->company()->with('vendor')->where('vendor_id', $vendor_id)->orderBy('id','desc')->take(5)->get(),
+        //     'tasks' => Task::query()->company()->with('client','invoice')->where('client_id', $client_id)->orderBy('id','desc')->take(2)->get(),
+        //     'projects' => Project::query()->company()->with('tasks','client')->where('client_id', $client_id)->orderBy('id','desc')->take(2)->get(),
+        // ];
+
+
+        $ts = (new TemplateService());
+        try {
+                $ts->setCompany($company)
+                    ->setTemplate($design_object)
+                    ->mock();
+        }
+        catch(\Twig\Error\SyntaxError $e)
+        {
+
+            // return response()->json(['message' => 'Twig syntax is invalid.', 'errors' => new \stdClass], 422);
+
+        }
+
+        $html = $ts->getHtml();
+
+        if (request()->query('html') == 'true') {
+            return $html;
+        }
+
+        if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
+            return (new Phantom)->convertHtmlToPdf($html);
+        }
+
+        if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
+            $pdf = (new NinjaPdf())->build($html);
+
+            $numbered_pdf = $this->pageNumbering($pdf, $company);
+
+            if ($numbered_pdf) {
+                $pdf = $numbered_pdf;
+            }
+
+            return $pdf;
+        }
+
+        $file_path = (new PreviewPdf($html, $company))->handle();
+
+        $response = Response::make($file_path, 200);
+        $response->header('Content-Type', 'application/pdf');
+
+        return $response;
+
+    }
+
+    private function stubTemplateData()
+    {
+        
+    }
+
     private function blankEntity()
     {
 
@@ -554,6 +660,10 @@ class PreviewController extends BaseController
             ]),
             'variables' => $html->generateLabelsAndValues(),
             'process_markdown' => $invitation->invoice->client->company->markdown_enabled,
+            'options' => [
+                'client' => $invitation->invoice->client,
+                'entity' => $invitation->invoice,
+            ]
         ];
 
         $maker = new PdfMaker($state);
@@ -664,6 +774,10 @@ class PreviewController extends BaseController
             ]),
             'variables' => $html->generateLabelsAndValues(),
             'process_markdown' => $invoice->client->company->markdown_enabled,
+            'options' => [
+                'client' => $invoice->client,
+                'entity' => $invoice,
+            ]
         ];
 
         $maker = new PdfMaker($state);

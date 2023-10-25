@@ -11,13 +11,14 @@
 
 namespace App\Services\Pdf;
 
-use App\Models\Credit;
-use App\Models\Quote;
-use App\Utils\Helpers;
-use App\Utils\Traits\MakesDates;
 use DOMDocument;
-use Illuminate\Support\Carbon;
+use App\Models\Quote;
+use App\Models\Credit;
+use App\Utils\Helpers;
 use Illuminate\Support\Str;
+use Illuminate\Support\Carbon;
+use App\Utils\Traits\MakesDates;
+use App\Services\Template\TemplateService;
 use League\CommonMark\CommonMarkConverter;
 
 class PdfBuilder
@@ -67,6 +68,7 @@ class PdfBuilder
              ->buildSections()
              ->getEmptyElements()
              ->updateElementProperties()
+             ->parseTwigElements()
              ->updateVariables();
 
         return $this;
@@ -102,6 +104,40 @@ class PdfBuilder
         $this->document = $document;
 
         return $this;
+    }
+
+    private function parseTwigElements()
+    {
+
+        $replacements = [];
+        $contents = $this->document->getElementsByTagName('ninja');
+                
+        $template_service = new TemplateService();
+        $data = $template_service->processData($this->service->options)->getData();
+
+        $twig = $template_service->twig;
+
+        foreach ($contents as $content) {
+                    
+            $template = $content->ownerDocument->saveHTML($content);
+
+            $template = $twig->createTemplate(html_entity_decode($template));
+            $template = $template->render($data);
+
+            $f = $this->document->createDocumentFragment();
+            $f->appendXML($template);
+            $replacements[] = $f;
+
+        }
+
+        foreach($contents as $key => $content) {
+            $content->parentNode->replaceChild($replacements[$key], $content);
+        }
+
+        $contents = null;
+
+        return $this;
+
     }
 
     public function setDocument($document): self
@@ -1091,7 +1127,8 @@ class PdfBuilder
             } elseif (Str::startsWith($variable, '$custom_surcharge')) {
                 $_variable = ltrim($variable, '$'); // $custom_surcharge1 -> custom_surcharge1
 
-                $visible = intval($this->service->config->entity->{$_variable}) != 0;
+                // $visible = intval($this->service->config->entity->{$_variable}) != 0;
+                $visible = intval(str_replace(['0','.'], '', $this->service->config->entity->{$_variable})) != 0;
 
                 $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
                     ['element' => 'span', 'content' => $variable . '_label', 'properties' => ['hidden' => !$visible, 'data-ref' => 'totals_table-' . substr($variable, 1) . '-label']],
@@ -1317,7 +1354,6 @@ class PdfBuilder
     public function genericDetailsBuilder(array $variables): array
     {
         $elements = [];
-
 
         foreach ($variables as $variable) {
             $_variable = explode('.', $variable)[1];

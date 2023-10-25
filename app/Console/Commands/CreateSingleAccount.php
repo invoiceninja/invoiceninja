@@ -11,51 +11,52 @@
 
 namespace App\Console\Commands;
 
-use App\DataMapper\ClientRegistrationFields;
-use App\DataMapper\CompanySettings;
-use App\DataMapper\FeesAndLimits;
-use App\Events\Invoice\InvoiceWasCreated;
-use App\Events\RecurringInvoice\RecurringInvoiceWasCreated;
-use App\Factory\GroupSettingFactory;
-use App\Factory\InvoiceFactory;
-use App\Factory\InvoiceItemFactory;
-use App\Factory\RecurringInvoiceFactory;
-use App\Factory\SubscriptionFactory;
-use App\Helpers\Invoice\InvoiceSum;
-use App\Jobs\Company\CreateCompanyTaskStatuses;
-use App\Libraries\MultiDB;
-use App\Models\Account;
-use App\Models\BankIntegration;
-use App\Models\BankTransaction;
-use App\Models\BankTransactionRule;
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Company;
-use App\Models\CompanyGateway;
-use App\Models\CompanyToken;
-use App\Models\Country;
-use App\Models\Credit;
-use App\Models\Expense;
-use App\Models\Product;
-use App\Models\Project;
-use App\Models\Quote;
-use App\Models\RecurringInvoice;
-use App\Models\Task;
-use App\Models\TaxRate;
-use App\Models\User;
-use App\Models\Vendor;
-use App\Models\VendorContact;
-use App\Repositories\InvoiceRepository;
-use App\Utils\Ninja;
-use App\Utils\Traits\GeneratesCounter;
-use App\Utils\Traits\MakesHash;
+use stdClass;
 use Carbon\Carbon;
 use Faker\Factory;
+use App\Models\Task;
+use App\Models\User;
+use App\Utils\Ninja;
+use App\Models\Quote;
+use App\Models\Client;
+use App\Models\Credit;
+use App\Models\Vendor;
+use App\Models\Account;
+use App\Models\Company;
+use App\Models\Country;
+use App\Models\Expense;
+use App\Models\Invoice;
+use App\Models\Product;
+use App\Models\Project;
+use App\Models\TaxRate;
+use App\Libraries\MultiDB;
+use App\Models\CompanyToken;
+use App\Models\ClientContact;
+use App\Models\VendorContact;
+use App\Models\CompanyGateway;
+use App\Factory\InvoiceFactory;
+use App\Models\BankIntegration;
+use App\Models\BankTransaction;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Cache;
+use App\Models\RecurringInvoice;
+use App\DataMapper\FeesAndLimits;
+use App\DataMapper\CompanySettings;
+use App\Factory\InvoiceItemFactory;
+use App\Helpers\Invoice\InvoiceSum;
+use App\Models\BankTransactionRule;
+use App\Factory\GroupSettingFactory;
+use App\Factory\SubscriptionFactory;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
+use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Support\Facades\Schema;
-use stdClass;
+use App\Repositories\InvoiceRepository;
+use App\Factory\RecurringInvoiceFactory;
+use App\Events\Invoice\InvoiceWasCreated;
+use App\DataMapper\ClientRegistrationFields;
+use App\Jobs\Company\CreateCompanyTaskStatuses;
+use App\Events\RecurringInvoice\RecurringInvoiceWasCreated;
 
 class CreateSingleAccount extends Command
 {
@@ -303,6 +304,60 @@ class CreateSingleAccount extends Command
         $this->createGateways($company, $user);
 
         $this->createSubsData($company, $user);
+
+
+        $repo = new \App\Repositories\TaskRepository();
+
+        Task::query()->cursor()->each(function ($t) use ($repo) {
+            $repo->save([], $t);
+        });
+
+        $repo = new \App\Repositories\ExpenseRepository();
+
+        Expense::query()->cursor()->each(function ($t) use ($repo) {
+            $repo->save([], $t);
+        });
+
+        $repo = new \App\Repositories\VendorRepository(new \App\Repositories\VendorContactRepository());
+        Vendor::query()->cursor()->each(function ($t) use ($repo) {
+            $repo->save([], $t);
+        });
+
+        $repo = new \App\Repositories\ClientRepository(new \App\Repositories\ClientContactRepository());
+        Client::query()->cursor()->each(function ($t) use ($repo) {
+            $repo->save([], $t);
+        });
+
+        $repo = new \App\Repositories\RecurringInvoiceRepository();
+        RecurringInvoice::query()->cursor()->each(function ($t) use ($repo) {
+            $repo->save([], $t);
+        });
+
+        $repo = new \App\Repositories\InvoiceRepository();
+        Invoice::query()->cursor()->each(function ($t) use ($repo) {
+            $repo->save([], $t);
+        });
+
+        $repo = new \App\Repositories\QuoteRepository();
+        Quote::query()->cursor()->each(function ($t) use ($repo) {
+            $repo->save([], $t);
+        });
+
+        $repo = new \App\Repositories\CreditRepository();
+        Credit::query()->cursor()->each(function ($t) use ($repo) {
+            $repo->save([], $t);
+        });
+
+        
+        Project::query()->cursor()->each(function ($p) {
+            
+            if(!isset($p->number)) {
+                $p->number = $this->getNextProjectNumber($p);
+                $p->save();
+            }
+
+        });
+
     }
 
     private function createSubsData($company, $user)

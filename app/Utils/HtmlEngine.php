@@ -460,7 +460,7 @@ class HtmlEngine
         $data['$client.postal_city'] = &$data['$postal_city'];
         $data['$client.country'] = &$data['$country'];
         $data['$client.email'] = &$data['$email'];
-        
+        $data['$client.classification'] = ['value' => isset($this->client->classification) ? ctrans("texts.{$this->client->classification}") : ' ', 'label' => ctrans('texts.classification')];
         $data['$client.billing_address'] = &$data['$client_address'];
         $data['$client.billing_address1'] = &$data['$client.address1'];
         $data['$client.billing_address2'] = &$data['$client.address2'];
@@ -516,6 +516,7 @@ class HtmlEngine
         $data['$company.postal_city_state'] = ['value' => $this->company->present()->cityStateZip($this->settings->city, $this->settings->state, $this->settings->postal_code, true) ?: ' ', 'label' => ctrans('texts.postal_city_state')];
         $data['$company.postal_city'] = ['value' => $this->company->present()->cityStateZip($this->settings->city, null, $this->settings->postal_code, true) ?: ' ', 'label' => ctrans('texts.postal_city')];
         $data['$company.name'] = ['value' => $this->settings->name ?: ctrans('texts.untitled_account'), 'label' => ctrans('texts.company_name')];
+        $data['$company.classification'] = ['value' => ($this->settings->classification ?? false) ? ctrans("texts.{$this->settings->classification}") : ' ', 'label' => ctrans('texts.classification')];
         $data['$account'] = &$data['$company.name'];
 
         $data['$company.address1'] = ['value' => $this->settings->address1 ?: ' ', 'label' => ctrans('texts.address1')];
@@ -744,6 +745,20 @@ class HtmlEngine
 
         return $data;
     }
+
+    public function makeValuesNoPrefix() :array
+    {
+        $data = [];
+
+        $values = $this->buildEntityDataArray();
+
+        foreach ($values as $key => $value) {
+            $data[str_replace(["$","."],["_","_"],$key)] = $value['value'];
+        }
+
+        return $data;
+    }
+
 
     public function generateLabelsAndValues()
     {

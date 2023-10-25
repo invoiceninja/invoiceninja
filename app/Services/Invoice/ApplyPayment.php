@@ -49,6 +49,9 @@ class ApplyPayment extends AbstractService
 
                 $this->invoice->service()->clearPartial()->setDueDate()->setStatus(Invoice::STATUS_PARTIAL)->updateBalance($amount_paid)->updatePaidToDate($amount_paid*-1)->save();
             }
+
+            $this->invoice->service()->checkReminderStatus()->save();
+
         } else {
             if ($this->payment_amount == $this->invoice->balance) {
                 $amount_paid = $this->payment_amount * -1;

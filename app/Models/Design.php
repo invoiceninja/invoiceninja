@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Services\Template\TemplateService;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -29,7 +30,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $updated_at
  * @property int|null $deleted_at
  * @property-read \App\Models\Company|null $company
- * @property-read mixed $hashed_id
+ * @property-read string $hashed_id
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Illuminate\Database\Eloquent\Builder|Design filter(\App\Filters\QueryFilters $filters)
@@ -69,10 +70,17 @@ class Design extends BaseModel
         'name',
         'design',
         'is_active',
+        'is_template',
+        'entities',
     ];
 
     public function company()
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function service(): TemplateService
+    {
+        return (new TemplateService($this))->setCompany($this->company);
     }
 }

@@ -481,9 +481,22 @@ class CompanySettings extends BaseSettings
 
     public $enable_e_invoice = false;
 
-    public $classification = ''; // individual, company, partnership, trust, charity, government, other
+    public $delivery_note_design_id = '';
+    
+    public $statement_design_id = '';
+    
+    public $payment_receipt_design_id = '';
+
+    public $payment_refund_design_id = '';
+
+    public $classification = ''; // individual, business, partnership, trust, charity, government, other
 
     public static $casts = [
+        'statement_design_id'                => 'string',
+        'delivery_note_design_id'            => 'string',
+        'payment_receipt_design_id'          => 'string',
+        'payment_refund_design_id'           => 'string',
+        'classification'                     => 'string',
         'enable_e_invoice'                   => 'bool', 
         'classification'                     => 'string',
         'default_expense_payment_type_id'    => 'string',
@@ -768,6 +781,8 @@ class CompanySettings extends BaseSettings
         'quote_design_id',
         'credit_design_id',
         'purchase_order_design_id',
+        'statement_design_id',
+        'delivery_note_design_id',
     ];
 
     // /**
@@ -998,6 +1013,15 @@ class CompanySettings extends BaseSettings
                 '$credit.date',
                 '$total',
                 '$credit.balance',
+            ],
+            'statement_details' => [
+                '$statement_date',
+                '$balance'
+            ],
+            'delivery_note_columns' => [
+                '$product.item',
+                '$product.description',
+                '$product.quantity',
             ],
         ];
 
