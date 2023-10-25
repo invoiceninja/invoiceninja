@@ -87,7 +87,8 @@ class YodleeController extends BaseController
                 $bank_integration->balance = $account['current_balance'];
                 $bank_integration->currency = $account['account_currency'];
                 $bank_integration->from_date = now()->subYear();
-                
+                $bank_integration->auto_sync = true;
+
                 $bank_integration->save();
             }
         }
@@ -166,8 +167,8 @@ class YodleeController extends BaseController
     public function refreshWebhook(Request $request)
     {
         //we should ignore this one
-        nlog("yodlee refresh");
-        nlog($request->all());
+        // nlog("yodlee refresh");
+        // nlog($request->all());
 
         return response()->json(['message' => 'Success'], 200);
     
@@ -236,8 +237,8 @@ class YodleeController extends BaseController
     public function refreshUpdatesWebhook(Request $request)
     {
         //notifies a user if there are problems with yodlee accessing the data
-        nlog("update refresh");
-        nlog($request->all());
+        // nlog("update refresh");
+        // nlog($request->all());
 
         return response()->json(['message' => 'Success'], 200);
     

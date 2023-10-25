@@ -55,7 +55,7 @@ class UpdateUserLastLogin implements ShouldQueue
         $key = "user_logged_in_{$user->id}{$event->company->db}";
 
         
-        if ($user->ip != $ip && is_null(Cache::get($key))) {
+        if ($user->ip != $ip && is_null(Cache::get($key)) && $user->user_logged_in_notification) {
             $nmo = new NinjaMailerObject;
             $nmo->mailable = new UserLoggedIn($user, $user->account->companies->first(), $ip);
             $nmo->company = $user->account->companies->first();
@@ -69,6 +69,7 @@ class UpdateUserLastLogin implements ShouldQueue
         
         Cache::put($key, true, 60 * 24);
         $arr = json_encode(['ip' => $ip]);
+        $arr = ctrans('texts.new_login_detected'). " {$ip}";
 
         SystemLogger::dispatch(
             $arr,

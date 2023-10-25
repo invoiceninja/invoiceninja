@@ -27,7 +27,8 @@ class UserFactory
         $user->last_login = now();
         $user->failed_logins = 0;
         $user->signature = '';
-        $user->theme_id = 0;
+        $user->theme_id = 0;   
+        $user->user_logged_in_notification = true;
 
         return $user;
     }

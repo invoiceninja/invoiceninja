@@ -56,6 +56,8 @@ class QuoteExport extends BaseExport
             $this->input['report_keys'] = array_values($this->quote_report_keys);
         }
 
+        $this->input['report_keys'] = array_merge($this->input['report_keys'], array_diff($this->forced_client_fields, $this->input['report_keys']));
+
         $query = Quote::query()
                         ->withTrashed()
                         ->with('client')

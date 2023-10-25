@@ -15,6 +15,7 @@ use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use App\Utils\Ninja;
+use BaconQrCode\Exception\InvalidArgumentException;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
@@ -58,10 +59,15 @@ class EpcQrGenerator
           <rect x='0' y='0' width='100%'' height='100%' />{$qr}</svg>";
 
         } catch(\Throwable $e) {
+            nlog("EPC QR failure => ".$e->getMessage());
             return '';
         } catch(\Exception $e) {
+            nlog("EPC QR failure => ".$e->getMessage());
             return '';
-        } 
+        } catch( InvalidArgumentException $e) {
+            nlog("EPC QR failure => ".$e->getMessage());
+            return '';
+        }
         
        
     }
@@ -93,6 +99,7 @@ class EpcQrGenerator
         if (Ninja::isSelfHost() && isset($this->company?->custom_fields?->company1)) {
             nlog('The IBAN field is required');
         }
+
     }
 
     private function formatMoney($value)

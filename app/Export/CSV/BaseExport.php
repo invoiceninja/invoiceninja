@@ -88,6 +88,7 @@ class BaseExport
 
     protected array $client_report_keys = [
         "name" => "client.name",
+        "number" => "client.number",
         "user" => "client.user",
         "assigned_user" => "client.assigned_user",
         "balance" => "client.balance",
@@ -168,6 +169,7 @@ class BaseExport
         'tax_rate1' => 'invoice.tax_rate1',
         'tax_rate2' => 'invoice.tax_rate2',
         'tax_rate3' => 'invoice.tax_rate3',
+        'recurring_invoice' => 'invoice.recurring_id',
     ];
 
     protected array $recurring_invoice_report_keys = [    
@@ -230,7 +232,7 @@ class BaseExport
         'po_number' => 'purchase_order.po_number',
         'private_notes' => 'purchase_order.private_notes',
         'public_notes' => 'purchase_order.public_notes',
-        'status' => 'purchase_order.status_id',
+        'status' => 'purchase_order.status',
         'tax_name1' => 'purchase_order.tax_name1',
         'tax_name2' => 'purchase_order.tax_name2',
         'tax_name3' => 'purchase_order.tax_name3',
@@ -377,6 +379,7 @@ class BaseExport
         "custom_value4" => "payment.custom_value4",
         "user" => "payment.user_id",
         "assigned_user" => "payment.assigned_user_id",
+        
   ];
 
     protected array $expense_report_keys = [
@@ -427,6 +430,14 @@ class BaseExport
         'custom_value4' => 'task.custom_value4',
         'status' => 'task.status_id',
         'project' => 'task.project_id',
+    ];
+
+    protected array $forced_client_fields = [
+        "client.name",
+    ];
+
+    protected array $forced_vendor_fields = [
+        "vendor.name",
     ];
 
     protected function filterByClients($query)
@@ -1144,9 +1155,9 @@ class BaseExport
             $clean_row[$key]['entity'] = $report_keys[0];
             $clean_row[$key]['id'] = $report_keys[1] ?? $report_keys[0];
             $clean_row[$key]['hashed_id'] = $report_keys[0] == $entity ? null : $resource->{$report_keys[0]}->hashed_id ?? null;
-            $clean_row[$key]['value'] = isset($row[$column_key]) ? $row[$column_key] : $row[$report_keys[1]];
+            $clean_row[$key]['value'] = isset($row[$column_key]) ? $row[$column_key] : $row[$value];
             $clean_row[$key]['identifier'] = $value;
-            $clean_row[$key]['display_value'] = isset($row[$column_key]) ? $row[$column_key] : $row[$report_keys[1]];
+            $clean_row[$key]['display_value'] = isset($row[$column_key]) ? $row[$column_key] : $row[$value];
 
         }
 

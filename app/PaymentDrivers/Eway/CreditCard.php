@@ -251,7 +251,7 @@ class CreditCard
 
         $response = $this->eway_driver->init()->eway->createTransaction(\Eway\Rapid\Enum\ApiMethod::DIRECT, $transaction);
 
-        if ($response->TransactionStatus) {
+        if ($response->TransactionStatus ?? false) {
             $this->logResponse($response, true);
             $payment = $this->storePayment($response);
         } else {

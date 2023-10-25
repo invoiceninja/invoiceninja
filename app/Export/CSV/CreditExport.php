@@ -93,6 +93,8 @@ class CreditExport extends BaseExport
             $this->input['report_keys'] = array_values($this->credit_report_keys);
         }
 
+        $this->input['report_keys'] = array_merge($this->input['report_keys'], array_diff($this->forced_client_fields, $this->input['report_keys']));
+
         $query = Credit::query()
                         ->withTrashed()
                         ->with('client')
