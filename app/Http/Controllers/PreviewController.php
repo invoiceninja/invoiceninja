@@ -117,11 +117,6 @@ class PreviewController extends BaseController
 
         $design = \App\Models\Design::query()->withTrashed()->find($entity_obj->design_id ?? 2);
 
-        /* Catch all in case migration doesn't pass back a valid design */
-        if (! $design) {
-            $design = \App\Models\Design::query()->find(2);
-        }
-
         if ($design->is_custom) {
             $options = [
                 'custom_partials' => json_decode(json_encode($design->design), true),
