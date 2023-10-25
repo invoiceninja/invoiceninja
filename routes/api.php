@@ -164,6 +164,8 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('clients/{client}/{mergeable_client}/merge', [ClientController::class, 'merge'])->name('clients.merge')->middleware('password_protected');
     Route::post('clients/bulk', [ClientController::class, 'bulk'])->name('clients.bulk');
 
+    Route::post('reactivate_email/{bounce_id}', [ClientController::class, 'reactivateEmail'])->name('clients.reactivate_email');
+
     Route::post('filters/{entity}', [FilterController::class, 'index'])->name('filters');
 
     Route::resource('client_gateway_tokens', ClientGatewayTokenController::class);

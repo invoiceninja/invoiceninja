@@ -117,6 +117,7 @@ class StripeConnectController extends BaseController
             'refresh_token' => $response->refresh_token,
             'access_token' => $response->access_token,
             'appleDomainVerification' => '',
+            // "statementDescriptor" => "",
         ];
 
         $company_gateway->setConfig($payload);

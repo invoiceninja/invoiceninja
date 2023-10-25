@@ -786,6 +786,26 @@ class Company extends BaseModel
         return $this->hasMany(CompanyUser::class)->withTrashed();
     }
 
+    public function invoice_invitations(): HasMany
+    {
+        return $this->hasMany(InvoiceInvitation::class);
+    }
+
+    public function quote_invitations(): HasMany
+    {
+        return $this->hasMany(QuoteInvitation::class);
+    }
+
+    public function credit_invitations(): HasMany
+    {
+        return $this->hasMany(CreditInvitation::class);
+    }
+    
+    public function purchase_order_invitations(): HasMany
+    {
+        return $this->hasMany(PurchaseOrderInvitation::class);
+    }
+
     /**
      * @return \App\Models\User|null
      */

@@ -14,6 +14,9 @@ namespace App\Http\Controllers;
 use App\Utils\Ninja;
 use App\Models\Client;
 use App\Models\Account;
+use App\Models\Company;
+use App\Models\SystemLog;
+use Postmark\PostmarkClient;
 use Illuminate\Http\Response;
 use App\Factory\ClientFactory;
 use App\Filters\ClientFilters;
@@ -36,6 +39,8 @@ use App\Http\Requests\Client\CreateClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Http\Requests\Client\UploadClientRequest;
 use App\Http\Requests\Client\DestroyClientRequest;
+use App\Http\Requests\Client\ReactivateClientEmailRequest;
+use App\Jobs\PostMark\ProcessPostmarkWebhook;
 
 /**
  * Class ClientController.
@@ -219,7 +224,7 @@ class ClientController extends BaseController
                              }
                          });
 
-        return $this->listResponse(Client::withTrashed()->company()->whereIn('id', $request->ids));
+        return $this->listResponse(Client::query()->withTrashed()->company()->whereIn('id', $request->ids));
     }
 
     /**
@@ -312,5 +317,62 @@ class ClientController extends BaseController
             (new UpdateTaxData($client, $client->company))->handle();
         
         return $this->itemResponse($client->fresh());
+    }
+
+    /**
+     * Reactivate a client email
+     *
+     * @param  ReactivateClientEmailRequest $request
+     * @param  string $bounce_id //could also be the invitationId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function reactivateEmail(ReactivateClientEmailRequest $request, string $bounce_id)
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if(stripos($bounce_id, '-') !== false){
+            $log = 
+                SystemLog::query()
+                ->where('company_id', $user->company()->id)
+                ->where('type_id', SystemLog::TYPE_WEBHOOK_RESPONSE)
+                ->where('category_id', SystemLog::CATEGORY_MAIL)
+                ->whereJsonContains('log', ['MessageID' => $bounce_id])
+                ->orderBy('id', 'desc')
+                ->first();
+
+            $resolved_bounce_id = false;
+
+            if($log && ($log?->log['ID'] ?? false)){
+                $resolved_bounce_id = $log->log['ID'] ?? false;
+            }
+
+            if(!$resolved_bounce_id){
+                $ppwebhook = new ProcessPostmarkWebhook([]);
+                $resolved_bounce_id = $ppwebhook->getBounceId($bounce_id);
+            }
+
+            if(!$resolved_bounce_id){
+                return response()->json(['message' => 'Bounce ID not found'], 400);
+            }
+
+            $bounce_id = $resolved_bounce_id;
+        }
+
+        $postmark = new PostmarkClient(config('services.postmark.token'));
+
+        try {
+            
+            $response = $postmark->activateBounce((int)$bounce_id);
+        
+            return response()->json(['message' => 'Success'], 200);
+
+        }
+        catch(\Exception $e){
+
+            return response()->json(['message' => $e->getMessage(), 400]);
+
+        }
+
     }
 }

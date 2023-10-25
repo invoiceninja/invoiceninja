@@ -41,6 +41,7 @@ class MailSentListener implements ShouldQueue
      */
     public function handle(MessageSent $event)
     {
+        
         if (!Ninja::isHosted()) {
             return;
         }

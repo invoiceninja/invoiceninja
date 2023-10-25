@@ -339,6 +339,32 @@ class ProcessPostmarkWebhook implements ShouldQueue
         }
     }
 
+    public function getRawMessage(string $message_id)
+    {
+
+        $postmark = new PostmarkClient(config('services.postmark.token'));
+        $messageDetail = $postmark->getOutboundMessageDetails($message_id);
+        return $messageDetail;
+        
+    }
+
+
+    public function getBounceId(string $message_id): ?int
+    {
+
+        $messageDetail = $this->getRawMessage($message_id);
+
+        
+        $event =  collect($messageDetail->messageevents)->first(function ($event) {
+
+            return $event?->Details?->BounceID ?? false;
+
+        });
+
+        return $event?->Details?->BounceID ?? null;
+
+    }
+
     private function fetchMessage(): array
     {
         if(strlen($this->request['MessageID']) < 1){
@@ -356,6 +382,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
             $events =  collect($messageDetail->messageevents)->map(function ($event) {
 
                 return [
+                        'bounce_id' => $event?->Details?->BounceID ?? '',
                         'recipient' => $event->Recipient ?? '',
                         'status' => $event->Type ?? '',
                         'delivery_message' => $event->Details->DeliveryMessage ?? $event->Details->Summary ?? '',
