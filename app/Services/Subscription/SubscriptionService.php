@@ -888,6 +888,7 @@ class SubscriptionService
         $credit_repo = new CreditRepository();
 
         $credit = CreditFactory::create($this->subscription->company_id, $this->subscription->user_id);
+        $credit->status_id = Credit::STATUS_SENT;
         $credit->date = now()->format('Y-m-d');
         $credit->subscription_id = $this->subscription->id;
         $credit->discount = $last_invoice->discount;
@@ -972,7 +973,7 @@ class SubscriptionService
             $invoice->service()->markPaid()->save();
         }
 
-        return $invoice;
+        return $invoice->fresh();
     }
 
 
