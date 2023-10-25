@@ -18,6 +18,7 @@ use App\Models\Credit;
 use App\Models\Invoice;
 use App\Utils\HtmlEngine;
 use App\Libraries\MultiDB;
+use Twig\Error\SyntaxError;
 use App\Factory\QuoteFactory;
 use App\Jobs\Util\PreviewPdf;
 use App\Models\ClientContact;
@@ -330,196 +331,6 @@ class PreviewController extends BaseController
         return $this->blankEntity();
     }
 
-    
-    
-    /**
-     * @deprecated due to usage of transactions
-     *
-     * @param  PreviewInvoiceRequest $request
-     * @return mixed
-     */
-    public function livex(PreviewInvoiceRequest $request)
-    {
-
-        if(Cache::has("preview_".auth()->user()->id))
-            return response()->json(['message' => 'Please wait a few seconds before trying again, this many requests are not good.'], 400);  
-
-        if (Ninja::isHosted() && !in_array($request->getHost(), ['preview.invoicing.co','staging.invoicing.co'])) {
-            return response()->json(['message' => 'This server cannot handle this request.'], 400);
-        }
-     
-        Cache::put("preview_".auth()->user()->id, 60);
-
-        $start = microtime(true);
-
-        /** @var \App\Models\User $user */
-        $user = auth()->user();
-
-        $company = $user->company();
-
-        MultiDB::setDb($company->db);
-
-        if ($request->input('entity') == 'quote') {
-            $repo = new QuoteRepository();
-            $entity_obj = QuoteFactory::create($company->id, $user->id);
-            $class = Quote::class;
-        } elseif ($request->input('entity') == 'credit') {
-            $repo = new CreditRepository();
-            $entity_obj = CreditFactory::create($company->id, $user->id);
-            $class = Credit::class;
-        } elseif ($request->input('entity') == 'recurring_invoice') {
-            $repo = new RecurringInvoiceRepository();
-            $entity_obj = RecurringInvoiceFactory::create($company->id, $user->id);
-            $class = RecurringInvoice::class;
-        } else { //assume it is either an invoice or a null object
-            $repo = new InvoiceRepository();
-            $entity_obj = InvoiceFactory::create($company->id, $user->id);
-            $class = Invoice::class;
-        }
-
-        try {
-            DB::connection(config('database.default'))->beginTransaction();
-
-            if ($request->has('entity_id')) {
-
-                /** @var \App\Models\Quote | \App\Models\Invoice | \App\Models\RecurringInvoice | \App\Models\Credit $class */
-                $temp_obj = $class::on(config('database.default'))
-                                    ->with('client.company')
-                                    ->where('id', $this->decodePrimaryKey($request->input('entity_id')))
-                                    ->where('company_id', $company->id)
-                                    ->withTrashed()
-                                    ->first();
-                                    
-                /** Prevents null values from being passed into entity_obj */
-                if($temp_obj)
-                    $entity_obj = $temp_obj;
-            }
-
-            if ($request->has('footer') && !$request->filled('footer') && $request->input('entity') == 'recurring_invoice') {
-                $request->merge(['footer' => $company->settings->invoice_footer]);
-            }
-
-            if ($request->has('terms') && !$request->filled('terms') && $request->input('entity') == 'recurring_invoice') {
-                $request->merge(['terms' => $company->settings->invoice_terms]);
-            }
-
-            $entity_obj = $repo->save($request->all(), $entity_obj);
-
-            if (! $request->has('entity_id')) {
-                $entity_obj->service()->fillDefaults()->save();
-            }
-
-            App::forgetInstance('translator');
-            $t = app('translator');
-            App::setLocale($entity_obj->client->locale());
-            $t->replace(Ninja::transformTranslations($entity_obj->client->getMergedSettings()));
-
-            $html = new HtmlEngine($entity_obj->invitations()->first());
-
-            /** @var \App\Models\Design $design */
-            $design = \App\Models\Design::withTrashed()->find($entity_obj->design_id);
-
-            /* Catch all in case migration doesn't pass back a valid design */
-            if (! $design) {
-                $design = \App\Models\Design::find(2);
-            }
-
-            if ($design->is_custom) {
-                $options = [
-                    'custom_partials' => json_decode(json_encode($design->design), true),
-                ];
-                $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
-            } else {
-                $template = new PdfMakerDesign(strtolower($design->name));
-            }
-
-            $variables = $html->generateLabelsAndValues();
-
-            $state = [
-                'template' => $template->elements([
-                    'client' => $entity_obj->client,
-                    'entity' => $entity_obj,
-                    'pdf_variables' => (array) $entity_obj->company->settings->pdf_variables,
-                    '$product' => $design->design->product,
-                    'variables' => $variables,
-                ]),
-                'variables' => $variables,
-                'options' => [
-                    'all_pages_header' => $entity_obj->client->getSetting('all_pages_header'),
-                    'all_pages_footer' => $entity_obj->client->getSetting('all_pages_footer'),
-                    'client' => $entity_obj->client,
-                    'entity' => $entity_obj,
-                    'variables' => $variables,
-                ],
-                'process_markdown' => $entity_obj->client->company->markdown_enabled,
-            ];
-
-            $maker = new PdfMaker($state);
-
-            $maker
-                ->design($template)
-                ->build();
-
-            DB::connection(config('database.default'))->rollBack();
-
-            if (request()->query('html') == 'true') {
-                $this->purgeCache();
-                return $maker->getCompiledHTML();
-            }
-
-        } catch(\Exception $e) {
-            
-            $this->purgeCache();
-
-            DB::connection(config('database.default'))->rollBack();
-
-            if (DB::connection(config('database.default'))->transactionLevel() > 0) {
-                DB::connection(config('database.default'))->rollBack();
-            }
-
-            return response()->json(['message' => 'Error generating preview. Please retry again shortly.'], 400);
-        }
-
-            //if phantom js...... inject here..
-            if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-                $this->purgeCache();
-                return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
-            }
-            
-            /** @var \App\Models\User $user */
-            $user = auth()->user();
-
-            /** @var \App\Models\Company $company */
-            $company = $user->company();
-
-            if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
-                $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
-
-                $numbered_pdf = $this->pageNumbering($pdf, $company);
-
-                if ($numbered_pdf) {
-                    $pdf = $numbered_pdf;
-                }
-                $this->purgeCache();
-                return $pdf;
-            }
-
-        $file_path = (new PreviewPdf($maker->getCompiledHTML(true), $company))->handle();
-
-        if (Ninja::isHosted()) {
-            LightLogs::create(new LivePreview())
-                         ->increment()
-                         ->batch();
-        }
-
-        $response = Response::make($file_path, 200);
-        $response->header('Content-Type', 'application/pdf');
-        $response->header('Server-Timing', microtime(true)-$start);
-
-        $this->purgeCache();
-        return $response;
-    }
-
     private function template()
     {
 
@@ -531,27 +342,13 @@ class PreviewController extends BaseController
 
         $design_object = json_decode(json_encode(request()->input('design')),1);
 
-        // $client_id = Invoice::whereHas('payments')->company()->where('is_deleted', 0)->orderBy('id','desc')->first()->client_id;
-        // $vendor_id = PurchaseOrder::query()->company()->where('is_deleted', 0)->orderBy('id', 'desc')->first()->vendor_id;
-
-        // $data = [
-        //     'invoices' => Invoice::whereHas('payments')->company()->with('client','payments')->where('client_id', $client_id)->orderBy('id','desc')->take(4)->get(),
-        //     'quotes' => Quote::query()->company()->with('client')->where('client_id', $client_id)->orderBy('id','desc')->take(4)->get(),
-        //     'credits' => Credit::query()->company()->with('client')->where('client_id', $client_id)->orderBy('id','desc')->take(4)->get(),
-        //     'payments' => Payment::query()->company()->with('client')->where('client_id', $client_id)->orderBy('id','desc')->take(4)->get(),
-        //     'purchase_orders' => PurchaseOrder::query()->company()->with('vendor')->where('vendor_id', $vendor_id)->orderBy('id','desc')->take(5)->get(),
-        //     'tasks' => Task::query()->company()->with('client','invoice')->where('client_id', $client_id)->orderBy('id','desc')->take(2)->get(),
-        //     'projects' => Project::query()->company()->with('tasks','client')->where('client_id', $client_id)->orderBy('id','desc')->take(2)->get(),
-        // ];
-
-
         $ts = (new TemplateService());
         try {
                 $ts->setCompany($company)
                     ->setTemplate($design_object)
                     ->mock();
         }
-        catch(\Twig\Error\SyntaxError $e)
+        catch(SyntaxError $e)
         {
 
             // return response()->json(['message' => 'Twig syntax is invalid.', 'errors' => new \stdClass], 422);

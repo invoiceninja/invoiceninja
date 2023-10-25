@@ -11,27 +11,38 @@
 
 namespace App\Services\Template;
 
+use Twig\TwigFilter;
+use App\Utils\Number;
+use Twig\Environment;
+use Twig\Error\Error;
 use App\Models\Client;
-use App\Models\Company;
 use App\Models\Design;
+use Twig\TwigFunction;
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
-use App\Models\PurchaseOrder;
-use App\Transformers\ProjectTransformer;
-use App\Transformers\PurchaseOrderTransformer;
-use App\Transformers\QuoteTransformer;
-use App\Transformers\TaskTransformer;
-use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
-use App\Utils\Number;
+use League\Fractal\Manager;
+use Twig\Error\LoaderError;
+use Twig\Error\SyntaxError;
+use Twig\Error\RuntimeError;
+use App\Models\PurchaseOrder;
+use App\Utils\VendorHtmlEngine;
+use Twig\Sandbox\SecurityError;
 use App\Utils\PaymentHtmlEngine;
 use App\Utils\Traits\MakesDates;
+use App\Utils\HostedPDF\NinjaPdf;
+use Twig\Loader\FilesystemLoader;
 use App\Utils\Traits\Pdf\PdfMaker;
-use App\Utils\VendorHtmlEngine;
-use League\Fractal\Manager;
-use League\Fractal\Serializer\ArraySerializer;
+use Twig\Extension\DebugExtension;
 use Twig\Extra\Intl\IntlExtension;
+use App\Transformers\TaskTransformer;
+use App\Transformers\QuoteTransformer;
+use App\Transformers\ProjectTransformer;
+use Twig\Extension\StringLoaderExtension;
+use App\Transformers\PurchaseOrderTransformer;
+use League\Fractal\Serializer\ArraySerializer;
 
 class TemplateService
 {
@@ -39,7 +50,7 @@ class TemplateService
     
     private \DomDocument $document;
 
-    public \Twig\Environment $twig;
+    public Environment $twig;
 
     private string $compiled_html = '';
 
@@ -64,22 +75,22 @@ class TemplateService
     {
         $this->document = new \DOMDocument();
         $this->document->validateOnParse = true;
-
-        $loader = new \Twig\Loader\FilesystemLoader(storage_path());
-        $this->twig = new \Twig\Environment($loader, [
+        $loader = new FilesystemLoader(storage_path());
+        $this->twig = new Environment($loader, [
                 'debug' => true,
         ]);
-        $string_extension = new \Twig\Extension\StringLoaderExtension();
+        
+        $string_extension = new StringLoaderExtension();
         $this->twig->addExtension($string_extension);
         $this->twig->addExtension(new IntlExtension());
-        $this->twig->addExtension(new \Twig\Extension\DebugExtension());
-
-        $function = new \Twig\TwigFunction('img', function ($string, $style = '') {
+        $this->twig->addExtension(new DebugExtension());
+        
+        $function = new TwigFunction('img', function ($string, $style = '') {
             return '<img src="'.$string.'" style="'.$style.'"></img>';
         });
         $this->twig->addFunction($function);
 
-        $filter = new \Twig\TwigFilter('sum', function (array $array, string $column) {
+        $filter = new TwigFilter('sum', function (array $array, string $column) {
             return array_sum(array_column($array, $column));
         });
         
@@ -181,21 +192,21 @@ class TemplateService
 
             try {
                 $template = $this->twig->createTemplate(html_entity_decode($template));
-            } catch(\Twig\Error\SyntaxError $e) {
+            } catch(SyntaxError $e) {
                 nlog($e->getMessage());
-                throw ($e);
-            } catch(\Twig\Error\Error $e) {
+                continue;
+            } catch(Error $e) {
                 nlog("error = " .$e->getMessage());
-                throw ($e);
-            } catch(\Twig\Error\RuntimeError $e) {
+                continue;
+            } catch(RuntimeError $e) {
                 nlog("runtime = " .$e->getMessage());
-                throw ($e);
-            } catch(\Twig\Error\LoaderError $e) {
+                continue;
+            } catch(LoaderError $e) {
                 nlog("loader = " . $e->getMessage());
-                throw ($e);
-            } catch(\Twig\Error\SecurityError $e) {
+                continue;
+            } catch(SecurityError $e) {
                 nlog("security = " . $e->getMessage());
-                throw ($e);
+                continue;
             }
 
             $template = $template->render($this->data);
