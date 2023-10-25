@@ -355,7 +355,7 @@ class SettingsData
 
     public string $email = ''; //@implemented
 
-    public string $country_id; //@implemented
+    public string $country_id = ''; //@implemented
 
     public string $vat_number = ''; //@implemented
 
