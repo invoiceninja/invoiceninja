@@ -128,6 +128,9 @@ class PreviewController extends BaseController
             'options' => [
                 'all_pages_header' => $client->getSetting('all_pages_header'),
                 'all_pages_footer' => $client->getSetting('all_pages_footer'),
+                'client' => $entity_obj->client ?? [],
+                'vendor' => $entity_obj->vendor ?? [],
+                $request->input('entity')."s" => [$entity_obj],
             ],
             'process_markdown' => $client->company->markdown_enabled,
         ];
@@ -271,7 +274,8 @@ class PreviewController extends BaseController
                 'variables' => $html->generateLabelsAndValues(),
                 'process_markdown' => $entity_obj->client->company->markdown_enabled,
                 'options' => [
-                    'client' => $entity_obj->client,
+                    'client' => $entity_obj->client ?? [],
+                    'vendor' => $entity_obj->vendor ?? [],
                     request()->input('entity_type', 'invoice')."s" => [$entity_obj],
                 ]
             ];

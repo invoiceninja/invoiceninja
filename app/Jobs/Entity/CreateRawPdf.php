@@ -83,7 +83,8 @@ class CreateRawPdf
     {
         /** Testing this override to improve PDF generation performance */
         $ps = new PdfService($this->invitation, 'product', [
-            'client' => $this->entity->client,
+            'client' => $this->entity->client ?? false,
+            'vendor' => $this->entity->vendor ?? false,
             "{$this->entity_string}s" => [$this->entity],
         ]);
 

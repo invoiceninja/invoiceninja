@@ -122,6 +122,10 @@ class PreviewPurchaseOrderController extends BaseController
                 ]),
                 'variables' => $html->generateLabelsAndValues(),
                 'process_markdown' => $entity_obj->company->markdown_enabled,
+                'options' => [
+                    'vendor' => $entity_obj->vendor ?? [],
+                    request()->input('entity')."s" => [$entity_obj],
+                ]
             ];
 
             $design = new Design(request()->design['name']);
@@ -235,7 +239,7 @@ class PreviewPurchaseOrderController extends BaseController
                 'options' => [
                     'client' => null,
                     'vendor' => $entity_obj->vendor,
-                    'entity' => $entity_obj,
+                    'purchase_orders' => [$entity_obj],
                     'variables' => $html->generateLabelsAndValues(),
                 ],
                 'process_markdown' => $entity_obj->company->markdown_enabled,
@@ -330,6 +334,10 @@ class PreviewPurchaseOrderController extends BaseController
             ]),
             'variables' => $html->generateLabelsAndValues(),
             'process_markdown' => $invitation->company->markdown_enabled,
+            'options' => [
+                'vendor' => $invitation->purchase_order->vendor,
+                'purchase_orders' => $invitation->purchase_order,
+            ],
         ];
 
 
@@ -435,6 +443,10 @@ class PreviewPurchaseOrderController extends BaseController
             ]),
             'variables' => $html->generateLabelsAndValues(),
             'process_markdown' => $purchase_order->company->markdown_enabled,
+             'options' => [
+                'vendor' => $invitation->purchase_order->vendor,
+                'purchase_orders' => $invitation->purchase_order,
+            ],
         ];
 
         $maker = new PdfMaker($state);
