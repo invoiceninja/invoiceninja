@@ -11,26 +11,24 @@
 
 namespace App\Models;
 
-use App\Models\GatewayType;
-use App\Utils\Traits\AppSetup;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesDates;
-use App\DataMapper\FeesAndLimits;
-use App\Models\Traits\Excludable;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
-use Illuminate\Support\Facades\Cache;
-use App\Services\Client\ClientService;
-use App\Utils\Traits\GeneratesCounter;
-use Laracasts\Presenter\PresentableTrait;
-use App\Models\Presenters\ClientPresenter;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Utils\Traits\ClientGroupSettingsSaver;
+use App\DataMapper\FeesAndLimits;
 use App\Libraries\Currency\Conversion\CurrencyApi;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
+use App\Models\Presenters\ClientPresenter;
+use App\Models\Traits\Excludable;
+use App\Services\Client\ClientService;
+use App\Utils\Traits\AppSetup;
+use App\Utils\Traits\ClientGroupSettingsSaver;
+use App\Utils\Traits\GeneratesCounter;
+use App\Utils\Traits\MakesDates;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Translation\HasLocalePreference;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Cache;
+use Laracasts\Presenter\PresentableTrait;
 
 /**
  * App\Models\Client
@@ -474,9 +472,9 @@ class Client extends BaseModel implements HasLocalePreference
                 return $this->settings->{$setting};
             } elseif (is_bool($this->settings->{$setting})) {
                 return $this->settings->{$setting};
-            } elseif (is_int($this->settings->{$setting})) { 
+            } elseif (is_int($this->settings->{$setting})) {
                 return $this->settings->{$setting};
-            } elseif(is_float($this->settings->{$setting})) { 
+            } elseif(is_float($this->settings->{$setting})) {
                 return $this->settings->{$setting};
             }
         }
@@ -768,7 +766,7 @@ class Client extends BaseModel implements HasLocalePreference
         return $defaults;
     }
 
-    public function timezone_offset() :int 
+    public function timezone_offset() :int
     {
         $offset = 0;
 

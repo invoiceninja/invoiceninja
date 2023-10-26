@@ -11,15 +11,14 @@
 
 namespace App\Export\CSV;
 
-use App\Utils\Ninja;
-use App\Utils\Number;
-use League\Csv\Writer;
-use App\Models\Company;
 use App\Libraries\MultiDB;
+use App\Models\Company;
 use App\Models\PurchaseOrder;
-use Illuminate\Support\Facades\App;
 use App\Transformers\PurchaseOrderTransformer;
+use App\Utils\Ninja;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\App;
+use League\Csv\Writer;
 
 class PurchaseOrderExport extends BaseExport
 {
@@ -116,9 +115,9 @@ class PurchaseOrderExport extends BaseExport
 
         $headerdisplay = $this->buildHeader();
 
-        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
-                return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
-            })->toArray();
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
+            return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
+        })->toArray();
 
         $report = $query->cursor()
                 ->map(function ($resource) {

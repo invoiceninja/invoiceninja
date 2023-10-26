@@ -40,7 +40,7 @@ class KBC implements MethodInterface
      * Show the authorization page for KBC.
      *
      * @param array $data
-     * @return \Illuminate\View\View         
+     * @return \Illuminate\View\View
      */
     public function authorizeView(array $data): View
     {

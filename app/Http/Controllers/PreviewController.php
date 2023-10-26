@@ -11,45 +11,33 @@
 
 namespace App\Http\Controllers;
 
-use App\Utils\Ninja;
-use App\Models\Quote;
-use App\Models\Client;
-use App\Models\Credit;
-use App\Models\Invoice;
-use App\Utils\HtmlEngine;
-use App\Libraries\MultiDB;
-use Twig\Error\SyntaxError;
-use App\Factory\QuoteFactory;
-use App\Jobs\Util\PreviewPdf;
-use App\Models\ClientContact;
-use App\Services\Pdf\PdfMock;
-use App\Factory\CreditFactory;
-use App\Factory\InvoiceFactory;
-use App\Utils\Traits\MakesHash;
-use App\Models\RecurringInvoice;
-use App\Utils\PhantomJS\Phantom;
-use App\Models\InvoiceInvitation;
-use App\Services\PdfMaker\Design;
-use App\Utils\HostedPDF\NinjaPdf;
-use Illuminate\Support\Facades\DB;
-use App\Services\PdfMaker\PdfMaker;
-use Illuminate\Support\Facades\App;
-use App\Repositories\QuoteRepository;
-use Illuminate\Support\Facades\Cache;
-use App\Repositories\CreditRepository;
-use App\Utils\Traits\MakesInvoiceHtml;
-use Turbo124\Beacon\Facades\LightLogs;
-use App\Repositories\InvoiceRepository;
-use App\Utils\Traits\Pdf\PageNumbering;
-use App\Factory\RecurringInvoiceFactory;
-use Illuminate\Support\Facades\Response;
 use App\DataMapper\Analytics\LivePreview;
-use App\Services\Template\TemplateService;
-use App\Repositories\RecurringInvoiceRepository;
 use App\Http\Requests\Preview\DesignPreviewRequest;
+use App\Http\Requests\Preview\PreviewInvoiceRequest;
+use App\Jobs\Util\PreviewPdf;
+use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
+use App\Services\Pdf\PdfMock;
+use App\Services\PdfMaker\Design;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
-use App\Http\Requests\Preview\PreviewInvoiceRequest;
+use App\Services\PdfMaker\PdfMaker;
+use App\Services\Template\TemplateService;
+use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\HtmlEngine;
+use App\Utils\Ninja;
+use App\Utils\PhantomJS\Phantom;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesInvoiceHtml;
+use App\Utils\Traits\Pdf\PageNumbering;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Response;
+use Turbo124\Beacon\Facades\LightLogs;
+use Twig\Error\SyntaxError;
 
 class PreviewController extends BaseController
 {
@@ -59,24 +47,24 @@ class PreviewController extends BaseController
 
     public function __construct()
     {
-        parent::__construct();  
+        parent::__construct();
     }
 
     private function purgeCache()
-    {   
+    {
         Cache::pull("preview_".auth()->user()->id);
     }
     
     /**
      * Refactor - 2023-10-19
-     * 
+     *
      * New method does not require Transactions.
      *
      * @param  PreviewInvoiceRequest $request
      * @return mixed
      */
     public function live(PreviewInvoiceRequest $request): mixed
-    {   
+    {
 
         if (Ninja::isHosted() && !in_array($request->getHost(), ['preview.invoicing.co','staging.invoicing.co'])) {
             return response()->json(['message' => 'This server cannot handle this request.'], 400);
@@ -108,8 +96,9 @@ class PreviewController extends BaseController
             $invitation->{$request->entity} = $entity_obj;
         }
 
-        if(empty($entity_obj->design_id))
+        if(empty($entity_obj->design_id)) {
             $entity_obj->design_id = intval($this->decodePrimaryKey($settings->{$entity_prop."_design_id"}));
+        }
 
         /** Generate variables */
         $html = new HtmlEngine($invitation);
@@ -152,8 +141,9 @@ class PreviewController extends BaseController
         /** Generate HTML */
         $html = $maker->getCompiledHTML(true);
 
-        if (request()->query('html') == 'true')
+        if (request()->query('html') == 'true') {
             return $html;
+        }
 
         //if phantom js...... inject here..
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
@@ -169,8 +159,9 @@ class PreviewController extends BaseController
             $pdf = (new NinjaPdf())->build($html);
             $numbered_pdf = $this->pageNumbering($pdf, $company);
 
-            if ($numbered_pdf) 
+            if ($numbered_pdf) {
                 $pdf = $numbered_pdf;
+            }
 
             return $pdf;
         }
@@ -187,9 +178,9 @@ class PreviewController extends BaseController
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf;
         }, 'preview.pdf', [
-            'Content-Disposition' => 'inline', 
-            'Content-Type' => 'application/pdf', 
-            'Cache-Control:' => 'no-cache', 
+            'Content-Disposition' => 'inline',
+            'Content-Type' => 'application/pdf',
+            'Cache-Control:' => 'no-cache',
             'Server-Timing' => microtime(true)-$start
         ]);
 
@@ -200,7 +191,7 @@ class PreviewController extends BaseController
      * Returns the mocked PDF for the invoice design preview.
      *
      * Only used in Settings > Invoice Design as a general overview
-     * 
+     *
      * @param  DesignPreviewRequest $request
      * @return mixed
      */
@@ -225,14 +216,15 @@ class PreviewController extends BaseController
 
     /**
      * Returns a template filled with entity variables.
-     * 
+     *
      * Used in the Custom Designer to preview design changes
      * @return mixed
      */
     public function show()
     {
-        if(request()->has('template'))
+        if(request()->has('template')) {
             return $this->template();
+        }
 
         if (request()->has('entity') &&
             request()->has('entity_id') &&
@@ -308,8 +300,9 @@ class PreviewController extends BaseController
 
                 $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
                 $numbered_pdf = $this->pageNumbering($pdf, $company);
-                if ($numbered_pdf)
+                if ($numbered_pdf) {
                     $pdf = $numbered_pdf;
+                }
 
                 return $pdf;
 
@@ -340,16 +333,14 @@ class PreviewController extends BaseController
         /** @var \App\Models\Company $company */
         $company = $user->company();
 
-        $design_object = json_decode(json_encode(request()->input('design')),1);
+        $design_object = json_decode(json_encode(request()->input('design')), 1);
 
         $ts = (new TemplateService());
         try {
-                $ts->setCompany($company)
-                    ->setTemplate($design_object)
-                    ->mock();
-        }
-        catch(SyntaxError $e)
-        {
+            $ts->setCompany($company)
+                ->setTemplate($design_object)
+                ->mock();
+        } catch(SyntaxError $e) {
 
             // return response()->json(['message' => 'Twig syntax is invalid.', 'errors' => new \stdClass], 422);
 
@@ -558,8 +549,7 @@ class PreviewController extends BaseController
                 ->build();
 
             DB::connection($company->db)->rollBack();
-        }
-        catch(\Exception $e){
+        } catch(\Exception $e) {
             DB::connection($company->db)->rollBack();
             return response()->json(['message' => $e->getMessage()], 400);
         }

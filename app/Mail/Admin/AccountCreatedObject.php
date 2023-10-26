@@ -11,9 +11,9 @@
 
 namespace App\Mail\Admin;
 
+use App\Models\Company;
 use App\Models\User;
 use App\Utils\Ninja;
-use App\Models\Company;
 use Illuminate\Support\Facades\App;
 
 class AccountCreatedObject

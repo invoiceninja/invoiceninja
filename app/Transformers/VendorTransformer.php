@@ -16,7 +16,6 @@ use App\Models\Document;
 use App\Models\Vendor;
 use App\Models\VendorContact;
 use App\Utils\Traits\MakesHash;
-use League\Fractal\Resource\Collection;
 
 /**
  * class VendorTransformer.

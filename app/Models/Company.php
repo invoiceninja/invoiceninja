@@ -11,20 +11,20 @@
 
 namespace App\Models;
 
-use App\Utils\Ninja;
 use App\Casts\EncryptedCast;
-use App\Utils\Traits\AppSetup;
-use App\Utils\Traits\MakesHash;
 use App\DataMapper\CompanySettings;
+use App\Models\Presenters\CompanyPresenter;
+use App\Services\Notification\NotificationService;
+use App\Utils\Ninja;
+use App\Utils\Traits\AppSetup;
+use App\Utils\Traits\CompanySettingsSaver;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Laracasts\Presenter\PresentableTrait;
-use App\Utils\Traits\CompanySettingsSaver;
-use Illuminate\Notifications\Notification;
-use App\Models\Presenters\CompanyPresenter;
-use App\Services\Notification\NotificationService;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * App\Models\Company
@@ -621,7 +621,7 @@ class Company extends BaseModel
             return $item->id == $this->getSetting('country_id');
         })->first();
 
-//        return $this->belongsTo(Country::class);
+        //        return $this->belongsTo(Country::class);
         // return Country::find($this->settings->country_id);
     }
 
@@ -838,7 +838,7 @@ class Company extends BaseModel
                     ->firstOrFail();
     }
 
-    public function domain(): string 
+    public function domain(): string
     {
         if (Ninja::isHosted()) {
             if ($this->portal_mode == 'domain' && strlen($this->portal_domain) > 3) {
@@ -945,8 +945,9 @@ class Company extends BaseModel
 
     public function getInvoiceCert()
     {
-        if($this->e_invoice_certificate)
+        if($this->e_invoice_certificate) {
             return base64_decode($this->e_invoice_certificate);
+        }
 
         return false;
     }

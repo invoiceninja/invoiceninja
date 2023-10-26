@@ -164,8 +164,7 @@ class Ninja
             ]);
 
             nlog($x->body());
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             nlog("Attempt forwarding for {$email} - {$company_key} Failed");
         }
     }

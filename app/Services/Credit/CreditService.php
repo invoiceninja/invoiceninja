@@ -11,14 +11,14 @@
 
 namespace App\Services\Credit;
 
-use App\Utils\Ninja;
+use App\Factory\PaymentFactory;
 use App\Models\Credit;
 use App\Models\Payment;
 use App\Models\PaymentType;
-use App\Factory\PaymentFactory;
-use App\Utils\Traits\MakesHash;
 use App\Repositories\CreditRepository;
 use App\Repositories\PaymentRepository;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Storage;
 
 class CreditService

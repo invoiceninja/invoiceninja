@@ -11,30 +11,29 @@
 
 namespace App\Jobs\Company;
 
-use App\Models\User;
-use App\Utils\Ninja;
-use App\Models\Company;
-use App\Libraries\MultiDB;
-use Illuminate\Support\Str;
-use App\Mail\DownloadBackup;
-use App\Jobs\Util\UnlinkFile;
-use App\Models\VendorContact;
-use Illuminate\Bus\Queueable;
-use App\Models\QuoteInvitation;
-use App\Utils\Traits\MakesHash;
-use App\Models\CreditInvitation;
 use App\Jobs\Mail\NinjaMailerJob;
-use App\Models\InvoiceInvitation;
-use Illuminate\Support\Facades\App;
 use App\Jobs\Mail\NinjaMailerObject;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Queue\SerializesModels;
+use App\Jobs\Util\UnlinkFile;
+use App\Libraries\MultiDB;
+use App\Mail\DownloadBackup;
+use App\Models\Company;
+use App\Models\CreditInvitation;
+use App\Models\InvoiceInvitation;
 use App\Models\PurchaseOrderInvitation;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
+use App\Models\User;
+use App\Models\VendorContact;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class CompanyExport implements ShouldQueue
 {
@@ -461,13 +460,15 @@ class CompanyExport implements ShouldQueue
 
         Storage::disk(config('filesystems.default'))->put('backups/'.$file_name, file_get_contents($zip_path));
 
-        if(file_exists($zip_path))
-            unlink($zip_path);        
+        if(file_exists($zip_path)) {
+            unlink($zip_path);
+        }
 
-        if(Ninja::isSelfHost())
+        if(Ninja::isSelfHost()) {
             $storage_path = 'backups/'.$file_name;
-        else
+        } else {
             $storage_path = Storage::disk(config('filesystems.default'))->path('backups/'.$file_name);
+        }
 
         $url = Cache::get($this->hash);
 
@@ -492,8 +493,9 @@ class CompanyExport implements ShouldQueue
         if (Ninja::isHosted()) {
             sleep(3);
             
-            if(file_exists($zip_path))
+            if(file_exists($zip_path)) {
                 unlink($zip_path);
+            }
         }
     }
 }

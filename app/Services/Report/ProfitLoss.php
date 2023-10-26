@@ -11,19 +11,19 @@
 
 namespace App\Services\Report;
 
-use App\Utils\Ninja;
-use App\Utils\Number;
-use League\Csv\Writer;
+use App\Libraries\Currency\Conversion\CurrencyApi;
+use App\Libraries\MultiDB;
 use App\Models\Company;
+use App\Models\Currency;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\Currency;
-use App\Libraries\MultiDB;
-use Illuminate\Support\Str;
+use App\Utils\Ninja;
+use App\Utils\Number;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
-use App\Libraries\Currency\Conversion\CurrencyApi;
+use Illuminate\Support\Str;
+use League\Csv\Writer;
 
 class ProfitLoss
 {

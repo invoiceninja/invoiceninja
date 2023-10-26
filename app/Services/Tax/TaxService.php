@@ -37,13 +37,13 @@ class TaxService
 
             $this->client->has_valid_vat_number = true;
 
-                if(!$this->client->name && strlen($vat_check->getName()) > 2) {
-                    $this->client->name = $vat_check->getName();
-                }
+            if(!$this->client->name && strlen($vat_check->getName()) > 2) {
+                $this->client->name = $vat_check->getName();
+            }
 
-                if(empty($this->client->private_notes) && strlen($vat_check->getAddress()) > 2) {
-                    $this->client->private_notes = $vat_check->getAddress();
-                }
+            if(empty($this->client->private_notes) && strlen($vat_check->getAddress()) > 2) {
+                $this->client->private_notes = $vat_check->getAddress();
+            }
 
             $this->client->saveQuietly();
         }

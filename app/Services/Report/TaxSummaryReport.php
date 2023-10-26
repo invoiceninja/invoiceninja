@@ -88,16 +88,14 @@ class TaxSummaryReport extends BaseExport
         $accrual_map = [];
         $cash_map = [];
 
-        foreach($query->cursor() as $invoice) 
-        {
+        foreach($query->cursor() as $invoice) {
             $calc = $invoice->calc();
             
             //Combine the line taxes with invoice taxes here to get a total tax amount
             $taxes = array_merge($calc->getTaxMap()->merge($calc->getTotalTaxMap())->toArray());
 
             //filter into two arrays for accrual + cash
-            foreach($taxes as $tax) 
-            {
+            foreach($taxes as $tax) {
                 $key = $tax['name'];
 
                 if(!isset($accrual_map[$key])) {
@@ -113,12 +111,13 @@ class TaxSummaryReport extends BaseExport
                     $cash_map[$key]['tax_amount'] = 0;
                 }
                 
-                if(in_array($invoice->status_id, [Invoice::STATUS_PARTIAL,Invoice::STATUS_PAID])){
+                if(in_array($invoice->status_id, [Invoice::STATUS_PARTIAL,Invoice::STATUS_PAID])) {
 
-                if($invoice->status_id == Invoice::STATUS_PAID)
-                    $cash_map[$key]['tax_amount'] += $tax['total'];
-                else 
-                    $cash_map[$key]['tax_amount'] += (($invoice->amount - $invoice->balance) / $invoice->balance) * $tax['total'] ?? 0;
+                    if($invoice->status_id == Invoice::STATUS_PAID) {
+                        $cash_map[$key]['tax_amount'] += $tax['total'];
+                    } else {
+                        $cash_map[$key]['tax_amount'] += (($invoice->amount - $invoice->balance) / $invoice->balance) * $tax['total'] ?? 0;
+                    }
 
                 }
             }
@@ -130,8 +129,7 @@ class TaxSummaryReport extends BaseExport
         $this->csv->insertOne($this->buildHeader());
 
 
-        foreach($accrual_map as $key => $value)
-        {
+        foreach($accrual_map as $key => $value) {
             $this->csv->insertOne([$key, Number::formatMoney($value['tax_amount'], $this->company)]);
         }
 

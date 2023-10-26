@@ -15,7 +15,7 @@ use App\DataMapper\Tax\ZipTax\Response;
 
 /**
  * InvoiceTaxData
- * 
+ *
  * Definition for the invoice tax data structure
  */
 class TaxData

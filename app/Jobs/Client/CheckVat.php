@@ -11,18 +11,17 @@
 
 namespace App\Jobs\Client;
 
+use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\Company;
-use App\Libraries\MultiDB;
-use Illuminate\Bus\Queueable;
-use App\DataProviders\USStates;
-use App\Utils\Traits\MakesHash;
 use App\Services\Tax\TaxService;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Queue\SerializesModels;
 
 class CheckVat implements ShouldQueue
 {

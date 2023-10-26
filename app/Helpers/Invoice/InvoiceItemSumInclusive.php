@@ -11,14 +11,14 @@
 
 namespace App\Helpers\Invoice;
 
-use App\Models\Quote;
+use App\DataMapper\Tax\RuleInterface;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\PurchaseOrder;
-use App\Models\RecurringQuote;
+use App\Models\Quote;
 use App\Models\RecurringInvoice;
-use App\DataMapper\Tax\RuleInterface;
+use App\Models\RecurringQuote;
 use App\Utils\Traits\NumberFormatter;
 
 class InvoiceItemSumInclusive
@@ -404,14 +404,15 @@ class InvoiceItemSumInclusive
             return $this;
         }
         
-        if (in_array($this->client->company->country()->iso_3166_2, $this->tax_jurisdictions) ) { //only calculate for supported tax jurisdictions
+        if (in_array($this->client->company->country()->iso_3166_2, $this->tax_jurisdictions)) { //only calculate for supported tax jurisdictions
             
             $class = "App\DataMapper\Tax\\".$this->client->company->country()->iso_3166_2."\\Rule";
 
             $this->rule = new $class();
 
-        if($this->rule->regionWithNoTaxCoverage($this->client->country->iso_3166_2))
-            return $this;
+            if($this->rule->regionWithNoTaxCoverage($this->client->country->iso_3166_2)) {
+                return $this;
+            }
 
             $this->rule
                  ->setEntity($this->invoice)

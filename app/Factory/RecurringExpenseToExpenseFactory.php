@@ -248,10 +248,10 @@ class RecurringExpenseToExpenseFactory
                     $final_date = now()->addMonths($output-now()->month);
 
                     $output =    \sprintf(
-                            '%s %s',
-                            $final_date->translatedFormat('F'),
-                            $final_date->year,
-                        );
+                        '%s %s',
+                        $final_date->translatedFormat('F'),
+                        $final_date->year,
+                    );
                 }
 
                 $value = preg_replace(

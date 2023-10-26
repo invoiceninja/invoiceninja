@@ -11,20 +11,18 @@
 
 namespace App\Models;
 
-use App\Utils\Ninja;
-use Illuminate\Support\Carbon;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesDates;
 use App\Helpers\Invoice\InvoiceSum;
-use App\Utils\Traits\MakesReminders;
+use App\Helpers\Invoice\InvoiceSumInclusive;
+use App\Models\Presenters\CreditPresenter;
 use App\Services\Credit\CreditService;
 use App\Services\Ledger\LedgerService;
-use Illuminate\Support\Facades\Storage;
+use App\Utils\Traits\MakesDates;
+use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceValues;
-use Laracasts\Presenter\PresentableTrait;
-use App\Models\Presenters\CreditPresenter;
-use App\Helpers\Invoice\InvoiceSumInclusive;
+use App\Utils\Traits\MakesReminders;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Laracasts\Presenter\PresentableTrait;
 
 /**
  * App\Models\Credit
@@ -122,7 +120,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $invitations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * 
+ *
  * @mixin \Eloquent
  */
 class Credit extends BaseModel

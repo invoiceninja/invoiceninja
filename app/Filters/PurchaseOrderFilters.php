@@ -145,7 +145,7 @@ class PurchaseOrderFilters extends QueryFilters
             return $this->builder->company();
         }
 
-//            return $this->builder->whereCompanyId(auth()->user()->company()->id);
+        //            return $this->builder->whereCompanyId(auth()->user()->company()->id);
     }
 
     /**

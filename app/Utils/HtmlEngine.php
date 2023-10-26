@@ -12,22 +12,22 @@
 
 namespace App\Utils;
 
-use Exception;
+use App\Helpers\Epc\EpcQrGenerator;
+use App\Helpers\SwissQr\SwissQrGenerator;
 use App\Models\Account;
 use App\Models\Country;
-use App\Models\GatewayType;
-use App\Utils\Traits\AppSetup;
-use App\Models\QuoteInvitation;
-use App\Utils\Traits\MakesHash;
 use App\Models\CreditInvitation;
-use App\Utils\Traits\MakesDates;
+use App\Models\GatewayType;
 use App\Models\InvoiceInvitation;
-use App\Helpers\Epc\EpcQrGenerator;
+use App\Models\QuoteInvitation;
+use App\Models\RecurringInvoiceInvitation;
+use App\Utils\Traits\AppSetup;
+use App\Utils\Traits\DesignCalculator;
+use App\Utils\Traits\MakesDates;
+use App\Utils\Traits\MakesHash;
+use Exception;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
-use App\Utils\Traits\DesignCalculator;
-use App\Helpers\SwissQr\SwissQrGenerator;
-use App\Models\RecurringInvoiceInvitation;
 
 class HtmlEngine
 {
@@ -717,7 +717,7 @@ class HtmlEngine
             $tax_label .= ctrans('texts.reverse_tax_info') . "<br>";
         }
 
-        if((int)$this->client->country_id !== (int)$this->company->settings->country_id){
+        if((int)$this->client->country_id !== (int)$this->company->settings->country_id) {
             $tax_label .= ctrans('texts.intracommunity_tax_info') . "<br>";
         }
 
@@ -726,7 +726,7 @@ class HtmlEngine
 
     private function getBalance()
     {
-        if($this->entity->status_id == 1){
+        if($this->entity->status_id == 1) {
             return $this->entity->amount;
         }
 
@@ -753,7 +753,7 @@ class HtmlEngine
         $values = $this->buildEntityDataArray();
 
         foreach ($values as $key => $value) {
-            $data[str_replace(["$","."],["_","_"],$key)] = $value['value'];
+            $data[str_replace(["$","."], ["_","_"], $key)] = $value['value'];
         }
 
         return $data;
@@ -1038,8 +1038,8 @@ html {
         $container =  $dom->createElement('div');
         $container->setAttribute('style', 'display:grid; grid-auto-flow: row; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr);justify-items: center;');
 
-       foreach ($this->entity->documents()->where('is_public',true)->get() as $document) {
-             if (!$document->isImage()) {
+        foreach ($this->entity->documents()->where('is_public', true)->get() as $document) {
+            if (!$document->isImage()) {
                 continue;
             }
 

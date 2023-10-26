@@ -48,7 +48,7 @@ class VatNumberCheck
             }
         } catch (\SoapFault $e) {
 
-             $this->response = ['valid' => false, 'error' => $e->getMessage()];
+            $this->response = ['valid' => false, 'error' => $e->getMessage()];
         }
 
         return $this;

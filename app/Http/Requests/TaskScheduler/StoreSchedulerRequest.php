@@ -14,7 +14,6 @@ namespace App\Http\Requests\TaskScheduler;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\Scheduler\ValidClientIds;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Validation\Rule;
 
 class StoreSchedulerRequest extends Request
 {
@@ -60,7 +59,7 @@ class StoreSchedulerRequest extends Request
             $input['next_run_client'] = $input['next_run'];
         }
      
-        if($input['template'] == 'email_record'){
+        if($input['template'] == 'email_record') {
             $input['frequency_id'] = 0;
         }
 

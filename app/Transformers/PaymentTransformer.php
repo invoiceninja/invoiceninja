@@ -13,9 +13,9 @@ namespace App\Transformers;
 
 use App\Models\Client;
 use App\Models\Credit;
+use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\Document;
 use App\Models\Paymentable;
 use App\Models\PaymentType;
 use App\Utils\Traits\MakesHash;

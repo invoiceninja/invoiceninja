@@ -11,17 +11,17 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Str;
-use Illuminate\Support\Carbon;
-use App\Utils\Traits\MakesHash;
 use App\Jobs\Entity\CreateRawPdf;
 use App\Jobs\Util\WebhookHandler;
-use App\Models\Traits\Excludable;
-use Illuminate\Database\Eloquent\Model;
 use App\Jobs\Vendor\CreatePurchaseOrderPdf;
+use App\Models\Traits\Excludable;
+use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 /**
  * Class BaseModel
@@ -37,7 +37,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  * @property int $assigned_user_id
  * @method BaseModel service()
  * @property \App\Models\Company $company
- * @method static BaseModel find($value) 
+ * @method static BaseModel find($value)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel<static> company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|Illuminate\Database\Eloquent\Relations\BelongsTo|\Awobaz\Compoships\Database\Eloquent\Relations\BelongsTo|\App\Models\Company company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|Illuminate\Database\Eloquent\Relations\HasMany|BaseModel orderBy()
@@ -68,7 +68,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|\Illuminate\Database\Query\Builder withoutTrashed()
  * @mixin \Eloquent
  * @mixin \Illuminate\Database\Eloquent\Builder
- * 
+ *
  * @property \Illuminate\Support\Collection $tax_map
  * @property array $total_tax_map
  */
@@ -237,10 +237,10 @@ class BaseModel extends Model
         return $this->numberFormatter().'.'.$extension;
     }
 
-     /**
-     * @param string $extension
-     * @return string
-     */
+    /**
+    * @param string $extension
+    * @return string
+    */
     public function getEFileName($extension = 'pdf')
     {
         return ctrans("texts.e_invoice"). "_" . $this->numberFormatter().'.'.$extension;
@@ -303,8 +303,9 @@ class BaseModel extends Model
             throw new \Exception('Hard fail, could not create an invitation.');
         }
 
-        if($this instanceof \App\Models\PurchaseOrder) 
+        if($this instanceof \App\Models\PurchaseOrder) {
             return "data:application/pdf;base64,".base64_encode((new CreatePurchaseOrderPdf($invitation, $invitation->company->db))->rawPdf());
+        }
         
         return "data:application/pdf;base64,".base64_encode((new CreateRawPdf($invitation))->handle());
 

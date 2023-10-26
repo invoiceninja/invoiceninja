@@ -265,9 +265,9 @@ class Design extends BaseDesign
 
         $variables = $this->context['pdf_variables']['client_details'];
 
-        $elements = collect($variables)->filter(function ($variable) use ($address_variables){
+        $elements = collect($variables)->filter(function ($variable) use ($address_variables) {
             return in_array($variable, $address_variables);
-        })->map(function ($variable){
+        })->map(function ($variable) {
 
             $variable = str_replace('$client.', '$client.shipping_', $variable);
             return ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => "client_details-shipping-" . substr($variable, 1)]];
@@ -935,7 +935,7 @@ class Design extends BaseDesign
 
                 //07/09/2023 don't show custom values if they are empty
                 // $visible = intval($this->entity->{$_variable}) != 0;
-                $visible = intval(str_replace(['0','.'],'', $this->entity->{$_variable})) != 0;
+                $visible = intval(str_replace(['0','.'], '', $this->entity->{$_variable})) != 0;
 
                 $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
                     ['element' => 'span', 'content' => $variable . '_label', 'properties' => ['hidden' => !$visible, 'data-ref' => 'totals_table-' . substr($variable, 1) . '-label']],

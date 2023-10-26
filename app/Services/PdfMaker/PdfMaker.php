@@ -97,7 +97,7 @@ class PdfMaker
 
             }
 
-            foreach($contents as $key => $content){
+            foreach($contents as $key => $content) {
                 $content->parentNode->replaceChild($replacements[$key], $content);
             }
 

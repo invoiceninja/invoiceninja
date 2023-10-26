@@ -13,8 +13,6 @@ namespace App\Services\PurchaseOrder;
 
 use App\Models\PurchaseOrder;
 use App\Utils\Traits\MakesHash;
-use App\Services\PurchaseOrder\SendEmail;
-use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 
 class PurchaseOrderService
 {
@@ -132,7 +130,7 @@ class PurchaseOrderService
 
     /**
      * Saves the purchase order.
-     * @return \App\Models\PurchaseOrder 
+     * @return \App\Models\PurchaseOrder
      */
     public function save(): ?PurchaseOrder
     {

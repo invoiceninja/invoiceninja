@@ -58,7 +58,7 @@ class RefundPaymentRequest extends Request
         if (isset($input['credits'])) {
             unset($input['credits']);
             // foreach($input['credits'] as $key => $credit)
-           //     $input['credits'][$key]['credit_id'] = $this->decodePrimaryKey($credit['credit_id']);
+            //     $input['credits'][$key]['credit_id'] = $this->decodePrimaryKey($credit['credit_id']);
         }
 
         $this->replace($input);

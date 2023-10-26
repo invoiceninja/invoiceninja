@@ -11,23 +11,22 @@
 
 namespace App\Models;
 
-use App\Utils\Ninja;
-use Illuminate\Support\Carbon;
-use App\Utils\Traits\MakesDates;
+use App\Events\Invoice\InvoiceReminderWasEmailed;
+use App\Events\Invoice\InvoiceWasEmailed;
 use App\Helpers\Invoice\InvoiceSum;
+use App\Helpers\Invoice\InvoiceSumInclusive;
+use App\Models\Presenters\EntityPresenter;
+use App\Services\Invoice\InvoiceService;
+use App\Services\Ledger\LedgerService;
+use App\Utils\Ninja;
+use App\Utils\Traits\Invoice\ActionsInvoice;
+use App\Utils\Traits\MakesDates;
+use App\Utils\Traits\MakesInvoiceValues;
 use App\Utils\Traits\MakesReminders;
 use App\Utils\Traits\NumberFormatter;
-use App\Services\Ledger\LedgerService;
-use Illuminate\Support\Facades\Storage;
-use App\Services\Invoice\InvoiceService;
-use App\Utils\Traits\MakesInvoiceValues;
-use App\Events\Invoice\InvoiceWasEmailed;
-use Laracasts\Presenter\PresentableTrait;
-use App\Models\Presenters\EntityPresenter;
-use App\Helpers\Invoice\InvoiceSumInclusive;
-use App\Utils\Traits\Invoice\ActionsInvoice;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Events\Invoice\InvoiceReminderWasEmailed;
+use Illuminate\Support\Carbon;
+use Laracasts\Presenter\PresentableTrait;
 
 /**
  * App\Models\Invoice
@@ -320,7 +319,7 @@ class Invoice extends BaseModel
      */
     public function net_payments(): \Illuminate\Database\Eloquent\Relations\MorphToMany
     {
-        return $this->morphToMany(Payment::class, 'paymentable')->withTrashed()->where('is_deleted',0)->withPivot('amount', 'refunded', 'deleted_at')->withTimestamps();
+        return $this->morphToMany(Payment::class, 'paymentable')->withTrashed()->where('is_deleted', 0)->withPivot('amount', 'refunded', 'deleted_at')->withTimestamps();
     }
 
     /**
@@ -677,7 +676,7 @@ class Invoice extends BaseModel
     {
         $tax_type  = '';
 
-        match(intval($id)){
+        match(intval($id)) {
             Product::PRODUCT_TYPE_PHYSICAL => $tax_type = ctrans('texts.physical_goods'),
             Product::PRODUCT_TYPE_SERVICE => $tax_type = ctrans('texts.services'),
             Product::PRODUCT_TYPE_DIGITAL => $tax_type = ctrans('texts.digital_products'),
@@ -728,7 +727,7 @@ class Invoice extends BaseModel
         $schedule_2 = ctrans("texts.{$settings->schedule_reminder2}"); //after due date etc or disabled
         $label_2 = ctrans('texts.reminder2');
 
-        $sends_email_3 = $settings->enable_reminder2 ? $send_email_enabled : $send_email_disabled;      
+        $sends_email_3 = $settings->enable_reminder2 ? $send_email_enabled : $send_email_disabled;
         $days_3 = $settings->num_days_reminder3 . " " . ctrans('texts.days');
         $schedule_3 = ctrans("texts.{$settings->schedule_reminder3}"); //after due date etc or disabled
         $label_3 = ctrans('texts.reminder3');
@@ -737,25 +736,29 @@ class Invoice extends BaseModel
         $days_endless = \App\Models\RecurringInvoice::frequencyForKey($settings->endless_reminder_frequency_id);
         $label_endless = ctrans('texts.reminder_endless');
 
-        if($schedule_1 == ctrans('texts.disabled') || $settings->schedule_reminder1 == 'disabled' || $settings->schedule_reminder1 == '')
+        if($schedule_1 == ctrans('texts.disabled') || $settings->schedule_reminder1 == 'disabled' || $settings->schedule_reminder1 == '') {
             $reminder_schedule .= "{$label_1}: " . ctrans('texts.disabled') ."<br>";
-        else 
+        } else {
             $reminder_schedule .= "{$label_1}: {$days_1} {$schedule_1} [{$sends_email_1}]<br>";
+        }
 
-        if($schedule_2 == ctrans('texts.disabled') || $settings->schedule_reminder2 == 'disabled' || $settings->schedule_reminder2 == '') 
+        if($schedule_2 == ctrans('texts.disabled') || $settings->schedule_reminder2 == 'disabled' || $settings->schedule_reminder2 == '') {
             $reminder_schedule .= "{$label_2}: " . ctrans('texts.disabled') ."<br>";
-        else 
+        } else {
             $reminder_schedule .= "{$label_2}: {$days_2} {$schedule_2} [{$sends_email_2}]<br>";
+        }
         
-        if($schedule_3 == ctrans('texts.disabled') || $settings->schedule_reminder3 == 'disabled' || $settings->schedule_reminder3 == '') 
+        if($schedule_3 == ctrans('texts.disabled') || $settings->schedule_reminder3 == 'disabled' || $settings->schedule_reminder3 == '') {
             $reminder_schedule .= "{$label_3}: " . ctrans('texts.disabled') ."<br>";
-        else 
+        } else {
             $reminder_schedule .= "{$label_3}: {$days_3} {$schedule_3} [{$sends_email_3}]<br>";
+        }
         
-        if($sends_email_endless == ctrans('texts.disabled') || $settings->endless_reminder_frequency_id == '0' || $settings->endless_reminder_frequency_id == '') 
+        if($sends_email_endless == ctrans('texts.disabled') || $settings->endless_reminder_frequency_id == '0' || $settings->endless_reminder_frequency_id == '') {
             $reminder_schedule .= "{$label_endless}: " . ctrans('texts.disabled') ."<br>";
-        else 
+        } else {
             $reminder_schedule .= "{$label_endless}: {$days_endless} [{$sends_email_endless}]<br>";
+        }
         
 
         return $reminder_schedule;

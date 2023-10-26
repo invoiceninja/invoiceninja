@@ -12,19 +12,19 @@
 
 namespace App\Utils;
 
-use Exception;
 use App\Models\Account;
 use App\Models\Country;
-use App\Utils\Traits\AppSetup;
-use App\Models\QuoteInvitation;
 use App\Models\CreditInvitation;
-use App\Utils\Traits\MakesDates;
 use App\Models\InvoiceInvitation;
+use App\Models\PurchaseOrderInvitation;
+use App\Models\QuoteInvitation;
+use App\Models\RecurringInvoiceInvitation;
+use App\Utils\Traits\AppSetup;
+use App\Utils\Traits\DesignCalculator;
+use App\Utils\Traits\MakesDates;
+use Exception;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
-use App\Utils\Traits\DesignCalculator;
-use App\Models\PurchaseOrderInvitation;
-use App\Models\RecurringInvoiceInvitation;
 
 /**
  * Note the premise used here is that any currencies will be formatted back to the company currency and not
@@ -604,54 +604,54 @@ class VendorHtmlEngine
      * aggregate data
      */
 
-     /*
+    /*
     private function makeLineTaxes() :string
     {
-        $tax_map = $this->entity_calc->getTaxMap();
+       $tax_map = $this->entity_calc->getTaxMap();
 
-        $data = '';
+       $data = '';
 
-        foreach ($tax_map as $tax) {
-            $data .= '<tr class="line_taxes">';
-            $data .= '<td>'.$tax['name'].'</td>';
-            $data .= '<td>'.Number::formatMoney($tax['total'], $this->company).'</td></tr>';
-        }
+       foreach ($tax_map as $tax) {
+           $data .= '<tr class="line_taxes">';
+           $data .= '<td>'.$tax['name'].'</td>';
+           $data .= '<td>'.Number::formatMoney($tax['total'], $this->company).'</td></tr>';
+       }
 
-        return $data;
+       return $data;
     }
 
 
     private function makeTotalTaxes() :string
     {
-        $data = '';
+       $data = '';
 
-        if (! $this->entity_calc->getTotalTaxMap()) {
-            return $data;
-        }
+       if (! $this->entity_calc->getTotalTaxMap()) {
+           return $data;
+       }
 
-        foreach ($this->entity_calc->getTotalTaxMap() as $tax) {
-            $data .= '<tr>';
-            $data .= '<td colspan="{ count($this->entity->company->settings->pdf_variables->total_columns) - 2 }"></td>';
-            $data .= '<td>'.$tax['name'].'</td>';
-            $data .= '<td>'.Number::formatMoney($tax['total'], $this->company).'</td></tr>';
-        }
+       foreach ($this->entity_calc->getTotalTaxMap() as $tax) {
+           $data .= '<tr>';
+           $data .= '<td colspan="{ count($this->entity->company->settings->pdf_variables->total_columns) - 2 }"></td>';
+           $data .= '<td>'.$tax['name'].'</td>';
+           $data .= '<td>'.Number::formatMoney($tax['total'], $this->company).'</td></tr>';
+       }
 
-        return $data;
+       return $data;
     }
 
     private function parseLabelsAndValues($labels, $values, $section) :string
     {
-        $section = strtr($section, $labels);
+       $section = strtr($section, $labels);
 
-        return strtr($section, $values);
+       return strtr($section, $values);
     }
-        */
+       */
 
     /**
      * Builds CSS to assist with the generation
      * of Repeating headers and footers on the PDF.
      * @return string The css string
-     
+
     private function generateCustomCSS() :string
     {
         $header_and_footer = '
@@ -786,7 +786,7 @@ html {
         $container =  $dom->createElement('div');
         $container->setAttribute('style', 'display:grid; grid-auto-flow: row; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr);justify-items: center;');
  
-        foreach ($this->entity->documents()->where('is_public',true)->get() as $document) {
+        foreach ($this->entity->documents()->where('is_public', true)->get() as $document) {
             if (!$document->isImage()) {
                 continue;
             }
@@ -852,7 +852,7 @@ html {
         // return '
         //     <table border="0" cellspacing="0" cellpadding="0" align="center">
         //         <tr style="border: 0 !important; ">
-        //             <td class="new_button" style="padding: 12px 18px 12px 18px; border-radius:5px;" align="center"> 
+        //             <td class="new_button" style="padding: 12px 18px 12px 18px; border-radius:5px;" align="center">
         //             <a href="'. $link .'" target="_blank" style="border: 0 !important;font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; display: inline-block;">'. $text .'</a>
         //             </td>
         //         </tr>

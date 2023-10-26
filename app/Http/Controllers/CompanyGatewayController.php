@@ -213,8 +213,7 @@ class CompanyGatewayController extends BaseController
 
         if (in_array($company_gateway->gateway_key, $this->stripe_keys)) {
             StripeWebhook::dispatch($company_gateway->company->company_key, $company_gateway->id);
-        }
-        elseif($company_gateway->gateway_key == $this->checkout_key) {
+        } elseif($company_gateway->gateway_key == $this->checkout_key) {
             CheckoutSetupWebhook::dispatch($company_gateway->company->company_key, $company_gateway->id);
         }
 

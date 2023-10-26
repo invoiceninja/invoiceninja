@@ -17,7 +17,6 @@ use App\Models\Paymentable;
 use App\Services\AbstractService;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
-use Illuminate\Support\Facades\DB;
 
 class HandleRestore extends AbstractService
 {
@@ -115,9 +114,9 @@ class HandleRestore extends AbstractService
 
         if ($this->adjustment_amount == $this->total_payments) {
             $this->invoice->payments()->update(['payments.deleted_at' => null, 'payments.is_deleted' => false]);
-        }
-        else
+        } else {
             $this->invoice->net_payments()->update(['payments.deleted_at' => null, 'payments.is_deleted' => false]);
+        }
 
         //adjust payments down by the amount applied to the invoice payment.
 

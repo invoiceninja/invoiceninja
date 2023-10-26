@@ -18,7 +18,6 @@ use App\Services\Email\Email;
 use App\Services\Email\EmailObject;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
-use Carbon\Carbon;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Support\Facades\DB;
 
@@ -50,7 +49,7 @@ class ClientService
                 DB::connection(config('database.default'))->rollBack();
             }
 
-        } catch(\Exception $exception){
+        } catch(\Exception $exception) {
             nlog("DB ERROR " . $exception->getMessage());
             DB::connection(config('database.default'))->rollBack();
 
@@ -78,7 +77,7 @@ class ClientService
                 DB::connection(config('database.default'))->rollBack();
             }
 
-        } catch(\Exception $exception){
+        } catch(\Exception $exception) {
             nlog("DB ERROR " . $exception->getMessage());
 
             if (DB::connection(config('database.default'))->transactionLevel() > 0) {
@@ -97,15 +96,14 @@ class ClientService
                 $this->client->paid_to_date += $amount;
                 $this->client->saveQuietly();
             }, 2);
-        }
-        catch (\Throwable $throwable) {
+        } catch (\Throwable $throwable) {
             nlog("DB ERROR " . $throwable->getMessage());
 
             if (DB::connection(config('database.default'))->transactionLevel() > 0) {
                 DB::connection(config('database.default'))->rollBack();
             }
 
-        } catch(\Exception $exception){
+        } catch(\Exception $exception) {
             nlog("DB ERROR " . $exception->getMessage());
 
             if (DB::connection(config('database.default'))->transactionLevel() > 0) {
@@ -233,7 +231,7 @@ class ClientService
         $cc_contacts = $this->client
                             ->contacts()
                             ->where('send_email', true)
-                            ->where('email', '!=',  $email)
+                            ->where('email', '!=', $email)
                             ->get();
 
         foreach ($cc_contacts as $contact) {

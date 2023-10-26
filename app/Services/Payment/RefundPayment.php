@@ -70,8 +70,9 @@ class RefundPayment
 
     private function finalize(): self
     {
-        if($this->refund_failed)
+        if($this->refund_failed) {
             throw new PaymentRefundFailed($this->refund_failed_message);
+        }
         
         return $this;
     }
@@ -89,7 +90,7 @@ class RefundPayment
      *  'payment_id' => (int),
      *  'amount' => (float),
      * ];
-     * 
+     *
      * @return $this
      * @throws PaymentRefundFailed
      */
@@ -101,14 +102,14 @@ class RefundPayment
             if ($this->payment->company_gateway) {
                 $response = $this->payment->company_gateway->driver($this->payment->client)->refund($this->payment, $net_refund);
 
-                if($response['amount'] ?? false)
+                if($response['amount'] ?? false) {
                     $net_refund = $response['amount'];
+                }
 
-                if($response['voided'] ?? false)
-                {
-                    //When a transaction is voided - all invoices attached to the payment need to be reversed, this 
+                if($response['voided'] ?? false) {
+                    //When a transaction is voided - all invoices attached to the payment need to be reversed, this
                     //block prevents the edge case where a partial refund was attempted.
-                    $this->refund_data['invoices'] = $this->payment->invoices->map(function ($invoice){
+                    $this->refund_data['invoices'] = $this->payment->invoices->map(function ($invoice) {
                         return [
                             'invoice_id' => $invoice->id,
                             'amount' => $invoice->pivot->amount,
@@ -277,8 +278,7 @@ class RefundPayment
     private function adjustInvoices()
     {
         if (isset($this->refund_data['invoices']) && count($this->refund_data['invoices']) > 0) {
-            foreach ($this->refund_data['invoices'] as $refunded_invoice) 
-            {
+            foreach ($this->refund_data['invoices'] as $refunded_invoice) {
                 $invoice = Invoice::withTrashed()->find($refunded_invoice['invoice_id']);
 
                 if ($invoice->trashed()) {

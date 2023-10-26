@@ -10,7 +10,7 @@
  */
 namespace App\DataMapper\Settings;
 
-class SettingsData 
+class SettingsData
 {
 
     public bool $auto_archive_invoice = false; // @implemented
@@ -469,27 +469,28 @@ class SettingsData
 
     public function cast(mixed $object)
     {
-        if(is_array($object))
+        if(is_array($object)) {
             $object = (object)$object;
+        }
 
         if (is_object($object)) {
             foreach ($object as $key => $value) {
 
-                try{
+                try {
                     settype($object->{$key}, gettype($this->{$key}));
-                }
-                catch(\Exception | \Error | \Throwable $e){
+                } catch(\Exception | \Error | \Throwable $e) {
                     
-                    if(property_exists($this, $key))
+                    if(property_exists($this, $key)) {
                         $object->{$key} = $this->{$key};
-                    else
+                    } else {
                         unset($object->{$key});
+                    }
 
                 }
 
                 // if(!property_exists($this, $key)) {
                 //     unset($object->{$key});
-                // } 
+                // }
                 // elseif(is_array($object->{$key}) && gettype($this->{$key} != 'array')){
                 //     $object->{$key} = $this->{$key};
                 // }

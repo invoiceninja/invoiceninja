@@ -11,22 +11,22 @@
 
 namespace App\Jobs\Util;
 
-use App\Utils\Ninja;
-use App\Models\Invoice;
-use App\Libraries\MultiDB;
-use Illuminate\Bus\Queueable;
-use Illuminate\Support\Carbon;
 use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
 use App\Jobs\Entity\EmailEntity;
+use App\Libraries\MultiDB;
+use App\Models\Invoice;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
-use Illuminate\Support\Facades\App;
 use App\Utils\Traits\MakesReminders;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 
 class ReminderJob implements ShouldQueue
 {
@@ -129,8 +129,9 @@ class ReminderJob implements ShouldQueue
             $invoice->service()->touchReminder($reminder_template)->save();
             $fees = $this->calcLateFee($invoice, $reminder_template);
 
-            if($invoice->isLocked()) 
+            if($invoice->isLocked()) {
                 return $this->addFeeToNewInvoice($invoice, $reminder_template, $fees);
+            }
             
             $invoice = $this->setLateFee($invoice, $fees[0], $fees[1]);
 

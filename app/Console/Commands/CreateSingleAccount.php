@@ -11,52 +11,52 @@
 
 namespace App\Console\Commands;
 
-use stdClass;
-use Carbon\Carbon;
-use Faker\Factory;
-use App\Models\Task;
-use App\Models\User;
-use App\Utils\Ninja;
-use App\Models\Quote;
-use App\Models\Client;
-use App\Models\Credit;
-use App\Models\Vendor;
+use App\DataMapper\ClientRegistrationFields;
+use App\DataMapper\CompanySettings;
+use App\DataMapper\FeesAndLimits;
+use App\Events\Invoice\InvoiceWasCreated;
+use App\Events\RecurringInvoice\RecurringInvoiceWasCreated;
+use App\Factory\GroupSettingFactory;
+use App\Factory\InvoiceFactory;
+use App\Factory\InvoiceItemFactory;
+use App\Factory\RecurringInvoiceFactory;
+use App\Factory\SubscriptionFactory;
+use App\Helpers\Invoice\InvoiceSum;
+use App\Jobs\Company\CreateCompanyTaskStatuses;
+use App\Libraries\MultiDB;
 use App\Models\Account;
+use App\Models\BankIntegration;
+use App\Models\BankTransaction;
+use App\Models\BankTransactionRule;
+use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\Company;
+use App\Models\CompanyGateway;
+use App\Models\CompanyToken;
 use App\Models\Country;
+use App\Models\Credit;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Product;
 use App\Models\Project;
-use App\Models\TaxRate;
-use App\Libraries\MultiDB;
-use App\Models\CompanyToken;
-use App\Models\ClientContact;
-use App\Models\VendorContact;
-use App\Models\CompanyGateway;
-use App\Factory\InvoiceFactory;
-use App\Models\BankIntegration;
-use App\Models\BankTransaction;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Console\Command;
+use App\Models\Quote;
 use App\Models\RecurringInvoice;
-use App\DataMapper\FeesAndLimits;
-use App\DataMapper\CompanySettings;
-use App\Factory\InvoiceItemFactory;
-use App\Helpers\Invoice\InvoiceSum;
-use App\Models\BankTransactionRule;
-use App\Factory\GroupSettingFactory;
-use App\Factory\SubscriptionFactory;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Cache;
-use App\Utils\Traits\GeneratesCounter;
-use Illuminate\Support\Facades\Schema;
+use App\Models\Task;
+use App\Models\TaxRate;
+use App\Models\User;
+use App\Models\Vendor;
+use App\Models\VendorContact;
 use App\Repositories\InvoiceRepository;
-use App\Factory\RecurringInvoiceFactory;
-use App\Events\Invoice\InvoiceWasCreated;
-use App\DataMapper\ClientRegistrationFields;
-use App\Jobs\Company\CreateCompanyTaskStatuses;
-use App\Events\RecurringInvoice\RecurringInvoiceWasCreated;
+use App\Utils\Ninja;
+use App\Utils\Traits\GeneratesCounter;
+use App\Utils\Traits\MakesHash;
+use Carbon\Carbon;
+use Faker\Factory;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
+use stdClass;
 
 class CreateSingleAccount extends Command
 {
@@ -460,7 +460,7 @@ class CreateSingleAccount extends Command
 
         $settings = $client->settings;
         $settings->currency_id = "1";
-//        $settings->use_credits_payment = "always";
+        //        $settings->use_credits_payment = "always";
 
         $client->settings = $settings;
 

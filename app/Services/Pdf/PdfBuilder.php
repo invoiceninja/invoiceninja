@@ -11,14 +11,14 @@
 
 namespace App\Services\Pdf;
 
-use DOMDocument;
-use App\Models\Quote;
 use App\Models\Credit;
-use App\Utils\Helpers;
-use Illuminate\Support\Str;
-use Illuminate\Support\Carbon;
-use App\Utils\Traits\MakesDates;
+use App\Models\Quote;
 use App\Services\Template\TemplateService;
+use App\Utils\Helpers;
+use App\Utils\Traits\MakesDates;
+use DOMDocument;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use League\CommonMark\CommonMarkConverter;
 
 class PdfBuilder
@@ -74,12 +74,12 @@ class PdfBuilder
         return $this;
     }
 
-     /**
-     * Final method to get compiled HTML.
-     *
-     * @param bool $final @deprecated // is it? i still see it being called elsewhere
-     * @return string
-     */
+    /**
+    * Final method to get compiled HTML.
+    *
+    * @param bool $final @deprecated // is it? i still see it being called elsewhere
+    * @return string
+    */
     public function getCompiledHTML($final = false)
     {
         $html = $this->document->saveHTML();
@@ -764,13 +764,13 @@ class PdfBuilder
         return $data;
     }
 
-     /**
-     * Generate the structure of table headers. (<thead/>)
-     *
-     * @param string $type "product" or "task"
-     * @return array
-     *
-     */
+    /**
+    * Generate the structure of table headers. (<thead/>)
+    *
+    * @param string $type "product" or "task"
+    * @return array
+    *
+    */
     public function buildTableHeader(string $type): array
     {
         $this->processTaxColumns($type);

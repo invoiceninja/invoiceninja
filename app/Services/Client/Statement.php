@@ -12,26 +12,26 @@
 
 namespace App\Services\Client;
 
-use App\Utils\Number;
+use App\Factory\InvoiceFactory;
+use App\Factory\InvoiceInvitationFactory;
+use App\Factory\InvoiceItemFactory;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Utils\HtmlEngine;
-use Illuminate\Support\Carbon;
-use App\Factory\InvoiceFactory;
-use App\Utils\Traits\MakesHash;
-use App\Utils\PhantomJS\Phantom;
-use App\Utils\HostedPDF\NinjaPdf;
-use Illuminate\Support\Facades\DB;
-use App\Factory\InvoiceItemFactory;
-use App\Services\PdfMaker\PdfMaker;
-use App\Factory\InvoiceInvitationFactory;
-use Illuminate\Database\Eloquent\Builder;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
+use App\Services\PdfMaker\PdfMaker;
+use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\HtmlEngine;
+use App\Utils\Number;
+use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\MakesDates;
+use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Pdf\PdfMaker as PdfMakerTrait;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class Statement
 {
@@ -68,7 +68,7 @@ class Statement
             $variables['labels']['$end_date_label'] = ctrans('texts.end_date');
 
             return $this->templateStatement($variables);
-        }   
+        }
 
         $variables = $html->generateLabelsAndValues();
 
@@ -124,7 +124,7 @@ class Statement
             \DB::connection(config('database.default'))->rollBack();
         }
 
-        $pdf = $this->convertToPdf($html); 
+        $pdf = $this->convertToPdf($html);
 
         $maker = null;
         $state = null;
@@ -134,10 +134,11 @@ class Statement
 
     private function templateStatement($variables)
     {
-        if(isset($this->options['template']))
+        if(isset($this->options['template'])) {
             $statement_design_id = $this->options['template'];
-        else
+        } else {
             $statement_design_id = $this->client->getSetting('statement_design_id');
+        }
 
         $template = Design::where('id', $this->decodePrimaryKey($statement_design_id))
                             ->where('company_id', $this->client->company_id)
@@ -350,7 +351,7 @@ class Statement
     protected function getCredits(): Builder
     {
         return Credit::withTrashed()
-            ->with('client.country','invoice')
+            ->with('client.country', 'invoice')
             ->where('is_deleted', false)
             ->where('company_id', $this->client->company_id)
             ->where('client_id', $this->client->id)

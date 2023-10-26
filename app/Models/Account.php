@@ -86,7 +86,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
  * @method static \Illuminate\Database\Eloquent\Builder|Account first()
  * @method static \Illuminate\Database\Eloquent\Builder|Account with()
- * @method static \Illuminate\Database\Eloquent\Builder|Account count() 
+ * @method static \Illuminate\Database\Eloquent\Builder|Account count()
  * @method static \Illuminate\Database\Eloquent\Builder|Account where($query)
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankIntegration> $bank_integrations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
@@ -270,7 +270,7 @@ class Account extends BaseModel
             case self::FEATURE_REMOVE_CREATED_BY:
                 return ! empty($plan_details); // A plan is required even for self-hosted users
 
-            // Enterprise; No Trial allowed; grandfathered for old pro users
+                // Enterprise; No Trial allowed; grandfathered for old pro users
             case self::FEATURE_USERS:// Grandfathered for old Pro users
                 if ($plan_details && $plan_details['trial']) {
                     // Do they have a non-trial plan?
@@ -584,8 +584,9 @@ class Account extends BaseModel
         if ($plan_expires->gt(now())) {
             $diff = $plan_expires->diffInDays();
             
-            if ($diff > 14)
+            if ($diff > 14) {
                 return 0;
+            }
 
             return $diff;
         }

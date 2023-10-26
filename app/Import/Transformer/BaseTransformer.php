@@ -11,27 +11,27 @@
 
 namespace App\Import\Transformer;
 
-use App\Models\Quote;
-use App\Utils\Number;
+use App\Factory\ClientFactory;
+use App\Factory\ExpenseCategoryFactory;
+use App\Factory\ProjectFactory;
+use App\Factory\VendorFactory;
 use App\Models\Client;
-use App\Models\Vendor;
+use App\Models\ClientContact;
 use App\Models\Country;
 use App\Models\Expense;
+use App\Models\ExpenseCategory;
 use App\Models\Invoice;
+use App\Models\PaymentType;
 use App\Models\Product;
 use App\Models\Project;
-use App\Models\TaxRate;
-use App\Models\PaymentType;
-use App\Models\ClientContact;
-use App\Factory\ClientFactory;
-use App\Factory\VendorFactory;
-use Illuminate\Support\Carbon;
-use App\Factory\ProjectFactory;
-use App\Models\ExpenseCategory;
+use App\Models\Quote;
 use App\Models\RecurringInvoice;
-use Illuminate\Support\Facades\Cache;
+use App\Models\TaxRate;
+use App\Models\Vendor;
 use App\Repositories\ClientRepository;
-use App\Factory\ExpenseCategoryFactory;
+use App\Utils\Number;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class BaseTransformer.
@@ -47,8 +47,9 @@ class BaseTransformer
 
     public function parseDate($date)
     {
-        if(stripos($date,"/") !== false && $this->company->settings->country_id != 840)
+        if(stripos($date, "/") !== false && $this->company->settings->country_id != 840) {
             $date = str_replace('/', '-', $date);
+        }
         
         try {
             $parsed_date = Carbon::parse($date);
@@ -331,10 +332,11 @@ class BaseTransformer
      */
     public function getFloatOrOne($data, $field)
     {
-        if (array_key_exists($field, $data)) 
+        if (array_key_exists($field, $data)) {
             return Number::parseStringFloat($data[$field]) > 0 ? Number::parseStringFloat($data[$field]) : 1;
+        }
  
-        return 1;    
+        return 1;
 
     }
 
@@ -637,8 +639,9 @@ class BaseTransformer
             ])
             ->first();
 
-        if($ec)
+        if($ec) {
             return $ec->id;
+        }
 
         $ec = \App\Factory\ExpenseCategoryFactory::create($this->company->id, $this->company->owner()->id);
         $ec->name = $name;

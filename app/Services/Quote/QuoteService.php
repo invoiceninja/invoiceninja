@@ -11,15 +11,14 @@
 
 namespace App\Services\Quote;
 
-use App\Utils\Ninja;
-use App\Models\Quote;
-use App\Models\Project;
-use App\Utils\Traits\MakesHash;
-use App\Exceptions\QuoteConversion;
-use App\Repositories\QuoteRepository;
 use App\Events\Quote\QuoteWasApproved;
+use App\Exceptions\QuoteConversion;
+use App\Models\Project;
+use App\Models\Quote;
+use App\Repositories\QuoteRepository;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Storage;
-use App\Services\Quote\ConvertQuoteToProject;
 
 class QuoteService
 {

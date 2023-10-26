@@ -91,8 +91,9 @@ class EmailRefundPayment implements ShouldQueue
                     $invitation = $this->payment->invoices->first()->invitations()->first();
                 }
 
-                if($invitation)
+                if($invitation) {
                     $nmo->invitation = $invitation;
+                }
             }
 
 

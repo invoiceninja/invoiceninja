@@ -67,7 +67,7 @@ class PdfService
     }
 
     public function boot(): self
-    {   
+    {
 
         $this->init();
 

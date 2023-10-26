@@ -11,13 +11,11 @@
 
 namespace App\Services\Email;
 
-use App\Models\Document;
 use Illuminate\Mail\Attachment;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Mail\Mailables\Headers;
-use Illuminate\Support\Facades\URL;
 
 class AdminEmailMailable extends Mailable
 {

@@ -11,9 +11,9 @@
 
 namespace App\Repositories;
 
-use App\Models\Expense;
-use App\Models\BankTransaction;
 use App\Jobs\Bank\MatchBankTransactions;
+use App\Models\BankTransaction;
+use App\Models\Expense;
 
 /**
  * Class for bank transaction repository.
@@ -50,14 +50,14 @@ class BankTransactionRepository extends BaseRepository
 
     public function unlink($bt)
     {
-        if($bt->payment()->exists()){
+        if($bt->payment()->exists()) {
             $bt->payment->transaction_id = null;
             $bt->payment_id = null;
         }
 
         $e = Expense::query()->whereIn('id', $this->transformKeys(explode(",", $bt->expense_id)))
         ->cursor()
-        ->each(function ($expense){
+        ->each(function ($expense) {
             
             $expense->transaction_id = null;
             $expense->saveQuietly();

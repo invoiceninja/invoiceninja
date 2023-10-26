@@ -5,7 +5,6 @@ namespace App\Events\Subscription;
 use App\Models\Company;
 use App\Models\Subscription;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
@@ -45,8 +44,8 @@ class SubscriptionWasCreated
      *
      * @return \Illuminate\Broadcasting\Channel|array
      */
-     public function broadcastOn()
-     {
+    public function broadcastOn()
+    {
         return [];
-     }
+    }
 }

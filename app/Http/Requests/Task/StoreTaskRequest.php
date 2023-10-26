@@ -56,8 +56,9 @@ class StoreTaskRequest extends Request
 
         $rules['time_log'] = ['bail', function ($attribute, $values, $fail) {
             
-            if(is_string($values)) 
+            if(is_string($values)) {
                 $values = json_decode($values, 1);
+            }
 
             if(!is_array($values)) {
                 return $fail('The '.$attribute.' is invalid. Must be an array.');

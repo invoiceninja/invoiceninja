@@ -260,24 +260,24 @@ class PreviewPurchaseOrderController extends BaseController
             /** @var \App\Models\User $user */
             $user = auth()->user();
 
-            //if phantom js...... inject here..
-            if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-                return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
-            }
+        //if phantom js...... inject here..
+        if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
+            return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+        }
             
-            if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
-                $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
+        if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
+            $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
 
-                $numbered_pdf = $this->pageNumbering($pdf, $user->company());
+            $numbered_pdf = $this->pageNumbering($pdf, $user->company());
 
-                if ($numbered_pdf) {
-                    $pdf = $numbered_pdf;
-                }
-
-                return $pdf;
+            if ($numbered_pdf) {
+                $pdf = $numbered_pdf;
             }
 
-            $file_path = (new PreviewPdf($maker->getCompiledHTML(true), $company))->handle();
+            return $pdf;
+        }
+
+        $file_path = (new PreviewPdf($maker->getCompiledHTML(true), $company))->handle();
 
 
         if (Ninja::isHosted()) {

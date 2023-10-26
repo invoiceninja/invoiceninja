@@ -12,7 +12,6 @@
 namespace App\Events\Quote;
 
 use App\Models\Company;
-use App\Models\Quote;
 use App\Models\QuoteInvitation;
 use Illuminate\Queue\SerializesModels;
 

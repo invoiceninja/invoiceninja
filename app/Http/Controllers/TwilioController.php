@@ -11,13 +11,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use Twilio\Rest\Client;
-use App\Libraries\MultiDB;
 use App\Http\Requests\Twilio\Confirm2faRequest;
 use App\Http\Requests\Twilio\ConfirmSmsRequest;
 use App\Http\Requests\Twilio\Generate2faRequest;
 use App\Http\Requests\Twilio\GenerateSmsRequest;
+use App\Libraries\MultiDB;
+use App\Models\User;
+use Twilio\Rest\Client;
 
 class TwilioController extends BaseController
 {

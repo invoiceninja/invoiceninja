@@ -12,22 +12,21 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
-use App\Utils\Ninja;
-use App\Models\Quote;
-use Illuminate\View\View;
-use Illuminate\Http\Request;
-use App\Models\QuoteInvitation;
-use App\Utils\Traits\MakesHash;
+use App\Events\Misc\InvitationWasViewed;
 use App\Events\Quote\QuoteWasViewed;
 use App\Http\Controllers\Controller;
-use App\Jobs\Invoice\InjectSignature;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Support\Facades\Storage;
-use App\Events\Misc\InvitationWasViewed;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use App\Http\Requests\ClientPortal\Quotes\ProcessQuotesInBulkRequest;
 use App\Http\Requests\ClientPortal\Quotes\ShowQuoteRequest;
 use App\Http\Requests\ClientPortal\Quotes\ShowQuotesRequest;
-use App\Http\Requests\ClientPortal\Quotes\ProcessQuotesInBulkRequest;
+use App\Jobs\Invoice\InjectSignature;
+use App\Models\Quote;
+use App\Models\QuoteInvitation;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class QuoteController extends Controller
 {
@@ -123,7 +122,7 @@ class QuoteController extends Controller
         $client_contact = auth()->user();
 
         $quote_invitations = QuoteInvitation::query()
-            ->with('quote','company')
+            ->with('quote', 'company')
             ->whereIn('quote_id', $ids)
             ->where('client_contact_id', $client_contact->id)
             ->withTrashed()

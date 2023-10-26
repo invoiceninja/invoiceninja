@@ -11,8 +11,8 @@
 
 namespace App\Services\Recurring;
 
-use App\Models\ClientContact;
 use App\Jobs\Entity\CreateRawPdf;
+use App\Models\ClientContact;
 use App\Services\AbstractService;
 
 class GetInvoicePdf extends AbstractService

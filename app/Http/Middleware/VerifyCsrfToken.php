@@ -12,7 +12,6 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
-use Illuminate\Session\TokenMismatchException;
 
 class VerifyCsrfToken extends Middleware
 {

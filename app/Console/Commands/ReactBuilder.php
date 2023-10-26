@@ -52,8 +52,7 @@ class ReactBuilder extends Command
 
         try {
             $directoryIterator = new \RecursiveDirectoryIterator(public_path('react/v'.config('ninja.app_version').'/'), \RecursiveDirectoryIterator::SKIP_DOTS);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->error('React files not found');
             return;
         }

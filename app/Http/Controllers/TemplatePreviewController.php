@@ -11,11 +11,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Report\ReportPreviewRequest;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\BaseController;
-use App\Http\Requests\Report\ReportPreviewRequest;
 
 class TemplatePreviewController extends BaseController
 {

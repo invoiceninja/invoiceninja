@@ -65,8 +65,9 @@ class PaymentMethod
         if ($company_gateways || $company_gateways == '0') {
             $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
 
-            if($company_gateways == '0')
+            if($company_gateways == '0') {
                 $transformed_ids = [];
+            }
 
             $this->gateways = $this->client
                              ->company

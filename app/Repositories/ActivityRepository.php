@@ -11,23 +11,23 @@
 
 namespace App\Repositories;
 
-use App\Models\User;
-use App\Models\Quote;
+use App\Models\Activity;
 use App\Models\Backup;
+use App\Models\CompanyToken;
 use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Invoice;
-use App\Models\Activity;
-use App\Utils\HtmlEngine;
-use App\Models\CompanyToken;
 use App\Models\PurchaseOrder;
-use App\Utils\Traits\MakesHash;
-use App\Utils\VendorHtmlEngine;
+use App\Models\Quote;
 use App\Models\RecurringInvoice;
-use App\Utils\Traits\MakesInvoiceHtml;
+use App\Models\User;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker as PdfMakerService;
+use App\Utils\HtmlEngine;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesInvoiceHtml;
+use App\Utils\VendorHtmlEngine;
 
 /**
  * Class for activity repository.
@@ -52,8 +52,9 @@ class ActivityRepository extends BaseRepository
             $activity->{$key} = $value;
         }
 
-        if($entity->company)
+        if($entity->company) {
             $activity->account_id = $entity->company->account_id;
+        }
 
         if ($token_id = $this->getTokenId($event_vars)) {
             $activity->token_id = $token_id;
@@ -97,8 +98,7 @@ class ActivityRepository extends BaseRepository
             return;
         }
 
-        if(get_class($entity) == PurchaseOrder::class)
-        {
+        if(get_class($entity) == PurchaseOrder::class) {
            
             $backup = new Backup();
             $entity->load('client');

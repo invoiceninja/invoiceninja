@@ -467,7 +467,7 @@ class ProductController extends BaseController
 
         $products = Product::withTrashed()->whereIn('id', $ids);
 
-        if($action == 'set_tax_id'){
+        if($action == 'set_tax_id') {
             
             $tax_id = $request->input('tax_id');
 

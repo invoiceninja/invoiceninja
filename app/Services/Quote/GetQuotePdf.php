@@ -11,9 +11,9 @@
 
 namespace App\Services\Quote;
 
-use App\Models\Quote;
-use App\Models\ClientContact;
 use App\Jobs\Entity\CreateRawPdf;
+use App\Models\ClientContact;
+use App\Models\Quote;
 use App\Services\AbstractService;
 
 class GetQuotePdf extends AbstractService

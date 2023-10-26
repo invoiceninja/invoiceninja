@@ -63,8 +63,9 @@ class UpdateCompanyRequest extends Request
             $rules['portal_domain'] = 'sometimes|url';
         }
 
-        if (Ninja::isHosted()) 
+        if (Ninja::isHosted()) {
             $rules['subdomain'] = ['nullable', 'regex:/^[a-zA-Z0-9.-]+[a-zA-Z0-9]$/', new ValidSubdomain()];
+        }
 
         return $rules;
     }

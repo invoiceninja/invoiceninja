@@ -11,35 +11,35 @@
 
 namespace App\Http\Controllers;
 
-use App\Utils\Ninja;
-use App\Models\Client;
-use App\Models\Credit;
-use App\Models\Account;
-use App\Models\Invoice;
-use Illuminate\Http\Response;
-use App\Factory\CreditFactory;
-use App\Filters\CreditFilters;
-use App\Jobs\Credit\ZipCredits;
-use App\Utils\Traits\MakesHash;
-use App\Jobs\Entity\EmailEntity;
-use App\Factory\CloneCreditFactory;
-use App\Services\PdfMaker\PdfMerge;
-use Illuminate\Support\Facades\App;
-use App\Utils\Traits\SavesDocuments;
-use App\Repositories\CreditRepository;
 use App\Events\Credit\CreditWasCreated;
 use App\Events\Credit\CreditWasUpdated;
-use App\Transformers\CreditTransformer;
-use Illuminate\Support\Facades\Storage;
+use App\Factory\CloneCreditFactory;
+use App\Factory\CreditFactory;
+use App\Filters\CreditFilters;
+use App\Http\Requests\Credit\ActionCreditRequest;
 use App\Http\Requests\Credit\BulkCreditRequest;
+use App\Http\Requests\Credit\CreateCreditRequest;
+use App\Http\Requests\Credit\DestroyCreditRequest;
 use App\Http\Requests\Credit\EditCreditRequest;
 use App\Http\Requests\Credit\ShowCreditRequest;
 use App\Http\Requests\Credit\StoreCreditRequest;
-use App\Http\Requests\Credit\ActionCreditRequest;
-use App\Http\Requests\Credit\CreateCreditRequest;
 use App\Http\Requests\Credit\UpdateCreditRequest;
 use App\Http\Requests\Credit\UploadCreditRequest;
-use App\Http\Requests\Credit\DestroyCreditRequest;
+use App\Jobs\Credit\ZipCredits;
+use App\Jobs\Entity\EmailEntity;
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\Credit;
+use App\Models\Invoice;
+use App\Repositories\CreditRepository;
+use App\Services\PdfMaker\PdfMerge;
+use App\Transformers\CreditTransformer;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class CreditController.
@@ -386,7 +386,7 @@ class CreditController extends BaseController
 
         $credit->service()
                ->triggeredActions($request);
-            //    ->deletePdf();
+        //    ->deletePdf();
 
         /** @var \App\Models\User $user**/
         $user = auth()->user();
@@ -527,7 +527,7 @@ class CreditController extends BaseController
          */
 
         if ($action == 'bulk_download' && $credits->count() > 1) {
-            $credits->each(function ($credit) use($user){
+            $credits->each(function ($credit) use ($user) {
                 if ($user->cannot('view', $credit)) {
                     return response()->json(['message' => ctrans('text.access_denied')]);
                 }

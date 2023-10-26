@@ -77,7 +77,7 @@ class DesignFilters extends QueryFilters
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        return  $this->builder->where(function ($query) use($user){
+        return  $this->builder->where(function ($query) use ($user) {
             $query->where('company_id', $user->company()->id)->orWhere('company_id', null)->orderBy('id', 'asc');
         });
     }

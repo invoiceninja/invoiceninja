@@ -12,25 +12,9 @@
 
 namespace App\PaymentDrivers\CheckoutCom;
 
-use App\Exceptions\PaymentFailed;
-use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Jobs\Util\SystemLogger;
-use App\Models\ClientGatewayToken;
-use App\Models\GatewayType;
-use App\Models\SystemLog;
 use App\PaymentDrivers\CheckoutComPaymentDriver;
-use App\PaymentDrivers\Common\MethodInterface;
-use App\Utils\Traits\MakesHash;
 use Checkout\CheckoutApiException;
-use Checkout\CheckoutArgumentException;
 use Checkout\CheckoutAuthorizationException;
-use Checkout\Payments\Four\Request\PaymentRequest;
-use Checkout\Payments\Four\Request\Source\RequestTokenSource;
-use Checkout\Payments\PaymentRequest as PaymentsPaymentRequest;
-use Checkout\Payments\Source\RequestTokenSource as SourceRequestTokenSource;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Http\Request;
-use Illuminate\View\View;
 
 class Webhook
 {

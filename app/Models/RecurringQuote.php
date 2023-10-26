@@ -482,9 +482,9 @@ class RecurringQuote extends BaseModel
     {
         $invoice_calc = null;
 
-        if ($this->uses_inclusive_taxes) {            
+        if ($this->uses_inclusive_taxes) {
             $invoice_calc = new InvoiceSumInclusive($this);
-        } else {            
+        } else {
             $invoice_calc = new InvoiceSum($this);
         }
 

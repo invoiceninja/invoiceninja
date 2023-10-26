@@ -14,7 +14,6 @@ namespace App\Jobs\PurchaseOrder;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\UnlinkFile;
-use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Libraries\MultiDB;
 use App\Mail\DownloadPurchaseOrders;
 use App\Models\Company;

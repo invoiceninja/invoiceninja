@@ -178,7 +178,7 @@ class InstantPayment
                 
             $contact_id = auth()->guard('contact')->user() ? auth()->guard('contact')->user()->id : null;
 
-            $invoices->each(function ($invoice) use($contact_id) {
+            $invoices->each(function ($invoice) use ($contact_id) {
                 InjectSignature::dispatch($invoice, $contact_id, $this->request->signature, request()->getClientIp());
             });
         }
