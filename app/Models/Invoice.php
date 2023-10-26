@@ -15,7 +15,6 @@ use App\Utils\Ninja;
 use Illuminate\Support\Carbon;
 use App\Utils\Traits\MakesDates;
 use App\Helpers\Invoice\InvoiceSum;
-// use App\Jobs\Entity\CreateEntityPdf;
 use App\Utils\Traits\MakesReminders;
 use App\Utils\Traits\NumberFormatter;
 use App\Services\Ledger\LedgerService;
@@ -524,67 +523,6 @@ class Invoice extends BaseModel
         }
 
         return $invoice_calc->build();
-    }
-
-    /** @deprecated 5.7 */
-    public function pdf_file_path($invitation = null, string $type = 'path', bool $portal = false)
-    {
-
-        if (! $invitation) {
-            if ($this->invitations()->exists()) {
-                $invitation = $this->invitations()->first();
-            } else {
-                $this->service()->createInvitations();
-                $invitation = $this->invitations()->first();
-            }
-        }
-
-        if (! $invitation) {
-            throw new \Exception('Hard fail, could not create an invitation - is there a valid contact?');
-        }
-
-        $file_path = $this->client->invoice_filepath($invitation).$this->numberFormatter().'.pdf';
-
-        $file_exists = false;
-
-        /* Flysystem throws an exception if the path is "corrupted" so lets wrap it in a try catch and return a bool  06/01/2022*/
-        try {
-            $file_exists = Storage::disk(config('filesystems.default'))->exists($file_path);
-        } catch (\Exception $e) {
-            nlog($e->getMessage());
-        }
-
-        if (Ninja::isHosted() && $portal && $file_exists) {
-            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
-        } elseif (Ninja::isHosted()) {
-            // $file_path = (new CreateEntityPdf($invitation, config('filesystems.default')))->handle();
-
-            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
-        }
-
-        try {
-            $file_exists = Storage::disk(config('filesystems.default'))->exists($file_path);
-        } catch (\Exception $e) {
-            nlog($e->getMessage());
-        }
-
-        if ($file_exists) {
-            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
-        }
-
-        try {
-            $file_exists = Storage::disk('public')->exists($file_path);
-        } catch (\Exception $e) {
-            nlog($e->getMessage());
-        }
-
-        if ($file_exists) {
-            return Storage::disk('public')->{$type}($file_path);
-        }
-
-        // $file_path = (new CreateEntityPdf($invitation))->handle();
-
-        return Storage::disk('public')->{$type}($file_path);
     }
 
     public function markInvitationsSent()

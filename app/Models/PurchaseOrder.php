@@ -281,39 +281,6 @@ class PurchaseOrder extends BaseModel
         });
     }
 
-    /** @deprecated 5.7 */
-    public function pdf_file_path($invitation = null, string $type = 'path', bool $portal = false)
-    {
-        if (! $invitation) {
-            if ($this->invitations()->exists()) {
-                $invitation = $this->invitations()->first();
-            } else {
-                $this->service()->createInvitations();
-                $invitation = $this->invitations()->first();
-            }
-        }
-
-        if (!$invitation) {
-            throw new \Exception('Hard fail, could not create an invitation - is there a valid contact?');
-        }
-
-        $file_path = $this->vendor->purchase_order_filepath($invitation).$this->numberFormatter().'.pdf';
-
-        if (Ninja::isHosted() && $portal && Storage::disk(config('filesystems.default'))->exists($file_path)) {
-            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
-        } elseif (Ninja::isHosted() && $portal) {
-            $file_path = (new CreatePurchaseOrderPdf($invitation, config('filesystems.default')))->handle();
-            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
-        }
-
-        if (Storage::disk('public')->exists($file_path)) {
-            return Storage::disk('public')->{$type}($file_path);
-        }
-
-        $file_path = (new CreatePurchaseOrderPdf($invitation))->handle();
-        return Storage::disk('public')->{$type}($file_path);
-    }
-
     public function invitations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(PurchaseOrderInvitation::class);

@@ -139,16 +139,4 @@ class QuoteInvitation extends BaseModel
         $this->save();
     }
 
-    /** @deprecated 5.7 */
-
-    public function pdf_file_path()
-    {
-        $storage_path = Storage::url($this->quote->client->quote_filepath($this).$this->quote->numberFormatter().'.pdf');
-
-        if (! Storage::exists($this->quote->client->quote_filepath($this).$this->quote->numberFormatter().'.pdf')) {
-            // (new CreateEntityPdf($this))->handle();
-        }
-
-        return $storage_path;
-    }
 }

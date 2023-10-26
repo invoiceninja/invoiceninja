@@ -11,8 +11,8 @@
 
 namespace App\Services\Credit;
 
-use App\Models\CreditInvitation;
 use App\Jobs\Entity\CreateRawPdf;
+use App\Models\CreditInvitation;
 use App\Services\AbstractService;
 
 class GetCreditPdf extends AbstractService

@@ -38,7 +38,6 @@ class TriggeredActions extends AbstractService
             $this->purchase_order
                  ->service()
                  ->markSent()
-                //  ->touchPdf()
                  ->save();
 
             $this->sendEmail();
@@ -48,7 +47,6 @@ class TriggeredActions extends AbstractService
             $this->purchase_order = $this->purchase_order
                                          ->service()
                                          ->markSent()
-                                        //  ->touchPdf()
                                          ->save();
         }
 

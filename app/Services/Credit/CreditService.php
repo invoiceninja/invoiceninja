@@ -17,7 +17,6 @@ use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Factory\PaymentFactory;
 use App\Utils\Traits\MakesHash;
-// use App\Jobs\Entity\CreateEntityPdf;
 use App\Repositories\CreditRepository;
 use App\Repositories\PaymentRepository;
 use Illuminate\Support\Facades\Storage;
