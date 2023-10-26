@@ -11,38 +11,40 @@
 
 namespace App\Jobs\Entity;
 
-use App\Exceptions\FilePermissionsFailure;
-use App\Jobs\Invoice\CreateEInvoice;
+use App\Utils\Ninja;
+use App\Models\Quote;
 use App\Models\Credit;
-use App\Models\CreditInvitation;
 use App\Models\Design;
 use App\Models\Invoice;
-use App\Models\InvoiceInvitation;
-use App\Models\Quote;
+use App\Utils\HtmlEngine;
+use App\Models\PurchaseOrder;
 use App\Models\QuoteInvitation;
+use App\Utils\Traits\MakesHash;
+use App\Models\CreditInvitation;
 use App\Models\RecurringInvoice;
-use App\Models\RecurringInvoiceInvitation;
 use App\Services\Pdf\PdfService;
+use App\Utils\PhantomJS\Phantom;
+use App\Models\InvoiceInvitation;
+use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\Traits\Pdf\PdfMaker;
+use Illuminate\Support\Facades\App;
+use App\Jobs\Invoice\CreateEInvoice;
+use App\Utils\Traits\NumberFormatter;
+use App\Utils\Traits\MakesInvoiceHtml;
+use App\Models\PurchaseOrderInvitation;
+use App\Utils\Traits\Pdf\PageNumbering;
+use App\Exceptions\FilePermissionsFailure;
+use App\Models\RecurringInvoiceInvitation;
+use horstoeko\zugferd\ZugferdDocumentPdfBuilder;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker as PdfMakerService;
-use App\Utils\HostedPDF\NinjaPdf;
-use App\Utils\HtmlEngine;
-use App\Utils\Ninja;
-use App\Utils\PhantomJS\Phantom;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesInvoiceHtml;
-use App\Utils\Traits\NumberFormatter;
-use App\Utils\Traits\Pdf\PageNumbering;
-use App\Utils\Traits\Pdf\PdfMaker;
-use horstoeko\zugferd\ZugferdDocumentPdfBuilder;
-use Illuminate\Support\Facades\App;
 
 class CreateRawPdf
 {
     use NumberFormatter, MakesInvoiceHtml, PdfMaker, MakesHash, PageNumbering;
 
-    public Invoice | Credit | Quote | RecurringInvoice $entity;
+    public Invoice | Credit | Quote | RecurringInvoice | PurchaseOrder $entity;
 
     public $company;
 
@@ -72,10 +74,12 @@ class CreateRawPdf
         } elseif ($invitation instanceof RecurringInvoiceInvitation) {
             $this->entity = $invitation->recurring_invoice;
             $this->entity_string = 'recurring_invoice';
+        } elseif ($invitation instanceof PurchaseOrderInvitation){        
+            $this->entity = $invitation->purchase_order;
+            $this->entity_string = 'purchase_order';
         }
 
         $this->company = $invitation->company;
-
         $this->contact = $invitation->contact;
     }
 
