@@ -336,7 +336,7 @@ class PreviewPurchaseOrderController extends BaseController
             'process_markdown' => $invitation->company->markdown_enabled,
             'options' => [
                 'vendor' => $invitation->purchase_order->vendor,
-                'purchase_orders' => $invitation->purchase_order,
+                'purchase_orders' => [$invitation->purchase_order],
             ],
         ];
 
@@ -445,7 +445,7 @@ class PreviewPurchaseOrderController extends BaseController
             'process_markdown' => $purchase_order->company->markdown_enabled,
              'options' => [
                 'vendor' => $invitation->purchase_order->vendor,
-                'purchase_orders' => $invitation->purchase_order,
+                'purchase_orders' => [$invitation->purchase_order],
             ],
         ];
 
