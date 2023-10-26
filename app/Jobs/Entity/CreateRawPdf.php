@@ -57,7 +57,7 @@ class CreateRawPdf
     /**
      * @param $invitation
      */
-    public function __construct($invitation)
+    public function __construct($invitation, private ?string $type = null)
     {
 
         $this->invitation = $invitation;
@@ -83,16 +83,36 @@ class CreateRawPdf
         $this->contact = $invitation->contact;
     }
 
+    private function resolveType(): string
+    {
+        if($this->type)
+            return $this->type;
+
+        $type = 'product';
+
+        match($this->entity_string) {
+            'purchase_order' => $type = 'purchase_order',
+            'invoice' => $type = 'product',
+            'quote' => $type = 'product',
+            'credit' => $type = 'product',
+            'recurring_invoice' => $type = 'product',
+        };
+
+        return $type;
+
+    }
+
     public function handle()
     {
         /** Testing this override to improve PDF generation performance */
-        $ps = new PdfService($this->invitation, 'product', [
+        $ps = new PdfService($this->invitation, $this->resolveType(), [
             'client' => $this->entity->client ?? false,
             'vendor' => $this->entity->vendor ?? false,
             "{$this->entity_string}s" => [$this->entity],
         ]);
 
         $pdf = $ps->boot()->getPdf();
+        return $pdf;
         nlog("pdf timer = ". $ps->execution_time);
 
         /* Forget the singleton*/

@@ -24,6 +24,7 @@ use App\Http\Requests\PurchaseOrder\ShowPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\StorePurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\UpdatePurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\UploadPurchaseOrderRequest;
+use App\Jobs\Entity\CreateRawPdf;
 use App\Jobs\PurchaseOrder\PurchaseOrderEmail;
 use App\Jobs\PurchaseOrder\ZipPurchaseOrders;
 use App\Models\Account;
@@ -513,7 +514,8 @@ class PurchaseOrderController extends BaseController
 
         if ($action == 'bulk_print' && $user->can('view', $purchase_orders->first())) {
             $paths = $purchase_orders->map(function ($purchase_order) {
-                return (new \App\Jobs\Vendor\CreatePurchaseOrderPdf($purchase_order->invitations->first()))->rawPdf();
+                return (new CreateRawPdf($purchase_order->invitations->first()))->handle();
+                // return (new \App\Jobs\Vendor\CreatePurchaseOrderPdf($purchase_order->invitations->first()))->rawPdf();
             });
 
             $merge = (new PdfMerge($paths->toArray()))->run();
@@ -622,8 +624,8 @@ class PurchaseOrderController extends BaseController
                 $file = $purchase_order->service()->getPurchaseOrderPdf();
 
                 return response()->streamDownload(function () use ($file) {
-                    echo Storage::get($file);
-                }, basename($file), ['Content-Type' => 'application/pdf']);
+                    echo $file;
+                }, $purchase_order->numberFormatter().".pdf", ['Content-Type' => 'application/pdf']);
 
                 break;
             case 'restore':
@@ -827,7 +829,7 @@ class PurchaseOrderController extends BaseController
         }
 
         return response()->streamDownload(function () use ($file) {
-            echo Storage::get($file);
-        }, basename($file), $headers);
+            echo $file;
+        }, $purchase_order->numberFormatter().".pdf", $headers);
     }
 }

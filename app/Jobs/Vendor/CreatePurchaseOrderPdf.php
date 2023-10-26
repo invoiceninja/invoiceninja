@@ -11,28 +11,29 @@
 
 namespace App\Jobs\Vendor;
 
-use App\Exceptions\FilePermissionsFailure;
-use App\Libraries\MultiDB;
+use App\Utils\Ninja;
 use App\Models\Design;
+use App\Libraries\MultiDB;
+use Illuminate\Bus\Queueable;
+use App\Utils\Traits\MakesHash;
+use App\Utils\VendorHtmlEngine;
+use App\Services\Pdf\PdfService;
+use App\Utils\PhantomJS\Phantom;
+use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\Traits\Pdf\PdfMaker;
+use Illuminate\Support\Facades\App;
+use App\Utils\Traits\NumberFormatter;
+use App\Utils\Traits\MakesInvoiceHtml;
+use Illuminate\Queue\SerializesModels;
+use App\Utils\Traits\Pdf\PageNumbering;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Queue\InteractsWithQueue;
+use App\Exceptions\FilePermissionsFailure;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker as PdfMakerService;
-use App\Utils\HostedPDF\NinjaPdf;
-use App\Utils\Ninja;
-use App\Utils\PhantomJS\Phantom;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesInvoiceHtml;
-use App\Utils\Traits\NumberFormatter;
-use App\Utils\Traits\Pdf\PageNumbering;
-use App\Utils\Traits\Pdf\PdfMaker;
-use App\Utils\VendorHtmlEngine;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Storage;
 
 class CreatePurchaseOrderPdf implements ShouldQueue
 {
@@ -79,6 +80,18 @@ class CreatePurchaseOrderPdf implements ShouldQueue
 
     public function handle()
     {
+        /** Testing this override to improve PDF generation performance */
+        $ps = new PdfService($this->invitation, 'product', [
+            'client' => $this->entity->client ?? false,
+            'vendor' => $this->entity->vendor ?? false,
+            "{$this->entity_string}s" => [$this->entity],
+        ]);
+
+        nlog("returning purchase order");
+        
+        return $ps->boot()->getPdf();
+
+
         $pdf = $this->rawPdf();
 
         if ($pdf) {

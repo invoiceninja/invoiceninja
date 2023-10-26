@@ -35,19 +35,21 @@ class GetPurchaseOrderPdf extends AbstractService
             $invitation = $this->purchase_order->invitations()->first();
         }
 
-        $path = $this->purchase_order->vendor->purchase_order_filepath($invitation);
+        return (new CreatePurchaseOrderPdf($invitation))->handle();
 
-        $file_path = $path.$this->purchase_order->numberFormatter().'.pdf';
+        // $path = $this->purchase_order->vendor->purchase_order_filepath($invitation);
 
-        // $disk = 'public';
-        $disk = config('filesystems.default');
+        // $file_path = $path.$this->purchase_order->numberFormatter().'.pdf';
 
-        $file = Storage::disk($disk)->exists($file_path);
+        // // $disk = 'public';
+        // $disk = config('filesystems.default');
 
-        if (! $file) {
-            $file_path = (new CreatePurchaseOrderPdf($invitation))->handle();
-        }
+        // $file = Storage::disk($disk)->exists($file_path);
 
-        return $file_path;
+        // if (! $file) {
+        //     $file_path = (new CreatePurchaseOrderPdf($invitation))->handle();
+        // }
+
+        // return $file_path;
     }
 }
