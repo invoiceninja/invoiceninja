@@ -322,6 +322,8 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('reports/tax_summary_report', TaxSummaryReportController::class);
     Route::post('reports/user_sales_report', UserSalesReportController::class);
     Route::post('reports/preview/{hash}', ReportPreviewController::class);
+    Route::post('exports/preview/{hash}', ReportPreviewController::class);
+    
     Route::post('templates/preview/{hash}', TemplatePreviewController::class);
     Route::post('search', SearchController::class);
 

@@ -39,28 +39,12 @@ class PurchaseOrderItemReportController extends BaseController
 
             return response()->json(['message' => 'working...'], 200);
         }
-        // expect a list of visible fields, or use the default
 
-        if($request->has('output') && $request->input('output') == 'json') {
+        $hash = \Illuminate\Support\Str::uuid();
 
-            $hash = \Illuminate\Support\Str::uuid();
+        PreviewReport::dispatch($user->company(), $request->all(), PurchaseOrderItemExport::class, $hash);
 
-            PreviewReport::dispatch($user->company(), $request->all(), PurchaseOrderItemExport::class, $hash);
+        return response()->json(['message' => $hash], 200);
 
-            return response()->json(['message' => $hash], 200);
-        }
-
-        $export = new PurchaseOrderItemExport($user->company(), $request->all());
-
-        $csv = $export->run();
-
-        $headers = [
-            'Content-Disposition' => 'attachment',
-            'Content-Type' => 'text/csv',
-        ];
-
-        return response()->streamDownload(function () use ($csv) {
-            echo $csv;
-        }, $this->filename, $headers);
     }
 }
