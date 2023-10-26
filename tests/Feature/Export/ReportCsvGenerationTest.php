@@ -55,6 +55,9 @@ class ReportCsvGenerationTest extends TestCase
 
         $this->buildData();
 
+        if (config('ninja.testvars.travis') !== false) 
+            $this->markTestSkipped('Skip test no company gateways installed');
+
 
     }
 
@@ -286,6 +289,7 @@ class ReportCsvGenerationTest extends TestCase
         
         return $response;
     }
+
     public function testVendorCsvGeneration()
     {
     
