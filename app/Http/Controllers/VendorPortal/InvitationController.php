@@ -94,7 +94,7 @@ class InvitationController extends Controller
 
         $file_name = $invitation->purchase_order->numberFormatter().'.pdf';
 
-        $file = (new CreatePurchaseOrderPdf($invitation))->rawPdf();
+        $file = $invitation->purchase_order->service()->getPurchaseOrderPdf();
 
         $headers = ['Content-Type' => 'application/pdf'];
 

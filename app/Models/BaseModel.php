@@ -302,10 +302,6 @@ class BaseModel extends Model
         if (! $invitation) {
             throw new \Exception('Hard fail, could not create an invitation.');
         }
-
-        if($this instanceof \App\Models\PurchaseOrder) {
-            return "data:application/pdf;base64,".base64_encode((new CreatePurchaseOrderPdf($invitation, $invitation->company->db))->rawPdf());
-        }
         
         return "data:application/pdf;base64,".base64_encode((new CreateRawPdf($invitation))->handle());
 

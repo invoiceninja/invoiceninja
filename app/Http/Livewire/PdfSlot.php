@@ -95,11 +95,7 @@ class PdfSlot extends Component
 
         $file_name = $this->entity->numberFormatter().'.pdf';
 
-        if($this->entity instanceof \App\Models\PurchaseOrder) {
-            $file = (new CreatePurchaseOrderPdf($this->invitation, $this->invitation->company->db))->rawPdf();
-        } else {
-            $file = (new \App\Jobs\Entity\CreateRawPdf($this->invitation))->handle();
-        }
+        $file = (new \App\Jobs\Entity\CreateRawPdf($this->invitation))->handle();
 
         $headers = ['Content-Type' => 'application/pdf'];
 
@@ -108,6 +104,7 @@ class PdfSlot extends Component
         }, $file_name, $headers);
 
     }
+    
     public function downloadEInvoice()
     {
 

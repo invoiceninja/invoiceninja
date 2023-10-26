@@ -299,14 +299,7 @@ class EmailDefaults
         }
 
         /** Purchase Order / Invoice / Credit / Quote PDF  */
-        if ($this->email->email_object->settings->pdf_email_attachment && $this->email->email_object->entity instanceof PurchaseOrder) {
-            $pdf = (new CreatePurchaseOrderPdf($this->email->email_object->invitation))->rawPdf();
-
-            $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
-        } elseif ($this->email->email_object->settings->pdf_email_attachment &&
-        ($this->email->email_object->entity instanceof Invoice ||
-         $this->email->email_object->entity instanceof Quote ||
-         $this->email->email_object->entity instanceof Credit)) {
+        if ($this->email->email_object->settings->pdf_email_attachment){
             $pdf = ((new CreateRawPdf($this->email->email_object->invitation))->handle());
             $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
         }

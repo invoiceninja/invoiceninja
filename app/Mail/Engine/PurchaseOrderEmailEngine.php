@@ -11,18 +11,19 @@
 
 namespace App\Mail\Engine;
 
-use App\DataMapper\EmailTemplateDefaults;
-use App\Jobs\Vendor\CreatePurchaseOrderPdf;
-use App\Models\Account;
-use App\Models\PurchaseOrder;
-use App\Models\Vendor;
-use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
 use App\Utils\Number;
+use App\Models\Vendor;
+use App\Models\Account;
+use App\Utils\HtmlEngine;
+use App\Models\PurchaseOrder;
 use App\Utils\Traits\MakesHash;
 use App\Utils\VendorHtmlEngine;
+use App\Jobs\Entity\CreateRawPdf;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\URL;
+use App\DataMapper\EmailTemplateDefaults;
+use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 
 class PurchaseOrderEmailEngine extends BaseEmailEngine
 {
@@ -119,7 +120,8 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
             ->setTextBody($text_body);
 
         if ($this->vendor->getSetting('pdf_email_attachment') !== false && $this->purchase_order->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
-            $pdf = (new CreatePurchaseOrderPdf($this->invitation))->rawPdf();
+            
+            $pdf = (new CreateRawPdf($this->invitation))->handle();
 
             $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->purchase_order->numberFormatter().'.pdf']]);
         }
