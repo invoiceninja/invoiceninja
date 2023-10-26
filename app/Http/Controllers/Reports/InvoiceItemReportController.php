@@ -72,26 +72,11 @@ class InvoiceItemReportController extends BaseController
             return response()->json(['message' => 'working...'], 200);
         }
 
-        if($request->has('output') && $request->input('output') == 'json') {
+        $hash = \Illuminate\Support\Str::uuid();
 
-            $hash = \Illuminate\Support\Str::uuid();
+        PreviewReport::dispatch($user->company(), $request->all(), InvoiceItemExport::class, $hash);
 
-            PreviewReport::dispatch($user->company(), $request->all(), InvoiceItemExport::class, $hash);
+        return response()->json(['message' => $hash], 200);
 
-            return response()->json(['message' => $hash], 200);
-        }
-        
-        $export = new InvoiceItemExport($user->company(), $request->all());
-
-        $csv = $export->run();
-
-        $headers = [
-            'Content-Disposition' => 'attachment',
-            'Content-Type' => 'text/csv',
-        ];
-
-        return response()->streamDownload(function () use ($csv) {
-            echo $csv;
-        }, $this->filename, $headers);
     }
 }

@@ -61,14 +61,17 @@ class ARSummaryReportController extends BaseController
      */
     public function __invoke(GenericReportRequest $request)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         if ($request->has('send_email') && $request->get('send_email')) {
-            SendToAdmin::dispatch(auth()->user()->company(), $request->all(), ARSummaryReport::class, $this->filename);
+            SendToAdmin::dispatch($user->company(), $request->all(), ARSummaryReport::class, $this->filename);
 
             return response()->json(['message' => 'working...'], 200);
         }
         // expect a list of visible fields, or use the default
 
-        $export = new ARSummaryReport(auth()->user()->company(), $request->all());
+        $export = new ARSummaryReport($user->company(), $request->all());
 
         $csv = $export->run();
 

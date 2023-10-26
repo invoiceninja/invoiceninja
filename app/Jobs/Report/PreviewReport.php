@@ -39,7 +39,7 @@ class PreviewReport implements ShouldQueue
         /** @var \App\Export\CSV\CreditExport $export */
         $export = new $this->report_class($this->company, $this->request);
 
-        if($this->request['output'] == 'json' ?? false)
+        if(isset($this->request['output']) && $this->request['output'] == 'json')
             $report = $export->returnJson();
         else
             $report = $export->run();
