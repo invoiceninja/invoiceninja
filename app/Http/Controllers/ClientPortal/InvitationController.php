@@ -26,6 +26,7 @@ use App\Models\InvoiceInvitation;
 use App\Events\Quote\QuoteWasViewed;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use App\Events\Credit\CreditWasViewed;
 use App\Events\Contact\ContactLoggedIn;
 use App\Models\PurchaseOrderInvitation;
@@ -195,7 +196,7 @@ class InvitationController extends Controller
 
         $file_name = $invitation->{$entity}->numberFormatter().'.pdf';
 
-        $file = (new CreateRawPdf($invitation, $invitation->company->db))->handle();
+        $file = (new CreateRawPdf($invitation))->handle();
 
         $headers = ['Content-Type' => 'application/pdf'];
 
@@ -210,6 +211,41 @@ class InvitationController extends Controller
 
     public function routerForIframe(string $entity, string $client_hash, string $invitation_key)
     {
+    }
+
+
+    public function handlePasswordSet(Request $request) 
+    {
+        $entity_obj = 'App\Models\\'.ucfirst(Str::camel($request->entity_type)).'Invitation';
+        $key = $request->entity_type.'_id';
+
+        $invitation = $entity_obj::where('key', $request->invitation_key)
+                                    ->whereHas($request->entity_type, function ($query) {
+                                        $query->where('is_deleted', 0);
+                                    })
+                                    ->with('contact.client')
+                                    ->firstOrFail();
+
+        $contact = $invitation->contact;
+        $contact->password = Hash::make($request->password);
+        $contact->save();
+
+        $request->session()->invalidate();
+        auth()->guard('contact')->loginUsingId($contact->id, true);
+
+        if (! $invitation->viewed_date) {
+            $invitation->markViewed();
+
+            if (! session()->get('is_silent')) {
+                event(new InvitationWasViewed($invitation->{$request->entity_type}, $invitation, $invitation->{$request->entity_type}->company, Ninja::eventVars()));
+            }
+
+            if (! session()->get('is_silent')) {
+                $this->fireEntityViewedEvent($invitation, $request->entity_type);
+            }
+        }
+
+        return redirect()->route('client.'.$request->entity_type.'.show', [$request->entity_type => $this->encodePrimaryKey($invitation->{$key})]);
     }
 
     public function paymentRouter(string $contact_key, string $payment_id)

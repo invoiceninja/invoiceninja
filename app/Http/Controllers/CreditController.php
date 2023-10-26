@@ -533,14 +533,14 @@ class CreditController extends BaseController
                 }
             });
 
-            ZipCredits::dispatch($credits->pluck('id')->toArray(), $credits->first()->company, $user);
+            ZipCredits::dispatch($credits->pluck('id')->toArray(), $user->company(), $user);
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
 
         if ($action == 'bulk_print' && $user->can('view', $credits->first())) {
             $paths = $credits->map(function ($credit) {
-                return (new \App\Jobs\Entity\CreateRawPdf($credit->invitations->first(), $credit->company->db))->handle();
+                return (new \App\Jobs\Entity\CreateRawPdf($credit->invitations->first()))->handle();
             });
 
             $merge = (new PdfMerge($paths->toArray()))->run();
@@ -593,8 +593,8 @@ class CreditController extends BaseController
                 $file = $credit->service()->getCreditPdf($credit->invitations->first());
 
                 return response()->streamDownload(function () use ($file) {
-                    echo Storage::get($file);
-                }, basename($file), ['Content-Type' => 'application/pdf']);
+                    echo $file;
+                }, $credit->numberFormatter().'.pdf', ['Content-Type' => 'application/pdf']);
                 break;
             case 'archive':
                 $this->credit_repository->archive($credit);
@@ -710,8 +710,9 @@ class CreditController extends BaseController
         }
 
         return response()->streamDownload(function () use ($file) {
-            echo Storage::get($file);
-        }, basename($file), $headers);
+            echo $file;
+        }, $credit->numberFormatter().'.pdf', $headers);
+
     }
 
     /**

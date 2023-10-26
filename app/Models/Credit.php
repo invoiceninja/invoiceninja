@@ -16,7 +16,7 @@ use Illuminate\Support\Carbon;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesDates;
 use App\Helpers\Invoice\InvoiceSum;
-use App\Jobs\Entity\CreateEntityPdf;
+// use App\Jobs\Entity\CreateEntityPdf;
 use App\Utils\Traits\MakesReminders;
 use App\Services\Credit\CreditService;
 use App\Services\Ledger\LedgerService;
@@ -26,8 +26,6 @@ use Laracasts\Presenter\PresentableTrait;
 use App\Models\Presenters\CreditPresenter;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * App\Models\Credit
@@ -360,6 +358,7 @@ class Credit extends BaseModel
         $this->saveQuietly();
     }
 
+    /** @deprecated 5.7 */
     public function pdf_file_path($invitation = null, string $type = 'path', bool $portal = false)
     {
         if (! $invitation) {
@@ -380,7 +379,7 @@ class Credit extends BaseModel
         if (Ninja::isHosted() && $portal && Storage::disk(config('filesystems.default'))->exists($file_path)) {
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         } elseif (Ninja::isHosted() && $portal) {
-            $file_path = (new CreateEntityPdf($invitation, config('filesystems.default')))->handle();
+            // $file_path = (new CreateEntityPdf($invitation, config('filesystems.default')))->handle();
 
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         }
@@ -402,7 +401,7 @@ class Credit extends BaseModel
             return Storage::disk('public')->{$type}($file_path);
         }
 
-        $file_path = (new CreateEntityPdf($invitation))->handle();
+        // $file_path = (new CreateEntityPdf($invitation))->handle();
 
         return Storage::disk('public')->{$type}($file_path);
     }

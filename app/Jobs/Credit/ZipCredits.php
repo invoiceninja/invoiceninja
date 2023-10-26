@@ -55,7 +55,7 @@ class ZipCredits implements ShouldQueue
 
         try {
             foreach ($invitations as $invitation) {
-                $file = (new \App\Jobs\Entity\CreateRawPdf($invitation, $this->company->db))->handle();
+                $file = (new \App\Jobs\Entity\CreateRawPdf($invitation))->handle();
                 $zipFile->addFromString($invitation->credit->numberFormatter() . '.pdf', $file);
             }
 

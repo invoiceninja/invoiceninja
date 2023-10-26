@@ -115,7 +115,7 @@ class CreditEmailEngine extends BaseEmailEngine
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->credit->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
 
-            $pdf = ((new CreateRawPdf($this->invitation, $this->invitation->company->db))->handle());
+            $pdf = ((new CreateRawPdf($this->invitation))->handle());
 
             $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->credit->numberFormatter().'.pdf']]);
         }

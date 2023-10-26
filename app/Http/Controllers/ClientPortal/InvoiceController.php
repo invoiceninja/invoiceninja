@@ -107,7 +107,7 @@ class InvoiceController extends Controller
             return redirect('/');
         }
 
-        $file = (new \App\Jobs\Entity\CreateRawPdf($invitation, $invitation->company->db))->handle();
+        $file = (new \App\Jobs\Entity\CreateRawPdf($invitation))->handle();
         
         $headers = ['Content-Type' => 'application/pdf'];
         return response()->make($file, 200, $headers);

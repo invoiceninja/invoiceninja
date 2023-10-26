@@ -13,7 +13,7 @@ namespace App\Models;
 
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
-use App\Jobs\Entity\CreateEntityPdf;
+// use App\Jobs\Entity\CreateEntityPdf;
 use App\Models\Presenters\QuotePresenter;
 use App\Services\Quote\QuoteService;
 use App\Utils\Ninja;
@@ -314,6 +314,7 @@ class Quote extends BaseModel
         return new QuoteService($this);
     }
 
+    /** @deprecated 5.7 */
     public function pdf_file_path($invitation = null, string $type = 'path', bool $portal = false)
     {
         if (! $invitation) {
@@ -334,7 +335,7 @@ class Quote extends BaseModel
         if (Ninja::isHosted() && $portal && Storage::disk(config('filesystems.default'))->exists($file_path)) {
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         } elseif (Ninja::isHosted() && $portal) {
-            $file_path = (new CreateEntityPdf($invitation, config('filesystems.default')))->handle();
+            // $file_path = (new CreateEntityPdf($invitation, config('filesystems.default')))->handle();
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         }
 
@@ -354,7 +355,7 @@ class Quote extends BaseModel
             return Storage::disk('public')->{$type}($file_path);
         }
 
-        $file_path = (new CreateEntityPdf($invitation))->handle();
+        // $file_path = (new CreateEntityPdf($invitation))->handle();
 
         return Storage::disk('public')->{$type}($file_path);
     }

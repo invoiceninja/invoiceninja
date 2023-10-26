@@ -528,7 +528,7 @@ class InvoiceController extends BaseController
 
         if ($action == 'bulk_print' && $user->can('view', $invoices->first())) {
             $paths = $invoices->map(function ($invoice) {
-                return (new \App\Jobs\Entity\CreateRawPdf($invoice->invitations->first(), $invoice->company->db))->handle();
+                return (new \App\Jobs\Entity\CreateRawPdf($invoice->invitations->first()))->handle();
             });
 
             $merge = (new PdfMerge($paths->toArray()))->run();
@@ -798,7 +798,7 @@ class InvoiceController extends BaseController
 
         $file_name = $invoice->numberFormatter().'.pdf';
 
-        $file = (new \App\Jobs\Entity\CreateRawPdf($invitation, $invitation->company->db))->handle();
+        $file = (new \App\Jobs\Entity\CreateRawPdf($invitation))->handle();
 
         $headers = ['Content-Type' => 'application/pdf'];
 

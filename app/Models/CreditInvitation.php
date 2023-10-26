@@ -11,7 +11,7 @@
 
 namespace App\Models;
 
-use App\Jobs\Entity\CreateEntityPdf;
+// use App\Jobs\Entity\CreateEntityPdf;
 use App\Utils\Traits\Inviteable;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -155,12 +155,13 @@ class CreditInvitation extends BaseModel
         $this->save();
     }
 
+    /** @deprecated 5.7 */
     public function pdf_file_path()
     {
         $storage_path = Storage::url($this->credit->client->quote_filepath($this).$this->credit->numberFormatter().'.pdf');
 
         if (! Storage::exists($this->credit->client->credit_filepath($this).$this->credit->numberFormatter().'.pdf')) {
-            (new CreateEntityPdf($this))->handle();
+            // (new CreateEntityPdf($this))->handle();
         }
 
         return $storage_path;

@@ -44,9 +44,9 @@ use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker as PdfMakerService;
 
-class CreateRawPdf implements ShouldQueue
+class CreateRawPdf 
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter, MakesInvoiceHtml, PdfMaker, MakesHash, PageNumbering;
+    use NumberFormatter, MakesInvoiceHtml, PdfMaker, MakesHash, PageNumbering;
 
     public Invoice | Credit | Quote | RecurringInvoice $entity;
 
@@ -59,13 +59,10 @@ class CreateRawPdf implements ShouldQueue
     public $entity_string = '';
 
     /**
-     * Create a new job instance.
-     *
      * @param $invitation
      */
-    public function __construct($invitation, $db)
+    public function __construct($invitation)
     {
-        MultiDB::setDb($db);
 
         $this->invitation = $invitation;
 
@@ -98,8 +95,6 @@ class CreateRawPdf implements ShouldQueue
 
         $pdf = $ps->boot()->getPdf();
         nlog("pdf timer = ". $ps->execution_time);
-
-
 
         /* Forget the singleton*/
         App::forgetInstance('translator');

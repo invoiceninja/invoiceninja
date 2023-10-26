@@ -11,10 +11,8 @@
 
 namespace App\Models;
 
-use App\Jobs\Entity\CreateEntityPdf;
 use App\Utils\Traits\Inviteable;
 use App\Utils\Traits\MakesDates;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
@@ -141,12 +139,14 @@ class QuoteInvitation extends BaseModel
         $this->save();
     }
 
+    /** @deprecated 5.7 */
+
     public function pdf_file_path()
     {
         $storage_path = Storage::url($this->quote->client->quote_filepath($this).$this->quote->numberFormatter().'.pdf');
 
         if (! Storage::exists($this->quote->client->quote_filepath($this).$this->quote->numberFormatter().'.pdf')) {
-            (new CreateEntityPdf($this))->handle();
+            // (new CreateEntityPdf($this))->handle();
         }
 
         return $storage_path;

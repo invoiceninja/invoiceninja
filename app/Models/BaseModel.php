@@ -306,7 +306,7 @@ class BaseModel extends Model
         if($this instanceof \App\Models\PurchaseOrder) 
             return "data:application/pdf;base64,".base64_encode((new CreatePurchaseOrderPdf($invitation, $invitation->company->db))->rawPdf());
         
-        return "data:application/pdf;base64,".base64_encode((new CreateRawPdf($invitation, $invitation->company->db))->handle());
+        return "data:application/pdf;base64,".base64_encode((new CreateRawPdf($invitation))->handle());
 
     }
 }

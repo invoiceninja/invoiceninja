@@ -24,7 +24,6 @@ use App\Utils\Traits\MakesHash;
 use App\Jobs\Entity\CreateRawPdf;
 use Illuminate\Support\Facades\App;
 use Illuminate\Mail\Mailables\Address;
-use Illuminate\Support\Facades\Storage;
 use App\DataMapper\EmailTemplateDefaults;
 use League\CommonMark\CommonMarkConverter;
 use App\Jobs\Vendor\CreatePurchaseOrderPdf;
@@ -308,7 +307,7 @@ class EmailDefaults
         ($this->email->email_object->entity instanceof Invoice ||
          $this->email->email_object->entity instanceof Quote ||
          $this->email->email_object->entity instanceof Credit)) {
-            $pdf = ((new CreateRawPdf($this->email->email_object->invitation, $this->email->company->db))->handle());
+            $pdf = ((new CreateRawPdf($this->email->email_object->invitation))->handle());
             $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
         }
 

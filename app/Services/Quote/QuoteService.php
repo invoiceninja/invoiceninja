@@ -16,7 +16,6 @@ use App\Models\Quote;
 use App\Models\Project;
 use App\Utils\Traits\MakesHash;
 use App\Exceptions\QuoteConversion;
-use App\Jobs\Entity\CreateEntityPdf;
 use App\Repositories\QuoteRepository;
 use App\Events\Quote\QuoteWasApproved;
 use Illuminate\Support\Facades\Storage;
@@ -133,32 +132,7 @@ class QuoteService
         return $this;
     }
 
-    /**
-     * Sometimes we need to refresh the
-     * PDF when it is updated etc.
-     *
-     * @return QuoteService
-     */
-    public function touchPdf($force = false)
-    {
-        try {
-            if ($force) {
-                $this->quote->invitations->each(function ($invitation) {
-                    (new CreateEntityPdf($invitation))->handle();
-                });
 
-                return $this;
-            }
-
-            $this->quote->invitations->each(function ($invitation) {
-                CreateEntityPdf::dispatch($invitation);
-            });
-        } catch (\Exception $e) {
-            nlog('failed creating invoices in Touch PDF');
-        }
-
-        return $this;
-    }
 
     public function approveWithNoCoversion($contact = null) :self
     {

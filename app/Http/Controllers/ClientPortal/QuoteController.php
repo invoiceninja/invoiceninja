@@ -137,7 +137,7 @@ class QuoteController extends Controller
 
         if ($quote_invitations->count() == 1) {
             $invitation = $quote_invitations->first();
-            $file = (new \App\Jobs\Entity\CreateRawPdf($invitation, $invitation->company->db))->handle();
+            $file = (new \App\Jobs\Entity\CreateRawPdf($invitation))->handle();
             return response()->streamDownload(function () use ($file) {
                 echo $file;
             }, $invitation->quote->numberFormatter().".pdf", ['Content-Type' => 'application/pdf']);
@@ -152,7 +152,7 @@ class QuoteController extends Controller
         $zipFile = new \PhpZip\ZipFile();
         try {
             foreach ($quote_invitations as $invitation) {
-                $file = (new \App\Jobs\Entity\CreateRawPdf($invitation, $invitation->company->db))->handle();
+                $file = (new \App\Jobs\Entity\CreateRawPdf($invitation))->handle();
                 $zipFile->addFromString($invitation->quote->numberFormatter() . '.pdf', $file);
             }
 

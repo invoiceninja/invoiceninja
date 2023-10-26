@@ -11,10 +11,8 @@
 
 namespace Tests\Feature;
 
-use App\Jobs\Entity\CreateEntityPdf;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Support\Facades\Storage;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -41,24 +39,4 @@ class PdfCreatorTest extends TestCase
             
     }
 
-    // public function testCreditPdfCreated()
-    // {
-    //     $credit_path = (new CreateEntityPdf($this->credit->invitations->first()))->handle();
-
-    //     $this->assertTrue(Storage::exists($credit_path));
-    // }
-
-    public function testInvoicePdfCreated()
-    {
-        $invoice_path = (new CreateEntityPdf($this->invoice->invitations->first()))->handle();
-
-        $this->assertTrue(Storage::exists($invoice_path));
-    }
-
-    public function testQuotePdfCreated()
-    {
-        $quote_path = (new CreateEntityPdf($this->quote->invitations->first()))->handle();
-
-        $this->assertTrue(Storage::exists($quote_path));
-    }
 }

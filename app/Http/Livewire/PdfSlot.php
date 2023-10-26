@@ -98,7 +98,7 @@ class PdfSlot extends Component
         if($this->entity instanceof \App\Models\PurchaseOrder)
             $file = (new CreatePurchaseOrderPdf($this->invitation, $this->invitation->company->db))->rawPdf();
         else
-            $file = (new \App\Jobs\Entity\CreateRawPdf($this->invitation, $this->invitation->company->db))->handle();
+            $file = (new \App\Jobs\Entity\CreateRawPdf($this->invitation))->handle();
 
         $headers = ['Content-Type' => 'application/pdf'];
 

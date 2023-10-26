@@ -580,7 +580,7 @@ class RecurringInvoiceController extends BaseController
 
         $file_name = $invoice->numberFormatter().'.pdf';
 
-        $file = (new \App\Jobs\Entity\CreateRawPdf($invitation, $invitation->company->db))->handle();
+        $file = (new \App\Jobs\Entity\CreateRawPdf($invitation))->handle();
 
         $headers = ['Content-Type' => 'application/pdf'];
 

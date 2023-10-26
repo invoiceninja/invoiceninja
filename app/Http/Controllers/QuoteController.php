@@ -562,7 +562,7 @@ class QuoteController extends BaseController
 
         if ($action == 'bulk_print' && $user->can('view', $quotes->first())) {
             $paths = $quotes->map(function ($quote) {
-                return (new \App\Jobs\Entity\CreateRawPdf($quote->invitations->first(), $quote->company->db))->handle();
+                return (new \App\Jobs\Entity\CreateRawPdf($quote->invitations->first()))->handle();
             });
 
             $merge = (new PdfMerge($paths->toArray()))->run();
@@ -724,8 +724,8 @@ class QuoteController extends BaseController
                 $file = $quote->service()->getQuotePdf();
 
                 return response()->streamDownload(function () use ($file) {
-                    echo Storage::get($file);
-                }, basename($file), ['Content-Type' => 'application/pdf']);
+                    echo $file;
+                }, $quote->numberFormatter().".pdf", ['Content-Type' => 'application/pdf']);
 
             case 'restore':
                 $this->quote_repo->restore($quote);
@@ -828,17 +828,18 @@ class QuoteController extends BaseController
         
         App::setLocale($invitation->contact->preferredLocale());
 
-        $file = $quote->service()->getQuotePdf($contact);
-
         $headers = ['Content-Type' => 'application/pdf'];
 
         if (request()->input('inline') == 'true') {
             $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
         }
 
+        $file = $quote->service()->getQuotePdf($contact);
+
         return response()->streamDownload(function () use ($file) {
-            echo Storage::get($file);
-        }, basename($file), $headers);
+            echo $file;
+        }, $quote->numberFormatter().".pdf", $headers);
+
     }
 
     /**

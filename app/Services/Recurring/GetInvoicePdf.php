@@ -11,22 +11,15 @@
 
 namespace App\Services\Recurring;
 
-use App\Jobs\Entity\CreateEntityPdf;
 use App\Models\ClientContact;
+use App\Jobs\Entity\CreateRawPdf;
 use App\Services\AbstractService;
-use Illuminate\Support\Facades\Storage;
 
 class GetInvoicePdf extends AbstractService
 {
-    public $entity;
-
-    public $contact;
     
-    public function __construct($entity, ClientContact $contact = null)
+    public function __construct(public $entity, public ClientContact $contact = null)
     {
-        $this->entity = $entity;
-
-        $this->contact = $contact;
     }
 
     public function run()
@@ -37,18 +30,11 @@ class GetInvoicePdf extends AbstractService
 
         $invitation = $this->entity->invitations->where('client_contact_id', $this->contact->id)->first();
 
-        $path = $this->entity->client->recurring_invoice_filepath($invitation);
-
-        $file_path = $path.$this->entity->hashed_id.'.pdf';
-
-        $disk = config('filesystems.default');
-
-        $file = Storage::disk($disk)->exists($file_path);
-
-        if (! $file) {
-            $file_path = (new CreateEntityPdf($invitation))->handle();
+        if (! $invitation) {
+            $invitation = $this->entity->invitations->first();
         }
 
-        return $file_path;
+        return (new CreateRawPdf($invitation))->handle();
+
     }
 }

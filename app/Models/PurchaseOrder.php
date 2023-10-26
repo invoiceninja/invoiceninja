@@ -281,6 +281,7 @@ class PurchaseOrder extends BaseModel
         });
     }
 
+    /** @deprecated 5.7 */
     public function pdf_file_path($invitation = null, string $type = 'path', bool $portal = false)
     {
         if (! $invitation) {

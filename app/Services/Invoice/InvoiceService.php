@@ -12,7 +12,6 @@
 namespace App\Services\Invoice;
 
 use App\Events\Invoice\InvoiceWasArchived;
-use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Entity\CreateRawPdf;
 use App\Jobs\Inventory\AdjustProductInventory;
 use App\Jobs\Invoice\CreateEInvoice;
@@ -20,7 +19,6 @@ use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\CompanyGateway;
 use App\Models\Expense;
 use App\Models\Invoice;
-use App\Models\InvoiceInvitation;
 use App\Models\Payment;
 use App\Models\Task;
 use App\Utils\Ninja;
@@ -192,7 +190,7 @@ class InvoiceService
     {
         $invitation = $contact ? $this->invoice->invitations()->where('contact_id', $contact->id)->first() : $this->invoice->invitations()->first();
 
-        return (new CreateRawPdf($invitation, $invitation->company->db))->handle();
+        return (new CreateRawPdf($invitation))->handle();
     }
 
     public function getInvoiceDeliveryNote(Invoice $invoice, \App\Models\ClientContact $contact = null)
@@ -482,39 +480,6 @@ class InvoiceService
     public function updatePartial($amount)
     {
         $this->invoice->partial += $amount;
-
-        return $this;
-    }
-
-    /**
-     * Sometimes we need to refresh the
-     * PDF when it is updated etc.
-     * @return InvoiceService
-     */
-    public function touchPdf($force = false)
-    {
-        try {
-            if ($force) {
-                $this->invoice->invitations->each(function ($invitation) {
-                    (new CreateEntityPdf($invitation))->handle();
-                });
-
-                return $this;
-            }
-
-
-            $this->invoice->invitations->each(function ($invitation) {
-                CreateEntityPdf::dispatch($invitation);
-
-                if ($invitation->invoice->client->getSetting('enable_e_invoice') && $invitation instanceof InvoiceInvitation) {
-                    CreateEInvoice::dispatch($invitation->invoice);
-                }
-
-            });
-
-        } catch (\Exception $e) {
-            nlog('failed creating invoices in Touch PDF');
-        }
 
         return $this;
     }

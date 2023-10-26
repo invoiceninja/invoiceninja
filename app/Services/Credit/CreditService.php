@@ -15,10 +15,9 @@ use App\Utils\Ninja;
 use App\Models\Credit;
 use App\Models\Payment;
 use App\Models\PaymentType;
-use App\Jobs\Util\UnlinkFile;
 use App\Factory\PaymentFactory;
 use App\Utils\Traits\MakesHash;
-use App\Jobs\Entity\CreateEntityPdf;
+// use App\Jobs\Entity\CreateEntityPdf;
 use App\Repositories\CreditRepository;
 use App\Repositories\PaymentRepository;
 use Illuminate\Support\Facades\Storage;
@@ -176,32 +175,6 @@ class CreditService
     public function updateBalance($adjustment)
     {
         $this->credit->balance -= $adjustment;
-
-        return $this;
-    }
-
-    /**
-     * Sometimes we need to refresh the
-     * PDF when it is updated etc.
-     * @return self
-     */
-    public function touchPdf($force = false)
-    {
-        try {
-            if ($force) {
-                $this->credit->invitations->each(function ($invitation) {
-                    (new CreateEntityPdf($invitation))->handle();
-                });
-
-                return $this;
-            }
-
-            $this->credit->invitations->each(function ($invitation) {
-                CreateEntityPdf::dispatch($invitation);
-            });
-        } catch (\Exception $e) {
-            nlog('failed creating invoices in Touch PDF');
-        }
 
         return $this;
     }

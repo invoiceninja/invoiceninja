@@ -21,9 +21,9 @@ use App\Models\Payment;
 use App\Utils\HtmlEngine;
 use Tests\MockAccountData;
 use App\Utils\Traits\MakesDates;
+use App\Jobs\Entity\CreateRawPdf;
 use App\Services\PdfMaker\PdfMaker;
 use Illuminate\Support\Facades\App;
-use App\Jobs\Entity\CreateEntityPdf;
 use App\Services\Template\TemplateService;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
@@ -607,7 +607,7 @@ class TemplateTest extends TestCase
 
         $start = microtime(true);
 
-        $pdf = (new CreateEntityPdf($i))->handle();
+        $pdf = (new CreateRawPdf($i))->handle();
 
         $end = microtime(true);
 
@@ -621,7 +621,7 @@ class TemplateTest extends TestCase
     {
         $start = microtime(true);
 
-        $pdf = (new CreateEntityPdf($this->invoice->invitations->first()))->handle();
+        $pdf = (new CreateRawPdf($this->invoice->invitations->first()))->handle();
 
         $end = microtime(true);
 
