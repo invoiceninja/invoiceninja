@@ -107,7 +107,7 @@ class ProfitLoss
         if ($this->is_income_billed) { //get invoiced amounts
             $this->filterIncome();
         } else {
-            //$this->filterPaymentIncome();
+
             $this->filterInvoicePaymentIncome();
         }
 
