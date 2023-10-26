@@ -12,11 +12,9 @@
 namespace App\Services\PurchaseOrder;
 
 use App\Jobs\Entity\CreateRawPdf;
-use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Models\PurchaseOrder;
 use App\Models\VendorContact;
 use App\Services\AbstractService;
-use Illuminate\Support\Facades\Storage;
 
 class GetPurchaseOrderPdf extends AbstractService
 {

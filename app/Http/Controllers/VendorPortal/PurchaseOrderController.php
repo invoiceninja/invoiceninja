@@ -23,7 +23,6 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Contracts\View\Factory;
 use App\Models\PurchaseOrderInvitation;
 use App\Events\Misc\InvitationWasViewed;
-use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Events\PurchaseOrder\PurchaseOrderWasViewed;
 use App\Events\PurchaseOrder\PurchaseOrderWasAccepted;
 use App\Http\Requests\VendorPortal\PurchaseOrders\ShowPurchaseOrderRequest;

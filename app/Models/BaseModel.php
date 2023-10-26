@@ -13,7 +13,6 @@ namespace App\Models;
 
 use App\Jobs\Entity\CreateRawPdf;
 use App\Jobs\Util\WebhookHandler;
-use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Models\Traits\Excludable;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;

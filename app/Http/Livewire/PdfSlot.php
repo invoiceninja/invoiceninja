@@ -13,7 +13,6 @@
 namespace App\Http\Livewire;
 
 use App\Jobs\Invoice\CreateEInvoice;
-use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Libraries\MultiDB;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
@@ -104,7 +103,7 @@ class PdfSlot extends Component
         }, $file_name, $headers);
 
     }
-    
+
     public function downloadEInvoice()
     {
 

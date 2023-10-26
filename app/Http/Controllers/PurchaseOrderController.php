@@ -515,7 +515,6 @@ class PurchaseOrderController extends BaseController
         if ($action == 'bulk_print' && $user->can('view', $purchase_orders->first())) {
             $paths = $purchase_orders->map(function ($purchase_order) {
                 return (new CreateRawPdf($purchase_order->invitations->first()))->handle();
-                // return (new \App\Jobs\Vendor\CreatePurchaseOrderPdf($purchase_order->invitations->first()))->rawPdf();
             });
 
             $merge = (new PdfMerge($paths->toArray()))->run();

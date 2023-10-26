@@ -14,7 +14,6 @@ namespace App\Http\Controllers\VendorPortal;
 use App\Events\Misc\InvitationWasViewed;
 use App\Events\PurchaseOrder\PurchaseOrderWasViewed;
 use App\Http\Controllers\Controller;
-use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Models\PurchaseOrderInvitation;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
