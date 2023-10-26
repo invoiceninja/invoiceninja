@@ -927,7 +927,7 @@ class PdfBuilder
      */
     private function getProductEntityDetails(): self
     {
-        if ($this->service->config->entity_string == 'invoice') {
+        if (in_array($this->service->config->entity_string, ['recurring_invoice', 'invoice'])) {
             $this->mergeSections([
                 'entity-details' => [
                     'id' => 'entity-details',
