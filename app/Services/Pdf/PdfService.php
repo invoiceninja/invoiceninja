@@ -12,17 +12,20 @@
 namespace App\Services\Pdf;
 
 use App\Models\Company;
-use App\Models\CreditInvitation;
-use App\Models\InvoiceInvitation;
-use App\Models\PurchaseOrderInvitation;
-use App\Models\QuoteInvitation;
-use App\Models\RecurringInvoiceInvitation;
-use App\Utils\HostedPDF\NinjaPdf;
+use App\Models\Invoice;
 use App\Utils\HtmlEngine;
-use App\Utils\PhantomJS\Phantom;
-use App\Utils\Traits\Pdf\PageNumbering;
-use App\Utils\Traits\Pdf\PdfMaker;
+use App\Models\QuoteInvitation;
 use App\Utils\VendorHtmlEngine;
+use App\Models\CreditInvitation;
+use App\Utils\PhantomJS\Phantom;
+use App\Models\InvoiceInvitation;
+use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\Traits\Pdf\PdfMaker;
+use App\Jobs\Invoice\CreateEInvoice;
+use App\Models\PurchaseOrderInvitation;
+use App\Utils\Traits\Pdf\PageNumbering;
+use App\Models\RecurringInvoiceInvitation;
+use horstoeko\zugferd\ZugferdDocumentPdfBuilder;
 
 class PdfService
 {
@@ -92,6 +95,11 @@ class PdfService
             if ($numbered_pdf) {
                 $pdf = $numbered_pdf;
             }
+
+            if($this->config->entity_string == "invoice" && $this->config->settings->enable_e_invoice) {
+                $pdf = $this->checkEInvoice($pdf);
+            }
+
         } catch (\Exception $e) {
             nlog(print_r($e->getMessage(), 1));
             throw new \Exception($e->getMessage(), $e->getCode());
@@ -162,4 +170,61 @@ class PdfService
 
         return $pdf;
     }
+
+    /**
+     * Switch to determine if we need to embed the xml into the PDF itself
+     *
+     * @param  string $pdf
+     * @return string
+     */
+    private function checkEInvoice(string $pdf): string
+    {
+        if(!$this->config->entity instanceof Invoice)
+            return $pdf;
+
+        $e_invoice_type = $this->config->settings->e_invoice_type;
+
+        switch ($e_invoice_type) {
+            case "EN16931":
+            case "XInvoice_2_2":
+            case "XInvoice_2_1":
+            case "XInvoice_2_0":
+            case "XInvoice_1_0":
+            case "XInvoice-Extended":
+            case "XInvoice-BasicWL":
+            case "XInvoice-Basic":
+                return $this->embedEInvoiceZuGFerD($pdf) ?? $pdf;
+                //case "Facturae_3.2":
+                //case "Facturae_3.2.1":
+                //case "Facturae_3.2.2":
+                //
+            default:
+                return $pdf;
+        }
+
+    }
+    
+    /**
+     * Embed the .xml file into the PDF
+     *
+     * @param  string $pdf
+     * @return string
+     */
+    private function embedEInvoiceZuGFerD(string $pdf): string
+    {
+        try {
+
+            $e_rechnung = (new CreateEInvoice($this->config->entity, true))->handle();
+            $pdfBuilder = new ZugferdDocumentPdfBuilder($e_rechnung, $pdf);
+            $pdfBuilder->generateDocument();
+            
+            return $pdfBuilder->downloadString(basename($this->config->entity->getFileName()));
+
+        } catch (\Exception $e) {
+            nlog("E_Invoice Merge failed - " . $e->getMessage());
+        }
+
+        return $pdf;
+    }
+
 }
