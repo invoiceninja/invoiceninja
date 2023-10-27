@@ -11,32 +11,33 @@
 
 namespace App\Http\Controllers;
 
-use App\DataMapper\Analytics\LivePreview;
-use App\Factory\PurchaseOrderFactory;
-use App\Http\Requests\Preview\PreviewPurchaseOrderRequest;
-use App\Jobs\Util\PreviewPdf;
-use App\Libraries\MultiDB;
+use App\Utils\Ninja;
 use App\Models\Client;
-use App\Models\PurchaseOrder;
-use App\Models\PurchaseOrderInvitation;
 use App\Models\Vendor;
+use App\Libraries\MultiDB;
+use App\Jobs\Util\PreviewPdf;
+use App\Models\PurchaseOrder;
 use App\Models\VendorContact;
-use App\Repositories\PurchaseOrderRepository;
+use App\Utils\Traits\MakesHash;
+use App\Utils\VendorHtmlEngine;
+use App\Services\Pdf\PdfService;
+use App\Utils\PhantomJS\Phantom;
 use App\Services\PdfMaker\Design;
+use App\Utils\HostedPDF\NinjaPdf;
+use Illuminate\Support\Facades\DB;
+use App\Services\PdfMaker\PdfMaker;
+use Illuminate\Support\Facades\App;
+use App\Factory\PurchaseOrderFactory;
+use App\Utils\Traits\MakesInvoiceHtml;
+use Turbo124\Beacon\Facades\LightLogs;
+use App\Models\PurchaseOrderInvitation;
+use App\Utils\Traits\Pdf\PageNumbering;
+use Illuminate\Support\Facades\Response;
+use App\DataMapper\Analytics\LivePreview;
+use App\Repositories\PurchaseOrderRepository;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
-use App\Services\PdfMaker\PdfMaker;
-use App\Utils\HostedPDF\NinjaPdf;
-use App\Utils\Ninja;
-use App\Utils\PhantomJS\Phantom;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesInvoiceHtml;
-use App\Utils\Traits\Pdf\PageNumbering;
-use App\Utils\VendorHtmlEngine;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Response;
-use Turbo124\Beacon\Facades\LightLogs;
+use App\Http\Requests\Preview\PreviewPurchaseOrderRequest;
 
 class PreviewPurchaseOrderController extends BaseController
 {
@@ -169,6 +170,35 @@ class PreviewPurchaseOrderController extends BaseController
     }
 
     public function live(PreviewPurchaseOrderRequest $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $invitation = $request->resolveInvitation();
+        $vendor = $request->getVendor();
+        $settings = $user->company()->settings;
+
+        /** Set translations */
+        App::forgetInstance('translator');
+        $t = app('translator');
+        App::setLocale($invitation->contact->preferredLocale());
+        $t->replace(Ninja::transformTranslations($settings));
+
+        $entity_obj = $invitation->purchase_order;
+        $entity_obj->fill($request->all());
+
+        $ps = new PdfService($invitation, 'purchase_order', [
+            'client' => $entity_obj->client ?? false,
+            'vendor' => $vendor ?? false,
+            "purchase_orders" => [$entity_obj],
+        ]);
+
+        $pdf = $ps->boot()->getPdf();
+        return $pdf;
+
+    }
+
+    public function livex(PreviewPurchaseOrderRequest $request)
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();

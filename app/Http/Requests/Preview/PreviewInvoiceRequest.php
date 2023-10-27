@@ -104,7 +104,7 @@ class PreviewInvoiceRequest extends Request
             return $invitation;
         }
 
-        $invitation = $this->stubInvitation();
+        return $this->stubInvitation();
     }
 
     public function getClient(): ?Client
