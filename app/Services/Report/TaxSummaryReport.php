@@ -113,12 +113,15 @@ class TaxSummaryReport extends BaseExport
                 
                 if(in_array($invoice->status_id, [Invoice::STATUS_PARTIAL,Invoice::STATUS_PAID])) {
 
-                    if($invoice->status_id == Invoice::STATUS_PAID) {
-                        $cash_map[$key]['tax_amount'] += $tax['total'];
-                    } else {
-                        $cash_map[$key]['tax_amount'] += (($invoice->amount - $invoice->balance) / $invoice->balance) * $tax['total'] ?? 0;
+                    try {
+                        if($invoice->status_id == Invoice::STATUS_PAID) {
+                            $cash_map[$key]['tax_amount'] += $tax['total'];
+                        } else {
+                            $cash_map[$key]['tax_amount'] += (($invoice->amount - $invoice->balance) / $invoice->balance) * $tax['total'] ?? 0;
+                        }
+                    } catch(\DivisionByZeroError $e) {
+                        $cash_map[$key]['tax_amount'] += 0;
                     }
-
                 }
             }
 
