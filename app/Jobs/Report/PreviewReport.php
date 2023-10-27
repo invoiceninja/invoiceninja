@@ -11,15 +11,15 @@
 
 namespace App\Jobs\Report;
 
-use App\Models\Company;
 use App\Libraries\MultiDB;
+use App\Models\Company;
 use Illuminate\Bus\Queueable;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 
 class PreviewReport implements ShouldQueue
 {
@@ -38,10 +38,12 @@ class PreviewReport implements ShouldQueue
 
         /** @var \App\Export\CSV\CreditExport $export */
         $export = new $this->report_class($this->company, $this->request);
-        $report = $export->returnJson();
-        // nlog($report);
-        // nlog($this->report_class);
-        // nlog($report);
+
+        if(isset($this->request['output']) && $this->request['output'] == 'json')
+            $report = $export->returnJson();
+        else
+            $report = $export->run();
+            
         Cache::put($this->hash, $report, 60 * 60);
     }
 

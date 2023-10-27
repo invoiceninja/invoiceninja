@@ -25,6 +25,7 @@ use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderInvitation;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
+use App\Models\RecurringInvoice;
 use App\Models\RecurringInvoiceInvitation;
 use App\Models\Vendor;
 use App\Models\VendorContact;
@@ -51,7 +52,7 @@ class PdfConfiguration
     
     public Design $design;
     
-    public Invoice | Credit | Quote | PurchaseOrder $entity;
+    public Invoice | Credit | Quote | PurchaseOrder | RecurringInvoice $entity;
     
     public string $entity_design_id;
     

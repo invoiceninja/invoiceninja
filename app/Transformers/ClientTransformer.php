@@ -20,7 +20,6 @@ use App\Models\Document;
 use App\Models\GroupSetting;
 use App\Models\SystemLog;
 use App\Utils\Traits\MakesHash;
-use League\Fractal\Resource\Collection;
 use stdClass;
 
 /**
@@ -100,8 +99,9 @@ class ClientTransformer extends EntityTransformer
 
     public function includeGroupSettings(Client $client)
     {
-        if (!$client->group_settings)
+        if (!$client->group_settings) {
             return null;
+        }
         
         $transformer = new GroupSettingTransformer($this->serializer);
 

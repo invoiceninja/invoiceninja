@@ -11,14 +11,14 @@
 
 namespace App\Http\Middleware;
 
+use App\Libraries\MultiDB;
+use App\Models\Vendor;
+use App\Models\VendorContact;
 use Auth;
 use Closure;
-use App\Models\Vendor;
-use App\Libraries\MultiDB;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use App\Models\VendorContact;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class VendorContactKeyLogin
 {

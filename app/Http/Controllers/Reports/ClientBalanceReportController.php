@@ -11,12 +11,11 @@
 
 namespace App\Http\Controllers\Reports;
 
-use App\Utils\Traits\MakesHash;
-use App\Jobs\Report\SendToAdmin;
 use App\Http\Controllers\BaseController;
-use App\Services\Report\ARSummaryReport;
-use App\Services\Report\ClientBalanceReport;
 use App\Http\Requests\Report\GenericReportRequest;
+use App\Jobs\Report\SendToAdmin;
+use App\Services\Report\ClientBalanceReport;
+use App\Utils\Traits\MakesHash;
 
 class ClientBalanceReportController extends BaseController
 {

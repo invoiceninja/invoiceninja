@@ -11,14 +11,14 @@
 
 namespace App\Jobs\Ninja;
 
-use App\Models\Payment;
 use App\Libraries\MultiDB;
-use Illuminate\Bus\Queueable;
 use App\Models\ClientGatewayToken;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\Payment;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class CheckACHStatus implements ShouldQueue
 {
@@ -77,7 +77,7 @@ class CheckACHStatus implements ShouldQueue
             });
 
             Payment::where('status_id', 1)
-            ->whereHas('company_gateway', function ($q){
+            ->whereHas('company_gateway', function ($q) {
                 $q->whereIn('gateway_key', ['d14dd26a47cecc30fdd65700bfb67b34', 'd14dd26a37cecc30fdd65700bfb55b23']);
             })
             ->cursor()

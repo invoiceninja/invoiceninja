@@ -11,17 +11,17 @@
 
 namespace App\Services\Report;
 
-use Carbon\Carbon;
-use App\Utils\Ninja;
-use App\Utils\Number;
+use App\Export\CSV\BaseExport;
+use App\Libraries\MultiDB;
 use App\Models\Client;
-use League\Csv\Writer;
 use App\Models\Company;
 use App\Models\Invoice;
-use App\Libraries\MultiDB;
-use App\Export\CSV\BaseExport;
+use App\Utils\Ninja;
+use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
+use League\Csv\Writer;
 
 class ARDetailReport extends BaseExport
 {
@@ -102,7 +102,7 @@ class ARDetailReport extends BaseExport
 
         $query->cursor()
             ->each(function ($invoice) {
-                    $this->csv->insertOne($this->buildRow($invoice));
+                $this->csv->insertOne($this->buildRow($invoice));
             });
 
         return $this->csv->toString();

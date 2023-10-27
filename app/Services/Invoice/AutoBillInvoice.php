@@ -11,21 +11,20 @@
 
 namespace App\Services\Invoice;
 
-use App\Utils\Ninja;
+use App\Events\Invoice\InvoiceWasPaid;
+use App\Events\Payment\PaymentWasCreated;
+use App\Factory\PaymentFactory;
+use App\Libraries\MultiDB;
 use App\Models\Client;
+use App\Models\ClientGatewayToken;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Libraries\MultiDB;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use Illuminate\Support\Str;
-use App\DataMapper\InvoiceItem;
-use App\Factory\PaymentFactory;
 use App\Services\AbstractService;
-use App\Models\ClientGatewayToken;
-use App\Events\Invoice\InvoiceWasPaid;
-use App\Events\Payment\PaymentWasCreated;
+use App\Utils\Ninja;
+use Illuminate\Support\Str;
 
 class AutoBillInvoice extends AbstractService
 {
@@ -230,7 +229,7 @@ class AutoBillInvoice extends AbstractService
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
         //if we have paid the invoice in full using credits, then we need to fire the event
-        if($this->invoice->balance == 0){
+        if($this->invoice->balance == 0) {
 
             event(new InvoiceWasPaid($this->invoice, $payment, $payment->company, Ninja::eventVars()));
 

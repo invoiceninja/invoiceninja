@@ -54,25 +54,25 @@ class SearchController extends Controller
                      ->take(1000)
                      ->get();
 
-                        foreach($clients as $client) {
-                            $this->clients[] = [
-                                'name' => $client->present()->name(),
-                                'type' => '/client',
-                                'id' => $client->hashed_id,
-                                'path' => "/clients/{$client->hashed_id}/edit"
-                            ];
+        foreach($clients as $client) {
+            $this->clients[] = [
+                'name' => $client->present()->name(),
+                'type' => '/client',
+                'id' => $client->hashed_id,
+                'path' => "/clients/{$client->hashed_id}/edit"
+            ];
 
-                            $client->contacts->each(function ($contact) {
-                                $this->client_contacts[] = [
-                                    'name' => $contact->present()->search_display(),
-                                    'type' => '/client_contact',
-                                    'id' => $contact->hashed_id,
-                                    'path' => "/clients/{$contact->hashed_id}"
-                                ];
+            $client->contacts->each(function ($contact) {
+                $this->client_contacts[] = [
+                    'name' => $contact->present()->search_display(),
+                    'type' => '/client_contact',
+                    'id' => $contact->hashed_id,
+                    'path' => "/clients/{$contact->hashed_id}"
+                ];
 
                                                 
-                            });
-                        }
+            });
+        }
                          
 
     }
@@ -92,16 +92,16 @@ class SearchController extends Controller
                      })
                      ->orderBy('id', 'desc')
                     ->take(3000)
-                    ->get(); 
+                    ->get();
                     
-                    foreach($invoices as $invoice) {
-                            $this->invoices[] = [
-                                'name' => $invoice->client->present()->name() . ' - ' . $invoice->number,
-                                'type' => '/invoice',
-                                'id' => $invoice->hashed_id,
-                                'path' => "/invoices/{$invoice->hashed_id}/edit"
-                            ];
-                    }
+        foreach($invoices as $invoice) {
+            $this->invoices[] = [
+                'name' => $invoice->client->present()->name() . ' - ' . $invoice->number,
+                'type' => '/invoice',
+                'id' => $invoice->hashed_id,
+                'path' => "/invoices/{$invoice->hashed_id}/edit"
+            ];
+        }
                     
     }
 

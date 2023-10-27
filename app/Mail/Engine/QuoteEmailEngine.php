@@ -113,7 +113,7 @@ class QuoteEmailEngine extends BaseEmailEngine
             ->setTextBody($text_body);
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->quote->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
-            $pdf = ((new CreateRawPdf($this->invitation, $this->invitation->company->db))->handle());
+            $pdf = ((new CreateRawPdf($this->invitation))->handle());
 
             $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->quote->numberFormatter().'.pdf']]);
         }

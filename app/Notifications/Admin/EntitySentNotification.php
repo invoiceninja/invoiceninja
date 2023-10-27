@@ -12,7 +12,6 @@
 namespace App\Notifications\Admin;
 
 use App\Utils\Number;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
 
@@ -67,7 +66,7 @@ class EntitySentNotification extends Notification
      * Get the mail representation of the notification.
      *
      * @param  mixed  $notifiable
-     * 
+     *
      */
     public function toMail($notifiable)
     {

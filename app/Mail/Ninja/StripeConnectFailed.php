@@ -11,12 +11,12 @@
 
 namespace App\Mail\Ninja;
 
-use App\Models\User;
 use App\Models\Company;
+use App\Models\User;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Headers;
 use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Mail\Mailables\Headers;
 
 class StripeConnectFailed extends Mailable
 {

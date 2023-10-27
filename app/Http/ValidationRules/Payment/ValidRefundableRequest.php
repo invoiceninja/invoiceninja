@@ -11,7 +11,6 @@
 
 namespace App\Http\ValidationRules\Payment;
 
-use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Utils\Traits\MakesHash;

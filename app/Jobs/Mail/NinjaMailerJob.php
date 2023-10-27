@@ -492,7 +492,7 @@ class NinjaMailerJob implements ShouldQueue
      */
     private function preFlightChecksFail(): bool
     {
-        /* Always send regardless */ 
+        /* Always send regardless */
         if($this->override) {
             return false;
         }

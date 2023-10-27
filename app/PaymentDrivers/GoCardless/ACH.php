@@ -142,7 +142,7 @@ class ACH implements MethodInterface
      * Show the payment page for ACH.
      *
      * @param array $data
-     * @return \Illuminate\View\View         
+     * @return \Illuminate\View\View
      */
     public function paymentView(array $data): View
     {

@@ -63,14 +63,17 @@ class ProfitAndLossController extends BaseController
      */
     public function __invoke(ProfitLossRequest $request)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         if ($request->has('send_email') && $request->get('send_email')) {
-            SendToAdmin::dispatch(auth()->user()->company(), $request->all(), ProfitLoss::class, $this->filename);
+            SendToAdmin::dispatch($user->company(), $request->all(), ProfitLoss::class, $this->filename);
 
             return response()->json(['message' => 'working...'], 200);
         }
         // expect a list of visible fields, or use the default
 
-        $pnl = new ProfitLoss(auth()->user()->company(), $request->all());
+        $pnl = new ProfitLoss($user->company(), $request->all());
         $csv = $pnl->run();
 
         $headers = [

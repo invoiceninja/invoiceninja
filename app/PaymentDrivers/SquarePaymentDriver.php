@@ -11,22 +11,22 @@
 
 namespace App\PaymentDrivers;
 
+use App\Http\Requests\Payments\PaymentWebhookRequest;
+use App\Jobs\Util\SystemLogger;
+use App\Models\ClientGatewayToken;
+use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\SystemLog;
-use App\Models\GatewayType;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use App\Jobs\Util\SystemLogger;
-use App\Utils\Traits\MakesHash;
-use Square\Utils\WebhooksHelper;
-use App\Models\ClientGatewayToken;
-use Square\Models\WebhookSubscription;
+use App\Models\SystemLog;
 use App\PaymentDrivers\Square\CreditCard;
 use App\PaymentDrivers\Square\SquareWebhook;
-use Square\Models\CreateWebhookSubscriptionRequest;
-use App\Http\Requests\Payments\PaymentWebhookRequest;
+use App\Utils\Traits\MakesHash;
 use Square\Models\Builders\RefundPaymentRequestBuilder;
+use Square\Models\CreateWebhookSubscriptionRequest;
+use Square\Models\WebhookSubscription;
+use Square\Utils\WebhooksHelper;
 
 class SquarePaymentDriver extends BaseDriver
 {
@@ -128,7 +128,7 @@ class SquarePaymentDriver extends BaseDriver
 
             $status = $refundPaymentResponse->getRefund()->getStatus();
 
-            if(in_array($status, ['COMPLETED', 'PENDING'])){
+            if(in_array($status, ['COMPLETED', 'PENDING'])) {
 
                 $transaction_reference = $refundPaymentResponse->getRefund()->getId();
 
@@ -153,8 +153,7 @@ class SquarePaymentDriver extends BaseDriver
                 );
 
                 return $data;
-            }
-            elseif(in_array($status, ['REJECTED', 'FAILED'])) {
+            } elseif(in_array($status, ['REJECTED', 'FAILED'])) {
 
                 $transaction_reference = $refundPaymentResponse->getRefund()->getId();
 
@@ -194,17 +193,17 @@ class SquarePaymentDriver extends BaseDriver
                     'code' => $error->getCode(),
                 ];
 
-                SystemLogger::dispatch(
-                    [
-                        'server_response' => $data,
-                        'data' => request()->all()
-                    ],
-                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                    SystemLog::EVENT_GATEWAY_FAILURE,
-                    SystemLog::TYPE_SQUARE,
-                    $this->client,
-                    $this->client->company
-                );
+            SystemLogger::dispatch(
+                [
+                    'server_response' => $data,
+                    'data' => request()->all()
+                ],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_SQUARE,
+                $this->client,
+                $this->client->company
+            );
 
             return $data;
         }
@@ -234,7 +233,7 @@ class SquarePaymentDriver extends BaseDriver
         $body->setCustomerId($cgt->gateway_customer_reference);
         $body->setAmountMoney($amount_money);
         $body->setReferenceId($payment_hash->hash);
-        $body->setNote(substr($description,0,500));
+        $body->setNote(substr($description, 0, 500));
 
         $response = $this->square->getPaymentsApi()->createPayment($body);
         $body = json_decode($response->getBody());
@@ -292,10 +291,10 @@ class SquarePaymentDriver extends BaseDriver
         if ($api_response->isSuccess()) {
             
             //array of WebhookSubscription objects
-            foreach($api_response->getResult()->getSubscriptions() ?? [] as $subscription)
-            {
-                if($subscription->getName() == 'Invoice_Ninja_Webhook_Subscription')
-                    return $subscription->getId();  
+            foreach($api_response->getResult()->getSubscriptions() ?? [] as $subscription) {
+                if($subscription->getName() == 'Invoice_Ninja_Webhook_Subscription') {
+                    return $subscription->getId();
+                }
             }
                        
         } else {
@@ -327,8 +326,9 @@ class SquarePaymentDriver extends BaseDriver
     public function createWebhooks(): void
     {
         
-        if($this->checkWebhooks())
+        if($this->checkWebhooks()) {
             return;
+        }
 
         $this->init();
 
@@ -367,7 +367,7 @@ class SquarePaymentDriver extends BaseDriver
         $signature_key = $this->company_gateway->getConfigField('signatureKey');
         $notification_url = $this->company_gateway->webhookUrl();
 
-        $body = '';   
+        $body = '';
         $handle = fopen('php://input', 'r');
         while(!feof($handle)) {
             $body .= fread($handle, 1024);
@@ -394,8 +394,8 @@ class SquarePaymentDriver extends BaseDriver
         //getsubscriptionid here
         $subscription_id = $this->checkWebhooks();
 
-        if(!$subscription_id){
-             nlog('No Subscription Found');
+        if(!$subscription_id) {
+            nlog('No Subscription Found');
             return;
         }
 

@@ -11,19 +11,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PaymentTerm;
-use Illuminate\Http\Response;
-use App\Utils\Traits\MakesHash;
 use App\Factory\PaymentTermFactory;
 use App\Filters\PaymentTermFilters;
-use App\Repositories\PaymentTermRepository;
-use App\Transformers\PaymentTermTransformer;
+use App\Http\Requests\PaymentTerm\CreatePaymentTermRequest;
+use App\Http\Requests\PaymentTerm\DestroyPaymentTermRequest;
 use App\Http\Requests\PaymentTerm\EditPaymentTermRequest;
 use App\Http\Requests\PaymentTerm\ShowPaymentTermRequest;
 use App\Http\Requests\PaymentTerm\StorePaymentTermRequest;
-use App\Http\Requests\PaymentTerm\CreatePaymentTermRequest;
 use App\Http\Requests\PaymentTerm\UpdatePaymentTermRequest;
-use App\Http\Requests\PaymentTerm\DestroyPaymentTermRequest;
+use App\Models\PaymentTerm;
+use App\Repositories\PaymentTermRepository;
+use App\Transformers\PaymentTermTransformer;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Http\Response;
 
 class PaymentTermController extends BaseController
 {

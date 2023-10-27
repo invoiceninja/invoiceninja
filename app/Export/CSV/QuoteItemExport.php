@@ -76,23 +76,23 @@ class QuoteItemExport extends BaseExport
 
         $headerdisplay = $this->buildHeader();
 
-        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
-                return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
-            })->toArray();
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
+            return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
+        })->toArray();
 
-            $query->cursor()
-                ->each(function ($resource) {
-                    $this->iterateItems($resource);
+        $query->cursor()
+            ->each(function ($resource) {
+                $this->iterateItems($resource);
                                     
-                    foreach($this->storage_array as $row) {
-                        $this->storage_item_array[] = $this->processItemMetaData($row, $resource);
-                    }
+                foreach($this->storage_array as $row) {
+                    $this->storage_item_array[] = $this->processItemMetaData($row, $resource);
+                }
 
-                    $this->storage_array = [];
+                $this->storage_array = [];
                                     
-                });
+            });
                             
-            return array_merge(['columns' => $header], $this->storage_item_array);
+        return array_merge(['columns' => $header], $this->storage_item_array);
 
     }
 
@@ -103,7 +103,7 @@ class QuoteItemExport extends BaseExport
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
 
-       $query = $this->init();
+        $query = $this->init();
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
@@ -127,7 +127,7 @@ class QuoteItemExport extends BaseExport
         $transformed_items = [];
 
         foreach ($quote->line_items as $item) {
-            $item_array = [];      
+            $item_array = [];
 
             foreach (array_values(array_intersect($this->input['report_keys'], $this->item_report_keys)) as $key) { //items iterator produces item array
                 
@@ -135,16 +135,17 @@ class QuoteItemExport extends BaseExport
 
                     $tmp_key = str_replace("item.", "", $key);
                     
-                    if($tmp_key == 'type_id')
+                    if($tmp_key == 'type_id') {
                         $tmp_key = 'type';
+                    }
 
-                    if($tmp_key == 'tax_id')
+                    if($tmp_key == 'tax_id') {
                         $tmp_key = 'tax_category';
+                    }
 
                     if (property_exists($item, $tmp_key)) {
                         $item_array[$key] = $item->{$tmp_key};
-                    } 
-                    else {
+                    } else {
                         $item_array[$key] = '';
                     }
                 }

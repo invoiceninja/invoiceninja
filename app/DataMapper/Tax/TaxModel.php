@@ -11,7 +11,7 @@
 
 namespace App\DataMapper\Tax;
 
-class TaxModel 
+class TaxModel
 {
     
     /** @var string $seller_subregion */
@@ -32,10 +32,11 @@ class TaxModel
     public function __construct(public ?TaxModel $model = null)
     {
         
-        if(!$this->model) 
+        if(!$this->model) {
             $this->regions = $this->init();
-        else
+        } else {
             $this->regions = $model;
+        }
 
     }
     
@@ -79,7 +80,7 @@ class TaxModel
      *
      * @return self
      */
-    private function auSubRegions(): self 
+    private function auSubRegions(): self
     {
 
         $this->regions->AU->subregions = new \stdClass();
@@ -387,7 +388,7 @@ class TaxModel
 
         $this->regions->EU->subregions->EE = new \stdClass();
         $this->regions->EU->subregions->EE->tax_rate = 20;
-        $this->regions->EU->subregions->EE->tax_name = 'KM';        
+        $this->regions->EU->subregions->EE->tax_name = 'KM';
         $this->regions->EU->subregions->EE->reduced_tax_rate = 9;
         $this->regions->EU->subregions->EE->apply_tax = false;
 

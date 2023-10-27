@@ -11,31 +11,31 @@
 
 namespace App\Import\Providers;
 
-use App\Models\User;
-use App\Models\Quote;
-use League\Csv\Reader;
-use App\Models\Company;
-use App\Models\Invoice;
-use League\Csv\Statement;
-use App\Factory\QuoteFactory;
 use App\Factory\ClientFactory;
-use Illuminate\Support\Carbon;
 use App\Factory\InvoiceFactory;
 use App\Factory\PaymentFactory;
+use App\Factory\QuoteFactory;
+use App\Factory\RecurringInvoiceFactory;
+use App\Http\Requests\Quote\StoreQuoteRequest;
 use App\Import\ImportException;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
-use App\Utils\Traits\CleanLineItems;
-use App\Repositories\QuoteRepository;
-use Illuminate\Support\Facades\Cache;
-use App\Repositories\ClientRepository;
 use App\Mail\Import\CsvImportCompleted;
+use App\Models\Company;
+use App\Models\Invoice;
+use App\Models\Quote;
+use App\Models\User;
+use App\Repositories\ClientRepository;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\PaymentRepository;
-use App\Factory\RecurringInvoiceFactory;
-use Illuminate\Support\Facades\Validator;
-use App\Http\Requests\Quote\StoreQuoteRequest;
+use App\Repositories\QuoteRepository;
 use App\Repositories\RecurringInvoiceRepository;
+use App\Utils\Traits\CleanLineItems;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Validator;
+use League\Csv\Reader;
+use League\Csv\Statement;
 
 class BaseImport
 {
@@ -482,8 +482,9 @@ class BaseImport
                     nlog($invoice_data);
                     $saveable_invoice_data = $invoice_data;
                     
-                    if(array_key_exists('payments', $saveable_invoice_data))
+                    if(array_key_exists('payments', $saveable_invoice_data)) {
                         unset($saveable_invoice_data['payments']);
+                    }
 
                     $invoice_repository->save($saveable_invoice_data, $invoice);
 
@@ -524,8 +525,7 @@ class BaseImport
 
                                     $payment_date = Carbon::parse($payment->date);
 
-                                    if(!$payment_date->isToday())
-                                    {
+                                    if(!$payment_date->isToday()) {
 
                                         $payment->paymentables()->update(['created_at' => $payment_date]);
 
@@ -743,8 +743,9 @@ class BaseImport
 
         }
 
-        if($user)
+        if($user) {
             return $user->id;
+        }
 
         $user = User::whereRaw("account_id = ? AND CONCAT_WS(' ', first_name, last_name) like ?", [$this->company->account_id, '%'.$user_hash.'%'])
             ->first();

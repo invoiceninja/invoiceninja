@@ -11,12 +11,10 @@
 
 namespace App\Services\Invoice;
 
-use App\Models\Credit;
+use App\Jobs\Inventory\AdjustProductInventory;
 use App\Models\Invoice;
 use App\Services\AbstractService;
-use Illuminate\Support\Facades\DB;
 use App\Utils\Traits\GeneratesCounter;
-use App\Jobs\Inventory\AdjustProductInventory;
 
 class MarkInvoiceDeleted extends AbstractService
 {

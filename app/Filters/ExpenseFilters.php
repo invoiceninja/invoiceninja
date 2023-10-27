@@ -40,8 +40,8 @@ class ExpenseFilters extends QueryFilters
                 ->orWhere('custom_value3', 'like', '%'.$filter.'%')
                 ->orWhere('custom_value4', 'like', '%'.$filter.'%')
                 ->orWhereHas('category', function ($q) use ($filter) {
-                              $q->where('name', 'like', '%'.$filter.'%');
-                          });
+                    $q->where('name', 'like', '%'.$filter.'%');
+                });
         });
     }
 
@@ -125,9 +125,9 @@ class ExpenseFilters extends QueryFilters
 
             $search_key = $split[0] == 'client' ? 'client_id' : 'project_id';
 
-            return $this->builder->whereHas('invoice', function ($query) use ($search_key, $split){
-                        $query->where($search_key, $this->decodePrimaryKey($split[1]))
-                              ->whereIn('status_id', [\App\Models\Invoice::STATUS_DRAFT, \App\Models\Invoice::STATUS_SENT, \App\Models\Invoice::STATUS_PARTIAL]);
+            return $this->builder->whereHas('invoice', function ($query) use ($search_key, $split) {
+                $query->where($search_key, $this->decodePrimaryKey($split[1]))
+                      ->whereIn('status_id', [\App\Models\Invoice::STATUS_DRAFT, \App\Models\Invoice::STATUS_SENT, \App\Models\Invoice::STATUS_PARTIAL]);
             });
         }
 

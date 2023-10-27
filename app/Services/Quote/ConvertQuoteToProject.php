@@ -12,11 +12,10 @@
 
 namespace App\Services\Quote;
 
-use App\DataMapper\InvoiceItem;
-use App\Models\Quote;
 use App\Factory\ProjectFactory;
 use App\Factory\TaskFactory;
 use App\Models\Project;
+use App\Models\Quote;
 use App\Repositories\TaskRepository;
 use App\Utils\Traits\GeneratesCounter;
 
@@ -31,9 +30,9 @@ class ConvertQuoteToProject
     public function run(): Project
     {
 
-        $quote_items = collect($this->quote->line_items)->filter(function ($item){
-                return $item->type_id == '2';
-            });
+        $quote_items = collect($this->quote->line_items)->filter(function ($item) {
+            return $item->type_id == '2';
+        });
 
         $project = ProjectFactory::create($this->quote->company_id, $this->quote->user_id);
         $project->name = ctrans('texts.quote_number_short'). " " . $this->quote->number . " [{$this->quote->client->present()->name()}]";
@@ -57,17 +56,17 @@ class ConvertQuoteToProject
 
         $task_repo = new TaskRepository();
 
-            $quote_items->each(function($item) use($task_repo, $task_status){
+        $quote_items->each(function ($item) use ($task_repo, $task_status) {
 
-                $task = TaskFactory::create($this->quote->company_id, $this->quote->user_id);
-                $task->client_id = $this->quote->client_id;
-                $task->project_id = $this->quote->project_id;
-                $task->description = $item->notes;
-                $task->status_id = $task_status->id;
-                $task->rate = $item->cost;
-                $task_repo->save([], $task);
+            $task = TaskFactory::create($this->quote->company_id, $this->quote->user_id);
+            $task->client_id = $this->quote->client_id;
+            $task->project_id = $this->quote->project_id;
+            $task->description = $item->notes;
+            $task->status_id = $task_status->id;
+            $task->rate = $item->cost;
+            $task_repo->save([], $task);
 
-            });
+        });
 
         event('eloquent.created: App\Models\Project', $project);
 

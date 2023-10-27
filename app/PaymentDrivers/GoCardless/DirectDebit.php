@@ -97,8 +97,8 @@ class DirectDebit implements MethodInterface
      *     }
      *   }
      * }
-     * 
-     * 
+     *
+     *
      */
     public function billingRequestFlows(array $data)
     {
@@ -170,7 +170,7 @@ class DirectDebit implements MethodInterface
     public function authorizeResponse(Request $request)
     {
 
-        try{
+        try {
             
             $billing_request = $this->go_cardless->gateway->billingRequests()->get($request->billing_request);
 
@@ -194,8 +194,7 @@ class DirectDebit implements MethodInterface
 
             return redirect()->route('client.payment_methods.show', $payment_method->hashed_id);
 
-        }
-        catch (\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->processUnsuccessfulAuthorization($exception);
         }
 
@@ -242,7 +241,7 @@ class DirectDebit implements MethodInterface
      * Payment view for Direct Debit.
      *
      * @param array $data
-     * @return \Illuminate\View\View         
+     * @return \Illuminate\View\View
      */
     public function paymentView(array $data): View
     {

@@ -26,6 +26,7 @@ use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FilterController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\StaticController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\TwilioController;
@@ -73,6 +74,7 @@ use App\Http\Controllers\BankTransactionController;
 use App\Http\Controllers\ClientStatementController;
 use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\HostedMigrationController;
+use App\Http\Controllers\TemplatePreviewController;
 use App\Http\Controllers\ConnectedAccountController;
 use App\Http\Controllers\RecurringExpenseController;
 use App\Http\Controllers\RecurringInvoiceController;
@@ -87,6 +89,7 @@ use App\Http\Controllers\Auth\PasswordTimeoutController;
 use App\Http\Controllers\PreviewPurchaseOrderController;
 use App\Http\Controllers\Reports\ClientReportController;
 use App\Http\Controllers\Reports\CreditReportController;
+use App\Http\Controllers\Reports\ReportExportController;
 use App\Http\Controllers\Reports\VendorReportController;
 use App\Http\Controllers\Reports\ExpenseReportController;
 use App\Http\Controllers\Reports\InvoiceReportController;
@@ -111,7 +114,6 @@ use App\Http\Controllers\Reports\ClientContactReportController;
 use App\Http\Controllers\Reports\PurchaseOrderReportController;
 use App\Http\Controllers\Reports\RecurringInvoiceReportController;
 use App\Http\Controllers\Reports\PurchaseOrderItemReportController;
-use App\Http\Controllers\SearchController;
 
 Route::group(['middleware' => ['throttle:api', 'api_secret_check']], function () {
     Route::post('api/v1/signup', [AccountController::class, 'store'])->name('signup.submit');
@@ -321,6 +323,9 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('reports/tax_summary_report', TaxSummaryReportController::class);
     Route::post('reports/user_sales_report', UserSalesReportController::class);
     Route::post('reports/preview/{hash}', ReportPreviewController::class);
+    Route::post('exports/preview/{hash}', ReportExportController::class);
+    
+    Route::post('templates/preview/{hash}', TemplatePreviewController::class);
     Route::post('search', SearchController::class);
 
     Route::resource('task_schedulers', TaskSchedulerController::class);

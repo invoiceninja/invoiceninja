@@ -11,26 +11,25 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use App\Models\BankIntegration;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Http\JsonResponse;
-use App\Helpers\Bank\Yodlee\Yodlee;
-use Illuminate\Support\Facades\Cache;
 use App\Factory\BankIntegrationFactory;
 use App\Filters\BankIntegrationFilters;
-use App\Jobs\Bank\ProcessBankTransactions;
-use App\Repositories\BankIntegrationRepository;
-use App\Transformers\BankIntegrationTransformer;
+use App\Helpers\Bank\Yodlee\Yodlee;
+use App\Http\Requests\BankIntegration\AdminBankIntegrationRequest;
 use App\Http\Requests\BankIntegration\BulkBankIntegrationRequest;
+use App\Http\Requests\BankIntegration\CreateBankIntegrationRequest;
+use App\Http\Requests\BankIntegration\DestroyBankIntegrationRequest;
 use App\Http\Requests\BankIntegration\EditBankIntegrationRequest;
 use App\Http\Requests\BankIntegration\ShowBankIntegrationRequest;
-use App\Http\Requests\BankIntegration\AdminBankIntegrationRequest;
 use App\Http\Requests\BankIntegration\StoreBankIntegrationRequest;
-use App\Http\Requests\BankIntegration\CreateBankIntegrationRequest;
 use App\Http\Requests\BankIntegration\UpdateBankIntegrationRequest;
-use App\Http\Requests\BankIntegration\DestroyBankIntegrationRequest;
+use App\Jobs\Bank\ProcessBankTransactions;
+use App\Models\BankIntegration;
+use App\Repositories\BankIntegrationRepository;
+use App\Transformers\BankIntegrationTransformer;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 
 class BankIntegrationController extends BaseController
 {
@@ -109,7 +108,7 @@ class BankIntegrationController extends BaseController
      * @param CreateBankIntegrationRequest $request
      * @return Response
      *
-     *     
+     *
      */
     public function create(CreateBankIntegrationRequest $request)
     {
@@ -210,12 +209,11 @@ class BankIntegrationController extends BaseController
         $accounts = $yodlee->getAccounts();
 
         foreach ($accounts as $account) {
-            if ($bi = BankIntegration::withTrashed()->where('bank_account_id', $account['id'])->where('company_id', $user->company()->id)->first()){
-                    $bi->balance = $account['current_balance'];
-                    $bi->currency = $account['account_currency'];
-                    $bi->save();
-            }
-            else {
+            if ($bi = BankIntegration::withTrashed()->where('bank_account_id', $account['id'])->where('company_id', $user->company()->id)->first()) {
+                $bi->balance = $account['current_balance'];
+                $bi->currency = $account['account_currency'];
+                $bi->save();
+            } else {
                 $bank_integration = new BankIntegration();
                 $bank_integration->company_id = $user->company()->id;
                 $bank_integration->account_id = $user->account_id;
@@ -293,7 +291,7 @@ class BankIntegrationController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $user->account->bank_integrations->each(function ($bank_integration) use ($user){
+        $user->account->bank_integrations->each(function ($bank_integration) use ($user) {
             (new ProcessBankTransactions($user->account->bank_integration_account_id, $bank_integration))->handle();
         });
 

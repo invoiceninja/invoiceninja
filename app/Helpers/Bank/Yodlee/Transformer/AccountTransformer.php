@@ -88,20 +88,19 @@ class AccountTransformer implements AccountTransformerInterface
         if(property_exists($account, 'currentBalance')) {
             $current_balance = $account->currentBalance->amount ?? 0;
             $account_currency = $account->currentBalance->currency ?? '';
-        }
-        elseif(property_exists($account, 'balance')){
+        } elseif(property_exists($account, 'balance')) {
             $current_balance = $account->balance->amount ?? 0;
             $account_currency = $account->balance->currency ?? '';
         }
 
         $account_status = $account->accountStatus;
 
-        if(property_exists($account, 'dataset')){
+        if(property_exists($account, 'dataset')) {
             $dataset = $account->dataset[0];
             $status = false;
             $update = false;
 
-            match($dataset->additionalStatus ?? ''){
+            match($dataset->additionalStatus ?? '') {
                 'LOGIN_IN_PROGRESS' => $status =  'Data retrieval in progress.',
                 'USER_INPUT_REQUIRED' => $status =  'Please reconnect your account, authentication required.',
                 'LOGIN_SUCCESS' => $status =  'Data retrieval in progress',
@@ -113,24 +112,23 @@ class AccountTransformer implements AccountTransformerInterface
                 'PARTIAL_DATA_RETRIEVED' => $status =  'Partial data update failed.',
                 'PARTIAL_DATA_RETRIEVED_REM_SCHED' => $status =  'Partial data update failed.',
                 'SUCCESS' => $status =  'All accounts added or updated successfully.',
-                default => $status = false 
+                default => $status = false
             };
 
-            if($status){
+            if($status) {
                 $account_status = $status;
             }
 
-            match($dataset->updateEligibility ?? ''){
+            match($dataset->updateEligibility ?? '') {
                 'ALLOW_UPDATE' => $update = 'Account connection stable.',
                 'ALLOW_UPDATE_WITH_CREDENTIALS' => $update = 'Please reconnect your account with updated credentials.',
                 'DISALLOW_UPDATE' => $update = 'Update not available due to technical issues.',
                 default => $update = false,
             };
 
-            if($status && $update){
+            if($status && $update) {
                 $account_status = $status . ' - ' . $update;
-            }
-            elseif($update){
+            } elseif($update) {
                 $account_status = $update;
             }
 

@@ -11,19 +11,19 @@
 
 namespace App\Http\Requests\Preview;
 
-use App\Models\Quote;
+use App\Http\Requests\Request;
 use App\Models\Client;
 use App\Models\Credit;
+use App\Models\CreditInvitation;
 use App\Models\Invoice;
-use App\Http\Requests\Request;
+use App\Models\InvoiceInvitation;
+use App\Models\Quote;
 use App\Models\QuoteInvitation;
+use App\Models\RecurringInvoice;
+use App\Models\RecurringInvoiceInvitation;
+use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
-use App\Models\CreditInvitation;
-use App\Models\RecurringInvoice;
-use App\Models\InvoiceInvitation;
-use App\Utils\Traits\CleanLineItems;
-use App\Models\RecurringInvoiceInvitation;
 
 class PreviewInvoiceRequest extends Request
 {
@@ -55,7 +55,7 @@ class PreviewInvoiceRequest extends Request
         return [
             'number' => 'nullable',
             'entity' => 'bail|sometimes|in:invoice,quote,credit,recurring_invoice',
-            'entity_id' => ['bail','sometimes','integer',Rule::exists($this->entity_plural, 'id')->where('is_deleted',0)->where('company_id', $user->company()->id)],
+            'entity_id' => ['bail','sometimes','integer',Rule::exists($this->entity_plural, 'id')->where('is_deleted', 0)->where('company_id', $user->company()->id)],
             'client_id' => ['required', Rule::exists(Client::class, 'id')->where('is_deleted', 0)->where('company_id', $user->company()->id)],
         ];
 
@@ -76,8 +76,9 @@ class PreviewInvoiceRequest extends Request
         $input['balance'] = 0;
         $input['number'] = isset($input['number']) ? $input['number'] : ctrans('texts.live_preview').' #'.rand(0, 1000);
 
-        if($input['entity_id'] ?? false)
+        if($input['entity_id'] ?? false) {
             $input['entity_id'] = $this->decodePrimaryKey($input['entity_id'], true);
+        }
 
         $this->convertEntityPlural($input['entity'] ?? 'invoice');
 
@@ -88,26 +89,29 @@ class PreviewInvoiceRequest extends Request
     {
         $invitation = false;
 
-        if(! $this->entity_id ?? false)
+        if(! $this->entity_id ?? false) {
             return $this->stubInvitation();
+        }
 
-        match($this->entity){
-         'invoice' => $invitation = InvoiceInvitation::withTrashed()->where('invoice_id', $this->entity_id)->first(),
-         'quote' => $invitation = QuoteInvitation::withTrashed()->where('quote_id', $this->entity_id)->first(),
-         'credit' => $invitation = CreditInvitation::withTrashed()->where('credit_id', $this->entity_id)->first(),
-         'recurring_invoice' => $invitation = RecurringInvoiceInvitation::withTrashed()->where('recurring_invoice_id', $this->entity_id)->first(),
+        match($this->entity) {
+            'invoice' => $invitation = InvoiceInvitation::withTrashed()->where('invoice_id', $this->entity_id)->first(),
+            'quote' => $invitation = QuoteInvitation::withTrashed()->where('quote_id', $this->entity_id)->first(),
+            'credit' => $invitation = CreditInvitation::withTrashed()->where('credit_id', $this->entity_id)->first(),
+            'recurring_invoice' => $invitation = RecurringInvoiceInvitation::withTrashed()->where('recurring_invoice_id', $this->entity_id)->first(),
         };
 
-        if($invitation)
+        if($invitation) {
             return $invitation;
+        }
 
-        $invitation = $this->stubInvitation();
+        return $this->stubInvitation();
     }
 
     public function getClient(): ?Client
     {
-        if(!$this->client)
+        if(!$this->client) {
             $this->client = Client::query()->with('contacts', 'company', 'user')->withTrashed()->find($this->client_id);
+        }
 
         return $this->client;
     }
@@ -147,7 +151,7 @@ class PreviewInvoiceRequest extends Request
     {
         $entity = false;
 
-        match($this->entity){
+        match($this->entity) {
             'invoice' => $entity = Invoice::factory()->make(['client_id' => $client->id,'user_id' => $client->user_id, 'company_id' => $client->company_id]),
             'quote' => $entity = Quote::factory()->make(['client_id' => $client->id,'user_id' => $client->user_id, 'company_id' => $client->company_id]),
             'credit' => $entity = Credit::factory()->make(['client_id' => $client->id,'user_id' => $client->user_id, 'company_id' => $client->company_id]),

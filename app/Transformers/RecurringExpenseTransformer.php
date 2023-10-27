@@ -12,12 +12,12 @@
 namespace App\Transformers;
 
 use App\Models\Client;
-use App\Models\Vendor;
 use App\Models\Document;
-use App\Utils\Traits\MakesHash;
 use App\Models\RecurringExpense;
-use League\Fractal\Resource\Item;
+use App\Models\Vendor;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use League\Fractal\Resource\Item;
 
 /**
  * class RecurringExpenseTransformer.

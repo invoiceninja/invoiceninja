@@ -17,7 +17,7 @@ use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Database\QueryException;
 
 /**
- * TaskRepository.
+ * App\Repositories\TaskRepository.
  */
 class TaskRepository extends BaseRepository
 {
@@ -140,7 +140,7 @@ class TaskRepository extends BaseRepository
     private function harvestStartDate($time_log, $task)
     {
         
-        if(isset($time_log[0][0])){
+        if(isset($time_log[0][0])) {
             return \Carbon\Carbon::createFromTimestamp($time_log[0][0])->addSeconds($task->company->utc_offset());
         }
 

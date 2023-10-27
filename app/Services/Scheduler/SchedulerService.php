@@ -12,9 +12,8 @@
 namespace App\Services\Scheduler;
 
 use App\Models\Scheduler;
-use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesDates;
-use App\Services\Scheduler\EmailReport;
+use App\Utils\Traits\MakesHash;
 
 class SchedulerService
 {

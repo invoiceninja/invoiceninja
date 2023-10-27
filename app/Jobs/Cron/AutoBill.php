@@ -11,14 +11,14 @@
 
 namespace App\Jobs\Cron;
 
-use App\Models\Invoice;
-use App\Libraries\MultiDB;
-use Illuminate\Bus\Queueable;
 use App\Jobs\Entity\EmailEntity;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Libraries\MultiDB;
+use App\Models\Invoice;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class AutoBill implements ShouldQueue
 {
@@ -60,8 +60,7 @@ class AutoBill implements ShouldQueue
         } catch (\Exception $e) {
             nlog("Failed to capture payment for {$this->invoice_id} ->".$e->getMessage());
 
-            if($this->send_email_on_failure && $invoice)
-            {
+            if($this->send_email_on_failure && $invoice) {
 
                 $invoice->invitations->each(function ($invitation) use ($invoice) {
                     if ($invitation->contact && ! $invitation->contact->trashed() && strlen($invitation->contact->email) >= 1 && $invoice->client->getSetting('auto_email_invoice')) {

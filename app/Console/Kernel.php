@@ -11,29 +11,29 @@
 
 namespace App\Console;
 
-use App\Utils\Ninja;
-use App\Models\Account;
-use App\Jobs\Ninja\QueueSize;
-use App\Jobs\Util\DiskCleanup;
-use App\Jobs\Util\ReminderJob;
 use App\Jobs\Cron\AutoBillCron;
-use App\Jobs\Util\VersionCheck;
-use App\Jobs\Ninja\TaskScheduler;
-use App\Jobs\Util\SchedulerCheck;
-use App\Jobs\Ninja\CheckACHStatus;
-use App\Jobs\Cron\SubscriptionCron;
-use App\Jobs\Ninja\AdjustEmailQuota;
-use App\Jobs\Ninja\CompanySizeCheck;
-use App\Jobs\Ninja\SystemMaintenance;
-use App\Jobs\Quote\QuoteCheckExpired;
-use App\Jobs\Util\UpdateExchangeRates;
-use App\Jobs\Ninja\BankTransactionSync;
 use App\Jobs\Cron\RecurringExpensesCron;
 use App\Jobs\Cron\RecurringInvoicesCron;
+use App\Jobs\Cron\SubscriptionCron;
 use App\Jobs\Cron\UpdateCalculatedFields;
-use Illuminate\Console\Scheduling\Schedule;
 use App\Jobs\Invoice\InvoiceCheckLateWebhook;
+use App\Jobs\Ninja\AdjustEmailQuota;
+use App\Jobs\Ninja\BankTransactionSync;
+use App\Jobs\Ninja\CheckACHStatus;
+use App\Jobs\Ninja\CompanySizeCheck;
+use App\Jobs\Ninja\QueueSize;
+use App\Jobs\Ninja\SystemMaintenance;
+use App\Jobs\Ninja\TaskScheduler;
+use App\Jobs\Quote\QuoteCheckExpired;
 use App\Jobs\Subscription\CleanStaleInvoiceOrder;
+use App\Jobs\Util\DiskCleanup;
+use App\Jobs\Util\ReminderJob;
+use App\Jobs\Util\SchedulerCheck;
+use App\Jobs\Util\UpdateExchangeRates;
+use App\Jobs\Util\VersionCheck;
+use App\Models\Account;
+use App\Utils\Ninja;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel

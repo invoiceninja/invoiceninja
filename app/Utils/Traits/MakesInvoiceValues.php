@@ -578,7 +578,7 @@ html {
         ';
 
         $css .= 'font-size:'.$settings->font_size.'px;';
-//        $css .= 'font-size:14px;';
+        //        $css .= 'font-size:14px;';
 
         $css .= '}';
 

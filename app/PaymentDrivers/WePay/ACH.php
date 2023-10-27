@@ -113,7 +113,7 @@ class ACH
     }
 
     /* If the bank transfer token is PENDING - we need to verify!! */
-//
+    //
 
     public function verificationView(ClientGatewayToken $token)
     {

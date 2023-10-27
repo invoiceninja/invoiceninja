@@ -11,16 +11,16 @@
 
 namespace App\Jobs\Cron;
 
-use App\Utils\Ninja;
+use App\Events\Expense\ExpenseWasCreated;
+use App\Factory\RecurringExpenseToExpenseFactory;
 use App\Libraries\MultiDB;
-use Illuminate\Support\Carbon;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
-use Illuminate\Support\Facades\Auth;
+use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
-use App\Events\Expense\ExpenseWasCreated;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\Factory\RecurringExpenseToExpenseFactory;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class RecurringExpensesCron
 {
@@ -105,8 +105,9 @@ class RecurringExpensesCron
         $expense = RecurringExpenseToExpenseFactory::create($recurring_expense);
         $expense->saveQuietly();
 
-        if($expense->company->mark_expenses_paid)
+        if($expense->company->mark_expenses_paid) {
             $expense->payment_date = now()->format('Y-m-d');
+        }
             
         $expense->number = $this->getNextExpenseNumber($expense);
         $expense->saveQuietly();

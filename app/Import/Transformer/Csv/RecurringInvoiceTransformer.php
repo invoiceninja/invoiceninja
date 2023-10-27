@@ -11,10 +11,10 @@
 
 namespace App\Import\Transformer\Csv;
 
-use App\Models\Invoice;
 use App\Import\ImportException;
-use App\Models\RecurringInvoice;
 use App\Import\Transformer\BaseTransformer;
+use App\Models\Invoice;
+use App\Models\RecurringInvoice;
 
 /**
  * Class RecurringInvoiceTransformer.
@@ -134,10 +134,12 @@ class RecurringInvoiceTransformer extends BaseTransformer
             //     ] ?? Invoice::STATUS_SENT,
             'auto_bill' => $this->getAutoBillFlag(
                 $this->getString($invoice_data, 'invoice.auto_bill')
-            ), 
-            'frequency_id' => $this->getFrequency(isset($invoice_data['invoice.frequency_id']) ? $invoice_data['invoice.frequency_id'] : 'monthly'
             ),
-            'remaining_cycles' => $this->getRemainingCycles(isset($invoice_data['invoice.remaining_cycles']) ? $invoice_data['invoice.remaining_cycles'] : -1
+            'frequency_id' => $this->getFrequency(
+                isset($invoice_data['invoice.frequency_id']) ? $invoice_data['invoice.frequency_id'] : 'monthly'
+            ),
+            'remaining_cycles' => $this->getRemainingCycles(
+                isset($invoice_data['invoice.remaining_cycles']) ? $invoice_data['invoice.remaining_cycles'] : -1
             ),
             // 'archived' => $status === 'archived',
         ];

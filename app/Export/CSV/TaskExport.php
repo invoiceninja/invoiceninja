@@ -101,17 +101,16 @@ class TaskExport extends BaseExport
 
         $headerdisplay = $this->buildHeader();
 
-        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
-                return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
-            })->toArray();
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
+            return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
+        })->toArray();
 
         $query->cursor()
                 ->each(function ($resource) {
         
                     $this->buildRow($resource);
         
-                    foreach($this->storage_array as $row)
-                    {
+                    foreach($this->storage_array as $row) {
                         $this->storage_item_array[] = $this->processMetaData($row, $resource);
                     }
 

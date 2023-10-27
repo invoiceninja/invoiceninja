@@ -11,36 +11,36 @@
 
 namespace App\Http\Controllers;
 
-use App\Utils\Ninja;
-use App\Models\Client;
-use App\Models\Account;
-use App\Models\Company;
-use App\Models\SystemLog;
-use Postmark\PostmarkClient;
-use Illuminate\Http\Response;
-use App\Factory\ClientFactory;
-use App\Filters\ClientFilters;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\Uploadable;
-use App\Utils\Traits\BulkOptions;
-use App\Jobs\Client\UpdateTaxData;
-use App\Utils\Traits\SavesDocuments;
-use App\Repositories\ClientRepository;
 use App\Events\Client\ClientWasCreated;
 use App\Events\Client\ClientWasUpdated;
-use App\Transformers\ClientTransformer;
-use Illuminate\Support\Facades\Storage;
+use App\Factory\ClientFactory;
+use App\Filters\ClientFilters;
 use App\Http\Requests\Client\BulkClientRequest;
-use App\Http\Requests\Client\EditClientRequest;
-use App\Http\Requests\Client\ShowClientRequest;
-use App\Http\Requests\Client\PurgeClientRequest;
-use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\CreateClientRequest;
+use App\Http\Requests\Client\DestroyClientRequest;
+use App\Http\Requests\Client\EditClientRequest;
+use App\Http\Requests\Client\PurgeClientRequest;
+use App\Http\Requests\Client\ReactivateClientEmailRequest;
+use App\Http\Requests\Client\ShowClientRequest;
+use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Http\Requests\Client\UploadClientRequest;
-use App\Http\Requests\Client\DestroyClientRequest;
-use App\Http\Requests\Client\ReactivateClientEmailRequest;
+use App\Jobs\Client\UpdateTaxData;
 use App\Jobs\PostMark\ProcessPostmarkWebhook;
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\Company;
+use App\Models\SystemLog;
+use App\Repositories\ClientRepository;
+use App\Transformers\ClientTransformer;
+use App\Utils\Ninja;
+use App\Utils\Traits\BulkOptions;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
+use App\Utils\Traits\Uploadable;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
+use Postmark\PostmarkClient;
 
 /**
  * Class ClientController.
@@ -74,10 +74,10 @@ class ClientController extends BaseController
     }
 
     /**
-     * 
+     *
      * @param ClientFilters $filters
      * @return Response
-     * 
+     *
      */
     public function index(ClientFilters $filters)
     {
@@ -275,15 +275,15 @@ class ClientController extends BaseController
         //todo add an event here using the client name as reference for purge event
     }
 
-/**
-     * Update the specified resource in storage.
-     *
-     * @param PurgeClientRequest $request
-     * @param Client $client
-     * @param string $mergeable_client
-     * @return \Illuminate\Http\JsonResponse
-     *
-     */
+    /**
+         * Update the specified resource in storage.
+         *
+         * @param PurgeClientRequest $request
+         * @param Client $client
+         * @param string $mergeable_client
+         * @return \Illuminate\Http\JsonResponse
+         *
+         */
 
     public function merge(PurgeClientRequest $request, Client $client, string $mergeable_client)
     {
@@ -313,8 +313,9 @@ class ClientController extends BaseController
      */
     public function updateTaxData(PurgeClientRequest $request, Client $client)
     {
-        if($client->company->account->isPaid())
+        if($client->company->account->isPaid()) {
             (new UpdateTaxData($client, $client->company))->handle();
+        }
         
         return $this->itemResponse($client->fresh());
     }
@@ -331,8 +332,8 @@ class ClientController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        if(stripos($bounce_id, '-') !== false){
-            $log = 
+        if(stripos($bounce_id, '-') !== false) {
+            $log =
                 SystemLog::query()
                 ->where('company_id', $user->company()->id)
                 ->where('type_id', SystemLog::TYPE_WEBHOOK_RESPONSE)
@@ -343,16 +344,16 @@ class ClientController extends BaseController
 
             $resolved_bounce_id = false;
 
-            if($log && ($log?->log['ID'] ?? false)){
+            if($log && ($log?->log['ID'] ?? false)) {
                 $resolved_bounce_id = $log->log['ID'] ?? false;
             }
 
-            if(!$resolved_bounce_id){
+            if(!$resolved_bounce_id) {
                 $ppwebhook = new ProcessPostmarkWebhook([]);
                 $resolved_bounce_id = $ppwebhook->getBounceId($bounce_id);
             }
 
-            if(!$resolved_bounce_id){
+            if(!$resolved_bounce_id) {
                 return response()->json(['message' => 'Bounce ID not found'], 400);
             }
 
@@ -367,8 +368,7 @@ class ClientController extends BaseController
         
             return response()->json(['message' => 'Success'], 200);
 
-        }
-        catch(\Exception $e){
+        } catch(\Exception $e) {
 
             return response()->json(['message' => $e->getMessage(), 400]);
 

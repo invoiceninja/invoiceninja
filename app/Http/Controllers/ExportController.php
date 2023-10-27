@@ -11,12 +11,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Str;
-use Illuminate\Http\Response;
-use App\Utils\Traits\MakesHash;
-use App\Jobs\Company\CompanyExport;
-use Illuminate\Support\Facades\Cache;
 use App\Http\Requests\Export\StoreExportRequest;
+use App\Jobs\Company\CompanyExport;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class ExportController extends BaseController
 {

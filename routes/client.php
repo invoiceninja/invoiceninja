@@ -31,10 +31,7 @@ Route::post('client/password/email', [ContactForgotPasswordController::class, 's
 Route::get('client/password/reset/{token}', [ContactResetPasswordController::class, 'showResetForm'])->name('client.password.reset')->middleware(['domain_db', 'contact_account','locale', 'throttle:portal']);
 Route::post('client/password/reset', [ContactResetPasswordController::class, 'reset'])->name('client.password.update')->middleware(['domain_db', 'contact_account','locale', 'throttle:portal']);
 
-Route::get('view/{entity_type}/{invitation_key}', [App\Http\Controllers\ClientPortal\EntityViewController::class, 'index'])->name('client.entity_view');
-Route::get('view/{entity_type}/{invitation_key}/password', [App\Http\Controllers\ClientPortal\EntityViewController::class ,'password'])->name('client.entity_view.password');
-Route::post('view/{entity_type}/{invitation_key}/password', [App\Http\Controllers\ClientPortal\EntityViewController::class, 'handlePassword']);
-Route::post('set_password', [App\Http\Controllers\ClientPortal\EntityViewController::class, 'handlePasswordSet'])->name('client.set_password')->middleware('domain_db');
+Route::post('set_password', [App\Http\Controllers\ClientPortal\InvitationController::class, 'handlePasswordSet'])->name('client.set_password')->middleware('domain_db');
 
 Route::get('tmp_pdf/{hash}', [App\Http\Controllers\ClientPortal\TempRouteController::class, 'index'])->name('tmp_pdf');
 
@@ -141,6 +138,7 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'clie
 });
 
 Route::get('phantom/{entity}/{invitation_key}', [Phantom::class, 'displayInvitation'])->middleware(['invite_db', 'phantom_secret'])->name('phantom_view');
+Route::get('blade/', [Phantom::class, 'blade'])->name('blade');
 
 Route::get('.env', function () {
 })->middleware('throttle:honeypot');

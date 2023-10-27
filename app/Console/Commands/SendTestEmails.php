@@ -11,17 +11,10 @@
 
 namespace App\Console\Commands;
 
-use Faker\Factory;
-use App\Models\User;
-use App\Models\Account;
-use App\Models\Company;
-use App\Mail\TestMailServer;
-use Illuminate\Console\Command;
-use App\Jobs\Mail\NinjaMailerJob;
-use App\DataMapper\CompanySettings;
-use App\DataMapper\DefaultSettings;
 use App\Jobs\Mail\NinjaMailerObject;
-use App\Mail\Migration\MaxCompanies;
+use App\Mail\TestMailServer;
+use App\Models\User;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 
 class SendTestEmails extends Command

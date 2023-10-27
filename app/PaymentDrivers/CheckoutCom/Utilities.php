@@ -12,13 +12,12 @@
 
 namespace App\PaymentDrivers\CheckoutCom;
 
-use stdClass;
-use Exception;
-use App\Models\SystemLog;
-use App\Models\GatewayType;
-use App\Jobs\Util\SystemLogger;
 use App\Exceptions\PaymentFailed;
-use Checkout\Payments\PaymentType;
+use App\Jobs\Util\SystemLogger;
+use App\Models\GatewayType;
+use App\Models\SystemLog;
+use Exception;
+use stdClass;
 
 trait Utilities
 {

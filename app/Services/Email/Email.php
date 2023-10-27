@@ -75,7 +75,6 @@ class Email implements ShouldQueue
      */
     public function backoff()
     {
-        // return [10, 30, 60, 240];
         return [rand(10, 20), rand(30, 45), rand(60, 79), rand(160, 400)];
     }
 
@@ -157,7 +156,7 @@ class Email implements ShouldQueue
     
     /**
      * Generates the correct set of variables
-     *
+     * @todo handle payment engine here also
      * @return self
      */
     private function resolveVariables(): self
@@ -323,13 +322,13 @@ class Email implements ShouldQueue
         $this->cleanUpMailers();
     }
 
-   /**
-     * On the hosted platform we scan all outbound email for
-     * spam. This sequence processes the filters we use on all
-     * emails.
-     *
-     * @return bool
-     */
+    /**
+      * On the hosted platform we scan all outbound email for
+      * spam. This sequence processes the filters we use on all
+      * emails.
+      *
+      * @return bool
+      */
     public function preFlightChecksFail(): bool
     {
         /* Always send if disabled */
@@ -427,7 +426,7 @@ class Email implements ShouldQueue
         return false;
     }
 
-        /**
+    /**
      * Sets the mail driver to use and applies any specific configuration
      * the the mailable
      */
@@ -467,7 +466,7 @@ class Email implements ShouldQueue
         return $this;
     }
 
-        /**
+    /**
      * Allows configuration of multiple mailers
      * per company for use by self hosted users
      */

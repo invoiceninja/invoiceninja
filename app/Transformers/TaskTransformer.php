@@ -11,13 +11,13 @@
 
 namespace App\Transformers;
 
-use App\Models\Task;
-use App\Models\User;
 use App\Models\Client;
+use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\Project;
-use App\Models\Document;
+use App\Models\Task;
 use App\Models\TaskStatus;
+use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use League\Fractal\Resource\Item;
 
@@ -55,7 +55,7 @@ class TaskTransformer extends EntityTransformer
     {
         $transformer = new InvoiceTransformer($this->serializer);
 
-        if (!$task->user) {
+        if (!$task->invoice) {
             return null;
         }
 

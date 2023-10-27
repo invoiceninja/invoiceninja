@@ -15,13 +15,12 @@ use App\Events\Payment\PaymentWasRefunded;
 use App\Events\Payment\PaymentWasVoided;
 use App\Services\Ledger\LedgerService;
 use App\Services\Payment\PaymentService;
-use App\Utils\Ninja; 
+use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\Traits\Inviteable;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Payment\Refundable;
-use Awobaz\Compoships\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -30,6 +29,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $id
  * @property int $company_id
  * @property int $client_id
+ * @property int $category_id
  * @property int|null $project_id
  * @property int|null $vendor_id
  * @property int|null $user_id
@@ -58,6 +58,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $exchange_currency_id
  * @property \App\Models\Paymentable $paymentable
  * @property object|null $meta
+ * @property object|null $refund_meta
  * @property string|null $custom_value1
  * @property string|null $custom_value2
  * @property string|null $custom_value3
@@ -151,12 +152,12 @@ class Payment extends BaseModel
         'number',
         'exchange_currency_id',
         'exchange_rate',
-        // 'is_manual',
         'private_notes',
         'custom_value1',
         'custom_value2',
         'custom_value3',
         'custom_value4',
+        'category_id',
     ];
 
     protected $casts = [
@@ -167,6 +168,7 @@ class Payment extends BaseModel
         'deleted_at' => 'timestamp',
         'is_deleted' => 'bool',
         'meta' => 'object',
+        'refund_meta' => 'array',
     ];
 
     protected $with = [
@@ -454,11 +456,6 @@ class Payment extends BaseModel
 
     public function getLink() :string
     {
-        // if (Ninja::isHosted()) {
-        //     $domain = isset($this->company->portal_domain) ? $this->company->portal_domain : $this->company->domain();
-        // } else {
-        //     $domain = config('ninja.app_url');
-        // }
 
         if (Ninja::isHosted()) {
             $domain = $this->company->domain();
@@ -494,4 +491,11 @@ class Payment extends BaseModel
         return $use_react_url ? config('ninja.react_url')."/#/payments/{$this->hashed_id}/edit" : config('ninja.app_url');
     }
 
+    public function setRefundMeta(array $data)
+    {
+        $tmp_meta = $this->refund_meta ?? [];
+        $tmp_meta[] = $data;
+        
+        $this->refund_meta = $tmp_meta;
+    }
 }

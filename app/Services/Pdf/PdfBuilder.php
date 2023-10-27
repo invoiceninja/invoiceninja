@@ -13,6 +13,7 @@ namespace App\Services\Pdf;
 
 use App\Models\Credit;
 use App\Models\Quote;
+use App\Services\Template\TemplateService;
 use App\Utils\Helpers;
 use App\Utils\Traits\MakesDates;
 use DOMDocument;
@@ -67,17 +68,18 @@ class PdfBuilder
              ->buildSections()
              ->getEmptyElements()
              ->updateElementProperties()
+             ->parseTwigElements()
              ->updateVariables();
 
         return $this;
     }
 
-     /**
-     * Final method to get compiled HTML.
-     *
-     * @param bool $final @deprecated // is it? i still see it being called elsewhere
-     * @return string
-     */
+    /**
+    * Final method to get compiled HTML.
+    *
+    * @param bool $final @deprecated // is it? i still see it being called elsewhere
+    * @return string
+    */
     public function getCompiledHTML($final = false)
     {
         $html = $this->document->saveHTML();
@@ -102,6 +104,40 @@ class PdfBuilder
         $this->document = $document;
 
         return $this;
+    }
+
+    private function parseTwigElements()
+    {
+
+        $replacements = [];
+        $contents = $this->document->getElementsByTagName('ninja');
+                
+        $template_service = new TemplateService();
+        $data = $template_service->processData($this->service->options)->getData();
+
+        $twig = $template_service->twig;
+
+        foreach ($contents as $content) {
+                    
+            $template = $content->ownerDocument->saveHTML($content);
+
+            $template = $twig->createTemplate(html_entity_decode($template));
+            $template = $template->render($data);
+
+            $f = $this->document->createDocumentFragment();
+            $f->appendXML($template);
+            $replacements[] = $f;
+
+        }
+
+        foreach($contents as $key => $content) {
+            $content->parentNode->replaceChild($replacements[$key], $content);
+        }
+
+        $contents = null;
+
+        return $this;
+
     }
 
     public function setDocument($document): self
@@ -728,13 +764,13 @@ class PdfBuilder
         return $data;
     }
 
-     /**
-     * Generate the structure of table headers. (<thead/>)
-     *
-     * @param string $type "product" or "task"
-     * @return array
-     *
-     */
+    /**
+    * Generate the structure of table headers. (<thead/>)
+    *
+    * @param string $type "product" or "task"
+    * @return array
+    *
+    */
     public function buildTableHeader(string $type): array
     {
         $this->processTaxColumns($type);
@@ -891,7 +927,7 @@ class PdfBuilder
      */
     private function getProductEntityDetails(): self
     {
-        if ($this->service->config->entity_string == 'invoice') {
+        if (in_array($this->service->config->entity_string, ['recurring_invoice', 'invoice'])) {
             $this->mergeSections([
                 'entity-details' => [
                     'id' => 'entity-details',
@@ -1091,7 +1127,8 @@ class PdfBuilder
             } elseif (Str::startsWith($variable, '$custom_surcharge')) {
                 $_variable = ltrim($variable, '$'); // $custom_surcharge1 -> custom_surcharge1
 
-                $visible = intval($this->service->config->entity->{$_variable}) != 0;
+                // $visible = intval($this->service->config->entity->{$_variable}) != 0;
+                $visible = intval(str_replace(['0','.'], '', $this->service->config->entity->{$_variable})) != 0;
 
                 $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
                     ['element' => 'span', 'content' => $variable . '_label', 'properties' => ['hidden' => !$visible, 'data-ref' => 'totals_table-' . substr($variable, 1) . '-label']],
@@ -1317,7 +1354,6 @@ class PdfBuilder
     public function genericDetailsBuilder(array $variables): array
     {
         $elements = [];
-
 
         foreach ($variables as $variable) {
             $_variable = explode('.', $variable)[1];

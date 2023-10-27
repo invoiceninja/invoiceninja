@@ -11,25 +11,23 @@
 
 namespace App\Providers;
 
-use App\Utils\Ninja;
-use Livewire\Livewire;
+use App\Helpers\Mail\GmailTransport;
+use App\Helpers\Mail\Office365MailTransport;
+use App\Http\Middleware\SetDomainNameDb;
 use App\Models\Invoice;
 use App\Models\Proposal;
+use App\Utils\Ninja;
 use App\Utils\TruthSource;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Mail\Mailer;
+use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\App;
-use App\Helpers\Mail\GmailTransport;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\ServiceProvider;
-use App\Http\Middleware\SetDomainNameDb;
-use Illuminate\Queue\Events\JobProcessing;
-use App\Helpers\Mail\Office365MailTransport;
-use Illuminate\Support\Facades\ParallelTesting;
-use Illuminate\Database\Eloquent\Relations\Relation;
+use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -105,7 +103,7 @@ class AppServiceProvider extends ServiceProvider
     
         Mailer::macro('mailgun_config', function (string $secret, string $domain, string $endpoint = 'api.mailgun.net') {
             // @phpstan-ignore /** @phpstan-ignore-next-line **/
-            Mailer::setSymfonyTransport(app('mail.manager')->createSymfonyTransport([ 
+            Mailer::setSymfonyTransport(app('mail.manager')->createSymfonyTransport([
                 'transport' => 'mailgun',
                 'secret' => $secret,
                 'domain' => $domain,

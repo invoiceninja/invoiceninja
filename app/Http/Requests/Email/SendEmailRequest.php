@@ -108,8 +108,7 @@ class SendEmailRequest extends Request
             if ($entity_obj && ($company->id == $entity_obj->company_id) && $user->can('edit', $entity_obj)) {
                 return true;
             }
-        }
-        else {
+        } else {
             $this->error_message = "Invalid entity or entity_id";
         }
 
