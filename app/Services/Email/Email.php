@@ -156,7 +156,7 @@ class Email implements ShouldQueue
     
     /**
      * Generates the correct set of variables
-     *
+     * @todo handle payment engine here also
      * @return self
      */
     private function resolveVariables(): self

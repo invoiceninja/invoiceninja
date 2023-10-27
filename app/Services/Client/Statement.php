@@ -46,6 +46,8 @@ class Statement
 
     protected bool $rollback = false;
 
+    private array $variables = [];
+
     public function __construct(protected Client $client, public array $options)
     {
     }
@@ -108,8 +110,6 @@ class Statement
             'process_markdown' => $this->entity->client->company->markdown_enabled,
         ];
 
-        
-
         $maker = new PdfMaker($state);
 
         $maker
@@ -118,7 +118,6 @@ class Statement
 
         $pdf = null;
         $html = $maker->getCompiledHTML(true);
-    
 
         if ($this->rollback) {
             \DB::connection(config('database.default'))->rollBack();
@@ -126,10 +125,24 @@ class Statement
 
         $pdf = $this->convertToPdf($html);
 
+        $this->setVariables($variables);
+        
         $maker = null;
         $state = null;
 
         return $pdf;
+    }
+
+    public function setVariables($variables): self
+    {
+        $this->variables = $variables;
+
+        return $this;
+    }
+
+    public function getVariables(): array
+    {
+        return $this->variables;
     }
 
     private function templateStatement($variables)

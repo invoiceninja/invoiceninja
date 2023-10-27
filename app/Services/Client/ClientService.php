@@ -11,15 +11,16 @@
 
 namespace App\Services\Client;
 
+use App\Utils\Number;
 use App\Models\Client;
 use App\Models\Credit;
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\Email\Email;
-use App\Services\Email\EmailObject;
-use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
-use Illuminate\Mail\Mailables\Address;
 use Illuminate\Support\Facades\DB;
+use App\Services\Email\EmailObject;
+use Illuminate\Mail\Mailables\Address;
 
 class ClientService
 {
@@ -42,16 +43,12 @@ class ClientService
                 $this->client->saveQuietly();
             }, 2);
         } catch (\Throwable $throwable) {
-            nlog("DB ERROR " . $throwable->getMessage());
-            DB::connection(config('database.default'))->rollBack();
 
             if (DB::connection(config('database.default'))->transactionLevel() > 0) {
                 DB::connection(config('database.default'))->rollBack();
             }
 
         } catch(\Exception $exception) {
-            nlog("DB ERROR " . $exception->getMessage());
-            DB::connection(config('database.default'))->rollBack();
 
             if (DB::connection(config('database.default'))->transactionLevel() > 0) {
                 DB::connection(config('database.default'))->rollBack();
@@ -240,8 +237,13 @@ class ClientService
         
         }
 
+        $invoice = $this->client->invoices()->whereHas('invitations')->first();
+
         $email_object->attachments = [['file' => base64_encode($pdf), 'name' => ctrans('texts.statement') . ".pdf"]];
         $email_object->client_id = $this->client->id;
+        $email_object->entity_class = Invoice::class;
+        $email_object->entity_id = $invoice->id ?? null;
+        $email_object->invitation_id = $invoice->invitations->first()->id ?? null;
         $email_object->email_template_subject = 'email_subject_statement';
         $email_object->email_template_body = 'email_template_statement';
         $email_object->variables = [
