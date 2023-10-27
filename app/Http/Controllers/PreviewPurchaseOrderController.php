@@ -171,21 +171,26 @@ class PreviewPurchaseOrderController extends BaseController
 
     public function live(PreviewPurchaseOrderRequest $request)
     {
+
+        $start = microtime(true);
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
         $invitation = $request->resolveInvitation();
         $vendor = $request->getVendor();
         $settings = $user->company()->settings;
-
-        /** Set translations */
-        App::forgetInstance('translator');
-        $t = app('translator');
-        App::setLocale($invitation->contact->preferredLocale());
-        $t->replace(Ninja::transformTranslations($settings));
-
         $entity_obj = $invitation->purchase_order;
         $entity_obj->fill($request->all());
+
+        if(!$entity_obj->id) {
+            $entity_obj->design_id = intval($this->decodePrimaryKey($settings->{"purchase_order_design_id"}));
+            $entity_obj->footer = empty($entity_obj->footer) ? $settings->{"purchase_order_footer"} : $entity_obj->footer;
+            $entity_obj->terms = empty($entity_obj->terms) ? $settings->{"purchase_order_terms"} : $entity_obj->terms;
+            $entity_obj->public_notes = empty($entity_obj->public_notes) ? $request->getVendor()->public_notes : $entity_obj->public_notes;
+            $invitation->setRelation($request->entity, $entity_obj);
+
+        }
 
         $ps = new PdfService($invitation, 'purchase_order', [
             'client' => $entity_obj->client ?? false,
@@ -194,7 +199,23 @@ class PreviewPurchaseOrderController extends BaseController
         ]);
 
         $pdf = $ps->boot()->getPdf();
-        return $pdf;
+
+        if (Ninja::isHosted()) {
+            LightLogs::create(new LivePreview())
+                        ->increment()
+                        ->batch();
+        }
+
+        /** Return PDF */
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf;
+        }, 'preview.pdf', [
+            'Content-Disposition' => 'inline',
+            'Content-Type' => 'application/pdf',
+            'Cache-Control:' => 'no-cache',
+            'Server-Timing' => microtime(true)-$start
+        ]);
+
 
     }
 

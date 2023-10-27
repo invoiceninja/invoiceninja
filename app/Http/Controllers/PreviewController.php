@@ -11,33 +11,34 @@
 
 namespace App\Http\Controllers;
 
-use App\DataMapper\Analytics\LivePreview;
-use App\Http\Requests\Preview\DesignPreviewRequest;
-use App\Http\Requests\Preview\PreviewInvoiceRequest;
-use App\Jobs\Util\PreviewPdf;
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Invoice;
-use App\Models\InvoiceInvitation;
-use App\Services\Pdf\PdfMock;
-use App\Services\PdfMaker\Design;
-use App\Services\PdfMaker\Design as PdfDesignModel;
-use App\Services\PdfMaker\Design as PdfMakerDesign;
-use App\Services\PdfMaker\PdfMaker;
-use App\Services\Template\TemplateService;
-use App\Utils\HostedPDF\NinjaPdf;
-use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
-use App\Utils\PhantomJS\Phantom;
+use App\Models\Client;
+use App\Models\Invoice;
+use App\Utils\HtmlEngine;
+use Twig\Error\SyntaxError;
+use App\Jobs\Util\PreviewPdf;
+use App\Models\ClientContact;
+use App\Services\Pdf\PdfMock;
 use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesInvoiceHtml;
-use App\Utils\Traits\Pdf\PageNumbering;
+use App\Services\Pdf\PdfService;
+use App\Utils\PhantomJS\Phantom;
+use App\Models\InvoiceInvitation;
+use App\Services\PdfMaker\Design;
+use App\Utils\HostedPDF\NinjaPdf;
+use Illuminate\Support\Facades\DB;
+use App\Services\PdfMaker\PdfMaker;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Response;
+use App\Utils\Traits\MakesInvoiceHtml;
 use Turbo124\Beacon\Facades\LightLogs;
-use Twig\Error\SyntaxError;
+use App\Utils\Traits\Pdf\PageNumbering;
+use Illuminate\Support\Facades\Response;
+use App\DataMapper\Analytics\LivePreview;
+use App\Services\Template\TemplateService;
+use App\Http\Requests\Preview\DesignPreviewRequest;
+use App\Services\PdfMaker\Design as PdfDesignModel;
+use App\Services\PdfMaker\Design as PdfMakerDesign;
+use App\Http\Requests\Preview\PreviewInvoiceRequest;
 
 class PreviewController extends BaseController
 {
@@ -49,12 +50,59 @@ class PreviewController extends BaseController
     {
         parent::__construct();
     }
-
-    private function purgeCache()
-    {
-        Cache::pull("preview_".auth()->user()->id);
-    }
     
+    public function live(PreviewInvoiceRequest $request): mixed
+    {
+
+        if (Ninja::isHosted() && !in_array($request->getHost(), ['preview.invoicing.co','staging.invoicing.co'])) {
+            return response()->json(['message' => 'This server cannot handle this request.'], 400);
+        }
+
+        $start = microtime(true);
+
+        /** Build models */
+        $invitation = $request->resolveInvitation();
+        $client = $request->getClient();
+        $settings = $client->getMergedSettings();
+        $entity_prop = str_replace("recurring_", "", $request->entity);
+        $entity_obj = $invitation->{$request->entity};
+        $entity_obj->fill($request->all());
+
+        if(!$entity_obj->id) {
+            $entity_obj->design_id = intval($this->decodePrimaryKey($settings->{$entity_prop."_design_id"}));
+            $entity_obj->footer = empty($entity_obj->footer) ? $settings->{$entity_prop."_footer"} : $entity_obj->footer;
+            $entity_obj->terms = empty($entity_obj->terms) ? $settings->{$entity_prop."_terms"} : $entity_obj->terms;
+            $entity_obj->public_notes = empty($entity_obj->public_notes) ? $request->getClient()->public_notes : $entity_obj->public_notes;
+            $invitation->setRelation($request->entity, $entity_obj);
+        }
+
+        $ps = new PdfService($invitation, 'product', [
+            'client' => $client ?? false,
+            // 'vendor' => $vendor ?? false,
+            "{$entity_prop}s" => [$entity_obj],
+        ]);
+
+        $pdf = $ps->boot()->getPdf();
+
+
+        if (Ninja::isHosted()) {
+            LightLogs::create(new LivePreview())
+                        ->increment()
+                        ->batch();
+        }
+
+        /** Return PDF */
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf;
+        }, 'preview.pdf', [
+            'Content-Disposition' => 'inline',
+            'Content-Type' => 'application/pdf',
+            'Cache-Control:' => 'no-cache',
+            'Server-Timing' => microtime(true)-$start
+        ]);
+
+    }
+
     /**
      * Refactor - 2023-10-19
      *
@@ -63,7 +111,7 @@ class PreviewController extends BaseController
      * @param  PreviewInvoiceRequest $request
      * @return mixed
      */
-    public function live(PreviewInvoiceRequest $request): mixed
+    public function livexx(PreviewInvoiceRequest $request): mixed
     {
 
         if (Ninja::isHosted() && !in_array($request->getHost(), ['preview.invoicing.co','staging.invoicing.co'])) {
