@@ -60,6 +60,7 @@ class TaskFilters extends QueryFilters
      * Statuses we need to handle
      * - all
      * - invoiced
+     * - uninvoiced
      *
      * @param string $value The invoice status as seen by the client
      * @return Builder
@@ -78,6 +79,10 @@ class TaskFilters extends QueryFilters
 
         if (in_array('invoiced', $status_parameters)) {
             $this->builder->whereNotNull('invoice_id');
+        }
+
+        if (in_array('uninvoiced', $status_parameters)) {
+            $this->builder->whereNull('invoice_id');
         }
 
         return $this->builder;
