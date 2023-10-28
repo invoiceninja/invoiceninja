@@ -353,7 +353,7 @@ class InvoiceItemSumInclusive
             if ($this->sub_total == 0) {
                 $amount = $this->item->line_total;
             } else {
-                $amount = ($this->sub_total > 0) ? $this->item->line_total - ($this->invoice->discount * ($this->item->line_total / $this->sub_total)) : 0;
+                $amount = $this->item->line_total - ($this->invoice->discount * ($this->item->line_total / $this->sub_total));
                 // $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / $this->sub_total));
             }
             
