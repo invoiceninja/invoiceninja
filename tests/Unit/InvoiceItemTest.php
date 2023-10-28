@@ -11,11 +11,13 @@
 
 namespace Tests\Unit;
 
+use Tests\TestCase;
+use Tests\MockAccountData;
+use App\DataMapper\InvoiceItem;
+use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Helpers\Invoice\InvoiceItemSum;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tests\MockAccountData;
-use Tests\TestCase;
 
 /**
  * @test
@@ -32,6 +34,154 @@ class InvoiceItemTest extends TestCase
 
         $this->makeTestData();
     }
+
+    public function testDicountsWithTaxes()
+    {
+        $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+        $invoice->client_id = $this->client->id;
+        $invoice->uses_inclusive_taxes = false;
+        $invoice->is_amount_discount =true;
+        $invoice->discount = 10;
+        
+        $line_items = [];
+              
+        $line_item = new InvoiceItem;
+        $line_item->quantity = 1;
+        $line_item->cost = 100;
+        $line_item->tax_rate1 = 10;
+        $line_item->tax_name1 = 'GST';
+        $line_item->product_key = 'Test';
+        $line_item->notes = 'Test';
+        $line_items[] = $line_item;
+
+        $invoice->line_items = $line_items;
+        $invoice->save();
+
+        $invoice = $invoice->calc()->getInvoice();
+
+        $this->assertEquals(99, $invoice->amount);
+        $this->assertEquals(9, $invoice->total_taxes);
+    }
+
+
+    public function testDicountsWithTaxesNegativeInvoice()
+    {
+        $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+        $invoice->client_id = $this->client->id;
+        $invoice->uses_inclusive_taxes = false;
+        $invoice->is_amount_discount =true;
+        $invoice->discount = -10;
+        
+        $line_items = [];
+              
+        $line_item = new InvoiceItem;
+        $line_item->quantity = -1;
+        $line_item->cost = 100;
+        $line_item->tax_rate1 = 10;
+        $line_item->tax_name1 = 'GST';
+        $line_item->product_key = 'Test';
+        $line_item->notes = 'Test';
+        $line_items[] = $line_item;
+
+        $invoice->line_items = $line_items;
+        $invoice->save();
+
+        $invoice = $invoice->calc()->getInvoice();
+
+        $this->assertEquals(-99, $invoice->amount);
+        $this->assertEquals(-9, $invoice->total_taxes);
+    }
+
+public function testDicountsWithTaxesPercentage()
+    {
+        $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+        $invoice->client_id = $this->client->id;
+        $invoice->uses_inclusive_taxes = false;
+        $invoice->is_amount_discount =false;
+        $invoice->discount = 10;
+        
+        $line_items = [];
+              
+        $line_item = new InvoiceItem;
+        $line_item->quantity = 1;
+        $line_item->cost = 100;
+        $line_item->tax_rate1 = 10;
+        $line_item->tax_name1 = 'GST';
+        $line_item->product_key = 'Test';
+        $line_item->notes = 'Test';
+        $line_items[] = $line_item;
+
+        $invoice->line_items = $line_items;
+        $invoice->save();
+
+        $invoice = $invoice->calc()->getInvoice();
+
+        $this->assertEquals(99, $invoice->amount);
+        $this->assertEquals(9, $invoice->total_taxes);
+    }
+
+
+    public function testDicountsWithTaxesNegativeInvoicePercentage()
+    {
+        $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+        $invoice->client_id = $this->client->id;
+        $invoice->uses_inclusive_taxes = false;
+        $invoice->is_amount_discount =false;
+        $invoice->discount = -10;
+        
+        $line_items = [];
+              
+        $line_item = new InvoiceItem;
+        $line_item->quantity = -1;
+        $line_item->cost = 100;
+        $line_item->tax_rate1 = 10;
+        $line_item->tax_name1 = 'GST';
+        $line_item->product_key = 'Test';
+        $line_item->notes = 'Test';
+        $line_items[] = $line_item;
+
+        $invoice->line_items = $line_items;
+        $invoice->save();
+
+        $invoice = $invoice->calc()->getInvoice();
+
+        $this->assertEquals(-121, $invoice->amount);
+        $this->assertEquals(-10, $invoice->discount);
+        $this->assertEquals(-11, $invoice->total_taxes);
+    }
+
+
+
+    public function testDicountPercentageWithTaxes()
+    {
+        $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+        $invoice->client_id = $this->client->id;
+        $invoice->uses_inclusive_taxes = false;
+        $invoice->is_amount_discount =true;
+        $invoice->discount = 10;
+        
+        $line_items = [];
+              
+        $line_item = new InvoiceItem;
+        $line_item->quantity = 1;
+        $line_item->cost = 100;
+        $line_item->tax_rate1 = 10;
+        $line_item->tax_name1 = 'GST';
+        $line_item->product_key = 'Test';
+        $line_item->notes = 'Test';
+        $line_items[] = $line_item;
+
+        $invoice->line_items = $line_items;
+        $invoice->save();
+
+        $invoice = $invoice->calc()->getInvoice();
+
+        $this->assertEquals(99, $invoice->amount);
+        $this->assertEquals(9, $invoice->total_taxes);
+    }
+
+
+
 
     public function testInvoiceItemTotalSimple()
     {
