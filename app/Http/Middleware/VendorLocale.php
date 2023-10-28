@@ -32,7 +32,7 @@ class VendorLocale
         }
 
         /*LOCALE SET */
-        if ($request->has('lang')) {
+        if ($request->has('lang') && is_string($request->input('lang'))) {
             $locale = $request->input('lang');
             App::setLocale($locale);
         } elseif (auth()->guard('vendor')->user()) {

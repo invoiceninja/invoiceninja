@@ -11,13 +11,14 @@
 
 namespace App\Http\Controllers\Reports;
 
+use App\Models\Client;
+use Illuminate\Http\Response;
+use App\Utils\Traits\MakesHash;
+use App\Jobs\Report\SendToAdmin;
+use App\Jobs\Report\PreviewReport;
+use App\Services\Report\ProfitLoss;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Report\ProfitLossRequest;
-use App\Jobs\Report\SendToAdmin;
-use App\Models\Client;
-use App\Services\Report\ProfitLoss;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Response;
 
 class ProfitAndLossController extends BaseController
 {
@@ -71,18 +72,13 @@ class ProfitAndLossController extends BaseController
 
             return response()->json(['message' => 'working...'], 200);
         }
-        // expect a list of visible fields, or use the default
 
-        $pnl = new ProfitLoss($user->company(), $request->all());
-        $csv = $pnl->run();
+        $hash = \Illuminate\Support\Str::uuid();
 
-        $headers = [
-            'Content-Disposition' => 'attachment',
-            'Content-Type' => 'text/csv',
-        ];
+        PreviewReport::dispatch($user->company(), $request->all(), ProfitLoss::class, $hash);
 
-        return response()->streamDownload(function () use ($csv) {
-            echo $csv;
-        }, $this->filename, $headers);
+        return response()->json(['message' => $hash], 200);
+
+
     }
 }

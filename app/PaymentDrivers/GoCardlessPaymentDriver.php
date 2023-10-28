@@ -144,11 +144,18 @@ class GoCardlessPaymentDriver extends BaseDriver
 
         $this->init();
 
+        if ($payment_hash->fee_invoice) {
+            $description = "Invoice {$payment_hash->fee_invoice->number} for {$amount} for client {$this->client->present()->name()}";
+        } else {
+            $description = "Amount {$amount} from client {$this->client->present()->name()}";
+        }
+
         try {
             $payment = $this->gateway->payments()->create([
                 'params' => [
                     'amount' => $converted_amount,
                     'currency' => $this->client->getCurrencyCode(),
+                    'description' => $description,
                     'metadata' => [
                         'payment_hash' => $this->payment_hash->hash,
                     ],

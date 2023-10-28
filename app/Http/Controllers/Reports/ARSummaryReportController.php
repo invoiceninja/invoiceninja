@@ -11,11 +11,12 @@
 
 namespace App\Http\Controllers\Reports;
 
-use App\Http\Controllers\BaseController;
-use App\Http\Requests\Report\GenericReportRequest;
-use App\Jobs\Report\SendToAdmin;
-use App\Services\Report\ARSummaryReport;
 use App\Utils\Traits\MakesHash;
+use App\Jobs\Report\SendToAdmin;
+use App\Jobs\Report\PreviewReport;
+use App\Http\Controllers\BaseController;
+use App\Services\Report\ARSummaryReport;
+use App\Http\Requests\Report\GenericReportRequest;
 
 class ARSummaryReportController extends BaseController
 {
@@ -71,17 +72,11 @@ class ARSummaryReportController extends BaseController
         }
         // expect a list of visible fields, or use the default
 
-        $export = new ARSummaryReport($user->company(), $request->all());
+        $hash = \Illuminate\Support\Str::uuid();
 
-        $csv = $export->run();
+        PreviewReport::dispatch($user->company(), $request->all(), ARSummaryReport::class, $hash);
 
-        $headers = [
-            'Content-Disposition' => 'attachment',
-            'Content-Type' => 'text/csv',
-        ];
+        return response()->json(['message' => $hash], 200);
 
-        return response()->streamDownload(function () use ($csv) {
-            echo $csv;
-        }, $this->filename, $headers);
     }
 }

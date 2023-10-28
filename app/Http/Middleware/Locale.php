@@ -27,8 +27,8 @@ class Locale
     public function handle($request, Closure $next)
     {
         /*LOCALE SET */
-        if ($request->has('lang')) {
-            $locale = $request->input('lang');
+        if ($request->has('lang') && is_string($request->input('lang'))) {
+            $locale = $request->string('lang','en');
             App::setLocale($locale);
         } elseif (auth()->guard('contact')->user()) {
             App::setLocale(auth()->guard('contact')->user()->client()->setEagerLoads([])->first()->locale());

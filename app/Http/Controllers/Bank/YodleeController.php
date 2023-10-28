@@ -51,6 +51,8 @@ class YodleeController extends BaseController
             $this->getAccounts($company, $token);
         }
 
+        $redirect_url = isset($request->getTokenContent()['is_react']) && $request->getTokenContent()['is_react'] ? 'https://app.invoicing.co/#/' : 'https://invoicing.co/';
+
         $data = [
             'access_token' => $yodlee->getAccessToken(),
             'fasttrack_url' => $yodlee->getFastTrackUrl(),
@@ -59,6 +61,7 @@ class YodleeController extends BaseController
             'company' => $company,
             'account' => $company->account,
             'completed' => $request->has('window_closed') ? true : false,
+            'redirect_url' => $redirect_url,
         ];
 
         return view('bank.yodlee.auth', $data);
