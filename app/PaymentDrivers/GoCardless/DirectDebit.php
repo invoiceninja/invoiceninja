@@ -108,7 +108,8 @@ class DirectDebit implements MethodInterface
         $response = $this->go_cardless->gateway->billingRequests()->create([
                         "params" => [
                             "mandate_request" => [
-                            "currency" => auth()->guard('contact')->user()->client->currency()->code
+                            "currency" => auth()->guard('contact')->user()->client->currency()->code,
+                            "verify" => "recommended"
                             ]
                         ]
                     ]);
