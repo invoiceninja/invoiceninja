@@ -652,7 +652,7 @@ class PdfBuilder
     /**
      * Formats the line items for display.
      *
-     * @param array<\App\DataMapper\InvoiceItem> $items
+     * @param array $items
      * @param string $table_type
      *
      * @return array
@@ -662,10 +662,10 @@ class PdfBuilder
         $data = [];
 
         $locale_info = localeconv();
-
-        // $this->service->config->entity_currency = $this->service->config->currency;
-
+        
         foreach ($items as $key => $item) {
+        /** @var \App\DataMapper\InvoiceItem $item */
+
             if ($table_type == '$product' && $item->type_id != 1) {
                 if ($item->type_id != 4 && $item->type_id != 6 && $item->type_id != 5) {
                     continue;
@@ -980,7 +980,7 @@ class PdfBuilder
         return [
             ['element' => 'div', 'properties' => ['style' => 'display: flex; flex-direction: column;'], 'elements' => [
                 ['element' => 'div', 'properties' => ['style' => 'margin-top: 1.5rem; display: block; align-items: flex-start; page-break-inside: avoid; visible !important;'], 'elements' => [
-                    ['element' => 'img', 'properties' => ['src' => '$invoiceninja.whitelabel', 'style' => 'height: 2.5rem;', 'hidden' => 'false', 'id' => 'invoiceninja-whitelabel-logo']],
+                    ['element' => 'img', 'properties' => ['src' => '$invoiceninja.whitelabel', 'style' => 'height: 2.5rem;', 'hidden' => $this->service->company->account->isPaid() ? 'true' : 'false', 'id' => 'invoiceninja-whitelabel-logo']],
                 ]],
             ]],
         ];
@@ -1052,7 +1052,7 @@ class PdfBuilder
                 ]],
                 ['element' => 'img', 'properties' => ['style' => 'max-width: 50%; height: auto;', 'src' => '$contact.signature', 'id' => 'contact-signature']],
                 ['element' => 'div', 'properties' => ['style' => 'margin-top: 1.5rem; display: flex; align-items: flex-start; page-break-inside: auto;'], 'elements' => [
-                    ['element' => 'img', 'properties' => ['src' => '$invoiceninja.whitelabel', 'style' => 'height: 2.5rem;', 'hidden' => 'false', 'id' => 'invoiceninja-whitelabel-logo']],
+                    ['element' => 'img', 'properties' => ['src' => '$invoiceninja.whitelabel', 'style' => 'height: 2.5rem;', 'hidden' => $this->service->company->account->isPaid() ? 'true' : 'false', 'id' => 'invoiceninja-whitelabel-logo']],
                 ]],
             ]],
             ['element' => 'div', 'properties' => ['class' => 'totals-table-right-side', 'dir' => '$dir'], 'elements' => []],
