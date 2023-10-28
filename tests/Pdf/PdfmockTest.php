@@ -12,9 +12,9 @@
 
 namespace Tests\Pdf;
 
-use App\DataMapper\CompanySettings;
 use Tests\TestCase;
 use App\Models\Design;
+use App\Models\Account;
 use App\Models\Company;
 use App\Models\Country;
 use App\Models\Invoice;
@@ -24,6 +24,7 @@ use App\Services\Pdf\PdfMock;
 use Beganovich\Snappdf\Snappdf;
 use App\Services\Pdf\PdfBuilder;
 use App\Services\Pdf\PdfService;
+use App\DataMapper\CompanySettings;
 use App\Services\Pdf\PdfConfiguration;
 
 /**
@@ -47,7 +48,11 @@ class PdfmockTest extends TestCase
             'entity_type' => 'invoice',
         ];
 
-        $entity = (new \App\Services\Pdf\PdfMock($data, Company::factory()->make()))->build()->initEntity();
+        $company = Company::factory()->make();
+        $account = Account::factory()->make();
+        $company->setRelation('account', $account);
+
+        $entity = (new \App\Services\Pdf\PdfMock($data,$company))->build()->initEntity();
 
         $this->assertInstanceOf(Invoice::class, $entity);
         $this->assertNotNull($entity->client);
@@ -71,7 +76,11 @@ class PdfmockTest extends TestCase
             'entity_type' => 'invoice',
         ];
 
-        $pdf_mock = (new PdfMock($data, Company::factory()->make()))->build();
+        $company = Company::factory()->make();
+        $account = Account::factory()->make();
+        $company->setRelation('account', $account);
+
+        $pdf_mock = (new PdfMock($data, $company))->build();
         $mock = $pdf_mock->initEntity();
 
         $pdf_service = new PdfService($mock->invitation);
