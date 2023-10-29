@@ -1179,8 +1179,6 @@ class BaseController extends Controller
                 return 'main.next.dart.js';
             case 'profile':
                 return 'main.profile.dart.js';
-            case 'html':
-                return 'main.html.dart.js';
             default:
                 return 'main.foss.dart.js';
         }
