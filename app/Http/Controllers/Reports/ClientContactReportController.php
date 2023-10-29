@@ -76,7 +76,7 @@ class ClientContactReportController extends BaseController
         // expect a list of visible fields, or use the default
         if($request->has('output') && $request->input('output') == 'json') {
 
-            $hash = \Illuminate\Support\Str::uuid();
+            $hash = \Illuminate\Support\Str::uuid()->toString();
 
             PreviewReport::dispatch($user->company(), $request->all(), ContactExport::class, $hash);
 

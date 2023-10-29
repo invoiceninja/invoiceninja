@@ -56,7 +56,7 @@ class ExportController extends BaseController
      */
     public function index(StoreExportRequest $request)
     {
-        $hash = Str::uuid();
+        $hash = Str::uuid()->toString();
         $url = \Illuminate\Support\Facades\URL::temporarySignedRoute('protected_download', now()->addHour(), ['hash' => $hash]);
         Cache::put($hash, $url, now()->addHour());
 

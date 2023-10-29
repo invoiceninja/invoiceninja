@@ -45,7 +45,7 @@ class ActivityReportController extends BaseController
 
         if($request->has('output') && $request->input('output') == 'json') {
 
-            $hash = \Illuminate\Support\Str::uuid();
+            $hash = \Illuminate\Support\Str::uuid()->toString();
 
             PreviewReport::dispatch($user->company(), $request->all(), ActivityExport::class, $hash);
 
