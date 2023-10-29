@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use stdClass;
 
+//30-10-2023: due to HTML encoding, need to remove </ from string when searching for matches
 class Helpers
 {
     use MakesDates;
