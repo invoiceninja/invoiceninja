@@ -268,7 +268,7 @@ class PdfSlot extends Component
                 'line_total' => Number::formatMoney($item->line_total, $this->entity->client ?: $this->entity->vendor),
             ];
         });
-
+        
         return $product_items;
     }
 
