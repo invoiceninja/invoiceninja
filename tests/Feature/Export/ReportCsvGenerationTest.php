@@ -28,6 +28,7 @@ use App\Export\CSV\VendorExport;
 use App\Export\CSV\PaymentExport;
 use App\Export\CSV\ProductExport;
 use App\DataMapper\CompanySettings;
+use App\DataMapper\InvoiceItem;
 use App\Factory\CompanyUserFactory;
 use App\Factory\InvoiceItemFactory;
 use Illuminate\Support\Facades\Http;
@@ -53,12 +54,13 @@ class ReportCsvGenerationTest extends TestCase
         );
 
         $this->withoutExceptionHandling();
+        
+        Invoice::withTrashed()->cursor()->each(function ($i) { $i->forceDelete();});
 
         $this->buildData();
 
         if (config('ninja.testvars.travis') !== false) 
             $this->markTestSkipped('Skip test no company gateways installed');
-
 
     }
 
@@ -297,14 +299,78 @@ class ReportCsvGenerationTest extends TestCase
 
         $query = Invoice::query();
 
-        $products = explode(",", "clown,joker,batman");
+        $products = explode(",", "clown,joker,batman,bob the builder");
 
         foreach($products as $product) {
-            $query->orWhereJsonContains('line_items', ['product_key' => $product]);
+            $query->where(function ($q) use ($product) {
+                $q->orWhereJsonContains('line_items', ['product_key' => $product]);
+            });
         }
 
         $this->assertEquals(0, $query->count());
 
+        $item = InvoiceItemFactory::create();
+        $item->product_key = 'haloumi';
+
+        $line_items = [];
+
+        $line_items[] = $item;
+        Invoice::factory()->create(
+            [
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+                'client_id' => $this->client->id,
+                'line_items' => $line_items
+            ]
+        );
+
+        $query->where(function ($q) use ($products) {
+            foreach($products as $product) {
+                $q->orWhereJsonContains('line_items', ['product_key' => $product]);
+            }
+        });
+
+        $this->assertEquals(0, $query->count());
+
+        $item = InvoiceItemFactory::create();
+        $item->product_key = 'batman';
+
+        $line_items = [];
+        
+        $line_items[] = $item;
+        $item = InvoiceItemFactory::create();
+        $item->product_key = 'bob the builder';
+
+        $line_items[] = $item;
+
+        Invoice::factory()->create(
+            [
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+                'client_id' => $this->client->id,
+                'line_items' => $line_items
+            ]
+        );
+
+        $query = Invoice::query();
+
+        $query->where(function ($q) use($products){
+            foreach($products as $product) {
+                $q->orWhereJsonContains('line_items', ['product_key' => $product]);
+            }
+        });
+            
+        $this->assertEquals(1, $query->count());
+
+        $query = Invoice::query();
+
+        $query->where(function ($q){
+                $q->orWhereJsonContains('line_items', ['product_key' => 'bob the builder']);
+        });
+
+        $this->assertEquals(1, $query->count());
+
+        Invoice::withTrashed()->cursor()->each(function ($i) { $i->forceDelete();});
 
     }
 
@@ -336,11 +402,11 @@ class ReportCsvGenerationTest extends TestCase
         
             Invoice::factory()->create(
                 [
-                            'company_id' => $this->company->id,
-                            'user_id' => $this->user->id,
-                            'client_id' => $this->client->id,
-                            'line_items' => $line_items
-                        ]
+                    'company_id' => $this->company->id,
+                    'user_id' => $this->user->id,
+                    'client_id' => $this->client->id,
+                    'line_items' => $line_items
+                ]
             );
 
             $item = InvoiceItemFactory::create();
@@ -1346,13 +1412,11 @@ class ReportCsvGenerationTest extends TestCase
         $this->assertEquals('GST', $this->getFirstValueByColumn($csv, 'Item Tax Name 1'));
         $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Item Tax Rate 1'));
 
-
         $data = [
             'date_range' => 'all',
             'report_keys' => $this->all_client_report_keys,
             'send_email' => false,
         ];
-
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -1372,6 +1436,17 @@ class ReportCsvGenerationTest extends TestCase
         ])->post('/api/v1/reports/invoice_items', $data)->assertStatus(200);
 
 
+        $data = [
+                    'date_range' => 'all',
+                    'report_keys' => $this->all_payment_report_keys,
+                    'send_email' => false,
+                    'product_key' => 'haloumi,cheese',
+                ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/reports/invoice_items', $data)->assertStatus(200);
 
     }
 
