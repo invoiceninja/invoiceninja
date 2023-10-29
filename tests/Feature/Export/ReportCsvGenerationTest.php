@@ -11,26 +11,27 @@
 
 namespace Tests\Feature\Export;
 
-use App\DataMapper\CompanySettings;
-use App\Export\CSV\PaymentExport;
-use App\Export\CSV\ProductExport;
-use App\Export\CSV\TaskExport;
-use App\Export\CSV\VendorExport;
-use App\Factory\CompanyUserFactory;
-use App\Models\Account;
+use Tests\TestCase;
+use App\Models\User;
 use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Company;
-use App\Models\CompanyToken;
 use App\Models\Credit;
+use League\Csv\Reader;
+use App\Models\Account;
+use App\Models\Company;
 use App\Models\Expense;
 use App\Models\Invoice;
-use App\Models\User;
+use App\Models\CompanyToken;
+use App\Models\ClientContact;
+use App\Export\CSV\TaskExport;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Routing\Middleware\ThrottleRequests;
+use App\Export\CSV\VendorExport;
+use App\Export\CSV\PaymentExport;
+use App\Export\CSV\ProductExport;
+use App\DataMapper\CompanySettings;
+use App\Factory\CompanyUserFactory;
+use App\Factory\InvoiceItemFactory;
 use Illuminate\Support\Facades\Http;
-use League\Csv\Reader;
-use Tests\TestCase;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
  * @test
@@ -288,6 +289,91 @@ class ReportCsvGenerationTest extends TestCase
                     ])->post(config('ninja.app_url')."/api/v1/exports/preview/{$hash}");
         
         return $response;
+    }
+
+
+    public function testProductJsonFiltering()
+    {
+
+        $query = Invoice::query();
+
+        $products = explode(",", "clown,joker,batman");
+
+        foreach($products as $product) {
+            $query->orWhereJsonContains('line_items', ['product_key' => $product]);
+        }
+
+        $this->assertEquals(0, $query->count());
+
+
+    }
+
+    public function testProductKeyFilterQueries()
+    {
+
+        $item = InvoiceItemFactory::create();
+        $item->product_key = 'haloumi';
+
+        $line_items = [];
+
+        $line_items[] = $item;
+        $q = Invoice::whereJsonContains('line_items', ['product_key' => 'haloumi']);
+
+        $this->assertEquals(0, $q->count());
+
+        Invoice::factory()->create(
+            [
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+                'client_id' => $this->client->id,
+                'line_items' => $line_items
+            ]
+        );
+
+        $this->assertEquals(1, $q->count());
+        
+        $q->forceDelete();
+        
+            Invoice::factory()->create(
+                [
+                            'company_id' => $this->company->id,
+                            'user_id' => $this->user->id,
+                            'client_id' => $this->client->id,
+                            'line_items' => $line_items
+                        ]
+            );
+
+            $item = InvoiceItemFactory::create();
+            $item->product_key = 'bob the builder';
+
+            $line_items = [];
+
+            $line_items[] = $item;
+
+            $q = Invoice::whereJsonContains('line_items', ['product_key' => 'bob the builder']);
+
+            $this->assertEquals(0, $q->count());
+
+            Invoice::factory()->create(
+                [
+                    'company_id' => $this->company->id,
+                    'user_id' => $this->user->id,
+                    'client_id' => $this->client->id,
+                    'line_items' => $line_items
+                ]
+            );
+
+            $this->assertEquals(1, $q->count());
+
+            $q = Invoice::whereJsonContains('line_items', ['product_key' => 'Bob the builder']);
+            $this->assertEquals(0, $q->count());
+
+            $q = Invoice::whereJsonContains('line_items', ['product_key' => 'bob']);
+            $this->assertEquals(0, $q->count());
+
+            $q->forceDelete();
+
+            Invoice::withTrashed()->cursor()->each(function ($i){ $i->forceDelete();});
     }
 
     public function testVendorCsvGeneration()

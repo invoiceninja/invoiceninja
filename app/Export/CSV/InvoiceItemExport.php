@@ -72,8 +72,25 @@ class InvoiceItemExport extends BaseExport
 
         $query = $this->addDateRange($query);
 
+        $query = $this->applyFilters($query);
+
         return $query;
 
+    }
+
+    private function applyFilters(Builder $query): Builder
+    {
+
+        if(isset($this->input['product_key'])) {
+        
+            $products = explode(",", $this->input['product_key']);
+
+            foreach($products as $product)
+                $query->orWhereJsonContains('line_items', ['product_key' => $product]);
+        
+        }
+        
+        return $query;
     }
 
     public function returnJson()
