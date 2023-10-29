@@ -60,16 +60,16 @@
         },
         {
             "name": "apimatic/core",
-            "version": "0.3.2",
+            "version": "0.3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/apimatic/core-lib-php.git",
-                "reference": "32238fb83ce9a3ebef38c726b497c0f218d6e6c9"
+                "reference": "984123c831598fc31749d194aa044cd46f227d29"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/apimatic/core-lib-php/zipball/32238fb83ce9a3ebef38c726b497c0f218d6e6c9",
-                "reference": "32238fb83ce9a3ebef38c726b497c0f218d6e6c9",
+                "url": "https://api.github.com/repos/apimatic/core-lib-php/zipball/984123c831598fc31749d194aa044cd46f227d29",
+                "reference": "984123c831598fc31749d194aa044cd46f227d29",
                 "shasum": ""
             },
             "require": {
@@ -107,9 +107,9 @@
             ],
             "support": {
                 "issues": "https://github.com/apimatic/core-lib-php/issues",
-                "source": "https://github.com/apimatic/core-lib-php/tree/0.3.2"
+                "source": "https://github.com/apimatic/core-lib-php/tree/0.3.3"
             },
-            "time": "2023-07-11T09:30:32+00:00"
+            "time": "2023-10-26T06:52:40+00:00"
         },
         {
             "name": "apimatic/core-interfaces",
@@ -485,16 +485,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.283.11",
+            "version": "3.283.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "348b68edcc83062c329cf7540c4c92d061d27d9c"
+                "reference": "853eecfb21e8d623fa1b32e597b0a75912e8a404"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/348b68edcc83062c329cf7540c4c92d061d27d9c",
-                "reference": "348b68edcc83062c329cf7540c4c92d061d27d9c",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/853eecfb21e8d623fa1b32e597b0a75912e8a404",
+                "reference": "853eecfb21e8d623fa1b32e597b0a75912e8a404",
                 "shasum": ""
             },
             "require": {
@@ -574,9 +574,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.283.11"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.283.13"
             },
-            "time": "2023-10-24T18:10:38+00:00"
+            "time": "2023-10-26T18:14:40+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -16363,16 +16363,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "10.4.1",
+            "version": "10.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "62bd7af13d282deeb95650077d28ba3600ca321c"
+                "reference": "cacd8b9dd224efa8eb28beb69004126c7ca1a1a1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/62bd7af13d282deeb95650077d28ba3600ca321c",
-                "reference": "62bd7af13d282deeb95650077d28ba3600ca321c",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/cacd8b9dd224efa8eb28beb69004126c7ca1a1a1",
+                "reference": "cacd8b9dd224efa8eb28beb69004126c7ca1a1a1",
                 "shasum": ""
             },
             "require": {
@@ -16444,7 +16444,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.4.1"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.4.2"
             },
             "funding": [
                 {
@@ -16460,7 +16460,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-10-08T05:01:11+00:00"
+            "time": "2023-10-26T07:21:45+00:00"
         },
         {
             "name": "sebastian/cli-parser",
