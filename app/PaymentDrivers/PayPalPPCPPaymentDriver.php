@@ -206,7 +206,8 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         $data['order_id'] = $this->createOrder($data);
         $data['funding_source'] = $this->paypal_payment_method;
         $data['gateway_type_id'] = $this->gateway_type_id;
-
+        $data['merchantId'] = $this->company_gateway->getConfigField('merchantId');
+        
         return render('gateways.paypal.ppcp.pay', $data);
 
     }
