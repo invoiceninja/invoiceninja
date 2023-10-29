@@ -1036,16 +1036,19 @@ class PdfBuilder
      */
     public function getTableTotals() :array
     {
+        
         //need to see where we don't pass all these particular variables. try and refactor thisout
-        $_variables = array_key_exists('variables', $this->service->options)
-            ? $this->service->options['variables']
-            : ['values' => ['$entity.public_notes' => $this->service->config->entity->public_notes, '$entity.terms' => $this->service->config->entity->terms, '$entity_footer' => $this->service->config->entity->footer], 'labels' => []];
+        // $_variables = array_key_exists('variables', $this->service->options)
+        //     ? $this->service->options['variables']
+        //     : ['values' => ['$entity.public_notes' => $this->service->config->entity->public_notes, '$entity.terms' => $this->service->config->entity->terms, '$entity_footer' => $this->service->config->entity->footer], 'labels' => []];
+        
+        $_variables = $this->service->html_variables;
 
         $variables = $this->service->config->pdf_variables['total_columns'];
 
         $elements = [
             ['element' => 'div', 'properties' => ['style' => 'display: flex; flex-direction: column;'], 'elements' => [
-                ['element' => 'p', 'content' => strtr(str_replace(["labels","values"], ["",""], $_variables['values']['$entity.public_notes']), $_variables), 'properties' => ['data-ref' => 'total_table-public_notes', 'style' => 'text-align: left;']],
+                ['element' => 'p', 'content' => strtr(str_replace(["labels", "values"], ["",""], $_variables['values']['$entity.public_notes']), $_variables), 'properties' => ['data-ref' => 'total_table-public_notes', 'style' => 'text-align: left;']],
                 ['element' => 'p', 'content' => '', 'properties' => ['style' => 'text-align: left; display: flex; flex-direction: column; page-break-inside: auto;'], 'elements' => [
                     ['element' => 'span', 'content' => '$entity.terms_label: ', 'properties' => ['hidden' => $this->entityVariableCheck('$entity.terms'), 'data-ref' => 'total_table-terms-label', 'style' => 'font-weight: bold; text-align: left; margin-top: 1rem;']],
                     ['element' => 'span', 'content' => strtr(str_replace("labels", "", $_variables['values']['$entity.terms']), $_variables['labels']), 'properties' => ['data-ref' => 'total_table-terms', 'style' => 'text-align: left;']],
