@@ -60,7 +60,10 @@ class ExportController extends BaseController
         $url = \Illuminate\Support\Facades\URL::temporarySignedRoute('protected_download', now()->addHour(), ['hash' => $hash]);
         Cache::put($hash, $url, now()->addHour());
 
-        CompanyExport::dispatch(auth()->user()->getCompany(), auth()->user(), $hash);
+        /**@var \App\Models\User $user */
+        $user = auth()->user();
+
+        CompanyExport::dispatch($user->getCompany(), $user, $hash);
 
         return response()->json(['message' => 'Processing', 'url' => $url], 200);
     }

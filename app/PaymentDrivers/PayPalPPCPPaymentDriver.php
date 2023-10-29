@@ -283,6 +283,10 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
         $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
 
+        $description = collect($invoice->line_items)->map(function ($item){
+            return $item->notes;
+        })->implode("\n");
+
         $order = [
           "intent" => "CAPTURE",
           "payer" => [
@@ -317,6 +321,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
             "items"=> [
                 [
                     "name" => ctrans('texts.invoice_number').'# '.$invoice->number,
+                    "description" => substr($description, 0, 127),
                     "quantity" => "1",
                     "unit_amount" => [
                         "currency_code" => $this->client->currency()->code,
