@@ -266,12 +266,12 @@ class Helpers
                 $_right = '';
 
                 // If right side doesn't have any calculations, replace with raw ranges keyword.
-                if (! Str::contains($right, ['-', '+', '/', '*'])) {
+                if (! Str::contains(str_replace("</", "", $right), ['-', '+', '/', '*'])) {
                     $_right = Carbon::createFromDate($currentDateTime->year, $currentDateTime->month)->translatedFormat('F Y');
                 }
 
                 // If right side contains one of math operations, calculate.
-                if (Str::contains($right, ['+'])) {
+                if (Str::contains(str_replace("</", "", $right), ['+'])) {
                     $operation = preg_match_all('/(?!^-)[+*\/-](\s?-)?/', $right, $_matches);
 
                     $_operation = array_shift($_matches)[0]; // + -
@@ -306,7 +306,7 @@ class Helpers
                 continue;
             }
 
-            if (! Str::contains($match, ['-', '+', '/', '*'])) {
+            if (! Str::contains(str_replace("</", "", $match), ['-', '+', '/', '*'])) {
                 $value = preg_replace(
                     sprintf('/%s/', $matches->keys()->first()),
                     $replacements['literal'][$matches->keys()->first()],
@@ -315,7 +315,7 @@ class Helpers
                 );
             }
 
-            if (Str::contains($match, ['-', '+', '/', '*'])) {
+            if (Str::contains(str_replace("</", "", $match), ['-', '+', '/', '*'])) {
                 $operation = preg_match_all('/(?!^-)[+*\/-](\s?-)?/', $match, $_matches);
 
                 $_operation = array_shift($_matches)[0];
