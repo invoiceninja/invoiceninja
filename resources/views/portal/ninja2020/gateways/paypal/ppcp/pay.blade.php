@@ -37,7 +37,7 @@
 //&buyer-country=US&currency=USD&enable-funding=venmo
     const fundingSource = "{!! $funding_source !!}";
     const testMode = {{ $gateway->company_gateway->getConfigField('testMode') }};
-    const clientId = "{{ $gateway->company_gateway->getConfigField('clientId') }}";
+    const clientId = "{{ $client_id }}";
     const sandbox = { sandbox: clientId };
     const production = { production: clientId };
     const orderId = "{!! $order_id !!}";

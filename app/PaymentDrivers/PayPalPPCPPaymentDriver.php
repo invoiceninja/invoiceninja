@@ -142,9 +142,8 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
         $this->api_endpoint_url = $this->company_gateway->getConfigField('testMode') ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com';
         
-        $secret = $this->company_gateway->getConfigField('secret');
-        
-        $client_id = $this->company_gateway->getConfigField('clientId');
+        $secret = config('ninja.paypal.secret');
+        $client_id = config('ninja.paypal.client_id');
 
         if($this->access_token && $this->token_expiry && $this->token_expiry->isFuture())
             return $this;
@@ -153,6 +152,8 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                                     ->withHeaders(['Content-Type' => 'application/x-www-form-urlencoded'])
                                     ->withQueryParameters(['grant_type' => 'client_credentials'])
                                     ->post("{$this->api_endpoint_url}/v1/oauth2/token");
+
+        nlog($response->body());
 
         if($response->successful()) {
             $this->access_token = $response->json()['access_token'];
@@ -200,7 +201,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         $this->payment_hash->data = array_merge((array) $this->payment_hash->data, ['amount' => $data['total']['amount_with_fee']]);
         $this->payment_hash->save();
 
-        $data['client_id'] = $this->company_gateway->getConfigField('clientId');
+        $data['client_id'] = config('ninja.paypal.client_id');
         $data['token'] = $this->getClientToken();
         $data['order_id'] = $this->createOrder($data);
         $data['funding_source'] = $this->paypal_payment_method;
@@ -367,7 +368,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
             'Content-type' => 'application/json',
             'Accept-Language' => 'en_US',
             'PayPal-Partner-Attribution-Id' => 'invoiceninja_SP_PPCP',
-            'PayPal-Request-Id' => Str::uuid(),
+            'PayPal-Request-Id' => Str::uuid()->toString(),
         ], $headers);
     }
 
