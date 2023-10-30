@@ -12,6 +12,7 @@
 namespace App\Http\Requests\Invoice;
 
 use App\Http\Requests\Request;
+use App\Models\Payment;
 
 class BulkInvoiceRequest extends Request
 {

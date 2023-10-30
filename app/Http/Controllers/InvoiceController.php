@@ -487,11 +487,17 @@ class InvoiceController extends BaseController
         $user = auth()->user();
 
         $action = $request->input('action');
-
         $ids = $request->input('ids');
 
         if (Ninja::isHosted() && (stripos($action, 'email') !== false) && !$user->company()->account->account_sms_verified) {
             return response(['message' => 'Please verify your account to send emails.'], 400);
+        }
+
+        /**@var \App\Models\User $user */
+        $user = auth()->user();
+
+        if(in_array($request->action, ['auto_bill','mark_paid']) && $user->cannot('create', \App\Models\Payment::class)) {
+            return response(['message' => ctrans('texts.not_authorized'), 'errors' => ['ids' => [ctrans('texts.not_authorized')]]], 422);
         }
 
         $invoices = Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
@@ -651,9 +657,6 @@ class InvoiceController extends BaseController
         /*If we are using bulk actions, we don't want to return anything */
         switch ($action) {
             case 'auto_bill':
-                if($user->cannot('create', Payment::class)) {
-                    return $this->errorResponse(['message' => ctrans('texts.action_unavailable', ['action' => $action])], 400);
-                }
 
                 AutoBill::dispatch($invoice->id, $invoice->company->db);
                 return $this->itemResponse($invoice);
@@ -677,9 +680,6 @@ class InvoiceController extends BaseController
                 // code...
                 break;
             case 'mark_paid':
-                if($user->cannot('create', \App\Models\Payment::class))
-                    return $this->errorResponse(['message' => ctrans('texts.action_unavailable', ['action' => $action])], 400); 
-
                 if ($invoice->status_id == Invoice::STATUS_PAID || $invoice->is_deleted === true) {
                     return $this->errorResponse(['message' => ctrans('texts.invoice_cannot_be_marked_paid')], 400);
                 }
