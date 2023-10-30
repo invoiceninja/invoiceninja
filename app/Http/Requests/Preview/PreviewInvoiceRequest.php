@@ -180,7 +180,7 @@ class PreviewInvoiceRequest extends Request
                 $this->entity_plural = 'credits';
                 return $this;
             case 'recurring_invoice':
-                $this->entity_plural = 'invoices';
+                $this->entity_plural = 'recurring_invoices';
                 return $this;
             default:
                 $this->entity_plural = 'invoices';

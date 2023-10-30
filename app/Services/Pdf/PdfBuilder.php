@@ -1046,6 +1046,8 @@ class PdfBuilder
 
         $variables = $this->service->config->pdf_variables['total_columns'];
 
+        nlog($variables);
+
         $elements = [
             ['element' => 'div', 'properties' => ['style' => 'display: flex; flex-direction: column;'], 'elements' => [
                 ['element' => 'p', 'content' => strtr(str_replace(["labels", "values"], ["",""], $_variables['values']['$entity.public_notes']), $_variables), 'properties' => ['data-ref' => 'total_table-public_notes', 'style' => 'text-align: left;']],
@@ -1102,7 +1104,7 @@ class PdfBuilder
 
         foreach ($variables as $variable) {
             if ($variable == '$total_taxes') {
-                $taxes = $this->service->config->entity->total_tax_map;
+                $taxes = $this->service->config->entity->calc()->getTotalTaxMap();
 
                 if (!$taxes) {
                     continue;
@@ -1115,7 +1117,7 @@ class PdfBuilder
                     ]];
                 }
             } elseif ($variable == '$line_taxes') {
-                $taxes = $this->service->config->entity->tax_map;
+                $taxes = $this->service->config->entity->calc()->getTaxMap();
 
                 if (!$taxes) {
                     continue;

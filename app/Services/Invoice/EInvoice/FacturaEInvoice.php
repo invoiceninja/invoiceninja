@@ -527,8 +527,8 @@ class FacturaEInvoice extends AbstractService
             "website" => substr($company->settings->website, 0, 50),
             // "contactPeople" => substr($company->owner()->present()->name(), 0, 40),
             "name" => $company->owner()->present()->firstName(),
-            // "firstSurname" => $company->owner()->present()->firstName(),
-            "lastSurname" => $company->owner()->present()->lastName(),
+            "firstSurname" => $company->owner()->present()->lastName(),
+            // "lastSurname" => $company->owner()->present()->lastName(),
         ]);
 
         $this->fac->setSeller($seller);
