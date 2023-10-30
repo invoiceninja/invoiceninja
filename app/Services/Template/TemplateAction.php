@@ -85,7 +85,7 @@ class TemplateAction implements ShouldQueue
 
         $template = Design::withTrashed()->find($this->decodePrimaryKey($this->template));
 
-        $template_service = new TemplateService($template);
+        $template_service = new \App\Services\Template\TemplateService($template);
         
         match($this->entity) {
             Invoice::class => $resource->with('payments', 'client'),

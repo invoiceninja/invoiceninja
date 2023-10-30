@@ -1102,7 +1102,7 @@ class PdfBuilder
 
         foreach ($variables as $variable) {
             if ($variable == '$total_taxes') {
-                $taxes = $this->service->config->entity->total_tax_map;
+                $taxes = $this->service->config->entity->calc()->getTotalTaxMap();
 
                 if (!$taxes) {
                     continue;
@@ -1115,7 +1115,7 @@ class PdfBuilder
                     ]];
                 }
             } elseif ($variable == '$line_taxes') {
-                $taxes = $this->service->config->entity->tax_map;
+                $taxes = $this->service->config->entity->calc()->getTaxMap();
 
                 if (!$taxes) {
                     continue;

@@ -807,6 +807,24 @@ class BaseExport
 
     }
 
+    public function applyFilters(Builder $query): Builder
+    {
+
+        if(isset($this->input['product_key'])) {
+        
+            $products = explode(",", $this->input['product_key']);
+
+            $query->where(function ($q) use ($products) {
+                foreach($products as $product) {
+                    $q->orWhereJsonContains('line_items', ['product_key' => $product]);
+                }
+            });
+
+        }
+        
+        return $query;
+    }
+
     protected function addInvoiceStatusFilter($query, $status): Builder
     {
 
@@ -864,6 +882,8 @@ class BaseExport
 
     protected function addDateRange($query)
     {
+        $query = $this->applyFilters($query);
+
         $date_range = $this->input['date_range'];
 
         if (array_key_exists('date_key', $this->input) && strlen($this->input['date_key']) > 1) {

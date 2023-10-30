@@ -904,26 +904,6 @@ class CheckData extends Command
     public function checkClientSettings()
     {
         if ($this->option('fix') == 'true') {
-            // Client::query()->whereNull('settings->currency_id')->cursor()->each(function ($client){
-
-            //     if(is_array($client->settings) && count($client->settings) == 0)
-            //     {
-            //         $settings = ClientSettings::defaults();
-            //         $settings->currency_id = $client->company->settings->currency_id;
-            //     }
-            //     else {
-            //         $settings = $client->settings;
-            //         $settings->currency_id = $client->company->settings->currency_id;
-            //     }
-
-            //     $client->settings = $settings;
-            //     $client->save();
-
-            //     $this->logMessage("Fixing currency for # {$client->id}");
-
-            // });
-
-
             Client::query()->whereNull('country_id')->cursor()->each(function ($client) {
                 $client->country_id = $client->company->settings->country_id;
                 $client->save();

@@ -11,14 +11,20 @@
 
 namespace App\Jobs\Util;
 
-use App\Models\Account;
-use App\Utils\Ninja;
 use Carbon\Carbon;
+use App\Utils\Ninja;
+use App\Models\Client;
+use App\Models\Vendor;
+use App\Models\Account;
+use Illuminate\Support\Str;
+use App\Models\ClientContact;
 use Illuminate\Bus\Queueable;
+use App\Factory\ClientContactFactory;
+use App\Factory\VendorContactFactory;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 class VersionCheck implements ShouldQueue
 {
@@ -54,8 +60,60 @@ class VersionCheck implements ShouldQueue
             if ($account->plan == 'white_label' && $account->plan_expires && Carbon::parse($account->plan_expires)->lt(now())) {
                 $account->plan = null;
                 $account->plan_expires = null;
-                $account->save();
+                $account->saveQuietly();
             }
+
+            Client::query()->whereNull('country_id')->cursor()->each(function ($client) {
+                $client->country_id = $client->company->settings->country_id;
+                $client->saveQuietly();
+            });
+
+            Vendor::query()->whereNull('currency_id')->orWhere('currency_id', '')->cursor()->each(function ($vendor) {
+                $vendor->currency_id = $vendor->company->settings->currency_id;
+                $vendor->saveQuietly();
+            });
+
+            ClientContact::whereNull('email')
+                            ->where('send_email', true)
+                            ->cursor()
+                            ->each(function ($c) {
+
+                                $c->send_email = false;
+                                $c->saveQuietly();
+
+            });
+            
+            ClientContact::query()
+                            ->whereNull('contact_key')
+                            ->update([
+                                'contact_key' => Str::random(config('ninja.key_length')),
+                            ]);
+
+            Client::doesntHave('contacts')
+                            ->cursor()
+                            ->each(function ($client){
+
+                                $new_contact = ClientContactFactory::create($client->company_id, $client->user_id);
+                                $new_contact->client_id = $client->id;
+                                $new_contact->contact_key = Str::random(40);
+                                $new_contact->is_primary = true;
+                                $new_contact->save();
+
+                            });
+
+            
+            Vendor::doesntHave('contacts')
+                            ->cursor()
+                            ->each(function ($vendor){
+
+                                $new_contact = VendorContactFactory::create($vendor->company_id, $vendor->user_id);
+                                $new_contact->vendor_id = $vendor->id;
+                                $new_contact->contact_key = Str::random(40);
+                                $new_contact->is_primary = true;
+                                $new_contact->save();
+            });
+
+
         }
     }
 }

@@ -72,6 +72,8 @@ class InvoiceItemExport extends BaseExport
 
         $query = $this->addDateRange($query);
 
+        $query = $this->applyFilters($query);
+
         return $query;
 
     }
