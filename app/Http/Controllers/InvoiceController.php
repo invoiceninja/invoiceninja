@@ -645,9 +645,16 @@ class InvoiceController extends BaseController
 
     private function performAction(Invoice $invoice, $action, $bulk = false)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         /*If we are using bulk actions, we don't want to return anything */
         switch ($action) {
             case 'auto_bill':
+                if($user->cannot('create', Payment::class)) {
+                    return $this->errorResponse(['message' => ctrans('texts.action_unavailable', ['action' => $action])], 400);
+                }
+
                 AutoBill::dispatch($invoice->id, $invoice->company->db);
                 return $this->itemResponse($invoice);
 
@@ -670,8 +677,10 @@ class InvoiceController extends BaseController
                 // code...
                 break;
             case 'mark_paid':
+                if($user->cannot('create', \App\Models\Payment::class))
+                    return $this->errorResponse(['message' => ctrans('texts.action_unavailable', ['action' => $action])], 400); 
+
                 if ($invoice->status_id == Invoice::STATUS_PAID || $invoice->is_deleted === true) {
-                    // if ($invoice->balance < 0 || $invoice->status_id == Invoice::STATUS_PAID || $invoice->is_deleted === true) {
                     return $this->errorResponse(['message' => ctrans('texts.invoice_cannot_be_marked_paid')], 400);
                 }
 
