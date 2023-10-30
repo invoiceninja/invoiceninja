@@ -1046,8 +1046,6 @@ class PdfBuilder
 
         $variables = $this->service->config->pdf_variables['total_columns'];
 
-        nlog($variables);
-
         $elements = [
             ['element' => 'div', 'properties' => ['style' => 'display: flex; flex-direction: column;'], 'elements' => [
                 ['element' => 'p', 'content' => strtr(str_replace(["labels", "values"], ["",""], $_variables['values']['$entity.public_notes']), $_variables), 'properties' => ['data-ref' => 'total_table-public_notes', 'style' => 'text-align: left;']],
