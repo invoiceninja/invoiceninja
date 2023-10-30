@@ -3140,8 +3140,8 @@ paths:
     post:
       tags:
         - expenses
-      summary: "Adds a client"
-      description: "Adds an client to a company"
+      summary: "Adds an expense"
+      description: "Adds a expense to a company"
       operationId: storeExpense
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -3149,7 +3149,7 @@ paths:
         - $ref: "#/components/parameters/include"
       responses:
         200:
-          description: "Returns the saved client object"
+          description: "Returns the saved expense object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -3173,8 +3173,8 @@ paths:
     get:
       tags:
         - expenses
-      summary: "Shows a client"
-      description: "Displays a client by id"
+      summary: "Shows a expense"
+      description: "Displays a expense by id"
       operationId: showExpense
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -3213,8 +3213,8 @@ paths:
     put:
       tags:
         - expenses
-      summary: "Updates a client"
-      description: "Handles the updating of a client by id"
+      summary: "Updates a expense"
+      description: "Handles the updating of a expense by id"
       operationId: updateExpense
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -3230,7 +3230,7 @@ paths:
           example: D2J234DFA
       responses:
         200:
-          description: "Returns the client object"
+          description: "Returns the expense object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -3253,8 +3253,8 @@ paths:
     delete:
       tags:
         - expenses
-      summary: "Deletes a client"
-      description: "Handles the deletion of a client by id"
+      summary: "Deletes a expense"
+      description: "Handles the deletion of a expense by id"
       operationId: deleteExpense
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -3290,7 +3290,7 @@ paths:
     get:
       tags:
         - expenses
-      summary: "Shows a client for editting"
+      summary: "Shows a expense for editing"
       description: "Displays a client by id"
       operationId: editExpense
       parameters:
@@ -3307,7 +3307,7 @@ paths:
           example: D2J234DFA
       responses:
         200:
-          description: "Returns the client object"
+          description: "Returns the expense object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -3331,7 +3331,7 @@ paths:
     get:
       tags:
         - expenses
-      summary: "Gets a new blank client object"
+      summary: "Gets a new blank expense object"
       description: "Returns a blank object with default values"
       operationId: getExpensesCreate
       parameters:
@@ -3340,7 +3340,7 @@ paths:
         - $ref: "#/components/parameters/include"
       responses:
         200:
-          description: "A blank client object"
+          description: "A blank expense object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -4637,8 +4637,8 @@ paths:
     post:
       tags:
         - recurring_expenses
-      summary: "Adds a client"
-      description: "Adds an client to a company"
+      summary: "Adds a recurring expense"
+      description: "Adds a recurring expense to a company"
       operationId: storeRecurringExpense
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -4646,7 +4646,7 @@ paths:
         - $ref: "#/components/parameters/include"
       responses:
         200:
-          description: "Returns the saved client object"
+          description: "Returns the saved recurring expense object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -4670,8 +4670,8 @@ paths:
     get:
       tags:
         - recurring_expenses
-      summary: "Shows a client"
-      description: "Displays a client by id"
+      summary: "Shows a recurring expense"
+      description: "Displays a recurring expense by id"
       operationId: showRecurringExpense
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -4710,8 +4710,8 @@ paths:
     put:
       tags:
         - recurring_expenses
-      summary: "Updates a client"
-      description: "Handles the updating of a client by id"
+      summary: "Updates a recurring expense"
+      description: "Handles the updating of a recurring expense by id"
       operationId: updateRecurringExpense
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -4727,7 +4727,7 @@ paths:
           example: D2J234DFA
       responses:
         200:
-          description: "Returns the client object"
+          description: "Returns the recurring expense object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -4750,8 +4750,8 @@ paths:
     delete:
       tags:
         - recurring_expenses
-      summary: "Deletes a client"
-      description: "Handles the deletion of a client by id"
+      summary: "Deletes a recurring expense"
+      description: "Handles the deletion of a recurring expense by id"
       operationId: deleteRecurringExpense
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -4787,8 +4787,8 @@ paths:
     get:
       tags:
         - recurring_expenses
-      summary: "Shows a client for editting"
-      description: "Displays a client by id"
+      summary: "Shows a recurring expense for editting"
+      description: "Displays a recurring expense by id"
       operationId: editRecurringExpense
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -4804,7 +4804,7 @@ paths:
           example: D2J234DFA
       responses:
         200:
-          description: "Returns the client object"
+          description: "Returns the recurring expense object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -4828,7 +4828,7 @@ paths:
     get:
       tags:
         - recurring_expenses
-      summary: "Gets a new blank client object"
+      summary: "Gets a new blank recurring expense object"
       description: "Returns a blank object with default values"
       operationId: getRecurringExpensesCreate
       parameters:
@@ -4837,7 +4837,7 @@ paths:
         - $ref: "#/components/parameters/include"
       responses:
         200:
-          description: "A blank client object"
+          description: "A blank recurring expense object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
