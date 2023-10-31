@@ -87,6 +87,9 @@ class Email implements ShouldQueue
              ->setDefaults()
              ->buildMailable();
 
+        /** Ensure quota's on hosted platform are respected. :) */
+        $this->setMailDriver();
+
         if ($this->preFlightChecksFail()) {
             return;
         }
@@ -228,7 +231,7 @@ class Email implements ShouldQueue
      */
     public function email()
     {
-        $this->setMailDriver();
+        // $this->setMailDriver();
 
         /* Init the mailer*/
         $mailer = Mail::mailer($this->mailer);
