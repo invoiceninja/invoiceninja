@@ -166,7 +166,7 @@ class SwissQrGenerator
 
         // Now get the QR code image and save it as a file.
         try {
-            $output = new QrBill\PaymentPart\Output\HtmlOutput\HtmlOutput($qrBill, $this->client->locale() ?: 'en');
+            $output = new QrBill\PaymentPart\Output\HtmlOutput\HtmlOutput($qrBill, $this->resolveLanguage());
 
             $html = $output
                 ->setPrintable(false)
@@ -190,4 +190,28 @@ class SwissQrGenerator
             // return $e->getMessage();
         }
     }
+
+    private function resolveLanguage(): string
+    {
+        $language = $this->client->locale() ?: 'en';
+
+        switch ($language) {
+            case 'de':
+                return 'de';
+            case 'en':
+            case 'en_GB':
+                return 'en';
+            case 'it':
+                return 'it';
+            case 'fr':
+            case 'fr_CA':
+            case 'fr_CH':
+                return 'fr';
+            
+            default:
+                return 'en';
+        }
+
+    }
+
 }

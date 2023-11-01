@@ -130,4 +130,50 @@ class UserFilters extends QueryFilters
             $query->whereNotIn('id', $user_array);
         });
     }
+
+    /**
+     * Filters the list based on the status
+     * archived, active, deleted.
+     *
+     * @param string $filter
+     * @return Builder
+     */
+    public function status(string $filter = ''): Builder
+    {
+
+
+        if (strlen($filter) == 0) {
+            return $this->builder;
+        }
+
+        $filters = explode(',', $filter);
+
+        return $this->builder->where(function ($query) use ($filters) {
+
+            /** @var \App\Models\User $user */
+            $user = auth()->user();
+
+            if (in_array(self::STATUS_ACTIVE, $filters)) {
+                $query = $query->orWhereHas('company_users', function ($q) use($user){
+                    $q->where('company_id', $user->company()->id)->whereNull('deleted_at');
+                });
+            }
+
+            if (in_array(self::STATUS_ARCHIVED, $filters)) {
+                $query = $query->orWhereHas('company_users', function ($q) use($user){
+                    $q->where('company_id', $user->company()->id)->whereNotNull('deleted_at')->where('is_deleted', 0);
+                });
+
+            }
+
+            if (in_array(self::STATUS_DELETED, $filters)) {
+                $query = $query->orWhereHas('company_users', function ($q) use($user){
+                     $q->where('company_id', $user->company()->id)->where('is_deleted', 1);
+                });
+
+            }
+        });
+    }
+
+
 }

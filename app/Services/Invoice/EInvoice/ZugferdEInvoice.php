@@ -73,7 +73,7 @@ class ZugferdEInvoice extends AbstractService
         } else {
             $this->xrechnung->setDocumentBuyerReference($client->routing_id);
         }
-        if (!empty($client->shipping_address1) && $client->shipping_country->exists()) {
+        if (!empty($client->shipping_address1) && $client->shipping_country) {
             $this->xrechnung->setDocumentShipToAddress($client->shipping_address1, $client->shipping_address2, "", $client->shipping_postal_code, $client->shipping_city, $client->shipping_country->iso_3166_2, $client->shipping_state);
         }
 

@@ -85,13 +85,13 @@ class NinjaMailerJob implements ShouldQueue
         /* Serializing models from other jobs wipes the primary key */
         $this->company = Company::query()->where('company_key', $this->nmo->company->company_key)->first();
 
+        /* Set the email driver */
+        $this->setMailDriver();
+
         /* If any pre conditions fail, we return early here */
         if (!$this->company || $this->preFlightChecksFail()) {
             return;
         }
-
-        /* Set the email driver */
-        $this->setMailDriver();
 
         /* Run time we set Reply To Email*/
         if (strlen($this->nmo->settings->reply_to_email) > 1) {
@@ -513,7 +513,7 @@ class NinjaMailerJob implements ShouldQueue
         }
 
         /* GMail users are uncapped */
-        if (Ninja::isHosted() && ($this->nmo->settings->email_sending_method == 'gmail' || $this->nmo->settings->email_sending_method == 'office365')) {
+        if (Ninja::isHosted() && (in_array($this->nmo->settings->email_sending_method, ['gmail', 'office365', 'client_postmark', 'client_mailgun']))) {
             return false;
         }
 
