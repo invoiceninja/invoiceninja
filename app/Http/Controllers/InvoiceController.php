@@ -493,6 +493,10 @@ class InvoiceController extends BaseController
             return response(['message' => 'Please verify your account to send emails.'], 400);
         }
 
+        if (Ninja::isHosted() && (stripos($action, 'email') !== false) && $user->account->emailQuotaExceeded()) {
+            return response(['message' => ctrans('texts.email_quota_exceeded_subject')], 400);
+        }
+
         if(in_array($request->action, ['auto_bill','mark_paid']) && $user->cannot('create', \App\Models\Payment::class)) {
             return response(['message' => ctrans('texts.not_authorized'), 'errors' => ['ids' => [ctrans('texts.not_authorized')]]], 422);
         }
