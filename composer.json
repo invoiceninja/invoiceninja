@@ -87,7 +87,7 @@
         "socialiteproviders/apple": "^5.2",
         "socialiteproviders/microsoft": "^4.1",
         "spatie/laravel-data": "^3.5",
-        "sprain/swiss-qr-bill": "^3.2",
+        "sprain/swiss-qr-bill": "^4.3",
         "square/square": "30.0.0.*",
         "stripe/stripe-php": "^12",
         "symfony/http-client": "^6.0",

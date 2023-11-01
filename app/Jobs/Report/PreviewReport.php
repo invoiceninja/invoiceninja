@@ -44,6 +44,8 @@ class PreviewReport implements ShouldQueue
         else
             $report = $export->run();
             
+        // nlog($report);
+
         Cache::put($this->hash, $report, 60 * 60);
     }
 
