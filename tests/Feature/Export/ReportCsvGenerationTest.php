@@ -284,7 +284,7 @@ class ReportCsvGenerationTest extends TestCase
 
     private function poll($hash)
     {
-        $response = Http::retry(50, 1000, throw: false)
+        $response = Http::retry(100, 400, throw: false)
                     ->withHeaders([
                         'X-API-SECRET' => config('ninja.api_secret'),
                         'X-API-TOKEN' => $this->token,

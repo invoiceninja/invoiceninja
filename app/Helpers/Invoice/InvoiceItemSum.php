@@ -399,7 +399,12 @@ class InvoiceItemSum
             
             $item_tax = 0;
 
-            $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / $this->sub_total));
+            try {
+                $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / $this->sub_total));
+            } catch(\DivisionByZeroError $e) {
+                $amount = $this->item->line_total;
+            }
+
             //$amount = ($this->sub_total > 0) ? $this->item->line_total - ($this->invoice->discount * ($this->item->line_total / $this->sub_total)) : 0;
             
             $item_tax_rate1_total = $this->calcAmountLineTax($this->item->tax_rate1, $amount);

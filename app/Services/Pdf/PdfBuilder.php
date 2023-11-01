@@ -614,7 +614,7 @@ class PdfBuilder
             } else {
                 $_type = Str::startsWith($type, '$') ? ltrim($type, '$') : $type;
 
-                foreach ($this->service->config->pdf_variables["{$_type}_columns"] as $key => $cell) {
+                foreach ($this->service->config->pdf_variables[$table_type] as $key => $cell) {
                     // We want to keep aliases like these:
                     // $task.cost => $task.rate
                     // $task.quantity => $task.hours
@@ -773,7 +773,6 @@ class PdfBuilder
     */
     public function buildTableHeader(string $type): array
     {
-        $this->processTaxColumns($type);
 
         $elements = [];
 
@@ -785,10 +784,15 @@ class PdfBuilder
         ];
 
         $table_type = "{$type}_columns";
+        
+        $column_type = $type;
 
-        if ($type == 'product' && $this->service->config->entity instanceof Quote && !$this->service->config->settings_object?->sync_invoice_quote_columns) {
+        if ($type == 'product' && $this->service->config->entity instanceof Quote && !$this->service->config->settings?->sync_invoice_quote_columns) {
             $table_type = "product_quote_columns";
+            $column_type = 'product_quote';
         }
+
+        $this->processTaxColumns($column_type);
 
         foreach ($this->service->config->pdf_variables[$table_type] as $column) {
             if (array_key_exists($column, $aliases)) {
@@ -829,6 +833,13 @@ class PdfBuilder
 
         if ($type == 'task') {
             $type_id = 2;
+        }
+
+        /** 17-05-2023 need to explicity define product_quote here */
+        if ($type == 'product_quote') {
+            $type_id = 1;
+            $column_type = 'product_quote';
+            $type = 'product';
         }
 
         // At the moment we pass "task" or "product" as type.
