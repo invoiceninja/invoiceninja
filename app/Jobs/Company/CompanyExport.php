@@ -440,7 +440,7 @@ class CompanyExport implements ShouldQueue
 
         $path = 'backups';
 
-        Storage::makeDirectory(storage_path('backups/'));
+        // Storage::makeDirectory(storage_path('backups/'));
 
         try {
             mkdir(storage_path('backups/'));
