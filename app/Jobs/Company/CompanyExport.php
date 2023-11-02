@@ -288,7 +288,7 @@ class CompanyExport implements ShouldQueue
         $this->export_data['recurring_expenses'] = $this->company->recurring_expenses()->orderBy('number', 'DESC')->cursor()->map(function ($expense) {
             $expense = $this->transformBasicEntities($expense);
             $expense = $this->transformArrayOfKeys($expense, ['vendor_id', 'invoice_id', 'client_id', 'category_id', 'project_id']);
-
+            
             return $expense->makeVisible(['id']);
         })->all();
 
