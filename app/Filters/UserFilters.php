@@ -154,23 +154,15 @@ class UserFilters extends QueryFilters
             $user = auth()->user();
 
             if (in_array(self::STATUS_ACTIVE, $filters)) {
-                $query = $query->orWhereHas('company_users', function ($q) use($user){
-                    $q->where('company_id', $user->company()->id)->whereNull('deleted_at');
-                });
+                $query->orWhereNull('deleted_at');
             }
 
             if (in_array(self::STATUS_ARCHIVED, $filters)) {
-                $query = $query->orWhereHas('company_users', function ($q) use($user){
-                    $q->where('company_id', $user->company()->id)->whereNotNull('deleted_at')->where('is_deleted', 0);
-                });
-
+                $query->orWhereNotNull('deleted_at')->where('is_deleted', 0);
             }
 
             if (in_array(self::STATUS_DELETED, $filters)) {
-                $query = $query->orWhereHas('company_users', function ($q) use($user){
-                     $q->where('company_id', $user->company()->id)->where('is_deleted', 1);
-                });
-
+                $query->orWhere('is_deleted', 1);
             }
         });
     }
