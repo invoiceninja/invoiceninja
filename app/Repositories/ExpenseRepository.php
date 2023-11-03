@@ -12,13 +12,14 @@
 
 namespace App\Repositories;
 
-use App\Factory\ExpenseFactory;
-use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\Expense;
-use App\Utils\Traits\GeneratesCounter;
-use Carbon\Exceptions\InvalidFormatException;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Carbon;
+use App\Factory\ExpenseFactory;
+use App\Models\ExpenseCategory;
+use App\Utils\Traits\GeneratesCounter;
+use Illuminate\Database\QueryException;
+use Carbon\Exceptions\InvalidFormatException;
+use App\Libraries\Currency\Conversion\CurrencyApi;
 
 /**
  * ExpenseRepository.
@@ -158,4 +159,25 @@ class ExpenseRepository extends BaseRepository
 
         return $expense;
     }
+    
+    /**
+     * Categorize Expenses in bulk
+     *
+     * @param  Collection $expenses
+     * @param  int $category_id
+     * @return void
+     */
+    public function categorize($expenses, $category_id): void
+    {
+        $ec = ExpenseCategory::withTrashed()->find($category_id);
+
+            $expenses->when($ec)
+                     ->each(function ($expense) use($ec){
+                                                
+                        $expense->category_id = $ec->id;
+                        $expense->save();
+
+        });
+    }
+
 }
