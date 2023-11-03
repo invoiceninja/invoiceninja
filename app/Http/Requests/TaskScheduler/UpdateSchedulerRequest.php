@@ -22,7 +22,10 @@ class UpdateSchedulerRequest extends Request
      */
     public function authorize(): bool
     {
-        return auth()->user()->isAdmin() && $this->task_scheduler->company_id == auth()->user()->company()->id;
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->isAdmin() && $this->task_scheduler->company_id == $user->company()->id;
     }
 
     public function rules(): array

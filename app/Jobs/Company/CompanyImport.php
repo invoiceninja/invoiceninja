@@ -16,6 +16,7 @@ use App\Exceptions\NonExistingMigrationFile;
 use App\Factory\ClientContactFactory;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
+use App\Jobs\Ninja\TaskScheduler;
 use App\Libraries\MultiDB;
 use App\Mail\Import\CompanyImportFailure;
 use App\Mail\Import\ImportCompleted;
@@ -153,6 +154,7 @@ class CompanyImport implements ShouldQueue
         'bank_integrations',
         'bank_transactions',
         'payments',
+        'schedulers',
     ];
 
     private $company_properties = [
@@ -455,10 +457,12 @@ class CompanyImport implements ShouldQueue
         $settings->project_number_counter = 1;
         $settings->purchase_order_number_counter = 1;
         $this->company->settings = $co->settings;
-        // $this->company->settings = $this->backup_file->company->settings;
+
+        $this->company->saveSettings($co->settings, $this->company);
+
         $this->company->save();
 
-        return $this;
+            return $this;
     }
 
     private function purgeCompanyData()
@@ -472,6 +476,10 @@ class CompanyImport implements ShouldQueue
         $this->company->expenses()->forceDelete();
         $this->company->subscriptions()->forceDelete();
         $this->company->purchase_orders()->forceDelete();
+        $this->company->bank_integrations()->forceDelete();
+        $this->company->bank_transactions()->forceDelete();
+        $this->company->schedulers()->forceDelete();
+        $this->company->system_log_relation()->forceDelete();
 
         $this->company->save();
 
@@ -519,6 +527,20 @@ class CompanyImport implements ShouldQueue
         }
 
         nlog("finished importing company data");
+
+        return $this;
+    }
+
+    private function import_schedulers()
+    {
+        $this->genericNewClassImport(
+            \App\Models\Scheduler::class,
+            ['company_id', 'id', 'hashed_id'],
+            [
+                ['users' => 'user_id'],
+            ],
+            'schedulers'
+        );
 
         return $this;
     }
@@ -1147,7 +1169,6 @@ class CompanyImport implements ShouldQueue
             $new_document->documentable_type = $document->documentable_type;
 
             $new_document->save(['timestamps' => false]);
-        
 
             $storage_url = (object)$this->getObject('storage_url', true);
 
@@ -1393,6 +1414,10 @@ class CompanyImport implements ShouldQueue
                 if (Ninja::isSelfHost() && $obj_array['gateway_key'] == 'd14dd26a47cecc30fdd65700bfb67b34') {
                     $obj_array['gateway_key'] = 'd14dd26a37cecc30fdd65700bfb55b23';
                 }
+
+                if(!isset($obj_array['fees_and_limits'])){
+                    $obj_array['fees_and_limits'] = \json_encode([]);
+                }
             }
 
             if (array_key_exists('deleted_at', $obj_array) && $obj_array['deleted_at'] > 1) {
@@ -1430,8 +1455,29 @@ class CompanyImport implements ShouldQueue
                 $obj_array['config'] = encrypt($obj_array['config']);
             }
 
+            if($class == 'App\Models\Scheduler') {
+                $parameters = $obj_array['parameters'];
+
+                if(isset($parameters->clients)){
+
+                    $parameters->clients =
+                    collect($parameters->clients)->map(function ($client_hash){
+                        return $this->encodePrimaryKey($this->transformId('clients', $client_hash));
+                    })->toArray();
+
+                }
+
+                if(isset($parameters->entity_id)){
+                    $parameters->entity_id = $this->encodePrimaryKey($this->transformId($parameters->entity."s", $parameters->entity_id));
+                }
+
+                $obj_array['parameters'] = $parameters;
+            }
+
             $new_obj = new $class();
             $new_obj->company_id = $this->company->id;
+            $obj_array = $this->filterVersionProps($class,$obj_array);
+
             $new_obj->fill($obj_array);
 
             $new_obj->save(['timestamps' => false]);
@@ -1475,6 +1521,8 @@ class CompanyImport implements ShouldQueue
                 $obj_array['recurring_product_ids'] = $this->recordProductIds($obj_array['recurring_product_ids']);
                 $obj_array['webhook_configuration'] = \json_encode($obj_array['webhook_configuration']);
             }
+            
+            $obj_array = $this->filterVersionProps($class, $obj_array);
 
             $new_obj = $class::firstOrNew(
                 [$match_key => $obj->{$match_key}],
@@ -1526,6 +1574,8 @@ class CompanyImport implements ShouldQueue
                 $obj_array['recurring_product_ids'] = '';
                 $obj_array['product_ids'] = '';
             }
+            
+            $obj_array = $this->filterVersionProps($class, $obj_array);
 
             /* Expenses that don't have a number will not be inserted - so need to override here*/
             if ($class == 'App\Models\Expense' && is_null($obj->{$match_key})) {

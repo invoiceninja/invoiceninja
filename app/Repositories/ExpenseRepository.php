@@ -20,6 +20,7 @@ use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Database\QueryException;
 use Carbon\Exceptions\InvalidFormatException;
 use App\Libraries\Currency\Conversion\CurrencyApi;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * ExpenseRepository.
@@ -167,7 +168,7 @@ class ExpenseRepository extends BaseRepository
      * @param  int $category_id
      * @return void
      */
-    public function categorize($expenses, $category_id): void
+    public function categorize(Collection $expenses, int $category_id): void
     {
         $ec = ExpenseCategory::withTrashed()->find($category_id);
 
