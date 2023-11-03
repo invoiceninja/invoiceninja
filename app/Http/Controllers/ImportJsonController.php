@@ -55,6 +55,9 @@ class ImportJsonController extends BaseController
      */
     public function import(ImportJsonRequest $request)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $file_location = $request->file('files')
             ->storeAs(
                 'migrations',
@@ -63,9 +66,9 @@ class ImportJsonController extends BaseController
             );
 
         if (Ninja::isHosted()) {
-            CompanyImport::dispatch(auth()->user()->getCompany(), auth()->user(), $file_location, $request->except('files'))->onQueue('migration');
+            CompanyImport::dispatch($user->company(), $user, $file_location, $request->except('files'))->onQueue('migration');
         } else {
-            CompanyImport::dispatch(auth()->user()->getCompany(), auth()->user(), $file_location, $request->except('files'));
+            CompanyImport::dispatch($user->company(), $user, $file_location, $request->except('files'));
         }
 
         return response()->json(['message' => 'Processing'], 200);

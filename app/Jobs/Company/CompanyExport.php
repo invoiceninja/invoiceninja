@@ -201,7 +201,7 @@ class CompanyExport implements ShouldQueue
             return $document->makeVisible(['id']);
         })->all();
 
-        $this->export_data['expense_categories'] = $this->company->expense_categories->map(function ($expense_category) {
+        $this->export_data['expense_categories'] = $this->company->expense_categories()->cursor()->map(function ($expense_category) {
             $expense_category = $this->transformArrayOfKeys($expense_category, ['user_id', 'company_id']);
             
             return $expense_category->makeVisible(['id']);
@@ -288,7 +288,7 @@ class CompanyExport implements ShouldQueue
         $this->export_data['recurring_expenses'] = $this->company->recurring_expenses()->orderBy('number', 'DESC')->cursor()->map(function ($expense) {
             $expense = $this->transformBasicEntities($expense);
             $expense = $this->transformArrayOfKeys($expense, ['vendor_id', 'invoice_id', 'client_id', 'category_id', 'project_id']);
-
+            
             return $expense->makeVisible(['id']);
         })->all();
 
@@ -399,6 +399,12 @@ class CompanyExport implements ShouldQueue
             return $bank_transaction->makeVisible(['id','user_id','company_id']);
         })->all();
 
+        $this->export_data['schedulers'] = $this->company->schedulers()->orderBy('id', 'ASC')->cursor()->map(function ($scheduler) {
+            $scheduler = $this->transformArrayOfKeys($scheduler, ['company_id', 'user_id']);
+
+            return $scheduler->makeVisible(['id','user_id','company_id']);
+        })->all();
+
         //write to tmp and email to owner();
         
         $this->zipAndSend();
@@ -440,7 +446,7 @@ class CompanyExport implements ShouldQueue
 
         $path = 'backups';
 
-        Storage::makeDirectory(storage_path('backups/'));
+        // Storage::makeDirectory(storage_path('backups/'));
 
         try {
             mkdir(storage_path('backups/'));

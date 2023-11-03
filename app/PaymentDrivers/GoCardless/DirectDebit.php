@@ -51,34 +51,6 @@ class DirectDebit implements MethodInterface
     public function authorizeView(array $data)
     {
         return $this->billingRequestFlows($data);
-        // $session_token = \Illuminate\Support\Str::uuid()->toString();
-
-        // try {
-        //     $redirect = $this->go_cardless->gateway->redirectFlows()->create([
-        //         'params' => [
-        //             'session_token' => $session_token,
-        //             'success_redirect_url' => route('client.payment_methods.confirm', [
-        //                 'method' => GatewayType::DIRECT_DEBIT,
-        //                 'session_token' => $session_token,
-        //             ]),
-        //             'prefilled_customer' => [
-        //                 'given_name' => auth()->guard('contact')->user()->first_name ?: '',
-        //                 'family_name' => auth()->guard('contact')->user()->last_name ?: '',
-        //                 'email' => auth()->guard('contact')->user()->email ?: '',
-        //                 'address_line1' => auth()->guard('contact')->user()->client->address1 ?: '',
-        //                 'city' => auth()->guard('contact')->user()->client->city ?: '',
-        //                 'postal_code' => auth()->guard('contact')->user()->client->postal_code ?: '',
-        //                 'country_code' => auth()->guard('contact')->user()->client->country->iso_3166_2,
-        //             ],
-        //         ],
-        //     ]);
-
-        //     return redirect(
-        //         $redirect->redirect_url
-        //     );
-        // } catch (\Exception $exception) {
-        //     return $this->processUnsuccessfulAuthorization($exception);
-        // }
     }
 
     /**
@@ -109,7 +81,7 @@ class DirectDebit implements MethodInterface
                         "params" => [
                             "mandate_request" => [
                             "currency" => auth()->guard('contact')->user()->client->currency()->code,
-                            "verify" => "recommended"
+                            "verify" => "when_available"
                             ]
                         ]
                     ]);

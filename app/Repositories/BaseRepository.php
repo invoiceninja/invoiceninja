@@ -199,7 +199,7 @@ class BaseRepository
                 });
             }
         }
-
+nlog($model->toArray());
         $model->saveQuietly();
 
         /* Model now persisted, now lets do some child tasks */

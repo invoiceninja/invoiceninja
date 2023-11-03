@@ -442,7 +442,6 @@ class InvoiceService
         $this->invoice->line_items = array_values($items);
 
         $this->invoice = $this->invoice->calc()->getInvoice();
-        $this->deleteEInvoice(); //@deprecated
 
         /* 24-03-2022 */
         $new_balance = $this->invoice->balance;

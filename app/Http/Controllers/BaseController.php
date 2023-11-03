@@ -1123,10 +1123,10 @@ class BaseController extends Controller
             $data['white_label'] = Ninja::isSelfHost() ? $account->isPaid() : false;
 
             //pass referral code to front end
-            $data['rc'] = request()->has('rc') ? request()->input('rc') : '';
-            $data['build'] = request()->has('build') ? request()->input('build') : '';
-            $data['login'] = request()->has('login') ? request()->input('login') : 'false';
-            $data['signup'] = request()->has('signup') ? request()->input('signup') : 'false';
+            $data['rc'] = request()->has('rc') && is_string(request()->input('rc')) ? request()->input('rc') : '';
+            $data['build'] = request()->has('build') && is_string(request()->input('build')) ? request()->input('build') : '';
+            $data['login'] = request()->has('login') && is_string(request()->input('input')) ? request()->input('login') : 'false';
+            $data['signup'] = request()->has('signup') && is_string(request()->input('signup')) ? request()->input('signup') : 'false';
             $data['canvas_path'] = $canvas_path;
 
             if (request()->session()->has('login')) {

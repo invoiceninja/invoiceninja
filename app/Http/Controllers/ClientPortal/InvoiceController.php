@@ -181,6 +181,16 @@ class InvoiceController extends Controller
                 ->with('message', ctrans('texts.no_payable_invoices_selected'));
         }
 
+        //ensure all stale fees are removed.
+        $invoices->each(function ($invoice) {
+            $invoice->service()
+                    ->markSent()
+                    ->removeUnpaidGatewayFees()
+                    ->save();
+        });
+
+        $invoices = $invoices->fresh();
+
         //iterate and sum the payable amounts either partial or balance
         $total = 0;
         foreach ($invoices as $invoice) {
