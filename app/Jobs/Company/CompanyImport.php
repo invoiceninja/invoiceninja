@@ -111,6 +111,8 @@ class CompanyImport implements ShouldQueue
 
     private $file_path;
 
+    private string $import_version = '';
+
     private $importables = [
         // 'company',
         'users',
@@ -208,6 +210,22 @@ class CompanyImport implements ShouldQueue
         "report_include_drafts",
         "client_registration_fields",
         "convert_rate_to_client",
+    ];
+
+    private array $version_keys = [
+        'baseline' => [],
+        '5.7.35' => [
+            Payment::class => [
+                'refund_meta', 
+                'category_id',
+            ],
+            User::class => [
+                'user_logged_in_notification',
+            ],
+            Design::class => [
+                'is_template',
+            ]
+        ],
     ];
 
     /**
@@ -407,9 +425,7 @@ class CompanyImport implements ShouldQueue
 
         $data = (object)$this->getObject('app_version', true);
         
-        if ($this->current_app_version != $data->app_version) {
-            //perform some magic here
-        }
+        $this->import_version = $data->app_version;
         
         if ($this->pre_flight_checks_pass === false) {
             $this->sendImportMail($this->message);
@@ -1327,7 +1343,36 @@ class CompanyImport implements ShouldQueue
         }
     }
 
+    private function filterVersionProps($class, array $obj_array): array
+    {
 
+        if($this->current_app_version == $this->import_version)
+            return $obj_array;
+
+        $version_index = 0;
+        $index = 0;
+
+        $filters = collect($this->version_keys)
+            ->map(function ($value, $key) use (&$version_index, &$index) {
+                if($this->import_version == $key) {
+                    $version_index = $index;
+                }
+                                                            
+                $index++;
+                return $value;
+
+            })
+            ->when($version_index == 0, function ($collection) {
+                return collect([]);
+            })
+            ->when($version_index > 0, function ($collection) use (&$version_index, $class) {
+                return $collection->slice($version_index)->pluck($class)->filter();
+            });
+
+            return collect($obj_array)->diffKeys($filters->flatten()->flip())->toArray();
+
+    } 
+        
     private function genericNewClassImport($class, $unset, $transforms, $object_property)
     {
         $class::unguard();
