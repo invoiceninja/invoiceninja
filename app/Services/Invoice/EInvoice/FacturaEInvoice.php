@@ -544,8 +544,8 @@ class FacturaEInvoice extends AbstractService
         "isLegalEntity" => $this->invoice->client->classification === 'individual' ? false : true,
         "taxNumber"     => $this->invoice->client->vat_number,
         "name"          => substr($this->invoice->client->present()->name(), 0, 40),
-        "firstSurname"  => substr($this->invoice->client->present()->first_name(), 0, 40),
-        "lastSurname"   => substr($this->invoice->client->present()->last_name(), 0, 40),
+        // "firstSurname"  => substr($this->invoice->client->present()->last_name(), 0, 40),
+        // "lastSurname"   => substr($this->invoice->client->present()->last_name(), 0, 40),
         "address"       => substr($this->invoice->client->address1, 0, 80),
         "postCode"      => substr($this->invoice->client->postal_code, 0, 5),
         "town"          => substr($this->invoice->client->city, 0, 50),
@@ -560,6 +560,11 @@ class FacturaEInvoice extends AbstractService
         // "cnoCnae" => "04791", // Clasif. Nacional de Act. Económicas
         // "ineTownCode" => "280796" // Cód. de municipio del INE
         ]);
+
+        if($this->invoice->client->classification === 'individual') {
+            $buyer['name'] = $this->invoice->client->present()->first_name();
+            $buyer['firstSurname'] = $this->invoice->client->present()->last_name();
+        }
 
         $this->fac->setBuyer($buyer);
 
