@@ -41,6 +41,9 @@ class ExpenseFilters extends QueryFilters
                 ->orWhere('custom_value4', 'like', '%'.$filter.'%')
                 ->orWhereHas('category', function ($q) use ($filter) {
                     $q->where('name', 'like', '%'.$filter.'%');
+                })
+                ->orWhereHas('vendor', function ($q) use ($filter) {
+                    $q->where('name', 'like', '%'.$filter.'%');
                 });
         });
     }
