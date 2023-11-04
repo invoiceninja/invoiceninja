@@ -539,33 +539,35 @@ class FacturaEInvoice extends AbstractService
 
     private function buildBuyer(): self
     {
-
-        $buyer = new FacturaeParty([
-        "isLegalEntity" => $this->invoice->client->classification === 'individual' ? false : true,
-        "taxNumber"     => $this->invoice->client->vat_number,
-        "name"          => substr($this->invoice->client->present()->name(), 0, 40),
-        // "firstSurname"  => substr($this->invoice->client->present()->last_name(), 0, 40),
-        // "lastSurname"   => substr($this->invoice->client->present()->last_name(), 0, 40),
-        "address"       => substr($this->invoice->client->address1, 0, 80),
-        "postCode"      => substr($this->invoice->client->postal_code, 0, 5),
-        "town"          => substr($this->invoice->client->city, 0, 50),
-        "province"      => substr($this->invoice->client->state, 0, 20),
-        "countryCode"   => $this->invoice->client->country->iso_3166_3,  // Se asume España si se omite
-        "email"   => substr($this->invoice->client->present()->email(), 0, 60),
-        "phone"   => substr($this->invoice->client->present()->phone(), 0, 15),
-        "fax"     => "",
-        "website" => substr($this->invoice->client->present()->website(), 0, 60),
-        "contactPeople" => substr($this->invoice->client->present()->first_name()." ".$this->invoice->client->present()->last_name(), 0, 40),
-        'centres' => $this->setFace(),
-        // "cnoCnae" => "04791", // Clasif. Nacional de Act. Económicas
-        // "ineTownCode" => "280796" // Cód. de municipio del INE
-        ]);
+        $buyer_array = [
+            "isLegalEntity" => $this->invoice->client->classification === 'individual' ? false : true,
+            "taxNumber"     => $this->invoice->client->vat_number,
+            "name"          => substr($this->invoice->client->present()->name(), 0, 40),
+            // "firstSurname"  => substr($this->invoice->client->present()->last_name(), 0, 40),
+            // "lastSurname"   => substr($this->invoice->client->present()->last_name(), 0, 40),
+            "address"       => substr($this->invoice->client->address1, 0, 80),
+            "postCode"      => substr($this->invoice->client->postal_code, 0, 5),
+            "town"          => substr($this->invoice->client->city, 0, 50),
+            "province"      => substr($this->invoice->client->state, 0, 20),
+            "countryCode"   => $this->invoice->client->country->iso_3166_3,  // Se asume España si se omite
+            "email"   => substr($this->invoice->client->present()->email(), 0, 60),
+            "phone"   => substr($this->invoice->client->present()->phone(), 0, 15),
+            "fax"     => "",
+            "website" => substr($this->invoice->client->present()->website(), 0, 60),
+            "contactPeople" => substr($this->invoice->client->present()->first_name()." ".$this->invoice->client->present()->last_name(), 0, 40),
+            'centres' => $this->setFace(),
+            // "cnoCnae" => "04791", // Clasif. Nacional de Act. Económicas
+            // "ineTownCode" => "280796" // Cód. de municipio del INE
+            ];
 
         if($this->invoice->client->classification === 'individual') {
-            $buyer['name'] = $this->invoice->client->present()->first_name();
-            $buyer['firstSurname'] = $this->invoice->client->present()->last_name();
+            $buyer_array['name'] = $this->invoice->client->present()->first_name();
+            $buyer_array['firstSurname'] = $this->invoice->client->present()->last_name();
         }
 
+        $buyer = new FacturaeParty($buyer_array);
+
+        
         $this->fac->setBuyer($buyer);
 
         return $this;
