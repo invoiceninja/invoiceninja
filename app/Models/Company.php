@@ -11,20 +11,21 @@
 
 namespace App\Models;
 
-use App\Casts\EncryptedCast;
-use App\DataMapper\CompanySettings;
-use App\Models\Presenters\CompanyPresenter;
-use App\Services\Notification\NotificationService;
 use App\Utils\Ninja;
+use App\Casts\EncryptedCast;
+use App\Models\VendorContact;
 use App\Utils\Traits\AppSetup;
-use App\Utils\Traits\CompanySettingsSaver;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Notifications\Notification;
+use App\DataMapper\CompanySettings;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Laracasts\Presenter\PresentableTrait;
+use App\Utils\Traits\CompanySettingsSaver;
+use Illuminate\Notifications\Notification;
+use App\Models\Presenters\CompanyPresenter;
+use App\Services\Notification\NotificationService;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * App\Models\Company
@@ -510,6 +511,14 @@ class Company extends BaseModel
     public function projects() :HasMany
     {
         return $this->hasMany(Project::class)->withTrashed();
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function vendor_contacts() :HasMany
+    {
+        return $this->hasMany(VendorContact::class)->withTrashed();
     }
 
     /**
