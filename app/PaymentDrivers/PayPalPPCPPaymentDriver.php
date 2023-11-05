@@ -153,7 +153,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                                     ->withQueryParameters(['grant_type' => 'client_credentials'])
                                     ->post("{$this->api_endpoint_url}/v1/oauth2/token");
 
-        nlog($response->body());
+        // nlog($response->body());
 
         if($response->successful()) {
             $this->access_token = $response->json()['access_token'];
@@ -193,9 +193,19 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         return $this;
     }
 
+    private function checkPaymentsReceivable(): self
+    {
+
+        if(!$this->company_gateway->getConfigField('payments_receivable'))
+            throw new PaymentFailed('Unable to accept payments at this time, please contact PayPal for more information.', 401);
+
+        return $this;
+        
+    }
+
     public function processPaymentView($data)
     {
-        $this->init();
+        $this->init()->checkPaymentsReceivable();
 
         $data['gateway'] = $this;
         $this->payment_hash->data = array_merge((array) $this->payment_hash->data, ['amount' => $data['total']['amount_with_fee']]);
