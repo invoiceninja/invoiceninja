@@ -62,11 +62,13 @@ class PdfService
         $this->document_type = $document_type;
 
         $this->options = $options;
+
+        $this->start_time = microtime(true);
+
     }
 
     public function boot(): self
     {   
-        $this->start_time = microtime(true);
 
         $this->init();
 

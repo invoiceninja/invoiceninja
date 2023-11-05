@@ -11,32 +11,31 @@
 
 namespace App\Services\Template;
 
-use App\Utils\Number;
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Design;
-use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
-use App\Models\Activity;
-use App\Utils\HtmlEngine;
-use League\Fractal\Manager;
 use App\Models\PurchaseOrder;
-use App\Utils\VendorHtmlEngine;
-use App\Utils\PaymentHtmlEngine;
-use App\Utils\Traits\MakesDates;
-use App\Utils\HostedPDF\NinjaPdf;
-use App\Utils\Traits\Pdf\PdfMaker;
-use Twig\Extra\Intl\IntlExtension;
-use App\Transformers\TaskTransformer;
-use App\Transformers\QuoteTransformer;
-use App\Services\Template\TemplateMock;
-use App\Transformers\CreditTransformer;
-use App\Transformers\InvoiceTransformer;
+use App\Models\Quote;
+use App\Models\RecurringInvoice;
+use App\Models\Vendor;
 use App\Transformers\ProjectTransformer;
 use App\Transformers\PurchaseOrderTransformer;
+use App\Transformers\QuoteTransformer;
+use App\Transformers\TaskTransformer;
+use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\HtmlEngine;
+use App\Utils\Number;
+use App\Utils\PaymentHtmlEngine;
+use App\Utils\Traits\MakesDates;
+use App\Utils\Traits\Pdf\PdfMaker;
+use App\Utils\VendorHtmlEngine;
+use League\Fractal\Manager;
 use League\Fractal\Serializer\ArraySerializer;
+use Twig\Extra\Intl\IntlExtension;
 
 class TemplateService
 {
@@ -53,6 +52,14 @@ class TemplateService
     private array $variables = [];
 
     public ?Company $company;
+
+    private ?Client $client;
+
+    private ?Vendor $vendor;
+
+    private Invoice | Quote | Credit | PurchaseOrder | RecurringInvoice $entity;
+
+    private Payment $payment;
 
     public function __construct(public ?Design $template = null)
     {
@@ -71,7 +78,7 @@ class TemplateService
         $this->document->validateOnParse = true;
 
         $loader = new \Twig\Loader\FilesystemLoader(storage_path());
-        $this->twig = new \Twig\Environment($loader,[
+        $this->twig = new \Twig\Environment($loader, [
                 'debug' => true,
         ]);
         $string_extension = new \Twig\Extension\StringLoaderExtension();
@@ -106,7 +113,7 @@ class TemplateService
              ->processData($data)
              ->parseNinjaBlocks()
              ->processVariables($data)
-             ->parseVariables();        
+             ->parseVariables();
 
         return $this;
     }
@@ -142,7 +149,12 @@ class TemplateService
     {
         return $this->compiled_html;
     }
-
+    
+    /**
+     * Returns the PDF string
+     *
+     * @return mixed
+     */
     public function getPdf(): mixed
     {
 
@@ -155,12 +167,23 @@ class TemplateService
         return $pdf;
 
     }
-
+    
+    /**
+     * Get the parsed data
+     *
+     * @return array
+     */
     public function getData(): array
     {
         return $this->data;
     }
-    
+        
+    /**
+     * Process data variables
+     *
+     * @param  mixed $data
+     * @return self
+     */
     public function processData($data): self
     {
 
@@ -171,7 +194,7 @@ class TemplateService
 
     /**
      * Parses all Ninja tags in the document
-     * 
+     *
      * @return self
      */
     private function parseNinjaBlocks(): self
@@ -186,24 +209,19 @@ class TemplateService
 
             try {
                 $template = $this->twig->createTemplate(html_entity_decode($template));
-            }
-            catch(\Twig\Error\SyntaxError $e) {
+            } catch(\Twig\Error\SyntaxError $e) {
                 nlog($e->getMessage());
                 throw ($e);
-            }
-            catch(\Twig\Error\Error $e) {
+            } catch(\Twig\Error\Error $e) {
                 nlog("error = " .$e->getMessage());
                 throw ($e);
-            }
-            catch(\Twig\Error\RuntimeError $e) {
+            } catch(\Twig\Error\RuntimeError $e) {
                 nlog("runtime = " .$e->getMessage());
                 throw ($e);
-            }
-            catch(\Twig\Error\LoaderError $e) {
+            } catch(\Twig\Error\LoaderError $e) {
                 nlog("loader = " . $e->getMessage());
                 throw ($e);
-            }
-            catch(\Twig\Error\SecurityError $e) {
+            } catch(\Twig\Error\SecurityError $e) {
                 nlog("security = " . $e->getMessage());
                 throw ($e);
             }
@@ -229,7 +247,7 @@ class TemplateService
     
     /**
      * Parses all variables in the document
-     * 
+     *
      * @return self
      */
     private function parseVariables(): self
@@ -239,8 +257,7 @@ class TemplateService
 
         foreach($this->variables as $key => $variable) {
             
-            if(isset($variable['labels']) && isset($variable['values']))
-            {
+            if(isset($variable['labels']) && isset($variable['values'])) {
                 $html = strtr($html, $variable['labels']);
                 $html = strtr($html, $variable['values']);
             }
@@ -271,8 +288,9 @@ class TemplateService
      */
     private function compose(): self
     {
-        if(!$this->template)
+        if(!$this->template) {
             return $this;
+        }
 
         $html = '';
         $html .= $this->template->design->includes;
@@ -287,7 +305,7 @@ class TemplateService
     }
     
     /**
-     * Inject the template components 
+     * Inject the template components
      * manually
      *
      * @return self
@@ -319,11 +337,12 @@ class TemplateService
             
             $processed = [];
 
-            if(in_array($key, ['tasks','projects','aging']) || !$value->first() )
+            if(in_array($key, ['tasks','projects','aging']) || !$value->first()) {
                 return $processed;
+            }
 
             match ($key) {
-                'variables' => $processed = $value->first() ?? [], 
+                'variables' => $processed = $value->first() ?? [],
                 'invoices' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues() ?? [],
                 'quotes' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues() ?? [],
                 'credits' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues() ?? [],
@@ -343,7 +362,7 @@ class TemplateService
 
     private function preProcessDataBlocks($data): array
     {
-        return collect($data)->map(function ($value, $key){
+        return collect($data)->map(function ($value, $key) {
 
             $processed = [];
 
@@ -367,75 +386,76 @@ class TemplateService
     public function processInvoices($invoices): array
     {
         $invoices = collect($invoices)
-                ->map(function ($invoice){
+                ->map(function ($invoice) {
 
-            $payments = [];
-            
-            if($invoice->payments ?? false) {
-                $payments = $invoice->payments->map(function ($payment) {
-                    return $this->transformPayment($payment);
-                })->toArray();
-            }
+                    $payments = [];
+                    $this->entity = $invoice;
 
-            return [
-                'amount' => Number::formatMoney($invoice->amount, $invoice->client),
-                'balance' => Number::formatMoney($invoice->balance, $invoice->client),
-                'balance_raw' => $invoice->balance,
-                'number' => $invoice->number ?: '',
-                'discount' => $invoice->discount,
-                'po_number' => $invoice->po_number ?: '',
-                'date' => $this->translateDate($invoice->date, $invoice->client->date_format(), $invoice->client->locale()),
-                'last_sent_date' => $this->translateDate($invoice->last_sent_date, $invoice->client->date_format(), $invoice->client->locale()),
-                'next_send_date' => $this->translateDate($invoice->next_send_date, $invoice->client->date_format(), $invoice->client->locale()),
-                'due_date' => $this->translateDate($invoice->due_date, $invoice->client->date_format(), $invoice->client->locale()),
-                'terms' => $invoice->terms ?: '',
-                'public_notes' => $invoice->public_notes ?: '',
-                'private_notes' => $invoice->private_notes ?: '',
-                'uses_inclusive_taxes' => (bool) $invoice->uses_inclusive_taxes,
-                'tax_name1' => $invoice->tax_name1 ?? '',
-                'tax_rate1' => (float) $invoice->tax_rate1,
-                'tax_name2' => $invoice->tax_name2 ?? '',
-                'tax_rate2' => (float) $invoice->tax_rate2,
-                'tax_name3' => $invoice->tax_name3 ?? '',
-                'tax_rate3' => (float) $invoice->tax_rate3,
-                'total_taxes' => Number::formatMoney($invoice->total_taxes, $invoice->client),
-                'total_taxes_raw' => $invoice->total_taxes,
-                'is_amount_discount' => (bool) $invoice->is_amount_discount ?? false,
-                'footer' => $invoice->footer ?? '',
-                'partial' => $invoice->partial ?? 0,
-                'partial_due_date' => $this->translateDate($invoice->partial_due_date, $invoice->client->date_format(), $invoice->client->locale()),
-                'custom_value1' => (string) $invoice->custom_value1 ?: '',
-                'custom_value2' => (string) $invoice->custom_value2 ?: '',
-                'custom_value3' => (string) $invoice->custom_value3 ?: '',
-                'custom_value4' => (string) $invoice->custom_value4 ?: '',
-                'custom_surcharge1' => (float) $invoice->custom_surcharge1,
-                'custom_surcharge2' => (float) $invoice->custom_surcharge2,
-                'custom_surcharge3' => (float) $invoice->custom_surcharge3,
-                'custom_surcharge4' => (float) $invoice->custom_surcharge4,
-                'exchange_rate' => (float) $invoice->exchange_rate,
-                'custom_surcharge_tax1' => (bool) $invoice->custom_surcharge_tax1,
-                'custom_surcharge_tax2' => (bool) $invoice->custom_surcharge_tax2,
-                'custom_surcharge_tax3' => (bool) $invoice->custom_surcharge_tax3,
-                'custom_surcharge_tax4' => (bool) $invoice->custom_surcharge_tax4,
-                'line_items' => $invoice->line_items ? $this->padLineItems($invoice->line_items, $invoice->client): (array) [],
-                'reminder1_sent' => $this->translateDate($invoice->reminder1_sent, $invoice->client->date_format(), $invoice->client->locale()),
-                'reminder2_sent' => $this->translateDate($invoice->reminder2_sent, $invoice->client->date_format(), $invoice->client->locale()),
-                'reminder3_sent' => $this->translateDate($invoice->reminder3_sent, $invoice->client->date_format(), $invoice->client->locale()),
-                'reminder_last_sent' => $this->translateDate($invoice->reminder_last_sent, $invoice->client->date_format(), $invoice->client->locale()),
-                'paid_to_date' => Number::formatMoney($invoice->paid_to_date, $invoice->client),
-                'auto_bill_enabled' => (bool) $invoice->auto_bill_enabled,
-                'client' => [
-                    'name' => $invoice->client->present()->name(),
-                    'balance' => $invoice->client->balance,
-                    'payment_balance' => $invoice->client->payment_balance,
-                    'credit_balance' => $invoice->client->credit_balance,
-                ],
-                'payments' => $payments,
-                'total_tax_map' => $invoice->calc()->getTotalTaxMap(),
-                'line_tax_map' => $invoice->calc()->getTaxMap(),
-            ];
+                    if($invoice->payments ?? false) {
+                        $payments = $invoice->payments->map(function ($payment) {
+                            return $this->transformPayment($payment);
+                        })->toArray();
+                    }
 
-        });
+                    return [
+                        'amount' => Number::formatMoney($invoice->amount, $invoice->client),
+                        'balance' => Number::formatMoney($invoice->balance, $invoice->client),
+                        'balance_raw' => $invoice->balance,
+                        'number' => $invoice->number ?: '',
+                        'discount' => $invoice->discount,
+                        'po_number' => $invoice->po_number ?: '',
+                        'date' => $this->translateDate($invoice->date, $invoice->client->date_format(), $invoice->client->locale()),
+                        'last_sent_date' => $this->translateDate($invoice->last_sent_date, $invoice->client->date_format(), $invoice->client->locale()),
+                        'next_send_date' => $this->translateDate($invoice->next_send_date, $invoice->client->date_format(), $invoice->client->locale()),
+                        'due_date' => $this->translateDate($invoice->due_date, $invoice->client->date_format(), $invoice->client->locale()),
+                        'terms' => $invoice->terms ?: '',
+                        'public_notes' => $invoice->public_notes ?: '',
+                        'private_notes' => $invoice->private_notes ?: '',
+                        'uses_inclusive_taxes' => (bool) $invoice->uses_inclusive_taxes,
+                        'tax_name1' => $invoice->tax_name1 ?? '',
+                        'tax_rate1' => (float) $invoice->tax_rate1,
+                        'tax_name2' => $invoice->tax_name2 ?? '',
+                        'tax_rate2' => (float) $invoice->tax_rate2,
+                        'tax_name3' => $invoice->tax_name3 ?? '',
+                        'tax_rate3' => (float) $invoice->tax_rate3,
+                        'total_taxes' => Number::formatMoney($invoice->total_taxes, $invoice->client),
+                        'total_taxes_raw' => $invoice->total_taxes,
+                        'is_amount_discount' => (bool) $invoice->is_amount_discount ?? false,
+                        'footer' => $invoice->footer ?? '',
+                        'partial' => $invoice->partial ?? 0,
+                        'partial_due_date' => $this->translateDate($invoice->partial_due_date, $invoice->client->date_format(), $invoice->client->locale()),
+                        'custom_value1' => (string) $invoice->custom_value1 ?: '',
+                        'custom_value2' => (string) $invoice->custom_value2 ?: '',
+                        'custom_value3' => (string) $invoice->custom_value3 ?: '',
+                        'custom_value4' => (string) $invoice->custom_value4 ?: '',
+                        'custom_surcharge1' => (float) $invoice->custom_surcharge1,
+                        'custom_surcharge2' => (float) $invoice->custom_surcharge2,
+                        'custom_surcharge3' => (float) $invoice->custom_surcharge3,
+                        'custom_surcharge4' => (float) $invoice->custom_surcharge4,
+                        'exchange_rate' => (float) $invoice->exchange_rate,
+                        'custom_surcharge_tax1' => (bool) $invoice->custom_surcharge_tax1,
+                        'custom_surcharge_tax2' => (bool) $invoice->custom_surcharge_tax2,
+                        'custom_surcharge_tax3' => (bool) $invoice->custom_surcharge_tax3,
+                        'custom_surcharge_tax4' => (bool) $invoice->custom_surcharge_tax4,
+                        'line_items' => $invoice->line_items ? $this->padLineItems($invoice->line_items, $invoice->client): (array) [],
+                        'reminder1_sent' => $this->translateDate($invoice->reminder1_sent, $invoice->client->date_format(), $invoice->client->locale()),
+                        'reminder2_sent' => $this->translateDate($invoice->reminder2_sent, $invoice->client->date_format(), $invoice->client->locale()),
+                        'reminder3_sent' => $this->translateDate($invoice->reminder3_sent, $invoice->client->date_format(), $invoice->client->locale()),
+                        'reminder_last_sent' => $this->translateDate($invoice->reminder_last_sent, $invoice->client->date_format(), $invoice->client->locale()),
+                        'paid_to_date' => Number::formatMoney($invoice->paid_to_date, $invoice->client),
+                        'auto_bill_enabled' => (bool) $invoice->auto_bill_enabled,
+                        'client' => [
+                            'name' => $invoice->client->present()->name(),
+                            'balance' => $invoice->client->balance,
+                            'payment_balance' => $invoice->client->payment_balance,
+                            'credit_balance' => $invoice->client->credit_balance,
+                        ],
+                        'payments' => $payments,
+                        'total_tax_map' => $invoice->calc()->getTotalTaxMap(),
+                        'line_tax_map' => $invoice->calc()->getTaxMap(),
+                    ];
+
+                });
 
         return $invoices->toArray();
 
@@ -443,7 +463,7 @@ class TemplateService
 
     public function padLineItems(array $items, Client $client): array
     {
-        return collect($items)->map(function ($item) use ($client){
+        return collect($items)->map(function ($item) use ($client) {
 
             $item->cost_raw = $item->cost ?? 0;
             $item->discount_raw = $item->discount ?? 0;
@@ -454,8 +474,9 @@ class TemplateService
 
             $item->cost = Number::formatMoney($item->cost_raw, $client);
             
-            if($item->is_amount_discount)
+            if($item->is_amount_discount) {
                 $item->discount = Number::formatMoney($item->discount_raw, $client);
+            }
             
             $item->line_total = Number::formatMoney($item->line_total_raw, $client);
             $item->gross_line_total = Number::formatMoney($item->gross_line_total_raw, $client);
@@ -471,7 +492,9 @@ class TemplateService
     {
 
         $data = [];
-                
+        
+        $this->payment = $payment;
+
         $credits = $payment->credits->map(function ($credit) use ($payment) {
             return [
                 'credit' => $credit->number,
@@ -570,7 +593,7 @@ class TemplateService
     {
 
         return collect($payment->refund_meta ?? [])
-        ->map(function ($refund) use($payment){
+        ->map(function ($refund) use ($payment) {
 
             $date = \Carbon\Carbon::parse($refund['date'])->addSeconds($payment->client->timezone_offset());
             $date = $this->translateDate($date, $payment->client->date_format(), $payment->client->locale());
@@ -579,7 +602,7 @@ class TemplateService
             $map = [];
 
             foreach($refund['invoices'] as $refunded_invoice) {
-                $invoice = Invoice::withTrashed()->find($refunded_invoice['invoice_id']);    
+                $invoice = Invoice::withTrashed()->find($refunded_invoice['invoice_id']);
                 $amount = Number::formatMoney($refunded_invoice['amount'], $payment->client);
                 $notes = ctrans('texts.status_partially_refunded_amount', ['amount' => $amount]);
 
@@ -623,67 +646,69 @@ class TemplateService
     public function processCredits($credits): array
     {
         $credits = collect($credits)
-                ->map(function ($credit){
+                ->map(function ($credit) {
 
-            return [
-                'amount' => Number::formatMoney($credit->amount, $credit->client),
-                'balance' => Number::formatMoney($credit->balance, $credit->client),
-                'balance_raw' => $credit->balance,
-                'number' => $credit->number ?: '',
-                'discount' => $credit->discount,
-                'po_number' => $credit->po_number ?: '',
-                'date' => $this->translateDate($credit->date, $credit->client->date_format(), $credit->client->locale()),
-                'last_sent_date' => $this->translateDate($credit->last_sent_date, $credit->client->date_format(), $credit->client->locale()),
-                'next_send_date' => $this->translateDate($credit->next_send_date, $credit->client->date_format(), $credit->client->locale()),
-                'due_date' => $this->translateDate($credit->due_date, $credit->client->date_format(), $credit->client->locale()),
-                'terms' => $credit->terms ?: '',
-                'public_notes' => $credit->public_notes ?: '',
-                'private_notes' => $credit->private_notes ?: '',
-                'uses_inclusive_taxes' => (bool) $credit->uses_inclusive_taxes,
-                'tax_name1' => $credit->tax_name1 ?? '',
-                'tax_rate1' => (float) $credit->tax_rate1,
-                'tax_name2' => $credit->tax_name2 ?? '',
-                'tax_rate2' => (float) $credit->tax_rate2,
-                'tax_name3' => $credit->tax_name3 ?? '',
-                'tax_rate3' => (float) $credit->tax_rate3,
-                'total_taxes' => Number::formatMoney($credit->total_taxes, $credit->client),
-                'total_taxes_raw' => $credit->total_taxes,
-                'is_amount_discount' => (bool) $credit->is_amount_discount ?? false,
-                'footer' => $credit->footer ?? '',
-                'partial' => $credit->partial ?? 0,
-                'partial_due_date' => $this->translateDate($credit->partial_due_date, $credit->client->date_format(), $credit->client->locale()),
-                'custom_value1' => (string) $credit->custom_value1 ?: '',
-                'custom_value2' => (string) $credit->custom_value2 ?: '',
-                'custom_value3' => (string) $credit->custom_value3 ?: '',
-                'custom_value4' => (string) $credit->custom_value4 ?: '',
-                'custom_surcharge1' => (float) $credit->custom_surcharge1,
-                'custom_surcharge2' => (float) $credit->custom_surcharge2,
-                'custom_surcharge3' => (float) $credit->custom_surcharge3,
-                'custom_surcharge4' => (float) $credit->custom_surcharge4,
-                'exchange_rate' => (float) $credit->exchange_rate,
-                'custom_surcharge_tax1' => (bool) $credit->custom_surcharge_tax1,
-                'custom_surcharge_tax2' => (bool) $credit->custom_surcharge_tax2,
-                'custom_surcharge_tax3' => (bool) $credit->custom_surcharge_tax3,
-                'custom_surcharge_tax4' => (bool) $credit->custom_surcharge_tax4,
-                'line_items' => $credit->line_items ? $this->padLineItems($credit->line_items, $credit->client): (array) [],
-                'reminder1_sent' => $this->translateDate($credit->reminder1_sent, $credit->client->date_format(), $credit->client->locale()),
-                'reminder2_sent' => $this->translateDate($credit->reminder2_sent, $credit->client->date_format(), $credit->client->locale()),
-                'reminder3_sent' => $this->translateDate($credit->reminder3_sent, $credit->client->date_format(), $credit->client->locale()),
-                'reminder_last_sent' => $this->translateDate($credit->reminder_last_sent, $credit->client->date_format(), $credit->client->locale()),
-                'paid_to_date' => Number::formatMoney($credit->paid_to_date, $credit->client),
-                'auto_bill_enabled' => (bool) $credit->auto_bill_enabled,
-                'client' => [
-                    'name' => $credit->client->present()->name(),
-                    'balance' => $credit->client->balance,
-                    'payment_balance' => $credit->client->payment_balance,
-                    'credit_balance' => $credit->client->credit_balance,
-                ],
-                'payments' => [],
-                'total_tax_map' => $credit->calc()->getTotalTaxMap(),
-                'line_tax_map' => $credit->calc()->getTaxMap(),
-            ];
+                    $this->entity = $credit;
+                    
+                    return [
+                        'amount' => Number::formatMoney($credit->amount, $credit->client),
+                        'balance' => Number::formatMoney($credit->balance, $credit->client),
+                        'balance_raw' => $credit->balance,
+                        'number' => $credit->number ?: '',
+                        'discount' => $credit->discount,
+                        'po_number' => $credit->po_number ?: '',
+                        'date' => $this->translateDate($credit->date, $credit->client->date_format(), $credit->client->locale()),
+                        'last_sent_date' => $this->translateDate($credit->last_sent_date, $credit->client->date_format(), $credit->client->locale()),
+                        'next_send_date' => $this->translateDate($credit->next_send_date, $credit->client->date_format(), $credit->client->locale()),
+                        'due_date' => $this->translateDate($credit->due_date, $credit->client->date_format(), $credit->client->locale()),
+                        'terms' => $credit->terms ?: '',
+                        'public_notes' => $credit->public_notes ?: '',
+                        'private_notes' => $credit->private_notes ?: '',
+                        'uses_inclusive_taxes' => (bool) $credit->uses_inclusive_taxes,
+                        'tax_name1' => $credit->tax_name1 ?? '',
+                        'tax_rate1' => (float) $credit->tax_rate1,
+                        'tax_name2' => $credit->tax_name2 ?? '',
+                        'tax_rate2' => (float) $credit->tax_rate2,
+                        'tax_name3' => $credit->tax_name3 ?? '',
+                        'tax_rate3' => (float) $credit->tax_rate3,
+                        'total_taxes' => Number::formatMoney($credit->total_taxes, $credit->client),
+                        'total_taxes_raw' => $credit->total_taxes,
+                        'is_amount_discount' => (bool) $credit->is_amount_discount ?? false,
+                        'footer' => $credit->footer ?? '',
+                        'partial' => $credit->partial ?? 0,
+                        'partial_due_date' => $this->translateDate($credit->partial_due_date, $credit->client->date_format(), $credit->client->locale()),
+                        'custom_value1' => (string) $credit->custom_value1 ?: '',
+                        'custom_value2' => (string) $credit->custom_value2 ?: '',
+                        'custom_value3' => (string) $credit->custom_value3 ?: '',
+                        'custom_value4' => (string) $credit->custom_value4 ?: '',
+                        'custom_surcharge1' => (float) $credit->custom_surcharge1,
+                        'custom_surcharge2' => (float) $credit->custom_surcharge2,
+                        'custom_surcharge3' => (float) $credit->custom_surcharge3,
+                        'custom_surcharge4' => (float) $credit->custom_surcharge4,
+                        'exchange_rate' => (float) $credit->exchange_rate,
+                        'custom_surcharge_tax1' => (bool) $credit->custom_surcharge_tax1,
+                        'custom_surcharge_tax2' => (bool) $credit->custom_surcharge_tax2,
+                        'custom_surcharge_tax3' => (bool) $credit->custom_surcharge_tax3,
+                        'custom_surcharge_tax4' => (bool) $credit->custom_surcharge_tax4,
+                        'line_items' => $credit->line_items ? $this->padLineItems($credit->line_items, $credit->client): (array) [],
+                        'reminder1_sent' => $this->translateDate($credit->reminder1_sent, $credit->client->date_format(), $credit->client->locale()),
+                        'reminder2_sent' => $this->translateDate($credit->reminder2_sent, $credit->client->date_format(), $credit->client->locale()),
+                        'reminder3_sent' => $this->translateDate($credit->reminder3_sent, $credit->client->date_format(), $credit->client->locale()),
+                        'reminder_last_sent' => $this->translateDate($credit->reminder_last_sent, $credit->client->date_format(), $credit->client->locale()),
+                        'paid_to_date' => Number::formatMoney($credit->paid_to_date, $credit->client),
+                        'auto_bill_enabled' => (bool) $credit->auto_bill_enabled,
+                        'client' => [
+                            'name' => $credit->client->present()->name(),
+                            'balance' => $credit->client->balance,
+                            'payment_balance' => $credit->client->payment_balance,
+                            'credit_balance' => $credit->client->credit_balance,
+                        ],
+                        'payments' => [],
+                        'total_tax_map' => $credit->calc()->getTotalTaxMap(),
+                        'line_tax_map' => $credit->calc()->getTaxMap(),
+                    ];
 
-        });
+                });
 
         return $credits->toArray();
 
@@ -775,5 +800,125 @@ class TemplateService
         
         return $this;
     }
+    
+    /**
+     * Parses and finds any stacks to replace
+     *
+     * @return self
+     */
+    private function parseGlobalStacks(): self
+    {
+        $stacks = [
+            'entity-details',
+            'client-details',
+            'vendor-details',
+            'company-details',
+            'company-address',
+            'shipping-details',
+        ];
+
+        collect($stacks)->filter(function ($stack) {
+            $this->document->getElementById($stack);
+
+        })->each(function ($stack){
+            $this->parseStack($stack);
+        });
+        
+        return $this;
+
+    }
+    
+    /**
+     * Injects field stacks into Template
+     *
+     * @param  string $stack
+     * @return self
+     */
+    private function parseStack(string $stack): self
+    {
+        match($stack){
+            'entity-details' => $this->entityDetails(),
+            'client-details' => $this->clientDetails(),
+            'vendor-details' => $this->vendorDetails(),
+            'company-details' => $this->companyDetails(),
+            'company-address' => $this->companyAddress(),
+            'shipping-details' => $this->shippingDetails(),
+        };
+
+        return $this;
+    }
+
+    private function companyDetails(): self
+    {
+
+        collect($this->company->settings->pdf_variables['company_details'])
+            ->filter(function ($variable) {
+                return isset($this->variables['values'][$variable]) && !empty($this->variables['values'][$variable]);
+            })
+            ->map(function ($variable) {
+                return ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'company_details-' . substr($variable, 1)]];
+            });
+
+
+        return $this;
+    }
+
+    private function companyAddress(): self
+    {
+
+        $variables = $this->company->settings->pdf_variables['company_address'];
+
+        $elements = [];
+
+        foreach ($variables as $variable) {
+        $elements[] = ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'company_address-' . substr($variable, 1)]];
+        }
+
+        return $elements;
+
+        return $this;
+    }
+
+    private function shippingDetails(): self
+    {
+
+        return $this;
+    }
+
+    private function clientDetails(): self
+    {
+
+        return $this;
+    }
+
+    private function entityDetails(): self
+    {
+
+        return $this;
+    }
+
+    private function vendorDetails(): self
+    {
+
+
+        $elements = [];
+
+        if (!$this->vendor) {
+            return $elements;
+        }
+
+        $variables = $this->context['pdf_variables']['vendor_details'];
+
+        foreach ($variables as $variable) {
+            $elements[] = ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'vendor_details-' . substr($variable, 1)]];
+        }
+
+        return $elements;
+
+
+        return $this;
+    }
+
+
 
 }
