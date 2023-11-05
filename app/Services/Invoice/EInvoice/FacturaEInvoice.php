@@ -558,7 +558,7 @@ class FacturaEInvoice extends AbstractService
             'centres' => $this->setFace(),
             // "cnoCnae" => "04791", // Clasif. Nacional de Act. Económicas
             // "ineTownCode" => "280796" // Cód. de municipio del INE
-            ];
+        ];
 
         if($this->invoice->client->classification === 'individual') {
             $buyer_array['name'] = $this->invoice->client->present()->first_name();
