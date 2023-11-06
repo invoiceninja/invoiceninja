@@ -13,6 +13,7 @@ namespace App\Services\Template;
 
 use App\Models\Quote;
 use App\Utils\Number;
+use Twig\Error\Error;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Design;
@@ -23,8 +24,12 @@ use App\Models\Payment;
 use App\Models\Project;
 use App\Utils\HtmlEngine;
 use League\Fractal\Manager;
+use Twig\Error\LoaderError;
+use Twig\Error\SyntaxError;
+use Twig\Error\RuntimeError;
 use App\Models\PurchaseOrder;
 use App\Utils\VendorHtmlEngine;
+use Twig\Sandbox\SecurityError;
 use App\Models\RecurringInvoice;
 use App\Utils\PaymentHtmlEngine;
 use App\Utils\Traits\MakesDates;
@@ -40,8 +45,9 @@ use League\Fractal\Serializer\ArraySerializer;
 
 class TemplateService
 {
-    use MakesDates, PdfMaker;
-    
+    use MakesDates;
+    use PdfMaker;
+
     private \DomDocument $document;
 
     public \Twig\Environment $twig;
@@ -69,7 +75,7 @@ class TemplateService
         $this->template = $template;
         $this->init();
     }
-    
+
     /**
      * Boot Dom Document
      *
@@ -77,7 +83,6 @@ class TemplateService
      */
     private function init(): self
     {
-
 
         $this->commonmark = new CommonMarkConverter([
             'allow_unsafe_links' => false,
@@ -96,22 +101,22 @@ class TemplateService
         $this->twig->addExtension(new \Twig\Extension\DebugExtension());
 
         $function = new \Twig\TwigFunction('img', function ($string, $style = '') {
-            return '<img src="'.$string.'" style="'.$style.'"></img>';
+            return '<img src="' . $string . '" style="' . $style . '"></img>';
         });
         $this->twig->addFunction($function);
 
         $filter = new \Twig\TwigFilter('sum', function (array $array, string $column) {
             return array_sum(array_column($array, $column));
         });
-        
+
         $this->twig->addFilter($filter);
 
         return $this;
     }
-        
+
     /**
      * Iterate through all of the
-     * ninja nodes
+     * ninja nodes, and field stacks
      *
      * @param array $data - the payload to be passed into the template
      * @return self
@@ -127,7 +132,13 @@ class TemplateService
 
         return $this;
     }
-    
+
+    /**
+     * Initialized a set of HTMLEngine variables
+     *
+     * @param  array | Collection $data
+     * @return self
+     */
     private function processVariables($data): self
     {
         $this->variables = $this->resolveHtmlEngine($data);
@@ -135,6 +146,11 @@ class TemplateService
         return $this;
     }
 
+    /**
+     * Returns a Mock Template
+     *
+     * @return self
+     */
     public function mock(): self
     {
         $tm = new TemplateMock($this->company);
@@ -151,7 +167,7 @@ class TemplateService
 
         return $this;
     }
-    
+
     /**
      * Returns the HTML as string
      *
@@ -161,13 +177,13 @@ class TemplateService
     {
         return $this->compiled_html;
     }
-    
+
     /**
      * Returns the PDF string
      *
-     * @return mixed
+     * @return string
      */
-    public function getPdf(): mixed
+    public function getPdf(): string
     {
 
         if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
@@ -179,7 +195,7 @@ class TemplateService
         return $pdf;
 
     }
-    
+
     /**
      * Get the parsed data
      *
@@ -189,11 +205,11 @@ class TemplateService
     {
         return $this->data;
     }
-        
+
     /**
      * Process data variables
      *
-     * @param  mixed $data
+     * @param  array | Collection $data
      * @return self
      */
     public function processData($data): self
@@ -216,24 +232,24 @@ class TemplateService
         $contents = $this->document->getElementsByTagName('ninja');
 
         foreach ($contents as $content) {
-                                        
+
             $template = $content->ownerDocument->saveHTML($content);
 
             try {
                 $template = $this->twig->createTemplate(html_entity_decode($template));
-            } catch(\Twig\Error\SyntaxError $e) {
+            } catch(SyntaxError $e) {
                 nlog($e->getMessage());
                 throw ($e);
-            } catch(\Twig\Error\Error $e) {
-                nlog("error = " .$e->getMessage());
+            } catch(Error $e) {
+                nlog("error = " . $e->getMessage());
                 throw ($e);
-            } catch(\Twig\Error\RuntimeError $e) {
-                nlog("runtime = " .$e->getMessage());
+            } catch(RuntimeError $e) {
+                nlog("runtime = " . $e->getMessage());
                 throw ($e);
-            } catch(\Twig\Error\LoaderError $e) {
+            } catch(LoaderError $e) {
                 nlog("loader = " . $e->getMessage());
                 throw ($e);
-            } catch(\Twig\Error\SecurityError $e) {
+            } catch(SecurityError $e) {
                 nlog("security = " . $e->getMessage());
                 throw ($e);
             }
@@ -242,7 +258,7 @@ class TemplateService
 
             $f = $this->document->createDocumentFragment();
             $f->appendXML(html_entity_decode($template));
-            
+
             $replacements[] = $f;
 
         }
@@ -256,7 +272,7 @@ class TemplateService
         return $this;
 
     }
-    
+
     /**
      * Parses all variables in the document
      *
@@ -279,7 +295,7 @@ class TemplateService
 
         return $this;
     }
-    
+
     /**
      * Saves the document and updates the compiled string.
      *
@@ -314,7 +330,7 @@ class TemplateService
         return $this;
 
     }
-    
+
     /**
      * Inject the template components
      * manually
@@ -340,12 +356,13 @@ class TemplateService
      * Resolves the labels and values needed to replace the string
      * holders in the template.
      *
+     * @param  array $data
      * @return array
      */
     private function resolveHtmlEngine(array $data): array
     {
         return collect($data)->map(function ($value, $key) {
-            
+
             $processed = [];
 
             if(in_array($key, ['tasks','projects','aging']) || !$value->first()) {
@@ -364,13 +381,20 @@ class TemplateService
                 'aging' => $processed = [],
                 default => $processed = [],
             };
-            
+
             return $processed;
 
         })->toArray();
 
     }
 
+    /**
+     * Pre Processes the Data Blocks into
+     * Twig consumables
+     *
+     * @param  array | Collection $data
+     * @return array
+     */
     private function preProcessDataBlocks($data): array
     {
         return collect($data)->map(function ($value, $key) {
@@ -394,6 +418,12 @@ class TemplateService
         })->toArray();
     }
 
+    /**
+     * Process Invoices into consumable form for Twig templates
+     *
+     * @param  array | Collection $invoices
+     * @return array
+     */
     public function processInvoices($invoices): array
     {
         $invoices = collect($invoices)
@@ -448,7 +478,7 @@ class TemplateService
                         'custom_surcharge_tax2' => (bool) $invoice->custom_surcharge_tax2,
                         'custom_surcharge_tax3' => (bool) $invoice->custom_surcharge_tax3,
                         'custom_surcharge_tax4' => (bool) $invoice->custom_surcharge_tax4,
-                        'line_items' => $invoice->line_items ? $this->padLineItems($invoice->line_items, $invoice->client): (array) [],
+                        'line_items' => $invoice->line_items ? $this->padLineItems($invoice->line_items, $invoice->client) : (array) [],
                         'reminder1_sent' => $this->translateDate($invoice->reminder1_sent, $invoice->client->date_format(), $invoice->client->locale()),
                         'reminder2_sent' => $this->translateDate($invoice->reminder2_sent, $invoice->client->date_format(), $invoice->client->locale()),
                         'reminder3_sent' => $this->translateDate($invoice->reminder3_sent, $invoice->client->date_format(), $invoice->client->locale()),
@@ -472,6 +502,13 @@ class TemplateService
 
     }
 
+    /**
+     * Pads Line Items with raw and formatted content
+     *
+     * @param  array $items
+     * @param  mixed $client
+     * @return array
+     */
     public function padLineItems(array $items, Client $client): array
     {
         return collect($items)->map(function ($item) use ($client) {
@@ -484,11 +521,11 @@ class TemplateService
             $item->product_cost_raw = $item->product_cost ?? 0;
 
             $item->cost = Number::formatMoney($item->cost_raw, $client);
-            
+
             if($item->is_amount_discount) {
                 $item->discount = Number::formatMoney($item->discount_raw, $client);
             }
-            
+
             $item->line_total = Number::formatMoney($item->line_total_raw, $client);
             $item->gross_line_total = Number::formatMoney($item->gross_line_total_raw, $client);
             $item->tax_amount = Number::formatMoney($item->tax_amount_raw, $client);
@@ -499,11 +536,17 @@ class TemplateService
         })->toArray();
     }
 
+    /**
+     * Transforms a Payment into consumable for twig
+     *
+     * @param  Payment $payment
+     * @return array
+     */
     private function transformPayment(Payment $payment): array
     {
 
         $data = [];
-        
+
         $this->payment = $payment;
 
         $credits = $payment->credits->map(function ($credit) use ($payment) {
@@ -625,6 +668,12 @@ class TemplateService
 
     }
 
+    /**
+     * @todo refactor
+     *
+     * @param  mixed $quotes
+     * @return array
+     */
     public function processQuotes($quotes): array
     {
         $it = new QuoteTransformer();
@@ -638,18 +687,18 @@ class TemplateService
 
             $resources['data'][$key]['client'] = $resource['client']['data'] ?? [];
             $resources['data'][$key]['client']['contacts'] = $resource['client']['data']['contacts']['data'] ?? [];
-            
+
         }
 
         return $resources['data'];
 
     }
-    
+
     /**
      * Pushes credits through the appropriate transformer
      * and builds any required relationships
      *
-     * @param  mixed $credits
+     * @param  array | Collection $credits
      * @return array
      */
     public function processCredits($credits): array
@@ -658,7 +707,7 @@ class TemplateService
                 ->map(function ($credit) {
 
                     $this->entity = $credit;
-                    
+
                     return [
                         'amount' => Number::formatMoney($credit->amount, $credit->client),
                         'balance' => Number::formatMoney($credit->balance, $credit->client),
@@ -699,7 +748,7 @@ class TemplateService
                         'custom_surcharge_tax2' => (bool) $credit->custom_surcharge_tax2,
                         'custom_surcharge_tax3' => (bool) $credit->custom_surcharge_tax3,
                         'custom_surcharge_tax4' => (bool) $credit->custom_surcharge_tax4,
-                        'line_items' => $credit->line_items ? $this->padLineItems($credit->line_items, $credit->client): (array) [],
+                        'line_items' => $credit->line_items ? $this->padLineItems($credit->line_items, $credit->client) : (array) [],
                         'reminder1_sent' => $this->translateDate($credit->reminder1_sent, $credit->client->date_format(), $credit->client->locale()),
                         'reminder2_sent' => $this->translateDate($credit->reminder2_sent, $credit->client->date_format(), $credit->client->locale()),
                         'reminder3_sent' => $this->translateDate($credit->reminder3_sent, $credit->client->date_format(), $credit->client->locale()),
@@ -723,12 +772,10 @@ class TemplateService
 
     }
 
-
-
     /**
      * Pushes payments through the appropriate transformer
      *
-     * @param  mixed $payments
+     * @param  array | Collection $payments
      * @return array
      */
     public function processPayments($payments): array
@@ -737,12 +784,17 @@ class TemplateService
         $payments = collect($payments)->map(function ($payment) {
             return $this->transformPayment($payment);
         })->toArray();
-        
-        return $payments;
 
+        return $payments;
 
     }
 
+    /**
+     * @todo refactor
+     *
+     * @param  mixed $tasks
+     * @return array
+     */
     public function processTasks($tasks): array
     {
         $it = new TaskTransformer();
@@ -757,7 +809,7 @@ class TemplateService
             $resources['data'][$key]['client']['contacts'] = $resource['client']['data']['contacts']['data'] ?? [];
             $resources['data'][$key]['project'] = $resource['project']['data'] ?? [];
             $resources['data'][$key]['invoice'] = $resource['invoice'] ?? [];
-                    
+
         }
 
         return $resources['data'];
@@ -765,6 +817,12 @@ class TemplateService
 
     }
 
+    /**
+     * @todo refactor
+     *
+     * @param  mixed $projects
+     * @return array
+     */
     public function processProjects($projects): array
     {
 
@@ -778,9 +836,15 @@ class TemplateService
 
     }
 
+    /**
+     * @todo refactor
+     *
+     * @param  mixed $purchase_orders
+     * @return array
+     */
     public function processPurchaseOrders($purchase_orders): array
     {
-        
+
         $it = new PurchaseOrderTransformer();
         $it->setDefaultIncludes(['vendor','expense']);
         $manager = new Manager();
@@ -791,27 +855,45 @@ class TemplateService
 
     }
 
+    /**
+     * Set Company
+     *
+     * @param  mixed $company
+     * @return self
+     */
     public function setCompany(Company $company): self
     {
         $this->company = $company;
-        
+
         return $this;
     }
 
+    /**
+     * Get Company
+     *
+     * @return Company
+     */
     public function getCompany(): Company
     {
         return $this->company;
     }
 
+    /**
+     * Setter that allows external variables to override the
+     * resolved ones from this class
+     *
+     * @param  mixed $variables
+     * @return self
+     */
     public function overrideVariables($variables): self
     {
         $this->variables = $variables;
-        
+
         return $this;
     }
-    
+
     /**
-     * Parses and finds any stacks to replace
+     * Parses and finds any field stacks to inject into the DOM Document
      *
      * @return self
      */
@@ -829,14 +911,14 @@ class TemplateService
         collect($stacks)->filter(function ($stack) {
             $exists = $this->document->getElementById($stack) ?? false;
             return $exists ? ['stack' => $stack, 'labels' => $exists->getAttribute('labels')] : false;
-        })->each(function ($stack){
+        })->each(function ($stack) {
             $this->parseStack($stack);
         });
 
         return $this;
 
     }
-    
+
     /**
      * Injects field stacks into Template
      *
@@ -846,7 +928,7 @@ class TemplateService
     private function parseStack(string $stack): self
     {
 
-        match($stack['stack']){
+        match($stack['stack']) {
             'entity-details' => $this->entityDetails($stack['labels'] == 'true'),
             'client-details' => $this->clientDetails($stack['labels'] == 'true'),
             'vendor-details' => $this->vendorDetails($stack['labels'] == 'true'),
@@ -860,27 +942,35 @@ class TemplateService
         return $this;
     }
 
+    /**
+     * Inject the Company Details into the DOM Document
+     *
+     * @param  bool $include_labels
+     * @return self
+     */
     private function companyDetails(bool $include_labels): self
     {
         $var_set = $this->getVarSet();
 
-        $company_details = 
+        $company_details =
         collect($this->company->settings->pdf_variables->company_details)
-            ->filter(function ($variable) use($var_set) {
+            ->filter(function ($variable) use ($var_set) {
                 return isset($var_set['values'][$variable]) && !empty($var_set['values'][$variable]);
             })
-            ->map(function ($variable) {
-                return ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'company_details-' . substr($variable, 1)]];
+            ->when(!$include_labels, function ($collection) {
+                return $collection->map(function ($variable) {
+                    return ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'company_details-' . substr($variable, 1)]];
+                });
             })->toArray();
 
         $company_details = $include_labels ? $this->labelledFieldStack($company_details) : $company_details;
-        
+
         $this->updateElementProperties('company-details', $company_details);
 
         return $this;
     }
 
-    private function companyAddress(): self
+    private function companyAddress(bool $include_labels = false): self
     {
 
         $var_set = $this->getVarSet();
@@ -890,19 +980,30 @@ class TemplateService
             ->filter(function ($variable) use ($var_set) {
                 return isset($var_set['values'][$variable]) && !empty($var_set['values'][$variable]);
             })
-            ->map(function ($variable) {
-                return ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'company_address-' . substr($variable, 1)]];
+            ->when(!$include_labels, function ($collection) {
+                return $collection->map(function ($variable) {
+                    return ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'company_address-' . substr($variable, 1)]];
+                });
             })->toArray();
+
+        $company_address = $include_labels ? $this->labelledFieldStack($company_address) : $company_address;
 
         $this->updateElementProperties('company-address', $company_address);
 
         return $this;
     }
 
-    private function shippingDetails(): self
+    /**
+     * Injects the Shipping Details into the DOM Document
+     *
+     * @param  bool $include_labels
+     * @return self
+     */
+    private function shippingDetails(bool $include_labels = false): self
     {
-        if(!$this->entity->client)
+        if(!$this->entity->client) {
             return $this;
+        }
 
         $this->client = $this->entity->client;
 
@@ -920,7 +1021,7 @@ class TemplateService
         ];
 
         $shipping_address =
-        collect($shipping_address)->filter(function ($address){
+        collect($shipping_address)->filter(function ($address) {
             return isset($address['content']) && !empty($address['content']);
         })->toArray();
 
@@ -929,7 +1030,13 @@ class TemplateService
         return $this;
     }
 
-    private function clientDetails(): self
+    /**
+     * Injects the Client Details into the DOM Document
+     *
+     * @param  bool $include_labels
+     * @return self
+     */
+    private function clientDetails(bool $include_labels = false): self
     {
         $var_set = $this->getVarSet();
 
@@ -938,21 +1045,31 @@ class TemplateService
             ->filter(function ($variable) use ($var_set) {
                 return isset($var_set['values'][$variable]) && !empty($var_set['values'][$variable]);
             })
-            ->map(function ($variable) {
-                return ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'client_details-' . substr($variable, 1)]];
+            ->when(!$include_labels, function ($collection) {
+                return $collection->map(function ($variable) {
+                    return ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'client_details-' . substr($variable, 1)]];
+                });
             })->toArray();
 
+        $client_details = $include_labels ? $this->labelledFieldStack($client_details) : $client_details;
 
         $this->updateElementProperties('client-details', $client_details);
 
         return $this;
     }
 
+    /**
+     * Resolves the entity.
+     *
+     * Only required for resolving the entity-details stack
+     *
+     * @return string
+     */
     private function resolveEntity(): string
     {
         $entity_string = '';
 
-        match($this->entity){
+        match($this->entity) {
             ($this->entity instanceof Invoice) => $entity_string = 'invoice',
             ($this->entity instanceof Quote)  => $entity_string = 'quote',
             ($this->entity instanceof Credit) => $entity_string = 'credit',
@@ -964,7 +1081,7 @@ class TemplateService
         return $entity_string;
 
     }
-    
+
     /**
      * Returns the variable array by first key, if it exists
      *
@@ -974,7 +1091,7 @@ class TemplateService
     {
         return array_key_exists(array_key_first($this->variables), $this->variables) ? $this->variables[array_key_first($this->variables)] : $this->variables;
     }
-    
+
     /**
      * Injects the entity details to the DOM document
      *
@@ -996,7 +1113,7 @@ class TemplateService
 
         return $this;
     }
-    
+
     /**
      * Generates the field stacks with labels
      *
@@ -1005,7 +1122,7 @@ class TemplateService
      */
     private function labelledFieldStack(array $variables): array
     {
-          
+
         $elements = [];
 
         foreach ($variables as $variable) {
@@ -1028,10 +1145,16 @@ class TemplateService
         }
 
         return $elements;
-    
+
     }
 
-    private function vendorDetails(): self
+    /**
+     * Inject Vendor Details into DOM Document
+     *
+     * @param  bool $include_labels
+     * @return self
+     */
+    private function vendorDetails(bool $include_labels = false): self
     {
 
         $var_set = $this->getVarSet();
@@ -1040,11 +1163,13 @@ class TemplateService
         collect($this->company->settings->pdf_variables->vendor_details)
             ->filter(function ($variable) use ($var_set) {
                 return isset($var_set['values'][$variable]) && !empty($var_set['values'][$variable]);
-            })
-            ->map(function ($variable) {
-                return ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'vendor_details-' . substr($variable, 1)]];
+            })->when(!$include_labels, function ($collection) {
+                return $collection->map(function ($variable) {
+                    return ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'vendor_details-' . substr($variable, 1)]];
+                });
             })->toArray();
 
+        $vendor_details = $include_labels ? $this->labelledFieldStack($vendor_details) : $vendor_details;
 
         $this->updateElementProperties('vendor-details', $vendor_details);
 
@@ -1096,8 +1221,8 @@ class TemplateService
     public function updateElementProperties(string $element_id, array $elements): self
     {
         $node = $this->document->getElementById($element_id);
-                    
-        $this->createElementContent($node, $elements);     
+
+        $this->createElementContent($node, $elements);
 
         return $this;
     }
@@ -1119,7 +1244,7 @@ class TemplateService
 
     }
 
-    public function createElementContent($element, $children) :self
+    public function createElementContent($element, $children): self
     {
 
         foreach ($children as $child) {
@@ -1140,7 +1265,7 @@ class TemplateService
 
                 $contains_html = preg_match('#(?<=<)\w+(?=[^<]*?>)#', $child['content'], $m) != 0;
             }
-            
+
             if ($contains_html) {
                 // If the element contains the HTML, we gonna display it as is. Backend is going to
                 // encode it for us, preventing any errors on the processing stage.
