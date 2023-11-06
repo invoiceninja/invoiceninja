@@ -860,6 +860,7 @@ class TemplateService
     private function companyDetails(): self
     {
 
+        $company_details = 
         collect($this->company->settings->pdf_variables['company_details'])
             ->filter(function ($variable) {
                 return isset($this->variables['values'][$variable]) && !empty($this->variables['values'][$variable]);
@@ -869,6 +870,7 @@ class TemplateService
             })->toArray();
 
 
+        $this->parseStack()
         return $this;
     }
 
