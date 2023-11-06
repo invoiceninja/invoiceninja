@@ -168,6 +168,7 @@ class BaseExport
         'tax_rate2' => 'invoice.tax_rate2',
         'tax_rate3' => 'invoice.tax_rate3',
         'recurring_invoice' => 'invoice.recurring_id',
+        'auto_bill' => 'invoice.auto_bill_enabled',
     ];
 
     protected array $recurring_invoice_report_keys = [
@@ -208,6 +209,9 @@ class BaseExport
         'tax_rate1' => 'recurring_invoice.tax_rate1',
         'tax_rate2' => 'recurring_invoice.tax_rate2',
         'tax_rate3' => 'recurring_invoice.tax_rate3',
+        'auto_bill' => 'recurring_invoice.auto_bill',
+        'auto_bill_enabled' => 'recurring_invoice.auto_bill_enabled',
+
     ];
 
     protected array $purchase_order_report_keys = [
@@ -287,6 +291,7 @@ class BaseExport
         'is_amount_discount' => 'item.is_amount_discount',
         'line_total' => 'item.line_total',
         'gross_line_total' => 'item.gross_line_total',
+        'tax_amount' => 'item.tax_amount',
     ];
 
     protected array $quote_report_keys = [
