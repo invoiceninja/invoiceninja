@@ -196,7 +196,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
     private function checkPaymentsReceivable(): self
     {
 
-        if($this->company_gateway->getConfigField('status') != 'active'){
+        if($this->company_gateway->getConfigField('status') != 'activated'){
 
             if (class_exists(\Modules\Admin\Services\PayPal\PayPalService::class)) {
                 $pp = new \Modules\Admin\Services\PayPal\PayPalService($this->company_gateway->company, $this->company_gateway->user);
@@ -205,7 +205,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                 $this->company_gateway = $this->company_gateway->fresh();
                 $config = $this->company_gateway->getConfig();
 
-                if($config->status == 'active')
+                if($config->status == 'activated')
                     return $this;
 
             }
@@ -231,6 +231,8 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         $data['funding_source'] = $this->paypal_payment_method;
         $data['gateway_type_id'] = $this->gateway_type_id;
         $data['merchantId'] = $this->company_gateway->getConfigField('merchantId');
+        
+        // nlog($data['merchantId']);
         
         return render('gateways.paypal.ppcp.pay', $data);
 
@@ -313,59 +315,59 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         })->implode("\n");
 
         $order = [
-          "intent" => "CAPTURE",
-          "payer" => [
-            "name" => [
-                "given_name" => $this->client->present()->first_name(),
-                "surname" => $this->client->present()->last_name(),
-            ],
-            "email_address" => $this->client->present()->email(),
-            "address" => [
-                "address_line_1" => $this->client->address1,
-                "address_line_2" => $this->client->address2,
-                "admin_area_2" => $this->client->city,
-                "admin_area_1" => $this->client->state,
-                "postal_code" => $this->client->postal_code,
-                "country_code" => $this->client->country->iso_3166_2,
-            ]
-            ],
-          "purchase_units" => [
-                [
-            "description" =>ctrans('texts.invoice_number').'# '.$invoice->number,
-            "invoice_id" => $invoice->number,
-            "amount" => [
-                "value" => (string)$data['amount_with_fee'],
-                "currency_code"=> $this->client->currency()->code,
-                "breakdown" => [
-                    "item_total" => [
-                        "currency_code" => $this->client->currency()->code,
-                        "value" => (string)$data['amount_with_fee']
-                    ]
-                ]
-            ],
-            "items"=> [
-                [
-                    "name" => ctrans('texts.invoice_number').'# '.$invoice->number,
-                    "description" => substr($description, 0, 127),
-                    "quantity" => "1",
-                    "unit_amount" => [
-                        "currency_code" => $this->client->currency()->code,
-                        "value" => (string)$data['amount_with_fee']
+                
+                "intent" => "CAPTURE",
+                "payer" => [
+                    "name" => [
+                        "given_name" => $this->client->present()->first_name(),
+                        "surname" => $this->client->present()->last_name(),
                     ],
+                    "email_address" => $this->client->present()->email(),
+                    "address" => [
+                        "address_line_1" => $this->client->address1,
+                        "address_line_2" => $this->client->address2,
+                        "admin_area_2" => $this->client->city,
+                        "admin_area_1" => $this->client->state,
+                        "postal_code" => $this->client->postal_code,
+                        "country_code" => $this->client->country->iso_3166_2,
+                    ]
                 ],
-            ],
-          ]
-          ]
-        ];
-        
-        $data['payee'] = [
-                    "merchant_id" => $this->company_gateway->getConfigField('merchantId'),
-                [
+                "purchase_units" => [
+                    [
+                    "description" =>ctrans('texts.invoice_number').'# '.$invoice->number,
+                    "invoice_id" => $invoice->number,
+                    "payee" => [
+                        "merchant_id" => $this->company_gateway->getConfigField('merchantId'),
+                    ],
                     "payment_instruction" => [
                         "disbursement_mode" => "INSTANT",
                     ],
+                    "amount" => [
+                        "value" => (string)$data['amount_with_fee'],
+                        "currency_code"=> $this->client->currency()->code,
+                        "breakdown" => [
+                            "item_total" => [
+                                "currency_code" => $this->client->currency()->code,
+                                "value" => (string)$data['amount_with_fee']
+                            ]
+                        ]
+                    ],
+                    "items"=> [
+                        [
+                            "name" => ctrans('texts.invoice_number').'# '.$invoice->number,
+                            "description" => substr($description, 0, 127),
+                            "quantity" => "1",
+                            "unit_amount" => [
+                                "currency_code" => $this->client->currency()->code,
+                                "value" => (string)$data['amount_with_fee']
+                            ],
+                        ],
+                    ],
                 ],
-        ];
+                ]
+            ];
+        
+        nlog($order);
 
         $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
 
