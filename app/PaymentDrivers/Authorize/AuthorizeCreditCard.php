@@ -46,6 +46,7 @@ class AuthorizeCreditCard
         $tokens = ClientGatewayToken::where('client_id', $this->authorize->client->id)
                                     ->where('company_gateway_id', $this->authorize->company_gateway->id)
                                     ->where('gateway_type_id', GatewayType::CREDIT_CARD)
+                                    ->orderBy('is_default', 'desc')
                                     ->get();
 
         $data['tokens'] = $tokens;
