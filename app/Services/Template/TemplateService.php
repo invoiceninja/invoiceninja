@@ -11,31 +11,32 @@
 
 namespace App\Services\Template;
 
+use App\Models\Quote;
+use App\Utils\Number;
 use App\Models\Client;
-use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Design;
+use App\Models\Vendor;
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
-use App\Models\PurchaseOrder;
-use App\Models\Quote;
-use App\Models\RecurringInvoice;
-use App\Models\Vendor;
-use App\Transformers\ProjectTransformer;
-use App\Transformers\PurchaseOrderTransformer;
-use App\Transformers\QuoteTransformer;
-use App\Transformers\TaskTransformer;
-use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
-use App\Utils\Number;
+use League\Fractal\Manager;
+use App\Models\PurchaseOrder;
+use App\Utils\VendorHtmlEngine;
+use App\Models\RecurringInvoice;
 use App\Utils\PaymentHtmlEngine;
 use App\Utils\Traits\MakesDates;
+use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\Traits\Pdf\PdfMaker;
-use App\Utils\VendorHtmlEngine;
-use League\Fractal\Manager;
-use League\Fractal\Serializer\ArraySerializer;
 use Twig\Extra\Intl\IntlExtension;
+use App\Transformers\TaskTransformer;
+use App\Transformers\QuoteTransformer;
+use App\Transformers\ProjectTransformer;
+use League\CommonMark\CommonMarkConverter;
+use App\Transformers\PurchaseOrderTransformer;
+use League\Fractal\Serializer\ArraySerializer;
 
 class TemplateService
 {
@@ -61,6 +62,8 @@ class TemplateService
 
     private Payment $payment;
 
+    private CommonMarkConverter $commonmark;
+
     public function __construct(public ?Design $template = null)
     {
         $this->template = $template;
@@ -74,6 +77,12 @@ class TemplateService
      */
     private function init(): self
     {
+
+
+        $this->commonmark = new CommonMarkConverter([
+            'allow_unsafe_links' => false,
+        ]);
+
         $this->document = new \DOMDocument();
         $this->document->validateOnParse = true;
 
@@ -111,6 +120,7 @@ class TemplateService
     {
         $this->compose()
              ->processData($data)
+             ->parseGlobalStacks()
              ->parseNinjaBlocks()
              ->processVariables($data)
              ->parseVariables();
@@ -135,6 +145,7 @@ class TemplateService
 
 
         $this->parseNinjaBlocks()
+             ->parseGlobalStacks()
              ->parseVariables();
 
         return $this;
@@ -563,8 +574,6 @@ class TemplateService
             'refund_activity' => $this->getPaymentRefundActivity($payment),
         ];
 
-        nlog($data);
-
         return $data;
 
     }
@@ -806,7 +815,7 @@ class TemplateService
      *
      * @return self
      */
-    private function parseGlobalStacks(): self
+    public function parseGlobalStacks(): self
     {
         $stacks = [
             'entity-details',
@@ -857,7 +866,7 @@ class TemplateService
             })
             ->map(function ($variable) {
                 return ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'company_details-' . substr($variable, 1)]];
-            });
+            })->toArray();
 
 
         return $this;
@@ -901,23 +910,129 @@ class TemplateService
     {
 
 
-        $elements = [];
+        // $elements = [];
 
-        if (!$this->vendor) {
-            return $elements;
-        }
+        // if (!$this->vendor) {
+        //     return $elements;
+        // }
 
-        $variables = $this->context['pdf_variables']['vendor_details'];
+        // $variables = $this->context['pdf_variables']['vendor_details'];
 
-        foreach ($variables as $variable) {
-            $elements[] = ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'vendor_details-' . substr($variable, 1)]];
-        }
+        // foreach ($variables as $variable) {
+        //     $elements[] = ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'vendor_details-' . substr($variable, 1)]];
+        // }
 
-        return $elements;
+        // return $elements;
 
 
         return $this;
     }
+
+    ////////////////////////////////////////
+    // Dom Traversal
+    ///////////////////////////////////////
+
+    public function updateElementProperties(string $element_id, array $elements): self
+    {
+        $node = $this->document->getElementById($element_id);
+            
+        $this->createElementContent($node, $elements);
+        
+        return $this;
+    }
+
+    public function updateElementProperty($element, string $attribute, ?string $value)
+    {
+
+        if ($attribute == 'hidden' && ($value == false || $value == 'false')) {
+            return $element;
+        }
+
+        $element->setAttribute($attribute, $value);
+
+        if ($element->getAttribute($attribute) === $value) {
+            return $element;
+        }
+
+        return $element;
+
+    }
+
+    public function createElementContent($element, $children) :self
+    {
+        foreach ($children as $child) {
+            $contains_html = false;
+
+            if ($child['element'] !== 'script') {
+                if ($this->company->markdown_enabled && array_key_exists('content', $child)) {
+                    $child['content'] = str_replace('<br>', "\r", $child['content']);
+                    $child['content'] = $this->commonmark->convert($child['content'] ?? '');
+                }
+            }
+
+            if (isset($child['content'])) {
+                if (isset($child['is_empty']) && $child['is_empty'] === true) {
+                    continue;
+                }
+
+                $contains_html = preg_match('#(?<=<)\w+(?=[^<]*?>)#', $child['content'], $m) != 0;
+            }
+
+            if ($contains_html) {
+                // If the element contains the HTML, we gonna display it as is. Backend is going to
+                // encode it for us, preventing any errors on the processing stage.
+                // Later, we decode this using Javascript so it looks like it's normal HTML being injected.
+                // To get all elements that need frontend decoding, we use 'data-state' property.
+
+                $_child = $this->document->createElement($child['element'], '');
+                $_child->setAttribute('data-state', 'encoded-html');
+                $_child->nodeValue = htmlspecialchars($child['content']);
+            } else {
+                // .. in case string doesn't contain any HTML, we'll just return
+                // raw $content.
+
+                $_child = $this->document->createElement($child['element'], isset($child['content']) ? htmlspecialchars($child['content']) : '');
+            }
+
+            $element->appendChild($_child);
+
+            if (isset($child['properties'])) {
+                foreach ($child['properties'] as $property => $value) {
+                    $this->updateElementProperty($_child, $property, $value);
+                }
+            }
+
+            if (isset($child['elements'])) {
+                $this->createElementContent($_child, $child['elements']);
+            }
+        }
+
+        return $this;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

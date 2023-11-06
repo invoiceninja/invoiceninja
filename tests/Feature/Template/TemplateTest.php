@@ -165,6 +165,8 @@ class TemplateTest extends TestCase
             </ninja>
         ';
 
+    private string $stack = '<html><div id="company-details"></div></html>';
+
     protected function setUp() :void
     {
         parent::setUp();
@@ -175,6 +177,23 @@ class TemplateTest extends TestCase
             ThrottleRequests::class
         );
         
+    }
+
+    public function testStackResolution()
+    {
+
+        $partials['design']['includes'] = '';
+        $partials['design']['header'] = '';
+        $partials['design']['body'] = $this->stack;
+        $partials['design']['footer'] = '';
+
+        $ts = new TemplateService();
+        $x = $ts->setTemplate($partials)
+            ->setCompany($this->company)
+           ->parseGlobalStacks()
+           ->getHtml();
+
+        nlog($x);
     }
 
     public function testDataMaps()
@@ -319,18 +338,7 @@ class TemplateTest extends TestCase
             ];
         });
 
-        $queries = \DB::getQueryLog();
-        $count = count($queries);
-
-        nlog("query count = {$count}");
-        $x = $invoices->toArray();
-        // nlog(json_encode($x));
-        // nlog(json_encode(htmlspecialchars(json_encode($x), ENT_QUOTES, 'UTF-8')));
-        // nlog($invoices->toJson());
-
         $this->assertIsArray($invoices->toArray());
-
-        nlog("end invoices = " . microtime(true) - $start);
 
     }
 
