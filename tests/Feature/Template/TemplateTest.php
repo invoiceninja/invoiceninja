@@ -509,8 +509,6 @@ class TemplateTest extends TestCase
             $data['invoices'] = $invoices;
             $ts = $replicated_design->service()->build($data);
         
-            // nlog("results = ");
-            // nlog($ts->getHtml());
             $this->assertNotNull($ts->getHtml());
 
     }
