@@ -909,9 +909,14 @@ class TemplateService
         ];
 
         collect($stacks)->filter(function ($stack) {
-            $exists = $this->document->getElementById($stack) ?? false;
-            return $exists ? ['stack' => $stack, 'labels' => $exists->getAttribute('labels')] : false;
-        })->each(function ($stack) {
+            return $this->document->getElementById($stack) ?? false;
+        })
+        ->map(function ($stack){
+            $node = $this->document->getElementById($stack);
+                nlog(['stack' => $stack, 'labels' => $node->getAttribute('labels')]);
+                return ['stack' => $stack, 'labels' => $node->getAttribute('labels')];
+        })
+        ->each(function ($stack) {
             $this->parseStack($stack);
         });
 
@@ -922,10 +927,10 @@ class TemplateService
     /**
      * Injects field stacks into Template
      *
-     * @param  string $stack
+     * @param  array $stack
      * @return self
      */
-    private function parseStack(string $stack): self
+    private function parseStack(array $stack): self
     {
 
         match($stack['stack']) {
@@ -963,7 +968,11 @@ class TemplateService
                 });
             })->toArray();
 
-        $company_details = $include_labels ? $this->labelledFieldStack($company_details) : $company_details;
+        nlog($company_details);
+
+        $company_details = $include_labels ? $this->labelledFieldStack($company_details, 'company_details-') : $company_details;
+
+        nlog($company_details);
 
         $this->updateElementProperties('company-details', $company_details);
 
@@ -986,7 +995,7 @@ class TemplateService
                 });
             })->toArray();
 
-        $company_address = $include_labels ? $this->labelledFieldStack($company_address) : $company_address;
+        $company_address = $include_labels ? $this->labelledFieldStack($company_address, 'company_address-') : $company_address;
 
         $this->updateElementProperties('company-address', $company_address);
 
@@ -1051,7 +1060,7 @@ class TemplateService
                 });
             })->toArray();
 
-        $client_details = $include_labels ? $this->labelledFieldStack($client_details) : $client_details;
+        $client_details = $include_labels ? $this->labelledFieldStack($client_details, 'client_details-') : $client_details;
 
         $this->updateElementProperties('client-details', $client_details);
 
@@ -1109,7 +1118,7 @@ class TemplateService
                 return isset($var_set['values'][$variable]) && !empty($var_set['values'][$variable]);
             })->toArray();
 
-        $this->updateElementProperties("entity-details", $this->labelledFieldStack($entity_details));
+        $this->updateElementProperties("entity-details", $this->labelledFieldStack($entity_details, 'entity_details-'));
 
         return $this;
     }
@@ -1120,7 +1129,7 @@ class TemplateService
      * @param  array $variables
      * @return array
      */
-    private function labelledFieldStack(array $variables): array
+    private function labelledFieldStack(array $variables, string $data_ref): array
     {
 
         $elements = [];
@@ -1131,15 +1140,17 @@ class TemplateService
 
             $var = str_replace("custom", "custom_value", $_variable);
 
+            $hidden_prop = ($data_ref == 'entity_details-') ? $this->entityVariableCheck($variable) : false;
+            
             if (in_array($_variable, $_customs) && !empty($this->entity->{$var})) {
                 $elements[] = ['element' => 'tr', 'elements' => [
-                    ['element' => 'th', 'content' => $variable . '_label', 'properties' => ['data-ref' => 'entity_details-' . substr($variable, 1) . '_label']],
-                    ['element' => 'th', 'content' => $variable, 'properties' => ['data-ref' => 'entity_details-' . substr($variable, 1)]],
+                    ['element' => 'th', 'content' => $variable . '_label', 'properties' => ['data-ref' => $data_ref . substr($variable, 1) . '_label']],
+                    ['element' => 'th', 'content' => $variable, 'properties' => ['data-ref' => $data_ref . substr($variable, 1)]],
                 ]];
             } else {
-                $elements[] = ['element' => 'tr', 'properties' => ['hidden' => $this->entityVariableCheck($variable)], 'elements' => [
-                    ['element' => 'th', 'content' => $variable . '_label', 'properties' => ['data-ref' => 'entity_details-' . substr($variable, 1) . '_label']],
-                    ['element' => 'th', 'content' => $variable, 'properties' => ['data-ref' => 'entity_details-' . substr($variable, 1)]],
+                $elements[] = ['element' => 'tr', 'properties' => ['hidden' => $hidden_prop], 'elements' => [
+                    ['element' => 'th', 'content' => $variable . '_label', 'properties' => ['data-ref' => $data_ref . substr($variable, 1) . '_label']],
+                    ['element' => 'th', 'content' => $variable, 'properties' => ['data-ref' => $data_ref . substr($variable, 1)]],
                 ]];
             }
         }
@@ -1169,7 +1180,7 @@ class TemplateService
                 });
             })->toArray();
 
-        $vendor_details = $include_labels ? $this->labelledFieldStack($vendor_details) : $vendor_details;
+        $vendor_details = $include_labels ? $this->labelledFieldStack($vendor_details, 'vendor_details-') : $vendor_details;
 
         $this->updateElementProperties('vendor-details', $vendor_details);
 
@@ -1295,7 +1306,7 @@ class TemplateService
             }
 
         }
-
+        
         return $this;
     }
 
