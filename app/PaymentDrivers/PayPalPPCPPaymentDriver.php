@@ -195,12 +195,21 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
     private function checkPaymentsReceivable(): self
     {
-        
-        if($this->company_gateway->getConfigField('email_verified') != 'true' ||
-            $this->company_gateway->getConfigField('payments_receivable') != 'Yes' ||
-            $this->company_gateway->getConfigField('consent') != 'true' ||
-            $this->company_gateway->getConfigField('permissions') != 'true'
-        ){
+
+        if($this->company_gateway->getConfigField('status') != 'active'){
+
+            if (class_exists(\Modules\Admin\Services\PayPal\PayPalService::class)) {
+                $pp = new \Modules\Admin\Services\PayPal\PayPalService($this->company_gateway->company, $this->company_gateway->user);
+                $pp->updateMerchantStatus($this->company_gateway);
+
+                $this->company_gateway = $this->company_gateway->fresh();
+                $config = $this->company_gateway->getConfig();
+
+                if($config->status == 'active')
+                    return $this;
+
+            }
+
             throw new PaymentFailed('Unable to accept payments at this time, please contact PayPal for more information.', 401);
         }
         
