@@ -140,9 +140,10 @@ class TemplateService
         $tm = new TemplateMock($this->company);
         $tm->init();
 
+        $this->entity = $this->company->invoices()->first();
+
         $this->data = $tm->engines;
         $this->variables = $tm->variables[0];
-
 
         $this->parseNinjaBlocks()
              ->parseGlobalStacks()
@@ -261,13 +262,12 @@ class TemplateService
      *
      * @return self
      */
-    private function parseVariables(): self
+    public function parseVariables(): self
     {
 
         $html = $this->getHtml();
 
         foreach($this->variables as $key => $variable) {
-            
             if(isset($variable['labels']) && isset($variable['values'])) {
                 $html = strtr($html, $variable['labels']);
                 $html = strtr($html, $variable['values']);
@@ -827,12 +827,11 @@ class TemplateService
         ];
 
         collect($stacks)->filter(function ($stack) {
-            $this->document->getElementById($stack);
-
+            return $this->document->getElementById($stack) ?? false;
         })->each(function ($stack){
             $this->parseStack($stack);
         });
-        
+
         return $this;
 
     }
@@ -845,6 +844,7 @@ class TemplateService
      */
     private function parseStack(string $stack): self
     {
+
         match($stack){
             'entity-details' => $this->entityDetails(),
             'client-details' => $this->clientDetails(),
@@ -854,80 +854,231 @@ class TemplateService
             'shipping-details' => $this->shippingDetails(),
         };
 
+        $this->save();
+
         return $this;
     }
 
     private function companyDetails(): self
     {
+        $var_set = $this->getVarSet();
 
         $company_details = 
-        collect($this->company->settings->pdf_variables['company_details'])
-            ->filter(function ($variable) {
-                return isset($this->variables['values'][$variable]) && !empty($this->variables['values'][$variable]);
+        collect($this->company->settings->pdf_variables->company_details)
+            ->filter(function ($variable) use($var_set) {
+                return isset($var_set['values'][$variable]) && !empty($var_set['values'][$variable]);
             })
             ->map(function ($variable) {
                 return ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'company_details-' . substr($variable, 1)]];
             })->toArray();
 
 
-        $this->parseStack()
+        $this->updateElementProperties('company-details', $company_details);
+
         return $this;
     }
 
     private function companyAddress(): self
     {
 
-        $variables = $this->company->settings->pdf_variables['company_address'];
+        $var_set = $this->getVarSet();
 
-        $elements = [];
+        $company_address =
+        collect($this->company->settings->pdf_variables->company_address)
+            ->filter(function ($variable) use ($var_set) {
+                return isset($var_set['values'][$variable]) && !empty($var_set['values'][$variable]);
+            })
+            ->map(function ($variable) {
+                return ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'company_address-' . substr($variable, 1)]];
+            })->toArray();
 
-        foreach ($variables as $variable) {
-        $elements[] = ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'company_address-' . substr($variable, 1)]];
-        }
-
-        return $elements;
+        $this->updateElementProperties('company-address', $company_address);
 
         return $this;
     }
 
     private function shippingDetails(): self
     {
+        if(!$this->entity->client)
+            return $this;
+
+        $this->client = $this->entity->client;
+
+        $shipping_address = [
+            ['element' => 'p', 'content' => ctrans('texts.shipping_address'), 'properties' => ['data-ref' => 'shipping_address-label', 'style' => 'font-weight: bold; text-transform: uppercase']],
+            ['element' => 'p', 'content' => $this->client->name, 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.name']],
+            ['element' => 'p', 'content' => $this->client->shipping_address1, 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.shipping_address1']],
+            ['element' => 'p', 'content' => $this->client->shipping_address2, 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.shipping_address2']],
+            ['element' => 'p', 'show_empty' => false, 'elements' => [
+                ['element' => 'span', 'content' => "{$this->client->shipping_city} ", 'properties' => ['ref' => 'shipping_address-client.shipping_city']],
+                ['element' => 'span', 'content' => "{$this->client->shipping_state} ", 'properties' => ['ref' => 'shipping_address-client.shipping_state']],
+                ['element' => 'span', 'content' => "{$this->client->shipping_postal_code} ", 'properties' => ['ref' => 'shipping_address-client.shipping_postal_code']],
+            ]],
+            ['element' => 'p', 'content' => optional($this->client->shipping_country)->name, 'show_empty' => false],
+        ];
+
+        $shipping_address =
+        collect($shipping_address)->filter(function ($address){
+            return isset($address['content']) && !empty($address['content']);
+        })->toArray();
+
+        $this->updateElementProperties('shipping-details', $shipping_address);
 
         return $this;
     }
 
     private function clientDetails(): self
     {
+        $var_set = $this->getVarSet();
+
+        $client_details =
+        collect($this->company->settings->pdf_variables->client_details)
+            ->filter(function ($variable) use ($var_set) {
+                return isset($var_set['values'][$variable]) && !empty($var_set['values'][$variable]);
+            })
+            ->map(function ($variable) {
+                return ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'client_details-' . substr($variable, 1)]];
+            })->toArray();
+
+
+        $this->updateElementProperties('client-details', $client_details);
 
         return $this;
     }
 
+    private function resolveEntity(): string
+    {
+        $entity_string = '';
+
+        match($this->entity){
+            ($this->entity instanceof Invoice) => $entity_string = 'invoice',
+            ($this->entity instanceof Quote)  => $entity_string = 'quote',
+            ($this->entity instanceof Credit) => $entity_string = 'credit',
+            ($this->entity instanceof RecurringInvoice) => $entity_string = 'invoice',
+            ($this->entity instanceof PurchaseOrder) => $entity_string = 'task',
+            default => $entity_string = 'invoice',
+        };
+
+        return $entity_string;
+
+    }
+    
+    /**
+     * Returns the variable array by first key, if it exists
+     *
+     * @return array
+     */
+    private function getVarSet(): array
+    {
+        return array_key_exists(array_key_first($this->variables), $this->variables) ? $this->variables[array_key_first($this->variables)] : $this->variables;
+    }
+    
+    /**
+     * Injects the entity details to the DOM document
+     *
+     * @return self
+     */
     private function entityDetails(): self
     {
+        $entity_string = $this->resolveEntity();
+        $entity_string_prop = "{$entity_string}_details";
+        $var_set = $this->getVarSet();
+
+        $entity_details =
+        collect($this->company->settings->pdf_variables->{$entity_string_prop})
+            ->filter(function ($variable) use ($var_set) {
+                return isset($var_set['values'][$variable]) && !empty($var_set['values'][$variable]);
+            })->toArray();
+
+        $this->updateElementProperties("entity-details", $this->labelledFieldStack($entity_details));
 
         return $this;
+    }
+
+    private function labelledFieldStack(array $variables): array
+    {
+          
+        $elements = [];
+
+        foreach ($variables as $variable) {
+            $_variable = explode('.', $variable)[1];
+            $_customs = ['custom1', 'custom2', 'custom3', 'custom4'];
+
+            $var = str_replace("custom", "custom_value", $_variable);
+
+            if (in_array($_variable, $_customs) && !empty($this->entity->{$var})) {
+                $elements[] = ['element' => 'tr', 'elements' => [
+                    ['element' => 'th', 'content' => $variable . '_label', 'properties' => ['data-ref' => 'entity_details-' . substr($variable, 1) . '_label']],
+                    ['element' => 'th', 'content' => $variable, 'properties' => ['data-ref' => 'entity_details-' . substr($variable, 1)]],
+                ]];
+            } else {
+                $elements[] = ['element' => 'tr', 'properties' => ['hidden' => $this->entityVariableCheck($variable)], 'elements' => [
+                    ['element' => 'th', 'content' => $variable . '_label', 'properties' => ['data-ref' => 'entity_details-' . substr($variable, 1) . '_label']],
+                    ['element' => 'th', 'content' => $variable, 'properties' => ['data-ref' => 'entity_details-' . substr($variable, 1)]],
+                ]];
+            }
+        }
+
+        return $elements;
+    
     }
 
     private function vendorDetails(): self
     {
 
+        $var_set = $this->getVarSet();
 
-        // $elements = [];
+        $vendor_details =
+        collect($this->company->settings->pdf_variables->vendor_details)
+            ->filter(function ($variable) use ($var_set) {
+                return isset($var_set['values'][$variable]) && !empty($var_set['values'][$variable]);
+            })
+            ->map(function ($variable) {
+                return ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'vendor_details-' . substr($variable, 1)]];
+            })->toArray();
 
-        // if (!$this->vendor) {
-        //     return $elements;
-        // }
 
-        // $variables = $this->context['pdf_variables']['vendor_details'];
-
-        // foreach ($variables as $variable) {
-        //     $elements[] = ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'vendor_details-' . substr($variable, 1)]];
-        // }
-
-        // return $elements;
-
+        $this->updateElementProperties('vendor-details', $vendor_details);
 
         return $this;
+    }
+
+
+    /**
+     * Performs a variable check to ensure
+     * the variable exists
+     *
+     * @param  string $variable
+     * @return bool
+     *
+     */
+    public function entityVariableCheck(string $variable): bool
+    {
+        // When it comes to invoice balance, we'll always show it.
+        if ($variable == '$invoice.total') {
+            return false;
+        }
+
+        // Some variables don't map 1:1 to table columns. This gives us support for such cases.
+        $aliases = [
+            '$quote.balance_due' => 'partial',
+        ];
+
+        try {
+            $_variable = explode('.', $variable)[1];
+        } catch (\Exception $e) {
+            throw new \Exception('Company settings seems to be broken. Missing $this->service->config->entity.variable type.');
+        }
+
+        if (\in_array($variable, \array_keys($aliases))) {
+            $_variable = $aliases[$variable];
+        }
+
+        if (is_null($this->entity->{$_variable}) || empty($this->entity->{$_variable})) {
+            return true;
+        }
+
+        return false;
     }
 
     ////////////////////////////////////////
@@ -937,9 +1088,9 @@ class TemplateService
     public function updateElementProperties(string $element_id, array $elements): self
     {
         $node = $this->document->getElementById($element_id);
-            
-        $this->createElementContent($node, $elements);
-        
+                    
+        $this->createElementContent($node, $elements);     
+
         return $this;
     }
 
@@ -962,15 +1113,17 @@ class TemplateService
 
     public function createElementContent($element, $children) :self
     {
+
         foreach ($children as $child) {
             $contains_html = false;
 
-            if ($child['element'] !== 'script') {
-                if ($this->company->markdown_enabled && array_key_exists('content', $child)) {
-                    $child['content'] = str_replace('<br>', "\r", $child['content']);
-                    $child['content'] = $this->commonmark->convert($child['content'] ?? '');
-                }
-            }
+            //06-11-2023 for some reason this parses content as HTML
+            // if ($child['element'] !== 'script') {
+            //     if ($this->company->markdown_enabled && array_key_exists('content', $child)) {
+            //         $child['content'] = str_replace('<br>', "\r", $child['content']);
+            //         $child['content'] = $this->commonmark->convert($child['content'] ?? '');
+            //     }
+            // }
 
             if (isset($child['content'])) {
                 if (isset($child['is_empty']) && $child['is_empty'] === true) {
@@ -979,7 +1132,7 @@ class TemplateService
 
                 $contains_html = preg_match('#(?<=<)\w+(?=[^<]*?>)#', $child['content'], $m) != 0;
             }
-
+            
             if ($contains_html) {
                 // If the element contains the HTML, we gonna display it as is. Backend is going to
                 // encode it for us, preventing any errors on the processing stage.
@@ -1007,6 +1160,7 @@ class TemplateService
             if (isset($child['elements'])) {
                 $this->createElementContent($_child, $child['elements']);
             }
+
         }
 
         return $this;

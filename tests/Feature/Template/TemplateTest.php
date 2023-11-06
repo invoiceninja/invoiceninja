@@ -24,6 +24,7 @@ use App\Utils\Traits\MakesDates;
 use App\Services\PdfMaker\PdfMaker;
 use Illuminate\Support\Facades\App;
 use App\Jobs\Entity\CreateEntityPdf;
+use App\Services\Template\TemplateMock;
 use App\Services\Template\TemplateService;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
@@ -165,7 +166,7 @@ class TemplateTest extends TestCase
             </ninja>
         ';
 
-    private string $stack = '<html><div id="company-details"></div></html>';
+    private string $stack = '<html><div id="company-details" labels="true"></div></html>';
 
     protected function setUp() :void
     {
@@ -179,6 +180,32 @@ class TemplateTest extends TestCase
         
     }
 
+    public function testNegativeDivAttribute()
+    {
+       $dom = new \DOMDocument();
+        @$dom->loadHTML(mb_convert_encoding($this->stack, 'HTML-ENTITIES', 'UTF-8'));
+
+        $node = $dom->getElementById('company-details');
+        $x = $node->getAttribute('nonexistentattribute');
+
+        $this->assertEquals('', $x);
+
+    }
+
+    public function testStackResolutionWithLabels()
+    {
+
+        $dom = new \DOMDocument();
+        @$dom->loadHTML(mb_convert_encoding($this->stack, 'HTML-ENTITIES', 'UTF-8'));
+
+        $node = $dom->getElementById('company-details');
+        $x = $node->getAttribute('labels');
+
+        $this->assertEquals('true', $x);
+
+    }
+
+
     public function testStackResolution()
     {
 
@@ -187,13 +214,21 @@ class TemplateTest extends TestCase
         $partials['design']['body'] = $this->stack;
         $partials['design']['footer'] = '';
 
+        $tm = new TemplateMock($this->company);
+        $tm->init();
+
+        $variables = $tm->variables[0];
+        
         $ts = new TemplateService();
         $x = $ts->setTemplate($partials)
             ->setCompany($this->company)
-           ->parseGlobalStacks()
-           ->getHtml();
+            ->overrideVariables($variables)
+            ->parseGlobalStacks()
+            ->parseVariables()
+            ->getHtml();
 
-        nlog($x);
+        $this->assertIsString($x);
+
     }
 
     public function testDataMaps()
