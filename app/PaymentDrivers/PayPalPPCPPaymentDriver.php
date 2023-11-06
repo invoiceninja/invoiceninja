@@ -195,10 +195,15 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
     private function checkPaymentsReceivable(): self
     {
-
-        if(!$this->company_gateway->getConfigField('payments_receivable'))
+        
+        if($this->company_gateway->getConfigField('email_verified') != 'true' ||
+            $this->company_gateway->getConfigField('payments_receivable') != 'Yes' ||
+            $this->company_gateway->getConfigField('consent') != 'true' ||
+            $this->company_gateway->getConfigField('permissions') != 'true'
+        ){
             throw new PaymentFailed('Unable to accept payments at this time, please contact PayPal for more information.', 401);
-
+        }
+        
         return $this;
         
     }
