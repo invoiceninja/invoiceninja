@@ -827,7 +827,8 @@ class TemplateService
         ];
 
         collect($stacks)->filter(function ($stack) {
-            return $this->document->getElementById($stack) ?? false;
+            $exists = $this->document->getElementById($stack) ?? false;
+            return $exists ? ['stack' => $stack, 'labels' => $exists->getAttribute('labels')] : false;
         })->each(function ($stack){
             $this->parseStack($stack);
         });
@@ -845,13 +846,13 @@ class TemplateService
     private function parseStack(string $stack): self
     {
 
-        match($stack){
-            'entity-details' => $this->entityDetails(),
-            'client-details' => $this->clientDetails(),
-            'vendor-details' => $this->vendorDetails(),
-            'company-details' => $this->companyDetails(),
-            'company-address' => $this->companyAddress(),
-            'shipping-details' => $this->shippingDetails(),
+        match($stack['stack']){
+            'entity-details' => $this->entityDetails($stack['labels'] == 'true'),
+            'client-details' => $this->clientDetails($stack['labels'] == 'true'),
+            'vendor-details' => $this->vendorDetails($stack['labels'] == 'true'),
+            'company-details' => $this->companyDetails($stack['labels'] == 'true'),
+            'company-address' => $this->companyAddress($stack['labels'] == 'true'),
+            'shipping-details' => $this->shippingDetails($stack['labels'] == 'true'),
         };
 
         $this->save();
@@ -859,7 +860,7 @@ class TemplateService
         return $this;
     }
 
-    private function companyDetails(): self
+    private function companyDetails(bool $include_labels): self
     {
         $var_set = $this->getVarSet();
 
@@ -872,7 +873,8 @@ class TemplateService
                 return ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'company_details-' . substr($variable, 1)]];
             })->toArray();
 
-
+        $company_details = $include_labels ? $this->labelledFieldStack($company_details) : $company_details;
+        
         $this->updateElementProperties('company-details', $company_details);
 
         return $this;
@@ -955,7 +957,7 @@ class TemplateService
             ($this->entity instanceof Quote)  => $entity_string = 'quote',
             ($this->entity instanceof Credit) => $entity_string = 'credit',
             ($this->entity instanceof RecurringInvoice) => $entity_string = 'invoice',
-            ($this->entity instanceof PurchaseOrder) => $entity_string = 'task',
+            ($this->entity instanceof PurchaseOrder) => $entity_string = 'purchase_order',
             default => $entity_string = 'invoice',
         };
 
@@ -994,7 +996,13 @@ class TemplateService
 
         return $this;
     }
-
+    
+    /**
+     * Generates the field stacks with labels
+     *
+     * @param  array $variables
+     * @return array
+     */
     private function labelledFieldStack(array $variables): array
     {
           
