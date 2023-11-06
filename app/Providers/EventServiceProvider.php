@@ -67,6 +67,7 @@ use App\Events\Invoice\InvoiceWasPaid;
 use App\Events\Quote\QuoteWasApproved;
 use App\Events\Quote\QuoteWasArchived;
 use App\Events\Quote\QuoteWasRestored;
+use App\Listeners\LogResponseReceived;
 use App\Events\Client\ClientWasCreated;
 use App\Events\Client\ClientWasDeleted;
 use App\Events\Client\ClientWasUpdated;
@@ -94,7 +95,6 @@ use App\Events\Misc\InvitationWasViewed;
 use App\Events\Payment\PaymentWasVoided;
 use App\Events\Vendor\VendorWasArchived;
 use App\Events\Vendor\VendorWasRestored;
-use App\Events\Account\StripeConnectFailure;
 use App\Listeners\Mail\MailSentListener;
 use App\Observers\ClientContactObserver;
 use App\Observers\PurchaseOrderObserver;
@@ -131,11 +131,13 @@ use App\Listeners\User\CreatedUserActivity;
 use App\Listeners\User\DeletedUserActivity;
 use App\Listeners\User\UpdatedUserActivity;
 use App\Listeners\User\UpdateUserLastLogin;
+use App\Events\Account\StripeConnectFailure;
 use App\Events\Document\DocumentWasArchived;
 use App\Events\Document\DocumentWasRestored;
 use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Events\Vendor\VendorContactLoggedIn;
 use App\Listeners\Quote\QuoteViewedActivity;
+use App\Listeners\Request\LogRequestSending;
 use App\Listeners\User\ArchivedUserActivity;
 use App\Listeners\User\RestoredUserActivity;
 use App\Listeners\Quote\QuoteApprovedWebhook;
@@ -181,6 +183,7 @@ use App\Listeners\Payment\PaymentBalanceActivity;
 use App\Listeners\Payment\PaymentEmailedActivity;
 use App\Listeners\Quote\QuoteCreatedNotification;
 use App\Listeners\Quote\QuoteEmailedNotification;
+use Illuminate\Http\Client\Events\RequestSending;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Events\Payment\PaymentWasEmailedAndFailed;
 use App\Listeners\Activity\ArchivedClientActivity;
@@ -211,6 +214,7 @@ use App\Listeners\Activity\PaymentRefundedActivity;
 use App\Listeners\Credit\CreditCreatedNotification;
 use App\Listeners\Credit\CreditEmailedNotification;
 use App\Listeners\Invoice\InvoiceCancelledActivity;
+use Illuminate\Http\Client\Events\ResponseReceived;
 use App\Events\PurchaseOrder\PurchaseOrderWasViewed;
 use App\Events\Subscription\SubscriptionWasArchived;
 use App\Events\Subscription\SubscriptionWasRestored;
@@ -276,9 +280,7 @@ use App\Listeners\RecurringExpense\RecurringExpenseArchivedActivity;
 use App\Listeners\RecurringExpense\RecurringExpenseRestoredActivity;
 use App\Listeners\RecurringInvoice\RecurringInvoiceArchivedActivity;
 use App\Listeners\RecurringInvoice\RecurringInvoiceRestoredActivity;
-use App\Listeners\Request\LogRequestSending;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Http\Client\Events\RequestSending;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -287,14 +289,9 @@ class EventServiceProvider extends ServiceProvider
      *
      */
     protected $listen = [
-        
-    // 'Illuminate\Http\Client\Events\ResponseReceived' => [
-    //     'App\Listeners\LogResponseReceived',
-    // ],
-    // 'Illuminate\Http\Client\Events\ConnectionFailed' => [
-    //     'App\Listeners\LogConnectionFailed',
-    // ],
-
+        ResponseReceived::class => [
+            LogResponseReceived::class,
+        ],
         AccountCreated::class => [
         ],
         MessageSending::class => [
