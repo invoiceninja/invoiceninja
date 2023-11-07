@@ -39,18 +39,13 @@ class HandleCancellation extends AbstractService
         $this->backupCancellation($adjustment);
 
         //set invoice balance to 0
-        // $this->invoice->ledger()->updateInvoiceBalance($adjustment, "Invoice {$this->invoice->number} cancellation");
+        $this->invoice->ledger()->updateInvoiceBalance($adjustment, "Invoice {$this->invoice->number} cancellation");
 
         $this->invoice->balance = 0;
         $this->invoice = $this->invoice->service()->setStatus(Invoice::STATUS_CANCELLED)->save();
 
         // $this->invoice->client->service()->updateBalance($adjustment)->save();
-
-
-
-$this->invoice->client->service()->calculateBalance();
-$this->invoice->ledger()->mutateInvoiceBalance($this->invoice->amount, "Adjustment for cancellation of Invoice {$this->invoice->number}");
-
+        $this->invoice->client->service()->calculateBalance();
 
         $this->invoice->service()->workFlow()->save();
 
