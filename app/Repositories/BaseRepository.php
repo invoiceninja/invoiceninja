@@ -199,7 +199,7 @@ class BaseRepository
                 });
             }
         }
-nlog($model->toArray());
+        
         $model->saveQuietly();
 
         /* Model now persisted, now lets do some child tasks */
@@ -291,12 +291,9 @@ nlog($model->toArray());
         /* Perform model specific tasks */
         if ($model instanceof Invoice) {
             if ($model->status_id != Invoice::STATUS_DRAFT) {
-            // if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {
                 $model->service()->updateStatus()->save();
-                // $model->client->service()->updateBalance(($state['finished_amount'] - $state['starting_amount']))->save();
                 $model->client->service()->calculateBalance();
-                $model->ledger()->mutateInvoiceBalance($state['starting_amount'], "Update adjustment for invoice {$model->number} by {$state['starting_amount']}");
-                // $model->ledger()->updateInvoiceBalance(($state['finished_amount'] - $state['starting_amount']), "Update adjustment for invoice {$model->number}");
+                $model->ledger()->mutateInvoiceBalance($state['starting_amount'], "Update adjustment for invoice {$model->number}");
             }
 
             if (! $model->design_id) {

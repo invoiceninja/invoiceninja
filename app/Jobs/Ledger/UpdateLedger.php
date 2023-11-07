@@ -25,6 +25,7 @@ class UpdateLedger implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 1;
+    
     public $deleteWhenMissingModels = true;
 
     public function __construct(private int $company_ledger_id, private float $start_amount, private string $company_key, private string $db)
@@ -39,6 +40,8 @@ class UpdateLedger implements ShouldQueue
      */
     public function handle() :void
     {
+        nlog("Updating company ledger for client ". $this->company_ledger_id);
+        
         MultiDB::setDb($this->db);
 
         $cl = CompanyLedger::find($this->company_ledger_id);
@@ -50,51 +53,17 @@ class UpdateLedger implements ShouldQueue
                 ->where('id', '<', $cl->id)
                 ->where('company_id', $cl->company_id)
                 ->where('client_id', $cl->client_id)
+                ->where('balance', '!=', 0)
                 ->orderBy('id', 'DESC')
                 ->first();
 
-        $cl->balance = $parent_ledger ? $parent_ledger->balance + $cl->adjustment : 0;
+        $cl->balance = ($parent_ledger ? $parent_ledger->balance : 0) + $cl->adjustment;
         $cl->save();
-
-
-        // CompanyLedger::query()
-        //             ->where('company_id', $cl->company_id)
-        //             ->where('client_id', $cl->client_id)
-        //             ->where('balance', 0)
-        //             ->orderBy('updated_at', 'ASC')
-        //             ->cursor()
-        //             ->each(function ($company_ledger) {
-
-        //                 $last_record = null;
-
-        //                 if ($company_ledger->balance == 0) {
-        //                     $last_record = CompanyLedger::query()
-        //                                     ->where('company_id', $company_ledger->company_id)
-        //                                     ->where('client_id', $company_ledger->client_id)
-        //                                     ->where('balance', '!=', 0)
-        //                                     ->orderBy('id', 'DESC')
-        //                                     ->first();
-
-        //                     if (! $last_record) {
-        //                         $last_record = CompanyLedger::query()
-        //                                         ->where('company_id', $company_ledger->company_id)
-        //                                         ->where('client_id', $company_ledger->client_id)
-        //                                         ->orderBy('id', 'DESC')
-        //                                         ->first();
-        //                     }
-        //                 }
-
-        //                 if($last_record) {
-        //                     $company_ledger->balance = $last_record->balance + $company_ledger->adjustment;
-        //                     $company_ledger->save();
-        //                 }
-        // });
-
 
     }
 
     public function middleware()
     {
-        return [(new WithoutOverlapping($this->company_key))->dontRelease()];
+        return [new WithoutOverlapping($this->company_key)];
     }
 }
