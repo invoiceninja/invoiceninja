@@ -40,7 +40,7 @@ class UpdateLedger implements ShouldQueue
      */
     public function handle() :void
     {
-        nlog("Updating company ledger for client ". $this->company_ledger_id);
+        // nlog("Updating company ledger for client ". $this->company_ledger_id);
         
         MultiDB::setDb($this->db);
 

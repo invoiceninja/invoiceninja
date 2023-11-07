@@ -158,6 +158,7 @@ class Payment extends BaseModel
         'custom_value3',
         'custom_value4',
         'category_id',
+        'idempotency_key',
     ];
 
     protected $casts = [
