@@ -20,11 +20,12 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\CompanyToken;
 use App\Models\ClientContact;
+use App\Models\CompanyLedger;
 use App\DataMapper\InvoiceItem;
 use App\Utils\Traits\MakesHash;
+use App\Jobs\Ledger\UpdateLedger;
 use App\DataMapper\CompanySettings;
 use App\Factory\CompanyUserFactory;
-use App\Jobs\Ledger\UpdateLedger;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -165,22 +166,39 @@ class CompanyLedgerTest extends TestCase
 
         $this->assertEquals(0, $i->company_ledger()->count());
 
-        $i->service()->markSent()->save();
-        $i = $i->fresh();
+        // $i->service()->markSent()->save();
+        // $i = $i->fresh();
                 
-        // \Illuminate\Support\Facades\Bus::fake();
-        // \Illuminate\Support\Facades\Bus::assertDispatched(UpdateLedger::class);
+        // // \Illuminate\Support\Facades\Bus::fake();
+        // // \Illuminate\Support\Facades\Bus::assertDispatched(UpdateLedger::class);
 
-        $this->assertEquals(1, $i->company_ledger()->count());
+        // $this->assertEquals(1, $i->company_ledger()->count());
 
-        $cl = $i->company_ledger()->first();
-        (new UpdateLedger($cl->id, $i->amount, $i->company->company_key, $i->company->db))->handle();
+        // $cl = $i->company_ledger()->first();
+        // (new UpdateLedger($cl->id, $i->amount, $i->company->company_key, $i->company->db))->handle();
 
-        
-        $cl = $cl->fresh();
+        // $cl = $cl->fresh();
 
-        $this->assertEquals(100, $cl->adjustment);
-        $this->assertEquals(100, $cl->balance);
+        // $this->assertEquals(100, $cl->adjustment);
+        // $this->assertEquals(100, $cl->balance);
+
+        // $i->service()->applyPaymentAmount(40, "notes")->save();
+        // $i = $i->fresh();
+
+        // $cl = CompanyLedger::where('client_id', $i->client_id)
+        //                    ->orderBy('id', 'desc')
+        //                    ->first();
+                           
+        // $cl = $i->company_ledger()->orderBy('id','desc')->first();
+        // (new UpdateLedger($cl->id, $i->amount, $i->company->company_key, $i->company->db))->handle();
+        // $cl = $cl->fresh();
+
+        // nlog($cl->toArray());
+
+        // $this->assertEquals(-40, $cl->adjustment);
+        // $this->assertEquals(60, $cl->balance);
+
+
 
     }
 

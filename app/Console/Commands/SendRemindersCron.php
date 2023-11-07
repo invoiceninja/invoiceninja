@@ -172,22 +172,14 @@ class SendRemindersCron extends Command
 
         /**Refresh Invoice values*/
         $invoice->calc()->getInvoice()->save();
-        $invoice->fresh();
-        // $invoice->service()->deletePdf()->save();
-        // if ($invoice->client->getSetting('enable_e_invoice')) {
-        //     $invoice->service()->deleteEInvoice()->save();
-        // }
+        $invoice = $invoice->fresh();
 
         /* Refresh the client here to ensure the balance is fresh */
         $client = $invoice->client;
         $client = $client->fresh();
 
         $client->service()->calculateBalance();
-        $invoice->ledger()->mutateInvoiceBalance($invoice->amount, "Update adjustment for invoice {$invoice->number}");
-
-        // nlog('adjusting client balance and invoice balance by '.($invoice->balance - $temp_invoice_balance));
-        // $client->service()->updateBalance($invoice->balance - $temp_invoice_balance)->save();
-        // $invoice->ledger()->updateInvoiceBalance($invoice->balance - $temp_invoice_balance, "Late Fee Adjustment for invoice {$invoice->number}");
+        $invoice->ledger()->updateInvoiceBalance($invoice->balance - $temp_invoice_balance, "Late Fee Adjustment for invoice {$invoice->number}");
 
         return $invoice;
     }

@@ -41,12 +41,12 @@ class MarkSent extends AbstractService
              ->save();
 
         /*Update ledger*/
-        // $this->invoice
-        //      ->ledger()
-        //      ->updateInvoiceBalance($adjustment, "Invoice {$this->invoice->number} marked as sent.");
+        $this->invoice
+             ->ledger()
+             ->updateInvoiceBalance($adjustment, "Invoice {$this->invoice->number} marked as sent.");
 
 
-$this->invoice->ledger()->mutateInvoiceBalance($this->invoice->amount, "Invoice {$this->invoice->number} marked as sent => {$this->invoice->amount}");
+// $this->invoice->ledger()->mutateInvoiceBalance($this->invoice->amount, "Invoice {$this->invoice->number} marked as sent => {$this->invoice->amount}");
 $this->invoice->client->service()->calculateBalance();
 
 

@@ -458,11 +458,11 @@ class InvoiceService
             // ->updateBalance($adjustment * -1)
             // ->save();
 
-            // $this->invoice
-            // ->ledger()
-            // ->updateInvoiceBalance($adjustment * -1, 'Adjustment for removing gateway fee');
+            $this->invoice
+            ->ledger()
+            ->updateInvoiceBalance($adjustment * -1, 'Adjustment for removing gateway fee');
 
-            $this->invoice->ledger()->mutateInvoiceBalance($this->invoice->amount, "Adjustment for removing gateway fee {$adjustment} Invoice {$this->invoice->number}");
+            // $this->invoice->ledger()->mutateInvoiceBalance($this->invoice->amount, "Adjustment for removing gateway fee {$adjustment} Invoice {$this->invoice->number}");
             $this->invoice->client->service()->calculateBalance();
 
         }
