@@ -54,6 +54,7 @@ class Statement
 
     public function run() :?string
     {
+
         $this
             ->setupOptions()
             ->setupEntity();
