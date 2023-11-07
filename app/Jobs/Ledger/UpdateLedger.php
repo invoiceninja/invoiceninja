@@ -40,18 +40,25 @@ class UpdateLedger implements ShouldQueue
      */
     public function handle() :void
     {
-        // nlog("Updating company ledger for client ". $this->company_ledger_id);
+        nlog("Updating company ledger for client ". $this->company_ledger_id);
         
         MultiDB::setDb($this->db);
 
         $cl = CompanyLedger::find($this->company_ledger_id);
+
+        $ledger_item = CompanyLedger::query()
+                                        ->where('company_id', $cl->company_id)
+                                        ->where('client_id', $cl->client_id)
+                                        ->where('company_ledgerable_id', $cl->company_ledgerable_id)
+                                        ->where('company_ledgerable_type', $cl->company_ledgerable_type)
+                                        ->exists();
 
         if(!$cl)
             return;
         
         $entity = $cl->company_ledgerable;
         $balance = $entity->calc()->getBalance();
-        $cl->adjustment = $balance - $this->start_amount;
+        $cl->adjustment = $ledger_item ? $balance - $this->start_amount : $balance;
         
             $parent_ledger = CompanyLedger::query()
                 ->where('id', '<', $cl->id)
