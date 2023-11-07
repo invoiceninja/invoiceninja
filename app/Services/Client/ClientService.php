@@ -11,6 +11,7 @@
 
 namespace App\Services\Client;
 
+use Carbon\Carbon;
 use App\Utils\Number;
 use App\Models\Client;
 use App\Models\Credit;
@@ -32,6 +33,26 @@ class ClientService
 
     public function __construct(private Client $client)
     {
+    }
+
+    public function calculateBalance()
+    {
+        $balance = Invoice::where('client_id', $this->client->id)
+                          ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                          ->where('is_deleted', false)
+                          ->sum('balance');
+
+        try {
+            DB::connection(config('database.default'))->transaction(function () use ($balance) {
+                $this->client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
+                $this->client->balance = $balance;
+                $this->client->saveQuietly();
+            }, 2);
+        } catch (\Throwable $throwable) {
+            nlog("DB ERROR " . $throwable->getMessage());
+        }
+        
+        return $this;
     }
 
     public function updateBalance(float $amount)
