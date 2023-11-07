@@ -45,6 +45,10 @@ class UpdateLedger implements ShouldQueue
         MultiDB::setDb($this->db);
 
         $cl = CompanyLedger::find($this->company_ledger_id);
+
+        if(!$cl)
+            return;
+        
         $entity = $cl->company_ledgerable;
         $balance = $entity->calc()->getBalance();
         $cl->adjustment = $balance - $this->start_amount;

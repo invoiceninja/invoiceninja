@@ -83,7 +83,7 @@ class PaymentTest extends TestCase
                 ],
             ],
             'date' => '2020/12/11',
-            'idempotency_key' => 'dsjafhajklsfhlaksjdhlkajsdjdfjdfljasdfhkjlsafhljfkfhsjlfhiuwayerfiuwaskjgbzmvnjzxnjcbgfkjhdgfoiwwrasdfasdfkashjdfkaskfjdasfda'
+            'idempotency_key' => sha1(time()).\Illuminate\Support\Str::uuid()->toString()
 
         ];
 
