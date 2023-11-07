@@ -46,19 +46,16 @@ class UpdateLedger implements ShouldQueue
 
         $cl = CompanyLedger::find($this->company_ledger_id);
 
-        $ledger_item = CompanyLedger::query()
-                                        ->where('company_id', $cl->company_id)
-                                        ->where('client_id', $cl->client_id)
-                                        ->where('company_ledgerable_id', $cl->company_ledgerable_id)
-                                        ->where('company_ledgerable_type', $cl->company_ledgerable_type)
-                                        ->exists();
+        $ledger_item = $cl->company_ledgerable->company_ledger()->count() == 1;
 
+        nlog($cl->company_ledgerable->company_ledger()->count());
+        
         if(!$cl)
             return;
         
         $entity = $cl->company_ledgerable;
         $balance = $entity->calc()->getBalance();
-        $cl->adjustment = $ledger_item ? $balance - $this->start_amount : $balance;
+        $cl->adjustment = $ledger_item ? $balance : ($balance - $this->start_amount);
         
             $parent_ledger = CompanyLedger::query()
                 ->where('id', '<', $cl->id)
