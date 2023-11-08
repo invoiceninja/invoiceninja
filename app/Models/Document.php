@@ -205,4 +205,33 @@ class Document extends BaseModel
     {
         return ctrans('texts.document');
     }
+
+    public function compress(): mixed
+    {
+
+        $image = $this->getFile();
+        $catch_image = $image;
+
+        if(extension_loaded('imagick'))
+            return $catch_image;
+
+        try {
+            $file = base64_encode($image);
+
+            $img = new \Imagick();
+            $img->readImageBlob($file);
+            $img->setImageCompression(true);
+            $img->setImageCompressionQuality(50);
+
+            return $img->getImageBlob();
+            
+        }
+        catch(\Exception $e){
+        
+            nlog($e->getMessage());
+            return $catch_image;
+        }
+
+    }
+
 }

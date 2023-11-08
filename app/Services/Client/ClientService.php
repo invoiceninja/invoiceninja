@@ -64,9 +64,9 @@ class ClientService
     
     /**
      * Seeing too many race conditions under heavy load here.
-     * @deprecated
+     * 
      * @param  float $amount
-     * @return void
+     * @return ClientService
      */
     public function updateBalance(float $amount)
     {

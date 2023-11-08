@@ -27,4 +27,5 @@ trait WithTypeHelpers
 
         return false;
     }
+
 }
