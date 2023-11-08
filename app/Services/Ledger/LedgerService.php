@@ -36,7 +36,9 @@ class LedgerService
         // $hash = sha1($adjustment.$notes.$this->entity->status_id.$this->entity->client_id.$this->entity->amount.$this->entity->balance.$this->entity->company_id.Activity::UPDATE_INVOICE);
         // $hash = sha1($hash);
         // $hash = sha1("{$this->entity->amount}.{$this->entity->balance}");
-        $hash = "{$this->entity->amount}.{$this->entity->balance}";
+        $hash = "{$adjustment}.{$this->entity->amount}.{$this->entity->balance}";
+        
+        usleep(10000000);
 
         $exists = CompanyLedger::query()
                                  ->where('client_id', $this->entity->client_id)
@@ -49,6 +51,7 @@ class LedgerService
                                  ->exists();
 
         if($exists) {
+            nlog("Collision {$adjustment} {$notes}");
             return $this;
         }
 

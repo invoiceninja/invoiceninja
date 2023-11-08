@@ -290,7 +290,7 @@ class BaseRepository
 
         /* Perform model specific tasks */
         if ($model instanceof Invoice) {
-            if ($model->status_id != Invoice::STATUS_DRAFT && ($state['starting_amount'] != $state['finished_amount'])) {
+            if ($model->status_id != Invoice::STATUS_DRAFT) {
                 $model->service()->updateStatus()->save();
                 $model->client->service()->calculateBalance();
                 $model->ledger()->updateInvoiceBalance(($state['finished_amount'] - $state['starting_amount']), "Update adjustment for invoice {$model->number}");
