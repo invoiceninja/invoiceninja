@@ -322,15 +322,29 @@ class ReminderTest extends TestCase
 
         $this->travelTo(now()->startOfDay());
 
-        for($x=0; $x<46; $x++) {
+        $travel_date = Carbon::parse($this->invoice->next_send_date);
+        $x = false;
+        for($x=0; $x<50; $x++) {
 
-            // nlog("traveller {$x} ".now()->format('Y-m-d h:i:s'));
             (new ReminderJob())->handle();
-            $this->invoice = $this->invoice->fresh();
-            $this->assertNull($this->invoice->reminder1_sent);
-            $this->assertNull($this->invoice->reminder_last_sent);
+
+            if(now()->gt($travel_date) && !$x) {
+                
+
+                $this->assertNotNull($this->invoice->reminder1_sent);
+                $this->assertNotNull($this->invoice->reminder_last_sent);
+                $x=true;
+            }
+
+
+            if(!$x){
+                $this->invoice = $this->invoice->fresh();
+                $this->assertNull($this->invoice->reminder1_sent);
+                $this->assertNull($this->invoice->reminder_last_sent);
+            }
 
             $this->travelTo(now()->addHours(1));
+
         }
 
         // nlog("traveller ".now()->format('Y-m-d'));
