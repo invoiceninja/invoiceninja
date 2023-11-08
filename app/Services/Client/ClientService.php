@@ -35,12 +35,14 @@ class ClientService
     {
     }
 
-    public function calculateBalance()
+    public function calculateBalance(?Invoice $invoice = null)
     {
         $balance = Invoice::where('client_id', $this->client->id)
                           ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                           ->where('is_deleted', false)
                           ->sum('balance');
+
+        $pre_client_balance = $this->client->balance;
 
         try {
             DB::connection(config('database.default'))->transaction(function () use ($balance) {
@@ -52,9 +54,20 @@ class ClientService
             nlog("DB ERROR " . $throwable->getMessage());
         }
         
+        if($invoice && floatval($this->client->balance)  != floatval($pre_client_balance)) {
+            $diff = $this->client->balance - $pre_client_balance;
+            $invoice->ledger()->insertInvoiceBalance($diff, $this->client->balance, "Update Adjustment Invoice # {$invoice->number} => {$diff}");
+        }
+
         return $this;
     }
-
+    
+    /**
+     * Seeing too many race conditions under heavy load here.
+     * @deprecated
+     * @param  float $amount
+     * @return void
+     */
     public function updateBalance(float $amount)
     {
         try {
