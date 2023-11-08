@@ -80,9 +80,18 @@ class PaymentMethod
                                  return array_search($model->id, $transformed_ids); // this closure sorts for us
                              });
 
+        // nlog($this->gateways->count());
+        // nlog(count($transformed_ids));
+        
             if($this->gateways->count() == 0 && count($transformed_ids) >=1) {
 
-                /** This is a fallback in case a user archives some gateways that have been ordered preferentially. */
+                /** 
+                 * This is a fallback in case a user archives some gateways that have been ordered preferentially. 
+                 *
+                 * If the user archives a parent gateway upstream, it may leave a client setting in a state where no payment gateways are available. 
+                 * 
+                 * In this case we fall back to all gateways. 
+                 */
                 $this->gateways = CompanyGateway::query()
                              ->with('gateway')
                              ->where('company_id', $this->client->company_id)
