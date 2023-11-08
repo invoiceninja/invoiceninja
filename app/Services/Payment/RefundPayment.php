@@ -294,10 +294,6 @@ class RefundPayment
                         ->updateInvoiceBalance($refunded_invoice['amount'], "Refund of payment # {$this->payment->number}")
                         ->save();
 
-                // $invoice->ledger()
-                //             ->mutateInvoiceBalance($invoice->amount, "Refund of payment # {$this->payment->number}");
-
-
                 if ($invoice->amount == $invoice->balance) {
                     $invoice->service()->setStatus(Invoice::STATUS_SENT);
                 } else {

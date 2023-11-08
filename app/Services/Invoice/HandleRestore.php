@@ -51,8 +51,6 @@ class HandleRestore extends AbstractService
         //adjust ledger balance
         $this->invoice->ledger()->updateInvoiceBalance($this->invoice->balance, "Restored invoice {$this->invoice->number}")->save();
 
-        // $this->invoice->ledger()->mutateInvoiceBalance($this->invoice->amount,  "Restored invoice {$this->invoice->number}");
-
         //@todo
         $this->invoice->client
                       ->service()

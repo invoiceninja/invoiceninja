@@ -66,10 +66,7 @@ class HandleCancellation extends AbstractService
 
         $this->invoice->ledger()->updateInvoiceBalance($adjustment, "Invoice {$this->invoice->number} reversal");
 
-        // $this->invoice->ledger()->mutateInvoiceBalance($this->invoice->amount, "Invoice {$this->invoice->number} reversal");
-
-
-        $this->invoice->fresh();
+        $this->invoice = $this->invoice->fresh();
 
         /* Reverse the invoice status and balance */
         $this->invoice->balance += $adjustment;
