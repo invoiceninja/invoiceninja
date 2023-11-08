@@ -47,7 +47,7 @@ class FacturaeTest extends TestCase
 
         $this->assertNotNull($f->run());
         
-        nlog($f->run());
+        // nlog($f->run());
 
         // $this->assertTrue($this->validateInvoiceXML($path));
     }
