@@ -18,6 +18,7 @@ use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Project;
 use App\Utils\HtmlEngine;
 use Tests\MockAccountData;
 use App\Utils\Traits\MakesDates;
@@ -178,6 +179,22 @@ class TemplateTest extends TestCase
             ThrottleRequests::class
         );
         
+    }
+
+    public function testProjectDataParse()
+    {
+        $data = [];
+        
+        $p = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+        ]);
+
+        $ts = new TemplateService();
+        $ts->processData($data['projects'][$p]);
+
+        $this->assertNotNull($ts);
     }
 
     public function testNegativeDivAttribute()

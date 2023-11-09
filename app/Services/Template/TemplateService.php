@@ -839,7 +839,7 @@ class TemplateService
     {
 
         return
-        collect($projects)->map(function ($project) ){
+        collect($projects)->map(function ($project){
 
             return $this->transformProject($project);
 
