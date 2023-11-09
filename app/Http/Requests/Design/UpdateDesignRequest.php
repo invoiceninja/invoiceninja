@@ -11,6 +11,7 @@
 
 namespace App\Http\Requests\Design;
 
+use App\Models\Account;
 use App\Http\Requests\Request;
 use App\Utils\Traits\ChecksEntityStatus;
 
@@ -20,6 +21,13 @@ class UpdateDesignRequest extends Request
 
     private array $valid_entities = [
         'invoice',
+        'payment',
+        'client',
+        'quote',
+        'credit',
+        'purchase_order',
+        'project',
+        'task'
     ];
 
     /**
@@ -32,7 +40,7 @@ class UpdateDesignRequest extends Request
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        return $user->isAdmin();
+        return $user->isAdmin() && $user->account->hasFeature(Account::FEATURE_API);
     }
 
     public function rules()
