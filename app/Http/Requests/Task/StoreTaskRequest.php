@@ -54,7 +54,13 @@ class StoreTaskRequest extends Request
             $rules['project_id'] = 'bail|required|exists:projects,id,company_id,'.$user->company()->id.',is_deleted,0';
         }
 
-        $rules['timelog'] = ['bail','array',function ($attribute, $values, $fail) {
+        $rules['time_log'] = ['bail',function ($attribute, $values, $fail) {
+
+            if(!is_array(json_decode($values, true))) {
+                $fail('The '.$attribute.' must be a valid array.');
+                return;
+            }
+
             foreach ($values as $k) {
                 if (!is_int($k[0]) || !is_int($k[1])) {
                     $fail('The '.$attribute.' - '.print_r($k, 1).' is invalid. Unix timestamps only.');
@@ -108,6 +114,10 @@ class StoreTaskRequest extends Request
             if ($search_project_with_client) {
                 unset($input['project_id']);
             }
+        }
+
+        if(!isset($input['time_log']) || empty($input['time_log']) || $input['time_log'] == '{}'){
+            $input['time_log'] = json_encode([]);
         }
 
         $this->replace($input);

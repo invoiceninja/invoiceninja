@@ -191,8 +191,10 @@ class TemplateTest extends TestCase
             'client_id' => $this->client->id,
         ]);
 
+        $data['projects'][] = $p;
+
         $ts = new TemplateService();
-        $ts->processData($data['projects'][$p]);
+        $ts->processData($data);
 
         $this->assertNotNull($ts);
     }

@@ -35,26 +35,38 @@ class UpdateTaskRequest extends Request
             return false;
         }
 
-        return auth()->user()->can('edit', $this->task);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('edit', $this->task);
     }
 
     public function rules()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $rules = [];
 
         if (isset($this->number)) {
-            $rules['number'] = Rule::unique('tasks')->where('company_id', auth()->user()->company()->id)->ignore($this->task->id);
+            $rules['number'] = Rule::unique('tasks')->where('company_id', $user->company()->id)->ignore($this->task->id);
         }
 
         if (isset($this->client_id)) {
-            $rules['client_id'] = 'bail|required|exists:clients,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+            $rules['client_id'] = 'bail|required|exists:clients,id,company_id,'.$user->company()->id.',is_deleted,0';
         }
 
         if (isset($this->project_id)) {
-            $rules['project_id'] = 'bail|required|exists:projects,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+            $rules['project_id'] = 'bail|required|exists:projects,id,company_id,'.$user->company()->id.',is_deleted,0';
         }
 
-        $rules['timelog'] = ['bail','array',function ($attribute, $values, $fail) {
+        $rules['time_log'] = ['bail', function ($attribute, $values, $fail) {
+
+            if(!is_array(json_decode($values, true))) {
+                $fail('The '.$attribute.' must be a valid array.');
+                return;
+            }
+
             foreach ($values as $k) {
                 if (!is_int($k[0]) || !is_int($k[1])) {
                     $fail('The '.$attribute.' - '.print_r($k, 1).' is invalid. Unix timestamps only.');
@@ -111,6 +123,10 @@ class UpdateTaskRequest extends Request
                 unset($input['project_id']);
             }
 
+        }
+
+        if(!isset($input['time_log']) || empty($input['time_log']) || $input['time_log'] == '{}') {
+            $input['time_log'] = json_encode([]);
         }
 
         $this->replace($input);

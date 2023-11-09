@@ -241,7 +241,7 @@ class Task extends BaseModel
     public function processLogs()
     {
         return 
-        collect($this->timelog)->map(function ($log){
+        collect($this->time_log)->map(function ($log){
 
             $parent_entity = $this->client ?? $this->company;
 

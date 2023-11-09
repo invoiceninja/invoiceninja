@@ -136,7 +136,7 @@ class TemplateService
     /**
      * Initialized a set of HTMLEngine variables
      *
-     * @param  array | Collection $data
+     * @param  array | \Illuminate\Support\Collection $data
      * @return self
      */
     private function processVariables($data): self
@@ -209,7 +209,7 @@ class TemplateService
     /**
      * Process data variables
      *
-     * @param  array | Collection $data
+     * @param  array | \Illuminate\Support\Collection $data
      * @return self
      */
     public function processData($data): self
@@ -392,7 +392,7 @@ class TemplateService
      * Pre Processes the Data Blocks into
      * Twig consumables
      *
-     * @param  array | Collection $data
+     * @param  array | \Illuminate\Support\Collection $data
      * @return array
      */
     private function preProcessDataBlocks($data): array
@@ -421,7 +421,7 @@ class TemplateService
     /**
      * Process Invoices into consumable form for Twig templates
      *
-     * @param  array | Collection $invoices
+     * @param  array | \Illuminate\Support\Collection $invoices
      * @return array
      */
     public function processInvoices($invoices): array
@@ -506,7 +506,7 @@ class TemplateService
      * Pads Line Items with raw and formatted content
      *
      * @param  array $items
-     * @param  mixed $client
+     * @param  Client $client
      * @return array
      */
     public function padLineItems(array $items, Client $client): array
@@ -698,7 +698,7 @@ class TemplateService
      * Pushes credits through the appropriate transformer
      * and builds any required relationships
      *
-     * @param  array | Collection $credits
+     * @param  array | \Illuminate\Support\Collection $credits
      * @return array
      */
     public function processCredits($credits): array
@@ -775,7 +775,7 @@ class TemplateService
     /**
      * Pushes payments through the appropriate transformer
      *
-     * @param  array | Collection $payments
+     * @param  array | \Illuminate\Support\Collection $payments
      * @return array
      */
     public function processPayments($payments): array
@@ -832,7 +832,7 @@ class TemplateService
     /**
      * @todo refactor
      *
-     * @param  array | Collection $projects
+     * @param  array | \Illuminate\Support\Collection $projects
      * @return array
      */
     public function processProjects($projects): array
@@ -900,7 +900,7 @@ class TemplateService
     /**
      * Set Company
      *
-     * @param  mixed $company
+     * @param  Company $company
      * @return self
      */
     public function setCompany(Company $company): self
@@ -955,7 +955,6 @@ class TemplateService
         })
         ->map(function ($stack){
             $node = $this->document->getElementById($stack);
-                nlog(['stack' => $stack, 'labels' => $node->getAttribute('labels')]);
                 return ['stack' => $stack, 'labels' => $node->getAttribute('labels')];
         })
         ->each(function ($stack) {
@@ -976,7 +975,7 @@ class TemplateService
     {
 
         match($stack['stack']) {
-            'entity-details' => $this->entityDetails($stack['labels'] == 'true'),
+            'entity-details' => $this->entityDetails(),
             'client-details' => $this->clientDetails($stack['labels'] == 'true'),
             'vendor-details' => $this->vendorDetails($stack['labels'] == 'true'),
             'company-details' => $this->companyDetails($stack['labels'] == 'true'),
@@ -1010,11 +1009,11 @@ class TemplateService
                 });
             })->toArray();
 
-        nlog($company_details);
+        // nlog($company_details);
 
         $company_details = $include_labels ? $this->labelledFieldStack($company_details, 'company_details-') : $company_details;
 
-        nlog($company_details);
+        // nlog($company_details);
 
         $this->updateElementProperties('company-details', $company_details);
 
