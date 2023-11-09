@@ -255,7 +255,7 @@ class BaseModel extends Model
 
         $formatted_number = preg_replace('/\s+/', '_', $formatted_number);
 
-        return $formatted_number;
+        return \Illuminate\Support\Str::ascii($formatted_number);
     }
 
     public function translate_entity()
