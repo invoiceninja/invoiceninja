@@ -23,7 +23,6 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
 use App\Utils\HtmlEngine;
-use League\Fractal\Manager;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 use Twig\Error\RuntimeError;
@@ -36,12 +35,7 @@ use App\Utils\Traits\MakesDates;
 use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\Traits\Pdf\PdfMaker;
 use Twig\Extra\Intl\IntlExtension;
-use App\Transformers\TaskTransformer;
-use App\Transformers\QuoteTransformer;
-use App\Transformers\ProjectTransformer;
 use League\CommonMark\CommonMarkConverter;
-use App\Transformers\PurchaseOrderTransformer;
-use League\Fractal\Serializer\ArraySerializer;
 
 class TemplateService
 {
@@ -365,7 +359,7 @@ class TemplateService
 
             $processed = [];
 
-            if(in_array($key, ['tasks','projects','aging']) || !$value->first()) {
+            if(in_array($key, ['tasks','projects', 'aging']) || !$value->first()) {
                 return $processed;
             }
 
@@ -441,6 +435,8 @@ class TemplateService
                     return [
                         'amount' => Number::formatMoney($invoice->amount, $invoice->client),
                         'balance' => Number::formatMoney($invoice->balance, $invoice->client),
+                        'status_id' => $invoice->status_id,
+                        'status' => Invoice::stringStatus($invoice->status_id),
                         'balance_raw' => $invoice->balance,
                         'number' => $invoice->number ?: '',
                         'discount' => $invoice->discount,
@@ -506,12 +502,12 @@ class TemplateService
      * Pads Line Items with raw and formatted content
      *
      * @param  array $items
-     * @param  Client $client
+     * @param  Vendor | Client $client_or_vendor
      * @return array
      */
-    public function padLineItems(array $items, Client $client): array
+    public function padLineItems(array $items, Vendor | Client $client_or_vendor): array
     {
-        return collect($items)->map(function ($item) use ($client) {
+        return collect($items)->map(function ($item) use ($client_or_vendor) {
 
             $item->cost_raw = $item->cost ?? 0;
             $item->discount_raw = $item->discount ?? 0;
@@ -520,16 +516,16 @@ class TemplateService
             $item->tax_amount_raw = $item->tax_amount ?? 0;
             $item->product_cost_raw = $item->product_cost ?? 0;
 
-            $item->cost = Number::formatMoney($item->cost_raw, $client);
+            $item->cost = Number::formatMoney($item->cost_raw, $client_or_vendor);
 
             if($item->is_amount_discount) {
-                $item->discount = Number::formatMoney($item->discount_raw, $client);
+                $item->discount = Number::formatMoney($item->discount_raw, $client_or_vendor);
             }
 
-            $item->line_total = Number::formatMoney($item->line_total_raw, $client);
-            $item->gross_line_total = Number::formatMoney($item->gross_line_total_raw, $client);
-            $item->tax_amount = Number::formatMoney($item->tax_amount_raw, $client);
-            $item->product_cost = Number::formatMoney($item->product_cost_raw, $client);
+            $item->line_total = Number::formatMoney($item->line_total_raw, $client_or_vendor);
+            $item->gross_line_total = Number::formatMoney($item->gross_line_total_raw, $client_or_vendor);
+            $item->tax_amount = Number::formatMoney($item->tax_amount_raw, $client_or_vendor);
+            $item->product_cost = Number::formatMoney($item->product_cost_raw, $client_or_vendor);
 
             return $item;
 
@@ -669,28 +665,74 @@ class TemplateService
     }
 
     /**
-     * @todo refactor
+     * 
      *
-     * @param  mixed $quotes
+     * @param  array | \Illuminate\Support\Collection $quotes
      * @return array
      */
     public function processQuotes($quotes): array
     {
-        $it = new QuoteTransformer();
-        $it->setDefaultIncludes(['client']);
-        $manager = new Manager();
-        $manager->parseIncludes(['client']);
-        $resource = new \League\Fractal\Resource\Collection($quotes, $it, null);
-        $resources = $manager->createData($resource)->toArray();
+        
+        return collect($quotes)->map(function ($quote){
 
-        foreach($resources['data'] as $key => $resource) {
+            return [
+                'amount' => Number::formatMoney($quote->amount, $quote->client),
+                'balance' => Number::formatMoney($quote->balance, $quote->client),
+                'balance_raw' => (float) $quote->balance,
+                'client' => [
+                            'name' => $quote->client->present()->name(),
+                            'balance' => $quote->client->balance,
+                            'payment_balance' => $quote->client->payment_balance,
+                            'credit_balance' => $quote->client->credit_balance,
+                        ],
+                'status_id' =>$quote->status_id,
+                'status' => Quote::stringStatus($quote->status_id),
+                'number' => $quote->number ?: '',
+                'discount' => (float) $quote->discount,
+                'po_number' => $quote->po_number ?: '',
+                'date' => $quote->date ? $this->translateDate($quote->date, $quote->client->date_format(), $quote->client->locale()) : '',
+                'last_sent_date' => $quote->last_sent_date ? $this->translateDate($quote->last_sent_date, $quote->client->date_format(), $quote->client->locale()) : '',
+                // 'next_send_date' => $quote->next_send_date ?: '',
+                // 'reminder1_sent' => $quote->reminder1_sent ?: '',
+                // 'reminder2_sent' => $quote->reminder2_sent ?: '',
+                // 'reminder3_sent' => $quote->reminder3_sent ?: '',
+                // 'reminder_last_sent' => $quote->reminder_last_sent ?: '',
+                'due_date' => $quote->due_date ? $this->translateDate($quote->due_date, $quote->client->date_format(), $quote->client->locale()) : '',
+                'terms' => $quote->terms ?: '',
+                'public_notes' => $quote->public_notes ?: '',
+                'private_notes' => $quote->private_notes ?: '',
+                'is_deleted' => (bool) $quote->is_deleted,
+                'uses_inclusive_taxes' => (bool) $quote->uses_inclusive_taxes,
+                'tax_name1' => $quote->tax_name1 ? $quote->tax_name1 : '',
+                'tax_rate1' => (float) $quote->tax_rate1,
+                'tax_name2' => $quote->tax_name2 ? $quote->tax_name2 : '',
+                'tax_rate2' => (float) $quote->tax_rate2,
+                'tax_name3' => $quote->tax_name3 ? $quote->tax_name3 : '',
+                'tax_rate3' => (float) $quote->tax_rate3,
+                'total_taxes' => (float) $quote->total_taxes,
+                'is_amount_discount' => (bool) ($quote->is_amount_discount ?: false),
+                'footer' => $quote->footer ?: '',
+                'partial' => (float) ($quote->partial ?: 0.0),
+                'partial_due_date' => $quote->partial_due_date ? $this->translateDate($quote->partial_due_date, $quote->client->date_format(), $quote->client->locale()) : '',
+                'custom_value1' => (string) $quote->custom_value1 ?: '',
+                'custom_value2' => (string) $quote->custom_value2 ?: '',
+                'custom_value3' => (string) $quote->custom_value3 ?: '',
+                'custom_value4' => (string) $quote->custom_value4 ?: '',
+                'has_expenses' => (bool) $quote->has_expenses,
+                'custom_surcharge1' => (float) $quote->custom_surcharge1,
+                'custom_surcharge2' => (float) $quote->custom_surcharge2,
+                'custom_surcharge3' => (float) $quote->custom_surcharge3,
+                'custom_surcharge4' => (float) $quote->custom_surcharge4,
+                'custom_surcharge_tax1' => (bool) $quote->custom_surcharge_tax1,
+                'custom_surcharge_tax2' => (bool) $quote->custom_surcharge_tax2,
+                'custom_surcharge_tax3' => (bool) $quote->custom_surcharge_tax3,
+                'custom_surcharge_tax4' => (bool) $quote->custom_surcharge_tax4,
+                'line_items' => $quote->line_items ? $this->padLineItems($quote->line_items, $quote->client) : (array) [],
+                'exchange_rate' => (float) $quote->exchange_rate,
+                'paid_to_date' => (float) $quote->paid_to_date,
+            ];
 
-            $resources['data'][$key]['client'] = $resource['client']['data'] ?? [];
-            $resources['data'][$key]['client']['contacts'] = $resource['client']['data']['contacts']['data'] ?? [];
-
-        }
-
-        return $resources['data'];
+        })->toArray();
 
     }
 
@@ -879,21 +921,76 @@ class TemplateService
     }
 
     /**
-     * @todo refactor
-     *
-     * @param  mixed $purchase_orders
+     * 
+     * @param  array | \Illuminate\Support\Collection $purchase_orders
      * @return array
      */
     public function processPurchaseOrders($purchase_orders): array
     {
 
-        $it = new PurchaseOrderTransformer();
-        $it->setDefaultIncludes(['vendor','expense']);
-        $manager = new Manager();
-        $manager->setSerializer(new ArraySerializer());
-        $resource = new \League\Fractal\Resource\Collection($purchase_orders, $it, PurchaseOrder::class);
-        $i = $manager->createData($resource)->toArray();
-        return $i[PurchaseOrder::class];
+        return collect($purchase_orders)->map(function ($purchase_order){
+
+            return [
+                'vendor' => $purchase_order->vendor ? [
+                    'name' => $purchase_order->vendor->present()->name(),
+                ] : [],
+                'amount' => (float)$purchase_order->amount,
+                'balance' => (float)$purchase_order->balance,
+                'client' => $purchase_order->client ? [
+                    'name' => $purchase_order->client->present()->name(),
+                    'balance' => $purchase_order->client->balance,
+                    'payment_balance' => $purchase_order->client->payment_balance,
+                    'credit_balance' => $purchase_order->client->credit_balance,
+                ] : [],
+                'status_id' => (string)($purchase_order->status_id ?: 1),
+                'status' => PurchaseOrder::stringStatus($purchase_order->status_id ?? 1),
+                'is_deleted' => (bool)$purchase_order->is_deleted,
+                'number' => $purchase_order->number ?: '',
+                'discount' => (float)$purchase_order->discount,
+                'po_number' => $purchase_order->po_number ?: '',
+                'date' => $purchase_order->date ? $this->translateDate($purchase_order->date, $purchase_order->vendor->date_format(), $purchase_order->vendor->locale()) : '',
+                'last_sent_date' => $purchase_order->last_sent_date ? $this->translateDate($purchase_order->last_sent_date, $purchase_order->vendor->date_format(), $purchase_order->vendor->locale()) : '',
+                'next_send_date' => $purchase_order->next_send_date ? $this->translateDate($purchase_order->next_send_date, $purchase_order->vendor->date_format(), $purchase_order->vendor->locale()) : '',
+                'reminder1_sent' => $purchase_order->reminder1_sent ? $this->translateDate($purchase_order->reminder1_sent, $purchase_order->vendor->date_format(), $purchase_order->vendor->locale()) : '',
+                'reminder2_sent' => $purchase_order->reminder2_sent ? $this->translateDate($purchase_order->reminder2_sent, $purchase_order->vendor->date_format(), $purchase_order->vendor->locale()) : '',
+                'reminder3_sent' => $purchase_order->reminder3_sent ? $this->translateDate($purchase_order->reminder3_sent, $purchase_order->vendor->date_format(), $purchase_order->vendor->locale()) : '',
+                'reminder_last_sent' => $purchase_order->reminder_last_sent ? $this->translateDate($purchase_order->reminder_last_sent, $purchase_order->vendor->date_format(), $purchase_order->vendor->locale()) : '',
+                'due_date' => $purchase_order->due_date ? $this->translateDate($purchase_order->due_date, $purchase_order->vendor->date_format(), $purchase_order->vendor->locale()) : '',
+                'terms' => $purchase_order->terms ?: '',
+                'public_notes' => $purchase_order->public_notes ?: '',
+                'private_notes' => $purchase_order->private_notes ?: '',
+                'uses_inclusive_taxes' => (bool)$purchase_order->uses_inclusive_taxes,
+                'tax_name1' => $purchase_order->tax_name1 ? $purchase_order->tax_name1 : '',
+                'tax_rate1' => (float)$purchase_order->tax_rate1,
+                'tax_name2' => $purchase_order->tax_name2 ? $purchase_order->tax_name2 : '',
+                'tax_rate2' => (float)$purchase_order->tax_rate2,
+                'tax_name3' => $purchase_order->tax_name3 ? $purchase_order->tax_name3 : '',
+                'tax_rate3' => (float)$purchase_order->tax_rate3,
+                'total_taxes' => (float)$purchase_order->total_taxes,
+                'is_amount_discount' => (bool)($purchase_order->is_amount_discount ?: false),
+                'footer' => $purchase_order->footer ?: '',
+                'partial' => (float)($purchase_order->partial ?: 0.0),
+                'partial_due_date' => $purchase_order->partial_due_date ? $this->translateDate($purchase_order->partial_due_date, $purchase_order->vendor->date_format(), $purchase_order->vendor->locale()): '',
+                'custom_value1' => (string)$purchase_order->custom_value1 ?: '',
+                'custom_value2' => (string)$purchase_order->custom_value2 ?: '',
+                'custom_value3' => (string)$purchase_order->custom_value3 ?: '',
+                'custom_value4' => (string)$purchase_order->custom_value4 ?: '',
+                'has_tasks' => (bool)$purchase_order->has_tasks,
+                'has_expenses' => (bool)$purchase_order->has_expenses,
+                'custom_surcharge1' => (float)$purchase_order->custom_surcharge1,
+                'custom_surcharge2' => (float)$purchase_order->custom_surcharge2,
+                'custom_surcharge3' => (float)$purchase_order->custom_surcharge3,
+                'custom_surcharge4' => (float)$purchase_order->custom_surcharge4,
+                'custom_surcharge_tax1' => (bool)$purchase_order->custom_surcharge_tax1,
+                'custom_surcharge_tax2' => (bool)$purchase_order->custom_surcharge_tax2,
+                'custom_surcharge_tax3' => (bool)$purchase_order->custom_surcharge_tax3,
+                'custom_surcharge_tax4' => (bool)$purchase_order->custom_surcharge_tax4,
+                'line_items' => $purchase_order->line_items ? $this->padLineItems($purchase_order->line_items, $purchase_order->vendor): (array)[],
+                'exchange_rate' => (float)$purchase_order->exchange_rate,
+                'currency_id' => $purchase_order->currency_id ? (string) $purchase_order->currency_id : '',
+            ];
+
+        })->toArray();
 
     }
 

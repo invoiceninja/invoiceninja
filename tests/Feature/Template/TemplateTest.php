@@ -181,6 +181,65 @@ class TemplateTest extends TestCase
         
     }
 
+
+    public function testPurchaseOrderDataParse()
+    {
+        $data = [];
+        
+        $p = \App\Models\PurchaseOrder::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'vendor_id' => $this->vendor->id,
+        ]);
+
+        $data['purchase_orders'][] = $p;
+
+        $ts = new TemplateService();
+        $ts->processData($data);
+
+        $this->assertNotNull($ts);
+        $this->assertIsArray($ts->getData());
+    }
+
+    public function testTaskDataParse()
+    {
+        $data = [];
+        
+        $p = \App\Models\Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+        ]);
+
+        $data['tasks'][] = $p;
+
+        $ts = new TemplateService();
+        $ts->processData($data);
+
+        $this->assertNotNull($ts);
+        $this->assertIsArray($ts->getData());
+    }
+
+    public function testQuoteDataParse()
+    {
+        $data = [];
+        
+        $p = \App\Models\Quote::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+        ]);
+
+        $data['quotes'][] = $p;
+
+        $ts = new TemplateService();
+        $ts->processData($data);
+
+        $this->assertNotNull($ts);
+        $this->assertIsArray($ts->getData());
+
+    }
+
     public function testProjectDataParse()
     {
         $data = [];
@@ -197,6 +256,8 @@ class TemplateTest extends TestCase
         $ts->processData($data);
 
         $this->assertNotNull($ts);
+        $this->assertIsArray($ts->getData());
+
     }
 
     public function testNegativeDivAttribute()
