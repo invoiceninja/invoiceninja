@@ -795,44 +795,86 @@ class TemplateService
      * @param  mixed $tasks
      * @return array
      */
-    public function processTasks($tasks): array
+    public function processTasks($tasks, bool $nested = false): array
     {
-        $it = new TaskTransformer();
-        $it->setDefaultIncludes(['client','project','invoice']);
-        $manager = new Manager();
-        $resource = new \League\Fractal\Resource\Collection($tasks, $it, null);
-        $resources = $manager->createData($resource)->toArray();
 
-        foreach($resources['data'] as $key => $resource) {
+        return collect($tasks)->map(function ($task) use ($nested){
 
-            $resources['data'][$key]['client'] = $resource['client']['data'] ?? [];
-            $resources['data'][$key]['client']['contacts'] = $resource['client']['data']['contacts']['data'] ?? [];
-            $resources['data'][$key]['project'] = $resource['project']['data'] ?? [];
-            $resources['data'][$key]['invoice'] = $resource['invoice'] ?? [];
+            return [
+                'number' => (string) $task->number ?: '',
+                'description' => (string) $task->description ?: '',
+                'duration' => $task->duration ?: 0,
+                'rate' => Number::formatMoney($task->rate ?? 0, $task->client ?? $task->company), 
+                'created_at' => $this->translateDate($task->created_at, $task->client ? $task->client->date_format() : $task->company->date_format(), $task->client ? $task->client->locale() : $task->company->locale()),
+                'updated_at' => $this->translateDate($task->updated_at, $task->client ? $task->client->date_format() : $task->company->date_format(), $task->client ? $task->client->locale() : $task->company->locale()),
+                'date' => $task->calculated_start_date ? $this->translateDate($task->calculated_start_date , $task->client ? $task->client->date_format() : $task->company->date_format(), $task->client ? $task->client->locale() : $task->company->locale()) : '',
+                // 'invoice_id' => $this->encodePrimaryKey($task->invoice_id) ?: '',
+                'project' => ($task->project && !$nested) ? $this->transformProject($task->project, true) : [],
+                'time_log' => $task->processLogs(),
+                'custom_value1' => $task->custom_value1 ?: '',
+                'custom_value2' => $task->custom_value2 ?: '',
+                'custom_value3' => $task->custom_value3 ?: '',
+                'custom_value4' => $task->custom_value4 ?: '',
+                'status' => $task->status ? $task->status->name : '',
+                'client' => $task->client ? [
+                            'name' => $task->client->present()->name(),
+                            'balance' => $task->client->balance,
+                            'payment_balance' => $task->client->payment_balance,
+                            'credit_balance' => $task->client->credit_balance,
+                        ] : [],
+            ];
 
-        }
 
-        return $resources['data'];
-
+        })->toArray();
 
     }
 
     /**
      * @todo refactor
      *
-     * @param  mixed $projects
+     * @param  array | Collection $projects
      * @return array
      */
     public function processProjects($projects): array
     {
 
-        $it = new ProjectTransformer();
-        $it->setDefaultIncludes(['client','tasks']);
-        $manager = new Manager();
-        $manager->setSerializer(new ArraySerializer());
-        $resource = new \League\Fractal\Resource\Collection($projects, $it, Project::class);
-        $i = $manager->createData($resource)->toArray();
-        return $i[Project::class];
+        return
+        collect($projects)->map(function ($project) ){
+
+            return $this->transformProject($project);
+
+        })->toArray();
+
+    }
+
+    private function transformProject(Project $project, bool $nested = false): array
+    {
+        
+        return [
+            'name' => $project->name ?: '',
+            'number' => $project->number ?: '',
+            'created_at' => $this->translateDate($project->created_at, $project->client->date_format(), $project->client->locale()),
+            'updated_at' =>  $this->translateDate($project->updated_at, $project->client->date_format(), $project->client->locale()),
+            'task_rate' => Number::formatMoney($project->task_rate ?? 0, $project->client),
+            'due_date' => $project->due_date ? $this->translateDate($project->due_date, $project->client->date_format(), $project->client->locale()) : '',
+            'private_notes' => (string) $project->private_notes ?: '',
+            'public_notes' => (string) $project->public_notes ?: '',
+            'budgeted_hours' => (float) $project->budgeted_hours,
+            'custom_value1' => (string) $project->custom_value1 ?: '',
+            'custom_value2' => (string) $project->custom_value2 ?: '',
+            'custom_value3' => (string) $project->custom_value3 ?: '',
+            'custom_value4' => (string) $project->custom_value4 ?: '',
+            'color' => (string) $project->color ?: '',
+            'current_hours' => (int) $project->current_hours ?: 0,
+            'tasks' => ($project->tasks && !$nested)  ? $this->processTasks($project->tasks, true) : [],
+            'client' => $project->client ? [
+                    'name' => $project->client->present()->name(),
+                    'balance' => $project->client->balance,
+                    'payment_balance' => $project->client->payment_balance,
+                    'credit_balance' => $project->client->credit_balance,
+                ] : [],
+
+        ];
 
     }
 
