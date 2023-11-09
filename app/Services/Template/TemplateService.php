@@ -359,7 +359,7 @@ class TemplateService
 
             $processed = [];
 
-            if(in_array($key, ['tasks','projects', 'aging']) || !$value->first()) {
+            if(in_array($key, ['tasks', 'projects', 'aging']) || !$value->first()) {
                 return $processed;
             }
 
