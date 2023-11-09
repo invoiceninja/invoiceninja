@@ -289,9 +289,9 @@ class EventServiceProvider extends ServiceProvider
      *
      */
     protected $listen = [
-        ResponseReceived::class => [
-            LogResponseReceived::class,
-        ],
+        // ResponseReceived::class => [
+        //     LogResponseReceived::class,
+        // ],
         AccountCreated::class => [
         ],
         MessageSending::class => [
