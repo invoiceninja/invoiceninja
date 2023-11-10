@@ -140,7 +140,7 @@ class NinjaMailerJob implements ShouldQueue
             /* Count the amount of emails sent across all the users accounts */
             Cache::increment("email_quota".$this->company->account->key);
 
-            LightLogs::create(new EmailSuccess($this->nmo->company->company_key))
+            LightLogs::create(new EmailSuccess($this->nmo->company->company_key, $this->nmo->mailable->subject))
                      ->send();
 
         } catch(\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
