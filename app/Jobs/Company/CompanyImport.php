@@ -1455,7 +1455,15 @@ class CompanyImport implements ShouldQueue
                 $obj_array['config'] = encrypt($obj_array['config']);
             }
 
+            /**
+             *  @class \stdClass $parameters
+             *
+             *  @property string $entity
+             *  @property string $entity_id
+            */
+
             if($class == 'App\Models\Scheduler') {
+
                 $parameters = $obj_array['parameters'];
 
                 if(isset($parameters->clients)){
