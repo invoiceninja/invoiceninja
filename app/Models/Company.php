@@ -928,7 +928,11 @@ class Company extends BaseModel
 
         $timezone = $this->timezone();
 
-        $offset -= $timezone->utc_offset;
+        date_default_timezone_set('GMT');
+        $date = new \DateTime("now", new \DateTimeZone($timezone->name));
+        $offset -= $date->getOffset();
+
+        // $offset -= $timezone->utc_offset;
         $offset += ($entity_send_time * 3600);
 
         return $offset;

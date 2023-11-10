@@ -19,6 +19,13 @@ class StoreDesignRequest extends Request
 
     private array $valid_entities = [
         'invoice',
+        'payment',
+        'client',
+        'quote',
+        'credit',
+        'purchase_order',
+        'project',
+        'task'
     ];
 
     /**
@@ -32,7 +39,7 @@ class StoreDesignRequest extends Request
         $user = auth()->user();
 
         return $user->isAdmin() && $user->account->hasFeature(Account::FEATURE_API);
-        ;
+        
     }
 
     public function rules()
@@ -42,7 +49,6 @@ class StoreDesignRequest extends Request
         $user = auth()->user();
 
         return [
-            //'name' => 'required',
             'name' => 'required|unique:designs,name,null,null,company_id,'.$user->companyId(),
             'design' => 'required|array',
             'design.header' => 'sometimes|string',

@@ -25,7 +25,11 @@ class ShowStatementRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'start_date' => 'sometimes|nullable|date',
+            'end_date' => 'sometimes|nullable|date',
+            'show_payments_table' => 'sometimes|nullable|boolean',
+            'show_aging_table' => 'sometimes|nullable|boolean',
+            'show_credits_table' => 'sometimes|nullable|boolean',
         ];
     }
 

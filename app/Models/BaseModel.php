@@ -255,7 +255,7 @@ class BaseModel extends Model
 
         $formatted_number = preg_replace('/\s+/', '_', $formatted_number);
 
-        return $formatted_number;
+        return \Illuminate\Support\Str::ascii($formatted_number);
     }
 
     public function translate_entity()
@@ -278,7 +278,7 @@ class BaseModel extends Model
                                  ->exists();
                             
         if ($subscriptions) {
-            WebhookHandler::dispatch($event_id, $this, $this->company, $additional_data);
+            WebhookHandler::dispatch($event_id, $this->withoutRelations(), $this->company, $additional_data);
         }
     }
 

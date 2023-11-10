@@ -24,7 +24,7 @@ Route::get('vendor/key_login/{contact_key}', [VendorContactHashLoginController::
 Route::group(['middleware' => ['invite_db'], 'prefix' => 'vendor', 'as' => 'vendor.'], function () {
     /*Invitation catches*/
     Route::get('purchase_order/{invitation_key}', [InvitationController::class, 'purchaseOrder']);
-    Route::get('purchase_order/{invitation_key}/download', [InvitationController::class, 'download']);
+    Route::get('purchase_order/{invitation_key}/download', [InvitationController::class, 'download']);//->middleware('token_auth');
 });
 
 Route::group(['middleware' => ['auth:vendor', 'vendor_locale', 'domain_db'], 'prefix' => 'vendor', 'as' => 'vendor.'], function () {

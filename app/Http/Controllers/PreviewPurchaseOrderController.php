@@ -223,8 +223,12 @@ class PreviewPurchaseOrderController extends BaseController
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
-
         $company = $user->company();
+        $file_path = (new PreviewPdf('<html></html>', $company))->handle();
+        $response = Response::make($file_path, 200);
+        $response->header('Content-Type', 'application/pdf');
+
+        return $response;
 
         MultiDB::setDb($company->db);
 

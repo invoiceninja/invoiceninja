@@ -174,8 +174,12 @@ class AutoBillInvoice extends AbstractService
         $amount = array_sum(array_column($this->used_credit, 'amount'));
 
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
-        $payment->amount = $amount;
-        $payment->applied = $amount;
+
+        $payment->amount = 0;
+        $payment->applied = 0;
+
+        // $payment->amount = $amount;
+        // $payment->applied = $amount;
         $payment->client_id = $this->invoice->client_id;
         $payment->currency_id = $this->invoice->client->getSetting('currency_id');
         $payment->date = now()->addSeconds($this->invoice->company->timezone()->utc_offset)->format('Y-m-d');

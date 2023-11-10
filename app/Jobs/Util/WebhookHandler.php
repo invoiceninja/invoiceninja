@@ -58,7 +58,7 @@ class WebhookHandler implements ShouldQueue
                 ->where('event_id', $this->event_id)
                 ->cursor()
                 ->each(function ($subscription) {
-                    WebhookSingle::dispatch($subscription->id, $this->entity, $this->company->db, $this->includes);
+                    (new WebhookSingle($subscription->id, $this->entity, $this->company->db, $this->includes))->handle();
                 });
     }
 

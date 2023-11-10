@@ -153,6 +153,10 @@ class RecurringInvoiceExport extends BaseExport
             $entity['recurring_invoice.frequency_id'] = $invoice->frequencyForKey($invoice->frequency_id);
         }
 
+        if (in_array('recurring_invoice.auto_bill_enabled', $this->input['report_keys'])) {
+            $entity['recurring_invoice.auto_bill_enabled'] = $invoice->auto_bill_enabled ? ctrans('texts.yes') : ctrans('texts.no');
+        }
+
         return $entity;
     }
 }

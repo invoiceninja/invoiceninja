@@ -101,6 +101,7 @@ class DeletePayment
                                         ->updateInvoiceBalance($net_deletable, "Adjusting invoice {$paymentable_invoice->number} due to deletion of Payment {$this->payment->number}")
                                         ->save();
 
+                    //@todo refactor
                     $this->payment
                          ->client
                          ->service()

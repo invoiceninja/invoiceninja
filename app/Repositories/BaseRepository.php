@@ -161,7 +161,7 @@ class BaseRepository
 
         $lcfirst_resource_id = $this->resolveEntityKey($model); //ie invoice_id
 
-        $state['starting_amount'] = $model->amount;
+        $state['starting_amount'] = $model->balance;
 
         if (! $model->id) {
             $company_defaults = $client->setCompanyDefaults($data, lcfirst($resource));
@@ -199,7 +199,7 @@ class BaseRepository
                 });
             }
         }
-nlog($model->toArray());
+        
         $model->saveQuietly();
 
         /* Model now persisted, now lets do some child tasks */
@@ -273,7 +273,7 @@ nlog($model->toArray());
         $model = $model->calc()->getInvoice();
 
         /* We use this to compare to our starting amount */
-        $state['finished_amount'] = $model->amount;
+        $state['finished_amount'] = $model->balance;
 
         /* Apply entity number */
         $model = $model->service()->applyNumber()->save();
@@ -290,10 +290,14 @@ nlog($model->toArray());
 
         /* Perform model specific tasks */
         if ($model instanceof Invoice) {
-            if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {
+            if ($model->status_id != Invoice::STATUS_DRAFT) {
                 $model->service()->updateStatus()->save();
-                $model->client->service()->updateBalance(($state['finished_amount'] - $state['starting_amount']))->save();
-                $model->ledger()->updateInvoiceBalance(($state['finished_amount'] - $state['starting_amount']), "Update adjustment for invoice {$model->number}");
+                $model->client->service()->calculateBalance($model);
+                
+                // $diff = $state['finished_amount'] - $state['starting_amount'];
+                // nlog("{$diff} - {$state['finished_amount']} - {$state['starting_amount']}");
+                // if(floatval($state['finished_amount']) != floatval($state['starting_amount']))
+                //     $model->ledger()->updateInvoiceBalance(($state['finished_amount'] - $state['starting_amount']), "Update adjustment for invoice {$model->number}");
             }
 
             if (! $model->design_id) {
