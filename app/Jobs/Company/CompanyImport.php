@@ -1464,6 +1464,7 @@ class CompanyImport implements ShouldQueue
 
             if($class == 'App\Models\Scheduler') {
 
+                /** @var \stdClass $parameters */
                 $parameters = $obj_array['parameters'];
 
                 if(isset($parameters->clients)){
