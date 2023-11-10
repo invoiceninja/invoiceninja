@@ -278,7 +278,7 @@ class BaseModel extends Model
                                  ->exists();
                             
         if ($subscriptions) {
-            WebhookHandler::dispatch($event_id, $this, $this->company, $additional_data);
+            WebhookHandler::dispatch($event_id, $this->withoutRelations(), $this->company, $additional_data);
         }
     }
 

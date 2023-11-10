@@ -55,9 +55,6 @@ class MarkSent extends AbstractService
              ->setReminder()
              ->save();
 
-        /*Adjust client balance*/
-        // $this->invoice->client->service()->updateBalance($adjustment)->save();
-
         $this->invoice->markInvitationsSent();
 
         event(new InvoiceWasUpdated($this->invoice, $this->invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));

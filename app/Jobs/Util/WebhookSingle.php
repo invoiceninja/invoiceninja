@@ -75,16 +75,10 @@ class WebhookSingle implements ShouldQueue
         MultiDB::setDb($this->db);
 
         $subscription = Webhook::query()->with('company')->find($this->subscription_id);
-
-        if ($subscription) {
-            // nlog("firing event ID {$subscription->event_id} company_id {$subscription->company_id}");
-        }
-        
+               
         if (!$subscription) {
             $this->fail();
-            
             nlog("failed to fire event, could not find webhook ID {$this->subscription_id}");
-
             return;
         }
 
@@ -185,7 +179,6 @@ class WebhookSingle implements ShouldQueue
                     $this->fail();
                     return;
                 }
-                
 
                 $this->release($this->backoff()[$this->attempts()-1]);
             }
