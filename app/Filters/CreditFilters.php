@@ -48,6 +48,10 @@ class CreditFilters extends QueryFilters
             $credit_filters[] = Credit::STATUS_DRAFT;
         }
         
+        if (in_array('sent', $status_parameters)) {
+            $credit_filters[] = Credit::STATUS_SENT;
+        }
+
         if (in_array('partial', $status_parameters)) {
             $credit_filters[] = Credit::STATUS_PARTIAL;
         }
@@ -95,6 +99,21 @@ class CreditFilters extends QueryFilters
                                 ->orWhere('email', 'like', '%'.$filter.'%');
                           });
         });
+    }
+
+    public function applicable(string $value = ''): Builder
+    {
+        if (strlen($value) == 0) {
+            return $this->builder;
+        }
+        
+        return $this->builder->where(function ($query){
+                        $query->whereIn('status_id', [Credit::STATUS_SENT, Credit::STATUS_PARTIAL])
+                              ->where('balance', '>', 0)
+                              ->where(function ($q){
+                                $q->whereNull('due_date')->orWhere('due_date', '>', now());
+                              });
+                            });
     }
 
     public function number(string $number = ''): Builder
