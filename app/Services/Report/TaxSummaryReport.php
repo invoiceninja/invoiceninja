@@ -54,7 +54,7 @@ class TaxSummaryReport extends BaseExport
     }
 
     public function run()
-    {
+    {nlog($this->input);
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
         App::setLocale($this->company->locale());
@@ -67,9 +67,6 @@ class TaxSummaryReport extends BaseExport
         $this->csv->insertOne([]);
         $this->csv->insertOne([]);
         $this->csv->insertOne([]);
-        $this->csv->insertOne([ctrans('texts.tax_summary')]);
-        $this->csv->insertOne([ctrans('texts.created_on'),' ',$this->translateDate(now()->format('Y-m-d'), $this->company->date_format(), $this->company->locale())]);
-        $this->csv->insertOne([ctrans('texts.date_range'),' ',$this->translateDate($this->input['start_date'], $this->company->date_format(), $this->company->locale()),' - ',$this->translateDate($this->input['end_date'], $this->company->date_format(), $this->company->locale())]);
 
         if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = $this->report_keys;
@@ -83,6 +80,12 @@ class TaxSummaryReport extends BaseExport
             ->orderBy('balance', 'desc');
 
         $query = $this->addDateRange($query);
+
+        $this->csv->insertOne([ctrans('texts.tax_summary')]);
+        $this->csv->insertOne([ctrans('texts.created_on'),' ',$this->translateDate(now()->format('Y-m-d'), $this->company->date_format(), $this->company->locale())]);
+        $this->csv->insertOne([ctrans('texts.date_range'),' ',$this->translateDate($this->start_date, $this->company->date_format(), $this->company->locale()),' - ',$this->translateDate($this->end_date, $this->company->date_format(), $this->company->locale())]);
+
+
 
         $query = $this->filterByClients($query);
         $accrual_map = [];
