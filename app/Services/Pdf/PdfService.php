@@ -127,6 +127,7 @@ class PdfService
 
         $this->execution_time = microtime(true) - $this->start_time;
 
+        nlog($html);
         return $html;
     }
         
