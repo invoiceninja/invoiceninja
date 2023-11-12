@@ -37,7 +37,8 @@ class ClientService
 
     public function calculateBalance(?Invoice $invoice = null)
     {
-        $balance = Invoice::where('client_id', $this->client->id)
+        $balance = Invoice::withTrashed()
+                          ->where('client_id', $this->client->id)
                           ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                           ->where('is_deleted', false)
                           ->sum('balance');
