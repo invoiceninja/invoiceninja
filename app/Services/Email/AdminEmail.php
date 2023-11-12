@@ -141,7 +141,7 @@ class AdminEmail implements ShouldQueue
 
             Cache::increment("email_quota".$this->company->account->key);
 
-            LightLogs::create(new EmailSuccess($this->company->company_key))
+            LightLogs::create(new EmailSuccess($this->company->company_key, $this->mailable->subject))
                      ->send();
 
         } catch(\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
