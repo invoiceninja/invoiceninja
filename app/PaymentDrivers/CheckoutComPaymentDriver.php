@@ -148,7 +148,7 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     /**
      * Process different view depending on payment type
-     * 
+     *
      * @param int $gateway_type_id The gateway type
      * @return string The view string
      */

@@ -11,28 +11,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Utils\Ninja;
-use App\Models\Account;
-use Illuminate\Http\Response;
-use App\Utils\Traits\MakesHash;
-use App\Models\RecurringInvoice;
-use App\Utils\Traits\SavesDocuments;
-use App\Factory\RecurringInvoiceFactory;
-use App\Filters\RecurringInvoiceFilters;
-use App\Jobs\RecurringInvoice\UpdateRecurring;
-use App\Repositories\RecurringInvoiceRepository;
-use App\Transformers\RecurringInvoiceTransformer;
 use App\Events\RecurringInvoice\RecurringInvoiceWasCreated;
 use App\Events\RecurringInvoice\RecurringInvoiceWasUpdated;
+use App\Factory\RecurringInvoiceFactory;
+use App\Filters\RecurringInvoiceFilters;
+use App\Http\Requests\RecurringInvoice\ActionRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\BulkRecurringInvoiceRequest;
+use App\Http\Requests\RecurringInvoice\CreateRecurringInvoiceRequest;
+use App\Http\Requests\RecurringInvoice\DestroyRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\EditRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\ShowRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\StoreRecurringInvoiceRequest;
-use App\Http\Requests\RecurringInvoice\ActionRecurringInvoiceRequest;
-use App\Http\Requests\RecurringInvoice\CreateRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\UpdateRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\UploadRecurringInvoiceRequest;
-use App\Http\Requests\RecurringInvoice\DestroyRecurringInvoiceRequest;
+use App\Jobs\RecurringInvoice\UpdateRecurring;
+use App\Models\Account;
+use App\Models\RecurringInvoice;
+use App\Repositories\RecurringInvoiceRepository;
+use App\Transformers\RecurringInvoiceTransformer;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
+use Illuminate\Http\Response;
 
 /**
  * Class RecurringInvoiceController.
@@ -580,7 +580,7 @@ class RecurringInvoiceController extends BaseController
 
         $file_name = $invoice->numberFormatter().'.pdf';
 
-        $file = (new \App\Jobs\Entity\CreateRawPdf($invitation, $invitation->company->db))->handle();
+        $file = (new \App\Jobs\Entity\CreateRawPdf($invitation))->handle();
 
         $headers = ['Content-Type' => 'application/pdf'];
 

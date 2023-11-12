@@ -11,14 +11,13 @@
 
 namespace App\Services\Recurring;
 
-use App\Utils\Ninja;
-use App\Jobs\Util\UnlinkFile;
-use App\Models\RecurringQuote;
-use Illuminate\Support\Carbon;
+use App\Jobs\RecurringInvoice\SendRecurring;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
+use App\Models\RecurringQuote;
+use App\Utils\Ninja;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
-use App\Jobs\RecurringInvoice\SendRecurring;
 
 class RecurringService
 {
@@ -94,7 +93,7 @@ class RecurringService
             //30-06-2023
             try {
                 Storage::disk(config('filesystems.default'))->delete($this->recurring_entity->client->recurring_invoice_filepath($invitation) . $this->recurring_entity->numberFormatter().'.pdf');
-                    Storage::disk('public')->delete($this->recurring_entity->client->recurring_invoice_filepath($invitation) . $this->recurring_entity->numberFormatter().'.pdf');
+                Storage::disk('public')->delete($this->recurring_entity->client->recurring_invoice_filepath($invitation) . $this->recurring_entity->numberFormatter().'.pdf');
                 if (Ninja::isHosted()) {
                 }
             } catch (\Exception $e) {

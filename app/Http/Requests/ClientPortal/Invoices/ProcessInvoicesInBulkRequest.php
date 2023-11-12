@@ -33,7 +33,7 @@ class ProcessInvoicesInBulkRequest extends FormRequest
     {
         $input = $this->all();
         
-        if(isset($input['invoices'])){
+        if(isset($input['invoices'])) {
             $input['invoices'] = array_unique($input['invoices']);
         }
 

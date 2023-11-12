@@ -54,6 +54,19 @@ class DesignFilters extends QueryFilters
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }
 
+    public function entities(string $entities = ''): Builder
+    {
+
+        if (strlen($entities) == 0 || str_contains($entities, ',')) {
+            return $this->builder;
+        }
+
+        return $this->builder
+                    ->where('is_template', true)
+                    ->whereRaw('FIND_IN_SET( ? ,entities)', [trim($entities)]);
+
+    }
+
     /**
      * Filters the query by the users company ID.
      *
@@ -64,11 +77,22 @@ class DesignFilters extends QueryFilters
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        return  $this->builder->where(function ($query) use($user){
+        return  $this->builder->where(function ($query) use ($user) {
             $query->where('company_id', $user->company()->id)->orWhere('company_id', null)->orderBy('id', 'asc');
         });
     }
 
+    public function template(string $template = 'false'): Builder
+    {
+
+        if (strlen($template) == 0) {
+            return $this->builder;
+        }
+
+        $bool_val = $template == 'true' ? true : false;
+
+        return $this->builder->where('is_template', $bool_val);
+    }
     /**
      * Filter the designs by `is_custom` column.
      *

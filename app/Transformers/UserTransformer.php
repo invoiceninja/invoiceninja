@@ -97,7 +97,7 @@ class UserTransformer extends EntityTransformer
     }
 
     /**
-     * 
+     *
      * @param User $user
      */
     public function includeCompanyUser(User $user)

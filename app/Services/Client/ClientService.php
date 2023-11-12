@@ -11,16 +11,17 @@
 
 namespace App\Services\Client;
 
+use Carbon\Carbon;
+use App\Utils\Number;
 use App\Models\Client;
 use App\Models\Credit;
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\Email\Email;
-use App\Services\Email\EmailObject;
-use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
-use Carbon\Carbon;
-use Illuminate\Mail\Mailables\Address;
 use Illuminate\Support\Facades\DB;
+use App\Services\Email\EmailObject;
+use Illuminate\Mail\Mailables\Address;
 
 class ClientService
 {
@@ -34,6 +35,39 @@ class ClientService
     {
     }
 
+    public function calculateBalance(?Invoice $invoice = null)
+    {
+        $balance = Invoice::where('client_id', $this->client->id)
+                          ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                          ->where('is_deleted', false)
+                          ->sum('balance');
+
+        $pre_client_balance = $this->client->balance;
+
+        try {
+            DB::connection(config('database.default'))->transaction(function () use ($balance) {
+                $this->client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
+                $this->client->balance = $balance;
+                $this->client->saveQuietly();
+            }, 2);
+        } catch (\Throwable $throwable) {
+            nlog("DB ERROR " . $throwable->getMessage());
+        }
+        
+        if($invoice && floatval($this->client->balance)  != floatval($pre_client_balance)) {
+            $diff = $this->client->balance - $pre_client_balance;
+            $invoice->ledger()->insertInvoiceBalance($diff, $this->client->balance, "Update Adjustment Invoice # {$invoice->number} => {$diff}");
+        }
+
+        return $this;
+    }
+    
+    /**
+     * Seeing too many race conditions under heavy load here.
+     * 
+     * @param  float $amount
+     * @return ClientService
+     */
     public function updateBalance(float $amount)
     {
         try {
@@ -43,16 +77,12 @@ class ClientService
                 $this->client->saveQuietly();
             }, 2);
         } catch (\Throwable $throwable) {
-            nlog("DB ERROR " . $throwable->getMessage());
-            DB::connection(config('database.default'))->rollBack();
 
             if (DB::connection(config('database.default'))->transactionLevel() > 0) {
                 DB::connection(config('database.default'))->rollBack();
             }
 
-        } catch(\Exception $exception){
-            nlog("DB ERROR " . $exception->getMessage());
-            DB::connection(config('database.default'))->rollBack();
+        } catch(\Exception $exception) {
 
             if (DB::connection(config('database.default'))->transactionLevel() > 0) {
                 DB::connection(config('database.default'))->rollBack();
@@ -78,7 +108,7 @@ class ClientService
                 DB::connection(config('database.default'))->rollBack();
             }
 
-        } catch(\Exception $exception){
+        } catch(\Exception $exception) {
             nlog("DB ERROR " . $exception->getMessage());
 
             if (DB::connection(config('database.default'))->transactionLevel() > 0) {
@@ -97,15 +127,14 @@ class ClientService
                 $this->client->paid_to_date += $amount;
                 $this->client->saveQuietly();
             }, 2);
-        }
-        catch (\Throwable $throwable) {
+        } catch (\Throwable $throwable) {
             nlog("DB ERROR " . $throwable->getMessage());
 
             if (DB::connection(config('database.default'))->transactionLevel() > 0) {
                 DB::connection(config('database.default'))->rollBack();
             }
 
-        } catch(\Exception $exception){
+        } catch(\Exception $exception) {
             nlog("DB ERROR " . $exception->getMessage());
 
             if (DB::connection(config('database.default'))->transactionLevel() > 0) {
@@ -233,7 +262,7 @@ class ClientService
         $cc_contacts = $this->client
                             ->contacts()
                             ->where('send_email', true)
-                            ->where('email', '!=',  $email)
+                            ->where('email', '!=', $email)
                             ->get();
 
         foreach ($cc_contacts as $contact) {
@@ -242,8 +271,13 @@ class ClientService
         
         }
 
+        $invoice = $this->client->invoices()->whereHas('invitations')->first();
+
         $email_object->attachments = [['file' => base64_encode($pdf), 'name' => ctrans('texts.statement') . ".pdf"]];
         $email_object->client_id = $this->client->id;
+        $email_object->entity_class = Invoice::class;
+        $email_object->entity_id = $invoice->id ?? null;
+        $email_object->invitation_id = $invoice->invitations->first()->id ?? null;
         $email_object->email_template_subject = 'email_subject_statement';
         $email_object->email_template_body = 'email_template_statement';
         $email_object->variables = [

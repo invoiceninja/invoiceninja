@@ -12,16 +12,16 @@
 
 namespace App\PaymentDrivers\Authorize;
 
+use App\Jobs\Util\SystemLogger;
 use App\Models\Payment;
 use App\Models\SystemLog;
-use App\Jobs\Util\SystemLogger;
 use App\PaymentDrivers\AuthorizePaymentDriver;
-use net\authorize\api\contract\v1\PaymentType;
-use net\authorize\api\contract\v1\CreditCardType;
-use net\authorize\api\contract\v1\PaymentProfileType;
-use net\authorize\api\contract\v1\TransactionRequestType;
 use net\authorize\api\contract\v1\CreateTransactionRequest;
+use net\authorize\api\contract\v1\CreditCardType;
 use net\authorize\api\contract\v1\CustomerProfilePaymentType;
+use net\authorize\api\contract\v1\PaymentProfileType;
+use net\authorize\api\contract\v1\PaymentType;
+use net\authorize\api\contract\v1\TransactionRequestType;
 use net\authorize\api\controller\CreateTransactionController;
 
 /**

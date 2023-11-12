@@ -12,7 +12,6 @@ namespace App\Http\Requests\TaskScheduler;
 
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\Scheduler\ValidClientIds;
-use Illuminate\Validation\Rule;
 
 class UpdateSchedulerRequest extends Request
 {
@@ -23,7 +22,10 @@ class UpdateSchedulerRequest extends Request
      */
     public function authorize(): bool
     {
-        return auth()->user()->isAdmin() && $this->task_scheduler->company_id == auth()->user()->company()->id;
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->isAdmin() && $this->task_scheduler->company_id == $user->company()->id;
     }
 
     public function rules(): array

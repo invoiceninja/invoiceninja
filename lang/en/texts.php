@@ -5184,7 +5184,11 @@ $LANG = array(
     'client_contact' => 'Client Contact',
     'uncategorized' => 'Uncategorized',
     'login_notification' => 'Login Notification',
-    'login_notification_help' => 'Sends an email notifying that a login has taken place.'
+    'login_notification_help' => 'Sends an email notifying that a login has taken place.',
+    'payment_refund_receipt' => 'Payment Refund Receipt # :number',
+    'payment_receipt' => 'Payment Receipt # :number',
+    'load_template_description' => 'The template will be applied to following:',
+    'run_template' => 'Run template',
 ); 
 
 return $LANG;

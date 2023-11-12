@@ -11,16 +11,17 @@
 
 namespace App\Mail\Engine;
 
+use App\DataMapper\EmailTemplateDefaults;
+use App\Jobs\Entity\CreateRawPdf;
+use App\Models\Account;
+use App\Models\Payment;
+use App\Services\Template\TemplateAction;
+use App\Utils\Helpers;
 use App\Utils\Ninja;
 use App\Utils\Number;
-use App\Utils\Helpers;
-use App\Models\Account;
 use App\Utils\Traits\MakesDates;
-use App\Jobs\Entity\CreateRawPdf;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Facades\Storage;
-use App\DataMapper\EmailTemplateDefaults;
 
 class PaymentEmailEngine extends BaseEmailEngine
 {
@@ -43,6 +44,8 @@ class PaymentEmailEngine extends BaseEmailEngine
     private $payment_template_body;
 
     private $payment_template_subject;
+
+    public bool $is_refund = false;
 
     public function __construct($payment, $contact, $template_data = null)
     {
@@ -91,14 +94,56 @@ class PaymentEmailEngine extends BaseEmailEngine
             ->setViewText('');
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
-            $this->payment->invoices->each(function ($invoice) {
-                $pdf = ((new CreateRawPdf($invoice->invitations->first(), $invoice->company->db))->handle());
 
-                $this->setAttachments([['file' => base64_encode($pdf), 'name' => $invoice->numberFormatter().'.pdf']]);
+            $template_in_use = false;
+
+            if($this->is_refund && strlen($this->payment->client->getSetting('payment_refund_design_id')) > 2) {
+                $pdf = (new TemplateAction(
+                    [$this->payment->hashed_id],
+                    $this->payment->client->getSetting('payment_refund_design_id'),
+                    Payment::class,
+                    $this->payment->user_id,
+                    $this->payment->company,
+                    $this->payment->company->db,
+                    'nohash',
+                    false
+                ))->handle();
+
+                $file_name = ctrans('texts.payment_refund_receipt', ['number' => $this->payment->number ]) . '.pdf';
+                $file_name = str_replace(' ', '_', $file_name);
+                $this->setAttachments([['file' => base64_encode($pdf), 'name' => $file_name]]);
+                $template_in_use = true;
+
+            } elseif(!$this->is_refund && strlen($this->payment->client->getSetting('payment_receipt_design_id')) > 2) {
+                $pdf = (new TemplateAction(
+                    [$this->payment->hashed_id],
+                    $this->payment->client->getSetting('payment_receipt_design_id'),
+                    Payment::class,
+                    $this->payment->user_id,
+                    $this->payment->company,
+                    $this->payment->company->db,
+                    'nohash',
+                    false
+                ))->handle();
+                                                
+                $file_name = ctrans('texts.payment_receipt', ['number' => $this->payment->number ]) . '.pdf';
+                $file_name = str_replace(' ', '_', $file_name);
+                $this->setAttachments([['file' => base64_encode($pdf), 'name' => $file_name]]);
+                $template_in_use = true;
+
+            }
+
+            $this->payment->invoices->each(function ($invoice) use ($template_in_use) {
+
+                if(!$template_in_use) {
+                    $pdf = ((new CreateRawPdf($invoice->invitations->first()))->handle());
+                    $file_name = $invoice->numberFormatter().'.pdf';
+                    $this->setAttachments([['file' => base64_encode($pdf), 'name' => $file_name]]);
+                }
 
                 //attach invoice documents also to payments
                 if ($this->client->getSetting('document_email_attachment') !== false) {
-                    $invoice->documents()->where('is_public', true)->cursor()->each(function ($document){
+                    $invoice->documents()->where('is_public', true)->cursor()->each(function ($document) {
                         if ($document->size > $this->max_attachment_size) {
                             $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
                         } else {
@@ -351,7 +396,7 @@ class PaymentEmailEngine extends BaseEmailEngine
 
     private function formatInvoiceReferencesSubject()
     {
-         $invoice_list = '';
+        $invoice_list = '';
 
         foreach ($this->payment->invoices as $invoice) {
             if (strlen($invoice->po_number) > 1) {
@@ -362,8 +407,8 @@ class PaymentEmailEngine extends BaseEmailEngine
 
         }
 
-        if(strlen($invoice_list) < 4){
-                $invoice_list = Number::formatMoney($this->payment->amount, $this->client) ?: '&nbsp;';
+        if(strlen($invoice_list) < 4) {
+            $invoice_list = Number::formatMoney($this->payment->amount, $this->client) ?: '&nbsp;';
         }
             
 
@@ -371,7 +416,8 @@ class PaymentEmailEngine extends BaseEmailEngine
 
     }
 
-    private function formatInvoiceNumbersRaw(){
+    private function formatInvoiceNumbersRaw()
+    {
 
         return collect($this->payment->invoices->pluck('number')->toArray())->implode(', ');
 

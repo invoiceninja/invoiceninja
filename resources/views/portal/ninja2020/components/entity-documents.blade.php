@@ -1,4 +1,4 @@
-@if ($entity->documents->count() > 0 || $entity->company->documents->count() > 0 || ($entity->expense && $entity->expense->invoice_documents) || ($entity->task && $entity->company->invoice_task_documents))
+@if ($entity->documents()->where('is_public',1)->count() > 0 || $entity->company->documents()->where('is_public',1)->count() > 0 || ($entity->expense && $entity->expense->invoice_documents) || ($entity->task && $entity->company->invoice_task_documents))
     <div class="bg-white shadow sm:rounded-lg my-4">
         <div class="px-4 py-5 sm:p-6">
             <div class="sm:flex sm:items-start sm:justify-between">

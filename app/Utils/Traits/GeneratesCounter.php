@@ -794,16 +794,16 @@ trait GeneratesCounter
         $replace = [];
 
         $search[] = '{$user_custom1}';
-        $replace[] = $entity->user->custom_value1;
+        $replace[] = $entity->user->custom_value1 ?? '';
 
         $search[] = '{$user_custom2}';
-        $replace[] = $entity->user->custom_value2;
+        $replace[] = $entity->user->custom_value2 ?? '';
 
         $search[] = '{$user_custom3}';
-        $replace[] = $entity->user->custom_value3;
+        $replace[] = $entity->user->custom_value3 ?? '';
 
         $search[] = '{$user_custom4}';
-        $replace[] = $entity->user->custom_value4;
+        $replace[] = $entity->user->custom_value4 ?? '';
 
         return str_replace($search, $replace, $pattern);
     }

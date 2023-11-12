@@ -214,6 +214,8 @@ class Phantom
             'options' => [
                 'all_pages_header' => $entity_obj->client->getSetting('all_pages_header'),
                 'all_pages_footer' => $entity_obj->client->getSetting('all_pages_footer'),
+                'client' => $entity_obj->client,
+                'entity' => $entity_obj,
             ],
             'process_markdown' => $entity_obj->client->company->markdown_enabled,
         ];
@@ -230,4 +232,5 @@ class Phantom
 
         return view('pdf.html', $data);
     }
+
 }

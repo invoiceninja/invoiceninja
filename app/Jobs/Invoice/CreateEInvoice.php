@@ -12,17 +12,17 @@
 
 namespace App\Jobs\Invoice;
 
-use App\Utils\Ninja;
 use App\Models\Invoice;
-use horstoeko\zugferd\ZugferdDocumentBuilder;
-use Illuminate\Bus\Queueable;
-use Illuminate\Support\Facades\App;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
 use App\Services\Invoice\EInvoice\FacturaEInvoice;
 use App\Services\Invoice\EInvoice\ZugferdEInvoice;
+use App\Utils\Ninja;
+use horstoeko\zugferd\ZugferdDocumentBuilder;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 
 class CreateEInvoice implements ShouldQueue
 {

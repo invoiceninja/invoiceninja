@@ -11,13 +11,13 @@
 
 namespace App\Console\Commands;
 
-use App\Utils\Ninja;
+use App\Libraries\MultiDB;
 use App\Models\Backup;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Document;
-use App\Libraries\MultiDB;
 use App\Models\GroupSetting;
+use App\Utils\Ninja;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
@@ -56,8 +56,9 @@ class BackupUpdate extends Command
     {
         //always return state to first DB
 
-        if(Ninja::isSelfHost())
+        if(Ninja::isSelfHost()) {
             return;
+        }
             
         $current_db = config('database.default');
 

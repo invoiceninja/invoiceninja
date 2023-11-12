@@ -11,10 +11,10 @@
 
 namespace App\Services\Chart;
 
-use App\Models\User;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Expense;
+use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 
 class ChartService

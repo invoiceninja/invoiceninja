@@ -11,24 +11,24 @@
 
 namespace App\Jobs\RecurringInvoice;
 
-use Carbon\Carbon;
-use App\Utils\Ninja;
-use App\Models\Invoice;
-use App\Jobs\Cron\AutoBill;
-use Illuminate\Bus\Queueable;
-use App\Utils\Traits\MakesHash;
-use App\Jobs\Entity\EmailEntity;
-use App\Models\RecurringInvoice;
-use App\Utils\Traits\GeneratesCounter;
-use Illuminate\Queue\SerializesModels;
-use Turbo124\Beacon\Facades\LightLogs;
-use Illuminate\Queue\InteractsWithQueue;
+use App\DataMapper\Analytics\SendRecurringFailure;
 use App\Events\Invoice\InvoiceWasCreated;
 use App\Factory\InvoiceInvitationFactory;
+use App\Factory\RecurringInvoiceToInvoiceFactory;
+use App\Jobs\Cron\AutoBill;
+use App\Jobs\Entity\EmailEntity;
+use App\Models\Invoice;
+use App\Models\RecurringInvoice;
+use App\Utils\Ninja;
+use App\Utils\Traits\GeneratesCounter;
+use App\Utils\Traits\MakesHash;
+use Carbon\Carbon;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\Factory\RecurringInvoiceToInvoiceFactory;
-use App\DataMapper\Analytics\SendRecurringFailure;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Turbo124\Beacon\Facades\LightLogs;
 
 class SendRecurring implements ShouldQueue
 {
@@ -115,11 +115,10 @@ class SendRecurring implements ShouldQueue
             AutoBill::dispatch($invoice->id, $this->db, true)->delay(rand(1, 2));
 
             //04-08-2023 edge case to support where online payment notifications are not enabled
-            if(!$invoice->client->getSetting('client_online_payment_notification')){
+            if(!$invoice->client->getSetting('client_online_payment_notification')) {
                 $this->sendRecurringEmails($invoice);
             }
-        } 
-        elseif ($invoice->auto_bill_enabled && $invoice->client->getSetting('auto_bill_date') == 'on_due_date' && $invoice->client->getSetting('auto_email_invoice') && ($invoice->due_date && Carbon::parse($invoice->due_date)->startOfDay()->lte(now()->startOfDay()))) {
+        } elseif ($invoice->auto_bill_enabled && $invoice->client->getSetting('auto_bill_date') == 'on_due_date' && $invoice->client->getSetting('auto_email_invoice') && ($invoice->due_date && Carbon::parse($invoice->due_date)->startOfDay()->lte(now()->startOfDay()))) {
             nlog("attempting to autobill {$invoice->number}");
             AutoBill::dispatch($invoice->id, $this->db, true)->delay(rand(1, 2));
 
@@ -128,8 +127,7 @@ class SendRecurring implements ShouldQueue
                 $this->sendRecurringEmails($invoice);
             }
 
-        }
-        elseif ($invoice->client->getSetting('auto_email_invoice')) {
+        } elseif ($invoice->client->getSetting('auto_email_invoice')) {
             $this->sendRecurringEmails($invoice);
         }
 
@@ -138,7 +136,7 @@ class SendRecurring implements ShouldQueue
     /**
      * Sends the recurring invoice emails to
      * the designated contacts
-     * 
+     *
      * @param Invoice $invoice
      * @return void
      */

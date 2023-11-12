@@ -21,10 +21,9 @@ use Illuminate\Http\Request;
  */
 class UserVerified
 {
-    public $user;
-
-    public function __construct(?User $user)
+    public function __construct(public ?User $user)
     {
+
         $this->user = property_exists($user, 'id') ? $user : auth()->user();
     }
 

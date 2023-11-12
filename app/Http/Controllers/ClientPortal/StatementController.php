@@ -23,7 +23,7 @@ class StatementController extends Controller
     /**
      * Show the statement in the client portal.
      *
-     * @return \Illuminate\View\View         
+     * @return \Illuminate\View\View
      */
     public function index(): View
     {

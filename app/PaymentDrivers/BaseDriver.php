@@ -15,7 +15,6 @@ use App\Events\Invoice\InvoiceWasPaid;
 use App\Events\Payment\PaymentWasCreated;
 use App\Exceptions\PaymentFailed;
 use App\Factory\PaymentFactory;
-use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Mail\NinjaMailer;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
@@ -59,7 +58,7 @@ class BaseDriver extends AbstractPaymentDriver
     /**
      * The Client
      *
-     * @var \App\Models\Client|null $client 
+     * @var \App\Models\Client|null $client
     */
     public $client;
 
@@ -733,21 +732,37 @@ class BaseDriver extends AbstractPaymentDriver
         $t->replace(Ninja::transformTranslations($this->client->getMergedSettings()));
         App::setLocale($this->client->company->locale());
         
-        if (! $this->payment_hash || !$this->client) 
+        if (! $this->payment_hash || !$this->client) {
             return 'Descriptor';
+        }
 
         $invoices_string = \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray()) ?: null;
 
-        if (!$invoices_string) 
+        if (!$invoices_string) {
             return str_replace(["*","<",">","'",'"'], "", $this->client->company->present()->name());
+        }
 
         $invoices_string = str_replace(["*","<",">","'",'"'], "-", $invoices_string);
+        // $invoices_string = "I-".$invoices_string;
+        // $invoices_string = substr($invoices_string, 0, 22);
         
-        $invoices_string = "I-".$invoices_string;
+// 2023-11-02 - improve the statement descriptor for string
+$company_name = $this->client->company->present()->name();
 
-        $invoices_string = substr($invoices_string,0,22);
-        
-        $invoices_string = str_pad($invoices_string, 5, ctrans('texts.invoice'), STR_PAD_LEFT);
+if(ctype_digit(substr($company_name, 0, 1)))
+    $company_name = "X" . $company_name;
+
+$suffix = strlen($invoices_string) + 1;
+
+$length = 22 - $suffix;
+
+$company_name = substr($company_name, 0, $length);
+
+$descriptor = "{$company_name} {$invoices_string}";
+
+$invoices_string = str_pad($descriptor, 5, ctrans('texts.invoice'), STR_PAD_RIGHT);
+
+        // $invoices_string = str_pad($invoices_string, 5, ctrans('texts.invoice'), STR_PAD_LEFT);
 
         return $invoices_string;
 
@@ -769,7 +784,7 @@ class BaseDriver extends AbstractPaymentDriver
         $invoices_string = \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray()) ?: null;
         $amount = Number::formatMoney($this->payment_hash?->amount_with_fee() ?? 0, $this->client);
 
-        if($abbreviated && $invoices_string){
+        if($abbreviated && $invoices_string) {
             return $invoices_string;
         } elseif ($abbreviated || ! $invoices_string) {
             return ctrans('texts.gateway_payment_text_no_invoice', [

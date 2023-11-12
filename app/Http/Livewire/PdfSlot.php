@@ -12,21 +12,20 @@
 
 namespace App\Http\Livewire;
 
-use App\Utils\Number;
-use Livewire\Component;
-use App\Utils\HtmlEngine;
+use App\Jobs\Invoice\CreateEInvoice;
 use App\Libraries\MultiDB;
-use Illuminate\Support\Str;
-use App\Models\QuoteInvitation;
-use App\Utils\VendorHtmlEngine;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
-use App\Jobs\Invoice\CreateEInvoice;
-use Illuminate\Support\Facades\Cache;
 use App\Models\PurchaseOrderInvitation;
+use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
-use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
+use App\Utils\HtmlEngine;
+use App\Utils\Number;
+use App\Utils\VendorHtmlEngine;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
+use Livewire\Component;
 
 class PdfSlot extends Component
 {
@@ -70,6 +69,11 @@ class PdfSlot extends Component
     public function getPdf()
     {
 
+        if(!$this->invitation) {
+            $this->entity->service()->createInvitations();
+            $this->invitation = $this->entity->invitations()->first();
+        }
+
         $blob = [
             'entity_type' => $this->resolveEntityType(),
             'entity_id' => $this->entity->id,
@@ -90,10 +94,7 @@ class PdfSlot extends Component
 
         $file_name = $this->entity->numberFormatter().'.pdf';
 
-        if($this->entity instanceof \App\Models\PurchaseOrder)
-            $file = (new CreatePurchaseOrderPdf($this->invitation, $this->invitation->company->db))->rawPdf();
-        else
-            $file = (new \App\Jobs\Entity\CreateRawPdf($this->invitation, $this->invitation->company->db))->handle();
+        $file = (new \App\Jobs\Entity\CreateRawPdf($this->invitation))->handle();
 
         $headers = ['Content-Type' => 'application/pdf'];
 
@@ -102,6 +103,7 @@ class PdfSlot extends Component
         }, $file_name, $headers);
 
     }
+
     public function downloadEInvoice()
     {
 
@@ -128,7 +130,7 @@ class PdfSlot extends Component
         $this->show_line_total = in_array('$product.line_total', $this->settings->pdf_variables->product_columns);
         $this->show_quantity = in_array('$product.quantity', $this->settings->pdf_variables->product_columns);
 
-        if($this->entity_type == 'quote' && !$this->settings->sync_invoice_quote_columns ){
+        if($this->entity_type == 'quote' && !$this->settings->sync_invoice_quote_columns) {
             $this->show_cost = in_array('$product.unit_cost', $this->settings->pdf_variables->product_quote_columns);
             $this->show_quantity = in_array('$product.quantity', $this->settings->pdf_variables->product_quote_columns);
             $this->show_line_total = in_array('$product.line_total', $this->settings->pdf_variables->product_quote_columns);
@@ -195,21 +197,22 @@ class PdfSlot extends Component
         $entity_details = "";
 
         if($this->entity_type == 'invoice' || $this->entity_type == 'recurring_invoice') {
-            foreach($this->settings->pdf_variables->invoice_details as $variable)
+            foreach($this->settings->pdf_variables->invoice_details as $variable) {
                 $entity_details .= "<div class='flex px-5 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-5 w-36 block entity-field'>{$variable}</p></div>";
+            }
 
-        }
-        elseif($this->entity_type == 'quote'){
-            foreach($this->settings->pdf_variables->quote_details ?? [] as $variable)
+        } elseif($this->entity_type == 'quote') {
+            foreach($this->settings->pdf_variables->quote_details ?? [] as $variable) {
                 $entity_details .= "<div class='flex px-5 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-5 w-36 block entity-field'>{$variable}</p></div>";
-        }
-        elseif($this->entity_type == 'credit') {
-            foreach($this->settings->pdf_variables->credit_details ?? [] as $variable)
+            }
+        } elseif($this->entity_type == 'credit') {
+            foreach($this->settings->pdf_variables->credit_details ?? [] as $variable) {
                 $entity_details .= "<div class='flex px-5 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-5 w-36 block entity-field'>{$variable}</p></div>";
-        }
-        elseif($this->entity_type == 'purchase_order'){
-            foreach($this->settings->pdf_variables->purchase_order_details ?? [] as $variable)
+            }
+        } elseif($this->entity_type == 'purchase_order') {
+            foreach($this->settings->pdf_variables->purchase_order_details ?? [] as $variable) {
                 $entity_details .= "<div class='flex px-5 block'><p class= w-36 block'>{$variable}_label</p><p class='pl-5 w-36 block entity-field'>{$variable}</p></div>";
+            }
         }
 
         return $this->convertVariables($entity_details);
@@ -237,12 +240,11 @@ class PdfSlot extends Component
         $user_details = "";
 
         if($this->entity_type == 'purchase_order') {
-            foreach(array_slice($this->settings->pdf_variables->vendor_details,1) as $variable) {
+            foreach(array_slice($this->settings->pdf_variables->vendor_details, 1) as $variable) {
                 $user_details .= "<p>{$variable}</p>";
             }
-        }
-        else{
-            foreach(array_slice($this->settings->pdf_variables->client_details,1) as $variable) {
+        } else {
+            foreach(array_slice($this->settings->pdf_variables->client_details, 1) as $variable) {
                 $user_details .= "<p>{$variable}</p>";
             }
         }
@@ -255,7 +257,7 @@ class PdfSlot extends Component
 
         $product_items = collect($this->entity->line_items)->filter(function ($item) {
             return $item->type_id == 1 || $item->type_id == 6 || $item->type_id == 5;
-        })->map(function ($item){
+        })->map(function ($item) {
 
             $notes = strlen($item->notes) > 4 ? $item->notes : $item->product_key;
 
@@ -266,7 +268,7 @@ class PdfSlot extends Component
                 'line_total' => Number::formatMoney($item->line_total, $this->entity->client ?: $this->entity->vendor),
             ];
         });
-
+        
         return $product_items;
     }
 
@@ -274,7 +276,7 @@ class PdfSlot extends Component
     {
         $task_items = collect($this->entity->line_items)->filter(function ($item) {
             return $item->type_id == 2;
-        })->map(function ($item){
+        })->map(function ($item) {
             return [
                 'quantity' => $item->quantity,
                 'cost' => Number::formatMoney($item->cost, $this->entity->client ?: $this->entity->vendor),

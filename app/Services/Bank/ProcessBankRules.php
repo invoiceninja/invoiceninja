@@ -139,7 +139,7 @@ class ProcessBankRules extends AbstractService
         }
     }
 
-    private function coalesceExpenses($expense): string 
+    private function coalesceExpenses($expense): string
     {
 
         if (!$this->bank_transaction->expense_id || strlen($this->bank_transaction->expense_id) < 1) {

@@ -38,13 +38,13 @@ class PaymentHash extends Model
         'data' => 'object',
     ];
 
-        /**
-        * @class \App\Models\PaymentHash $this
-        * @property \App\Models\PaymentHash $data
-        * @property \App\Modes\PaymentHash $hash 32 char length AlphaNum
-        * @class \stdClass $data
-        * @property string $raw_value
-        */
+    /**
+    * @class \App\Models\PaymentHash $this
+    * @property \App\Models\PaymentHash $data
+    * @property \App\Modes\PaymentHash $hash 32 char length AlphaNum
+    * @class \stdClass $data
+    * @property string $raw_value
+    */
 
 
     /**

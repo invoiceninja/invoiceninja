@@ -108,7 +108,7 @@ class ImportController extends Controller
     {
         $hints = [];
 
-        $translated_keys = collect($available_keys)->map(function ($value,$key){
+        $translated_keys = collect($available_keys)->map(function ($value, $key) {
             
             $parts = explode(".", $value);
             $index = $parts[0];
@@ -121,16 +121,14 @@ class ImportController extends Controller
 
         foreach($headers as $key => $value) {
             
-            foreach($translated_keys as $tkey => $tvalue)
-            {
+            foreach($translated_keys as $tkey => $tvalue) {
                 
                 if($this->testMatch($value, $tvalue['label'])) {
                     $hit = $tvalue['key'];
                     $hints[$key] = $hit;
                     unset($translated_keys[$tkey]);
                     break;
-                }
-                else {
+                } else {
                     $hints[$key] = null;
                 }
              
@@ -140,14 +138,12 @@ class ImportController extends Controller
         }
 
         //second pass using the index of the translation here
-        foreach($headers as $key => $value)
-        {
+        foreach($headers as $key => $value) {
             if(isset($hints[$key])) {
                 continue;
             }
 
-            foreach($translated_keys as $tkey => $tvalue) 
-            {
+            foreach($translated_keys as $tkey => $tvalue) {
                 if($this->testMatch($value, $tvalue['index'])) {
                     $hit = $tvalue['key'];
                     $hints[$key] = $hit;
@@ -164,7 +160,7 @@ class ImportController extends Controller
     }
 
     private function testMatch($haystack, $needle): bool
-    {  
+    {
         return stripos($haystack, $needle) !== false;
     }
 
@@ -256,7 +252,7 @@ class ImportController extends Controller
 
             if (substr_count(strstr($csvfile, "\n", true), $delimiter) >= $count) {
                 $count = substr_count(strstr($csvfile, "\n", true), $delimiter);
-                $bestDelimiter = $delimiter;        
+                $bestDelimiter = $delimiter;
             }
         
         }

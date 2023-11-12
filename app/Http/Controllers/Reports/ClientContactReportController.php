@@ -11,13 +11,13 @@
 
 namespace App\Http\Controllers\Reports;
 
-use Illuminate\Http\Response;
-use App\Utils\Traits\MakesHash;
-use App\Jobs\Report\SendToAdmin;
 use App\Export\CSV\ContactExport;
-use App\Jobs\Report\PreviewReport;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Report\GenericReportRequest;
+use App\Jobs\Report\PreviewReport;
+use App\Jobs\Report\SendToAdmin;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Http\Response;
 
 class ClientContactReportController extends BaseController
 {
@@ -72,30 +72,11 @@ class ClientContactReportController extends BaseController
             return response()->json(['message' => 'working...'], 200);
         }
 
+        $hash = \Illuminate\Support\Str::uuid();
 
-        // expect a list of visible fields, or use the default
-        if($request->has('output') && $request->input('output') == 'json') {
+        PreviewReport::dispatch($user->company(), $request->all(), ContactExport::class, $hash);
 
-            $hash = \Illuminate\Support\Str::uuid();
+        return response()->json(['message' => $hash], 200);
 
-            PreviewReport::dispatch($user->company(), $request->all(), ContactExport::class, $hash);
-
-            return response()->json(['message' => $hash], 200);
-        }
-
-
-        // expect a list of visible fields, or use the default
-        $export = new ContactExport($user->company(), $request->all());
-
-        $csv = $export->run();
-
-        $headers = [
-            'Content-Disposition' => 'attachment',
-            'Content-Type' => 'text/csv',
-        ];
-
-        return response()->streamDownload(function () use ($csv) {
-            echo $csv;
-        }, $this->filename, $headers);
     }
 }

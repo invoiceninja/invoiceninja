@@ -11,18 +11,17 @@
 
 namespace App\Jobs\Client;
 
-use App\DataMapper\Tax\ZipTax\Response;
+use App\DataProviders\USStates;
+use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\Company;
-use App\Libraries\MultiDB;
-use Illuminate\Bus\Queueable;
-use App\DataProviders\USStates;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Queue\SerializesModels;
 
 class UpdateTaxData implements ShouldQueue
 {
@@ -52,8 +51,9 @@ class UpdateTaxData implements ShouldQueue
     {
         MultiDB::setDb($this->company->db);
 
-        if($this->company->account->isFreeHostedClient() || $this->client->country_id != 840)
+        if($this->company->account->isFreeHostedClient() || $this->client->country_id != 840) {
             return;
+        }
             
         $tax_provider = new \App\Services\Tax\Providers\TaxProvider($this->company, $this->client);
         
@@ -69,7 +69,7 @@ class UpdateTaxData implements ShouldQueue
             }
 
         
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             nlog("problem getting tax data => ".$e->getMessage());
         }
 

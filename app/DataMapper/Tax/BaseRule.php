@@ -11,11 +11,11 @@
 
 namespace App\DataMapper\Tax;
 
+use App\DataMapper\Tax\ZipTax\Response;
+use App\DataProviders\USStates;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Product;
-use App\DataProviders\USStates;
-use App\DataMapper\Tax\ZipTax\Response;
 
 class BaseRule implements RuleInterface
 {
@@ -66,7 +66,7 @@ class BaseRule implements RuleInterface
             'SK', // Slovakia
     ];
 
-    public array $region_codes = [ 
+    public array $region_codes = [
             'AT' => 'EU', // Austria
             'BE' => 'EU', // Belgium
             'BG' => 'EU', // Bulgaria
@@ -147,8 +147,9 @@ class BaseRule implements RuleInterface
 
         $this->resolveRegions();
 
-        if(!$this->isTaxableRegion())
+        if(!$this->isTaxableRegion()) {
             return $this;
+        }
 
         $this->configTaxData();
 
@@ -173,26 +174,26 @@ class BaseRule implements RuleInterface
         /** Harvest the client_region */
 
         /** If the tax data is already set and the invoice is marked as sent, do not adjust the rates */
-        if($this->invoice->tax_data && $this->invoice->status_id > 1)
+        if($this->invoice->tax_data && $this->invoice->status_id > 1) {
             return $this;
+        }
 
         /**
          * Origin - Company Tax Data
          * Destination - Client Tax Data
-         * 
+         *
          */
 
         $tax_data = false;
 
-        if($this->seller_region == 'US' && $this->client_region == 'US'){
+        if($this->seller_region == 'US' && $this->client_region == 'US') {
         
             $company = $this->invoice->company;
  
             /** If no company tax data has been configured, lets do that now. */
             /** We should never encounter this scenario */
-            if(!$company->origin_tax_data)
-            {
-                $this->should_calc_tax = false;        
+            if(!$company->origin_tax_data) {
+                $this->should_calc_tax = false;
                 return $this;
             }
 
@@ -201,8 +202,7 @@ class BaseRule implements RuleInterface
 
                 $tax_data = $company->origin_tax_data;
 
-            }
-            elseif($this->client->tax_data){
+            } elseif($this->client->tax_data) {
                                
                 $tax_data = $this->client->tax_data;
 
@@ -215,8 +215,14 @@ class BaseRule implements RuleInterface
 
             $this->invoice->tax_data = $tax_data;
             
-            if(\DB::transactionLevel() == 0)
-                $this->invoice->saveQuietly();
+            if(\DB::transactionLevel() == 0) {
+
+                try {
+                    $this->invoice->saveQuietly();
+                }catch(\Exception $e) {
+                }
+                
+            }
         }
             
         return $this;
@@ -234,7 +240,7 @@ class BaseRule implements RuleInterface
         
         $this->client_region = $this->region_codes[$this->client->country->iso_3166_2];
 
-        match($this->client_region){
+        match($this->client_region) {
             'US' => $this->client_subregion = isset($this->invoice?->client?->tax_data?->geoState) ? $this->invoice->client->tax_data->geoState : $this->getUSState(),
             'EU' => $this->client_subregion = $this->client->country->iso_3166_2,
             'AU' => $this->client_subregion = 'AU',
@@ -251,8 +257,9 @@ class BaseRule implements RuleInterface
             
             $states = USStates::$states;
 
-            if(isset($states[$this->client->state]))
+            if(isset($states[$this->client->state])) {
                 return $this->client->state;
+            }
 
             return USStates::getState(strlen($this->client->postal_code) > 1 ? $this->client->postal_code : $this->client->shipping_postal_code);
 
@@ -263,7 +270,7 @@ class BaseRule implements RuleInterface
 
     public function isTaxableRegion(): bool
     {
-        return $this->client->company->tax_data->regions->{$this->client_region}->tax_all_subregions || 
+        return $this->client->company->tax_data->regions->{$this->client_region}->tax_all_subregions ||
         (property_exists($this->client->company->tax_data->regions->{$this->client_region}->subregions, $this->client_subregion) && $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->apply_tax);
     }
 
@@ -277,8 +284,7 @@ class BaseRule implements RuleInterface
 
             return $this;
 
-        }
-        elseif($this->client_region == 'AU'){ //these are defaults and are only stubbed out for now, for AU we can actually remove these
+        } elseif($this->client_region == 'AU') { //these are defaults and are only stubbed out for now, for AU we can actually remove these
             
             $this->tax_rate1 = $this->client->company->tax_data->regions->AU->subregions->AU->tax_rate;
             $this->tax_name1 = $this->client->company->tax_data->regions->AU->subregions->AU->tax_name;

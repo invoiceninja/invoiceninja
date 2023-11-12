@@ -261,8 +261,9 @@ class MigrationController extends BaseController
     {
         nlog('Starting Migration');
 
-        if($request->has('silent_migration'))
+        if($request->has('silent_migration')) {
             $this->silent_migration = true;
+        }
 
         if ($request->companies) {
             //handle Laravel 5.5 UniHTTP
@@ -318,8 +319,9 @@ class MigrationController extends BaseController
                     $nmo->settings = $user->account->companies()->first()->settings;
                     $nmo->to_user = $user;
 
-                    if(!$this->silent_migration)
+                    if(!$this->silent_migration) {
                         NinjaMailerJob::dispatch($nmo, true);
+                    }
 
                     return;
                 } elseif ($existing_company && $company_count > 10) {
@@ -329,8 +331,9 @@ class MigrationController extends BaseController
                     $nmo->settings = $user->account->companies()->first()->settings;
                     $nmo->to_user = $user;
 
-                    if(!$this->silent_migration)
+                    if(!$this->silent_migration) {
                         NinjaMailerJob::dispatch($nmo, true);
+                    }
 
                     return;
                 }
@@ -350,8 +353,9 @@ class MigrationController extends BaseController
                     $nmo->settings = $user->account->companies()->first();
                     $nmo->to_user = $user;
 
-                    if(!$this->silent_migration)
+                    if(!$this->silent_migration) {
                         NinjaMailerJob::dispatch($nmo, true);
+                    }
 
                     return response()->json([
                         '_id' => Str::uuid(),

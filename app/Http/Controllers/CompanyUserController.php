@@ -11,14 +11,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\CompanyUser;
-use Illuminate\Http\Response;
-use App\Transformers\UserTransformer;
-use App\Transformers\CompanyUserTransformer;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use App\Http\Requests\CompanyUser\UpdateCompanyUserRequest;
 use App\Http\Requests\CompanyUser\UpdateCompanyUserPreferencesRequest;
+use App\Http\Requests\CompanyUser\UpdateCompanyUserRequest;
+use App\Models\CompanyUser;
+use App\Models\User;
+use App\Transformers\CompanyUserTransformer;
+use App\Transformers\UserTransformer;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Response;
 
 class CompanyUserController extends BaseController
 {
@@ -115,7 +115,7 @@ class CompanyUserController extends BaseController
         $auth_user = auth()->user();
         $company = $auth_user->company();
 
-        $company_user = CompanyUser::query()->where('user_id', $user->id)->where('company_id',$company->id)->first();
+        $company_user = CompanyUser::query()->where('user_id', $user->id)->where('company_id', $company->id)->first();
 
         if (! $company_user) {
             throw new ModelNotFoundException(ctrans('texts.company_user_not_found'));

@@ -2,7 +2,7 @@
       type: object
       properties:
         quantity:
-          type: integer
+          type: number
           example: 1
           description: 'The quantity of the product offered for this line item'
         cost:

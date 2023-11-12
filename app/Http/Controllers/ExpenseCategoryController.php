@@ -24,7 +24,6 @@ use App\Models\ExpenseCategory;
 use App\Repositories\BaseRepository;
 use App\Transformers\ExpenseCategoryTransformer;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**
@@ -138,7 +137,7 @@ class ExpenseCategoryController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param StoreExpenseCategoryRequest $request  
+     * @param StoreExpenseCategoryRequest $request
      * @return Response
      *
      *

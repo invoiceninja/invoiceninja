@@ -145,7 +145,7 @@ class DocumentController extends BaseController
      * @return Response
      */
     public function update(UpdateDocumentRequest $request, Document $document)
-    {   
+    {
         $document->fill($request->all());
         $document->save();
 

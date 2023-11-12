@@ -12,38 +12,37 @@
 namespace App\Console\Commands;
 
 use App;
-use Exception;
-use App\Models\User;
-use App\Utils\Ninja;
-use App\Models\Quote;
-use App\Models\Client;
-use App\Models\Credit;
-use App\Models\Vendor;
-use App\Models\Account;
-use App\Models\Company;
-use App\Models\Contact;
-use App\Models\Invoice;
-use App\Models\Payment;
-use App\Models\CompanyUser;
-use Illuminate\Support\Str;
-use App\Models\CompanyToken;
-use App\Models\ClientContact;
-use App\Models\CompanyLedger;
-use App\Models\PurchaseOrder;
-use App\Models\VendorContact;
-use App\Models\BankTransaction;
-use App\Models\QuoteInvitation;
-use Illuminate\Console\Command;
-use App\Models\CreditInvitation;
-use App\Models\RecurringInvoice;
-use App\Models\InvoiceInvitation;
 use App\DataMapper\ClientSettings;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use App\Factory\ClientContactFactory;
 use App\Factory\VendorContactFactory;
 use App\Jobs\Company\CreateCompanyToken;
+use App\Models\Account;
+use App\Models\BankTransaction;
+use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\Company;
+use App\Models\CompanyLedger;
+use App\Models\CompanyToken;
+use App\Models\CompanyUser;
+use App\Models\Contact;
+use App\Models\Credit;
+use App\Models\CreditInvitation;
+use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
+use App\Models\Payment;
+use App\Models\PurchaseOrder;
+use App\Models\Quote;
+use App\Models\QuoteInvitation;
+use App\Models\RecurringInvoice;
 use App\Models\RecurringInvoiceInvitation;
+use App\Models\User;
+use App\Models\Vendor;
+use App\Models\VendorContact;
+use App\Utils\Ninja;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputOption;
 
 /*
@@ -185,8 +184,7 @@ class CheckData extends Command
 
                 if ($cu->company && $cu->user) {
                     (new CreateCompanyToken($cu->company, $cu->user, 'System'))->handle();
-                }
-                else {
+                } else {
                     // $cu->forceDelete();
                 }
             }
@@ -445,7 +443,7 @@ class CheckData extends Command
         QuoteInvitation::where('deleted_at', "0000-00-00 00:00:00.000000")->withTrashed()->update(['deleted_at' => null]);
         CreditInvitation::where('deleted_at', "0000-00-00 00:00:00.000000")->withTrashed()->update(['deleted_at' => null]);
 
-        InvoiceInvitation::where('sent_date', '0000-00-00 00:00:00')->cursor()->each(function ($ii){
+        InvoiceInvitation::where('sent_date', '0000-00-00 00:00:00')->cursor()->each(function ($ii) {
             $ii->sent_date = null;
             $ii->saveQuietly();
         });
@@ -619,7 +617,7 @@ class CheckData extends Command
         }
 
         $this->logMessage("{$this->wrong_paid_to_dates} clients with incorrect paid to dates");
-   }
+    }
 
     private function clientBalanceQuery()
     {
@@ -906,26 +904,6 @@ class CheckData extends Command
     public function checkClientSettings()
     {
         if ($this->option('fix') == 'true') {
-            // Client::query()->whereNull('settings->currency_id')->cursor()->each(function ($client){
-
-            //     if(is_array($client->settings) && count($client->settings) == 0)
-            //     {
-            //         $settings = ClientSettings::defaults();
-            //         $settings->currency_id = $client->company->settings->currency_id;
-            //     }
-            //     else {
-            //         $settings = $client->settings;
-            //         $settings->currency_id = $client->company->settings->currency_id;
-            //     }
-
-            //     $client->settings = $settings;
-            //     $client->save();
-
-            //     $this->logMessage("Fixing currency for # {$client->id}");
-
-            // });
-
-
             Client::query()->whereNull('country_id')->cursor()->each(function ($client) {
                 $client->country_id = $client->company->settings->country_id;
                 $client->save();
@@ -1028,7 +1006,7 @@ class CheckData extends Command
     {
         $this->logMessage("checking bank transactions");
 
-        BankTransaction::with('payment')->withTrashed()->where('invoice_ids', ',,,,,,,,')->cursor()->each(function ($bt){
+        BankTransaction::with('payment')->withTrashed()->where('invoice_ids', ',,,,,,,,')->cursor()->each(function ($bt) {
 
             if($bt->payment->exists()) {
 
@@ -1052,7 +1030,7 @@ class CheckData extends Command
 
         if ($this->option('fix') == 'true') {
 
-            $q->cursor()->each(function ($c){
+            $q->cursor()->each(function ($c) {
                 $c->send_email = false;
                 $c->saveQuietly();
 

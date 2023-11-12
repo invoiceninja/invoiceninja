@@ -20,7 +20,6 @@ use App\Models\Account;
 use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\User;
-use App\Repositories\InvoiceRepository;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Console\Command;

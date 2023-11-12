@@ -42,10 +42,10 @@ class QuoteFilters extends QueryFilters
                       $q->where('name', 'like', '%'.$filter.'%');
                   })
                   ->orWhereHas('client.contacts', function ($q) use ($filter) {
-                              $q->where('first_name', 'like', '%'.$filter.'%')
-                                ->orWhere('last_name', 'like', '%'.$filter.'%')
-                                ->orWhere('email', 'like', '%'.$filter.'%');
-                          });
+                      $q->where('first_name', 'like', '%'.$filter.'%')
+                        ->orWhere('last_name', 'like', '%'.$filter.'%')
+                        ->orWhere('email', 'like', '%'.$filter.'%');
+                  });
         });
     }
 
@@ -146,7 +146,7 @@ class QuoteFilters extends QueryFilters
             return $this->builder;
         }
 
-        if($sort_col[0] == 'client_id'){
+        if($sort_col[0] == 'client_id') {
 
             return $this->builder->orderBy(\App\Models\Client::select('name')
                     ->whereColumn('clients.id', 'quotes.client_id'), $sort_col[1]);

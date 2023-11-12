@@ -53,7 +53,7 @@ class ValidProjectForClient implements Rule
             return;
         }
 
-        if(!isset($this->input['client_id'])){
+        if(!isset($this->input['client_id'])) {
             $this->message = 'No Client ID provided.';
             return false;
         }

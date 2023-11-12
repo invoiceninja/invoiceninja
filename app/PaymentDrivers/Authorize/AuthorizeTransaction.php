@@ -13,17 +13,15 @@
 namespace App\PaymentDrivers\Authorize;
 
 use App\Models\Invoice;
-use App\Utils\Traits\MakesHash;
-use net\authorize\api\contract\v1\OrderType;
 use App\PaymentDrivers\AuthorizePaymentDriver;
+use App\Utils\Traits\MakesHash;
+use net\authorize\api\contract\v1\CreateTransactionRequest;
+use net\authorize\api\contract\v1\ExtendedAmountType;
+use net\authorize\api\contract\v1\OpaqueDataType;
+use net\authorize\api\contract\v1\OrderType;
 use net\authorize\api\contract\v1\PaymentType;
 use net\authorize\api\contract\v1\SettingType;
-use net\authorize\api\contract\v1\OpaqueDataType;
-use net\authorize\api\contract\v1\ExtendedAmountType;
-use net\authorize\api\contract\v1\PaymentProfileType;
 use net\authorize\api\contract\v1\TransactionRequestType;
-use net\authorize\api\contract\v1\CreateTransactionRequest;
-use net\authorize\api\contract\v1\CustomerProfilePaymentType;
 use net\authorize\api\controller\CreateTransactionController;
 
 /**
@@ -110,7 +108,7 @@ class AuthorizeTransaction
             $billto->setPhoneNumber(substr($this->authorize->client->phone, 0, 20));
         }
 
-//Assign to the transactionRequest field
+        //Assign to the transactionRequest field
 
         $transactionRequestType = new TransactionRequestType();
         $transactionRequestType->setTransactionType('authCaptureTransaction');
@@ -123,8 +121,9 @@ class AuthorizeTransaction
         $transactionRequestType->setPayment($paymentOne);
         $transactionRequestType->setCurrencyCode($this->authorize->client->currency()->code);
 
-        if($billto)
+        if($billto) {
             $transactionRequestType->setBillTo($billto);
+        }
 
         $request = new CreateTransactionRequest();
         $request->setMerchantAuthentication($this->authorize->merchant_authentication);

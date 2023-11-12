@@ -64,7 +64,7 @@ class EpcQrGenerator
         } catch(\Exception $e) {
             nlog("EPC QR failure => ".$e->getMessage());
             return '';
-        } catch( InvalidArgumentException $e) {
+        } catch(InvalidArgumentException $e) {
             nlog("EPC QR failure => ".$e->getMessage());
             return '';
         }

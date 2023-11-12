@@ -86,7 +86,7 @@ trait ClientGroupSettingsSaver
             unset($settings->translations);
         }
 
-        foreach(['translations','pdf_variables'] as $key){
+        foreach(['translations','pdf_variables'] as $key) {
             if (property_exists($settings, $key)) {
                 unset($settings->{$key});
             }

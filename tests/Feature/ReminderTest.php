@@ -271,16 +271,6 @@ class ReminderTest extends TestCase
                 $this->assertEquals(103, $fee->cost);
                 $this->assertEquals('Fee added '.now()->format('d/M/Y'), $fee->notes);
 
-
-
-
-
-
-
-        //     $this->travelTo(now()->addHours(1));
-// }
-
-
         $this->travelBack();
 
     }
@@ -332,15 +322,29 @@ class ReminderTest extends TestCase
 
         $this->travelTo(now()->startOfDay());
 
-        for($x=0; $x<46; $x++) {
+        $travel_date = Carbon::parse($this->invoice->next_send_date);
+        $x = false;
+        for($x=0; $x<50; $x++) {
 
-            // nlog("traveller {$x} ".now()->format('Y-m-d h:i:s'));
             (new ReminderJob())->handle();
-            $this->invoice = $this->invoice->fresh();
-            $this->assertNull($this->invoice->reminder1_sent);
-            $this->assertNull($this->invoice->reminder_last_sent);
+
+            if(now()->gt($travel_date) && !$x) {
+                
+
+                $this->assertNotNull($this->invoice->reminder1_sent);
+                $this->assertNotNull($this->invoice->reminder_last_sent);
+                $x=true;
+            }
+
+
+            if(!$x){
+                $this->invoice = $this->invoice->fresh();
+                $this->assertNull($this->invoice->reminder1_sent);
+                $this->assertNull($this->invoice->reminder_last_sent);
+            }
 
             $this->travelTo(now()->addHours(1));
+
         }
 
         // nlog("traveller ".now()->format('Y-m-d'));
@@ -429,8 +433,8 @@ class ReminderTest extends TestCase
         $next_send_date = Carbon::parse($this->invoice->next_send_date);
         $calculatedReminderDate = Carbon::parse($this->invoice->due_date)->subDays(4)->addSeconds($this->invoice->client->timezone_offset());
 
-        nlog($next_send_date->format('Y-m-d h:i:s'));
-        nlog($calculatedReminderDate->format('Y-m-d h:i:s'));
+        // nlog($next_send_date->format('Y-m-d h:i:s'));
+        // nlog($calculatedReminderDate->format('Y-m-d h:i:s'));
 
         $this->travelTo($calculatedReminderDate);
 
@@ -451,7 +455,7 @@ class ReminderTest extends TestCase
 
         $next_send_date = Carbon::parse($this->invoice->next_send_date);
         
-        nlog($next_send_date->format('Y-m-d h:i:s'));
+        // nlog($next_send_date->format('Y-m-d h:i:s'));
 
         $calculatedReminderDate = Carbon::parse($this->invoice->due_date)->subDays(2)->addSeconds($this->invoice->client->timezone_offset());
         $this->assertTrue($next_send_date->eq($calculatedReminderDate));
@@ -470,7 +474,7 @@ class ReminderTest extends TestCase
         $calculatedReminderDate = Carbon::parse($this->invoice->due_date)->addDays(3)->addSeconds($this->invoice->client->timezone_offset());
         $this->assertTrue($next_send_date->eq($calculatedReminderDate));
 
-        nlog($next_send_date->format('Y-m-d h:i:s'));
+        // nlog($next_send_date->format('Y-m-d h:i:s'));
     }
 
     public function testReminderQueryCatchesDate()

@@ -11,23 +11,18 @@
 
 namespace App\Models;
 
-use App\Utils\Ninja;
-use Illuminate\Support\Carbon;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesDates;
 use App\Helpers\Invoice\InvoiceSum;
-use App\Jobs\Entity\CreateEntityPdf;
-use App\Utils\Traits\MakesReminders;
+use App\Helpers\Invoice\InvoiceSumInclusive;
+use App\Models\Presenters\CreditPresenter;
 use App\Services\Credit\CreditService;
 use App\Services\Ledger\LedgerService;
-use Illuminate\Support\Facades\Storage;
+use App\Utils\Traits\MakesDates;
+use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceValues;
-use Laracasts\Presenter\PresentableTrait;
-use App\Models\Presenters\CreditPresenter;
-use App\Helpers\Invoice\InvoiceSumInclusive;
+use App\Utils\Traits\MakesReminders;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Carbon;
+use Laracasts\Presenter\PresentableTrait;
 
 /**
  * App\Models\Credit
@@ -125,7 +120,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $invitations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * 
+ *
  * @mixin \Eloquent
  */
 class Credit extends BaseModel
@@ -358,53 +353,6 @@ class Credit extends BaseModel
     {
         $this->status_id = $status;
         $this->saveQuietly();
-    }
-
-    public function pdf_file_path($invitation = null, string $type = 'path', bool $portal = false)
-    {
-        if (! $invitation) {
-            if ($this->invitations()->exists()) {
-                $invitation = $this->invitations()->first();
-            } else {
-                $this->service()->createInvitations();
-                $invitation = $this->invitations()->first();
-            }
-        }
-
-        if (! $invitation) {
-            throw new \Exception('Hard fail, could not create an invitation - is there a valid contact?');
-        }
-
-        $file_path = $this->client->credit_filepath($invitation).$this->numberFormatter().'.pdf';
-
-        if (Ninja::isHosted() && $portal && Storage::disk(config('filesystems.default'))->exists($file_path)) {
-            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
-        } elseif (Ninja::isHosted() && $portal) {
-            $file_path = (new CreateEntityPdf($invitation, config('filesystems.default')))->handle();
-
-            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
-        }
-
-        $file_exists = false;
-
-        try {
-            $file_exists = Storage::disk(config('filesystems.default'))->exists($file_path);
-        } catch (\Exception $e) {
-            nlog($e->getMessage());
-        }
-
-        if ($file_exists) {
-            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
-        }
-
-
-        if (Storage::disk('public')->exists($file_path)) {
-            return Storage::disk('public')->{$type}($file_path);
-        }
-
-        $file_path = (new CreateEntityPdf($invitation))->handle();
-
-        return Storage::disk('public')->{$type}($file_path);
     }
 
     public function markInvitationsSent()

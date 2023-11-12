@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use stdClass;
 
+//30-10-2023: due to HTML encoding, need to remove </ from string when searching for matches
 class Helpers
 {
     use MakesDates;
@@ -68,7 +69,7 @@ class Helpers
 
             $quote_or_credit_field = true;
 
-        }elseif($custom_fields && stripos($field, 'credit') !== false && property_exists($custom_fields, $field)) {
+        } elseif($custom_fields && stripos($field, 'credit') !== false && property_exists($custom_fields, $field)) {
             $custom_field = $custom_fields->{$field};
             $custom_field_parts = explode('|', $custom_field);
 
@@ -78,9 +79,9 @@ class Helpers
 
             $quote_or_credit_field = true;
 
-        }elseif($custom_fields && stripos($field, 'credit') !== false) {
+        } elseif($custom_fields && stripos($field, 'credit') !== false) {
             $field = str_replace("credit", "invoice", $field);
-        }elseif($custom_fields && stripos($field, 'quote') !== false) {
+        } elseif($custom_fields && stripos($field, 'quote') !== false) {
             $field = str_replace("quote", "invoice", $field);
         }
 
@@ -266,12 +267,12 @@ class Helpers
                 $_right = '';
 
                 // If right side doesn't have any calculations, replace with raw ranges keyword.
-                if (! Str::contains($right, ['-', '+', '/', '*'])) {
+                if (! Str::contains(str_replace("</", "", $right), ['-', '+', '/', '*'])) {
                     $_right = Carbon::createFromDate($currentDateTime->year, $currentDateTime->month)->translatedFormat('F Y');
                 }
 
                 // If right side contains one of math operations, calculate.
-                if (Str::contains($right, ['+'])) {
+                if (Str::contains(str_replace("</", "", $right), ['+'])) {
                     $operation = preg_match_all('/(?!^-)[+*\/-](\s?-)?/', $right, $_matches);
 
                     $_operation = array_shift($_matches)[0]; // + -
@@ -306,7 +307,7 @@ class Helpers
                 continue;
             }
 
-            if (! Str::contains($match, ['-', '+', '/', '*'])) {
+            if (! Str::contains(str_replace("</", "", $match), ['-', '+', '/', '*'])) {
                 $value = preg_replace(
                     sprintf('/%s/', $matches->keys()->first()),
                     $replacements['literal'][$matches->keys()->first()],
@@ -315,7 +316,7 @@ class Helpers
                 );
             }
 
-            if (Str::contains($match, ['-', '+', '/', '*'])) {
+            if (Str::contains(str_replace("</", "", $match), ['-', '+', '/', '*'])) {
                 $operation = preg_match_all('/(?!^-)[+*\/-](\s?-)?/', $match, $_matches);
 
                 $_operation = array_shift($_matches)[0];

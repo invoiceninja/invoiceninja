@@ -11,10 +11,10 @@
 
 namespace App\Services\Credit;
 
-use App\Utils\Ninja;
-use App\Models\ClientContact;
-use App\Jobs\Entity\EmailEntity;
 use App\Events\Credit\CreditWasEmailed;
+use App\Jobs\Entity\EmailEntity;
+use App\Models\ClientContact;
+use App\Utils\Ninja;
 
 class SendEmail
 {

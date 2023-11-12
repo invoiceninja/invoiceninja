@@ -61,17 +61,16 @@ trait Inviteable
     public function getPaymentQrCode()
     {
         $renderer = new ImageRenderer(
-            new RendererStyle(200),
+            new RendererStyle(150, margin: 0),
             new SvgImageBackEnd()
         );
         $writer = new Writer($renderer);
 
         $qr = $writer->writeString($this->getPaymentLink(), 'utf-8');
 
-        return "<div>$qr</div>";
-
-        return "<svg class='pqrcode' viewBox='0 0 200 200' width='200' height='200' x='0' y='0' xmlns='http://www.w3.org/2000/svg'>
-          <rect x='0' y='0' width='100%' height='100%' />{$qr}</svg>";
+        return htmlentities(
+            sprintf('<div>%s</div>', $qr)
+        );
     }
 
     public function getUnsubscribeLink()

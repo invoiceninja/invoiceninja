@@ -11,14 +11,14 @@
 
 namespace App\Export\CSV;
 
-use App\Utils\Ninja;
-use League\Csv\Writer;
-use App\Models\Company;
 use App\Libraries\MultiDB;
+use App\Models\Company;
 use App\Models\PurchaseOrder;
-use Illuminate\Support\Facades\App;
-use Illuminate\Database\Eloquent\Builder;
 use App\Transformers\PurchaseOrderTransformer;
+use App\Utils\Ninja;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\App;
+use League\Csv\Writer;
 
 class PurchaseOrderItemExport extends BaseExport
 {
@@ -74,21 +74,21 @@ class PurchaseOrderItemExport extends BaseExport
 
         $headerdisplay = $this->buildHeader();
 
-        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
-                return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
-            })->toArray();
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
+            return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
+        })->toArray();
 
         $query->cursor()
               ->each(function ($resource) {
-                $this->iterateItems($resource);
+                  $this->iterateItems($resource);
                 
-                foreach($this->storage_array as $row) {
-                    $this->storage_item_array[] = $this->processItemMetaData($row, $resource);
-                }
+                  foreach($this->storage_array as $row) {
+                      $this->storage_item_array[] = $this->processItemMetaData($row, $resource);
+                  }
 
-                $this->storage_array = [];
+                  $this->storage_array = [];
                 
-               });
+              });
         
         return array_merge(['columns' => $header], $this->storage_item_array);
     }

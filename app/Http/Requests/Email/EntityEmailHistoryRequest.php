@@ -11,9 +11,9 @@
 
 namespace App\Http\Requests\Email;
 
-use Illuminate\Support\Str;
 use App\Http\Requests\Request;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class EntityEmailHistoryRequest extends Request

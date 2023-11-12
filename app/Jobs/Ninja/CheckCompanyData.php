@@ -11,7 +11,6 @@
 
 namespace App\Jobs\Ninja;
 
-use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyLedger;
 use App\Models\Credit;

@@ -72,6 +72,8 @@ class InvoiceItemExport extends BaseExport
 
         $query = $this->addDateRange($query);
 
+        $query = $this->applyFilters($query);
+
         return $query;
 
     }
@@ -82,9 +84,9 @@ class InvoiceItemExport extends BaseExport
 
         $headerdisplay = $this->buildHeader();
 
-        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
-                return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
-            })->toArray();
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
+            return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
+        })->toArray();
 
 
         $query->cursor()
@@ -131,7 +133,7 @@ class InvoiceItemExport extends BaseExport
         $transformed_items = [];
 
         foreach ($invoice->line_items as $item) {
-            $item_array = [];      
+            $item_array = [];
 
             foreach (array_values(array_intersect($this->input['report_keys'], $this->item_report_keys)) as $key) { //items iterator produces item array
                 
@@ -139,16 +141,17 @@ class InvoiceItemExport extends BaseExport
 
                     $tmp_key = str_replace("item.", "", $key);
                     
-                    if($tmp_key == 'type_id')
+                    if($tmp_key == 'type_id') {
                         $tmp_key = 'type';
+                    }
 
-                    if($tmp_key == 'tax_id')
+                    if($tmp_key == 'tax_id') {
                         $tmp_key = 'tax_category';
+                    }
 
                     if (property_exists($item, $tmp_key)) {
                         $item_array[$key] = $item->{$tmp_key};
-                    } 
-                    else {
+                    } else {
                         $item_array[$key] = '';
                     }
                 }
@@ -174,15 +177,15 @@ class InvoiceItemExport extends BaseExport
            
             $parts = explode('.', $key);
 
-            if(is_array($parts) && $parts[0] == 'item')
+            if(is_array($parts) && $parts[0] == 'item') {
                 continue;
+            }
 
             if (is_array($parts) && $parts[0] == 'invoice' && array_key_exists($parts[1], $transformed_invoice)) {
                 $entity[$key] = $transformed_invoice[$parts[1]];
-            }else if (array_key_exists($key, $transformed_invoice)) {
+            } elseif (array_key_exists($key, $transformed_invoice)) {
                 $entity[$key] = $transformed_invoice[$key];
-            } 
-            else {
+            } else {
                 $entity[$key] = $this->resolveKey($key, $invoice, $this->invoice_transformer);
             }
         }

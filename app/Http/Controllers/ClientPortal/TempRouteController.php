@@ -11,7 +11,6 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
-use Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redirect;

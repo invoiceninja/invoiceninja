@@ -11,7 +11,6 @@
 
 namespace App\Http\Middleware;
 
-
 use Closure;
 use Illuminate\Routing\Exceptions\InvalidSignatureException;
 

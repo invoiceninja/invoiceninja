@@ -23,7 +23,7 @@ use App\Utils\Traits\MakesDates;
  *
  * Shortcuts to other presenters are here to facilitate
  * a clean UI / UX
- * 
+ *
  * @property \App\Models\Invoice $entity
  */
 class InvoicePresenter extends EntityPresenter

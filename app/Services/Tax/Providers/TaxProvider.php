@@ -13,7 +13,6 @@ namespace App\Services\Tax\Providers;
 
 use App\Models\Client;
 use App\Models\Company;
-use App\Services\Tax\Providers\EuTax;
 
 class TaxProvider
 {
@@ -78,7 +77,7 @@ class TaxProvider
 
         try {
 
-        $this->configureProvider($this->provider, $this->company->country()->iso_3166_2); //hard coded for now to one provider, but we'll be able to swap these out later
+            $this->configureProvider($this->provider, $this->company->country()->iso_3166_2); //hard coded for now to one provider, but we'll be able to swap these out later
 
             $company_details = [
                 'address2' => $this->company->settings->address2,
@@ -101,8 +100,7 @@ class TaxProvider
                 $this->updated_client = true;
             }
             
-        }
-        catch(\Exception $e){
+        } catch(\Exception $e) {
             nlog("Could not updated company tax data: " . $e->getMessage());
         }
 
@@ -165,8 +163,9 @@ class TaxProvider
     private function taxShippingAddress(): bool
     {
         
-        if($this->client->shipping_country_id == "840" && strlen($this->client->shipping_postal_code) > 3)
+        if($this->client->shipping_country_id == "840" && strlen($this->client->shipping_postal_code) > 3) {
             return true;
+        }
 
         return false;
 
@@ -182,7 +181,7 @@ class TaxProvider
     private function configureProvider(?string $provider, string $country_code): self
     {
 
-        match($country_code){
+        match($country_code) {
             'US' => $this->configureZipTax(),
             "AT" => $this->configureEuTax(),
             "BE" => $this->configureEuTax(),
@@ -251,8 +250,9 @@ class TaxProvider
      */
     private function configureZipTax(): self
     {
-        if(!config('services.tax.zip_tax.key'))
+        if(!config('services.tax.zip_tax.key')) {
             throw new \Exception("ZipTax API key not set in .env file");
+        }
 
         $this->api_credentials = config('services.tax.zip_tax.key');
         

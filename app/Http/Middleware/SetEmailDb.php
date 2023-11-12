@@ -32,7 +32,7 @@ class SetEmailDb
             'errors' => new stdClass,
         ];
 
-        if ($request->input('email') && config('ninja.db.multi_db_enabled')) {
+        if ($request->input('email') && is_string($request->input('email')) && config('ninja.db.multi_db_enabled')) {
             if (! MultiDB::userFindAndSetDb($request->input('email'))) {
                 return response()->json($error, 400);
             }

@@ -156,7 +156,7 @@ class PaymentMigrationRepository extends BaseRepository
 
             $payment->credits->each(function ($cre) use ($credit_totals) {
                 $cre->pivot->amount = $credit_totals;
-                $cre->pivot->save(); 
+                $cre->pivot->save();
 
                 $cre->paid_to_date += $credit_totals;
                 $cre->balance -= $credit_totals;
@@ -195,7 +195,7 @@ class PaymentMigrationRepository extends BaseRepository
     /**
      * If the client is paying in a currency other than
      * the company currency, we need to set a record.
-     * 
+     *
      * @param array$data
      * @param \App\Models\Payment $payment
      * @return \App\Models\Payment

@@ -76,7 +76,7 @@ class ValidCreditsRules implements Rule
                 return false;
             }
 
-            if($cred->status_id == Credit::STATUS_DRAFT){
+            if($cred->status_id == Credit::STATUS_DRAFT) {
                 $cred->service()->markSent()->save();
                 $cred = $cred->fresh();
             }

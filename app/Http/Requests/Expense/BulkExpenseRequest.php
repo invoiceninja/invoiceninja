@@ -12,13 +12,10 @@
 namespace App\Http\Requests\Expense;
 
 use App\Http\Requests\Request;
-use App\Models\Expense;
-use App\Utils\Traits\BulkOptions;
+use Illuminate\Validation\Rule;
 
 class BulkExpenseRequest extends Request
 {
-    use BulkOptions;
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -26,15 +23,7 @@ class BulkExpenseRequest extends Request
      */
     public function authorize()
     {
-        if (! $this->has('action')) {
-            return false;
-        }
-
-        if (! in_array($this->action, $this->getBulkOptions(), true)) {
-            return false;
-        }
-
-        return auth()->user()->can(auth()->user()->isAdmin(), Expense::class);
+        return true;
     }
 
     /**
@@ -44,13 +33,30 @@ class BulkExpenseRequest extends Request
      */
     public function rules()
     {
-        $rules = $this->getGlobalRules();
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
-        /* We don't require IDs on bulk storing. */
-        if ($this->action !== self::$STORE_METHOD) {
-            $rules['ids'] = ['required'];
+        return [
+            'ids' => ['required','bail','array', Rule::exists('expenses', 'id')->where('company_id', $user->company()->id)],
+            'category_id' => ['sometimes', 'bail', Rule::exists('expense_categories', 'id')->where('company_id', $user->company()->id)],
+            'action' => 'in:archive,restore,delete,bulk_categorize',
+        ];
+
+        
+    }
+
+    public function prepareForValidation()
+    {
+        $input = $this->all();
+
+        if (isset($input['ids'])) {
+            $input['ids'] = $this->transformKeys($input['ids']);
         }
 
-        return $rules;
+        if (isset($input['category_id'])) {
+            $input['category_id'] = $this->transformKeys($input['category_id']);
+        }
+
+        $this->replace($input);
     }
 }
