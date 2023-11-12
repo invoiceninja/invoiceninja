@@ -1166,8 +1166,7 @@ class PdfBuilder
             } elseif (Str::startsWith($variable, '$custom_surcharge')) {
                 $_variable = ltrim($variable, '$'); // $custom_surcharge1 -> custom_surcharge1
 
-                // $visible = intval($this->service->config->entity->{$_variable}) != 0;
-                $visible = intval(str_replace(['0','.'], '', $this->service->config->entity->{$_variable})) != 0;
+                $visible = intval(str_replace(['0','.'], '', ($this->service->config->entity->{$_variable} ?? ''))) != 0;
 
                 $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
                     ['element' => 'span', 'content' => $variable . '_label', 'properties' => ['hidden' => !$visible, 'data-ref' => 'totals_table-' . substr($variable, 1) . '-label']],
@@ -1679,7 +1678,7 @@ class PdfBuilder
 
             if ($child['element'] !== 'script') {
                 if ($this->service->company->markdown_enabled && array_key_exists('content', $child)) {
-                    $child['content'] = str_replace('<br>', "\r", $child['content']);
+                    $child['content'] = str_replace('<br>', "\r", ($child['content'] ?? ''));
                     $child['content'] = $this->commonmark->convert($child['content'] ?? '');
                 }
             }
