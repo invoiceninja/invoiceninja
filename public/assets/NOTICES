@@ -5635,7 +5635,6 @@ file_selector_macos
 file_selector_platform_interface
 file_selector_windows
 flutter_plugin_android_lifecycle
-google_identity_services_web
 google_sign_in
 google_sign_in_android
 google_sign_in_ios
