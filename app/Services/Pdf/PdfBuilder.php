@@ -633,7 +633,20 @@ class PdfBuilder
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => 'product_table-product.tax2-td']];
                     } elseif ($cell == '$product.tax_rate3') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => 'product_table-product.tax3-td']];
-                    } elseif ($cell == '$product.unit_cost' || $cell == '$task.rate') {
+                    } 
+                    
+                    elseif ($cell == '$task.discount' && !$this->service->company->enable_product_discount) {
+                        $element['elements'][] = ['element' => 'td', 'content' => $row['$task.discount'], 'properties' => ['data-ref' => 'task_table-task.discount-td', 'style' => 'display: none;']];
+                    } elseif ($cell == '$task.tax_rate1') {
+                        $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => 'task_table-task.tax1-td']];
+                    } elseif ($cell == '$task.tax_rate2') {
+                        $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => 'task_table-task.tax2-td']];
+                    } elseif ($cell == '$task.tax_rate3') {
+                        $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => 'task_table-task.tax3-td']];
+                    } 
+                    
+                    
+                    elseif ($cell == '$product.unit_cost' || $cell == '$task.rate') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['style' => 'white-space: nowrap;', 'data-ref' => "{$_type}_table-" . substr($cell, 1) . '-td']];
                     } else {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => "{$_type}_table-" . substr($cell, 1) . '-td']];
@@ -807,7 +820,19 @@ class PdfBuilder
                 $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-product.tax2-th", 'hidden' => $this->service->config->settings->hide_empty_columns_on_pdf]];
             } elseif ($column == '$product.tax_rate3') {
                 $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-product.tax3-th", 'hidden' => $this->service->config->settings->hide_empty_columns_on_pdf]];
-            } else {
+            }
+            
+            elseif ($column == '$task.discount' && !$this->service->company->enable_product_discount) {
+                $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($column, 1) . '-th', 'style' => 'display: none;']];
+            } elseif ($column == '$task.tax_rate1') {
+                $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-task.tax1-th", 'hidden' => $this->service->config->settings->hide_empty_columns_on_pdf]];
+            } elseif ($column == '$task.tax_rate2') {
+                $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-task.tax2-th", 'hidden' => $this->service->config->settings->hide_empty_columns_on_pdf]];
+            } elseif ($column == '$task.tax_rate3') {
+                $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-task.tax3-th", 'hidden' => $this->service->config->settings->hide_empty_columns_on_pdf]];
+            }
+            
+            else {
                 $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($column, 1) . '-th', 'hidden' => $this->service->config->settings->hide_empty_columns_on_pdf]];
             }
         }
@@ -849,7 +874,7 @@ class PdfBuilder
 
         if (in_array(sprintf('%s%s.tax', '$', $type), (array) $this->service->config->pdf_variables["{$type}_columns"])) {
             $line_items = collect($this->service->config->entity->line_items)->filter(function ($item) use ($type_id) {
-                return $item->type_id = $type_id;
+                return $item->type_id == $type_id; // = != == bad comparison operator fix 2023-11-12
             });
 
             $tax1 = $line_items->where('tax_name1', '<>', '')->where('type_id', $type_id)->count();
