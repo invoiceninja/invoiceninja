@@ -11,38 +11,20 @@
 
 namespace App\Services\Credit;
 
-use App\Jobs\Entity\CreateEntityPdf;
+use App\Jobs\Entity\CreateRawPdf;
+use App\Models\CreditInvitation;
 use App\Services\AbstractService;
 
 class GetCreditPdf extends AbstractService
 {
-    public $credit;
-
-    public $contact;
-
-    public $invitation;
-
-    public function __construct($invitation)
+    public function __construct(public CreditInvitation $invitation)
     {
-        $this->invitation = $invitation;
-        $this->credit = $invitation->credit;
-        $this->contact = $invitation->contact;
     }
 
     public function run()
     {
-        if (! $this->contact) {
-            $this->contact = $this->credit->client->primary_contact()->first() ?: $this->credit->client->contacts()->first();
-        }
 
-        $path = $this->credit->client->credit_filepath($this->invitation);
+        return (new CreateRawPdf($this->invitation))->handle();
 
-        $file_path = $path.$this->credit->numberFormatter().'.pdf';
-
-        // $disk = 'public';
-        $disk = config('filesystems.default');
-
-        $file_path = (new CreateEntityPdf($this->invitation))->handle();
-        return $file_path;
     }
 }

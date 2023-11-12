@@ -11,14 +11,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Utils\Ninja;
+use App\Exceptions\FilePermissionsFailure;
 use App\Models\Company;
+use App\Utils\Ninja;
 use App\Utils\Traits\AppSetup;
+use App\Utils\Traits\ClientGroupSettingsSaver;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
-use App\Exceptions\FilePermissionsFailure;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use App\Utils\Traits\ClientGroupSettingsSaver;
 
 class SelfUpdateController extends BaseController
 {
@@ -72,8 +72,7 @@ class SelfUpdateController extends BaseController
             if (copy($this->getDownloadUrl(), storage_path("app/{$this->filename}"))) {
                 nlog('Copied file from URL');
             }
-        }
-        catch(\Exception $e) {
+        } catch(\Exception $e) {
             nlog($e->getMessage());
             return response()->json(['message' => 'File exists on the server, however there was a problem downloading and copying to the local filesystem'], 500);
         }
@@ -121,18 +120,19 @@ class SelfUpdateController extends BaseController
     {
         Company::query()
                ->cursor()
-               ->each(function ($company){
+               ->each(function ($company) {
 
-                $settings = $company->settings;
+                   $settings = $company->settings;
 
-                if(property_exists($settings->pdf_variables, 'purchase_order_details'))
-                    return;
+                   if(property_exists($settings->pdf_variables, 'purchase_order_details')) {
+                       return;
+                   }
 
-                    $pdf_variables = $settings->pdf_variables;
-                    $pdf_variables->purchase_order_details = [];
-                    $settings->pdf_variables = $pdf_variables;
-                    $company->settings = $settings;
-                    $company->save();
+                   $pdf_variables = $settings->pdf_variables;
+                   $pdf_variables->purchase_order_details = [];
+                   $settings->pdf_variables = $pdf_variables;
+                   $company->settings = $settings;
+                   $company->save();
 
                });
     }

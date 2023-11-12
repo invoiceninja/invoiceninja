@@ -167,7 +167,7 @@ class InvoiceTransformer extends BaseTransformer
                     ),
                 ],
             ];
-        } 
+        }
         // elseif (
         //     isset($transformed['amount']) &&
         //     isset($transformed['balance']) &&

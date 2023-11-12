@@ -11,20 +11,20 @@
 
 namespace App\Repositories;
 
-use App\Utils\Ninja;
+use App\Events\Payment\PaymentWasCreated;
+use App\Events\Payment\PaymentWasDeleted;
+use App\Jobs\Credit\ApplyCreditPayment;
+use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Paymentable;
-use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
-use App\Jobs\Credit\ApplyCreditPayment;
-use App\Events\Payment\PaymentWasCreated;
-use App\Events\Payment\PaymentWasDeleted;
-use App\Libraries\Currency\Conversion\CurrencyApi;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 /**
  * PaymentRepository.
@@ -142,16 +142,13 @@ class PaymentRepository extends BaseRepository
 
             $invoices = Invoice::withTrashed()->whereIn('id', array_column($data['invoices'], 'invoice_id'))->get();
 
-            // $payment->invoices()->saveMany($invoices); //25-06-2023
-
             //todo optimize this into a single query
             foreach ($data['invoices'] as $paid_invoice) {
-                // $invoice = Invoice::withTrashed()->whereId($paid_invoice['invoice_id'])->first();
                 $invoice = $invoices->firstWhere('id', $paid_invoice['invoice_id']);
 
                 if ($invoice) {
 
-                //25-06-2023
+                    //25-06-2023
 
                     $paymentable = new Paymentable();
                     $paymentable->payment_id = $payment->id;

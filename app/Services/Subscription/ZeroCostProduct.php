@@ -79,8 +79,9 @@ class ZeroCostProduct extends AbstractService
                 'redirect_url' => "/client/recurring_invoices/{$recurring_invoice->hashed_id}",
             ];
 
-            if(isset($this->data['campaign']))
+            if(isset($this->data['campaign'])) {
                 $context['campaign'] = $this->data['campaign'];
+            }
 
             return $context;
         }

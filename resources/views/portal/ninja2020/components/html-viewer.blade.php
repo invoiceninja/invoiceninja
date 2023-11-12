@@ -156,7 +156,7 @@ span {
         </button>
         
         <div id="notes" class="py-10 border-b-2 border-fuschia-600"  x-show="show_notes">     
-            {{ strip_tags($entity->public_notes) }}
+            {!! html_entity_decode($entity->public_notes) !!}
         </div>
 
     </div>
@@ -171,7 +171,7 @@ span {
         </button>
 
         <div id="terms" class="py-10 border-b-2 border-fuschia-600"  x-show="show_terms">
-            {{ strip_tags($entity->terms) }}
+            {!! html_entity_decode($entity->terms) !!}
         </div>
 
     </div>
@@ -186,7 +186,7 @@ span {
         </button>
 
         <div id="terms" class="py-10 border-b-2 border-fuschia-600"  x-show="show_footer">
-            {{ strip_tags($entity->footer) }}
+            {!! html_entity_decode($entity->footer) !!}
         </div>
 
     </div>

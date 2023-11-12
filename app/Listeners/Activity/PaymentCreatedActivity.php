@@ -39,15 +39,16 @@ class PaymentCreatedActivity implements ShouldQueue
      * @return void
      */
     public function handle($event)
-    {   
+    {
 
         MultiDB::setDb($event->company->db);
 
         $payment = $event->payment;
         $invoice_id = null;
 
-        if($payment->invoices()->exists())
+        if($payment->invoices()->exists()) {
             $invoice_id = $payment->invoices()->first()->id;
+        }
 
         $user_id = array_key_exists('user_id', $event->event_vars) ? $event->event_vars['user_id'] : $event->payment->user_id;
 

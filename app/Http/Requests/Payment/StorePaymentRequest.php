@@ -96,6 +96,10 @@ class StorePaymentRequest extends Request
             $input['date'] = now()->addSeconds($user->company()->timezone()->utc_offset)->format('Y-m-d');
         }
 
+        if (! isset($input['idempotency_key'])) {
+            $input['idempotency_key'] = substr(sha1(json_encode($input)).time()."{$input['date']}{$input['amount']}{$user->id}",0,64);
+        }
+
         $this->replace($input);
     }
 
@@ -106,7 +110,6 @@ class StorePaymentRequest extends Request
 
         $rules = [
             'amount' => ['numeric', 'bail', new PaymentAmountsBalanceRule(), new ValidCreditsPresentRule($this->all())],
-            // 'client_id' => 'bail|required|exists:clients,id',
             'client_id' => 'bail|required|exists:clients,id,company_id,'.$user->company()->id.',is_deleted,0',
             'invoices.*.invoice_id' => 'bail|required|distinct|exists:invoices,id',
             'invoices.*.amount' => 'bail|required',
@@ -117,7 +120,6 @@ class StorePaymentRequest extends Request
             'invoices' => new ValidPayableInvoicesRule(),
             'number' => ['nullable', 'bail', Rule::unique('payments')->where('company_id', $user->company()->id)],
             'idempotency_key' => ['nullable', 'bail', 'string','max:64', Rule::unique('payments')->where('company_id', $user->company()->id)],
-
         ];
 
         if ($this->file('documents') && is_array($this->file('documents'))) {

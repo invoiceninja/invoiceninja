@@ -11,7 +11,6 @@
 
 namespace Tests\Integration;
 
-use App\Jobs\Entity\CreateEntityPdf;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -34,8 +33,6 @@ class InvoiceUploadTest extends TestCase
 
     public function testInvoiceUploadWorks()
     {
-        CreateEntityPdf::dispatchSync($this->invoice->invitations->first());
-
         $this->assertNotNull($this->invoice->service()->getInvoicePdf($this->invoice->client->primary_contact()->first()));
     }
 }

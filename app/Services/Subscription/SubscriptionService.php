@@ -234,8 +234,9 @@ class SubscriptionService
         // Redirects from here work just fine. Livewire will respect it.
         $client_contact = ClientContact::find($this->decodePrimaryKey($data['contact_id']));
 
-        if(is_string($data['client_id']))
+        if(is_string($data['client_id'])) {
             $data['client_id'] = $this->decodePrimaryKey($data['client_id']);
+        }
             
         if (!$this->subscription->trial_enabled) {
             return new \Exception("Trials are disabled for this product");
@@ -788,8 +789,8 @@ class SubscriptionService
             //do nothing
         } elseif ($last_invoice->balance > 0) {
             $last_invoice = null;
-        // $pro_rata_charge_amount = $this->calculateProRataCharge($last_invoice, $old_subscription);
-        // nlog("pro rata charge = {$pro_rata_charge_amount}");
+            // $pro_rata_charge_amount = $this->calculateProRataCharge($last_invoice, $old_subscription);
+            // nlog("pro rata charge = {$pro_rata_charge_amount}");
         } else {
             $pro_rata_refund_amount = $this->calculateProRataRefund($last_invoice, $old_subscription) * -1;
             nlog("pro rata refund = {$pro_rata_refund_amount}");
@@ -888,6 +889,7 @@ class SubscriptionService
         $credit_repo = new CreditRepository();
 
         $credit = CreditFactory::create($this->subscription->company_id, $this->subscription->user_id);
+        $credit->status_id = Credit::STATUS_SENT;
         $credit->date = now()->format('Y-m-d');
         $credit->subscription_id = $this->subscription->id;
         $credit->discount = $last_invoice->discount;
@@ -968,11 +970,11 @@ class SubscriptionService
                             ->fillDefaults()
                             ->save();
 
-        if($invoice->fresh()->balance == 0){
+        if($invoice->fresh()->balance == 0) {
             $invoice->service()->markPaid()->save();
         }
 
-        return $invoice;
+        return $invoice->fresh();
     }
 
 

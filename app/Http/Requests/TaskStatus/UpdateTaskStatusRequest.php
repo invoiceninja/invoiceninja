@@ -13,7 +13,6 @@ namespace App\Http\Requests\TaskStatus;
 
 use App\Http\Requests\Request;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Validation\Rule;
 
 class UpdateTaskStatusRequest extends Request
 {

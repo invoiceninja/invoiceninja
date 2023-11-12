@@ -11,12 +11,12 @@
 
 namespace App\Events\Payment;
 
+use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Payment;
-use App\Models\ClientContact;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
 
 /**
  * Class PaymentWasEmailed.

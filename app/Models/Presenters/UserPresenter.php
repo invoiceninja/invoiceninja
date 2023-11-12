@@ -18,7 +18,7 @@ class UserPresenter extends EntityPresenter
 {
     /**
      * Returns the first and last names concatenated.
-     * 
+     *
      * @return string
      */
     public function name(): string

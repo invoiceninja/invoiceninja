@@ -655,3 +655,89 @@
           description: 'Server error'
         default:
           $ref: '#/components/responses/default'
+  /api/v1/reactivate_email/{bounce_id}:
+    post:
+      tags:
+        - clients
+      summary: 'Removes email suppression of a user in the system'
+      description: 'Emails are suppressed by PostMark, when they receive a Hard bounce / Spam Complaint. This endpoint allows you to remove the suppression and send emails to the user again.'
+      operationId: reactivateEmail
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/include'
+        - name: bounce_id
+          in: path
+          description: 'The postmark Bounce ID reference'
+          required: true
+          schema:
+            type: string
+            format: string
+          example: 123243
+      responses:
+        200:
+          description: 'Success'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+        400:
+          description: 'Postmark exception - generated if the suppression cannot be removed for any reason'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: '#/components/responses/default'
+  /api/v1/clients/{client}/updateTaxData:
+    post:
+      tags:
+        - clients
+      summary: 'Update tax data'
+      description: 'Updates the clients tax data - if their address has changed'
+      operationId: updateClientTaxData
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/include'
+        - name: client
+          in: path
+          description: 'The Client Hashed ID reference'
+          required: true
+          schema:
+            type: string
+            format: string
+          example: V2J234DFA
+      responses:
+        200:
+          description: 'Success'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+        400:
+          description: 'Postmark exception - generated if the suppression cannot be removed for any reason'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: '#/components/responses/default'

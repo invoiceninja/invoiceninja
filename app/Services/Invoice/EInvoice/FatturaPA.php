@@ -11,9 +11,10 @@
 
 namespace App\Services\Invoice\EInvoice;
 
-use SimpleXMLElement;
 use App\Models\Invoice;
 use App\Services\AbstractService;
+use SimpleXMLElement;
+
 /*
 <?xml version="1.0" encoding="UTF-8"?>
 <FatturaElettronica versione="FPR12" xmlns="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2">
@@ -69,12 +70,14 @@ class FatturaPA extends AbstractService
         return $this->addHeader()->getXml();
     }
     
-   public function addHeader() {
+    public function addHeader()
+    {
         $this->xml->addChild('FatturaElettronicaHeader');
         return $this;
     }
 
-    public function addTrasmissioneData($idPaese, $idCodice, $progressivoInvio, $formatoTrasmissione, $codiceDestinatario) {
+    public function addTrasmissioneData($idPaese, $idCodice, $progressivoInvio, $formatoTrasmissione, $codiceDestinatario)
+    {
         $datiTrasmissione = $this->xml->FatturaElettronicaHeader->addChild('DatiTrasmissione');
         $idTrasmittente = $datiTrasmissione->addChild('IdTrasmittente');
         $idTrasmittente->addChild('IdPaese', $idPaese);
@@ -85,24 +88,29 @@ class FatturaPA extends AbstractService
         return $this;
     }
 
-    public function addCedentePrestatore($data) {
+    public function addCedentePrestatore($data)
+    {
         // Add CedentePrestatore data
     }
 
-    public function addCessionarioCommittente($data) {
+    public function addCessionarioCommittente($data)
+    {
         // Add CessionarioCommittente data
     }
 
-    public function addBody() {
+    public function addBody()
+    {
         $this->xml->addChild('FatturaElettronicaBody');
         return $this;
     }
 
-    public function addDatiGenerali($data) {
+    public function addDatiGenerali($data)
+    {
         // Add DatiGenerali data
     }
 
-    public function addLineItem($data) {
+    public function addLineItem($data)
+    {
         if (!isset($this->xml->FatturaElettronicaBody->DatiBeniServizi)) {
             $this->xml->FatturaElettronicaBody->addChild('DatiBeniServizi');
         }
@@ -121,7 +129,8 @@ class FatturaPA extends AbstractService
         return $this;
     }
 
-    public function addDatiPagamento($data) {
+    public function addDatiPagamento($data)
+    {
         // Add DatiPagamento data
     }
 

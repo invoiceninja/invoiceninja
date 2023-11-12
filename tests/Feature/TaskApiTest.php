@@ -132,6 +132,26 @@ class TaskApiTest extends TestCase
         $this->assertEquals(41, $arr['data']['rate']);
     }
 
+    public function testTaskTimelogParse()
+    {
+        $data = [
+            "description" => "xx",  
+            "rate" => "6574", 
+            "time_log" => "[[Oct 31, 2023 12:00 am,Oct 31, 2023 1:00 am]]"
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/tasks", $data);
+
+        $response->assertStatus(422);
+        $arr = $response->json();
+
+
+
+    }
+
     public function testTaskProjectRateSet()
     {
         
@@ -579,19 +599,16 @@ class TaskApiTest extends TestCase
     public function testTimeLogValidation()
     {
         $data = [
-            'timelog' => $this->faker->firstName(),
+            'time_log' => $this->faker->firstName(),
         ];
 
-        try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/tasks', $data);
+            ])->postJson('/api/v1/tasks', $data);
 
-            $arr = $response->json();
-        } catch (ValidationException $e) {
-            $response->assertStatus(302);
-        }
+            $response->assertStatus(422);
+
     }
 
     public function testTimeLogValidation1()
@@ -629,19 +646,16 @@ class TaskApiTest extends TestCase
     public function testTimeLogValidation3()
     {
         $data = [
-            'timelog' => [["a","b",'d'],["c","d",'d']],
+            'time_log' => [["a","b",'d'],["c","d",'d']],
         ];
 
-        try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/tasks', $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/tasks', $data);
 
-            $arr = $response->json();
-        } catch (ValidationException $e) {
-            $response->assertStatus(302);
-        }
+        $response->assertStatus(422);
+
     }
 
     public function testTimeLogValidation4()

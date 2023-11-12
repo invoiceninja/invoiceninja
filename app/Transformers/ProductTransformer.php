@@ -16,7 +16,6 @@ use App\Models\Document;
 use App\Models\Product;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
-use League\Fractal\Resource\Collection;
 
 class ProductTransformer extends EntityTransformer
 {
@@ -95,7 +94,7 @@ class ProductTransformer extends EntityTransformer
             'stock_notification_threshold' => (int) $product->stock_notification_threshold,
             'max_quantity' => (int) $product->max_quantity,
             'product_image' => (string) $product->product_image ?: '',
-            'tax_id' => (string) $product->tax_id ?: '1',     
+            'tax_id' => (string) $product->tax_id ?: '1',
         ];
     }
 }

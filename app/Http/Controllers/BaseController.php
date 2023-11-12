@@ -531,7 +531,7 @@ class BaseController extends Controller
             $paginator = $query->paginate($limit);
 
             /** @phpstan-ignore-next-line **/
-            $query = $paginator->getCollection(); 
+            $query = $paginator->getCollection();
             
             $resource = new Collection($query, $transformer, $this->entity_type);
 
@@ -889,7 +889,7 @@ class BaseController extends Controller
 
             $resource = new Collection($query, $transformer, $this->entity_type);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
-        } 
+        }
         
         // else {
         //     $resource = new Collection($query, $transformer, $this->entity_type);
@@ -924,10 +924,9 @@ class BaseController extends Controller
                 if ($this->entity_type == BankIntegration::class && !$user->isSuperUser() && $user->hasIntersectPermissions(['create_bank_transaction','edit_bank_transaction','view_bank_transaction'])) {
                     $query->exclude(["balance"]);
                 } //allows us to selective display bank integrations back to the user if they can view / create bank transactions but without the bank balance being present in the response
-                elseif($this->entity_type == TaxRate::class && $user->hasIntersectPermissions(['create_invoice','edit_invoice','create_quote','edit_quote','create_purchase_order','edit_purchase_order'])){
+                elseif($this->entity_type == TaxRate::class && $user->hasIntersectPermissions(['create_invoice','edit_invoice','create_quote','edit_quote','create_purchase_order','edit_purchase_order'])) {
                     // need to show tax rates if the user has the ability to create documents.
-                }
-                else {
+                } else {
                     $query->where('user_id', '=', $user->id);
                 }
             } elseif (in_array($this->entity_type, [Design::class, GroupSetting::class, PaymentTerm::class, TaskStatus::class])) {
@@ -1124,10 +1123,10 @@ class BaseController extends Controller
             $data['white_label'] = Ninja::isSelfHost() ? $account->isPaid() : false;
 
             //pass referral code to front end
-            $data['rc'] = request()->has('rc') ? request()->input('rc') : '';
-            $data['build'] = request()->has('build') ? request()->input('build') : '';
-            $data['login'] = request()->has('login') ? request()->input('login') : 'false';
-            $data['signup'] = request()->has('signup') ? request()->input('signup') : 'false';
+            $data['rc'] = request()->has('rc') && is_string(request()->input('rc')) ? request()->input('rc') : '';
+            $data['build'] = request()->has('build') && is_string(request()->input('build')) ? request()->input('build') : '';
+            $data['login'] = request()->has('login') && is_string(request()->input('input')) ? request()->input('login') : 'false';
+            $data['signup'] = request()->has('signup') && is_string(request()->input('signup')) ? request()->input('signup') : 'false';
             $data['canvas_path'] = $canvas_path;
 
             if (request()->session()->has('login')) {
@@ -1180,8 +1179,6 @@ class BaseController extends Controller
                 return 'main.next.dart.js';
             case 'profile':
                 return 'main.profile.dart.js';
-            case 'html':
-                return 'main.html.dart.js';
             default:
                 return 'main.foss.dart.js';
         }

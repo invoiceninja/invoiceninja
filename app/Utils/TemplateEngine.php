@@ -12,29 +12,27 @@
 
 namespace App\Utils;
 
-use DB;
-use App\Models\Quote;
-use App\Models\Client;
-use App\Models\Credit;
-use App\Models\Vendor;
-use App\Models\Invoice;
-use App\Models\Payment;
-use Illuminate\Support\Str;
-use App\Models\ClientContact;
-use App\Models\PurchaseOrder;
-use App\Models\VendorContact;
-use App\Models\QuoteInvitation;
-use App\Utils\Traits\MakesHash;
-use App\Models\RecurringInvoice;
-use App\Models\InvoiceInvitation;
-use Illuminate\Support\Facades\App;
-use App\Utils\Traits\MakesInvoiceHtml;
-use App\Mail\Engine\PaymentEmailEngine;
-use App\Models\PurchaseOrderInvitation;
-use App\Utils\Traits\MakesTemplateData;
 use App\DataMapper\EmailTemplateDefaults;
-use League\CommonMark\CommonMarkConverter;
+use App\Mail\Engine\PaymentEmailEngine;
+use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
+use App\Models\Payment;
+use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderInvitation;
+use App\Models\Quote;
+use App\Models\QuoteInvitation;
+use App\Models\Vendor;
+use App\Models\VendorContact;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesInvoiceHtml;
+use App\Utils\Traits\MakesTemplateData;
+use DB;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Str;
+use League\CommonMark\CommonMarkConverter;
 
 class TemplateEngine
 {
@@ -106,11 +104,10 @@ class TemplateEngine
         } elseif (stripos($this->template, 'purchase') !== false && $purchase_order = PurchaseOrder::query()->whereHas('invitations')->withTrashed()->company()->first()) {
             $this->entity = 'purchase_order';
             $this->entity_obj = $purchase_order;
-        }elseif (stripos($this->template, 'payment') !== false && $payment = Payment::query()->withTrashed()->company()->first()) {
+        } elseif (stripos($this->template, 'payment') !== false && $payment = Payment::query()->withTrashed()->company()->first()) {
             $this->entity = 'payment';
             $this->entity_obj = $payment;
-        } 
-        elseif ($invoice = Invoice::query()->whereHas('invitations')->withTrashed()->company()->first()) {
+        } elseif ($invoice = Invoice::query()->whereHas('invitations')->withTrashed()->company()->first()) {
             /** @var \App\Models\Invoice $invoice */
             $this->entity_obj = $invoice;
         } else {

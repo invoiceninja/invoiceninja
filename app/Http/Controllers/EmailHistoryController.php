@@ -33,7 +33,7 @@ class EmailHistoryController extends BaseController
                  ->cursor()
                 ->filter(function ($system_log) {
                     return (isset($system_log->log['history']) && isset($system_log->log['history']['events']) && count($system_log->log['history']['events']) >=1) !== false;
-                })->map(function  ($system_log) {
+                })->map(function ($system_log) {
                     return $system_log->log['history'];
                 })->values()->all();
 
@@ -59,7 +59,7 @@ class EmailHistoryController extends BaseController
         ->cursor()
         ->filter(function ($system_log) {
             return ($system_log->log['history'] && isset($system_log->log['history']['events']) && count($system_log->log['history']['events']) >=1) !== false;
-        })->map(function  ($system_log) {
+        })->map(function ($system_log) {
             return $system_log->log['history'];
         })->values()->all();
 

@@ -34,7 +34,7 @@ class HandleCancellation extends AbstractService
             return $this->invoice;
         }
 
-        $adjustment = $this->invoice->balance * -1;
+        $adjustment =($this->invoice->balance < 0) ? abs($this->invoice->balance) : $this->invoice->balance * -1;
 
         $this->backupCancellation($adjustment);
 
@@ -44,7 +44,8 @@ class HandleCancellation extends AbstractService
         $this->invoice->balance = 0;
         $this->invoice = $this->invoice->service()->setStatus(Invoice::STATUS_CANCELLED)->save();
 
-        $this->invoice->client->service()->updateBalance($adjustment)->save();
+        // $this->invoice->client->service()->updateBalance($adjustment)->save();
+        $this->invoice->client->service()->calculateBalance();
 
         $this->invoice->service()->workFlow()->save();
 
@@ -64,13 +65,17 @@ class HandleCancellation extends AbstractService
         $adjustment = $cancellation->adjustment * -1;
 
         $this->invoice->ledger()->updateInvoiceBalance($adjustment, "Invoice {$this->invoice->number} reversal");
-        $this->invoice->fresh();
+
+        $this->invoice = $this->invoice->fresh();
 
         /* Reverse the invoice status and balance */
         $this->invoice->balance += $adjustment;
         $this->invoice->status_id = $cancellation->status_id;
 
         $this->invoice->client->service()->updateBalance($adjustment)->save();
+
+$this->invoice->client->service()->calculateBalance();
+
 
         /* Pop the cancellation out of the backup*/
         $backup = $this->invoice->backup;

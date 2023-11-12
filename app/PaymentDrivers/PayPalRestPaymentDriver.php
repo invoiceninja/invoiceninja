@@ -12,15 +12,15 @@
 
 namespace App\PaymentDrivers;
 
-use Omnipay\Omnipay;
-use App\Models\Invoice;
-use App\Models\SystemLog;
-use App\Models\GatewayType;
-use App\Models\PaymentType;
-use App\Jobs\Util\SystemLogger;
-use App\Utils\Traits\MakesHash;
 use App\Exceptions\PaymentFailed;
+use App\Jobs\Util\SystemLogger;
+use App\Models\GatewayType;
+use App\Models\Invoice;
+use App\Models\PaymentType;
+use App\Models\SystemLog;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Http;
+use Omnipay\Omnipay;
 
 class PayPalRestPaymentDriver extends BaseDriver
 {
@@ -87,8 +87,9 @@ class PayPalRestPaymentDriver extends BaseDriver
 
     public function setPaymentMethod($payment_method_id)
     {
-        if(!$payment_method_id)
+        if(!$payment_method_id) {
             return $this;
+        }
 
         $this->paypal_payment_method = $this->funding_options[$payment_method_id];
 
@@ -131,18 +132,18 @@ class PayPalRestPaymentDriver extends BaseDriver
     {
 
         $enums = [
-            3 => 'paypal', 
-            1 => 'card', 
-            25 => 'venmo', 
-            // 9 => 'sepa', 
-            // 12 => 'bancontact', 
-            // 17 => 'eps', 
-            // 15 => 'giropay', 
-            // 13 => 'ideal', 
-            // 26 => 'mercadopago', 
-            // 27 => 'mybank', 
-            // 28 => 'paylater', 
-            // 16 => 'p24', 
+            3 => 'paypal',
+            1 => 'card',
+            25 => 'venmo',
+            // 9 => 'sepa',
+            // 12 => 'bancontact',
+            // 17 => 'eps',
+            // 15 => 'giropay',
+            // 13 => 'ideal',
+            // 26 => 'mercadopago',
+            // 27 => 'mybank',
+            // 28 => 'paylater',
+            // 16 => 'p24',
             // 7 => 'sofort'
         ];
 
@@ -167,7 +168,7 @@ class PayPalRestPaymentDriver extends BaseDriver
 
         $response = json_decode($request['gateway_response'], true);
         
-        if($response['status'] == 'COMPLETED' && isset($response['purchase_units'])){
+        if($response['status'] == 'COMPLETED' && isset($response['purchase_units'])) {
 
             $data = [
                 'payment_type' => PaymentType::PAYPAL,
@@ -189,8 +190,7 @@ class PayPalRestPaymentDriver extends BaseDriver
 
             return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
 
-        }
-        else {
+        } else {
 
             SystemLogger::dispatch(
                 ['response' => $response],
@@ -211,8 +211,9 @@ class PayPalRestPaymentDriver extends BaseDriver
 
         $r = $this->gatewayRequest('/v1/identity/generate-token', 'post', ['body' => '']);
 
-        if($r->successful()) 
+        if($r->successful()) {
             return $r->json()['client_token'];
+        }
         
         throw new PaymentFailed('Unable to gain client token from Paypal. Check your configuration', 401);
 
@@ -235,9 +236,9 @@ class PayPalRestPaymentDriver extends BaseDriver
             "email_address" => $this->client->present()->email(),
             "address" => [
                 "address_line_1" => $this->client->address1,
-                "address_line_2" => $this->client->address2, 
-                "admin_area_1" => $this->client->city, 
-                "admin_area_2" => $this->client->state, 
+                "address_line_2" => $this->client->address2,
+                "admin_area_1" => $this->client->city,
+                "admin_area_2" => $this->client->state,
                 "postal_code" => $this->client->postal_code,
                 "country_code" => $this->client->country->iso_3166_2,
             ]
@@ -282,8 +283,9 @@ class PayPalRestPaymentDriver extends BaseDriver
                 ->withHeaders($this->getHeaders($headers))
                 ->{$verb}("{$this->api_endpoint_url}{$uri}", $data);
 
-        if($r->successful()) 
+        if($r->successful()) {
             return $r;
+        }
 
         throw new PaymentFailed("Gateway failure - {$r->body()}", 401);
 
@@ -428,5 +430,5 @@ class PayPalRestPaymentDriver extends BaseDriver
         return 0;
     }
 
-    
+
 }

@@ -27,7 +27,7 @@ class SubdomainController extends BaseController
     public function index()
     {
         if (!MultiDB::checkDomainAvailable(request()->input('subdomain'))) {
-            return response()->json(['message' => 'Domain not available'], 401);
+            return response()->json(['message' => ctrans('texts.subdomain_is_not_available')], 401); 
         }
 
         return response()->json(['message' => 'Domain available'], 200);

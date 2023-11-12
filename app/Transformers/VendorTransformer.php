@@ -16,7 +16,6 @@ use App\Models\Document;
 use App\Models\Vendor;
 use App\Models\VendorContact;
 use App\Utils\Traits\MakesHash;
-use League\Fractal\Resource\Collection;
 
 /**
  * class VendorTransformer.
@@ -105,6 +104,7 @@ class VendorTransformer extends EntityTransformer
             'number' => (string) $vendor->number ?: '',
             'language_id' => (string) $vendor->language_id ?: '',
             'classification' => (string) $vendor->classification ?: '',
+            'display_name' =>  (string) $vendor->present()->name(),
         ];
     }
 }

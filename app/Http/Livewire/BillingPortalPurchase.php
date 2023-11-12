@@ -23,7 +23,6 @@ use App\Models\Invoice;
 use App\Models\Subscription;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
-use App\Services\Subscription\SubscriptionService;
 use App\Utils\Ninja;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;

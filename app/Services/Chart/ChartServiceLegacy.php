@@ -15,7 +15,6 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\Expense;
 use Illuminate\Support\Facades\Cache;
-use App\Services\Chart\ChartQueriesLegacy;
 
 class ChartServiceLegacy
 {

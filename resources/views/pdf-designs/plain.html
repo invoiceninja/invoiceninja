@@ -388,7 +388,7 @@ $entity_images
             ];
 
             tables.forEach((tableIdentifier) => {
-                document.getElementById(tableIdentifier).childElementCount === 0
+                document.getElementById(tableIdentifier) && document.getElementById(tableIdentifier).childElementCount === 0
                     ? document.getElementById(tableIdentifier).style.display = 'none'
                     : '';
             });

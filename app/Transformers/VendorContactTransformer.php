@@ -45,6 +45,7 @@ class VendorContactTransformer extends EntityTransformer
             'custom_value4' => $vendor->custom_value4 ?: '',
             'link' => $vendor->getLoginLink(),
             'last_login' => (int)$vendor->last_login,
+            'password' => empty($vendor->password) ? '' : '**********',
         ];
     }
 }

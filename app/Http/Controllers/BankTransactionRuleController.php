@@ -11,20 +11,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Utils\Traits\MakesHash;
-use App\Models\BankTransactionRule;
 use App\Factory\BankTransactionRuleFactory;
 use App\Filters\BankTransactionRuleFilters;
-use App\Repositories\BankTransactionRuleRepository;
-use App\Transformers\BankTransactionRuleTransformer;
 use App\Http\Requests\BankTransactionRule\BulkBankTransactionRuleRequest;
+use App\Http\Requests\BankTransactionRule\CreateBankTransactionRuleRequest;
+use App\Http\Requests\BankTransactionRule\DestroyBankTransactionRuleRequest;
 use App\Http\Requests\BankTransactionRule\EditBankTransactionRuleRequest;
 use App\Http\Requests\BankTransactionRule\ShowBankTransactionRuleRequest;
 use App\Http\Requests\BankTransactionRule\StoreBankTransactionRuleRequest;
-use App\Http\Requests\BankTransactionRule\CreateBankTransactionRuleRequest;
 use App\Http\Requests\BankTransactionRule\UpdateBankTransactionRuleRequest;
-use App\Http\Requests\BankTransactionRule\DestroyBankTransactionRuleRequest;
+use App\Models\BankTransactionRule;
+use App\Repositories\BankTransactionRuleRepository;
 use App\Services\Bank\BankMatchingService;
+use App\Transformers\BankTransactionRuleTransformer;
+use App\Utils\Traits\MakesHash;
 
 class BankTransactionRuleController extends BaseController
 {

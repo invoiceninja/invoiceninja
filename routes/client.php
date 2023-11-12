@@ -31,10 +31,7 @@ Route::post('client/password/email', [ContactForgotPasswordController::class, 's
 Route::get('client/password/reset/{token}', [ContactResetPasswordController::class, 'showResetForm'])->name('client.password.reset')->middleware(['domain_db', 'contact_account','locale', 'throttle:portal']);
 Route::post('client/password/reset', [ContactResetPasswordController::class, 'reset'])->name('client.password.update')->middleware(['domain_db', 'contact_account','locale', 'throttle:portal']);
 
-Route::get('view/{entity_type}/{invitation_key}', [App\Http\Controllers\ClientPortal\EntityViewController::class, 'index'])->name('client.entity_view');
-Route::get('view/{entity_type}/{invitation_key}/password', [App\Http\Controllers\ClientPortal\EntityViewController::class ,'password'])->name('client.entity_view.password');
-Route::post('view/{entity_type}/{invitation_key}/password', [App\Http\Controllers\ClientPortal\EntityViewController::class, 'handlePassword']);
-Route::post('set_password', [App\Http\Controllers\ClientPortal\EntityViewController::class, 'handlePasswordSet'])->name('client.set_password')->middleware('domain_db');
+Route::post('set_password', [App\Http\Controllers\ClientPortal\InvitationController::class, 'handlePasswordSet'])->name('client.set_password')->middleware('domain_db');
 
 Route::get('tmp_pdf/{hash}', [App\Http\Controllers\ClientPortal\TempRouteController::class, 'index'])->name('tmp_pdf');
 
@@ -122,25 +119,25 @@ Route::get('payments/process/response', [App\Http\Controllers\ClientPortal\Payme
 Route::get('client/subscriptions/{subscription}/purchase', [App\Http\Controllers\ClientPortal\SubscriptionPurchaseController::class, 'index'])->name('client.subscription.purchase')->middleware('domain_db');
 Route::get('client/subscriptions/{subscription}/purchase/v2', [App\Http\Controllers\ClientPortal\SubscriptionPurchaseController::class, 'upgrade'])->name('client.subscription.upgrade')->middleware('domain_db');
 
-
 Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
     /*Invitation catches*/
     Route::get('recurring_invoice/{invitation_key}', [App\Http\Controllers\ClientPortal\InvitationController::class, 'recurringRouter']);
     Route::get('invoice/{invitation_key}', [App\Http\Controllers\ClientPortal\InvitationController::class, 'invoiceRouter']);
     Route::get('quote/{invitation_key}', [App\Http\Controllers\ClientPortal\InvitationController::class, 'quoteRouter']);
     Route::get('credit/{invitation_key}', [App\Http\Controllers\ClientPortal\InvitationController::class, 'creditRouter']);
-    Route::get('recurring_invoice/{invitation_key}/download_pdf', [RecurringInvoiceController::class, 'downloadPdf'])->name('recurring_invoice.download_invitation_key');
-    Route::get('invoice/{invitation_key}/download_pdf', [InvoiceController::class, 'downloadPdf'])->name('invoice.download_invitation_key');
-    Route::get('invoice/{invitation_key}/download_e_invoice', [InvoiceController::class, 'downloadEInvoice'])->name('invoice.download_e_invoice');
-    Route::get('quote/{invitation_key}/download_pdf', [QuoteController::class, 'downloadPdf'])->name('quote.download_invitation_key');
-    Route::get('credit/{invitation_key}/download_pdf', [CreditController::class, 'downloadPdf'])->name('credit.download_invitation_key');
-    Route::get('{entity}/{invitation_key}/download', [App\Http\Controllers\ClientPortal\InvitationController::class, 'routerForDownload']);
+    Route::get('recurring_invoice/{invitation_key}/download_pdf', [RecurringInvoiceController::class, 'downloadPdf'])->name('recurring_invoice.download_invitation_key');//->middleware('token_auth');
+    Route::get('invoice/{invitation_key}/download_pdf', [InvoiceController::class, 'downloadPdf'])->name('invoice.download_invitation_key');//->middleware('token_auth');
+    Route::get('invoice/{invitation_key}/download_e_invoice', [InvoiceController::class, 'downloadEInvoice'])->name('invoice.download_e_invoice');//->middleware('token_auth');
+    Route::get('quote/{invitation_key}/download_pdf', [QuoteController::class, 'downloadPdf'])->name('quote.download_invitation_key');//->middleware('token_auth');
+    Route::get('credit/{invitation_key}/download_pdf', [CreditController::class, 'downloadPdf'])->name('credit.download_invitation_key');//->middleware('token_auth');
+    Route::get('{entity}/{invitation_key}/download', [App\Http\Controllers\ClientPortal\InvitationController::class, 'routerForDownload']);//->middleware('token_auth');
     Route::get('pay/{invitation_key}', [App\Http\Controllers\ClientPortal\InvitationController::class, 'payInvoice'])->name('pay.invoice');
 
     Route::get('unsubscribe/{entity}/{invitation_key}', [App\Http\Controllers\ClientPortal\InvitationController::class, 'unsubscribe'])->name('unsubscribe');
 });
 
 Route::get('phantom/{entity}/{invitation_key}', [Phantom::class, 'displayInvitation'])->middleware(['invite_db', 'phantom_secret'])->name('phantom_view');
+Route::get('blade/', [Phantom::class, 'blade'])->name('blade');
 
 Route::get('.env', function () {
 })->middleware('throttle:honeypot');

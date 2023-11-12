@@ -27,7 +27,7 @@ class ValidAmount implements Rule
     {
         return is_numeric((string) $value);
         //return filter_var((string)$value, FILTER_VALIDATE_FLOAT);
-//        return preg_match('^(?=.)([+-]?([0-9]*)(\.([0-9]+))?)$^', (string)$value);
+        //        return preg_match('^(?=.)([+-]?([0-9]*)(\.([0-9]+))?)$^', (string)$value);
         // return trim($value, '-1234567890.,') === '';
     }
 

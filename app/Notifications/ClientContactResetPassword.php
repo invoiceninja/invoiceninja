@@ -14,7 +14,6 @@ namespace App\Notifications;
 use Closure;
 use Illuminate\Bus\Queueable;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -63,7 +62,7 @@ class ClientContactResetPassword extends Notification
      * Build the mail representation of the notification.
      *
      * @param  mixed  $notifiable
-     * 
+     *
      */
     public function toMail($notifiable)
     {

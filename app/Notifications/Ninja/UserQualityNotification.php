@@ -12,7 +12,6 @@
 namespace App\Notifications\Ninja;
 
 use App\Models\User;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
 
@@ -49,7 +48,7 @@ class UserQualityNotification extends Notification
      * Get the mail representation of the notification.
      *
      * @param  mixed  $notifiable
-     * 
+     *
      */
     public function toMail($notifiable)
     {

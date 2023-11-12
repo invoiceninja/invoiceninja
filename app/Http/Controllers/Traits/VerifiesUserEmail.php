@@ -36,7 +36,7 @@ trait VerifiesUserEmail
 
         if (! $user) {
             return $this->render('auth.confirmed', [
-                'root' => 'themes', 
+                'root' => 'themes',
                 'message' => ctrans('texts.wrong_confirmation'),
                 'redirect_url' => request()->has('react') ? config('ninja.react_url')."/#/" : url('/')]);
         }

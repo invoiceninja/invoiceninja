@@ -12,7 +12,6 @@
 
 namespace App\Jobs\Invoice;
 
-use App\Models\Client;
 use App\Models\Invoice;
 use App\Repositories\BaseRepository;
 use Illuminate\Bus\Queueable;

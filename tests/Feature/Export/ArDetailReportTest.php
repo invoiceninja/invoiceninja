@@ -19,6 +19,7 @@ use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\User;
 use App\Services\Report\ARDetailReport;
+use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Tests\MockAccountData;
@@ -30,6 +31,7 @@ use Tests\TestCase;
 class ArDetailReportTest extends TestCase
 {
     use MakesHash;
+    use AppSetup;
 
     public $faker;
 
@@ -44,6 +46,8 @@ class ArDetailReportTest extends TestCase
         );
 
         $this->withoutExceptionHandling();
+        
+        $this->buildCache(true);
 
     }
 
@@ -131,7 +135,6 @@ class ArDetailReportTest extends TestCase
     public function testSimpleReport()
     {
         $this->buildData();
-
 
         $this->payload = [
             'start_date' => '2000-01-01',

@@ -12,9 +12,8 @@
 namespace App\Filters;
 
 use App\Models\Payment;
-use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Contracts\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Support\Carbon;
 
 /**
  * PaymentFilters.
@@ -37,39 +36,39 @@ class PaymentFilters extends QueryFilters
         return  $this->builder->where(function ($query) use ($filter) {
             $query->where('amount', 'like', '%'.$filter.'%')
                           ->orWhere('date', 'like', '%'.$filter.'%')
-                          ->orWhere('number','like', '%'.$filter.'%')
+                          ->orWhere('number', 'like', '%'.$filter.'%')
                           ->orWhere('transaction_reference', 'like', '%'.$filter.'%')
                           ->orWhere('custom_value1', 'like', '%'.$filter.'%')
                           ->orWhere('custom_value2', 'like', '%'.$filter.'%')
                           ->orWhere('custom_value3', 'like', '%'.$filter.'%')
                           ->orWhere('custom_value4', 'like', '%'.$filter.'%')
                           ->orWhereHas('client', function ($q) use ($filter) {
-                                $q->where('name', 'like', '%'.$filter.'%');
-                            })
+                              $q->where('name', 'like', '%'.$filter.'%');
+                          })
                             ->orWhereHas('client.contacts', function ($q) use ($filter) {
-                              $q->where('first_name', 'like', '%'.$filter.'%')
-                                ->orWhere('last_name', 'like', '%'.$filter.'%')
-                                ->orWhere('email', 'like', '%'.$filter.'%');
-                          });
+                                $q->where('first_name', 'like', '%'.$filter.'%')
+                                  ->orWhere('last_name', 'like', '%'.$filter.'%')
+                                  ->orWhere('email', 'like', '%'.$filter.'%');
+                            });
         });
     }
 
 
- /**
-     * Filter based on client status.
-     *
-     * Statuses we need to handle
-     * - all
-     * - pending
-     * - cancelled
-     * - failed
-     * - completed
-     * - partially refunded
-     * - refunded
-     *
-     * @param string $value The payment status as seen by the client
-     * @return Builder
-     */
+    /**
+        * Filter based on client status.
+        *
+        * Statuses we need to handle
+        * - all
+        * - pending
+        * - cancelled
+        * - failed
+        * - completed
+        * - partially refunded
+        * - refunded
+        *
+        * @param string $value The payment status as seen by the client
+        * @return Builder
+        */
     public function client_status(string $value = ''): Builder
     {
         if (strlen($value) == 0) {
@@ -190,15 +189,13 @@ class PaymentFilters extends QueryFilters
             return $this->builder;
         }
 
-        try{
+        try {
 
             $start_date = Carbon::parse($parts[1]);
             $end_date = Carbon::parse($parts[2]);
 
             return $this->builder->whereBetween($parts[0], [$start_date, $end_date]);
-        }
-        
-        catch(\Exception $e){
+        } catch(\Exception $e) {
             return $this->builder;
         }
 

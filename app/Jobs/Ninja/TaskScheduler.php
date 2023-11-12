@@ -11,14 +11,14 @@
 
 namespace App\Jobs\Ninja;
 
-use App\Models\Scheduler;
 use App\Libraries\MultiDB;
+use App\Models\Scheduler;
 use Illuminate\Bus\Queueable;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Auth;
 
 //@rebuild it
 class TaskScheduler implements ShouldQueue

@@ -12,25 +12,25 @@
 
 namespace App\PaymentDrivers\CheckoutCom;
 
-use App\Models\SystemLog;
-use Illuminate\View\View;
-use App\Models\GatewayType;
-use Illuminate\Http\Request;
-use App\Jobs\Util\SystemLogger;
-use App\Utils\Traits\MakesHash;
 use App\Exceptions\PaymentFailed;
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
+use App\Models\GatewayType;
+use App\Models\SystemLog;
+use App\PaymentDrivers\CheckoutComPaymentDriver;
+use App\PaymentDrivers\Common\MethodInterface;
+use App\Utils\Traits\MakesHash;
 use Checkout\CheckoutApiException;
-use Illuminate\Contracts\View\Factory;
 use Checkout\CheckoutArgumentException;
 use Checkout\CheckoutAuthorizationException;
-use Checkout\Payments\Request\PaymentRequest;
-use App\PaymentDrivers\Common\MethodInterface;
-use App\PaymentDrivers\CheckoutComPaymentDriver;
-use Checkout\Payments\Previous\Source\RequestTokenSource;
-use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
+use Checkout\Payments\Previous\Source\RequestTokenSource;
+use Checkout\Payments\Request\PaymentRequest;
 use Checkout\Payments\Request\Source\RequestTokenSource as SourceRequestTokenSource;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class CreditCard implements MethodInterface
 {
@@ -125,8 +125,7 @@ class CreditCard implements MethodInterface
 
             if (isset($e->error_details['error_codes']) ?? false) {
                 $error_details = end($e->error_details['error_codes']);
-            }
-            else {
+            } else {
                 $error_details = $e->getMessage();
             }
 

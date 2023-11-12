@@ -12,23 +12,22 @@
 
 namespace App\PaymentDrivers\Square;
 
+use App\Exceptions\PaymentFailed;
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Jobs\Util\SystemLogger;
+use App\Models\ClientGatewayToken;
+use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\SystemLog;
-use Illuminate\View\View;
-use App\Models\GatewayType;
 use App\Models\PaymentType;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use Square\Http\ApiResponse;
-use App\Jobs\Util\SystemLogger;
-use App\Utils\Traits\MakesHash;
-use App\Exceptions\PaymentFailed;
-use App\Models\ClientGatewayToken;
-use Illuminate\Http\RedirectResponse;
-use App\PaymentDrivers\SquarePaymentDriver;
+use App\Models\SystemLog;
 use App\PaymentDrivers\Common\MethodInterface;
-use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\PaymentDrivers\SquarePaymentDriver;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+use Square\Http\ApiResponse;
 
 class CreditCard implements MethodInterface
 {
@@ -43,7 +42,7 @@ class CreditCard implements MethodInterface
      * Authorization page for credit card.
      *
      * @param array $data
-     * @return \Illuminate\View\View         
+     * @return \Illuminate\View\View
      */
     public function authorizeView($data): View
     {
@@ -125,7 +124,7 @@ class CreditCard implements MethodInterface
         
         if ($request->shouldUseToken()) {
             $body->setCustomerId($cgt->gateway_customer_reference);
-        }elseif ($request->has('verificationToken') && $request->input('verificationToken')) {
+        } elseif ($request->has('verificationToken') && $request->input('verificationToken')) {
             $body->setVerificationToken($request->input('verificationToken'));
         }
 
@@ -135,7 +134,7 @@ class CreditCard implements MethodInterface
 
             $body = json_decode($response->getBody());
 
-            if($request->store_card){
+            if($request->store_card) {
                 $this->createCard($body->payment->id);
             }
 
@@ -232,8 +231,7 @@ class CreditCard implements MethodInterface
                 return $this->square_driver->processInternallyFailedPayment($this->square_driver, $e);
             }
 
-        }
-        else {
+        } else {
             throw new PaymentFailed($body->errors[0]->detail, 500);
         }
 

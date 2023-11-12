@@ -36,6 +36,7 @@ use App\Models\CompanyToken;
 use App\Models\Country;
 use App\Models\Credit;
 use App\Models\Expense;
+use App\Models\Invoice;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\Quote;
@@ -303,6 +304,62 @@ class CreateSingleAccount extends Command
         $this->createGateways($company, $user);
 
         $this->createSubsData($company, $user);
+
+
+        $repo = new \App\Repositories\TaskRepository();
+
+        Task::query()->cursor()->each(function ($t) use ($repo) {
+            $repo->save([], $t);
+        });
+
+        $repo = new \App\Repositories\ExpenseRepository();
+
+        Expense::query()->cursor()->each(function ($t) use ($repo) {
+            $repo->save([], $t);
+        });
+
+        $repo = new \App\Repositories\VendorRepository(new \App\Repositories\VendorContactRepository());
+        Vendor::query()->cursor()->each(function ($t) use ($repo) {
+            $repo->save([], $t);
+        });
+
+        $repo = new \App\Repositories\ClientRepository(new \App\Repositories\ClientContactRepository());
+        Client::query()->cursor()->each(function ($t) use ($repo) {
+            $repo->save([], $t);
+        });
+
+        $repo = new \App\Repositories\RecurringInvoiceRepository();
+        RecurringInvoice::query()->cursor()->each(function ($t) use ($repo) {
+            $repo->save([], $t);
+        });
+
+        $repo = new \App\Repositories\InvoiceRepository();
+        Invoice::query()->cursor()->each(function ($t) use ($repo) {
+            $repo->save([], $t);
+        });
+
+        $repo = new \App\Repositories\QuoteRepository();
+        Quote::query()->cursor()->each(function ($t) use ($repo) {
+            $repo->save([], $t);
+        });
+
+        $repo = new \App\Repositories\CreditRepository();
+        Credit::query()->cursor()->each(function ($t) use ($repo) {
+            $repo->save([], $t);
+        });
+
+        
+        Project::query()->with('client')->whereNotNull('client_id')->cursor()->each(function ($p) {
+            
+            if($p && $p->client && !isset($p->number)) {
+                $p->number = $this->getNextProjectNumber($p);
+                $p->save();
+            }
+
+        });
+
+        $this->info("finished");
+        
     }
 
     private function createSubsData($company, $user)
@@ -403,7 +460,7 @@ class CreateSingleAccount extends Command
 
         $settings = $client->settings;
         $settings->currency_id = "1";
-//        $settings->use_credits_payment = "always";
+        //        $settings->use_credits_payment = "always";
 
         $client->settings = $settings;
 
@@ -885,11 +942,11 @@ class CreateSingleAccount extends Command
         }
     }
 
-    private function createRecurringInvoice($client)
+    private function createRecurringInvoice(Client $client)
     {
         $faker = Factory::create();
 
-        $invoice = RecurringInvoiceFactory::create($client->company->id, $client->user->id); //stub the company and user_id
+        $invoice = RecurringInvoiceFactory::create($client->company_id, $client->user_id); //stub the company and user_id
         $invoice->client_id = $client->id;
         $dateable = Carbon::now()->subDays(rand(0, 90));
         $invoice->date = $dateable;

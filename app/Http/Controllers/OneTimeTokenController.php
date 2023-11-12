@@ -11,15 +11,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Company;
-use App\Libraries\MultiDB;
-use Illuminate\Support\Str;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
-use App\Http\Requests\OneTimeToken\OneTimeTokenRequest;
 use App\Http\Requests\OneTimeToken\OneTimeRouterRequest;
+use App\Http\Requests\OneTimeToken\OneTimeTokenRequest;
+use App\Libraries\MultiDB;
+use App\Models\Company;
+use App\Models\User;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class OneTimeTokenController extends BaseController
 {

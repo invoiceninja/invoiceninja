@@ -23,7 +23,7 @@ class DisconnectUserMailerRequest extends Request
      * @return bool
      */
     public function authorize() : bool
-    {   
+    {
         return auth()->user()->id == $this->user->id || auth()->user()->isAdmin();
     }
 

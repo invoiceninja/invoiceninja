@@ -11,16 +11,16 @@
 
 namespace App\Services\PurchaseOrder;
 
-use App\Utils\Ninja;
-use App\Models\PurchaseOrder;
-use App\Models\VendorContact;
+use App\Events\PurchaseOrder\PurchaseOrderWasEmailed;
 use App\Jobs\Mail\NinjaMailerJob;
-use App\Mail\VendorTemplateEmail;
-use App\Services\AbstractService;
-use Illuminate\Support\Facades\App;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Mail\Engine\PurchaseOrderEmailEngine;
-use App\Events\PurchaseOrder\PurchaseOrderWasEmailed;
+use App\Mail\VendorTemplateEmail;
+use App\Models\PurchaseOrder;
+use App\Models\VendorContact;
+use App\Services\AbstractService;
+use App\Utils\Ninja;
+use Illuminate\Support\Facades\App;
 
 class SendEmail extends AbstractService
 {
@@ -69,48 +69,3 @@ class SendEmail extends AbstractService
 
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

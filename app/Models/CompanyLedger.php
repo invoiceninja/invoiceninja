@@ -21,8 +21,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $client_id
  * @property int|null $user_id
  * @property int|null $activity_id
- * @property string|null $adjustment
- * @property string|null $balance
+ * @property float|null $adjustment
+ * @property float|null $balance
  * @property string|null $notes
  * @property string|null $hash
  * @property int $company_ledgerable_id

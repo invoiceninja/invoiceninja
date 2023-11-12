@@ -47,8 +47,9 @@ class QueryLogging
 
     public function terminate($request, $response)
     {
-        if (! Ninja::isHosted() || ! config('beacon.enabled')) 
+        if (! Ninja::isHosted() || ! config('beacon.enabled')) {
             return;
+        }
 
         // hide requests made by debugbar
         if (strstr($request->url(), '_debugbar') === false) {

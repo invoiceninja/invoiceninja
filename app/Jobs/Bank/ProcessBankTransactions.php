@@ -11,20 +11,20 @@
 
 namespace App\Jobs\Bank;
 
-use App\Models\Company;
+use App\Helpers\Bank\Yodlee\Transformer\AccountTransformer;
+use App\Helpers\Bank\Yodlee\Yodlee;
 use App\Libraries\MultiDB;
-use Illuminate\Bus\Queueable;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
-use App\Helpers\Bank\Yodlee\Yodlee;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\Company;
+use App\Notifications\Ninja\GenericNinjaAdminNotification;
 use App\Services\Bank\BankMatchingService;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
-use App\Notifications\Ninja\GenericNinjaAdminNotification;
-use App\Helpers\Bank\Yodlee\Transformer\AccountTransformer;
+use Illuminate\Queue\SerializesModels;
 
 class ProcessBankTransactions implements ShouldQueue
 {
@@ -116,8 +116,7 @@ class ProcessBankTransactions implements ShouldQueue
                 }
                 
             }
-        }
-        catch(\Exception $e) {
+        } catch(\Exception $e) {
             nlog("YODLEE: unable to update account summary for {$this->bank_integration->bank_account_id} => ". $e->getMessage());
         }
 
