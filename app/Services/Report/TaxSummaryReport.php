@@ -54,7 +54,8 @@ class TaxSummaryReport extends BaseExport
     }
 
     public function run()
-    {nlog($this->input);
+    {
+        
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
         App::setLocale($this->company->locale());
