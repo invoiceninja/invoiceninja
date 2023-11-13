@@ -64,7 +64,6 @@ class Document extends BaseModel
 {
     use SoftDeletes;
     use Filterable;
-    use WithTypeHelpers;
 
     const DOCUMENT_PREVIEW_SIZE = 300; // pixels
 
@@ -205,4 +204,47 @@ class Document extends BaseModel
     {
         return ctrans('texts.document');
     }
+
+    public function compress(): mixed
+    {
+
+        $image = $this->getFile();
+        $catch_image = $image;
+
+        if(!extension_loaded('imagick'))
+            return $catch_image;
+
+        try {
+            $file = base64_encode($image);
+
+            $img = new \Imagick();
+            $img->readImageBlob($file);
+            $img->setImageCompression(true);
+            $img->setImageCompressionQuality(50);
+
+            return $img->getImageBlob();
+            
+        }
+        catch(\Exception $e){
+        
+            nlog($e->getMessage());
+            return $catch_image;
+        }
+
+    }
+
+    /**
+     * Returns boolean based on checks for image.
+     *
+     * @return bool
+     */
+    public function isImage(): bool
+    {
+        if (in_array($this->type, ['png', 'jpeg', 'jpg', 'tiff', 'gif'])) {
+            return true;
+        }
+
+        return false;
+    }
+
 }

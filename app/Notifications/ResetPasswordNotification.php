@@ -3,13 +3,12 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 //@deprecated
 class ResetPasswordNotification extends Notification
 {
-//    use Queueable;
+    //    use Queueable;
 
     public $token;
 
@@ -38,7 +37,7 @@ class ResetPasswordNotification extends Notification
      * Get the mail representation of the notification.
      *
      * @param  mixed  $notifiable
-     * 
+     *
      */
     public function toMail($notifiable)
     {

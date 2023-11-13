@@ -11,13 +11,13 @@
 
 namespace App\Listeners\Account;
 
-use App\Utils\Ninja;
-use App\Libraries\MultiDB;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
-use Illuminate\Support\Facades\Cache;
+use App\Libraries\MultiDB;
 use App\Mail\Ninja\StripeConnectFailed;
+use App\Utils\Ninja;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Cache;
 
 class StripeConnectFailureListener implements ShouldQueue
 {
@@ -39,8 +39,7 @@ class StripeConnectFailureListener implements ShouldQueue
     {
         MultiDB::setDb($event->db);
 
-        if (Ninja::isHosted() && is_null(Cache::get("stripe_connect_notification:{$event->company->company_key}"))) 
-        {
+        if (Ninja::isHosted() && is_null(Cache::get("stripe_connect_notification:{$event->company->company_key}"))) {
 
             $nmo = new NinjaMailerObject();
             $nmo->mailable = new StripeConnectFailed($event->company->owner(), $event->company);

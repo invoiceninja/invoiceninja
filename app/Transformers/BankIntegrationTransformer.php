@@ -12,11 +12,10 @@
 namespace App\Transformers;
 
 use App\Models\Account;
-use App\Models\Company;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
+use App\Models\Company;
 use App\Utils\Traits\MakesHash;
-use App\Transformers\EntityTransformer;
 
 /**
  * Class BankIntegrationTransformer.

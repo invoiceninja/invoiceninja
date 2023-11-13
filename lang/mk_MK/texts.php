@@ -658,8 +658,6 @@ $LANG = array(
     'created_by_invoice' => 'Креирано од :invoice',
     'primary_user' => 'Примарен корисник',
     'help' => 'Помош',
-    'customize_help' => '<p> Користиме :pdfmake_link за да ги дефинираме декларативно дизајните на фактурата. dfmake :playground_link обезбедува гледање на библиотеката во акција на прекрасен начин. </p> 
- <p> Ако ви треба помош околу нешто објавете прашање на нашиот :forum_link со дизајнот кој го користите. </p>',
     'playground' => 'игралиште',
     'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Датум на достасување ',
@@ -1823,7 +1821,6 @@ $LANG = array(
     'bot_emailed_notify_paid' => 'Ќе ви испратам е-пошта кога ќе биде платено.',
     'add_product_to_invoice' => 'Додај 1 :product',
     'not_authorized' => 'Не сте овластени',
-    'bot_get_email' => 'Здраво! (wave) <br/> Ви благодарам што го пробавте Invoice Ninja ботот. <br/> Треба да креирате бесплатна сметка за да го користите овој бот. <br/> Испратете ми ја адресата на вашата е-пошта со која е поврзана сметката за да започнеме.',
     'bot_get_code' => 'Благодарам! Ви испратив е-пошта со вашиот сигурносен код.',
     'bot_welcome' => 'Тоа е тоа, вашата сметка е овластена. <br/>',
     'email_not_found' => 'Не можев да најдам слободна сметка за :email',
@@ -1831,7 +1828,6 @@ $LANG = array(
     'security_code_email_subject' => 'Сигурносен код за Invoice Ninja ботот',
     'security_code_email_line1' => 'Ова е вашиот Invoice Ninja Bot сигурносен код.',
     'security_code_email_line2' => 'Забелешка: ќе истече за 10 минути.',
-    'bot_help_message' => 'Моментално поддржувам: <br/> Креирај\ажурирај/испрати по е-пошта фактура <br/> • Листа на продукти <br/> На пример: <br/> <i> Испрати фактура на Боб за 2 карти, постави датум на достасување до следниот четврток и направи попуст од 10 проценти </i>',
     'list_products' => 'Листа на продукти',
 
     'include_item_taxes_inline' => 'Вклучи ги <b> даноците на ставките во линијата вкупно </b>',
@@ -1844,7 +1840,6 @@ $LANG = array(
     'update_invoiceninja_warning' => 'Пред за започнете со ажурирање на Invoice Ninja креирајте бекап на вашата датабаза и датотеки.',
     'update_invoiceninja_available' => 'Достапна е нова верзија на Invoice Ninja.',
     'update_invoiceninja_unavailable' => 'Нема достапна нова верзија на Invoice Ninja.',
-    'update_invoiceninja_instructions' => 'Ве молиме инсталирајте ја новата верзија <strong> :version </strong> со кликнување на <em> Ажурирај сега </em> копчето подоле. Потоа ќе бидете пренасочени кон контролната табла.',
     'update_invoiceninja_update_start' => 'Ажурирај сега',
     'update_invoiceninja_download_start' => 'Превземена :version',
     'create_new' => 'Креирај сега',
@@ -5159,6 +5154,20 @@ $LANG = array(
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
+    'show_document_preview' => 'Show Document Preview',
+    'cash_accounting' => 'Cash accounting',
+    'click_or_drop_files_here' => 'Click or drop files here',
+    'set_public' => 'Set public',
+    'set_private' => 'Set private',
+    'individual' => 'Individual',
+    'business' => 'Business',
+    'partnership' => 'partnership',
+    'trust' => 'Trust',
+    'charity' => 'Charity',
+    'government' => 'Government',
+    'in_stock_quantity' => 'Stock quantity',
+    'vendor_contact' => 'Vendor Contact',
+
 ); 
 
 return $LANG;

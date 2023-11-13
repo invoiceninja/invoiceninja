@@ -17,6 +17,7 @@ use App\Models\Company;
 use App\Transformers\ClientContactTransformer;
 use App\Transformers\ClientTransformer;
 use App\Utils\Ninja;
+use App\Utils\Number;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
@@ -70,7 +71,11 @@ class ClientExport extends BaseExport
         'contact_custom_value3' => 'contact.custom_value3',
         'contact_custom_value4' => 'contact.custom_value4',
         'email' => 'contact.email',
-        'status' => 'status'
+        'status' => 'status',
+        'payment_balance' => 'client.payment_balance',
+        'credit_balance' => 'client.credit_balance',
+        'classification' => 'client.classification',
+
     ];
 
     public function __construct(Company $company, array $input)
@@ -87,13 +92,14 @@ class ClientExport extends BaseExport
 
         $headerdisplay = $this->buildHeader();
 
-        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
-                return ['identifier' => $value, 'display_value' => $headerdisplay[$value]];
-            })->toArray();
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
+            return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
+        })->toArray();
 
         $report = $query->cursor()
                 ->map(function ($client) {
-                    return $this->buildRow($client);
+                    $row = $this->buildRow($client);
+                    return $this->processMetaData($row, $client);
                 })->toArray();
         
         return array_merge(['columns' => $header], $report);
@@ -120,7 +126,7 @@ class ClientExport extends BaseExport
 
         $query = $this->addDateRange($query);
 
-            return $query;
+        return $query;
             
     }
 
@@ -171,6 +177,31 @@ class ClientExport extends BaseExport
         return $this->decorateAdvancedFields($client, $entity);
     }
 
+    public function processMetaData(array $row, $resource): array
+    {
+        $clean_row = [];
+        foreach (array_values($this->input['report_keys']) as $key => $value) {
+        
+            $report_keys = explode(".", $value);
+            
+            $column_key = $value;
+            $clean_row[$key]['entity'] = $report_keys[0];
+            $clean_row[$key]['id'] = $report_keys[1] ?? $report_keys[0];
+            $clean_row[$key]['hashed_id'] = $report_keys[0] == 'client' ? null : $resource->{$report_keys[0]}->hashed_id ?? null;
+            $clean_row[$key]['value'] = $row[$column_key];
+            $clean_row[$key]['identifier'] = $value;
+
+            if(in_array($clean_row[$key]['id'], ['paid_to_date', 'balance', 'credit_balance','payment_balance'])) {
+                $clean_row[$key]['display_value'] = Number::formatMoney($row[$column_key], $resource);
+            } else {
+                $clean_row[$key]['display_value'] = $row[$column_key];
+            }
+
+        }
+
+        return $clean_row;
+    }
+
     private function decorateAdvancedFields(Client $client, array $entity) :array
     {
         if (in_array('client.user', $this->input['report_keys'])) {
@@ -195,6 +226,10 @@ class ClientExport extends BaseExport
 
         if (in_array('client.industry_id', $this->input['report_keys'])) {
             $entity['industry_id'] = $client->industry ? ctrans("texts.industry_{$client->industry->name}") : '';
+        }
+
+        if (in_array('client.classification', $this->input['report_keys']) && isset($client->classification)) {
+            $entity['client.classification'] = ctrans("texts.{$client->classification}") ?? '';
         }
 
         return $entity;

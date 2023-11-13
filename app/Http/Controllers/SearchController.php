@@ -11,85 +11,102 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Client;
-use App\Models\ClientContact;
 use App\Http\Requests\Search\GenericSearchRequest;
+use App\Models\Client;
 use App\Models\Invoice;
+use App\Models\User;
 
 class SearchController extends Controller
 {
+    private array $clients = [];
+
+    private array $client_contacts = [];
+
+    private array $invoices = [];
+
     public function __invoke(GenericSearchRequest $request)
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
+        $this->clientMap($user);
+        $this->invoiceMap($user);
+        
         return response()->json([
-            'clients' => $this->clientMap($user),
-            'client_contacts' => $this->clientContactMap($user),
-            'invoices' => $this->invoiceMap($user),
+            'clients' => $this->clients,
+            'client_contacts' => $this->client_contacts,
+            'invoices' => $this->invoices,
             'settings' => $this->settingsMap(),
         ], 200);
 
     }
 
-    private function clientMap(User $user) {
+    private function clientMap(User $user)
+    {
 
-        return Client::query()
+        $clients =  Client::query()
                      ->company()
-                     ->when($user->cannot('view_all') || $user->cannot('view_client'), function ($query) use($user) {
+                     ->where('is_deleted', 0)
+                     ->when(!$user->hasPermission('view_all') || !$user->hasPermission('view_client'), function ($query) use ($user) {
                          $query->where('user_id', $user->id);
                      })
-                     ->cursor()
-                     ->map(function ($client){
-                        return [
-                            'name' => $client->present()->name(), 
-                            'type' => '/client', 
-                            'id' => $client->hashed_id,
-                            'path' => "/clients/{$client->hashed_id}/edit"
-                        ];
-                     });
+                     ->orderBy('id', 'desc')
+                     ->take(1000)
+                     ->get();
+
+        foreach($clients as $client) {
+            $this->clients[] = [
+                'name' => $client->present()->name(),
+                'type' => '/client',
+                'id' => $client->hashed_id,
+                'path' => "/clients/{$client->hashed_id}/edit"
+            ];
+
+            $client->contacts->each(function ($contact) {
+                $this->client_contacts[] = [
+                    'name' => $contact->present()->search_display(),
+                    'type' => '/client_contact',
+                    'id' => $contact->hashed_id,
+                    'path' => "/clients/{$contact->hashed_id}"
+                ];
+
+                                                
+            });
+        }
+                         
+
     }
 
-    private function clientContactMap(User $user) {
+    private function invoiceMap(User $user)
+    {
 
-        return ClientContact::query()
+        $invoices = Invoice::query()
                      ->company()
                      ->with('client')
-                     ->when($user->cannot('view_all') || $user->cannot('view_client'), function ($query) use($user) {
+                     ->where('is_deleted', 0)
+                     ->whereHas('client', function ($q) {
+                         $q->where('is_deleted', 0);
+                     })
+                     ->when(!$user->hasPermission('view_all') || !$user->hasPermission('view_invoice'), function ($query) use ($user) {
                          $query->where('user_id', $user->id);
                      })
-                     ->cursor()
-                     ->map(function ($contact){
-                        return [
-                            'name' => $contact->present()->search_display(), 
-                            'type' => '/client_contact', 
-                            'id' => $contact->client->hashed_id,
-                            'path' => "/clients/{$contact->client->hashed_id}"
-                        ];
-                     });
+                     ->orderBy('id', 'desc')
+                    ->take(3000)
+                    ->get();
+                    
+        foreach($invoices as $invoice) {
+            $this->invoices[] = [
+                'name' => $invoice->client->present()->name() . ' - ' . $invoice->number,
+                'type' => '/invoice',
+                'id' => $invoice->hashed_id,
+                'path' => "/invoices/{$invoice->hashed_id}/edit"
+            ];
+        }
+                    
     }
 
-    private function invoiceMap(User $user) {
-
-        return Invoice::query()
-                     ->company()
-                     ->with('client')
-                     ->when($user->cannot('view_all') || $user->cannot('view_invoice'), function ($query) use($user) {
-                         $query->where('user_id', $user->id);
-                     })
-                     ->cursor()
-                     ->map(function ($invoice){
-                        return [
-                            'name' => $invoice->client->present()->name() . ' - ' . $invoice->number, 
-                            'type' => '/invoice', 
-                            'id' => $invoice->hashed_id,
-                            'path' => "/clients/{$invoice->hashed_id}/edit"
-                        ];
-                     });
-    }
-
-    private function settingsMap() {
+    private function settingsMap()
+    {
 
         $paths = [
             'user_details' => '/settings/user_details',

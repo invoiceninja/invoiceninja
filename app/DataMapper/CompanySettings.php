@@ -497,10 +497,11 @@ class CompanySettings extends BaseSettings
         'payment_receipt_design_id'          => 'string',
         'payment_refund_design_id'           => 'string',
         'classification'                     => 'string',
-        'enable_e_invoice'                   => 'bool', 
+        'enable_e_invoice'                   => 'bool',
+        'classification'                     => 'string',
         'default_expense_payment_type_id'    => 'string',
-        'e_invoice_type'                     => 'string',    
-        'mailgun_endpoint'                   => 'string',    
+        'e_invoice_type'                     => 'string',
+        'mailgun_endpoint'                   => 'string',
         'client_initiated_payments'          => 'bool',
         'client_initiated_payments_minimum'  => 'float',
         'sync_invoice_quote_columns'         => 'bool',
@@ -855,10 +856,29 @@ class CompanySettings extends BaseSettings
     {
         $notification = new stdClass;
         $notification->email = [];
+        $notification->email = ['invoice_sent_all'];
+
         // $notification->email = ['all_notifications'];
 
         return $notification;
     }
+
+    /**
+     * Stubs the notification defaults
+     *
+     * @return stdClass
+     */
+    public static function notificationAdminDefaults() :stdClass
+    {
+        $notification = new stdClass;
+        $notification->email = [];
+        $notification->email = ['invoice_sent_all'];
+
+        return $notification;
+    }
+
+
+
 
     /**
      * Defines entity variables for PDF generation

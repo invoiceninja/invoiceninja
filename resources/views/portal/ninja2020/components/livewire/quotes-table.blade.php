@@ -113,5 +113,5 @@
 </div>
 
 @push('footer')
-    <script src="{{ asset('js/clients/quotes/action-selectors.js') }}"></script>
+    @vite('resources/js/clients/quotes/action-selectors.js')
 @endpush

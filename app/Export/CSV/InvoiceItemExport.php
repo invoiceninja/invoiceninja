@@ -16,7 +16,7 @@ use App\Models\Company;
 use App\Models\Invoice;
 use App\Transformers\InvoiceTransformer;
 use App\Utils\Ninja;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
@@ -32,6 +32,8 @@ class InvoiceItemExport extends BaseExport
     private bool $force_keys = false;
 
     private array $storage_array = [];
+
+    private array $storage_item_array = [];
 
     private array $decorate_keys = [
         'client',
@@ -60,12 +62,17 @@ class InvoiceItemExport extends BaseExport
             $this->input['report_keys'] = array_values($this->mergeItemsKeys('invoice_report_keys'));
         }
 
+        $this->input['report_keys'] = array_merge($this->input['report_keys'], array_diff($this->forced_client_fields, $this->input['report_keys']));
+
         $query = Invoice::query()
                         ->withTrashed()
-                        ->with('client')->where('company_id', $this->company->id)
+                        ->with('client')
+                        ->where('company_id', $this->company->id)
                         ->where('is_deleted', 0);
 
         $query = $this->addDateRange($query);
+
+        $query = $this->applyFilters($query);
 
         return $query;
 
@@ -77,16 +84,25 @@ class InvoiceItemExport extends BaseExport
 
         $headerdisplay = $this->buildHeader();
 
-        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
-                return ['identifier' => $value, 'display_value' => $headerdisplay[$value]];
-            })->toArray();
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
+            return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
+        })->toArray();
+
 
         $query->cursor()
-              ->each(function ($resource) {
+            ->each(function ($resource) {
                 $this->iterateItems($resource);
-               });
-        
-        return array_merge(['columns' => $header], $this->storage_array);
+                        
+                foreach($this->storage_array as $row) {
+                    $this->storage_item_array[] = $this->processItemMetaData($row, $resource);
+                }
+
+                $this->storage_array = [];
+                        
+            });
+                
+        return array_merge(['columns' => $header], $this->storage_item_array);
+               
     }
 
 
@@ -117,24 +133,25 @@ class InvoiceItemExport extends BaseExport
         $transformed_items = [];
 
         foreach ($invoice->line_items as $item) {
-            $item_array = [];      
+            $item_array = [];
 
             foreach (array_values(array_intersect($this->input['report_keys'], $this->item_report_keys)) as $key) { //items iterator produces item array
                 
                 if (str_contains($key, "item.")) {
 
-                    $key = str_replace("item.", "", $key);
+                    $tmp_key = str_replace("item.", "", $key);
                     
-                    if($key == 'type_id')
-                        $key = 'type';
+                    if($tmp_key == 'type_id') {
+                        $tmp_key = 'type';
+                    }
 
-                    if($key == 'tax_id')
-                        $key = 'tax_category';
+                    if($tmp_key == 'tax_id') {
+                        $tmp_key = 'tax_category';
+                    }
 
-                    if (property_exists($item, $key)) {
-                        $item_array[$key] = $item->{$key};
-                    } 
-                    else {
+                    if (property_exists($item, $tmp_key)) {
+                        $item_array[$key] = $item->{$tmp_key};
+                    } else {
                         $item_array[$key] = '';
                     }
                 }
@@ -142,6 +159,8 @@ class InvoiceItemExport extends BaseExport
             
             $transformed_items = array_merge($transformed_invoice, $item_array);
             $entity = $this->decorateAdvancedFields($invoice, $transformed_items);
+            
+            $entity = array_merge(array_flip(array_values($this->input['report_keys'])), $entity);
 
             $this->storage_array[] = $entity;
 
@@ -158,15 +177,15 @@ class InvoiceItemExport extends BaseExport
            
             $parts = explode('.', $key);
 
-            if(is_array($parts) && $parts[0] == 'item')
+            if(is_array($parts) && $parts[0] == 'item') {
                 continue;
+            }
 
             if (is_array($parts) && $parts[0] == 'invoice' && array_key_exists($parts[1], $transformed_invoice)) {
                 $entity[$key] = $transformed_invoice[$parts[1]];
-            }else if (array_key_exists($key, $transformed_invoice)) {
+            } elseif (array_key_exists($key, $transformed_invoice)) {
                 $entity[$key] = $transformed_invoice[$key];
-            } 
-            else {
+            } else {
                 $entity[$key] = $this->resolveKey($key, $invoice, $this->invoice_transformer);
             }
         }
@@ -188,13 +207,28 @@ class InvoiceItemExport extends BaseExport
             $entity['tax_category'] = $invoice->taxTypeString($entity['tax_category']);
         }
 
-        // if($this->force_keys) {
-        //     $entity['client'] = $invoice->client->present()->name();
-        //     $entity['client_id_number'] = $invoice->client->id_number;
-        //     $entity['client_number'] = $invoice->client->number;
-        //     $entity['status'] = $invoice->stringStatus($invoice->status_id);
-        // }
+        if (in_array('invoice.country_id', $this->input['report_keys'])) {
+            $entity['invoice.country_id'] = $invoice->client->country ? ctrans("texts.country_{$invoice->client->country->name}") : '';
+        }
+
+        if (in_array('invoice.currency_id', $this->input['report_keys'])) {
+            $entity['invoice.currency_id'] = $invoice->client->currency() ? $invoice->client->currency()->code : $invoice->company->currency()->code;
+        }
+
+        if (in_array('invoice.client_id', $this->input['report_keys'])) {
+            $entity['invoice.client_id'] = $invoice->client->present()->name();
+        }
+
+        if (in_array('invoice.status', $this->input['report_keys'])) {
+            $entity['invoice.status'] = $invoice->stringStatus($invoice->status_id);
+        }
+
+        if (in_array('invoice.recurring_id', $this->input['report_keys'])) {
+            $entity['invoice.recurring_id'] = $invoice->recurring_invoice->number ?? '';
+        }
+
 
         return $entity;
     }
+
 }

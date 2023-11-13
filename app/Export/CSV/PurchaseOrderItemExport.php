@@ -16,7 +16,7 @@ use App\Models\Company;
 use App\Models\PurchaseOrder;
 use App\Transformers\PurchaseOrderTransformer;
 use App\Utils\Ninja;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
@@ -32,6 +32,8 @@ class PurchaseOrderItemExport extends BaseExport
     private bool $force_keys = false;
 
     private array $storage_array = [];
+
+    private array $storage_item_array = [];
 
     public function __construct(Company $company, array $input)
     {
@@ -50,9 +52,10 @@ class PurchaseOrderItemExport extends BaseExport
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
         if (count($this->input['report_keys']) == 0) {
-            // $this->force_keys = true;
             $this->input['report_keys'] = array_values($this->mergeItemsKeys('purchase_order_report_keys'));
         }
+
+        $this->input['report_keys'] = array_merge($this->input['report_keys'], array_diff($this->forced_vendor_fields, $this->input['report_keys']));
 
         $query = PurchaseOrder::query()
                         ->withTrashed()
@@ -71,16 +74,23 @@ class PurchaseOrderItemExport extends BaseExport
 
         $headerdisplay = $this->buildHeader();
 
-        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
-                return ['identifier' => $value, 'display_value' => $headerdisplay[$value]];
-            })->toArray();
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
+            return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
+        })->toArray();
 
         $query->cursor()
               ->each(function ($resource) {
-                $this->iterateItems($resource);
-               });
+                  $this->iterateItems($resource);
+                
+                  foreach($this->storage_array as $row) {
+                      $this->storage_item_array[] = $this->processItemMetaData($row, $resource);
+                  }
+
+                  $this->storage_array = [];
+                
+              });
         
-        return array_merge(['columns' => $header], $this->storage_array);
+        return array_merge(['columns' => $header], $this->storage_item_array);
     }
 
     public function run()
@@ -113,22 +123,22 @@ class PurchaseOrderItemExport extends BaseExport
         foreach ($purchase_order->line_items as $item) {
             $item_array = [];
 
-            foreach (array_values($this->input['report_keys']) as $key) { //items iterator produces item array
+            foreach (array_values(array_intersect($this->input['report_keys'], $this->item_report_keys)) as $key) { //items iterator produces item array
                 
                 if (str_contains($key, "item.")) {
 
-                    $key = str_replace("item.", "", $key);
+                    $tmp_key = str_replace("item.", "", $key);
                     
-                    if($key == 'type_id') {
-                        $keyval = 'type';
+                    if($tmp_key == 'type_id') {
+                        $tmp_key = 'type';
                     }
 
-                    if($key == 'tax_id') {
-                        $keyval = 'tax_category';
+                    if($tmp_key == 'tax_id') {
+                        $tmp_key = 'tax_category';
                     }
 
-                    if (property_exists($item, $key)) {
-                        $item_array[$key] = $item->{$key};
+                    if (property_exists($item, $tmp_key)) {
+                        $item_array[$key] = $item->{$tmp_key};
                     } else {
                         $item_array[$key] = '';
                     }
@@ -137,6 +147,7 @@ class PurchaseOrderItemExport extends BaseExport
 
             $transformed_items = array_merge($transformed_purchase_order, $item_array);
             $entity = $this->decorateAdvancedFields($purchase_order, $transformed_items);
+            $entity = array_merge(array_flip(array_values($this->input['report_keys'])), $entity);
 
             $this->storage_array[] = $entity;
         }
@@ -190,4 +201,5 @@ class PurchaseOrderItemExport extends BaseExport
 
         return $entity;
     }
+
 }

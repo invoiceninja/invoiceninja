@@ -36,5 +36,5 @@ ctrans('texts.credit_card')])
 
 @section('gateway_footer')
     <script src="https://secure.ewaypayments.com/scripts/eWAY.min.js" data-init="false"></script>
-    <script src="{{ asset('js/clients/payments/eway-credit-card.js') }}"></script>
+    @vite('resources/js/clients/payments/eway-credit-card.js')
 @endsection

@@ -85,17 +85,23 @@ class SendEmailRequest extends Request
     private function checkUserAbleToSend()
     {
         $input = $this->all();
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
         
-        if (Ninja::isHosted() && !auth()->user()->account->account_sms_verified) {
+        if (Ninja::isHosted() && !$user->account->account_sms_verified) {
             $this->error_message = ctrans('texts.authorization_sms_failure');
             return false;
         }
         
+        if (Ninja::isHosted() && $user->account->emailQuotaExceeded()) {
+            $this->error_message = ctrans('texts.email_quota_exceeded_subject');
+            return false;
+        }
+
         /*Make sure we have all the require ingredients to send a template*/
         if (isset($input['entity']) && array_key_exists('entity_id', $input) && is_string($input['entity']) && $input['entity_id']) {
 
-            /** @var \App\Models\User $user */
-            $user = auth()->user();
 
             $company = $user->company();
 
@@ -108,8 +114,7 @@ class SendEmailRequest extends Request
             if ($entity_obj && ($company->id == $entity_obj->company_id) && $user->can('edit', $entity_obj)) {
                 return true;
             }
-        }
-        else {
+        } else {
             $this->error_message = "Invalid entity or entity_id";
         }
 

@@ -11,18 +11,17 @@
 
 namespace App\Mail\Engine;
 
-use App\DataMapper\EmailTemplateDefaults;
-use App\Jobs\Vendor\CreatePurchaseOrderPdf;
-use App\Models\Account;
-use App\Models\PurchaseOrder;
-use App\Models\Vendor;
-use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
 use App\Utils\Number;
+use App\Models\Vendor;
+use App\Models\Account;
+use App\Models\PurchaseOrder;
 use App\Utils\Traits\MakesHash;
 use App\Utils\VendorHtmlEngine;
+use App\Jobs\Entity\CreateRawPdf;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\URL;
+use App\DataMapper\EmailTemplateDefaults;
 
 class PurchaseOrderEmailEngine extends BaseEmailEngine
 {
@@ -119,7 +118,8 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
             ->setTextBody($text_body);
 
         if ($this->vendor->getSetting('pdf_email_attachment') !== false && $this->purchase_order->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
-            $pdf = (new CreatePurchaseOrderPdf($this->invitation))->rawPdf();
+            
+            $pdf = (new CreateRawPdf($this->invitation))->handle();
 
             $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->purchase_order->numberFormatter().'.pdf']]);
         }
@@ -127,21 +127,21 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
         //attach third party documents
         if ($this->vendor->getSetting('document_email_attachment') !== false && $this->purchase_order->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
             // Storage::url
-            foreach ($this->purchase_order->documents as $document) {
+            $this->purchase_order->documents()->where('is_public', true)->cursor()->each(function ($document) {
                 if ($document->size > $this->max_attachment_size) {
                     $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
                 } else {
                     $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
                 }
-            }
+            });
 
-            foreach ($this->purchase_order->company->documents as $document) {
+            $this->purchase_order->company->documents()->where('is_public', true)->cursor()->each(function ($document) {
                 if ($document->size > $this->max_attachment_size) {
                     $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
                 } else {
                     $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
                 }
-            }
+            });
         }
 
         return $this;

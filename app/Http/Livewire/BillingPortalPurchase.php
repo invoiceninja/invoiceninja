@@ -23,7 +23,6 @@ use App\Models\Invoice;
 use App\Models\Subscription;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
-use App\Services\Subscription\SubscriptionService;
 use App\Utils\Ninja;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -425,8 +424,8 @@ class BillingPortalPurchase extends Component
         return $this->subscription->service()->startTrial([
             'email' => $this->email ?? $this->contact->email,
             'quantity' => $this->quantity,
-            'contact_id' => $this->contact->id,
-            'client_id' => $this->contact->client->id,
+            'contact_id' => $this->contact->hashed_id,
+            'client_id' => $this->contact->client->hashed_id,
         ]);
     }
 

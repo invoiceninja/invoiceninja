@@ -117,12 +117,13 @@ class StripeConnectController extends BaseController
             'refresh_token' => $response->refresh_token,
             'access_token' => $response->access_token,
             'appleDomainVerification' => '',
+            // "statementDescriptor" => "",
         ];
 
         $company_gateway->setConfig($payload);
         $company_gateway->save();
 
-        try{
+        try {
             $stripe = $company_gateway->driver()->init();
             $a = \Stripe\Account::retrieve($response->stripe_user_id, $stripe->stripe_connect_auth);
             
@@ -130,8 +131,7 @@ class StripeConnectController extends BaseController
                 $company_gateway->label = substr("Stripe - {$a->business_name}", 0, 250);
                 $company_gateway->save();
             }
-        }
-        catch(\Exception $e){
+        } catch(\Exception $e) {
             nlog("could not harvest stripe company name");
         }
 

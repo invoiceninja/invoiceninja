@@ -14,6 +14,7 @@ namespace App\Utils;
 
 use App\Helpers\Epc\EpcQrGenerator;
 use App\Helpers\SwissQr\SwissQrGenerator;
+use App\Models\Account;
 use App\Models\Country;
 use App\Models\CreditInvitation;
 use App\Models\GatewayType;
@@ -670,16 +671,16 @@ class HtmlEngine
         $data['$payment.transaction_reference'] = ['value' => '', 'label' => ctrans('texts.transaction_reference')];
 
 
-        if ($this->entity_string == 'invoice' && $this->entity->payments()->exists()) {
+        if ($this->entity_string == 'invoice' && $this->entity->net_payments()->exists()) {
             $payment_list = '<br><br>';
 
-            foreach ($this->entity->payments as $payment) {
+            foreach ($this->entity->net_payments as $payment) {
                 $payment_list .= ctrans('texts.payment_subject') . ": " . $this->formatDate($payment->date, $this->client->date_format()) . " :: " . Number::formatMoney($payment->amount, $this->client) ." :: ". GatewayType::getAlias($payment->gateway_type_id) . "<br>";
             }
 
             $data['$payments'] = ['value' => $payment_list, 'label' => ctrans('texts.payments')];
 
-            $payment = $this->entity->payments()->first();
+            $payment = $this->entity->net_payments()->first();
 
             $data['$payment.custom1'] = ['value' => $payment->custom_value1, 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'payment1')];
             $data['$payment.custom2'] = ['value' => $payment->custom_value2, 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'payment2')];
@@ -716,7 +717,7 @@ class HtmlEngine
             $tax_label .= ctrans('texts.reverse_tax_info') . "<br>";
         }
 
-        if((int)$this->client->country_id !== (int)$this->company->settings->country_id){
+        if((int)$this->client->country_id !== (int)$this->company->settings->country_id) {
             $tax_label .= ctrans('texts.intracommunity_tax_info') . "<br>";
         }
 
@@ -725,7 +726,7 @@ class HtmlEngine
 
     private function getBalance()
     {
-        if($this->entity->status_id == 1){
+        if($this->entity->status_id == 1) {
             return $this->entity->amount;
         }
 
@@ -752,7 +753,7 @@ class HtmlEngine
         $values = $this->buildEntityDataArray();
 
         foreach ($values as $key => $value) {
-            $data[str_replace(["$","."],["_","_"],$key)] = $value['value'];
+            $data[str_replace(["$","."], ["_","_"], $key)] = $value['value'];
         }
 
         return $data;
@@ -1028,24 +1029,25 @@ html {
      */
     protected function generateEntityImagesMarkup()
     {
-        if ($this->client->getSetting('embed_documents') === false) {
+        if (!$this->client->getSetting('embed_documents') || !$this->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
             return '';
         }
 
         $dom = new \DOMDocument('1.0', 'UTF-8');
 
         $container =  $dom->createElement('div');
-        $container->setAttribute('style', 'display:grid; grid-auto-flow: row; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 1fr);');
+        $container->setAttribute('style', 'display:grid; grid-auto-flow: row; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr);justify-items: center;');
 
-        foreach ($this->entity->documents as $document) {
+        /** @var \App\Models\Document $document */
+        foreach ($this->entity->documents()->where('is_public', true)->get() as $document) {
             if (!$document->isImage()) {
                 continue;
             }
 
             $image = $dom->createElement('img');
 
-            $image->setAttribute('src', $document->generateUrl());
-            $image->setAttribute('style', 'max-height: 100px; margin-top: 20px;');
+            $image->setAttribute('src', "data:image/png;base64,".base64_encode($document->compress()));
+            $image->setAttribute('style', 'max-width: 50%; margin-top: 20px;');
 
             $container->appendChild($image);
         }
@@ -1055,7 +1057,7 @@ html {
         $html = $dom->saveHTML();
 
         $dom = null;
-
+        
         return $html;
     }
     

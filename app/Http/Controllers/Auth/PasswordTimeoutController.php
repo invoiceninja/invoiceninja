@@ -25,4 +25,3 @@ class PasswordTimeoutController extends Controller
         return $cached ? response()->json(['message' => 'Password is valid'], 200) : response()->json(['message' => 'Invalid Password'], 412);
     }
 }
-

@@ -81,11 +81,23 @@ class EmailRefundPayment implements ShouldQueue
 
             $invitation = null;
 
+            $nmo = new NinjaMailerObject;
+           
             if ($this->payment->invoices && $this->payment->invoices->count() >= 1) {
-                $invitation = $this->payment->invoices->first()->invitations()->first();
+
+                if($this->contact) {
+                    $invitation = $this->payment->invoices->first()->invitations()->where('client_contact_id', $this->contact->id)->first();
+                } else {
+                    $invitation = $this->payment->invoices->first()->invitations()->first();
+                }
+
+                if($invitation) {
+                    $nmo->invitation = $invitation;
+                }
             }
 
-            $nmo = new NinjaMailerObject;
+
+           
             $nmo->mailable = new TemplateEmail($email_builder, $this->contact, $invitation);
             $nmo->to_user = $this->contact;
             $nmo->settings = $this->settings;

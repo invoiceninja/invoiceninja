@@ -84,7 +84,12 @@ class ClientGatewayToken extends BaseModel
         return $this->hasOne(GatewayType::class, 'id', 'gateway_type_id');
     }
 
-    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    /**
+     * Company
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function company()
     {
         return $this->belongsTo(Company::class);
     }

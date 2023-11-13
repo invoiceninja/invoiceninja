@@ -93,7 +93,7 @@ class ClientGatewayTokenController extends BaseController
      */
     public function index(ListClientGatewayTokenRequest $request)
     {
-        $client_gateway_token_gateway_tokens = ClientGatewayToken::scope();
+        $client_gateway_token_gateway_tokens = ClientGatewayToken::query()->company();
 
         return $this->listResponse($client_gateway_token_gateway_tokens);
     }

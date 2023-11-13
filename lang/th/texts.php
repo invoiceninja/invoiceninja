@@ -657,8 +657,6 @@ $LANG = array(
     'created_by_invoice' => 'สร้างโดย   :invoice',
     'primary_user' => 'ผู้ใช้หลัก',
     'help' => 'ช่วยเหลือ',
-    'customize_help' => '<p>We use :pdfmake_link to define the invoice designs declaratively. The pdfmake :playground_link provides a great way to see the library in action.</p>
-                        <p>If you need help figuring something out post a question to our :forum_link with the design you\'re using.</p>',
     'playground' => 'playground',
     'support_forum' => 'Support Forums',
     'invoice_due_date' => 'วันครบกำหนด',
@@ -1823,7 +1821,6 @@ $LANG = array(
     'bot_emailed_notify_paid' => 'ฉันจะส่งอีเมลถึงคุณเมื่อมีการชำระเงิน',
     'add_product_to_invoice' => 'Add1 :product',
     'not_authorized' => 'คุณไม่ได้รับอนุญาต',
-    'bot_get_email' => 'Hi! (wave)<br/>Thanks for trying the Invoice Ninja Bot.<br/>You need to create a free account to use this bot.<br/>Send me your account email address to get started.',
     'bot_get_code' => 'ขอบคุณ! ฉันส่งอีเมลพร้อมรหัสรักษาความปลอดภัยของคุณมาให้',
     'bot_welcome' => 'บัญชีของคุณได้รับการยืนยันแล้ว.<br/>',
     'email_not_found' => 'ฉันไม่พบบัญชีที่พร้อมใช้งานสำหรับ :email',
@@ -1831,7 +1828,6 @@ $LANG = array(
     'security_code_email_subject' => 'รหัสรักษาความปลอดภัยสำหรับ  Invoice Ninja Bot',
     'security_code_email_line1' => 'นี่เป็นรหัสรักษาความปลอดภัยของ Bot Invoice  Ninja  ของคุณ',
     'security_code_email_line2' => 'หมายเหตุ: จะหมดอายุภายใน 10 นาที',
-    'bot_help_message' => 'ฉันสนับสนุน:<br/>.สร้าง \ อัปเดท\ อีเมล์ ใบแจ้งหนี้<br/>.แสดงสินค้า<br/>ตัวอย่างเช่น:<br/><i>ใบแจ้งหนี้ 2 ใบกำหนดวันครบกำหนดถึงวันพฤหัสบดีถัดไปและส่วนลด 10%</i>',
     'list_products' => 'แสดงสินค้า',
 
     'include_item_taxes_inline' => 'รวมถึง <b>รายการภาษีในบรรทัดรวม</b>',
@@ -1844,7 +1840,6 @@ $LANG = array(
     'update_invoiceninja_warning' => 'ก่อนที่จะเริ่มต้นการอัพเกรด Invoice Ninja กรุณาสำรองฐานข้อมูลและไฟล์ของคุณ!',
     'update_invoiceninja_available' => 'มีเวอร์ชันใหม่ของ Invoice Ninja ให้ใช้งาน',
     'update_invoiceninja_unavailable' => 'ไม่มีเวอร์ชันใหม่ของ Invoice Ninja available.',
-    'update_invoiceninja_instructions' => 'โปรดติดตั้งเวอร์ชันใหม่ <strong>:version</strong>โดยการคลิกที่ <em>Update now</em>ด้านล่าง หลังจากนั้นคุณจะถูกเปลี่ยนเส้นทางไปยังแดชบอร์ด.',
     'update_invoiceninja_update_start' => 'Update now',
     'update_invoiceninja_download_start' => 'ดาวน์โหลด :version',
     'create_new' => 'สร้างใหม่',
@@ -5159,6 +5154,20 @@ $LANG = array(
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
+    'show_document_preview' => 'Show Document Preview',
+    'cash_accounting' => 'Cash accounting',
+    'click_or_drop_files_here' => 'Click or drop files here',
+    'set_public' => 'Set public',
+    'set_private' => 'Set private',
+    'individual' => 'Individual',
+    'business' => 'Business',
+    'partnership' => 'partnership',
+    'trust' => 'Trust',
+    'charity' => 'Charity',
+    'government' => 'Government',
+    'in_stock_quantity' => 'Stock quantity',
+    'vendor_contact' => 'Vendor Contact',
+
 ); 
 
 return $LANG;

@@ -11,19 +11,19 @@
 
 namespace App\PaymentDrivers;
 
+use App\Exceptions\SystemError;
+use App\Http\Requests\Payments\PaymentWebhookRequest;
+use App\Jobs\Util\SystemLogger;
+use App\Models\ClientGatewayToken;
+use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Utils\CurlUtils;
-use App\Models\SystemLog;
-use App\Models\GatewayType;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use App\Exceptions\SystemError;
-use App\Jobs\Util\SystemLogger;
-use App\Utils\Traits\MakesHash;
-use App\Models\ClientGatewayToken;
+use App\Models\SystemLog;
 use App\PaymentDrivers\PayTrace\CreditCard;
-use App\Http\Requests\Payments\PaymentWebhookRequest;
+use App\Utils\CurlUtils;
+use App\Utils\Traits\MakesHash;
 
 class PaytracePaymentDriver extends BaseDriver
 {
@@ -198,7 +198,7 @@ class PaytracePaymentDriver extends BaseDriver
 
         $auth_data = json_decode($response);
 
-        if (! property_exists($auth_data, 'access_token')) {
+        if (!isset($auth_data) || ! property_exists($auth_data, 'access_token')) {
             throw new SystemError('Error authenticating with PayTrace');
         }
 

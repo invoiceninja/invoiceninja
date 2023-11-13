@@ -34,7 +34,7 @@ class UpdateTaskRequest extends Request
         if ($this->task->invoice_id && $this->task->company->invoice_task_lock) {
             return false;
         }
-
+        
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
@@ -69,12 +69,12 @@ class UpdateTaskRequest extends Request
 
             foreach ($values as $k) {
                 if (!is_int($k[0]) || !is_int($k[1])) {
-                    $fail('The '.$attribute.' - '.print_r($k, 1).' is invalid. Unix timestamps only.');
+                    return $fail('The '.$attribute.' - '.print_r($k, 1).' is invalid. Unix timestamps only.');
                 }
             }
 
             if (!$this->checkTimeLog($values)) {
-                $fail('Please correct overlapping values');
+                return $fail('Please correct overlapping values');
             }
         }];
 
@@ -116,10 +116,10 @@ class UpdateTaskRequest extends Request
             $input['color'] = '';
         }
 
-        if(isset($input['project_id']) && isset($input['client_id'])){
+        if(isset($input['project_id']) && isset($input['client_id'])) {
             $search_project_with_client = Project::withTrashed()->where('id', $input['project_id'])->where('client_id', $input['client_id'])->company()->doesntExist();
 
-            if($search_project_with_client){
+            if($search_project_with_client) {
                 unset($input['project_id']);
             }
 

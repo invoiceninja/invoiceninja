@@ -229,11 +229,13 @@ class Task extends BaseModel
 
     public function getRate(): float
     {
-        if($this->project && $this->project->task_rate > 0)
+        if($this->project && $this->project->task_rate > 0) {
             return $this->project->task_rate;
+        }
 
-        if($this->client)
+        if($this->client) {
             return $this->client->getSetting('default_task_rate');
+        }
 
         return $this->company->settings->default_task_rate ?? 0;
     }

@@ -223,6 +223,7 @@ class MultiPaymentDeleteTest extends TestCase
 
         $data = [
             'amount' => 162.0,
+            'transaction_reference' => 'something',
             'client_id' => $this->encodePrimaryKey($client->id),
             'invoices' => [
                 [

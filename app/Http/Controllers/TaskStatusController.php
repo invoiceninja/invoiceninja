@@ -11,20 +11,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TaskStatus;
-use Illuminate\Http\Response;
-use App\Utils\Traits\MakesHash;
 use App\Factory\TaskStatusFactory;
 use App\Filters\TaskStatusFilters;
-use App\Repositories\TaskStatusRepository;
-use App\Transformers\TaskStatusTransformer;
+use App\Http\Requests\TaskStatus\ActionTaskStatusRequest;
+use App\Http\Requests\TaskStatus\CreateTaskStatusRequest;
+use App\Http\Requests\TaskStatus\DestroyTaskStatusRequest;
 use App\Http\Requests\TaskStatus\EditTaskStatusRequest;
 use App\Http\Requests\TaskStatus\ShowTaskStatusRequest;
 use App\Http\Requests\TaskStatus\StoreTaskStatusRequest;
-use App\Http\Requests\TaskStatus\ActionTaskStatusRequest;
-use App\Http\Requests\TaskStatus\CreateTaskStatusRequest;
 use App\Http\Requests\TaskStatus\UpdateTaskStatusRequest;
-use App\Http\Requests\TaskStatus\DestroyTaskStatusRequest;
+use App\Models\TaskStatus;
+use App\Repositories\TaskStatusRepository;
+use App\Transformers\TaskStatusTransformer;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Http\Response;
 
 class TaskStatusController extends BaseController
 {
@@ -73,7 +73,10 @@ class TaskStatusController extends BaseController
      */
     public function create(CreateTaskStatusRequest $request)
     {
-        $task_status = TaskStatusFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $task_status = TaskStatusFactory::create($user->company()->id, auth()->user()->id);
 
         return $this->itemResponse($task_status);
     }
@@ -87,8 +90,10 @@ class TaskStatusController extends BaseController
     */
     public function store(StoreTaskStatusRequest $request)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
-        $task_status = TaskStatusFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        $task_status = TaskStatusFactory::create($user->company()->id, auth()->user()->id);
         $task_status->fill($request->all());
 
         $task_status->save();
@@ -130,8 +135,9 @@ class TaskStatusController extends BaseController
         $reorder = $task_status->isDirty('status_order');
         $task_status->save();
         
-        if ($reorder) 
+        if ($reorder) {
             $this->task_status_repo->reorder($task_status);
+        }
 
         return $this->itemResponse($task_status->fresh());
     
@@ -143,7 +149,7 @@ class TaskStatusController extends BaseController
      * @param DestroyTaskStatusRequest $request
      * @param TaskStatus $task_status
      * @return Response
-     * 
+     *
      * @throws \Exception
      */
     public function destroy(DestroyTaskStatusRequest $request, TaskStatus $task_status)

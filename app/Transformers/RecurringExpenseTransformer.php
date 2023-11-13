@@ -12,12 +12,12 @@
 namespace App\Transformers;
 
 use App\Models\Client;
-use App\Models\Vendor;
 use App\Models\Document;
-use App\Utils\Traits\MakesHash;
 use App\Models\RecurringExpense;
-use League\Fractal\Resource\Item;
+use App\Models\Vendor;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use League\Fractal\Resource\Item;
 
 /**
  * class RecurringExpenseTransformer.
@@ -90,7 +90,6 @@ class RecurringExpenseTransformer extends EntityTransformer
             'currency_id' => (string) $recurring_expense->currency_id ?: '',
             'category_id' => $this->encodePrimaryKey($recurring_expense->category_id),
             'payment_type_id' => (string) $recurring_expense->payment_type_id ?: '',
-            'recurring_recurring_expense_id' => (string) $recurring_expense->recurring_recurring_expense_id ?: '',
             'is_deleted' => (bool) $recurring_expense->is_deleted,
             'should_be_invoiced' => (bool) $recurring_expense->should_be_invoiced,
             'invoice_documents' => (bool) $recurring_expense->invoice_documents,

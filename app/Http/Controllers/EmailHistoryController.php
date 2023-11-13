@@ -31,11 +31,11 @@ class EmailHistoryController extends BaseController
                  ->where('category_id', SystemLog::CATEGORY_MAIL)
                  ->orderBy('id', 'DESC')
                  ->cursor()
-                 ->map(function ($system_log) {
-                     if($system_log->log['history'] ?? false) {
-                        return $system_log->log['history'];
-                     }
-                 });
+                ->filter(function ($system_log) {
+                    return (isset($system_log->log['history']) && isset($system_log->log['history']['events']) && count($system_log->log['history']['events']) >=1) !== false;
+                })->map(function ($system_log) {
+                    return $system_log->log['history'];
+                })->values()->all();
 
         return response()->json($data, 200);
 
@@ -51,16 +51,17 @@ class EmailHistoryController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
+
         $data = SystemLog::where('company_id', $user->company()->id)
-                ->where('category_id', SystemLog::CATEGORY_MAIL)
-                ->whereJsonContains('log->history->entity_id', $this->encodePrimaryKey($request->entity_id))
-                ->orderBy('id', 'DESC')
-                ->cursor()
-                ->map(function ($system_log) {
-                    if($system_log->log['history'] ?? false) {
-                        return $system_log->log['history'];
-                    }
-                });
+        ->where('category_id', SystemLog::CATEGORY_MAIL)
+        ->whereJsonContains('log->history->entity_id', $this->encodePrimaryKey($request->entity_id))
+        ->orderBy('id', 'DESC')
+        ->cursor()
+        ->filter(function ($system_log) {
+            return ($system_log->log['history'] && isset($system_log->log['history']['events']) && count($system_log->log['history']['events']) >=1) !== false;
+        })->map(function ($system_log) {
+            return $system_log->log['history'];
+        })->values()->all();
 
         return response()->json($data, 200);
 

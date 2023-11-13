@@ -11,19 +11,19 @@
 
 namespace App\Http\Controllers;
 
-use stdClass;
-use App\Utils\Ninja;
-use App\Models\Activity;
-use Illuminate\Http\Request;
-use App\Utils\Traits\MakesHash;
-use App\Utils\PhantomJS\Phantom;
-use App\Utils\HostedPDF\NinjaPdf;
-use App\Utils\Traits\Pdf\PdfMaker;
-use App\Utils\Traits\Pdf\PageNumbering;
-use Illuminate\Support\Facades\Storage;
-use App\Transformers\ActivityTransformer;
-use App\Http\Requests\Activity\ShowActivityRequest;
 use App\Http\Requests\Activity\DownloadHistoricalEntityRequest;
+use App\Http\Requests\Activity\ShowActivityRequest;
+use App\Models\Activity;
+use App\Transformers\ActivityTransformer;
+use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\Ninja;
+use App\Utils\PhantomJS\Phantom;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\Pdf\PageNumbering;
+use App\Utils\Traits\Pdf\PdfMaker;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use stdClass;
 
 class ActivityController extends BaseController
 {

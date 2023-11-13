@@ -16,7 +16,7 @@ use App\Models\Company;
 use App\Models\Quote;
 use App\Transformers\QuoteTransformer;
 use App\Utils\Ninja;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
@@ -29,7 +29,8 @@ class QuoteItemExport extends BaseExport
 
     public Writer $csv;
 
-    private array $storage_array;
+    private array $storage_array = [];
+    private array $storage_item_array = [];
 
     private array $decorate_keys = [
         'client',
@@ -56,6 +57,8 @@ class QuoteItemExport extends BaseExport
             $this->input['report_keys'] = array_values($this->mergeItemsKeys('quote_report_keys'));
         }
 
+        $this->input['report_keys'] = array_merge($this->input['report_keys'], array_diff($this->forced_client_fields, $this->input['report_keys']));
+
         $query = Quote::query()
                             ->withTrashed()
                             ->with('client')->where('company_id', $this->company->id)
@@ -73,16 +76,24 @@ class QuoteItemExport extends BaseExport
 
         $headerdisplay = $this->buildHeader();
 
-        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
-                return ['identifier' => $value, 'display_value' => $headerdisplay[$value]];
-            })->toArray();
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
+            return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
+        })->toArray();
 
         $query->cursor()
-              ->each(function ($resource) {
+            ->each(function ($resource) {
                 $this->iterateItems($resource);
-               });
-        
-        return array_merge(['columns' => $header], $this->storage_array);
+                                    
+                foreach($this->storage_array as $row) {
+                    $this->storage_item_array[] = $this->processItemMetaData($row, $resource);
+                }
+
+                $this->storage_array = [];
+                                    
+            });
+                            
+        return array_merge(['columns' => $header], $this->storage_item_array);
+
     }
 
 
@@ -92,7 +103,7 @@ class QuoteItemExport extends BaseExport
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
 
-       $query = $this->init();
+        $query = $this->init();
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
@@ -116,24 +127,25 @@ class QuoteItemExport extends BaseExport
         $transformed_items = [];
 
         foreach ($quote->line_items as $item) {
-            $item_array = [];      
+            $item_array = [];
 
             foreach (array_values(array_intersect($this->input['report_keys'], $this->item_report_keys)) as $key) { //items iterator produces item array
                 
                 if (str_contains($key, "item.")) {
 
-                    $key = str_replace("item.", "", $key);
+                    $tmp_key = str_replace("item.", "", $key);
                     
-                    if($key == 'type_id')
-                        $key = 'type';
+                    if($tmp_key == 'type_id') {
+                        $tmp_key = 'type';
+                    }
 
-                    if($key == 'tax_id')
-                        $key = 'tax_category';
+                    if($tmp_key == 'tax_id') {
+                        $tmp_key = 'tax_category';
+                    }
 
-                    if (property_exists($item, $key)) {
-                        $item_array[$key] = $item->{$key};
-                    } 
-                    else {
+                    if (property_exists($item, $tmp_key)) {
+                        $item_array[$key] = $item->{$tmp_key};
+                    } else {
                         $item_array[$key] = '';
                     }
                 }
@@ -141,6 +153,7 @@ class QuoteItemExport extends BaseExport
             
             $transformed_items = array_merge($transformed_quote, $item_array);
             $entity = $this->decorateAdvancedFields($quote, $transformed_items);
+            $entity = array_merge(array_flip(array_values($this->input['report_keys'])), $entity);
 
             $this->storage_array[] = $entity;
         }

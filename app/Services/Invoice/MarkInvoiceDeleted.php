@@ -11,12 +11,10 @@
 
 namespace App\Services\Invoice;
 
-use App\Models\Credit;
+use App\Jobs\Inventory\AdjustProductInventory;
 use App\Models\Invoice;
 use App\Services\AbstractService;
-use Illuminate\Support\Facades\DB;
 use App\Utils\Traits\GeneratesCounter;
-use App\Jobs\Inventory\AdjustProductInventory;
 
 class MarkInvoiceDeleted extends AbstractService
 {
@@ -76,14 +74,12 @@ class MarkInvoiceDeleted extends AbstractService
     private function adjustPayments()
     {
         //if total payments = adjustment amount - that means we need to delete the payments as well.
-
         if ($this->adjustment_amount == $this->total_payments) {
             $this->invoice->payments()->update(['payments.deleted_at' => now(), 'payments.is_deleted' => true]);
         }
       
 
         //adjust payments down by the amount applied to the invoice payment.
-
         $this->invoice->payments->each(function ($payment) {
             $payment_adjustment = $payment->paymentables
                                             ->where('paymentable_type', '=', 'invoices')

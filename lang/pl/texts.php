@@ -655,7 +655,6 @@ Przykłady dynamicznych zmiennych:
     'created_by_invoice' => 'Utworzona przez :invoice',
     'primary_user' => 'Główny użytkownik',
     'help' => 'Pomoc',
-    'customize_help' => 'Używamy :pdfmake_link by projektować faktury deklaratywnie. PDFMake :playground_link pozwala przetestować funkcjonalności tego rozwiązania. Jeśli potrzebujesz pomocy z tym rozwiązaniem napisz na naszym forum :forum_link.',
     'playground' => 'piaskownica',
     'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Termin płatności',
@@ -1819,7 +1818,6 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'bot_emailed_notify_paid' => 'Wyślę email gdy zostanie to opłacone.',
     'add_product_to_invoice' => 'Dodaj 1 :product',
     'not_authorized' => 'Nie jesteś autoryzowany',
-    'bot_get_email' => 'Hi! (wave)<br/>Thanks for trying the Invoice Ninja Bot.<br/>You need to create a free account to use this bot.<br/>Send me your account email address to get started.',
     'bot_get_code' => 'Dziękuję! Wysłaliśmy email z kodem bezpieczeństwa.',
     'bot_welcome' => 'Gotowe, twoje konto zostało zweryfikowane.<br/>',
     'email_not_found' => 'Nie znalazłem konta dla adres email: email',
@@ -1827,7 +1825,6 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'security_code_email_subject' => 'Kod bezpieczeństwa dla Invoice Ninja Bot',
     'security_code_email_line1' => 'Oto Twój kod bezpieczeństwa Bota Invoice Ninja.',
     'security_code_email_line2' => 'Uwaga: to wygaśnie za 10 minut.',
-    'bot_help_message' => 'I currently support:<br/>• Create\update\email an invoice<br/>• List products<br/>For example:<br/><i>invoice bob for 2 tickets, set the due date to next thursday and the discount to 10 percent</i>',
     'list_products' => 'Lista produktów',
 
     'include_item_taxes_inline' => 'Wyświetlaj <b>sumę podatków w podsumowaniu</b>',
@@ -1840,7 +1837,6 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'update_invoiceninja_warning' => 'Przed przejściem na nową wersję Invoice Ninja stwórz kopię bezpieczeństwa swojej bazy danych i plików.',
     'update_invoiceninja_available' => 'Nowa wersja Invoice Ninja jest dostępna.',
     'update_invoiceninja_unavailable' => 'Nowa wersja Invoice Ninja nie jest dostępna.',
-    'update_invoiceninja_instructions' => 'Please install the new version <strong>:version</strong> by clicking the <em>Update now</em> button below. Afterwards you\'ll be redirected to the dashboard.',
     'update_invoiceninja_update_start' => 'Aktualizuj teraz',
     'update_invoiceninja_download_start' => 'Pobierz :version',
     'create_new' => 'Dodaj nowy/nową',
@@ -5155,6 +5151,20 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
+    'show_document_preview' => 'Show Document Preview',
+    'cash_accounting' => 'Cash accounting',
+    'click_or_drop_files_here' => 'Click or drop files here',
+    'set_public' => 'Set public',
+    'set_private' => 'Set private',
+    'individual' => 'Individual',
+    'business' => 'Business',
+    'partnership' => 'partnership',
+    'trust' => 'Trust',
+    'charity' => 'Charity',
+    'government' => 'Government',
+    'in_stock_quantity' => 'Stock quantity',
+    'vendor_contact' => 'Vendor Contact',
+
 ); 
 
 return $LANG;

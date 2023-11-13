@@ -182,7 +182,7 @@ class MatchBankTransactions implements ShouldQueue
         return $this;
     }
 
-    private function coalesceExpenses($expense): string 
+    private function coalesceExpenses($expense): string
     {
 
         if (!$this->bt->expense_id || strlen($this->bt->expense_id) < 1) {

@@ -17,9 +17,9 @@ use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
 use App\Models\CompanyLedger;
 use App\Models\Document;
+use App\Models\GroupSetting;
 use App\Models\SystemLog;
 use App\Utils\Traits\MakesHash;
-use League\Fractal\Resource\Collection;
 use stdClass;
 
 /**
@@ -42,6 +42,7 @@ class ClientTransformer extends EntityTransformer
         'activities',
         'ledger',
         'system_logs',
+        'group_settings',
     ];
 
     /**
@@ -94,6 +95,17 @@ class ClientTransformer extends EntityTransformer
         $transformer = new SystemLogTransformer($this->serializer);
 
         return $this->includeCollection($client->system_logs, $transformer, SystemLog::class);
+    }
+
+    public function includeGroupSettings(Client $client)
+    {
+        if (!$client->group_settings) {
+            return null;
+        }
+        
+        $transformer = new GroupSettingTransformer($this->serializer);
+
+        return $this->includeItem($client->group_settings, $transformer, GroupSetting::class);
     }
 
     /**
@@ -151,6 +163,7 @@ class ClientTransformer extends EntityTransformer
             'is_tax_exempt' => (bool) $client->is_tax_exempt,
             'routing_id' => (string) $client->routing_id,
             'tax_info' => $client->tax_data ?: new \stdClass,
+            'classification' => $client->classification ?: '',
         ];
     }
 }

@@ -13,6 +13,7 @@ namespace App\Mail;
 
 use App\Models\VendorContact;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
+use App\Utils\Ninja;
 use App\Utils\VendorHtmlEngine;
 use Illuminate\Mail\Mailable;
 
@@ -102,8 +103,19 @@ class VendorTemplateEmail extends Mailable
         $this->from(config('mail.from.address'), $email_from_name);
 
         if (strlen($settings->bcc_email) > 1) {
-            $this->bcc(explode(',', str_replace(' ', '', $settings->bcc_email)));
-        }//remove whitespace if any has been inserted.
+        
+            if (Ninja::isHosted()) {
+
+                if($this->company->account->isPaid()) {
+                    $bccs = explode(',', str_replace(' ', '', $settings->bcc_email));
+                    $this->bcc(array_slice($bccs, 0, 5));
+                }
+
+            } else {
+                $this->bcc(explode(',', str_replace(' ', '', $settings->bcc_email)));
+            }
+        
+        }
 
         $this->subject($this->build_email->getSubject())
             ->text('email.template.text', [

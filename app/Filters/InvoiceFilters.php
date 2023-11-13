@@ -11,14 +11,13 @@
 
 namespace App\Filters;
 
-use RuntimeException;
 use App\Models\Client;
 use App\Models\Invoice;
-use App\Filters\QueryFilters;
-use InvalidArgumentException;
-use Illuminate\Support\Carbon;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
+use InvalidArgumentException;
+use RuntimeException;
 
 /**
  * InvoiceFilters.
@@ -241,15 +240,13 @@ class InvoiceFilters extends QueryFilters
             return $this->builder;
         }
 
-        try{
+        try {
 
             $start_date = Carbon::parse($parts[1]);
             $end_date = Carbon::parse($parts[2]);
 
             return $this->builder->whereBetween($parts[0], [$start_date, $end_date]);
-        }
-        
-        catch(\Exception $e){
+        } catch(\Exception $e) {
             return $this->builder;
         }
 

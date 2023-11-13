@@ -112,7 +112,7 @@ class ImportCustomers
             $client->address2 = $customer->address->line2 ? $customer->address->line2 : '';
             $client->city = $customer->address->city ? $customer->address->city : '';
             $client->state = $customer->address->state ? $customer->address->state : '';
-            $client->phone = $customer->address->phone ? $customer->phone : '';
+            $client->phone = $customer->phone ?? '';
 
             if ($customer->address->country) {
                 $country = Country::query()->where('iso_3166_2', $customer->address->country)->first();

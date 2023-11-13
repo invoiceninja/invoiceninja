@@ -64,7 +64,7 @@ class TaskStatusRepository extends BaseRepository
                     ->where('id', '!=', $task_status->id)
                     ->orderByRaw('ISNULL(status_order), status_order ASC')
                     ->cursor()
-                    ->each(function ($ts, $key) use($task_status){
+                    ->each(function ($ts, $key) use ($task_status) {
                     
                         if($ts->status_order < $task_status->status_order) {
                             $ts->status_order--;

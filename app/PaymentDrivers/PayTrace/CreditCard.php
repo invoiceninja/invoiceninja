@@ -183,7 +183,7 @@ class CreditCard
 
         $response = $this->paytrace->gatewayRequest('/v1/transactions/sale/by_customer', $data);
 
-        if ($response->success) {
+        if ($response->success ?? false) {
             $this->paytrace->logSuccessfulGatewayResponse(['response' => $response, 'data' => $this->paytrace->payment_hash], SystemLog::TYPE_PAYTRACE);
 
             return $this->processSuccessfulPayment($response);

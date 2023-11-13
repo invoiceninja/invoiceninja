@@ -13,11 +13,10 @@ namespace App\Export\CSV;
 
 use App\Libraries\MultiDB;
 use App\Models\Company;
-use App\Models\Document;
 use App\Models\Product;
 use App\Transformers\ProductTransformer;
 use App\Utils\Ninja;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
@@ -42,13 +41,14 @@ class ProductExport extends BaseExport
 
         $headerdisplay = $this->buildHeader();
 
-        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
-                return ['identifier' => $value, 'display_value' => $headerdisplay[$value]];
-            })->toArray();
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
+            return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
+        })->toArray();
 
         $report = $query->cursor()
                 ->map(function ($resource) {
-                    return $this->buildRow($resource);
+                    $row = $this->buildRow($resource);
+                    return $this->processMetaData($row, $resource);
                 })->toArray();
         
         return array_merge(['columns' => $header], $report);

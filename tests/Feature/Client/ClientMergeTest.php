@@ -37,6 +37,8 @@ class ClientMergeTest extends TestCase
 
     private $primary_contact;
 
+    public $faker;
+    
     protected function setUp(): void
     {
         parent::setUp();

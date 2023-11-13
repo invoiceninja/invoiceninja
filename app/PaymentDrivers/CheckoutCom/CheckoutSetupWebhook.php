@@ -11,28 +11,21 @@
 
 namespace App\PaymentDrivers\CheckoutCom;
 
-use App\Models\Payment;
-use App\Models\SystemLog;
 use App\Libraries\MultiDB;
-use App\Models\GatewayType;
-use App\Models\PaymentHash;
-use App\Models\PaymentType;
-use Illuminate\Bus\Queueable;
 use App\Models\CompanyGateway;
-use App\Jobs\Util\SystemLogger;
-use Checkout\CheckoutApiException;
-use Illuminate\Queue\SerializesModels;
-use App\PaymentDrivers\Stripe\Utilities;
-use Illuminate\Queue\InteractsWithQueue;
-use App\PaymentDrivers\CheckoutCom\Webhook;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Checkout\CheckoutAuthorizationException;
-use Checkout\Workflows\CreateWorkflowRequest;
 use App\PaymentDrivers\CheckoutComPaymentDriver;
+use App\PaymentDrivers\Stripe\Utilities;
+use Checkout\CheckoutApiException;
+use Checkout\CheckoutAuthorizationException;
 use Checkout\Workflows\Actions\WebhookSignature;
 use Checkout\Workflows\Actions\WebhookWorkflowActionRequest;
 use Checkout\Workflows\Conditions\EventWorkflowConditionRequest;
+use Checkout\Workflows\CreateWorkflowRequest;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class CheckoutSetupWebhook implements ShouldQueue
 {
@@ -68,8 +61,9 @@ class CheckoutSetupWebhook implements ShouldQueue
             return $workflow['name'] == $this->authentication_webhook_name;
         });
 
-        if($wf)
+        if($wf) {
             return;
+        }
 
         $this->createAuthenticationWorkflow();
     }

@@ -11,31 +11,38 @@
 
 namespace App\Services\Template;
 
-use App\Models\Quote;
-use App\Utils\Number;
-use Twig\Error\Error;
 use App\Models\Client;
-use App\Models\Credit;
-use App\Models\Design;
-use App\Models\Vendor;
 use App\Models\Company;
+use App\Models\Design;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
-use App\Utils\HtmlEngine;
-use Twig\Error\LoaderError;
-use Twig\Error\SyntaxError;
-use Twig\Error\RuntimeError;
 use App\Models\PurchaseOrder;
-use App\Utils\VendorHtmlEngine;
-use Twig\Sandbox\SecurityError;
-use App\Models\RecurringInvoice;
+use App\Transformers\ProjectTransformer;
+use App\Transformers\PurchaseOrderTransformer;
+use App\Transformers\QuoteTransformer;
+use App\Transformers\TaskTransformer;
+use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\HtmlEngine;
+use App\Utils\Number;
 use App\Utils\PaymentHtmlEngine;
 use App\Utils\Traits\MakesDates;
-use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\Traits\Pdf\PdfMaker;
+use App\Utils\VendorHtmlEngine;
+use League\Fractal\Manager;
+use League\Fractal\Serializer\ArraySerializer;
+use Twig\Environment;
+use Twig\Error\Error;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
+use Twig\Extension\DebugExtension;
+use Twig\Extension\StringLoaderExtension;
 use Twig\Extra\Intl\IntlExtension;
-use League\CommonMark\CommonMarkConverter;
+use Twig\Loader\FilesystemLoader;
+use Twig\Sandbox\SecurityError;
+use Twig\TwigFilter;
+use Twig\TwigFunction;
 
 class TemplateService
 {
@@ -44,7 +51,7 @@ class TemplateService
 
     private \DomDocument $document;
 
-    public \Twig\Environment $twig;
+    public Environment $twig;
 
     private string $compiled_html = '';
 
@@ -84,22 +91,22 @@ class TemplateService
 
         $this->document = new \DOMDocument();
         $this->document->validateOnParse = true;
-
-        $loader = new \Twig\Loader\FilesystemLoader(storage_path());
-        $this->twig = new \Twig\Environment($loader, [
+        $loader = new FilesystemLoader(storage_path());
+        $this->twig = new Environment($loader, [
                 'debug' => true,
         ]);
-        $string_extension = new \Twig\Extension\StringLoaderExtension();
+
+        $string_extension = new StringLoaderExtension();
         $this->twig->addExtension($string_extension);
         $this->twig->addExtension(new IntlExtension());
-        $this->twig->addExtension(new \Twig\Extension\DebugExtension());
-
-        $function = new \Twig\TwigFunction('img', function ($string, $style = '') {
-            return '<img src="' . $string . '" style="' . $style . '"></img>';
+        $this->twig->addExtension(new DebugExtension());
+        
+        $function = new TwigFunction('img', function ($string, $style = '') {
+            return '<img src="'.$string.'" style="'.$style.'"></img>';
         });
         $this->twig->addFunction($function);
 
-        $filter = new \Twig\TwigFilter('sum', function (array $array, string $column) {
+        $filter = new TwigFilter('sum', function (array $array, string $column) {
             return array_sum(array_column($array, $column));
         });
 
@@ -233,19 +240,19 @@ class TemplateService
                 $template = $this->twig->createTemplate(html_entity_decode($template));
             } catch(SyntaxError $e) {
                 nlog($e->getMessage());
-                throw ($e);
+                continue;
             } catch(Error $e) {
-                nlog("error = " . $e->getMessage());
-                throw ($e);
+                nlog("error = " .$e->getMessage());
+                continue;
             } catch(RuntimeError $e) {
-                nlog("runtime = " . $e->getMessage());
-                throw ($e);
+                nlog("runtime = " .$e->getMessage());
+                continue;
             } catch(LoaderError $e) {
                 nlog("loader = " . $e->getMessage());
-                throw ($e);
+                continue;
             } catch(SecurityError $e) {
                 nlog("security = " . $e->getMessage());
-                throw ($e);
+                continue;
             }
 
             $template = $template->render($this->data);
@@ -278,6 +285,7 @@ class TemplateService
         $html = $this->getHtml();
 
         foreach($this->variables as $key => $variable) {
+            
             if(isset($variable['labels']) && isset($variable['values'])) {
                 $html = strtr($html, $variable['labels']);
                 $html = strtr($html, $variable['values']);
@@ -359,7 +367,7 @@ class TemplateService
 
             $processed = [];
 
-            if(in_array($key, ['tasks', 'projects', 'aging']) || !$value->first()) {
+            if(in_array($key, ['tasks','projects','aging']) || !$value->first()) {
                 return $processed;
             }
 
@@ -424,8 +432,7 @@ class TemplateService
                 ->map(function ($invoice) {
 
                     $payments = [];
-                    $this->entity = $invoice;
-
+            
                     if($invoice->payments ?? false) {
                         $payments = $invoice->payments->map(function ($payment) {
                             return $this->transformPayment($payment);
@@ -435,8 +442,6 @@ class TemplateService
                     return [
                         'amount' => Number::formatMoney($invoice->amount, $invoice->client),
                         'balance' => Number::formatMoney($invoice->balance, $invoice->client),
-                        'status_id' => $invoice->status_id,
-                        'status' => Invoice::stringStatus($invoice->status_id),
                         'balance_raw' => $invoice->balance,
                         'number' => $invoice->number ?: '',
                         'discount' => $invoice->discount,
@@ -474,7 +479,7 @@ class TemplateService
                         'custom_surcharge_tax2' => (bool) $invoice->custom_surcharge_tax2,
                         'custom_surcharge_tax3' => (bool) $invoice->custom_surcharge_tax3,
                         'custom_surcharge_tax4' => (bool) $invoice->custom_surcharge_tax4,
-                        'line_items' => $invoice->line_items ? $this->padLineItems($invoice->line_items, $invoice->client) : (array) [],
+                        'line_items' => $invoice->line_items ? $this->padLineItems($invoice->line_items, $invoice->client): (array) [],
                         'reminder1_sent' => $this->translateDate($invoice->reminder1_sent, $invoice->client->date_format(), $invoice->client->locale()),
                         'reminder2_sent' => $this->translateDate($invoice->reminder2_sent, $invoice->client->date_format(), $invoice->client->locale()),
                         'reminder3_sent' => $this->translateDate($invoice->reminder3_sent, $invoice->client->date_format(), $invoice->client->locale()),
@@ -507,7 +512,7 @@ class TemplateService
      */
     public function padLineItems(array $items, Vendor | Client $client_or_vendor): array
     {
-        return collect($items)->map(function ($item) use ($client_or_vendor) {
+        return collect($items)->map(function ($item) use ($client) {
 
             $item->cost_raw = $item->cost ?? 0;
             $item->discount_raw = $item->discount ?? 0;
@@ -516,16 +521,16 @@ class TemplateService
             $item->tax_amount_raw = $item->tax_amount ?? 0;
             $item->product_cost_raw = $item->product_cost ?? 0;
 
-            $item->cost = Number::formatMoney($item->cost_raw, $client_or_vendor);
-
+            $item->cost = Number::formatMoney($item->cost_raw, $client);
+            
             if($item->is_amount_discount) {
-                $item->discount = Number::formatMoney($item->discount_raw, $client_or_vendor);
+                $item->discount = Number::formatMoney($item->discount_raw, $client);
             }
-
-            $item->line_total = Number::formatMoney($item->line_total_raw, $client_or_vendor);
-            $item->gross_line_total = Number::formatMoney($item->gross_line_total_raw, $client_or_vendor);
-            $item->tax_amount = Number::formatMoney($item->tax_amount_raw, $client_or_vendor);
-            $item->product_cost = Number::formatMoney($item->product_cost_raw, $client_or_vendor);
+            
+            $item->line_total = Number::formatMoney($item->line_total_raw, $client);
+            $item->gross_line_total = Number::formatMoney($item->gross_line_total_raw, $client);
+            $item->tax_amount = Number::formatMoney($item->tax_amount_raw, $client);
+            $item->product_cost = Number::formatMoney($item->product_cost_raw, $client);
 
             return $item;
 
@@ -592,7 +597,7 @@ class TemplateService
             'balance_raw' => ($payment->amount - $payment->refunded - $payment->applied),
             'date' => $this->translateDate($payment->date, $payment->client->date_format(), $payment->client->locale()),
             'method' => $payment->translatedType(),
-            'currency' => $payment->currency->code,
+            'currency' => $payment->currency->code ?? $payment->company->currency()->code,
             'exchange_rate' => $payment->exchange_rate,
             'transaction_reference' => $payment->transaction_reference,
             'is_manual' => $payment->is_manual,
@@ -748,8 +753,6 @@ class TemplateService
         $credits = collect($credits)
                 ->map(function ($credit) {
 
-                    $this->entity = $credit;
-
                     return [
                         'amount' => Number::formatMoney($credit->amount, $credit->client),
                         'balance' => Number::formatMoney($credit->balance, $credit->client),
@@ -790,7 +793,7 @@ class TemplateService
                         'custom_surcharge_tax2' => (bool) $credit->custom_surcharge_tax2,
                         'custom_surcharge_tax3' => (bool) $credit->custom_surcharge_tax3,
                         'custom_surcharge_tax4' => (bool) $credit->custom_surcharge_tax4,
-                        'line_items' => $credit->line_items ? $this->padLineItems($credit->line_items, $credit->client) : (array) [],
+                        'line_items' => $credit->line_items ? $this->padLineItems($credit->line_items, $credit->client): (array) [],
                         'reminder1_sent' => $this->translateDate($credit->reminder1_sent, $credit->client->date_format(), $credit->client->locale()),
                         'reminder2_sent' => $this->translateDate($credit->reminder2_sent, $credit->client->date_format(), $credit->client->locale()),
                         'reminder3_sent' => $this->translateDate($credit->reminder3_sent, $credit->client->date_format(), $credit->client->locale()),
@@ -1030,448 +1033,5 @@ class TemplateService
 
         return $this;
     }
-
-    /**
-     * Parses and finds any field stacks to inject into the DOM Document
-     *
-     * @return self
-     */
-    public function parseGlobalStacks(): self
-    {
-        $stacks = [
-            'entity-details',
-            'client-details',
-            'vendor-details',
-            'company-details',
-            'company-address',
-            'shipping-details',
-        ];
-
-        collect($stacks)->filter(function ($stack) {
-            return $this->document->getElementById($stack) ?? false;
-        })
-        ->map(function ($stack){
-            $node = $this->document->getElementById($stack);
-                return ['stack' => $stack, 'labels' => $node->getAttribute('labels')];
-        })
-        ->each(function ($stack) {
-            $this->parseStack($stack);
-        });
-
-        return $this;
-
-    }
-
-    /**
-     * Injects field stacks into Template
-     *
-     * @param  array $stack
-     * @return self
-     */
-    private function parseStack(array $stack): self
-    {
-
-        match($stack['stack']) {
-            'entity-details' => $this->entityDetails(),
-            'client-details' => $this->clientDetails($stack['labels'] == 'true'),
-            'vendor-details' => $this->vendorDetails($stack['labels'] == 'true'),
-            'company-details' => $this->companyDetails($stack['labels'] == 'true'),
-            'company-address' => $this->companyAddress($stack['labels'] == 'true'),
-            'shipping-details' => $this->shippingDetails($stack['labels'] == 'true'),
-        };
-
-        $this->save();
-
-        return $this;
-    }
-
-    /**
-     * Inject the Company Details into the DOM Document
-     *
-     * @param  bool $include_labels
-     * @return self
-     */
-    private function companyDetails(bool $include_labels): self
-    {
-        $var_set = $this->getVarSet();
-
-        $company_details =
-        collect($this->company->settings->pdf_variables->company_details)
-            ->filter(function ($variable) use ($var_set) {
-                return isset($var_set['values'][$variable]) && !empty($var_set['values'][$variable]);
-            })
-            ->when(!$include_labels, function ($collection) {
-                return $collection->map(function ($variable) {
-                    return ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'company_details-' . substr($variable, 1)]];
-                });
-            })->toArray();
-
-        // nlog($company_details);
-
-        $company_details = $include_labels ? $this->labelledFieldStack($company_details, 'company_details-') : $company_details;
-
-        // nlog($company_details);
-
-        $this->updateElementProperties('company-details', $company_details);
-
-        return $this;
-    }
-
-    private function companyAddress(bool $include_labels = false): self
-    {
-
-        $var_set = $this->getVarSet();
-
-        $company_address =
-        collect($this->company->settings->pdf_variables->company_address)
-            ->filter(function ($variable) use ($var_set) {
-                return isset($var_set['values'][$variable]) && !empty($var_set['values'][$variable]);
-            })
-            ->when(!$include_labels, function ($collection) {
-                return $collection->map(function ($variable) {
-                    return ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'company_address-' . substr($variable, 1)]];
-                });
-            })->toArray();
-
-        $company_address = $include_labels ? $this->labelledFieldStack($company_address, 'company_address-') : $company_address;
-
-        $this->updateElementProperties('company-address', $company_address);
-
-        return $this;
-    }
-
-    /**
-     * Injects the Shipping Details into the DOM Document
-     *
-     * @param  bool $include_labels
-     * @return self
-     */
-    private function shippingDetails(bool $include_labels = false): self
-    {
-        if(!$this->entity->client) {
-            return $this;
-        }
-
-        $this->client = $this->entity->client;
-
-        $shipping_address = [
-            ['element' => 'p', 'content' => ctrans('texts.shipping_address'), 'properties' => ['data-ref' => 'shipping_address-label', 'style' => 'font-weight: bold; text-transform: uppercase']],
-            ['element' => 'p', 'content' => $this->client->name, 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.name']],
-            ['element' => 'p', 'content' => $this->client->shipping_address1, 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.shipping_address1']],
-            ['element' => 'p', 'content' => $this->client->shipping_address2, 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.shipping_address2']],
-            ['element' => 'p', 'show_empty' => false, 'elements' => [
-                ['element' => 'span', 'content' => "{$this->client->shipping_city} ", 'properties' => ['ref' => 'shipping_address-client.shipping_city']],
-                ['element' => 'span', 'content' => "{$this->client->shipping_state} ", 'properties' => ['ref' => 'shipping_address-client.shipping_state']],
-                ['element' => 'span', 'content' => "{$this->client->shipping_postal_code} ", 'properties' => ['ref' => 'shipping_address-client.shipping_postal_code']],
-            ]],
-            ['element' => 'p', 'content' => optional($this->client->shipping_country)->name, 'show_empty' => false],
-        ];
-
-        $shipping_address =
-        collect($shipping_address)->filter(function ($address) {
-            return isset($address['content']) && !empty($address['content']);
-        })->toArray();
-
-        $this->updateElementProperties('shipping-details', $shipping_address);
-
-        return $this;
-    }
-
-    /**
-     * Injects the Client Details into the DOM Document
-     *
-     * @param  bool $include_labels
-     * @return self
-     */
-    private function clientDetails(bool $include_labels = false): self
-    {
-        $var_set = $this->getVarSet();
-
-        $client_details =
-        collect($this->company->settings->pdf_variables->client_details)
-            ->filter(function ($variable) use ($var_set) {
-                return isset($var_set['values'][$variable]) && !empty($var_set['values'][$variable]);
-            })
-            ->when(!$include_labels, function ($collection) {
-                return $collection->map(function ($variable) {
-                    return ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'client_details-' . substr($variable, 1)]];
-                });
-            })->toArray();
-
-        $client_details = $include_labels ? $this->labelledFieldStack($client_details, 'client_details-') : $client_details;
-
-        $this->updateElementProperties('client-details', $client_details);
-
-        return $this;
-    }
-
-    /**
-     * Resolves the entity.
-     *
-     * Only required for resolving the entity-details stack
-     *
-     * @return string
-     */
-    private function resolveEntity(): string
-    {
-        $entity_string = '';
-
-        match($this->entity) {
-            ($this->entity instanceof Invoice) => $entity_string = 'invoice',
-            ($this->entity instanceof Quote)  => $entity_string = 'quote',
-            ($this->entity instanceof Credit) => $entity_string = 'credit',
-            ($this->entity instanceof RecurringInvoice) => $entity_string = 'invoice',
-            ($this->entity instanceof PurchaseOrder) => $entity_string = 'purchase_order',
-            default => $entity_string = 'invoice',
-        };
-
-        return $entity_string;
-
-    }
-
-    /**
-     * Returns the variable array by first key, if it exists
-     *
-     * @return array
-     */
-    private function getVarSet(): array
-    {
-        return array_key_exists(array_key_first($this->variables), $this->variables) ? $this->variables[array_key_first($this->variables)] : $this->variables;
-    }
-
-    /**
-     * Injects the entity details to the DOM document
-     *
-     * @return self
-     */
-    private function entityDetails(): self
-    {
-        $entity_string = $this->resolveEntity();
-        $entity_string_prop = "{$entity_string}_details";
-        $var_set = $this->getVarSet();
-
-        $entity_details =
-        collect($this->company->settings->pdf_variables->{$entity_string_prop})
-            ->filter(function ($variable) use ($var_set) {
-                return isset($var_set['values'][$variable]) && !empty($var_set['values'][$variable]);
-            })->toArray();
-
-        $this->updateElementProperties("entity-details", $this->labelledFieldStack($entity_details, 'entity_details-'));
-
-        return $this;
-    }
-
-    /**
-     * Generates the field stacks with labels
-     *
-     * @param  array $variables
-     * @return array
-     */
-    private function labelledFieldStack(array $variables, string $data_ref): array
-    {
-
-        $elements = [];
-
-        foreach ($variables as $variable) {
-            $_variable = explode('.', $variable)[1];
-            $_customs = ['custom1', 'custom2', 'custom3', 'custom4'];
-
-            $var = str_replace("custom", "custom_value", $_variable);
-
-            $hidden_prop = ($data_ref == 'entity_details-') ? $this->entityVariableCheck($variable) : false;
-            
-            if (in_array($_variable, $_customs) && !empty($this->entity->{$var})) {
-                $elements[] = ['element' => 'tr', 'elements' => [
-                    ['element' => 'th', 'content' => $variable . '_label', 'properties' => ['data-ref' => $data_ref . substr($variable, 1) . '_label']],
-                    ['element' => 'th', 'content' => $variable, 'properties' => ['data-ref' => $data_ref . substr($variable, 1)]],
-                ]];
-            } else {
-                $elements[] = ['element' => 'tr', 'properties' => ['hidden' => $hidden_prop], 'elements' => [
-                    ['element' => 'th', 'content' => $variable . '_label', 'properties' => ['data-ref' => $data_ref . substr($variable, 1) . '_label']],
-                    ['element' => 'th', 'content' => $variable, 'properties' => ['data-ref' => $data_ref . substr($variable, 1)]],
-                ]];
-            }
-        }
-
-        return $elements;
-
-    }
-
-    /**
-     * Inject Vendor Details into DOM Document
-     *
-     * @param  bool $include_labels
-     * @return self
-     */
-    private function vendorDetails(bool $include_labels = false): self
-    {
-
-        $var_set = $this->getVarSet();
-
-        $vendor_details =
-        collect($this->company->settings->pdf_variables->vendor_details)
-            ->filter(function ($variable) use ($var_set) {
-                return isset($var_set['values'][$variable]) && !empty($var_set['values'][$variable]);
-            })->when(!$include_labels, function ($collection) {
-                return $collection->map(function ($variable) {
-                    return ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'vendor_details-' . substr($variable, 1)]];
-                });
-            })->toArray();
-
-        $vendor_details = $include_labels ? $this->labelledFieldStack($vendor_details, 'vendor_details-') : $vendor_details;
-
-        $this->updateElementProperties('vendor-details', $vendor_details);
-
-        return $this;
-    }
-
-
-    /**
-     * Performs a variable check to ensure
-     * the variable exists
-     *
-     * @param  string $variable
-     * @return bool
-     *
-     */
-    public function entityVariableCheck(string $variable): bool
-    {
-        // When it comes to invoice balance, we'll always show it.
-        if ($variable == '$invoice.total') {
-            return false;
-        }
-
-        // Some variables don't map 1:1 to table columns. This gives us support for such cases.
-        $aliases = [
-            '$quote.balance_due' => 'partial',
-        ];
-
-        try {
-            $_variable = explode('.', $variable)[1];
-        } catch (\Exception $e) {
-            throw new \Exception('Company settings seems to be broken. Missing $this->service->config->entity.variable type.');
-        }
-
-        if (\in_array($variable, \array_keys($aliases))) {
-            $_variable = $aliases[$variable];
-        }
-
-        if (is_null($this->entity->{$_variable}) || empty($this->entity->{$_variable})) {
-            return true;
-        }
-
-        return false;
-    }
-
-    ////////////////////////////////////////
-    // Dom Traversal
-    ///////////////////////////////////////
-
-    public function updateElementProperties(string $element_id, array $elements): self
-    {
-        $node = $this->document->getElementById($element_id);
-
-        $this->createElementContent($node, $elements);
-
-        return $this;
-    }
-
-    public function updateElementProperty($element, string $attribute, ?string $value)
-    {
-
-        if ($attribute == 'hidden' && ($value == false || $value == 'false')) {
-            return $element;
-        }
-
-        $element->setAttribute($attribute, $value);
-
-        if ($element->getAttribute($attribute) === $value) {
-            return $element;
-        }
-
-        return $element;
-
-    }
-
-    public function createElementContent($element, $children): self
-    {
-
-        foreach ($children as $child) {
-            $contains_html = false;
-
-            //06-11-2023 for some reason this parses content as HTML
-            // if ($child['element'] !== 'script') {
-            //     if ($this->company->markdown_enabled && array_key_exists('content', $child)) {
-            //         $child['content'] = str_replace('<br>', "\r", $child['content']);
-            //         $child['content'] = $this->commonmark->convert($child['content'] ?? '');
-            //     }
-            // }
-
-            if (isset($child['content'])) {
-                if (isset($child['is_empty']) && $child['is_empty'] === true) {
-                    continue;
-                }
-
-                $contains_html = preg_match('#(?<=<)\w+(?=[^<]*?>)#', $child['content'], $m) != 0;
-            }
-
-            if ($contains_html) {
-                // If the element contains the HTML, we gonna display it as is. Backend is going to
-                // encode it for us, preventing any errors on the processing stage.
-                // Later, we decode this using Javascript so it looks like it's normal HTML being injected.
-                // To get all elements that need frontend decoding, we use 'data-state' property.
-
-                $_child = $this->document->createElement($child['element'], '');
-                $_child->setAttribute('data-state', 'encoded-html');
-                $_child->nodeValue = htmlspecialchars($child['content']);
-            } else {
-                // .. in case string doesn't contain any HTML, we'll just return
-                // raw $content.
-
-                $_child = $this->document->createElement($child['element'], isset($child['content']) ? htmlspecialchars($child['content']) : '');
-            }
-
-            $element->appendChild($_child);
-
-            if (isset($child['properties'])) {
-                foreach ($child['properties'] as $property => $value) {
-                    $this->updateElementProperty($_child, $property, $value);
-                }
-            }
-
-            if (isset($child['elements'])) {
-                $this->createElementContent($_child, $child['elements']);
-            }
-
-        }
-        
-        return $this;
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

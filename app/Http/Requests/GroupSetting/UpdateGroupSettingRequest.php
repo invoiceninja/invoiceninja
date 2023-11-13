@@ -12,6 +12,7 @@
 namespace App\Http\Requests\GroupSetting;
 
 use App\DataMapper\CompanySettings;
+use App\DataMapper\Settings\SettingsData;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\ValidClientGroupSettingsRule;
 
@@ -62,10 +63,14 @@ class UpdateGroupSettingRequest extends Request
      */
     private function filterSaveableSettings($settings)
     {
-        $account = $this->group_setting->company->account;
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
-        if (! $account->isFreeHostedClient()) {
-            return $settings;
+        $settings_data = new SettingsData();
+        $settings = $settings_data->cast($settings)->toObject();
+
+        if (! $user->account->isFreeHostedClient()) {
+            return (array)$settings;
         }
 
         $saveable_casts = CompanySettings::$free_plan_casts;
@@ -75,7 +80,7 @@ class UpdateGroupSettingRequest extends Request
                 unset($settings->{$key});
             }
         }
-
+        
         return (array)$settings;
     }
 }

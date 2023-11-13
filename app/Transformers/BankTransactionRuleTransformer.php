@@ -11,7 +11,6 @@
 
 namespace App\Transformers;
 
-use App\Models\BankTransaction;
 use App\Models\BankTransactionRule;
 use App\Models\Client;
 use App\Models\Company;

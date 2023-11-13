@@ -11,20 +11,20 @@
 
 namespace App\Jobs\Quote;
 
-use App\Models\User;
-use App\Models\Company;
-use App\Libraries\MultiDB;
-use App\Mail\DownloadQuotes;
-use App\Jobs\Util\UnlinkFile;
-use Illuminate\Bus\Queueable;
-use App\Models\QuoteInvitation;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Jobs\Util\UnlinkFile;
+use App\Libraries\MultiDB;
+use App\Mail\DownloadQuotes;
+use App\Models\Company;
+use App\Models\QuoteInvitation;
+use App\Models\User;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
 
 class ZipQuotes implements ShouldQueue
 {
@@ -60,7 +60,7 @@ class ZipQuotes implements ShouldQueue
         try {
 
             foreach ($invitations as $invitation) {
-                $file = (new \App\Jobs\Entity\CreateRawPdf($invitation, $this->company->db))->handle();
+                $file = (new \App\Jobs\Entity\CreateRawPdf($invitation))->handle();
                 $zipFile->addFromString($invitation->quote->numberFormatter() . '.pdf', $file);
             }
 

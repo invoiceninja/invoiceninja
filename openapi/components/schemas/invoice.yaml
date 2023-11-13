@@ -4,10 +4,12 @@
           description: 'The invoice hashed id'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         user_id:
           description: 'The user hashed id'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         assigned_user_id:
           description: 'The assigned user hashed id'
           type: string
@@ -16,6 +18,7 @@
           description: 'The company hashed id'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         client_id:
           description: 'The client hashed id'
           type: string
@@ -219,4 +222,22 @@
           description: 'Toggles charging taxes on custom surcharge amounts'
           type: boolean
           example: true
+        project_id:
+          description: 'The project associated with this invoice'
+          type: string
+          example: Opnel5aKBz
+        auto_bill_tries:
+          description: 'The number of times the invoice has attempted to be auto billed'
+          type: integer
+          example: '1'
+          readOnly: true
+        auto_bill_enabled:
+          description: 'Boolean flag determining if the invoice is set to auto bill'
+          type: boolean
+          example: true
+        subscription_id:
+          description: 'The subscription associated with this invoice'
+          type: string
+          example: Opnel5aKBz
+        
       type: object

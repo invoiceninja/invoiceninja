@@ -469,7 +469,7 @@ class EwayRapid {
             ?.addEventListener('click', (e) => this.completeAuthorization(e));
 
         Array.from(
-            document.getElementsByClassName('toggle-payment-with-token')
+            document.getElementsByClassName('toggle-payment-with-token') ?? []
         ).forEach((element) =>
             element.addEventListener('click', (element) => {
                 document
@@ -483,17 +483,20 @@ class EwayRapid {
             })
         );
 
-        document
-            .getElementById('toggle-payment-with-credit-card')
-            .addEventListener('click', (element) => {
-                document
-                    .getElementById('eway-secure-panel')
-                    .classList.remove('hidden');
-                document.getElementById('save-card--container').style.display =
-                    'grid';
-                document.querySelector('input[name=token]').value = '';
-                document.getElementById('pay-now').disabled = true;
-            });
+        if (document.getElementById('toggle-payment-with-credit-card'))
+        {
+            document
+                .getElementById('toggle-payment-with-credit-card')
+                .addEventListener('click', (element) => {
+                    document
+                        .getElementById('eway-secure-panel')
+                        .classList.remove('hidden');
+                    document.getElementById('save-card--container').style.display =
+                        'grid';
+                    document.querySelector('input[name=token]').value = '';
+                    document.getElementById('pay-now').disabled = true;
+                });
+        }
 
         document.getElementById('pay-now')?.addEventListener('click', (e) => {
             let tokenInput = document.querySelector('input[name=token]');

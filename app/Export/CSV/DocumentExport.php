@@ -16,7 +16,7 @@ use App\Models\Company;
 use App\Models\Document;
 use App\Transformers\DocumentTransformer;
 use App\Utils\Ninja;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
@@ -49,13 +49,14 @@ class DocumentExport extends BaseExport
 
         $headerdisplay = $this->buildHeader();
 
-        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
-                return ['identifier' => $value, 'display_value' => $headerdisplay[$value]];
-            })->toArray();
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
+            return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
+        })->toArray();
 
         $report = $query->cursor()
                 ->map(function ($document) {
                     $row = $this->buildRow($document);
+                    return $this->processMetaData($row, $document);
                 })->toArray();
         
         return array_merge(['columns' => $header], $report);

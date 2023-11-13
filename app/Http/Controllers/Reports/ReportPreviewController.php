@@ -11,10 +11,10 @@
 
 namespace App\Http\Controllers\Reports;
 
-use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Facades\Cache;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Report\ReportPreviewRequest;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Facades\Cache;
 
 class ReportPreviewController extends BaseController
 {
@@ -30,10 +30,11 @@ class ReportPreviewController extends BaseController
 
         $report = Cache::get($hash);
 
-        if(!$report)
+        if(!$report) {
             return response()->json(['message' => 'Still working.....'], 409);
+        }
         
-        if($report){
+        if($report) {
             
             Cache::forget($hash);
 

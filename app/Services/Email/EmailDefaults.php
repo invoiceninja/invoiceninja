@@ -11,23 +11,18 @@
 
 namespace App\Services\Email;
 
-use App\Models\Task;
-use App\Utils\Ninja;
-use App\Models\Quote;
-use App\Models\Credit;
+use App\DataMapper\EmailTemplateDefaults;
+use App\Jobs\Entity\CreateRawPdf;
+use App\Jobs\Invoice\CreateUbl;
 use App\Models\Account;
 use App\Models\Expense;
 use App\Models\Invoice;
-use App\Models\PurchaseOrder;
-use App\Jobs\Invoice\CreateUbl;
+use App\Models\Task;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
-use App\Jobs\Entity\CreateRawPdf;
-use Illuminate\Support\Facades\App;
 use Illuminate\Mail\Mailables\Address;
-use Illuminate\Support\Facades\Storage;
-use App\DataMapper\EmailTemplateDefaults;
+use Illuminate\Support\Facades\App;
 use League\CommonMark\CommonMarkConverter;
-use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 
 class EmailDefaults
 {
@@ -255,8 +250,8 @@ class EmailDefaults
 
         if (strlen($this->email->email_object->settings->bcc_email) > 1) {
             if (Ninja::isHosted() && $this->email->company->account->isPaid()) {
-                $bccs = array_slice(explode(',', str_replace(' ', '', $this->email->email_object->settings->bcc_email)), 0, 2);
-            } elseif (Ninja::isSelfHost()) {
+                $bccs = array_slice(explode(',', str_replace(' ', '', $this->email->email_object->settings->bcc_email)), 0, 5);
+            } else {
                 $bccs = (explode(',', str_replace(' ', '', $this->email->email_object->settings->bcc_email)));
             }
         }
@@ -278,7 +273,6 @@ class EmailDefaults
         return $this;
         // return $this->email->email_object->cc;
         // return [
-
         // ];
     }
 
@@ -300,15 +294,8 @@ class EmailDefaults
         }
 
         /** Purchase Order / Invoice / Credit / Quote PDF  */
-        if ($this->email->email_object->settings->pdf_email_attachment && $this->email->email_object->entity instanceof PurchaseOrder) {
-            $pdf = (new CreatePurchaseOrderPdf($this->email->email_object->invitation))->rawPdf();
-
-            $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
-        } elseif ($this->email->email_object->settings->pdf_email_attachment &&
-        ($this->email->email_object->entity instanceof Invoice ||
-         $this->email->email_object->entity instanceof Quote ||
-         $this->email->email_object->entity instanceof Credit)) {
-            $pdf = ((new CreateRawPdf($this->email->email_object->invitation, $this->email->company->db))->handle());
+        if ($this->email->email_object->settings->pdf_email_attachment){
+            $pdf = ((new CreateRawPdf($this->email->email_object->invitation))->handle());
             $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
         }
 
@@ -324,8 +311,9 @@ class EmailDefaults
         if ($this->email->email_object->settings->enable_e_invoice && $this->email->email_object->entity instanceof Invoice) {
             $xml_string = $this->email->email_object->entity->service()->getEInvoice();
 
-            if($xml_string)
+            if($xml_string) {
                 $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($xml_string), 'name' => explode(".", $this->email->email_object->entity->getFileName('xml'))[0]."-e_invoice.xml"]]);
+            }
         }
 
         if (!$this->email->email_object->settings->document_email_attachment || !$this->email->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
@@ -333,16 +321,16 @@ class EmailDefaults
         }
 
         /* Company Documents */
-        $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->company->documents->pluck('id')->toArray());
+        $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->company->documents()->where('is_public', true)->pluck('id')->toArray());
 
         /** Entity Documents */
         if ($this->email->email_object->entity?->documents) {
-            $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->email_object->entity->documents->pluck('id')->toArray());
+            $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->email_object->entity->documents()->where('is_public', true)->pluck('id')->toArray());
         }
 
         /** Recurring Invoice Documents */
         if ($this->email->email_object->entity instanceof Invoice && $this->email->email_object->entity->recurring_id != null) {
-            $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->email_object->entity->recurring_invoice->documents->pluck('id')->toArray());
+            $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->email_object->entity->recurring_invoice->documents()->where('is_public', true)->pluck('id')->toArray());
         }
 
         /** Task / Expense Documents */
@@ -365,7 +353,7 @@ class EmailDefaults
                         ->where('invoice_documents', 1)
                         ->cursor()
                         ->each(function ($expense) {
-                            $this->email->email_object->documents = array_merge($this->email->email_object->documents, $expense->documents->pluck('id')->toArray());
+                            $this->email->email_object->documents = array_merge($this->email->email_object->documents, $expense->documents()->where('is_public', true)->pluck('id')->toArray());
                         });
             }
 
@@ -373,7 +361,7 @@ class EmailDefaults
                 Task::query()->whereIn('id', $this->transformKeys($task_ids))
                     ->cursor()
                     ->each(function ($task) {
-                        $this->email->email_object->documents = array_merge($this->email->email_object->documents, $task->documents->pluck('id')->toArray());
+                        $this->email->email_object->documents = array_merge($this->email->email_object->documents, $task->documents()->where('is_public', true)->pluck('id')->toArray());
                     });
             }
         }

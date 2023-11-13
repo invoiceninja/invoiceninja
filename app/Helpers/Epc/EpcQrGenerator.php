@@ -15,6 +15,7 @@ use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use App\Utils\Ninja;
+use BaconQrCode\Exception\InvalidArgumentException;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
@@ -41,22 +42,34 @@ class EpcQrGenerator
 
     public function getQrCode()
     {
-        $renderer = new ImageRenderer(
-            new RendererStyle(200),
-            new SvgImageBackEnd()
-        );
-        $writer = new Writer($renderer);
-
-        $this->validateFields();
-
-        try {
-            $qr = $writer->writeString($this->encodeMessage(), 'utf-8');
-        } catch(\Throwable $e) {
-            return '';
-        } 
+        $qr = '';
         
-        return "<svg viewBox='0 0 200 200' width='200' height='200' x='0' y='0' xmlns='http://www.w3.org/2000/svg'>
+        try {
+            $renderer = new ImageRenderer(
+                new RendererStyle(200),
+                new SvgImageBackEnd()
+            );
+            $writer = new Writer($renderer);
+
+            $this->validateFields();
+
+            $qr = $writer->writeString($this->encodeMessage(), 'utf-8');
+
+            return "<svg viewBox='0 0 200 200' width='200' height='200' x='0' y='0' xmlns='http://www.w3.org/2000/svg'>
           <rect x='0' y='0' width='100%'' height='100%' />{$qr}</svg>";
+
+        } catch(\Throwable $e) {
+            nlog("EPC QR failure => ".$e->getMessage());
+            return '';
+        } catch(\Exception $e) {
+            nlog("EPC QR failure => ".$e->getMessage());
+            return '';
+        } catch(InvalidArgumentException $e) {
+            nlog("EPC QR failure => ".$e->getMessage());
+            return '';
+        }
+        
+       
     }
 
     public function encodeMessage()
@@ -86,6 +99,7 @@ class EpcQrGenerator
         if (Ninja::isSelfHost() && isset($this->company?->custom_fields?->company1)) {
             nlog('The IBAN field is required');
         }
+
     }
 
     private function formatMoney($value)

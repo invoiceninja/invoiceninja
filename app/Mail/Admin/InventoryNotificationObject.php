@@ -69,7 +69,7 @@ class InventoryNotificationObject
                 ]
             ),
             'url' => $this->product->portalUrl($this->use_react_url),
-            'button' => $this->use_react_url ? ctrans('texts.product_library') : ctrans('ninja.app_url'),
+            'button' => ctrans('texts.view'),
             'signature' => $this->product->company->settings->email_signature,
             'logo' => $this->product->company->present()->logo(),
             'settings' => $this->product->company->settings,

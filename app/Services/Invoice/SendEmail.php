@@ -11,12 +11,12 @@
 
 namespace App\Services\Invoice;
 
-use App\Utils\Ninja;
-use App\Models\Invoice;
-use App\Models\ClientContact;
-use App\Jobs\Entity\EmailEntity;
-use App\Services\AbstractService;
 use App\Events\Invoice\InvoiceWasEmailed;
+use App\Jobs\Entity\EmailEntity;
+use App\Models\ClientContact;
+use App\Models\Invoice;
+use App\Services\AbstractService;
+use App\Utils\Ninja;
 
 class SendEmail extends AbstractService
 {

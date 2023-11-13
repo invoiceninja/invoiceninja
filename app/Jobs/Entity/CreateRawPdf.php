@@ -17,8 +17,7 @@ use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Invoice;
 use App\Utils\HtmlEngine;
-use App\Libraries\MultiDB;
-use Illuminate\Bus\Queueable;
+use App\Models\PurchaseOrder;
 use App\Models\QuoteInvitation;
 use App\Utils\Traits\MakesHash;
 use App\Models\CreditInvitation;
@@ -32,23 +31,20 @@ use Illuminate\Support\Facades\App;
 use App\Jobs\Invoice\CreateEInvoice;
 use App\Utils\Traits\NumberFormatter;
 use App\Utils\Traits\MakesInvoiceHtml;
-use Illuminate\Queue\SerializesModels;
+use App\Models\PurchaseOrderInvitation;
 use App\Utils\Traits\Pdf\PageNumbering;
-use Illuminate\Queue\InteractsWithQueue;
 use App\Exceptions\FilePermissionsFailure;
 use App\Models\RecurringInvoiceInvitation;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
 use horstoeko\zugferd\ZugferdDocumentPdfBuilder;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker as PdfMakerService;
 
-class CreateRawPdf implements ShouldQueue
+class CreateRawPdf
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter, MakesInvoiceHtml, PdfMaker, MakesHash, PageNumbering;
+    use NumberFormatter, MakesInvoiceHtml, PdfMaker, MakesHash, PageNumbering;
 
-    public Invoice | Credit | Quote | RecurringInvoice $entity;
+    public Invoice | Credit | Quote | RecurringInvoice | PurchaseOrder $entity;
 
     public $company;
 
@@ -59,13 +55,10 @@ class CreateRawPdf implements ShouldQueue
     public $entity_string = '';
 
     /**
-     * Create a new job instance.
-     *
      * @param $invitation
      */
-    public function __construct($invitation, $db)
+    public function __construct($invitation, private ?string $type = null)
     {
-        MultiDB::setDb($db);
 
         $this->invitation = $invitation;
 
@@ -81,25 +74,46 @@ class CreateRawPdf implements ShouldQueue
         } elseif ($invitation instanceof RecurringInvoiceInvitation) {
             $this->entity = $invitation->recurring_invoice;
             $this->entity_string = 'recurring_invoice';
+        } elseif ($invitation instanceof PurchaseOrderInvitation){        
+            $this->entity = $invitation->purchase_order;
+            $this->entity_string = 'purchase_order';
         }
 
         $this->company = $invitation->company;
-
         $this->contact = $invitation->contact;
+    }
+
+    private function resolveType(): string
+    {
+        if($this->type)
+            return $this->type;
+
+        $type = 'product';
+
+        match($this->entity_string) {
+            'purchase_order' => $type = 'purchase_order',
+            'invoice' => $type = 'product',
+            'quote' => $type = 'product',
+            'credit' => $type = 'product',
+            'recurring_invoice' => $type = 'product',
+        };
+
+        return $type;
+
     }
 
     public function handle()
     {
         /** Testing this override to improve PDF generation performance */
-        $ps = new PdfService($this->invitation, 'product', [
-            'client' => $this->entity->client,
+        $ps = new PdfService($this->invitation, $this->resolveType(), [
+            'client' => $this->entity->client ?? false,
+            'vendor' => $this->entity->vendor ?? false,
             "{$this->entity_string}s" => [$this->entity],
         ]);
 
         $pdf = $ps->boot()->getPdf();
+        return $pdf;
         nlog("pdf timer = ". $ps->execution_time);
-
-
 
         /* Forget the singleton*/
         App::forgetInstance('translator');
@@ -235,8 +249,9 @@ class CreateRawPdf implements ShouldQueue
      */
     private function checkEInvoice(string $pdf): string
     {
-        if(!$this->entity instanceof Invoice || !$this->company->getSetting('enable_e_invoice'))
+        if(!$this->entity instanceof Invoice || !$this->company->getSetting('enable_e_invoice')) {
             return $pdf;
+        }
 
         $e_invoice_type = $this->entity->client->getSetting('e_invoice_type');
 

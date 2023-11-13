@@ -129,8 +129,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
 
         if ($response->isCancelled() && $this->client->getSetting('enable_client_portal')) {
             return redirect()->route('client.invoices.index')->with('warning', ctrans('texts.status_cancelled'));
-        }
-        elseif($response->isCancelled() && !$this->client->getSetting('enable_client_portal')){
+        } elseif($response->isCancelled() && !$this->client->getSetting('enable_client_portal')) {
             redirect()->route('client.invoices.show', ['invoice' => $this->payment_hash->fee_invoice])->with('warning', ctrans('texts.status_cancelled'));
         }
 
@@ -206,6 +205,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
             'transactionId' => $this->payment_hash->hash.'-'.time(),
             'ButtonSource' => 'InvoiceNinja_SP',
             'solutionType' => 'Sole',
+            'no_shipping' => $this->company_gateway->require_shipping_address ? 0 : 1,
         ];
     }
 

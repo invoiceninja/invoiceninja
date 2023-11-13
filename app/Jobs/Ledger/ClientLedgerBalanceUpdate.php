@@ -25,8 +25,13 @@ use Illuminate\Queue\SerializesModels;
 class ClientLedgerBalanceUpdate implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    
     public $tries = 1;
+    
     public $deleteWhenMissingModels = true;
+
+    private ?CompanyLedger $next_balance_record;
+
     public function __construct(public Company $company, public Client $client)
     {
     }
@@ -39,31 +44,55 @@ class ClientLedgerBalanceUpdate implements ShouldQueue
      */
     public function handle() :void
     {
-        // nlog("Updating company ledger for client ". $this->client->id);
+        $uuid = \Illuminate\Support\Str::uuid();
+
+        // nlog("Updating company ledger for client {$this->client->id} {$uuid}");
 
         MultiDB::setDb($this->company->db);
 
-        CompanyLedger::query()->where('balance', 0)->where('client_id', $this->client->id)->orderBy('updated_at', 'ASC')->cursor()->each(function ($company_ledger) {
-            if ($company_ledger->balance == 0) {
-                $last_record = CompanyLedger::query()->where('client_id', $company_ledger->client_id)
-                                ->where('company_id', $company_ledger->company_id)
-                                ->where('balance', '!=', 0)
-                                ->orderBy('id', 'DESC')
-                                ->first();
+        // $dupes = CompanyLedger::query()
+        //     ->where('client_id', $this->client->id)
+        //     ->where('balance', 0)
+        //     ->where('hash', '<>', '')
+        //     ->groupBy(['adjustment','hash'])
+        //     ->havingRaw('COUNT(*) > 1')
+        //     ->pluck('id');
 
-                if (! $last_record) {
-                    $last_record = CompanyLedger::query()->where('client_id', $company_ledger->client_id)
-                    ->where('company_id', $company_ledger->company_id)
-                    ->orderBy('id', 'DESC')
-                    ->first();
-                }
-            }
+        // CompanyLedger::query()->whereIn('id', $dupes)->delete();
 
-            $company_ledger->balance = $last_record->balance + $company_ledger->adjustment;
-            $company_ledger->save();
+        // $dupes = CompanyLedger::query()
+        //     ->where('client_id', $this->client->id)
+        //     ->where('balance', 0)
+        //     ->where('hash', '<>', '')
+        //     ->groupBy(['adjustment','hash'])
+        //     ->havingRaw('COUNT(*) > 1')
+        //     ->pluck('id');
+
+        // CompanyLedger::query()->whereIn('id', $dupes)->delete();
+
+        CompanyLedger::query()
+                        ->where('balance', 0)
+                        ->where('client_id', $this->client->id)
+                        ->orderBy('id', 'ASC')
+                        ->get()
+                        ->each(function ($company_ledger) {
+
+                            $parent_ledger = CompanyLedger::query()
+                                                    ->where('id', '<', $company_ledger->id)
+                                                    ->where('client_id', $company_ledger->client_id)
+                                                    ->where('company_id', $company_ledger->company_id)
+                                                    ->where('balance', '!=', 0)
+                                                    ->orderBy('id', 'DESC')
+                                                    ->first();
+
+                            // $company_ledger->balance = $last_record->balance + $company_ledger->adjustment;
+                            $company_ledger->balance = ($parent_ledger ? $parent_ledger->balance : 0) + $company_ledger->adjustment;
+                            $company_ledger->save();
+
         });
-    }
 
+        // nlog("finished job {$uuid}");
+    }
 
     public function middleware()
     {

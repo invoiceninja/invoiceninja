@@ -44,16 +44,18 @@ class ValidProjectForClient implements Rule
             return true;
         }
 
-        // if (is_string($this->input['project_id'])) {
-        //     $this->input['project_id'] = $this->decodePrimaryKey($this->input['project_id']);
-        // }
+
 
         $project = Project::withTrashed()->find($this->input['project_id']);
 
         if (! $project) {
             $this->message = 'Project not found';
-
             return;
+        }
+
+        if(!isset($this->input['client_id'])) {
+            $this->message = 'No Client ID provided.';
+            return false;
         }
 
         return $project->client_id == $this->input['client_id'];

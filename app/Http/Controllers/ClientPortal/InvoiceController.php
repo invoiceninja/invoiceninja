@@ -11,29 +11,27 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
-use App\Utils\Ninja;
-use App\Utils\Number;
-use App\Models\Invoice;
-use Illuminate\View\View;
-use Illuminate\Http\Request;
-use App\Models\QuoteInvitation;
-use App\Utils\Traits\MakesHash;
-use App\Models\CreditInvitation;
-use App\Utils\Traits\MakesDates;
-use App\Models\InvoiceInvitation;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Contracts\View\Factory;
-use App\Models\PurchaseOrderInvitation;
-use Illuminate\Support\Facades\Storage;
 use App\Events\Invoice\InvoiceWasViewed;
 use App\Events\Misc\InvitationWasViewed;
-use App\Models\RecurringInvoiceInvitation;
-use App\Jobs\Vendor\CreatePurchaseOrderPdf;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\ClientPortal\Invoices\ProcessInvoicesInBulkRequest;
 use App\Http\Requests\ClientPortal\Invoices\ShowInvoiceRequest;
 use App\Http\Requests\ClientPortal\Invoices\ShowInvoicesRequest;
-use App\Http\Requests\ClientPortal\Invoices\ProcessInvoicesInBulkRequest;
+use App\Models\CreditInvitation;
+use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
+use App\Models\QuoteInvitation;
+use App\Models\RecurringInvoiceInvitation;
+use App\Utils\Ninja;
+use App\Utils\Number;
+use App\Utils\Traits\MakesDates;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 class InvoiceController extends Controller
 {
@@ -87,20 +85,27 @@ class InvoiceController extends Controller
     public function showBlob($hash)
     {
         $data = Cache::get($hash);
+
+        if(!$data) {
+            usleep(200000);
+            $data = Cache::get($hash);
+        }
+
         $invitation = false;
         
-        match($data['entity_type'] ?? false){
+        match($data['entity_type'] ?? false) {
             'invoice' => $invitation = InvoiceInvitation::withTrashed()->find($data['invitation_id']),
             'quote' => $invitation = QuoteInvitation::withTrashed()->find($data['invitation_id']),
             'credit' => $invitation = CreditInvitation::withTrashed()->find($data['invitation_id']),
             'recurring_invoice' => $invitation = RecurringInvoiceInvitation::withTrashed()->find($data['invitation_id']),
+            false => $invitation = false,
         };
 
         if (! $invitation) {
             return redirect('/');
         }
 
-        $file = (new \App\Jobs\Entity\CreateRawPdf($invitation, $invitation->company->db))->handle();
+        $file = (new \App\Jobs\Entity\CreateRawPdf($invitation))->handle();
         
         $headers = ['Content-Type' => 'application/pdf'];
         return response()->make($file, 200, $headers);
@@ -176,6 +181,16 @@ class InvoiceController extends Controller
                 ->with('message', ctrans('texts.no_payable_invoices_selected'));
         }
 
+        //ensure all stale fees are removed.
+        $invoices->each(function ($invoice) {
+            $invoice->service()
+                    ->markSent()
+                    ->removeUnpaidGatewayFees()
+                    ->save();
+        });
+
+        $invoices = $invoices->fresh();
+
         //iterate and sum the payable amounts either partial or balance
         $total = 0;
         foreach ($invoices as $invoice) {
@@ -188,7 +203,7 @@ class InvoiceController extends Controller
 
         //format data
         $invoices->map(function ($invoice) {
-            $invoice->service()->removeUnpaidGatewayFees();
+            // $invoice->service()->removeUnpaidGatewayFees();
             $invoice->balance = $invoice->balance > 0 ? Number::formatValue($invoice->balance, $invoice->client->currency()) : 0;
             $invoice->partial = $invoice->partial > 0 ? Number::formatValue($invoice->partial, $invoice->client->currency()) : 0;
 

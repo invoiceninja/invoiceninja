@@ -74,19 +74,19 @@ class QuoteTest extends TestCase
             'line_items' =>[
                 [
                     'type_id' => 2,
-                    'unit_cost' => 200,
+                    'cost' => 200,
                     'quantity' => 2,
                     'notes' => 'Test200',
                 ],
                 [
                     'type_id' => 2,
-                    'unit_cost' => 100,
+                    'cost' => 100,
                     'quantity' => 1,
                     'notes' => 'Test100',
                 ],
                 [
                     'type_id' => 1,
-                    'unit_cost' => 10,
+                    'cost' => 10,
                     'quantity' => 1,
                     'notes' => 'Test',
                 ],
@@ -171,7 +171,7 @@ class QuoteTest extends TestCase
 
         $project = Project::find($this->decodePrimaryKey($res['data'][0]['project_id']));
 
-        $this->assertEquals($project->name, ctrans('texts.quote_number_short') . " " . $this->quote->number);
+        $this->assertEquals($project->name, ctrans('texts.quote_number_short') . " " . $this->quote->number." [{$this->quote->client->present()->name()}]");
     }
 
     public function testQuoteList()

@@ -11,25 +11,25 @@
 
 namespace App\Models;
 
-use App\Models\Company;
-use App\Utils\TruthSource;
 use App\Jobs\Mail\NinjaMailer;
-use Illuminate\Support\Carbon;
-use App\Utils\Traits\MakesHash;
 use App\Jobs\Mail\NinjaMailerJob;
-use App\Services\User\UserService;
-use App\Utils\Traits\UserSettings;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Mail\Admin\ResetPasswordObject;
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Presenters\UserPresenter;
-use Illuminate\Notifications\Notifiable;
-use Laracasts\Presenter\PresentableTrait;
+use App\Services\User\UserService;
+use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Utils\Traits\UserSettings;
+use App\Utils\TruthSource;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\App;
+use Laracasts\Presenter\PresentableTrait;
 
 /**
  * App\Models\User
@@ -61,6 +61,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property string|null $last_login
  * @property string|null $signature
  * @property string $password
+ * @property string $language_id
  * @property string|null $remember_token
  * @property string|null $custom_value1
  * @property string|null $custom_value2
@@ -71,7 +72,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property int|null $deleted_at
  * @property string|null $oauth_user_refresh_token
  * @property string|null $last_confirmed_email_address
- * @property int $has_password
+ * @property bool $has_password
+ * @property bool $user_logged_in_notification
  * @property Carbon|null $oauth_user_token_expiry
  * @property string|null $sms_verification_code
  * @property bool $verified_phone_number
@@ -138,6 +140,7 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      */
     protected $fillable = [
+        'user_logged_in_notification',
         'first_name',
         'last_name',
         'email',
@@ -153,6 +156,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'custom_value4',
         'is_deleted',
         'shopify_user_id',
+        'language_id',
         // 'oauth_user_token',
         // 'oauth_user_refresh_token',
     ];
@@ -633,20 +637,37 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function sendPasswordResetNotification($token)
     {
+        $is_react = request()->has('react') || request()->hasHeader('X-React') ? true : false;
+
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer((new ResetPasswordObject($token, $this, $this->account->default_company))->build());
+        $nmo->mailable = new NinjaMailer((new ResetPasswordObject($token, $this, $this->account->default_company, $is_react))->build());
         $nmo->to_user = $this;
         $nmo->settings = $this->account->default_company->settings;
         $nmo->company = $this->account->default_company;
 
         NinjaMailerJob::dispatch($nmo, true);
 
-        //$this->notify(new ResetPasswordNotification($token));
     }
 
     public function service()
     {
         return new UserService($this);
+    }
+
+    public function language()
+    {
+        return $this->belongsTo(Language::class);
+    }
+
+    public function getLocale()
+    {
+        $locale = $this->language->locale ?? null;
+    
+        if($locale) {
+            App::setLocale($locale);
+        }
+
+        return $locale;
     }
 
     public function translate_entity()

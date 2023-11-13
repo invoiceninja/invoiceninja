@@ -82,6 +82,8 @@ class StoreRecurringInvoiceRequest extends Request
     public function prepareForValidation()
     {
         $input = $this->all();
+        $input['amount'] = 0;
+        $input['balance'] = 0;
 
         if (array_key_exists('due_date_days', $input) && is_null($input['due_date_days'])) {
             $input['due_date_days'] = 'terms';

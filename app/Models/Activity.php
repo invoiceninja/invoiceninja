@@ -13,7 +13,6 @@ namespace App\Models;
 
 use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * App\Models\Activity
@@ -399,22 +398,29 @@ class Activity extends StaticModel
             ':balance',
             ':number',
             ':payment_amount',
-            ':gateway', 
-            ':adjustment'          
+            ':gateway',
+            ':adjustment'
         ];
 
-        $found_variables = array_intersect(explode(" ",trans("texts.activity_{$this->activity_type_id}")), $intersect);
+        $found_variables = array_intersect(explode(" ", trans("texts.activity_{$this->activity_type_id}")), $intersect);
 
         $replacements = [];
 
-        foreach($found_variables as $var)
+        foreach($found_variables as $var) {
             $replacements = array_merge($replacements, $this->matchVar($var));
+        }
 
-        if($this->client)
+        if($this->client) {
             $replacements['client'] = ['label' => $this?->client?->present()->name() ?? '', 'hashed_id' => $this->client->hashed_id ?? ''];
+        }
         
-        if($this->vendor)
+        if($this->vendor) {
             $replacements['vendor'] = ['label' => $this?->vendor?->present()->name() ?? '', 'hashed_id' => $this->vendor->hashed_id ?? ''];
+        }
+
+        if($this->activity_type_id == 4 && $this->recurring_invoice) {
+            $replacements['recurring_invoice'] = ['label' => $this?->recurring_invoice?->number ?? '', 'hashed_id' => $this->recurring_invoice->hashed_id ?? ''];
+        }
 
         $replacements['activity_type_id'] = $this->activity_type_id;
         $replacements['id'] = $this->id;
@@ -446,7 +452,7 @@ class Activity extends StaticModel
             ':recurring_invoice' => $translation =  [substr($variable, 1) =>[ 'label' =>  $this?->recurring_invoice?->number ??'', 'hashed_id' => $this->recurring_invoice->hashed_id ?? '']],
             ':recurring_expense' => $translation =  [substr($variable, 1) => [ 'label' => $this?->recurring_expense?->number ??'', 'hashed_id' => $this->recurring_expense->hashed_id ?? '']],
             ':payment_amount' => $translation =  [substr($variable, 1) =>[ 'label' =>  Number::formatMoney($this?->payment?->amount, $this?->payment?->client) ?? '', 'hashed_id' => '']],
-            ':adjustment' => $translation =  [substr($variable, 1) =>[ 'label' =>  Number::formatMoney($this?->payment?->refunded, $this?->payment?->client) ?? '', 'hashed_id' => '']], 
+            ':adjustment' => $translation =  [substr($variable, 1) =>[ 'label' =>  Number::formatMoney($this?->payment?->refunded, $this?->payment?->client) ?? '', 'hashed_id' => '']],
             ':ip' => $translation = [ 'ip' => $this->ip ?? ''],
             ':contact' => $translation = $this->resolveContact(),
             default => $translation = [],

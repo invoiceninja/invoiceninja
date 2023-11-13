@@ -11,19 +11,19 @@
 
 namespace App\Services\Report;
 
-use App\Utils\Ninja;
-use App\Utils\Number;
-use League\Csv\Writer;
+use App\Libraries\Currency\Conversion\CurrencyApi;
+use App\Libraries\MultiDB;
 use App\Models\Company;
+use App\Models\Currency;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\Currency;
-use App\Libraries\MultiDB;
-use Illuminate\Support\Str;
+use App\Utils\Ninja;
+use App\Utils\Number;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
-use App\Libraries\Currency\Conversion\CurrencyApi;
+use Illuminate\Support\Str;
+use League\Csv\Writer;
 
 class ProfitLoss
 {
@@ -107,7 +107,7 @@ class ProfitLoss
         if ($this->is_income_billed) { //get invoiced amounts
             $this->filterIncome();
         } else {
-            //$this->filterPaymentIncome();
+
             $this->filterInvoicePaymentIncome();
         }
 
@@ -355,7 +355,7 @@ class ProfitLoss
 
         $csv->insertOne(['--------------------']);
 
-        $csv->insertOne([ctrans('texts.total_revenue'), Number::formatMoney($this->income - $this->income_taxes, $this->company)]);
+        $csv->insertOne([ctrans('texts.total_revenue'), Number::formatMoney($this->income, $this->company)]);
 
         //total taxes
 

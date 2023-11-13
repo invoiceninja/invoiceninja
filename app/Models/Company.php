@@ -13,6 +13,7 @@ namespace App\Models;
 
 use App\Utils\Ninja;
 use App\Casts\EncryptedCast;
+use App\Models\VendorContact;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\MakesHash;
 use App\DataMapper\CompanySettings;
@@ -515,6 +516,14 @@ class Company extends BaseModel
     /**
      * @return HasMany
      */
+    public function vendor_contacts() :HasMany
+    {
+        return $this->hasMany(VendorContact::class)->withTrashed();
+    }
+
+    /**
+     * @return HasMany
+     */
     public function vendors() :HasMany
     {
         return $this->hasMany(Vendor::class)->withTrashed();
@@ -621,7 +630,7 @@ class Company extends BaseModel
             return $item->id == $this->getSetting('country_id');
         })->first();
 
-//        return $this->belongsTo(Country::class);
+        //        return $this->belongsTo(Country::class);
         // return Country::find($this->settings->country_id);
     }
 
@@ -786,6 +795,26 @@ class Company extends BaseModel
         return $this->hasMany(CompanyUser::class)->withTrashed();
     }
 
+    public function invoice_invitations(): HasMany
+    {
+        return $this->hasMany(InvoiceInvitation::class);
+    }
+
+    public function quote_invitations(): HasMany
+    {
+        return $this->hasMany(QuoteInvitation::class);
+    }
+
+    public function credit_invitations(): HasMany
+    {
+        return $this->hasMany(CreditInvitation::class);
+    }
+    
+    public function purchase_order_invitations(): HasMany
+    {
+        return $this->hasMany(PurchaseOrderInvitation::class);
+    }
+
     /**
      * @return \App\Models\User|null
      */
@@ -818,7 +847,7 @@ class Company extends BaseModel
                     ->firstOrFail();
     }
 
-    public function domain(): string 
+    public function domain(): string
     {
         if (Ninja::isHosted()) {
             if ($this->portal_mode == 'domain' && strlen($this->portal_domain) > 3) {
@@ -899,7 +928,11 @@ class Company extends BaseModel
 
         $timezone = $this->timezone();
 
-        $offset -= $timezone->utc_offset;
+        date_default_timezone_set('GMT');
+        $date = new \DateTime("now", new \DateTimeZone($timezone->name));
+        $offset -= $date->getOffset();
+
+        // $offset -= $timezone->utc_offset;
         $offset += ($entity_send_time * 3600);
 
         return $offset;
@@ -925,8 +958,9 @@ class Company extends BaseModel
 
     public function getInvoiceCert()
     {
-        if($this->e_invoice_certificate)
+        if($this->e_invoice_certificate) {
             return base64_decode($this->e_invoice_certificate);
+        }
 
         return false;
     }

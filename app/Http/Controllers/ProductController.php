@@ -458,15 +458,16 @@ class ProductController extends BaseController
      */
     public function bulk(BulkProductRequest $request)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $action = $request->input('action');
 
         $ids = $request->input('ids');
 
         $products = Product::withTrashed()->whereIn('id', $ids);
 
-        nlog($products->count());
-
-        if($action == 'set_tax_id'){
+        if($action == 'set_tax_id') {
             
             $tax_id = $request->input('tax_id');
 
@@ -475,8 +476,8 @@ class ProductController extends BaseController
             return $this->listResponse(Product::withTrashed()->whereIn('id', $ids));
         }
 
-        $products->cursor()->each(function ($product, $key) use ($action) {
-            if (auth()->user()->can('edit', $product)) {
+        $products->cursor()->each(function ($product, $key) use ($action, $user) {
+            if ($user->can('edit', $product)) {
                 $this->product_repo->{$action}($product);
             }
         });

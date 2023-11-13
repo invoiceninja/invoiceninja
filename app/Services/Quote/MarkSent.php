@@ -11,12 +11,12 @@
 
 namespace App\Services\Quote;
 
-use Carbon\Carbon;
-use App\Utils\Ninja;
-use App\Models\Quote;
-use App\Models\Client;
-use App\Models\Webhook;
 use App\Events\Quote\QuoteWasMarkedSent;
+use App\Models\Client;
+use App\Models\Quote;
+use App\Models\Webhook;
+use App\Utils\Ninja;
+use Carbon\Carbon;
 
 class MarkSent
 {

@@ -89,6 +89,7 @@ use App\Http\Controllers\Auth\PasswordTimeoutController;
 use App\Http\Controllers\PreviewPurchaseOrderController;
 use App\Http\Controllers\Reports\ClientReportController;
 use App\Http\Controllers\Reports\CreditReportController;
+use App\Http\Controllers\Reports\ReportExportController;
 use App\Http\Controllers\Reports\VendorReportController;
 use App\Http\Controllers\Reports\ExpenseReportController;
 use App\Http\Controllers\Reports\InvoiceReportController;
@@ -165,6 +166,8 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('clients/{client}/{mergeable_client}/merge', [ClientController::class, 'merge'])->name('clients.merge')->middleware('password_protected');
     Route::post('clients/bulk', [ClientController::class, 'bulk'])->name('clients.bulk');
 
+    Route::post('reactivate_email/{bounce_id}', [ClientController::class, 'reactivateEmail'])->name('clients.reactivate_email');
+
     Route::post('filters/{entity}', [FilterController::class, 'index'])->name('filters');
 
     Route::resource('client_gateway_tokens', ClientGatewayTokenController::class);
@@ -178,6 +181,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('companies/purge_save_settings/{company}', [MigrationController::class, 'purgeCompanySaveSettings'])->middleware('password_protected');
     Route::resource('companies', CompanyController::class); // name = (companies. index / create / show / update / destroy / edit
 
+    Route::get('companies/{company}/logo', [CompanyController::class, 'logo']);
     Route::put('companies/{company}/upload', [CompanyController::class, 'upload']);
     Route::post('companies/{company}/default', [CompanyController::class, 'default']);
     Route::post('companies/updateOriginTaxData/{company}', [CompanyController::class, 'updateOriginTaxData'])->middleware('throttle:3,1');
@@ -319,6 +323,8 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('reports/tax_summary_report', TaxSummaryReportController::class);
     Route::post('reports/user_sales_report', UserSalesReportController::class);
     Route::post('reports/preview/{hash}', ReportPreviewController::class);
+    Route::post('exports/preview/{hash}', ReportExportController::class);
+    
     Route::post('templates/preview/{hash}', TemplatePreviewController::class);
     Route::post('search', SearchController::class);
 

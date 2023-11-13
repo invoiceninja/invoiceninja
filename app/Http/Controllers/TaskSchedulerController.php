@@ -22,7 +22,6 @@ use App\Models\Scheduler;
 use App\Repositories\SchedulerRepository;
 use App\Transformers\SchedulerTransformer;
 use App\Utils\Traits\MakesHash;
-use Symfony\Component\HttpFoundation\Request;
 
 class TaskSchedulerController extends BaseController
 {

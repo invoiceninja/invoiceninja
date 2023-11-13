@@ -11,22 +11,22 @@
 
 namespace App\PaymentDrivers\Square;
 
-use App\Models\Payment;
-use App\Models\SystemLog;
+use App\Jobs\Mail\PaymentFailedMailer;
+use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
+use App\Models\CompanyGateway;
 use App\Models\GatewayType;
+use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use Illuminate\Bus\Queueable;
-use App\Models\CompanyGateway;
-use App\Jobs\Util\SystemLogger;
-use App\Jobs\Mail\PaymentFailedMailer;
-use Illuminate\Queue\SerializesModels;
-use App\PaymentDrivers\Stripe\Utilities;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\SystemLog;
 use App\PaymentDrivers\SquarePaymentDriver;
+use App\PaymentDrivers\Stripe\Utilities;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class SquareWebhook implements ShouldQueue
 {
@@ -43,13 +43,13 @@ class SquareWebhook implements ShouldQueue
     public \Square\SquareClient $square;
 
     private array $source_type = [
-        'CARD' => PaymentType::CREDIT_CARD_OTHER, 
-        'BANK_ACCOUNT' => PaymentType::ACH, 
-        'WALLET' => PaymentType::CREDIT_CARD_OTHER, 
-        'BUY_NOW_PAY_LATER' => PaymentType::CREDIT_CARD_OTHER, 
-        'SQUARE_ACCOUNT' => PaymentType::CREDIT_CARD_OTHER, 
-        'CASH' => PaymentType::CASH, 
-        'EXTERNAL' =>PaymentType::CREDIT_CARD_OTHER 
+        'CARD' => PaymentType::CREDIT_CARD_OTHER,
+        'BANK_ACCOUNT' => PaymentType::ACH,
+        'WALLET' => PaymentType::CREDIT_CARD_OTHER,
+        'BUY_NOW_PAY_LATER' => PaymentType::CREDIT_CARD_OTHER,
+        'SQUARE_ACCOUNT' => PaymentType::CREDIT_CARD_OTHER,
+        'CASH' => PaymentType::CASH,
+        'EXTERNAL' =>PaymentType::CREDIT_CARD_OTHER
     ];
 
     public function __construct(public array $webhook_array, public string $company_key, public int $company_gateway_id)
@@ -71,7 +71,7 @@ class SquareWebhook implements ShouldQueue
 
         $payment_status = false;
 
-        match($status){
+        match($status) {
             'APPROVED' => $payment_status = false,
             'COMPLETED' => $payment_status = Payment::STATUS_COMPLETED,
             'PENDING' => $payment_status = Payment::STATUS_PENDING,
@@ -80,7 +80,7 @@ class SquareWebhook implements ShouldQueue
             default => $payment_status = false,
         };
 
-        if(!$payment_status){
+        if(!$payment_status) {
             nlog("Square Webhook - Payment Status Not Found or not worthy of processing");
             nlog($this->webhook_array);
         }
@@ -88,13 +88,13 @@ class SquareWebhook implements ShouldQueue
         $payment = $this->retrieveOrCreatePayment($payment_id, $payment_status);
 
         /** If the status was pending and now is reporting as Failed / Cancelled - process failure path */
-        if($payment->status_id == Payment::STATUS_PENDING && in_array($payment_status, [Payment::STATUS_CANCELLED, Payment::STATUS_FAILED])){
+        if($payment->status_id == Payment::STATUS_PENDING && in_array($payment_status, [Payment::STATUS_CANCELLED, Payment::STATUS_FAILED])) {
             $payment->service()->deletePayment();
 
             if ($this->driver->payment_hash) {
                 $error = ctrans('texts.client_payment_failure_body', [
                     'invoice' => implode(',', $payment->invoices->pluck('number')->toArray()),
-                    'amount' => array_sum(array_column($this->driver->payment_hash->invoices(), 'amount')) + $this->driver->payment_hash->fee_total, 
+                    'amount' => array_sum(array_column($this->driver->payment_hash->invoices(), 'amount')) + $this->driver->payment_hash->fee_total,
                 ]);
             } else {
                 $error = 'Payment for '.$payment->client->present()->name()." for {$payment->amount} failed";
@@ -107,8 +107,7 @@ class SquareWebhook implements ShouldQueue
                 $error
             );
 
-        }
-        elseif($payment->status_id == Payment::STATUS_PENDING && in_array($payment_status, [Payment::STATUS_COMPLETED, Payment::STATUS_COMPLETED])){
+        } elseif($payment->status_id == Payment::STATUS_PENDING && in_array($payment_status, [Payment::STATUS_COMPLETED, Payment::STATUS_COMPLETED])) {
             $payment->status_id = Payment::STATUS_COMPLETED;
             $payment->save();
         }
@@ -130,12 +129,12 @@ class SquareWebhook implements ShouldQueue
 
         nlog("searching square for payment");
 
-        if($apiResponse->isSuccess()){
+        if($apiResponse->isSuccess()) {
 
             nlog("Searching by payment hash");
 
-            $payment_hash_id = $apiResponse->getPayment()->getReferenceId() ?? false;
-            $square_payment = $apiResponse->getPayment()->jsonSerialize();
+            $payment_hash_id = $apiResponse->getResult()->getPayment()->getReferenceId() ?? false;
+            $square_payment = $apiResponse->getResult()->getPayment()->jsonSerialize();
             $payment_hash = PaymentHash::query()->where('hash', $payment_hash_id)->firstOrFail();
 
             $payment_hash->data = array_merge((array) $payment_hash->data, (array)$square_payment);
@@ -166,8 +165,7 @@ class SquareWebhook implements ShouldQueue
 
             return $payment;
 
-        }
-        else{
+        } else {
             nlog("Square Webhook - Payment not found: {$payment_reference}");
             nlog($apiResponse->getErrors());
             return null;

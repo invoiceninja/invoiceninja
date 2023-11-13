@@ -657,8 +657,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'created_by_invoice' => 'Δημιουργήθηκε από :invoice',
     'primary_user' => 'Κύριος Χρήστης',
     'help' => 'Βοήθεια',
-    'customize_help' => '<p>Χρησιμοποιούμε το :pdfmake_link για να ορίσουμε τα σχέδια των τιμολογίων. Το pdfmake :playground_link προσφέρει ένα υπέροχο τρόπο για να δείτε τη βιβλιοθήκη στην πράξη.</p>
-                        <p>Εάν χρειάζεστε βοήθεια στην κατανόηση κάποιου θέματος μπορείτε να υποβάλετε μία ερώτηση στο :forum_link με την εμφάνιση που χρησιμοποιείτε.</p>',
     'playground' => 'παιδότοπος',
     'support_forum' => 'Support Forums',
     'invoice_due_date' => 'Ημερομηνία Ολοκλήρωσης',
@@ -1822,7 +1820,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'bot_emailed_notify_paid' => 'Θα σας στείλω email μόλις πληρωθεί.',
     'add_product_to_invoice' => 'Προσθήκη 1 :product',
     'not_authorized' => 'Δεν είστε εξουσιοδοτημένος.',
-    'bot_get_email' => 'Γειά! (wave)<br/>Ευχαριστώ που δοκιμάσατε τον αυτοματισμό του Invoice Ninja.<br/>Θα πρέπει να δημιουργήσετε ένα δωρεάν λογαριασμό για να χρησιμοποιήσετε αυτό τον αυτοματισμό.<br/>Στείλτε μου την διεύθυνση email σας για να ξεκινήσετε.',
     'bot_get_code' => 'Ευχαριστούμε! Σας στείλαμε ένα email με τον κωδικό ασφαλείας.',
     'bot_welcome' => 'Δηλαδή, ο λογαριασμός σας είναι επικυρωμένος.<br/>',
     'email_not_found' => 'Δεν μπόρεσα να βρω ένα διαθέσιμο λογαριασμό για :email',
@@ -1830,7 +1827,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'security_code_email_subject' => 'Κωδικός ασφαλείας για τον αυτοματισμό Invoice Ninja',
     'security_code_email_line1' => 'Αυτός είναι ο κωδικός ασφαλείας για τον αυτοματισμό Invoice Ninja',
     'security_code_email_line2' => 'Σημείωση: θα λήξει σε 10 λεπτά.',
-    'bot_help_message' => 'Αυτή τη στιγμή υποστηρίζεται:<br/>• Δημιουργία\ενημέρωση\αποστολή με email ενός τιμολογίου<br/>• Λίστα προϊόντων<br/>Για παράδειγμα:<br/><i>τιμολογήστε τον Μπομπ για 2 εισιτήρια, ορίστε την ημερομηνία λήξης την επόμενη Τρίτη και την έκπτωση σε 10 τοις εκατό</i>',
     'list_products' => 'Λίστα Προϊόντων',
 
     'include_item_taxes_inline' => 'Περιέλαβε <b>φόρο ανά προϊόν σε κάθε γραμμή</b>',
@@ -1843,7 +1839,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'update_invoiceninja_warning' => 'Πριν αρχίσετε την αναβάθμιση του Invoice Ninja, δημιουργήστε ένα αντίγραφο ασφαλείας της βάσης δεδομένων και των αρχείων!',
     'update_invoiceninja_available' => 'Υπάρχει διαθέσιμη νεότερη έκδοση του Invoice Ninja.',
     'update_invoiceninja_unavailable' => 'Δεν υπάρχει νεότερη έκδοση του Invoice Ninja διαθέσιμη.',
-    'update_invoiceninja_instructions' => 'Παρακαλώ εγκαταστήστε τη νέα έκδοση <strong>:version</strong> κάνοντας κλικ στο κουμπί  <em>Αναβαθμίστε τώρα</em> παρακάτω. Μετά θα μεταφερθείτε στον πίνακα ελέγχου.',
     'update_invoiceninja_update_start' => 'Ενημέρωση Τώρα',
     'update_invoiceninja_download_start' => 'Κατέβασμα :version',
     'create_new' => 'Δημιουργία Νέου',
@@ -5158,6 +5153,20 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
+    'show_document_preview' => 'Show Document Preview',
+    'cash_accounting' => 'Cash accounting',
+    'click_or_drop_files_here' => 'Click or drop files here',
+    'set_public' => 'Set public',
+    'set_private' => 'Set private',
+    'individual' => 'Individual',
+    'business' => 'Business',
+    'partnership' => 'partnership',
+    'trust' => 'Trust',
+    'charity' => 'Charity',
+    'government' => 'Government',
+    'in_stock_quantity' => 'Stock quantity',
+    'vendor_contact' => 'Vendor Contact',
+
 ); 
 
 return $LANG;

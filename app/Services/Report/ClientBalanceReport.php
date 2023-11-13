@@ -11,15 +11,15 @@
 
 namespace App\Services\Report;
 
-use App\Utils\Ninja;
+use App\Export\CSV\BaseExport;
+use App\Libraries\MultiDB;
 use App\Models\Client;
-use League\Csv\Writer;
 use App\Models\Company;
 use App\Models\Invoice;
-use App\Libraries\MultiDB;
-use App\Export\CSV\BaseExport;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Support\Facades\App;
+use League\Csv\Writer;
 
 class ClientBalanceReport extends BaseExport
 {
@@ -83,7 +83,7 @@ class ClientBalanceReport extends BaseExport
             ->where('is_deleted', 0)
             ->orderBy('balance', 'desc')
             ->cursor()
-            ->each(function ($client){
+            ->each(function ($client) {
                 
                 $this->csv->insertOne($this->buildRow($client));
                 
@@ -97,8 +97,9 @@ class ClientBalanceReport extends BaseExport
     {
         $headers = [];
 
-        foreach($this->report_keys as $key)
+        foreach($this->report_keys as $key) {
             $headers[] = ctrans("texts.{$key}");
+        }
 
         return $headers;
 

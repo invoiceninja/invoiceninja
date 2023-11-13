@@ -13,7 +13,6 @@ namespace App\Http\Requests\Email;
 
 use App\Http\Requests\Request;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Str;
 
 class ClientEmailHistoryRequest extends Request
 {

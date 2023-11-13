@@ -163,4 +163,3 @@ class GatewayType extends StaticModel
         }
     }
 }
-

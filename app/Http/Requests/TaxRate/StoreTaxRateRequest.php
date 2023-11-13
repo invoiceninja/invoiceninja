@@ -22,14 +22,20 @@ class StoreTaxRateRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->isAdmin();
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->isAdmin();
     }
 
     public function rules()
     {
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         return [
-            //'name' => 'required',
-            'name' => 'required|unique:tax_rates,name,null,null,company_id,'.auth()->user()->companyId().',deleted_at,NULL',
+            'name' => 'required|unique:tax_rates,name,null,null,company_id,'.$user->companyId().',deleted_at,NULL',
             'rate' => 'required|numeric',
         ];
     }

@@ -141,7 +141,6 @@ class InvoiceTransformer extends BaseTransformer
                 'postal_code' => $this->getString($invoice_data, 'Billing Code'),
                 'country_id' => $this->getCountryId($this->getString($invoice_data, 'Billing Country')),
             ],
-
             \App\Factory\ClientFactory::create(
                 $this->company->id,
                 $this->company->owner()->id

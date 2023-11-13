@@ -63,10 +63,12 @@ class MobileLocalization extends Command
     {
         $resources = $this->getResources();
 
-        foreach ($resources as $key => $val) {
-            $transKey = "texts.{$key}";
-            if (trans($transKey) == $transKey) {
-                echo "'$key' => '$val',\n";
+        if(is_iterable($resources)){
+            foreach ($resources as $key => $val) {
+                $transKey = "texts.{$key}";
+                if (trans($transKey) == $transKey) {
+                    echo "'$key' => '$val',\n";
+                }
             }
         }
     }

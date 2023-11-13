@@ -13,8 +13,6 @@ namespace App\Services\PurchaseOrder;
 
 use App\Models\PurchaseOrder;
 use App\Utils\Traits\MakesHash;
-use App\Services\PurchaseOrder\SendEmail;
-use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 
 class PurchaseOrderService
 {
@@ -98,27 +96,6 @@ class PurchaseOrderService
         return $this;
     }
 
-    public function touchPdf($force = false)
-    {
-        try {
-            if ($force) {
-                $this->purchase_order->invitations->each(function ($invitation) {
-                    (new CreatePurchaseOrderPdf($invitation))->handle();
-                });
-
-                return $this;
-            }
-
-            $this->purchase_order->invitations->each(function ($invitation) {
-                CreatePurchaseOrderPdf::dispatch($invitation);
-            });
-        } catch(\Exception $e) {
-            nlog("failed creating purchase orders in Touch PDF");
-        }
-
-        return $this;
-    }
-
     public function add_to_inventory()
     {
         if ($this->purchase_order->status_id >= PurchaseOrder::STATUS_RECEIVED) {
@@ -153,7 +130,7 @@ class PurchaseOrderService
 
     /**
      * Saves the purchase order.
-     * @return \App\Models\PurchaseOrder 
+     * @return \App\Models\PurchaseOrder
      */
     public function save(): ?PurchaseOrder
     {

@@ -11,10 +11,10 @@
 
 namespace App\Services\Payment;
 
+use App\Models\BankTransaction;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\BankTransaction;
 use Illuminate\Contracts\Container\BindingResolutionException;
 
 class DeletePayment
@@ -58,7 +58,7 @@ class DeletePayment
         $this->payment->is_deleted = true;
         $this->payment->delete();
 
-        BankTransaction::query()->where('payment_id', $this->payment->id)->cursor()->each(function ($bt){
+        BankTransaction::query()->where('payment_id', $this->payment->id)->cursor()->each(function ($bt) {
             $bt->payment_id = null;
             $bt->status_id = 1;
             $bt->save();
@@ -101,6 +101,7 @@ class DeletePayment
                                         ->updateInvoiceBalance($net_deletable, "Adjusting invoice {$paymentable_invoice->number} due to deletion of Payment {$this->payment->number}")
                                         ->save();
 
+                    //@todo refactor
                     $this->payment
                          ->client
                          ->service()
@@ -109,6 +110,8 @@ class DeletePayment
 
                     if ($paymentable_invoice->balance == $paymentable_invoice->amount) {
                         $paymentable_invoice->service()->setStatus(Invoice::STATUS_SENT)->save();
+                    } elseif($paymentable_invoice->balance == 0) {
+                        $paymentable_invoice->service()->setStatus(Invoice::STATUS_PAID)->save();
                     } else {
                         $paymentable_invoice->service()->setStatus(Invoice::STATUS_PARTIAL)->save();
                     }
@@ -156,7 +159,6 @@ class DeletePayment
 
                 $client
                 ->service()
-                // ->updatePaidToDate(($paymentable_credit->pivot->amount) * -1)
                 ->adjustCreditBalance($paymentable_credit->pivot->amount)
                 ->save();
             });

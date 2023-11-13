@@ -136,6 +136,10 @@
           type: boolean
           example: false
           readOnly: true
+        classification:
+          description: 'The classification of the client'
+          type: string
+          example: 'individual'
         settings:
           $ref: '#/components/schemas/ClientSettings'
       type: object

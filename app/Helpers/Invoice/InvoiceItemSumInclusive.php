@@ -11,14 +11,14 @@
 
 namespace App\Helpers\Invoice;
 
-use App\Models\Quote;
+use App\DataMapper\Tax\RuleInterface;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\PurchaseOrder;
-use App\Models\RecurringQuote;
+use App\Models\Quote;
 use App\Models\RecurringInvoice;
-use App\DataMapper\Tax\RuleInterface;
+use App\Models\RecurringQuote;
 use App\Utils\Traits\NumberFormatter;
 
 class InvoiceItemSumInclusive
@@ -131,8 +131,7 @@ class InvoiceItemSumInclusive
 
     public function process()
     {
-        if (! $this->invoice->line_items || ! is_array($this->invoice->line_items) || count($this->invoice->line_items) == 0) {
-
+        if (!$this->invoice->line_items || ! is_iterable($this->invoice->line_items) || count($this->invoice->line_items) == 0) {
             return $this;
         }
 
@@ -349,14 +348,16 @@ class InvoiceItemSumInclusive
     {
         $this->setGroupedTaxes(collect([]));
 
-        $item_tax = 0;
 
         foreach ($this->line_items as $this->item) {
             if ($this->sub_total == 0) {
                 $amount = $this->item->line_total;
             } else {
-                $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / $this->sub_total));
+                $amount = $this->item->line_total - ($this->invoice->discount * ($this->item->line_total / $this->sub_total));
+                // $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / $this->sub_total));
             }
+            
+            $item_tax = 0;
 
             $item_tax_rate1_total = $this->calcInclusiveLineTax($this->item->tax_rate1, $amount);
 
@@ -381,9 +382,17 @@ class InvoiceItemSumInclusive
             if ($item_tax_rate3_total != 0) {
                 $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
             }
+
+            $this->setTotalTaxes($this->getTotalTaxes() + $item_tax);
+            $this->item->gross_line_total = $this->getLineTotal();
+            
+            $this->item->tax_amount = $item_tax;
+
         }
 
-        $this->setTotalTaxes($item_tax);
+        return $this;
+
+        // $this->setTotalTaxes($item_tax);
     }
 
 
@@ -395,14 +404,15 @@ class InvoiceItemSumInclusive
             return $this;
         }
         
-        if (in_array($this->client->company->country()->iso_3166_2, $this->tax_jurisdictions) ) { //only calculate for supported tax jurisdictions
+        if (in_array($this->client->company->country()->iso_3166_2, $this->tax_jurisdictions)) { //only calculate for supported tax jurisdictions
             
             $class = "App\DataMapper\Tax\\".$this->client->company->country()->iso_3166_2."\\Rule";
 
             $this->rule = new $class();
 
-        if($this->rule->regionWithNoTaxCoverage($this->client->country->iso_3166_2))
-            return $this;
+            if($this->rule->regionWithNoTaxCoverage($this->client->country->iso_3166_2)) {
+                return $this;
+            }
 
             $this->rule
                  ->setEntity($this->invoice)

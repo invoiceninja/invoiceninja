@@ -11,34 +11,33 @@
 
 namespace App\Services\Template;
 
-use App\Models\Task;
-use App\Models\User;
-use App\Models\Quote;
+use App\Libraries\MultiDB;
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Design;
-use App\Models\Vendor;
-use App\Models\Company;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Project;
-use App\Libraries\MultiDB;
 use App\Models\PurchaseOrder;
-use Illuminate\Bus\Queueable;
-use App\Utils\Traits\MakesHash;
+use App\Models\Quote;
 use App\Models\RecurringInvoice;
+use App\Models\Task;
+use App\Models\User;
+use App\Models\Vendor;
 use App\Services\Email\AdminEmail;
 use App\Services\Email\EmailObject;
-use Illuminate\Mail\Mailables\Address;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Mail\Mailables\Address;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
 
 class TemplateAction implements ShouldQueue
 {
@@ -55,18 +54,19 @@ class TemplateAction implements ShouldQueue
      * @param int $user_id requesting the template
      * @param string $db The database name
      * @param bool $send_email Determines whether to send an email
-     * 
+     *
      * @return void
      */
-    public function __construct(public array $ids, 
-                                private string $template, 
-                                private string $entity, 
-                                private int $user_id, 
-                                private Company $company,
-                                private string $db, 
-                                private string $hash,
-                                private bool $send_email = false)
-    {
+    public function __construct(
+        public array $ids,
+        private string $template,
+        private string $entity,
+        private int $user_id,
+        private Company $company,
+        private string $db,
+        private string $hash,
+        private bool $send_email = false
+    ) {
     }
 
     /**
@@ -74,7 +74,7 @@ class TemplateAction implements ShouldQueue
      *
      */
     public function handle()
-    {   
+    {
         // nlog("inside template action");
 
         MultiDB::setDb($this->db);
@@ -85,9 +85,9 @@ class TemplateAction implements ShouldQueue
 
         $template = Design::withTrashed()->find($this->decodePrimaryKey($this->template));
 
-        $template_service = new TemplateService($template);
+        $template_service = new \App\Services\Template\TemplateService($template);
         
-        match($this->entity){
+        match($this->entity) {
             Invoice::class => $resource->with('payments', 'client'),
             Quote::class => $resource->with('client'),
             Task::class => $resource->with('client'),
@@ -103,10 +103,11 @@ class TemplateAction implements ShouldQueue
             ->where('company_id', $this->company->id)
             ->get();
 
-        if($result->count() <= 1)
+        if($result->count() <= 1) {
             $data[$key] = collect($result);
-        else 
+        } else {
             $data[$key] = $result;
+        }
 
         $ts = $template_service->build($data);
         
@@ -115,8 +116,7 @@ class TemplateAction implements ShouldQueue
         if($this->send_email) {
             $pdf = $ts->getPdf();
             $this->sendEmail($pdf, $template);
-        }
-        else {
+        } else {
             $pdf = $ts->getPdf();
             $filename = "templates/{$this->hash}.pdf";
             Storage::disk(config('filesystems.default'))->put($filename, $pdf);
@@ -147,10 +147,10 @@ class TemplateAction implements ShouldQueue
 
     /**
      * Context
-     * 
+     *
      * If I have an array of invoices, what could I possib
-     * 
-     * 
+     *
+     *
      */
     private function resolveEntityString()
     {
@@ -177,6 +177,3 @@ class TemplateAction implements ShouldQueue
     }
 
 }
-
-
-

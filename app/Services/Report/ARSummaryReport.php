@@ -106,7 +106,7 @@ class ARSummaryReport extends BaseExport
             $this->client->present()->name(),
             $this->client->number,
             $this->client->id_number,
-            $this->getCurrent(),  
+            $this->getCurrent(),
             $this->getAgingAmount('30'),
             $this->getAgingAmount('60'),
             $this->getAgingAmount('90'),
@@ -128,7 +128,7 @@ class ARSummaryReport extends BaseExport
             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
             ->where('balance', '>', 0)
             ->where('is_deleted', 0)
-            ->where(function ($query){
+            ->where(function ($query) {
                 $query->where('due_date', '>', now()->startOfDay())
                     ->orWhereNull('due_date');
             })
@@ -161,7 +161,7 @@ class ARSummaryReport extends BaseExport
             ->whereBetween('due_date', [$to, $from])
             ->sum('balance');
 
-            $this->total += $amount;
+        $this->total += $amount;
 
         return Number::formatMoney($amount, $this->client);
     }

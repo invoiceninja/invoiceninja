@@ -13,8 +13,8 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use App\Models\Client;
-use App\Models\Design;
 use App\Models\Invoice;
+use App\Models\Project;
 use Tests\MockAccountData;
 use App\Models\ClientContact;
 use App\Utils\Traits\MakesHash;
@@ -22,7 +22,6 @@ use App\Helpers\Invoice\InvoiceSum;
 use App\Repositories\InvoiceRepository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Session;
-use App\Services\Template\TemplateAction;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
@@ -50,42 +49,40 @@ class InvoiceTest extends TestCase
         $this->makeTestData();
     }
 
-    public function testTemplateBulkAction()
+    public function testPostNewInvoiceWithProjectButNoClient()
     {
 
-        $design_model = Design::find(2);
-
-        $replicated_design = $design_model->replicate();
-        $replicated_design->company_id = $this->company->id;
-        $replicated_design->user_id = $this->user->id;
-        $replicated_design->is_template = true;
-        $replicated_design->is_custom = true;
-        $replicated_design->save();
-
-        //delete invoice
-        $data = [
-            'ids' => [$this->invoice->hashed_id],
-            'action' => 'template',
-            'template_id' => $replicated_design->hashed_id,
-            'send_email' => false,
+        $p = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+        ]);
+        
+        $invoice = [
+            'status_id' => 1,
+            'number' => 'dfdfd',
+            'discount' => 0,
+            'is_amount_discount' => 1,
+            'po_number' => '3434343',
+            'public_notes' => 'notes',
+            'is_deleted' => 0,
+            'custom_value1' => 0,
+            'custom_value2' => 0,
+            'custom_value3' => 0,
+            'custom_value4' => 0,
+            'status' => 1,
+            'project_id' => $p->hashed_id
+            // 'client_id' => $this->encodePrimaryKey($this->client->id),
         ];
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/invoices/bulk', $data)
-        ->assertStatus(200);
+        ])->postJson('/api/v1/invoices/', $invoice)
+            ->assertStatus(422);
 
-
-        (new TemplateAction([$this->invoice->hashed_id], 
-                                $replicated_design->hashed_id, 
-                                Invoice::class, 
-                                $this->user->id, 
-                                $this->company,
-                                $this->company->db, 
-                                'dd',
-                                false))->handle();
     }
+
 
     public function testInvoiceGetDatesBetween()
     {

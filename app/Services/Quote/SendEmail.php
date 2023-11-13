@@ -11,10 +11,8 @@
 
 namespace App\Services\Quote;
 
-use App\Utils\Ninja;
-use App\Models\ClientContact;
 use App\Jobs\Entity\EmailEntity;
-use App\Events\Quote\QuoteWasEmailed;
+use App\Models\ClientContact;
 
 class SendEmail
 {

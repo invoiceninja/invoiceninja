@@ -44,6 +44,8 @@ class ClientApiTest extends TestCase
     use MockAccountData;
     use ClientGroupSettingsSaver;
 
+    public $faker;
+
     protected function setUp() :void
     {
         parent::setUp();
@@ -175,20 +177,16 @@ class ClientApiTest extends TestCase
             'status' => 'paid',
         ];
 
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/client_statement', $data);
 
-        try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/client_statement', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-        }
+        $response->assertStatus(200);
 
         $this->assertTrue($response->headers->get('content-type') == 'application/pdf');
 
-        $response->assertStatus(200);
+        
     }
 
     public function testClientStatementEmail()

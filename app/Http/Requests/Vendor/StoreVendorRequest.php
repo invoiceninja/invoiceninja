@@ -38,8 +38,21 @@ class StoreVendorRequest extends Request
         $user = auth()->user();
 
         $rules = [];
-        
+
+        $rules['contacts'] = 'bail|array';
         $rules['contacts.*.email'] = 'bail|nullable|distinct|sometimes|email';
+        $rules['contacts.*.password'] = [
+            'bail',
+            'nullable',
+            'sometimes',
+            'string',
+            'min:7',             // must be at least 10 characters in length
+            'regex:/[a-z]/',      // must contain at least one lowercase letter
+            'regex:/[A-Z]/',      // must contain at least one uppercase letter
+            'regex:/[0-9]/',      // must contain at least one digit
+            //'regex:/[@$!%*#?&.]/', // must contain a special character
+        ];
+
 
         if (isset($this->number)) {
             $rules['number'] = Rule::unique('vendors')->where('company_id', $user->company()->id);
@@ -60,6 +73,7 @@ class StoreVendorRequest extends Request
         }
 
         $rules['language_id'] = 'bail|nullable|sometimes|exists:languages,id';
+        $rules['classification'] = 'bail|sometimes|nullable|in:individual,company,partnership,trust,charity,government,other';
 
         return $rules;
     }

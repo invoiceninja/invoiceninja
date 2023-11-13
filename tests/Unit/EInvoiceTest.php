@@ -11,9 +11,8 @@
 
 use Tests\TestCase;
 use Tests\MockAccountData;
-use App\Jobs\Entity\CreateEntityPdf;
+use App\Jobs\Entity\CreateRawPdf;
 use App\Jobs\Invoice\CreateEInvoice;
-use Illuminate\Support\Facades\Storage;
 use horstoeko\zugferd\ZugferdDocumentReader;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -66,7 +65,7 @@ class EInvoiceTest extends TestCase
       */
      public function checkEmbededPDFFile()
      {
-         $pdf = (new CreateEntityPdf($this->invoice->invitations()->first()))->handle();
+         $pdf = (new CreateRawPdf($this->invoice->invitations()->first()))->handle();
          $document = ZugferdDocumentReader::readAndGuessFromContent($pdf);
          $document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $documentcurrency, $taxcurrency, $taxname, $documentlangeuage, $rest);
          $this->assertEquals($this->invoice->number, $documentno);

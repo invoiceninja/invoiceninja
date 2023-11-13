@@ -64,7 +64,7 @@ trait SettingsSaver
                 $value = 'integer';
 
                 if(in_array($key, $this->string_ids)) {
-                // if ($key == 'gmail_sending_user_id' || $key == 'besr_id') {
+                    // if ($key == 'gmail_sending_user_id' || $key == 'besr_id') {
                     $value = 'string';
                 }
 

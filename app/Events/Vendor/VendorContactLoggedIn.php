@@ -14,9 +14,9 @@ namespace App\Events\Vendor;
 use App\Models\Company;
 use App\Models\VendorContact;
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
 
 /**
  * Class VendorContactLoggedIn.

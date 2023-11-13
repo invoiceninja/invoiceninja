@@ -43,7 +43,7 @@ class BankTransfer implements MethodInterface
      * Show the authorization page for bank transfer.
      *
      * @param array $data
-     * @return \Illuminate\View\View         
+     * @return \Illuminate\View\View
      */
     public function authorizeView(array $data): View
     {

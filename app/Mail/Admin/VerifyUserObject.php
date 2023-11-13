@@ -11,6 +11,8 @@
 
 namespace App\Mail\Admin;
 
+use App\Models\Company;
+use App\Models\User;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\App;
@@ -19,14 +21,8 @@ class VerifyUserObject
 {
     use MakesHash;
 
-    public $user;
-
-    public $company;
-
-    public function __construct($user, $company)
+    public function __construct(public User $user, public Company $company, private bool $is_react = false)
     {
-        $this->user = $user;
-        $this->company = $company;
     }
 
     public function build()
@@ -44,8 +40,9 @@ class VerifyUserObject
 
         $react_redirect = '';
 
-        if(Ninja::isHosted()) {
+        if($this->is_react) {
             $react_redirect = '?react=true';
+            nlog("is react");
         }
 
         $data = [

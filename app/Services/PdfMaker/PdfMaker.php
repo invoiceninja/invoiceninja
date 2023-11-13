@@ -80,14 +80,16 @@ class PdfMaker
             $replacements = [];
             $contents = $this->document->getElementsByTagName('ninja');
             
-            $twig = (new TemplateService())->twig;
+            $ts = new TemplateService();
+            $data = $ts->processData($this->options)->getData();
+            $twig = $ts->twig;
 
             foreach ($contents as $content) {
                 
                 $template = $content->ownerDocument->saveHTML($content);
 
                 $template = $twig->createTemplate(html_entity_decode($template));
-                $template = $template->render($this->options);
+                $template = $template->render($data);
 
                 $f = $this->document->createDocumentFragment();
                 $f->appendXML($template);
@@ -95,7 +97,7 @@ class PdfMaker
 
             }
 
-            foreach($contents as $key => $content){
+            foreach($contents as $key => $content) {
                 $content->parentNode->replaceChild($replacements[$key], $content);
             }
 

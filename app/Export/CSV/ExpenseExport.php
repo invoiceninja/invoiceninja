@@ -43,13 +43,14 @@ class ExpenseExport extends BaseExport
 
         $headerdisplay = $this->buildHeader();
 
-        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
-                return ['identifier' => $value, 'display_value' => $headerdisplay[$value]];
-            })->toArray();
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
+            return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
+        })->toArray();
 
         $report = $query->cursor()
                 ->map(function ($resource) {
-                    return $this->buildRow($resource);
+                    $row = $this->buildRow($resource);
+                    return $this->processMetaData($row, $resource);
                 })->toArray();
         
         return array_merge(['columns' => $header], $report);
@@ -156,6 +157,10 @@ class ExpenseExport extends BaseExport
 
         if (in_array('expense.assigned_user', $this->input['report_keys'])) {
             $entity['expense.assigned_user'] = $expense->assigned_user ? $expense->assigned_user->present()->name() : '';
+        }
+
+        if (in_array('expense.category_id', $this->input['report_keys'])) {
+            $entity['expense.category_id'] = $expense->category ? $expense->category->name : '';
         }
 
         return $entity;

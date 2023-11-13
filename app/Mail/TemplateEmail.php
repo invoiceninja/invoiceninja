@@ -108,12 +108,15 @@ class TemplateEmail extends Mailable
 
         if (strlen($settings->bcc_email) > 1) {
             if (Ninja::isHosted()) {
-                $bccs = explode(',', str_replace(' ', '', $settings->bcc_email));
-                $this->bcc(array_slice($bccs, 0, 2));
-                //$this->bcc(reset($bccs)); //remove whitespace if any has been inserted.
+
+                if($company->account->isPaid()) {
+                    $bccs = explode(',', str_replace(' ', '', $settings->bcc_email));
+                    $this->bcc(array_slice($bccs, 0, 5));
+                }
+
             } else {
                 $this->bcc(explode(',', str_replace(' ', '', $settings->bcc_email)));
-            }//remove whitespace if any has been inserted.
+            }
         }
 
         $this->subject(str_replace("<br>", "", $this->build_email->getSubject()))
@@ -148,8 +151,6 @@ class TemplateEmail extends Mailable
         if ($this->invitation && $this->invitation->invoice && $settings->ubl_email_attachment && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
             $ubl_string = (new CreateUbl($this->invitation->invoice))->handle();
 
-            nlog("template {$ubl_string}");
-
             if ($ubl_string) {
                 $this->attachData($ubl_string, $this->invitation->invoice->getFileName('xml'));
             }
@@ -157,8 +158,6 @@ class TemplateEmail extends Mailable
         }
         if ($this->invitation && $this->invitation->invoice && $this->invitation->invoice->client->getSetting('enable_e_invoice') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
             $xml_string = $this->invitation->invoice->service()->getEInvoice($this->invitation->contact);
-
-            nlog("template {$xml_string}");
 
             if($xml_string) {
                 $this->attachData($xml_string, $this->invitation->invoice->getEFileName("xml"));

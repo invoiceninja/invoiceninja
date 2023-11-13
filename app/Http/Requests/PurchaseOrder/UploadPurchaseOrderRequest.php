@@ -44,7 +44,7 @@ class UploadPurchaseOrderRequest extends Request
             $rules['file'] = $this->file_validation;
         }
         
-    $rules['is_public'] = 'sometimes|boolean';
+        $rules['is_public'] = 'sometimes|boolean';
 
         return $rules;
     }

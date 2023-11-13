@@ -23,9 +23,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $name
  * @property bool $is_custom
  * @property bool $is_active
- * @property bool $is_template
  * @property object|null $design
  * @property bool $is_deleted
+ * @property bool $is_template
  * @property int|null $created_at
  * @property int|null $updated_at
  * @property int|null $deleted_at

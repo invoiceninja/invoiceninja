@@ -109,6 +109,24 @@ class UserTest extends TestCase
 
     }
 
+    public function testUserLocale()
+    {
+        $this->user->language_id = "13";
+        $this->user->save();
+
+        $this->assertEquals("fr_CA", $this->user->getLocale());
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/statics');
+
+        $response->assertStatus(200);
+
+    }
+
+
+
     public function testUserResponse()
     {
         $company_token = $this->mockAccount();
@@ -177,7 +195,7 @@ class UserTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $company_token->token,
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-        ])->get("/api/v1/users?without={$company_token->user->hashed_id}&status=active");
+        ])->get("/api/v1/users?status=active&without={$company_token->user->hashed_id}");
 
         $response->assertStatus(200);
         $this->assertCount(0, $response->json()['data']);
@@ -186,7 +204,7 @@ class UserTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $company_token->token,
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-        ])->get("/api/v1/users?without={$company_token->user->hashed_id}&status=archived");
+        ])->get("/api/v1/users?status=archived&without={$company_token->user->hashed_id}");
 
         $response->assertStatus(200);
         $this->assertCount(1, $response->json()['data']);
@@ -195,7 +213,7 @@ class UserTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $company_token->token,
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-        ])->get("/api/v1/users?without={$company_token->user->hashed_id}&status=deleted");
+        ])->get("/api/v1/users?status=deleted&without={$company_token->user->hashed_id}");
 
         $response->assertStatus(200);
         $this->assertCount(0, $response->json()['data']);

@@ -11,11 +11,10 @@
 
 namespace App\Utils\Traits;
 
-use stdClass;
-use App\Utils\Ninja;
-use App\Models\Company;
 use App\DataMapper\CompanySettings;
 use App\Jobs\Company\CompanyTaxRate;
+use App\Models\Company;
+use stdClass;
 
 /**
  * Class CompanySettingsSaver.
@@ -88,18 +87,16 @@ trait CompanySettingsSaver
 
         $entity->settings = $company_settings;
 
-        if($entity?->calculate_taxes && $company_settings->country_id == "840" && array_key_exists('settings', $entity->getDirty()) && !$entity?->account->isFreeHostedClient()) 
-        {
+        if($entity?->calculate_taxes && $company_settings->country_id == "840" && array_key_exists('settings', $entity->getDirty()) && !$entity?->account->isFreeHostedClient()) {
             $old_settings = $entity->getOriginal()['settings'];
                                 
             /** Monitor changes of the Postal code */
-            if($old_settings->postal_code != $company_settings->postal_code)
+            if($old_settings->postal_code != $company_settings->postal_code) {
                 CompanyTaxRate::dispatch($entity);
+            }
             
             
-        }
-        elseif( $entity?->calculate_taxes && $company_settings->country_id == "840" && array_key_exists('calculate_taxes', $entity->getDirty()) && $entity->getOriginal('calculate_taxes') == 0 && !$entity?->account->isFreeHostedClient())
-        {
+        } elseif($entity?->calculate_taxes && $company_settings->country_id == "840" && array_key_exists('calculate_taxes', $entity->getDirty()) && $entity->getOriginal('calculate_taxes') == 0 && !$entity?->account->isFreeHostedClient()) {
             CompanyTaxRate::dispatch($entity);
         }
         
@@ -141,7 +138,7 @@ trait CompanySettingsSaver
                 $value = 'integer';
 
                 if(in_array($key, $this->string_ids)) {
-                // if ($key == 'besr_id') {
+                    // if ($key == 'besr_id') {
                     $value = 'string';
                 }
 
@@ -280,7 +277,7 @@ trait CompanySettingsSaver
             case 'float':
             case 'double':
                 return ! is_string($value) && (is_float($value) || is_numeric(strval($value)));
-//                return is_float($value) || is_numeric(strval($value));
+                //                return is_float($value) || is_numeric(strval($value));
             case 'string':
                 return (is_string($value) && method_exists($value, '__toString')) || is_null($value) || is_string($value);
             case 'bool':

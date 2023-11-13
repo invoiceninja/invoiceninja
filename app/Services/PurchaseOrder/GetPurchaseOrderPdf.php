@@ -11,11 +11,10 @@
 
 namespace App\Services\PurchaseOrder;
 
+use App\Jobs\Entity\CreateRawPdf;
 use App\Models\PurchaseOrder;
 use App\Models\VendorContact;
 use App\Services\AbstractService;
-use Illuminate\Support\Facades\Storage;
-use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 
 class GetPurchaseOrderPdf extends AbstractService
 {
@@ -35,19 +34,7 @@ class GetPurchaseOrderPdf extends AbstractService
             $invitation = $this->purchase_order->invitations()->first();
         }
 
-        $path = $this->purchase_order->vendor->purchase_order_filepath($invitation);
-
-        $file_path = $path.$this->purchase_order->numberFormatter().'.pdf';
-
-        // $disk = 'public';
-        $disk = config('filesystems.default');
-
-        $file = Storage::disk($disk)->exists($file_path);
-
-        if (! $file) {
-            $file_path = (new CreatePurchaseOrderPdf($invitation))->handle();
-        }
-
-        return $file_path;
+        return (new CreateRawPdf($invitation))->handle();
+        
     }
 }

@@ -11,15 +11,14 @@
 
 namespace App\Helpers\Invoice;
 
-use App\Models\Quote;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\PurchaseOrder;
-use App\Models\RecurringQuote;
+use App\Models\Quote;
 use App\Models\RecurringInvoice;
-use Illuminate\Support\Collection;
+use App\Models\RecurringQuote;
 use App\Utils\Traits\NumberFormatter;
-use App\Helpers\Invoice\InvoiceItemSumInclusive;
+use Illuminate\Support\Collection;
 
 class InvoiceSumInclusive
 {
@@ -315,8 +314,9 @@ class InvoiceSumInclusive
 
     public function setTaxMap()
     {
-        if ($this->invoice->is_amount_discount == true) {
+        if ($this->invoice->is_amount_discount) {
             $this->invoice_items->calcTaxesWithAmountDiscount();
+            $this->invoice->line_items = $this->invoice_items->getLineItems();
         }
 
         $this->tax_map = collect();

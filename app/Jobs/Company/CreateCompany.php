@@ -11,16 +11,16 @@
 
 namespace App\Jobs\Company;
 
-use App\Utils\Ninja;
+use App\DataMapper\ClientRegistrationFields;
+use App\DataMapper\CompanySettings;
+use App\DataMapper\Tax\TaxModel;
+use App\Factory\TaxRateFactory;
+use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Country;
-use App\Libraries\MultiDB;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
-use App\DataMapper\Tax\TaxModel;
-use App\DataMapper\CompanySettings;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\DataMapper\ClientRegistrationFields;
-use App\Factory\TaxRateFactory;
 
 class CreateCompany
 {
@@ -55,7 +55,7 @@ class CreateCompany
 
         $settings->name = isset($this->request['name']) ? $this->request['name'] : '';
 
-        if($country_id = $this->resolveCountry()){
+        if($country_id = $this->resolveCountry()) {
             $settings->country_id = $country_id;
         }
 
@@ -95,33 +95,34 @@ class CreateCompany
      *
      * @return string
      */
-    private function resolveCountry(): string 
+    private function resolveCountry(): string
     {
-        try{
+        try {
             
             $ip = request()->ip();
 
-            if(request()->hasHeader('cf-ipcountry')){
+            if(request()->hasHeader('cf-ipcountry')) {
 
                 $c = Country::where('iso_3166_2', request()->header('cf-ipcountry'))->first();
                 
-                if($c)
+                if($c) {
                     return (string)$c->id;
+                }
 
             }
 
             $details = json_decode(file_get_contents("http://ip-api.com/json/{$ip}"));
 
-            if($details && property_exists($details, 'countryCode')){
+            if($details && property_exists($details, 'countryCode')) {
 
                 $c = Country::where('iso_3166_2', $details->countryCode)->first();
 
-                if($c)
+                if($c) {
                     return (string)$c->id;
+                }
 
             }
-        }
-        catch(\Exception $e){
+        } catch(\Exception $e) {
             nlog("Could not resolve country => {$e->getMessage()}");
         }
 
@@ -163,8 +164,7 @@ class CreateCompany
 
             return $company;
 
-        }
-        catch(\Exception $e){
+        } catch(\Exception $e) {
             nlog("SETUP: could not complete setup for Spanish Locale");
         }
 
@@ -206,8 +206,7 @@ class CreateCompany
 
             return $company;
 
-        }
-        catch(\Exception $e){
+        } catch(\Exception $e) {
             nlog($e->getMessage());
             nlog("SETUP: could not complete setup for Australian Locale");
         }

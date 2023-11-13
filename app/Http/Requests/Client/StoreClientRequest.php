@@ -93,7 +93,8 @@ class StoreClientRequest extends Request
 
         $rules['number'] = ['bail', 'nullable', Rule::unique('clients')->where('company_id', $user->company()->id)];
         $rules['id_number'] = ['bail', 'nullable', Rule::unique('clients')->where('company_id', $user->company()->id)];
-
+        $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,partnership,trust,charity,government,other';
+        
         return $rules;
     }
 
@@ -179,8 +180,6 @@ class StoreClientRequest extends Request
     public function messages()
     {
         return [
-            // 'unique' => ctrans('validation.unique', ['attribute' => ['email','number']),
-            //'required' => trans('validation.required', ['attribute' => 'email']),
             'contacts.*.email.required' => ctrans('validation.email', ['attribute' => 'email']),
             'currency_code' => 'Currency code does not exist',
         ];

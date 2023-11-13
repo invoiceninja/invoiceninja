@@ -11,21 +11,24 @@
 
 namespace Tests\Integration;
 
-use App\DataMapper\CompanySettings;
-use App\Factory\CompanyUserFactory;
-use App\Models\Account;
+use Tests\TestCase;
+use App\Models\User;
 use App\Models\Client;
-use App\Models\ClientContact;
+use App\Models\Account;
 use App\Models\Company;
-use App\Models\CompanyToken;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\User;
+use App\Models\CompanyToken;
+use App\Models\ClientContact;
+use App\Models\CompanyLedger;
+use App\DataMapper\InvoiceItem;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use App\Jobs\Ledger\UpdateLedger;
+use App\DataMapper\CompanySettings;
+use App\Factory\CompanyUserFactory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /** @test*/
 class CompanyLedgerTest extends TestCase
@@ -43,6 +46,8 @@ class CompanyLedgerTest extends TestCase
 
     public $account;
 
+    public $faker;
+    
     protected function setUp() :void
     {
         parent::setUp();
@@ -84,7 +89,7 @@ class CompanyLedgerTest extends TestCase
 
 
         $user = User::whereEmail($fake_email)->first();
-
+        
         if (! $user) {
             $user = User::factory()->create([
                 'email' => $fake_email,
@@ -93,6 +98,7 @@ class CompanyLedgerTest extends TestCase
                 'confirmation_code' => $this->createDbHash(config('database.default')),
             ]);
         }
+        $this->user = $user;
 
         $cu = CompanyUserFactory::create($user->id, $this->company->id, $this->account->id);
         $cu->is_owner = true;
@@ -122,6 +128,78 @@ class CompanyLedgerTest extends TestCase
             'is_primary' => 1,
             'send_email' => true,
         ]);
+    }
+
+    public function testLedgerAdjustments()
+    {
+        $c = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'balance' => 0,
+            'paid_to_date' => 0
+        ]);
+
+        $i = Invoice::factory()->create([
+            'client_id' => $c->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'status_id' => Invoice::STATUS_DRAFT,
+            'tax_name1' => '',
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'discount' => 0,
+        ]);
+
+        $item = new InvoiceItem();
+        $item->cost = 10;
+        $item->quantity = 10;
+
+        $i->line_items = [$item];
+        $i->calc()->getInvoice();
+
+        $this->assertEquals(0, $c->balance);
+        $this->assertEquals(100, $i->amount);
+        $this->assertEquals(0, $i->balance);
+
+        $this->assertEquals(0, $i->company_ledger()->count());
+
+        // $i->service()->markSent()->save();
+        // $i = $i->fresh();
+                
+        // // \Illuminate\Support\Facades\Bus::fake();
+        // // \Illuminate\Support\Facades\Bus::assertDispatched(UpdateLedger::class);
+
+        // $this->assertEquals(1, $i->company_ledger()->count());
+
+        // $cl = $i->company_ledger()->first();
+        // (new UpdateLedger($cl->id, $i->amount, $i->company->company_key, $i->company->db))->handle();
+
+        // $cl = $cl->fresh();
+
+        // $this->assertEquals(100, $cl->adjustment);
+        // $this->assertEquals(100, $cl->balance);
+
+        // $i->service()->applyPaymentAmount(40, "notes")->save();
+        // $i = $i->fresh();
+
+        // $cl = CompanyLedger::where('client_id', $i->client_id)
+        //                    ->orderBy('id', 'desc')
+        //                    ->first();
+                           
+        // $cl = $i->company_ledger()->orderBy('id','desc')->first();
+        // (new UpdateLedger($cl->id, $i->amount, $i->company->company_key, $i->company->db))->handle();
+        // $cl = $cl->fresh();
+
+        // nlog($cl->toArray());
+
+        // $this->assertEquals(-40, $cl->adjustment);
+        // $this->assertEquals(60, $cl->balance);
+
+
+
     }
 
     public function testBaseLine()

@@ -69,9 +69,9 @@ class TemplateMock
      * @return array
      */
     private function createVariables(string $type): array
-    {   
+    {
         $data = [
-            'entity_type' => rtrim($type,"s"),
+            'entity_type' => rtrim($type, "s"),
             'design' => '',
             'settings_type' => 'company',
             'settings' => $this->company->settings,

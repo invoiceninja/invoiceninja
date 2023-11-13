@@ -12,6 +12,7 @@
 
 namespace App\Utils;
 
+use App\Models\Account;
 use App\Models\Country;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
@@ -603,54 +604,54 @@ class VendorHtmlEngine
      * aggregate data
      */
 
-     /*
+    /*
     private function makeLineTaxes() :string
     {
-        $tax_map = $this->entity_calc->getTaxMap();
+       $tax_map = $this->entity_calc->getTaxMap();
 
-        $data = '';
+       $data = '';
 
-        foreach ($tax_map as $tax) {
-            $data .= '<tr class="line_taxes">';
-            $data .= '<td>'.$tax['name'].'</td>';
-            $data .= '<td>'.Number::formatMoney($tax['total'], $this->company).'</td></tr>';
-        }
+       foreach ($tax_map as $tax) {
+           $data .= '<tr class="line_taxes">';
+           $data .= '<td>'.$tax['name'].'</td>';
+           $data .= '<td>'.Number::formatMoney($tax['total'], $this->company).'</td></tr>';
+       }
 
-        return $data;
+       return $data;
     }
 
 
     private function makeTotalTaxes() :string
     {
-        $data = '';
+       $data = '';
 
-        if (! $this->entity_calc->getTotalTaxMap()) {
-            return $data;
-        }
+       if (! $this->entity_calc->getTotalTaxMap()) {
+           return $data;
+       }
 
-        foreach ($this->entity_calc->getTotalTaxMap() as $tax) {
-            $data .= '<tr>';
-            $data .= '<td colspan="{ count($this->entity->company->settings->pdf_variables->total_columns) - 2 }"></td>';
-            $data .= '<td>'.$tax['name'].'</td>';
-            $data .= '<td>'.Number::formatMoney($tax['total'], $this->company).'</td></tr>';
-        }
+       foreach ($this->entity_calc->getTotalTaxMap() as $tax) {
+           $data .= '<tr>';
+           $data .= '<td colspan="{ count($this->entity->company->settings->pdf_variables->total_columns) - 2 }"></td>';
+           $data .= '<td>'.$tax['name'].'</td>';
+           $data .= '<td>'.Number::formatMoney($tax['total'], $this->company).'</td></tr>';
+       }
 
-        return $data;
+       return $data;
     }
 
     private function parseLabelsAndValues($labels, $values, $section) :string
     {
-        $section = strtr($section, $labels);
+       $section = strtr($section, $labels);
 
-        return strtr($section, $values);
+       return strtr($section, $values);
     }
-        */
+       */
 
     /**
      * Builds CSS to assist with the generation
      * of Repeating headers and footers on the PDF.
      * @return string The css string
-     
+
     private function generateCustomCSS() :string
     {
         $header_and_footer = '
@@ -775,31 +776,37 @@ html {
      */
     protected function generateEntityImagesMarkup()
     {
-        if ($this->company->getSetting('embed_documents') === false) {
+
+        if (!$this->vendor->getSetting('embed_documents') || !$this->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
             return '';
         }
 
         $dom = new \DOMDocument('1.0', 'UTF-8');
 
         $container =  $dom->createElement('div');
-        $container->setAttribute('style', 'display:grid; grid-auto-flow: row; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 1fr);');
-
-        foreach ($this->entity->documents as $document) {
+        $container->setAttribute('style', 'display:grid; grid-auto-flow: row; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr);justify-items: center;');
+ 
+        foreach ($this->entity->documents()->where('is_public', true)->get() as $document) {
             if (!$document->isImage()) {
                 continue;
             }
 
             $image = $dom->createElement('img');
 
-            $image->setAttribute('src', $document->generateUrl());
-            $image->setAttribute('style', 'max-height: 100px; margin-top: 20px;');
+            $image->setAttribute('src', "data:image/png;base64,".base64_encode($document->getFile()));
+            $image->setAttribute('style', 'max-width: 50%; margin-top: 20px;');
 
             $container->appendChild($image);
         }
 
         $dom->appendChild($container);
 
-        return $dom->saveHTML();
+        $html = $dom->saveHTML();
+
+        $dom = null;
+                
+        return $html;
+
     }
 
     /**
@@ -845,7 +852,7 @@ html {
         // return '
         //     <table border="0" cellspacing="0" cellpadding="0" align="center">
         //         <tr style="border: 0 !important; ">
-        //             <td class="new_button" style="padding: 12px 18px 12px 18px; border-radius:5px;" align="center"> 
+        //             <td class="new_button" style="padding: 12px 18px 12px 18px; border-radius:5px;" align="center">
         //             <a href="'. $link .'" target="_blank" style="border: 0 !important;font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; display: inline-block;">'. $text .'</a>
         //             </td>
         //         </tr>

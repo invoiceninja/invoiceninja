@@ -49,7 +49,7 @@ class UpdateWebhookRequest extends Request
         }
         
         // if(isset($input['headers']) && count($input['headers']) == 0)
-            //     $input['headers'] = null;
+        //     $input['headers'] = null;
 
         $this->replace($input);
     }

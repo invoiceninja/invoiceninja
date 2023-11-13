@@ -13,13 +13,10 @@ namespace App\Models;
 
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
-use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Services\PurchaseOrder\PurchaseOrderService;
-use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * App\Models\PurchaseOrder
@@ -42,8 +39,8 @@ use Illuminate\Support\Facades\Storage;
  * @property string|null $date
  * @property string|null $last_sent_date
  * @property string|null $due_date
- * @property int $is_deleted
- * @property object|null $line_items
+ * @property bool $is_deleted
+ * @property object|array|string $line_items
  * @property object|null $backup
  * @property string|null $footer
  * @property string|null $public_notes
@@ -237,7 +234,7 @@ class PurchaseOrder extends BaseModel
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function vendor(): \Illuminate\Database\Eloquent\Relations\BelongsTo 
+    public function vendor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Vendor::class)->withTrashed();
     }
@@ -280,38 +277,6 @@ class PurchaseOrder extends BaseModel
                 $invitation->saveQuietly();
             }
         });
-    }
-
-    public function pdf_file_path($invitation = null, string $type = 'path', bool $portal = false)
-    {
-        if (! $invitation) {
-            if ($this->invitations()->exists()) {
-                $invitation = $this->invitations()->first();
-            } else {
-                $this->service()->createInvitations();
-                $invitation = $this->invitations()->first();
-            }
-        }
-
-        if (!$invitation) {
-            throw new \Exception('Hard fail, could not create an invitation - is there a valid contact?');
-        }
-
-        $file_path = $this->vendor->purchase_order_filepath($invitation).$this->numberFormatter().'.pdf';
-
-        if (Ninja::isHosted() && $portal && Storage::disk(config('filesystems.default'))->exists($file_path)) {
-            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
-        } elseif (Ninja::isHosted() && $portal) {
-            $file_path = (new CreatePurchaseOrderPdf($invitation, config('filesystems.default')))->handle();
-            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
-        }
-
-        if (Storage::disk('public')->exists($file_path)) {
-            return Storage::disk('public')->{$type}($file_path);
-        }
-
-        $file_path = (new CreatePurchaseOrderPdf($invitation))->handle();
-        return Storage::disk('public')->{$type}($file_path);
     }
 
     public function invitations(): \Illuminate\Database\Eloquent\Relations\HasMany
@@ -394,7 +359,7 @@ class PurchaseOrder extends BaseModel
     {
         $tax_type = '';
 
-        match(intval($id)){
+        match(intval($id)) {
             Product::PRODUCT_TYPE_PHYSICAL => $tax_type = ctrans('texts.physical_goods'),
             Product::PRODUCT_TYPE_SERVICE => $tax_type = ctrans('texts.services'),
             Product::PRODUCT_TYPE_DIGITAL => $tax_type = ctrans('texts.digital_products'),

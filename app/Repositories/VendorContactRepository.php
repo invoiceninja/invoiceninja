@@ -61,13 +61,23 @@ class VendorContactRepository extends BaseRepository
                 $update_contact->contact_key = Str::random(40);
             }
 
+            if (array_key_exists('email', $contact) && is_null($contact['email'])) {
+                $contact['email'] = '';
+            }
+
             $update_contact->fill($contact);
 
             if (array_key_exists('password', $contact) && strlen($contact['password']) > 1) {
                 $update_contact->password = Hash::make($contact['password']);
+                $vendor->company->vendor_contacts()->where('email', $update_contact->email)->update(['password' => $update_contact->password]);
+            }
+
+            if (array_key_exists('email', $contact)) {
+                $update_contact->email = trim($contact['email']);
             }
 
             $update_contact->saveQuietly();
+
         });
 
         $vendor->load('contacts');

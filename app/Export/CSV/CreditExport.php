@@ -11,15 +11,15 @@
 
 namespace App\Export\CSV;
 
+use App\Libraries\MultiDB;
+use App\Models\Company;
+use App\Models\Credit;
+use App\Transformers\CreditTransformer;
 use App\Utils\Ninja;
 use App\Utils\Number;
-use App\Models\Credit;
-use League\Csv\Writer;
-use App\Models\Company;
-use App\Libraries\MultiDB;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
-use App\Transformers\CreditTransformer;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use League\Csv\Writer;
 
 class CreditExport extends BaseExport
 {
@@ -43,9 +43,9 @@ class CreditExport extends BaseExport
 
         $headerdisplay = $this->buildHeader();
 
-        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
-                return ['identifier' => $value, 'display_value' => $headerdisplay[$value]];
-            })->toArray();
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
+            return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
+        })->toArray();
 
         $report = $query->cursor()
                 ->map(function ($credit) {
@@ -56,7 +56,7 @@ class CreditExport extends BaseExport
         return array_merge(['columns' => $header], $report);
     }
 
-    private function processMetaData(array $row, Credit $credit): array
+    public function processMetaData(array $row, $resource): array
     {
         $clean_row = [];
         foreach (array_values($this->input['report_keys']) as $key => $value) {
@@ -66,14 +66,15 @@ class CreditExport extends BaseExport
             $column_key = $value;
             $clean_row[$key]['entity'] = $report_keys[0];
             $clean_row[$key]['id'] = $report_keys[1] ?? $report_keys[0];
-            $clean_row[$key]['hashed_id'] = $report_keys[0] == 'credit' ? null : $credit->{$report_keys[0]}->hashed_id ?? null;
+            $clean_row[$key]['hashed_id'] = $report_keys[0] == 'credit' ? null : $resource->{$report_keys[0]}->hashed_id ?? null;
             $clean_row[$key]['value'] = $row[$column_key];
             $clean_row[$key]['identifier'] = $value;
 
-            if(in_array($clean_row[$key]['id'], ['paid_to_date','total_taxes','amount', 'balance', 'partial', 'refunded', 'applied','unit_cost','cost','price']))
-                $clean_row[$key]['display_value'] = Number::formatMoney($row[$column_key], $credit->client);
-            else
+            if(in_array($clean_row[$key]['id'], ['paid_to_date','total_taxes','amount', 'balance', 'partial', 'refunded', 'applied','unit_cost','cost','price'])) {
+                $clean_row[$key]['display_value'] = Number::formatMoney($row[$column_key], $resource->client);
+            } else {
                 $clean_row[$key]['display_value'] = $row[$column_key];
+            }
 
         }
 
@@ -92,6 +93,8 @@ class CreditExport extends BaseExport
         if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = array_values($this->credit_report_keys);
         }
+
+        $this->input['report_keys'] = array_merge($this->input['report_keys'], array_diff($this->forced_client_fields, $this->input['report_keys']));
 
         $query = Credit::query()
                         ->withTrashed()
@@ -137,10 +140,9 @@ class CreditExport extends BaseExport
                 $entity[$keyval] = $transformed_credit[$credit_key];
             } elseif (isset($transformed_credit[$keyval])) {
                 $entity[$keyval] = $transformed_credit[$keyval];
-            } elseif(isset($transformed_credit[$searched_credit_key])){
+            } elseif(isset($transformed_credit[$searched_credit_key])) {
                 $entity[$keyval] = $transformed_credit[$searched_credit_key];
-            }
-            else {
+            } else {
                 $entity[$keyval] = $this->resolveKey($keyval, $credit, $this->credit_transformer);
             }
 

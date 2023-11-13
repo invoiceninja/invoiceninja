@@ -16,7 +16,7 @@ use App\Models\Company;
 use App\Models\Quote;
 use App\Transformers\QuoteTransformer;
 use App\Utils\Ninja;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
@@ -56,6 +56,8 @@ class QuoteExport extends BaseExport
             $this->input['report_keys'] = array_values($this->quote_report_keys);
         }
 
+        $this->input['report_keys'] = array_merge($this->input['report_keys'], array_diff($this->forced_client_fields, $this->input['report_keys']));
+
         $query = Quote::query()
                         ->withTrashed()
                         ->with('client')
@@ -75,12 +77,13 @@ class QuoteExport extends BaseExport
         $headerdisplay = $this->buildHeader();
 
         $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
-            return ['identifier' => $value, 'display_value' => $headerdisplay[$value]];
+            return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
 
         $report = $query->cursor()
                 ->map(function ($resource) {
-                    return $this->buildRow($resource);
+                    $row = $this->buildRow($resource);
+                    return $this->processMetaData($row, $resource);
                 })->toArray();
                 
         return array_merge(['columns' => $header], $report);

@@ -11,17 +11,17 @@
 
 namespace App\Listeners\User;
 
-use App\Models\SystemLog;
-use App\Libraries\MultiDB;
-use App\Jobs\Util\SystemLogger;
-use App\Mail\User\UserLoggedIn;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Queue\SerializesModels;
+use App\Jobs\Util\SystemLogger;
+use App\Libraries\MultiDB;
+use App\Mail\User\UserLoggedIn;
+use App\Models\SystemLog;
+use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 
 class UpdateUserLastLogin implements ShouldQueue
 {
@@ -55,7 +55,7 @@ class UpdateUserLastLogin implements ShouldQueue
         $key = "user_logged_in_{$user->id}{$event->company->db}";
 
         
-        if ($user->ip != $ip && is_null(Cache::get($key))) {
+        if ($user->ip != $ip && is_null(Cache::get($key)) && $user->user_logged_in_notification) {
             $nmo = new NinjaMailerObject;
             $nmo->mailable = new UserLoggedIn($user, $user->account->companies->first(), $ip);
             $nmo->company = $user->account->companies->first();
@@ -69,6 +69,7 @@ class UpdateUserLastLogin implements ShouldQueue
         
         Cache::put($key, true, 60 * 24);
         $arr = json_encode(['ip' => $ip]);
+        $arr = ctrans('texts.new_login_detected'). " {$ip}";
 
         SystemLogger::dispatch(
             $arr,

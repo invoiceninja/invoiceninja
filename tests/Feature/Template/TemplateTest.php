@@ -22,6 +22,7 @@ use App\Models\Project;
 use App\Utils\HtmlEngine;
 use Tests\MockAccountData;
 use App\Utils\Traits\MakesDates;
+use App\Jobs\Entity\CreateRawPdf;
 use App\Services\PdfMaker\PdfMaker;
 use Illuminate\Support\Facades\App;
 use App\Jobs\Entity\CreateEntityPdf;
@@ -728,7 +729,7 @@ class TemplateTest extends TestCase
 
         $start = microtime(true);
 
-        $pdf = (new CreateEntityPdf($i))->handle();
+        $pdf = (new CreateRawPdf($i))->handle();
 
         $end = microtime(true);
 
@@ -742,7 +743,7 @@ class TemplateTest extends TestCase
     {
         $start = microtime(true);
 
-        $pdf = (new CreateEntityPdf($this->invoice->invitations->first()))->handle();
+        $pdf = (new CreateRawPdf($this->invoice->invitations->first()))->handle();
 
         $end = microtime(true);
 
@@ -805,7 +806,8 @@ class TemplateTest extends TestCase
                 'all_pages_header' => $entity_obj->client->getSetting('all_pages_header'),
                 'all_pages_footer' => $entity_obj->client->getSetting('all_pages_footer'),
                 'client' => $entity_obj->client,
-                'entity' => $entity_obj,
+                'entity' => [$entity_obj],
+                'invoices' => [$entity_obj],
                 'variables' => $variables,
             ],
             'process_markdown' => $entity_obj->client->company->markdown_enabled,

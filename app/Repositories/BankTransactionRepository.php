@@ -11,9 +11,9 @@
 
 namespace App\Repositories;
 
-use App\Models\Expense;
-use App\Models\BankTransaction;
 use App\Jobs\Bank\MatchBankTransactions;
+use App\Models\BankTransaction;
+use App\Models\Expense;
 
 /**
  * Class for bank transaction repository.
@@ -38,23 +38,26 @@ class BankTransactionRepository extends BaseRepository
 
     public function convert_matched($bank_transactions)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $data['transactions'] = $bank_transactions->map(function ($bt) {
             return ['id' => $bt->id, 'invoice_ids' => $bt->invoice_ids, 'ninja_category_id' => $bt->ninja_category_id];
         })->toArray();
 
-        $bts = (new MatchBankTransactions(auth()->user()->company()->id, auth()->user()->company()->db, $data))->handle();
+        $bts = (new MatchBankTransactions($user->company()->id, $user->company()->db, $data))->handle();
     }
 
     public function unlink($bt)
     {
-        if($bt->payment()->exists()){
+        if($bt->payment()->exists()) {
             $bt->payment->transaction_id = null;
             $bt->payment_id = null;
         }
 
         $e = Expense::query()->whereIn('id', $this->transformKeys(explode(",", $bt->expense_id)))
         ->cursor()
-        ->each(function ($expense){
+        ->each(function ($expense) {
             
             $expense->transaction_id = null;
             $expense->saveQuietly();

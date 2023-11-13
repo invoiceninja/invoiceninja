@@ -11,33 +11,33 @@
 
 namespace App\Http\Controllers;
 
-use App\Utils\Ninja;
-use App\Models\Client;
-use App\Models\Account;
-use App\Models\PurchaseOrder;
-use Illuminate\Http\Response;
-use App\Utils\Traits\MakesHash;
-use App\Services\PdfMaker\PdfMerge;
-use Illuminate\Support\Facades\App;
-use App\Utils\Traits\SavesDocuments;
-use App\Factory\PurchaseOrderFactory;
-use App\Filters\PurchaseOrderFilters;
-use Illuminate\Support\Facades\Storage;
-use App\Jobs\PurchaseOrder\ZipPurchaseOrders;
-use App\Repositories\PurchaseOrderRepository;
-use App\Jobs\PurchaseOrder\PurchaseOrderEmail;
-use App\Transformers\PurchaseOrderTransformer;
 use App\Events\PurchaseOrder\PurchaseOrderWasCreated;
 use App\Events\PurchaseOrder\PurchaseOrderWasUpdated;
+use App\Factory\PurchaseOrderFactory;
+use App\Filters\PurchaseOrderFilters;
+use App\Http\Requests\PurchaseOrder\ActionPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\BulkPurchaseOrderRequest;
+use App\Http\Requests\PurchaseOrder\CreatePurchaseOrderRequest;
+use App\Http\Requests\PurchaseOrder\DestroyPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\EditPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\ShowPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\StorePurchaseOrderRequest;
-use App\Http\Requests\PurchaseOrder\ActionPurchaseOrderRequest;
-use App\Http\Requests\PurchaseOrder\CreatePurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\UpdatePurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\UploadPurchaseOrderRequest;
-use App\Http\Requests\PurchaseOrder\DestroyPurchaseOrderRequest;
+use App\Jobs\Entity\CreateRawPdf;
+use App\Jobs\PurchaseOrder\PurchaseOrderEmail;
+use App\Jobs\PurchaseOrder\ZipPurchaseOrders;
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\PurchaseOrder;
+use App\Repositories\PurchaseOrderRepository;
+use App\Services\PdfMaker\PdfMerge;
+use App\Transformers\PurchaseOrderTransformer;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 
 class PurchaseOrderController extends BaseController
 {
@@ -367,7 +367,6 @@ class PurchaseOrderController extends BaseController
 
         $purchase_order = $purchase_order->service()
             ->triggeredActions($request)
-            // ->touchPdf()
             ->save();
 
         event(new PurchaseOrderWasUpdated($purchase_order, $purchase_order->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
@@ -502,7 +501,7 @@ class PurchaseOrderController extends BaseController
          * Download Purchase Order/s
          */
         if ($action == 'bulk_download' && $purchase_orders->count() >= 1) {
-            $purchase_orders->each(function ($purchase_order) use ($user){
+            $purchase_orders->each(function ($purchase_order) use ($user) {
                 if ($user->cannot('view', $purchase_order)) {
                     return response()->json(['message' => ctrans('text.access_denied')]);
                 }
@@ -515,7 +514,7 @@ class PurchaseOrderController extends BaseController
 
         if ($action == 'bulk_print' && $user->can('view', $purchase_orders->first())) {
             $paths = $purchase_orders->map(function ($purchase_order) {
-                return (new \App\Jobs\Vendor\CreatePurchaseOrderPdf($purchase_order->invitations->first()))->rawPdf();
+                return (new CreateRawPdf($purchase_order->invitations->first()))->handle();
             });
 
             $merge = (new PdfMerge($paths->toArray()))->run();
@@ -624,8 +623,8 @@ class PurchaseOrderController extends BaseController
                 $file = $purchase_order->service()->getPurchaseOrderPdf();
 
                 return response()->streamDownload(function () use ($file) {
-                    echo Storage::get($file);
-                }, basename($file), ['Content-Type' => 'application/pdf']);
+                    echo $file;
+                }, $purchase_order->numberFormatter().".pdf", ['Content-Type' => 'application/pdf']);
 
                 break;
             case 'restore':
@@ -829,7 +828,7 @@ class PurchaseOrderController extends BaseController
         }
 
         return response()->streamDownload(function () use ($file) {
-            echo Storage::get($file);
-        }, basename($file), $headers);
+            echo $file;
+        }, $purchase_order->numberFormatter().".pdf", $headers);
     }
 }

@@ -11,18 +11,17 @@
 
 namespace App\Mail\Engine;
 
-use App\Utils\Ninja;
-use App\Utils\Number;
-use App\Utils\Helpers;
+use App\DataMapper\EmailTemplateDefaults;
+use App\Jobs\Entity\CreateRawPdf;
 use App\Models\Account;
 use App\Models\Payment;
+use App\Services\Template\TemplateAction;
+use App\Utils\Helpers;
+use App\Utils\Ninja;
+use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
-use App\Jobs\Entity\CreateRawPdf;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Facades\Storage;
-use App\DataMapper\EmailTemplateDefaults;
-use App\Services\Template\TemplateAction;
 
 class PaymentEmailEngine extends BaseEmailEngine
 {
@@ -134,36 +133,34 @@ class PaymentEmailEngine extends BaseEmailEngine
 
             }
 
-            $this->payment->invoices->each(function ($invoice) use($template_in_use){
+            $this->payment->invoices->each(function ($invoice) use ($template_in_use) {
 
-                if(!$template_in_use) 
-                {
-                    $pdf = ((new CreateRawPdf($invoice->invitations->first(), $invoice->company->db))->handle());
+                if(!$template_in_use) {
+                    $pdf = ((new CreateRawPdf($invoice->invitations->first()))->handle());
                     $file_name = $invoice->numberFormatter().'.pdf';
                     $this->setAttachments([['file' => base64_encode($pdf), 'name' => $file_name]]);
                 }
 
                 //attach invoice documents also to payments
                 if ($this->client->getSetting('document_email_attachment') !== false) {
-                    foreach ($invoice->documents as $document) {
+                    $invoice->documents()->where('is_public', true)->cursor()->each(function ($document) {
                         if ($document->size > $this->max_attachment_size) {
                             $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
                         } else {
                             $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null, ]]);
                         }
-                    }
+                    });
                 }
 
-                if($this->client->getSetting('enable_e_invoice'))
-                {
+                // if($this->client->getSetting('enable_e_invoice'))
+                // {
 
-                    $e_invoice_filepath = $invoice->service()->getEInvoice($this->contact);
+                //     $e_invoice_filepath = $invoice->service()->getEInvoice($this->contact);
 
-                    if(Storage::disk(config('filesystems.default'))->exists($e_invoice_filepath)) {
-                        $this->setAttachments([['path' => Storage::disk(config('filesystems.default'))->path($e_invoice_filepath), 'name' => $invoice->getFileName("xml"), 'mime' => null]]);
-                    }
+                //     if($e_invoice_filepath && strlen($e_invoice_filepath) > 1)
+                //         $this->setAttachments([['file' => base64_encode($e_invoice_filepath), 'name' => $invoice->getFileName("xml")]]);
 
-                }
+                // }
 
             });
         }
@@ -399,7 +396,7 @@ class PaymentEmailEngine extends BaseEmailEngine
 
     private function formatInvoiceReferencesSubject()
     {
-         $invoice_list = '';
+        $invoice_list = '';
 
         foreach ($this->payment->invoices as $invoice) {
             if (strlen($invoice->po_number) > 1) {
@@ -410,8 +407,8 @@ class PaymentEmailEngine extends BaseEmailEngine
 
         }
 
-        if(strlen($invoice_list) < 4){
-                $invoice_list = Number::formatMoney($this->payment->amount, $this->client) ?: '&nbsp;';
+        if(strlen($invoice_list) < 4) {
+            $invoice_list = Number::formatMoney($this->payment->amount, $this->client) ?: '&nbsp;';
         }
             
 
@@ -419,7 +416,8 @@ class PaymentEmailEngine extends BaseEmailEngine
 
     }
 
-    private function formatInvoiceNumbersRaw(){
+    private function formatInvoiceNumbersRaw()
+    {
 
         return collect($this->payment->invoices->pluck('number')->toArray())->implode(', ');
 

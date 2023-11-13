@@ -19,18 +19,13 @@ use App\Jobs\Util\SystemLogger;
 use App\Libraries\Google\Google;
 use App\Libraries\MultiDB;
 use App\Models\Client;
-use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\SystemLog;
 use App\Models\User;
-use App\Models\Vendor;
-use App\Models\VendorContact;
-use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
-use App\Utils\VendorHtmlEngine;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -146,7 +141,7 @@ class AdminEmail implements ShouldQueue
 
             Cache::increment("email_quota".$this->company->account->key);
 
-            LightLogs::create(new EmailSuccess($this->company->company_key))
+            LightLogs::create(new EmailSuccess($this->company->company_key, $this->mailable->subject))
                      ->send();
 
         } catch(\Symfony\Component\Mime\Exception\RfcComplianceException $e) {

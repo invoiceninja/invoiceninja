@@ -137,11 +137,6 @@ class BankTransaction extends BaseModel
         return $this->belongsTo(Vendor::class)->withTrashed();
     }
 
-    public function expense(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(Expense::class)->withTrashed();
-    }
-
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
@@ -162,8 +157,18 @@ class BankTransaction extends BaseModel
         return $this->belongsTo(Payment::class)->withTrashed();
     }
 
+    // public function expense(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    // {
+    //     return $this->belongsTo(Expense::class)->withTrashed();
+    // }
+
     public function service() :BankService
     {
         return new BankService($this);
+    }
+
+    public function getExpenses()
+    {
+        return Expense::whereIn('id', $this->getExpenseIds())->get();
     }
 }

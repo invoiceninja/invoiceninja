@@ -65,6 +65,34 @@ class ClientTest extends TestCase
         $this->makeTestData();
     }
 
+    public function testStoreClientFixes()
+    {
+        $data = [
+            "contacts" => [
+            [
+            "email" => "tenda@gmail.com", 
+            "first_name" => "Tenda", 
+            "is_primary" => True, 
+            "last_name" => "Bavuma", 
+            "password" => null, 
+            "send_email" => True
+            ],
+        ],  
+            "country_id" => "356", 
+            "display_name" => "Tenda Bavuma", 
+            "name" => "Tenda Bavuma", 
+            "shipping_country_id" => "356", 
+            ];
+
+
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/clients', $data);
+
+                $response->assertStatus(200);
+    }
+
     public function testClientMergeContactDrop()
     {
 

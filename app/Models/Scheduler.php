@@ -11,9 +11,6 @@
 
 namespace App\Models;
 
-use App\Models\Company;
-use App\Models\BaseModel;
-use App\Models\RecurringInvoice;
 use App\Services\Scheduler\SchedulerService;
 use Illuminate\Database\Eloquent\SoftDeletes;
 

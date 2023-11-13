@@ -11,10 +11,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Utils\Ninja;
-use Illuminate\Http\Request;
-use App\Jobs\Util\UnlinkFile;
 use App\Exceptions\SystemError;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
@@ -23,7 +21,7 @@ class ProtectedDownloadController extends BaseController
 
     public function index(Request $request)
     {
-
+        /** @var string $hashed_path */
         $hashed_path = Cache::pull($request->hash);
         
         if (!$hashed_path) {

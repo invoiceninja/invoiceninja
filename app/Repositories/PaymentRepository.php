@@ -11,20 +11,20 @@
 
 namespace App\Repositories;
 
-use App\Utils\Ninja;
+use App\Events\Payment\PaymentWasCreated;
+use App\Events\Payment\PaymentWasDeleted;
+use App\Jobs\Credit\ApplyCreditPayment;
+use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Paymentable;
-use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
-use App\Jobs\Credit\ApplyCreditPayment;
-use App\Events\Payment\PaymentWasCreated;
-use App\Events\Payment\PaymentWasDeleted;
-use App\Libraries\Currency\Conversion\CurrencyApi;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 /**
  * PaymentRepository.
@@ -101,6 +101,9 @@ class PaymentRepository extends BaseRepository
                     $client->saveQuietly();
                 }
             }, 1);
+
+            $client = Client::query()->where('id', $data['client_id'])->withTrashed()->first();
+
         }
 
         /*Fill the payment*/
@@ -108,7 +111,7 @@ class PaymentRepository extends BaseRepository
         $payment->is_manual = true;
         $payment->status_id = Payment::STATUS_COMPLETED;
 
-        if (! $payment->currency_id && $client) {
+        if ((!$payment->currency_id || $payment->currency_id == 0) && $client) {
             if (property_exists($client->settings, 'currency_id')) {
                 $payment->currency_id = $client->settings->currency_id;
             } else {
@@ -145,7 +148,7 @@ class PaymentRepository extends BaseRepository
 
                 if ($invoice) {
 
-                //25-06-2023
+                    //25-06-2023
 
                     $paymentable = new Paymentable();
                     $paymentable->payment_id = $payment->id;

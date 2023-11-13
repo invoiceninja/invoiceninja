@@ -139,5 +139,5 @@
 </div>
 
 @push('footer')
-    <script src="{{ asset('js/clients/invoices/action-selectors.js') }}"></script>
+    @vite('resources/js/clients/invoices/action-selectors.js')
 @endpush

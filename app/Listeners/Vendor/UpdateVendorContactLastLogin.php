@@ -12,9 +12,8 @@
 namespace App\Listeners\Vendor;
 
 use App\Libraries\MultiDB;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class UpdateVendorContactLastLogin 
+class UpdateVendorContactLastLogin
 {
     /**
      * Create the event listener.

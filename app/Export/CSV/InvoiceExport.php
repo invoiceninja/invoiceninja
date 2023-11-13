@@ -11,16 +11,14 @@
 
 namespace App\Export\CSV;
 
-use App\Utils\Ninja;
-use App\Utils\Number;
-use League\Csv\Writer;
+use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Invoice;
-use App\Libraries\MultiDB;
-use App\Export\CSV\BaseExport;
-use Illuminate\Support\Facades\App;
 use App\Transformers\InvoiceTransformer;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use App\Utils\Ninja;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\App;
+use League\Csv\Writer;
 
 class InvoiceExport extends BaseExport
 {
@@ -50,6 +48,8 @@ class InvoiceExport extends BaseExport
             $this->input['report_keys'] = array_values($this->invoice_report_keys);
         }
 
+        $this->input['report_keys'] = array_merge($this->input['report_keys'], array_diff($this->forced_client_fields, $this->input['report_keys']));
+
         $query = Invoice::query()
                         ->withTrashed()
                         ->with('client')
@@ -72,13 +72,14 @@ class InvoiceExport extends BaseExport
 
         $headerdisplay = $this->buildHeader();
 
-        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
-                return ['identifier' => $value, 'display_value' => $headerdisplay[$value]];
-            })->toArray();
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
+            return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
+        })->toArray();
 
         $report = $query->cursor()
                 ->map(function ($resource) {
-                    return $this->buildRow($resource);
+                    $row = $this->buildRow($resource);
+                    return $this->processMetaData($row, $resource);
                 })->toArray();
         
         return array_merge(['columns' => $header], $report);
@@ -93,7 +94,6 @@ class InvoiceExport extends BaseExport
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
-
 
         $query->cursor()
             ->each(function ($invoice) {
@@ -142,6 +142,15 @@ class InvoiceExport extends BaseExport
         if (in_array('invoice.status', $this->input['report_keys'])) {
             $entity['invoice.status'] = $invoice->stringStatus($invoice->status_id);
         }
+
+        if (in_array('invoice.recurring_id', $this->input['report_keys'])) {
+            $entity['invoice.recurring_id'] = $invoice->recurring_invoice->number ?? '';
+        }
+
+        if (in_array('invoice.auto_bill_enabled', $this->input['report_keys'])) {
+            $entity['invoice.auto_bill_enabled'] = $invoice->auto_bill_enabled ? ctrans('texts.yes') : ctrans('texts.no');
+        }
+
         
         return $entity;
     }

@@ -12,13 +12,12 @@
 
 namespace App\PaymentDrivers\CheckoutCom;
 
-use stdClass;
-use Exception;
-use App\Models\SystemLog;
-use App\Models\GatewayType;
-use App\Jobs\Util\SystemLogger;
 use App\Exceptions\PaymentFailed;
-use Checkout\Payments\PaymentType;
+use App\Jobs\Util\SystemLogger;
+use App\Models\GatewayType;
+use App\Models\SystemLog;
+use Exception;
+use stdClass;
 
 trait Utilities
 {
@@ -94,6 +93,13 @@ trait Utilities
             $error_message = 'Error processing payment.';
         }
 
+        if(isset($_payment['actions'][0]['response_summary']) ?? false) {
+            $error_message = $_payment['actions'][0]['response_summary'];
+        }
+
+        //checkout does not return a integer status code as an alias for a http status code.
+        $error_code = 400;
+
         $this->getParent()->sendFailureMail($error_message);
 
         $message = [
@@ -111,7 +117,7 @@ trait Utilities
         );
 
         if ($throw_exception) {
-            throw new PaymentFailed($error_message, 500);
+            throw new PaymentFailed($error_message, $error_code);
         }
     }
 

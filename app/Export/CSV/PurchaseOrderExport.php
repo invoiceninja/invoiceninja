@@ -11,15 +11,14 @@
 
 namespace App\Export\CSV;
 
-use App\Utils\Ninja;
-use App\Utils\Number;
-use League\Csv\Writer;
-use App\Models\Company;
 use App\Libraries\MultiDB;
+use App\Models\Company;
 use App\Models\PurchaseOrder;
-use Illuminate\Support\Facades\App;
 use App\Transformers\PurchaseOrderTransformer;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use App\Utils\Ninja;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\App;
+use League\Csv\Writer;
 
 class PurchaseOrderExport extends BaseExport
 {
@@ -54,7 +53,7 @@ class PurchaseOrderExport extends BaseExport
         'po_number' => 'purchase_order.po_number',
         'private_notes' => 'purchase_order.private_notes',
         'public_notes' => 'purchase_order.public_notes',
-        'status' => 'purchase_order.status_id',
+        'status' => 'purchase_order.status',
         'tax_name1' => 'purchase_order.tax_name1',
         'tax_name2' => 'purchase_order.tax_name2',
         'tax_name3' => 'purchase_order.tax_name3',
@@ -95,6 +94,9 @@ class PurchaseOrderExport extends BaseExport
         if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = array_values($this->purchase_order_report_keys);
         }
+
+        $this->input['report_keys'] = array_merge($this->input['report_keys'], array_diff($this->forced_vendor_fields, $this->input['report_keys']));
+
         $query = PurchaseOrder::query()
                         ->withTrashed()
                         ->with('vendor')
@@ -113,13 +115,14 @@ class PurchaseOrderExport extends BaseExport
 
         $headerdisplay = $this->buildHeader();
 
-        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
-                return ['identifier' => $value, 'display_value' => $headerdisplay[$value]];
-            })->toArray();
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
+            return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
+        })->toArray();
 
         $report = $query->cursor()
                 ->map(function ($resource) {
-                    return $this->buildRow($resource);
+                    $row = $this->buildRow($resource);
+                    return $this->processMetaData($row, $resource);
                 })->toArray();
         
         return array_merge(['columns' => $header], $report);
@@ -180,8 +183,8 @@ class PurchaseOrderExport extends BaseExport
             $entity['vendor'] = $purchase_order->vendor->present()->name();
         }
 
-        if (in_array('status_id', $this->input['report_keys'])) {
-            $entity['status'] = $purchase_order->stringStatus($purchase_order->status_id);
+        if (in_array('purchase_order.status', $this->input['report_keys'])) {
+            $entity['purchase_order.status'] = $purchase_order->stringStatus($purchase_order->status_id);
         }
 
         return $entity;

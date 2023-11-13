@@ -40,6 +40,8 @@ class GeneratesCounterTest extends TestCase
     use MakesHash;
     use MockAccountData;
 
+    public $faker;
+    
     protected function setUp() :void
     {
         parent::setUp();

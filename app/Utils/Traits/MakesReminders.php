@@ -16,7 +16,7 @@ use Illuminate\Support\Carbon;
 
 /**
  * Class MakesReminders.
- * 
+ *
  */
 trait MakesReminders
 {

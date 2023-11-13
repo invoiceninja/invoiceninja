@@ -20,7 +20,7 @@ class Request extends FormRequest
     use MakesHash;
     use RuntimeFormRequest;
 
-    protected $file_validation = 'sometimes|file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx,webp,xml,zip,csv|max:100000';
+    protected $file_validation = 'sometimes|file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx,webp,xml,zip,csv,ods,odt,odp|max:100000';
     /**
      * Get the validation rules that apply to the request.
      *
@@ -180,7 +180,7 @@ class Request extends FormRequest
                 }
 
                 //Filter the client contact password - if it is sent with ***** we should ignore it!
-                if (isset($contact['password'])) {
+                if (isset($contact['password']) && is_string($contact['password'])) {
                     if (strlen($contact['password']) == 0) {
                         $input['contacts'][$key]['password'] = '';
                     } else {

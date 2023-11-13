@@ -11,7 +11,6 @@
 
 namespace App\Jobs\Entity;
 
-use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
