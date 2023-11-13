@@ -273,7 +273,6 @@ class EmailDefaults
         return $this;
         // return $this->email->email_object->cc;
         // return [
-
         // ];
     }
 
