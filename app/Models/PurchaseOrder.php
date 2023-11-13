@@ -268,7 +268,8 @@ class PurchaseOrder extends BaseModel
     {
         return $this->belongsTo(Client::class)->withTrashed();
     }
-    public function markInvitationsSent()
+
+    public function markInvitationsSent(): void
     {
         $this->invitations->each(function ($invitation) {
             if (! isset($invitation->sent_date)) {

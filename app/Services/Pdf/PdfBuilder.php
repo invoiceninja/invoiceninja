@@ -1621,12 +1621,6 @@ class PdfBuilder
     // Dom Traversal
     ///////////////////////////////////////
 
-
-    public function getSectionNode(string $selector)
-    {
-        return $this->document->getElementById($selector);
-    }
-
     public function updateElementProperties() :self
     {
         foreach ($this->sections as $element) {
