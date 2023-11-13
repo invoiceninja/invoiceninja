@@ -330,6 +330,125 @@ class PdfConfiguration
         }
     }
     
+    /** 
+     * Formats a given value based on the clients currency.
+     *
+     * @param  float  $value    The number to be formatted
+     *
+     * @return string           The formatted value
+     */
+    public function formatValueNoTrailingZeroes($value) :string
+    {
+        $value = floatval($value);
+
+        $thousand = $this->currency->thousand_separator;
+        $decimal = $this->currency->decimal_separator;
+        
+        /* Country settings override client settings */
+        if (isset($this->country->thousand_separator) && strlen($this->country->thousand_separator) >= 1) {
+            $thousand = $this->country->thousand_separator;
+        }
+
+        if (isset($this->country->decimal_separator) && strlen($this->country->decimal_separator) >= 1) {
+            $decimal = $this->country->decimal_separator;
+        }
+
+        $precision = 10;
+
+        return rtrim(rtrim(number_format($value, $precision, $decimal, $thousand), '0'), $decimal);
+    }
+
+
+    /**
+     * Formats a given value based on the clients currency AND country.
+     *
+     * @param float $value The number to be formatted
+     * @return string           The formatted value
+     */
+    public function formatMoneyNoRounding($value) :string
+    {
+        
+        $_value = $value;
+
+        $thousand = $this->currency->thousand_separator;
+        $decimal = $this->currency->decimal_separator;
+        $precision = $this->currency->precision;
+        $code = $this->currency->code;
+        $swapSymbol = $this->currency->swap_currency_symbol;
+
+        /* Country settings override client settings */
+        if (isset($this->country->thousand_separator) && strlen($this->country->thousand_separator) >= 1) {
+            $thousand = $this->country->thousand_separator;
+        }
+
+        if (isset($this->country->decimal_separator) && strlen($this->country->decimal_separator) >= 1) {
+            $decimal = $this->country->decimal_separator;
+        }
+
+        if (isset($this->country->swap_currency_symbol) && strlen($this->country->swap_currency_symbol) >= 1) {
+            $swapSymbol = $this->country->swap_currency_symbol;
+        }
+
+        /* 08-01-2022 allow increased precision for unit price*/
+        $v = rtrim(sprintf('%f', $value), '0');
+        $parts = explode('.', $v);
+
+        /* 08-02-2023 special if block to render $0.5 to $0.50*/
+        if ($v < 1 && strlen($v) == 3) {
+            $precision = 2;
+        } elseif ($v < 1) {
+            $precision = strlen($v) - strrpos($v, '.') - 1;
+        }
+        
+        if (is_array($parts) && $parts[0] != 0) {
+            $precision = 2;
+        }
+
+        //04-04-2023 if currency = JPY override precision to 0
+        if($this->currency->code == 'JPY') {
+            $precision = 0;
+        }
+
+        $value = number_format($v, $precision, $decimal, $thousand);
+        $symbol = $this->currency->symbol;
+
+        if ($this->settings->show_currency_code === true && $this->currency->code == 'CHF') {
+            return "{$code} {$value}";
+        } elseif ($this->settings->show_currency_code === true) {
+            return "{$value} {$code}";
+        } elseif ($swapSymbol) {
+            return "{$value} ".trim($symbol);
+        } elseif ($this->settings->show_currency_code === false) {
+            if ($_value < 0) {
+                $value = substr($value, 1);
+                $symbol = "-{$symbol}";
+            }
+
+            return "{$symbol}{$value}";
+        } else {
+            return $this->formatValue($value);
+        }
+    }
+
+    /**
+     * Formats a given value based on the clients currency.
+     *
+     * @param  float  $value    The number to be formatted
+     *
+     * @return string           The formatted value
+     */
+    public function formatValue($value) :string
+    {
+        $value = floatval($value);
+
+        $thousand = $this->currency->thousand_separator;
+        $decimal = $this->currency->decimal_separator;
+        $precision = $this->currency->precision;
+
+        return number_format($value, $precision, $decimal, $thousand);
+    }
+
+
     /**
      * date_format
      *

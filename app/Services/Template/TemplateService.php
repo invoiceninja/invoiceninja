@@ -11,35 +11,31 @@
 
 namespace App\Services\Template;
 
-use Twig\TwigFilter;
-use App\Models\Quote;
-use App\Utils\Number;
-use Twig\Environment;
-use Twig\Error\Error;
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Design;
-use App\Models\Vendor;
-use Twig\TwigFunction;
-use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
-use App\Utils\HtmlEngine;
-use Twig\Error\LoaderError;
-use Twig\Error\SyntaxError;
-use Twig\Error\RuntimeError;
 use App\Models\PurchaseOrder;
-use App\Utils\VendorHtmlEngine;
-use Twig\Sandbox\SecurityError;
+use App\Models\Quote;
 use App\Models\RecurringInvoice;
+use App\Models\Vendor;
+use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\HtmlEngine;
+use App\Utils\Number;
 use App\Utils\PaymentHtmlEngine;
 use App\Utils\Traits\MakesDates;
-use App\Utils\HostedPDF\NinjaPdf;
-use Twig\Loader\FilesystemLoader;
 use App\Utils\Traits\Pdf\PdfMaker;
-use Twig\Extra\Intl\IntlExtension;
+use App\Utils\VendorHtmlEngine;
 use League\CommonMark\CommonMarkConverter;
+use Twig\Error\Error;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
+use Twig\Extra\Intl\IntlExtension;
+use Twig\Sandbox\SecurityError;
 
 class TemplateService
 {
@@ -88,17 +84,18 @@ class TemplateService
 
         $this->document = new \DOMDocument();
         $this->document->validateOnParse = true;
-        $loader = new FilesystemLoader(storage_path());
-        $this->twig = new Environment($loader, [
+
+        $loader = new \Twig\Loader\FilesystemLoader(storage_path());
+        $this->twig = new \Twig\Environment($loader, [
                 'debug' => true,
         ]);
         $string_extension = new \Twig\Extension\StringLoaderExtension();
         $this->twig->addExtension($string_extension);
         $this->twig->addExtension(new IntlExtension());
         $this->twig->addExtension(new \Twig\Extension\DebugExtension());
-        
-        $function = new TwigFunction('img', function ($string, $style = '') {
-            return '<img src="'.$string.'" style="'.$style.'"></img>';
+
+        $function = new \Twig\TwigFunction('img', function ($string, $style = '') {
+            return '<img src="' . $string . '" style="' . $style . '"></img>';
         });
         $this->twig->addFunction($function);
 
@@ -236,16 +233,16 @@ class TemplateService
                 $template = $this->twig->createTemplate(html_entity_decode($template));
             } catch(SyntaxError $e) {
                 nlog($e->getMessage());
-                continue;
+                throw ($e);
             } catch(Error $e) {
-                nlog("error = " .$e->getMessage());
-                continue;
+                nlog("error = " . $e->getMessage());
+                throw ($e);
             } catch(RuntimeError $e) {
-                nlog("runtime = " .$e->getMessage());
-                continue;
+                nlog("runtime = " . $e->getMessage());
+                throw ($e);
             } catch(LoaderError $e) {
                 nlog("loader = " . $e->getMessage());
-                continue;
+                throw ($e);
             } catch(SecurityError $e) {
                 nlog("security = " . $e->getMessage());
                 throw ($e);
@@ -281,7 +278,6 @@ class TemplateService
         $html = $this->getHtml();
 
         foreach($this->variables as $key => $variable) {
-            
             if(isset($variable['labels']) && isset($variable['values'])) {
                 $html = strtr($html, $variable['labels']);
                 $html = strtr($html, $variable['values']);
@@ -363,7 +359,7 @@ class TemplateService
 
             $processed = [];
 
-            if(in_array($key, ['tasks','projects','aging']) || !$value->first()) {
+            if(in_array($key, ['tasks', 'projects', 'aging']) || !$value->first()) {
                 return $processed;
             }
 
@@ -428,7 +424,8 @@ class TemplateService
                 ->map(function ($invoice) {
 
                     $payments = [];
-            
+                    $this->entity = $invoice;
+
                     if($invoice->payments ?? false) {
                         $payments = $invoice->payments->map(function ($payment) {
                             return $this->transformPayment($payment);
@@ -438,6 +435,8 @@ class TemplateService
                     return [
                         'amount' => Number::formatMoney($invoice->amount, $invoice->client),
                         'balance' => Number::formatMoney($invoice->balance, $invoice->client),
+                        'status_id' => $invoice->status_id,
+                        'status' => Invoice::stringStatus($invoice->status_id),
                         'balance_raw' => $invoice->balance,
                         'number' => $invoice->number ?: '',
                         'discount' => $invoice->discount,
@@ -475,7 +474,7 @@ class TemplateService
                         'custom_surcharge_tax2' => (bool) $invoice->custom_surcharge_tax2,
                         'custom_surcharge_tax3' => (bool) $invoice->custom_surcharge_tax3,
                         'custom_surcharge_tax4' => (bool) $invoice->custom_surcharge_tax4,
-                        'line_items' => $invoice->line_items ? $this->padLineItems($invoice->line_items, $invoice->client): (array) [],
+                        'line_items' => $invoice->line_items ? $this->padLineItems($invoice->line_items, $invoice->client) : (array) [],
                         'reminder1_sent' => $this->translateDate($invoice->reminder1_sent, $invoice->client->date_format(), $invoice->client->locale()),
                         'reminder2_sent' => $this->translateDate($invoice->reminder2_sent, $invoice->client->date_format(), $invoice->client->locale()),
                         'reminder3_sent' => $this->translateDate($invoice->reminder3_sent, $invoice->client->date_format(), $invoice->client->locale()),
@@ -791,7 +790,7 @@ class TemplateService
                         'custom_surcharge_tax2' => (bool) $credit->custom_surcharge_tax2,
                         'custom_surcharge_tax3' => (bool) $credit->custom_surcharge_tax3,
                         'custom_surcharge_tax4' => (bool) $credit->custom_surcharge_tax4,
-                        'line_items' => $credit->line_items ? $this->padLineItems($credit->line_items, $credit->client): (array) [],
+                        'line_items' => $credit->line_items ? $this->padLineItems($credit->line_items, $credit->client) : (array) [],
                         'reminder1_sent' => $this->translateDate($credit->reminder1_sent, $credit->client->date_format(), $credit->client->locale()),
                         'reminder2_sent' => $this->translateDate($credit->reminder2_sent, $credit->client->date_format(), $credit->client->locale()),
                         'reminder3_sent' => $this->translateDate($credit->reminder3_sent, $credit->client->date_format(), $credit->client->locale()),
