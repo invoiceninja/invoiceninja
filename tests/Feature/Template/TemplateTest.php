@@ -25,6 +25,7 @@ use App\Utils\Traits\MakesDates;
 use App\Jobs\Entity\CreateRawPdf;
 use App\Services\PdfMaker\PdfMaker;
 use Illuminate\Support\Facades\App;
+use App\Services\Template\TemplateMock;
 use App\Services\Template\TemplateService;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
