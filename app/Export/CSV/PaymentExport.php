@@ -71,8 +71,6 @@ class PaymentExport extends BaseExport
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
 
-        nlog($header);
-
         $report = $query->cursor()
                 ->map(function ($resource) {
                     $row = $this->buildRow($resource);

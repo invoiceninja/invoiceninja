@@ -11,9 +11,9 @@
 
 namespace App\Http\Requests\GroupSetting;
 
-use App\Http\Requests\Request;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\Settings\SettingsData;
+use App\Http\Requests\Request;
 use App\Http\ValidationRules\ValidClientGroupSettingsRule;
 
 class UpdateGroupSettingRequest extends Request

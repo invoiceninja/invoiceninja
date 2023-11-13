@@ -233,7 +233,6 @@ class PurchaseOrderTest extends TestCase
 
         $x = $purchase_order->service()->markSent()->getPurchaseOrderPdf();
 
-        // nlog($x);
     }
 
     public function testPurchaseOrderRest()

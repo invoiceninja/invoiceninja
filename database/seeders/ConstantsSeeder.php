@@ -62,6 +62,7 @@ class ConstantsSeeder extends Seeder
         $timezones[] = ['name'=>'Canada/Newfoundland', 'location' => '(GMT-03:30) Newfoundland', 'utc_offset' => -12600];
         $timezones[] = ['name'=>'America/Buenos_Aires', 'location' => '(GMT-03:00) Buenos Aires', 'utc_offset' => -10800];
         $timezones[] = ['name'=>'America/Godthab', 'location' => '(GMT-03:00) Greenland', 'utc_offset' => -10800];
+        $timezones[] = ['name'=>'America/Sao_Paulo', 'location' => '(GMT-03:00) Sao Paulo', 'utc_offset' => -10800];
         $timezones[] = ['name'=>'Atlantic/Stanley', 'location' => '(GMT-02:00) Stanley', 'utc_offset' => -7200];
         $timezones[] = ['name'=>'Atlantic/Azores', 'location' => '(GMT-01:00) Azores', 'utc_offset' => -3600];
         $timezones[] = ['name'=>'Atlantic/Cape_Verde', 'location' => '(GMT-01:00) Cape Verde Is.', 'utc_offset' => -3600];

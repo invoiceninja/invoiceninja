@@ -12,7 +12,6 @@
 namespace App\Http\Requests\Invoice;
 
 use App\Http\Requests\Request;
-use Illuminate\Http\UploadedFile;
 
 class UploadInvoiceRequest extends Request
 {

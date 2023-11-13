@@ -11,11 +11,11 @@
 
 namespace App\Mail;
 
-use App\Utils\Ninja;
 use App\Models\VendorContact;
-use Illuminate\Mail\Mailable;
-use App\Utils\VendorHtmlEngine;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
+use App\Utils\Ninja;
+use App\Utils\VendorHtmlEngine;
+use Illuminate\Mail\Mailable;
 
 class VendorTemplateEmail extends Mailable
 {

@@ -14,7 +14,6 @@ namespace App\Http\Controllers;
 use App\Events\Payment\PaymentWasUpdated;
 use App\Factory\PaymentFactory;
 use App\Filters\PaymentFilters;
-use App\Http\Requests\Payment\ActionPaymentRequest;
 use App\Http\Requests\Payment\CreatePaymentRequest;
 use App\Http\Requests\Payment\DestroyPaymentRequest;
 use App\Http\Requests\Payment\EditPaymentRequest;
@@ -24,14 +23,12 @@ use App\Http\Requests\Payment\StorePaymentRequest;
 use App\Http\Requests\Payment\UpdatePaymentRequest;
 use App\Http\Requests\Payment\UploadPaymentRequest;
 use App\Models\Account;
-use App\Models\Invoice;
 use App\Models\Payment;
 use App\Repositories\PaymentRepository;
 use App\Transformers\PaymentTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**

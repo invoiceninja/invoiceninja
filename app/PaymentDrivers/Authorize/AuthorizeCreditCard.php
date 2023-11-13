@@ -12,21 +12,20 @@
 
 namespace App\PaymentDrivers\Authorize;
 
-use App\Models\Payment;
-use App\Models\SystemLog;
+use App\Exceptions\PaymentFailed;
+use App\Jobs\Util\SystemLogger;
+use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use App\Jobs\Util\SystemLogger;
-use App\Utils\Traits\MakesHash;
-use App\Exceptions\PaymentFailed;
-use App\Models\ClientGatewayToken;
+use App\Models\SystemLog;
 use App\PaymentDrivers\AuthorizePaymentDriver;
-use App\PaymentDrivers\Authorize\AuthorizeTransaction;
-use net\authorize\api\contract\v1\DeleteCustomerProfileRequest;
-use net\authorize\api\controller\DeleteCustomerProfileController;
+use App\Utils\Traits\MakesHash;
 use net\authorize\api\contract\v1\DeleteCustomerPaymentProfileRequest;
+use net\authorize\api\contract\v1\DeleteCustomerProfileRequest;
 use net\authorize\api\controller\DeleteCustomerPaymentProfileController;
+use net\authorize\api\controller\DeleteCustomerProfileController;
 
 /**
  * Class AuthorizeCreditCard.
@@ -47,6 +46,7 @@ class AuthorizeCreditCard
         $tokens = ClientGatewayToken::where('client_id', $this->authorize->client->id)
                                     ->where('company_gateway_id', $this->authorize->company_gateway->id)
                                     ->where('gateway_type_id', GatewayType::CREDIT_CARD)
+                                    ->orderBy('is_default', 'desc')
                                     ->get();
 
         $data['tokens'] = $tokens;
@@ -118,7 +118,7 @@ class AuthorizeCreditCard
         // $response = $controller->executeWithApiResponse($this->authorize->mode());
         // if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") )
         // {
-      //     nlog("SUCCESS: Delete Customer Payment Profile  SUCCESS");
+        //     nlog("SUCCESS: Delete Customer Payment Profile  SUCCESS");
         // }
         // else
         //   nlog("unable to delete profile {$customer_profile_id}");

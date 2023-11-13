@@ -14,11 +14,9 @@ namespace App\Services\Invoice\EInvoice;
 use App\Models\Invoice;
 use App\Models\Product;
 use App\Services\AbstractService;
-use horstoeko\zugferd\ZugferdProfiles;
-use Illuminate\Support\Facades\Storage;
-use horstoeko\zugferd\ZugferdDocumentBuilder;
-use horstoeko\zugferd\ZugferdDocumentPdfBuilder;
 use horstoeko\zugferd\codelists\ZugferdDutyTaxFeeCategories;
+use horstoeko\zugferd\ZugferdDocumentBuilder;
+use horstoeko\zugferd\ZugferdProfiles;
 
 class ZugferdEInvoice extends AbstractService
 {
@@ -58,13 +56,13 @@ class ZugferdEInvoice extends AbstractService
             ->setDocumentBuyerContact($client->primary_contact()->first()->first_name . " " . $client->primary_contact()->first()->last_name, "", $client->primary_contact()->first()->phone, "", $client->primary_contact()->first()->email)
             ->addDocumentPaymentTerm(ctrans("texts.xinvoice_payable", ['payeddue' => date_create($this->invoice->date ?? now()->format('Y-m-d'))->diff(date_create($this->invoice->due_date ?? now()->format('Y-m-d')))->format("%d"), 'paydate' => $this->invoice->due_date]));
 
-            if (!empty($this->invoice->public_notes)) {
+        if (!empty($this->invoice->public_notes)) {
             $this->xrechnung->addDocumentNote($this->invoice->public_notes);
         }
-		if (empty($this->invoice->number)){
-        	$this->xrechnung->setDocumentInformation("DRAFT", "380", date_create($this->invoice->date ?? now()->format('Y-m-d')), $this->invoice->client->getCurrencyCode());
+        if (empty($this->invoice->number)) {
+            $this->xrechnung->setDocumentInformation("DRAFT", "380", date_create($this->invoice->date ?? now()->format('Y-m-d')), $this->invoice->client->getCurrencyCode());
         } else {
-          $this->xrechnung->setDocumentInformation($this->invoice->number, "380", date_create($this->invoice->date ?? now()->format('Y-m-d')), $this->invoice->client->getCurrencyCode());
+            $this->xrechnung->setDocumentInformation($this->invoice->number, "380", date_create($this->invoice->date ?? now()->format('Y-m-d')), $this->invoice->client->getCurrencyCode());
         }
         if (!empty($this->invoice->po_number)) {
             $this->xrechnung->setDocumentBuyerOrderReferencedDocument($this->invoice->po_number);
@@ -75,7 +73,7 @@ class ZugferdEInvoice extends AbstractService
         } else {
             $this->xrechnung->setDocumentBuyerReference($client->routing_id);
         }
-        if (!empty($client->shipping_address1) && $client->shipping_country->exists()){
+        if (!empty($client->shipping_address1) && $client->shipping_country) {
             $this->xrechnung->setDocumentShipToAddress($client->shipping_address1, $client->shipping_address2, "", $client->shipping_postal_code, $client->shipping_city, $client->shipping_country->iso_3166_2, $client->shipping_state);
         }
 
@@ -95,19 +93,16 @@ class ZugferdEInvoice extends AbstractService
             $this->xrechnung->addNewPosition($index)
                 ->setDocumentPositionGrossPrice($item->gross_line_total)
                 ->setDocumentPositionNetPrice($item->line_total);
-            if (!empty($item->product_key)){
-                if (!empty($item->notes)){
-                   $this->xrechnung->setDocumentPositionProductDetails($item->product_key, $item->notes);
-                }
-                else {
+            if (!empty($item->product_key)) {
+                if (!empty($item->notes)) {
+                    $this->xrechnung->setDocumentPositionProductDetails($item->product_key, $item->notes);
+                } else {
                     $this->xrechnung->setDocumentPositionProductDetails($item->product_key);
                 }
-            }
-            else {
-                if (!empty($item->notes)){
+            } else {
+                if (!empty($item->notes)) {
                     $this->xrechnung->setDocumentPositionProductDetails($item->notes);
-                }
-                else {
+                } else {
                     $this->xrechnung->setDocumentPositionProductDetails("no product name defined");
                 }
             }
@@ -164,7 +159,7 @@ class ZugferdEInvoice extends AbstractService
 
         $this->xrechnung->setDocumentSummation($this->invoice->amount, $this->invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), 0.0, $this->invoice->amount-$this->invoice->balance);
 
-        foreach ($this->tax_map as $item){
+        foreach ($this->tax_map as $item) {
             $this->xrechnung->addDocumentTax($item["tax_type"], "VAT", $item["net_amount"], $item["tax_rate"]*$item["net_amount"], $item["tax_rate"]*100);
         }
 
@@ -225,10 +220,9 @@ class ZugferdEInvoice extends AbstractService
     private function addtoTaxMap(string $tax_type, float $net_amount, float $tax_rate): void
     {
         $hash = hash("md5", $tax_type."-".$tax_rate);
-        if (array_key_exists($hash, $this->tax_map)){
+        if (array_key_exists($hash, $this->tax_map)) {
             $this->tax_map[$hash]["net_amount"] += $net_amount;
-        }
-        else{
+        } else {
             $this->tax_map[$hash] = [
                 "tax_type" => $tax_type,
                 "net_amount" => $net_amount,

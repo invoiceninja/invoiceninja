@@ -41,7 +41,7 @@ class Hosted implements MethodInterface
      * Show the authorization page for Razorpay.
      *
      * @param array $data
-     * @return \Illuminate\View\View         
+     * @return \Illuminate\View\View
      */
     public function authorizeView(array $data): View
     {
@@ -63,7 +63,7 @@ class Hosted implements MethodInterface
      * Payment view for the Razorpay.
      *
      * @param array $data
-     * @return \Illuminate\View\View         
+     * @return \Illuminate\View\View
      */
     public function paymentView(array $data): View
     {

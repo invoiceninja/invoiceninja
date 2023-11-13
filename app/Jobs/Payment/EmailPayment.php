@@ -31,13 +31,7 @@ class EmailPayment implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $payment;
-
     public $email_builder;
-
-    private $contact;
-
-    private $company;
 
     public $settings;
 
@@ -49,11 +43,8 @@ class EmailPayment implements ShouldQueue
      * @param $contact
      * @param $company
      */
-    public function __construct(Payment $payment, Company $company, ?ClientContact $contact)
+    public function __construct(public Payment $payment, private Company $company, private ?ClientContact $contact)
     {
-        $this->payment = $payment;
-        $this->contact = $contact;
-        $this->company = $company;
         $this->settings = $payment->client->getMergedSettings();
     }
 
@@ -87,17 +78,17 @@ class EmailPayment implements ShouldQueue
 
             if ($this->payment->invoices && $this->payment->invoices->count() >= 1) {
 
-                if($this->contact){
+                if($this->contact) {
                     $invitation = $this->payment->invoices->first()->invitations()->where('client_contact_id', $this->contact->id)->first();
-                }
-                else
+                } else {
                     $invitation = $this->payment->invoices->first()->invitations()->first();
+                }
 
-                if($invitation)
+                if($invitation) {
                     $nmo->invitation = $invitation;
+                }
             }
 
-            
             $nmo->mailable = new TemplateEmail($email_builder, $this->contact, $invitation);
             $nmo->to_user = $this->contact;
             $nmo->settings = $this->settings;

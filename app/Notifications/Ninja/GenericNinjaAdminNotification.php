@@ -56,7 +56,7 @@ class GenericNinjaAdminNotification extends Notification
 
     public function toSlack($notifiable)
     {
-        $content = '';  
+        $content = '';
 
         foreach($this->message_array as $message) {
             $content .= $message . "\n";

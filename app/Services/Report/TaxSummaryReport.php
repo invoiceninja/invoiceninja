@@ -55,6 +55,7 @@ class TaxSummaryReport extends BaseExport
 
     public function run()
     {
+        
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
         App::setLocale($this->company->locale());
@@ -67,9 +68,6 @@ class TaxSummaryReport extends BaseExport
         $this->csv->insertOne([]);
         $this->csv->insertOne([]);
         $this->csv->insertOne([]);
-        $this->csv->insertOne([ctrans('texts.tax_summary')]);
-        $this->csv->insertOne([ctrans('texts.created_on'),' ',$this->translateDate(now()->format('Y-m-d'), $this->company->date_format(), $this->company->locale())]);
-        $this->csv->insertOne([ctrans('texts.date_range'),' ',$this->translateDate($this->input['start_date'], $this->company->date_format(), $this->company->locale()),' - ',$this->translateDate($this->input['end_date'], $this->company->date_format(), $this->company->locale())]);
 
         if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = $this->report_keys;
@@ -84,20 +82,26 @@ class TaxSummaryReport extends BaseExport
 
         $query = $this->addDateRange($query);
 
+        $this->csv->insertOne([ctrans('texts.tax_summary')]);
+        $this->csv->insertOne([ctrans('texts.created_on'),' ',$this->translateDate(now()->format('Y-m-d'), $this->company->date_format(), $this->company->locale())]);
+
+        if($this->input['date_range'] != 'all')
+            $this->csv->insertOne([ctrans('texts.date_range'),' ',$this->translateDate($this->start_date, $this->company->date_format(), $this->company->locale()),' - ',$this->translateDate($this->end_date, $this->company->date_format(), $this->company->locale())]);
+
+
+
         $query = $this->filterByClients($query);
         $accrual_map = [];
         $cash_map = [];
 
-        foreach($query->cursor() as $invoice) 
-        {
+        foreach($query->cursor() as $invoice) {
             $calc = $invoice->calc();
             
             //Combine the line taxes with invoice taxes here to get a total tax amount
             $taxes = array_merge($calc->getTaxMap()->merge($calc->getTotalTaxMap())->toArray());
 
             //filter into two arrays for accrual + cash
-            foreach($taxes as $tax) 
-            {
+            foreach($taxes as $tax) {
                 $key = $tax['name'];
 
                 if(!isset($accrual_map[$key])) {
@@ -113,13 +117,17 @@ class TaxSummaryReport extends BaseExport
                     $cash_map[$key]['tax_amount'] = 0;
                 }
                 
-                if(in_array($invoice->status_id, [Invoice::STATUS_PARTIAL,Invoice::STATUS_PAID])){
+                if(in_array($invoice->status_id, [Invoice::STATUS_PARTIAL,Invoice::STATUS_PAID])) {
 
-                if($invoice->status_id == Invoice::STATUS_PAID)
-                    $cash_map[$key]['tax_amount'] += $tax['total'];
-                else 
-                    $cash_map[$key]['tax_amount'] += (($invoice->amount - $invoice->balance) / $invoice->balance) * $tax['total'] ?? 0;
-
+                    try {
+                        if($invoice->status_id == Invoice::STATUS_PAID) {
+                            $cash_map[$key]['tax_amount'] += $tax['total'];
+                        } else {
+                            $cash_map[$key]['tax_amount'] += (($invoice->amount - $invoice->balance) / $invoice->balance) * $tax['total'] ?? 0;
+                        }
+                    } catch(\DivisionByZeroError $e) {
+                        $cash_map[$key]['tax_amount'] += 0;
+                    }
                 }
             }
 
@@ -130,8 +138,7 @@ class TaxSummaryReport extends BaseExport
         $this->csv->insertOne($this->buildHeader());
 
 
-        foreach($accrual_map as $key => $value)
-        {
+        foreach($accrual_map as $key => $value) {
             $this->csv->insertOne([$key, Number::formatMoney($value['tax_amount'], $this->company)]);
         }
 

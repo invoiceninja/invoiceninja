@@ -35,10 +35,10 @@ trait Excludable
 
     /**
      * Exclude an array of elements from the result.
-     * 
+     *
      * @method static \Illuminate\Database\Eloquent\Builder<static> exclude($columns)
      * @method static \Illuminate\Database\Eloquent\Builder<static> exclude($columns)
-     * 
+     *
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @param array $columns
      *

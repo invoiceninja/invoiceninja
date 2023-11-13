@@ -54,7 +54,7 @@ class StoreInvoiceRequest extends Request
         } elseif ($this->file('file')) {
             $rules['file'] = $this->file_validation;
         }
-
+        
         $rules['client_id'] = 'bail|required|exists:clients,id,company_id,'.$user->company()->id.',is_deleted,0';
 
         $rules['invitations.*.client_contact_id'] = 'distinct';
@@ -73,6 +73,8 @@ class StoreInvoiceRequest extends Request
         $rules['tax_name2'] = 'bail|sometimes|string|nullable';
         $rules['tax_name3'] = 'bail|sometimes|string|nullable';
         $rules['exchange_rate'] = 'bail|sometimes|numeric';
+        $rules['partial'] = 'bail|sometimes|nullable|numeric|gte:0';
+        $rules['partial_due_date'] = ['bail', 'sometimes', 'exclude_if:partial,0', Rule::requiredIf(fn () => $this->partial > 0), 'date'];
 
         return $rules;
     }

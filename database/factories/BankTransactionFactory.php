@@ -27,7 +27,7 @@ class BankTransactionFactory extends Factory
             'amount' => $this->faker->randomFloat(2, 10, 10000) ,
             'currency_id' => '1',
             'account_type' => 'creditCard',
-            'category_id' => 1,
+            'category_id' => null,
             'category_type' => 'Random' ,
             'date' => $this->faker->date('Y-m-d') ,
             'bank_account_id' => 1 ,

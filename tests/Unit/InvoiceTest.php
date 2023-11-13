@@ -49,6 +49,8 @@ class InvoiceTest extends TestCase
         $this->invoice_calc = new InvoiceSum($this->invoice);
     }
 
+
+   
     public function testMarkPaidWithPartial()
     {
         $item = InvoiceItemFactory::create();

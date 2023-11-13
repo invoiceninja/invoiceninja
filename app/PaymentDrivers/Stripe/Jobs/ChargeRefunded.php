@@ -11,18 +11,18 @@
 
 namespace App\PaymentDrivers\Stripe\Jobs;
 
-use App\Models\Company;
-use App\Models\Payment;
 use App\Libraries\MultiDB;
-use App\Models\PaymentHash;
-use Illuminate\Bus\Queueable;
+use App\Models\Company;
 use App\Models\CompanyGateway;
-use Illuminate\Queue\SerializesModels;
+use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\PaymentDrivers\Stripe\Utilities;
-use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Queue\SerializesModels;
 
 class ChargeRefunded implements ShouldQueue
 {
@@ -93,10 +93,10 @@ class ChargeRefunded implements ShouldQueue
         if($payment->status_id == Payment::STATUS_COMPLETED) {
 
             $invoice_collection = $payment->paymentables
-                        ->where('paymentable_type','invoices')
-                        ->map(function ($pivot){
+                        ->where('paymentable_type', 'invoices')
+                        ->map(function ($pivot) {
                             return [
-                                'invoice_id' => $pivot->paymentable_id, 
+                                'invoice_id' => $pivot->paymentable_id,
                                 'amount' => $pivot->amount - $pivot->refunded
                             ];
                         });
@@ -106,15 +106,14 @@ class ChargeRefunded implements ShouldQueue
 
                 $invoice_collection = $payment->paymentables
                         ->where('paymentable_type', 'invoices')
-                        ->map(function ($pivot) use ($amount_refunded){
+                        ->map(function ($pivot) use ($amount_refunded) {
                             return [
                                 'invoice_id' => $pivot->paymentable_id,
                                 'amount' => $amount_refunded
                             ];
                         });
 
-            }
-            elseif($invoice_collection->sum('amount') != $amount_refunded) {
+            } elseif($invoice_collection->sum('amount') != $amount_refunded) {
                 //too many edges cases at this point, return early
                 return;
             }

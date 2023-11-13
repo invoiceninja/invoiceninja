@@ -34,7 +34,7 @@ class BulkActionQuoteRequest extends Request
             'action' => 'sometimes|in:convert_to_invoice,convert_to_project,email,bulk_download,bulk_print,clone_to_invoice,approve,download,restore,archive,delete,send_email,mark_sent',
         ];
 
-        if (in_array($input['action'], ['convert,convert_to_invoice']) ) {
+        if (in_array($input['action'], ['convert,convert_to_invoice'])) {
             $rules['action'] = [new ConvertableQuoteRule()];
         }
 

@@ -12,8 +12,8 @@
 namespace App\Services\Scheduler;
 
 use App\Models\Scheduler;
-use Illuminate\Support\Str;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Str;
 
 class EmailRecord
 {
@@ -29,8 +29,9 @@ class EmailRecord
 
         $entity = $class::find($this->decodePrimaryKey($this->scheduler->parameters['entity_id']));
         
-        if($entity)
+        if($entity) {
             $entity->service()->sendEmail();
+        }
 
         $this->scheduler->forceDelete();
     }

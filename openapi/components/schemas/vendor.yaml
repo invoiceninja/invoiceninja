@@ -145,6 +145,11 @@
           format: integer
           example: '134341234234'
           readOnly: true
+        display_name:
+          description: 'The display name of the vendor.'
+          type: string
+          example: 'Bob the vendor'
+          readOnly: true
         settings:
           $ref: '#/components/schemas/CompanySettings'
       type: object

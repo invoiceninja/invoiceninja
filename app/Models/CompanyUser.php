@@ -11,10 +11,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\Pivot;
-use Awobaz\Compoships\Exceptions\InvalidUsageException;
 use Awobaz\Compoships\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * App\Models\CompanyUser
@@ -149,7 +148,7 @@ class CompanyUser extends Pivot
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function user() 
+    public function user()
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
@@ -179,7 +178,7 @@ class CompanyUser extends Pivot
     }
 
     /**
-     * @return HasMany  
+     * @return HasMany
      */
     public function tokens()
     {

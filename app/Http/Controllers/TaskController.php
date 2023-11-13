@@ -327,7 +327,7 @@ class TaskController extends BaseController
      *     )
      */
     public function create(CreateTaskRequest $request)
-    {   
+    {
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
@@ -506,7 +506,7 @@ class TaskController extends BaseController
 
         $tasks->each(function ($task, $key) use ($action) {
             /** @var \App\Models\User $user */
-                $user = auth()->user();
+            $user = auth()->user();
             if ($user->can('edit', $task)) {
                 $this->task_repo->{$action}($task);
             }
@@ -633,7 +633,7 @@ class TaskController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        collect($task_statuses)->each(function ($task_status_hashed_id, $key) use($user){
+        collect($task_statuses)->each(function ($task_status_hashed_id, $key) use ($user) {
             $task_status = TaskStatus::query()->where('id', $this->decodePrimaryKey($task_status_hashed_id))
                                      ->where('company_id', $user->company()->id)
                                      ->withTrashed()

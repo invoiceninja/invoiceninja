@@ -31,7 +31,7 @@ class UpdateInvoiceRequest extends Request
      * @return bool
      */
     public function authorize() : bool
-    {   
+    {
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
@@ -76,6 +76,8 @@ class UpdateInvoiceRequest extends Request
         $rules['tax_name3'] = 'bail|sometimes|string|nullable';
         $rules['status_id'] = 'bail|sometimes|not_in:5'; //do not allow cancelled invoices to be modfified.
         $rules['exchange_rate'] = 'bail|sometimes|numeric';
+        $rules['partial'] = 'bail|sometimes|nullable|numeric';
+        $rules['partial_due_date'] = ['bail', 'sometimes', 'exclude_if:partial,0', Rule::requiredIf(fn () => $this->partial > 0), 'date'];
 
         return $rules;
     }

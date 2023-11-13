@@ -11,13 +11,13 @@
 
 namespace App\Http\Requests\GroupSetting;
 
-use App\Models\Account;
-use App\Models\GroupSetting;
-use App\Http\Requests\Request;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\Settings\SettingsData;
+use App\Http\Requests\Request;
 use App\Http\ValidationRules\ValidClientGroupSettingsRule;
+use App\Models\Account;
+use App\Models\GroupSetting;
 
 class StoreGroupSettingRequest extends Request
 {
@@ -52,8 +52,7 @@ class StoreGroupSettingRequest extends Request
 
         if (array_key_exists('settings', $input)) {
             $input['settings'] = $this->filterSaveableSettings($input['settings']);
-        }
-        else {
+        } else {
             $input['settings'] = (array)ClientSettings::defaults();
         }
 

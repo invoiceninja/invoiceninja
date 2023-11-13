@@ -53,19 +53,19 @@ class BankTransactionFilters extends QueryFilters
     }
 
 
-/**
-     * Filter based on client status.
-     *
-     * Statuses we need to handle
-     * - all
-     * - unmatched
-     * - matched
-     * - converted
-     * - deposits
-     * - withdrawals
-     *
-     * @return Builder
-     */
+    /**
+         * Filter based on client status.
+         *
+         * Statuses we need to handle
+         * - all
+         * - unmatched
+         * - matched
+         * - converted
+         * - deposits
+         * - withdrawals
+         *
+         * @return Builder
+         */
     public function client_status(string $value = ''): Builder
     {
         if (strlen($value) == 0) {

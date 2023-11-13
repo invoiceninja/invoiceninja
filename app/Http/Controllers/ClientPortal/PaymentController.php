@@ -27,7 +27,6 @@ use App\Services\Subscription\SubscriptionService;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\View\Factory;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;

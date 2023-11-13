@@ -11,7 +11,6 @@
 
 namespace App\Jobs\Invoice;
 
-use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\UnlinkFile;
@@ -30,14 +29,6 @@ class ZipInvoices implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $invoices;
-
-    private $company;
-
-    private $user;
-
-    public $settings;
-
     public $tries = 1;
 
     /**
@@ -47,15 +38,8 @@ class ZipInvoices implements ShouldQueue
      * @deprecated confirm to be deleted
      * Create a new job instance.
      */
-    public function __construct($invoices, Company $company, User $user)
+    public function __construct(public mixed $invoices, public Company $company, public User $user)
     {
-        $this->invoices = $invoices;
-
-        $this->company = $company;
-
-        $this->user = $user;
-
-        $this->settings = $company->settings;
     }
 
     /**
@@ -66,6 +50,7 @@ class ZipInvoices implements ShouldQueue
     public function handle(): void
     {
         MultiDB::setDb($this->company->db);
+        $settings = $this->company->settings;
 
         // create new zip object
         $zipFile = new \PhpZip\ZipFile();
@@ -93,7 +78,7 @@ class ZipInvoices implements ShouldQueue
             $nmo = new NinjaMailerObject;
             $nmo->mailable = new DownloadInvoices(Storage::url($path.$file_name), $this->company);
             $nmo->to_user = $this->user;
-            $nmo->settings = $this->settings;
+            $nmo->settings = $settings;
             $nmo->company = $this->company;
 
             NinjaMailerJob::dispatch($nmo);

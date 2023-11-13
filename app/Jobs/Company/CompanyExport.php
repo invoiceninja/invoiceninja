@@ -11,30 +11,29 @@
 
 namespace App\Jobs\Company;
 
-use App\Models\User;
-use App\Utils\Ninja;
-use App\Models\Company;
-use App\Libraries\MultiDB;
-use Illuminate\Support\Str;
-use App\Mail\DownloadBackup;
-use App\Jobs\Util\UnlinkFile;
-use App\Models\VendorContact;
-use Illuminate\Bus\Queueable;
-use App\Models\QuoteInvitation;
-use App\Utils\Traits\MakesHash;
-use App\Models\CreditInvitation;
 use App\Jobs\Mail\NinjaMailerJob;
-use App\Models\InvoiceInvitation;
-use Illuminate\Support\Facades\App;
 use App\Jobs\Mail\NinjaMailerObject;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Queue\SerializesModels;
+use App\Jobs\Util\UnlinkFile;
+use App\Libraries\MultiDB;
+use App\Mail\DownloadBackup;
+use App\Models\Company;
+use App\Models\CreditInvitation;
+use App\Models\InvoiceInvitation;
 use App\Models\PurchaseOrderInvitation;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
+use App\Models\User;
+use App\Models\VendorContact;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class CompanyExport implements ShouldQueue
 {
@@ -202,7 +201,7 @@ class CompanyExport implements ShouldQueue
             return $document->makeVisible(['id']);
         })->all();
 
-        $this->export_data['expense_categories'] = $this->company->expense_categories->map(function ($expense_category) {
+        $this->export_data['expense_categories'] = $this->company->expense_categories()->cursor()->map(function ($expense_category) {
             $expense_category = $this->transformArrayOfKeys($expense_category, ['user_id', 'company_id']);
             
             return $expense_category->makeVisible(['id']);
@@ -289,7 +288,7 @@ class CompanyExport implements ShouldQueue
         $this->export_data['recurring_expenses'] = $this->company->recurring_expenses()->orderBy('number', 'DESC')->cursor()->map(function ($expense) {
             $expense = $this->transformBasicEntities($expense);
             $expense = $this->transformArrayOfKeys($expense, ['vendor_id', 'invoice_id', 'client_id', 'category_id', 'project_id']);
-
+            
             return $expense->makeVisible(['id']);
         })->all();
 
@@ -400,6 +399,12 @@ class CompanyExport implements ShouldQueue
             return $bank_transaction->makeVisible(['id','user_id','company_id']);
         })->all();
 
+        $this->export_data['schedulers'] = $this->company->schedulers()->orderBy('id', 'ASC')->cursor()->map(function ($scheduler) {
+            $scheduler = $this->transformArrayOfKeys($scheduler, ['company_id', 'user_id']);
+
+            return $scheduler->makeVisible(['id','user_id','company_id']);
+        })->all();
+
         //write to tmp and email to owner();
         
         $this->zipAndSend();
@@ -441,7 +446,7 @@ class CompanyExport implements ShouldQueue
 
         $path = 'backups';
 
-        Storage::makeDirectory(storage_path('backups/'));
+        // Storage::makeDirectory(storage_path('backups/'));
 
         try {
             mkdir(storage_path('backups/'));
@@ -461,13 +466,15 @@ class CompanyExport implements ShouldQueue
 
         Storage::disk(config('filesystems.default'))->put('backups/'.$file_name, file_get_contents($zip_path));
 
-        if(file_exists($zip_path))
-            unlink($zip_path);        
+        if(file_exists($zip_path)) {
+            unlink($zip_path);
+        }
 
-        if(Ninja::isSelfHost())
+        if(Ninja::isSelfHost()) {
             $storage_path = 'backups/'.$file_name;
-        else
+        } else {
             $storage_path = Storage::disk(config('filesystems.default'))->path('backups/'.$file_name);
+        }
 
         $url = Cache::get($this->hash);
 
@@ -492,8 +499,9 @@ class CompanyExport implements ShouldQueue
         if (Ninja::isHosted()) {
             sleep(3);
             
-            if(file_exists($zip_path))
+            if(file_exists($zip_path)) {
                 unlink($zip_path);
+            }
         }
     }
 }

@@ -11,10 +11,10 @@
 
 namespace App\Events\Design;
 
-use App\Models\Design;
 use App\Models\Company;
-use Illuminate\Queue\SerializesModels;
+use App\Models\Design;
 use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Queue\SerializesModels;
 
 /**
  * Class DesignWasUpdated.
@@ -32,8 +32,8 @@ class DesignWasUpdated
      *
      * @return PrivateChannel|array
      */
-     public function broadcastOn()
-     {
+    public function broadcastOn()
+    {
         return [];
-     }
+    }
 }

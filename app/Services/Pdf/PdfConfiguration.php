@@ -25,6 +25,7 @@ use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderInvitation;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
+use App\Models\RecurringInvoice;
 use App\Models\RecurringInvoiceInvitation;
 use App\Models\Vendor;
 use App\Models\VendorContact;
@@ -51,7 +52,7 @@ class PdfConfiguration
     
     public Design $design;
     
-    public Invoice | Credit | Quote | PurchaseOrder $entity;
+    public Invoice | Credit | Quote | PurchaseOrder | RecurringInvoice $entity;
     
     public string $entity_design_id;
     
@@ -180,7 +181,7 @@ class PdfConfiguration
             $this->entity_design_id = 'invoice_design_id';
             $this->settings = $this->client->getMergedSettings();
             $this->settings_object = $this->client;
-            $this->country = $this->client->country;
+            $this->country = $this->client->country ?? $this->client->company->country();
         } elseif ($this->service->invitation instanceof QuoteInvitation) {
             $this->entity = $this->service->invitation->quote;
             $this->entity_string = 'quote';
@@ -190,7 +191,7 @@ class PdfConfiguration
             $this->entity_design_id = 'quote_design_id';
             $this->settings = $this->client->getMergedSettings();
             $this->settings_object = $this->client;
-            $this->country = $this->client->country;
+            $this->country = $this->client->country ?? $this->client->company->country();
         } elseif ($this->service->invitation instanceof CreditInvitation) {
             $this->entity = $this->service->invitation->credit;
             $this->entity_string = 'credit';
@@ -200,7 +201,7 @@ class PdfConfiguration
             $this->entity_design_id = 'credit_design_id';
             $this->settings = $this->client->getMergedSettings();
             $this->settings_object = $this->client;
-            $this->country = $this->client->country;
+            $this->country = $this->client->country ?? $this->client->company->country();
         } elseif ($this->service->invitation instanceof RecurringInvoiceInvitation) {
             $this->entity = $this->service->invitation->recurring_invoice;
             $this->entity_string = 'recurring_invoice';
@@ -210,7 +211,7 @@ class PdfConfiguration
             $this->entity_design_id = 'invoice_design_id';
             $this->settings = $this->client->getMergedSettings();
             $this->settings_object = $this->client;
-            $this->country = $this->client->country;
+            $this->country = $this->client->country ?? $this->client->company->country();
         } elseif ($this->service->invitation instanceof PurchaseOrderInvitation) {
             $this->entity = $this->service->invitation->purchase_order;
             $this->entity_string = 'purchase_order';
@@ -222,7 +223,7 @@ class PdfConfiguration
             $this->settings = $this->vendor->company->settings;
             $this->settings_object = $this->vendor;
             $this->client = null;
-            $this->country = $this->vendor->country ?: $this->vendor->company->country();
+            $this->country = $this->vendor->country ?? $this->vendor->company->country();
         } else {
             throw new \Exception('Unable to resolve entity', 500);
         }

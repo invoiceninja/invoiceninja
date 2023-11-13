@@ -11,15 +11,15 @@
 
 namespace App\PaymentDrivers\Stripe;
 
-use App\Models\Payment;
-use App\Models\SystemLog;
-use App\Models\GatewayType;
-use App\Models\PaymentType;
-use App\Jobs\Util\SystemLogger;
 use App\Exceptions\PaymentFailed;
-use App\Models\ClientGatewayToken;
-use App\PaymentDrivers\StripePaymentDriver;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Jobs\Util\SystemLogger;
+use App\Models\ClientGatewayToken;
+use App\Models\GatewayType;
+use App\Models\Payment;
+use App\Models\PaymentType;
+use App\Models\SystemLog;
+use App\PaymentDrivers\StripePaymentDriver;
 
 class SEPA
 {

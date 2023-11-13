@@ -103,8 +103,7 @@ class GoCardlessPaymentDriver extends BaseDriver
                 'access_token' => $this->company_gateway->getConfigField('accessToken'),
                 'environment'  => $this->company_gateway->getConfigField('testMode') ? \GoCardlessPro\Environment::SANDBOX : \GoCardlessPro\Environment::LIVE,
             ]);
-        }
-        catch(\GoCardlessPro\Core\Exception\AuthenticationException $e){
+        } catch(\GoCardlessPro\Core\Exception\AuthenticationException $e) {
 
             throw new \Exception('GoCardless: Invalid Access Token', 403);
             
@@ -145,11 +144,18 @@ class GoCardlessPaymentDriver extends BaseDriver
 
         $this->init();
 
+        if ($payment_hash->fee_invoice) {
+            $description = "Invoice {$payment_hash->fee_invoice->number} for {$amount} for client {$this->client->present()->name()}";
+        } else {
+            $description = "Amount {$amount} from client {$this->client->present()->name()}";
+        }
+
         try {
             $payment = $this->gateway->payments()->create([
                 'params' => [
                     'amount' => $converted_amount,
                     'currency' => $this->client->getCurrencyCode(),
+                    'description' => $description,
                     'metadata' => [
                         'payment_hash' => $this->payment_hash->hash,
                     ],
@@ -398,7 +404,9 @@ class GoCardlessPaymentDriver extends BaseDriver
             $this->init();
             $mandate = $this->gateway->mandates()->get($token);
 
-            if ($mandate->status !== 'active') {
+            if(!in_array($mandate->status, ['pending_submission', 'submitted', 'active','pending_customer_approval'])) {
+             
+            // if ($mandate->status !== 'active') {
                 throw new \Exception(ctrans('texts.gocardless_mandate_not_ready'));
             }
         } catch (\Exception $exception) {

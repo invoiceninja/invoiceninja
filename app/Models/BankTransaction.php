@@ -11,9 +11,8 @@
 
 namespace App\Models;
 
-use App\Models\Expense;
-use App\Utils\Traits\MakesHash;
 use App\Services\Bank\BankService;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**

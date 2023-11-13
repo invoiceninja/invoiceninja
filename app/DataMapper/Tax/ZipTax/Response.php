@@ -53,7 +53,7 @@ class Response
     *            "district5SalesTax" => 0,
     *            "district5UseTax" => 0,
     *            "originDestination" => "D",
-    *            
+    *
     *    ];
     *
     */
@@ -114,4 +114,3 @@ class Response
     }
 
 }
-    

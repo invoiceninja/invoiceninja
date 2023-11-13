@@ -12,8 +12,8 @@
 namespace App\Export\CSV;
 
 use App\Libraries\MultiDB;
-use App\Models\Vendor;
 use App\Models\Company;
+use App\Models\Vendor;
 use App\Transformers\VendorContactTransformer;
 use App\Transformers\VendorTransformer;
 use App\Utils\Ninja;
@@ -73,9 +73,9 @@ class VendorExport extends BaseExport
 
         $headerdisplay = $this->buildHeader();
 
-        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
-                return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
-            })->toArray();
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
+            return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
+        })->toArray();
 
         $report = $query->cursor()
                 ->map(function ($resource) {

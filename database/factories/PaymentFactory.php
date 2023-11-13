@@ -30,6 +30,7 @@ class PaymentFactory extends Factory
             'transaction_reference' => $this->faker->text(10),
             'type_id' => Payment::TYPE_CREDIT_CARD,
             'status_id' => Payment::STATUS_COMPLETED,
+            'currency_id' => 1,
         ];
     }
 }

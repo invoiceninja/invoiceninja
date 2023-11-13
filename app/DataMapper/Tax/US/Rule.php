@@ -74,7 +74,7 @@ class Rule extends BaseRule implements RuleInterface
             Product::PRODUCT_TYPE_SHIPPING => $this->taxShipping($item),
             Product::PRODUCT_TYPE_PHYSICAL => $this->taxPhysical($item),
             Product::PRODUCT_TYPE_REDUCED_TAX => $this->taxReduced($item),
-            Product::PRODUCT_TYPE_OVERRIDE_TAX => $this->override($item), 
+            Product::PRODUCT_TYPE_OVERRIDE_TAX => $this->override($item),
             Product::PRODUCT_TYPE_ZERO_RATED => $this->zeroRated($item),
             default => $this->default($item),
         };
@@ -117,10 +117,9 @@ class Rule extends BaseRule implements RuleInterface
      */
     public function taxService($item): self
     {
-        if(in_array($this->tax_data?->txbService,['Y','L'])) {
+        if(in_array($this->tax_data?->txbService, ['Y','L'])) {
             $this->default($item);
-        }
-        else {
+        } else {
             $this->taxExempt($item);
         }
 

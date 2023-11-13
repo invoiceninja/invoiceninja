@@ -11,16 +11,16 @@
 
 namespace App\Export\CSV;
 
+use App\Libraries\MultiDB;
+use App\Models\Client;
+use App\Models\Company;
+use App\Transformers\ClientContactTransformer;
+use App\Transformers\ClientTransformer;
 use App\Utils\Ninja;
 use App\Utils\Number;
-use App\Models\Client;
-use League\Csv\Writer;
-use App\Models\Company;
-use App\Libraries\MultiDB;
-use Illuminate\Support\Facades\App;
-use App\Transformers\ClientTransformer;
 use Illuminate\Database\Eloquent\Builder;
-use App\Transformers\ClientContactTransformer;
+use Illuminate\Support\Facades\App;
+use League\Csv\Writer;
 
 class ClientExport extends BaseExport
 {
@@ -92,9 +92,9 @@ class ClientExport extends BaseExport
 
         $headerdisplay = $this->buildHeader();
 
-        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
-                return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
-            })->toArray();
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
+            return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
+        })->toArray();
 
         $report = $query->cursor()
                 ->map(function ($client) {
@@ -126,7 +126,7 @@ class ClientExport extends BaseExport
 
         $query = $this->addDateRange($query);
 
-            return $query;
+        return $query;
             
     }
 
@@ -191,10 +191,11 @@ class ClientExport extends BaseExport
             $clean_row[$key]['value'] = $row[$column_key];
             $clean_row[$key]['identifier'] = $value;
 
-            if(in_array($clean_row[$key]['id'], ['paid_to_date', 'balance', 'credit_balance','payment_balance']))
+            if(in_array($clean_row[$key]['id'], ['paid_to_date', 'balance', 'credit_balance','payment_balance'])) {
                 $clean_row[$key]['display_value'] = Number::formatMoney($row[$column_key], $resource);
-            else
+            } else {
                 $clean_row[$key]['display_value'] = $row[$column_key];
+            }
 
         }
 

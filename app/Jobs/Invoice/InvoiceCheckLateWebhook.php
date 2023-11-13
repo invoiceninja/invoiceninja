@@ -64,7 +64,7 @@ class InvoiceCheckLateWebhook implements ShouldQueue
                  ->whereBetween('due_date', [now()->subDay()->startOfDay(), now()->startOfDay()->subSecond()])
                  ->cursor()
                  ->each(function ($invoice) {
-                     WebhookHandler::dispatch(Webhook::EVENT_LATE_INVOICE, $invoice, $invoice->company, 'client')->delay(now()->addSeconds(2));
+                     (new WebhookHandler(Webhook::EVENT_LATE_INVOICE, $invoice, $invoice->company, 'client'))->handle();
                  });
         } else {
             foreach (MultiDB::$dbs as $db) {
@@ -91,7 +91,7 @@ class InvoiceCheckLateWebhook implements ShouldQueue
                      ->whereBetween('due_date', [now()->subDay()->startOfDay(), now()->startOfDay()->subSecond()])
                      ->cursor()
                      ->each(function ($invoice) {
-                         WebhookHandler::dispatch(Webhook::EVENT_LATE_INVOICE, $invoice, $invoice->company, 'client')->delay(now()->addSeconds(2));
+                         (new WebhookHandler(Webhook::EVENT_LATE_INVOICE, $invoice, $invoice->company, 'client'))->handle();
                      });
             }
         }

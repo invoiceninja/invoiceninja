@@ -11,24 +11,24 @@
 
 namespace App\Jobs\PostMark;
 
-use App\Models\SystemLog;
-use App\Libraries\MultiDB;
-use Postmark\PostmarkClient;
-use Illuminate\Bus\Queueable;
+use App\DataMapper\Analytics\Mail\EmailBounce;
+use App\DataMapper\Analytics\Mail\EmailSpam;
 use App\Jobs\Util\SystemLogger;
-use App\Models\QuoteInvitation;
+use App\Libraries\MultiDB;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
-use Illuminate\Queue\SerializesModels;
-use Turbo124\Beacon\Facades\LightLogs;
 use App\Models\PurchaseOrderInvitation;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
+use App\Models\SystemLog;
+use App\Notifications\Ninja\EmailSpamNotification;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\DataMapper\Analytics\Mail\EmailSpam;
-use App\DataMapper\Analytics\Mail\EmailBounce;
-use App\Notifications\Ninja\EmailSpamNotification;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Postmark\PostmarkClient;
+use Turbo124\Beacon\Facades\LightLogs;
 
 class ProcessPostmarkWebhook implements ShouldQueue
 {
@@ -62,7 +62,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
                 ->where('company_id', $this->invitation->company_id)
                 ->where('type_id', SystemLog::TYPE_WEBHOOK_RESPONSE)
                 ->whereJsonContains('log', ['MessageID' => $message_id])
-                ->orderBy('id','desc')
+                ->orderBy('id', 'desc')
                 ->first();
 
     }
@@ -108,42 +108,42 @@ class ProcessPostmarkWebhook implements ShouldQueue
         }
     }
 
-// {
-//   "Metadata": {
-//     "example": "value",
-//     "example_2": "value"
-//   },
-//   "RecordType": "Open",
-//   "FirstOpen": true,
-//   "Client": {
-//     "Name": "Chrome 35.0.1916.153",
-//     "Company": "Google",
-//     "Family": "Chrome"
-//   },
-//   "OS": {
-//     "Name": "OS X 10.7 Lion",
-//     "Company": "Apple Computer, Inc.",
-//     "Family": "OS X 10"
-//   },
-//   "Platform": "WebMail",
-//   "UserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36",
-//   "ReadSeconds": 5,
-//   "Geo": {
-//     "CountryISOCode": "RS",
-//     "Country": "Serbia",
-//     "RegionISOCode": "VO",
-//     "Region": "Autonomna Pokrajina Vojvodina",
-//     "City": "Novi Sad",
-//     "Zip": "21000",
-//     "Coords": "45.2517,19.8369",
-//     "IP": "188.2.95.4"
-//   },
-//   "MessageID": "00000000-0000-0000-0000-000000000000",
-//   "MessageStream": "outbound",
-//   "ReceivedAt": "2022-02-06T06:37:48Z",
-//   "Tag": "welcome-email",
-//   "Recipient": "john@example.com"
-// }
+    // {
+    //   "Metadata": {
+    //     "example": "value",
+    //     "example_2": "value"
+    //   },
+    //   "RecordType": "Open",
+    //   "FirstOpen": true,
+    //   "Client": {
+    //     "Name": "Chrome 35.0.1916.153",
+    //     "Company": "Google",
+    //     "Family": "Chrome"
+    //   },
+    //   "OS": {
+    //     "Name": "OS X 10.7 Lion",
+    //     "Company": "Apple Computer, Inc.",
+    //     "Family": "OS X 10"
+    //   },
+    //   "Platform": "WebMail",
+    //   "UserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36",
+    //   "ReadSeconds": 5,
+    //   "Geo": {
+    //     "CountryISOCode": "RS",
+    //     "Country": "Serbia",
+    //     "RegionISOCode": "VO",
+    //     "Region": "Autonomna Pokrajina Vojvodina",
+    //     "City": "Novi Sad",
+    //     "Zip": "21000",
+    //     "Coords": "45.2517,19.8369",
+    //     "IP": "188.2.95.4"
+    //   },
+    //   "MessageID": "00000000-0000-0000-0000-000000000000",
+    //   "MessageStream": "outbound",
+    //   "ReceivedAt": "2022-02-06T06:37:48Z",
+    //   "Tag": "welcome-email",
+    //   "Recipient": "john@example.com"
+    // }
 
     private function processOpen()
     {
@@ -154,7 +154,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
 
         $sl = $this->getSystemLog($this->request['MessageID']);
 
-        if($sl){
+        if($sl) {
             $this->updateSystemLog($sl, $data);
             return;
         }
@@ -169,20 +169,20 @@ class ProcessPostmarkWebhook implements ShouldQueue
         ))->handle();
     }
 
-// {
-//   "RecordType": "Delivery",
-//   "ServerID": 23,
-//   "MessageStream": "outbound",
-//   "MessageID": "00000000-0000-0000-0000-000000000000",
-//   "Recipient": "john@example.com",
-//   "Tag": "welcome-email",
-//   "DeliveredAt": "2021-02-21T16:34:52Z",
-//   "Details": "Test delivery webhook details",
-//   "Metadata": {
-//     "example": "value",
-//     "example_2": "value"
-//   }
-// }
+    // {
+    //   "RecordType": "Delivery",
+    //   "ServerID": 23,
+    //   "MessageStream": "outbound",
+    //   "MessageID": "00000000-0000-0000-0000-000000000000",
+    //   "Recipient": "john@example.com",
+    //   "Tag": "welcome-email",
+    //   "DeliveredAt": "2021-02-21T16:34:52Z",
+    //   "Details": "Test delivery webhook details",
+    //   "Metadata": {
+    //     "example": "value",
+    //     "example_2": "value"
+    //   }
+    // }
     private function processDelivery()
     {
         $this->invitation->email_status = 'delivered';
@@ -207,31 +207,31 @@ class ProcessPostmarkWebhook implements ShouldQueue
         ))->handle();
     }
 
-// {
-//   "Metadata": {
-//     "example": "value",
-//     "example_2": "value"
-//   },
-//   "RecordType": "Bounce",
-//   "ID": 42,
-//   "Type": "HardBounce",
-//   "TypeCode": 1,
-//   "Name": "Hard bounce",
-//   "Tag": "Test",
-//   "MessageID": "00000000-0000-0000-0000-000000000000",
-//   "ServerID": 1234,
-//   "MessageStream": "outbound",
-//   "Description": "The server was unable to deliver your message (ex: unknown user, mailbox not found).",
-//   "Details": "Test bounce details",
-//   "Email": "john@example.com",
-//   "From": "sender@example.com",
-//   "BouncedAt": "2021-02-21T16:34:52Z",
-//   "DumpAvailable": true,
-//   "Inactive": true,
-//   "CanActivate": true,
-//   "Subject": "Test subject",
-//   "Content": "Test content"
-// }
+    // {
+    //   "Metadata": {
+    //     "example": "value",
+    //     "example_2": "value"
+    //   },
+    //   "RecordType": "Bounce",
+    //   "ID": 42,
+    //   "Type": "HardBounce",
+    //   "TypeCode": 1,
+    //   "Name": "Hard bounce",
+    //   "Tag": "Test",
+    //   "MessageID": "00000000-0000-0000-0000-000000000000",
+    //   "ServerID": 1234,
+    //   "MessageStream": "outbound",
+    //   "Description": "The server was unable to deliver your message (ex: unknown user, mailbox not found).",
+    //   "Details": "Test bounce details",
+    //   "Email": "john@example.com",
+    //   "From": "sender@example.com",
+    //   "BouncedAt": "2021-02-21T16:34:52Z",
+    //   "DumpAvailable": true,
+    //   "Inactive": true,
+    //   "CanActivate": true,
+    //   "Subject": "Test subject",
+    //   "Content": "Test content"
+    // }
 
     private function processBounce()
     {
@@ -261,31 +261,31 @@ class ProcessPostmarkWebhook implements ShouldQueue
         // $this->invitation->company->notification(new EmailBounceNotification($this->invitation->company->account))->ninja();
     }
 
-// {
-//   "Metadata": {
-//     "example": "value",
-//     "example_2": "value"
-//   },
-//   "RecordType": "SpamComplaint",
-//   "ID": 42,
-//   "Type": "SpamComplaint",
-//   "TypeCode": 100001,
-//   "Name": "Spam complaint",
-//   "Tag": "Test",
-//   "MessageID": "00000000-0000-0000-0000-000000000000",
-//   "ServerID": 1234,
-//   "MessageStream": "outbound",
-//   "Description": "The subscriber explicitly marked this message as spam.",
-//   "Details": "Test spam complaint details",
-//   "Email": "john@example.com",
-//   "From": "sender@example.com",
-//   "BouncedAt": "2021-02-21T16:34:52Z",
-//   "DumpAvailable": true,
-//   "Inactive": true,
-//   "CanActivate": false,
-//   "Subject": "Test subject",
-//   "Content": "Test content"
-// }
+    // {
+    //   "Metadata": {
+    //     "example": "value",
+    //     "example_2": "value"
+    //   },
+    //   "RecordType": "SpamComplaint",
+    //   "ID": 42,
+    //   "Type": "SpamComplaint",
+    //   "TypeCode": 100001,
+    //   "Name": "Spam complaint",
+    //   "Tag": "Test",
+    //   "MessageID": "00000000-0000-0000-0000-000000000000",
+    //   "ServerID": 1234,
+    //   "MessageStream": "outbound",
+    //   "Description": "The subscriber explicitly marked this message as spam.",
+    //   "Details": "Test spam complaint details",
+    //   "Email": "john@example.com",
+    //   "From": "sender@example.com",
+    //   "BouncedAt": "2021-02-21T16:34:52Z",
+    //   "DumpAvailable": true,
+    //   "Inactive": true,
+    //   "CanActivate": false,
+    //   "Subject": "Test subject",
+    //   "Content": "Test content"
+    // }
     private function processSpamComplaint()
     {
         $this->invitation->email_status = 'spam';
@@ -367,9 +367,9 @@ class ProcessPostmarkWebhook implements ShouldQueue
 
     private function fetchMessage(): array
     {
-        if(strlen($this->request['MessageID']) < 1){
+        if(strlen($this->request['MessageID']) < 1) {
             return $this->default_response;
-        } 
+        }
     
         try {
 
@@ -401,8 +401,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
                 'events' => $events,
             ];
 
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
 
             return $this->default_response;
 

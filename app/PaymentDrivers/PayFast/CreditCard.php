@@ -211,6 +211,8 @@ class CreditCard
     {
         $response_array = $request->all();
 
+        nlog($request->all());
+
         $state = [
             'server_response' => $request->all(),
             'payment_hash' => $request->input('m_payment_id'),

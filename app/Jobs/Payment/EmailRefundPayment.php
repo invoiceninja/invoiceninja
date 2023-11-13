@@ -32,13 +32,7 @@ class EmailRefundPayment implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $payment;
-
     public $email_builder;
-
-    private $contact;
-
-    private $company;
 
     public $settings;
 
@@ -50,11 +44,8 @@ class EmailRefundPayment implements ShouldQueue
      * @param $contact
      * @param $company
      */
-    public function __construct(Payment $payment, Company $company, ClientContact $contact)
+    public function __construct(public Payment $payment, private Company $company, private ?ClientContact $contact)
     {
-        $this->payment = $payment;
-        $this->contact = $contact;
-        $this->company = $company;
         $this->settings = $payment->client->getMergedSettings();
     }
 
@@ -84,7 +75,9 @@ class EmailRefundPayment implements ShouldQueue
             $template_data['body'] = ctrans('texts.refunded_payment').' $payment.refunded <br><br>$invoices';
             $template_data['subject'] = ctrans('texts.refunded_payment');
 
-            $email_builder = (new PaymentEmailEngine($this->payment, $this->contact, $template_data))->build();
+            $email_builder = new PaymentEmailEngine($this->payment, $this->contact, $template_data);
+            $email_builder->is_refund = true;
+            $email_builder->build();
 
             $invitation = null;
 
@@ -98,8 +91,9 @@ class EmailRefundPayment implements ShouldQueue
                     $invitation = $this->payment->invoices->first()->invitations()->first();
                 }
 
-                if($invitation)
+                if($invitation) {
                     $nmo->invitation = $invitation;
+                }
             }
 
 

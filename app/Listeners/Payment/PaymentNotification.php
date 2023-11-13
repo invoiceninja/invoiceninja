@@ -11,16 +11,16 @@
 
 namespace App\Listeners\Payment;
 
-use App\Utils\Ninja;
-use App\Libraries\MultiDB;
+use App\DataMapper\Analytics\RevenueTrack;
 use App\Jobs\Mail\NinjaMailer;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
+use App\Libraries\MultiDB;
 use App\Mail\Admin\EntityPaidObject;
-use Turbo124\Beacon\Facades\LightLogs;
-use App\DataMapper\Analytics\RevenueTrack;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Utils\Ninja;
 use App\Utils\Traits\Notifications\UserNotifies;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Turbo124\Beacon\Facades\LightLogs;
 
 class PaymentNotification implements ShouldQueue
 {
@@ -59,7 +59,7 @@ class PaymentNotification implements ShouldQueue
         }
 
         /* Manual Payment Notifications */
-        if($payment->is_manual){
+        if($payment->is_manual) {
 
             foreach ($payment->company->company_users as $company_user) {
                 $user = $company_user->user;
@@ -175,7 +175,7 @@ class PaymentNotification implements ShouldQueue
      * @param string $url
      */
     private function sendAnalytics($url)
-    {   
+    {
         $data = mb_convert_encoding($url, 'UTF-8');
         // $data = utf8_encode($data);
         $curl = curl_init();

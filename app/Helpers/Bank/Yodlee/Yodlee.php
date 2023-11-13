@@ -300,7 +300,7 @@ class Yodlee
 
     /**
      * updateEligibility
-     * 
+     *
      * ALLOW_UPDATE
      * ALLOW_UPDATE_WITH_CREDENTIALS
      * DISALLOW_UPDATE
@@ -308,7 +308,7 @@ class Yodlee
 
     /**
      * additionalStatus
-     * 
+     *
      * LOGIN_IN_PROGRESS
      * DATA_RETRIEVAL_IN_PROGRESS
      * ACCT_SUMMARY_RECEIVED
@@ -339,7 +339,7 @@ class Yodlee
      * CONSENT_REVOKED
      * INCORRECT_OAUTH_TOKEN
      * MIGRATION_IN_PROGRESS
-     */    
+     */
 
     /**
      * IN_PROGRESS	LOGIN_IN_PROGRESS	 	Provider login is in progress.
@@ -356,12 +356,12 @@ class Yodlee
      * SUCCESS	 	 	All accounts under the provider was added or updated successfully.
      */
 
-     /**
-     * updateEligibility
-     * 
-     * ALLOW_UPDATE	                       The status indicates that the account is eligible for the next update and applies to both MFA and non-MFA accounts. For MFA-based accounts, the user may have to provide the MFA details during account refresh.
-     * ALLOW_UPDATE_WITH_CREDENTIALS	The status indicates updating or refreshing the account by directing the user to edit the provided credentials.
-     * DISALLOW_UPDATE	                The status indicates the account is not eligible for the update or refresh process due to a site issue or a technical error.
-     */
+    /**
+    * updateEligibility
+    *
+    * ALLOW_UPDATE	                       The status indicates that the account is eligible for the next update and applies to both MFA and non-MFA accounts. For MFA-based accounts, the user may have to provide the MFA details during account refresh.
+    * ALLOW_UPDATE_WITH_CREDENTIALS	The status indicates updating or refreshing the account by directing the user to edit the provided credentials.
+    * DISALLOW_UPDATE	                The status indicates the account is not eligible for the update or refresh process due to a site issue or a technical error.
+    */
 
 }

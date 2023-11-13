@@ -88,9 +88,9 @@ class RecurringInvoiceExport extends BaseExport
 
         $headerdisplay = $this->buildHeader();
 
-        $header = collect($this->input['report_keys'])->map(function ($key, $value) use($headerdisplay){
-                return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
-            })->toArray();
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
+            return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
+        })->toArray();
 
         $report = $query->cursor()
                 ->map(function ($resource) {
@@ -151,6 +151,10 @@ class RecurringInvoiceExport extends BaseExport
 
         if (in_array('recurring_invoice.frequency_id', $this->input['report_keys']) || in_array('frequency_id', $this->input['report_keys'])) {
             $entity['recurring_invoice.frequency_id'] = $invoice->frequencyForKey($invoice->frequency_id);
+        }
+
+        if (in_array('recurring_invoice.auto_bill_enabled', $this->input['report_keys'])) {
+            $entity['recurring_invoice.auto_bill_enabled'] = $invoice->auto_bill_enabled ? ctrans('texts.yes') : ctrans('texts.no');
         }
 
         return $entity;

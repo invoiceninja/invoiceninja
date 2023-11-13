@@ -193,8 +193,9 @@ class ACH
 
             $meta = $token->meta;
 
-            if(isset($meta->state) && $meta->state == 'unauthorized')
+            if(isset($meta->state) && $meta->state == 'unauthorized') {
                 return redirect()->route('client.payment_methods.show', $token->hashed_id);
+            }
         }
 
         if (count($data['tokens']) == 0) {
@@ -595,8 +596,9 @@ class ACH
                 'company_id' => $this->stripe->client->company_id,
             ])->first();
 
-            if($token)
+            if($token) {
                 return $token;
+            }
 
             return $this->stripe->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
         } catch (Exception $e) {

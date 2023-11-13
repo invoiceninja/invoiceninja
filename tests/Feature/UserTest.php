@@ -195,7 +195,7 @@ class UserTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $company_token->token,
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-        ])->get("/api/v1/users?without={$company_token->user->hashed_id}&status=active");
+        ])->get("/api/v1/users?status=active&without={$company_token->user->hashed_id}");
 
         $response->assertStatus(200);
         $this->assertCount(0, $response->json()['data']);
@@ -204,7 +204,7 @@ class UserTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $company_token->token,
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-        ])->get("/api/v1/users?without={$company_token->user->hashed_id}&status=archived");
+        ])->get("/api/v1/users?status=archived&without={$company_token->user->hashed_id}");
 
         $response->assertStatus(200);
         $this->assertCount(1, $response->json()['data']);
@@ -213,7 +213,7 @@ class UserTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $company_token->token,
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-        ])->get("/api/v1/users?without={$company_token->user->hashed_id}&status=deleted");
+        ])->get("/api/v1/users?status=deleted&without={$company_token->user->hashed_id}");
 
         $response->assertStatus(200);
         $this->assertCount(0, $response->json()['data']);
