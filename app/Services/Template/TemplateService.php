@@ -18,6 +18,7 @@ use App\Models\Quote;
 use App\Utils\Number;
 use Twig\Error\Error;
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Vendor;
@@ -40,17 +41,12 @@ use App\Utils\PaymentHtmlEngine;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\Pdf\PdfMaker;
 use App\Utils\VendorHtmlEngine;
-use League\Fractal\Manager;
-use League\Fractal\Serializer\ArraySerializer;
-use Twig\Environment;
+use League\CommonMark\CommonMarkConverter;
 use Twig\Error\Error;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
-use Twig\Extension\DebugExtension;
-use Twig\Extension\StringLoaderExtension;
 use Twig\Extra\Intl\IntlExtension;
-use Twig\Loader\FilesystemLoader;
 use Twig\Sandbox\SecurityError;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
@@ -78,7 +74,7 @@ class TemplateService
 
     private \DomDocument $document;
 
-    public Environment $twig;
+    public \Twig\Environment $twig;
 
     private string $compiled_html = '';
 
@@ -122,8 +118,7 @@ class TemplateService
         $this->twig = new Environment($loader, [
                 'debug' => true,
         ]);
-
-        $string_extension = new StringLoaderExtension();
+        $string_extension = new \Twig\Extension\StringLoaderExtension();
         $this->twig->addExtension($string_extension);
         $this->twig->addExtension(new IntlExtension());
         $this->twig->addExtension(new DebugExtension());
@@ -133,7 +128,7 @@ class TemplateService
         });
         $this->twig->addFunction($function);
 
-        $filter = new TwigFilter('sum', function (array $array, string $column) {
+        $filter = new \Twig\TwigFilter('sum', function (array $array, string $column) {
             return array_sum(array_column($array, $column));
         });
 
@@ -292,7 +287,7 @@ class TemplateService
 >>>>>>> support_for_custom_statement_designs
             } catch(SecurityError $e) {
                 nlog("security = " . $e->getMessage());
-                continue;
+                throw ($e);
             }
 
             $template = $template->render($this->data);
@@ -630,11 +625,7 @@ class TemplateService
      */
     public function padLineItems(array $items, Vendor | Client $client_or_vendor): array
     {
-<<<<<<< HEAD
-        return collect($items)->map(function ($item) use ($client) {
-=======
         return collect($items)->map(function ($item) use ($client_or_vendor) {
->>>>>>> support_for_custom_statement_designs
 
             $item->cost_raw = $item->cost ?? 0;
             $item->discount_raw = $item->discount ?? 0;
@@ -643,18 +634,6 @@ class TemplateService
             $item->tax_amount_raw = $item->tax_amount ?? 0;
             $item->product_cost_raw = $item->product_cost ?? 0;
 
-<<<<<<< HEAD
-            $item->cost = Number::formatMoney($item->cost_raw, $client);
-            
-            if($item->is_amount_discount) {
-                $item->discount = Number::formatMoney($item->discount_raw, $client);
-            }
-            
-            $item->line_total = Number::formatMoney($item->line_total_raw, $client);
-            $item->gross_line_total = Number::formatMoney($item->gross_line_total_raw, $client);
-            $item->tax_amount = Number::formatMoney($item->tax_amount_raw, $client);
-            $item->product_cost = Number::formatMoney($item->product_cost_raw, $client);
-=======
             $item->cost = Number::formatMoney($item->cost_raw, $client_or_vendor);
 
             if($item->is_amount_discount) {
@@ -665,7 +644,6 @@ class TemplateService
             $item->gross_line_total = Number::formatMoney($item->gross_line_total_raw, $client_or_vendor);
             $item->tax_amount = Number::formatMoney($item->tax_amount_raw, $client_or_vendor);
             $item->product_cost = Number::formatMoney($item->product_cost_raw, $client_or_vendor);
->>>>>>> support_for_custom_statement_designs
 
             return $item;
 
@@ -732,7 +710,7 @@ class TemplateService
             'balance_raw' => ($payment->amount - $payment->refunded - $payment->applied),
             'date' => $this->translateDate($payment->date, $payment->client->date_format(), $payment->client->locale()),
             'method' => $payment->translatedType(),
-            'currency' => $payment->currency->code ?? $payment->company->currency()->code,
+            'currency' => $payment->currency->code,
             'exchange_rate' => $payment->exchange_rate,
             'transaction_reference' => $payment->transaction_reference,
             'is_manual' => $payment->is_manual,
@@ -805,7 +783,7 @@ class TemplateService
     }
 
     /**
-     * 
+     *
      *
      * @param  array | \Illuminate\Support\Collection $quotes
      * @return array
@@ -813,7 +791,7 @@ class TemplateService
     public function processQuotes($quotes): array
     {
         
-        return collect($quotes)->map(function ($quote){
+        return collect($quotes)->map(function ($quote) {
 
             return [
                 'amount' => Number::formatMoney($quote->amount, $quote->client),
@@ -888,7 +866,8 @@ class TemplateService
         $credits = collect($credits)
                 ->map(function ($credit) {
 
-<<<<<<< HEAD
+                    $this->entity = $credit;
+
                     return [
                         'amount' => Number::formatMoney($credit->amount, $credit->client),
                         'balance' => Number::formatMoney($credit->balance, $credit->client),
@@ -1041,16 +1020,16 @@ class TemplateService
     public function processTasks($tasks, bool $nested = false): array
     {
 
-        return collect($tasks)->map(function ($task) use ($nested){
+        return collect($tasks)->map(function ($task) use ($nested) {
 
             return [
                 'number' => (string) $task->number ?: '',
                 'description' => (string) $task->description ?: '',
                 'duration' => $task->duration ?: 0,
-                'rate' => Number::formatMoney($task->rate ?? 0, $task->client ?? $task->company), 
+                'rate' => Number::formatMoney($task->rate ?? 0, $task->client ?? $task->company),
                 'created_at' => $this->translateDate($task->created_at, $task->client ? $task->client->date_format() : $task->company->date_format(), $task->client ? $task->client->locale() : $task->company->locale()),
                 'updated_at' => $this->translateDate($task->updated_at, $task->client ? $task->client->date_format() : $task->company->date_format(), $task->client ? $task->client->locale() : $task->company->locale()),
-                'date' => $task->calculated_start_date ? $this->translateDate($task->calculated_start_date , $task->client ? $task->client->date_format() : $task->company->date_format(), $task->client ? $task->client->locale() : $task->company->locale()) : '',
+                'date' => $task->calculated_start_date ? $this->translateDate($task->calculated_start_date, $task->client ? $task->client->date_format() : $task->company->date_format(), $task->client ? $task->client->locale() : $task->company->locale()) : '',
                 // 'invoice_id' => $this->encodePrimaryKey($task->invoice_id) ?: '',
                 'project' => ($task->project && !$nested) ? $this->transformProject($task->project, true) : [],
                 'time_log' => $task->processLogs(),
@@ -1082,7 +1061,7 @@ class TemplateService
     {
 
         return
-        collect($projects)->map(function ($project){
+        collect($projects)->map(function ($project) {
 
             return $this->transformProject($project);
 
@@ -1122,14 +1101,14 @@ class TemplateService
     }
 
     /**
-     * 
+     *
      * @param  array | \Illuminate\Support\Collection $purchase_orders
      * @return array
      */
     public function processPurchaseOrders($purchase_orders): array
     {
 
-        return collect($purchase_orders)->map(function ($purchase_order){
+        return collect($purchase_orders)->map(function ($purchase_order) {
 
             return [
                 'vendor' => $purchase_order->vendor ? [
@@ -1251,9 +1230,9 @@ class TemplateService
         collect($stacks)->filter(function ($stack) {
             return $this->document->getElementById($stack) ?? false;
         })
-        ->map(function ($stack){
+        ->map(function ($stack) {
             $node = $this->document->getElementById($stack);
-                return ['stack' => $stack, 'labels' => $node->getAttribute('labels')];
+            return ['stack' => $stack, 'labels' => $node->getAttribute('labels')];
         })
         ->each(function ($stack) {
             $this->parseStack($stack);
