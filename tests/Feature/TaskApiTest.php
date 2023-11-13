@@ -104,6 +104,90 @@ class TaskApiTest extends TestCase
         }
     }
 
+    public function testEmptyTimeLogArray()
+    {
+        
+        $data = [
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'description' => 'Test Task',
+            'time_log' => null,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/tasks", $data);
+
+        $response->assertStatus(200);
+
+        $data = [
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'description' => 'Test Task',
+            'time_log' => '',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/tasks", $data);
+
+        $response->assertStatus(200);
+
+        $data = [
+           'client_id' => $this->client->id,
+           'user_id' => $this->user->id,
+           'company_id' => $this->company->id,
+           'description' => 'Test Task',
+           'time_log' => '[]',
+       ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/tasks", $data);
+
+        $response->assertStatus(200);
+
+        $data = [
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'description' => 'Test Task',
+            'time_log' => '{}',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/tasks", $data);
+
+        $response->assertStatus(200);
+    }
+
+    public function testFaultyTimeLogArray()
+    {
+        
+        $data = [
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'description' => 'Test Task',
+            'time_log' => 'ABBA is the best band in the world',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/tasks", $data);
+
+        $response->assertStatus(422);
+    
+    }
+
     public function testTaskClientRateSet()
     {
         $settings = ClientSettings::defaults();
@@ -281,6 +365,45 @@ class TaskApiTest extends TestCase
         ])->putJson("/api/v1/tasks/{$task->hashed_id}?stop=true");
 
         $response->assertStatus(200);
+
+        $task->time_log = 'A very strange place';
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/tasks/{$task->hashed_id}?stop=true", $task->toArray());
+
+        $response->assertStatus(422);
+
+        $task->time_log = null;
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/tasks/{$task->hashed_id}?stop=true", $task->toArray());
+
+        $response->assertStatus(200);
+
+        $task->time_log = '';
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/tasks/{$task->hashed_id}?stop=true", $task->toArray());
+
+        $response->assertStatus(200);
+
+
+        $task->time_log = '{}';
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/tasks/{$task->hashed_id}?stop=true", $task->toArray());
+
+        $response->assertStatus(200);
+
+
 
     }
 

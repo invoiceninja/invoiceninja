@@ -18,6 +18,7 @@ use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Project;
 use App\Utils\HtmlEngine;
 use Tests\MockAccountData;
 use App\Utils\Traits\MakesDates;
@@ -165,6 +166,8 @@ class TemplateTest extends TestCase
             </ninja>
         ';
 
+    private string $stack = '<html><div id="company-details" labels="true"></div></html>';
+
     protected function setUp() :void
     {
         parent::setUp();
@@ -175,6 +178,136 @@ class TemplateTest extends TestCase
             ThrottleRequests::class
         );
         
+    }
+
+
+    public function testPurchaseOrderDataParse()
+    {
+        $data = [];
+        
+        $p = \App\Models\PurchaseOrder::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'vendor_id' => $this->vendor->id,
+        ]);
+
+        $data['purchase_orders'][] = $p;
+
+        $ts = new TemplateService();
+        $ts->processData($data);
+
+        $this->assertNotNull($ts);
+        $this->assertIsArray($ts->getData());
+    }
+
+    public function testTaskDataParse()
+    {
+        $data = [];
+        
+        $p = \App\Models\Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+        ]);
+
+        $data['tasks'][] = $p;
+
+        $ts = new TemplateService();
+        $ts->processData($data);
+
+        $this->assertNotNull($ts);
+        $this->assertIsArray($ts->getData());
+    }
+
+    public function testQuoteDataParse()
+    {
+        $data = [];
+        
+        $p = \App\Models\Quote::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+        ]);
+
+        $data['quotes'][] = $p;
+
+        $ts = new TemplateService();
+        $ts->processData($data);
+
+        $this->assertNotNull($ts);
+        $this->assertIsArray($ts->getData());
+
+    }
+
+    public function testProjectDataParse()
+    {
+        $data = [];
+        
+        $p = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+        ]);
+
+        $data['projects'][] = $p;
+
+        $ts = new TemplateService();
+        $ts->processData($data);
+
+        $this->assertNotNull($ts);
+        $this->assertIsArray($ts->getData());
+
+    }
+
+    public function testNegativeDivAttribute()
+    {
+       $dom = new \DOMDocument();
+        @$dom->loadHTML(mb_convert_encoding($this->stack, 'HTML-ENTITIES', 'UTF-8'));
+
+        $node = $dom->getElementById('company-details');
+        $x = $node->getAttribute('nonexistentattribute');
+
+        $this->assertEquals('', $x);
+
+    }
+
+    public function testStackResolutionWithLabels()
+    {
+
+        $dom = new \DOMDocument();
+        @$dom->loadHTML(mb_convert_encoding($this->stack, 'HTML-ENTITIES', 'UTF-8'));
+
+        $node = $dom->getElementById('company-details');
+        $x = $node->getAttribute('labels');
+
+        $this->assertEquals('true', $x);
+
+    }
+
+
+    public function testStackResolution()
+    {
+
+        $partials['design']['includes'] = '';
+        $partials['design']['header'] = '';
+        $partials['design']['body'] = $this->stack;
+        $partials['design']['footer'] = '';
+
+        $tm = new TemplateMock($this->company);
+        $tm->init();
+
+        $variables = $tm->variables[0];
+        
+        $ts = new TemplateService();
+        $x = $ts->setTemplate($partials)
+            ->setCompany($this->company)
+            ->overrideVariables($variables)
+            ->parseGlobalStacks()
+            ->parseVariables()
+            ->getHtml();
+
+        $this->assertIsString($x);
+
     }
 
     public function testDataMaps()
@@ -319,18 +452,7 @@ class TemplateTest extends TestCase
             ];
         });
 
-        $queries = \DB::getQueryLog();
-        $count = count($queries);
-
-        nlog("query count = {$count}");
-        $x = $invoices->toArray();
-        // nlog(json_encode($x));
-        // nlog(json_encode(htmlspecialchars(json_encode($x), ENT_QUOTES, 'UTF-8')));
-        // nlog($invoices->toJson());
-
         $this->assertIsArray($invoices->toArray());
-
-        nlog("end invoices = " . microtime(true) - $start);
 
     }
 
@@ -466,8 +588,6 @@ class TemplateTest extends TestCase
             $data['invoices'] = $invoices;
             $ts = $replicated_design->service()->build($data);
         
-            // nlog("results = ");
-            // nlog($ts->getHtml());
             $this->assertNotNull($ts->getHtml());
 
     }
