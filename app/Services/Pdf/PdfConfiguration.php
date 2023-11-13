@@ -12,6 +12,7 @@
 namespace App\Services\Pdf;
 
 use App\DataMapper\CompanySettings;
+use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Country;
@@ -94,6 +95,8 @@ class PdfConfiguration
      */
     public function init(): self
     {
+        MultiDB::setDb($this->service->company->db);
+
         $this->setEntityType()
              ->setDateFormat()
              ->setPdfVariables()
@@ -271,8 +274,8 @@ class PdfConfiguration
      */
     private function setDesign(): self
     {
-        $design_id = $this->entity->design_id ? : $this->decodePrimaryKey($this->settings_object->getSetting($this->entity_design_id));
-            
+        $design_id = $this->entity->design_id ?: $this->decodePrimaryKey($this->settings_object->getSetting($this->entity_design_id));
+
         $this->design = Design::withTrashed()->find($design_id ?? 2);
 
         return $this;
