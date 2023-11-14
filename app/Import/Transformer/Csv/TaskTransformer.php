@@ -11,6 +11,7 @@
 
 namespace App\Import\Transformer\Csv;
 
+use App\Models\TaskStatus;
 use App\Import\Transformer\BaseTransformer;
 
 /**
@@ -35,12 +36,14 @@ class TaskTransformer extends BaseTransformer
             $this->getString($task_data, 'client.email')
         );
 
+        $projectId = $task_data['project.name'] ?? '';
+
         $transformed = [
             'company_id' => $this->company->id,
             'number' => $this->getString($task_data, 'task.number'),
             'user_id' => $this->getString($task_data, 'task.user_id'),
             'client_id' => $clientId,
-            'project_id' => $this->getProjectId($task_data['project.name'], $clientId),
+            'project_id' => $this->getProjectId($projectId, $clientId),
             'description' => $this->getString($task_data, 'task.description'),
             'status' => $this->getTaskStatusId($task_data),
             'custom_value1' => $this->getString($task_data, 'task.custom_value1'),
@@ -49,6 +52,11 @@ class TaskTransformer extends BaseTransformer
             'custom_value4' => $this->getString($task_data, 'task.custom_value4'),
         ];
 
+        if(count($task_items_data) == count($task_items_data, COUNT_RECURSIVE)) {
+            $transformed['time_log'] = json_encode([$this->parseLog($task_items_data)]);
+            return $transformed;
+        }
+
         $time_log = collect($task_items_data)
                             ->map(function ($item) {
 
@@ -56,32 +64,36 @@ class TaskTransformer extends BaseTransformer
 
                             })->toJson();
 
-        nlog($time_log);
-
         $transformed['time_log'] = $time_log;
 
         return $transformed;
     }
 
-    private function parseLog($item): array
+    private function parseLog($item)
     {
         $start_date = false;
         $end_date = false;
 
         $notes = $item['task.notes'] ?? '';
-        $is_billable = $item['task.is_billable'] ?? false;
+        
+        if(isset($item['task.is_billable']) && is_string($item['task.is_billable']) && in_array($item['task.is_billable'], ['yes', 'true', '1']))
+            $is_billable = true;
+        elseif(isset($item['task.is_billable']) && is_bool($item['task.is_billable']))
+            $is_billable = $item['task.is_billable'];
+        else
+            $is_billable = false;
 
-        if(isset($item['start_date']) &&
-        isset($item['end_date'])) {
+        if(isset($item['task.start_date']) &&
+        isset($item['task.end_date'])) {
             $start_date = $this->resolveStartDate($item);
             $end_date = $this->resolveEndDate($item);
-        } elseif(isset($item['duration'])) {
-            $duration =  strtotime($item['duration']) - strtotime('TODAY');
+        } elseif(isset($item['task.duration'])) {
+            $duration =  strtotime($item['task.duration']) - strtotime('TODAY');
             $start_date = $this->stubbed_timestamp;
             $end_date = $this->stubbed_timestamp + $duration;
-            $this->stubbed_timestamp++;
+            $this->stubbed_timestamp;
         } else {
-            return [];
+            return '';
         }
 
         return [$start_date, $end_date, $notes, $is_billable];
@@ -90,13 +102,17 @@ class TaskTransformer extends BaseTransformer
     private function resolveStartDate($item)
     {
 
-        $stub_start_date = $item['start_date'] . ' ' . isset($item['start_time']) ?? '';
+        $stub_start_date = $item['task.start_date'];
+        $stub_start_date .= isset($item['task.start_time']) ? " ".$item['task.start_time'] : '';
 
         try {
+
             $stub_start_date = \Carbon\Carbon::parse($stub_start_date);
             $this->stubbed_timestamp = $stub_start_date->timestamp;
+            
             return $stub_start_date->timestamp;
         } catch (\Exception $e) {
+            nlog($e->getMessage());
             return $this->stubbed_timestamp;
         }
         
@@ -105,22 +121,50 @@ class TaskTransformer extends BaseTransformer
     private function resolveEndDate($item)
     {
 
-        $stub_start_date = $item['end_date'] . ' ' . isset($item['end_time']) ?? '';
+        $stub_end_date = $item['task.end_date'];
+        $stub_end_date .= isset($item['task.end_time']) ? " ".$item['task.end_time'] : '';
 
         try {
-            $stub_start_date = \Carbon\Carbon::parse($stub_start_date);
 
-            if($stub_start_date->timestamp == $this->stubbed_timestamp) {
-                $this->stubbed_timestamp++;
+            $stub_end_date = \Carbon\Carbon::parse($stub_end_date);
+
+            if($stub_end_date->timestamp == $this->stubbed_timestamp) {
+                $this->stubbed_timestamp;
                 return $this->stubbed_timestamp;
             }
 
-            $this->stubbed_timestamp = $stub_start_date->timestamp++;
-            return $stub_start_date->timestamp;
+            $this->stubbed_timestamp = $stub_end_date->timestamp;
+            return $stub_end_date->timestamp;
         } catch (\Exception $e) {
-            return $this->stubbed_timestamp++;
+            nlog($e->getMessage());
+
+            return $this->stubbed_timestamp;
         }
         
+    }
+
+    private function getTaskStatusId($item): ?int
+    {
+        if(isset($item['task.status'])) 
+        {
+            $name = strtolower(trim($item['task.status']));
+
+            $ts = TaskStatus::query()->where('company_id', $this->company->id)
+                ->where('is_deleted', false)
+                ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
+                    strtolower(str_replace(' ', '', $name)),
+                ])
+                ->first();
+
+                if($ts)
+                    return $ts->id;
+        } 
+
+        return TaskStatus::where('company_id', $this->company->id)
+            ->where('is_deleted', false)
+            ->orderBy('status_order', 'asc')
+            ->first()->id ?? null;
+
     }
 
 }

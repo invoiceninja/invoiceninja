@@ -163,7 +163,7 @@ class BaseImport
     private function groupTasks($csvData, $key)
     {
 
-        if (! $key) {
+        if (! $key || count(array_column($csvData, $key)) == 0) {
             return $csvData;
         }
 
@@ -448,10 +448,9 @@ class BaseImport
         $task_transformer = $this->transformer;
 
         $task_repository = new TaskRepository();
-        // $task_repository->import_mode = true;
 
         $tasks = $this->groupTasks($tasks, $task_number_key);
-
+        
         foreach ($tasks as $raw_task) {
             $task_data = [];
             try {
@@ -496,7 +495,7 @@ class BaseImport
                 ];
             }
         }
-
+nlog($count);
         return $count;
     }
 

@@ -73,7 +73,7 @@ class Csv extends BaseImport implements ImportInterface
                 'quote',
                 'bank_transaction',
                 'recurring_invoice',
-                'tasks',
+                'task',
             ])
         ) {
             $this->{$entity}();
@@ -362,7 +362,7 @@ class Csv extends BaseImport implements ImportInterface
         }
 
         if (empty($data)) {
-            $this->entity_count['invoices'] = 0;
+            $this->entity_count['tasks'] = 0;
             return;
         }
 
@@ -378,6 +378,8 @@ class Csv extends BaseImport implements ImportInterface
         $task_count = $this->ingestTasks($data, 'task.number');
 
         $this->entity_count['tasks'] = $task_count;
+
+
     }
 
     public function transform(array $data)
