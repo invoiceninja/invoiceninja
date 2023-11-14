@@ -844,10 +844,12 @@ class PdfBuilder
     public function processTaxColumns(string $type): void
     {
         if ($type == 'product') {
+            $column_type = 'product';
             $type_id = 1;
         }
 
         if ($type == 'task') {
+            $column_type = 'task';
             $type_id = 2;
         }
 
@@ -886,10 +888,10 @@ class PdfBuilder
                 array_push($taxes, sprintf('%s%s.tax_rate3', '$', $type));
             }
 
-            $key = array_search(sprintf('%s%s.tax', '$', $type), $this->service->config->pdf_variables["{$type}_columns"], true);
+            $key = array_search(sprintf('%s%s.tax', '$', $type), $this->service->config->pdf_variables["{$column_type}_columns"], true);
 
             if ($key !== false) {
-                array_splice($this->service->config->pdf_variables["{$type}_columns"], $key, 1, $taxes);
+                array_splice($this->service->config->pdf_variables["{$column_type}_columns"], $key, 1, $taxes);
             }
         }
     }
