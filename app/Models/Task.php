@@ -239,4 +239,23 @@ class Task extends BaseModel
 
         return $this->company->settings->default_task_rate ?? 0;
     }
+
+    public function processLogs()
+    {
+        return 
+        collect($this->time_log)->map(function ($log){
+
+            $parent_entity = $this->client ?? $this->company;
+
+            if($log[0])
+                $log[0] = Carbon::createFromTimestamp($log[0])->format($parent_entity->date_format());
+
+            if($log[1] && $log[1] != 0)
+                $log[1] = Carbon::createFromTimestamp($log[1])->format($parent_entity->date_format());
+            else     
+                $log[1] = ctrans('texts.running');
+
+            return $log;
+        })->toArray();
+    }
 }

@@ -211,7 +211,7 @@ class Document extends BaseModel
         $image = $this->getFile();
         $catch_image = $image;
 
-        if(extension_loaded('imagick'))
+        if(!extension_loaded('imagick'))
             return $catch_image;
 
         try {

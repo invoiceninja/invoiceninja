@@ -388,6 +388,7 @@ class PreviewController extends BaseController
         $design_object = json_decode(json_encode(request()->input('design')), 1);
 
         $ts = (new TemplateService());
+
         try {
             $ts->setCompany($company)
                 ->setTemplate($design_object)
@@ -395,7 +396,6 @@ class PreviewController extends BaseController
         } catch(SyntaxError $e) {
 
             // return response()->json(['message' => 'Twig syntax is invalid.', 'errors' => new \stdClass], 422);
-
         }
 
         $html = $ts->getHtml();

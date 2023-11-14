@@ -43,7 +43,6 @@ class UpdateTaskRequest extends Request
 
     public function rules()
     {
-
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
@@ -61,14 +60,15 @@ class UpdateTaskRequest extends Request
             $rules['project_id'] = 'bail|required|exists:projects,id,company_id,'.$user->company()->id.',is_deleted,0';
         }
 
-        $rules['time_log'] = ['bail',function ($attribute, $values, $fail) {
+        $rules['time_log'] = ['bail', function ($attribute, $values, $fail) {
 
             if(is_string($values)) {
-                $values = json_decode($values, 1);
+                $values = json_decode($values, true);
             }
 
             if(!is_array($values)) {
-                return $fail('The '.$attribute.' is invalid. Must be an array.');
+                $fail('The '.$attribute.' must be a valid array.');
+                return;
             }
 
             foreach ($values as $k) {
@@ -127,6 +127,10 @@ class UpdateTaskRequest extends Request
                 unset($input['project_id']);
             }
 
+        }
+
+        if(!isset($input['time_log']) || empty($input['time_log']) || $input['time_log'] == '{}') {
+            $input['time_log'] = json_encode([]);
         }
 
         $this->replace($input);
