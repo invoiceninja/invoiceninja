@@ -86,7 +86,7 @@ class EpcQrGenerator
             $this->sepa['purpose'],
             substr($this->invoice->number, 0, 34),
             '',
-            ''
+            ' '
         ]), "\n");
     }
 
