@@ -843,8 +843,9 @@ class PdfBuilder
      */
     public function processTaxColumns(string $type): void
     {
+        $column_type = 'product';
+
         if ($type == 'product') {
-            $column_type = 'product';
             $type_id = 1;
         }
 
