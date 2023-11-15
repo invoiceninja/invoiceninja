@@ -162,6 +162,18 @@ class Task extends BaseModel
         return $this->belongsTo(TaskStatus::class)->withTrashed();
     }
 
+    public function stringStatus()
+    {
+        if($this->invoice_id)
+            return '<h5><span class="badge badge-success">'.ctrans('texts.invoiced').'</span></h5>';
+
+        if($this->status)
+            return '<h5><span class="badge badge-primary">' . $this->status?->name ?? '';
+
+        return '';
+    
+    }
+
     public function invoice()
     {
         return $this->belongsTo(Invoice::class)->withTrashed();
