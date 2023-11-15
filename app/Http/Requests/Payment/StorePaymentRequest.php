@@ -93,7 +93,7 @@ class StorePaymentRequest extends Request
         }
 
         if (! isset($input['date'])) {
-            $input['date'] = now()->addSeconds($user->company()->timezone()->utc_offset)->format('Y-m-d');
+            $input['date'] = now()->addSeconds($user->company()->utc_offset())->format('Y-m-d');
         }
 
         if (! isset($input['idempotency_key'])) {
