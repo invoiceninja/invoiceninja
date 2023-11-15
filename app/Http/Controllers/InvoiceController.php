@@ -527,10 +527,11 @@ class InvoiceController extends BaseController
 
         if ($action == 'download' && $invoices->count() >=1 && $user->can('view', $invoices->first())) {
             $file = $invoices->first()->service()->getInvoicePdf();
-
+            $filename = $invoices->first()->getFileName();
+            nlog($filename);
             return response()->streamDownload(function () use ($file) {
                 echo Storage::get($file);
-            }, basename($file), ['Content-Type' => 'application/pdf']);
+            }, $filename, ['Content-Type' => 'application/pdf']);
         }
 
         if ($action == 'bulk_print' && $user->can('view', $invoices->first())) {
@@ -701,10 +702,11 @@ class InvoiceController extends BaseController
             case 'download':
 
                 $file = $invoice->service()->getInvoicePdf();
+                $filename = $invoice->getFileName();
 
                 return response()->streamDownload(function () use ($file) {
-                    echo Storage::get($file);
-                }, basename($file), ['Content-Type' => 'application/pdf']);
+                    echo $file;
+                }, $filename, ['Content-Type' => 'application/pdf']);
 
             case 'restore':
                 $this->invoice_repo->restore($invoice);
@@ -937,14 +939,11 @@ class InvoiceController extends BaseController
     public function deliveryNote(ShowInvoiceRequest $request, Invoice $invoice)
     {
         $file = $invoice->service()->getInvoiceDeliveryNote($invoice, $invoice->invitations->first()->contact);
-
+        $file_name = ctrans('texts.delivery_note'). " " .$invoice->getFileName();
         return response()->streamDownload(function () use ($file) {
             echo $file;
-        }, basename($file), ['Content-Type' => 'application/pdf']);
+        }, $file_name, ['Content-Type' => 'application/pdf']);
 
-        // return response()->streamDownload(function () use ($file) {
-        //     echo Storage::get($file);
-        // }, basename($file), ['Content-Type' => 'application/pdf']);
     }
 
     /**
