@@ -99,7 +99,11 @@ class TemplateService
         });
         $this->twig->addFunction($function);
 
-        $filter = new \Twig\TwigFilter('sum', function (array $array, string $column) {
+        $filter = new \Twig\TwigFilter('sum', function (?array $array, ?string $column) {
+
+            if(!is_array($array))
+                return 0;
+            
             return array_sum(array_column($array, $column));
         });
 
@@ -119,9 +123,9 @@ class TemplateService
     {
         $this->compose()
              ->processData($data)
-             ->parseGlobalStacks()
              ->parseNinjaBlocks()
              ->processVariables($data)
+             ->parseGlobalStacks()
              ->parseVariables();
 
         return $this;
@@ -1424,11 +1428,11 @@ class TemplateService
                 $_child = $this->document->createElement($child['element'], '');
                 $_child->setAttribute('data-state', 'encoded-html');
                 $_child->nodeValue = htmlspecialchars($child['content']);
+
             } else {
                 // .. in case string doesn't contain any HTML, we'll just return
                 // raw $content.
-
-                $_child = $this->document->createElement($child['element'], isset($child['content']) ? htmlspecialchars($child['content']) : '');
+                $_child = $this->document->createElement($child['element'], isset($child['content']) ? $child['content'] : '');
             }
 
             $element->appendChild($_child);

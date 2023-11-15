@@ -776,14 +776,8 @@ class Client extends BaseModel implements HasLocalePreference
             return 0;
         }
 
-        $timezone = $this->company->timezone();
+        $offset -= $this->company->utc_offset();
 
-        //2023-11-08 adjustments for DST
-        date_default_timezone_set('GMT');
-        $date = new \DateTime("now", new \DateTimeZone($timezone->name));
-        $offset -= $date->getOffset();
-
-//        $offset -= $timezone->utc_offset;
         $offset += ($entity_send_time * 3600);
 
         return $offset;

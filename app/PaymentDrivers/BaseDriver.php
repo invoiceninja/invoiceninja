@@ -325,7 +325,7 @@ class BaseDriver extends AbstractPaymentDriver
         $payment->company_gateway_id = $this->company_gateway->id;
         $payment->status_id = $status;
         $payment->currency_id = $this->client->getSetting('currency_id');
-        $payment->date = Carbon::now()->addSeconds($this->client->company->timezone()->utc_offset)->format('Y-m-d');
+        $payment->date = Carbon::now()->addSeconds($this->client->company->utc_offset())->format('Y-m-d');
         $payment->gateway_type_id = $data['gateway_type_id'];
 
         $client_contact = $this->getContact();

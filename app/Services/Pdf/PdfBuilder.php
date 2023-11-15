@@ -65,11 +65,11 @@ class PdfBuilder
     public function build(): self
     {
         $this->getTemplate()
-             ->buildSections()
-             ->getEmptyElements()
-             ->updateElementProperties()
-             ->parseTwigElements()
-             ->updateVariables();
+            ->buildSections()
+            ->getEmptyElements()
+            ->updateElementProperties()
+            ->parseTwigElements()
+            ->updateVariables();
 
         return $this;
     }
@@ -843,8 +843,9 @@ class PdfBuilder
      */
     public function processTaxColumns(string $type): void
     {
+        $column_type = 'product';
+
         if ($type == 'product') {
-            $column_type = 'product';
             $type_id = 1;
         }
 
@@ -1679,6 +1680,7 @@ class PdfBuilder
             }
 
             if ($contains_html) {
+                
                 // If the element contains the HTML, we gonna display it as is. Backend is going to
                 // encode it for us, preventing any errors on the processing stage.
                 // Later, we decode this using Javascript so it looks like it's normal HTML being injected.
@@ -1687,9 +1689,11 @@ class PdfBuilder
                 $_child = $this->document->createElement($child['element'], '');
                 $_child->setAttribute('data-state', 'encoded-html');
                 $_child->nodeValue = htmlspecialchars($child['content']);
+
+
             } else {
                 // .. in case string doesn't contain any HTML, we'll just return
-                // raw $content.
+                // raw $content
 
                 $_child = $this->document->createElement($child['element'], isset($child['content']) ? htmlspecialchars($child['content']) : '');
             }

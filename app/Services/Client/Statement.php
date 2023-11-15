@@ -62,6 +62,7 @@ class Statement
         $html = new HtmlEngine($this->getInvitation());
 
         $variables = [];
+        $variables = $html->generateLabelsAndValues();
 
         if($this->client->getSetting('statement_design_id') != '') {
 
@@ -72,9 +73,7 @@ class Statement
 
             return $this->templateStatement($variables);
         }
-
-        $variables = $html->generateLabelsAndValues();
-
+        
         if ($this->getDesign()->is_custom) {
             $this->options['custom_partials'] = \json_decode(\json_encode($this->getDesign()->design), true);
 
@@ -154,10 +153,11 @@ class Statement
             $statement_design_id = $this->client->getSetting('statement_design_id');
         }
 
-        $template = Design::where('id', $this->decodePrimaryKey($statement_design_id))
+        $template = Design::query()
+                            ->where('id', $this->decodePrimaryKey($statement_design_id))
                             ->where('company_id', $this->client->company_id)
                             ->first();
-
+        
         $ts = $template->service()->build([
             'variables' => collect([$variables]),
             'invoices' => $this->getInvoices()->get(),

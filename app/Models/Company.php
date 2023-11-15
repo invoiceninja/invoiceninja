@@ -911,9 +911,14 @@ class Company extends BaseModel
 
     public function utc_offset(): int
     {
+        $offset = 0;
         $timezone = $this->timezone();
 
-        return $timezone->utc_offset ?? 0;
+        date_default_timezone_set('GMT');
+        $date = new \DateTime("now", new \DateTimeZone($timezone->name));
+        $offset = $date->getOffset();
+
+        return $offset;
     }
 
     public function timezone_offset(): int
