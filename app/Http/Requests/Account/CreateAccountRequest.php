@@ -49,6 +49,11 @@ class CreateAccountRequest extends Request
             'email'             =>  $email_rules,
             'privacy_policy'    => 'required|boolean',
             'terms_of_service'  => 'required|boolean',
+            'utm_source'        => 'sometimes|nullable|string',
+            'utm_medium'        => 'sometimes|nullable|string',
+            'utm_campaign'      => 'sometimes|nullable|string',
+            'utm_term'          => 'sometimes|nullable|string',
+            'utm_content'       => 'sometimes|nullable|string',
         ];
     }
 
