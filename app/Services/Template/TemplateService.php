@@ -119,9 +119,9 @@ class TemplateService
     {
         $this->compose()
              ->processData($data)
-             ->parseGlobalStacks()
              ->parseNinjaBlocks()
              ->processVariables($data)
+             ->parseGlobalStacks()
              ->parseVariables();
 
         return $this;
