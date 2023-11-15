@@ -158,8 +158,7 @@ class Statement
                             ->where('company_id', $this->client->company_id)
                             ->first();
         
-        $ts = $template->service();
-        $ts->build([
+        $ts = $template->service()->build([
             'variables' => collect([$variables]),
             'invoices' => $this->getInvoices()->get(),
             'payments' => $this->options['show_payments_table'] ? $this->getPayments()->get() : collect([]),
@@ -167,7 +166,6 @@ class Statement
             'aging' => $this->options['show_aging_table'] ? $this->getAging() : collect([]),
         ]);
 
-        // $ts->overrideVariables([$variables]);
         $html = $ts->getHtml();
         
         return $this->convertToPdf($html);
