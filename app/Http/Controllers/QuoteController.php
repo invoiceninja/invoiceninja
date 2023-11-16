@@ -720,11 +720,9 @@ class QuoteController extends BaseController
                 break;
             case 'download':
 
-                $file = $quote->service()->getQuotePdf();
-
-                return response()->streamDownload(function () use ($file) {
-                    echo $file;
-                }, $quote->numberFormatter().".pdf", ['Content-Type' => 'application/pdf']);
+                return response()->streamDownload(function () use ($quote) {
+                    echo $quote->service()->getQuotePdf();
+                }, $quote->getFileName(), ['Content-Type' => 'application/pdf']);
 
             case 'restore':
                 $this->quote_repo->restore($quote);
@@ -833,11 +831,9 @@ class QuoteController extends BaseController
             $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
         }
 
-        $file = $quote->service()->getQuotePdf($contact);
-
-        return response()->streamDownload(function () use ($file) {
-            echo $file;
-        }, $quote->numberFormatter().".pdf", $headers);
+        return response()->streamDownload(function () use ($quote,$contact) {
+            echo $quote->service()->getQuotePdf($contact);
+        }, $quote->getFileName(), $headers);
 
     }
 

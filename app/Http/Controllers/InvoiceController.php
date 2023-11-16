@@ -701,12 +701,9 @@ class InvoiceController extends BaseController
                 break;
             case 'download':
 
-                $file = $invoice->service()->getInvoicePdf();
-                $filename = $invoice->getFileName();
-
-                return response()->streamDownload(function () use ($file) {
-                    echo $file;
-                }, $filename, ['Content-Type' => 'application/pdf']);
+                return response()->streamDownload(function () use ($invoice) {
+                    echo $invoice->service()->getInvoicePdf();
+                }, $invoice->getFileName(), ['Content-Type' => 'application/pdf']);
 
             case 'restore':
                 $this->invoice_repo->restore($invoice);

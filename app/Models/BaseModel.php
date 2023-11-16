@@ -249,7 +249,6 @@ class BaseModel extends Model
 
         return \Illuminate\Support\Str::ascii($formatted_number);
 
-
     }
 
     /**
