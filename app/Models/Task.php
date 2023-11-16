@@ -254,18 +254,19 @@ class Task extends BaseModel
 
     public function processLogs()
     {
-        nlog($this->toArray());
-
+        
         return 
-        collect($this->time_log)->map(function ($log){
+        collect(json_decode($this->time_log,true))->map(function ($log){
+
+            nlog($log);
 
             $parent_entity = $this->client ?? $this->company;
 
             if($log[0])
-                $log[0] = Carbon::createFromTimestamp($log[0])->format($parent_entity->date_format());
+                $log[0] = Carbon::createFromTimestamp($log[0])->format($parent_entity->date_format().' H:m:s');
 
             if($log[1] && $log[1] != 0)
-                $log[1] = Carbon::createFromTimestamp($log[1])->format($parent_entity->date_format());
+                $log[1] = Carbon::createFromTimestamp($log[1])->format($parent_entity->date_format().' H:m:s');
             else     
                 $log[1] = ctrans('texts.running');
 
