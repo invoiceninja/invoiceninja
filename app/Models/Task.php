@@ -254,6 +254,8 @@ class Task extends BaseModel
 
     public function processLogs()
     {
+        nlog($this->toArray());
+
         return 
         collect($this->time_log)->map(function ($log){
 

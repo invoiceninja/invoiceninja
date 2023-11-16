@@ -838,7 +838,7 @@ class TemplateService
     /**
      * @todo refactor
      *
-     * @param  mixed $tasks
+     * @param  \App\Models\Task[] $tasks
      * @return array
      */
     public function processTasks($tasks, bool $nested = false): array
@@ -1226,7 +1226,6 @@ class TemplateService
             ($this->entity instanceof Credit) => $entity_string = 'credit',
             ($this->entity instanceof RecurringInvoice) => $entity_string = 'invoice',
             ($this->entity instanceof PurchaseOrder) => $entity_string = 'purchase_order',
-            ($this->entity instanceof Payment) => $entity_string = 'payment',
             default => $entity_string = 'invoice',
         };
 

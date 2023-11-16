@@ -11,52 +11,53 @@
 
 namespace App\Console\Commands;
 
-use App\DataMapper\ClientRegistrationFields;
-use App\DataMapper\CompanySettings;
-use App\DataMapper\FeesAndLimits;
-use App\Events\Invoice\InvoiceWasCreated;
-use App\Events\RecurringInvoice\RecurringInvoiceWasCreated;
-use App\Factory\GroupSettingFactory;
-use App\Factory\InvoiceFactory;
-use App\Factory\InvoiceItemFactory;
-use App\Factory\RecurringInvoiceFactory;
-use App\Factory\SubscriptionFactory;
-use App\Helpers\Invoice\InvoiceSum;
-use App\Jobs\Company\CreateCompanyTaskStatuses;
-use App\Libraries\MultiDB;
-use App\Models\Account;
-use App\Models\BankIntegration;
-use App\Models\BankTransaction;
-use App\Models\BankTransactionRule;
+use stdClass;
+use Carbon\Carbon;
+use Faker\Factory;
+use App\Models\Task;
+use App\Models\User;
+use App\Utils\Ninja;
+use App\Models\Quote;
 use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Company;
-use App\Models\CompanyGateway;
-use App\Models\CompanyToken;
-use App\Models\Country;
 use App\Models\Credit;
+use App\Models\Vendor;
+use App\Models\Account;
+use App\Models\Company;
+use App\Models\Country;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Product;
 use App\Models\Project;
-use App\Models\Quote;
-use App\Models\RecurringInvoice;
-use App\Models\Task;
 use App\Models\TaxRate;
-use App\Models\User;
-use App\Models\Vendor;
+use App\Libraries\MultiDB;
+use App\Models\TaskStatus;
+use App\Models\CompanyToken;
+use App\Models\ClientContact;
 use App\Models\VendorContact;
-use App\Repositories\InvoiceRepository;
-use App\Utils\Ninja;
-use App\Utils\Traits\GeneratesCounter;
+use App\Models\CompanyGateway;
+use App\Factory\InvoiceFactory;
+use App\Models\BankIntegration;
+use App\Models\BankTransaction;
 use App\Utils\Traits\MakesHash;
-use Carbon\Carbon;
-use Faker\Factory;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Cache;
+use App\Models\RecurringInvoice;
+use App\DataMapper\FeesAndLimits;
+use App\DataMapper\CompanySettings;
+use App\Factory\InvoiceItemFactory;
+use App\Helpers\Invoice\InvoiceSum;
+use App\Models\BankTransactionRule;
+use App\Factory\GroupSettingFactory;
+use App\Factory\SubscriptionFactory;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
+use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Support\Facades\Schema;
-use stdClass;
+use App\Repositories\InvoiceRepository;
+use App\Factory\RecurringInvoiceFactory;
+use App\Events\Invoice\InvoiceWasCreated;
+use App\DataMapper\ClientRegistrationFields;
+use App\Jobs\Company\CreateCompanyTaskStatuses;
+use App\Events\RecurringInvoice\RecurringInvoiceWasCreated;
 
 class CreateSingleAccount extends Command
 {
@@ -72,6 +73,7 @@ class CreateSingleAccount extends Command
 
     protected $gateway;
 
+    public $faker;
     /**
      * Execute the console command.
      *
@@ -79,6 +81,8 @@ class CreateSingleAccount extends Command
      */
     public function handle()
     {
+        $this->faker = Factory::create();
+
         if (Ninja::isHosted() || config('ninja.is_docker') || !$this->confirm('Are you sure you want to inject dummy data?')) {
             return;
         }
@@ -503,19 +507,61 @@ class CreateSingleAccount extends Command
 
     private function createTask($client)
     {
-        $vendor = Task::factory()->create([
+        $time_log = $this->createTimeLog(rand(1,20));
+        $status = TaskStatus::where('company_id', $client->company_id)->get()->random();
+        
+        return Task::factory()->create([
                 'user_id' => $client->user->id,
                 'company_id' => $client->company->id,
+                'time_log' => $time_log,
+                'description' => $this->faker->paragraph,
+                'status_id' => $status->id ?? null,
+                'number' => rand(10000,100000000),
+                'rate' => rand(1,150),
+                'client_id' => $client->id
             ]);
+    }
+
+    private function createTimeLog(int $count)
+    {
+        $time_log = [];
+
+        $min = 0;
+
+        for ($x = 0; $x < $count; $x++) {
+
+            $rando = rand(300, 87000);
+
+            $time_log[] = [
+                Carbon::now()->addSeconds($min)->timestamp,
+                Carbon::now()->addSeconds($min += $rando)->timestamp,
+                $this->faker->sentence,
+                rand(0,1) === 0 ? false : true
+            ];
+
+            $min += 300;
+        }
+
+        return json_encode($time_log);
     }
 
     private function createProject($client)
     {
-        $vendor = Project::factory()->create([
+        $project = Project::factory()->create([
                 'user_id' => $client->user->id,
                 'company_id' => $client->company->id,
                 'client_id' => $client->id,
+                'due_date' => now()->addSeconds(rand(100000,1000000))->format('Y-m-d'),
+                'budgeted_hours' => rand(100,1000),
+                'task_rate' => rand(1,200),
             ]);
+
+        for($x=0; $x < rand(2, 5); $x++) {
+            $task = $this->createTask($client);
+            $task->project_id = $project->id;
+            $task->save();
+        }
+
     }
 
     private function createInvoice($client)
@@ -559,6 +605,7 @@ class CreateSingleAccount extends Command
             $invoice->amount = 100; // Braintree sandbox only allows payments under 2,000 to complete successfully.
         }
 
+        /** @var \App\Models\Invoice $invoice */
         $invoice->save();
         $invoice->service()->createInvitations()->markSent();
 
@@ -586,6 +633,7 @@ class CreateSingleAccount extends Command
 
         $credit = $invoice_calc->getCredit();
 
+        /** @var \App\Models\Credit $credit */
         $credit->save();
         $credit->service()->markSent()->save();
         $credit->service()->createInvitations();
@@ -628,6 +676,7 @@ class CreateSingleAccount extends Command
 
         $quote->save();
 
+        /** @var \App\Models\Quote $quote */
         $quote->service()->markSent()->save();
         $quote->service()->createInvitations();
     }
