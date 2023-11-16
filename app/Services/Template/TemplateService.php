@@ -214,7 +214,7 @@ class TemplateService
     {
 
         $this->data = $this->preProcessDataBlocks($data);
-
+        nlog($this->data);
         return $this;
     }
 
@@ -596,7 +596,7 @@ class TemplateService
             'balance_raw' => ($payment->amount - $payment->refunded - $payment->applied),
             'date' => $this->translateDate($payment->date, $payment->client->date_format(), $payment->client->locale()),
             'method' => $payment->translatedType(),
-            'currency' => $payment->currency->code,
+            'currency' => $payment->currency->code ?? $this->company->currency()->code,
             'exchange_rate' => $payment->exchange_rate,
             'transaction_reference' => $payment->transaction_reference,
             'is_manual' => $payment->is_manual,
