@@ -236,6 +236,22 @@ class BaseModel extends Model
         return $this->numberFormatter().'.'.$extension;
     }
 
+    public function getDeliveryNoteName($extension = 'pdf')
+    {
+        
+        $number =  ctrans("texts.delivery_note"). "_" . $this->numberFormatter().'.'.$extension;
+
+        $formatted_number =  mb_ereg_replace("([^\w\s\d\-_~,;\[\]\(\).])", '', $number);
+
+        $formatted_number = mb_ereg_replace("([\.]{2,})", '', $formatted_number);
+
+        $formatted_number = preg_replace('/\s+/', '_', $formatted_number);
+
+        return \Illuminate\Support\Str::ascii($formatted_number);
+
+
+    }
+
     /**
     * @param string $extension
     * @return string

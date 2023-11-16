@@ -526,11 +526,11 @@ class InvoiceController extends BaseController
         }
 
         if ($action == 'download' && $invoices->count() >=1 && $user->can('view', $invoices->first())) {
-            $file = $invoices->first()->service()->getInvoicePdf();
+            
             $filename = $invoices->first()->getFileName();
-            nlog($filename);
-            return response()->streamDownload(function () use ($file) {
-                echo Storage::get($file);
+            
+            return response()->streamDownload(function () use($invoices) {
+                echo $invoices->first()->service()->getInvoicePdf();
             }, $filename, ['Content-Type' => 'application/pdf']);
         }
 
@@ -539,10 +539,10 @@ class InvoiceController extends BaseController
                 return (new \App\Jobs\Entity\CreateRawPdf($invoice->invitations->first()))->handle();
             });
 
-            $merge = (new PdfMerge($paths->toArray()))->run();
+            
 
-            return response()->streamDownload(function () use ($merge) {
-                echo($merge);
+            return response()->streamDownload(function () use ($paths) {
+                echo $merge = (new PdfMerge($paths->toArray()))->run();
             }, 'print.pdf', ['Content-Type' => 'application/pdf']);
         }
 
@@ -938,11 +938,10 @@ class InvoiceController extends BaseController
      */
     public function deliveryNote(ShowInvoiceRequest $request, Invoice $invoice)
     {
-        $file = $invoice->service()->getInvoiceDeliveryNote($invoice, $invoice->invitations->first()->contact);
-        $file_name = ctrans('texts.delivery_note'). " " .$invoice->getFileName();
-        return response()->streamDownload(function () use ($file) {
-            echo $file;
-        }, $file_name, ['Content-Type' => 'application/pdf']);
+        
+        return response()->streamDownload(function () use ($invoice) {
+            echo $invoice->service()->getInvoiceDeliveryNote($invoice, $invoice->invitations->first()->contact);
+        }, $invoice->getDeliveryNoteName(), ['Content-Type' => 'application/pdf']);
 
     }
 
