@@ -114,7 +114,7 @@ class TemplateAction implements ShouldQueue
                     ->setCompany($this->company)
                     ->build($data);
         
-        nlog($ts->getHtml());
+        // nlog($ts->getHtml());
 
         if($this->send_email) {
             $pdf = $ts->getPdf();
