@@ -214,7 +214,7 @@ class TemplateService
     {
 
         $this->data = $this->preProcessDataBlocks($data);
-        nlog($this->data);
+        // nlog($this->data);
         return $this;
     }
 
@@ -1226,6 +1226,7 @@ class TemplateService
             ($this->entity instanceof Credit) => $entity_string = 'credit',
             ($this->entity instanceof RecurringInvoice) => $entity_string = 'invoice',
             ($this->entity instanceof PurchaseOrder) => $entity_string = 'purchase_order',
+            ($this->entity instanceof Payment) => $entity_string = 'payment',
             default => $entity_string = 'invoice',
         };
 
