@@ -258,8 +258,6 @@ class Task extends BaseModel
         return 
         collect(json_decode($this->time_log,true))->map(function ($log){
 
-            nlog($log);
-
             $parent_entity = $this->client ?? $this->company;
 
             if($log[0])
@@ -273,4 +271,41 @@ class Task extends BaseModel
             return $log;
         })->toArray();
     }
+
+
+    public function processLogsExpandedNotation()
+    {
+        
+        return 
+        collect(json_decode($this->time_log,true))->map(function ($log){
+
+            $parent_entity = $this->client ?? $this->company;
+            $logged = [];
+            
+            if($log[0] && $log[1] !=0 ) {
+                $duration = $log[1] - $log[0];
+            }
+            else {
+                $duration = 0;
+            }
+
+            if($log[0])
+                $logged['start_date_raw'] = $log[0];
+                $logged['start_date'] = Carbon::createFromTimestamp($log[0])->format($parent_entity->date_format().' H:m:s');
+
+            if($log[1] && $log[1] != 0) {
+                $logged['end_date_raw'] = $log[1];
+                $logged['end_date'] = Carbon::createFromTimestamp($log[1])->format($parent_entity->date_format().' H:m:s');
+            }
+            else{
+                $logged['end_date_raw'] = 0;
+                $logged['end_date'] = ctrans('texts.running');
+            }
+            $logged['duration'] = $duration;
+
+            return $logged;
+
+        })->toArray();
+    }
+
 }
