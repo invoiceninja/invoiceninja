@@ -1199,7 +1199,7 @@ class CompanyImport implements ShouldQueue
     {
         $this->genericImport(
             Webhook::class,
-            ['company_id', 'user_id'],
+            ['company_id', 'user_id', 'hashed_id', 'id',],
             [
                 ['users' => 'user_id'],
             ],
