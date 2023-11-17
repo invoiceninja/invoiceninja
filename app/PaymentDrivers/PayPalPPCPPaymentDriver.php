@@ -367,8 +367,6 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                 ]
             ];
         
-        nlog($order);
-
         $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
 
         nlog($r->json());
