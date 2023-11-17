@@ -491,7 +491,10 @@ class CompanySettings extends BaseSettings
 
     public $classification = ''; // individual, business, partnership, trust, charity, government, other
 
+    public $payment_email_all_contacts = false;
+
     public static $casts = [
+        'payment_email_all_contacts'         => 'bool',
         'statement_design_id'                => 'string',
         'delivery_note_design_id'            => 'string',
         'payment_receipt_design_id'          => 'string',
