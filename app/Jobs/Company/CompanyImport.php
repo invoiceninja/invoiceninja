@@ -1152,7 +1152,7 @@ class CompanyImport implements ShouldQueue
             $new_document->vendor_id = $this->transformId('vendors', $document->vendor_id);
             $new_document->url = $document->url;
             $new_document->preview = $document->preview;
-            $new_document->name = $document->name;
+            $new_document->name = str_replace("/", "-", $document->name);
             $new_document->type = $document->type;
             $new_document->disk = $document->disk;
             $new_document->hash = $document->hash;
