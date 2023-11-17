@@ -526,11 +526,12 @@ class InvoiceController extends BaseController
         }
 
         if ($action == 'download' && $invoices->count() >=1 && $user->can('view', $invoices->first())) {
-            $file = $invoices->first()->service()->getInvoicePdf();
-
-            return response()->streamDownload(function () use ($file) {
-                echo Storage::get($file);
-            }, basename($file), ['Content-Type' => 'application/pdf']);
+            
+            $filename = $invoices->first()->getFileName();
+            
+            return response()->streamDownload(function () use($invoices) {
+                echo $invoices->first()->service()->getInvoicePdf();
+            }, $filename, ['Content-Type' => 'application/pdf']);
         }
 
         if ($action == 'bulk_print' && $user->can('view', $invoices->first())) {
@@ -538,10 +539,10 @@ class InvoiceController extends BaseController
                 return (new \App\Jobs\Entity\CreateRawPdf($invoice->invitations->first()))->handle();
             });
 
-            $merge = (new PdfMerge($paths->toArray()))->run();
+            
 
-            return response()->streamDownload(function () use ($merge) {
-                echo($merge);
+            return response()->streamDownload(function () use ($paths) {
+                echo $merge = (new PdfMerge($paths->toArray()))->run();
             }, 'print.pdf', ['Content-Type' => 'application/pdf']);
         }
 
@@ -700,11 +701,9 @@ class InvoiceController extends BaseController
                 break;
             case 'download':
 
-                $file = $invoice->service()->getInvoicePdf();
-
-                return response()->streamDownload(function () use ($file) {
-                    echo Storage::get($file);
-                }, basename($file), ['Content-Type' => 'application/pdf']);
+                return response()->streamDownload(function () use ($invoice) {
+                    echo $invoice->service()->getInvoicePdf();
+                }, $invoice->getFileName(), ['Content-Type' => 'application/pdf']);
 
             case 'restore':
                 $this->invoice_repo->restore($invoice);
@@ -936,15 +935,11 @@ class InvoiceController extends BaseController
      */
     public function deliveryNote(ShowInvoiceRequest $request, Invoice $invoice)
     {
-        $file = $invoice->service()->getInvoiceDeliveryNote($invoice, $invoice->invitations->first()->contact);
+        
+        return response()->streamDownload(function () use ($invoice) {
+            echo $invoice->service()->getInvoiceDeliveryNote($invoice, $invoice->invitations->first()->contact);
+        }, $invoice->getDeliveryNoteName(), ['Content-Type' => 'application/pdf']);
 
-        return response()->streamDownload(function () use ($file) {
-            echo $file;
-        }, basename($file), ['Content-Type' => 'application/pdf']);
-
-        // return response()->streamDownload(function () use ($file) {
-        //     echo Storage::get($file);
-        // }, basename($file), ['Content-Type' => 'application/pdf']);
     }
 
     /**

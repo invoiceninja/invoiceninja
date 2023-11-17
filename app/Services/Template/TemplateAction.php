@@ -62,7 +62,7 @@ class TemplateAction implements ShouldQueue
         private string $template,
         private string $entity,
         private int $user_id,
-        private Company $company,
+        public Company $company,
         private string $db,
         private string $hash,
         private bool $send_email = false
@@ -109,7 +109,10 @@ class TemplateAction implements ShouldQueue
             $data[$key] = $result;
         }
 
-        $ts = $template_service->build($data);
+        
+        $ts = $template_service
+                    ->setCompany($this->company)
+                    ->build($data);
         
         // nlog($ts->getHtml());
 

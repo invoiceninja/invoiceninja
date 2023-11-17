@@ -761,6 +761,7 @@ $company_name = substr($company_name, 0, $length);
 $descriptor = "{$company_name} {$invoices_string}";
 
 $invoices_string = str_pad($descriptor, 5, ctrans('texts.invoice'), STR_PAD_RIGHT);
+$invoices_string = substr($invoices_string, 0, 22);
 
         // $invoices_string = str_pad($invoices_string, 5, ctrans('texts.invoice'), STR_PAD_LEFT);
 

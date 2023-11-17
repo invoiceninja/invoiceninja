@@ -214,7 +214,7 @@ class TemplateService
     {
 
         $this->data = $this->preProcessDataBlocks($data);
-
+        // nlog($this->data);
         return $this;
     }
 
@@ -596,7 +596,7 @@ class TemplateService
             'balance_raw' => ($payment->amount - $payment->refunded - $payment->applied),
             'date' => $this->translateDate($payment->date, $payment->client->date_format(), $payment->client->locale()),
             'method' => $payment->translatedType(),
-            'currency' => $payment->currency->code,
+            'currency' => $payment->currency->code ?? $this->company->currency()->code,
             'exchange_rate' => $payment->exchange_rate,
             'transaction_reference' => $payment->transaction_reference,
             'is_manual' => $payment->is_manual,
@@ -838,25 +838,26 @@ class TemplateService
     /**
      * @todo refactor
      *
-     * @param  mixed $tasks
+     * @param  \App\Models\Task[] $tasks
      * @return array
      */
     public function processTasks($tasks, bool $nested = false): array
     {
 
         return collect($tasks)->map(function ($task) use ($nested) {
-
+            /** @var \App\Models\Task $task */
             return [
                 'number' => (string) $task->number ?: '',
                 'description' => (string) $task->description ?: '',
                 'duration' => $task->duration ?: 0,
                 'rate' => Number::formatMoney($task->rate ?? 0, $task->client ?? $task->company),
+                'rate_raw' => $task->rate ?? 0,
                 'created_at' => $this->translateDate($task->created_at, $task->client ? $task->client->date_format() : $task->company->date_format(), $task->client ? $task->client->locale() : $task->company->locale()),
                 'updated_at' => $this->translateDate($task->updated_at, $task->client ? $task->client->date_format() : $task->company->date_format(), $task->client ? $task->client->locale() : $task->company->locale()),
                 'date' => $task->calculated_start_date ? $this->translateDate($task->calculated_start_date, $task->client ? $task->client->date_format() : $task->company->date_format(), $task->client ? $task->client->locale() : $task->company->locale()) : '',
                 // 'invoice_id' => $this->encodePrimaryKey($task->invoice_id) ?: '',
                 'project' => ($task->project && !$nested) ? $this->transformProject($task->project, true) : [],
-                'time_log' => $task->processLogs(),
+                'time_log' => $task->processLogsExpandedNotation(),
                 'custom_value1' => $task->custom_value1 ?: '',
                 'custom_value2' => $task->custom_value2 ?: '',
                 'custom_value3' => $task->custom_value3 ?: '',
@@ -902,6 +903,7 @@ class TemplateService
             'created_at' => $this->translateDate($project->created_at, $project->client->date_format(), $project->client->locale()),
             'updated_at' =>  $this->translateDate($project->updated_at, $project->client->date_format(), $project->client->locale()),
             'task_rate' => Number::formatMoney($project->task_rate ?? 0, $project->client),
+            'task_rate_raw' => $project->task_rate ?? 0,
             'due_date' => $project->due_date ? $this->translateDate($project->due_date, $project->client->date_format(), $project->client->locale()) : '',
             'private_notes' => (string) $project->private_notes ?: '',
             'public_notes' => (string) $project->public_notes ?: '',

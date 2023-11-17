@@ -125,6 +125,7 @@ class StripePaymentDriver extends BaseDriver
 
             Stripe::setApiKey($this->company_gateway->getConfigField('apiKey'));
             Stripe::setApiVersion('2022-11-15');
+            // Stripe::setAPiVersion('2023-08-16');
         }
 
         return $this;
