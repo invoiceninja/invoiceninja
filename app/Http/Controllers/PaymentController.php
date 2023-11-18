@@ -11,25 +11,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\Payment\PaymentWasUpdated;
-use App\Factory\PaymentFactory;
-use App\Filters\PaymentFilters;
-use App\Http\Requests\Payment\CreatePaymentRequest;
-use App\Http\Requests\Payment\DestroyPaymentRequest;
-use App\Http\Requests\Payment\EditPaymentRequest;
-use App\Http\Requests\Payment\RefundPaymentRequest;
-use App\Http\Requests\Payment\ShowPaymentRequest;
-use App\Http\Requests\Payment\StorePaymentRequest;
-use App\Http\Requests\Payment\UpdatePaymentRequest;
-use App\Http\Requests\Payment\UploadPaymentRequest;
+use App\Utils\Ninja;
 use App\Models\Account;
 use App\Models\Payment;
-use App\Repositories\PaymentRepository;
-use App\Transformers\PaymentTransformer;
-use App\Utils\Ninja;
+use Illuminate\Http\Response;
+use App\Factory\PaymentFactory;
+use App\Filters\PaymentFilters;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
-use Illuminate\Http\Response;
+use App\Repositories\PaymentRepository;
+use App\Transformers\PaymentTransformer;
+use App\Events\Payment\PaymentWasUpdated;
+use App\Services\Template\TemplateAction;
+use App\Http\Requests\Payment\EditPaymentRequest;
+use App\Http\Requests\Payment\ShowPaymentRequest;
+use App\Http\Requests\Payment\StorePaymentRequest;
+use App\Http\Requests\Payment\CreatePaymentRequest;
+use App\Http\Requests\Payment\RefundPaymentRequest;
+use App\Http\Requests\Payment\UpdatePaymentRequest;
+use App\Http\Requests\Payment\UploadPaymentRequest;
+use App\Http\Requests\Payment\DestroyPaymentRequest;
+use App\Http\Requests\Payment\BulkActionPaymentRequest;
 
 /**
  * Class PaymentController.
@@ -499,16 +501,39 @@ class PaymentController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkActionPaymentRequest $request)
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $action = request()->input('action');
+        $action = $request->input('action');
 
-        $ids = request()->input('ids');
+        $ids = $request->input('ids');
 
-        $payments = Payment::withTrashed()->find($this->transformKeys($ids));
+        $payments = Payment::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
+
+        if (!$payments) {
+            return response()->json(['message' => ctrans('texts.record_not_found')]);
+        }
+
+        if($action == 'template' && $user->can('view', $payments->first())) {
+
+            $hash_or_response = request()->boolean('send_email') ? 'email sent' : \Illuminate\Support\Str::uuid();
+
+            TemplateAction::dispatch(
+                $payments->pluck('id')->toArray(),
+                $request->template_id,
+                PurchaseOrder::class,
+                $user->id,
+                $user->company(),
+                $user->company()->db,
+                $hash_or_response,
+                $request->boolean('send_email')
+            );
+
+            return response()->json(['message' => $hash_or_response], 200);
+        }
+
 
         $payments->each(function ($payment, $key) use ($action, $user) {
             if ($user->can('edit', $payment)) {
