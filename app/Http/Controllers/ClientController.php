@@ -11,36 +11,37 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\Client\ClientWasCreated;
-use App\Events\Client\ClientWasUpdated;
-use App\Factory\ClientFactory;
-use App\Filters\ClientFilters;
-use App\Http\Requests\Client\BulkClientRequest;
-use App\Http\Requests\Client\CreateClientRequest;
-use App\Http\Requests\Client\DestroyClientRequest;
-use App\Http\Requests\Client\EditClientRequest;
-use App\Http\Requests\Client\PurgeClientRequest;
-use App\Http\Requests\Client\ReactivateClientEmailRequest;
-use App\Http\Requests\Client\ShowClientRequest;
-use App\Http\Requests\Client\StoreClientRequest;
-use App\Http\Requests\Client\UpdateClientRequest;
-use App\Http\Requests\Client\UploadClientRequest;
-use App\Jobs\Client\UpdateTaxData;
-use App\Jobs\PostMark\ProcessPostmarkWebhook;
-use App\Models\Account;
+use App\Utils\Ninja;
 use App\Models\Client;
+use App\Models\Account;
 use App\Models\Company;
 use App\Models\SystemLog;
-use App\Repositories\ClientRepository;
-use App\Transformers\ClientTransformer;
-use App\Utils\Ninja;
-use App\Utils\Traits\BulkOptions;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\SavesDocuments;
-use App\Utils\Traits\Uploadable;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Storage;
 use Postmark\PostmarkClient;
+use Illuminate\Http\Response;
+use App\Factory\ClientFactory;
+use App\Filters\ClientFilters;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\Uploadable;
+use App\Utils\Traits\BulkOptions;
+use App\Jobs\Client\UpdateTaxData;
+use App\Utils\Traits\SavesDocuments;
+use App\Repositories\ClientRepository;
+use App\Events\Client\ClientWasCreated;
+use App\Events\Client\ClientWasUpdated;
+use App\Transformers\ClientTransformer;
+use Illuminate\Support\Facades\Storage;
+use App\Services\Template\TemplateAction;
+use App\Jobs\PostMark\ProcessPostmarkWebhook;
+use App\Http\Requests\Client\BulkClientRequest;
+use App\Http\Requests\Client\EditClientRequest;
+use App\Http\Requests\Client\ShowClientRequest;
+use App\Http\Requests\Client\PurgeClientRequest;
+use App\Http\Requests\Client\StoreClientRequest;
+use App\Http\Requests\Client\CreateClientRequest;
+use App\Http\Requests\Client\UpdateClientRequest;
+use App\Http\Requests\Client\UploadClientRequest;
+use App\Http\Requests\Client\DestroyClientRequest;
+use App\Http\Requests\Client\ReactivateClientEmailRequest;
 
 /**
  * Class ClientController.
@@ -217,12 +218,31 @@ class ClientController extends BaseController
         $clients = Client::withTrashed()
                          ->company()
                          ->whereIn('id', $request->ids)
-                         ->cursor()
-                         ->each(function ($client) use ($action, $user) {
-                             if ($user->can('edit', $client)) {
-                                 $this->client_repo->{$action}($client);
-                             }
-                         });
+                         ->get();                         
+
+        if($action == 'template' && $user->can('view', $clients->first())) {
+
+            $hash_or_response = $request->boolean('send_email') ? 'email sent' : \Illuminate\Support\Str::uuid();
+
+            TemplateAction::dispatch(
+                $clients->pluck('id')->toArray(),
+                $request->template_id,
+                Client::class,
+                $user->id,
+                $user->company(),
+                $user->company()->db,
+                $hash_or_response,
+                $request->boolean('send_email')
+            );
+
+            return response()->json(['message' => $hash_or_response], 200);
+        }
+                         
+        $clients->each(function ($client) use ($action, $user) {
+            if ($user->can('edit', $client)) {
+                $this->client_repo->{$action}($client);
+            }
+        });
 
         return $this->listResponse(Client::query()->withTrashed()->company()->whereIn('id', $request->ids));
     }

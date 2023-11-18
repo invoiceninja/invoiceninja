@@ -11,23 +11,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Account;
+use App\Models\Project;
+use Illuminate\Http\Response;
 use App\Factory\ProjectFactory;
 use App\Filters\ProjectFilters;
-use App\Http\Requests\Project\CreateProjectRequest;
-use App\Http\Requests\Project\DestroyProjectRequest;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
+use App\Utils\Traits\GeneratesCounter;
+use App\Repositories\ProjectRepository;
+use App\Transformers\ProjectTransformer;
+use App\Services\Template\TemplateAction;
 use App\Http\Requests\Project\EditProjectRequest;
 use App\Http\Requests\Project\ShowProjectRequest;
 use App\Http\Requests\Project\StoreProjectRequest;
+use App\Http\Requests\Project\CreateProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Http\Requests\Project\UploadProjectRequest;
-use App\Models\Account;
-use App\Models\Project;
-use App\Repositories\ProjectRepository;
-use App\Transformers\ProjectTransformer;
-use App\Utils\Traits\GeneratesCounter;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\SavesDocuments;
-use Illuminate\Http\Response;
+use App\Http\Requests\Project\DestroyProjectRequest;
+use App\Http\Requests\PrTaskoject\BulkProjectRequest;
 
 /**
  * Class ProjectController.
@@ -490,18 +492,36 @@ class ProjectController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkProjectRequest $request)
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $action = request()->input('action');
+        $action = $request->input('action');
 
-        $ids = request()->input('ids');
+        $ids = $request->input('ids');
 
-        $projects = Project::withTrashed()->find($this->transformKeys($ids));
+        $projects = Project::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
-        $projects->each(function ($project, $key) use ($action, $user) {
+        if($action == 'template' && $user->can('view', $projects->first())) {
+
+            $hash_or_response = $request->boolean('send_email') ? 'email sent' : \Illuminate\Support\Str::uuid();
+
+            TemplateAction::dispatch(
+                $projects->pluck('id')->toArray(),
+                $request->template_id,
+                Project::class,
+                $user->id,
+                $user->company(),
+                $user->company()->db,
+                $hash_or_response,
+                $request->boolean('send_email')
+            );
+
+            return response()->json(['message' => $hash_or_response], 200);
+        }
+
+        $projects->each(function ($project) use ($action, $user) {
             if ($user->can('edit', $project)) {
                 $this->project_repo->{$action}($project);
             }

@@ -9,13 +9,12 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Http\Requests\Task;
+namespace App\Http\Requests\PrTaskoject;
 
 use App\Http\Requests\Request;
 
-class BulkTaskRequest extends Request
+class BulkProjectRequest extends Request
 {
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -33,7 +32,7 @@ class BulkTaskRequest extends Request
      */
     public function rules()
     {
-        
+
         return [
             'action' => 'required|string',
             'ids' => 'required|array',

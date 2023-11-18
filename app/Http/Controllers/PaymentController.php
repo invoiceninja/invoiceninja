@@ -523,7 +523,7 @@ class PaymentController extends BaseController
             TemplateAction::dispatch(
                 $payments->pluck('id')->toArray(),
                 $request->template_id,
-                PurchaseOrder::class,
+                Payment::class,
                 $user->id,
                 $user->company(),
                 $user->company()->db,
