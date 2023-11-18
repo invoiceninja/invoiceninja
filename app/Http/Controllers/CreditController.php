@@ -11,35 +11,36 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\Credit\CreditWasCreated;
-use App\Events\Credit\CreditWasUpdated;
-use App\Factory\CloneCreditFactory;
+use App\Utils\Ninja;
+use App\Models\Client;
+use App\Models\Credit;
+use App\Models\Account;
+use App\Models\Invoice;
+use Illuminate\Http\Response;
 use App\Factory\CreditFactory;
 use App\Filters\CreditFilters;
-use App\Http\Requests\Credit\ActionCreditRequest;
+use App\Jobs\Credit\ZipCredits;
+use App\Utils\Traits\MakesHash;
+use App\Jobs\Entity\EmailEntity;
+use App\Factory\CloneCreditFactory;
+use App\Services\PdfMaker\PdfMerge;
+use Illuminate\Support\Facades\App;
+use App\Utils\Traits\SavesDocuments;
+use App\Repositories\CreditRepository;
+use App\Events\Credit\CreditWasCreated;
+use App\Events\Credit\CreditWasUpdated;
+use App\Transformers\CreditTransformer;
+use Illuminate\Support\Facades\Storage;
+use App\Services\Template\TemplateAction;
 use App\Http\Requests\Credit\BulkCreditRequest;
-use App\Http\Requests\Credit\CreateCreditRequest;
-use App\Http\Requests\Credit\DestroyCreditRequest;
 use App\Http\Requests\Credit\EditCreditRequest;
 use App\Http\Requests\Credit\ShowCreditRequest;
 use App\Http\Requests\Credit\StoreCreditRequest;
+use App\Http\Requests\Credit\ActionCreditRequest;
+use App\Http\Requests\Credit\CreateCreditRequest;
 use App\Http\Requests\Credit\UpdateCreditRequest;
 use App\Http\Requests\Credit\UploadCreditRequest;
-use App\Jobs\Credit\ZipCredits;
-use App\Jobs\Entity\EmailEntity;
-use App\Models\Account;
-use App\Models\Client;
-use App\Models\Credit;
-use App\Models\Invoice;
-use App\Repositories\CreditRepository;
-use App\Services\PdfMaker\PdfMerge;
-use App\Transformers\CreditTransformer;
-use App\Utils\Ninja;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\SavesDocuments;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\Credit\DestroyCreditRequest;
 
 /**
  * Class CreditController.
@@ -549,6 +550,27 @@ class CreditController extends BaseController
                 echo($merge);
             }, 'print.pdf', ['Content-Type' => 'application/pdf']);
         }
+
+
+        if($action == 'template' && $user->can('view', $credits->first())) {
+
+            $hash_or_response = $request->boolean('send_email') ? 'email sent' : \Illuminate\Support\Str::uuid();
+
+            TemplateAction::dispatch(
+                $credits->pluck('id')->toArray(),
+                $request->template_id,
+                Credit::class,
+                $user->id,
+                $user->company(),
+                $user->company()->db,
+                $hash_or_response,
+                $request->boolean('send_email')
+            );
+
+            return response()->json(['message' => $hash_or_response], 200);
+        }
+
+
 
         $credits->each(function ($credit, $key) use ($action, $user) {
             if ($user->can('edit', $credit)) {
