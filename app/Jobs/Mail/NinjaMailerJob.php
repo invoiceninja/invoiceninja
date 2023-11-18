@@ -24,6 +24,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\SystemLog;
 use App\Models\User;
+use App\Repositories\ActivityRepository;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use GuzzleHttp\Exception\ClientException;
@@ -164,7 +165,7 @@ class NinjaMailerJob implements ShouldQueue
              * this merges a text string with a json object
              * need to harvest the ->Message property using the following
              */
-            if (stripos($e->getMessage(), 'code 406') || stripos($e->getMessage(), 'code 300') || stripos($e->getMessage(), 'code 413')) {
+            if (stripos($e->getMessage(), 'code 300') || stripos($e->getMessage(), 'code 413')) {
                 $message = "Either Attachment too large, or recipient has been suppressed.";
 
                 $this->fail();
@@ -173,6 +174,20 @@ class NinjaMailerJob implements ShouldQueue
 
                 return;
             }
+
+            if (stripos($e->getMessage(), 'code 406')) {
+
+                $email = $this->nmo->to_user->email ?? '';
+
+                $message = "Recipient {$email} has been suppressed and cannot receive emails from you.";
+
+                $this->fail();
+                $this->logMailError($message, $this->company->clients()->first());
+                $this->cleanUpMailers();
+
+                return;
+            }
+
 
             //only report once, not on all tries
             if ($this->attempts() == $this->tries) {
