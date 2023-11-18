@@ -515,7 +515,7 @@ class TaskController extends BaseController
             $hash_or_response = request()->boolean('send_email') ? 'email sent' : \Illuminate\Support\Str::uuid();
 
             TemplateAction::dispatch(
-                $tasks->pluck('id')->toArray(),
+                $tasks->pluck('hashed_id')->toArray(),
                 $request->template_id,
                 Task::class,
                 $user->id,
