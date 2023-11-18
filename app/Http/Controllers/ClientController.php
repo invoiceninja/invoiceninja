@@ -386,6 +386,12 @@ class ClientController extends BaseController
             
             $response = $postmark->activateBounce((int)$bounce_id);
         
+            if($response && $response?->Message == 'OK' && !$response->Bounce->Inactive && $response->Bounce->Email){
+
+                $email =  $response->Bounce->Email;
+                //remove email from quarantine. //@TODO
+            }
+
             return response()->json(['message' => 'Success'], 200);
 
         } catch(\Exception $e) {

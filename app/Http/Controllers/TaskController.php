@@ -528,7 +528,7 @@ class TaskController extends BaseController
             return response()->json(['message' => $hash_or_response], 200);
         }
 
-        $tasks->each(function ($task, $key) use ($action, $user) {
+        $tasks->each(function ($task) use ($action, $user) {
             if ($user->can('edit', $task)) {
                 $this->task_repo->{$action}($task);
             }
