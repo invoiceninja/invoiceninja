@@ -557,7 +557,7 @@ class CreditController extends BaseController
             $hash_or_response = $request->boolean('send_email') ? 'email sent' : \Illuminate\Support\Str::uuid();
 
             TemplateAction::dispatch(
-                $credits->pluck('id')->toArray(),
+                $credits->pluck('hashed_id')->toArray(),
                 $request->template_id,
                 Credit::class,
                 $user->id,
@@ -569,8 +569,6 @@ class CreditController extends BaseController
 
             return response()->json(['message' => $hash_or_response], 200);
         }
-
-
 
         $credits->each(function ($credit, $key) use ($action, $user) {
             if ($user->can('edit', $credit)) {

@@ -9,7 +9,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Http\Requests\PrTaskoject;
+namespace App\Http\Requests\Project;
 
 use App\Http\Requests\Request;
 

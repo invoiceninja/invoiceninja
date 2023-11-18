@@ -29,7 +29,7 @@ use App\Http\Requests\Project\CreateProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Http\Requests\Project\UploadProjectRequest;
 use App\Http\Requests\Project\DestroyProjectRequest;
-use App\Http\Requests\PrTaskoject\BulkProjectRequest;
+use App\Http\Requests\Project\BulkProjectRequest;
 
 /**
  * Class ProjectController.
@@ -508,7 +508,7 @@ class ProjectController extends BaseController
             $hash_or_response = $request->boolean('send_email') ? 'email sent' : \Illuminate\Support\Str::uuid();
 
             TemplateAction::dispatch(
-                $projects->pluck('id')->toArray(),
+                $projects->pluck('hashed_id')->toArray(),
                 $request->template_id,
                 Project::class,
                 $user->id,

@@ -120,7 +120,7 @@ class TemplateService
      * @return self
      */
     public function build(array $data): self
-    {
+    {nlog($data);
         $this->compose()
              ->processData($data)
              ->parseNinjaBlocks()
