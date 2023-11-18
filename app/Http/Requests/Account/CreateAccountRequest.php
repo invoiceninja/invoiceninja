@@ -45,7 +45,7 @@ class CreateAccountRequest extends Request
         return [
             'first_name'        => 'string|max:100',
             'last_name'         =>  'string:max:100',
-            'password'          => 'required|string|min:6|max:1000',
+            'password'          => 'required|string|min:6|max:100',
             'email'             =>  $email_rules,
             'privacy_policy'    => 'required|boolean',
             'terms_of_service'  => 'required|boolean',
