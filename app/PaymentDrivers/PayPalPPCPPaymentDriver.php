@@ -306,8 +306,6 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
         $_invoice = collect($this->payment_hash->data->invoices)->first();
 
-        nlog($_invoice);
-
         $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
 
         $description = collect($invoice->line_items)->map(function ($item){
@@ -323,14 +321,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                         "surname" => $this->client->present()->last_name(),
                     ],
                     "email_address" => $this->client->present()->email(),
-                    "address" => [
-                        "address_line_1" => $this->client->address1,
-                        "address_line_2" => $this->client->address2,
-                        "admin_area_2" => $this->client->city,
-                        "admin_area_1" => $this->client->state,
-                        "postal_code" => $this->client->postal_code,
-                        "country_code" => $this->client->country->iso_3166_2,
-                    ]
+                    "address" => $this->getBillingAddress(),
                 ],
                 "purchase_units" => [
                     [
@@ -341,6 +332,9 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                     ],
                     "payment_instruction" => [
                         "disbursement_mode" => "INSTANT",
+                    ],
+                    "shipping" => [
+                        "address" => $this->getShippingAddress()
                     ],
                     "amount" => [
                         "value" => (string)$data['amount_with_fee'],
@@ -373,6 +367,33 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
         return $r->json()['id'];
 
+    }
+
+    private function getBillingAddress(): array 
+    {
+        return 
+        [
+            "address_line_1" => $this->client->address1,
+            "address_line_2" => $this->client->address2,
+            "admin_area_2" => $this->client->city,
+            "admin_area_1" => $this->client->state,
+            "postal_code" => $this->client->postal_code,
+            "country_code" => $this->client->country->iso_3166_2,
+        ];
+    }
+
+    private function getShippingAddress(): array
+    {
+        return $this->company_gateway->require_shipping_address ? 
+            [
+                "address_line_1" => $this->client->shipping_address1,
+                "address_line_2" => $this->client->shipping_address2,
+                "admin_area_2" => $this->client->shipping_city,
+                "admin_area_1" => $this->client->shipping_state,
+                "postal_code" => $this->client->shipping_postal_code,
+                "country_code" => $this->client->shipping_country->iso_3166_2,
+            ]
+        : [];
     }
 
     public function gatewayRequest(string $uri, string $verb, array $data, ?array $headers = [])
