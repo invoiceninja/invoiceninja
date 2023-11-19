@@ -384,6 +384,7 @@ class ClientController extends BaseController
 
         try {
             
+            /** @var \Postmark\Models\DynamicResponseModel $response */
             $response = $postmark->activateBounce((int)$bounce_id);
         
             if($response && $response?->Message == 'OK' && !$response->Bounce->Inactive && $response->Bounce->Email){
