@@ -137,7 +137,7 @@ use App\Events\Document\DocumentWasRestored;
 use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Events\Vendor\VendorContactLoggedIn;
 use App\Listeners\Quote\QuoteViewedActivity;
-use App\Listeners\Request\LogRequestSending;
+use App\Listeners\LogRequestSending;
 use App\Listeners\User\ArchivedUserActivity;
 use App\Listeners\User\RestoredUserActivity;
 use App\Listeners\Quote\QuoteApprovedWebhook;
@@ -289,6 +289,10 @@ class EventServiceProvider extends ServiceProvider
      *
      */
     protected $listen = [
+        
+        // RequestSending::class => [
+        //     LogRequestSending::class,
+        // ],
         // ResponseReceived::class => [
         //     LogResponseReceived::class,
         // ],
