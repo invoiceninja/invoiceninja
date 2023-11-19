@@ -301,6 +301,9 @@ class Task extends BaseModel
                 $logged['end_date_raw'] = 0;
                 $logged['end_date'] = ctrans('texts.running');
             }
+
+            $logged['description'] = $log[2];
+            $logged['billable'] = $log[3];
             $logged['duration'] = $duration;
 
             return $logged;

@@ -849,7 +849,7 @@ class TemplateService
             return [
                 'number' => (string) $task->number ?: '',
                 'description' => (string) $task->description ?: '',
-                'duration' => $task->duration ?: 0,
+                'duration' => $task->calcDuration() ?: 0,
                 'rate' => Number::formatMoney($task->rate ?? 0, $task->client ?? $task->company),
                 'rate_raw' => $task->rate ?? 0,
                 'created_at' => $this->translateDate($task->created_at, $task->client ? $task->client->date_format() : $task->company->date_format(), $task->client ? $task->client->locale() : $task->company->locale()),
