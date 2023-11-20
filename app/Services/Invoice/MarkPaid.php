@@ -90,7 +90,7 @@ class MarkPaid extends AbstractService
             'amount' => $this->payable_balance,
         ]);
 
-        if ($payment->company->getSetting('send_email_on_mark_paid')) {
+        if ($payment->client->getSetting('send_email_on_mark_paid')) {
             $payment->service()->sendEmail();
         }
 
