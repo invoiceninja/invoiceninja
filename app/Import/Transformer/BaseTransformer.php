@@ -77,7 +77,7 @@ class BaseTransformer
     }
 
     public function getString($data, $field)
-    {
+    {   
         return isset($data[$field]) && $data[$field] ? trim($data[$field]) : '';
     }
 
@@ -179,6 +179,7 @@ class BaseTransformer
 
     public function getClient($client_name, $client_email)
     {
+
         if (! empty($client_name)) {
             $client_id_search = Client::query()->where('company_id', $this->company->id)
                 ->where('is_deleted', false)
