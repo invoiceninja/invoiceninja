@@ -326,7 +326,7 @@ class HtmlEngine
             $data['$amount_raw'] = ['value' => $this->entity->partial, 'label' => ctrans('texts.partial_due')];
             $data['$due_date'] = ['value' => $this->translateDate($this->entity->partial_due_date, $this->client->date_format(), $this->client->locale()) ?: ' ', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
         } else {
-            if ($this->entity->status_id == 1) {
+            if ($this->entity->status_id == 1 || $this->entity_string == 'recurring_invoice') {
                 $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->amount, $this->client) ?: ' ', 'label' => ctrans('texts.balance_due')];
                 $data['$balance_due_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.balance_due')];
                 $data['$amount_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.amount')];
