@@ -227,6 +227,13 @@ class InvoiceItemExport extends BaseExport
             $entity['invoice.recurring_id'] = $invoice->recurring_invoice->number ?? '';
         }
 
+        if (in_array('invoice.assigned_user_id', $this->input['report_keys'])) {
+            $entity['invoice.assigned_user_id'] = $invoice->assigned_user ? $invoice->assigned_user->present()->name(): '';
+        }
+            
+        if (in_array('invoice.user_id', $this->input['report_keys'])) {
+            $entity['invoice.user_id'] = $invoice->user ? $invoice->user->present()->name(): '';
+        }
 
         return $entity;
     }
