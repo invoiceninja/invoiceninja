@@ -121,7 +121,7 @@ class TemplateService
      * @return self
      */
     public function build(array $data): self
-    {nlog($data);
+    {
         $this->compose()
              ->processData($data)
              ->parseNinjaBlocks()
@@ -215,7 +215,7 @@ class TemplateService
     {
 
         $this->data = $this->preProcessDataBlocks($data);
-        // nlog($this->data);
+        nlog($this->data);
         return $this;
     }
 
@@ -617,7 +617,7 @@ class TemplateService
             'paymentables' => $pivot,
             'refund_activity' => $this->getPaymentRefundActivity($payment),
         ];
-
+nlog($data);
         return $data;
 
     }
@@ -827,11 +827,11 @@ class TemplateService
      */
     public function processPayments($payments): array
     {
-
+nlog("processing payments");
         $payments = collect($payments)->map(function ($payment) {
             return $this->transformPayment($payment);
         })->toArray();
-
+nlog($payments);
         return $payments;
 
     }

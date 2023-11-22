@@ -167,6 +167,14 @@ class PaymentExport extends BaseExport
             $entity['gateway'] = $payment->gateway_type ? $payment->gateway_type->name : 'Unknown Type';
         }
 
+        if (in_array('payment.assigned_user_id', $this->input['report_keys'])) {
+            $entity['payment.assigned_user_id'] = $payment->assigned_user ? $payment->assigned_user->present()->name() : '';
+        }
+
+        if (in_array('payment.user_id', $this->input['report_keys'])) {
+            $entity['payment.user_id'] = $payment->user ? $payment->user->present()->name() : '';
+        }
+
         // $entity['invoices'] = $payment->invoices()->exists() ? $payment->invoices->pluck('number')->implode(',') : '';
 
         return $entity;
