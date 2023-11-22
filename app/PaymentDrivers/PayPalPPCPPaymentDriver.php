@@ -87,8 +87,8 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         $method = PaymentType::PAYPAL;
 
         match($gateway_type_id){
-            "3" => $method = PaymentType::PAYPAL,
             "1" => $method = PaymentType::CREDIT_CARD_OTHER,
+            "3" => $method = PaymentType::PAYPAL,
             "25" => $method = PaymentType::VENMO,
         };
 
@@ -99,8 +99,8 @@ class PayPalPPCPPaymentDriver extends BaseDriver
     {
 
         $enums = [
-            3 => 'paypal',
             1 => 'card',
+            3 => 'paypal',
             25 => 'venmo',
             // 9 => 'sepa',
             // 12 => 'bancontact',
@@ -301,6 +301,63 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         }
     }
 
+    private function paymentSource(): array
+    {
+        return match($this->paypal_payment_method) {
+            'paypal' => $this->injectPayPalPaymentSource(),
+            'card' => $this->injectCardPaymentSource(),
+            'venmo' => $this->injectVenmoPaymentSource(),
+        };
+    }
+
+    private function injectVenmoPaymentSource(): array
+    {
+
+        return [
+            "venmo" => [
+                "email_address" => $this->client->present()->email(),
+            ],
+        ];
+
+    }
+
+    private function injectCardPaymentSource(): array
+    {
+
+        return [
+            "card" => [
+
+                "name" => $this->client->present()->name(),
+                "email_address" => $this->client->present()->email(),
+                "billing_address" => $this->getBillingAddress(),
+                "experience_context"=> [
+                    "user_action" => "PAY_NOW"
+                ],
+            ],
+        ];
+
+    }
+
+    private function injectPayPalPaymentSource(): array
+    {
+
+        return [
+            "paypal" => [
+
+                "name" => [
+                    "given_name" => $this->client->present()->first_name(),
+                    "surname" => $this->client->present()->last_name(),
+                ],
+                "email_address" => $this->client->present()->email(),
+                "address" => $this->getBillingAddress(),
+                "experience_context"=> [
+                    "user_action" => "PAY_NOW"
+                ],
+            ],
+        ];
+
+    }
+
     private function createOrder(array $data): string
     {
 
@@ -315,14 +372,15 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         $order = [
                 
                 "intent" => "CAPTURE",
-                "payer" => [
-                    "name" => [
-                        "given_name" => $this->client->present()->first_name(),
-                        "surname" => $this->client->present()->last_name(),
-                    ],
-                    "email_address" => $this->client->present()->email(),
-                    "address" => $this->getBillingAddress(),
-                ],
+                "payment_source" => $this->paymentSource(),
+                // "payer" => [
+                //     "name" => [
+                //         "given_name" => $this->client->present()->first_name(),
+                //         "surname" => $this->client->present()->last_name(),
+                //     ],
+                //     "email_address" => $this->client->present()->email(),
+                //     "address" => $this->getBillingAddress(),
+                // ],
                 "purchase_units" => [
                     [
                     "description" =>ctrans('texts.invoice_number').'# '.$invoice->number,
@@ -333,9 +391,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                     "payment_instruction" => [
                         "disbursement_mode" => "INSTANT",
                     ],
-                    "shipping" => [
-                        "address" => $this->getShippingAddress()
-                    ],
+                    $this->getShippingAddress(),
                     "amount" => [
                         "value" => (string)$data['amount_with_fee'],
                         "currency_code"=> $this->client->currency()->code,
@@ -385,15 +441,21 @@ class PayPalPPCPPaymentDriver extends BaseDriver
     private function getShippingAddress(): array
     {
         return $this->company_gateway->require_shipping_address ? 
-            [
-                "address_line_1" => $this->client->shipping_address1,
-                "address_line_2" => $this->client->shipping_address2,
-                "admin_area_2" => $this->client->shipping_city,
-                "admin_area_1" => $this->client->shipping_state,
-                "postal_code" => $this->client->shipping_postal_code,
-                "country_code" => $this->client->shipping_country->iso_3166_2,
+        [
+            "shipping" =>  [
+                "address" => 
+                [
+                    "address_line_1" => $this->client->shipping_address1,
+                    "address_line_2" => $this->client->shipping_address2,
+                    "admin_area_2" => $this->client->shipping_city,
+                    "admin_area_1" => $this->client->shipping_state,
+                    "postal_code" => $this->client->shipping_postal_code,
+                    "country_code" => $this->client->present()->shipping_country_code(),
+                ],
             ]
+        ]
         : [];
+
     }
 
     public function gatewayRequest(string $uri, string $verb, array $data, ?array $headers = [])

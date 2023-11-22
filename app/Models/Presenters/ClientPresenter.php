@@ -110,6 +110,11 @@ class ClientPresenter extends EntityPresenter
         return $str;
     }
 
+    public function shipping_country_code(): string
+    {
+        return $this->entity->shipping_country ? $this->entity->shipping_country->iso_3166_2 : $this->entity->country->iso_3166_2;
+    }
+
     public function phone()
     {
         return $this->entity->phone ?: '';
