@@ -69,8 +69,11 @@ class EmailController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        if ($request->has('cc_email') && $request->cc_email && (Ninja::isSelfHost() || $user->account->isPaidHostedClient())) {
-            $mo->cc[] = new Address($request->cc_email);
+        if ($request->has('cc_email') && (Ninja::isSelfHost() || $user->account->isPaidHostedClient())) {
+ 
+            foreach($request->cc_email as $email)
+                $mo->cc[] = new Address($email);
+
         }
 
         $entity_obj->invitations->each(function ($invitation) use ($entity_obj, $mo) {

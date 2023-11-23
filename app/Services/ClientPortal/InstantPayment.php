@@ -83,6 +83,8 @@ class InstantPayment
                 ->with(['message' => 'No payable invoices selected.']);
         }
 
+        $invoices = Invoice::query()->whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))->withTrashed()->get();
+
         $client = $invoices->first()->client;
         $settings = $client->getMergedSettings();
 

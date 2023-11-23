@@ -136,7 +136,7 @@ class CompanyTransformer extends EntityTransformer
             'custom_fields' =>  (object) $company->custom_fields ?? $std,
             'size_id' => (string) $company->size_id ?: '',
             'industry_id' => (string) $company->industry_id ?: '',
-            'first_month_of_year' => (string) $company->first_month_of_year ?: '',
+            'first_month_of_year' => (string) $company->first_month_of_year ?: '1',
             'first_day_of_week' => (string) $company->first_day_of_week ?: '',
             'subdomain' => (string) $company->subdomain ?: '',
             'portal_mode' => (string) $company->portal_mode ?: '',

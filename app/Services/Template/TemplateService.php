@@ -11,31 +11,32 @@
 
 namespace App\Services\Template;
 
+use App\Models\User;
+use App\Models\Quote;
+use App\Utils\Number;
+use Twig\Error\Error;
 use App\Models\Client;
-use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Design;
+use App\Models\Vendor;
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
-use App\Models\PurchaseOrder;
-use App\Models\Quote;
-use App\Models\RecurringInvoice;
-use App\Models\Vendor;
-use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
-use App\Utils\Number;
+use Twig\Error\LoaderError;
+use Twig\Error\SyntaxError;
+use Twig\Error\RuntimeError;
+use App\Models\PurchaseOrder;
+use App\Utils\VendorHtmlEngine;
+use Twig\Sandbox\SecurityError;
+use App\Models\RecurringInvoice;
 use App\Utils\PaymentHtmlEngine;
 use App\Utils\Traits\MakesDates;
+use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\Traits\Pdf\PdfMaker;
-use App\Utils\VendorHtmlEngine;
-use League\CommonMark\CommonMarkConverter;
-use Twig\Error\Error;
-use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
-use Twig\Error\SyntaxError;
 use Twig\Extra\Intl\IntlExtension;
-use Twig\Sandbox\SecurityError;
+use League\CommonMark\CommonMarkConverter;
 
 class TemplateService
 {
@@ -616,7 +617,7 @@ class TemplateService
             'paymentables' => $pivot,
             'refund_activity' => $this->getPaymentRefundActivity($payment),
         ];
-
+        
         return $data;
 
     }
@@ -826,11 +827,11 @@ class TemplateService
      */
     public function processPayments($payments): array
     {
-
+nlog("processing payments");
         $payments = collect($payments)->map(function ($payment) {
             return $this->transformPayment($payment);
         })->toArray();
-
+nlog($payments);
         return $payments;
 
     }
@@ -849,7 +850,7 @@ class TemplateService
             return [
                 'number' => (string) $task->number ?: '',
                 'description' => (string) $task->description ?: '',
-                'duration' => $task->duration ?: 0,
+                'duration' => $task->calcDuration() ?: 0,
                 'rate' => Number::formatMoney($task->rate ?? 0, $task->client ?? $task->company),
                 'rate_raw' => $task->rate ?? 0,
                 'created_at' => $this->translateDate($task->created_at, $task->client ? $task->client->date_format() : $task->company->date_format(), $task->client ? $task->client->locale() : $task->company->locale()),
@@ -863,6 +864,7 @@ class TemplateService
                 'custom_value3' => $task->custom_value3 ?: '',
                 'custom_value4' => $task->custom_value4 ?: '',
                 'status' => $task->status ? $task->status->name : '',
+                'user' => $this->userInfo($task->user),
                 'client' => $task->client ? [
                             'name' => $task->client->present()->name(),
                             'balance' => $task->client->balance,
@@ -894,6 +896,14 @@ class TemplateService
 
     }
 
+    private function userInfo(User $user): array
+    {
+        return [
+            'name' => $user->present()->name(),
+            'email' => $user->email,
+        ];
+    }
+
     private function transformProject(Project $project, bool $nested = false): array
     {
         
@@ -921,7 +931,7 @@ class TemplateService
                     'payment_balance' => $project->client->payment_balance,
                     'credit_balance' => $project->client->credit_balance,
                 ] : [],
-
+            'user' => $this->userInfo($project->user)
         ];
 
     }

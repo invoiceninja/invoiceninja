@@ -24,7 +24,7 @@ class TaskMap
             4 => 'client.name',
             5 => 'client.email',
             6 => 'task.description',
-            7 => 'task.is_billable',
+            7 => 'task.billable',
             8 => 'task.start_date',
             9 => 'task.end_date',
             10 => 'task.start_time',

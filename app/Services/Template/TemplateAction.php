@@ -96,6 +96,7 @@ class TemplateAction implements ShouldQueue
             Project::class => $resource->with('client'),
             Expense::class => $resource->with('client'),
             Payment::class => $resource->with('invoices', 'client'),
+            Client::class => $resource,
         };
 
         $result = $resource->withTrashed()
@@ -103,13 +104,14 @@ class TemplateAction implements ShouldQueue
             ->where('company_id', $this->company->id)
             ->get();
 
+            // nlog($result->toArray());
+
         if($result->count() <= 1) {
             $data[$key] = collect($result);
         } else {
             $data[$key] = $result;
         }
 
-        
         $ts = $template_service
                     ->setCompany($this->company)
                     ->build($data);

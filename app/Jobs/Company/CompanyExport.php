@@ -492,7 +492,7 @@ class CompanyExport implements ShouldQueue
         $nmo->company = $company_reference;
         $nmo->settings = $this->company->settings;
         
-        NinjaMailerJob::dispatch($nmo, true);
+        (new NinjaMailerJob($nmo, true))->handle();
         
         UnlinkFile::dispatch(config('filesystems.default'), $storage_path)->delay(now()->addHours(1));
 

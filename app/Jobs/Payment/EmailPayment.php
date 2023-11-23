@@ -74,6 +74,7 @@ class EmailPayment implements ShouldQueue
 
             if($this->settings->payment_email_all_contacts && $this->payment->invoices && $this->payment->invoices->count() >= 1) {
                 $this->emailAllContacts($email_builder);
+                return;
             }
 
             $invitation = null;
