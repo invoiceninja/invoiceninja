@@ -41,6 +41,12 @@ class ExpenseRepository extends BaseRepository
      */
     public function save(array $data, Expense $expense): Expense
     {
+        if(isset($data['payment_date']) && $data['payment_date'] == $expense->payment_date) {
+            //do nothing
+        } elseif(isset($data['payment_date']) && strlen($data['payment_date']) > 1 && $expense->company->notify_vendor_when_paid) {
+            nlog("NOT SAME");
+        }
+
         $expense->fill($data);
 
         if (!$expense->id) {
@@ -50,8 +56,8 @@ class ExpenseRepository extends BaseRepository
         if (empty($expense->number)) {
             $expense = $this->findAndSaveNumber($expense);
         }
-
-        $expense->saveQuietly();
+        else
+            $expense->saveQuietly();
 
         if (array_key_exists('documents', $data)) {
             $this->saveDocuments($data['documents'], $expense);

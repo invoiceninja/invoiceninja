@@ -53,6 +53,8 @@ class TemplateService
 
     private array $variables = [];
 
+    private array $global_vars = [];
+
     public ?Company $company;
 
     private ?Client $client;
@@ -124,6 +126,7 @@ class TemplateService
     {
         $this->compose()
              ->processData($data)
+             ->setGlobals()
              ->parseNinjaBlocks()
              ->processVariables($data)
              ->parseGlobalStacks()
@@ -145,6 +148,25 @@ class TemplateService
         return $this;
     }
 
+    private function setGlobals(): self
+    {
+
+        foreach($this->global_vars as $key => $value) {
+            $this->twig->addGlobal($key, $value);
+        }
+        
+        $this->global_vars = [];
+
+        return $this;
+    }
+
+    public function addGlobal(array $var): self
+    {   
+        $this->global_vars = array_merge($this->global_vars, $var);
+        
+        return $this;
+    }
+
     /**
      * Returns a Mock Template
      *
@@ -159,6 +181,10 @@ class TemplateService
 
         $this->data = $tm->engines;
         $this->variables = $tm->variables[0];
+        $this->twig->addGlobal('currency_code', $this->company->currency()->code);
+        $this->twig->addGlobal('show_credits', true);
+        $this->twig->addGlobal('show_aging', true);
+        $this->twig->addGlobal('show_payments', true);
 
         $this->parseNinjaBlocks()
              ->parseGlobalStacks()
@@ -442,6 +468,7 @@ class TemplateService
                         'balance' => Number::formatMoney($invoice->balance, $invoice->client),
                         'status_id' => $invoice->status_id,
                         'status' => Invoice::stringStatus($invoice->status_id),
+                        'amount_raw' => $invoice->amount ,
                         'balance_raw' => $invoice->balance,
                         'number' => $invoice->number ?: '',
                         'discount' => $invoice->discount,
@@ -549,6 +576,8 @@ class TemplateService
         $data = [];
 
         $this->payment = $payment;
+
+        $this->addGlobal(['currency_code' => $payment->currency->code ?? $this->company->currency()->code]);
 
         $credits = $payment->credits->map(function ($credit) use ($payment) {
             return [
@@ -827,11 +856,11 @@ class TemplateService
      */
     public function processPayments($payments): array
     {
-nlog("processing payments");
+
         $payments = collect($payments)->map(function ($payment) {
             return $this->transformPayment($payment);
         })->toArray();
-nlog($payments);
+
         return $payments;
 
     }

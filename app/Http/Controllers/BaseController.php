@@ -530,8 +530,8 @@ class BaseController extends Controller
 
             $paginator = $query->paginate($limit);
 
-            /** @phpstan-ignore-next-line **/
-            $query = $paginator->getCollection();
+            /** @phpstan-ignore-next-line */
+            $query = $paginator->getCollection(); // @phpstan-ignore-line
             
             $resource = new Collection($query, $transformer, $this->entity_type);
 
@@ -636,7 +636,8 @@ class BaseController extends Controller
             $paginator = $query->paginate($limit);
 
             /** @phpstan-ignore-next-line **/
-            $query = $paginator->getCollection();
+            $query = $paginator->getCollection();// @phpstan-ignore-line
+
             $resource = new Collection($query, $transformer, $this->entity_type);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
         }
@@ -885,7 +886,8 @@ class BaseController extends Controller
             $paginator = $query->paginate($limit);
 
             /** @phpstan-ignore-next-line **/
-            $query = $paginator->getCollection();
+            $query = $paginator->getCollection();// @phpstan-ignore-line
+
 
             $resource = new Collection($query, $transformer, $this->entity_type);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
@@ -951,7 +953,8 @@ class BaseController extends Controller
         if ($query instanceof Builder) {
             $limit = $this->resolveQueryLimit();
             $paginator = $query->paginate($limit);
-            $query = $paginator->getCollection();
+            $query = $paginator->getCollection();// @phpstan-ignore-line
+
             $resource = new Collection($query, $transformer, $this->entity_type);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
         }
@@ -1092,8 +1095,8 @@ class BaseController extends Controller
             /** @var \App\Models\Account $account */
 
             //always redirect invoicing.co to invoicing.co
-            if (Ninja::isHosted() && !in_array(request()->getSchemeAndHttpHost(), ['https://staging.invoicing.co', 'https://invoicing.co', 'https://demo.invoicing.co', 'https://invoiceninja.net'])) {
-                return redirect()->secure('https://invoicing.co');
+            if (Ninja::isHosted() && !in_array(request()->getSchemeAndHttpHost(), ['https://staging.invoicing.co', 'https://invoicing.co', 'https://demo.invoicing.co', 'https://invoiceninja.net', config('ninja.app_url')])) {
+                return redirect()->secure(config('ninja.app_url'));
             }
 
             if (config('ninja.require_https') && ! request()->isSecure()) {

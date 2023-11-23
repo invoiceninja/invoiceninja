@@ -53,10 +53,6 @@ class PreviewController extends BaseController
     public function live(PreviewInvoiceRequest $request): mixed
     {
 
-        if (Ninja::isHosted() && !in_array($request->getHost(), ['preview.invoicing.co','staging.invoicing.co'])) {
-            return response()->json(['message' => 'This server cannot handle this request.'], 400);
-        }
-
         $start = microtime(true);
 
         /** Build models */

@@ -1889,7 +1889,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
   "/api/v1/companies/{id}/upload":
-    put:
+    post:
       tags:
         - companies
       summary: "Uploads a document to a company"
@@ -1907,6 +1907,23 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
       responses:
         200:
           description: "Returns the client object"
@@ -3429,7 +3446,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
   "/api/v1/expenses/{id}/upload":
-    put:
+    post:
       tags:
         - expense
       summary: "Uploads a document to a expense"
@@ -3447,6 +3464,23 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
       responses:
         200:
           description: "Returns the Expense object"
@@ -3801,7 +3835,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
   "/api/v1/group_settings/{id}/upload":
-    put:
+    post:
       tags:
         - group_settings
       summary: "Uploads a document to a group setting"
@@ -3819,6 +3853,23 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
       responses:
         200:
           description: "Returns the Group Setting object"
@@ -4926,7 +4977,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
   "/api/v1/recurring_expenses/{id}/upload":
-    put:
+    post:
       tags:
         - recurring_expense
       summary: "Uploads a document to a recurring_expense"
@@ -4944,6 +4995,23 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
       responses:
         200:
           description: "Returns the RecurringExpense object"
@@ -8620,7 +8688,7 @@ paths:
           $ref: '#/components/responses/default'
 
   "/api/v1/products/{id}/upload":
-    put:
+    post:
       tags:
         - products
       summary: "Add product document"
@@ -9021,7 +9089,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
   "/api/v1/tasks/{id}/upload":
-    put:
+    post:
       tags:
         - tasks
       summary: "Uploads a task document"
@@ -9039,6 +9107,23 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
       responses:
         200:
           description: "Returns the Task object"
@@ -9440,7 +9525,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
   "/api/v1/projects/{id}/upload":
-    put:
+    post:
       tags:
         - projects
       summary: "Uploads a project document"
@@ -9458,6 +9543,23 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
       responses:
         200:
           description: "Returns the Project object"
@@ -9924,7 +10026,7 @@ paths:
         default:
           $ref: '#/components/responses/default'
   '/api/v1/clients/{id}/upload':
-    put:
+    post:
       tags:
         - clients
       summary: 'Add client document'
@@ -10614,7 +10716,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
   "/api/v1/credits/{id}/upload":
-    put:
+    post:
       tags:
         - credits
       summary: "Upload a credit document"
@@ -10632,6 +10734,23 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
       responses:
         200:
           description: "Returns the Credit object"
@@ -11142,7 +11261,7 @@ paths:
           $ref: "#/components/responses/default"
   
   "/api/v1/payments/{id}/upload":
-    put:
+    post:
       tags:
         - payments
       summary: "Upload a payment document"
@@ -11160,6 +11279,23 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
       responses:
         200:
           description: "Returns the Payment object"
@@ -12400,7 +12536,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
   "/api/v1/recurring_invoices/{id}/upload":
-    put:
+    post:
       tags:
         - Recurring Invoices
       summary: "Add recurring invoice document"
@@ -12418,6 +12554,23 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
       responses:
         200:
           description: "Returns the RecurringInvoice object"
@@ -12929,7 +13082,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
   "/api/v1/quotes/{id}/upload":
-    put:
+    post:
       tags:
         - quotes
       summary: "Upload a quote document"
@@ -12947,6 +13100,23 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
       responses:
         200:
           description: "Returns the Quote object"
@@ -13367,7 +13537,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
   "/api/v1/purchase_orders/{id}/upload":
-    put:
+    post:
       tags:
         - Purchase Orders
       summary: "Uploads a purchase order document"
@@ -13385,6 +13555,23 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
       responses:
         200:
           description: "Returns the Purchase Order object"
@@ -13794,7 +13981,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
   "/api/v1/vendors/{id}/upload":
-    put:
+    post:
       tags:
         - vendors
       summary: "Uploads a vendor document"
@@ -13812,6 +13999,23 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
       responses:
         200:
           description: "Returns the Vendor object"
@@ -20666,27 +20870,31 @@ components:
         id:
           description: 'The expense hashed id'
           type: string
-          example: Opnel5aKBz
+          example: 'Opnel5aKBz'
         user_id:
           description: 'The user hashed id'
           type: string
-          example: ''
+          example: 'Opnel5aKBz'
         assigned_user_id:
           description: 'The assigned user hashed id'
           type: string
-          example: ''
+          example: 'Opnel5aKBz'
+        project_id:
+          description: 'The associated project_id'
+          type: string
+          example: 'Opnel5aKBz'  
         company_id:
           description: 'The company hashed id'
           type: string
-          example: ''
+          example: 'Opnel5aKBz'
         client_id:
           description: 'The client hashed id'
           type: string
-          example: ''
+          example: 'Opnel5aKBz'
         invoice_id:
           description: 'The related invoice hashed id'
           type: string
-          example: ''
+          example: 'Opnel5aKBz'
         bank_id:
           description: 'The bank id related to this expense'
           type: string
@@ -20694,15 +20902,15 @@ components:
         invoice_currency_id:
           description: 'The currency id of the related invoice'
           type: string
-          example: ''
+          example: '1'
         expense_currency_id:
           description: 'The currency id of the expense'
           type: string
-          example: ''
+          example: '2'
         invoice_category_id:
           description: 'The invoice category id'
           type: string
-          example: ''
+          example: 'Opnel5aKBz'
         payment_type_id:
           description: 'The payment type id'
           type: string
@@ -20710,7 +20918,7 @@ components:
         recurring_expense_id:
           description: 'The related recurring expense this expense was created from'
           type: string
-          example: ''
+          example: 'Opnel5aKBz'
         private_notes:
           description: 'The private notes of the expense'
           type: string
@@ -20743,30 +20951,34 @@ components:
           description: 'A custom value'
           type: string
           example: ''
+        tax_amount:
+          description: 'The tax amount'
+          type: number
+          example: 10.00
         tax_name1:
-          description: 'Tax name'
+          description: 'Tax Name 1'
           type: string
-          example: ''
+          example: 'GST'
         tax_name2:
-          description: 'Tax name'
+          description: 'Tax Name 2'
           type: string
-          example: ''
+          example: 'VAT'
+        tax_name3:
+          description: 'Tax Name 3'
+          type: string
+          example: 'IVA'
         tax_rate1:
-          description: 'Tax rate'
+          description: 'Tax rate 1'
           type: number
           format: float
           example: '10.00'
         tax_rate2:
-          description: 'Tax rate'
+          description: 'Tax rate 2'
           type: number
           format: float
           example: '10.00'
-        tax_name3:
-          description: 'Tax name'
-          type: string
-          example: ''
         tax_rate3:
-          description: 'Tax rate'
+          description: 'Tax rate 3'
           type: number
           format: float
           example: '10.00'
@@ -20786,13 +20998,13 @@ components:
           format: float
           example: '0.80'
         date:
-          description: 'The expense date formate Y-m-d'
+          description: 'The expense date format Y-m-d'
           type: string
           example: '2022-12-01'
         payment_date:
           description: 'The date of payment for the expense, format Y-m-d'
           type: string
-          example: ''
+          example: '2022-12-01'
         should_be_invoiced:
           description: 'Flag whether the expense should be invoiced'
           type: boolean

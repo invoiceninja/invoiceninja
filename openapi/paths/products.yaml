@@ -382,7 +382,7 @@
           $ref: '#/components/responses/default'
 
   "/api/v1/products/{id}/upload":
-    put:
+    post:
       tags:
         - products
       summary: "Add product document"

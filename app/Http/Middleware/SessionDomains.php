@@ -32,8 +32,7 @@ class SessionDomains
 
         $domain_name = $request->getHost();
 
-        if (strpos($domain_name, 'invoicing.co') !== false) {
-            // config(['session.domain' => '.invoicing.co']);
+        if (strpos($domain_name, config('ninja.app_domain')) !== false) {
         } else {
             config(['session.domain' => $domain_name]);
         }
