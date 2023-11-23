@@ -61,7 +61,7 @@ class MobileLocalization extends Command
 
     private function laravelResources()
     {
-        $resources = $this->getResources();
+        $resources =(array)$this->getResources();
 
         if(is_iterable($resources)){
             foreach ($resources as $key => $val) {

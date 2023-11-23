@@ -261,10 +261,10 @@ class Task extends BaseModel
             $parent_entity = $this->client ?? $this->company;
 
             if($log[0])
-                $log[0] = Carbon::createFromTimestamp($log[0])->format($parent_entity->date_format().' H:m:s');
+                $log[0] = Carbon::createFromTimestamp($log[0])->format($parent_entity->date_format().' H:i:s');
 
             if($log[1] && $log[1] != 0)
-                $log[1] = Carbon::createFromTimestamp($log[1])->format($parent_entity->date_format().' H:m:s');
+                $log[1] = Carbon::createFromTimestamp($log[1])->format($parent_entity->date_format().' H:i:s');
             else     
                 $log[1] = ctrans('texts.running');
 
@@ -291,17 +291,21 @@ class Task extends BaseModel
 
             if($log[0])
                 $logged['start_date_raw'] = $log[0];
-                $logged['start_date'] = Carbon::createFromTimestamp($log[0])->format($parent_entity->date_format().' H:m:s');
+                $logged['start_date'] = Carbon::createFromTimestamp($log[0])->setTimeZone($this->company->timezone()->name)->format($parent_entity->date_format().' H:i:s');
 
             if($log[1] && $log[1] != 0) {
                 $logged['end_date_raw'] = $log[1];
-                $logged['end_date'] = Carbon::createFromTimestamp($log[1])->format($parent_entity->date_format().' H:m:s');
+                $logged['end_date'] = Carbon::createFromTimestamp($log[1])->setTimeZone($this->company->timezone()->name)->format($parent_entity->date_format().' H:i:s');
             }
             else{
                 $logged['end_date_raw'] = 0;
                 $logged['end_date'] = ctrans('texts.running');
             }
-            $logged['duration'] = $duration;
+
+            $logged['description'] = $log[2];
+            $logged['billable'] = $log[3];
+            $logged['duration_raw'] = $duration;
+            $logged['duration'] = gmdate("H:i:s", $duration);
 
             return $logged;
 

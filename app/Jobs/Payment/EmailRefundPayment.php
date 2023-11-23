@@ -96,8 +96,6 @@ class EmailRefundPayment implements ShouldQueue
                 }
             }
 
-
-           
             $nmo->mailable = new TemplateEmail($email_builder, $this->contact, $invitation);
             $nmo->to_user = $this->contact;
             $nmo->settings = $this->settings;

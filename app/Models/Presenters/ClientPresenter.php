@@ -103,7 +103,7 @@ class ClientPresenter extends EntityPresenter
         if ($cityState = $this->getShippingCityState()) {
             $str .= e($cityState).'<br/>';
         }
-        if ($country = $client->shipping_country) {
+        if ($country = $client->shipping_country ?? $client->country) {
             $str .= e($country->name).'<br/>';
         }
 

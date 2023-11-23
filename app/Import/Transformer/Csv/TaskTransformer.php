@@ -29,8 +29,11 @@ class TaskTransformer extends BaseTransformer
     {
         $this->stubbed_timestamp = time();
 
-        $task_data = reset($task_items_data);
-
+        if(count($task_items_data) == count($task_items_data, COUNT_RECURSIVE)) 
+            $task_data = $task_items_data;
+        else 
+            $task_data = reset($task_items_data);
+        
         $clientId = $this->getClient(
             $this->getString($task_data, 'client.name'),
             $this->getString($task_data, 'client.email')

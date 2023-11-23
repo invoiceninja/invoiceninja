@@ -166,6 +166,7 @@ class HtmlEngine
         $data['$exchange_rate'] = ['value' => $this->entity->exchange_rate ?: ' ', 'label' => ctrans('texts.exchange_rate')];
         $data['$triangular_tax'] = ['value' => ctrans('texts.triangular_tax'), 'label' => ''];
         $data['$tax_info'] = ['value' => $this->taxLabel(), 'label' => ''];
+        $data['$net'] = ['value' => '', 'label' => ctrans('texts.net')];
         
         if ($this->entity_string == 'invoice' || $this->entity_string == 'recurring_invoice') {
             $data['$entity'] = ['value' => ctrans('texts.invoice'), 'label' => ctrans('texts.invoice')];
@@ -326,7 +327,7 @@ class HtmlEngine
             $data['$amount_raw'] = ['value' => $this->entity->partial, 'label' => ctrans('texts.partial_due')];
             $data['$due_date'] = ['value' => $this->translateDate($this->entity->partial_due_date, $this->client->date_format(), $this->client->locale()) ?: ' ', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
         } else {
-            if ($this->entity->status_id == 1) {
+            if ($this->entity->status_id == 1 || $this->entity_string == 'recurring_invoice') {
                 $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->amount, $this->client) ?: ' ', 'label' => ctrans('texts.balance_due')];
                 $data['$balance_due_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.balance_due')];
                 $data['$amount_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.amount')];
@@ -664,6 +665,8 @@ class HtmlEngine
         $data['$payment.custom2'] = ['value' => '', 'label' => ctrans('texts.payment')];
         $data['$payment.custom3'] = ['value' => '', 'label' => ctrans('texts.payment')];
         $data['$payment.custom4'] = ['value' => '', 'label' => ctrans('texts.payment')];
+        $data['$refund'] = ['value' => '', 'label' => ctrans('texts.refund')];
+        $data['$refunded'] = ['value' => '', 'label' => ctrans('texts.refunded')];
 
         $data['$payment.amount'] = ['value' => '', 'label' => ctrans('texts.payment')];
         $data['$payment.date'] = ['value' => '', 'label' => ctrans('texts.payment_date')];

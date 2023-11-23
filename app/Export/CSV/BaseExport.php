@@ -628,11 +628,11 @@ class BaseExport
         }
         
         if(in_array($column, ['client.user_id', 'user_id'])) {
-            return $entity->client->user->present()->name();
+            return $entity->client->user ? $entity->client->user->present()->name() : '';
         }
 
         if(in_array($column, ['client.assigned_user_id', 'assigned_user_id'])) {
-            return $entity->client->assigned_user->present()->name();
+            return $entity->client->assigned_user ? $entity->client->assigned_user->present()->name() : '';
         }
 
         if(in_array($column, ['client.country_id', 'country_id'])) {
@@ -760,7 +760,7 @@ class BaseExport
                 return $transformed_payment[$column];
             } elseif (array_key_exists(str_replace("payment.", "", $column), $transformed_payment)) {
                 return $transformed_payment[$column];
-            }
+            } 
 
             // nlog("export: Could not resolve payment key: {$column}");
 

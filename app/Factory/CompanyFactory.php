@@ -11,13 +11,13 @@
 
 namespace App\Factory;
 
-use App\DataMapper\ClientRegistrationFields;
-use App\DataMapper\CompanySettings;
-use App\DataMapper\Tax\TaxModel;
-use App\Libraries\MultiDB;
-use App\Models\Company;
 use App\Utils\Ninja;
+use App\Models\Company;
+use App\Libraries\MultiDB;
 use App\Utils\Traits\MakesHash;
+use App\DataMapper\Tax\TaxModel;
+use App\DataMapper\CompanySettings;
+use App\DataMapper\ClientRegistrationFields;
 
 class CompanyFactory
 {
@@ -48,7 +48,7 @@ class CompanyFactory
         $company->markdown_email_enabled = true;
         $company->markdown_enabled = false;
         $company->tax_data = new TaxModel();
-        
+        $company->first_month_of_year = 1;
         return $company;
     }
 }
