@@ -8707,7 +8707,6 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "File Upload Body"
         required: true
         content:
           multipart/form-data:
@@ -8716,12 +8715,10 @@ paths:
               properties:
                 _method:
                   type: string
-                  example: PUT
+                  example: POST
                 documents:
                   type: array
                   items:
-                    description: "Array of binary documents for upload"
-                    type: string
                     format: binary
       responses:
         200:
@@ -18062,18 +18059,22 @@ components:
           description: 'The hashed if of the contact'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         user_id:
           description: 'The hashed id of the user who created the contact'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         company_id:
           description: 'The hashed id of the company'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         client_id:
           description: 'The hashed id of the client'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         first_name:
           description: 'The first name of the contact'
           type: string
@@ -18110,18 +18111,26 @@ components:
           description: 'The terms of service which the contact has accpeted'
           type: string
           example: 'A long set of ToS'
+          readOnly: true
         password:
           description: 'The hashed password of the contact'
           type: string
           example: '*****'
-        confirmation-code:
+        confirmation_code:
           description: 'The confirmation code used to authenticate the contacts email address'
           type: string
           example: 333-sdjkh34gbasd
+          readOnly: true
         token:
           description: 'A uuid based token.'
           type: string
           example: 333-sdjkh34gbasd
+          readOnly: true
+        contact_key:
+          description: 'A unique identifier for the contact'
+          type: string
+          example: JD0X52bkfZlJRiroCJ0tcSiAjsJTntZ5uqKdiZ0a
+          readOnly: true
         is_primary:
           description: 'Defines is this contact is the primary contact for the client'
           type: boolean
@@ -18143,31 +18152,37 @@ components:
           type: number
           format: integer
           example: '3'
+          readOnly: true
         email_verified_at:
           description: 'The date which the contact confirmed their email'
           type: number
           format: integer
           example: '134341234234'
+          readOnly: true
         last_login:
           description: Timestamp
           type: number
           format: integer
           example: '134341234234'
+          readOnly: true
         created_at:
           description: Timestamp
           type: number
           format: integer
           example: '134341234234'
+          readOnly: true
         updated_at:
           description: Timestamp
           type: number
           format: integer
           example: '134341234234'
+          readOnly: true
         deleted_at:
           description: Timestamp
           type: number
           format: integer
           example: '134341234234'
+          readOnly: true
       type: object
     ClientContactRequest:
       properties:
@@ -18228,14 +18243,17 @@ components:
           description: 'The hashed id of the user id'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         company_id:
           description: 'The hashed id of the company'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         vendor_id:
           description: 'The hashed id of the vendor'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         first_name:
           description: 'The first name of the contact'
           type: string
@@ -18244,6 +18262,16 @@ components:
           description: 'The last name of the contact'
           type: string
           example: Windsor
+        contact_key:
+          description: 'A unique identifier for the contact'
+          type: string
+          example: JD0X52bkfZlJRiroCJ0tcSiAjsJTntZ5uqKdiZ0a
+          readOnly: true
+        confirmation_code:
+          description: 'The confirmation code used to authenticate the contacts email address'
+          type: string
+          example: 333-sdjkh34gbasd
+          readOnly: true
         phone:
           description: 'The contacts phone number'
           type: string
@@ -18268,6 +18296,16 @@ components:
           description: 'The contact email address'
           type: string
           example: harry@windsor.com
+        email_verified_at:
+          description: 'The date which the contact confirmed their email'
+          type: number
+          format: integer
+          example: '134341234234'
+          readOnly: true
+        password:
+          description: 'The hashed password of the contact'
+          type: string
+          example: '*****'
         is_primary:
           description: 'Boolean flag determining if the contact is the primary contact for the vendor'
           type: boolean
@@ -19599,10 +19637,6 @@ components:
           description: 'The hashed id of the company. This is a unique identifier for the company.'
           type: string
           example: Opnel5aKBz
-        client_id:
-          description: 'The hashed id of the client. This is a unique identifier for the client.'
-          type: string
-          example: Opnel5aKBz
         contacts:
           type: array
           items:
@@ -19732,8 +19766,6 @@ components:
           type: string
           example: 'Bob the vendor'
           readOnly: true
-        settings:
-          $ref: '#/components/schemas/CompanySettings'
       type: object
     ClientSettings:
       required:
@@ -20838,27 +20870,31 @@ components:
         id:
           description: 'The expense hashed id'
           type: string
-          example: Opnel5aKBz
+          example: 'Opnel5aKBz'
         user_id:
           description: 'The user hashed id'
           type: string
-          example: ''
+          example: 'Opnel5aKBz'
         assigned_user_id:
           description: 'The assigned user hashed id'
           type: string
-          example: ''
+          example: 'Opnel5aKBz'
+        project_id:
+          description: 'The associated project_id'
+          type: string
+          example: 'Opnel5aKBz'  
         company_id:
           description: 'The company hashed id'
           type: string
-          example: ''
+          example: 'Opnel5aKBz'
         client_id:
           description: 'The client hashed id'
           type: string
-          example: ''
+          example: 'Opnel5aKBz'
         invoice_id:
           description: 'The related invoice hashed id'
           type: string
-          example: ''
+          example: 'Opnel5aKBz'
         bank_id:
           description: 'The bank id related to this expense'
           type: string
@@ -20866,15 +20902,15 @@ components:
         invoice_currency_id:
           description: 'The currency id of the related invoice'
           type: string
-          example: ''
+          example: '1'
         expense_currency_id:
           description: 'The currency id of the expense'
           type: string
-          example: ''
+          example: '2'
         invoice_category_id:
           description: 'The invoice category id'
           type: string
-          example: ''
+          example: 'Opnel5aKBz'
         payment_type_id:
           description: 'The payment type id'
           type: string
@@ -20882,7 +20918,7 @@ components:
         recurring_expense_id:
           description: 'The related recurring expense this expense was created from'
           type: string
-          example: ''
+          example: 'Opnel5aKBz'
         private_notes:
           description: 'The private notes of the expense'
           type: string
@@ -20915,30 +20951,34 @@ components:
           description: 'A custom value'
           type: string
           example: ''
+        tax_amount:
+          description: 'The tax amount'
+          type: number
+          example: 10.00
         tax_name1:
-          description: 'Tax name'
+          description: 'Tax Name 1'
           type: string
-          example: ''
+          example: 'GST'
         tax_name2:
-          description: 'Tax name'
+          description: 'Tax Name 2'
           type: string
-          example: ''
+          example: 'VAT'
+        tax_name3:
+          description: 'Tax Name 3'
+          type: string
+          example: 'IVA'
         tax_rate1:
-          description: 'Tax rate'
+          description: 'Tax rate 1'
           type: number
           format: float
           example: '10.00'
         tax_rate2:
-          description: 'Tax rate'
+          description: 'Tax rate 2'
           type: number
           format: float
           example: '10.00'
-        tax_name3:
-          description: 'Tax name'
-          type: string
-          example: ''
         tax_rate3:
-          description: 'Tax rate'
+          description: 'Tax rate 3'
           type: number
           format: float
           example: '10.00'
@@ -20958,13 +20998,13 @@ components:
           format: float
           example: '0.80'
         date:
-          description: 'The expense date formate Y-m-d'
+          description: 'The expense date format Y-m-d'
           type: string
           example: '2022-12-01'
         payment_date:
           description: 'The date of payment for the expense, format Y-m-d'
           type: string
-          example: ''
+          example: '2022-12-01'
         should_be_invoiced:
           description: 'Flag whether the expense should be invoiced'
           type: boolean

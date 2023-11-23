@@ -468,6 +468,7 @@ class TemplateService
                         'balance' => Number::formatMoney($invoice->balance, $invoice->client),
                         'status_id' => $invoice->status_id,
                         'status' => Invoice::stringStatus($invoice->status_id),
+                        'amount_raw' => $invoice->amount ,
                         'balance_raw' => $invoice->balance,
                         'number' => $invoice->number ?: '',
                         'discount' => $invoice->discount,
