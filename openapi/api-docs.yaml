@@ -1889,7 +1889,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
   "/api/v1/companies/{id}/upload":
-    put:
+    post:
       tags:
         - companies
       summary: "Uploads a document to a company"
@@ -1907,6 +1907,23 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
       responses:
         200:
           description: "Returns the client object"
@@ -3429,7 +3446,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
   "/api/v1/expenses/{id}/upload":
-    put:
+    post:
       tags:
         - expense
       summary: "Uploads a document to a expense"
@@ -3447,6 +3464,23 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
       responses:
         200:
           description: "Returns the Expense object"
@@ -3801,7 +3835,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
   "/api/v1/group_settings/{id}/upload":
-    put:
+    post:
       tags:
         - group_settings
       summary: "Uploads a document to a group setting"
@@ -3819,6 +3853,23 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
       responses:
         200:
           description: "Returns the Group Setting object"
@@ -4926,7 +4977,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
   "/api/v1/recurring_expenses/{id}/upload":
-    put:
+    post:
       tags:
         - recurring_expense
       summary: "Uploads a document to a recurring_expense"
@@ -4944,6 +4995,23 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
       responses:
         200:
           description: "Returns the RecurringExpense object"
@@ -8620,7 +8688,7 @@ paths:
           $ref: '#/components/responses/default'
 
   "/api/v1/products/{id}/upload":
-    put:
+    post:
       tags:
         - products
       summary: "Add product document"
@@ -8639,6 +8707,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
+        description: "File Upload Body"
         required: true
         content:
           multipart/form-data:
@@ -8647,10 +8716,12 @@ paths:
               properties:
                 _method:
                   type: string
-                  example: POST
+                  example: PUT
                 documents:
                   type: array
                   items:
+                    description: "Array of binary documents for upload"
+                    type: string
                     format: binary
       responses:
         200:
