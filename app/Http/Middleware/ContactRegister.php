@@ -22,7 +22,7 @@ class ContactRegister
         $domain_name = $request->getHost();
 
         /* Hosted */
-        if (strpos($domain_name, 'invoicing.co') !== false) {
+        if (strpos($domain_name, config('ninja.app_domain')) !== false) {
             $subdomain = explode('.', $domain_name)[0];
 
             $query = [

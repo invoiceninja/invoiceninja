@@ -11,6 +11,8 @@ return [
     'version_url' => 'https://pdf.invoicing.co/api/version',
     'app_name' => env('APP_NAME', 'Invoice Ninja'),
     'app_env' => env('APP_ENV', 'selfhosted'),
+    'app_logo' => env('APP_LOGO', 'https://invoicing.co/images/new_logo.png'),
+    'ninja_client_portal' => env('NINJA_CLIENT_PORTAL', 'https://invoiceninja.invoicing.co'),
     'debug_enabled' => env('APP_DEBUG', false),
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
