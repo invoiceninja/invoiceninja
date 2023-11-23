@@ -215,7 +215,7 @@ class TemplateService
     {
 
         $this->data = $this->preProcessDataBlocks($data);
-        nlog($this->data);
+        // nlog($this->data);
         return $this;
     }
 
@@ -617,7 +617,7 @@ class TemplateService
             'paymentables' => $pivot,
             'refund_activity' => $this->getPaymentRefundActivity($payment),
         ];
-nlog($data);
+        
         return $data;
 
     }

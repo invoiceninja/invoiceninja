@@ -5212,6 +5212,7 @@ $LANG = array(
     'user_logged_in_notification_help' => 'Send an email when logging in from a new location',
     'payment_email_all_contacts' => 'Payment Email To All Contacts',
     'payment_email_all_contacts_help' => 'Sends the payment email to all contacts when enabled',
+    'add_line' => 'Add Line',
 ); 
 
 return $LANG;
