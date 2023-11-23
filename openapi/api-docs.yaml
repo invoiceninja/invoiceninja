@@ -9092,7 +9092,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
   "/api/v1/tasks/{id}/upload":
-    put:
+    post:
       tags:
         - tasks
       summary: "Uploads a task document"
@@ -9110,6 +9110,23 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
       responses:
         200:
           description: "Returns the Task object"
@@ -9511,7 +9528,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
   "/api/v1/projects/{id}/upload":
-    put:
+    post:
       tags:
         - projects
       summary: "Uploads a project document"
@@ -9529,6 +9546,23 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
       responses:
         200:
           description: "Returns the Project object"
@@ -9995,7 +10029,7 @@ paths:
         default:
           $ref: '#/components/responses/default'
   '/api/v1/clients/{id}/upload':
-    put:
+    post:
       tags:
         - clients
       summary: 'Add client document'
@@ -10685,7 +10719,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
   "/api/v1/credits/{id}/upload":
-    put:
+    post:
       tags:
         - credits
       summary: "Upload a credit document"
@@ -10703,6 +10737,23 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
       responses:
         200:
           description: "Returns the Credit object"
@@ -11213,7 +11264,7 @@ paths:
           $ref: "#/components/responses/default"
   
   "/api/v1/payments/{id}/upload":
-    put:
+    post:
       tags:
         - payments
       summary: "Upload a payment document"
@@ -11231,6 +11282,23 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
       responses:
         200:
           description: "Returns the Payment object"
@@ -12471,7 +12539,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
   "/api/v1/recurring_invoices/{id}/upload":
-    put:
+    post:
       tags:
         - Recurring Invoices
       summary: "Add recurring invoice document"
@@ -12489,6 +12557,23 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
       responses:
         200:
           description: "Returns the RecurringInvoice object"
@@ -13000,7 +13085,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
   "/api/v1/quotes/{id}/upload":
-    put:
+    post:
       tags:
         - quotes
       summary: "Upload a quote document"
@@ -13018,6 +13103,23 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
       responses:
         200:
           description: "Returns the Quote object"
@@ -13438,7 +13540,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
   "/api/v1/purchase_orders/{id}/upload":
-    put:
+    post:
       tags:
         - Purchase Orders
       summary: "Uploads a purchase order document"
@@ -13456,6 +13558,23 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
       responses:
         200:
           description: "Returns the Purchase Order object"
@@ -13865,7 +13984,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
   "/api/v1/vendors/{id}/upload":
-    put:
+    post:
       tags:
         - vendors
       summary: "Uploads a vendor document"
@@ -13883,6 +14002,23 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
       responses:
         200:
           description: "Returns the Vendor object"
@@ -17926,22 +18062,18 @@ components:
           description: 'The hashed if of the contact'
           type: string
           example: Opnel5aKBz
-          readOnly: true
         user_id:
           description: 'The hashed id of the user who created the contact'
           type: string
           example: Opnel5aKBz
-          readOnly: true
         company_id:
           description: 'The hashed id of the company'
           type: string
           example: Opnel5aKBz
-          readOnly: true
         client_id:
           description: 'The hashed id of the client'
           type: string
           example: Opnel5aKBz
-          readOnly: true
         first_name:
           description: 'The first name of the contact'
           type: string
@@ -17978,26 +18110,18 @@ components:
           description: 'The terms of service which the contact has accpeted'
           type: string
           example: 'A long set of ToS'
-          readOnly: true
         password:
           description: 'The hashed password of the contact'
           type: string
           example: '*****'
-        confirmation_code:
+        confirmation-code:
           description: 'The confirmation code used to authenticate the contacts email address'
           type: string
           example: 333-sdjkh34gbasd
-          readOnly: true
         token:
           description: 'A uuid based token.'
           type: string
           example: 333-sdjkh34gbasd
-          readOnly: true
-        contact_key:
-          description: 'A unique identifier for the contact'
-          type: string
-          example: JD0X52bkfZlJRiroCJ0tcSiAjsJTntZ5uqKdiZ0a
-          readOnly: true
         is_primary:
           description: 'Defines is this contact is the primary contact for the client'
           type: boolean
@@ -18019,37 +18143,31 @@ components:
           type: number
           format: integer
           example: '3'
-          readOnly: true
         email_verified_at:
           description: 'The date which the contact confirmed their email'
           type: number
           format: integer
           example: '134341234234'
-          readOnly: true
         last_login:
           description: Timestamp
           type: number
           format: integer
           example: '134341234234'
-          readOnly: true
         created_at:
           description: Timestamp
           type: number
           format: integer
           example: '134341234234'
-          readOnly: true
         updated_at:
           description: Timestamp
           type: number
           format: integer
           example: '134341234234'
-          readOnly: true
         deleted_at:
           description: Timestamp
           type: number
           format: integer
           example: '134341234234'
-          readOnly: true
       type: object
     ClientContactRequest:
       properties:
@@ -18110,17 +18228,14 @@ components:
           description: 'The hashed id of the user id'
           type: string
           example: Opnel5aKBz
-          readOnly: true
         company_id:
           description: 'The hashed id of the company'
           type: string
           example: Opnel5aKBz
-          readOnly: true
         vendor_id:
           description: 'The hashed id of the vendor'
           type: string
           example: Opnel5aKBz
-          readOnly: true
         first_name:
           description: 'The first name of the contact'
           type: string
@@ -18129,16 +18244,6 @@ components:
           description: 'The last name of the contact'
           type: string
           example: Windsor
-        contact_key:
-          description: 'A unique identifier for the contact'
-          type: string
-          example: JD0X52bkfZlJRiroCJ0tcSiAjsJTntZ5uqKdiZ0a
-          readOnly: true
-        confirmation_code:
-          description: 'The confirmation code used to authenticate the contacts email address'
-          type: string
-          example: 333-sdjkh34gbasd
-          readOnly: true
         phone:
           description: 'The contacts phone number'
           type: string
@@ -18163,16 +18268,6 @@ components:
           description: 'The contact email address'
           type: string
           example: harry@windsor.com
-        email_verified_at:
-          description: 'The date which the contact confirmed their email'
-          type: number
-          format: integer
-          example: '134341234234'
-          readOnly: true
-        password:
-          description: 'The hashed password of the contact'
-          type: string
-          example: '*****'
         is_primary:
           description: 'Boolean flag determining if the contact is the primary contact for the vendor'
           type: boolean
@@ -19504,6 +19599,10 @@ components:
           description: 'The hashed id of the company. This is a unique identifier for the company.'
           type: string
           example: Opnel5aKBz
+        client_id:
+          description: 'The hashed id of the client. This is a unique identifier for the client.'
+          type: string
+          example: Opnel5aKBz
         contacts:
           type: array
           items:
@@ -19633,6 +19732,8 @@ components:
           type: string
           example: 'Bob the vendor'
           readOnly: true
+        settings:
+          $ref: '#/components/schemas/CompanySettings'
       type: object
     ClientSettings:
       required:
