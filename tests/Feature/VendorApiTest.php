@@ -47,6 +47,24 @@ class VendorApiTest extends TestCase
         Model::reguard();
     }
 
+
+    public function testVendorContactCreation()
+    {
+        $data = [
+            'name' => 'hewwo',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/vendors', $data);
+
+        $arr = $response->json();
+
+        $this->assertEquals('hewwo', $arr['data']['name']);
+        $this->assertEquals(1, count($arr['data']['contacts']));
+    }   
+
     public function testVendorLoggedInEvents()
     {
         $v = \App\Models\Vendor::factory()->create([
@@ -69,12 +87,6 @@ class VendorApiTest extends TestCase
 
         Event::assertDispatched(VendorContactLoggedIn::class);
         
-        // $vc->fresh();
-        // $v->fresh();
-
-        // $this->assertNotNull($vc->fresh()->last_login);
-        // $this->assertNotNull($v->fresh()->last_login);
-
     }
 
     public function testVendorLocale()
