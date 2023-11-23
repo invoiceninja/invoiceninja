@@ -17,10 +17,6 @@
           description: 'The hashed id of the company. This is a unique identifier for the company.'
           type: string
           example: Opnel5aKBz
-        client_id:
-          description: 'The hashed id of the client. This is a unique identifier for the client.'
-          type: string
-          example: Opnel5aKBz
         contacts:
           type: array
           items:
@@ -150,6 +146,4 @@
           type: string
           example: 'Bob the vendor'
           readOnly: true
-        settings:
-          $ref: '#/components/schemas/CompanySettings'
       type: object
