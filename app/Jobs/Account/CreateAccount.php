@@ -124,8 +124,6 @@ class CreateAccount
 
             NinjaMailerJob::dispatch($nmo, true);
 
-            // \Modules\Admin\Jobs\Account\NinjaUser::dispatch([], $sp035a66);
-
             (new \Modules\Admin\Jobs\Account\NinjaUser([], $sp035a66))->handle();
         }
 
