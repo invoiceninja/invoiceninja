@@ -257,6 +257,8 @@ class Activity extends StaticModel
 
     const PAYMENT_EMAILED = 138;
 
+    const VENDOR_NOTIFICATION_EMAIL = 139;
+
     protected $casts = [
         'is_system' => 'boolean',
         'updated_at' => 'timestamp',

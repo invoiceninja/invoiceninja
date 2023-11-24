@@ -5213,6 +5213,10 @@ $LANG = array(
     'payment_email_all_contacts' => 'Payment Email To All Contacts',
     'payment_email_all_contacts_help' => 'Sends the payment email to all contacts when enabled',
     'add_line' => 'Add Line',
+    'activity_139' => 'Expense :expense notification sent to :contact',
+    'vendor_notification_subject' => 'Confirmation of payment :amount sent to :vendor',
+    'vendor_notification_body' => 'Payment processed for :amount dated :payment_date. <br>[Transaction Reference: :transaction_reference]',
+
 ); 
 
 return $LANG;
