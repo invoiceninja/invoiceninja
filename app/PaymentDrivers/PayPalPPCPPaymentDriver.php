@@ -412,7 +412,12 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                 ],
                 ]
             ];
-        
+
+            
+        if($shipping = $this->getShippingAddress()){
+            $order['purchase_units'][0] = $shipping;
+        }
+
         $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
 
         nlog($r->json());
@@ -434,7 +439,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         ];
     }
 
-    private function getShippingAddress(): array
+    private function getShippingAddress(): ?array
     {
         return $this->company_gateway->require_shipping_address ? 
         [
@@ -450,7 +455,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                 ],
             ]
         ]
-        : [];
+        : null;
 
     }
 
