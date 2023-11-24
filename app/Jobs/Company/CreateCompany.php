@@ -104,7 +104,7 @@ class CreateCompany
 
             if(request()->hasHeader('cf-ipcountry')) {
 
-                $c = Country::where('iso_3166_2', request()->header('cf-ipcountry'))->first();
+                $c = Country::query()->where('iso_3166_2', request()->header('cf-ipcountry'))->first();
                 
                 if($c) {
                     return (string)$c->id;
@@ -116,7 +116,7 @@ class CreateCompany
 
             if($details && property_exists($details, 'countryCode')) {
 
-                $c = Country::where('iso_3166_2', $details->countryCode)->first();
+                $c = Country::query()->where('iso_3166_2', $details->countryCode)->first();
 
                 if($c) {
                     return (string)$c->id;

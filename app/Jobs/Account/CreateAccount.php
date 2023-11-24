@@ -92,6 +92,8 @@ class CreateAccount
 
         $spaa9f78 = (new CreateUser($this->request, $sp794f3f, $sp035a66, true))->handle();
 
+        $sp035a66->service()->localizeCompany($spaa9f78);
+
         (new CreateCompanyPaymentTerms($sp035a66, $spaa9f78))->handle();
         (new CreateCompanyTaskStatuses($sp035a66, $spaa9f78))->handle();
 
