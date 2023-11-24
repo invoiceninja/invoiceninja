@@ -303,11 +303,15 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
     private function paymentSource(): array
     {
-        return match($this->paypal_payment_method) {
-            'paypal' => $this->injectPayPalPaymentSource(),
-            'card' => $this->injectCardPaymentSource(),
-            'venmo' => $this->injectVenmoPaymentSource(),
-        };
+        /** we only need to support paypal as payment source until as we are only using hosted payment buttons */
+        return $this->injectPayPalPaymentSource();
+
+        // return match($this->paypal_payment_method) {
+        //     'paypal' => $this->injectPayPalPaymentSource(),
+        //     'card' => $this->injectCardPaymentSource(),
+        //     'venmo' => $this->injectVenmoPaymentSource(),
+        // };
+        
     }
 
     private function injectVenmoPaymentSource(): array
@@ -373,14 +377,6 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                 
                 "intent" => "CAPTURE",
                 "payment_source" => $this->paymentSource(),
-                // "payer" => [
-                //     "name" => [
-                //         "given_name" => $this->client->present()->first_name(),
-                //         "surname" => $this->client->present()->last_name(),
-                //     ],
-                //     "email_address" => $this->client->present()->email(),
-                //     "address" => $this->getBillingAddress(),
-                // ],
                 "purchase_units" => [
                     [
                     "description" =>ctrans('texts.invoice_number').'# '.$invoice->number,
