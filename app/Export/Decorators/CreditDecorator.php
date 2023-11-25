@@ -13,7 +13,7 @@ namespace App\Export\Decorators;
 
 class CreditDecorator implements DecoratorInterface
 {
-    public function transform(): string
+    public function transform(string $key, mixed $entity): mixed
     {
         return 'Payment Decorator';
     }

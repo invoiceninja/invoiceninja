@@ -11,16 +11,17 @@
 
 namespace App\Export\CSV;
 
-use App\Libraries\MultiDB;
-use App\Models\Client;
-use App\Models\Company;
-use App\Transformers\ClientContactTransformer;
-use App\Transformers\ClientTransformer;
 use App\Utils\Ninja;
 use App\Utils\Number;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\App;
+use App\Models\Client;
 use League\Csv\Writer;
+use App\Models\Company;
+use App\Libraries\MultiDB;
+use Illuminate\Support\Facades\App;
+use App\Export\Decorators\Decorator;
+use App\Transformers\ClientTransformer;
+use Illuminate\Database\Eloquent\Builder;
+use App\Transformers\ClientContactTransformer;
 
 class ClientExport extends BaseExport
 {
@@ -31,6 +32,8 @@ class ClientExport extends BaseExport
     public Writer $csv;
 
     public string $date_key = 'created_at';
+
+    private Decorator $decorator;
 
     public array $entity_keys = [
         'address1' => 'client.address1',
@@ -84,6 +87,8 @@ class ClientExport extends BaseExport
         $this->input = $input;
         $this->client_transformer = new ClientTransformer();
         $this->contact_transformer = new ClientContactTransformer();
+        $this->decorator = new Decorator();
+
     }
 
     public function returnJson()

@@ -28,15 +28,17 @@ use App\Export\Decorators\DecoratorInterface;
 
 class Decorator implements DecoratorInterface{
 
-    public $entity;
-
     public function __construct()
     {
     }
 
-    public function transform(string $key, mixed $entity): string
+    public function transform(string $key, mixed $entity): mixed
     {
-        return 'Decorator';
+        $index = $this->getKeyPart(0, $key);
+        $column = $this->getKeyPart(1, $key);
+
+        return $this->{$index}()->transform($column, $entity);
+
     }
 
     public function invoice(): InvoiceDecorator
@@ -47,6 +49,16 @@ class Decorator implements DecoratorInterface{
     public function client(): ClientDecorator
     {
         return new ClientDecorator();
+    }
+
+    public function contact(): ContactDecorator
+    {
+        return new ContactDecorator();
+    }
+
+    public function vendor_contact(): VendorContactDecorator
+    {
+        return new VendorContactDecorator();
     }
 
     public function payment(): PaymentDecorator
@@ -99,21 +111,9 @@ class Decorator implements DecoratorInterface{
         return new PurchaseOrderDecorator();
     }
 
-    public function setEntity($entity): self
-    {
-        $this->entity = $entity;
-
-        return $this;
-    }
-
-    public function getEntity(): mixed
-    {
-        return $this->entity;
-    }
-
     public function getKeyPart(int $index, string $key): string
     {
-        $parts = explode('.', $key ?? '');
+        $parts = explode('.', $key);
 
         return $parts[$index];
     }
