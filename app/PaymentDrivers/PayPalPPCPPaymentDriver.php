@@ -153,8 +153,6 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                                     ->withQueryParameters(['grant_type' => 'client_credentials'])
                                     ->post("{$this->api_endpoint_url}/v1/oauth2/token");
 
-        // nlog($response->body());
-
         if($response->successful()) {
             $this->access_token = $response->json()['access_token'];
             $this->token_expiry = now()->addSeconds($response->json()['expires_in'] - 60);
@@ -252,12 +250,9 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
     public function processPaymentResponse($request)
     {
-        nlog($request->all());
         
         $request['gateway_response'] = str_replace("Error: ", "", $request['gateway_response']);
         $response = json_decode($request['gateway_response'], true);
-        
-        nlog($response);
 
         if(isset($response['status']) && $response['status'] == 'COMPLETED' && isset($response['purchase_units'])) {
 
@@ -305,15 +300,10 @@ class PayPalPPCPPaymentDriver extends BaseDriver
     {
         /** we only need to support paypal as payment source until as we are only using hosted payment buttons */
         return $this->injectPayPalPaymentSource();
-
-        // return match($this->paypal_payment_method) {
-        //     'paypal' => $this->injectPayPalPaymentSource(),
-        //     'card' => $this->injectCardPaymentSource(),
-        //     'venmo' => $this->injectVenmoPaymentSource(),
-        // };
         
     }
 
+    /**@deprecated v5.7.54 */
     private function injectVenmoPaymentSource(): array
     {
 
@@ -325,6 +315,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
     }
 
+    /**@deprecated v5.7.54 */
     private function injectCardPaymentSource(): array
     {
 
@@ -488,25 +479,6 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
     private function feeCalc($invoice, $invoice_total)
     {
-        //     $invoice->service()->removeUnpaidGatewayFees();
-        //     $invoice = $invoice->fresh();
-
-        //     $balance = floatval($invoice->balance);
-
-        //     $_updated_invoice = $invoice->service()->addGatewayFee($this->company_gateway, GatewayType::PAYPAL, $invoice_total)->save();
-
-        //     if (floatval($_updated_invoice->balance) > $balance) {
-        //         $fee = floatval($_updated_invoice->balance) - $balance;
-
-        //         $this->payment_hash->fee_total = $fee;
-        //         $this->payment_hash->save();
-
-        //         return $fee;
-        //     }
-
-        //     return 0;
-        // }
-
 
     }
 }
