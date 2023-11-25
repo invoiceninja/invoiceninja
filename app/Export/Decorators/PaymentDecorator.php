@@ -11,10 +11,13 @@
 
 namespace App\Export\Decorators;
 
-class PaymentDecorator implements DecoratorInterface{
+use App\Models\Payment;
+
+class PaymentDecorator extends Decorator implements DecoratorInterface{
 
     public function transform(): string
     {
         return 'Payment Decorator';
     }
+
 }
