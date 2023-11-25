@@ -42,11 +42,7 @@ class VendorReportController extends BaseController
 
         $hash = \Illuminate\Support\Str::uuid();
 
-<<<<<<< HEAD
         PreviewReport::dispatch($user->company(), $request->all(), VendorExport::class, $hash);
-=======
-            $hash = \Illuminate\Support\Str::uuid()->toString();
->>>>>>> paypal_ppcp
 
         return response()->json(['message' => $hash], 200);
 
