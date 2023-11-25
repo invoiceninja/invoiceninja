@@ -11,14 +11,15 @@
 
 namespace App\Export\CSV;
 
-use App\Libraries\MultiDB;
+use App\Utils\Ninja;
+use League\Csv\Writer;
 use App\Models\Company;
 use App\Models\Payment;
-use App\Transformers\PaymentTransformer;
-use App\Utils\Ninja;
-use Illuminate\Database\Eloquent\Builder;
+use App\Libraries\MultiDB;
 use Illuminate\Support\Facades\App;
-use League\Csv\Writer;
+use App\Transformers\PaymentTransformer;
+use Illuminate\Database\Eloquent\Builder;
+use App\Export\Decorators\Decorator;
 
 class PaymentExport extends BaseExport
 {
@@ -28,13 +29,16 @@ class PaymentExport extends BaseExport
 
     public Writer $csv;
 
+    private Decorator $decorator;
+
     public function __construct(Company $company, array $input)
     {
         $this->company = $company;
         $this->input = $input;
         $this->entity_transformer = new PaymentTransformer();
+        $this->decorator = new Decorator();
     }
-
+ 
     private function init(): Builder
     {
 
@@ -113,6 +117,8 @@ class PaymentExport extends BaseExport
             } elseif (array_key_exists($key, $transformed_entity)) {
                 $entity[$key] = $transformed_entity[$key];
             } else {
+
+                // $entity[$key] = $this->decorator->transform($key, $payment);
                 $entity[$key] = $this->resolveKey($key, $payment, $this->entity_transformer);
             }
 

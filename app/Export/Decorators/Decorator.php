@@ -24,28 +24,97 @@ use App\Models\Product;
 use App\Models\Project;
 use App\Models\PurchaseOrder;
 use App\Models\RecurringInvoice;
+use App\Export\Decorators\DecoratorInterface;
 
-class Decorator {
+class Decorator implements DecoratorInterface{
 
-    public function __invoke(mixed $entity, string $key)
+    public $entity;
+
+    public function __construct()
     {
-        return match($entity){
-            ($entity instanceof Client) => $value = (new ClientDecorator($entity, $key))->transform(),
-            ($entity instanceof Payment) => $value = (new PaymentDecorator($entity, $key))->transform(),
-            ($entity instanceof Invoice) => $value = (new InvoiceDecorator($entity, $key))->transform(),
-            ($entity instanceof RecurringInvoice) => $value = (new RecurringInvoiceDecorator($entity, $key))->transform(),
-            ($entity instanceof Credit) => $value = (new CreditDecorator($entity, $key))->transform(),
-            ($entity instanceof Quote) => $value = (new QuoteDecorator($entity, $key))->transform(),
-            ($entity instanceof Task) => $value = (new TaskDecorator($entity, $key))->transform(),
-            ($entity instanceof Expense) => $value = (new ExpenseDecorator($entity, $key))->transform(),
-            ($entity instanceof Project) => $value = (new ProjectDecorator($entity, $key))->transform(),
-            ($entity instanceof Product) => $value = (new ProductDecorator($entity, $key))->transform(),
-            ($entity instanceof Vendor) => $value = (new VendorDecorator($entity, $key))->transform(),
-            ($entity instanceof PurchaseOrder) => $value = (new PurchaseOrderDecorator($entity, $key))->transform(),
-            default => $value = '',
-        };
-
-        return $value;
     }
 
+    public function transform(string $key, mixed $entity): string
+    {
+        return 'Decorator';
+    }
+
+    public function invoice(): InvoiceDecorator
+    {
+        return new InvoiceDecorator();
+    }
+
+    public function client(): ClientDecorator
+    {
+        return new ClientDecorator();
+    }
+
+    public function payment(): PaymentDecorator
+    {
+        return new PaymentDecorator();
+    }
+
+    public function credit(): CreditDecorator
+    {
+        return new CreditDecorator();
+    }
+
+    public function vendor(): VendorDecorator
+    {
+        return new VendorDecorator();
+    }
+
+    public function expense(): ExpenseDecorator
+    {
+        return new ExpenseDecorator();
+    }
+
+    public function product(): ProductDecorator
+    {
+        return new ProductDecorator();
+    }
+
+    public function project(): ProjectDecorator
+    {
+        return new ProjectDecorator();
+    }
+
+    public function task(): TaskDecorator
+    {
+        return new TaskDecorator();
+    }
+
+    public function quote(): QuoteDecorator
+    {
+        return new QuoteDecorator();
+    }
+
+    public function recurring_invoice(): RecurringInvoiceDecorator
+    {
+        return new RecurringInvoiceDecorator();
+    }
+
+    public function purchase_order(): PurchaseOrderDecorator
+    {
+        return new PurchaseOrderDecorator();
+    }
+
+    public function setEntity($entity): self
+    {
+        $this->entity = $entity;
+
+        return $this;
+    }
+
+    public function getEntity(): mixed
+    {
+        return $this->entity;
+    }
+
+    public function getKeyPart(int $index, string $key): string
+    {
+        $parts = explode('.', $key ?? '');
+
+        return $parts[$index];
+    }
 }

@@ -11,10 +11,20 @@
 
 namespace App\Export\Decorators;
 
-class PaymentDecorator implements DecoratorInterface{
+use App\Models\Payment;
 
-    public function transform(): string
+class PaymentDecorator extends Decorator implements DecoratorInterface{
+
+    private $key = 'payment';
+
+    public function transform(string $key, $payment): string
     {
+        $index = $this->getKeyPart(0,$key);
+    
+        // match($index)
         return 'Payment Decorator';
     }
+
+    
+
 }
