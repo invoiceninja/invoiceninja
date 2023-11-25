@@ -34,7 +34,7 @@ class Decorator implements DecoratorInterface{
     {
     }
 
-    public function transform(): string
+    public function transform(string $key, mixed $entity): string
     {
         return 'Decorator';
     }
@@ -109,5 +109,12 @@ class Decorator implements DecoratorInterface{
     public function getEntity(): mixed
     {
         return $this->entity;
+    }
+
+    public function getKeyPart(int $index, string $key): string
+    {
+        $parts = explode('.', $key ?? '');
+
+        return $parts[$index];
     }
 }

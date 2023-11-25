@@ -15,9 +15,16 @@ use App\Models\Payment;
 
 class PaymentDecorator extends Decorator implements DecoratorInterface{
 
-    public function transform(): string
+    private $key = 'payment';
+
+    public function transform(string $key, $payment): string
     {
+        $index = $this->getKeyPart(0,$key);
+    
+        // match($index)
         return 'Payment Decorator';
     }
+
+    
 
 }

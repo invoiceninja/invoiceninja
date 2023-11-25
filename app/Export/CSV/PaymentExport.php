@@ -117,6 +117,8 @@ class PaymentExport extends BaseExport
             } elseif (array_key_exists($key, $transformed_entity)) {
                 $entity[$key] = $transformed_entity[$key];
             } else {
+
+                // $entity[$key] = $this->decorator->transform($key, $payment);
                 $entity[$key] = $this->resolveKey($key, $payment, $this->entity_transformer);
             }
 
