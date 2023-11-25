@@ -11,6 +11,7 @@
 
 namespace App\Http\Requests\CompanyGateway;
 
+use App\DataMapper\FeesAndLimits;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
 use App\Models\Gateway;
@@ -28,7 +29,10 @@ class StoreCompanyGatewayRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->isAdmin();
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->isAdmin();
     }
 
     public function rules()
@@ -64,6 +68,7 @@ class StoreCompanyGatewayRequest extends Request
             if (isset($input['fees_and_limits'])) {
                 $input['fees_and_limits'] = $this->cleanFeesAndLimits($input['fees_and_limits']);
             }
+            
         }
 
         $this->replace($input);
