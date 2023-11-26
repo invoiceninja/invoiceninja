@@ -23,6 +23,7 @@ use Laracasts\Presenter\PresentableTrait;
 use App\Utils\Traits\CompanySettingsSaver;
 use Illuminate\Notifications\Notification;
 use App\Models\Presenters\CompanyPresenter;
+use App\Services\Company\CompanyService;
 use App\Services\Notification\NotificationService;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -972,6 +973,11 @@ class Company extends BaseModel
     public function getSslPassPhrase()
     {
         return $this->e_invoice_certificate_passphrase;
+    }
+
+    public function service(): CompanyService
+    {
+        return new CompanyService($this);
     }
 
 }

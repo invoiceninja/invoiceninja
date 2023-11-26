@@ -25,6 +25,7 @@ use App\Models\Account;
 use App\Models\Company;
 use App\Models\Country;
 use App\Models\Expense;
+use App\Models\Gateway;
 use App\Models\Invoice;
 use App\Models\Product;
 use App\Models\Project;

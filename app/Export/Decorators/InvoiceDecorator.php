@@ -11,9 +11,9 @@
 
 namespace App\Export\Decorators;
 
-class InvoiceDecorator implements DecoratorInterface
+class InvoiceDecorator extends Decorator implements DecoratorInterface
 {
-    public function transform(): string
+    public function transform(string $key, mixed $entity): mixed
     {
         return 'Payment Decorator';
     }

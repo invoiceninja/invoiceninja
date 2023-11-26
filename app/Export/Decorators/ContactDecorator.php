@@ -11,7 +11,7 @@
 
 namespace App\Export\Decorators;
 
-class RecurringInvoiceDecorator extends Decorator implements DecoratorInterface
+class ContactDecorator implements DecoratorInterface
 {
     public function transform(string $key, mixed $entity): mixed
     {

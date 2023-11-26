@@ -92,11 +92,26 @@ class EmailTemplateDefaults
             case 'email_subject_custom3':
                 return self::emailInvoiceSubject();
                 
+            case 'email_vendor_notification_subject':
+                return self::emailVendorNotificationSubject();
+
+            case 'email_vendor_notification_body':
+                return self::emailVendorNotificationBody();
 
             default:
                 return self::emailInvoiceTemplate();
                 
         }
+    }
+
+    public static function emailVendorNotificationSubject()
+    {
+        return self::transformText('vendor_notification_subject');
+    }
+
+    public static function emailVendorNotificationBody()
+    {
+        return self::transformText('vendor_notification_body');
     }
 
     public static function emailInvoiceSubject()

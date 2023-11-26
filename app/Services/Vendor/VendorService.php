@@ -9,12 +9,13 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Export\Decorators;
+namespace App\Services\Vendor;
 
-class RecurringInvoiceDecorator extends Decorator implements DecoratorInterface
+use App\Models\Vendor;
+
+class VendorService
 {
-    public function transform(string $key, mixed $entity): mixed
+    public function __construct(public Vendor $vendor)
     {
-        return 'Payment Decorator';
     }
 }

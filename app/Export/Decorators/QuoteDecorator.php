@@ -11,9 +11,9 @@
 
 namespace App\Export\Decorators;
 
-class QuoteDecorator implements DecoratorInterface
+class QuoteDecorator extends Decorator implements DecoratorInterface
 {
-    public function transform(): string
+    public function transform(string $key, mixed $entity): mixed
     {
         return 'Payment Decorator';
     }

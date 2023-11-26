@@ -166,7 +166,6 @@ class EmailDefaults
 
         if (strlen($this->email->email_object->body) > 3) {
             // A Custom Message has been set in the email screen.
-            // return $this;
         } elseif (strlen($this->email->email_object->settings?->{$this->email->email_object->email_template_body}) > 3) {
             // A body has been saved in the settings.
             $this->email->email_object->body = $this->email->email_object->settings?->{$this->email->email_object->email_template_body};
