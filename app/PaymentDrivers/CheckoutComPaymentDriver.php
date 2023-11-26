@@ -415,7 +415,8 @@ class CheckoutComPaymentDriver extends BaseDriver
                     SystemLog::CATEGORY_GATEWAY_RESPONSE,
                     SystemLog::EVENT_GATEWAY_SUCCESS,
                     SystemLog::TYPE_CHECKOUT,
-                    $this->client
+                    $this->client,
+                    $this->client->company,
                 );
 
                 return $payment;
@@ -436,7 +437,8 @@ class CheckoutComPaymentDriver extends BaseDriver
                     SystemLog::CATEGORY_GATEWAY_RESPONSE,
                     SystemLog::EVENT_GATEWAY_FAILURE,
                     SystemLog::TYPE_CHECKOUT,
-                    $this->client
+                    $this->client,
+                    $this->client->company
                 );
 
                 return false;

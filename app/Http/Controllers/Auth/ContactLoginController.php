@@ -55,7 +55,7 @@ class ContactLoginController extends Controller
         /** @var \App\Models\Company $company **/
         if ($company) {
             $account = $company->account;
-        } elseif (! $company && strpos($request->getHost(), 'invoicing.co') !== false) {
+        } elseif (! $company && strpos($request->getHost(), config('ninja.app_domain')) !== false) {
             $subdomain = explode('.', $request->getHost())[0];
             MultiDB::findAndSetDbByDomain(['subdomain' => $subdomain]);
             $company = Company::where('subdomain', $subdomain)->first();

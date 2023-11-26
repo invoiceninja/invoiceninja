@@ -182,7 +182,6 @@ use App\Listeners\Mail\MailSentListener;
 use App\Listeners\Misc\InvitationViewedListener;
 use App\Listeners\Payment\PaymentBalanceActivity;
 use App\Listeners\Payment\PaymentEmailedActivity;
-use App\Listeners\Payment\PaymentEmailFailureActivity;
 use App\Listeners\Payment\PaymentNotification;
 use App\Listeners\Payment\PaymentRestoredActivity;
 use App\Listeners\PurchaseOrder\CreatePurchaseOrderActivity;
@@ -281,6 +280,13 @@ class EventServiceProvider extends ServiceProvider
      *
      */
     protected $listen = [
+        
+        // RequestSending::class => [
+        //     LogRequestSending::class,
+        // ],
+        // ResponseReceived::class => [
+        //     LogResponseReceived::class,
+        // ],
         AccountCreated::class => [
         ],
         MessageSending::class => [

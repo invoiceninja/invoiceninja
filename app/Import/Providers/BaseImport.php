@@ -16,6 +16,7 @@ use App\Factory\InvoiceFactory;
 use App\Factory\PaymentFactory;
 use App\Factory\QuoteFactory;
 use App\Factory\RecurringInvoiceFactory;
+use App\Factory\TaskFactory;
 use App\Http\Requests\Quote\StoreQuoteRequest;
 use App\Import\ImportException;
 use App\Jobs\Mail\NinjaMailerJob;
@@ -30,6 +31,7 @@ use App\Repositories\InvoiceRepository;
 use App\Repositories\PaymentRepository;
 use App\Repositories\QuoteRepository;
 use App\Repositories\RecurringInvoiceRepository;
+use App\Repositories\TaskRepository;
 use App\Utils\Traits\CleanLineItems;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -156,6 +158,33 @@ class BaseImport
         return array_map(function ($values) use ($keys) {
             return array_combine($keys, $values);
         }, $csvData);
+    }
+
+    private function groupTasks($csvData, $key)
+    {
+        nlog($csvData[0]);
+
+        if (! $key || !is_array($csvData) || count($csvData) == 0 || !isset($csvData[0]['task.number']) || empty($csvData[0]['task.number'])) {
+            return $csvData;
+        }
+        
+        // Group by tasks.
+        $grouped = [];
+
+        foreach ($csvData as $item) {
+            if (empty($item[$key])) {
+                $this->error_array['task'][] = [
+                    'task' => $item,
+                    'error' => 'No task number',
+                ];
+            } else {
+                $grouped[$item[$key]][] = $item;
+            }
+        }
+
+        return $grouped;
+
+
     }
 
     private function groupInvoices($csvData, $key)
@@ -412,6 +441,65 @@ class BaseImport
 
         return $count;
     }
+
+    public function ingestTasks($tasks, $task_number_key)
+    {
+        $count = 0;
+
+        $task_transformer = $this->transformer;
+
+        $task_repository = new TaskRepository();
+
+        $tasks = $this->groupTasks($tasks, $task_number_key);
+        
+        foreach ($tasks as $raw_task) {
+            $task_data = [];
+            try {
+                $task_data = $task_transformer->transform($raw_task);
+                $task_data['user_id'] = $this->company->owner()->id;
+                
+                $validator = $this->request_name::runFormRequest($task_data);
+
+                if ($validator->fails()) {
+                    $this->error_array['task'][] = [
+                        'invoice' => $task_data,
+                        'error' => $validator->errors()->all(),
+                    ];
+                } else {
+                    $task = TaskFactory::create(
+                        $this->company->id,
+                        $this->company->owner()->id
+                    );
+                    
+                    $task_repository->save($task_data, $task);
+
+                    $count++;
+                    
+                }
+            } catch (\Exception $ex) {
+                if (\DB::connection(config('database.default'))->transactionLevel() > 0) {
+                    \DB::connection(config('database.default'))->rollBack();
+                }
+
+                if ($ex instanceof ImportException) {
+                    $message = $ex->getMessage();
+                } else {
+                    report($ex);
+                    $message = 'Unknown error ';
+                    nlog($ex->getMessage());
+                    nlog($task_data);
+                }
+
+                $this->error_array['task'][] = [
+                    'task' => $task_data,
+                    'error' => $message,
+                ];
+            }
+        }
+        
+        return $count;
+    }
+
 
 
     public function ingestInvoices($invoices, $invoice_number_key)

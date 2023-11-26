@@ -13,6 +13,7 @@ namespace App\Models;
 
 use App\DataMapper\CompanySettings;
 use App\Models\Presenters\VendorPresenter;
+use App\Services\Vendor\VendorService;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -279,5 +280,10 @@ class Vendor extends BaseModel
     public function backup_path() :string
     {
         return $this->company->company_key.'/'.$this->vendor_hash.'/backups';
+    }
+
+    public function service()
+    {
+        return new VendorService($this);
     }
 }

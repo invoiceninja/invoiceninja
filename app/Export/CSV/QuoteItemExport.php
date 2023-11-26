@@ -198,6 +198,16 @@ class QuoteItemExport extends BaseExport
         if (in_array('status_id', $this->input['report_keys'])) {
             $entity['status'] = $quote->stringStatus($quote->status_id);
         }
+        
+        if (in_array('quote.assigned_user_id', $this->input['report_keys'])) {
+            $entity['quote.assigned_user_id'] = $quote->assigned_user ? $quote->assigned_user->present()->name(): '';
+        }
+                    
+        if (in_array('quote.user_id', $this->input['report_keys'])) {
+            $entity['quote.user_id'] = $quote->user ? $quote->user->present()->name(): '';
+        }
+
+
 
         return $entity;
     }

@@ -18,9 +18,10 @@ use App\Factory\ExpenseFactory;
 use App\Models\ExpenseCategory;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Database\QueryException;
+use App\Jobs\Expense\VendorExpenseNotify;
+use Illuminate\Database\Eloquent\Collection;
 use Carbon\Exceptions\InvalidFormatException;
 use App\Libraries\Currency\Conversion\CurrencyApi;
-use Illuminate\Database\Eloquent\Collection;
 
 /**
  * ExpenseRepository.
@@ -31,6 +32,7 @@ class ExpenseRepository extends BaseRepository
 
     private $completed = true;
 
+    private $notify_vendor = false;
     /**
      * Saves the expense and its contacts.
      *
@@ -41,6 +43,17 @@ class ExpenseRepository extends BaseRepository
      */
     public function save(array $data, Expense $expense): Expense
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if(isset($data['payment_date']) && $data['payment_date'] == $expense->payment_date) {
+            //do nothing
+        }
+        elseif(isset($data['payment_date']) && strlen($data['payment_date']) > 1 && $user->company()->notify_vendor_when_paid && ($data['vendor_id'] || $expense->vendor_id)) {
+            nlog("ping");
+            $this->notify_vendor = true;
+        }
+
         $expense->fill($data);
 
         if (!$expense->id) {
@@ -50,12 +63,15 @@ class ExpenseRepository extends BaseRepository
         if (empty($expense->number)) {
             $expense = $this->findAndSaveNumber($expense);
         }
-
-        $expense->saveQuietly();
+        else
+            $expense->saveQuietly();
 
         if (array_key_exists('documents', $data)) {
             $this->saveDocuments($data['documents'], $expense);
         }
+
+        if($this->notify_vendor)
+            VendorExpenseNotify::dispatch($expense, $expense->company->db);
 
         return $expense;
     }

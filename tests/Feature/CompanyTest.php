@@ -11,18 +11,19 @@
 
 namespace Tests\Feature;
 
-use App\DataMapper\CompanySettings;
-use App\Http\Middleware\PasswordProtection;
+use Tests\TestCase;
 use App\Models\Company;
+use App\Models\TaxRate;
+use Tests\MockAccountData;
 use App\Models\CompanyToken;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\UploadedFile;
+use App\DataMapper\CompanySettings;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Session;
-use Tests\MockAccountData;
-use Tests\TestCase;
+use App\Http\Middleware\PasswordProtection;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * @test
@@ -49,6 +50,18 @@ class CompanyTest extends TestCase
         $this->makeTestData();
     }
 
+    public function testCompanyTaxInit()
+    {
+        TaxRate::query()->delete();
+
+        $settings = $this->company->settings;
+        $settings->country_id = '40';
+        $this->company->saveSettings($settings, $this->company);
+
+        $this->company->service()->localizeCompany($this->user);
+
+        $this->assertEquals(1, TaxRate::count());
+    }
 
     public function testCompanyLogoInline()
     {

@@ -65,11 +65,11 @@ class PdfBuilder
     public function build(): self
     {
         $this->getTemplate()
-             ->buildSections()
-             ->getEmptyElements()
-             ->updateElementProperties()
-             ->parseTwigElements()
-             ->updateVariables();
+            ->buildSections()
+            ->getEmptyElements()
+            ->updateElementProperties()
+            ->parseTwigElements()
+            ->updateVariables();
 
         return $this;
     }
@@ -633,9 +633,7 @@ class PdfBuilder
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => 'product_table-product.tax2-td']];
                     } elseif ($cell == '$product.tax_rate3') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => 'product_table-product.tax3-td']];
-                    } 
-                    
-                    elseif ($cell == '$task.discount' && !$this->service->company->enable_product_discount) {
+                    } elseif ($cell == '$task.discount' && !$this->service->company->enable_product_discount) {
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$task.discount'], 'properties' => ['data-ref' => 'task_table-task.discount-td', 'style' => 'display: none;']];
                     } elseif ($cell == '$task.tax_rate1') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => 'task_table-task.tax1-td']];
@@ -643,10 +641,7 @@ class PdfBuilder
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => 'task_table-task.tax2-td']];
                     } elseif ($cell == '$task.tax_rate3') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => 'task_table-task.tax3-td']];
-                    } 
-                    
-                    
-                    elseif ($cell == '$product.unit_cost' || $cell == '$task.rate') {
+                    } elseif ($cell == '$product.unit_cost' || $cell == '$task.rate') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['style' => 'white-space: nowrap;', 'data-ref' => "{$_type}_table-" . substr($cell, 1) . '-td']];
                     } else {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => "{$_type}_table-" . substr($cell, 1) . '-td']];
@@ -677,7 +672,7 @@ class PdfBuilder
         $locale_info = localeconv();
         
         foreach ($items as $key => $item) {
-        /** @var \App\DataMapper\InvoiceItem $item */
+            /** @var \App\DataMapper\InvoiceItem $item */
 
             if ($table_type == '$product' && $item->type_id != 1) {
                 if ($item->type_id != 4 && $item->type_id != 6 && $item->type_id != 5) {
@@ -712,13 +707,13 @@ class PdfBuilder
             $data[$key][$table_type.".{$_table_type}4"] = strlen($item->custom_value4) >= 1 ? $helpers->formatCustomFieldValue($this->service->company->custom_fields, "{$_table_type}4", $item->custom_value4, $this->service->config->currency_entity) : '';
 
             if ($item->quantity > 0 || $item->cost > 0) {
-                $data[$key][$table_type.'.quantity'] = $item->quantity;
+                $data[$key][$table_type.'.quantity'] = $this->service->config->formatValueNoTrailingZeroes($item->quantity);
 
-                $data[$key][$table_type.'.unit_cost'] = $this->service->config->formatMoney($item->cost);
+                $data[$key][$table_type.'.unit_cost'] = $this->service->config->formatMoneyNoRounding($item->cost);
 
                 $data[$key][$table_type.'.cost'] = $this->service->config->formatMoney($item->cost);
 
-                $data[$key][$table_type.'.line_total'] = $this->service->config->formatMoney($item->line_total);
+                $data[$key][$table_type.'.line_total'] = $this->service->config->formatMoneyNoRounding($item->line_total);
             } else {
                 $data[$key][$table_type.'.quantity'] = '';
 
@@ -820,9 +815,7 @@ class PdfBuilder
                 $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-product.tax2-th", 'hidden' => $this->service->config->settings->hide_empty_columns_on_pdf]];
             } elseif ($column == '$product.tax_rate3') {
                 $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-product.tax3-th", 'hidden' => $this->service->config->settings->hide_empty_columns_on_pdf]];
-            }
-            
-            elseif ($column == '$task.discount' && !$this->service->company->enable_product_discount) {
+            } elseif ($column == '$task.discount' && !$this->service->company->enable_product_discount) {
                 $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($column, 1) . '-th', 'style' => 'display: none;']];
             } elseif ($column == '$task.tax_rate1') {
                 $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-task.tax1-th", 'hidden' => $this->service->config->settings->hide_empty_columns_on_pdf]];
@@ -830,9 +823,7 @@ class PdfBuilder
                 $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-task.tax2-th", 'hidden' => $this->service->config->settings->hide_empty_columns_on_pdf]];
             } elseif ($column == '$task.tax_rate3') {
                 $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-task.tax3-th", 'hidden' => $this->service->config->settings->hide_empty_columns_on_pdf]];
-            }
-            
-            else {
+            } else {
                 $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($column, 1) . '-th', 'hidden' => $this->service->config->settings->hide_empty_columns_on_pdf]];
             }
         }
@@ -852,11 +843,14 @@ class PdfBuilder
      */
     public function processTaxColumns(string $type): void
     {
+        $column_type = 'product';
+
         if ($type == 'product') {
             $type_id = 1;
         }
 
         if ($type == 'task') {
+            $column_type = 'task';
             $type_id = 2;
         }
 
@@ -895,10 +889,10 @@ class PdfBuilder
                 array_push($taxes, sprintf('%s%s.tax_rate3', '$', $type));
             }
 
-            $key = array_search(sprintf('%s%s.tax', '$', $type), $this->service->config->pdf_variables["{$type}_columns"], true);
+            $key = array_search(sprintf('%s%s.tax', '$', $type), $this->service->config->pdf_variables["{$column_type}_columns"], true);
 
             if ($key !== false) {
-                array_splice($this->service->config->pdf_variables["{$type}_columns"], $key, 1, $taxes);
+                array_splice($this->service->config->pdf_variables["{$column_type}_columns"], $key, 1, $taxes);
             }
         }
     }
@@ -1166,8 +1160,7 @@ class PdfBuilder
             } elseif (Str::startsWith($variable, '$custom_surcharge')) {
                 $_variable = ltrim($variable, '$'); // $custom_surcharge1 -> custom_surcharge1
 
-                // $visible = intval($this->service->config->entity->{$_variable}) != 0;
-                $visible = intval(str_replace(['0','.'], '', $this->service->config->entity->{$_variable})) != 0;
+                $visible = intval(str_replace(['0','.'], '', ($this->service->config->entity->{$_variable} ?? ''))) != 0;
 
                 $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
                     ['element' => 'span', 'content' => $variable . '_label', 'properties' => ['hidden' => !$visible, 'data-ref' => 'totals_table-' . substr($variable, 1) . '-label']],
@@ -1622,12 +1615,6 @@ class PdfBuilder
     // Dom Traversal
     ///////////////////////////////////////
 
-
-    public function getSectionNode(string $selector)
-    {
-        return $this->document->getElementById($selector);
-    }
-
     public function updateElementProperties() :self
     {
         foreach ($this->sections as $element) {
@@ -1679,7 +1666,7 @@ class PdfBuilder
 
             if ($child['element'] !== 'script') {
                 if ($this->service->company->markdown_enabled && array_key_exists('content', $child)) {
-                    $child['content'] = str_replace('<br>', "\r", $child['content']);
+                    $child['content'] = str_replace('<br>', "\r", ($child['content'] ?? ''));
                     $child['content'] = $this->commonmark->convert($child['content'] ?? '');
                 }
             }
@@ -1693,6 +1680,7 @@ class PdfBuilder
             }
 
             if ($contains_html) {
+                
                 // If the element contains the HTML, we gonna display it as is. Backend is going to
                 // encode it for us, preventing any errors on the processing stage.
                 // Later, we decode this using Javascript so it looks like it's normal HTML being injected.
@@ -1701,9 +1689,11 @@ class PdfBuilder
                 $_child = $this->document->createElement($child['element'], '');
                 $_child->setAttribute('data-state', 'encoded-html');
                 $_child->nodeValue = htmlspecialchars($child['content']);
+
+
             } else {
                 // .. in case string doesn't contain any HTML, we'll just return
-                // raw $content.
+                // raw $content
 
                 $_child = $this->document->createElement($child['element'], isset($child['content']) ? htmlspecialchars($child['content']) : '');
             }

@@ -252,11 +252,9 @@ class InvoiceController extends Controller
         if ($invoices->count() == 1) {
             $invoice = $invoices->first();
 
-            $file = $invoice->service()->getInvoicePdf(auth()->guard('contact')->user());
-
-            return response()->streamDownload(function () use ($file) {
-                echo Storage::get($file);
-            }, basename($file), ['Content-Type' => 'application/pdf']);
+            return response()->streamDownload(function () use ($invoice) {
+                echo $invoice->service()->getInvoicePdf(auth()->guard('contact')->user());
+            }, $invoice->getFileName(), ['Content-Type' => 'application/pdf']);
         }
 
         return $this->buildZip($invoices);

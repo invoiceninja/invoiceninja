@@ -11,12 +11,14 @@ return [
     'version_url' => 'https://pdf.invoicing.co/api/version',
     'app_name' => env('APP_NAME', 'Invoice Ninja'),
     'app_env' => env('APP_ENV', 'selfhosted'),
+    'app_logo' => env('APP_LOGO', 'https://invoicing.co/images/new_logo.png'),
+    'ninja_client_portal' => env('NINJA_CLIENT_PORTAL', 'https://invoiceninja.invoicing.co'),
     'debug_enabled' => env('APP_DEBUG', false),
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
-    'app_version' => env('APP_VERSION','5.7.46'),
-    'app_tag' => env('APP_TAG','5.7.46'),
+    'app_version' => env('APP_VERSION','5.7.54'),
+    'app_tag' => env('APP_TAG','5.7.54'),
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', false),
@@ -84,6 +86,7 @@ return [
         'password' => 'password',
         'stripe' => env('STRIPE_KEYS', ''),
         'paypal' => env('PAYPAL_KEYS', ''),
+        'ppcp' =>  env('PPCP_KEYS', ''),
         'paypal_rest' => env('PAYPAL_REST_KEYS', ''),
         'authorize' => env('AUTHORIZE_KEYS', ''),
         'checkout' => env('CHECKOUT_KEYS', ''),
@@ -221,4 +224,8 @@ return [
         'client_id' => env('SHOPIFY_CLIENT_ID', null),
         'client_secret' => env('SHOPIFY_CLIENT_SECRET', null),
     ],
+    'paypal' => [
+        'secret' => env('PAYPAL_SECRET', null),
+        'client_id' => env('PAYPAL_CLIENT_ID', null),
+    ]
 ];

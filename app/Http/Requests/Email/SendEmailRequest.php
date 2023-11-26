@@ -43,8 +43,10 @@ class SendEmailRequest extends Request
             'template' => 'bail|required',
             'entity' => 'bail|required',
             'entity_id' => 'bail|required',
-            'cc_email' => 'bail|sometimes|email|nullable',
+            'cc_email.*' => 'bail|sometimes|email',
         ];
+
+
     }
 
     public function prepareForValidation()
@@ -70,6 +72,14 @@ class SendEmailRequest extends Request
         
         if (isset($input['entity'])) {
             $input['entity'] = "App\Models\\".ucfirst(Str::camel($input['entity']));
+        }
+
+        if(isset($input['cc_email'])){
+            $input['cc_email'] = collect(explode(",", $input['cc_email']))->map(function($email){
+                return trim($email);
+            })->filter(function($email){
+                return filter_var($email, FILTER_VALIDATE_EMAIL);
+            })->slice(0,4)->toArray();
         }
 
         $this->replace($input);

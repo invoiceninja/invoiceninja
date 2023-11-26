@@ -272,11 +272,27 @@ class Email implements ShouldQueue
             nlog("Mailer failed with {$e->getMessage()}");
             $message = $e->getMessage();
 
-            if (stripos($e->getMessage(), 'code 406') || stripos($e->getMessage(), 'code 300') || stripos($e->getMessage(), 'code 413')) {
-                $message = "Either Attachment too large, or recipient has been suppressed.";
+
+        if (stripos($e->getMessage(), 'code 300') || stripos($e->getMessage(), 'code 413')) {
+            $message = "Either Attachment too large, or recipient has been suppressed.";
+
+            $this->fail();
+            $this->logMailError($e->getMessage(), $this->company->clients()->first());
+            $this->cleanUpMailers();
+
+            return;
+        }
+
+            if (stripos($e->getMessage(), 'code 406')) {
+
+                $address_object = reset($this->email_object->to);
+
+                $email = $address_object->address ?? '';
+                
+                $message = "Recipient {$email} has been suppressed and cannot receive emails from you.";
 
                 $this->fail();
-                $this->logMailError($e->getMessage(), $this->company->clients()->first());
+                $this->logMailError($message, $this->company->clients()->first());
                 $this->cleanUpMailers();
 
                 return;

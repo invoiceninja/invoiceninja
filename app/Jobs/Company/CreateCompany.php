@@ -84,6 +84,7 @@ class CreateCompany
         match($settings->country_id) {
             '724' => $company = $this->spanishSetup($company),
             '36'  => $company = $this->australiaSetup($company),
+            '710' => $company = $this->southAfticaSetup($company),
             default => $company->save(),
         };
 
@@ -103,7 +104,7 @@ class CreateCompany
 
             if(request()->hasHeader('cf-ipcountry')) {
 
-                $c = Country::where('iso_3166_2', request()->header('cf-ipcountry'))->first();
+                $c = Country::query()->where('iso_3166_2', request()->header('cf-ipcountry'))->first();
                 
                 if($c) {
                     return (string)$c->id;
@@ -115,7 +116,7 @@ class CreateCompany
 
             if($details && property_exists($details, 'countryCode')) {
 
-                $c = Country::where('iso_3166_2', $details->countryCode)->first();
+                $c = Country::query()->where('iso_3166_2', $details->countryCode)->first();
 
                 if($c) {
                     return (string)$c->id;
@@ -153,15 +154,6 @@ class CreateCompany
 
             $company->save();
 
-            //user does not exist yet.
-            // MultiDB::setDb($company->db);
-            // $user = \App\Models\User::where('account_id', $company->account_id)->first();
-
-            // $tax_rate = TaxRateFactory::create($company->id, $user->id);
-            // $tax_rate->name = $company->tax_data->regions->EU->subregions->ES->tax_name;
-            // $tax_rate->rate = $company->tax_data->regions->EU->subregions->ES->tax_rate;
-            // $tax_rate->save();
-
             return $company;
 
         } catch(\Exception $e) {
@@ -171,6 +163,40 @@ class CreateCompany
         $company->save();
 
         return $company;
+
+    }
+
+    private function southAfticaSetup(Company $company): Company
+    {
+
+        try {
+
+            $company->enabled_item_tax_rates = 1;
+            $company->enabled_tax_rates = 1;
+
+            $translations = new \stdClass;
+            $translations->invoice = "Tax Invoice";
+
+            $settings = $company->settings;
+            $settings->currency_id = '4';
+            $settings->timezone_id = '56';
+            $settings->translations = $translations;
+
+            $company->settings = $settings;
+                    
+            $company->save();
+
+            return $company;
+
+        } catch(\Exception $e) {
+            nlog($e->getMessage());
+            nlog("SETUP: could not complete setup for South African Locale");
+        }
+
+        $company->save();
+
+        return $company;
+
 
     }
 
@@ -192,17 +218,6 @@ class CreateCompany
             $company->settings = $settings;
             
             $company->save();
-
-            //$user = $company->account->users()->first();
-            //user does not exist yet.
-            // MultiDB::setDb($company->db);
-            // $user = \App\Models\User::where('account_id', $company->account_id)->first();
-
-
-            // $tax_rate = TaxRateFactory::create($company->id, $user->id);
-            // $tax_rate->name = $company->tax_data->regions->AU->subregions->AU->tax_name;
-            // $tax_rate->rate = $company->tax_data->regions->AU->subregions->AU->tax_rate;
-            // $tax_rate->save();
 
             return $company;
 

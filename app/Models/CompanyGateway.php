@@ -117,7 +117,6 @@ class CompanyGateway extends BaseModel
             16 => ['card' => 'images/credit_cards/Test-Discover-Icon.png', 'text' => 'Discover'],
         ];
 
-
     // const TYPE_PAYPAL = 300;
     // const TYPE_STRIPE = 301;
     // const TYPE_LEDGER = 302;
@@ -132,6 +131,7 @@ class CompanyGateway extends BaseModel
     // const TYPE_MOLLIE = 312;
     // const TYPE_EWAY = 313;
     // const TYPE_FORTE = 314;
+    // const PAYPAL_PPCP = 323;
 
     public $gateway_consts = [
         '38f2c48af60c7dd69e04248cbb24c36e' => 300,
@@ -150,6 +150,7 @@ class CompanyGateway extends BaseModel
         '65faab2ab6e3223dbe848b1686490baz' => 320,
         'b9886f9257f0c6ee7c302f1c74475f6c' => 321,
         'hxd6gwg3ekb9tb3v9lptgx1mqyg69zu9' => 322,
+        '80af24a6a691230bbec33e930ab40666' => 323,
     ];
 
     protected $touches = [];
