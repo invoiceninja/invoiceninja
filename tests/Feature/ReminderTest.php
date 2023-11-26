@@ -11,23 +11,23 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Client;
-use App\Models\Account;
-use App\Models\Company;
-use App\Models\Invoice;
-use Tests\MockAccountData;
-use App\Models\CompanyToken;
-use App\Models\ClientContact;
-use App\Jobs\Util\ReminderJob;
-use Illuminate\Support\Carbon;
-use App\Utils\Traits\MakesHash;
 use App\DataMapper\CompanySettings;
 use App\Factory\CompanyUserFactory;
+use App\Jobs\Util\ReminderJob;
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\Company;
+use App\Models\CompanyToken;
+use App\Models\Invoice;
+use App\Models\User;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Carbon;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test
@@ -89,8 +89,7 @@ class ReminderTest extends TestCase
             'email' => $this->faker->unique()->safeEmail(),
         ]);
 
-        if(!$settings)
-        {
+        if(!$settings) {
             $settings = CompanySettings::defaults();
             $settings->client_online_payment_notification = false;
             $settings->client_manual_payment_notification = false;
@@ -247,29 +246,29 @@ class ReminderTest extends TestCase
         $this->assertEquals(101, $fee->cost);
         $this->assertEquals('Fee added '.now()->format('d/M/Y'), $fee->notes);
 
-            $this->travelTo(now()->addDay()->startOfDay()->addHour());
+        $this->travelTo(now()->addDay()->startOfDay()->addHour());
 
-            (new ReminderJob())->handle();
-            $this->invoice = $this->invoice->fresh();
-            $this->assertNotNull($this->invoice->reminder2_sent);
-            $this->assertNotNull($this->invoice->reminder_last_sent);
+        (new ReminderJob())->handle();
+        $this->invoice = $this->invoice->fresh();
+        $this->assertNotNull($this->invoice->reminder2_sent);
+        $this->assertNotNull($this->invoice->reminder_last_sent);
 
-            $fee = collect($this->invoice->line_items)->where('cost', 102)->first();
+        $fee = collect($this->invoice->line_items)->where('cost', 102)->first();
 
-            $this->assertEquals(102, $fee->cost);
-            $this->assertEquals('Fee added '.now()->format('d/M/Y'), $fee->notes);
+        $this->assertEquals(102, $fee->cost);
+        $this->assertEquals('Fee added '.now()->format('d/M/Y'), $fee->notes);
 
-                $this->travelTo(now()->addDay()->startOfDay()->addHour());
+        $this->travelTo(now()->addDay()->startOfDay()->addHour());
 
-                (new ReminderJob())->handle();
-                $this->invoice = $this->invoice->fresh();
-                $this->assertNotNull($this->invoice->reminder3_sent);
-                $this->assertNotNull($this->invoice->reminder_last_sent);
+        (new ReminderJob())->handle();
+        $this->invoice = $this->invoice->fresh();
+        $this->assertNotNull($this->invoice->reminder3_sent);
+        $this->assertNotNull($this->invoice->reminder_last_sent);
 
-                $fee = collect($this->invoice->line_items)->where('cost', 103)->first();
+        $fee = collect($this->invoice->line_items)->where('cost', 103)->first();
 
-                $this->assertEquals(103, $fee->cost);
-                $this->assertEquals('Fee added '.now()->format('d/M/Y'), $fee->notes);
+        $this->assertEquals(103, $fee->cost);
+        $this->assertEquals('Fee added '.now()->format('d/M/Y'), $fee->notes);
 
         $this->travelBack();
 
@@ -337,7 +336,7 @@ class ReminderTest extends TestCase
             }
 
 
-            if(!$x){
+            if(!$x) {
                 $this->invoice = $this->invoice->fresh();
                 $this->assertNull($this->invoice->reminder1_sent);
                 $this->assertNull($this->invoice->reminder_last_sent);

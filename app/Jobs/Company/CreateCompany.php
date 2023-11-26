@@ -14,7 +14,6 @@ namespace App\Jobs\Company;
 use App\DataMapper\ClientRegistrationFields;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\Tax\TaxModel;
-use App\Factory\TaxRateFactory;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Country;

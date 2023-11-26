@@ -1,6 +1,6 @@
 <?php
 
-$LANG = array(
+$LANG = [
     'organization' => 'Οργανισμός',
     'name' => 'Επωνυμία',
     'website' => 'Ιστοσελίδα',
@@ -5167,8 +5167,6 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'in_stock_quantity' => 'Stock quantity',
     'vendor_contact' => 'Vendor Contact',
 
-); 
+];
 
 return $LANG;
-
-?>

@@ -528,7 +528,7 @@ class InvoiceController extends BaseController
             
             $filename = $invoices->first()->getFileName();
             
-            return response()->streamDownload(function () use($invoices) {
+            return response()->streamDownload(function () use ($invoices) {
                 echo $invoices->first()->service()->getInvoicePdf();
             }, $filename, ['Content-Type' => 'application/pdf']);
         }

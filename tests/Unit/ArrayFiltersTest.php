@@ -11,10 +11,10 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\Design;
 use App\Models\Payment;
+use App\Models\User;
+use Tests\TestCase;
 
 /**
  * @test
@@ -27,13 +27,13 @@ class ArrayFiltersTest extends TestCase
         'baseline' =>[],
         '5.7.34' => [
             Payment::class => [
-                'is_deleted', 
+                'is_deleted',
                 'amount',
             ]
         ],
         '5.7.35' => [
             Payment::class => [
-                'date', 
+                'date',
                 'transaction_reference',
             ],
             User::class => [
@@ -47,13 +47,13 @@ class ArrayFiltersTest extends TestCase
         ],
         '5.7.36' => [
             Payment::class => [
-                'type_id', 
+                'type_id',
                 'status_id',
             ],
         ],
         '5.7.37' => [
             Payment::class => [
-                'currency_id', 
+                'currency_id',
                 'hashed_id',
             ],
         ],
@@ -83,10 +83,8 @@ class ArrayFiltersTest extends TestCase
         $index = 0;
         $version_index = 0;
 
-        foreach($this->version_keys as $key => $value)
-        {
-            if($version == $key)
-            {
+        foreach($this->version_keys as $key => $value) {
+            if($version == $key) {
                 $version_index = $index;
             }
         
@@ -104,7 +102,7 @@ class ArrayFiltersTest extends TestCase
         $this->assertEquals(4, $x->count());
     }
 
-    public function testPaymentUnsetPropsScenario2() 
+    public function testPaymentUnsetPropsScenario2()
     {
         $p = Payment::factory()->make()->toArray();
 
@@ -116,10 +114,8 @@ class ArrayFiltersTest extends TestCase
         $index = 0;
         $version_index = 0;
 
-        foreach($this->version_keys as $key => $value)
-        {
-            if($version == $key)
-            {
+        foreach($this->version_keys as $key => $value) {
+            if($version == $key) {
                 $version_index = $index;
             }
         
@@ -133,8 +129,9 @@ class ArrayFiltersTest extends TestCase
 
         $filters = collect($this->version_keys)
         ->map(function ($value, $key) use ($version, &$version_index, &$index) {
-            if($version == $key) 
+            if($version == $key) {
                 $version_index = $index;
+            }
                     
             $index++;
             return $value;
@@ -150,7 +147,7 @@ class ArrayFiltersTest extends TestCase
         $this->assertEquals(2, $x->count());
     }
 
-    public function testWhenScenario() 
+    public function testWhenScenario()
     {
         $p = Payment::factory()->make()->toArray();
 
@@ -159,8 +156,9 @@ class ArrayFiltersTest extends TestCase
 
         $filters = collect($this->version_keys)
         ->map(function ($value, $key) use ($version, &$version_index, &$index) {
-            if($version == $key) 
+            if($version == $key) {
                 $version_index = $index;
+            }
                                 
             $index++;
             return $value;
@@ -172,7 +170,7 @@ class ArrayFiltersTest extends TestCase
         $this->assertEquals(3, $filters->count());
     }
 
-    public function testWhenScenario2() 
+    public function testWhenScenario2()
     {
         $p = Payment::factory()->make()->toArray();
 
@@ -183,7 +181,7 @@ class ArrayFiltersTest extends TestCase
         ->map(function ($value, $key) use ($version, &$version_index, &$index) {
             if($version == $key) {
                 $version_index = $index;
-            nlog("version = {$version_index}");
+                nlog("version = {$version_index}");
             }
             $index++;
             return $value;
@@ -203,26 +201,26 @@ class ArrayFiltersTest extends TestCase
         $index = 0;
         $version_index = 0;
 
-       $filters = collect($this->version_keys)
-            ->map(function ($value, $key) use (&$version_index, &$index) {
-                if($this->import_version == $key) {
-                    $version_index = $index;
-                }
+        $filters = collect($this->version_keys)
+             ->map(function ($value, $key) use (&$version_index, &$index) {
+                 if($this->import_version == $key) {
+                     $version_index = $index;
+                 }
                                                     
-                $index++;
-                return $value;
+                 $index++;
+                 return $value;
 
-            })
-            ->when($version_index == 0, function ($collection){
-                return collect([]);
-            })
-            ->when($version_index > 0, function ($collection) use (&$version_index, $class) {
-                return $collection->slice($version_index)->pluck($class)->filter();
-            });
+             })
+             ->when($version_index == 0, function ($collection) {
+                 return collect([]);
+             })
+             ->when($version_index > 0, function ($collection) use (&$version_index, $class) {
+                 return $collection->slice($version_index)->pluck($class)->filter();
+             });
         
-            return collect($obj_array)->diffKeys($filters->flatten()->flip())->toArray();
+        return collect($obj_array)->diffKeys($filters->flatten()->flip())->toArray();
 
-            // return $filters->count() > 0 ?  collect($obj_array)->diffKeys($filters->flatten()->flip())->toArray() : $obj_array;
+        // return $filters->count() > 0 ?  collect($obj_array)->diffKeys($filters->flatten()->flip())->toArray() : $obj_array;
  
     }
 

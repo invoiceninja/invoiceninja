@@ -11,11 +11,10 @@
 
 namespace App\Services\Ledger;
 
-use App\Models\Activity;
-use App\Models\CompanyLedger;
-use App\Jobs\Ledger\UpdateLedger;
 use App\Factory\CompanyLedgerFactory;
 use App\Jobs\Ledger\ClientLedgerBalanceUpdate;
+use App\Models\Activity;
+use App\Models\CompanyLedger;
 
 class LedgerService
 {
@@ -45,8 +44,9 @@ class LedgerService
     public function updateInvoiceBalance($adjustment, $notes = '')
     {
 
-        if($adjustment == 0)
+        if($adjustment == 0) {
             return $this;
+        }
 
         // $timestamp = \Carbon\Carbon::createFromTimestamp($this->entity->updated_at)->format('ymdhhmmssSS');
         // $hash = sha1($adjustment.$notes.$this->entity->status_id.$this->entity->client_id.$this->entity->amount.$this->entity->balance.$this->entity->company_id.Activity::UPDATE_INVOICE);

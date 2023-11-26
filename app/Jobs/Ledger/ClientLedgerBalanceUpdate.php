@@ -89,7 +89,7 @@ class ClientLedgerBalanceUpdate implements ShouldQueue
                             $company_ledger->balance = ($parent_ledger ? $parent_ledger->balance : 0) + $company_ledger->adjustment;
                             $company_ledger->save();
 
-        });
+                        });
 
         // nlog("finished job {$uuid}");
     }

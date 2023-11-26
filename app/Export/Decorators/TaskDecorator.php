@@ -11,10 +11,10 @@
 
 namespace App\Export\Decorators;
 
-use Carbon\Carbon;
+use App\Models\DateFormat;
 use App\Models\Task;
 use App\Models\Timezone;
-use App\Models\DateFormat;
+use Carbon\Carbon;
 
 class TaskDecorator extends Decorator implements DecoratorInterface
 {
@@ -38,7 +38,8 @@ class TaskDecorator extends Decorator implements DecoratorInterface
 
     }
 
-    public function start_date(Task $task){
+    public function start_date(Task $task)
+    {
 
         $timezone = Timezone::find($task->company->settings->timezone_id);
         $timezone_name = 'US/Eastern';
@@ -57,7 +58,7 @@ class TaskDecorator extends Decorator implements DecoratorInterface
             $date_format_default = $date_format->format;
         }
 
-        if(is_array($logs)){
+        if(is_array($logs)) {
             $item = $logs[0];
             return Carbon::createFromTimeStamp($item[0])->setTimezone($timezone_name)->format($date_format_default);
         }
@@ -66,7 +67,8 @@ class TaskDecorator extends Decorator implements DecoratorInterface
 
     }
 
-    public function end_date(Task $task){
+    public function end_date(Task $task)
+    {
 
         $timezone = Timezone::find($task->company->settings->timezone_id);
         $timezone_name = 'US/Eastern';
@@ -93,13 +95,18 @@ class TaskDecorator extends Decorator implements DecoratorInterface
         return '';
 
     }
-    public function duration(Task $task){
+    public function duration(Task $task)
+    {
         return $task->calcDuration();
     }
-    public function status_id(Task $task){
+
+    public function status_id(Task $task)
+    {
         return $task->status()->exists() ? $task->status->name : '';
     }
-    public function project_id(Task $task){
+    
+    public function project_id(Task $task)
+    {
         return $task->project()->exists() ? $task->project->name : '';
     }
 

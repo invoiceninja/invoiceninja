@@ -11,8 +11,8 @@
 
 namespace App\Import\Transformer\Csv;
 
-use App\Models\TaskStatus;
 use App\Import\Transformer\BaseTransformer;
+use App\Models\TaskStatus;
 
 /**
  * Class TaskTransformer.
@@ -29,10 +29,11 @@ class TaskTransformer extends BaseTransformer
     {
         $this->stubbed_timestamp = time();
 
-        if(count($task_items_data) == count($task_items_data, COUNT_RECURSIVE)) 
+        if(count($task_items_data) == count($task_items_data, COUNT_RECURSIVE)) {
             $task_data = $task_items_data;
-        else 
+        } else {
             $task_data = reset($task_items_data);
+        }
         
         $clientId = $this->getClient(
             $this->getString($task_data, 'client.name'),
@@ -79,12 +80,13 @@ class TaskTransformer extends BaseTransformer
 
         $notes = $item['task.notes'] ?? '';
         
-        if(isset($item['task.is_billable']) && is_string($item['task.is_billable']) && in_array($item['task.is_billable'], ['yes', 'true', '1']))
+        if(isset($item['task.is_billable']) && is_string($item['task.is_billable']) && in_array($item['task.is_billable'], ['yes', 'true', '1'])) {
             $is_billable = true;
-        elseif(isset($item['task.is_billable']) && is_bool($item['task.is_billable']))
+        } elseif(isset($item['task.is_billable']) && is_bool($item['task.is_billable'])) {
             $is_billable = $item['task.is_billable'];
-        else
+        } else {
             $is_billable = false;
+        }
 
         if(isset($item['task.start_date']) &&
         isset($item['task.end_date'])) {
@@ -148,8 +150,7 @@ class TaskTransformer extends BaseTransformer
 
     private function getTaskStatusId($item): ?int
     {
-        if(isset($item['task.status'])) 
-        {
+        if(isset($item['task.status'])) {
             $name = strtolower(trim($item['task.status']));
 
             $ts = TaskStatus::query()->where('company_id', $this->company->id)
@@ -159,9 +160,10 @@ class TaskTransformer extends BaseTransformer
                 ])
                 ->first();
 
-                if($ts)
-                    return $ts->id;
-        } 
+            if($ts) {
+                return $ts->id;
+            }
+        }
 
         return TaskStatus::where('company_id', $this->company->id)
             ->where('is_deleted', false)

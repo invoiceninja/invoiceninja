@@ -11,41 +11,41 @@
 
 namespace App\Http\Controllers;
 
-use App\Utils\Ninja;
-use App\Models\Quote;
-use App\Models\Client;
-use App\Models\Account;
-use App\Models\Invoice;
-use App\Models\Project;
-use Illuminate\Http\Request;
-use App\Factory\QuoteFactory;
-use App\Filters\QuoteFilters;
-use App\Jobs\Quote\ZipQuotes;
-use Illuminate\Http\Response;
-use App\Utils\Traits\MakesHash;
-use App\Factory\CloneQuoteFactory;
-use App\Services\PdfMaker\PdfMerge;
-use Illuminate\Support\Facades\App;
-use App\Utils\Traits\SavesDocuments;
 use App\Events\Quote\QuoteWasCreated;
 use App\Events\Quote\QuoteWasUpdated;
-use App\Repositories\QuoteRepository;
-use App\Transformers\QuoteTransformer;
-use App\Utils\Traits\GeneratesCounter;
-use Illuminate\Support\Facades\Storage;
-use App\Transformers\InvoiceTransformer;
-use App\Transformers\ProjectTransformer;
-use App\Services\Template\TemplateAction;
+use App\Factory\CloneQuoteFactory;
 use App\Factory\CloneQuoteToInvoiceFactory;
+use App\Factory\QuoteFactory;
+use App\Filters\QuoteFilters;
+use App\Http\Requests\Quote\ActionQuoteRequest;
+use App\Http\Requests\Quote\BulkActionQuoteRequest;
+use App\Http\Requests\Quote\CreateQuoteRequest;
+use App\Http\Requests\Quote\DestroyQuoteRequest;
 use App\Http\Requests\Quote\EditQuoteRequest;
 use App\Http\Requests\Quote\ShowQuoteRequest;
 use App\Http\Requests\Quote\StoreQuoteRequest;
-use App\Http\Requests\Quote\ActionQuoteRequest;
-use App\Http\Requests\Quote\CreateQuoteRequest;
 use App\Http\Requests\Quote\UpdateQuoteRequest;
 use App\Http\Requests\Quote\UploadQuoteRequest;
-use App\Http\Requests\Quote\DestroyQuoteRequest;
-use App\Http\Requests\Quote\BulkActionQuoteRequest;
+use App\Jobs\Quote\ZipQuotes;
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\Invoice;
+use App\Models\Project;
+use App\Models\Quote;
+use App\Repositories\QuoteRepository;
+use App\Services\PdfMaker\PdfMerge;
+use App\Services\Template\TemplateAction;
+use App\Transformers\InvoiceTransformer;
+use App\Transformers\ProjectTransformer;
+use App\Transformers\QuoteTransformer;
+use App\Utils\Ninja;
+use App\Utils\Traits\GeneratesCounter;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class QuoteController.
@@ -854,7 +854,7 @@ class QuoteController extends BaseController
             $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
         }
 
-        return response()->streamDownload(function () use ($quote,$contact) {
+        return response()->streamDownload(function () use ($quote, $contact) {
             echo $quote->service()->getQuotePdf($contact);
         }, $quote->getFileName(), $headers);
 

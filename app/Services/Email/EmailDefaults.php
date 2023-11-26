@@ -293,7 +293,7 @@ class EmailDefaults
         }
 
         /** Purchase Order / Invoice / Credit / Quote PDF  */
-        if ($this->email->email_object->settings->pdf_email_attachment){
+        if ($this->email->email_object->settings->pdf_email_attachment) {
             $pdf = ((new CreateRawPdf($this->email->email_object->invitation))->handle());
             $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
         }

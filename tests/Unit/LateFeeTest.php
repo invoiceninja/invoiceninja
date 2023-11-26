@@ -11,20 +11,19 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Client;
+use App\DataMapper\CompanySettings;
+use App\DataMapper\InvoiceItem;
+use App\Factory\ClientGatewayTokenFactory;
+use App\Factory\InvoiceItemFactory;
+use App\Jobs\Util\ReminderJob;
 use App\Models\Account;
+use App\Models\Client;
 use App\Models\Company;
 use App\Models\Invoice;
-use Tests\MockAccountData;
-use App\Jobs\Util\ReminderJob;
-use App\DataMapper\InvoiceItem;
-use App\DataMapper\FeesAndLimits;
-use App\DataMapper\CompanySettings;
-use App\Factory\InvoiceItemFactory;
-use App\Factory\ClientGatewayTokenFactory;
+use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test
@@ -134,7 +133,7 @@ class LateFeeTest extends TestCase
             'discount' => 0,
         ]);
 
-        $i->each(function($invoice){
+        $i->each(function ($invoice) {
             $this->assertGreaterThan(1, count($invoice->line_items));
         });
 
@@ -153,7 +152,7 @@ class LateFeeTest extends TestCase
 
         $invoices = $i->map(function ($invoice) {
             
-            $line_items = $invoice->line_items;            
+            $line_items = $invoice->line_items;
 
             $item = new InvoiceItem;
             $item->type_id = '3';
@@ -176,7 +175,7 @@ class LateFeeTest extends TestCase
             return $invoice;
         });
 
-        $invoices = Invoice::whereIn('id', $ids)->cursor()->map(function ($invoice){
+        $invoices = Invoice::whereIn('id', $ids)->cursor()->map(function ($invoice) {
             $this->assertGreaterThan(0, count($invoice->line_items));
             
             $invoice->service()->removeUnpaidGatewayFees();

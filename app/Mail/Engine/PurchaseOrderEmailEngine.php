@@ -11,17 +11,17 @@
 
 namespace App\Mail\Engine;
 
-use App\Utils\Ninja;
-use App\Utils\Number;
-use App\Models\Vendor;
+use App\DataMapper\EmailTemplateDefaults;
+use App\Jobs\Entity\CreateRawPdf;
 use App\Models\Account;
 use App\Models\PurchaseOrder;
+use App\Models\Vendor;
+use App\Utils\Ninja;
+use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
 use App\Utils\VendorHtmlEngine;
-use App\Jobs\Entity\CreateRawPdf;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\URL;
-use App\DataMapper\EmailTemplateDefaults;
 
 class PurchaseOrderEmailEngine extends BaseEmailEngine
 {

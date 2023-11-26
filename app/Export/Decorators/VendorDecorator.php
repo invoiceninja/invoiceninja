@@ -35,16 +35,23 @@ class VendorDecorator extends Decorator implements DecoratorInterface
 
     }
 
-    public function country_id(Vendor $vendor){
+    public function country_id(Vendor $vendor)
+    {
         return $vendor->country ? $vendor->country->name : '';
     }
-    public function name(Vendor $vendor){
+    
+    public function name(Vendor $vendor)
+    {
         return $vendor->present()->name();
     }
-    public function currency(Vendor $vendor){
+
+    public function currency(Vendor $vendor)
+    {
         return $vendor->currency_id ? $vendor->currency()->code : $vendor->company->currency()->code;
     }
-    public function classification(Vendor $vendor) {
+
+    public function classification(Vendor $vendor)
+    {
         ctrans("texts.{$vendor->classification}") ?? '';
     }
 

@@ -11,18 +11,18 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
+use App\Helpers\Invoice\InvoiceSum;
 use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Models\Project;
-use Tests\MockAccountData;
-use App\Models\ClientContact;
-use App\Utils\Traits\MakesHash;
-use App\Helpers\Invoice\InvoiceSum;
 use App\Repositories\InvoiceRepository;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Session;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test

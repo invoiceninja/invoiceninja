@@ -12,7 +12,6 @@
 namespace App\Console\Commands;
 
 use App;
-use App\DataMapper\ClientSettings;
 use App\Factory\ClientContactFactory;
 use App\Factory\VendorContactFactory;
 use App\Jobs\Company\CreateCompanyToken;

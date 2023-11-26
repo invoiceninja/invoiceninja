@@ -79,9 +79,9 @@ class UpdateCalculatedFields
 
         $project->tasks->each(function ($task) use (&$duration) {
             
-        if(is_iterable(json_decode($task->time_log) )) {
+            if(is_iterable(json_decode($task->time_log))) {
         
-            foreach(json_decode($task->time_log) as $log) {
+                foreach(json_decode($task->time_log) as $log) {
 
                     $start_time = $log[0];
                     $end_time = $log[1] == 0 ? time() : $log[1];

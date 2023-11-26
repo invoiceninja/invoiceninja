@@ -11,11 +11,10 @@
 
 namespace Tests\Feature\Search;
 
-use Tests\TestCase;
-use Tests\MockAccountData;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test

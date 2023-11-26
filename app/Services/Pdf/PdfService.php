@@ -11,20 +11,20 @@
 
 namespace App\Services\Pdf;
 
-use App\Models\Company;
-use App\Models\Invoice;
-use App\Utils\HtmlEngine;
-use App\Models\QuoteInvitation;
-use App\Utils\VendorHtmlEngine;
-use App\Models\CreditInvitation;
-use App\Utils\PhantomJS\Phantom;
-use App\Models\InvoiceInvitation;
-use App\Utils\HostedPDF\NinjaPdf;
-use App\Utils\Traits\Pdf\PdfMaker;
 use App\Jobs\Invoice\CreateEInvoice;
+use App\Models\Company;
+use App\Models\CreditInvitation;
+use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
 use App\Models\PurchaseOrderInvitation;
-use App\Utils\Traits\Pdf\PageNumbering;
+use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
+use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\HtmlEngine;
+use App\Utils\PhantomJS\Phantom;
+use App\Utils\Traits\Pdf\PageNumbering;
+use App\Utils\Traits\Pdf\PdfMaker;
+use App\Utils\VendorHtmlEngine;
 use horstoeko\zugferd\ZugferdDocumentPdfBuilder;
 
 class PdfService
@@ -179,8 +179,9 @@ class PdfService
      */
     private function checkEInvoice(string $pdf): string
     {
-        if(!$this->config->entity instanceof Invoice)
+        if(!$this->config->entity instanceof Invoice) {
             return $pdf;
+        }
 
         $e_invoice_type = $this->config->settings->e_invoice_type;
 

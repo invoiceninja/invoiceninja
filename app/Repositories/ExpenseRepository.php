@@ -12,16 +12,16 @@
 
 namespace App\Repositories;
 
-use App\Models\Expense;
-use Illuminate\Support\Carbon;
 use App\Factory\ExpenseFactory;
+use App\Jobs\Expense\VendorExpenseNotify;
+use App\Libraries\Currency\Conversion\CurrencyApi;
+use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Utils\Traits\GeneratesCounter;
-use Illuminate\Database\QueryException;
-use App\Jobs\Expense\VendorExpenseNotify;
-use Illuminate\Database\Eloquent\Collection;
 use Carbon\Exceptions\InvalidFormatException;
-use App\Libraries\Currency\Conversion\CurrencyApi;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Carbon;
 
 /**
  * ExpenseRepository.
@@ -48,8 +48,7 @@ class ExpenseRepository extends BaseRepository
 
         if(isset($data['payment_date']) && $data['payment_date'] == $expense->payment_date) {
             //do nothing
-        }
-        elseif(isset($data['payment_date']) && strlen($data['payment_date']) > 1 && $user->company()->notify_vendor_when_paid && ($data['vendor_id'] || $expense->vendor_id)) {
+        } elseif(isset($data['payment_date']) && strlen($data['payment_date']) > 1 && $user->company()->notify_vendor_when_paid && ($data['vendor_id'] || $expense->vendor_id)) {
             nlog("ping");
             $this->notify_vendor = true;
         }
@@ -62,16 +61,17 @@ class ExpenseRepository extends BaseRepository
 
         if (empty($expense->number)) {
             $expense = $this->findAndSaveNumber($expense);
-        }
-        else
+        } else {
             $expense->saveQuietly();
+        }
 
         if (array_key_exists('documents', $data)) {
             $this->saveDocuments($data['documents'], $expense);
         }
 
-        if($this->notify_vendor)
+        if($this->notify_vendor) {
             VendorExpenseNotify::dispatch($expense, $expense->company->db);
+        }
 
         return $expense;
     }
@@ -188,13 +188,13 @@ class ExpenseRepository extends BaseRepository
     {
         $ec = ExpenseCategory::withTrashed()->find($category_id);
 
-            $expenses->when($ec)
-                     ->each(function ($expense) use($ec){
+        $expenses->when($ec)
+                 ->each(function ($expense) use ($ec) {
                                                 
-                        $expense->category_id = $ec->id;
-                        $expense->save();
+                     $expense->category_id = $ec->id;
+                     $expense->save();
 
-        });
+                 });
     }
 
 }

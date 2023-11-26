@@ -14,11 +14,11 @@ namespace App\Jobs\Ledger;
 use App\Libraries\MultiDB;
 use App\Models\CompanyLedger;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Queue\SerializesModels;
 
 //@deprecated
 class UpdateLedger implements ShouldQueue
@@ -51,20 +51,21 @@ class UpdateLedger implements ShouldQueue
 
         nlog($cl->company_ledgerable->company_ledger()->count());
         
-        if(!$cl)
+        if(!$cl) {
             return;
+        }
         
         $entity = $cl->company_ledgerable;
         $balance = $entity->calc()->getBalance();
         $cl->adjustment = $ledger_item ? $balance : ($balance - $this->start_amount);
         
-            $parent_ledger = CompanyLedger::query()
-                ->where('id', '<', $cl->id)
-                ->where('company_id', $cl->company_id)
-                ->where('client_id', $cl->client_id)
-                ->where('balance', '!=', 0)
-                ->orderBy('id', 'DESC')
-                ->first();
+        $parent_ledger = CompanyLedger::query()
+            ->where('id', '<', $cl->id)
+            ->where('company_id', $cl->company_id)
+            ->where('client_id', $cl->client_id)
+            ->where('balance', '!=', 0)
+            ->orderBy('id', 'DESC')
+            ->first();
 
         $cl->balance = ($parent_ledger ? $parent_ledger->balance : 0) + $cl->adjustment;
         $cl->save();

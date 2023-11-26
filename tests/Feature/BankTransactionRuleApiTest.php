@@ -41,24 +41,24 @@ class BankTransactionRuleApiTest extends TestCase
         Model::reguard();
     }
 
-/*
-$rules = [
-    'name' => 'bail|required|string',
-    'rules' => 'bail|array',
-    'auto_convert' => 'bail|sometimes|bool',
-    'matches_on_all' => 'bail|sometimes|bool',
-    'applies_to' => 'bail|sometimes|bool',
-];
+    /*
+    $rules = [
+        'name' => 'bail|required|string',
+        'rules' => 'bail|array',
+        'auto_convert' => 'bail|sometimes|bool',
+        'matches_on_all' => 'bail|sometimes|bool',
+        'applies_to' => 'bail|sometimes|bool',
+    ];
 
-if(isset($this->category_id))
-    $rules['category_id'] = 'bail|sometimes|exists:expense_categories,id,'.auth()->user()->company()->id.',is_deleted,0';
+    if(isset($this->category_id))
+        $rules['category_id'] = 'bail|sometimes|exists:expense_categories,id,'.auth()->user()->company()->id.',is_deleted,0';
 
-if(isset($this->vendor_id))
-    $rules['vendor_id'] = 'bail|sometimes|exists:vendors,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+    if(isset($this->vendor_id))
+        $rules['vendor_id'] = 'bail|sometimes|exists:vendors,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
 
-if(isset($this->client_id))
-    $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
-*/
+    if(isset($this->client_id))
+        $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+    */
     public function testBankRuleCategoryIdValidation()
     {
         $data = [

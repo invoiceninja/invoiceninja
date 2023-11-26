@@ -11,21 +11,21 @@
 
 namespace App\Jobs\PurchaseOrder;
 
-use App\Models\User;
-use App\Models\Company;
-use App\Libraries\MultiDB;
-use App\Jobs\Util\UnlinkFile;
-use Illuminate\Bus\Queueable;
 use App\Jobs\Entity\CreateRawPdf;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
+use App\Jobs\Util\UnlinkFile;
+use App\Libraries\MultiDB;
 use App\Mail\DownloadPurchaseOrders;
-use Illuminate\Queue\SerializesModels;
+use App\Models\Company;
 use App\Models\PurchaseOrderInvitation;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\User;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
 
 class ZipPurchaseOrders implements ShouldQueue
 {

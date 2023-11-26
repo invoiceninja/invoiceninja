@@ -1,21 +1,17 @@
 <?php
 
-use App\Utils\Ninja;
 use App\Models\Gateway;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
+use App\Utils\Ninja;
 use Illuminate\Database\Migrations\Migration;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
 
-        if(!Gateway::find(61) && Ninja::isHosted()) 
-        {
+        if(!Gateway::find(61) && Ninja::isHosted()) {
 
             $fields = new \stdClass;
             $fields->clientId = "";

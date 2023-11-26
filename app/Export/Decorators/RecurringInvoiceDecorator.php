@@ -35,28 +35,43 @@ class RecurringInvoiceDecorator extends Decorator implements DecoratorInterface
 
     }
 
-    public function status(RecurringInvoice $recurring_invoice) {
+    public function status(RecurringInvoice $recurring_invoice)
+    {
         return $recurring_invoice->stringStatus($recurring_invoice->status_id);
     }
-    public function uses_inclusive_taxes(RecurringInvoice $recurring_invoice) {
+    
+    public function uses_inclusive_taxes(RecurringInvoice $recurring_invoice)
+    {
         return $recurring_invoice->uses_inclusive_taxes ? ctrans('texts.yes') : ctrans('texts.no');
     }
-    public function is_amount_discount(RecurringInvoice $recurring_invoice) {
+
+    public function is_amount_discount(RecurringInvoice $recurring_invoice)
+    {
         return $recurring_invoice->is_amount_discount ? ctrans('texts.yes') : ctrans('texts.no');
     }
-    public function assigned_user_id(RecurringInvoice $recurring_invoice) {
+
+    public function assigned_user_id(RecurringInvoice $recurring_invoice)
+    {
         return $recurring_invoice->assigned_user ? $recurring_invoice->assigned_user->present()->name() : '';
     }
-    public function user_id(RecurringInvoice $recurring_invoice) {
+
+    public function user_id(RecurringInvoice $recurring_invoice)
+    {
         return $recurring_invoice->user->present()->name() ?? '';
     }
-    public function frequency_id(RecurringInvoice $recurring_invoice) {
+
+    public function frequency_id(RecurringInvoice $recurring_invoice)
+    {
         return $recurring_invoice->frequency_id ? $recurring_invoice->frequencyForKey($recurring_invoice->frequency_id) : '';
     }
-    public function auto_bill(RecurringInvoice $recurring_invoice) {
+
+    public function auto_bill(RecurringInvoice $recurring_invoice)
+    {
         return $recurring_invoice->auto_bill ? ctrans("texts.{$recurring_invoice->auto_bill}") : '';
     }
-    public function auto_bill_enabled(RecurringInvoice $recurring_invoice) {
+
+    public function auto_bill_enabled(RecurringInvoice $recurring_invoice)
+    {
         return $recurring_invoice->auto_bill_enabled ? ctrans('texts.yes') : ctrans('texts.no');
     }
 

@@ -527,10 +527,9 @@ class LoginController extends BaseController
 
         if (request()->has('id_token')) {
             $user = $google->getTokenResponse(request()->input('id_token'));
-        }elseif(request()->has('access_token')){
+        } elseif(request()->has('access_token')) {
             $user = $google->harvestUser(request()->input('access_token'));
-        } 
-        else {
+        } else {
             return response()->json(['message' => 'Illegal request'], 403);
         }
 

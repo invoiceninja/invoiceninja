@@ -11,21 +11,19 @@
 
 namespace Tests\Feature\Export;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Client;
-use App\Models\Account;
-use App\Models\Company;
-use App\Models\Invoice;
-use App\Utils\Traits\AppSetup;
-use App\Utils\Traits\MakesHash;
 use App\DataMapper\CompanySettings;
 use App\Factory\InvoiceItemFactory;
-use Illuminate\Support\Facades\Cache;
-use App\Export\CSV\ProductSalesExport;
-use Illuminate\Support\Facades\Schema;
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\Company;
+use App\Models\Invoice;
+use App\Models\User;
 use App\Services\Report\UserSalesReport;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
+use Tests\TestCase;
 
 /**
  * @test

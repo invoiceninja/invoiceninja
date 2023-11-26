@@ -11,31 +11,31 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Task;
-use App\Utils\Ninja;
-use App\Models\Account;
-use App\Models\TaskStatus;
-use App\Factory\TaskFactory;
-use App\Filters\TaskFilters;
-use Illuminate\Http\Response;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\Uploadable;
-use App\Utils\Traits\BulkOptions;
 use App\Events\Task\TaskWasCreated;
 use App\Events\Task\TaskWasUpdated;
-use App\Repositories\TaskRepository;
-use App\Utils\Traits\SavesDocuments;
-use App\Transformers\TaskTransformer;
-use App\Services\Template\TemplateAction;
+use App\Factory\TaskFactory;
+use App\Filters\TaskFilters;
 use App\Http\Requests\Task\BulkTaskRequest;
+use App\Http\Requests\Task\CreateTaskRequest;
+use App\Http\Requests\Task\DestroyTaskRequest;
 use App\Http\Requests\Task\EditTaskRequest;
 use App\Http\Requests\Task\ShowTaskRequest;
 use App\Http\Requests\Task\SortTaskRequest;
 use App\Http\Requests\Task\StoreTaskRequest;
-use App\Http\Requests\Task\CreateTaskRequest;
 use App\Http\Requests\Task\UpdateTaskRequest;
 use App\Http\Requests\Task\UploadTaskRequest;
-use App\Http\Requests\Task\DestroyTaskRequest;
+use App\Models\Account;
+use App\Models\Task;
+use App\Models\TaskStatus;
+use App\Repositories\TaskRepository;
+use App\Services\Template\TemplateAction;
+use App\Transformers\TaskTransformer;
+use App\Utils\Ninja;
+use App\Utils\Traits\BulkOptions;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
+use App\Utils\Traits\Uploadable;
+use Illuminate\Http\Response;
 
 /**
  * Class TaskController.

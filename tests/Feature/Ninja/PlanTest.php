@@ -11,18 +11,17 @@
 
 namespace Tests\Feature\Ninja;
 
-use Carbon\Carbon;
-use Tests\TestCase;
+use App\Factory\SubscriptionFactory;
 use App\Models\Account;
 use App\Models\License;
-use Tests\MockAccountData;
-use App\Utils\Traits\MakesHash;
 use App\Models\RecurringInvoice;
-use App\Factory\SubscriptionFactory;
-use Illuminate\Support\Facades\Http;
+use App\Utils\Traits\MakesHash;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Session;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test

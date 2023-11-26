@@ -11,10 +11,10 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Tests\MockUnitData;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\MockUnitData;
+use Tests\TestCase;
 
 /**
  * @test

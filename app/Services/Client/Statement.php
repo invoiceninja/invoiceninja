@@ -434,16 +434,15 @@ class Statement
             ->where('balance', '>', 0)
             ->where('is_deleted', 0);
 
-            if($range == '0'){
-                $query->where(function ($q) use($to, $from){
-                    $q->whereBetween('due_date', [$to, $from])->orWhereNull('due_date');
-                });
-            }
-            else {
-                $query->whereBetween('due_date', [$to, $from]);
-            }
+        if($range == '0') {
+            $query->where(function ($q) use ($to, $from) {
+                $q->whereBetween('due_date', [$to, $from])->orWhereNull('due_date');
+            });
+        } else {
+            $query->whereBetween('due_date', [$to, $from]);
+        }
             
-            $amount = $query->sum('balance');
+        $amount = $query->sum('balance');
 
         return Number::formatMoney($amount, $this->client);
     }

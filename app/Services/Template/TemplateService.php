@@ -11,32 +11,32 @@
 
 namespace App\Services\Template;
 
-use App\Models\User;
-use App\Models\Quote;
-use App\Utils\Number;
-use Twig\Error\Error;
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Design;
-use App\Models\Vendor;
-use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
-use App\Utils\HtmlEngine;
-use Twig\Error\LoaderError;
-use Twig\Error\SyntaxError;
-use Twig\Error\RuntimeError;
 use App\Models\PurchaseOrder;
-use App\Utils\VendorHtmlEngine;
-use Twig\Sandbox\SecurityError;
+use App\Models\Quote;
 use App\Models\RecurringInvoice;
+use App\Models\User;
+use App\Models\Vendor;
+use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\HtmlEngine;
+use App\Utils\Number;
 use App\Utils\PaymentHtmlEngine;
 use App\Utils\Traits\MakesDates;
-use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\Traits\Pdf\PdfMaker;
-use Twig\Extra\Intl\IntlExtension;
+use App\Utils\VendorHtmlEngine;
 use League\CommonMark\CommonMarkConverter;
+use Twig\Error\Error;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
+use Twig\Extra\Intl\IntlExtension;
+use Twig\Sandbox\SecurityError;
 
 class TemplateService
 {
@@ -104,8 +104,9 @@ class TemplateService
 
         $filter = new \Twig\TwigFilter('sum', function (?array $array, ?string $column) {
 
-            if(!is_array($array))
+            if(!is_array($array)) {
                 return 0;
+            }
             
             return array_sum(array_column($array, $column));
         });
@@ -161,7 +162,7 @@ class TemplateService
     }
 
     public function addGlobal(array $var): self
-    {   
+    {
         $this->global_vars = array_merge($this->global_vars, $var);
         
         return $this;

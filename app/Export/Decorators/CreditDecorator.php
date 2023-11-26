@@ -33,91 +33,120 @@ class CreditDecorator implements DecoratorInterface
 
     }
 
-    public function number(Credit $credit ) {
+    public function number(Credit $credit)
+    {
         return $credit->number ?? '';
     }
-    public function amount(Credit $credit ) {
+    public function amount(Credit $credit)
+    {
         return $credit->amount ?? 0;
     }
-    public function balance(Credit $credit ) {
+    public function balance(Credit $credit)
+    {
         return $credit->balance ?? 0;
     }
-    public function paid_to_date(Credit $credit ) {
+    public function paid_to_date(Credit $credit)
+    {
         return $credit->paid_to_date ?? 0;
     }
-    public function po_number(Credit $credit ) {
+    public function po_number(Credit $credit)
+    {
         return $credit->po_number ?? '';
     }
-    public function date(Credit $credit ) {
+    public function date(Credit $credit)
+    {
         return $credit->date ?? '';
     }
-    public function due_date(Credit $credit ) {
+    public function due_date(Credit $credit)
+    {
         return $credit->due_date ?? '';
     }
-    public function terms(Credit $credit ) {
+    public function terms(Credit $credit)
+    {
         return $credit->terms ?? '';
     }
-    public function discount(Credit $credit ) {
+    public function discount(Credit $credit)
+    {
         return $credit->discount ?? 0;
     }
-    public function footer(Credit $credit ) {
+    public function footer(Credit $credit)
+    {
         return $credit->footer ?? '';
     }
-    public function status(Credit $credit ) {
+    public function status(Credit $credit)
+    {
         return $credit->stringStatus($credit->status_id);
     }
-    public function public_notes(Credit $credit ) {
+    public function public_notes(Credit $credit)
+    {
         return $credit->public_notes ?? '';
     }
-    public function private_notes(Credit $credit ) {
+    public function private_notes(Credit $credit)
+    {
         return $credit->private_notes ?? '';
     }
-    public function uses_inclusive_taxes(Credit $credit ) {
+    public function uses_inclusive_taxes(Credit $credit)
+    {
         return $credit->uses_inclusive_taxes ? ctrans('texts.yes') : ctrans('texts.no');
     }
-    public function is_amount_discount(Credit $credit ) {
+    public function is_amount_discount(Credit $credit)
+    {
         return $credit->is_amount_discount ? ctrans('texts.yes') : ctrans('texts.no');
     }
-    public function partial(Credit $credit ) {
+    public function partial(Credit $credit)
+    {
         return $credit->partial ?? 0;
     }
-    public function partial_due_date(Credit $credit ) {
+    public function partial_due_date(Credit $credit)
+    {
         return $credit->partial_due_date ?? '';
     }
-    public function custom_surcharge1(Credit $credit ) {
+    public function custom_surcharge1(Credit $credit)
+    {
         return $credit->custom_surcharge1 ?? 0;
     }
-    public function custom_surcharge2(Credit $credit ) {
+    public function custom_surcharge2(Credit $credit)
+    {
         return $credit->custom_surcharge2 ?? 0;
     }
-    public function custom_surcharge3(Credit $credit ) {
+    public function custom_surcharge3(Credit $credit)
+    {
         return $credit->custom_surcharge3 ?? 0;
     }
-    public function custom_surcharge4(Credit $credit ) {
+    public function custom_surcharge4(Credit $credit)
+    {
         return $credit->custom_surcharge4 ?? 0;
     }
-    public function custom_value1(Credit $credit ) {
+    public function custom_value1(Credit $credit)
+    {
         return $credit->custom_value1 ?? '';
     }
-    public function custom_value2(Credit $credit ) {
+    public function custom_value2(Credit $credit)
+    {
         return $credit->custom_value2 ?? '';
     }
-    public function custom_value3(Credit $credit ) {
+    public function custom_value3(Credit $credit)
+    {
         return $credit->custom_value3 ?? '';
     }
-    public function custom_value4(Credit $credit ) {
+    public function custom_value4(Credit $credit)
+    {
         return $credit->custom_value4 ?? '';
     }
-    public function exchange_rate(Credit $credit ) {
+    public function exchange_rate(Credit $credit)
+    {
         return $credit->exchange_rate ?? 0;
     }
-    public function total_taxes(Credit $credit ) {
+    public function total_taxes(Credit $credit)
+    {
         return $credit->total_taxes ?? 0;
     }
-    public function assigned_user_id(Credit $credit ) {
+    public function assigned_user_id(Credit $credit)
+    {
         return $credit->assigned_user ? $credit->assigned_user->present()->name(): '';
     }
-    public function user_id(Credit $credit ) {
+    public function user_id(Credit $credit)
+    {
         return $credit->user ? $credit->user->present()->name(): '';
     }
 

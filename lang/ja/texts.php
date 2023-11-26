@@ -1,6 +1,6 @@
 <?php
 
-$LANG = array(
+$LANG = [
     'organization' => '組織',
     'name' => '名前',
     'website' => 'WEBサイト',
@@ -5167,8 +5167,6 @@ $LANG = array(
     'in_stock_quantity' => 'Stock quantity',
     'vendor_contact' => 'Vendor Contact',
 
-); 
+];
 
 return $LANG;
-
-?>

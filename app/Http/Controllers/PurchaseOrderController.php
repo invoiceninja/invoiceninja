@@ -11,34 +11,34 @@
 
 namespace App\Http\Controllers;
 
-use App\Utils\Ninja;
-use App\Models\Client;
-use App\Models\Account;
-use App\Models\PurchaseOrder;
-use Illuminate\Http\Response;
-use App\Utils\Traits\MakesHash;
-use App\Jobs\Entity\CreateRawPdf;
-use App\Services\PdfMaker\PdfMerge;
-use App\Utils\Traits\SavesDocuments;
-use App\Factory\PurchaseOrderFactory;
-use App\Filters\PurchaseOrderFilters;
-use Illuminate\Support\Facades\Storage;
-use App\Services\Template\TemplateAction;
-use App\Jobs\PurchaseOrder\ZipPurchaseOrders;
-use App\Repositories\PurchaseOrderRepository;
-use App\Jobs\PurchaseOrder\PurchaseOrderEmail;
-use App\Transformers\PurchaseOrderTransformer;
 use App\Events\PurchaseOrder\PurchaseOrderWasCreated;
 use App\Events\PurchaseOrder\PurchaseOrderWasUpdated;
+use App\Factory\PurchaseOrderFactory;
+use App\Filters\PurchaseOrderFilters;
+use App\Http\Requests\PurchaseOrder\ActionPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\BulkPurchaseOrderRequest;
+use App\Http\Requests\PurchaseOrder\CreatePurchaseOrderRequest;
+use App\Http\Requests\PurchaseOrder\DestroyPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\EditPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\ShowPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\StorePurchaseOrderRequest;
-use App\Http\Requests\PurchaseOrder\ActionPurchaseOrderRequest;
-use App\Http\Requests\PurchaseOrder\CreatePurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\UpdatePurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\UploadPurchaseOrderRequest;
-use App\Http\Requests\PurchaseOrder\DestroyPurchaseOrderRequest;
+use App\Jobs\Entity\CreateRawPdf;
+use App\Jobs\PurchaseOrder\PurchaseOrderEmail;
+use App\Jobs\PurchaseOrder\ZipPurchaseOrders;
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\PurchaseOrder;
+use App\Repositories\PurchaseOrderRepository;
+use App\Services\PdfMaker\PdfMerge;
+use App\Services\Template\TemplateAction;
+use App\Transformers\PurchaseOrderTransformer;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 
 class PurchaseOrderController extends BaseController
 {

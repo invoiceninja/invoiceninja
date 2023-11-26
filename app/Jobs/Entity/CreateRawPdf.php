@@ -11,23 +11,23 @@
 
 namespace App\Jobs\Entity;
 
-use App\Models\Quote;
-use App\Models\Credit;
-use App\Models\Invoice;
-use App\Models\PurchaseOrder;
-use App\Models\QuoteInvitation;
-use App\Utils\Traits\MakesHash;
-use App\Models\CreditInvitation;
-use App\Models\RecurringInvoice;
-use App\Services\Pdf\PdfService;
-use App\Models\InvoiceInvitation;
-use App\Utils\Traits\Pdf\PdfMaker;
-use App\Utils\Traits\NumberFormatter;
-use App\Utils\Traits\MakesInvoiceHtml;
-use App\Models\PurchaseOrderInvitation;
-use App\Utils\Traits\Pdf\PageNumbering;
 use App\Exceptions\FilePermissionsFailure;
+use App\Models\Credit;
+use App\Models\CreditInvitation;
+use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
+use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderInvitation;
+use App\Models\Quote;
+use App\Models\QuoteInvitation;
+use App\Models\RecurringInvoice;
 use App\Models\RecurringInvoiceInvitation;
+use App\Services\Pdf\PdfService;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesInvoiceHtml;
+use App\Utils\Traits\NumberFormatter;
+use App\Utils\Traits\Pdf\PageNumbering;
+use App\Utils\Traits\Pdf\PdfMaker;
 
 class CreateRawPdf
 {
@@ -63,7 +63,7 @@ class CreateRawPdf
         } elseif ($invitation instanceof RecurringInvoiceInvitation) {
             $this->entity = $invitation->recurring_invoice;
             $this->entity_string = 'recurring_invoice';
-        } elseif ($invitation instanceof PurchaseOrderInvitation){        
+        } elseif ($invitation instanceof PurchaseOrderInvitation) {
             $this->entity = $invitation->purchase_order;
             $this->entity_string = 'purchase_order';
         }
@@ -72,8 +72,9 @@ class CreateRawPdf
 
     private function resolveType(): string
     {
-        if($this->type)
+        if($this->type) {
             return $this->type;
+        }
 
         $type = 'product';
 

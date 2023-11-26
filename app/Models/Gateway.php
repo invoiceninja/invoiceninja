@@ -90,7 +90,7 @@ class Gateway extends StaticModel
 
         if ($this->id == 1) {
             $link = 'http://reseller.authorize.net/application/?id=5560364';
-        } elseif (in_array($this->id,[15,60,61])) {
+        } elseif (in_array($this->id, [15,60,61])) {
             $link = 'https://www.paypal.com/us/cgi-bin/webscr?cmd=_login-api-run';
         } elseif ($this->id == 24) {
             $link = 'https://www.2checkout.com/referral?r=2c37ac2298';

@@ -111,7 +111,7 @@ class EmailPayment implements ShouldQueue
 
         $invoice = $this->payment->invoices->first();
 
-        $invoice->invitations->each(function ($invite) use ($email_builder){
+        $invoice->invitations->each(function ($invite) use ($email_builder) {
 
             $nmo = new NinjaMailerObject;
             $nmo->mailable = new TemplateEmail($email_builder, $invite->contact, $invite);

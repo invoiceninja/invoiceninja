@@ -11,16 +11,16 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Tests\MockAccountData;
-use Illuminate\Support\Str;
-use App\Utils\Traits\MakesHash;
-use App\Models\RecurringInvoice;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Session;
 use App\Jobs\Cron\RecurringExpensesCron;
-use Illuminate\Validation\ValidationException;
+use App\Models\RecurringInvoice;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test
@@ -47,7 +47,7 @@ class RecurringExpenseApiTest extends TestCase
         Model::reguard();
     }
 
-    public function testRecurringExpenseGenerationWithCurrencyConversion() 
+    public function testRecurringExpenseGenerationWithCurrencyConversion()
     {
         $r = \App\Models\RecurringExpense::factory()->create([
             'user_id' => $this->user->id,
@@ -67,7 +67,7 @@ class RecurringExpenseApiTest extends TestCase
 
         (new RecurringExpensesCron())->handle();
 
-        $expense = \App\Models\Expense::where('recurring_expense_id', $r->id)->orderBy('id','desc')->first();
+        $expense = \App\Models\Expense::where('recurring_expense_id', $r->id)->orderBy('id', 'desc')->first();
 
         $this->assertEquals($r->amount, $expense->amount);
         $this->assertEquals($r->currency_id, $expense->currency_id);
@@ -76,7 +76,7 @@ class RecurringExpenseApiTest extends TestCase
 
     }
 
-    public function testRecurringExpenseGenerationNullForeignCurrency() 
+    public function testRecurringExpenseGenerationNullForeignCurrency()
     {
         $r = \App\Models\RecurringExpense::factory()->create([
             'user_id' => $this->user->id,
@@ -95,7 +95,7 @@ class RecurringExpenseApiTest extends TestCase
 
         (new RecurringExpensesCron())->handle();
 
-        $expense = \App\Models\Expense::where('recurring_expense_id', $r->id)->orderBy('id','desc')->first();
+        $expense = \App\Models\Expense::where('recurring_expense_id', $r->id)->orderBy('id', 'desc')->first();
 
         $this->assertEquals($r->amount, $expense->amount);
         $this->assertEquals($r->currency_id, $expense->currency_id);
@@ -103,7 +103,7 @@ class RecurringExpenseApiTest extends TestCase
 
     }
 
-    public function testRecurringExpenseGeneration() 
+    public function testRecurringExpenseGeneration()
     {
         $r = \App\Models\RecurringExpense::factory()->create([
             'user_id' => $this->user->id,
@@ -121,7 +121,7 @@ class RecurringExpenseApiTest extends TestCase
 
         (new RecurringExpensesCron())->handle();
 
-        $expense = \App\Models\Expense::where('recurring_expense_id', $r->id)->orderBy('id','desc')->first();
+        $expense = \App\Models\Expense::where('recurring_expense_id', $r->id)->orderBy('id', 'desc')->first();
 
         $this->assertEquals($r->amount, $expense->amount);
         $this->assertEquals($r->currency_id, $expense->currency_id);

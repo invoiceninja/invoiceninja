@@ -11,54 +11,53 @@
 
 namespace App\Console\Commands;
 
-use stdClass;
-use Carbon\Carbon;
-use Faker\Factory;
-use App\Models\Task;
-use App\Models\User;
-use App\Utils\Ninja;
-use App\Models\Quote;
-use App\Models\Client;
-use App\Models\Credit;
-use App\Models\Vendor;
+use App\DataMapper\ClientRegistrationFields;
+use App\DataMapper\CompanySettings;
+use App\DataMapper\FeesAndLimits;
+use App\Events\Invoice\InvoiceWasCreated;
+use App\Events\RecurringInvoice\RecurringInvoiceWasCreated;
+use App\Factory\GroupSettingFactory;
+use App\Factory\InvoiceFactory;
+use App\Factory\InvoiceItemFactory;
+use App\Factory\RecurringInvoiceFactory;
+use App\Factory\SubscriptionFactory;
+use App\Helpers\Invoice\InvoiceSum;
+use App\Jobs\Company\CreateCompanyTaskStatuses;
+use App\Libraries\MultiDB;
 use App\Models\Account;
+use App\Models\BankIntegration;
+use App\Models\BankTransaction;
+use App\Models\BankTransactionRule;
+use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\Company;
+use App\Models\CompanyGateway;
+use App\Models\CompanyToken;
 use App\Models\Country;
+use App\Models\Credit;
 use App\Models\Expense;
-use App\Models\Gateway;
 use App\Models\Invoice;
 use App\Models\Product;
 use App\Models\Project;
-use App\Models\TaxRate;
-use App\Libraries\MultiDB;
-use App\Models\TaskStatus;
-use App\Models\CompanyToken;
-use App\Models\ClientContact;
-use App\Models\VendorContact;
-use App\Models\CompanyGateway;
-use App\Factory\InvoiceFactory;
-use App\Models\BankIntegration;
-use App\Models\BankTransaction;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Console\Command;
+use App\Models\Quote;
 use App\Models\RecurringInvoice;
-use App\DataMapper\FeesAndLimits;
-use App\DataMapper\CompanySettings;
-use App\Factory\InvoiceItemFactory;
-use App\Helpers\Invoice\InvoiceSum;
-use App\Models\BankTransactionRule;
-use App\Factory\GroupSettingFactory;
-use App\Factory\SubscriptionFactory;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Cache;
-use App\Utils\Traits\GeneratesCounter;
-use Illuminate\Support\Facades\Schema;
+use App\Models\Task;
+use App\Models\TaskStatus;
+use App\Models\TaxRate;
+use App\Models\User;
+use App\Models\Vendor;
+use App\Models\VendorContact;
 use App\Repositories\InvoiceRepository;
-use App\Factory\RecurringInvoiceFactory;
-use App\Events\Invoice\InvoiceWasCreated;
-use App\DataMapper\ClientRegistrationFields;
-use App\Jobs\Company\CreateCompanyTaskStatuses;
-use App\Events\RecurringInvoice\RecurringInvoiceWasCreated;
+use App\Utils\Ninja;
+use App\Utils\Traits\GeneratesCounter;
+use App\Utils\Traits\MakesHash;
+use Carbon\Carbon;
+use Faker\Factory;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
+use stdClass;
 
 class CreateSingleAccount extends Command
 {
@@ -508,7 +507,7 @@ class CreateSingleAccount extends Command
 
     private function createTask($client)
     {
-        $time_log = $this->createTimeLog(rand(1,20));
+        $time_log = $this->createTimeLog(rand(1, 20));
         $status = TaskStatus::where('company_id', $client->company_id)->get()->random();
         
         return Task::factory()->create([
@@ -517,8 +516,8 @@ class CreateSingleAccount extends Command
                 'time_log' => $time_log,
                 'description' => $this->faker->paragraph,
                 'status_id' => $status->id ?? null,
-                'number' => rand(10000,100000000),
-                'rate' => rand(1,150),
+                'number' => rand(10000, 100000000),
+                'rate' => rand(1, 150),
                 'client_id' => $client->id
             ]);
     }
@@ -537,7 +536,7 @@ class CreateSingleAccount extends Command
                 Carbon::now()->addSeconds($min)->timestamp,
                 Carbon::now()->addSeconds($min += $rando)->timestamp,
                 $this->faker->sentence,
-                rand(0,1) === 0 ? false : true
+                rand(0, 1) === 0 ? false : true
             ];
 
             $min += 300;
@@ -552,9 +551,9 @@ class CreateSingleAccount extends Command
                 'user_id' => $client->user->id,
                 'company_id' => $client->company->id,
                 'client_id' => $client->id,
-                'due_date' => now()->addSeconds(rand(100000,1000000))->format('Y-m-d'),
-                'budgeted_hours' => rand(100,1000),
-                'task_rate' => rand(1,200),
+                'due_date' => now()->addSeconds(rand(100000, 1000000))->format('Y-m-d'),
+                'budgeted_hours' => rand(100, 1000),
+                'task_rate' => rand(1, 200),
             ]);
 
         for($x=0; $x < rand(2, 5); $x++) {

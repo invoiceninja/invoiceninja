@@ -11,8 +11,8 @@
 
 namespace App\Http\Requests\Design;
 
-use App\Models\Account;
 use App\Http\Requests\Request;
+use App\Models\Account;
 use App\Utils\Traits\ChecksEntityStatus;
 
 class UpdateDesignRequest extends Request

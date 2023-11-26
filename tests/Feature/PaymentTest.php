@@ -355,16 +355,16 @@ class PaymentTest extends TestCase
 
         ];
 
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/payments/', $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments/', $data);
         // } catch (ValidationException $e) {
         //     $message = json_decode($e->validator->getMessageBag(), 1);
 
         $response->assertStatus(422);
 
-            // $this->assertTrue(array_key_exists('client_id', $message));
+        // $this->assertTrue(array_key_exists('client_id', $message));
         // }
     }
 
@@ -409,13 +409,13 @@ class PaymentTest extends TestCase
         $response = null;
 
         // try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/payments?include=invoices,paymentables', $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments?include=invoices,paymentables', $data);
         // } catch (ValidationException $e) {
-            // $message = json_decode($e->validator->getMessageBag(), 1);
-            // $this->assertNotNull($message);
+        // $message = json_decode($e->validator->getMessageBag(), 1);
+        // $this->assertNotNull($message);
         // }
 
 
@@ -471,17 +471,17 @@ class PaymentTest extends TestCase
         $response = false;
 
         // try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/payments?include=invoices', $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments?include=invoices', $data);
         // } catch (ValidationException $e) {
-            // $message = json_decode($e->validator->getMessageBag(), 1);
-            // $this->assertNotNull($message);
+        // $message = json_decode($e->validator->getMessageBag(), 1);
+        // $this->assertNotNull($message);
         // }
 
         // if ($response) {
-            $response->assertStatus(200);
+        $response->assertStatus(200);
         // }
     }
 
@@ -603,12 +603,12 @@ class PaymentTest extends TestCase
         $response = false;
 
         // try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/payments?include=invoices', $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments?include=invoices', $data);
         // } catch (ValidationException $e) {
-            // $message = json_decode($e->validator->getMessageBag(), 1);
+        // $message = json_decode($e->validator->getMessageBag(), 1);
         // }
 
         $arr = $response->json();
@@ -755,15 +755,15 @@ class PaymentTest extends TestCase
         ];
 
         // try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/payments?include=invoices', $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments?include=invoices', $data);
         // } catch (ValidationException $e) {
-            // $message = json_decode($e->validator->getMessageBag(), 1);
-            $response->assertStatus(422);
+        // $message = json_decode($e->validator->getMessageBag(), 1);
+        $response->assertStatus(422);
 
-            // $this->assertTrue(array_key_exists('amount', $message));
+        // $this->assertTrue(array_key_exists('amount', $message));
         // }
     }
 
@@ -810,26 +810,26 @@ class PaymentTest extends TestCase
         $response = false;
 
         // try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/payments?include=invoices', $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments?include=invoices', $data);
         // } catch (ValidationException $e) {
-            // $message = json_decode($e->validator->getMessageBag(), 1);
+        // $message = json_decode($e->validator->getMessageBag(), 1);
 
-            // $this->assertTrue(array_key_exists('amount', $message));
+        // $this->assertTrue(array_key_exists('amount', $message));
         // }
 
         // if ($response) {
-            $response->assertStatus(200);
+        $response->assertStatus(200);
 
-            $invoice = Invoice::find($this->decodePrimaryKey($invoice->hashed_id));
+        $invoice = Invoice::find($this->decodePrimaryKey($invoice->hashed_id));
 
-            $this->assertEquals($invoice->balance, 8);
+        $this->assertEquals($invoice->balance, 8);
 
-            $payment = $invoice->payments()->first();
+        $payment = $invoice->payments()->first();
 
-            $this->assertEquals($payment->applied, 2);
+        $this->assertEquals($payment->applied, 2);
         // }
     }
 
@@ -877,18 +877,18 @@ class PaymentTest extends TestCase
         $response = false;
 
         // try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->putJson('/api/v1/payments/'.$this->encodePrimaryKey($payment->id), $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/payments/'.$this->encodePrimaryKey($payment->id), $data);
         // } catch (ValidationException $e) {
-            // $message = json_decode($e->validator->getMessageBag(), 1);
+        // $message = json_decode($e->validator->getMessageBag(), 1);
 
-            // $this->assertTrue(array_key_exists('invoices', $message));
+        // $this->assertTrue(array_key_exists('invoices', $message));
         // }/
 
         // if ($response) {
-            $response->assertStatus(200);
+        $response->assertStatus(200);
         // }
     }
 
@@ -941,19 +941,19 @@ class PaymentTest extends TestCase
         $response = false;
 
         // try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->putJson('/api/v1/payments/'.$this->encodePrimaryKey($payment->id), $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/payments/'.$this->encodePrimaryKey($payment->id), $data);
         // } catch (ValidationException $e) {
-            // $message = json_decode($e->validator->getMessageBag(), 1);
-            // \Log::error(print_r($e->validator->getMessageBag(), 1));
+        // $message = json_decode($e->validator->getMessageBag(), 1);
+        // \Log::error(print_r($e->validator->getMessageBag(), 1));
 
-            // $this->assertTrue(array_key_exists('invoices', $message));
+        // $this->assertTrue(array_key_exists('invoices', $message));
         // }
 
         // if ($response) {
-            $response->assertStatus(422);
+        $response->assertStatus(422);
         // }
     }
 
@@ -1000,13 +1000,13 @@ class PaymentTest extends TestCase
         $response = false;
 
         // try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/payments/', $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments/', $data);
         // } catch (ValidationException $e) {
-            // $message = json_decode($e->validator->getMessageBag(), 1);
-            // \Log::error(print_r($e->validator->getMessageBag(), 1));
+        // $message = json_decode($e->validator->getMessageBag(), 1);
+        // \Log::error(print_r($e->validator->getMessageBag(), 1));
         // }
 
         $response->assertStatus(200);
@@ -1435,7 +1435,7 @@ class PaymentTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->postJson('/api/v1/payments?include=invoices', $data); 
+        ])->postJson('/api/v1/payments?include=invoices', $data);
 
         $arr = $response->json();
         $response->assertStatus(200);

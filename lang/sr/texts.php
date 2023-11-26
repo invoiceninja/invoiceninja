@@ -1,6 +1,6 @@
 <?php
 
-$LANG = array(
+$LANG = [
     'organization' => 'Organizacija',
     'name' => 'Ime',
     'website' => 'Sajt',
@@ -5167,8 +5167,6 @@ Kada budete imali iznose, vratite se na ovu stranicu sa načinima plaćanja i k
     'in_stock_quantity' => 'Stock quantity',
     'vendor_contact' => 'Vendor Contact',
 
-); 
+];
 
 return $LANG;
-
-?>

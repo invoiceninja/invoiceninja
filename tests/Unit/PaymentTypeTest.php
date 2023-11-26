@@ -11,9 +11,9 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
 use App\Models\PaymentType;
 use Illuminate\Support\Facades\Lang;
+use Tests\TestCase;
 
 /**
  * @test
@@ -32,8 +32,7 @@ class PaymentTypeTest extends TestCase
     {
         $payment_type_class = new PaymentType;
 
-        foreach($payment_type_class->type_names as $type)
-        {
+        foreach($payment_type_class->type_names as $type) {
             $this->assertTrue(Lang::has("texts.{$type}"));
         }
     }

@@ -11,19 +11,15 @@
 
 namespace Tests\Feature\Import\CSV;
 
-use Tests\TestCase;
-use App\Models\Task;
-use App\Models\Client;
-use App\Models\Vendor;
-use App\Models\Invoice;
-use App\Utils\TruthSource;
-use Tests\MockAccountData;
-use Illuminate\Support\Str;
 use App\Import\Providers\Csv;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Facades\Cache;
 use App\Import\Transformer\BaseTransformer;
+use App\Models\Task;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test
@@ -109,8 +105,7 @@ class TaskImportTest extends TestCase
 
         $time_log = json_decode($task->time_log);
 
-        foreach($time_log as $log)
-        {
+        foreach($time_log as $log) {
             $this->assertFalse($log[3]);
         }
 

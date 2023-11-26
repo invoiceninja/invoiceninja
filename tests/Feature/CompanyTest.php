@@ -11,19 +11,19 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\Company;
-use App\Models\TaxRate;
-use Tests\MockAccountData;
-use App\Models\CompanyToken;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Http\UploadedFile;
 use App\DataMapper\CompanySettings;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Session;
 use App\Http\Middleware\PasswordProtection;
+use App\Models\Company;
+use App\Models\CompanyToken;
+use App\Models\TaxRate;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test
@@ -86,7 +86,7 @@ class CompanyTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $company_update);
 
-            $response->assertStatus(200);
+        $response->assertStatus(200);
 
         $arr = $response->json();
 

@@ -21,7 +21,6 @@ use App\Models\SystemLog;
 use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
-use Omnipay\Omnipay;
 use Str;
 
 class PayPalPPCPPaymentDriver extends BaseDriver
@@ -65,7 +64,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
     ];
 
     /**
-     * Return an array of 
+     * Return an array of
      * enabled gateway payment methods
      *
      * @return array
@@ -74,9 +73,9 @@ class PayPalPPCPPaymentDriver extends BaseDriver
     {
 
         return collect($this->company_gateway->fees_and_limits)
-                ->filter(function ($fee){
+                ->filter(function ($fee) {
                     return $fee->is_enabled;
-                })->map(function ($fee, $key){
+                })->map(function ($fee, $key) {
                     return (int)$key;
                 })->toArray();
         
@@ -86,7 +85,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
     {
         $method = PaymentType::PAYPAL;
 
-        match($gateway_type_id){
+        match($gateway_type_id) {
             "1" => $method = PaymentType::CREDIT_CARD_OTHER,
             "3" => $method = PaymentType::PAYPAL,
             "25" => $method = PaymentType::VENMO,
@@ -132,7 +131,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
     /**
      * Initialize the Paypal gateway.
-     * 
+     *
      * Attempt to generate and return the access token.
      *
      * @return self
@@ -145,8 +144,9 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         $secret = config('ninja.paypal.secret');
         $client_id = config('ninja.paypal.client_id');
 
-        if($this->access_token && $this->token_expiry && $this->token_expiry->isFuture())
+        if($this->access_token && $this->token_expiry && $this->token_expiry->isFuture()) {
             return $this;
+        }
 
         $response = Http::withBasicAuth($client_id, $secret)
                                     ->withHeaders(['Content-Type' => 'application/x-www-form-urlencoded'])
@@ -194,7 +194,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
     private function checkPaymentsReceivable(): self
     {
 
-        if($this->company_gateway->getConfigField('status') != 'activated'){
+        if($this->company_gateway->getConfigField('status') != 'activated') {
 
             if (class_exists(\Modules\Admin\Services\PayPal\PayPalService::class)) {
                 $pp = new \Modules\Admin\Services\PayPal\PayPalService($this->company_gateway->company, $this->company_gateway->user);
@@ -203,8 +203,9 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                 $this->company_gateway = $this->company_gateway->fresh();
                 $config = $this->company_gateway->getConfig();
 
-                if($config->status == 'activated')
+                if($config->status == 'activated') {
                     return $this;
+                }
 
             }
 
@@ -241,8 +242,9 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
         $r = $this->gatewayRequest('/v1/identity/generate-token', 'post', ['body' => '']);
 
-        if($r->successful()) 
+        if($r->successful()) {
             return $r->json()['client_token'];
+        }
         
         throw new PaymentFailed('Unable to gain client token from Paypal. Check your configuration', 401);
 
@@ -278,8 +280,9 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
         } else {
 
-            if(isset($response['headers']) ?? false)
+            if(isset($response['headers']) ?? false) {
                 unset($response['headers']);
+            }
             
             SystemLogger::dispatch(
                 ['response' => $response],
@@ -360,7 +363,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
         $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
 
-        $description = collect($invoice->line_items)->map(function ($item){
+        $description = collect($invoice->line_items)->map(function ($item) {
             return $item->notes;
         })->implode("\n");
 
@@ -405,7 +408,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
             ];
 
             
-        if($shipping = $this->getShippingAddress()){
+        if($shipping = $this->getShippingAddress()) {
             $order['purchase_units'][0] = $shipping;
         }
 
@@ -417,9 +420,9 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
     }
 
-    private function getBillingAddress(): array 
+    private function getBillingAddress(): array
     {
-        return 
+        return
         [
             "address_line_1" => $this->client->address1,
             "address_line_2" => $this->client->address2,
@@ -432,10 +435,10 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
     private function getShippingAddress(): ?array
     {
-        return $this->company_gateway->require_shipping_address ? 
+        return $this->company_gateway->require_shipping_address ?
         [
             "shipping" =>  [
-                "address" => 
+                "address" =>
                 [
                     "address_line_1" => $this->client->shipping_address1,
                     "address_line_2" => $this->client->shipping_address2,

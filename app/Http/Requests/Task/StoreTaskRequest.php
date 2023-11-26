@@ -56,8 +56,9 @@ class StoreTaskRequest extends Request
 
         $rules['time_log'] = ['bail',function ($attribute, $values, $fail) {
             
-            if(is_string($values))
+            if(is_string($values)) {
                 $values = json_decode($values, true);
+            }
 
             if(!is_array($values)) {
                 $fail('The '.$attribute.' must be a valid array.');
@@ -119,7 +120,7 @@ class StoreTaskRequest extends Request
             }
         }
 
-        if(!isset($input['time_log']) || empty($input['time_log']) || $input['time_log'] == '{}'){
+        if(!isset($input['time_log']) || empty($input['time_log']) || $input['time_log'] == '{}') {
             $input['time_log'] = json_encode([]);
         }
 

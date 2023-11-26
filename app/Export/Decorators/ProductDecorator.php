@@ -27,9 +27,9 @@ class ProductDecorator implements DecoratorInterface
 
         if($product && method_exists($this, $key)) {
             return $this->{$key}($product);
-        }
-        elseif($product->{$key})
+        } elseif($product->{$key}) {
             return $product->{$key} ?? '';
+        }
 
         return '';
 
@@ -46,11 +46,12 @@ class ProductDecorator implements DecoratorInterface
         public const PRODUCT_TYPE_ZERO_RATED = 8;
         public const PRODUCT_TYPE_REVERSE_TAX = 9;
     */
-    public function tax_category(Product $product) {
+    public function tax_category(Product $product)
+    {
 
         $category = ctrans('texts.physical_goods');
         
-        match($product->tax_id){
+        match($product->tax_id) {
             1 => $category =  ctrans('texts.physical_goods'),
             2 => $category = ctrans('texts.services'),
             3 => $category =  ctrans('texts.digital_products'),
@@ -67,6 +68,3 @@ class ProductDecorator implements DecoratorInterface
     }
 
 }
-
-
-

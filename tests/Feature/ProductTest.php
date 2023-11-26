@@ -73,8 +73,7 @@ class ProductTest extends TestCase
                 'X-API-TOKEN' => $this->token,
             ])->post('/api/v1/products/bulk', $update)
             ->assertStatus(200);
-        }
-        catch(\Exception $e){
+        } catch(\Exception $e) {
             
         }
 

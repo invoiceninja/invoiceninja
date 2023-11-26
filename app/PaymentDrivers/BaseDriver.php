@@ -749,19 +749,19 @@ class BaseDriver extends AbstractPaymentDriver
 
         $invoices_string = str_replace(["*","<",">","'",'"'], "-", $invoices_string);
         
-// 2023-11-02 - improve the statement descriptor for string
+        // 2023-11-02 - improve the statement descriptor for string
 
-$company_name = $this->client->company->present()->name();
-$company_name = str_replace(["*","<",">","'",'"'], "-", $company_name);
+        $company_name = $this->client->company->present()->name();
+        $company_name = str_replace(["*","<",">","'",'"'], "-", $company_name);
 
-if(ctype_digit(substr($company_name, 0, 1))) {
-    $company_name = "I" . $company_name;
-}
+        if(ctype_digit(substr($company_name, 0, 1))) {
+            $company_name = "I" . $company_name;
+        }
 
-$company_name = substr($company_name, 0, 11);
-$descriptor = "{$company_name} {$invoices_string}";
-$descriptor = substr($descriptor, 0, 22);
-return $descriptor;
+        $company_name = substr($company_name, 0, 11);
+        $descriptor = "{$company_name} {$invoices_string}";
+        $descriptor = substr($descriptor, 0, 22);
+        return $descriptor;
 
     }
     /**

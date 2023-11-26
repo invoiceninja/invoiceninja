@@ -74,7 +74,7 @@ class HandleCancellation extends AbstractService
 
         $this->invoice->client->service()->updateBalance($adjustment)->save();
 
-$this->invoice->client->service()->calculateBalance();
+        $this->invoice->client->service()->calculateBalance();
 
 
         /* Pop the cancellation out of the backup*/

@@ -12,12 +12,12 @@
 namespace Tests\Unit\Tax;
 
 use App\DataProviders\USStates;
-use Tests\TestCase;
 use App\Models\Client;
-use Tests\MockAccountData;
 use App\Services\Tax\Providers\TaxProvider;
-use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test App\Services\Tax\Providers\EuTax
@@ -39,8 +39,9 @@ class TaxConfigTest extends TestCase
 
         $this->makeTestData();
 
-        if(!config('services.tax.zip_tax.key'))
+        if(!config('services.tax.zip_tax.key')) {
             $this->markTestSkipped('No API keys to test with.');
+        }
     }
 
     public TaxProvider $tp;
