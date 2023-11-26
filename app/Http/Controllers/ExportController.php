@@ -56,11 +56,14 @@ class ExportController extends BaseController
      */
     public function index(StoreExportRequest $request)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $hash = Str::uuid();
         $url = \Illuminate\Support\Facades\URL::temporarySignedRoute('protected_download', now()->addHour(), ['hash' => $hash]);
         Cache::put($hash, $url, now()->addHour());
 
-        CompanyExport::dispatch(auth()->user()->getCompany(), auth()->user(), $hash);
+        CompanyExport::dispatch($user->getCompany(), $user, $hash);
 
         return response()->json(['message' => 'Processing', 'url' => $url], 200);
     }

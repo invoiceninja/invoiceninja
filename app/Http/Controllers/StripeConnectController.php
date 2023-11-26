@@ -51,7 +51,7 @@ class StripeConnectController extends BaseController
         }
 
         $stripe_client_id = config('ninja.ninja_stripe_client_id');
-        $redirect_uri = 'https://invoicing.co/stripe/completed';
+        $redirect_uri = config('ninja.app_url').'/stripe/completed';
         $endpoint = "https://connect.stripe.com/oauth/authorize?response_type=code&client_id={$stripe_client_id}&redirect_uri={$redirect_uri}&scope=read_write&state={$token}";
 
         return redirect($endpoint);
@@ -139,9 +139,9 @@ class StripeConnectController extends BaseController
 
         // StripeWebhook::dispatch($company->company_key, $company_gateway->id);
         if(isset($request->getTokenContent()['is_react']) && $request->getTokenContent()['is_react']) {
-            $redirect_uri = 'https://app.invoicing.co/#/settings/online_payments';
+            $redirect_uri = config('ninja.react_url').'/#/settings/online_payments';
         } else {
-            $redirect_uri = 'https://invoicing.co/stripe/completed';
+            $redirect_uri = config('ninja.app_url').'/stripe/completed';
         }
 
         //response here

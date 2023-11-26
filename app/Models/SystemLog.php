@@ -148,6 +148,8 @@ class SystemLog extends Model
 
     const TYPE_RAZORPAY = 322;
 
+    const TYPE_PAYPAL_PPCP = 323;
+
     const TYPE_QUOTA_EXCEEDED = 400;
 
     const TYPE_UPSTREAM_FAILURE = 401;

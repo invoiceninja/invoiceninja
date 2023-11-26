@@ -47,7 +47,17 @@
                             {{ $task->project?->name }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
-                            {{ $task->status?->name }}
+                            <div class="flex">
+                            {!! $task->stringStatus() !!}
+
+                            @if($task->invoice_id && ($task->invoice->status_id != \App\Models\Invoice::STATUS_DRAFT || $task->invoice->status_id != \App\Models\Invoice::STATUS_CANCELLED || !$task->invoice->is_deleted))
+
+                            <a href="{{ route('client.invoice.show', $task->invoice->hashed_id) }}" class="button-link text-primary">
+                               <img src="{{ asset('images/svg/dark/file-text.svg') }}" class="w-5 h-5 fill-current text-white mr-3 ml-1">
+                            </a>
+
+                            @endif
+                            </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                             {{ \Carbon\CarbonInterval::seconds($task->calcDuration())->cascade()->forHumans() }}

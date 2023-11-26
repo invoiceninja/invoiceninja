@@ -173,7 +173,7 @@ class SearchController extends Controller
             'integrations,api_tokens' => '/settings/integrations/api_tokens',
             'integrations,api_webhooks' => '/settings/integrations/api_webhooks',
             'integrations,analytics' => '/settings/integrations/analytics',
-            'gateways' => '/settings/gateways',
+            'gateways' => '/settings/online_payments',
             'gateways,create' => '/settings/gateways/create',
             'bank_accounts,transaction_rules' => '/settings/bank_accounts/transaction_rules',
             'bank_accounts,transaction_rules/create' => '/settings/bank_accounts/transaction_rules/create',

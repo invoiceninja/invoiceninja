@@ -149,6 +149,15 @@ class QuoteExport extends BaseExport
             $entity['quote.invoice'] = $quote->invoice ? $quote->invoice->number : '';
         }
 
+        if (in_array('quote.assigned_user_id', $this->input['report_keys'])) {
+            $entity['quote.assigned_user_id'] = $quote->assigned_user ? $quote->assigned_user->present()->name(): '';
+        }
+            
+        if (in_array('quote.user_id', $this->input['report_keys'])) {
+            $entity['quote.user_id'] = $quote->user ? $quote->user->present()->name(): '';
+        }
+
+
         return $entity;
     }
 }

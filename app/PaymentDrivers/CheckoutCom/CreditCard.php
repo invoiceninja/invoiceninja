@@ -263,6 +263,16 @@ class CreditCard implements MethodInterface
 
             if (is_array($error_details)) {
                 $error_details = end($e->error_details['error_codes']);
+
+                SystemLogger::dispatch(
+                    $error_details,
+                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                    SystemLog::EVENT_GATEWAY_ERROR,
+                    SystemLog::TYPE_CHECKOUT,
+                    $this->checkout->client,
+                    $this->checkout->client->company,
+                );
+
             }
 
             $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
@@ -294,7 +304,7 @@ class CreditCard implements MethodInterface
             );
 
             return new PaymentFailed($e->getMessage(), $e->getCode());
-            // return $this->checkout->processInternallyFailedPayment($this->checkout, $human_exception);
+
         } catch (CheckoutAuthorizationException $e) {
             // Bad Invalid authorization
 

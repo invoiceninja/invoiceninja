@@ -157,6 +157,15 @@ class RecurringInvoiceExport extends BaseExport
             $entity['recurring_invoice.auto_bill_enabled'] = $invoice->auto_bill_enabled ? ctrans('texts.yes') : ctrans('texts.no');
         }
 
+        if (in_array('recurring_invoice.assigned_user_id', $this->input['report_keys'])) {
+            $entity['recurring_invoice.assigned_user_id'] = $invoice->assigned_user ? $invoice->assigned_user->present()->name() : '';
+        }
+
+        if (in_array('recurring_invoice.user_id', $this->input['report_keys'])) {
+            $entity['recurring_invoice.user_id'] = $invoice->user ? $invoice->user->present()->name() : '';
+        }
+
+
         return $entity;
     }
 }

@@ -23,6 +23,7 @@ use Laracasts\Presenter\PresentableTrait;
 use App\Utils\Traits\CompanySettingsSaver;
 use Illuminate\Notifications\Notification;
 use App\Models\Presenters\CompanyPresenter;
+use App\Services\Company\CompanyService;
 use App\Services\Notification\NotificationService;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -911,9 +912,14 @@ class Company extends BaseModel
 
     public function utc_offset(): int
     {
+        $offset = 0;
         $timezone = $this->timezone();
 
-        return $timezone->utc_offset ?? 0;
+        date_default_timezone_set('GMT');
+        $date = new \DateTime("now", new \DateTimeZone($timezone->name));
+        $offset = $date->getOffset();
+
+        return $offset;
     }
 
     public function timezone_offset(): int
@@ -932,7 +938,6 @@ class Company extends BaseModel
         $date = new \DateTime("now", new \DateTimeZone($timezone->name));
         $offset -= $date->getOffset();
 
-        // $offset -= $timezone->utc_offset;
         $offset += ($entity_send_time * 3600);
 
         return $offset;
@@ -968,6 +973,11 @@ class Company extends BaseModel
     public function getSslPassPhrase()
     {
         return $this->e_invoice_certificate_passphrase;
+    }
+
+    public function service(): CompanyService
+    {
+        return new CompanyService($this);
     }
 
 }

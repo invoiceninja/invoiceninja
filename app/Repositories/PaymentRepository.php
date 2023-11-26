@@ -128,7 +128,6 @@ class PaymentRepository extends BaseRepository
 
         /*Ensure payment number generated*/
         if (! $payment->number || strlen($payment->number) == 0) {
-            // $payment->number = $payment->client->getNextPaymentNumber($payment->client, $payment);
             $payment->service()->applyNumber();
         }
 

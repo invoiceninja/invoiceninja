@@ -229,7 +229,7 @@ class CompanySettings extends BaseSettings
     public $require_quote_signature = false;  //@TODO ben to confirm
 
     //email settings
-    public $email_sending_method = 'default'; //enum 'default','gmail','office365' 'client_postmark', 'client_mailgun'//@implemented
+    public $email_sending_method = 'default'; //enum 'default','gmail','office365' 'client_postmark', 'client_mailgun' //@implemented
 
     public $gmail_sending_user_id = '0'; //@implemented
 
@@ -491,7 +491,10 @@ class CompanySettings extends BaseSettings
 
     public $classification = ''; // individual, business, partnership, trust, charity, government, other
 
+    public $payment_email_all_contacts = false;
+
     public static $casts = [
+        'payment_email_all_contacts'         => 'bool',
         'statement_design_id'                => 'string',
         'delivery_note_design_id'            => 'string',
         'payment_receipt_design_id'          => 'string',

@@ -51,7 +51,7 @@ class YodleeController extends BaseController
             $this->getAccounts($company, $token);
         }
 
-        $redirect_url = isset($request->getTokenContent()['is_react']) && $request->getTokenContent()['is_react'] ? 'https://app.invoicing.co/#/' : 'https://invoicing.co/';
+        $redirect_url = isset($request->getTokenContent()['is_react']) && $request->getTokenContent()['is_react'] ? config('ninja.react_url') : config('ninja.app_url');
 
         $data = [
             'access_token' => $yodlee->getAccessToken(),

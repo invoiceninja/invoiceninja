@@ -11,40 +11,41 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\Quote\QuoteWasCreated;
-use App\Events\Quote\QuoteWasUpdated;
-use App\Factory\CloneQuoteFactory;
-use App\Factory\CloneQuoteToInvoiceFactory;
+use App\Utils\Ninja;
+use App\Models\Quote;
+use App\Models\Client;
+use App\Models\Account;
+use App\Models\Invoice;
+use App\Models\Project;
+use Illuminate\Http\Request;
 use App\Factory\QuoteFactory;
 use App\Filters\QuoteFilters;
-use App\Http\Requests\Quote\ActionQuoteRequest;
-use App\Http\Requests\Quote\BulkActionQuoteRequest;
-use App\Http\Requests\Quote\CreateQuoteRequest;
-use App\Http\Requests\Quote\DestroyQuoteRequest;
+use App\Jobs\Quote\ZipQuotes;
+use Illuminate\Http\Response;
+use App\Utils\Traits\MakesHash;
+use App\Factory\CloneQuoteFactory;
+use App\Services\PdfMaker\PdfMerge;
+use Illuminate\Support\Facades\App;
+use App\Utils\Traits\SavesDocuments;
+use App\Events\Quote\QuoteWasCreated;
+use App\Events\Quote\QuoteWasUpdated;
+use App\Repositories\QuoteRepository;
+use App\Transformers\QuoteTransformer;
+use App\Utils\Traits\GeneratesCounter;
+use Illuminate\Support\Facades\Storage;
+use App\Transformers\InvoiceTransformer;
+use App\Transformers\ProjectTransformer;
+use App\Services\Template\TemplateAction;
+use App\Factory\CloneQuoteToInvoiceFactory;
 use App\Http\Requests\Quote\EditQuoteRequest;
 use App\Http\Requests\Quote\ShowQuoteRequest;
 use App\Http\Requests\Quote\StoreQuoteRequest;
+use App\Http\Requests\Quote\ActionQuoteRequest;
+use App\Http\Requests\Quote\CreateQuoteRequest;
 use App\Http\Requests\Quote\UpdateQuoteRequest;
 use App\Http\Requests\Quote\UploadQuoteRequest;
-use App\Jobs\Quote\ZipQuotes;
-use App\Models\Account;
-use App\Models\Client;
-use App\Models\Invoice;
-use App\Models\Project;
-use App\Models\Quote;
-use App\Repositories\QuoteRepository;
-use App\Services\PdfMaker\PdfMerge;
-use App\Transformers\InvoiceTransformer;
-use App\Transformers\ProjectTransformer;
-use App\Transformers\QuoteTransformer;
-use App\Utils\Ninja;
-use App\Utils\Traits\GeneratesCounter;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\SavesDocuments;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\Quote\DestroyQuoteRequest;
+use App\Http\Requests\Quote\BulkActionQuoteRequest;
 
 /**
  * Class QuoteController.
@@ -517,9 +518,9 @@ class QuoteController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $action = request()->input('action');
+        $action = $request->input('action');
 
-        $ids = request()->input('ids');
+        $ids = $request->input('ids');
 
         if (Ninja::isHosted() && (stripos($action, 'email') !== false) && !$user->account->account_sms_verified) {
             return response(['message' => 'Please verify your account to send emails.'], 400);
@@ -583,6 +584,28 @@ class QuoteController extends BaseController
 
             return $this->listResponse(Quote::query()->withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
         }
+
+
+        if($action == 'template' && $user->can('view', $quotes->first())) {
+
+            $hash_or_response = $request->boolean('send_email') ? 'email sent' : \Illuminate\Support\Str::uuid();
+
+            TemplateAction::dispatch(
+                $ids,
+                $request->template_id,
+                Quote::class,
+                $user->id,
+                $user->company(),
+                $user->company()->db,
+                $hash_or_response,
+                $request->boolean('send_email')
+            );
+
+            return response()->json(['message' => $hash_or_response], 200);
+        }
+
+
+
 
         /*
          * Send the other actions to the switch
@@ -720,11 +743,9 @@ class QuoteController extends BaseController
                 break;
             case 'download':
 
-                $file = $quote->service()->getQuotePdf();
-
-                return response()->streamDownload(function () use ($file) {
-                    echo $file;
-                }, $quote->numberFormatter().".pdf", ['Content-Type' => 'application/pdf']);
+                return response()->streamDownload(function () use ($quote) {
+                    echo $quote->service()->getQuotePdf();
+                }, $quote->getFileName(), ['Content-Type' => 'application/pdf']);
 
             case 'restore':
                 $this->quote_repo->restore($quote);
@@ -833,11 +854,9 @@ class QuoteController extends BaseController
             $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
         }
 
-        $file = $quote->service()->getQuotePdf($contact);
-
-        return response()->streamDownload(function () use ($file) {
-            echo $file;
-        }, $quote->numberFormatter().".pdf", $headers);
+        return response()->streamDownload(function () use ($quote,$contact) {
+            echo $quote->service()->getQuotePdf($contact);
+        }, $quote->getFileName(), $headers);
 
     }
 

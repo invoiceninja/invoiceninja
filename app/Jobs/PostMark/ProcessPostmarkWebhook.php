@@ -388,7 +388,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
                         'delivery_message' => $event->Details->DeliveryMessage ?? $event->Details->Summary ?? '',
                         'server' => $event->Details->DestinationServer ??  '',
                         'server_ip' => $event->Details->DestinationIP ?? '',
-                        'date' => \Carbon\Carbon::parse($event->ReceivedAt)->format('Y-m-d H:m:s') ?? '',
+                        'date' => \Carbon\Carbon::parse($event->ReceivedAt)->format('Y-m-d H:i:s') ?? '',
                     ];
 
             })->toArray();

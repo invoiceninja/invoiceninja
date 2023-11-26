@@ -177,6 +177,14 @@ class CreditExport extends BaseExport
             $entity['credit.status'] = $credit->stringStatus($credit->status_id);
         }
 
+        if (in_array('credit.assigned_user_id', $this->input['report_keys'])) {
+            $entity['credit.assigned_user_id'] = $credit->assigned_user ? $credit->assigned_user->present()->name(): '';
+        }
+                            
+        if (in_array('credit.user_id', $this->input['report_keys'])) {
+            $entity['credit.user_id'] = $credit->user ? $credit->user->present()->name(): '';
+        }
+
         return $entity;
     }
 }
