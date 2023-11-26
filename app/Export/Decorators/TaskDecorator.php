@@ -11,10 +11,97 @@
 
 namespace App\Export\Decorators;
 
+use Carbon\Carbon;
+use App\Models\Task;
+use App\Models\Timezone;
+use App\Models\DateFormat;
+
 class TaskDecorator extends Decorator implements DecoratorInterface
 {
     public function transform(string $key, mixed $entity): mixed
     {
-        return 'Payment Decorator';
+        $task = false;
+
+        if($entity instanceof Task) {
+            $task = $entity;
+        } elseif($entity->task) {
+            $task = $entity->task;
+        }
+
+        if($task && method_exists($this, $key)) {
+            return $this->{$key}($task);
+        } elseif($task->{$key}) {
+            return $task->{$key} ?? '';
+        }
+
+        return '';
+
     }
+
+    public function start_date(Task $task){
+
+        $timezone = Timezone::find($task->company->settings->timezone_id);
+        $timezone_name = 'US/Eastern';
+
+        if ($timezone) {
+            $timezone_name = $timezone->name;
+        }
+
+        $logs = json_decode($task->time_log, 1);
+
+        $date_format_default = 'Y-m-d';
+
+        $date_format = DateFormat::find($task->company->settings->date_format_id);
+
+        if ($date_format) {
+            $date_format_default = $date_format->format;
+        }
+
+        if(is_array($logs)){
+            $item = $logs[0];
+            return Carbon::createFromTimeStamp($item[0])->setTimezone($timezone_name)->format($date_format_default);
+        }
+
+        return '';
+
+    }
+
+    public function end_date(Task $task){
+
+        $timezone = Timezone::find($task->company->settings->timezone_id);
+        $timezone_name = 'US/Eastern';
+
+        if ($timezone) {
+            $timezone_name = $timezone->name;
+        }
+
+        $logs = json_decode($task->time_log, 1);
+
+        $date_format_default = 'Y-m-d';
+
+        $date_format = DateFormat::find($task->company->settings->date_format_id);
+
+        if ($date_format) {
+            $date_format_default = $date_format->format;
+        }
+
+        if(is_array($logs)) {
+            $item = $logs[1];
+            return Carbon::createFromTimeStamp($item[1])->setTimezone($timezone_name)->format($date_format_default);
+        }
+
+        return '';
+
+    }
+    public function duration(Task $task){
+        return $task->calcDuration();
+    }
+    public function status_id(Task $task){
+        return $task->status()->exists() ? $task->status->name : '';
+    }
+    public function project_id(Task $task){
+        return $task->project()->exists() ? $task->project->name : '';
+    }
+
+
 }

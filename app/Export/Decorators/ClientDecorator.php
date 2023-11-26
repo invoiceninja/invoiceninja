@@ -141,35 +141,20 @@ class ClientDecorator extends Decorator implements DecoratorInterface
             ctrans("texts.{$client->classification}") ?? '';
         }
 
+        public function status(Client $client)
+        {
+            if ($client->is_deleted) {
+                return ctrans('texts.deleted');
+            }
 
+            if ($client->deleted_at) {
+                return ctrans('texts.archived');
+            }
 
-        ////////contact details/////////////////
-        /*
-        public function phone(Client $client) {
-
+            return ctrans('texts.active');
         }
-        public function first_name(Client $client) {
 
-        }
-        public function last_name(Client $client) {
 
-        }
-        public function email(Client $client) {
-
-        }
-        public function custom_value1(Client $client) {
-
-        }
-        public function custom_value2(Client $client) {
-
-        }
-        public function custom_value3(Client $client) {
-
-        }
-        public function custom_value4(Client $client) {
-
-        }
-        */
 
 
 }
