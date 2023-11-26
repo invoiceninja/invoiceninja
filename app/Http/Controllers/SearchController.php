@@ -65,12 +65,10 @@ class SearchController extends Controller
             $client->contacts->each(function ($contact) {
                 $this->client_contacts[] = [
                     'name' => $contact->present()->search_display(),
-                    'type' => '/client_contact',
-                    'id' => $contact->hashed_id,
-                    'path' => "/clients/{$contact->hashed_id}"
-                ];
-
-                                                
+                    'type' => '/client',
+                    'id' => $contact->client->hashed_id,
+                    'path' => "/clients/{$contact->client->hashed_id}"
+                ];  
             });
         }
                          
