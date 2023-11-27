@@ -102,6 +102,12 @@ class TemplateService
         });
         $this->twig->addFunction($function);
 
+        $function = new \Twig\TwigFunction('t', function ($string) {
+            return ctrans("texts.{$string}");
+        });
+
+        $this->twig->addFunction($function);
+
         $filter = new \Twig\TwigFilter('sum', function (?array $array, ?string $column) {
 
             if(!is_array($array)) {
@@ -408,6 +414,9 @@ class TemplateService
                 default => $processed = [],
             };
 
+            nlog($key);
+            nlog($processed);
+            
             return $processed;
 
         })->toArray();
@@ -519,6 +528,7 @@ class TemplateService
                             'balance' => $invoice->client->balance,
                             'payment_balance' => $invoice->client->payment_balance,
                             'credit_balance' => $invoice->client->credit_balance,
+                            'vat_number' => $invoice->client->vat_number ?? '',
                         ],
                         'payments' => $payments,
                         'total_tax_map' => $invoice->calc()->getTotalTaxMap(),
@@ -643,6 +653,7 @@ class TemplateService
                 'balance' => $payment->client->balance,
                 'payment_balance' => $payment->client->payment_balance,
                 'credit_balance' => $payment->client->credit_balance,
+                'vat_number' => $payment->client->vat_number ?? '',
             ],
             'paymentables' => $pivot,
             'refund_activity' => $this->getPaymentRefundActivity($payment),
@@ -719,6 +730,7 @@ class TemplateService
                             'balance' => $quote->client->balance,
                             'payment_balance' => $quote->client->payment_balance,
                             'credit_balance' => $quote->client->credit_balance,
+                            'vat_number' => $quote->client->vat_number ?? '',
                         ],
                 'status_id' =>$quote->status_id,
                 'status' => Quote::stringStatus($quote->status_id),
@@ -837,6 +849,7 @@ class TemplateService
                             'balance' => $credit->client->balance,
                             'payment_balance' => $credit->client->payment_balance,
                             'credit_balance' => $credit->client->credit_balance,
+                            'vat_number' => $credit->client->vat_number ?? '',
                         ],
                         'payments' => [],
                         'total_tax_map' => $credit->calc()->getTotalTaxMap(),
@@ -900,6 +913,7 @@ class TemplateService
                             'balance' => $task->client->balance,
                             'payment_balance' => $task->client->payment_balance,
                             'credit_balance' => $task->client->credit_balance,
+                            'vat_number' => $task->client->vat_number ?? '',
                         ] : [],
             ];
 
@@ -960,6 +974,7 @@ class TemplateService
                     'balance' => $project->client->balance,
                     'payment_balance' => $project->client->payment_balance,
                     'credit_balance' => $project->client->credit_balance,
+                    'vat_number' => $project->client->vat_number ?? '',
                 ] : [],
             'user' => $this->userInfo($project->user)
         ];
@@ -979,6 +994,7 @@ class TemplateService
             return [
                 'vendor' => $purchase_order->vendor ? [
                     'name' => $purchase_order->vendor->present()->name(),
+                    'vat_number' => $purchase_order->vendor->vat_number ?? '',
                 ] : [],
                 'amount' => (float)$purchase_order->amount,
                 'balance' => (float)$purchase_order->balance,
@@ -987,6 +1003,7 @@ class TemplateService
                     'balance' => $purchase_order->client->balance,
                     'payment_balance' => $purchase_order->client->payment_balance,
                     'credit_balance' => $purchase_order->client->credit_balance,
+                    'vat_number' => $purchase_order->client->vat_number ?? '',
                 ] : [],
                 'status_id' => (string)($purchase_order->status_id ?: 1),
                 'status' => PurchaseOrder::stringStatus($purchase_order->status_id ?? 1),
@@ -1201,7 +1218,7 @@ class TemplateService
         $this->client = $this->entity->client;
 
         $shipping_address = [
-            ['element' => 'p', 'content' => ctrans('texts.shipping_address'), 'properties' => ['data-ref' => 'shipping_address-label', 'style' => 'font-weight: bold; text-transform: uppercase']],
+            // ['element' => 'p', 'content' => ctrans('texts.shipping_address'), 'properties' => ['data-ref' => 'shipping_address-label', 'style' => 'font-weight: bold; text-transform: uppercase']],
             ['element' => 'p', 'content' => $this->client->name, 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.name']],
             ['element' => 'p', 'content' => $this->client->shipping_address1, 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.shipping_address1']],
             ['element' => 'p', 'content' => $this->client->shipping_address2, 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.shipping_address2']],

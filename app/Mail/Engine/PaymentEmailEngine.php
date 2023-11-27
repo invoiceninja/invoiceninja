@@ -197,6 +197,8 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data = [];
 
         $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
+        $data['$amount_paid'] = ['value' => '', 'label' => ctrans('texts.amount_paid')];
+        $data['$refund'] = ['value' => '', 'label' => ctrans('texts.refund')];
         $data['$to'] = ['value' => '', 'label' => ctrans('texts.to')];
         $data['$number'] = ['value' => $this->payment->number ?: '&nbsp;', 'label' => ctrans('texts.payment_number')];
         $data['$payment.number'] = &$data['$number'];
@@ -207,6 +209,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$amount'] = &$data['$payment.amount'];
         $data['$payment.date'] = ['value' => $this->translateDate($this->payment->date, $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.payment_date')];
         $data['$transaction_reference'] = ['value' => $this->payment->transaction_reference, 'label' => ctrans('texts.transaction_reference')];
+        $data['$reference'] = ['value' => '', 'label' => ctrans('texts.reference')];
         $data['$public_notes'] = ['value' => $this->payment->public_notes, 'label' => ctrans('texts.notes')];
 
         $data['$payment1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'payment1', $this->payment->custom_value1, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'payment1')];
