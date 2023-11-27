@@ -19,6 +19,8 @@ use Illuminate\Support\Carbon;
  * App\Models\Task
  *
  * @property int $id
+ * @property string|null $hash
+ * @property object|null $meta
  * @property int $user_id
  * @property int|null $assigned_user_id
  * @property int $company_id
@@ -118,6 +120,15 @@ class Task extends BaseModel
         'number',
         'is_date_based',
         'status_order',
+        'hash',
+        'meta',
+    ];
+    
+    protected $casts = [
+        'meta' => 'object',
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
     ];
 
     protected $touches = [];

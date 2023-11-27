@@ -71,4 +71,5 @@ class TaskStatus extends BaseModel
         'color',
         'status_order',
     ];
+
 }
