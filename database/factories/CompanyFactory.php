@@ -11,9 +11,9 @@
 
 namespace Database\Factories;
 
-use App\Utils\Traits\MakesHash;
-use App\DataMapper\Tax\TaxModel;
 use App\DataMapper\CompanySettings;
+use App\DataMapper\Tax\TaxModel;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class CompanyFactory extends Factory

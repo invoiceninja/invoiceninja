@@ -55,7 +55,7 @@ class VendorRepository extends BaseRepository
 
         if ($vendor->number == '' || ! $vendor->number) {
             $vendor->number = $this->getNextVendorNumber($vendor);
-        } 
+        }
 
         $vendor->saveQuietly();
 

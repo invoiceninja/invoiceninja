@@ -11,17 +11,17 @@
 
 namespace App\Export\CSV;
 
+use App\Export\Decorators\Decorator;
+use App\Libraries\MultiDB;
+use App\Models\Client;
+use App\Models\Company;
+use App\Transformers\ClientContactTransformer;
+use App\Transformers\ClientTransformer;
 use App\Utils\Ninja;
 use App\Utils\Number;
-use App\Models\Client;
-use League\Csv\Writer;
-use App\Models\Company;
-use App\Libraries\MultiDB;
-use Illuminate\Support\Facades\App;
-use App\Export\Decorators\Decorator;
-use App\Transformers\ClientTransformer;
 use Illuminate\Database\Eloquent\Builder;
-use App\Transformers\ClientContactTransformer;
+use Illuminate\Support\Facades\App;
+use League\Csv\Writer;
 
 class ClientExport extends BaseExport
 {

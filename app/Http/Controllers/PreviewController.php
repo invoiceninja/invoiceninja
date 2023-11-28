@@ -11,33 +11,31 @@
 
 namespace App\Http\Controllers;
 
-use App\Utils\Ninja;
-use App\Models\Client;
-use App\Models\Invoice;
-use App\Utils\HtmlEngine;
-use Twig\Error\SyntaxError;
-use App\Jobs\Util\PreviewPdf;
-use App\Models\ClientContact;
-use App\Services\Pdf\PdfMock;
-use App\Utils\Traits\MakesHash;
-use App\Services\Pdf\PdfService;
-use App\Utils\PhantomJS\Phantom;
-use App\Models\InvoiceInvitation;
-use App\Services\PdfMaker\Design;
-use App\Utils\HostedPDF\NinjaPdf;
-use Illuminate\Support\Facades\DB;
-use App\Services\PdfMaker\PdfMaker;
-use Illuminate\Support\Facades\App;
-use App\Utils\Traits\MakesInvoiceHtml;
-use Turbo124\Beacon\Facades\LightLogs;
-use App\Utils\Traits\Pdf\PageNumbering;
-use Illuminate\Support\Facades\Response;
 use App\DataMapper\Analytics\LivePreview;
-use App\Services\Template\TemplateService;
 use App\Http\Requests\Preview\DesignPreviewRequest;
-use App\Services\PdfMaker\Design as PdfDesignModel;
-use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Http\Requests\Preview\PreviewInvoiceRequest;
+use App\Jobs\Util\PreviewPdf;
+use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
+use App\Services\Pdf\PdfMock;
+use App\Services\Pdf\PdfService;
+use App\Services\PdfMaker\Design;
+use App\Services\PdfMaker\PdfMaker;
+use App\Services\Template\TemplateService;
+use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\HtmlEngine;
+use App\Utils\Ninja;
+use App\Utils\PhantomJS\Phantom;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesInvoiceHtml;
+use App\Utils\Traits\Pdf\PageNumbering;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Response;
+use Turbo124\Beacon\Facades\LightLogs;
+use Twig\Error\SyntaxError;
 
 class PreviewController extends BaseController
 {

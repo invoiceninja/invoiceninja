@@ -1,6 +1,6 @@
 <?php
 
-$LANG = array(
+$LANG = [
     'organization' => 'Yritys',
     'name' => 'Nimi',
     'website' => 'Kotisivu',
@@ -5167,8 +5167,6 @@ Kun saat summat, palaa tälle maksutapasivulle ja klikkaa "Saata loppuun todenta
     'in_stock_quantity' => 'Stock quantity',
     'vendor_contact' => 'Vendor Contact',
 
-); 
+];
 
 return $LANG;
-
-?>

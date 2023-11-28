@@ -47,7 +47,7 @@ class UpdateCompanyUserTest extends TestCase
             'react_settings' => [
                 'show_pdf_preview' => true,
                 'react_notification_link' => false
-            ], 
+            ],
         ];
 
         $response = null;

@@ -11,23 +11,15 @@
 
 namespace App\Listeners;
 
-use App\Utils\Ninja;
-use App\Libraries\MultiDB;
-use App\Mail\User\UserAdded;
-use Illuminate\Support\Carbon;
-use App\Jobs\Mail\NinjaMailerJob;
-use Illuminate\Support\Facades\App;
-use App\Jobs\Mail\NinjaMailerObject;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Http\Client\Events\ResponseReceived;
+use Illuminate\Queue\SerializesModels;
 
 class LogResponseReceived
 {
 
-        use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
      * Create the event listener.

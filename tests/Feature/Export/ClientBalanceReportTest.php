@@ -18,7 +18,6 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\User;
-use App\Services\Report\ARSummaryReport;
 use App\Services\Report\ClientBalanceReport;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;

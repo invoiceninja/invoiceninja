@@ -1,6 +1,6 @@
 <?php
 
-$LANG = array(
+$LANG = [
     'organization' => 'Entreprise',
     'name' => 'Nom',
     'website' => 'Site web',
@@ -5205,8 +5205,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'payment_email_all_contacts' => 'Courriel de paiement à tous les contacts',
     'payment_email_all_contacts_help' => 'Envoi un courriel de paiement à tous les contacts lorsqu\'activé',
     'add_line' => 'Ajouter une ligne',
-); 
+];
 
 return $LANG;
-
-?>

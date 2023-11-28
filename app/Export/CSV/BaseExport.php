@@ -760,7 +760,7 @@ class BaseExport
                 return $transformed_payment[$column];
             } elseif (array_key_exists(str_replace("payment.", "", $column), $transformed_payment)) {
                 return $transformed_payment[$column];
-            } 
+            }
 
             // nlog("export: Could not resolve payment key: {$column}");
 

@@ -104,7 +104,7 @@ class TemplateAction implements ShouldQueue
             ->where('company_id', $this->company->id)
             ->get();
 
-            // nlog($result->toArray());
+        // nlog($result->toArray());
 
         if($result->count() <= 1) {
             $data[$key] = collect($result);

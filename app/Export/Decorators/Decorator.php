@@ -11,22 +11,8 @@
 
 namespace App\Export\Decorators;
 
-
-use App\Models\Task;
-use App\Models\Quote;
-use App\Models\Client;
-use App\Models\Credit;
-use App\Models\Vendor;
-use App\Models\Expense;
-use App\Models\Invoice;
-use App\Models\Payment;
-use App\Models\Product;
-use App\Models\Project;
-use App\Models\PurchaseOrder;
-use App\Models\RecurringInvoice;
-use App\Export\Decorators\DecoratorInterface;
-
-class Decorator implements DecoratorInterface{
+class Decorator implements DecoratorInterface
+{
 
     public function __construct()
     {

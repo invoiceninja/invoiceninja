@@ -330,7 +330,7 @@ class PdfConfiguration
         }
     }
     
-    /** 
+    /**
      * Formats a given value based on the clients currency.
      *
      * @param  float  $value    The number to be formatted

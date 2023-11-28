@@ -1,22 +1,21 @@
 <?php
 
-use App\Utils\Ninja;
-use App\Models\Account;
-use App\Utils\PhantomJS\Phantom;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\BaseController;
-use App\Http\Controllers\QuoteController;
+use App\Http\Controllers\Auth\ContactForgotPasswordController;
+use App\Http\Controllers\Auth\ContactLoginController;
+use App\Http\Controllers\Auth\ContactRegisterController;
+use App\Http\Controllers\Auth\ContactResetPasswordController;
+use App\Http\Controllers\ClientPortal\PaymentMethodController;
+use App\Http\Controllers\ClientPortal\PrePaymentController;
+use App\Http\Controllers\ClientPortal\SubscriptionController;
+use App\Http\Controllers\ClientPortal\TaskController;
 use App\Http\Controllers\CreditController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\RecurringInvoiceController;
-use App\Http\Controllers\Auth\ContactLoginController;
-use App\Http\Controllers\ClientPortal\TaskController;
-use App\Http\Controllers\Auth\ContactRegisterController;
-use App\Http\Controllers\ClientPortal\PrePaymentController;
-use App\Http\Controllers\Auth\ContactResetPasswordController;
-use App\Http\Controllers\ClientPortal\SubscriptionController;
-use App\Http\Controllers\Auth\ContactForgotPasswordController;
-use App\Http\Controllers\ClientPortal\PaymentMethodController;
+use App\Models\Account;
+use App\Utils\Ninja;
+use App\Utils\PhantomJS\Phantom;
+use Illuminate\Support\Facades\Route;
 
 Route::get('client', [ContactLoginController::class, 'showLoginForm'])->name('client.catchall')->middleware(['domain_db', 'contact_account','locale', 'throttle:portal']); //catch all
 

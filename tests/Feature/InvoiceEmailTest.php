@@ -11,16 +11,16 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\SystemLog;
-use Tests\MockAccountData;
 use App\Jobs\Entity\EmailEntity;
+use App\Models\SystemLog;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test
@@ -103,7 +103,7 @@ class InvoiceEmailTest extends TestCase
                 ->orderBy('id', 'DESC')
                 ->count();
 
-            $this->assertEquals(1, $count);
+        $this->assertEquals(1, $count);
     }
 
     public function testEntityEmailHistory()

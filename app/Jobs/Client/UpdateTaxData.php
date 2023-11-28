@@ -63,8 +63,8 @@ class UpdateTaxData implements ShouldQueue
         
             if (!$this->client->state && $this->client->postal_code) {
 
-                $this->client->state = USStates::getState($this->client->postal_code);
-                $this->client->saveQuietly();
+                $this->client->update(['state' => USStates::getState($this->client->postal_code)]);
+                // $this->client->saveQuietly();
 
             }
 

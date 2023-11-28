@@ -3,8 +3,6 @@
 use App\Models\GatewayType;
 use App\Models\PaymentType;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     /**
@@ -16,8 +14,7 @@ return new class extends Migration {
     {
         $pt = PaymentType::find(49);
 
-        if(!$pt)
-        {
+        if(!$pt) {
             $type = new PaymentType();
             $type->id = 49;
             $type->name = 'BACS';
@@ -27,8 +24,7 @@ return new class extends Migration {
 
         $gt = GatewayType::find(24);
 
-        if(!$gt)
-        {
+        if(!$gt) {
             $type = new GatewayType();
             $type->id = 24;
             $type->alias = 'bacs';

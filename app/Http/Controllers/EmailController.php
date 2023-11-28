@@ -71,8 +71,9 @@ class EmailController extends BaseController
 
         if ($request->cc_email && (Ninja::isSelfHost() || $user->account->isPaidHostedClient())) {
  
-            foreach($request->cc_email as $email)
+            foreach($request->cc_email as $email) {
                 $mo->cc[] = new Address($email);
+            }
 
         }
 

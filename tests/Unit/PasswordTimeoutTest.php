@@ -11,10 +11,10 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use Tests\MockAccountData;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Cache;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test

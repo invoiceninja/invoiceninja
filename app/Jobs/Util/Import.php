@@ -364,23 +364,27 @@ class Import implements ShouldQueue
             if (isset($data['plan_expires'])) {
                 unset($data['plan_expires']);
             }
-        }
-        else {
+        } else {
 
-            if(isset($data['plan']))
+            if(isset($data['plan'])) {
                 $account->plan = $data['plan'];
+            }
             
-            if (isset($data['plan_term']))
+            if (isset($data['plan_term'])) {
                 $account->plan_term = $data['plan_term'];
+            }
             
-            if (isset($data['plan_paid']))
+            if (isset($data['plan_paid'])) {
                 $account->plan_paid = $data['plan_paid'];
+            }
 
-            if (isset($data['plan_started']))
+            if (isset($data['plan_started'])) {
                 $account->plan_started = $data['plan_started'];
+            }
 
-            if (isset($data['plan_expires']))            
+            if (isset($data['plan_expires'])) {
                 $account->plan_expires = $data['plan_expires'];
+            }
 
         }
 

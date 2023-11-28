@@ -3,6 +3,7 @@
 namespace App\Libraries\OAuth\Providers;
 
 use Google_Client;
+
 class Google implements ProviderInterface
 {
     public function getTokenResponse($token)
@@ -38,8 +39,7 @@ class Google implements ProviderInterface
 
         try {
             $userInfo = $oauth2->userinfo->get();
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             return false;
         }
 

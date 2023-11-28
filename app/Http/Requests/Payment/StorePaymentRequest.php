@@ -97,7 +97,7 @@ class StorePaymentRequest extends Request
         }
 
         if (! isset($input['idempotency_key'])) {
-            $input['idempotency_key'] = substr(sha1(json_encode($input)).time()."{$input['date']}{$input['amount']}{$user->id}",0,64);
+            $input['idempotency_key'] = substr(sha1(json_encode($input)).time()."{$input['date']}{$input['amount']}{$user->id}", 0, 64);
         }
 
         $this->replace($input);

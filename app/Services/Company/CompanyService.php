@@ -11,11 +11,12 @@
 
 namespace App\Services\Company;
 
-use App\Models\User;
-use App\Models\Company;
 use App\Factory\TaxRateFactory;
+use App\Models\Company;
+use App\Models\User;
 
-class CompanyService{
+class CompanyService
+{
 
     public function __construct(public Company $company)
     {
@@ -67,7 +68,7 @@ class CompanyService{
                 $tax_rate->save();
             }
 
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             nlog($e->getMessage());
         }
         

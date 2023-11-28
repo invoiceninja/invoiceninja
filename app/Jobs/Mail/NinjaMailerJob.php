@@ -24,7 +24,6 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\SystemLog;
 use App\Models\User;
-use App\Repositories\ActivityRepository;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use GuzzleHttp\Exception\ClientException;

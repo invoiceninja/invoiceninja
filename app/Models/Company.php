@@ -11,22 +11,21 @@
 
 namespace App\Models;
 
-use App\Utils\Ninja;
 use App\Casts\EncryptedCast;
-use App\Models\VendorContact;
-use App\Utils\Traits\AppSetup;
-use App\Utils\Traits\MakesHash;
 use App\DataMapper\CompanySettings;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Cache;
-use Laracasts\Presenter\PresentableTrait;
-use App\Utils\Traits\CompanySettingsSaver;
-use Illuminate\Notifications\Notification;
 use App\Models\Presenters\CompanyPresenter;
 use App\Services\Company\CompanyService;
 use App\Services\Notification\NotificationService;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Utils\Ninja;
+use App\Utils\Traits\AppSetup;
+use App\Utils\Traits\CompanySettingsSaver;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cache;
+use Laracasts\Presenter\PresentableTrait;
 
 /**
  * App\Models\Company

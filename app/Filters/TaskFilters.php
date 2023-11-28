@@ -97,6 +97,16 @@ class TaskFilters extends QueryFilters
         return $this->builder->where('project_id', $this->decodePrimaryKey($project));
     }
     
+    public function hash(string $hash = ''): Builder
+    {
+        if (strlen($hash) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->where('hash', $hash);
+        
+    }
+
     public function number(string $number = ''): Builder
     {
         if (strlen($number) == 0) {

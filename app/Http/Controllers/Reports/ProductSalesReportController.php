@@ -11,14 +11,14 @@
 
 namespace App\Http\Controllers\Reports;
 
-use App\Models\Client;
-use Illuminate\Http\Response;
-use App\Utils\Traits\MakesHash;
-use App\Jobs\Report\SendToAdmin;
-use App\Jobs\Report\PreviewReport;
 use App\Export\CSV\ProductSalesExport;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Report\ProductSalesReportRequest;
+use App\Jobs\Report\PreviewReport;
+use App\Jobs\Report\SendToAdmin;
+use App\Models\Client;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Http\Response;
 
 class ProductSalesReportController extends BaseController
 {

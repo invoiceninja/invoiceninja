@@ -77,7 +77,7 @@ class BaseTransformer
     }
 
     public function getString($data, $field)
-    {   
+    {
         return isset($data[$field]) && $data[$field] ? trim($data[$field]) : '';
     }
 
@@ -677,8 +677,9 @@ class BaseTransformer
      */
     public function getProjectId($name, $clientId = null)
     {
-        if(strlen($name) == 0)
+        if(strlen($name) == 0) {
             return null;
+        }
         
         $project = Project::query()->where('company_id', $this->company->id)
             ->where('is_deleted', false)

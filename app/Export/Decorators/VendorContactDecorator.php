@@ -11,10 +11,29 @@
 
 namespace App\Export\Decorators;
 
+use App\Models\VendorContact;
+
 class VendorContactDecorator implements DecoratorInterface
 {
     public function transform(string $key, mixed $entity): mixed
     {
-        return 'Payment Decorator';
+        $contact = false;
+
+        if($entity instanceof VendorContact) {
+            $contact = $entity;
+        } elseif($entity->contacts) {
+            $contact = $entity->contacts()->first();
+        }
+
+        if($contact && method_exists($this, $key)) {
+            return $this->{$key}($contact);
+        } elseif($contact->{$key}) {
+            return $contact->{$key} ?? '';
+        }
+
+        return '';
+
     }
+
+
 }

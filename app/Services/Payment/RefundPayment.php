@@ -149,7 +149,7 @@ class RefundPayment
         $fields->user_id = $this->payment->user_id;
         $fields->company_id = $this->payment->company_id;
         $fields->activity_type_id = Activity::REFUNDED_PAYMENT;
-        $fields->client_id = $this->payment->client_id; 
+        $fields->client_id = $this->payment->client_id;
         // $fields->credit_id // TODO
         $fields->notes = $notes;
 

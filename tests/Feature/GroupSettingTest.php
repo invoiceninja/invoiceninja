@@ -11,13 +11,12 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Tests\MockAccountData;
+use App\DataMapper\Settings\SettingsData;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Session;
-use App\DataMapper\Settings\SettingsData;
-use Spatie\LaravelData\Support\Wrapping\WrapExecutionType;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 class GroupSettingTest extends TestCase
 {
@@ -114,7 +113,7 @@ class GroupSettingTest extends TestCase
     
         $arr = $response->json();
 
-        $this->assertEquals("", (string)NULL);
+        $this->assertEquals("", (string)null);
         $this->assertNotNull($arr['data']['settings']['tax_name1']);
     }
             

@@ -74,12 +74,12 @@ class SendEmailRequest extends Request
             $input['entity'] = "App\Models\\".ucfirst(Str::camel($input['entity']));
         }
 
-        if(isset($input['cc_email'])){
-            $input['cc_email'] = collect(explode(",", $input['cc_email']))->map(function($email){
+        if(isset($input['cc_email'])) {
+            $input['cc_email'] = collect(explode(",", $input['cc_email']))->map(function ($email) {
                 return trim($email);
-            })->filter(function($email){
+            })->filter(function ($email) {
                 return filter_var($email, FILTER_VALIDATE_EMAIL);
-            })->slice(0,4)->toArray();
+            })->slice(0, 4)->toArray();
         }
 
         $this->replace($input);

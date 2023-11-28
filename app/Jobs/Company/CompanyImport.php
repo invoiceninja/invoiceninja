@@ -16,7 +16,6 @@ use App\Exceptions\NonExistingMigrationFile;
 use App\Factory\ClientContactFactory;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
-use App\Jobs\Ninja\TaskScheduler;
 use App\Libraries\MultiDB;
 use App\Mail\Import\CompanyImportFailure;
 use App\Mail\Import\ImportCompleted;
@@ -218,7 +217,7 @@ class CompanyImport implements ShouldQueue
         'baseline' => [],
         '5.7.35' => [
             Payment::class => [
-                'refund_meta', 
+                'refund_meta',
                 'category_id',
             ],
             User::class => [
@@ -462,7 +461,7 @@ class CompanyImport implements ShouldQueue
 
         $this->company->save();
 
-            return $this;
+        return $this;
     }
 
     private function purgeCompanyData()
@@ -1367,8 +1366,9 @@ class CompanyImport implements ShouldQueue
     private function filterVersionProps($class, array $obj_array): array
     {
 
-        if($this->current_app_version == $this->import_version)
+        if($this->current_app_version == $this->import_version) {
             return $obj_array;
+        }
 
         $version_index = 0;
         $index = 0;
@@ -1390,9 +1390,9 @@ class CompanyImport implements ShouldQueue
                 return $collection->slice($version_index)->pluck($class)->filter();
             });
 
-            return collect($obj_array)->diffKeys($filters->flatten()->flip())->toArray();
+        return collect($obj_array)->diffKeys($filters->flatten()->flip())->toArray();
 
-    } 
+    }
         
     private function genericNewClassImport($class, $unset, $transforms, $object_property)
     {
@@ -1415,7 +1415,7 @@ class CompanyImport implements ShouldQueue
                     $obj_array['gateway_key'] = 'd14dd26a37cecc30fdd65700bfb55b23';
                 }
 
-                if(!isset($obj_array['fees_and_limits'])){
+                if(!isset($obj_array['fees_and_limits'])) {
                     $obj_array['fees_and_limits'] = \json_encode([]);
                 }
             }
@@ -1467,16 +1467,16 @@ class CompanyImport implements ShouldQueue
                 /** @var \stdClass $parameters */
                 $parameters = $obj_array['parameters'];
 
-                if(isset($parameters->clients)){
+                if(isset($parameters->clients)) {
 
                     $parameters->clients =
-                    collect($parameters->clients)->map(function ($client_hash){
+                    collect($parameters->clients)->map(function ($client_hash) {
                         return $this->encodePrimaryKey($this->transformId('clients', $client_hash));
                     })->toArray();
 
                 }
 
-                if(isset($parameters->entity_id)){
+                if(isset($parameters->entity_id)) {
                     $parameters->entity_id = $this->encodePrimaryKey($this->transformId($parameters->entity."s", $parameters->entity_id));
                 }
 
@@ -1485,7 +1485,7 @@ class CompanyImport implements ShouldQueue
 
             $new_obj = new $class();
             $new_obj->company_id = $this->company->id;
-            $obj_array = $this->filterVersionProps($class,$obj_array);
+            $obj_array = $this->filterVersionProps($class, $obj_array);
 
             $new_obj->fill($obj_array);
 

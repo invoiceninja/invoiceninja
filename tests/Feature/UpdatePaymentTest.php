@@ -11,18 +11,17 @@
 
 namespace Tests\Feature;
 
-use Carbon\Carbon;
-use Tests\TestCase;
-use App\Models\Client;
-use Tests\MockAccountData;
 use App\Factory\InvoiceFactory;
-use App\Utils\Traits\MakesHash;
 use App\Helpers\Invoice\InvoiceSum;
+use App\Models\Client;
+use App\Utils\Traits\MakesHash;
+use Carbon\Carbon;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Foundation\Testing\WithoutEvents;
-use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test
@@ -60,7 +59,7 @@ class UpdatePaymentTest extends TestCase
 
         $this->assertNotNull($payment);
 
-        $payment->paymentables()->each(function ($pivot){
+        $payment->paymentables()->each(function ($pivot) {
 
             $this->assertTrue(Carbon::createFromTimestamp($pivot->created_at)->isToday());
         });

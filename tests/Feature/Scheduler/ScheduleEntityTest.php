@@ -11,17 +11,13 @@
 
 namespace Tests\Feature\Scheduler;
 
-use Carbon\Carbon;
-use Tests\TestCase;
-use App\Models\Client;
-use App\Models\Scheduler;
-use Tests\MockAccountData;
-use App\Utils\Traits\MakesHash;
 use App\Models\RecurringInvoice;
-use App\Factory\SchedulerFactory;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\Session;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test
@@ -96,7 +92,7 @@ class ScheduleEntityTest extends TestCase
 
     }
 
-        public function testSchedulerStore4()
+    public function testSchedulerStore4()
     {
 
         $data = [

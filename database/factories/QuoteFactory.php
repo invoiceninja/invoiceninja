@@ -11,8 +11,8 @@
 
 namespace Database\Factories;
 
-use App\Models\Quote;
 use App\Factory\InvoiceItemFactory;
+use App\Models\Quote;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class QuoteFactory extends Factory

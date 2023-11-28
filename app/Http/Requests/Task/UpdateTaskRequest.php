@@ -60,6 +60,8 @@ class UpdateTaskRequest extends Request
             $rules['project_id'] = 'bail|required|exists:projects,id,company_id,'.$user->company()->id.',is_deleted,0';
         }
 
+        $rules['hash'] = 'bail|sometimes|string|nullable';
+
         $rules['time_log'] = ['bail', function ($attribute, $values, $fail) {
 
             if(is_string($values)) {

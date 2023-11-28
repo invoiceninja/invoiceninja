@@ -66,47 +66,47 @@ class CompanyDocumentsTest extends TestCase
         // $this->assertFalse(Storage::exists($document->url));
     }
 
-//     public function testSignedRoutes()
-//     {
+    //     public function testSignedRoutes()
+    //     {
 
-//         $company_key = $this->company->company_key;
+    //         $company_key = $this->company->company_key;
 
-//         $original_count = Document::whereCompanyId($this->company->id)->count();
+    //         $original_count = Document::whereCompanyId($this->company->id)->count();
 
-//         $image = UploadedFile::fake()->image('avatar.jpg');
-
-
-//         $document = (new UploadFile(
-//             $image,
-//             UploadFile::IMAGE,
-//             $this->user,
-//             $this->company,
-//             $this->invoice))->handle();
-
-//         $this->assertNotNull($document);
-
-//         // $url = \Illuminate\Support\Facades\URL::signedRoute('api.documents.show', ['document' => $document->hashed_id]);
-//         $url =  \Illuminate\Support\Facades\URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]);
- 
-// nlog($url);
-
-//         $response = $this->withHeaders([
-//             'X-API-SECRET' => config('ninja.api_secret'),
-//             'X-API-TOKEN' => $this->token,
-//         ])->get($url);
+    //         $image = UploadedFile::fake()->image('avatar.jpg');
 
 
-//     $content = $response->streamedContent();
-// nlog($content);
+    //         $document = (new UploadFile(
+    //             $image,
+    //             UploadFile::IMAGE,
+    //             $this->user,
+    //             $this->company,
+    //             $this->invoice))->handle();
+
+    //         $this->assertNotNull($document);
+
+    //         // $url = \Illuminate\Support\Facades\URL::signedRoute('api.documents.show', ['document' => $document->hashed_id]);
+    //         $url =  \Illuminate\Support\Facades\URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]);
+    
+    // nlog($url);
+
+    //         $response = $this->withHeaders([
+    //             'X-API-SECRET' => config('ninja.api_secret'),
+    //             'X-API-TOKEN' => $this->token,
+    //         ])->get($url);
 
 
-//         $response->assertStatus(200);
-
-//         $arr = $response->json();
-
+    //     $content = $response->streamedContent();
+    // nlog($content);
 
 
-//         $this->assertFalse($arr);
+    //         $response->assertStatus(200);
 
-//     }
+    //         $arr = $response->json();
+
+
+
+    //         $this->assertFalse($arr);
+
+    //     }
 }

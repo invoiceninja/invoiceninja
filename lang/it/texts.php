@@ -1,6 +1,6 @@
 <?php
 
-$LANG = array(
+$LANG = [
     'organization' => 'Organizzazione',
     'name' => 'Nome',
     'website' => 'Sito web',
@@ -5174,8 +5174,6 @@ $LANG = array(
     'payment_receipt' => 'Payment Receipt # :number',
     'load_template_description' => 'The template will be applied to following:',
     'run_template' => 'Run template',
-); 
+];
 
 return $LANG;
-
-?>

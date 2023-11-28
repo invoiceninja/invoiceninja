@@ -11,28 +11,27 @@
 
 namespace Tests\Feature\Export;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Client;
-use App\Models\Credit;
-use League\Csv\Reader;
-use App\Models\Account;
-use App\Models\Company;
-use App\Models\Expense;
-use App\Models\Invoice;
-use App\Models\CompanyToken;
-use App\Models\ClientContact;
-use App\Export\CSV\TaskExport;
-use App\Utils\Traits\MakesHash;
-use App\Export\CSV\VendorExport;
+use App\DataMapper\CompanySettings;
 use App\Export\CSV\PaymentExport;
 use App\Export\CSV\ProductExport;
-use App\DataMapper\CompanySettings;
-use App\DataMapper\InvoiceItem;
+use App\Export\CSV\TaskExport;
+use App\Export\CSV\VendorExport;
 use App\Factory\CompanyUserFactory;
 use App\Factory\InvoiceItemFactory;
-use Illuminate\Support\Facades\Http;
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\Company;
+use App\Models\CompanyToken;
+use App\Models\Credit;
+use App\Models\Expense;
+use App\Models\Invoice;
+use App\Models\User;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\Http;
+use League\Csv\Reader;
+use Tests\TestCase;
 
 /**
  * @test
@@ -59,8 +58,9 @@ class ReportCsvGenerationTest extends TestCase
 
         $this->buildData();
 
-        if (config('ninja.testvars.travis') !== false) 
+        if (config('ninja.testvars.travis') !== false) {
             $this->markTestSkipped('Skip test no company gateways installed');
+        }
 
     }
 
@@ -354,7 +354,7 @@ class ReportCsvGenerationTest extends TestCase
 
         $query = Invoice::query();
 
-        $query->where(function ($q) use($products){
+        $query->where(function ($q) use ($products) {
             foreach($products as $product) {
                 $q->orWhereJsonContains('line_items', ['product_key' => $product]);
             }
@@ -364,8 +364,8 @@ class ReportCsvGenerationTest extends TestCase
 
         $query = Invoice::query();
 
-        $query->where(function ($q){
-                $q->orWhereJsonContains('line_items', ['product_key' => 'bob the builder']);
+        $query->where(function ($q) {
+            $q->orWhereJsonContains('line_items', ['product_key' => 'bob the builder']);
         });
 
         $this->assertEquals(1, $query->count());
@@ -400,46 +400,46 @@ class ReportCsvGenerationTest extends TestCase
         
         $q->forceDelete();
         
-            Invoice::factory()->create(
-                [
-                    'company_id' => $this->company->id,
-                    'user_id' => $this->user->id,
-                    'client_id' => $this->client->id,
-                    'line_items' => $line_items
-                ]
-            );
+        Invoice::factory()->create(
+            [
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+                'client_id' => $this->client->id,
+                'line_items' => $line_items
+            ]
+        );
 
-            $item = InvoiceItemFactory::create();
-            $item->product_key = 'bob the builder';
+        $item = InvoiceItemFactory::create();
+        $item->product_key = 'bob the builder';
 
-            $line_items = [];
+        $line_items = [];
 
-            $line_items[] = $item;
+        $line_items[] = $item;
 
-            $q = Invoice::whereJsonContains('line_items', ['product_key' => 'bob the builder']);
+        $q = Invoice::whereJsonContains('line_items', ['product_key' => 'bob the builder']);
 
-            $this->assertEquals(0, $q->count());
+        $this->assertEquals(0, $q->count());
 
-            Invoice::factory()->create(
-                [
-                    'company_id' => $this->company->id,
-                    'user_id' => $this->user->id,
-                    'client_id' => $this->client->id,
-                    'line_items' => $line_items
-                ]
-            );
+        Invoice::factory()->create(
+            [
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+                'client_id' => $this->client->id,
+                'line_items' => $line_items
+            ]
+        );
 
-            $this->assertEquals(1, $q->count());
+        $this->assertEquals(1, $q->count());
 
-            $q = Invoice::whereJsonContains('line_items', ['product_key' => 'Bob the builder']);
-            $this->assertEquals(0, $q->count());
+        $q = Invoice::whereJsonContains('line_items', ['product_key' => 'Bob the builder']);
+        $this->assertEquals(0, $q->count());
 
-            $q = Invoice::whereJsonContains('line_items', ['product_key' => 'bob']);
-            $this->assertEquals(0, $q->count());
+        $q = Invoice::whereJsonContains('line_items', ['product_key' => 'bob']);
+        $this->assertEquals(0, $q->count());
 
-            $q->forceDelete();
+        $q->forceDelete();
 
-            Invoice::withTrashed()->cursor()->each(function ($i){ $i->forceDelete();});
+        Invoice::withTrashed()->cursor()->each(function ($i) { $i->forceDelete();});
     }
 
     public function testVendorCsvGeneration()
@@ -1274,7 +1274,7 @@ class ReportCsvGenerationTest extends TestCase
         $response->assertStatus(200);
         $arr = $response->json();
         $hash = $arr['message'];
-        $response = $this->poll($hash);    
+        $response = $this->poll($hash);
         $csv = $response->body();
 
         $this->assertEquals('bob', $this->getFirstValueByColumn($csv, 'Client Name'));

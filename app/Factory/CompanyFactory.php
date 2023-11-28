@@ -11,13 +11,13 @@
 
 namespace App\Factory;
 
-use App\Utils\Ninja;
-use App\Models\Company;
-use App\Libraries\MultiDB;
-use App\Utils\Traits\MakesHash;
-use App\DataMapper\Tax\TaxModel;
-use App\DataMapper\CompanySettings;
 use App\DataMapper\ClientRegistrationFields;
+use App\DataMapper\CompanySettings;
+use App\DataMapper\Tax\TaxModel;
+use App\Libraries\MultiDB;
+use App\Models\Company;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
 
 class CompanyFactory
 {

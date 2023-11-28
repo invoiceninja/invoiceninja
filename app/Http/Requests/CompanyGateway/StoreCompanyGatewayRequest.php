@@ -11,7 +11,6 @@
 
 namespace App\Http\Requests\CompanyGateway;
 
-use App\DataMapper\FeesAndLimits;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
 use App\Models\Gateway;

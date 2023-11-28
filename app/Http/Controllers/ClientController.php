@@ -11,37 +11,37 @@
 
 namespace App\Http\Controllers;
 
-use App\Utils\Ninja;
-use App\Models\Client;
-use App\Models\Account;
-use App\Models\Company;
-use App\Models\SystemLog;
-use Postmark\PostmarkClient;
-use Illuminate\Http\Response;
-use App\Factory\ClientFactory;
-use App\Filters\ClientFilters;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\Uploadable;
-use App\Utils\Traits\BulkOptions;
-use App\Jobs\Client\UpdateTaxData;
-use App\Utils\Traits\SavesDocuments;
-use App\Repositories\ClientRepository;
 use App\Events\Client\ClientWasCreated;
 use App\Events\Client\ClientWasUpdated;
-use App\Transformers\ClientTransformer;
-use Illuminate\Support\Facades\Storage;
-use App\Services\Template\TemplateAction;
-use App\Jobs\PostMark\ProcessPostmarkWebhook;
+use App\Factory\ClientFactory;
+use App\Filters\ClientFilters;
 use App\Http\Requests\Client\BulkClientRequest;
-use App\Http\Requests\Client\EditClientRequest;
-use App\Http\Requests\Client\ShowClientRequest;
-use App\Http\Requests\Client\PurgeClientRequest;
-use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\CreateClientRequest;
+use App\Http\Requests\Client\DestroyClientRequest;
+use App\Http\Requests\Client\EditClientRequest;
+use App\Http\Requests\Client\PurgeClientRequest;
+use App\Http\Requests\Client\ReactivateClientEmailRequest;
+use App\Http\Requests\Client\ShowClientRequest;
+use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Http\Requests\Client\UploadClientRequest;
-use App\Http\Requests\Client\DestroyClientRequest;
-use App\Http\Requests\Client\ReactivateClientEmailRequest;
+use App\Jobs\Client\UpdateTaxData;
+use App\Jobs\PostMark\ProcessPostmarkWebhook;
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\Company;
+use App\Models\SystemLog;
+use App\Repositories\ClientRepository;
+use App\Services\Template\TemplateAction;
+use App\Transformers\ClientTransformer;
+use App\Utils\Ninja;
+use App\Utils\Traits\BulkOptions;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
+use App\Utils\Traits\Uploadable;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
+use Postmark\PostmarkClient;
 
 /**
  * Class ClientController.
@@ -218,7 +218,7 @@ class ClientController extends BaseController
         $clients = Client::withTrashed()
                          ->company()
                          ->whereIn('id', $request->ids)
-                         ->get();                         
+                         ->get();
 
         if($action == 'template' && $user->can('view', $clients->first())) {
 
@@ -387,7 +387,7 @@ class ClientController extends BaseController
             /** @var \Postmark\Models\DynamicResponseModel $response */
             $response = $postmark->activateBounce((int)$bounce_id);
         
-            if($response && $response?->Message == 'OK' && !$response->Bounce->Inactive && $response->Bounce->Email){
+            if($response && $response?->Message == 'OK' && !$response->Bounce->Inactive && $response->Bounce->Email) {
 
                 $email =  $response->Bounce->Email;
                 //remove email from quarantine. //@TODO

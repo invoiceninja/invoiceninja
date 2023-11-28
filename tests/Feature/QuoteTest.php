@@ -11,19 +11,19 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\Quote;
-use App\Models\Client;
-use App\Models\Project;
-use Tests\MockAccountData;
-use App\Models\ClientContact;
-use App\Utils\Traits\MakesHash;
 use App\DataMapper\ClientSettings;
 use App\Exceptions\QuoteConversion;
+use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\Project;
+use App\Models\Quote;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\Session;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test

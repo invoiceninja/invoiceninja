@@ -11,7 +11,6 @@
 
 namespace App\Models;
 
-use App\Helpers\Document\WithTypeHelpers;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
@@ -211,8 +210,9 @@ class Document extends BaseModel
         $image = $this->getFile();
         $catch_image = $image;
 
-        if(!extension_loaded('imagick'))
+        if(!extension_loaded('imagick')) {
             return $catch_image;
+        }
 
         try {
             $file = base64_encode($image);
@@ -224,8 +224,7 @@ class Document extends BaseModel
 
             return $img->getImageBlob();
             
-        }
-        catch(\Exception $e){
+        } catch(\Exception $e) {
         
             nlog($e->getMessage());
             return $catch_image;

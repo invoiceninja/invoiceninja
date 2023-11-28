@@ -11,12 +11,12 @@
 
 namespace App\Http\Controllers\Reports;
 
-use App\Utils\Traits\MakesHash;
-use App\Jobs\Report\SendToAdmin;
-use App\Jobs\Report\PreviewReport;
-use App\Services\Report\ARDetailReport;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Report\GenericReportRequest;
+use App\Jobs\Report\PreviewReport;
+use App\Jobs\Report\SendToAdmin;
+use App\Services\Report\ARDetailReport;
+use App\Utils\Traits\MakesHash;
 
 class ARDetailReportController extends BaseController
 {

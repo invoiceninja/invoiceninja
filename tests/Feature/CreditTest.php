@@ -44,7 +44,7 @@ class CreditTest extends TestCase
 
     public function testApplicableFilters()
     {
-        Credit::where('company_id',$this->company->id)->cursor()->each(function ($c){ $c->forceDelete(); });
+        Credit::where('company_id', $this->company->id)->cursor()->each(function ($c) { $c->forceDelete(); });
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),

@@ -406,7 +406,7 @@ class GoCardlessPaymentDriver extends BaseDriver
 
             if(!in_array($mandate->status, ['pending_submission', 'submitted', 'active','pending_customer_approval'])) {
              
-            // if ($mandate->status !== 'active') {
+                // if ($mandate->status !== 'active') {
                 throw new \Exception(ctrans('texts.gocardless_mandate_not_ready'));
             }
         } catch (\Exception $exception) {

@@ -19,6 +19,8 @@ use Illuminate\Support\Carbon;
  * App\Models\Task
  *
  * @property int $id
+ * @property string|null $hash
+ * @property object|null $meta
  * @property int $user_id
  * @property int|null $assigned_user_id
  * @property int $company_id
@@ -118,6 +120,15 @@ class Task extends BaseModel
         'number',
         'is_date_based',
         'status_order',
+        'hash',
+        'meta',
+    ];
+    
+    protected $casts = [
+        'meta' => 'object',
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
     ];
 
     protected $touches = [];
@@ -164,11 +175,13 @@ class Task extends BaseModel
 
     public function stringStatus()
     {
-        if($this->invoice_id)
+        if($this->invoice_id) {
             return '<h5><span class="badge badge-success">'.ctrans('texts.invoiced').'</span></h5>';
+        }
 
-        if($this->status)
+        if($this->status) {
             return '<h5><span class="badge badge-primary">' . $this->status?->name ?? '';
+        }
 
         return '';
     
@@ -255,18 +268,20 @@ class Task extends BaseModel
     public function processLogs()
     {
         
-        return 
-        collect(json_decode($this->time_log,true))->map(function ($log){
+        return
+        collect(json_decode($this->time_log, true))->map(function ($log) {
 
             $parent_entity = $this->client ?? $this->company;
 
-            if($log[0])
+            if($log[0]) {
                 $log[0] = Carbon::createFromTimestamp($log[0])->format($parent_entity->date_format().' H:i:s');
+            }
 
-            if($log[1] && $log[1] != 0)
+            if($log[1] && $log[1] != 0) {
                 $log[1] = Carbon::createFromTimestamp($log[1])->format($parent_entity->date_format().' H:i:s');
-            else     
+            } else {
                 $log[1] = ctrans('texts.running');
+            }
 
             return $log;
         })->toArray();
@@ -276,28 +291,27 @@ class Task extends BaseModel
     public function processLogsExpandedNotation()
     {
         
-        return 
-        collect(json_decode($this->time_log,true))->map(function ($log){
+        return
+        collect(json_decode($this->time_log, true))->map(function ($log) {
 
             $parent_entity = $this->client ?? $this->company;
             $logged = [];
             
-            if($log[0] && $log[1] !=0 ) {
+            if($log[0] && $log[1] !=0) {
                 $duration = $log[1] - $log[0];
-            }
-            else {
+            } else {
                 $duration = 0;
             }
 
-            if($log[0])
+            if($log[0]) {
                 $logged['start_date_raw'] = $log[0];
-                $logged['start_date'] = Carbon::createFromTimestamp($log[0])->setTimeZone($this->company->timezone()->name)->format($parent_entity->date_format().' H:i:s');
+            }
+            $logged['start_date'] = Carbon::createFromTimestamp($log[0])->setTimeZone($this->company->timezone()->name)->format($parent_entity->date_format().' H:i:s');
 
             if($log[1] && $log[1] != 0) {
                 $logged['end_date_raw'] = $log[1];
                 $logged['end_date'] = Carbon::createFromTimestamp($log[1])->setTimeZone($this->company->timezone()->name)->format($parent_entity->date_format().' H:i:s');
-            }
-            else{
+            } else {
                 $logged['end_date_raw'] = 0;
                 $logged['end_date'] = ctrans('texts.running');
             }
