@@ -113,6 +113,7 @@ class PdfBuilder
         $contents = $this->document->getElementsByTagName('ninja');
                 
         $template_service = new TemplateService();
+        $template_service->setCompany($this->service->company);
         $data = $template_service->processData($this->service->options)->getData();
 
         $twig = $template_service->twig;
