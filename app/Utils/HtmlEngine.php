@@ -90,6 +90,12 @@ class HtmlEngine
         $this->helpers = new Helpers();
     }
 
+    public function setSettings($settings): self
+    {
+        $this->settings = $settings;
+
+        return $this;
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -138,7 +144,8 @@ class HtmlEngine
         $data['$app_url'] = ['value' => $this->generateAppUrl(), 'label' => ''];
         $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
         $data['$to'] = ['value' => '', 'label' => ctrans('texts.to')];
-        $data['$ship_to'] = ['value' => '', 'label' => ctrans('texts.ship_to')];
+        $data['$shipping'] = ['value' => '', 'label' => ctrans('texts.ship_to')];
+
         $data['$total_tax_labels'] = ['value' => $this->totalTaxLabels(), 'label' => ctrans('texts.taxes')];
         $data['$total_tax_values'] = ['value' => $this->totalTaxValues(), 'label' => ctrans('texts.taxes')];
         $data['$line_tax_labels'] = ['value' => $this->lineTaxLabels(), 'label' => ctrans('texts.taxes')];
@@ -147,6 +154,7 @@ class HtmlEngine
         $data['$status_logo'] = ['value' => ' ', 'label' => ' '];
         $data['$delivery_note'] = ['value' => ' ', 'label' => ctrans('texts.delivery_note')];
         $data['$receipt'] = ['value' => ' ', 'label' => ctrans('texts.receipt')];
+        $data['$shipping'] = ['value' => ' ', 'label' => ctrans('texts.ship_to')];
 
         $data['$invoice.date'] = &$data['$date'];
         $data['$invoiceDate'] = &$data['$date'];
