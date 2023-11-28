@@ -17,6 +17,8 @@ use App\Services\Pdf\PdfMock;
 class TemplateMock
 {
 
+    protected ?object $settings;
+
     public array $engines = [];
 
     public array $variables = [];
@@ -74,15 +76,21 @@ class TemplateMock
             'entity_type' => rtrim($type, "s"),
             'design' => '',
             'settings_type' => 'company',
-            'settings' => $this->company->settings,
+            'settings' =>  $this->settings ?? $this->company->settings,
         ];
 
         $mock = (new PdfMock($data, $this->company));
-        $mock->settings = $this->company->settings;
+        $mock->settings = $this->settings ?? $this->company->settings;
         $mock->build();
 
         return [$type => $mock->getStubVariables()];
     }
 
+    public function setSettings($settings): self
+    {
+        $this->settings = $settings;
+
+        return $this;
+    }
 
 }

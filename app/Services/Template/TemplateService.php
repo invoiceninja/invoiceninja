@@ -55,17 +55,19 @@ class TemplateService
 
     private array $global_vars = [];
 
-    public ?Company $company;
+    public ?Company $company = null;
 
-    private ?Client $client;
+    private ?Client $client = null;
 
-    private ?Vendor $vendor;
+    private ?Vendor $vendor = null;
 
     private Invoice | Quote | Credit | PurchaseOrder | RecurringInvoice $entity;
 
     private Payment $payment;
 
     private CommonMarkConverter $commonmark;
+
+    private ?object $settings = null;
 
     public function __construct(public ?Design $template = null)
     {
@@ -167,6 +169,25 @@ class TemplateService
         return $this;
     }
 
+    public function setSettings($settings): self
+    {
+        $this->settings = $settings;
+
+        return $this;
+
+    }
+
+    private function getSettings(): object
+    {
+        if($this->settings)
+            return $this->settings;
+
+        if($this->client)
+            return $this->client->getMergedSettings();
+
+        return $this->company->settings;
+    }
+
     public function addGlobal(array $var): self
     {
         $this->global_vars = array_merge($this->global_vars, $var);
@@ -182,7 +203,7 @@ class TemplateService
     public function mock(): self
     {
         $tm = new TemplateMock($this->company);
-        $tm->init();
+        $tm->setSettings($this->getSettings())->init();
 
         $this->entity = $this->company->invoices()->first();
 
@@ -217,6 +238,8 @@ class TemplateService
      */
     public function getPdf(): string
     {
+
+        // nlog($this->getHtml());
 
         if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
             $pdf = (new NinjaPdf())->build($this->compiled_html);
@@ -345,7 +368,7 @@ class TemplateService
      *
      * @return self
      */
-    private function compose(): self
+    public function compose(): self
     {
         if(!$this->template) {
             return $this;
@@ -403,19 +426,19 @@ class TemplateService
 
             match ($key) {
                 'variables' => $processed = $value->first() ?? [],
-                'invoices' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues() ?? [],
-                'quotes' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues() ?? [],
-                'credits' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues() ?? [],
-                'payments' => $processed = (new PaymentHtmlEngine($value->first(), $value->first()->client->contacts()->first()))->generateLabelsAndValues() ?? [],
+                'invoices' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
+                'quotes' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
+                'credits' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
+                'payments' => $processed = (new PaymentHtmlEngine($value->first(), $value->first()->client->contacts()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
                 'tasks' => $processed = [],
                 'projects' => $processed = [],
-                'purchase_orders' => (new VendorHtmlEngine($value->first()->invitations()->first()))->generateLabelsAndValues() ?? [],
+                'purchase_orders' => (new VendorHtmlEngine($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
                 'aging' => $processed = [],
                 default => $processed = [],
             };
 
-            nlog($key);
-            nlog($processed);
+            // nlog($key);
+            // nlog($processed);
             
             return $processed;
 
@@ -1159,7 +1182,7 @@ class TemplateService
         $var_set = $this->getVarSet();
 
         $company_details =
-        collect($this->company->settings->pdf_variables->company_details)
+        collect($this->getSettings()->pdf_variables->company_details)
             ->filter(function ($variable) use ($var_set) {
                 return isset($var_set['values'][$variable]) && !empty($var_set['values'][$variable]);
             })
@@ -1186,7 +1209,7 @@ class TemplateService
         $var_set = $this->getVarSet();
 
         $company_address =
-        collect($this->company->settings->pdf_variables->company_address)
+        collect($this->getSettings()->pdf_variables->company_address)
             ->filter(function ($variable) use ($var_set) {
                 return isset($var_set['values'][$variable]) && !empty($var_set['values'][$variable]);
             })
@@ -1251,7 +1274,7 @@ class TemplateService
         $var_set = $this->getVarSet();
 
         $client_details =
-        collect($this->company->settings->pdf_variables->client_details)
+        collect($this->getSettings()->pdf_variables->client_details)
             ->filter(function ($variable) use ($var_set) {
                 return isset($var_set['values'][$variable]) && !empty($var_set['values'][$variable]);
             })
@@ -1314,7 +1337,7 @@ class TemplateService
         $var_set = $this->getVarSet();
 
         $entity_details =
-        collect($this->company->settings->pdf_variables->{$entity_string_prop})
+        collect($this->getSettings()->pdf_variables->{$entity_string_prop})
             ->filter(function ($variable) use ($var_set) {
                 return isset($var_set['values'][$variable]) && !empty($var_set['values'][$variable]);
             })->toArray();
@@ -1372,7 +1395,7 @@ class TemplateService
         $var_set = $this->getVarSet();
 
         $vendor_details =
-        collect($this->company->settings->pdf_variables->vendor_details)
+        collect($this->getSettings()->pdf_variables->vendor_details)
             ->filter(function ($variable) use ($var_set) {
                 return isset($var_set['values'][$variable]) && !empty($var_set['values'][$variable]);
             })->when(!$include_labels, function ($collection) {

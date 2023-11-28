@@ -64,8 +64,14 @@ class PdfMock
         $pdf_config->setPdfVariables();
         $pdf_config->setCurrency(Currency::find($this->settings->currency_id));
         $pdf_config->setCountry(Country::find($this->settings->country_id ?: 840));
-        $pdf_config->design = Design::withTrashed()->find($this->decodePrimaryKey($pdf_config->entity_design_id));
         $pdf_config->currency_entity = $this->mock->client;
+
+        if(isset($this->request['design_id']) && $design  = Design::withTrashed()->find($this->request['design_id'])) {
+            $pdf_config->design = $design;
+            $pdf_config->entity_design_id = $design->hashed_id;
+        }
+        else
+            $pdf_config->design = Design::withTrashed()->find($this->decodePrimaryKey($pdf_config->entity_design_id));
         
         $pdf_service->config = $pdf_config;
 
@@ -1389,6 +1395,7 @@ class PdfMock
           '$delivery_note_label' => ctrans('texts.delivery_note'),
           '$quantity_label' => ctrans('texts.quantity'),
           '$order_number_label' => ctrans('texts.order_number'),
+          '$shipping_label' => ctrans('texts.shipping_address'),
         ];
     }
 }
