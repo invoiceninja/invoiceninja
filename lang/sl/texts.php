@@ -5169,4 +5169,4 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
 
 );
 
-return $LANG;
+return $lang;

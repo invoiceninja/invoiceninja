@@ -5220,4 +5220,4 @@ $lang = array(
     'charges' => 'Charges',
 );
 
-return $LANG;
+return $lang;

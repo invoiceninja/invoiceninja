@@ -5182,4 +5182,4 @@ De lo contrario, este campo deberá dejarse en blanco.',
     'run_template' => 'Ejecutar plantilla',
 );
 
-return $LANG;
+return $lang;

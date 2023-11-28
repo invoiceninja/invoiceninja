@@ -5169,4 +5169,4 @@ Kada budete imali iznose, vratite se na ovu stranicu sa načinima plaćanja i k
 
 );
 
-return $LANG;
+return $lang;

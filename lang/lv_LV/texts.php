@@ -5169,4 +5169,4 @@ $lang = array(
 
 );
 
-return $LANG;
+return $lang;

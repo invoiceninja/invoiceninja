@@ -10,4 +10,4 @@ $lang = array(
     'client_unapproved_quote' => 'Message to be displayed on a clients unapproved quote screen',
 );
 
-return $LANG;
+return $lang;

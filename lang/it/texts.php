@@ -5176,4 +5176,4 @@ $lang = array(
     'run_template' => 'Run template',
 );
 
-return $LANG;
+return $lang;

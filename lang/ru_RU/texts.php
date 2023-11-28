@@ -5161,4 +5161,4 @@ $lang = array(
     'marked_sent_credits' => 'Successfully marked credits sent',
 );
 
-return $LANG;
+return $lang;

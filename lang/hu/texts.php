@@ -5147,4 +5147,4 @@ adva :date',
 
 );
 
-return $LANG;
+return $lang;

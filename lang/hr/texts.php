@@ -5170,4 +5170,4 @@ Nevažeći kontakt email',
 
 );
 
-return $LANG;
+return $lang;

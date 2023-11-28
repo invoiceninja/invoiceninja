@@ -5185,4 +5185,4 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'run_template' => 'Exécuter le modèle',
 );
 
-return $LANG;
+return $lang;

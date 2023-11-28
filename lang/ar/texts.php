@@ -5166,4 +5166,4 @@ $lang = array(
     'run_template' => 'تشغيل القالب',
 );
 
-return $LANG;
+return $lang;

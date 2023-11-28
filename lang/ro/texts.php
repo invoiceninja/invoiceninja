@@ -5170,4 +5170,4 @@ Odată ce sumele au ajuns la dumneavoastră, reveniți la pagina cu metode de pl
 
 );
 
-return $LANG;
+return $lang;

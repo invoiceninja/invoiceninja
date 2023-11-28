@@ -5169,4 +5169,4 @@ Kun saat summat, palaa tälle maksutapasivulle ja klikkaa "Saata loppuun todenta
 
 );
 
-return $LANG;
+return $lang;

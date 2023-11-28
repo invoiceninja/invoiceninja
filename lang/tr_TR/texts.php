@@ -5159,4 +5159,4 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'marked_sent_credits' => 'Successfully marked credits sent',
 );
 
-return $LANG;
+return $lang;

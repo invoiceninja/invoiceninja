@@ -5167,4 +5167,4 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
 
 );
 
-return $LANG;
+return $lang;

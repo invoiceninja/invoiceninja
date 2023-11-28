@@ -5167,4 +5167,4 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
 
 );
 
-return $LANG;
+return $lang;

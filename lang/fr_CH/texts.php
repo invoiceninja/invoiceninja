@@ -5207,4 +5207,4 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'add_line' => 'Ajouter une ligne',
 );
 
-return $LANG;
+return $lang;

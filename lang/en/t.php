@@ -4,4 +4,4 @@ $lang = array(
     'client_settings' => 'Client Settings',
 );
 
-return $LANG;
+return $lang;

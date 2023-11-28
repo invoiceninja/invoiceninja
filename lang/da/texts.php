@@ -5190,4 +5190,4 @@ $lang = array(
     'run_template' => 'Kør skabelon',
 );
 
-return $LANG;
+return $lang;

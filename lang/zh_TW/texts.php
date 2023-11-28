@@ -5188,4 +5188,4 @@ $lang = array(
     'run_template' => '運行模板',
 );
 
-return $LANG;
+return $lang;

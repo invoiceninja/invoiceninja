@@ -5163,4 +5163,4 @@ Email: :email<b><br><b>',
 
 );
 
-return $LANG;
+return $lang;

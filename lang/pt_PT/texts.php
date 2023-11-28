@@ -5166,4 +5166,4 @@ O envio de E-mails foi suspenso. Será retomado às 23:00 UTC.',
 
 );
 
-return $LANG;
+return $lang;

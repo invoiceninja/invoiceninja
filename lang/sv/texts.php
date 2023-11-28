@@ -5176,4 +5176,4 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
 
 );
 
-return $LANG;
+return $lang;

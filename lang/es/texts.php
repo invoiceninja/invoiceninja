@@ -5189,4 +5189,4 @@ $lang = array(
     'run_template' => 'Ejecutar plantilla',
 );
 
-return $LANG;
+return $lang;

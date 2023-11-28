@@ -5163,4 +5163,4 @@ Quando tiver as quantias, volte a esta página de formas de pagamento e clique "
 
 );
 
-return $LANG;
+return $lang;

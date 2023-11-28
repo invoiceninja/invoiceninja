@@ -5153,4 +5153,4 @@ Nemôžete nájsť faktúru? Potrebujete poradiť? Radi Vám pomôžeme         
 
 );
 
-return $LANG;
+return $lang;

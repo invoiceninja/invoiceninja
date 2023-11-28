@@ -5195,4 +5195,4 @@ Leistungsempfängers',
     'run_template' => 'Template anwenden',
 );
 
-return $LANG;
+return $lang;
