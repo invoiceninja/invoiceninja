@@ -1,6 +1,6 @@
 <?php
 
-$LANG = [
+$lang = array(
     'organization' => 'Organizacja',
     'name' => 'Nazwa',
     'website' => 'Strona internetowa',
@@ -5165,6 +5165,6 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'in_stock_quantity' => 'Stock quantity',
     'vendor_contact' => 'Vendor Contact',
 
-];
+);
 
 return $LANG;

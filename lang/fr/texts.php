@@ -1,6 +1,6 @@
 <?php
 
-$LANG = [
+$lang = array(
     'organization' => 'Entreprise',
     'name' => 'Nom',
     'website' => 'Site Web',
@@ -5183,6 +5183,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'payment_receipt' => 'Reçu de paiement # :number',
     'load_template_description' => 'Le modèle sera appliqué aux éléments suivants :',
     'run_template' => 'Exécuter le modèle',
-];
+);
 
 return $LANG;

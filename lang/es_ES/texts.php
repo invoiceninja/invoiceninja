@@ -1,6 +1,6 @@
 <?php
 
-$LANG = [
+$lang = array(
     'organization' => 'Organización',
     'name' => 'Nombre',
     'website' => 'Página Web',
@@ -5180,6 +5180,6 @@ De lo contrario, este campo deberá dejarse en blanco.',
     'payment_receipt' => 'Recibo de pago Nº :number',
     'load_template_description' => 'La plantilla se aplicará a lo siguiente:',
     'run_template' => 'Ejecutar plantilla',
-];
+);
 
 return $LANG;

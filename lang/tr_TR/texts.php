@@ -1,6 +1,6 @@
 <?php
 
-$LANG = [
+$lang = array(
     'organization' => 'Şirket',
     'name' => 'Ünvan',
     'website' => 'Web adresi',
@@ -5157,6 +5157,6 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'unlinked_transaction' => 'Successfully unlinked transaction',
     'view_dashboard_permission' => 'Allow user to access the dashboard, data is limited to available permissions',
     'marked_sent_credits' => 'Successfully marked credits sent',
-];
+);
 
 return $LANG;
