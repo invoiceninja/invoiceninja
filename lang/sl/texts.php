@@ -1,6 +1,6 @@
 <?php
 
-$LANG = [
+$lang = array(
     'organization' => 'Organizacija',
     'name' => 'Ime',
     'website' => 'Spletna stran',
@@ -5167,6 +5167,6 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'in_stock_quantity' => 'Stock quantity',
     'vendor_contact' => 'Vendor Contact',
 
-];
+);
 
-return $LANG;
+return $lang;

@@ -1,6 +1,6 @@
 <?php
 
-$LANG = [
+$lang = array(
     'organization' => 'Empresa',
     'name' => 'Nome',
     'website' => 'Website',
@@ -5161,6 +5161,6 @@ Quando tiver as quantias, volte a esta página de formas de pagamento e clique "
     'in_stock_quantity' => 'Quantidade em estoque',
     'vendor_contact' => 'Contato do fornecedor',
 
-];
+);
 
-return $LANG;
+return $lang;

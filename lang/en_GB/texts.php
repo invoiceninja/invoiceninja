@@ -1,6 +1,6 @@
 <?php
 
-$LANG = [
+$lang = array(
     'organization' => 'Organisation',
     'name' => 'Name',
     'website' => 'Website',
@@ -5049,4 +5049,4 @@ $LANG = [
 ];
 
 
-return $LANG;
+return $lang;

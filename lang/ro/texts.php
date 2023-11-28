@@ -1,6 +1,6 @@
 <?php
 
-$LANG = [
+$lang = array(
     'organization' => 'Organizație',
     'name' => 'Nume',
     'website' => 'Site web',
@@ -5168,6 +5168,6 @@ Odată ce sumele au ajuns la dumneavoastră, reveniți la pagina cu metode de pl
     'in_stock_quantity' => 'Stock quantity',
     'vendor_contact' => 'Vendor Contact',
 
-];
+);
 
-return $LANG;
+return $lang;

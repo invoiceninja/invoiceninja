@@ -1,6 +1,6 @@
 <?php
 
-$LANG = [
+$lang = array(
     'organization' => '組織',
     'name' => '姓名',
     'website' => '網站',
@@ -5186,6 +5186,6 @@ $LANG = [
     'payment_receipt' => '付款收據 # :number',
     'load_template_description' => '此模板將應用於以下領域：',
     'run_template' => '運行模板',
-];
+);
 
-return $LANG;
+return $lang;

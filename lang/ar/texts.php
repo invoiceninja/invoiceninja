@@ -1,6 +1,6 @@
 <?php
 
-$LANG = [
+$lang = array(
     'organization' => 'الشركة ',
     'name' => 'الاسم',
     'website' => 'الموقع الإلكتروني',
@@ -5164,6 +5164,6 @@ $LANG = [
     'payment_receipt' => 'إيصال الدفع رقم :number',
     'load_template_description' => 'سيتم تطبيق القالب على ما يلي:',
     'run_template' => 'تشغيل القالب',
-];
+);
 
-return $LANG;
+return $lang;

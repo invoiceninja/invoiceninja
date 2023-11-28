@@ -1,6 +1,6 @@
 <?php
 
-$LANG = [
+$lang = array(
     'organization' => 'Organization',
     'name' => 'Name',
     'website' => 'Website',
@@ -5218,6 +5218,6 @@ $LANG = [
     'vendor_notification_body' => 'Payment processed for :amount dated :payment_date. <br>[Transaction Reference: :transaction_reference]',
     'receipt' => 'Receipt',
     'charges' => 'Charges',
-];
+);
 
-return $LANG;
+return $lang;
