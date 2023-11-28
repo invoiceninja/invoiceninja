@@ -45,6 +45,13 @@ class PaymentHtmlEngine
         $this->helpers = new Helpers();
     }
 
+    public function setSettings($settings):self
+    {
+        $this->settings = $settings;
+
+        return $this;
+    }
+    
     public function makePaymentVariables()
     {
         App::forgetInstance('translator');

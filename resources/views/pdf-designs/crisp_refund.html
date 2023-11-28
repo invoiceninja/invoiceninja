@@ -1,0 +1,550 @@
+<html>
+
+<head>
+    <title>Refund #$number</title>
+    <style>
+        @import url($font_url);
+
+        :root {
+            --primary-color: $primary_color;
+            --secondary-color: $secondary_color;
+            --line-height: 1.6;
+        }
+
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-family: $font_name, Helvetica, sans-serif;
+            font-size: $font_sizepx !important;
+            zoom: 80%;
+        }
+
+
+        @page {
+            margin: 0 !important;
+            size: $page_size $page_layout;
+        }
+    </style>
+</head>
+
+<body style="padding-top:2rem;">
+    <ninja>
+        {%set payment = payments|first %}
+        {%set pivot = payment.paymentables|filter(pivot => pivot.refunded_raw > 0)|first %}
+        <table align="center" bgcolor="#ffffff" border="0" cellpadding="0" cellspacing="0" width="600"
+            style="border-top-left-radius:16px;border-top-right-radius:16px;margin:0 auto;min-width:600px">
+            <tbody>
+                <tr>
+                    <td style="border:0;margin:0;padding:0">
+                        <table border="0" cellpadding="0" cellspacing="0" width="600" style="min-width:600px">
+                            <tbody>
+                                <tr>
+                                    <td align="center" height="0"
+                                        style="border:0;margin:0;padding:0;color:#ffffff;display:none!important;font-size:1px;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden">
+                                        <span style="color:#ffffff;text-decoration:none;">$refund_label{{ pivot.refunded
+                                            }}
+                                            $date_label {{ pivot.updated_at }}</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div
+                            style="background-color:$primary_color;padding-top:20px; padding-bottom:20px; border-radius:5px;">
+                            <table dir="ltr" width="100%"
+                                style="border:0;border-collapse:collapse;margin:0;padding:0;background-color:#ffffff">
+                                <tbody>
+                                    <tr>
+                                        <td style="background-color:$primary_color;border:0;border-collapse:collapse;margin:0;padding:0;font-size:0;line-height:0px;background-size:100% 100%;"
+                                            align="center" valign="center" width="600" height="152">
+                                            {{ img('$company.logo','max-width: $company_logo_size; max-height: 100px;
+                                            vertical-align: middle;') }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <table border="0" cellpadding="0" cellspacing="0" width="600" style="min-width:600px">
+                            <tr>
+                                <td height="10"></td>
+                            </tr>
+                        </table>
+                        <table border="0" cellpadding="0" cellspacing="0" width="600" style="min-width:600px">
+                            <tbody>
+                                <tr>
+                                    <td align="center"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;width:472px;vertical-align:middle;color:#32325d;font-size:24px;line-height:32px">
+                                        $refund_label #$number
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" height="12"
+                                        style="border:0;margin:0;padding:0;font-size:1px;line-height:1px">
+                                        <div>&nbsp;</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <ninja>
+                            {%set payment = payments|first %}
+                            {%if payment.transaction_reference %}
+                            <table class="" width="100%"
+                                style="border:0;border-collapse:collapse;margin:0;padding:0;background-color:#ffffff">
+                                <tbody>
+                                    <tr>
+                                        <td class="" width="64"
+                                            style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                            &nbsp;</td>
+                                        <td class="Content" align="center"
+                                            style="border:0;border-collapse:collapse;margin:0;padding:0;width:472px;vertical-align:middle;color:#8898aa;font-size:15px;line-height:18px">
+                                            <span class="il">$reference_label:</span> {{ payment.transaction_reference
+                                            }}
+                                        </td>
+                                        <td class="" width="64"
+                                            style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                            &nbsp;</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            {% endif %}
+                        </ninja>
+
+                        <table border="0" cellpadding="0" cellspacing="0" width="600" style="min-width:600px">
+                            <tbody>
+                                <tr>
+                                    <td align="center"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;width:472px;vertical-align:middle;color:#8898aa;font-size:15px;line-height:18px">
+                                        <span></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" height="12"
+                                        style="border:0;margin:0;padding:0;font-size:1px;line-height:1px">
+                                        <div>&nbsp;</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                            <tbody>
+                                <tr>
+                                    <td height="20"
+                                        style="border:0;margin:0;padding:0;font-size:1px;line-height:1px;max-height:1px">
+                                        <div>&nbsp;</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                            <tbody>
+                                <tr>
+                                    <td
+                                        style="border:0;margin:0;padding:0;color:#687385;font-size:12px;font-weight:bold;line-height:16px;text-transform:uppercase">
+                                    </td>
+                                    <td width="64"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                        &nbsp;</td>
+                                    <td valign="top" style="border:0;border-collapse:collapse;margin:0;padding:0">
+                                        <table style="border:0;border-collapse:collapse;margin:0;padding:0">
+                                            <tbody>
+                                                <tr>
+                                                    <td
+                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;vertical-align:middle;color:#8898aa;font-size:12px;line-height:16px;white-space:nowrap;font-weight:bold;text-transform:uppercase">
+                                                        $refunded_label
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td
+                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;vertical-align:middle;color:#525f7f;font-size:15px;line-height:24px;white-space:nowrap">
+                                                        {{ payment.refunded }}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                    <td width="20"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                        &nbsp;</td>
+                                    <td valign="top" style="border:0;border-collapse:collapse;margin:0;padding:0">
+                                        <table style="border:0;border-collapse:collapse;margin:0;padding:0">
+                                            <tbody>
+                                                <tr>
+                                                    <td
+                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;vertical-align:middle;color:#8898aa;font-size:12px;line-height:16px;white-space:nowrap;font-weight:bold;text-transform:uppercase">
+                                                        $refund_label $date_label
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td
+                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;vertical-align:middle;color:#525f7f;font-size:15px;line-height:24px;white-space:nowrap">
+                                                        {{ payment.updated_at}}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                    <td width="20"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                        &nbsp;</td>
+                                    <td valign="top" style="border:0;border-collapse:collapse;margin:0;padding:0">
+                                        <table style="border:0;border-collapse:collapse;margin:0;padding:0">
+                                            <tbody>
+                                                <tr>
+                                                    <td
+                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;vertical-align:middle;color:#8898aa;font-size:12px;line-height:16px;white-space:nowrap;font-weight:bold;text-transform:uppercase">
+                                                        $method_label
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td
+                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;vertical-align:middle;color:#525f7f;font-size:15px;line-height:24px;white-space:nowrap">
+                                                        {% if payment.method %}
+                                                        <span>
+                                                            {{ payment.method }}
+                                                        </span>
+                                                        {% else %}
+                                                        <span
+                                                            style="width:100%; min-width:100%; display:block; text-align:center;">
+                                                            -
+                                                        </span>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                    <td width="64"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                        &nbsp;</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table border="0" cellpadding="0" cellspacing="0" width="600" style="min-width:600px">
+                            <tbody>
+                                <tr>
+                                    <td colspan="3" height="24"
+                                        style="border:0;margin:0;padding:0;font-size:1px;line-height:1px;max-height:1px">
+                                        <div>&nbsp;</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="border:0;margin:0;padding:0;font-size:1px;line-height:1px;max-height:1px"
+                                        width="48">
+                                        <div>&nbsp;</div>
+                                    </td>
+                                    <td bgcolor="#e6ebf1" height="1"
+                                        style="border:0;margin:0;padding:0;font-size:1px;line-height:1px;max-height:1px">
+                                        <div>&nbsp;</div>
+                                    </td>
+                                    <td style="border:0;margin:0;padding:0;font-size:1px;line-height:1px;max-height:1px"
+                                        width="48">
+                                        <div>&nbsp;</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" height="24"
+                                        style="border:0;margin:0;padding:0;font-size:1px;line-height:1px;max-height:1px">
+                                        <div>&nbsp;</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table border="0" cellpadding="0" cellspacing="0" width="600" style="min-width:600px">
+                            <tbody>
+                                <tr>
+                                    <td colspan="3" height="24"
+                                        style="border:0;margin:0;padding:0;font-size:1px;line-height:1px">
+                                        <div>&nbsp;</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="border:0;margin:0;padding:0;font-size:1px;line-height:1px" width="48">
+                                        <div>&nbsp;</div>
+                                    </td>
+                                    <td style="border:0;margin:0;padding:0">
+                                        <table bgcolor="#f6f9fc" border="0" cellpadding="0" cellspacing="0"
+                                            style="border-radius:8px" width="100%">
+                                            <tbody>
+                                                <tr>
+                                                    <td style="border:0;margin:0;padding:0">
+                                                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td colspan="3" height="12"
+                                                                        style="border:0;margin:0;padding:0;font-size:1px;line-height:1px">
+                                                                        <div>&nbsp;</div>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="border:0;margin:0;padding:0;font-size:1px;line-height:1px"
+                                                                        width="16">
+                                                                        <div>&nbsp;</div>
+                                                                    </td>
+                                                                    <td
+                                                                        style="border:0;margin:0;padding:0;color:#414552;font-size:16px;line-height:24px">
+                                                                        <table
+                                                                            style="padding-left:5px;padding-right:5px"
+                                                                            width="100%">
+                                                                            <tbody>
+                                                                                <tr>
+                                                                                    <td></td>
+                                                                                </tr>
+                                                                                {% set totalInvoices = 0 %}
+                                                                                {% set totalRefunds = 0 %}
+                                                                                {% for pivot in
+                                                                                payment.paymentables|filter((pivot) =>
+                                                                                (pivot.is_credit == '0'
+                                                                                and pivot.refunded_raw > 0)) %}
+                                                                                <tr>
+                                                                                    <td
+                                                                                        style="white-space:nowrap;border:0;border-collapse:collapse;margin:0;padding:0;vertical-align:middle;color:#525f7f;font-size:15px;line-height:24px;width:100%">
+                                                                                        Invoice: #{{ pivot.invoice }}
+                                                                                        ({{ pivot.amount }})
+                                                                                    </td>
+                                                                                    <td width="8"
+                                                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                                                        &nbsp;</td>
+                                                                                    <td align="right" width="50"
+                                                                                        valign="top"
+                                                                                        style="white-space:nowrap;border:0;border-collapse:collapse;margin:0;padding:0;vertical-align:middle;color:#525f7f;font-size:15px;line-height:24px">
+                                                                                        $refunded_label {{
+                                                                                        pivot.refunded }}
+                                                                                    </td>
+                                                                                </tr>
+                                                                                {% set totalInvoices = totalInvoices +
+                                                                                pivot.amount_raw %}
+                                                                                {% set totalRefunds = totalRefunds +
+                                                                                pivot.refunded_raw %}
+                                                                                {% endfor %}
+
+                                                                                <tr>
+                                                                                    <td colspan="3" height="6"
+                                                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                                                        &nbsp;</td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td colspan="3" height="6"
+                                                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                                                        &nbsp;</td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td bgcolor="e6ebf1" colspan="3"
+                                                                                        height="1"
+                                                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                                                        &nbsp;</td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td colspan="3" height="8"
+                                                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                                                        &nbsp;</td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td
+                                                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;vertical-align:middle;color:#525f7f;font-size:15px;line-height:24px;width:100%">
+                                                                                        $total_label $invoices_label
+                                                                                    </td>
+                                                                                    <td width="8"
+                                                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                                                        &nbsp;</td>
+                                                                                    <td align="right" valign="top"
+                                                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;vertical-align:middle;color:#525f7f;font-size:15px;line-height:24px">
+                                                                                        {{
+                                                                                        totalInvoices|format_currency(currency_code)
+                                                                                        }}
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td colspan="3" height="6"
+                                                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                                                        &nbsp;</td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td
+                                                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;vertical-align:middle;color:#525f7f;font-size:15px;line-height:24px;width:100%">
+                                                                                        $total_label $refunded_label
+                                                                                    </td>
+                                                                                    <td width="8"
+                                                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                                                        &nbsp;</td>
+                                                                                    <td align="right" valign="top"
+                                                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;vertical-align:middle;color:#525f7f;font-size:15px;line-height:24px">
+                                                                                        {{ payment.refunded }}
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td colspan="3" height="6"
+                                                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                                                        &nbsp;</td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td colspan="3" height="6"
+                                                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                                                        &nbsp;</td>
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </td>
+                                                                    <td style="border:0;margin:0;padding:0;font-size:1px;line-height:1px"
+                                                                        width="16">
+                                                                        <div>&nbsp;</div>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td colspan="3" height="12"
+                                                                        style="border:0;margin:0;padding:0;font-size:1px;line-height:1px">
+                                                                        <div>&nbsp;</div>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                    <td style="border:0;margin:0;padding:0;font-size:1px;line-height:1px" width="48">
+                                        <div>&nbsp;</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" height="24"
+                                        style="border:0;margin:0;padding:0;font-size:1px;line-height:1px">
+                                        <div>&nbsp;</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        {% if payment.refund_activity %}
+                        <table border="0" cellpadding="0" cellspacing="0" width="600" style="min-width:600px">
+                            <tbody>
+                                <tr>
+                                    <td colspan="3" height="8"
+                                        style="border:0;margin:0;padding:0;font-size:1px;line-height:1px">
+                                        <div>&nbsp;</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="border:0;margin:0;padding:0;font-size:1px;line-height:1px" width="48">
+                                        <div>&nbsp;</div>
+                                    </td>
+                                    <td
+                                        style="border:0;margin:0;padding:0;color:#687385;font-weight:400;font-size:12px;line-height:16px;text-transform:uppercase">
+                                        <span style="border:0;margin:0;padding:0;font-weight:bold">
+                                            History
+                                        </span>
+                                    </td>
+                                    <td style="border:0;margin:0;padding:0;font-size:1px;line-height:1px" width="48">
+                                        <div>&nbsp;</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" height="8"
+                                        style="border:0;margin:0;padding:0;font-size:1px;line-height:1px">
+                                        <div>&nbsp;</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table border="0" cellpadding="0" cellspacing="0" width="600" style="min-width:600px">
+                            <tbody>
+                                <tr>
+                                    <td colspan="3" height="24"
+                                        style="border:0;margin:0;padding:0;font-size:1px;line-height:1px">
+                                        <div>&nbsp;</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="border:0;margin:0;padding:0;font-size:1px;line-height:1px" width="48">
+                                        <div>&nbsp;</div>
+                                    </td>
+                                    <td style="border:0;margin:0;padding:0">
+                                        <table bgcolor="#f6f9fc" border="0" cellpadding="0" cellspacing="0"
+                                            style="border-radius:8px" width="100%">
+                                            <tbody>
+                                                <tr>
+                                                    <td style="border:0;margin:0;padding:0">
+                                                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td colspan="3" height="12"
+                                                                        style="border:0;margin:0;padding:0;font-size:1px;line-height:1px">
+                                                                        <div>&nbsp;</div>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="border:0;margin:0;padding:0;font-size:1px;line-height:1px"
+                                                                        width="16">
+                                                                        <div>&nbsp;</div>
+                                                                    </td>
+                                                                    <td
+                                                                        style="border:0;margin:0;padding:0;color:#414552;font-size:16px;line-height:24px">
+                                                                        <table
+                                                                            style="padding-left:5px;padding-right:5px"
+                                                                            width="100%">
+                                                                            <tbody>
+                                                                                <tr>
+                                                                                    <td></td>
+                                                                                </tr>
+                                                                                {% for activity in
+                                                                                payment.refund_activity %}
+                                                                                <tr>
+                                                                                    <td
+                                                                                        style="white-space:nowrap;border:0;border-collapse:collapse;margin:0;padding:0;vertical-align:middle;color:#525f7f;font-size:15px;line-height:24px;width:100%">
+                                                                                        {{ activity }}
+                                                                                    </td>
+                                                                                    <td width="8"
+                                                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                                                        &nbsp;</td>
+                                                                                    <td align="right" width="50"
+                                                                                        valign="top"
+                                                                                        style="white-space:nowrap;border:0;border-collapse:collapse;margin:0;padding:0;vertical-align:middle;color:#525f7f;font-size:15px;line-height:24px">
+
+                                                                                    </td>
+                                                                                </tr>
+                                                                                {% endfor %}
+
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </td>
+                                                                    <td style="border:0;margin:0;padding:0;font-size:1px;line-height:1px"
+                                                                        width="16">
+                                                                        <div>&nbsp;</div>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td colspan="3" height="12"
+                                                                        style="border:0;margin:0;padding:0;font-size:1px;line-height:1px">
+                                                                        <div>&nbsp;</div>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                    <td style="border:0;margin:0;padding:0;font-size:1px;line-height:1px" width="48">
+                                        <div>&nbsp;</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" height="24"
+                                        style="border:0;margin:0;padding:0;font-size:1px;line-height:1px">
+                                        <div>&nbsp;</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        {% endif %}
+
+
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </ninja>
+</body>
+
+</html>
