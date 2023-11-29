@@ -45,7 +45,7 @@ class EmailReport
 
 
     /**
-     * The date range the statement should include
+     * The date range the report should include
      *
      * @var string
      */
