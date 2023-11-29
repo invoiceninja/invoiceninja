@@ -107,5 +107,5 @@ class EmailReport
      * Comma separated list of product.product_keys
      * to filter the report by
      */
-    public string $product_key = ''
+    public string $product_key = '';
 }
