@@ -507,7 +507,7 @@ class PdfMock
     '$status_logo' => '<div class="stamp is-paid"> ' . ctrans('texts.paid') .'</div>',
     '$show_shipping_address' => $this->settings->show_shipping_address ? 'flex' : 'none',
     '$show_shipping_address_block' => $this->settings->show_shipping_address ? 'block' : 'none',
-    '$show_shipping_address_visibility' => $this->settings->show_shipping_address ? 'visible' : 'hidden',
+    '$show_shipping_address_visibility' => $this->settings->show_shipping_address ? '1' : '0',
     '$start_date' => '31/01/2023',
     '$end_date' => '31/12/2023',
     '$history' => '',
