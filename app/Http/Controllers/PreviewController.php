@@ -248,7 +248,7 @@ class PreviewController extends BaseController
         $company = $user->company();
         $design = \App\Models\Design::query()
                     ->where('id', $request_data['design_id'])
-                    ->where(function ($q) use ($user){
+                    ->where(function ($q) use ($user) {
                         $q->whereNull('company_id')->orWhere('company_id', $user->companyId());
                     })
                     ->first();

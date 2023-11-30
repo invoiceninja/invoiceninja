@@ -69,9 +69,9 @@ class PdfMock
         if(isset($this->request['design_id']) && $design  = Design::withTrashed()->find($this->request['design_id'])) {
             $pdf_config->design = $design;
             $pdf_config->entity_design_id = $design->hashed_id;
-        }
-        else
+        } else {
             $pdf_config->design = Design::withTrashed()->find($this->decodePrimaryKey($pdf_config->entity_design_id));
+        }
         
         $pdf_service->config = $pdf_config;
 

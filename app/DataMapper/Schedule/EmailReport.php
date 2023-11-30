@@ -73,12 +73,12 @@ class EmailReport
 
     public string $report_name = '';
 
-    /** 
+    /**
      * Optional array of report keys for
      * filter the columns of the report
-     * 
-     * @var array $report_keys 
-     * 
+     *
+     * @var array $report_keys
+     *
      * */
     public array $report_keys = [];
 
@@ -89,9 +89,9 @@ class EmailReport
 
     public bool $include_tax = true;
 
-    /** 
-     * Comma separated string of statuses for filtering the Invoice report 
-     * 
+    /**
+     * Comma separated string of statuses for filtering the Invoice report
+     *
      *  all
      *  draft
      *  sent
@@ -99,7 +99,7 @@ class EmailReport
      *  unpaid
      *  overdue
      *  viewed
-     * 
+     *
      * */
     public string $status = '';
 

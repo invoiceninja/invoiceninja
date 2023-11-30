@@ -41,8 +41,9 @@ class VendorExpenseNotify implements ShouldQueue
     {
         MultiDB::setDB($this->db);
 
-        if(!$this->expense->vendor)
+        if(!$this->expense->vendor) {
             return;
+        }
 
         $this->expense->vendor->contacts->filter(function (VendorContact $contact) {
             return $contact->send_email && $contact->email;

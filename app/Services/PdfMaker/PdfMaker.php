@@ -82,12 +82,11 @@ class PdfMaker
             
             $ts = new TemplateService();
 
-            if(isset($this->data['template']['entity'])){
-                try{
+            if(isset($this->data['template']['entity'])) {
+                try {
                     $entity = $this->data['template']['entity'];
                     $ts->setCompany($entity->company);
-                }
-                catch(\Exception $e){
+                } catch(\Exception $e) {
                  
                 }
             }
