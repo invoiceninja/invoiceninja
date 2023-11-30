@@ -20,8 +20,9 @@ class BankIntegration extends BaseModel
     use SoftDeletes;
     use Filterable;
     use Excludable;
-    
+
     protected $fillable = [
+        'integration_type',
         'bank_account_name',
         'provider_name',
         'bank_account_number',
@@ -35,6 +36,12 @@ class BankIntegration extends BaseModel
 
     protected $dates = [
     ];
+
+    const INTEGRATION_TYPE_NONE = null;
+
+    const INTEGRATION_TYPE_YODLEE = 'YODLEE';
+
+    const INTEGRATION_TYPE_NORDIGEN = 'NORDIGEN';
 
     public function getEntityType()
     {
