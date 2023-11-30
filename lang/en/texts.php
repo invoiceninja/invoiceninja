@@ -5218,6 +5218,7 @@ $lang = array(
     'vendor_notification_body' => 'Payment processed for :amount dated :payment_date. <br>[Transaction Reference: :transaction_reference]',
     'receipt' => 'Receipt',
     'charges' => 'Charges',
+    'email_report' => 'Email Report',
 );
 
 return $lang;
