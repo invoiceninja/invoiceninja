@@ -14,13 +14,14 @@ namespace App\Http\Controllers\Bank;
 use App\Helpers\Bank\Nordigen\Nordigen;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Yodlee\YodleeAuthRequest;
-use App\Jobs\Bank\ProcessBankTransactions;
+use App\Jobs\Bank\ProcessBankTransactionsNordigen;
 use App\Models\BankIntegration;
 use Illuminate\Http\Request;
 
-class YodleeController extends BaseController
+class NordigenController extends BaseController
 {
 
+    // TODO!!!!!
     public function auth(YodleeAuthRequest $request)
     {
 
@@ -35,21 +36,21 @@ class YodleeController extends BaseController
 
         //ensure user is enterprise!!
 
-        if ($company->account->bank_integration_account_id) {
+        if ($company->account->bank_integration_nordigen_client_id && $company->account->bank_integration_nordigen_client_id) {
 
             $flow = 'edit';
 
-            $token = $company->account->bank_integration_account_id;
+            $token = $company->account->bank_integration_nordigen_client_id;
 
         } else {
 
             $flow = 'add';
 
-            $response = $yodlee->createUser($company);
+            $response = $nordigen->createUser($company);
 
             $token = $response->user->loginName;
 
-            $company->account->bank_integration_account_id = $token;
+            $company->account->bank_integration_nordigen_client_id = $token;
 
             $company->push();
 
@@ -107,7 +108,7 @@ class YodleeController extends BaseController
 
         $company->account->bank_integrations->each(function ($bank_integration) use ($company) {
 
-            ProcessBankTransactions::dispatch($company->account->bank_integration_account_id, $bank_integration);
+            ProcessBankTransactionsNordigen::dispatch($company->account, $bank_integration);
 
         });
 

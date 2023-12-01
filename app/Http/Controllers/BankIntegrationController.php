@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 use App\Factory\BankIntegrationFactory;
 use App\Filters\BankIntegrationFilters;
 use App\Helpers\Bank\Yodlee\Yodlee;
+use App\Helpers\Bank\Nordigen\Nordigen;
 use App\Http\Requests\BankIntegration\AdminBankIntegrationRequest;
 use App\Http\Requests\BankIntegration\BulkBankIntegrationRequest;
 use App\Http\Requests\BankIntegration\CreateBankIntegrationRequest;
@@ -22,7 +23,9 @@ use App\Http\Requests\BankIntegration\EditBankIntegrationRequest;
 use App\Http\Requests\BankIntegration\ShowBankIntegrationRequest;
 use App\Http\Requests\BankIntegration\StoreBankIntegrationRequest;
 use App\Http\Requests\BankIntegration\UpdateBankIntegrationRequest;
-use App\Jobs\Bank\ProcessBankTransactions;
+use App\Jobs\Bank\ProcessBankTransactionsYodlee;
+use App\Jobs\Bank\ProcessBankTransactionsNordigen;
+use App\Models\Account;
 use App\Models\BankIntegration;
 use App\Repositories\BankIntegrationRepository;
 use App\Services\Bank\BankMatchingService;
@@ -471,7 +474,7 @@ class BankIntegrationController extends BaseController
         $action = request()->input('action');
 
         $ids = request()->input('ids');
-            
+
         $bank_integrations = BankIntegration::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
         $bank_integrations->each(function ($bank_integration, $key) use ($action) {
@@ -521,23 +524,45 @@ class BankIntegrationController extends BaseController
      */
     public function refreshAccounts(AdminBankIntegrationRequest $request)
     {
-        // As yodlee is the first integration we don't need to perform switches yet, however
-        // if we add additional providers we can reuse this class
+        $account = auth()->user()->account;
 
-        $bank_account_id = auth()->user()->account->bank_integration_account_id;
+        $this->refreshAccountsYodlee($account);
 
-        if(!$bank_account_id)
+        $this->refreshAccountsNordigen($account);
+
+        if (Cache::get("throttle_polling:{$account->key}"))
+            return response()->json(BankIntegration::query()->company(), 200);
+
+        // Processing transactions for each bank account
+        $account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_YODLEE)->each(function ($bank_integration) use ($account) {
+
+            ProcessBankTransactionsYodlee::dispatch($account, $bank_integration);
+
+        });
+
+        $account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->each(function ($bank_integration) use ($account) {
+
+            ProcessBankTransactionsNordigen::dispatch($account, $bank_integration);
+
+        });
+
+        Cache::put("throttle_polling:{$account->key}", true, 300);
+
+        return response()->json(BankIntegration::query()->company(), 200);
+    }
+    private function refreshAccountsYodlee(Account $account)
+    {
+
+        if (!$account->bank_integration_yodlee_account_id)
             return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
 
-        $yodlee = new Yodlee($bank_account_id);
+        $yodlee = new Yodlee($account->bank_integration_yodlee_account_id);
 
-        $accounts = $yodlee->getAccounts(); 
+        $accounts = $yodlee->getAccounts();
 
-        foreach($accounts as $account)
-        {
+        foreach ($accounts as $account) {
 
-            if(!BankIntegration::where('bank_account_id', $account['id'])->where('company_id', auth()->user()->company()->id)->exists())
-            {
+            if (!BankIntegration::where("integration_type", BankIntegration::INTEGRATION_TYPE_YODLEE)->where('bank_account_id', $account['id'])->where('company_id', auth()->user()->company()->id)->exists()) {
                 $bank_integration = new BankIntegration();
                 $bank_integration->company_id = auth()->user()->company()->id;
                 $bank_integration->account_id = auth()->user()->account_id;
@@ -552,26 +577,44 @@ class BankIntegrationController extends BaseController
                 $bank_integration->nickname = $account['nickname'];
                 $bank_integration->balance = $account['current_balance'];
                 $bank_integration->currency = $account['account_currency'];
-                
+
                 $bank_integration->save();
-
             }
+
         }
+    }
+    private function refreshAccountsNordigen(Account $account)
+    {
 
-        $account = auth()->user()->account;
-        
-        if(Cache::get("throttle_polling:{$account->key}"))
-            return response()->json(BankIntegration::query()->company(), 200);
+        if (!$account->bank_integration_nordigen_client_id || !$account->bank_integration_nordigen_client_secret)
+            return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
 
-        $account->bank_integrations->each(function ($bank_integration) use ($account){
-            
-            ProcessBankTransactions::dispatch($account->bank_integration_account_id, $bank_integration);
+        $nordigen = new Nordigen($account->bank_integration_nordigen_client_id, $account->bank_integration_nordigen_client_secret);
 
-        });
+        $accounts = $nordigen->getAccounts();
 
-        Cache::put("throttle_polling:{$account->key}", true, 300);
+        foreach ($accounts as $account) {
 
-        return response()->json(BankIntegration::query()->company(), 200);
+            if (!BankIntegration::where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->where('bank_account_id', $account['id'])->where('company_id', auth()->user()->company()->id)->exists()) {
+                $bank_integration = new BankIntegration();
+                $bank_integration->company_id = auth()->user()->company()->id;
+                $bank_integration->account_id = auth()->user()->account_id;
+                $bank_integration->user_id = auth()->user()->id;
+                $bank_integration->bank_account_id = $account['id'];
+                $bank_integration->bank_account_type = $account['account_type'];
+                $bank_integration->bank_account_name = $account['account_name'];
+                $bank_integration->bank_account_status = $account['account_status'];
+                $bank_integration->bank_account_number = $account['account_number'];
+                $bank_integration->provider_id = $account['provider_id'];
+                $bank_integration->provider_name = $account['provider_name'];
+                $bank_integration->nickname = $account['nickname'];
+                $bank_integration->balance = $account['current_balance'];
+                $bank_integration->currency = $account['account_currency'];
+
+                $bank_integration->save();
+            }
+
+        }
     }
 
     /**
@@ -614,20 +657,36 @@ class BankIntegrationController extends BaseController
     public function removeAccount(AdminBankIntegrationRequest $request, $acc_id)
     {
 
-        $bank_account_id = auth()->user()->account->bank_integration_account_id;
+        $account = auth()->user()->account;
 
-        if(!$bank_account_id)
+        $bank_integration = BankIntegration::withTrashed()->where('bank_account_id', $acc_id)->company()->firstOrFail();
+
+        if ($bank_integration->integration_type == BankIntegration::INTEGRATION_TYPE_YODLEE)
+            $this->removeAccountYodlee($account, $bank_integration);
+        else if ($bank_integration->integration_type == BankIntegration::INTEGRATION_TYPE_NORDIGEN)
+            $this->removeAccountNordigen($account, $bank_integration); 
+        
+        $this->bank_integration_repo->delete($bank_integration);
+
+        return $this->itemResponse($bank_integration->fresh());
+    }
+
+    private function removeAccountYodlee(Account $account, BankIntegration $bank_integration)
+    {
+        if (!$account->bank_integration_yodlee_account_id)
             return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
 
-        $bi = BankIntegration::withTrashed()->where('bank_account_id', $acc_id)->company()->firstOrFail();
+        $yodlee = new Yodlee($account->bank_integration_yodlee_account_id);
+        $yodlee->deleteAccount($bank_integration->bank_account_id);
+    }
 
-        $yodlee = new Yodlee($bank_account_id);
-        $res = $yodlee->deleteAccount($acc_id);
+    private function removeAccountNordigen(Account $account, BankIntegration $bank_integration)
+    {
+        if (!$account->bank_integration_nordigen_client_id || !$account->bank_integration_nordigen_client_secret)
+            return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
 
-        $this->bank_integration_repo->delete($bi);
-
-        return $this->itemResponse($bi->fresh());
-
+        $nordigen = new Nordigen($account->bank_integration_nordigen_client_id, $account->bank_integration_nordigen_client_secret);
+        $nordigen->deleteAccount($bank_integration->bank_account_id);
     }
 
 
@@ -669,10 +728,17 @@ class BankIntegrationController extends BaseController
      */
     public function getTransactions(AdminBankIntegrationRequest $request)
     {
+        // Yodlee
+        auth()->user()->account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_YODLEE)->each(function ($bank_integration) {
 
-        auth()->user()->account->bank_integrations->each(function ($bank_integration) {
-            
-            (new ProcessBankTransactions(auth()->user()->account->bank_integration_account_id, $bank_integration))->handle();
+            (new ProcessBankTransactionsYodlee(auth()->user()->account, $bank_integration))->handle();
+
+        });
+
+        // Nordigen
+        auth()->user()->account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->each(function ($bank_integration) {
+
+            (new ProcessBankTransactionsYodlee(auth()->user()->account, $bank_integration))->handle();
 
         });
 

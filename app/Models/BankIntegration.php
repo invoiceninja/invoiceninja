@@ -22,7 +22,6 @@ class BankIntegration extends BaseModel
     use Excludable;
 
     protected $fillable = [
-        'integration_type',
         'bank_account_name',
         'provider_name',
         'bank_account_number',

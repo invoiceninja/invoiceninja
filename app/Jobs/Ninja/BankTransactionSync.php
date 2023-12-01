@@ -11,9 +11,11 @@
 
 namespace App\Jobs\Ninja;
 
-use App\Jobs\Bank\ProcessBankTransactions;
+use App\Jobs\Bank\ProcessBankTransactionsYodlee;
+use App\Jobs\Bank\ProcessBankTransactionsNordigen;
 use App\Libraries\MultiDB;
 use App\Models\Account;
+use App\Models\BankIntegration;
 use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -46,28 +48,38 @@ class BankTransactionSync implements ShouldQueue
     {
 
         //multiDB environment, need to
-        foreach (MultiDB::$dbs as $db) 
-        {
+        foreach (MultiDB::$dbs as $db) {
             MultiDB::setDB($db);
 
-            nlog("syncing transactions");
+            nlog("syncing transactions - yodlee");
 
-                $a = Account::with('bank_integrations')->whereNotNull('bank_integration_account_id')->cursor()->each(function ($account){
+            Account::with('bank_integrations')->whereNotNull('bank_integration_yodlee_account_id')->cursor()->each(function ($account) {
 
-                    // $queue = Ninja::isHosted() ? 'bank' : 'default';
+                if ($account->isPaid() && $account->plan == 'enterprise') {
 
-                    if($account->isPaid() && $account->plan == 'enterprise')
-                    {
+                    $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_YODLEE)->andWhere('auto_sync', true)->cursor()->each(function ($bank_integration) use ($account) {
 
-                        $account->bank_integrations()->where('auto_sync', true)->cursor()->each(function ($bank_integration) use ($account){
-                            
-                            (new ProcessBankTransactions($account->bank_integration_account_id, $bank_integration))->handle();
+                        (new ProcessBankTransactionsYodlee($account, $bank_integration))->handle();
 
-                        });
+                    });
 
-                    }
+                }
+
+            });
+
+            nlog("syncing transactions - nordigen");
+
+            Account::with('bank_integrations')->whereNotNull('bank_integration_nordigen_client_id')->andWhereNotNull('bank_integration_nordigen_client_secret')->cursor()->each(function ($account) {
+
+                $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_NORDIGEN)->andWhere('auto_sync', true)->cursor()->each(function ($bank_integration) use ($account) {
+
+                    (new ProcessBankTransactionsNordigen($account, $bank_integration))->handle();
 
                 });
+
+            });
+
+            nlog("syncing transactions - done");
         }
     }
 

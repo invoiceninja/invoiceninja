@@ -59,7 +59,7 @@ class MatchBankTransactions implements ShouldQueue
     private $categories;
 
     private float $available_balance = 0;
-    
+
     private float $applied_amount = 0;
 
     private array $attachable_invoices = [];
@@ -86,6 +86,7 @@ class MatchBankTransactions implements ShouldQueue
      *
      * @return void
      */
+    // TODO: what are these categories, and for what do we need them
     public function handle()
     {
 
@@ -93,33 +94,31 @@ class MatchBankTransactions implements ShouldQueue
 
         $this->company = Company::find($this->company_id);
 
-        if($this->company->account->bank_integration_account_id)
-            $yodlee = new Yodlee($this->company->account->bank_integration_account_id);
+        if ($this->company->account->bank_integration_yodlee_account_id)
+            $yodlee = new Yodlee($this->company->account->bank_integration_yodlee_account_id);
         else
             $yodlee = false;
 
         $bank_categories = Cache::get('bank_categories');
-        
-        if(!$bank_categories && $yodlee){
+
+        if (!$bank_categories && $yodlee) {
             $_categories = $yodlee->getTransactionCategories();
             $this->categories = collect($_categories->transactionCategory);
             Cache::forever('bank_categories', $this->categories);
-        }
-        else {
+        } else {
             $this->categories = collect($bank_categories);
         }
 
-        foreach($this->input as $input)
-        {
+        foreach ($this->input as $input) {
             nlog($input);
 
-            if(array_key_exists('invoice_ids', $input) && strlen($input['invoice_ids']) >= 1)
+            if (array_key_exists('invoice_ids', $input) && strlen($input['invoice_ids']) >= 1)
                 $this->matchInvoicePayment($input);
-            elseif(array_key_exists('payment_id', $input) && strlen($input['payment_id']) >= 1)
+            elseif (array_key_exists('payment_id', $input) && strlen($input['payment_id']) >= 1)
                 $this->linkPayment($input);
-            elseif(array_key_exists('expense_id', $input) && strlen($input['expense_id']) >= 1)
+            elseif (array_key_exists('expense_id', $input) && strlen($input['expense_id']) >= 1)
                 $this->linkExpense($input);
-            elseif((array_key_exists('vendor_id', $input) && strlen($input['vendor_id']) >= 1) || (array_key_exists('ninja_category_id', $input) && strlen($input['ninja_category_id']) >= 1))
+            elseif ((array_key_exists('vendor_id', $input) && strlen($input['vendor_id']) >= 1) || (array_key_exists('ninja_category_id', $input) && strlen($input['ninja_category_id']) >= 1))
                 $this->matchExpense($input);
         }
 
@@ -133,28 +132,27 @@ class MatchBankTransactions implements ShouldQueue
 
         $invoices = explode(",", $invoice_hashed_ids);
 
-        if(count($invoices) >= 1) 
-        {
+        if (count($invoices) >= 1) {
 
-            foreach($invoices as $invoice){
+            foreach ($invoices as $invoice) {
 
-                if(is_string($invoice) && strlen($invoice) > 1)
+                if (is_string($invoice) && strlen($invoice) > 1)
                     $collection->push($this->decodePrimaryKey($invoice));
             }
-        
+
         }
 
         return $collection;
     }
 
-    private function checkPayable($invoices) :bool
+    private function checkPayable($invoices): bool
     {
 
-        foreach($invoices as $invoice){
+        foreach ($invoices as $invoice) {
 
             $invoice->service()->markSent();
-            
-            if(!$invoice->isPayable())
+
+            if (!$invoice->isPayable())
                 return false;
 
         }
@@ -168,12 +166,12 @@ class MatchBankTransactions implements ShouldQueue
 
         $this->bt = BankTransaction::find($input['id']);
 
-        if(!$this->bt || $this->bt->status_id == BankTransaction::STATUS_CONVERTED)
+        if (!$this->bt || $this->bt->status_id == BankTransaction::STATUS_CONVERTED)
             return $this;
 
         $expense = Expense::withTrashed()->find($input['expense_id']);
 
-        if($expense && !$expense->transaction_id) {
+        if ($expense && !$expense->transaction_id) {
 
             $expense->transaction_id = $this->bt->id;
             $expense->save();
@@ -187,7 +185,7 @@ class MatchBankTransactions implements ShouldQueue
             $this->bts->push($this->bt->id);
 
         }
-    
+
         return $this;
 
     }
@@ -197,12 +195,12 @@ class MatchBankTransactions implements ShouldQueue
 
         $this->bt = BankTransaction::find($input['id']);
 
-        if(!$this->bt || $this->bt->status_id == BankTransaction::STATUS_CONVERTED)
+        if (!$this->bt || $this->bt->status_id == BankTransaction::STATUS_CONVERTED)
             return $this;
 
         $payment = Payment::withTrashed()->find($input['payment_id']);
-        
-        if($payment && !$payment->transaction_id) {
+
+        if ($payment && !$payment->transaction_id) {
 
             $payment->transaction_id = $this->bt->id;
             $payment->save();
@@ -218,18 +216,18 @@ class MatchBankTransactions implements ShouldQueue
         return $this;
     }
 
-    private function matchInvoicePayment($input) :self
-    { 
+    private function matchInvoicePayment($input): self
+    {
         $this->bt = BankTransaction::find($input['id']);
 
-            if(!$this->bt || $this->bt->status_id == BankTransaction::STATUS_CONVERTED)
-                return $this;
+        if (!$this->bt || $this->bt->status_id == BankTransaction::STATUS_CONVERTED)
+            return $this;
 
         $_invoices = Invoice::withTrashed()->find($this->getInvoices($input['invoice_ids']));
-        
+
         $amount = $this->bt->amount;
 
-        if($_invoices && $this->checkPayable($_invoices)){
+        if ($_invoices && $this->checkPayable($_invoices)) {
 
             $this->createPayment($_invoices, $amount);
 
@@ -240,13 +238,13 @@ class MatchBankTransactions implements ShouldQueue
         return $this;
     }
 
-    private function matchExpense($input) :self
-    { 
+    private function matchExpense($input): self
+    {
         //if there is a category id, pull it from Yodlee and insert - or just reuse!!
         $this->bt = BankTransaction::find($input['id']);
 
-            if(!$this->bt || $this->bt->status_id == BankTransaction::STATUS_CONVERTED)
-                return $this;
+        if (!$this->bt || $this->bt->status_id == BankTransaction::STATUS_CONVERTED)
+            return $this;
 
         $expense = ExpenseFactory::create($this->bt->company_id, $this->bt->user_id);
         $expense->category_id = $this->resolveCategory($input);
@@ -258,7 +256,7 @@ class MatchBankTransactions implements ShouldQueue
         $expense->transaction_reference = $this->bt->description;
         $expense->transaction_id = $this->bt->id;
 
-        if(array_key_exists('vendor_id', $input))
+        if (array_key_exists('vendor_id', $input))
             $expense->vendor_id = $input['vendor_id'];
 
         $expense->invoice_documents = $this->company->invoice_expense_documents;
@@ -267,9 +265,9 @@ class MatchBankTransactions implements ShouldQueue
 
         $this->bt->expense_id = $expense->id;
 
-        if(array_key_exists('vendor_id', $input))
+        if (array_key_exists('vendor_id', $input))
             $this->bt->vendor_id = $input['vendor_id'];
-        
+
         $this->bt->status_id = BankTransaction::STATUS_CONVERTED;
         $this->bt->save();
 
@@ -278,52 +276,48 @@ class MatchBankTransactions implements ShouldQueue
         return $this;
     }
 
-    private function createPayment($invoices, float $amount) :void
+    private function createPayment($invoices, float $amount): void
     {
         $this->available_balance = $amount;
 
-        \DB::connection(config('database.default'))->transaction(function () use($invoices) {
+        \DB::connection(config('database.default'))->transaction(function () use ($invoices) {
 
-            $invoices->each(function ($invoice) use ($invoices){
-            
+            $invoices->each(function ($invoice) use ($invoices) {
+
                 $this->invoice = Invoice::withTrashed()->where('id', $invoice->id)->lockForUpdate()->first();
 
-                    $_amount = false;
+                $_amount = false;
 
-                    if(floatval($this->invoice->balance) < floatval($this->available_balance) && $this->available_balance > 0)
-                    {
-                        $_amount = $this->invoice->balance;
-                        $this->applied_amount += $this->invoice->balance;
-                        $this->available_balance = $this->available_balance - $this->invoice->balance;
-                    }
-                    elseif(floatval($this->invoice->balance) >= floatval($this->available_balance) && $this->available_balance > 0)
-                    {
-                        $_amount = $this->available_balance;
-                        $this->applied_amount += $this->available_balance;
-                        $this->available_balance = 0;
-                    }
+                if (floatval($this->invoice->balance) < floatval($this->available_balance) && $this->available_balance > 0) {
+                    $_amount = $this->invoice->balance;
+                    $this->applied_amount += $this->invoice->balance;
+                    $this->available_balance = $this->available_balance - $this->invoice->balance;
+                } elseif (floatval($this->invoice->balance) >= floatval($this->available_balance) && $this->available_balance > 0) {
+                    $_amount = $this->available_balance;
+                    $this->applied_amount += $this->available_balance;
+                    $this->available_balance = 0;
+                }
 
-                    if($_amount)
-                    {
+                if ($_amount) {
 
-                        $this->attachable_invoices[] = ['id' => $this->invoice->id, 'amount' => $_amount];
+                    $this->attachable_invoices[] = ['id' => $this->invoice->id, 'amount' => $_amount];
 
-                        $this->invoice
-                            ->service()
-                            ->setExchangeRate()
-                            ->updateBalance($_amount * -1)
-                            ->updatePaidToDate($_amount)
-                            ->setCalculatedStatus()
-                            ->save();
-                    }
+                    $this->invoice
+                        ->service()
+                        ->setExchangeRate()
+                        ->updateBalance($_amount * -1)
+                        ->updatePaidToDate($_amount)
+                        ->setCalculatedStatus()
+                        ->save();
+                }
 
-                });
+            });
 
         }, 2);
 
-        if(!$this->invoice)
+        if (!$this->invoice)
             return;
-        
+
         /* Create Payment */
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
 
@@ -336,7 +330,7 @@ class MatchBankTransactions implements ShouldQueue
         $payment->currency_id = $this->bt->currency_id;
         $payment->is_manual = false;
         $payment->date = $this->bt->date ? Carbon::parse($this->bt->date) : now();
-        
+
 
         /* Bank Transfer! */
         $payment_type_id = 1;
@@ -344,15 +338,14 @@ class MatchBankTransactions implements ShouldQueue
         $payment->saveQuietly();
 
         $payment->service()->applyNumber()->save();
-        
-        if($payment->client->getSetting('send_email_on_mark_paid'))
+
+        if ($payment->client->getSetting('send_email_on_mark_paid'))
             $payment->service()->sendEmail();
 
         $this->setExchangeRate($payment);
 
         /* Create a payment relationship to the invoice entity */
-        foreach($this->attachable_invoices as $attachable_invoice)
-        {
+        foreach ($this->attachable_invoices as $attachable_invoice) {
 
             $payment->invoices()->attach($attachable_invoice['id'], [
                 'amount' => $attachable_invoice['amount'],
@@ -365,24 +358,24 @@ class MatchBankTransactions implements ShouldQueue
         $this->invoice->next_send_date = null;
 
         $this->invoice
-                ->service()
-                ->applyNumber()
-                ->touchPdf()
-                ->save();
+            ->service()
+            ->applyNumber()
+            ->touchPdf()
+            ->save();
 
         $payment->ledger()
-                ->updatePaymentBalance($amount * -1);
+            ->updatePaymentBalance($amount * -1);
 
         $this->invoice
-             ->client
-             ->service()
-             ->updateBalanceAndPaidToDate($this->applied_amount*-1, $amount)
-             ->save();
+            ->client
+            ->service()
+            ->updateBalanceAndPaidToDate($this->applied_amount * -1, $amount)
+            ->save();
 
         $this->invoice = $this->invoice
-                             ->service()
-                             ->workFlow()
-                             ->save();
+            ->service()
+            ->workFlow()
+            ->save();
 
         /* Update Invoice balance */
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
@@ -394,24 +387,23 @@ class MatchBankTransactions implements ShouldQueue
         $this->bt->save();
     }
 
-    private function resolveCategory($input) :?int
+    private function resolveCategory($input): ?int
     {
-        if(array_key_exists('ninja_category_id', $input) && (int)$input['ninja_category_id'] > 1){
+        if (array_key_exists('ninja_category_id', $input) && (int) $input['ninja_category_id'] > 1) {
             $this->bt->ninja_category_id = $input['ninja_category_id'];
             $this->bt->save();
 
-            return (int)$input['ninja_category_id'];
+            return (int) $input['ninja_category_id'];
         }
 
         $category = $this->categories->firstWhere('highLevelCategoryId', $this->bt->category_id);
 
         $ec = ExpenseCategory::where('company_id', $this->bt->company_id)->where('bank_category_id', $this->bt->category_id)->first();
 
-        if($ec)
+        if ($ec)
             return $ec->id;
 
-        if($category)
-        {
+        if ($category) {
             $ec = ExpenseCategoryFactory::create($this->bt->company_id, $this->bt->user_id);
             $ec->bank_category_id = $this->bt->category_id;
             $ec->name = $category->highLevelCategoryName;
@@ -419,7 +411,7 @@ class MatchBankTransactions implements ShouldQueue
 
             return $ec->id;
         }
-        
+
 
         return null;
     }

@@ -9,8 +9,8 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Helpers\Bank\Yodlee\Transformer;
- 
+namespace App\Helpers\Bank\Nordigen\Transformer;
+
 /**
 "date": "string",
 "sourceId": "string",

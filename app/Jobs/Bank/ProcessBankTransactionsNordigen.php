@@ -11,8 +11,9 @@
 
 namespace App\Jobs\Bank;
 
-use App\Helpers\Bank\Yodlee\Yodlee;
+use App\Helpers\Bank\Nordigen\Nordigen;
 use App\Libraries\MultiDB;
+use App\Models\Account;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
 use App\Models\Company;
@@ -24,11 +25,11 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
 
-class ProcessBankTransactions implements ShouldQueue
+class ProcessBankTransactionsNordigen implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private string $bank_integration_account_id;
+    private Account $account;
 
     private BankIntegration $bank_integration;
 
@@ -43,12 +44,15 @@ class ProcessBankTransactions implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(string $bank_integration_account_id, BankIntegration $bank_integration)
+    public function __construct(Account $account, BankIntegration $bank_integration)
     {
-        $this->bank_integration_account_id = $bank_integration_account_id;
+        $this->account = $account;
         $this->bank_integration = $bank_integration;
         $this->from_date = $bank_integration->from_date;
         $this->company = $this->bank_integration->company;
+
+        if ($this->bank_integration->integration_type != BankIntegration::INTEGRATION_TYPE_NORDIGEN)
+            throw new \Exception("Invalid BankIntegration Type");
 
     }
 
@@ -66,18 +70,17 @@ class ProcessBankTransactions implements ShouldQueue
         //Loop through everything until we are up to date
         $this->from_date = $this->from_date ?: '2021-01-01';
 
-        do{
+        do {
 
             try {
                 $this->processTransactions();
-            }
-            catch(\Exception $e) {
-                nlog("{$this->bank_integration_account_id} - exited abnormally => ". $e->getMessage());
+            } catch (\Exception $e) {
+                nlog("{$this->account->bank_integration_nordigen_client_id} - exited abnormally => " . $e->getMessage());
                 return;
             }
 
         }
-        while($this->stop_loop);
+        while ($this->stop_loop);
 
         BankMatchingService::dispatch($this->company->id, $this->company->db);
 
@@ -87,14 +90,13 @@ class ProcessBankTransactions implements ShouldQueue
     private function processTransactions()
     {
 
-        $yodlee = new Yodlee($this->bank_integration_account_id);
+        $nordigen = new Nordigen($this->account->bank_integration_nordigen_client_id, $this->account->bank_integration_nordigen_client_secret); // TODO: maybe implement credentials
 
-        if(!$yodlee->getAccount($this->bank_integration->bank_account_id)) 
-        {
-             $this->bank_integration->disabled_upstream = true;
-             $this->bank_integration->save();
-             $this->stop_loop = false;
-             return;   
+        if (!$nordigen->isAccountActive($this->bank_integration->bank_account_id)) {
+            $this->bank_integration->disabled_upstream = true;
+            $this->bank_integration->save();
+            $this->stop_loop = false;
+            return;
         }
 
         $data = [
@@ -105,16 +107,13 @@ class ProcessBankTransactions implements ShouldQueue
         ];
 
         //Get transaction count object
-        $transaction_count = $yodlee->getTransactionCount($data);
+        $transactions = $nordigen->getTransactions($this->bank_integration->bank_account_id, $this->from_date);
 
         //Get int count
-        $count = $transaction_count->transaction->TOTAL->count;
-
-        //get transactions array
-        $transactions = $yodlee->getTransactions($data); 
+        $count = sizeof($transactions->transactions->booked);
 
         //if no transactions, update the from_date and move on
-        if(count($transactions) == 0){
+        if (count($transactions) == 0) {
 
             $this->bank_integration->from_date = now()->subDays(2);
             $this->bank_integration->disabled_upstream = false;
@@ -129,21 +128,20 @@ class ProcessBankTransactions implements ShouldQueue
 
         /*Get the user */
         $user_id = $this->company->owner()->id;
-        
+
         /* Unguard the model to perform batch inserts */
         BankTransaction::unguard();
 
         $now = now();
-        
-        foreach($transactions as $transaction)
-        {
 
-            if(BankTransaction::where('transaction_id', $transaction['transaction_id'])->where('company_id', $this->company->id)->withTrashed()->exists())
+        foreach ($transactions as $transaction) {
+
+            if (BankTransaction::where('transaction_id', $transaction['transaction_id'])->where('company_id', $this->company->id)->withTrashed()->exists())
                 continue;
 
             //this should be much faster to insert than using ::create()
             $bt = \DB::table('bank_transactions')->insert(
-                array_merge($transaction,[
+                array_merge($transaction, [
                     'company_id' => $this->company->id,
                     'user_id' => $user_id,
                     'bank_integration_id' => $this->bank_integration->id,
@@ -157,7 +155,7 @@ class ProcessBankTransactions implements ShouldQueue
 
         $this->skip = $this->skip + 500;
 
-        if($count < 500){
+        if ($count < 500) {
             $this->stop_loop = false;
             $this->bank_integration->from_date = now()->subDays(2);
             $this->bank_integration->save();
@@ -165,5 +163,4 @@ class ProcessBankTransactions implements ShouldQueue
         }
 
     }
-
 }

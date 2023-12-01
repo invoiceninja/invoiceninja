@@ -9,7 +9,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Helpers\Bank\Yodlee\Transformer;
+namespace App\Helpers\Bank\Nordigen\Transformer;
 
 use App\Helpers\Bank\BankRevenueInterface;
 use App\Utils\Traits\AppSetup;
@@ -74,7 +74,7 @@ use Illuminate\Support\Facades\Cache;
 "holdingDescription": "string",
 "isin": "string",
 "status": "POSTED"
- 
+
 (
 [CONTAINER] => bank
 [id] => 103953585
@@ -96,7 +96,7 @@ use Illuminate\Support\Facades\Cache;
         [original] => CHEROKEE NATION TAX TA TAHLEQUAH OK
     )
 
-[isManual] => 
+[isManual] =>
 [sourceType] => AGGREGATED
 [date] => 2022-08-03
 [transactionDate] => 2022-08-03
@@ -122,11 +122,10 @@ class IncomeTransformer implements BankRevenueInterface
 
         $data = [];
 
-        if(!property_exists($transaction, 'transaction'))
+        if (!property_exists($transaction, 'transaction'))
             return $data;
 
-        foreach($transaction->transaction as $transaction)
-        {
+        foreach ($transaction->transaction as $transaction) {
             $data[] = $this->transformTransaction($transaction);
         }
 
@@ -154,7 +153,7 @@ class IncomeTransformer implements BankRevenueInterface
     {
         //CREDIT / DEBIT
 
-        if(property_exists($transaction, 'highLevelCategoryId') && $transaction->highLevelCategoryId == 10000012)
+        if (property_exists($transaction, 'highLevelCategoryId') && $transaction->highLevelCategoryId == 10000012)
             return 'CREDIT';
 
         return 'DEBIT';
@@ -166,15 +165,15 @@ class IncomeTransformer implements BankRevenueInterface
 
         $currencies = Cache::get('currencies');
 
-        if (! $currencies) {
+        if (!$currencies) {
             $this->buildCache(true);
         }
 
-        $currency = $currencies->filter(function ($item) use($code){
+        $currency = $currencies->filter(function ($item) use ($code) {
             return $item->code == $code;
         })->first();
 
-        if($currency)
+        if ($currency)
             return $currency->id;
 
         return 1;
