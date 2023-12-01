@@ -116,6 +116,80 @@ class NordigenController extends BaseController
 
 
     /**
+     * Process Nordigen Institutions GETTER.
+     *
+     *
+     * @OA\Post(
+     *      path="/api/v1/nordigen/institutions",
+     *      operationId="nordigenRefreshWebhook",
+     *      tags={"nordigen"},
+     *      summary="Getting available institutions from nordigen",
+     *      description="Used to determine the available institutions for sending and creating a new connect-link",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Credit"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+
+    /*
+    {
+      "event":{
+         "info":"REFRESH.PROCESS_COMPLETED",
+         "loginName":"fri21",
+         "data":{
+            "providerAccount":[
+               {
+                  "id":10995860,
+                  "providerId":16441,
+                  "isManual":false,
+                  "createdDate":"2017-12-22T05:47:35Z",
+                  "aggregationSource":"USER",
+                  "status":"SUCCESS",
+                  "requestId":"NSyMGo+R4dktywIu3hBIkc3PgWA=",
+                  "dataset":[
+                     {
+                        "name":"BASIC_AGG_DATA",
+                        "additionalStatus":"AVAILABLE_DATA_RETRIEVED",
+                        "updateEligibility":"ALLOW_UPDATE",
+                        "lastUpdated":"2017-12-22T05:48:16Z",
+                        "lastUpdateAttempt":"2017-12-22T05:48:16Z"
+                     }
+                  ]
+               }
+            ]
+         }
+      }
+   }*/
+    public function institutions(Request $request)
+    {
+        $account = auth()->user()->account;
+
+        if (!$account->bank_integration_nordigen_client_id || !$account->bank_integration_nordigen_client_secret)
+            return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
+
+        $nordigen = new Nordigen($account->bank_integration_nordigen_client_id, $account->bank_integration_nordigen_client_secret);
+        return response()->json($nordigen->getInstitutions());
+    }
+    /**
      * Process Yodlee Refresh Webhook.
      *
      *
