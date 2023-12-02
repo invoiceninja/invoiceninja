@@ -11,16 +11,17 @@
 
 namespace App\Export\CSV;
 
-use App\Libraries\MultiDB;
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Company;
-use App\Transformers\ClientContactTransformer;
-use App\Transformers\ClientTransformer;
 use App\Utils\Ninja;
-use Illuminate\Contracts\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\App;
+use App\Models\Client;
 use League\Csv\Writer;
+use App\Models\Company;
+use App\Libraries\MultiDB;
+use App\Models\ClientContact;
+use Illuminate\Support\Facades\App;
+use App\Export\Decorators\Decorator;
+use App\Transformers\ClientTransformer;
+use App\Transformers\ClientContactTransformer;
+use Illuminate\Database\Eloquent\Builder;
 
 class ContactExport extends BaseExport
 {
@@ -29,6 +30,8 @@ class ContactExport extends BaseExport
 
     private ClientContactTransformer $contact_transformer;
 
+    private Decorator $decorator;
+    
     public Writer $csv;
 
     public string $date_key = 'created_at';
@@ -39,6 +42,7 @@ class ContactExport extends BaseExport
         $this->input = $input;
         $this->client_transformer = new ClientTransformer();
         $this->contact_transformer = new ClientContactTransformer();
+        $this->decorator = new Decorator();
     }
 
     private function init(): Builder
@@ -119,11 +123,14 @@ class ContactExport extends BaseExport
             } elseif ($parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {
                 $entity[$key] = $transformed_contact[$parts[1]];
             } else {
-                $entity[$key] = '';
+                // nlog($key);
+                $entity[$key] = $this->decorator->transform($key, $contact);
+                // $entity[$key] = '';
+
             }
         }
-
-        return $this->decorateAdvancedFields($contact->client, $entity);
+        return $entity;
+        // return $this->decorateAdvancedFields($contact->client, $entity);
     }
 
     private function decorateAdvancedFields(Client $client, array $entity) :array

@@ -15,6 +15,7 @@ use App\DataMapper\CompanySettings;
 use App\Http\Middleware\PasswordProtection;
 use App\Models\Company;
 use App\Models\CompanyToken;
+use App\Models\TaxRate;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -49,6 +50,18 @@ class CompanyTest extends TestCase
         $this->makeTestData();
     }
 
+    public function testCompanyTaxInit()
+    {
+        TaxRate::query()->delete();
+
+        $settings = $this->company->settings;
+        $settings->country_id = '40';
+        $this->company->saveSettings($settings, $this->company);
+
+        $this->company->service()->localizeCompany($this->user);
+
+        $this->assertEquals(1, TaxRate::count());
+    }
 
     public function testCompanyLogoInline()
     {
@@ -73,7 +86,7 @@ class CompanyTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $company_update);
 
-            $response->assertStatus(200);
+        $response->assertStatus(200);
 
         $arr = $response->json();
 

@@ -11,22 +11,22 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\Credit;
-use App\Models\Invoice;
-use App\Models\Payment;
-use Tests\MockAccountData;
-use App\Models\ClientContact;
 use App\Factory\ClientFactory;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
-use App\Utils\Traits\MakesHash;
 use App\Helpers\Invoice\InvoiceSum;
+use App\Models\ClientContact;
+use App\Models\Credit;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test
@@ -123,10 +123,10 @@ class RefundTest extends TestCase
         $response = false;
 
    
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/payments/refund', $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments/refund', $data);
         
 
         $arr = $response->json();
@@ -219,11 +219,11 @@ class RefundTest extends TestCase
             'date' => '2020/12/12',
         ];
 
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/payments/refund', $data);
-            $response->assertStatus(422);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments/refund', $data);
+        $response->assertStatus(422);
         
     }
 
@@ -294,7 +294,7 @@ class RefundTest extends TestCase
         $i = $this->invoice->fresh();
 
         $this->assertEquals(0, $i->balance);
-        $this->assertEquals(round($this->invoice->amount,2), round($i->paid_to_date,2));
+        $this->assertEquals(round($this->invoice->amount, 2), round($i->paid_to_date, 2));
 
         $data = [
             'id' => $this->encodePrimaryKey($payment->id),

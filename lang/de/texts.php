@@ -1,6 +1,6 @@
 <?php
 
-$LANG = array(
+$lang = array(
     'organization' => 'Unternehmen',
     'name' => 'Name',
     'website' => 'Webseite',
@@ -5193,8 +5193,6 @@ Leistungsempfängers',
     'payment_receipt' => 'Zahlungsbeleg #:number',
     'load_template_description' => 'Das Template wird auf Folgendes angewendet:',
     'run_template' => 'Template anwenden',
-); 
+);
 
-return $LANG;
-
-?>
+return $lang;

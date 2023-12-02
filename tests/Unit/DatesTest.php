@@ -102,8 +102,9 @@ class DatesTest extends TestCase
 
         $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
 
-        if(now()->lt($fin_year_start))
+        if(now()->lt($fin_year_start)) {
             $fin_year_start->subYear();
+        }
 
         $fin_year_end = $fin_year_start->copy()->addYear()->subDay();
 
@@ -122,8 +123,9 @@ class DatesTest extends TestCase
 
         $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
 
-        if(now()->lt($fin_year_start))
+        if(now()->lt($fin_year_start)) {
             $fin_year_start->subYear();
+        }
 
         $fin_year_end = $fin_year_start->copy()->addYear()->subDay();
 
@@ -142,8 +144,9 @@ class DatesTest extends TestCase
 
         $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
 
-        if(now()->lt($fin_year_start))
+        if(now()->lt($fin_year_start)) {
             $fin_year_start->subYear();
+        }
 
         $fin_year_end = $fin_year_start->copy()->addYear()->subDay();
 
@@ -163,8 +166,9 @@ class DatesTest extends TestCase
 
         $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
 
-        if(now()->lt($fin_year_start))
+        if(now()->lt($fin_year_start)) {
             $fin_year_start->subYear();
+        }
 
         $fin_year_end = $fin_year_start->copy()->addYear()->subDay();
 

@@ -110,12 +110,13 @@ class Account extends BaseModel
     protected $presenter = AccountPresenter::class;
 
     protected $fillable = [
-        'plan',
-        'plan_term',
-        'plan_price',
-        'plan_paid',
-        'plan_started',
-        'plan_expires',
+        // 'plan',
+        // 'plan_term',
+        // 'plan_price',
+        // 'plan_paid',
+        // 'plan_started',
+        // 'plan_expires',
+        // 'num_users',
         'utm_source',
         'utm_medium',
         'utm_campaign',
@@ -125,7 +126,6 @@ class Account extends BaseModel
         'platform',
         'set_react_as_default_ap',
         'inapp_transaction_id',
-        'num_users',
     ];
 
     protected $casts = [

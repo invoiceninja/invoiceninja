@@ -11,16 +11,16 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Utils\Ninja;
-use Tests\MockAccountData;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Session;
 use App\Events\Vendor\VendorContactLoggedIn;
-use Illuminate\Validation\ValidationException;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\ValidationException;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test
@@ -47,6 +47,24 @@ class VendorApiTest extends TestCase
         Model::reguard();
     }
 
+
+    public function testVendorContactCreation()
+    {
+        $data = [
+            'name' => 'hewwo',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/vendors', $data);
+
+        $arr = $response->json();
+
+        $this->assertEquals('hewwo', $arr['data']['name']);
+        $this->assertEquals(1, count($arr['data']['contacts']));
+    }
+
     public function testVendorLoggedInEvents()
     {
         $v = \App\Models\Vendor::factory()->create([
@@ -69,12 +87,6 @@ class VendorApiTest extends TestCase
 
         Event::assertDispatched(VendorContactLoggedIn::class);
         
-        // $vc->fresh();
-        // $v->fresh();
-
-        // $this->assertNotNull($vc->fresh()->last_login);
-        // $this->assertNotNull($v->fresh()->last_login);
-
     }
 
     public function testVendorLocale()
@@ -99,7 +111,7 @@ class VendorApiTest extends TestCase
     }
 
     public function testVendorLocaleEnCompanyFallback()
-    { 
+    {
         $settings = $this->company->settings;
         $settings->language_id = '2';
 

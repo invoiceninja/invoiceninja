@@ -1,6 +1,6 @@
 <?php
 
-$LANG = array(
+$lang = array(
     'organization' => 'Organização',
     'name' => 'Nome',
     'website' => 'Site',
@@ -5164,8 +5164,6 @@ O envio de E-mails foi suspenso. Será retomado às 23:00 UTC.',
     'in_stock_quantity' => 'Quantidade em estoque',
     'vendor_contact' => 'Contato do fornecedor',
 
-); 
+);
 
-return $LANG;
-
-?>
+return $lang;

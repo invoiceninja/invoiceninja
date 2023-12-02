@@ -33,6 +33,9 @@ class ProjectFilters extends QueryFilters
 
         return  $this->builder->where(function ($query) use ($filter) {
             $query->where('name', 'like', '%'.$filter.'%')
+                  ->orWhereHas('client', function ($q) use ($filter) {
+                        $q->where('name', 'like', '%'.$filter.'%');
+                    })
                   ->orWhere('public_notes', 'like', '%'.$filter.'%')
                   ->orWhere('private_notes', 'like', '%'.$filter.'%');
         });
@@ -56,6 +59,11 @@ class ProjectFilters extends QueryFilters
     public function sort(string $sort = ''): Builder
     {
         $sort_col = explode('|', $sort);
+
+        if ($sort_col[0] == 'client_id') {
+            return $this->builder->orderBy(\App\Models\Client::select('name')
+                    ->whereColumn('clients.id', 'projects.client_id'), $sort_col[1]);
+        }
 
         if (!is_array($sort_col) || count($sort_col) != 2) {
             return $this->builder;

@@ -65,12 +65,10 @@ class SearchController extends Controller
             $client->contacts->each(function ($contact) {
                 $this->client_contacts[] = [
                     'name' => $contact->present()->search_display(),
-                    'type' => '/client_contact',
-                    'id' => $contact->hashed_id,
-                    'path' => "/clients/{$contact->hashed_id}"
+                    'type' => '/client',
+                    'id' => $contact->client->hashed_id,
+                    'path' => "/clients/{$contact->client->hashed_id}"
                 ];
-
-                                                
             });
         }
                          
@@ -173,7 +171,7 @@ class SearchController extends Controller
             'integrations,api_tokens' => '/settings/integrations/api_tokens',
             'integrations,api_webhooks' => '/settings/integrations/api_webhooks',
             'integrations,analytics' => '/settings/integrations/analytics',
-            'gateways' => '/settings/gateways',
+            'gateways' => '/settings/online_payments',
             'gateways,create' => '/settings/gateways/create',
             'bank_accounts,transaction_rules' => '/settings/bank_accounts/transaction_rules',
             'bank_accounts,transaction_rules/create' => '/settings/bank_accounts/transaction_rules/create',

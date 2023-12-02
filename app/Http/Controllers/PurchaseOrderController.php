@@ -32,6 +32,7 @@ use App\Models\Client;
 use App\Models\PurchaseOrder;
 use App\Repositories\PurchaseOrderRepository;
 use App\Services\PdfMaker\PdfMerge;
+use App\Services\Template\TemplateAction;
 use App\Transformers\PurchaseOrderTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
@@ -522,6 +523,24 @@ class PurchaseOrderController extends BaseController
             return response()->streamDownload(function () use ($merge) {
                 echo($merge);
             }, 'print.pdf', ['Content-Type' => 'application/pdf']);
+        }
+
+        if($action == 'template' && $user->can('view', $purchase_orders->first())) {
+
+            $hash_or_response = $request->boolean('send_email') ? 'email sent' : \Illuminate\Support\Str::uuid();
+
+            TemplateAction::dispatch(
+                $purchase_orders->pluck('hashed_id')->toArray(),
+                $request->template_id,
+                PurchaseOrder::class,
+                $user->id,
+                $user->company(),
+                $user->company()->db,
+                $hash_or_response,
+                $request->boolean('send_email')
+            );
+
+            return response()->json(['message' => $hash_or_response], 200);
         }
 
         /*

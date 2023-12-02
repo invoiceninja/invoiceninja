@@ -11,14 +11,14 @@
 
 namespace App\Http\Controllers\Reports;
 
-use App\Models\Client;
-use Illuminate\Http\Response;
-use App\Utils\Traits\MakesHash;
-use App\Jobs\Report\SendToAdmin;
-use App\Jobs\Report\PreviewReport;
-use App\Services\Report\ProfitLoss;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Report\ProfitLossRequest;
+use App\Jobs\Report\PreviewReport;
+use App\Jobs\Report\SendToAdmin;
+use App\Models\Client;
+use App\Services\Report\ProfitLoss;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Http\Response;
 
 class ProfitAndLossController extends BaseController
 {

@@ -22,7 +22,6 @@ use App\Services\Report\ARDetailReport;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
-use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**

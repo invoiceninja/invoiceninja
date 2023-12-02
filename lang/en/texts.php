@@ -1,6 +1,6 @@
 <?php
 
-$LANG = array(
+$lang = array(
     'organization' => 'Organization',
     'name' => 'Name',
     'website' => 'Website',
@@ -4260,7 +4260,7 @@ $LANG = array(
     'direct_debit' => 'Direct Debit',
     'clone_to_expense' => 'Clone to Expense',
     'checkout' => 'Checkout',
-    'acss' => 'Pre-authorized debit payments',
+    'acss' => 'ACSS Debit',
     'invalid_amount' => 'Invalid amount. Number/Decimal values only.',
     'client_payment_failure_body' => 'Payment for Invoice :invoice for amount :amount failed.',
     'browser_pay' => 'Google Pay, Apple Pay, Microsoft Pay',
@@ -5189,8 +5189,36 @@ $LANG = array(
     'payment_receipt' => 'Payment Receipt # :number',
     'load_template_description' => 'The template will be applied to following:',
     'run_template' => 'Run template',
-); 
+    'statement_design' => 'Statement Design',
+    'delivery_note_design' => 'Delivery Note Design',
+    'payment_receipt_design' => 'Payment Receipt Design',
+    'payment_refund_design' => 'Payment Refund Design',
+    'task_extension_banner' => 'Add the Chrome extension to manage your tasks',
+    'watch_video' => 'Watch Video',
+    'view_extension' => 'View Extension',
+    'reactivate_email' => 'Reactivate Email',
+    'email_reactivated' => 'Successfully reactivated email',
+    'template_help' => 'Enable using the design as a template',
+    'quarter' => 'Quarter',
+    'item_description' => 'Item Description',
+    'task_item' => 'Task Item',
+    'record_state' => 'Record State',
+    'save_files_to_this_folder' => 'Save files to this folder',
+    'downloads_folder' => 'Downloads Folder',
+    'total_invoiced_quotes' => 'Invoiced Quotes',
+    'total_invoice_paid_quotes' => 'Invoice Paid Quotes',
+    'downloads_folder_does_not_exist' => 'The downloads folder does not exist :value',
+    'user_logged_in_notification' => 'User Logged in Notification',
+    'user_logged_in_notification_help' => 'Send an email when logging in from a new location',
+    'payment_email_all_contacts' => 'Payment Email To All Contacts',
+    'payment_email_all_contacts_help' => 'Sends the payment email to all contacts when enabled',
+    'add_line' => 'Add Line',
+    'activity_139' => 'Expense :expense notification sent to :contact',
+    'vendor_notification_subject' => 'Confirmation of payment :amount sent to :vendor',
+    'vendor_notification_body' => 'Payment processed for :amount dated :payment_date. <br>[Transaction Reference: :transaction_reference]',
+    'receipt' => 'Receipt',
+    'charges' => 'Charges',
+    'email_report' => 'Email Report',
+);
 
-return $LANG;
-
-?>
+return $lang;

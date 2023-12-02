@@ -72,6 +72,11 @@ class EmailPayment implements ShouldQueue
 
             $email_builder = (new PaymentEmailEngine($this->payment, $this->contact))->build();
 
+            if($this->payment->client->getSetting('payment_email_all_contacts') && $this->payment->invoices && $this->payment->invoices->count() >= 1) {
+                $this->emailAllContacts($email_builder);
+                return;
+            }
+
             $invitation = null;
 
             $nmo = new NinjaMailerObject;
@@ -99,5 +104,26 @@ class EmailPayment implements ShouldQueue
 
             event(new PaymentWasEmailed($this->payment, $this->payment->company, $this->contact, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         }
+    }
+
+    private function emailAllContacts($email_builder): void
+    {
+
+        $invoice = $this->payment->invoices->first();
+
+        $invoice->invitations->each(function ($invite) use ($email_builder) {
+
+            $nmo = new NinjaMailerObject;
+            $nmo->mailable = new TemplateEmail($email_builder, $invite->contact, $invite);
+            $nmo->to_user = $invite->contact;
+            $nmo->settings = $this->settings;
+            $nmo->company = $this->company;
+            $nmo->entity = $this->payment;
+            (new NinjaMailerJob($nmo))->handle();
+
+            event(new PaymentWasEmailed($this->payment, $this->payment->company, $invite->contact, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+
+        });
+        
     }
 }

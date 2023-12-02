@@ -1,6 +1,6 @@
 <?php
 
-$LANG = array(
+$lang = [
     'organization' => 'Organisation',
     'name' => 'Name',
     'website' => 'Website',
@@ -5046,9 +5046,7 @@ $LANG = array(
     'oauth_mail' => 'OAuth / Mail',
     'preferences' => 'Preferences',
     'analytics' => 'Analytics',
-);
+];
 
 
-return $LANG;
-
-?>
+return $lang;

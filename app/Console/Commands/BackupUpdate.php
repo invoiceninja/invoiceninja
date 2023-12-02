@@ -85,7 +85,7 @@ class BackupUpdate extends Command
                ->each(function ($company) {
                    $company_logo_path = $company->settings->company_logo;
 
-                   if ($company_logo_path == 'https://invoicing.co/images/new_logo.png' || $company_logo_path == '') {
+                   if ($company_logo_path == config('ninja.app_logo') || $company_logo_path == '') {
                        return;
                    }
 

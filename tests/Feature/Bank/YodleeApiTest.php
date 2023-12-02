@@ -156,58 +156,58 @@ class YodleeApiTest extends TestCase
         $this->assertEquals('Automotive Expenses', $x->highLevelCategoryName);
     }
 
-//     public function testFunctionalMatching()
-//     {
+    //     public function testFunctionalMatching()
+    //     {
 
-//         $yodlee = new Yodlee('sbMem62e1e69547bfb1');
+    //         $yodlee = new Yodlee('sbMem62e1e69547bfb1');
 
-//         $accounts = $yodlee->getAccounts();
+    //         $accounts = $yodlee->getAccounts();
 
-//         foreach($accounts as $account)
-//         {
+    //         foreach($accounts as $account)
+    //         {
 
-//             if(!BankIntegration::where('bank_account_id', $account['id'])->where('company_id', $this->company->id)->exists())
-//             {
-//                 $bank_integration = new BankIntegration();
-//                 $bank_integration->company_id = $this->company->id;
-//                 $bank_integration->account_id = $this->company->account_id;
-//                 $bank_integration->user_id = $this->user->id;
-//                 $bank_integration->bank_account_id = $account['id'];
-//                 $bank_integration->bank_account_type = $account['account_type'];
-//                 $bank_integration->bank_account_name = $account['account_name'];
-//                 $bank_integration->bank_account_status = $account['account_status'];
-//                 $bank_integration->bank_account_number = $account['account_number'];
-//                 $bank_integration->provider_id = $account['provider_id'];
-//                 $bank_integration->provider_name = $account['provider_name'];
-//                 $bank_integration->nickname = $account['nickname'];
-//                 $bank_integration->balance = $account['current_balance'];
-//                 $bank_integration->currency = $account['account_currency'];
-                
-//                 $bank_integration->save();
+    //             if(!BankIntegration::where('bank_account_id', $account['id'])->where('company_id', $this->company->id)->exists())
+    //             {
+    //                 $bank_integration = new BankIntegration();
+    //                 $bank_integration->company_id = $this->company->id;
+    //                 $bank_integration->account_id = $this->company->account_id;
+    //                 $bank_integration->user_id = $this->user->id;
+    //                 $bank_integration->bank_account_id = $account['id'];
+    //                 $bank_integration->bank_account_type = $account['account_type'];
+    //                 $bank_integration->bank_account_name = $account['account_name'];
+    //                 $bank_integration->bank_account_status = $account['account_status'];
+    //                 $bank_integration->bank_account_number = $account['account_number'];
+    //                 $bank_integration->provider_id = $account['provider_id'];
+    //                 $bank_integration->provider_name = $account['provider_name'];
+    //                 $bank_integration->nickname = $account['nickname'];
+    //                 $bank_integration->balance = $account['current_balance'];
+    //                 $bank_integration->currency = $account['account_currency'];
+    
+    //                 $bank_integration->save();
 
-//                 ProcessBankTransactions::dispatchSync('sbMem62e1e69547bfb1', $bank_integration);
+    //                 ProcessBankTransactions::dispatchSync('sbMem62e1e69547bfb1', $bank_integration);
 
-//             }
-//         }
+    //             }
+    //         }
 
-//         $this->assertGreaterThan(0, BankIntegration::count());
-//         $this->assertGreaterThan(0, BankTransaction::count());
+    //         $this->assertGreaterThan(0, BankIntegration::count());
+    //         $this->assertGreaterThan(0, BankTransaction::count());
 
-//         $this->invoice->company_id = $this->company->id;
-//         $this->invoice->number = "XXXXXX8501";
-//         $this->invoice->save();
+    //         $this->invoice->company_id = $this->company->id;
+    //         $this->invoice->number = "XXXXXX8501";
+    //         $this->invoice->save();
 
-//         BankService::dispatchSync($this->company->id, $this->company->db);
-        
-//         $bt = BankTransaction::where('invoice_ids', $this->invoice->hashed_id)->first();
+    //         BankService::dispatchSync($this->company->id, $this->company->db);
+    
+    //         $bt = BankTransaction::where('invoice_ids', $this->invoice->hashed_id)->first();
 
-// nlog(BankTransaction::where('company_id', $this->company->id)->pluck('invoice_ids'));
+    // nlog(BankTransaction::where('company_id', $this->company->id)->pluck('invoice_ids'));
 
-//         $this->assertNotNull($bt);
+    //         $this->assertNotNull($bt);
 
-//         $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
+    //         $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
 
-//     }
+    //     }
 
 
     public function testDataMatching()
@@ -275,179 +275,179 @@ class YodleeApiTest extends TestCase
         $this->assertNotNull($access_token);
     }
 
-/**
+    /**
 
-   [transactionCategory] => Array
-        (
-            [0] => stdClass Object
-                (
-                    [id] => 1
-                    [source] => SYSTEM
-                    [classification] => PERSONAL
-                    [category] => Uncategorized
-                    [type] => UNCATEGORIZE
-                    [highLevelCategoryId] => 10000017
-                    [highLevelCategoryName] => Uncategorized
-                    [defaultCategoryName] => Uncategorized
-                    [defaultHighLevelCategoryName] => Uncategorized
-                )
+       [transactionCategory] => Array
+            (
+                [0] => stdClass Object
+                    (
+                        [id] => 1
+                        [source] => SYSTEM
+                        [classification] => PERSONAL
+                        [category] => Uncategorized
+                        [type] => UNCATEGORIZE
+                        [highLevelCategoryId] => 10000017
+                        [highLevelCategoryName] => Uncategorized
+                        [defaultCategoryName] => Uncategorized
+                        [defaultHighLevelCategoryName] => Uncategorized
+                    )
 
-            [1] => stdClass Object
-                (
-                    [id] => 2
-                    [source] => SYSTEM
-                    [classification] => PERSONAL
-                    [category] => Automotive/Fuel
-                    [type] => EXPENSE
-                    [detailCategory] => Array
-                        (
-                            [0] => stdClass Object
-                                (
-                                    [id] => 1041
-                                    [name] => Registration/Licensing
-                                )
+                [1] => stdClass Object
+                    (
+                        [id] => 2
+                        [source] => SYSTEM
+                        [classification] => PERSONAL
+                        [category] => Automotive/Fuel
+                        [type] => EXPENSE
+                        [detailCategory] => Array
+                            (
+                                [0] => stdClass Object
+                                    (
+                                        [id] => 1041
+                                        [name] => Registration/Licensing
+                                    )
 
-                            [1] => stdClass Object
-                                (
-                                    [id] => 1145
-                                    [name] => Automotive
-                                )
+                                [1] => stdClass Object
+                                    (
+                                        [id] => 1145
+                                        [name] => Automotive
+                                    )
 
-                            [2] => stdClass Object
-                                (
-                                    [id] => 1218
-                                    [name] => Auto Fees/Penalties
-                                )
+                                [2] => stdClass Object
+                                    (
+                                        [id] => 1218
+                                        [name] => Auto Fees/Penalties
+                                    )
 
-                            [3] => stdClass Object
-                                (
-                                    [id] => 1260
-                                    [name] => Car Appraisers
-                                )
+                                [3] => stdClass Object
+                                    (
+                                        [id] => 1260
+                                        [name] => Car Appraisers
+                                    )
 
-                            [4] => stdClass Object
-                                (
-                                    [id] => 1261
-                                    [name] => Car Dealers
-                                )
+                                [4] => stdClass Object
+                                    (
+                                        [id] => 1261
+                                        [name] => Car Dealers
+                                    )
 
-                            [5] => stdClass Object
-                                (
-                                    [id] => 1262
-                                    [name] => Car Dealers and Leasing
-                                )
+                                [5] => stdClass Object
+                                    (
+                                        [id] => 1262
+                                        [name] => Car Dealers and Leasing
+                                    )
 
-                            [6] => stdClass Object
-                                (
-                                    [id] => 1263
-                                    [name] => Car Parts and Accessories
-                                )
+                                [6] => stdClass Object
+                                    (
+                                        [id] => 1263
+                                        [name] => Car Parts and Accessories
+                                    )
 
-                            [7] => stdClass Object
-                                (
-                                    [id] => 1264
-                                    [name] => Car Wash and Detail
-                                )
+                                [7] => stdClass Object
+                                    (
+                                        [id] => 1264
+                                        [name] => Car Wash and Detail
+                                    )
 
-                            [8] => stdClass Object
-                                (
-                                    [id] => 1265
-                                    [name] => Classic and Antique Car
-                                )
+                                [8] => stdClass Object
+                                    (
+                                        [id] => 1265
+                                        [name] => Classic and Antique Car
+                                    )
 
-                            [9] => stdClass Object
-                                (
-                                    [id] => 1267
-                                    [name] => Maintenance and Repair
-                                )
+                                [9] => stdClass Object
+                                    (
+                                        [id] => 1267
+                                        [name] => Maintenance and Repair
+                                    )
 
-                            [10] => stdClass Object
-                                (
-                                    [id] => 1268
-                                    [name] => Motorcycles/Mopeds/Scooters
-                                )
+                                [10] => stdClass Object
+                                    (
+                                        [id] => 1268
+                                        [name] => Motorcycles/Mopeds/Scooters
+                                    )
 
-                            [11] => stdClass Object
-                                (
-                                    [id] => 1269
-                                    [name] => Oil and Lube
-                                )
+                                [11] => stdClass Object
+                                    (
+                                        [id] => 1269
+                                        [name] => Oil and Lube
+                                    )
 
-                            [12] => stdClass Object
-                                (
-                                    [id] => 1270
-                                    [name] => Motorcycle Repair
-                                )
+                                [12] => stdClass Object
+                                    (
+                                        [id] => 1270
+                                        [name] => Motorcycle Repair
+                                    )
 
-                            [13] => stdClass Object
-                                (
-                                    [id] => 1271
-                                    [name] => RVs and Motor Homes
-                                )
+                                [13] => stdClass Object
+                                    (
+                                        [id] => 1271
+                                        [name] => RVs and Motor Homes
+                                    )
 
-                            [14] => stdClass Object
-                                (
-                                    [id] => 1272
-                                    [name] => Motorcycle Sales
-                                )
+                                [14] => stdClass Object
+                                    (
+                                        [id] => 1272
+                                        [name] => Motorcycle Sales
+                                    )
 
-                            [15] => stdClass Object
-                                (
-                                    [id] => 1273
-                                    [name] => Salvage Yards
-                                )
+                                [15] => stdClass Object
+                                    (
+                                        [id] => 1273
+                                        [name] => Salvage Yards
+                                    )
 
-                            [16] => stdClass Object
-                                (
-                                    [id] => 1274
-                                    [name] => Smog Check
-                                )
+                                [16] => stdClass Object
+                                    (
+                                        [id] => 1274
+                                        [name] => Smog Check
+                                    )
 
-                            [17] => stdClass Object
-                                (
-                                    [id] => 1275
-                                    [name] => Tires
-                                )
+                                [17] => stdClass Object
+                                    (
+                                        [id] => 1275
+                                        [name] => Tires
+                                    )
 
-                            [18] => stdClass Object
-                                (
-                                    [id] => 1276
-                                    [name] => Towing
-                                )
+                                [18] => stdClass Object
+                                    (
+                                        [id] => 1276
+                                        [name] => Towing
+                                    )
 
-                            [19] => stdClass Object
-                                (
-                                    [id] => 1277
-                                    [name] => Transmissions
-                                )
+                                [19] => stdClass Object
+                                    (
+                                        [id] => 1277
+                                        [name] => Transmissions
+                                    )
 
-                            [20] => stdClass Object
-                                (
-                                    [id] => 1278
-                                    [name] => Used Cars
-                                )
+                                [20] => stdClass Object
+                                    (
+                                        [id] => 1278
+                                        [name] => Used Cars
+                                    )
 
-                            [21] => stdClass Object
-                                (
-                                    [id] => 1240
-                                    [name] => e-Charging
-                                )
+                                [21] => stdClass Object
+                                    (
+                                        [id] => 1240
+                                        [name] => e-Charging
+                                    )
 
-                            [22] => stdClass Object
-                                (
-                                    [id] => 1266
-                                    [name] => Gas Stations
-                                )
+                                [22] => stdClass Object
+                                    (
+                                        [id] => 1266
+                                        [name] => Gas Stations
+                                    )
 
-                        )
+                            )
 
-                    [highLevelCategoryId] => 10000003
-                    [highLevelCategoryName] => Automotive Expenses
-                    [defaultCategoryName] => Automotive Expenses
-                    [defaultHighLevelCategoryName] => Automotive Expenses
-                )
+                        [highLevelCategoryId] => 10000003
+                        [highLevelCategoryName] => Automotive Expenses
+                        [defaultCategoryName] => Automotive Expenses
+                        [defaultHighLevelCategoryName] => Automotive Expenses
+                    )
 
-*/
+    */
 
 
     public function testGetCategories()
@@ -460,107 +460,107 @@ class YodleeApiTest extends TestCase
     }
 
 
-/**
-[2022-08-05 01:29:45] local.INFO: stdClass Object
-(
-    [account] => Array
-        (
-            [0] => stdClass Object
-                (
-                    [CONTAINER] => bank
-                    [providerAccountId] => 11308693
-                    [accountName] => My CD - 8878
-                    [accountStatus] => ACTIVE
-                    [accountNumber] => xxxx8878
-                    [aggregationSource] => USER
-                    [isAsset] => 1
-                    [balance] => stdClass Object
-                        (
-                            [currency] => USD
-                            [amount] => 49778.07
-                        )
+    /**
+    [2022-08-05 01:29:45] local.INFO: stdClass Object
+    (
+        [account] => Array
+            (
+                [0] => stdClass Object
+                    (
+                        [CONTAINER] => bank
+                        [providerAccountId] => 11308693
+                        [accountName] => My CD - 8878
+                        [accountStatus] => ACTIVE
+                        [accountNumber] => xxxx8878
+                        [aggregationSource] => USER
+                        [isAsset] => 1
+                        [balance] => stdClass Object
+                            (
+                                [currency] => USD
+                                [amount] => 49778.07
+                            )
 
-                    [id] => 12331861
-                    [includeInNetWorth] => 1
-                    [providerId] => 18769
-                    [providerName] => Dag Site Captcha
-                    [isManual] =>
-                    [currentBalance] => stdClass Object
-                        (
-                            [currency] => USD
-                            [amount] => 49778.07
-                        )
+                        [id] => 12331861
+                        [includeInNetWorth] => 1
+                        [providerId] => 18769
+                        [providerName] => Dag Site Captcha
+                        [isManual] =>
+                        [currentBalance] => stdClass Object
+                            (
+                                [currency] => USD
+                                [amount] => 49778.07
+                            )
 
-                    [accountType] => CD
-                    [displayedName] => LORETTA
-                    [createdDate] => 2022-07-28T06:55:33Z
-                    [lastUpdated] => 2022-07-28T06:56:09Z
-                    [dataset] => Array
-                        (
-                            [0] => stdClass Object
-                                (
-                                    [name] => BASIC_AGG_DATA
-                                    [additionalStatus] => AVAILABLE_DATA_RETRIEVED
-                                    [updateEligibility] => ALLOW_UPDATE
-                                    [lastUpdated] => 2022-07-28T06:55:50Z
-                                    [lastUpdateAttempt] => 2022-07-28T06:55:50Z
-                                )
+                        [accountType] => CD
+                        [displayedName] => LORETTA
+                        [createdDate] => 2022-07-28T06:55:33Z
+                        [lastUpdated] => 2022-07-28T06:56:09Z
+                        [dataset] => Array
+                            (
+                                [0] => stdClass Object
+                                    (
+                                        [name] => BASIC_AGG_DATA
+                                        [additionalStatus] => AVAILABLE_DATA_RETRIEVED
+                                        [updateEligibility] => ALLOW_UPDATE
+                                        [lastUpdated] => 2022-07-28T06:55:50Z
+                                        [lastUpdateAttempt] => 2022-07-28T06:55:50Z
+                                    )
 
-                        )
+                            )
 
-                )
-        [1] => stdClass Object
-                (
-                    [CONTAINER] => bank
-                    [providerAccountId] => 11308693
-                    [accountName] => Joint Savings - 7159
-                    [accountStatus] => ACTIVE
-                    [accountNumber] => xxxx7159
-                    [aggregationSource] => USER
-                    [isAsset] => 1
-                    [balance] => stdClass Object
-                        (
-                            [currency] => USD
-                            [amount] => 186277.45
-                        )
+                    )
+            [1] => stdClass Object
+                    (
+                        [CONTAINER] => bank
+                        [providerAccountId] => 11308693
+                        [accountName] => Joint Savings - 7159
+                        [accountStatus] => ACTIVE
+                        [accountNumber] => xxxx7159
+                        [aggregationSource] => USER
+                        [isAsset] => 1
+                        [balance] => stdClass Object
+                            (
+                                [currency] => USD
+                                [amount] => 186277.45
+                            )
 
-                    [id] => 12331860
-                    [includeInNetWorth] => 1
-                    [providerId] => 18769
-                    [providerName] => Dag Site Captcha
-                    [isManual] =>
-                    [availableBalance] => stdClass Object
-                        (
-                            [currency] => USD
-                            [amount] => 186277.45
-                        )
+                        [id] => 12331860
+                        [includeInNetWorth] => 1
+                        [providerId] => 18769
+                        [providerName] => Dag Site Captcha
+                        [isManual] =>
+                        [availableBalance] => stdClass Object
+                            (
+                                [currency] => USD
+                                [amount] => 186277.45
+                            )
 
-                    [currentBalance] => stdClass Object
-                        (
-                            [currency] => USD
-                            [amount] => 186277.45
-                        )
+                        [currentBalance] => stdClass Object
+                            (
+                                [currency] => USD
+                                [amount] => 186277.45
+                            )
 
-                    [accountType] => SAVINGS
-                    [displayedName] => LYDIA
-                    [createdDate] => 2022-07-28T06:55:33Z
-                    [classification] => PERSONAL
-                    [lastUpdated] => 2022-07-28T06:56:09Z
-                    [dataset] => Array
-                        (
-                            [0] => stdClass Object
-                                (
-                                    [name] => BASIC_AGG_DATA
-                                    [additionalStatus] => AVAILABLE_DATA_RETRIEVED
-                                    [updateEligibility] => ALLOW_UPDATE
-                                    [lastUpdated] => 2022-07-28T06:55:50Z
-                                    [lastUpdateAttempt] => 2022-07-28T06:55:50Z
-                                )
+                        [accountType] => SAVINGS
+                        [displayedName] => LYDIA
+                        [createdDate] => 2022-07-28T06:55:33Z
+                        [classification] => PERSONAL
+                        [lastUpdated] => 2022-07-28T06:56:09Z
+                        [dataset] => Array
+                            (
+                                [0] => stdClass Object
+                                    (
+                                        [name] => BASIC_AGG_DATA
+                                        [additionalStatus] => AVAILABLE_DATA_RETRIEVED
+                                        [updateEligibility] => ALLOW_UPDATE
+                                        [lastUpdated] => 2022-07-28T06:55:50Z
+                                        [lastUpdateAttempt] => 2022-07-28T06:55:50Z
+                                    )
 
-                        )
+                            )
 
-                )
-*/
+                    )
+    */
     public function testGetAccounts()
     {
         $yodlee = new Yodlee('sbMem62e1e69547bfb1');
@@ -571,51 +571,51 @@ class YodleeApiTest extends TestCase
     }
 
 
-/**
-[2022-08-05 01:36:34] local.INFO: stdClass Object
-(
-    [transaction] => Array
-        (
-            [0] => stdClass Object
-                (
-                    [CONTAINER] => bank
-                    [id] => 103953585
-                    [amount] => stdClass Object
-                        (
-                            [amount] => 480.66
-                            [currency] => USD
-                        )
+    /**
+    [2022-08-05 01:36:34] local.INFO: stdClass Object
+    (
+        [transaction] => Array
+            (
+                [0] => stdClass Object
+                    (
+                        [CONTAINER] => bank
+                        [id] => 103953585
+                        [amount] => stdClass Object
+                            (
+                                [amount] => 480.66
+                                [currency] => USD
+                            )
 
-                    [categoryType] => UNCATEGORIZE
-                    [categoryId] => 1
-                    [category] => Uncategorized
-                    [categorySource] => SYSTEM
-                    [highLevelCategoryId] => 10000017
-                    [createdDate] => 2022-08-04T21:50:17Z
-                    [lastUpdated] => 2022-08-04T21:50:17Z
-                    [description] => stdClass Object
-                        (
-                            [original] => CHEROKEE NATION TAX TA TAHLEQUAH OK
-                        )
+                        [categoryType] => UNCATEGORIZE
+                        [categoryId] => 1
+                        [category] => Uncategorized
+                        [categorySource] => SYSTEM
+                        [highLevelCategoryId] => 10000017
+                        [createdDate] => 2022-08-04T21:50:17Z
+                        [lastUpdated] => 2022-08-04T21:50:17Z
+                        [description] => stdClass Object
+                            (
+                                [original] => CHEROKEE NATION TAX TA TAHLEQUAH OK
+                            )
 
-                    [isManual] =>
-                    [sourceType] => AGGREGATED
-                    [date] => 2022-08-03
-                    [transactionDate] => 2022-08-03
-                    [postDate] => 2022-08-03
-                    [status] => POSTED
-                    [accountId] => 12331794
-                    [runningBalance] => stdClass Object
-                        (
-                            [amount] => 480.66
-                            [currency] => USD
-                        )
+                        [isManual] =>
+                        [sourceType] => AGGREGATED
+                        [date] => 2022-08-03
+                        [transactionDate] => 2022-08-03
+                        [postDate] => 2022-08-03
+                        [status] => POSTED
+                        [accountId] => 12331794
+                        [runningBalance] => stdClass Object
+                            (
+                                [amount] => 480.66
+                                [currency] => USD
+                            )
 
-                    [checkNumber] => 998
-                )
+                        [checkNumber] => 998
+                    )
 
 
- */
+     */
 
     public function testGetTransactions()
     {

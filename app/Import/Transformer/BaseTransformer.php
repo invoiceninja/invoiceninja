@@ -179,6 +179,7 @@ class BaseTransformer
 
     public function getClient($client_name, $client_email)
     {
+
         if (! empty($client_name)) {
             $client_id_search = Client::query()->where('company_id', $this->company->id)
                 ->where('is_deleted', false)
@@ -676,6 +677,10 @@ class BaseTransformer
      */
     public function getProjectId($name, $clientId = null)
     {
+        if(strlen($name) == 0) {
+            return null;
+        }
+        
         $project = Project::query()->where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [

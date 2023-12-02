@@ -11,13 +11,13 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use Tests\MockAccountData;
 use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Helpers\Invoice\InvoiceItemSum;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test

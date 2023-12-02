@@ -32,6 +32,7 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\SystemLog;
 use App\Repositories\ClientRepository;
+use App\Services\Template\TemplateAction;
 use App\Transformers\ClientTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\BulkOptions;
@@ -217,12 +218,31 @@ class ClientController extends BaseController
         $clients = Client::withTrashed()
                          ->company()
                          ->whereIn('id', $request->ids)
-                         ->cursor()
-                         ->each(function ($client) use ($action, $user) {
-                             if ($user->can('edit', $client)) {
-                                 $this->client_repo->{$action}($client);
-                             }
-                         });
+                         ->get();
+
+        if($action == 'template' && $user->can('view', $clients->first())) {
+
+            $hash_or_response = $request->boolean('send_email') ? 'email sent' : \Illuminate\Support\Str::uuid();
+
+            TemplateAction::dispatch(
+                $clients->pluck('id')->toArray(),
+                $request->template_id,
+                Client::class,
+                $user->id,
+                $user->company(),
+                $user->company()->db,
+                $hash_or_response,
+                $request->boolean('send_email')
+            );
+
+            return response()->json(['message' => $hash_or_response], 200);
+        }
+                         
+        $clients->each(function ($client) use ($action, $user) {
+            if ($user->can('edit', $client)) {
+                $this->client_repo->{$action}($client);
+            }
+        });
 
         return $this->listResponse(Client::query()->withTrashed()->company()->whereIn('id', $request->ids));
     }
@@ -364,8 +384,15 @@ class ClientController extends BaseController
 
         try {
             
+            /** @var \Postmark\Models\DynamicResponseModel $response */
             $response = $postmark->activateBounce((int)$bounce_id);
         
+            if($response && $response?->Message == 'OK' && !$response->Bounce->Inactive && $response->Bounce->Email) {
+
+                $email =  $response->Bounce->Email;
+                //remove email from quarantine. //@TODO
+            }
+
             return response()->json(['message' => 'Success'], 200);
 
         } catch(\Exception $e) {

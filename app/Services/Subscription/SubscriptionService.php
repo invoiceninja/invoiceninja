@@ -789,8 +789,8 @@ class SubscriptionService
             //do nothing
         } elseif ($last_invoice->balance > 0) {
             $last_invoice = null;
-            // $pro_rata_charge_amount = $this->calculateProRataCharge($last_invoice, $old_subscription);
-            // nlog("pro rata charge = {$pro_rata_charge_amount}");
+        // $pro_rata_charge_amount = $this->calculateProRataCharge($last_invoice, $old_subscription);
+        // nlog("pro rata charge = {$pro_rata_charge_amount}");
         } else {
             $pro_rata_refund_amount = $this->calculateProRataRefund($last_invoice, $old_subscription) * -1;
             nlog("pro rata refund = {$pro_rata_refund_amount}");

@@ -167,11 +167,11 @@ class InvitationController extends Controller
     {
         set_time_limit(45);
 
-        if (Ninja::isHosted()) {
-            return $this->returnRawPdf($entity, $invitation_key);
-        }
+        // if (Ninja::isHosted()) {
+        return $this->returnRawPdf($entity, $invitation_key);
+        // }
 
-        return redirect('client/'.$entity.'/'.$invitation_key.'/download_pdf');
+        // return redirect('client/'.$entity.'/'.$invitation_key.'/download_pdf');
     }
 
     private function returnRawPdf(string $entity, string $invitation_key)

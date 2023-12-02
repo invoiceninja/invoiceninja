@@ -93,6 +93,7 @@ class DesignFilters extends QueryFilters
 
         return $this->builder->where('is_template', $bool_val);
     }
+
     /**
      * Filter the designs by `is_custom` column.
      *

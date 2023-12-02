@@ -14,7 +14,6 @@ namespace Tests\Pdf;
 
 use App\Services\Pdf\PdfConfiguration;
 use App\Services\Pdf\PdfService;
-use Beganovich\Snappdf\Snappdf;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -36,8 +35,9 @@ class PdfServiceTest extends TestCase
     public function testPdfGeneration()
     {
 
-        if(config('ninja.testvars.travis'))
+        if(config('ninja.testvars.travis')) {
             $this->markTestSkipped();
+        }
 
         $invitation = $this->invoice->invitations->first();
         

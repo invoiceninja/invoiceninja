@@ -18,10 +18,10 @@ use App\Factory\RecurringInvoiceToInvoiceFactory;
 use App\Jobs\RecurringInvoice\UpdateRecurring;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\Product;
 use App\Models\RecurringInvoice;
 use App\Utils\Helpers;
 use App\Utils\Traits\MakesHash;
-use App\Models\Product;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -275,12 +275,12 @@ class RecurringInvoiceTest extends TestCase
             'product_key' => 'pink',
         ]);
 
-         $p2 = Product::factory()->create([
-            'company_id' => $this->company->id,
-            'user_id' => $this->user->id,
-            'cost' => 20,
-            'price' => 20,
-            'product_key' => 'floyd',
+        $p2 = Product::factory()->create([
+           'company_id' => $this->company->id,
+           'user_id' => $this->user->id,
+           'cost' => 20,
+           'price' => 20,
+           'product_key' => 'floyd',
         ]);
 
         $recurring_invoice = RecurringInvoiceFactory::create($this->company->id, $this->user->id);

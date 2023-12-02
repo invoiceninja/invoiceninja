@@ -11,12 +11,12 @@
 
 namespace App\Http\Requests\Preview;
 
-use App\Models\Vendor;
-use App\Models\PurchaseOrder;
 use App\Http\Requests\Request;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\CleanLineItems;
+use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderInvitation;
+use App\Models\Vendor;
+use App\Utils\Traits\CleanLineItems;
+use App\Utils\Traits\MakesHash;
 
 class PreviewPurchaseOrderRequest extends Request
 {

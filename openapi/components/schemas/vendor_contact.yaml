@@ -9,14 +9,17 @@
           description: 'The hashed id of the user id'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         company_id:
           description: 'The hashed id of the company'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         vendor_id:
           description: 'The hashed id of the vendor'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         first_name:
           description: 'The first name of the contact'
           type: string
@@ -25,6 +28,16 @@
           description: 'The last name of the contact'
           type: string
           example: Windsor
+        contact_key:
+          description: 'A unique identifier for the contact'
+          type: string
+          example: JD0X52bkfZlJRiroCJ0tcSiAjsJTntZ5uqKdiZ0a
+          readOnly: true
+        confirmation_code:
+          description: 'The confirmation code used to authenticate the contacts email address'
+          type: string
+          example: 333-sdjkh34gbasd
+          readOnly: true
         phone:
           description: 'The contacts phone number'
           type: string
@@ -49,6 +62,16 @@
           description: 'The contact email address'
           type: string
           example: harry@windsor.com
+        email_verified_at:
+          description: 'The date which the contact confirmed their email'
+          type: number
+          format: integer
+          example: '134341234234'
+          readOnly: true
+        password:
+          description: 'The hashed password of the contact'
+          type: string
+          example: '*****'
         is_primary:
           description: 'Boolean flag determining if the contact is the primary contact for the vendor'
           type: boolean

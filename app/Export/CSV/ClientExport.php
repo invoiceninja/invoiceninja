@@ -11,6 +11,7 @@
 
 namespace App\Export\CSV;
 
+use App\Export\Decorators\Decorator;
 use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\Company;
@@ -31,6 +32,8 @@ class ClientExport extends BaseExport
     public Writer $csv;
 
     public string $date_key = 'created_at';
+
+    private Decorator $decorator;
 
     public array $entity_keys = [
         'address1' => 'client.address1',
@@ -84,6 +87,8 @@ class ClientExport extends BaseExport
         $this->input = $input;
         $this->client_transformer = new ClientTransformer();
         $this->contact_transformer = new ClientContactTransformer();
+        $this->decorator = new Decorator();
+
     }
 
     public function returnJson()
@@ -170,11 +175,15 @@ class ClientExport extends BaseExport
             } elseif (is_array($parts) && $parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {
                 $entity[$key] = $transformed_contact[$parts[1]];
             } else {
-                $entity[$key] = '';
+                // nlog($key);
+                $entity[$key] = $this->decorator->transform($key, $client);
+                // $entity[$key] = '';
             }
         }
 
-        return $this->decorateAdvancedFields($client, $entity);
+        return $entity;
+
+        // return $this->decorateAdvancedFields($client, $entity);
     }
 
     public function processMetaData(array $row, $resource): array

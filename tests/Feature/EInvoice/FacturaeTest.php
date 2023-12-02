@@ -11,14 +11,12 @@
 
 namespace Tests\Feature\EInvoice;
 
-use Tests\TestCase;
-use Tests\MockAccountData;
-use Illuminate\Support\Facades\Storage;
 use App\Services\Invoice\EInvoice\FacturaEInvoice;
-use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-
-use function Amp\Iterator\toArray;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\Storage;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test
@@ -47,70 +45,70 @@ class FacturaeTest extends TestCase
 
         $this->assertNotNull($f->run());
         
-        nlog($f->run());
+        // nlog($f->run());
 
         // $this->assertTrue($this->validateInvoiceXML($path));
     }
 
 
-// protected function validateInvoiceXML($path, $validateSignature=false) {
-//     // Prepare file to upload
-//     if (function_exists('curl_file_create')) {
-//       $postFile = curl_file_create($path);
-//     } else {
-//       $postFile = "@" . realpath($path);
-//     }
+    // protected function validateInvoiceXML($path, $validateSignature=false) {
+    //     // Prepare file to upload
+    //     if (function_exists('curl_file_create')) {
+    //       $postFile = curl_file_create($path);
+    //     } else {
+    //       $postFile = "@" . realpath($path);
+    //     }
 
-//     // Send upload request
-//     $ch = curl_init();
-//     curl_setopt_array($ch, array(
-//       CURLOPT_RETURNTRANSFER => true,
-//       CURLOPT_FOLLOWLOCATION => true,
-//       CURLOPT_URL => "http://plataforma.firma-e.com/VisualizadorFacturae/index2.jsp",
-//       CURLOPT_POST => 1,
-//       CURLOPT_POSTFIELDS => array(
-//         "referencia" => $postFile,
-//         "valContable" => "on",
-//         "valFirma" => $validateSignature ? "on" : "off",
-//         "aceptarCondiciones" => "on",
-//         "submit" => "Siguiente"
-//       ),
-//       CURLOPT_COOKIEJAR => base_path()."/cookie.txt"
-//     ));
-//     $res = curl_exec($ch);
-//     curl_close($ch);
-//     unset($ch);
+    //     // Send upload request
+    //     $ch = curl_init();
+    //     curl_setopt_array($ch, array(
+    //       CURLOPT_RETURNTRANSFER => true,
+    //       CURLOPT_FOLLOWLOCATION => true,
+    //       CURLOPT_URL => "http://plataforma.firma-e.com/VisualizadorFacturae/index2.jsp",
+    //       CURLOPT_POST => 1,
+    //       CURLOPT_POSTFIELDS => array(
+    //         "referencia" => $postFile,
+    //         "valContable" => "on",
+    //         "valFirma" => $validateSignature ? "on" : "off",
+    //         "aceptarCondiciones" => "on",
+    //         "submit" => "Siguiente"
+    //       ),
+    //       CURLOPT_COOKIEJAR => base_path()."/cookie.txt"
+    //     ));
+    //     $res = curl_exec($ch);
+    //     curl_close($ch);
+    //     unset($ch);
 
-// nlog($res);
+    // nlog($res);
 
-//     if (strpos($res, "window.open('facturae.jsp'") === false) {
-//       $this->expectException(\UnexpectedValueException::class);
-//     }
+    //     if (strpos($res, "window.open('facturae.jsp'") === false) {
+    //       $this->expectException(\UnexpectedValueException::class);
+    //     }
 
-//     // Fetch results
-//     $ch = curl_init();
-//     curl_setopt_array($ch, array(
-//       CURLOPT_RETURNTRANSFER => true,
-//       CURLOPT_FOLLOWLOCATION => true,
-//       CURLOPT_URL => "http://plataforma.firma-e.com/VisualizadorFacturae/facturae.jsp",
-//       CURLOPT_COOKIEFILE => base_path()."/cookie.txt"
-//     ));
-//     $res = curl_exec($ch);
-//     curl_close($ch);
-//     unset($ch);
+    //     // Fetch results
+    //     $ch = curl_init();
+    //     curl_setopt_array($ch, array(
+    //       CURLOPT_RETURNTRANSFER => true,
+    //       CURLOPT_FOLLOWLOCATION => true,
+    //       CURLOPT_URL => "http://plataforma.firma-e.com/VisualizadorFacturae/facturae.jsp",
+    //       CURLOPT_COOKIEFILE => base_path()."/cookie.txt"
+    //     ));
+    //     $res = curl_exec($ch);
+    //     curl_close($ch);
+    //     unset($ch);
 
-// nlog($res);
+    // nlog($res);
 
-//     // Validate results
-//     $this->assertNotEmpty($res, 'Invalid Validator Response');
-//     $this->assertNotEmpty(strpos($res, 'euro_ok.png'), 'Invalid XML Format');
-//     if ($validateSignature) {
-//       $this->assertNotEmpty(strpos($res, '>Nivel de Firma Válido<'), 'Invalid Signature');
-//     }
-//     if (strpos($res, '>Sellos de Tiempo<') !== false) {
-//       $this->assertNotEmpty(strpos($res, '>XAdES_T<'), 'Invalid Timestamp');
-//     }
-//   }
+    //     // Validate results
+    //     $this->assertNotEmpty($res, 'Invalid Validator Response');
+    //     $this->assertNotEmpty(strpos($res, 'euro_ok.png'), 'Invalid XML Format');
+    //     if ($validateSignature) {
+    //       $this->assertNotEmpty(strpos($res, '>Nivel de Firma Válido<'), 'Invalid Signature');
+    //     }
+    //     if (strpos($res, '>Sellos de Tiempo<') !== false) {
+    //       $this->assertNotEmpty(strpos($res, '>XAdES_T<'), 'Invalid Timestamp');
+    //     }
+    //   }
 
     // private function validateInvoiceXML($path)
     // {

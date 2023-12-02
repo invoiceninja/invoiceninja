@@ -208,6 +208,7 @@ trait Refundable
         $fields->company_id = $this->company_id;
         $fields->activity_type_id = Activity::REFUNDED_PAYMENT;
         $fields->credit_id = $credit_id;
+        $fields->client_id = $this->client_id;
 
         if (isset($data['invoices'])) {
             foreach ($data['invoices'] as $invoice) {

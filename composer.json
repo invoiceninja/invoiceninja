@@ -75,6 +75,7 @@
         "nwidart/laravel-modules": "^10.0",
         "omnipay/paypal": "^3.0",
         "payfast/payfast-php-sdk": "^1.1",
+        "phpoffice/phpspreadsheet": "^1.29",
         "pragmarx/google2fa": "^8.0",
         "predis/predis": "^2",
         "psr/http-message": "^1.0",
@@ -142,8 +143,7 @@
         }
     },
     "scripts": {
-        "post-install-cmd": [
-        ],
+        "post-install-cmd": [],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
         ],

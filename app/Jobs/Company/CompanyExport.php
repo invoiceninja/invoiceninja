@@ -454,7 +454,7 @@ class CompanyExport implements ShouldQueue
             nlog("could not create directory");
         }
 
-        $zip_path = storage_path('backups/'.$file_name);
+        $zip_path = storage_path('backups/'.\Illuminate\Support\Str::ascii($file_name));
         $zip = new \ZipArchive();
 
         if ($zip->open($zip_path, \ZipArchive::CREATE)!==true) {
@@ -484,15 +484,15 @@ class CompanyExport implements ShouldQueue
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
-        $company_reference = Company::find($this->company->id);
+        // $company_reference = Company::find($this->company->id);
 
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new DownloadBackup($url, $company_reference);
+        $nmo->mailable = new DownloadBackup($url, $this->company->withoutRelations());
         $nmo->to_user = $this->user;
-        $nmo->company = $company_reference;
+        $nmo->company = $this->company->withoutRelations();
         $nmo->settings = $this->company->settings;
         
-        NinjaMailerJob::dispatch($nmo, true);
+        (new NinjaMailerJob($nmo, true))->handle();
         
         UnlinkFile::dispatch(config('filesystems.default'), $storage_path)->delay(now()->addHours(1));
 

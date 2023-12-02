@@ -83,6 +83,8 @@ class InstantPayment
                 ->with(['message' => 'No payable invoices selected.']);
         }
 
+        $invoices = Invoice::query()->whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))->withTrashed()->get();
+
         $client = $invoices->first()->client;
         $settings = $client->getMergedSettings();
 
@@ -192,9 +194,9 @@ class InstantPayment
         $starting_invoice_amount = $first_invoice->balance;
 
         /* Schedule a job to check the gateway fees for this invoice*/
-        if (Ninja::isHosted()) {
-            CheckGatewayFee::dispatch($first_invoice->id, $client->company->db)->delay(800);
-        }
+        // if (Ninja::isHosted()) {
+        //     CheckGatewayFee::dispatch($first_invoice->id, $client->company->db)->delay(800);
+        // }
 
         if ($gateway) {
             $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals)->save();

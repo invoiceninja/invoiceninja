@@ -219,7 +219,7 @@ class BaseRule implements RuleInterface
 
                 try {
                     $this->invoice->saveQuietly();
-                }catch(\Exception $e) {
+                } catch(\Exception $e) {
                 }
                 
             }

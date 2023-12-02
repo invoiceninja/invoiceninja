@@ -48,7 +48,7 @@ class CompanyFactory
         $company->markdown_email_enabled = true;
         $company->markdown_enabled = false;
         $company->tax_data = new TaxModel();
-        
+        $company->first_month_of_year = 1;
         return $company;
     }
 }

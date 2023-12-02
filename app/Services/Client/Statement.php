@@ -62,6 +62,7 @@ class Statement
         $html = new HtmlEngine($this->getInvitation());
 
         $variables = [];
+        $variables = $html->generateLabelsAndValues();
 
         if($this->client->getSetting('statement_design_id') != '') {
 
@@ -72,9 +73,7 @@ class Statement
 
             return $this->templateStatement($variables);
         }
-
-        $variables = $html->generateLabelsAndValues();
-
+        
         if ($this->getDesign()->is_custom) {
             $this->options['custom_partials'] = \json_decode(\json_encode($this->getDesign()->design), true);
 
@@ -100,13 +99,13 @@ class Statement
             ], \App\Services\PdfMaker\Design::STATEMENT),
             'variables' => $variables,
             'options' => [
-                'client' => $this->client,
-                'entity' => $this->entity,
-                'variables' => $variables,
-                'invoices' => $this->getInvoices()->cursor(),
-                'payments' => $this->getPayments()->cursor(),
-                'credits' => $this->getCredits()->cursor(),
-                'aging' => $this->getAging(),
+                // 'client' => $this->client,
+                // 'entity' => $this->entity,
+                // 'variables' => $variables,
+                // 'invoices' => $this->getInvoices()->cursor(),
+                // 'payments' => $this->getPayments()->cursor(),
+                // 'credits' => $this->getCredits()->cursor(),
+                // 'aging' => $this->getAging(),
             ],
             'process_markdown' => $this->entity->client->company->markdown_enabled,
         ];
@@ -154,11 +153,17 @@ class Statement
             $statement_design_id = $this->client->getSetting('statement_design_id');
         }
 
-        $template = Design::where('id', $this->decodePrimaryKey($statement_design_id))
+        $template = Design::query()
+                            ->where('id', $this->decodePrimaryKey($statement_design_id))
                             ->where('company_id', $this->client->company_id)
                             ->first();
-
-        $ts = $template->service()->build([
+        
+        $ts = $template->service();
+        $ts->addGlobal(['show_credits' => $this->options['show_credits_table']]);
+        $ts->addGlobal(['show_aging' => $this->options['show_aging_table']]);
+        $ts->addGlobal(['show_payments' => $this->options['show_payments_table']]);
+        
+        $ts->build([
             'variables' => collect([$variables]),
             'invoices' => $this->getInvoices()->get(),
             'payments' => $this->options['show_payments_table'] ? $this->getPayments()->get() : collect([]),
@@ -400,6 +405,7 @@ class Statement
     protected function getAging(): array
     {
         return [
+            ctrans('texts.current') => $this->getAgingAmount('0'),
             '0-30' => $this->getAgingAmount('30'),
             '30-60' => $this->getAgingAmount('60'),
             '60-90' => $this->getAgingAmount('90'),
@@ -421,14 +427,22 @@ class Statement
         $from = $ranges[0];
         $to = $ranges[1];
 
-        $amount = Invoice::withTrashed()
+        $query = Invoice::withTrashed()
             ->where('client_id', $this->client->id)
             ->where('company_id', $this->client->company_id)
             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
             ->where('balance', '>', 0)
-            ->where('is_deleted', 0)
-            ->whereBetween('due_date', [$to, $from])
-            ->sum('balance');
+            ->where('is_deleted', 0);
+
+        if($range == '0') {
+            $query->where(function ($q) use ($to, $from) {
+                $q->whereBetween('due_date', [$to, $from])->orWhereNull('due_date');
+            });
+        } else {
+            $query->whereBetween('due_date', [$to, $from]);
+        }
+            
+        $amount = $query->sum('balance');
 
         return Number::formatMoney($amount, $this->client);
     }
@@ -444,6 +458,10 @@ class Statement
         $ranges = [];
 
         switch ($range) {
+            case '0':
+                $ranges[0] = now()->subYears(50);
+                $ranges[1] = now()->startOfDay()->subMinute();
+                return $ranges;
             case '30':
                 $ranges[0] = now()->startOfDay();
                 $ranges[1] = now()->startOfDay()->subDays(30);

@@ -1,6 +1,6 @@
 <?php
 
-$LANG = array(
+$lang = array(
     'organization' => 'Organisation',
     'name' => 'Navn',
     'website' => 'Hjemmeside',
@@ -5188,8 +5188,6 @@ $LANG = array(
     'payment_receipt' => 'Betaling # :number',
     'load_template_description' => 'Skabelonen vil blive anvendt på følgende:',
     'run_template' => 'Kør skabelon',
-); 
+);
 
-return $LANG;
-
-?>
+return $lang;

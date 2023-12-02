@@ -1,19 +1,19 @@
 <?php
 
-use Imdhemy\Purchases\Events\AppStore\Refund;
-use Imdhemy\Purchases\Events\AppStore\DidRenew;
-use Imdhemy\Purchases\Events\AppStore\DidFailToRenew;
-use Imdhemy\Purchases\Events\GooglePlay\SubscriptionPaused;
-use Imdhemy\Purchases\Events\GooglePlay\SubscriptionExpired;
-use Imdhemy\Purchases\Events\GooglePlay\SubscriptionRenewed;
-use Imdhemy\Purchases\Events\GooglePlay\SubscriptionRevoked;
 use Imdhemy\Purchases\Events\AppStore\DidChangeRenewalStatus;
+use Imdhemy\Purchases\Events\AppStore\DidFailToRenew;
+use Imdhemy\Purchases\Events\AppStore\DidRenew;
 use Imdhemy\Purchases\Events\AppStore\InitialBuy;
 use Imdhemy\Purchases\Events\AppStore\InteractiveRenewal;
+use Imdhemy\Purchases\Events\AppStore\Refund;
 use Imdhemy\Purchases\Events\GooglePlay\SubscriptionCanceled;
+use Imdhemy\Purchases\Events\GooglePlay\SubscriptionExpired;
+use Imdhemy\Purchases\Events\GooglePlay\SubscriptionPaused;
 use Imdhemy\Purchases\Events\GooglePlay\SubscriptionPurchased;
 use Imdhemy\Purchases\Events\GooglePlay\SubscriptionRecovered;
+use Imdhemy\Purchases\Events\GooglePlay\SubscriptionRenewed;
 use Imdhemy\Purchases\Events\GooglePlay\SubscriptionRestarted;
+use Imdhemy\Purchases\Events\GooglePlay\SubscriptionRevoked;
 
 return [
     /*

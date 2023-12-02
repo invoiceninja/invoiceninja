@@ -11,23 +11,23 @@
 
 namespace App\Http\Controllers\VendorPortal;
 
-use App\Utils\Ninja;
-use Illuminate\View\View;
-use App\Models\PurchaseOrder;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesDates;
-use App\Jobs\Entity\CreateRawPdf;
-use App\Http\Controllers\Controller;
-use App\Jobs\Invoice\InjectSignature;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Contracts\View\Factory;
-use App\Models\PurchaseOrderInvitation;
 use App\Events\Misc\InvitationWasViewed;
-use App\Events\PurchaseOrder\PurchaseOrderWasViewed;
 use App\Events\PurchaseOrder\PurchaseOrderWasAccepted;
+use App\Events\PurchaseOrder\PurchaseOrderWasViewed;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\VendorPortal\PurchaseOrders\ProcessPurchaseOrdersInBulkRequest;
 use App\Http\Requests\VendorPortal\PurchaseOrders\ShowPurchaseOrderRequest;
 use App\Http\Requests\VendorPortal\PurchaseOrders\ShowPurchaseOrdersRequest;
-use App\Http\Requests\VendorPortal\PurchaseOrders\ProcessPurchaseOrdersInBulkRequest;
+use App\Jobs\Entity\CreateRawPdf;
+use App\Jobs\Invoice\InjectSignature;
+use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderInvitation;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesDates;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\View\View;
 
 class PurchaseOrderController extends Controller
 {

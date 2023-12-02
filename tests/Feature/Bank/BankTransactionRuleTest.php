@@ -581,47 +581,47 @@ class BankTransactionRuleTest extends TestCase
     }
 
 
-  public function testMatchingBankTransactionExpenseContainsMiss()
-  {
-      $br = BankTransactionRule::factory()->create([
-          'company_id' => $this->company->id,
-          'user_id' => $this->user->id,
-          'matches_on_all' => false,
-          'auto_convert' => true,
-          'applies_to' => 'DEBIT',
-          'client_id' => $this->client->id,
-          'vendor_id' => $this->vendor->id,
-          'rules' => [
-              [
-                  'search_key' => 'description',
-                  'operator' => 'contains',
-                  'value' => 'asdddfd',
-              ]
-          ]
-      ]);
+    public function testMatchingBankTransactionExpenseContainsMiss()
+    {
+        $br = BankTransactionRule::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'matches_on_all' => false,
+            'auto_convert' => true,
+            'applies_to' => 'DEBIT',
+            'client_id' => $this->client->id,
+            'vendor_id' => $this->vendor->id,
+            'rules' => [
+                [
+                    'search_key' => 'description',
+                    'operator' => 'contains',
+                    'value' => 'asdddfd',
+                ]
+            ]
+        ]);
 
-      $bi = BankIntegration::factory()->create([
-          'company_id' => $this->company->id,
-          'user_id' => $this->user->id,
-          'account_id' => $this->account->id,
-      ]);
+        $bi = BankIntegration::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'account_id' => $this->account->id,
+        ]);
 
-      $bt = BankTransaction::factory()->create([
-          'bank_integration_id' => $bi->id,
-          'company_id' => $this->company->id,
-          'user_id' => $this->user->id,
-          'description' => 'Something asd bizarre',
-          'base_type' => 'DEBIT',
-          'amount' => 100
-      ]);
+        $bt = BankTransaction::factory()->create([
+            'bank_integration_id' => $bi->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'description' => 'Something asd bizarre',
+            'base_type' => 'DEBIT',
+            'amount' => 100
+        ]);
     
 
-      $bt->service()->processRules();
+        $bt->service()->processRules();
 
-      $bt = $bt->fresh();
+        $bt = $bt->fresh();
 
-      $this->assertEmpty($bt->expense_id);
-  }
+        $this->assertEmpty($bt->expense_id);
+    }
 
 
     public function testMatchingBankTransactionExpenseContains()

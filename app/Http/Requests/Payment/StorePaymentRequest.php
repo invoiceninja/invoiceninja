@@ -93,11 +93,11 @@ class StorePaymentRequest extends Request
         }
 
         if (! isset($input['date'])) {
-            $input['date'] = now()->addSeconds($user->company()->timezone()->utc_offset)->format('Y-m-d');
+            $input['date'] = now()->addSeconds($user->company()->utc_offset())->format('Y-m-d');
         }
 
         if (! isset($input['idempotency_key'])) {
-            $input['idempotency_key'] = substr(sha1(json_encode($input)).time()."{$input['date']}{$input['amount']}{$user->id}",0,64);
+            $input['idempotency_key'] = substr(sha1(json_encode($input)).time()."{$input['date']}{$input['amount']}{$user->id}", 0, 64);
         }
 
         $this->replace($input);

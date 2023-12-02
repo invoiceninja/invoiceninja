@@ -71,6 +71,7 @@ class CreditCard
                 'gateway_type_id' => GatewayType::CREDIT_CARD,
             ],
             'setup_future_usage' => 'off_session',
+            'payment_method_types' => ['card'],
         ];
 
         $data['intent'] = $this->stripe->createPaymentIntent($payment_intent_data);

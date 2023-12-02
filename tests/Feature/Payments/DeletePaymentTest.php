@@ -11,18 +11,12 @@
 
 namespace Tests\Feature\Payments;
 
-use App\Factory\InvoiceFactory;
-use App\Helpers\Invoice\InvoiceSum;
-use App\Models\Client;
-use App\Models\Credit;
 use App\Models\Invoice;
-use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Validation\ValidationException;
 use Tests\MockUnitData;
 use Tests\TestCase;
 
@@ -58,8 +52,8 @@ class DeletePaymentTest extends TestCase
         Invoice::factory()
                 ->count(10)
                 ->create([
-                    'user_id' => $this->user->id, 
-                    'company_id' => $this->company->id, 
+                    'user_id' => $this->user->id,
+                    'company_id' => $this->company->id,
                     'client_id' => $this->client->id,
                     'amount' => 101,
                     'balance' => 101,
@@ -69,7 +63,7 @@ class DeletePaymentTest extends TestCase
 
         $i = Invoice::where('amount', 101)->where('status_id', 2)->take(1)->get();
 
-        $invoices = $i->map(function ($i){
+        $invoices = $i->map(function ($i) {
             return [
                 'invoice_id' => $i->hashed_id,
                 'amount' => $i->amount,

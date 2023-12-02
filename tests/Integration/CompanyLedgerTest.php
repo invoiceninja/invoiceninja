@@ -11,24 +11,24 @@
 
 namespace Tests\Integration;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Client;
+use App\DataMapper\CompanySettings;
+use App\DataMapper\InvoiceItem;
+use App\Factory\CompanyUserFactory;
+use App\Jobs\Ledger\UpdateLedger;
 use App\Models\Account;
+use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\Company;
+use App\Models\CompanyLedger;
+use App\Models\CompanyToken;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\CompanyToken;
-use App\Models\ClientContact;
-use App\Models\CompanyLedger;
-use App\DataMapper\InvoiceItem;
+use App\Models\User;
 use App\Utils\Traits\MakesHash;
-use App\Jobs\Ledger\UpdateLedger;
-use App\DataMapper\CompanySettings;
-use App\Factory\CompanyUserFactory;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
 
 /** @test*/
 class CompanyLedgerTest extends TestCase

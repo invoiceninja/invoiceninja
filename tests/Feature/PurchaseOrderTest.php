@@ -11,20 +11,19 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Utils\Ninja;
-use App\Models\Activity;
-use Tests\MockAccountData;
-use Illuminate\Support\Str;
-use App\Models\PurchaseOrder;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Session;
-use App\Repositories\ActivityRepository;
 use App\Events\PurchaseOrder\PurchaseOrderWasCreated;
 use App\Events\PurchaseOrder\PurchaseOrderWasUpdated;
-use App\Events\PurchaseOrder\PurchaseOrderWasAccepted;
+use App\Models\Activity;
+use App\Models\PurchaseOrder;
+use App\Repositories\ActivityRepository;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 class PurchaseOrderTest extends TestCase
 {

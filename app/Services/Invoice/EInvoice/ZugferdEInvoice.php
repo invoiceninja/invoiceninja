@@ -34,6 +34,8 @@ class ZugferdEInvoice extends AbstractService
         $profile = $client->getSetting('e_invoice_type');
 
         $profile = match ($profile) {
+            "XInvoice_3_0" => ZugferdProfiles::PROFILE_XRECHNUNG_3,
+            "XInvoice_2_3" => ZugferdProfiles::PROFILE_XRECHNUNG_2_3,
             "XInvoice_2_2" => ZugferdProfiles::PROFILE_XRECHNUNG_2_2,
             "XInvoice_2_1" => ZugferdProfiles::PROFILE_XRECHNUNG_2_1,
             "XInvoice_2_0" => ZugferdProfiles::PROFILE_XRECHNUNG_2,

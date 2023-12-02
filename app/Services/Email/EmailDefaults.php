@@ -166,7 +166,6 @@ class EmailDefaults
 
         if (strlen($this->email->email_object->body) > 3) {
             // A Custom Message has been set in the email screen.
-            // return $this;
         } elseif (strlen($this->email->email_object->settings?->{$this->email->email_object->email_template_body}) > 3) {
             // A body has been saved in the settings.
             $this->email->email_object->body = $this->email->email_object->settings?->{$this->email->email_object->email_template_body};
@@ -273,7 +272,6 @@ class EmailDefaults
         return $this;
         // return $this->email->email_object->cc;
         // return [
-
         // ];
     }
 
@@ -295,7 +293,7 @@ class EmailDefaults
         }
 
         /** Purchase Order / Invoice / Credit / Quote PDF  */
-        if ($this->email->email_object->settings->pdf_email_attachment){
+        if ($this->email->email_object->settings->pdf_email_attachment) {
             $pdf = ((new CreateRawPdf($this->email->email_object->invitation))->handle());
             $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
         }

@@ -81,6 +81,16 @@ class PdfMaker
             $contents = $this->document->getElementsByTagName('ninja');
             
             $ts = new TemplateService();
+
+            if(isset($this->data['template']['entity'])) {
+                try {
+                    $entity = $this->data['template']['entity'];
+                    $ts->setCompany($entity->company);
+                } catch(\Exception $e) {
+                 
+                }
+            }
+
             $data = $ts->processData($this->options)->getData();
             $twig = $ts->twig;
 

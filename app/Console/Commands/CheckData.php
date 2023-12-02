@@ -12,7 +12,6 @@
 namespace App\Console\Commands;
 
 use App;
-use App\DataMapper\ClientSettings;
 use App\Factory\ClientContactFactory;
 use App\Factory\VendorContactFactory;
 use App\Jobs\Company\CreateCompanyToken;
@@ -977,7 +976,7 @@ class CheckData extends Command
             $cc = ClientContact::on('db-ninja-01')->where('company_id', config('ninja.ninja_default_company_id'))->where('email', $cu->user->email)->first();
 
             if ($cc) {
-                $ninja_portal_url = "https://invoiceninja.invoicing.co/client/ninja/{$cc->contact_key}/{$cu->account->key}";
+                $ninja_portal_url = config('ninja.ninja_client_portal')."/client/ninja/{$cc->contact_key}/{$cu->account->key}";
 
                 $cu->ninja_portal_url = $ninja_portal_url;
                 $cu->save();
@@ -990,7 +989,7 @@ class CheckData extends Command
                     $cc = $c->contacts()->first();
                       
                     if ($cc) {
-                        $ninja_portal_url = "https://invoiceninja.invoicing.co/client/ninja/{$cc->contact_key}/{$cu->account->key}";
+                        $ninja_portal_url = config('ninja.ninja_client_portal')."/client/ninja/{$cc->contact_key}/{$cu->account->key}";
 
                         $cu->ninja_portal_url = $ninja_portal_url;
                         $cu->save();

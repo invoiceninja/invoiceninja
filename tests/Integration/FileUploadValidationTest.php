@@ -11,7 +11,6 @@
 
 namespace Tests\Integration;
 
-use App\Models\Company;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\UploadedFile;

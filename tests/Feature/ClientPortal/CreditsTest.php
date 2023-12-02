@@ -108,7 +108,7 @@ class CreditsTest extends TestCase
             ->assertSee('testing-number-02')
             ->assertSee('testing-number-03');
 
-            $user->forceDelete();
+        $user->forceDelete();
     }
 
     public function testShowingCreditsWithNullDueDate()
@@ -177,7 +177,7 @@ class CreditsTest extends TestCase
             ->assertSee('testing-number-02')
             ->assertSee('testing-number-03');
 
-            $account->delete();
+        $account->delete();
 
     }
 }

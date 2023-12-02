@@ -108,6 +108,11 @@ class BaseDriver extends AbstractPaymentDriver
         return $this;
     }
 
+    public function getAvailableMethods(): array
+    {
+        return self::$methods;
+    }
+
     /**
      * Required fields for client to fill, to proceed with gateway actions.
      *
@@ -325,7 +330,7 @@ class BaseDriver extends AbstractPaymentDriver
         $payment->company_gateway_id = $this->company_gateway->id;
         $payment->status_id = $status;
         $payment->currency_id = $this->client->getSetting('currency_id');
-        $payment->date = Carbon::now()->addSeconds($this->client->company->timezone()->utc_offset)->format('Y-m-d');
+        $payment->date = Carbon::now()->addSeconds($this->client->company->utc_offset())->format('Y-m-d');
         $payment->gateway_type_id = $data['gateway_type_id'];
 
         $client_contact = $this->getContact();
@@ -743,28 +748,20 @@ class BaseDriver extends AbstractPaymentDriver
         }
 
         $invoices_string = str_replace(["*","<",">","'",'"'], "-", $invoices_string);
-        // $invoices_string = "I-".$invoices_string;
-        // $invoices_string = substr($invoices_string, 0, 22);
         
-// 2023-11-02 - improve the statement descriptor for string
-$company_name = $this->client->company->present()->name();
+        // 2023-11-02 - improve the statement descriptor for string
 
-if(ctype_digit(substr($company_name, 0, 1)))
-    $company_name = "X" . $company_name;
+        $company_name = $this->client->company->present()->name();
+        $company_name = str_replace(["*","<",">","'",'"'], "-", $company_name);
 
-$suffix = strlen($invoices_string) + 1;
+        if(ctype_digit(substr($company_name, 0, 1))) {
+            $company_name = "I" . $company_name;
+        }
 
-$length = 22 - $suffix;
-
-$company_name = substr($company_name, 0, $length);
-
-$descriptor = "{$company_name} {$invoices_string}";
-
-$invoices_string = str_pad($descriptor, 5, ctrans('texts.invoice'), STR_PAD_RIGHT);
-
-        // $invoices_string = str_pad($invoices_string, 5, ctrans('texts.invoice'), STR_PAD_LEFT);
-
-        return $invoices_string;
+        $company_name = substr($company_name, 0, 11);
+        $descriptor = "{$company_name} {$invoices_string}";
+        $descriptor = substr($descriptor, 0, 22);
+        return $descriptor;
 
     }
     /**

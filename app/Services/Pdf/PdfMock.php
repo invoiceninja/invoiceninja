@@ -64,8 +64,14 @@ class PdfMock
         $pdf_config->setPdfVariables();
         $pdf_config->setCurrency(Currency::find($this->settings->currency_id));
         $pdf_config->setCountry(Country::find($this->settings->country_id ?: 840));
-        $pdf_config->design = Design::withTrashed()->find($this->decodePrimaryKey($pdf_config->entity_design_id));
         $pdf_config->currency_entity = $this->mock->client;
+
+        if(isset($this->request['design_id']) && $design  = Design::withTrashed()->find($this->request['design_id'])) {
+            $pdf_config->design = $design;
+            $pdf_config->entity_design_id = $design->hashed_id;
+        } else {
+            $pdf_config->design = Design::withTrashed()->find($this->decodePrimaryKey($pdf_config->entity_design_id));
+        }
         
         $pdf_service->config = $pdf_config;
 
@@ -213,7 +219,7 @@ class PdfMock
     '$client.billing_address2' => '63993 Aiyana View',
     '$client.billing_address1' => '8447',
     '$client.shipping_country' => 'USA',
-    '$invoiceninja.whitelabel' => 'https://invoicing.co/images/new_logo.png',
+    '$invoiceninja.whitelabel' => config('ninja.app_logo'),
     '$client.billing_address' => '8447<br/>63993 Aiyana View<br/>Aufderharchester, North Carolina 11243<br/>United States<br/>',
     '$client.billing_country' => 'USA',
     '$task.gross_line_total' => '100',
@@ -432,6 +438,8 @@ class PdfMock
     '$credit_no' => '0029',
     '$font_size' => $this->settings->font_size,
     '$view_link' => '<a class="button" href="http://ninja.test:8000/client/invoice/UAUY8vIPuno72igmXbbpldwo5BDDKIqs">View Invoice</a>',
+    '$reference' => '',
+    '$po_number' => 'PO12345',
     '$page_size' => $this->settings->page_size,
     '$country_2' => 'AF',
     '$firstName' => 'Benedict',
@@ -464,6 +472,7 @@ class PdfMock
     '$client4' => 'custom value',
     '$dueDate' => '2022-01-01',
     '$invoice' => '0029',
+    '$invoices' => '0029',
     '$account' => '434343',
     '$country' => 'United States',
     '$contact' => 'Benedict Eichmann',
@@ -483,21 +492,31 @@ class PdfMock
     '_rate3' => '',
     '$taxes' => '$40.00',
     '$total' => '$10.00',
+    '$refund' => '',
+    '$refunded' => '',
     '$phone' => '&nbsp;',
     '$terms' => 'Default company invoice terms',
     '$from' => 'Bob Jones',
     '$item' => '',
     '$date' => '25/Feb/2023',
     '$tax' => '',
+    '$net' => 'Net',
     '$dir' => 'ltr',
     '$to' => 'Jimmy Giggles',
     '$show_paid_stamp' => $this->settings->show_paid_stamp ? 'flex' : 'none',
     '$status_logo' => '<div class="stamp is-paid"> ' . ctrans('texts.paid') .'</div>',
     '$show_shipping_address' => $this->settings->show_shipping_address ? 'flex' : 'none',
     '$show_shipping_address_block' => $this->settings->show_shipping_address ? 'block' : 'none',
-    '$show_shipping_address_visibility' => $this->settings->show_shipping_address ? 'visible' : 'hidden',
+    '$show_shipping_address_visibility' => $this->settings->show_shipping_address ? '1' : '0',
     '$start_date' => '31/01/2023',
     '$end_date' => '31/12/2023',
+    '$history' => '',
+    '$amount_paid' => '',
+    '$receipt' => '',
+    '$ship_to' => '',
+    '$delivery_note' => '',
+    '$quantity' => '',
+    '$order_number' => '',
   ],
   'labels' => $this->mockTranslatedLabels(),
 ];
@@ -748,6 +767,7 @@ class PdfMock
             '$user_iban_label' => ctrans('texts.iban'),
             '$signature_label' => ctrans('texts.signature'),
             '$font_size_label' => ctrans('texts.font_size'),
+            '$reference_label' => ctrans('texts.reference'),
             '$po_number_label' => ctrans('texts.po_number'),
             '$page_size_label' => ctrans('texts.page_size'),
             '$user.name_label' => ctrans('texts.name'),
@@ -803,6 +823,8 @@ class PdfMock
             '$tax_rate1_label' => ctrans('texts.tax_rate1'),
             '$tax_rate2_label' => ctrans('texts.tax_rate2'),
             '$tax_rate3_label' => ctrans('texts.tax_rate3'),
+            '$refund_label' => ctrans('texts.refund'),
+            '$refunded_label' => ctrans('texts.refunded'),
             '$phone_label' => ctrans('texts.phone'),
             '$email_label' => ctrans('texts.email'),
             '$taxes_label' => ctrans('texts.taxes'),
@@ -811,10 +833,20 @@ class PdfMock
             '$item_label' => ctrans('texts.item'),
             '$date_label' => ctrans('texts.date'),
             '$tax_label' => ctrans('texts.tax'),
+            '$net_label' => ctrans('texts.net'),
             '$dir_label' => '',
             '$to_label' => ctrans('texts.to'),
             '$start_date_label' => ctrans('texts.start_date'),
             '$end_date_label' => ctrans('texts.end_date'),
+            '$invoice_label' => ctrans('texts.invoice'),
+            '$invoices_label' => ctrans('texts.invoices'),
+            '$history_label' => ctrans('texts.history'),
+            '$amount_paid_label' => ctrans('texts.amount_paid'),
+            '$receipt_label' => ctrans('texts.receipt'),
+            '$ship_to_label' => ctrans('texts.ship_to'),
+            '$delivery_note_label' => ctrans('texts.delivery_note'),
+            '$quantity_label' => ctrans('texts.quantity'),
+            '$order_number_label' => ctrans('texts.order_number'),
         ];
     }
     
@@ -831,7 +863,7 @@ class PdfMock
             '$purchase_order.due_date' => '02-12-2021',
             '$vendor.billing_address1' => '589',
           '$vendor.billing_address2' => '761 Odessa Centers Suite 673',
-          '$invoiceninja.whitelabel' => 'https://invoicing.co/images/new_logo.png',
+          '$invoiceninja.whitelabel' => config('ninja.app_logo'),
           '$purchase_order.custom1' => 'Custom 1',
           '$purchase_order.custom2' => 'Custom 2',
           '$purchase_order.custom3' => 'Custom 3',
@@ -907,7 +939,7 @@ class PdfMock
           '$created_by_user' => 'Mr. Louvenia Armstrong Prof. Reyes Anderson',
           '$vendor.currency' => 'USD',
           '$company.country' => 'United States',
-          '$tech_hero_image' => 'https://invoicing.co/images/pdf-designs/tech-hero-image.jpg',
+          '$tech_hero_image' => config('ninja.app_url').'/images/pdf-designs/tech-hero-image.jpg',
           '$company.website' => 'http://www.dare.com/vero-consequatur-eveniet-dolorum-exercitationem-alias-repellat.html',
           '$gross_subtotal' => '$10,256.40',
           '$emailSignature' => '&nbsp;',
@@ -1012,6 +1044,7 @@ class PdfMock
           '$amount_raw' => '10256.40',
           '$vat_number' => 'At qui autem iusto et.',
           '$portal_url' => 'http://ninja.test:8000/vendor/',
+          '$reference' => '',
           '$po_number' => null,
           '$statement' => '',
           '$view_link' => '
@@ -1115,6 +1148,8 @@ class PdfMock
           '$tax_rate1' => '',
           '$tax_rate2' => '',
           '$tax_rate3' => '',
+          '$refund' => 'Refund',
+          '$refunded' => 'Refunded',
           '$total' => '$10,256.40',
           '$taxes' => '$488.40',
           '$phone' => '&nbsp;',
@@ -1123,7 +1158,14 @@ class PdfMock
           '$date' => '14/Mar/2023',
           '$tax' => '',
           '$dir' => 'ltr',
+          '$net' => 'Net',
           '$to' => '',
+          '$amount_paid' => '',
+          '$receipt' => '',
+          '$ship_to' => '',
+          '$delivery_note_label' => '',
+          '$quantity_label' => '',
+          '$order_number_label' => '',
         ],
         'labels' => $this->vendorLabels(),
 ];
@@ -1277,6 +1319,7 @@ class PdfMock
           '$amount_raw_label' => ctrans('texts.amount'),
           '$vat_number_label' => ctrans('texts.vat_number'),
           '$portal_url_label' => ctrans('texts.link'),
+          '$reference_label' => ctrans('texts.reference'),
           '$po_number_label' => ctrans('texts.po_number'),
           '$statement_label' => ctrans('texts.statement'),
           '$view_link_label' => ctrans('texts.link'),
@@ -1334,6 +1377,8 @@ class PdfMock
           '$tax_rate1_label' => ctrans('texts.tax_rate1'),
           '$tax_rate2_label' => ctrans('texts.tax_rate2'),
           '$tax_rate3_label' => ctrans('texts.tax_rate3'),
+          '$refund_label' => ctrans('texts.refund'),
+          '$refunded_label' => ctrans('texts.refunded'),
           '$total_label' => ctrans('texts.total'),
           '$taxes_label' => ctrans('texts.taxes'),
           '$phone_label' => ctrans('texts.phone'),
@@ -1341,8 +1386,16 @@ class PdfMock
           '$item_label' => ctrans('texts.item'),
           '$date_label' => ctrans('texts.date'),
           '$tax_label' => ctrans('texts.tax'),
+          '$net_label' => ctrans('texts.net'),
           '$dir_label' => '',
           '$to_label' => ctrans('texts.to'),
+          '$amount_paid_label' => ctrans('texts.amount_paid'),
+          '$receipt_label' => ctrans('texts.receipt'),
+          '$ship_to_label' => ctrans('texts.ship_to'),
+          '$delivery_note_label' => ctrans('texts.delivery_note'),
+          '$quantity_label' => ctrans('texts.quantity'),
+          '$order_number_label' => ctrans('texts.order_number'),
+          '$shipping_label' => ctrans('texts.shipping_address'),
         ];
     }
 }
