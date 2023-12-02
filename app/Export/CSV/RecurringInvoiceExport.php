@@ -110,6 +110,7 @@ class RecurringInvoiceExport extends BaseExport
     {
         $transformed_invoice = $this->invoice_transformer->transform($invoice);
         $transformed_invoice['frequency_id'] = $invoice->frequencyForKey($invoice->frequency_id); //need to inject this here because it is also a valid key
+nlog($transformed_invoice);
 
         $entity = [];
 
@@ -127,6 +128,7 @@ class RecurringInvoiceExport extends BaseExport
             }
 
         }
+nlog($entity);
         return $entity;
         // return $this->decorateAdvancedFields($invoice, $entity);
     }

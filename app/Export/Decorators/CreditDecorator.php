@@ -27,32 +27,14 @@ class CreditDecorator implements DecoratorInterface
 
         if($credit && method_exists($this, $key)) {
             return $this->{$key}($credit);
+        } elseif($credit && $credit->{$key}){
+            return $credit->{$key};
         }
 
         return '';
 
     }
 
-    public function number(Credit $credit)
-    {
-        return $credit->number ?? '';
-    }
-    public function amount(Credit $credit)
-    {
-        return $credit->amount ?? 0;
-    }
-    public function balance(Credit $credit)
-    {
-        return $credit->balance ?? 0;
-    }
-    public function paid_to_date(Credit $credit)
-    {
-        return $credit->paid_to_date ?? 0;
-    }
-    public function po_number(Credit $credit)
-    {
-        return $credit->po_number ?? '';
-    }
     public function date(Credit $credit)
     {
         return $credit->date ?? '';
@@ -63,7 +45,7 @@ class CreditDecorator implements DecoratorInterface
     }
     public function terms(Credit $credit)
     {
-        return $credit->terms ?? '';
+        return strip_tags($credit->terms ?? '');
     }
     public function discount(Credit $credit)
     {
