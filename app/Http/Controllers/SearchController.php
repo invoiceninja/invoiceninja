@@ -68,7 +68,7 @@ class SearchController extends Controller
                     'type' => '/client',
                     'id' => $contact->client->hashed_id,
                     'path' => "/clients/{$contact->client->hashed_id}"
-                ];  
+                ];
             });
         }
                          

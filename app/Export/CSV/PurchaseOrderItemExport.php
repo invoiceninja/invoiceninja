@@ -11,6 +11,7 @@
 
 namespace App\Export\CSV;
 
+use App\Export\Decorators\Decorator;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\PurchaseOrder;
@@ -29,6 +30,8 @@ class PurchaseOrderItemExport extends BaseExport
 
     public Writer $csv;
 
+    private Decorator $decorator;
+
     private bool $force_keys = false;
 
     private array $storage_array = [];
@@ -40,6 +43,7 @@ class PurchaseOrderItemExport extends BaseExport
         $this->company = $company;
         $this->input = $input;
         $this->purchase_order_transformer = new PurchaseOrderTransformer();
+        $this->decorator = new Decorator();
     }
 
     private function init(): Builder
@@ -171,7 +175,10 @@ class PurchaseOrderItemExport extends BaseExport
             } elseif (array_key_exists($key, $transformed_purchase_order)) {
                 $entity[$key] = $transformed_purchase_order[$key];
             } else {
-                $entity[$key] = $this->resolveKey($key, $purchase_order, $this->purchase_order_transformer);
+                // nlog($key);
+                $entity[$key] = $this->decorator->transform($key, $purchase_order);
+                // $entity[$key] = '';
+                // $entity[$key] = $this->resolveKey($key, $purchase_order, $this->purchase_order_transformer);
             }
         }
 

@@ -11,6 +11,7 @@
 
 namespace App\Export\CSV;
 
+use App\Export\Decorators\Decorator;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Invoice;
@@ -28,11 +29,14 @@ class InvoiceExport extends BaseExport
 
     public Writer $csv;
 
+    private Decorator $decorator;
+
     public function __construct(Company $company, array $input)
     {
         $this->company = $company;
         $this->input = $input;
         $this->invoice_transformer = new InvoiceTransformer();
+        $this->decorator = new Decorator();
     }
 
     public function init(): Builder
@@ -116,12 +120,16 @@ class InvoiceExport extends BaseExport
             if (is_array($parts) && $parts[0] == 'invoice' && array_key_exists($parts[1], $transformed_invoice)) {
                 $entity[$key] = $transformed_invoice[$parts[1]];
             } else {
-                $entity[$key] = $this->resolveKey($key, $invoice, $this->invoice_transformer);
+                // nlog($key);
+                $entity[$key] = $this->decorator->transform($key, $invoice);
+                // $entity[$key] = '';
+                // $entity[$key] = $this->resolveKey($key, $invoice, $this->invoice_transformer);
             }
 
         }
-
-        return $this->decorateAdvancedFields($invoice, $entity);
+        
+        return $entity;
+        // return $this->decorateAdvancedFields($invoice, $entity);
     }
 
     private function decorateAdvancedFields(Invoice $invoice, array $entity) :array

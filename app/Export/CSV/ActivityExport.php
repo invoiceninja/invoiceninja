@@ -105,8 +105,6 @@ class ActivityExport extends BaseExport
 
         $this->date_format = DateFormat::find($this->company->settings->date_format_id)->format;
 
-        // ksort($this->entity_keys);
-
         if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = array_values($this->entity_keys);
         }
@@ -142,8 +140,7 @@ class ActivityExport extends BaseExport
     {
        
         $this->csv->insertOne($this->buildActivityRow($activity));
-
-
+        
     }
 
     private function decorateAdvancedFields(Task $task, array $entity) :array

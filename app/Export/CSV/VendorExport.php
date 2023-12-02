@@ -11,6 +11,7 @@
 
 namespace App\Export\CSV;
 
+use App\Export\Decorators\Decorator;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Vendor;
@@ -30,6 +31,8 @@ class VendorExport extends BaseExport
 
     public Writer $csv;
 
+    private Decorator $decorator;
+
     public string $date_key = 'created_at';
 
     public function __construct(Company $company, array $input)
@@ -38,6 +41,7 @@ class VendorExport extends BaseExport
         $this->input = $input;
         $this->vendor_transformer = new VendorTransformer();
         $this->contact_transformer = new VendorContactTransformer();
+        $this->decorator = new Decorator();
     }
 
     public function init(): Builder
@@ -122,11 +126,15 @@ class VendorExport extends BaseExport
             } elseif (is_array($parts) && $parts[0] == 'vendor_contact' && isset($transformed_contact[$parts[1]])) {
                 $entity[$key] = $transformed_contact[$parts[1]];
             } else {
-                $entity[$key] = $this->resolveKey($key, $vendor, $this->vendor_transformer);
+                // nlog($key);
+                $entity[$key] = $this->decorator->transform($key, $vendor);
+
+                // $entity[$key] = $this->resolveKey($key, $vendor, $this->vendor_transformer);
             }
         }
 
-        return $this->decorateAdvancedFields($vendor, $entity);
+        return $entity;
+        // return $this->decorateAdvancedFields($vendor, $entity);
     }
 
     private function decorateAdvancedFields(Vendor $vendor, array $entity) :array

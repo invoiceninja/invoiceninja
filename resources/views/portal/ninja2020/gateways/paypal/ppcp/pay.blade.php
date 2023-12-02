@@ -30,26 +30,29 @@
 
 @push('footer')
 
-<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&merchant-id={!! $merchantId !!}&components=buttons,funding-eligibility&intent=capture"  data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
+<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&currency={!! $currency !!}&merchant-id={!! $merchantId !!}&components=buttons,funding-eligibility&intent=capture"  data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
 <div id="paypal-button-container"></div>
 <script>
 
 //&buyer-country=US&currency=USD&enable-funding=venmo
     const fundingSource = "{!! $funding_source !!}";
-    const testMode = {{ $gateway->company_gateway->getConfigField('testMode') }};
     const clientId = "{{ $client_id }}";
-    const sandbox = { sandbox: clientId };
-    const production = { production: clientId };
     const orderId = "{!! $order_id !!}";
 
     paypal.Buttons({
-        env: testMode ? 'sandbox' : 'production',
+        env: 'production',
         fundingSource: fundingSource,
-        client: testMode ? sandbox : production,
+        client: clientId,
         createOrder: function(data, actions) {
             return orderId;  
         },
         onApprove: function(data, actions) {
+
+            var errorDetail = Array.isArray(data.details) && data.details[0];
+                if (errorDetail && ['INSTRUMENT_DECLINED', 'PAYER_ACTION_REQUIRED'].includes(errorDetail.issue)) {
+                return actions.restart();
+            }
+
             return actions.order.capture().then(function(details) {
                 document.getElementById("gateway_response").value =JSON.stringify( details );
                 document.getElementById("server_response").submit();

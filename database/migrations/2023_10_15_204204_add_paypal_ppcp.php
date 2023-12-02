@@ -14,8 +14,6 @@ return new class extends Migration {
         if(!Gateway::find(61) && Ninja::isHosted()) {
 
             $fields = new \stdClass;
-            $fields->clientId = "";
-            $fields->secret = "";
             $fields->testMode = false;
             
             $paypal = new Gateway;

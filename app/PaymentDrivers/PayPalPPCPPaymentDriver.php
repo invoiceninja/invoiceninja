@@ -139,7 +139,8 @@ class PayPalPPCPPaymentDriver extends BaseDriver
     public function init(): self
     {
 
-        $this->api_endpoint_url = $this->company_gateway->getConfigField('testMode') ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com';
+        // $this->api_endpoint_url = $this->company_gateway->getConfigField('testMode') ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com';
+        $this->api_endpoint_url = 'https://api-m.paypal.com';
         
         $secret = config('ninja.paypal.secret');
         $client_id = config('ninja.paypal.client_id');
@@ -230,7 +231,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         $data['funding_source'] = $this->paypal_payment_method;
         $data['gateway_type_id'] = $this->gateway_type_id;
         $data['merchantId'] = $this->company_gateway->getConfigField('merchantId');
-        
+        $data['currency'] = $this->client->currency()->code;
         // nlog($data['merchantId']);
         
         return render('gateways.paypal.ppcp.pay', $data);

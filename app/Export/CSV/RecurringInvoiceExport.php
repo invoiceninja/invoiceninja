@@ -11,6 +11,7 @@
 
 namespace App\Export\CSV;
 
+use App\Export\Decorators\Decorator;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\RecurringInvoice;
@@ -29,11 +30,14 @@ class RecurringInvoiceExport extends BaseExport
 
     public Writer $csv;
 
+    private Decorator $decorator;
+
     public function __construct(Company $company, array $input)
     {
         $this->company = $company;
         $this->input = $input;
         $this->invoice_transformer = new RecurringInvoiceTransformer();
+        $this->decorator = new Decorator();
     }
 
     public function init(): Builder
@@ -105,6 +109,8 @@ class RecurringInvoiceExport extends BaseExport
     private function buildRow(RecurringInvoice $invoice) :array
     {
         $transformed_invoice = $this->invoice_transformer->transform($invoice);
+        $transformed_invoice['frequency_id'] = $invoice->frequencyForKey($invoice->frequency_id); //need to inject this here because it is also a valid key
+// nlog($transformed_invoice);
 
         $entity = [];
 
@@ -114,13 +120,20 @@ class RecurringInvoiceExport extends BaseExport
 
             if (is_array($parts) && $parts[0] == 'recurring_invoice' && array_key_exists($parts[1], $transformed_invoice)) {
                 $entity[$key] = $transformed_invoice[$parts[1]];
-            } else {
-                $entity[$key] = $this->resolveKey($key, $invoice, $this->invoice_transformer);
+            } elseif($parts[0] == 'item'){
+                $entity[$key] = '';
+            } 
+            else {
+                // nlog($key);
+                $entity[$key] = $this->decorator->transform($key, $invoice);
+                // $entity[$key] = '';
+                // $entity[$key] = $this->resolveKey($key, $invoice, $this->invoice_transformer);
             }
 
         }
-
-        return $this->decorateAdvancedFields($invoice, $entity);
+// nlog($entity);
+        return $entity;
+        // return $this->decorateAdvancedFields($invoice, $entity);
     }
 
     private function decorateAdvancedFields(RecurringInvoice $invoice, array $entity) :array

@@ -30,8 +30,8 @@ class TaskDecorator extends Decorator implements DecoratorInterface
 
         if($task && method_exists($this, $key)) {
             return $this->{$key}($task);
-        } elseif($task->{$key}) {
-            return $task->{$key} ?? '';
+        } elseif($task && $task->{$key}) {
+            return $task->{$key};
         }
 
         return '';

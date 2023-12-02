@@ -11,12 +11,13 @@
 
 namespace App\Export\CSV;
 
+use App\Export\Decorators\Decorator;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Expense;
 use App\Transformers\ExpenseTransformer;
 use App\Utils\Ninja;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
@@ -24,6 +25,8 @@ class ExpenseExport extends BaseExport
 {
 
     private $expense_transformer;
+
+    private Decorator $decorator;
 
     public string $date_key = 'date';
 
@@ -34,6 +37,7 @@ class ExpenseExport extends BaseExport
         $this->company = $company;
         $this->input = $input;
         $this->expense_transformer = new ExpenseTransformer();
+        $this->decorator = new Decorator();
     }
 
 
@@ -102,7 +106,8 @@ class ExpenseExport extends BaseExport
     private function buildRow(Expense $expense) :array
     {
         $transformed_expense = $this->expense_transformer->transform($expense);
-
+        $transformed_expense['currency_id'] =  $expense->currency ? $expense->currency->code : $expense->company->currency()->code;
+        
         $entity = [];
 
         foreach (array_values($this->input['report_keys']) as $key) {
@@ -113,12 +118,16 @@ class ExpenseExport extends BaseExport
             } elseif (array_key_exists($key, $transformed_expense)) {
                 $entity[$key] = $transformed_expense[$key];
             } else {
-                $entity[$key] = $this->resolveKey($key, $expense, $this->expense_transformer);
+                // nlog($key);
+                $entity[$key] = $this->decorator->transform($key, $expense);
+                // $entity[$key] = '';
+                // $entity[$key] = $this->resolveKey($key, $expense, $this->expense_transformer);
             }
 
         }
 
-        return $this->decorateAdvancedFields($expense, $entity);
+        return $entity;
+        // return $this->decorateAdvancedFields($expense, $entity);
     }
 
     private function decorateAdvancedFields(Expense $expense, array $entity) :array

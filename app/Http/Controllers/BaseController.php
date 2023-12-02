@@ -928,11 +928,9 @@ class BaseController extends Controller
                 } //allows us to selective display bank integrations back to the user if they can view / create bank transactions but without the bank balance being present in the response
                 elseif($this->entity_type == TaxRate::class && $user->hasIntersectPermissions(['create_invoice','edit_invoice','create_quote','edit_quote','create_purchase_order','edit_purchase_order'])) {
                     // need to show tax rates if the user has the ability to create documents.
-                } 
-                elseif($this->entity_type == ExpenseCategory::class && $user->hasPermission('create_expense')) {
+                } elseif($this->entity_type == ExpenseCategory::class && $user->hasPermission('create_expense')) {
                     // need to show expense categories if the user has the ability to create expenses.
-                }
-                else {
+                } else {
                     $query->where('user_id', '=', $user->id);
                 }
             } elseif (in_array($this->entity_type, [Design::class, GroupSetting::class, PaymentTerm::class, TaskStatus::class])) {

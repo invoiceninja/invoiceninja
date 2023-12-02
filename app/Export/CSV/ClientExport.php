@@ -175,11 +175,15 @@ class ClientExport extends BaseExport
             } elseif (is_array($parts) && $parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {
                 $entity[$key] = $transformed_contact[$parts[1]];
             } else {
-                $entity[$key] = '';
+                // nlog($key);
+                $entity[$key] = $this->decorator->transform($key, $client);
+                // $entity[$key] = '';
             }
         }
 
-        return $this->decorateAdvancedFields($client, $entity);
+        return $entity;
+
+        // return $this->decorateAdvancedFields($client, $entity);
     }
 
     public function processMetaData(array $row, $resource): array

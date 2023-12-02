@@ -179,11 +179,13 @@ class TemplateService
 
     private function getSettings(): object
     {
-        if($this->settings)
+        if($this->settings) {
             return $this->settings;
+        }
 
-        if($this->client)
+        if($this->client) {
             return $this->client->getMergedSettings();
+        }
 
         return $this->company->settings;
     }

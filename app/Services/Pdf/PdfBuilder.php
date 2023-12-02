@@ -624,8 +624,6 @@ class PdfBuilder
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$task.cost'], 'properties' => ['data-ref' => 'task_table-task.cost-td']];
                     } elseif ($cell == '$product.discount' && !$this->service->company->enable_product_discount) {
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$product.discount'], 'properties' => ['data-ref' => 'product_table-product.discount-td', 'style' => 'display: none;']];
-                    } elseif ($cell == '$product.quantity' && !$this->service->company->enable_product_quantity) {
-                        $element['elements'][] = ['element' => 'td', 'content' => $row['$product.quantity'], 'properties' => ['data-ref' => 'product_table-product.quantity-td', 'style' => 'display: none;']];
                     } elseif ($cell == '$task.hours') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$task.quantity'], 'properties' => ['data-ref' => 'task_table-task.hours-td']];
                     } elseif ($cell == '$product.tax_rate1') {
@@ -807,8 +805,6 @@ class PdfBuilder
             if (array_key_exists($column, $aliases)) {
                 $elements[] = ['element' => 'th', 'content' => $aliases[$column] . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($aliases[$column], 1) . '-th', 'hidden' => $this->service->config->settings->hide_empty_columns_on_pdf]];
             } elseif ($column == '$product.discount' && !$this->service->company->enable_product_discount) {
-                $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($column, 1) . '-th', 'style' => 'display: none;']];
-            } elseif ($column == '$product.quantity' && !$this->service->company->enable_product_quantity) {
                 $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($column, 1) . '-th', 'style' => 'display: none;']];
             } elseif ($column == '$product.tax_rate1') {
                 $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-product.tax1-th", 'hidden' => $this->service->config->settings->hide_empty_columns_on_pdf]];
