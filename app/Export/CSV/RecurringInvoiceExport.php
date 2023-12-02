@@ -120,7 +120,10 @@ class RecurringInvoiceExport extends BaseExport
 
             if (is_array($parts) && $parts[0] == 'recurring_invoice' && array_key_exists($parts[1], $transformed_invoice)) {
                 $entity[$key] = $transformed_invoice[$parts[1]];
-            } else {
+            } elseif($parts[0] == 'item'){
+                $entity[$key] = '';
+            } 
+            else {
                 // nlog($key);
                 $entity[$key] = $this->decorator->transform($key, $invoice);
                 // $entity[$key] = '';
