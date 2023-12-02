@@ -1,6 +1,6 @@
 <?php
 
-$lang = array(
+$lang = [
     'organization' => 'Organisation',
     'name' => 'Name',
     'website' => 'Website',
