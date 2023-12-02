@@ -26,6 +26,8 @@ class PaymentDecorator extends Decorator implements DecoratorInterface
             $payment = $entity;
         } elseif($entity->payment) {
             $payment = $entity->payment;
+        } elseif($entity->payments()->exists()) {
+            $payment = $entity->payments()->first();
         }
 
         if($key == 'amount' && (!$entity instanceof Payment)) {
@@ -41,10 +43,10 @@ class PaymentDecorator extends Decorator implements DecoratorInterface
         if($payment && method_exists($this, $key)) {
             return $this->{$key}($payment);
         }
-
-        if($payment && ($payment->{$key} ?? false)){
+        elseif($payment && $payment->{$key}){
             return $payment->{$key};
         }
+
         return '';
     }
 

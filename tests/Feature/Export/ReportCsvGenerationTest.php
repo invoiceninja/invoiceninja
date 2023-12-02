@@ -655,7 +655,7 @@ class ReportCsvGenerationTest extends TestCase
                 
         $csv = $response->body();
 
-
+// nlog($csv);
         $this->assertEquals(3600, $this->getFirstValueByColumn($csv, 'Task Duration'));
         $this->assertEquals('test1', $this->getFirstValueByColumn($csv, 'Task Description'));
         $this->assertEquals('16/Jul/2023', $this->getFirstValueByColumn($csv, 'Task Start Date'));
@@ -890,7 +890,7 @@ class ReportCsvGenerationTest extends TestCase
         
         $csv = $response->body();
 
-        nlog($csv);
+        // nlog($csv);
 
         $this->assertEquals(100, $this->getFirstValueByColumn($csv, 'Payment Amount'));
         $this->assertEquals(now()->addSeconds($this->company->timezone()->utc_offset)->format('Y-m-d'), $this->getFirstValueByColumn($csv, 'Payment Date'));
@@ -1765,7 +1765,7 @@ class ReportCsvGenerationTest extends TestCase
 
         $data = [
             'date_range' => 'all',
-            'report_keys' => ["client.name","invoice.number","invoice.amount","payment.date", "payment.amount"],
+            'report_keys' => ["client.name","invoice.number","invoice.amount", "payment.date", "payment.amount"],
             'send_email' => false,
         ];
 
@@ -1784,12 +1784,10 @@ class ReportCsvGenerationTest extends TestCase
                 
         $csv = $response->body();
 
-
         $this->assertEquals('bob', $this->getFirstValueByColumn($csv, 'Client Name'));
         $this->assertEquals('12345', $this->getFirstValueByColumn($csv, 'Invoice Invoice Number'));
         $this->assertEquals(100, $this->getFirstValueByColumn($csv, 'Payment Amount'));
         $this->assertEquals(now()->addSeconds($this->company->timezone()->utc_offset)->format('Y-m-d'), $this->getFirstValueByColumn($csv, 'Payment Date'));
-
 
     }
 

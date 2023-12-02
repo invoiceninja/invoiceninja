@@ -106,7 +106,8 @@ class ExpenseExport extends BaseExport
     private function buildRow(Expense $expense) :array
     {
         $transformed_expense = $this->expense_transformer->transform($expense);
-
+        $transformed_expense['currency_id'] =  $expense->currency ? $expense->currency->code : $expense->company->currency()->code;
+        
         $entity = [];
 
         foreach (array_values($this->input['report_keys']) as $key) {
