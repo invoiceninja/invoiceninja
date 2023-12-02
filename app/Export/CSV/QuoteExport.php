@@ -11,6 +11,7 @@
 
 namespace App\Export\CSV;
 
+use App\Export\Decorators\Decorator;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Quote;
@@ -29,6 +30,8 @@ class QuoteExport extends BaseExport
 
     public Writer $csv;
 
+    private Decorator $decorator;
+
     private array $decorate_keys = [
         'client',
         'currency',
@@ -40,6 +43,7 @@ class QuoteExport extends BaseExport
         $this->company = $company;
         $this->input = $input;
         $this->quote_transformer = new QuoteTransformer();
+        $this->decorator = new Decorator();
     }
 
     private function init(): Builder
@@ -122,14 +126,16 @@ class QuoteExport extends BaseExport
             if (is_array($parts) && $parts[0] == 'quote' && array_key_exists($parts[1], $transformed_invoice)) {
                 $entity[$key] = $transformed_invoice[$parts[1]];
             } else {
-                $entity[$key] = $this->resolveKey($key, $quote, $this->quote_transformer);
+                // nlog($key);
+                $entity[$key] = $this->decorator->transform($key, $quote);
+                // $entity[$key] = '';
+                // $entity[$key] = $this->resolveKey($key, $quote, $this->quote_transformer);
             }
 
         }
-
-        return $this->decorateAdvancedFields($quote, $entity);
+        return $entity;
+        // return $this->decorateAdvancedFields($quote, $entity);
     }
-
 
     private function decorateAdvancedFields(Quote $quote, array $entity) :array
     {

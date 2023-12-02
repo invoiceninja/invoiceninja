@@ -11,6 +11,7 @@
 
 namespace App\Export\CSV;
 
+use App\Export\Decorators\Decorator;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Credit;
@@ -26,6 +27,8 @@ class CreditExport extends BaseExport
 
     private CreditTransformer $credit_transformer;
 
+    private Decorator $decorator;
+
     public string $date_key = 'created_at';
 
     public Writer $csv;
@@ -35,6 +38,7 @@ class CreditExport extends BaseExport
         $this->company = $company;
         $this->input = $input;
         $this->credit_transformer = new CreditTransformer();
+        $this->decorator = new Decorator();
     }
 
     public function returnJson()
@@ -143,7 +147,11 @@ class CreditExport extends BaseExport
             } elseif(isset($transformed_credit[$searched_credit_key])) {
                 $entity[$keyval] = $transformed_credit[$searched_credit_key];
             } else {
-                $entity[$keyval] = $this->resolveKey($keyval, $credit, $this->credit_transformer);
+
+                // nlog($key);
+                $entity[$key] = $this->decorator->transform($key, $credit);
+                // $entity[$key] = '';
+                // $entity[$keyval] = $this->resolveKey($keyval, $credit, $this->credit_transformer);
             }
 
         }

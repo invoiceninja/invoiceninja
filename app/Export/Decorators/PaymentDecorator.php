@@ -42,6 +42,9 @@ class PaymentDecorator extends Decorator implements DecoratorInterface
             return $this->{$key}($payment);
         }
 
+        if($payment && ($payment->{$key} ?? false)){
+            return $payment->{$key};
+        }
         return '';
     }
 
@@ -78,11 +81,6 @@ class PaymentDecorator extends Decorator implements DecoratorInterface
         return $payment->exchange_rate ?? 1;
     }
 
-    public function number(Payment $payment)
-    {
-        return $payment->number ?? '';
-    }
-
     public function method(Payment $payment)
     {
         return $payment->translatedType();
@@ -96,26 +94,6 @@ class PaymentDecorator extends Decorator implements DecoratorInterface
     public function private_notes(Payment $payment)
     {
         return strip_tags($payment->private_notes) ?? '';
-    }
-
-    public function custom_value1(Payment $payment)
-    {
-        return $payment->custom_value1 ?? '';
-    }
-
-    public function custom_value2(Payment $payment)
-    {
-        return $payment->custom_value2 ?? '';
-    }
-
-    public function custom_value3(Payment $payment)
-    {
-        return $payment->custom_value3 ?? '';
-    }
-
-    public function custom_value4(Payment $payment)
-    {
-        return $payment->custom_value4 ?? '';
     }
 
     public function user_id(Payment $payment)

@@ -11,6 +11,7 @@
 
 namespace App\Export\CSV;
 
+use App\Export\Decorators\Decorator;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\DateFormat;
@@ -34,6 +35,8 @@ class TaskExport extends BaseExport
 
     public Writer $csv;
 
+    private Decorator $decorator;
+
     private array $storage_array = [];
 
     private array $storage_item_array = [];
@@ -43,6 +46,7 @@ class TaskExport extends BaseExport
         $this->company = $company;
         $this->input = $input;
         $this->entity_transformer = new TaskTransformer();
+        $this->decorator = new Decorator();
     }
 
     public function init(): Builder
@@ -133,8 +137,12 @@ class TaskExport extends BaseExport
                 $entity[$key] = $transformed_entity[$parts[1]];
             } elseif (array_key_exists($key, $transformed_entity)) {
                 $entity[$key] = $transformed_entity[$key];
+            } elseif (in_array($key, ['task.start_date', 'task.end_date', 'task.duration'])) {
+                //
             } else {
-                $entity[$key] = $this->resolveKey($key, $task, $this->entity_transformer);
+                // nlog($key);
+                $entity[$key] = $this->decorator->transform($key, $task);
+                // $entity[$key] = $this->resolveKey($key, $task, $this->entity_transformer);
             }
 
         }
@@ -187,7 +195,7 @@ class TaskExport extends BaseExport
                 $entity['task.duration'] = $task->calcDuration();
             }
             
-            $entity = $this->decorateAdvancedFields($task, $entity);
+            // $entity = $this->decorateAdvancedFields($task, $entity);
             
             $this->storage_array[] = $entity;
             

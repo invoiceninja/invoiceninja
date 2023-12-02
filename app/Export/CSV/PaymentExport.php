@@ -118,13 +118,15 @@ class PaymentExport extends BaseExport
                 $entity[$key] = $transformed_entity[$key];
             } else {
 
-                // $entity[$key] = $this->decorator->transform($key, $payment);
-                $entity[$key] = $this->resolveKey($key, $payment, $this->entity_transformer);
+                // nlog($key);
+                $entity[$key] = $this->decorator->transform($key, $payment);
+                // $entity[$key] = $this->resolveKey($key, $payment, $this->entity_transformer);
             }
 
         }
 
-        return $this->decorateAdvancedFields($payment, $entity);
+        return $entity;
+        // return $this->decorateAdvancedFields($payment, $entity);
     }
 
     private function decorateAdvancedFields(Payment $payment, array $entity) :array

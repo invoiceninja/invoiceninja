@@ -11,14 +11,15 @@
 
 namespace App\Export\CSV;
 
-use App\Libraries\MultiDB;
-use App\Models\Company;
-use App\Models\PurchaseOrder;
-use App\Transformers\PurchaseOrderTransformer;
 use App\Utils\Ninja;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
+use App\Models\Company;
+use App\Libraries\MultiDB;
+use App\Models\PurchaseOrder;
+use Illuminate\Support\Facades\App;
+use App\Export\Decorators\Decorator;
+use Illuminate\Database\Eloquent\Builder;
+use App\Transformers\PurchaseOrderTransformer;
 
 class PurchaseOrderExport extends BaseExport
 {
@@ -28,6 +29,8 @@ class PurchaseOrderExport extends BaseExport
     public string $date_key = 'date';
 
     public Writer $csv;
+
+    private Decorator $decorator;
 
     public array $entity_keys = [
         'amount' => 'purchase_order.amount',
@@ -79,6 +82,7 @@ class PurchaseOrderExport extends BaseExport
         $this->company = $company;
         $this->input = $input;
         $this->purchase_order_transformer = new PurchaseOrderTransformer();
+        $this->decorator = new Decorator();
     }
 
 
@@ -160,13 +164,17 @@ class PurchaseOrderExport extends BaseExport
             if (is_array($parts) && $parts[0] == 'purchase_order' && array_key_exists($parts[1], $transformed_purchase_order)) {
                 $entity[$key] = $transformed_purchase_order[$parts[1]];
             } else {
-                $entity[$key] = $this->resolveKey($key, $purchase_order, $this->purchase_order_transformer);
+                // nlog($key);
+                $entity[$key] = $this->decorator->transform($key, $purchase_order);
+                // $entity[$key] = '';
+
+                // $entity[$key] = $this->resolveKey($key, $purchase_order, $this->purchase_order_transformer);
             }
 
             
         }
-
-        return $this->decorateAdvancedFields($purchase_order, $entity);
+        return $entity;
+        // return $this->decorateAdvancedFields($purchase_order, $entity);
     }
 
     private function decorateAdvancedFields(PurchaseOrder $purchase_order, array $entity) :array
