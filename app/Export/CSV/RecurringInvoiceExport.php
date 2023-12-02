@@ -109,6 +109,7 @@ class RecurringInvoiceExport extends BaseExport
     private function buildRow(RecurringInvoice $invoice) :array
     {
         $transformed_invoice = $this->invoice_transformer->transform($invoice);
+        $transformed_invoice['frequency_id'] = $invoice->frequencyForKey($invoice->frequency_id); //need to inject this here because it is also a valid key
 
         $entity = [];
 
