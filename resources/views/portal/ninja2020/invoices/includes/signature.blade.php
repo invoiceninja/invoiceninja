@@ -14,6 +14,9 @@
                 <h3 class="text-lg leading-6 font-medium text-gray-900">
                     {{ ctrans('texts.sign_here') }}
                 </h3>
+                <h4>
+                    {{ ctrans('texts.sign_here_ux_tip') }}
+                </h4>
                 <div class="mt-2">
                     <p class="text-sm leading-5 text-gray-500">
                         <canvas id="signature-pad" class="signature-pad border rounded" width=400 height=200></canvas>
