@@ -14,15 +14,16 @@
                 <h3 class="text-lg leading-6 font-medium text-gray-900">
                     {{ ctrans('texts.sign_here') }}
                 </h3>
-                <h4>
-                    {{ ctrans('texts.sign_here_ux_tip') }}
-                </h4>
                 <div class="mt-2">
                     <p class="text-sm leading-5 text-gray-500">
                         <canvas id="signature-pad" class="signature-pad border rounded" width=400 height=200></canvas>
                     </p>
                 </div>
             </div>
+            
+        </div>
+        <div class="flex w-full mx-auto content-center">
+            <p class="text-sm mx-auto content-center">{{ ctrans('texts.sign_here_ux_tip') }}</p>
         </div>
         <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse" >
             <div class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto" x-data>
@@ -35,6 +36,7 @@
                     {{ ctrans('texts.close') }}
                 </button>
             </div>
+            
         </div>
     </div>
 </div>
