@@ -18,6 +18,7 @@ use App\Http\Controllers\BankIntegrationController;
 use App\Http\Controllers\BankTransactionController;
 use App\Http\Controllers\BankTransactionRuleController;
 use App\Http\Controllers\Bank\YodleeController;
+use App\Http\Controllers\Bank\NordigenController;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\ChartController;
 use App\Http\Controllers\ClientController;
@@ -103,7 +104,7 @@ Route::group(['middleware' => ['throttle:300,1', 'api_secret_check']], function 
     Route::post('api/v1/oauth_login', [LoginController::class, 'oauthApiLogin']);
 });
 
-Route::group(['middleware' => ['throttle:50,1','api_secret_check','email_db']], function () {
+Route::group(['middleware' => ['throttle:50,1', 'api_secret_check', 'email_db']], function () {
     Route::post('api/v1/login', [LoginController::class, 'apiLogin'])->name('login.submit')->middleware('throttle:20,1');
     Route::post('api/v1/reset_password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 });
@@ -309,7 +310,7 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
 
     Route::post('verify', [TwilioController::class, 'generate'])->name('verify.generate')->middleware('throttle:100,1');
     Route::post('verify/confirm', [TwilioController::class, 'confirm'])->name('verify.confirm');
-    
+
     Route::resource('vendors', VendorController::class); // name = (vendors. index / create / show / update / destroy / edit
     Route::post('vendors/bulk', [VendorController::class, 'bulk'])->name('vendors.bulk');
     Route::put('vendors/{vendor}/upload', [VendorController::class, 'upload']);
@@ -370,9 +371,15 @@ Route::post('api/v1/get_migration_account', [HostedMigrationController::class, '
 Route::post('api/v1/confirm_forwarding', [HostedMigrationController::class, 'confirmForwarding'])->middleware('guest')->middleware('throttle:100,1');
 Route::post('api/v1/process_webhook', [AppleController::class, 'process_webhook'])->middleware('throttle:1000,1');
 Route::post('api/v1/confirm_purchase', [AppleController::class, 'confirm_purchase'])->middleware('throttle:1000,1');
+
 Route::post('api/v1/yodlee/refresh', [YodleeController::class, 'refreshWebhook'])->middleware('throttle:100,1');
 Route::post('api/v1/yodlee/data_updates', [YodleeController::class, 'dataUpdatesWebhook'])->middleware('throttle:100,1');
 Route::post('api/v1/yodlee/refresh_updates', [YodleeController::class, 'refreshUpdatesWebhook'])->middleware('throttle:100,1');
 Route::post('api/v1/yodlee/balance', [YodleeController::class, 'balanceWebhook'])->middleware('throttle:100,1');
+
+Route::get('api/v1/nordigen/institutions', [NordigenController::class, 'institutions'])->middleware('throttle:100,1')->middleware('token_auth')->name('nordigen_institutions');
+Route::any('api/v1/nordigen/refresh', [NordigenController::class, 'refresh'])->middleware('throttle:100,1')->middleware('token_auth')->name('nordigen_refresh');
+Route::post('api/v1/nordigen/connect', [NordigenController::class, 'connect'])->middleware('throttle:100,1')->middleware('token_auth')->name('nordigen_connect');
+Route::any('api/v1/nordigen/callback', [NordigenController::class, 'callback'])->middleware('throttle:100,1')->name('nordigen_callback');
 
 Route::fallback([BaseController::class, 'notFound']);

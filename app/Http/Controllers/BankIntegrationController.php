@@ -586,10 +586,10 @@ class BankIntegrationController extends BaseController
     private function refreshAccountsNordigen(Account $account)
     {
 
-        if (!$account->bank_integration_nordigen_client_id || !$account->bank_integration_nordigen_client_secret)
+        if (!$account->bank_integration_nordigen_secret_id || !$account->bank_integration_nordigen_secret_key)
             return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
 
-        $nordigen = new Nordigen($account->bank_integration_nordigen_client_id, $account->bank_integration_nordigen_client_secret);
+        $nordigen = new Nordigen($account->bank_integration_nordigen_secret_id, $account->bank_integration_nordigen_secret_key);
 
         $accounts = $nordigen->getAccounts();
 
@@ -664,8 +664,8 @@ class BankIntegrationController extends BaseController
         if ($bank_integration->integration_type == BankIntegration::INTEGRATION_TYPE_YODLEE)
             $this->removeAccountYodlee($account, $bank_integration);
         else if ($bank_integration->integration_type == BankIntegration::INTEGRATION_TYPE_NORDIGEN)
-            $this->removeAccountNordigen($account, $bank_integration); 
-        
+            $this->removeAccountNordigen($account, $bank_integration);
+
         $this->bank_integration_repo->delete($bank_integration);
 
         return $this->itemResponse($bank_integration->fresh());
@@ -682,10 +682,10 @@ class BankIntegrationController extends BaseController
 
     private function removeAccountNordigen(Account $account, BankIntegration $bank_integration)
     {
-        if (!$account->bank_integration_nordigen_client_id || !$account->bank_integration_nordigen_client_secret)
+        if (!$account->bank_integration_nordigen_secret_id || !$account->bank_integration_nordigen_secret_key)
             return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
 
-        $nordigen = new Nordigen($account->bank_integration_nordigen_client_id, $account->bank_integration_nordigen_client_secret);
+        $nordigen = new Nordigen($account->bank_integration_nordigen_secret_id, $account->bank_integration_nordigen_secret_key);
         $nordigen->deleteAccount($bank_integration->bank_account_id);
     }
 

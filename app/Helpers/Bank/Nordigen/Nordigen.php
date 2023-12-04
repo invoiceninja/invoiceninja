@@ -18,35 +18,7 @@ use App\Helpers\Bank\Nordigen\Transformer\AccountTransformer;
 use App\Helpers\Bank\Nordigen\Transformer\IncomeTransformer;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
-
-// Generate new access token. Token is valid for 24 hours
-// Token is automatically injected into every response
-$token = $client->createAccessToken();
-
-// Get access token
-$accessToken = $client->getAccessToken();
-// Get refresh token
-$refreshToken = $client->getRefreshToken();
-
-// Exchange refresh token for new access token
-$newToken = $client->refreshAccessToken($refreshToken);
-
-// Get list of institutions by country. Country should be in ISO 3166 standard.
-$institutions = $client->institution->getInstitutionsByCountry("LV");
-
-// Institution id can be gathered from getInstitutions response.
-// Example Revolut ID
-$institutionId = "REVOLUT_REVOGB21";
-$redirectUri = "https://nordigen.com";
-
-// Initialize new bank connection session
-$session = $client->initSession($institutionId, $redirectUri);
-
-// Get link to authorize in the bank
-// Authorize with your bank via this link, to gain access to account data
-$link = $session["link"];
-// requisition id is needed to get accountId in the next step
-$requisitionId = $session["requisition_id"];
+use Illuminate\Support\Facades\Log;
 
 class Nordigen
 {
@@ -56,17 +28,20 @@ class Nordigen
 
     protected \Nordigen\NordigenPHP\API\NordigenClient $client;
 
-    public function __construct(string $client_id, string $client_secret)
+    public function __construct(string $secret_id, string $secret_key)
     {
 
-        $this->client = new \Nordigen\NordigenPHP\API\NordigenClient($client_id, $client_secret);
+        Log::info($secret_id);
+        Log::info($secret_key);
 
+        $this->client = new \Nordigen\NordigenPHP\API\NordigenClient($secret_id, $secret_key);
+
+        $this->client->createAccessToken(); // access_token is valid 24h -> so we dont have to implement a refresh-cycle
     }
 
     // metadata-section for frontend
     public function getInstitutions()
     {
-
         if ($this->test_mode)
             return (array) $this->client->institution->getInstitution($this->sandbox_institutionId);
 

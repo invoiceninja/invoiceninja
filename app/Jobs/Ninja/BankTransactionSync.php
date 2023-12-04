@@ -69,7 +69,7 @@ class BankTransactionSync implements ShouldQueue
 
             nlog("syncing transactions - nordigen");
 
-            Account::with('bank_integrations')->whereNotNull('bank_integration_nordigen_client_id')->andWhereNotNull('bank_integration_nordigen_client_secret')->cursor()->each(function ($account) {
+            Account::with('bank_integrations')->whereNotNull('bank_integration_nordigen_secret_id')->andWhereNotNull('bank_integration_nordigen_secret_key')->cursor()->each(function ($account) {
 
                 $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_NORDIGEN)->andWhere('auto_sync', true)->cursor()->each(function ($bank_integration) use ($account) {
 

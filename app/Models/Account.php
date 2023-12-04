@@ -60,8 +60,8 @@ class Account extends BaseModel
         'set_react_as_default_ap',
         'inapp_transaction_id',
         'num_users',
-        'bank_integration_nordigen_client_id',
-        'bank_integration_nordigen_client_secret',
+        'bank_integration_nordigen_secret_id',
+        'bank_integration_nordigen_secret_key',
     ];
 
     /**

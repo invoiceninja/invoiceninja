@@ -75,7 +75,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
             try {
                 $this->processTransactions();
             } catch (\Exception $e) {
-                nlog("{$this->account->bank_integration_nordigen_client_id} - exited abnormally => " . $e->getMessage());
+                nlog("{$this->account->bank_integration_nordigen_secret_id} - exited abnormally => " . $e->getMessage());
                 return;
             }
 
@@ -90,7 +90,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
     private function processTransactions()
     {
 
-        $nordigen = new Nordigen($this->account->bank_integration_nordigen_client_id, $this->account->bank_integration_nordigen_client_secret); // TODO: maybe implement credentials
+        $nordigen = new Nordigen($this->account->bank_integration_nordigen_secret_id, $this->account->bank_integration_nordigen_secret_key); // TODO: maybe implement credentials
 
         if (!$nordigen->isAccountActive($this->bank_integration->bank_account_id)) {
             $this->bank_integration->disabled_upstream = true;
