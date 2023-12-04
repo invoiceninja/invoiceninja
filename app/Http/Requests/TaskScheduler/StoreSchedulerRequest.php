@@ -49,6 +49,7 @@ class StoreSchedulerRequest extends Request
             'parameters.entity_id' => ['bail', 'sometimes', 'string'],
             'parameters.report_name' => ['bail','sometimes', 'string', 'required_if:template,email_report','in:ar_detailed,ar_summary,client_balance,tax_summary,profitloss,client_sales,user_sales,product_sales,clients,client_contacts,credits,documents,expenses,invoices,invoice_items,quotes,quote_items,recurring_invoices,payments,products,tasks'],
             'parameters.date_key' => ['bail','sometimes', 'string'],
+            'parameters.status' => ['bail','sometimes', 'string', 'in:all,draft,paid,unpaid,overdue'],
         ];
 
         return $rules;
