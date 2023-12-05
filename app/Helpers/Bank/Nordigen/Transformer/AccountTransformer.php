@@ -36,9 +36,7 @@ use App\Helpers\Bank\AccountTransformerInterface;
             [status] => READY
             [owner_name] => Max Mustermann
         )
-    [balances] => stdClass Object
-        (
-            [balances]: [
+    [balances] => [
                 {
                     [balanceAmount]: {
                         [amount] => 9825.64
@@ -57,7 +55,6 @@ use App\Helpers\Bank\AccountTransformerInterface;
                     [referenceDate] => 2023-12-01
                 }
             ]
-        )
     [institution] => stdClass Object
         (
             [id] => STADT_KREISSPARKASSE_LEIPZIG_WELADE8LXXX
@@ -92,43 +89,32 @@ class AccountTransformer implements AccountTransformerInterface
     public function transform($nordigen_account)
     {
 
-        $data = [];
-
         if (!property_exists($nordigen_account, 'data') || !property_exists($nordigen_account, 'metadata') || !property_exists($nordigen_account, 'balances') || !property_exists($nordigen_account, 'institution'))
-            return $data;
+            throw new \Exception('invalid dataset');
 
-        foreach ($nordigen_account->account as $account) {
-            $data[] = $this->transformAccount($account);
-        }
-
-        return $data;
-    }
-
-    public function transformAccount($account)
-    {
-
-        $used_balance = $account->balances[0];
+        $used_balance = $nordigen_account->balances[0];
         // prefer entry with closingBooked
-        foreach ($account->balances as $entry) {
-            if ($entry->balanceType === 'closingBooked') { // available: closingBooked, interimAvailable
+        foreach ($nordigen_account->balances as $entry) {
+            if ($entry["balanceType"] === 'closingBooked') { // available: closingBooked, interimAvailable
                 $used_balance = $entry;
                 break;
             }
         }
 
         return [
-            'id' => $account->data->id,
-            'account_type' => $account->CONTAINER,
-            'account_name' => $account->data->iban,
-            'account_status' => $account->metadata->status,
-            'account_number' => '**** ' . substr($account->data->iban, -7),
-            'provider_account_id' => $account->data->iban,
-            'provider_id' => $account->institution_id,
-            'provider_name' => $account->institution->name,
-            'nickname' => property_exists($account->data, 'owner_name') ? $account->data->owner_name : '',
-            'current_balance' => (int) property_exists($used_balance, 'balanceAmount') ? $used_balance->balanceAmount->amount : 0,
-            'account_currency' => property_exists($used_balance, 'balanceAmount') ? $used_balance->balanceAmount->currency : '',
+            'id' => $nordigen_account->metadata["id"],
+            'account_type' => "bank_account", // TODO: not creditCard
+            'account_name' => $nordigen_account->data["iban"],
+            'account_status' => $nordigen_account->metadata["status"],
+            'account_number' => '**** ' . substr($nordigen_account->data["iban"], -7),
+            'provider_account_id' => $nordigen_account->data["iban"],
+            'provider_id' => $nordigen_account->institution["id"],
+            'provider_name' => $nordigen_account->institution["name"],
+            'nickname' => $nordigen_account->data?["ownerName"] ? $nordigen_account->data["ownerName"] : '',
+            'current_balance' => (int) $used_balance ? $used_balance["balanceAmount"]["amount"] : 0,
+            'account_currency' => $used_balance ? $used_balance["balanceAmount"]["currency"] : '',
         ];
+
     }
 }
 

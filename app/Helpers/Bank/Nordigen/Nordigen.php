@@ -49,12 +49,12 @@ class Nordigen
     }
 
     // requisition-section
-    public function createRequisition(string $redirect, string $initutionId)
+    public function createRequisition(string $redirect, string $initutionId, string $nAccountId)
     {
         if ($this->test_mode && $initutionId != $this->sandbox_institutionId)
             throw new \Exception('invalid institutionId while in test-mode');
 
-        return $this->client->requisition->createRequisition($redirect, $initutionId);
+        return $this->client->requisition->createRequisition($redirect, $initutionId, null, $nAccountId); // we dont reuse existing requisitions, to prevent double usage of them. see: deleteAccount
     }
 
     public function getRequisition(string $requisitionId)
@@ -80,17 +80,19 @@ class Nordigen
     {
 
         // get all valid requisitions
-        $requisitions = $this->client->requisition->getRequisitions();
+        $requisitions = $this->client->requisition->getRequisitions(); // no pagination used?!
 
         // fetch all valid accounts for activated requisitions
         $nordigen_accountIds = [];
-        foreach ($requisitions as $requisition) {
-            foreach ($requisition->accounts as $accountId) {
+        foreach ($requisitions["results"] as $requisition) {
+            foreach ($requisition["accounts"] as $accountId) {
                 array_push($nordigen_accountIds, $accountId);
             }
         }
 
         $nordigen_accountIds = array_unique($nordigen_accountIds);
+
+        Log::info($nordigen_accountIds);
 
         $nordigen_accounts = [];
         foreach ($nordigen_accountIds as $accountId) {
@@ -99,6 +101,7 @@ class Nordigen
             array_push($nordigen_accounts, $nordigen_account);
         }
 
+        Log::info($nordigen_accounts);
 
         return $nordigen_accounts;
 
@@ -109,10 +112,12 @@ class Nordigen
 
         $out = new \stdClass();
 
-        $out->data = $this->client->account($account_id)->getAccountDetails();
+        $out->data = $this->client->account($account_id)->getAccountDetails()["account"];
         $out->metadata = $this->client->account($account_id)->getAccountMetaData();
-        $out->balances = $this->client->account($account_id)->getAccountBalances();
+        $out->balances = $this->client->account($account_id)->getAccountBalances()["balances"];
         $out->institution = $this->client->institution->getInstitution($out->metadata["institution_id"]);
+
+        Log::info($out->data);
 
         $it = new AccountTransformer();
         return $it->transform($out);
