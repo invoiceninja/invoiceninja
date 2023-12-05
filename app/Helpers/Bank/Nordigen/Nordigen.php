@@ -31,9 +31,6 @@ class Nordigen
     public function __construct(string $secret_id, string $secret_key)
     {
 
-        Log::info($secret_id);
-        Log::info($secret_key);
-
         $this->client = new \Nordigen\NordigenPHP\API\NordigenClient($secret_id, $secret_key);
 
         $this->client->createAccessToken(); // access_token is valid 24h -> so we dont have to implement a refresh-cycle
@@ -92,16 +89,12 @@ class Nordigen
 
         $nordigen_accountIds = array_unique($nordigen_accountIds);
 
-        Log::info($nordigen_accountIds);
-
         $nordigen_accounts = [];
         foreach ($nordigen_accountIds as $accountId) {
             $nordigen_account = $this->getAccount($accountId);
 
             array_push($nordigen_accounts, $nordigen_account);
         }
-
-        Log::info($nordigen_accounts);
 
         return $nordigen_accounts;
 
@@ -116,8 +109,6 @@ class Nordigen
         $out->metadata = $this->client->account($account_id)->getAccountMetaData();
         $out->balances = $this->client->account($account_id)->getAccountBalances()["balances"];
         $out->institution = $this->client->institution->getInstitution($out->metadata["institution_id"]);
-
-        Log::info($out->data);
 
         $it = new AccountTransformer();
         return $it->transform($out);

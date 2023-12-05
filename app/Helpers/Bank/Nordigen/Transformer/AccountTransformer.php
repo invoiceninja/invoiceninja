@@ -102,15 +102,15 @@ class AccountTransformer implements AccountTransformerInterface
         }
 
         return [
-            'id' => $nordigen_account->metadata["id"],
-            'account_type' => "bank_account", // TODO: not creditCard
+            'id' => $nordigen_account->metadata["id"], // TODO: maybe add prefix for unique id between yodlee and nordigen?
+            'account_type' => "bank_account", // TODO: not creditCard, which type should be used here?!
             'account_name' => $nordigen_account->data["iban"],
             'account_status' => $nordigen_account->metadata["status"],
             'account_number' => '**** ' . substr($nordigen_account->data["iban"], -7),
             'provider_account_id' => $nordigen_account->data["iban"],
             'provider_id' => $nordigen_account->institution["id"],
             'provider_name' => $nordigen_account->institution["name"],
-            'nickname' => $nordigen_account->data?["ownerName"] ? $nordigen_account->data["ownerName"] : '',
+            'nickname' => $nordigen_account->data["ownerName"] ? $nordigen_account->data["ownerName"] : '',
             'current_balance' => (int) $used_balance ? $used_balance["balanceAmount"]["amount"] : 0,
             'account_currency' => $used_balance ? $used_balance["balanceAmount"]["currency"] : '',
         ];

@@ -19,6 +19,7 @@ use App\Jobs\Bank\ProcessBankTransactionsNordigen;
 use App\Models\Account;
 use App\Models\BankIntegration;
 use Illuminate\Http\Request;
+use Log;
 
 class NordigenController extends BaseController
 {
@@ -86,12 +87,16 @@ class NordigenController extends BaseController
 
         $accounts = $nordigen->getAccounts();
 
-        foreach ($account->companies() as $company) {
+        $account->companies()->each(function ($company) use ($accounts) {
 
             foreach ($accounts as $account) {
 
                 if (!BankIntegration::where('bank_account_id', $account['id'])->where('company_id', $company->id)->exists()) {
+
+                    Log::info("Creating new BankIntegration");
+
                     $bank_integration = new BankIntegration();
+                    $bank_integration->integration_type = BankIntegration::INTEGRATION_TYPE_NORDIGEN;
                     $bank_integration->company_id = $company->id;
                     $bank_integration->account_id = $company->account_id;
                     $bank_integration->user_id = $company->owner()->id;
@@ -119,7 +124,7 @@ class NordigenController extends BaseController
 
             });
 
-        }
+        });
 
     }
 
