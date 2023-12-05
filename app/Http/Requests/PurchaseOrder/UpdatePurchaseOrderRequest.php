@@ -49,7 +49,7 @@ class UpdatePurchaseOrderRequest extends Request
         $rules = [];
 
         $rules['number'] = ['bail', 'sometimes', Rule::unique('purchase_orders')->where('company_id', $user->company()->id)->ignore($this->purchase_order->id)];        
-        $rules['vendor_id'] = ['bail', 'sometimes', Rule::in([$this->purchase_order->client_id])];
+        $rules['vendor_id'] = ['bail', 'sometimes', Rule::in([$this->purchase_order->vendor_id])];
 
         $rules['line_items'] = 'array';
         $rules['discount'] = 'sometimes|numeric';

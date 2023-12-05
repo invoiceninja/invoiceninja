@@ -869,7 +869,7 @@ class EventTest extends TestCase
         $arr = $response->json();
 
         $data = [
-            'vendor_id' => $arr['data']['id'],
+            'vendor_id' => $this->vendor->hashed_id,
             'number' => 'dude2',
         ];
 
