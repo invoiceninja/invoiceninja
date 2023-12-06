@@ -36,8 +36,6 @@ class BankIntegration extends BaseModel
     protected $dates = [
     ];
 
-    const INTEGRATION_TYPE_NONE = null;
-
     const INTEGRATION_TYPE_YODLEE = 'YODLEE';
 
     const INTEGRATION_TYPE_NORDIGEN = 'NORDIGEN';

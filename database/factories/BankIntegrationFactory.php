@@ -26,7 +26,7 @@ class BankIntegrationFactory extends Factory
     public function definition()
     {
         return [
-            'integration_type' => BankIntegration::INTEGRATION_TYPE_NONE,
+            'integration_type' => null,
             'provider_name' => $this->faker->company(),
             'provider_id' => 1,
             'bank_account_name' => $this->faker->catchPhrase(),
