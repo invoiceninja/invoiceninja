@@ -9,11 +9,11 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Http\Requests\Nortigen;
+namespace App\Http\Requests\Nordigen;
 
 use App\Http\Requests\Request;
 
-class CreateNortigenRequisitionRequest extends Request
+class CreateNordigenRequisitionRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -35,6 +35,7 @@ class CreateNortigenRequisitionRequest extends Request
         return [
             'redirect' => 'required|string|max:100',
             'institutionId' => 'required|string|max:100',
+            'context' => 'required|string|max:1000', // One Time Token
         ];
     }
 }

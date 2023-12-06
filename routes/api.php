@@ -378,7 +378,6 @@ Route::post('api/v1/yodlee/refresh_updates', [YodleeController::class, 'refreshU
 Route::post('api/v1/yodlee/balance', [YodleeController::class, 'balanceWebhook'])->middleware('throttle:100,1');
 
 Route::get('api/v1/nordigen/institutions', [NordigenController::class, 'institutions'])->middleware('throttle:100,1')->middleware('token_auth')->name('nordigen_institutions');
-Route::any('api/v1/nordigen/refresh', [NordigenController::class, 'refresh'])->middleware('throttle:100,1')->middleware('token_auth')->name('nordigen_refresh');
 Route::post('api/v1/nordigen/connect', [NordigenController::class, 'connect'])->middleware('throttle:100,1')->middleware('token_auth')->name('nordigen_connect');
 Route::any('api/v1/nordigen/callback', [NordigenController::class, 'callback'])->middleware('throttle:100,1')->name('nordigen_callback');
 

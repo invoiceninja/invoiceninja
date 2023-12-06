@@ -23,7 +23,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Carbon;
 
 class ProcessBankTransactionsNordigen implements ShouldQueue
 {
@@ -96,6 +95,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
             $this->bank_integration->disabled_upstream = true;
             $this->bank_integration->save();
             $this->stop_loop = false;
+            // @turbo124 @todo send email for expired account
             return;
         }
 

@@ -16,9 +16,6 @@ namespace App\Helpers\Bank\Nordigen;
 use App\Exceptions\NordigenApiException;
 use App\Helpers\Bank\Nordigen\Transformer\AccountTransformer;
 use App\Helpers\Bank\Nordigen\Transformer\IncomeTransformer;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Log;
 
 class Nordigen
 {
@@ -46,12 +43,12 @@ class Nordigen
     }
 
     // requisition-section
-    public function createRequisition(string $redirect, string $initutionId, string $nAccountId)
+    public function createRequisition(string $redirect, string $initutionId, string $reference)
     {
         if ($this->test_mode && $initutionId != $this->sandbox_institutionId)
             throw new \Exception('invalid institutionId while in test-mode');
 
-        return $this->client->requisition->createRequisition($redirect, $initutionId, null, $nAccountId); // we dont reuse existing requisitions, to prevent double usage of them. see: deleteAccount
+        return $this->client->requisition->createRequisition($redirect, $initutionId, null, $reference); // we dont reuse existing requisitions, to prevent double usage of them. see: deleteAccount
     }
 
     public function getRequisition(string $requisitionId)
@@ -59,6 +56,7 @@ class Nordigen
         return $this->client->requisition->getRequisition($requisitionId);
     }
 
+    // NOTE: this will only cleanup the requisitions from nordigen and not within the table: bank_integration_nordigen_requisitions
     public function cleanupRequisitions()
     {
         $requisitions = $this->client->requisition->getRequisitions();
@@ -73,7 +71,7 @@ class Nordigen
     }
 
     // account-section: these methods should be used to get data of connected accounts
-    public function getAccounts()
+    public function getAccounts(?array $requisitionIds)
     {
 
         // get all valid requisitions
@@ -82,6 +80,10 @@ class Nordigen
         // fetch all valid accounts for activated requisitions
         $nordigen_accountIds = [];
         foreach ($requisitions["results"] as $requisition) {
+            // FILTER: for requisitionIds
+            if ($requisitionIds && !in_array($requisition["id"], $requisitionIds))
+                continue;
+
             foreach ($requisition["accounts"] as $accountId) {
                 array_push($nordigen_accountIds, $accountId);
             }
