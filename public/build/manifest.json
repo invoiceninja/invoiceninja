@@ -41,7 +41,7 @@
     "src": "resources/js/clients/payment_methods/authorize-authorize-card.js"
   },
   "resources/js/clients/payment_methods/authorize-checkout-card.js": {
-    "file": "assets/authorize-checkout-card-9d660182.js",
+    "file": "assets/authorize-checkout-card-d561d355.js",
     "isEntry": true,
     "src": "resources/js/clients/payment_methods/authorize-checkout-card.js"
   },
@@ -71,7 +71,7 @@
     "src": "resources/js/clients/payments/braintree-paypal.js"
   },
   "resources/js/clients/payments/checkout-credit-card.js": {
-    "file": "assets/checkout-credit-card-906a30cd.js",
+    "file": "assets/checkout-credit-card-8a04938c.js",
     "isEntry": true,
     "src": "resources/js/clients/payments/checkout-credit-card.js"
   },

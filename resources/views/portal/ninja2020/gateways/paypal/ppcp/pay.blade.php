@@ -53,10 +53,11 @@
                 return actions.restart();
             }
 
-            return actions.order.capture().then(function(details) {
-                document.getElementById("gateway_response").value =JSON.stringify( details );
+            // return actions.order.capture().then(function(details) {
+                document.getElementById("gateway_response").value =JSON.stringify( data );
+                // document.getElementById("gateway_response").value =JSON.stringify( details );
                 document.getElementById("server_response").submit();
-            });           
+            // });           
         },
         onCancel: function() {
             window.location.href = "/client/invoices/";

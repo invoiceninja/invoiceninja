@@ -147,11 +147,15 @@ class InvoiceFilters extends QueryFilters
     public function upcoming(): Builder
     {
         return $this->builder->whereIn('status_id', [Invoice::STATUS_PARTIAL, Invoice::STATUS_SENT])
-                    ->where(function ($query) {
-                        $query->whereNull('due_date')
-                              ->orWhere('due_date', '>', now());
+                    ->whereNull('due_date')
+                    ->orWhere(function ($q) {
+                        $q->where('due_date', '>=', now()->startOfDay()->subSecond())->where('partial', 0);
                     })
-                    ->orderBy('due_date', 'ASC');
+                     ->orWhere(function ($q) {
+                         $q->where('partial_due_date', '>=', now()->startOfDay()->subSecond())->where('partial', '>', 0);
+                     })
+                    ->orderByRaw('ISNULL(due_date), due_date '. 'desc')
+                    ->orderByRaw('ISNULL(partial_due_date), partial_due_date '. 'desc');
     }
 
     /**

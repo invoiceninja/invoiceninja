@@ -127,6 +127,7 @@ class CheckData extends Command
         $this->checkCompanyTokens();
         $this->checkUserState();
         $this->checkContactEmailAndSendEmailStatus();
+        $this->checkPaymentCurrency();
 
         if (Ninja::isHosted()) {
             $this->checkAccountStatuses();
@@ -325,6 +326,7 @@ class CheckData extends Command
                         ->whereNull('contact_key')
                         ->orderBy('id')
                         ->get(['id']);
+
         $this->logMessage($contacts->count().' contacts without a contact_key');
 
         if ($contacts->count() > 0) {
@@ -341,21 +343,9 @@ class CheckData extends Command
                     ]);
             }
         }
-
-        // check for missing contacts
-        $vendors = DB::table('vendors')
-                    ->leftJoin('vendor_contacts', function ($join) {
-                        $join->on('vendor_contacts.vendor_id', '=', 'vendors.id')
-                            ->whereNull('vendor_contacts.deleted_at');
-                    })
-                    ->groupBy('vendors.id', 'vendors.user_id', 'vendors.company_id')
-                    ->havingRaw('count(vendor_contacts.id) = 0');
-
-        if ($this->option('vendor_id')) {
-            $vendors->where('vendors.id', '=', $this->option('vendor_id'));
-        }
-
-        $vendors = $vendors->get(['vendors.id', 'vendors.user_id', 'vendors.company_id']);
+        
+        $vendors = Vendor::withTrashed()->doesntHave('contacts');
+        
         $this->logMessage($vendors->count().' vendors without any contacts');
 
         if ($vendors->count() > 0) {
@@ -375,23 +365,6 @@ class CheckData extends Command
                 $new_contact->save();
             }
         }
-    }
-
-
-    private function checkFailedJobs()
-    {
-        if (config('ninja.testvars.travis')) {
-            return;
-        }
-
-        $queueDB = config('queue.connections.database.connection');
-        $count = DB::connection($queueDB)->table('failed_jobs')->count();
-
-        if ($count > 25) {
-            $this->isValid = false;
-        }
-
-        $this->logMessage($count.' failed jobs');
     }
 
     private function checkInvitations()
@@ -683,6 +656,8 @@ class CheckData extends Command
                               ->count();
 
                   if ($count == 0) {
+                    $this->isValid = false;
+
                       //factor in over payments to the client balance
                       $over_payment = Payment::where('client_id', $client->id)
                                               ->where('is_deleted', 0)
@@ -745,6 +720,8 @@ class CheckData extends Command
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
             if (number_format($invoice_balance, 4) != number_format($client->balance, 4)) {
+                $this->isValid = false;
+
                 $this->wrong_balances++;
                 $ledger_balance = $ledger ? $ledger->balance : 0;
 
@@ -893,6 +870,8 @@ class CheckData extends Command
                               ->exists();
               
                 if ($payment) {
+                    $this->isValid = false;
+
                     $this->logMessage("I found a payment for {$account->key}");
                 }
             }
@@ -1008,6 +987,7 @@ class CheckData extends Command
         BankTransaction::with('payment')->withTrashed()->where('invoice_ids', ',,,,,,,,')->cursor()->each(function ($bt) {
 
             if($bt->payment->exists()) {
+                $this->isValid = false;
 
                 $bt->invoice_ids = collect($bt->payment->invoices)->pluck('hashed_id')->implode(',');
                 $bt->save();
@@ -1037,5 +1017,31 @@ class CheckData extends Command
 
             });
         }
+    }
+
+    public function checkPaymentCurrency()
+    {
+        $p = Payment::with('company','client')
+                ->withTrashed()
+                ->where('currency_id', '')
+                ->orWhereNull('currency_id');
+
+        $this->logMessage($p->count() . " Payments with No currency set");
+
+        if($p->count() != 0)
+            $this->isValid = false;
+
+        if ($this->option('fix') == 'true') {
+
+            $p->cursor()->each(function ($c) {
+                $c->currency_id = $c->client->settings->currency_id ?? $c->company->settings->currency_id;
+                $c->saveQuietly();
+
+                $this->logMessage("Fixing - {$c->id}");
+
+            });
+        }
+
+
     }
 }

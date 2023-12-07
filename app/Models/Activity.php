@@ -353,6 +353,10 @@ class Activity extends StaticModel
         return $this->belongsTo(Expense::class)->withTrashed();
     }
 
+    public function account(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Account::class);
+    }
 
     public function recurring_expense(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

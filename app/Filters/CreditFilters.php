@@ -30,7 +30,7 @@ class CreditFilters extends QueryFilters
      * @param string $value The credit status as seen by the client
      * @return Builder
      */
-    public function credit_status(string $value = ''): Builder
+    public function client_status(string $value = ''): Builder
     {
         if (strlen($value) == 0) {
             return $this->builder;

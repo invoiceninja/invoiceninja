@@ -139,9 +139,8 @@ class PayPalPPCPPaymentDriver extends BaseDriver
     public function init(): self
     {
 
-        // $this->api_endpoint_url = $this->company_gateway->getConfigField('testMode') ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com';
         $this->api_endpoint_url = 'https://api-m.paypal.com';
-        
+        // $this->api_endpoint_url = 'https://api-m.sandbox.paypal.com';
         $secret = config('ninja.paypal.secret');
         $client_id = config('ninja.paypal.client_id');
 
@@ -238,30 +237,23 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
     }
 
-    private function getClientToken(): string
-    {
-
-        $r = $this->gatewayRequest('/v1/identity/generate-token', 'post', ['body' => '']);
-
-        if($r->successful()) {
-            return $r->json()['client_token'];
-        }
-        
-        throw new PaymentFailed('Unable to gain client token from Paypal. Check your configuration', 401);
-
-    }
-
     public function processPaymentResponse($request)
     {
-        
+
         $request['gateway_response'] = str_replace("Error: ", "", $request['gateway_response']);
         $response = json_decode($request['gateway_response'], true);
+
+        //capture
+        $orderID = $response['orderID'];
+        $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}/capture", 'post', ['body' => '']);
+
+        $response = $r;
 
         if(isset($response['status']) && $response['status'] == 'COMPLETED' && isset($response['purchase_units'])) {
 
             $data = [
                 'payment_type' => $this->getPaymentMethod($request->gateway_type_id),
-                'amount' => $response['purchase_units'][0]['amount']['value'],
+                'amount' => $response['purchase_units'][0]['payments']['captures'][0]['amount']['value'],
                 'transaction_reference' => $response['purchase_units'][0]['payments']['captures'][0]['id'],
                 'gateway_type_id' => GatewayType::PAYPAL,
             ];
@@ -300,41 +292,26 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         }
     }
 
+
+
+    private function getClientToken(): string
+    {
+
+        $r = $this->gatewayRequest('/v1/identity/generate-token', 'post', ['body' => '']);
+
+        if($r->successful()) {
+            return $r->json()['client_token'];
+        }
+        
+        throw new PaymentFailed('Unable to gain client token from Paypal. Check your configuration', 401);
+
+    }
+
     private function paymentSource(): array
     {
         /** we only need to support paypal as payment source until as we are only using hosted payment buttons */
         return $this->injectPayPalPaymentSource();
         
-    }
-
-    /**@deprecated v5.7.54 */
-    private function injectVenmoPaymentSource(): array
-    {
-
-        return [
-            "venmo" => [
-                "email_address" => $this->client->present()->email(),
-            ],
-        ];
-
-    }
-
-    /**@deprecated v5.7.54 */
-    private function injectCardPaymentSource(): array
-    {
-
-        return [
-            "card" => [
-
-                "name" => $this->client->present()->name(),
-                "email_address" => $this->client->present()->email(),
-                "billing_address" => $this->getBillingAddress(),
-                "experience_context"=> [
-                    "user_action" => "PAY_NOW"
-                ],
-            ],
-        ];
-
     }
 
     private function injectPayPalPaymentSource(): array
@@ -462,9 +439,22 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                 ->withHeaders($this->getHeaders($headers))
                 ->{$verb}("{$this->api_endpoint_url}{$uri}", $data);
 
+        nlog($r);
+        nlog($r->json());
+
         if($r->successful()) {
             return $r;
         }
+
+
+        SystemLogger::dispatch(
+            ['response' => $r->body()],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            SystemLog::TYPE_PAYPAL,
+            $this->client,
+            $this->client->company,
+        );
 
         throw new PaymentFailed("Gateway failure - {$r->body()}", 401);
 
