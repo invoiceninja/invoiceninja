@@ -1924,6 +1924,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'require_quote_signature_help' => 'Requiert une signature du client',
     'i_agree' => 'J\'accepte les conditions',
     'sign_here' => 'Veuillez signer ici:',
+    'sign_here_ux_tip' => 'Use the mouse or your touchpad to trace your signature.',
     'authorization' => 'Autorisation',
     'signed' => 'Signé',
 
@@ -3363,7 +3364,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'credit_number_counter' => 'Compteur du numéro de crédit',
     'reset_counter_date' => 'Remise à zéro du compteur de date',
     'counter_padding' => 'Espacement du compteur',
-    'shared_invoice_quote_counter' => 'Compteur partagé pour les factures et les offre',
+    'shared_invoice_quote_counter' => 'Share Invoice/Quote Counter',
     'default_tax_name_1' => 'Nom de taxe par défaut 1',
     'default_tax_rate_1' => 'Taux de taxe par défaut 1',
     'default_tax_name_2' => 'Nom de taxe par défaut 2',
@@ -4252,7 +4253,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'direct_debit' => 'Prélèvement automatique',
     'clone_to_expense' => 'Clone to Expense',
     'checkout' => 'Checkout',
-    'acss' => 'Paiements par débit préautorisés',
+    'acss' => 'ACSS Debit',
     'invalid_amount' => 'Montant non valide. Valeurs décimales uniquement.',
     'client_payment_failure_body' => 'Le paiement pour la facture :invoice au montant de :amount a échoué.',
     'browser_pay' => 'Google Pay, Apple Pay et Microsoft Pay',
@@ -5205,6 +5206,12 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'payment_email_all_contacts' => 'Email de paiement à tous les contacts',
     'payment_email_all_contacts_help' => 'Sends the payment email to all contacts when enabled',
     'add_line' => 'Ajouter une ligne',
+    'activity_139' => 'Expense :expense notification sent to :contact',
+    'vendor_notification_subject' => 'Confirmation of payment :amount sent to :vendor',
+    'vendor_notification_body' => 'Payment processed for :amount dated :payment_date. <br>[Transaction Reference: :transaction_reference]',
+    'receipt' => 'Receipt',
+    'charges' => 'Charges',
+    'email_report' => 'Email Report',
 );
 
 return $lang;

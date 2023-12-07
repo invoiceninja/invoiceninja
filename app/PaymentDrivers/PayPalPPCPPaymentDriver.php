@@ -58,7 +58,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         // 13 => 'ideal',
         // 26 => 'mercadopago',
         // 27 => 'mybank',
-        // 28 => 'paylater',
+        28 => 'paylater',
         // 16 => 'p24',
         // 7 => 'sofort'
     ];
@@ -89,6 +89,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
             "1" => $method = PaymentType::CREDIT_CARD_OTHER,
             "3" => $method = PaymentType::PAYPAL,
             "25" => $method = PaymentType::VENMO,
+            "28" => $method = PaymentType::PAY_LATER,
         };
 
         return $method;
@@ -101,6 +102,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
             1 => 'card',
             3 => 'paypal',
             25 => 'venmo',
+            28 => 'paylater',
             // 9 => 'sepa',
             // 12 => 'bancontact',
             // 17 => 'eps',

@@ -863,7 +863,7 @@ class PdfBuilder
         // This sprintf() will help us convert "task" or "product" into "$task" or "$product" without
         // evaluating the variable.
 
-        if (in_array(sprintf('%s%s.tax', '$', $type), (array) $this->service->config->pdf_variables["{$type}_columns"])) {
+        if (in_array(sprintf('%s%s.tax', '$', $type), (array) $this->service->config->pdf_variables["{$column_type}_columns"])) {
             $line_items = collect($this->service->config->entity->line_items)->filter(function ($item) use ($type_id) {
                 return $item->type_id == $type_id; // = != == bad comparison operator fix 2023-11-12
             });

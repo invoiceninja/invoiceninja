@@ -211,7 +211,7 @@ class Gateway extends StaticModel
                     // GatewayType::BANCONTACT => ['refund' => false, 'token_billing' => false],
                     // GatewayType::EPS => ['refund' => false, 'token_billing' => false],
                     // GatewayType::MYBANK => ['refund' => false, 'token_billing' => false],
-                    // GatewayType::PAYLATER => ['refund' => false, 'token_billing' => false],
+                    GatewayType::PAYLATER => ['refund' => false, 'token_billing' => false],
                     // GatewayType::PRZELEWY24 => ['refund' => false, 'token_billing' => false],
                     // GatewayType::SOFORT => ['refund' => false, 'token_billing' => false],
                 ]; //Paypal PPCP

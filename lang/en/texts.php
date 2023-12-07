@@ -5220,6 +5220,7 @@ $lang = array(
     'receipt' => 'Receipt',
     'charges' => 'Charges',
     'email_report' => 'Email Report',
+    'payment_type_Pay Later' => 'Pay Later',
 );
 
 return $lang;
