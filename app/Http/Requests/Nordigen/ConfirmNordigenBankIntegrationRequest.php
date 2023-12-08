@@ -13,7 +13,7 @@ namespace App\Http\Requests\Nordigen;
 
 use App\Http\Requests\Request;
 
-class ConfirmNordigenRequest extends Request
+class ConfirmNordigenBankIntegrationRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
