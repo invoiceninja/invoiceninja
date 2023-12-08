@@ -25,60 +25,6 @@ use Log;
 
 class NordigenController extends BaseController
 {
-
-    // TODO!!!!!
-    public function auth(YodleeAuthRequest $request)
-    {
-
-        // create a user at this point
-        // use the one time token here to pull in the actual user
-        // store the user_account_id on the accounts table
-
-        $nordigen = new Nordigen();
-
-        $company = $request->getCompany();
-
-
-        //ensure user is enterprise!!
-
-        if ($company->account->bank_integration_nordigen_secret_id && $company->account->bank_integration_nordigen_secret_id) {
-
-            $flow = 'edit';
-
-            $token = $company->account->bank_integration_nordigen_secret_id;
-
-        } else {
-
-            $flow = 'add';
-
-            $response = $nordigen->createUser($company);
-
-            $token = $response->user->loginName;
-
-            $company->account->bank_integration_nordigen_secret_id = $token;
-
-            $company->push();
-
-        }
-
-        $yodlee = new Yodlee($token);
-
-        if ($request->has('window_closed') && $request->input("window_closed") == "true")
-            $this->getAccounts($company, $token);
-
-        $data = [
-            'access_token' => $yodlee->getAccessToken(),
-            'fasttrack_url' => $yodlee->getFastTrackUrl(),
-            'config_name' => config('ninja.yodlee.config_name'),
-            'flow' => $flow,
-            'company' => $company,
-            'account' => $company->account,
-            'completed' => $request->has('window_closed') ? true : false,
-        ];
-
-        return view('bank.yodlee.auth', $data);
-
-    }
     /**
      * Process Nordigen Institutions GETTER.
      *
@@ -379,11 +325,11 @@ class NordigenController extends BaseController
 
         // connect new accounts
         $bank_integration_ids = [];
-        foreach ($requisition["accounts"] as $accountId) {
+        foreach ($requisition["accounts"] as $nordigenAccountId) {
 
-            $account = $nordigen->getAccount($accountId);
+            $nordigen_account = $nordigen->getAccount($nordigenAccountId);
 
-            $existing_bank_integration = BankIntegration::where('bank_account_id', $account['id'])->where('company_id', $company->id)->first();
+            $existing_bank_integration = BankIntegration::where('bank_account_id', $nordigen_account['id'])->where('company_id', $company->id)->first();
 
             if (!$existing_bank_integration) {
 
@@ -392,16 +338,16 @@ class NordigenController extends BaseController
                 $bank_integration->company_id = $company->id;
                 $bank_integration->account_id = $company->account_id;
                 $bank_integration->user_id = $company->owner()->id;
-                $bank_integration->bank_account_id = $account['id'];
-                $bank_integration->bank_account_type = $account['account_type'];
-                $bank_integration->bank_account_name = $account['account_name'];
-                $bank_integration->bank_account_status = $account['account_status'];
-                $bank_integration->bank_account_number = $account['account_number'];
-                $bank_integration->provider_id = $account['provider_id'];
-                $bank_integration->provider_name = $account['provider_name'];
-                $bank_integration->nickname = $account['nickname'];
-                $bank_integration->balance = $account['current_balance'];
-                $bank_integration->currency = $account['account_currency'];
+                $bank_integration->bank_account_id = $nordigen_account['id'];
+                $bank_integration->bank_account_type = $nordigen_account['account_type'];
+                $bank_integration->bank_account_name = $nordigen_account['account_name'];
+                $bank_integration->bank_account_status = $nordigen_account['account_status'];
+                $bank_integration->bank_account_number = $nordigen_account['account_number'];
+                $bank_integration->provider_id = $nordigen_account['provider_id'];
+                $bank_integration->provider_name = $nordigen_account['provider_name'];
+                $bank_integration->nickname = $nordigen_account['nickname'];
+                $bank_integration->balance = $nordigen_account['current_balance'];
+                $bank_integration->currency = $nordigen_account['account_currency'];
                 $bank_integration->disabled_upstream = false;
                 $bank_integration->auto_sync = true;
                 $bank_integration->from_date = now()->subYear();
@@ -426,7 +372,7 @@ class NordigenController extends BaseController
         }
 
         // perform update in background
-        $company->account->bank_integrations->each(function ($bank_integration) use ($company) {
+        $company->account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->each(function ($bank_integration) use ($company) {
 
             ProcessBankTransactionsNordigen::dispatch($company->account, $bank_integration);
 
