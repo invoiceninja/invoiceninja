@@ -13,8 +13,8 @@ namespace App\Http\Controllers\Bank;
 
 use App\Helpers\Bank\Nordigen\Nordigen;
 use App\Http\Controllers\BaseController;
-use App\Http\Requests\Nordigen\ConfirmNordigenRequisitionRequest;
-use App\Http\Requests\Nordigen\ConnectNordigenRequisitionRequest;
+use App\Http\Requests\Nordigen\ConfirmNordigenRequest;
+use App\Http\Requests\Nordigen\ConnectNordigenRequest;
 use App\Http\Requests\Yodlee\YodleeAuthRequest;
 use App\Jobs\Bank\ProcessBankTransactionsNordigen;
 use App\Models\BankIntegration;
@@ -156,7 +156,7 @@ class NordigenController extends BaseController
 
     /** Creates a new requisition (oAuth like connection of bank-account)
      *
-     * @param ConnectNordigenRequisitionRequest $request
+     * @param ConnectNordigenRequest $request
      *
      * @OA\Post(
      *      path="/api/v1/nordigen/institutions",
@@ -218,7 +218,7 @@ class NordigenController extends BaseController
          }
       }
    }*/
-    public function connect(ConnectNordigenRequisitionRequest $request)
+    public function connect(ConnectNordigenRequest $request)
     {
 
         $account = auth()->user()->account;
@@ -252,7 +252,7 @@ class NordigenController extends BaseController
 
     /**
      * Process Nordigen Institutions GETTER.
-     * @param ConfirmNordigenRequisitionRequest $request
+     * @param ConfirmNordigenRequest $request
      *
      * @OA\Post(
      *      path="/api/v1/nordigen/institutions",
@@ -314,7 +314,7 @@ class NordigenController extends BaseController
          }
       }
    }*/
-    public function confirm(ConfirmNordigenRequisitionRequest $request)
+    public function confirm(ConfirmNordigenRequest $request)
     {
 
         $data = $request->all();
