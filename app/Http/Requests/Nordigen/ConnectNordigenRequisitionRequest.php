@@ -13,7 +13,7 @@ namespace App\Http\Requests\Nordigen;
 
 use App\Http\Requests\Request;
 
-class CreateNordigenRequisitionRequest extends Request
+class ConnectNordigenRequisitionRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -33,9 +33,9 @@ class CreateNordigenRequisitionRequest extends Request
     public function rules()
     {
         return [
-            'redirect' => 'required|string|max:100',
-            'institutionId' => 'required|string|max:100',
-            'context' => 'required|string|max:1000', // One Time Token
+            'institutionId' => 'required|string',
+            'hash' => 'required|string', // One Time Token
+            'redirectUri' => 'string', // TODO: @turbo124 @todo validate, that this is a url without / at the end
         ];
     }
 }

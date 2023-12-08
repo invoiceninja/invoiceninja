@@ -13,13 +13,15 @@ namespace App\Http\Controllers\Bank;
 
 use App\Helpers\Bank\Nordigen\Nordigen;
 use App\Http\Controllers\BaseController;
-use App\Http\Requests\Nordigen\CreateNordigenRequisitionRequest;
+use App\Http\Requests\Nordigen\ConfirmNordigenRequisitionRequest;
+use App\Http\Requests\Nordigen\ConnectNordigenRequisitionRequest;
 use App\Http\Requests\Yodlee\YodleeAuthRequest;
 use App\Jobs\Bank\ProcessBankTransactionsNordigen;
 use App\Models\BankIntegration;
 use App\Models\Company;
 use Cache;
 use Illuminate\Http\Request;
+use Log;
 
 class NordigenController extends BaseController
 {
@@ -154,7 +156,7 @@ class NordigenController extends BaseController
 
     /** Creates a new requisition (oAuth like connection of bank-account)
      *
-     * @param CreateNordigenRequisitionRequest $request
+     * @param ConnectNordigenRequisitionRequest $request
      *
      * @OA\Post(
      *      path="/api/v1/nordigen/institutions",
@@ -216,31 +218,41 @@ class NordigenController extends BaseController
          }
       }
    }*/
-    public function connect(CreateNordigenRequisitionRequest $request) // TODO: error, when using class CreateNordigenRequisitionRequest
+    public function connect(ConnectNordigenRequisitionRequest $request)
     {
 
         $account = auth()->user()->account;
-
         if (!$account->bank_integration_nordigen_secret_id || !$account->bank_integration_nordigen_secret_key)
             return response()->json(['message' => 'Not yet authenticated with Nordigen Bank Integration service'], 400);
 
         $data = $request->all();
 
-        $context = Cache::get($data["context"]);
+        $context = Cache::get($data["hash"]);
+        Log::info($context);
+        if (!$context || $context["context"] != "nordigen" || array_key_exists("requisition", $context)) // TODO: check for requisition array key
+            return response()->json(['message' => 'Invalid context one_time_token. (not-found|invalid-context|already-used) Call /api/v1/one_time_token with context: \'nordigen\' first.'], 400);
 
-        if (!$context || $context->context != "nordigen")
-            return response()->json(['message' => 'Invalid context provided. Call /api/v1/one_time_token with context: \'nordigen\' first.'], 400);
+        Log::info(config('ninja.app_url') . '/api/v1/nordigen/confirm');
 
         $nordigen = new Nordigen($account->bank_integration_nordigen_secret_id, $account->bank_integration_nordigen_secret_key);
+        $requisition = $nordigen->createRequisition(config('ninja.app_url') . '/api/v1/nordigen/confirm', $data['institutionId'], $data["hash"]);
+
+        // save cache
+        if (array_key_exists("redirectUri", $data))
+            $context["redirectUri"] = $data["redirectUri"];
+        $context["requisitionId"] = $requisition["id"];
+        Cache::put($data["hash"], $context, 3600);
 
         return response()->json([
-            'result' => $nordigen->createRequisition($data['redirect'], $data['institutionId'], $data["context"])
+            'result' => $requisition,
+            'redirectUri' => array_key_exists("redirectUri", $data) ? $data["redirectUri"] : null,
         ]);
+
     }
 
     /**
      * Process Nordigen Institutions GETTER.
-     *
+     * @param ConfirmNordigenRequisitionRequest $request
      *
      * @OA\Post(
      *      path="/api/v1/nordigen/institutions",
@@ -302,32 +314,78 @@ class NordigenController extends BaseController
          }
       }
    }*/
-    public function confirm(Request $request)
+    public function confirm(ConfirmNordigenRequisitionRequest $request)
     {
 
         $data = $request->all();
 
-        $context = Cache::get($data["reference"]);
+        $context = Cache::get($data["ref"]);
+        if (!$context || $context["context"] != "nordigen" || !array_key_exists("requisitionId", $context)) {
+            if ($context && array_key_exists("redirectUri", $context))
+                return response()->redirectTo($context["redirectUri"] . "?action=nordigen_connect&status=failed&reason=ref-invalid");
 
-        if (!$context || $context->context != "nordigen")
-            return response()->json(['message' => 'Invalid context provided. Call /api/v1/one_time_token with context: \'nordigen\' first.'], 400);
+            return response()->json([
+                'status' => 'failed',
+                'reason' => 'ref-invalid',
+            ], 400);
+        }
 
-        $company = Company::where('id', $context["company_key"])->first(); // TODO: get from one-time-token
-
+        $company = Company::where('company_key', $context["company_key"])->first();
         $account = $company->account;
 
-        if (!$account->bank_integration_nordigen_secret_id || !$account->bank_integration_nordigen_secret_key)
-            return response()->json(['message' => 'Not yet authenticated with Nordigen Bank Integration service'], 400);
+        if (!$account->bank_integration_nordigen_secret_id || !$account->bank_integration_nordigen_secret_key) {
+            if (array_key_exists("redirectUri", $context))
+                return response()->redirectTo($context["redirectUri"] . "?action=nordigen_connect&status=failed&reason=account-config-invalid");
 
+            return response()->json([
+                'status' => 'failed',
+                'reason' => 'account-config-invalid',
+            ], 400);
+        }
+
+        // fetch requisition
         $nordigen = new Nordigen($account->bank_integration_nordigen_secret_id, $account->bank_integration_nordigen_secret_key);
+        $requisition = $nordigen->getRequisition($context["requisitionId"]);
 
-        $requisition = $nordigen->getRequisition($data["requisitionId"]);
+        // check validity of requisition
+        if (!$requisition) {
+            if (array_key_exists("redirectUri", $context))
+                return response()->redirectTo($context["redirectUri"] . "?action=nordigen_connect&status=failed&reason=requisition-not-found");
 
+            return response()->json([
+                'status' => 'failed',
+                'reason' => 'requisition-not-found',
+            ], 400);
+        }
+        if ($requisition["status"] != "LN") {
+            if (array_key_exists("redirectUri", $context))
+                return response()->redirectTo($context["redirectUri"] . "?action=nordigen_connect&status=failed&reason=requisition-invalid-status");
+
+            return response()->json([
+                'status' => 'failed',
+                'reason' => 'requisition-invalid-status',
+            ], 400);
+        }
+        if (sizeof($requisition["accounts"]) == 0) {
+            if (array_key_exists("redirectUri", $context))
+                return response()->redirectTo($context["redirectUri"] . "?action=nordigen_connect&status=failed&reason=requisition-no-accounts");
+
+            return response()->json([
+                'status' => 'failed',
+                'reason' => 'requisition-no-accounts',
+            ], 400);
+        }
+
+
+        // connect new accounts
+        $bank_integration_ids = [];
         foreach ($requisition["accounts"] as $accountId) {
 
             $account = $nordigen->getAccount($accountId);
 
-            if (!BankIntegration::where('bank_account_id', $account['id'])->where('company_id', $company->id)->exists()) {
+            $existing_bank_integration = BankIntegration::where('bank_account_id', $account['id'])->where('company_id', $company->id)->first();
+
+            if (!$existing_bank_integration) {
 
                 $bank_integration = new BankIntegration();
                 $bank_integration->integration_type = BankIntegration::INTEGRATION_TYPE_NORDIGEN;
@@ -344,23 +402,47 @@ class NordigenController extends BaseController
                 $bank_integration->nickname = $account['nickname'];
                 $bank_integration->balance = $account['current_balance'];
                 $bank_integration->currency = $account['account_currency'];
+                $bank_integration->disabled_upstream = false;
+                $bank_integration->auto_sync = true;
                 $bank_integration->from_date = now()->subYear();
 
                 $bank_integration->save();
 
+                array_push($bank_integration_ids, $bank_integration->id);
+
+            } else {
+
+                // resetting metadata for account status
+                $existing_bank_integration->balance = $account['current_balance'];
+                $existing_bank_integration->bank_account_status = $account['account_status'];
+                $existing_bank_integration->disabled_upstream = false;
+                $existing_bank_integration->auto_sync = true;
+
+                $existing_bank_integration->save();
+
+                array_push($bank_integration_ids, $existing_bank_integration->id);
             }
 
         }
 
-
+        // perform update in background
         $company->account->bank_integrations->each(function ($bank_integration) use ($company) {
 
             ProcessBankTransactionsNordigen::dispatch($company->account, $bank_integration);
 
         });
 
-        // TODO: get current frontend-url from hash
-        response()->redirectTo();
+        // prevent rerun of this method with same ref
+        Cache::delete($data["ref"]);
+
+        // Successfull Response
+        if (array_key_exists("redirectUri", $context))
+            return response()->redirectTo($context["redirectUri"] . "?action=nordigen_connect&status=success&bank_integrations=" . implode(',', $bank_integration_ids));
+
+        return response()->json([
+            'status' => 'success',
+            'bank_integrations' => $bank_integration_ids,
+        ]);
 
     }
 
