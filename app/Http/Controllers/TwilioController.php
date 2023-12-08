@@ -21,6 +21,7 @@ use Twilio\Rest\Client;
 
 class TwilioController extends BaseController
 {
+
     public function __construct()
     {
         parent::__construct();
@@ -37,6 +38,10 @@ class TwilioController extends BaseController
         $user = auth()->user();
 
         $account = $user->company()->account;
+
+        if(stripos($request->phone, '+21') !== false) {
+            return response()->json(['message' => 'This phone number is not supported'], 400);
+        }
 
         if (MultiDB::hasPhoneNumber($request->phone)) {
             return response()->json(['message' => 'This phone number has already been verified with another account'], 400);
