@@ -28,8 +28,20 @@ class DomainCheckTest extends TestCase
     public function testDomainCheck()
     {
 
-        $this->assertTrue(in_array('yopmail.com', Domains::getDomains()));
-        $this->assertFalse(in_array('invoiceninja.com', Domains::getDomains()));
+        $this->assertTrue(in_array('yopmail.com', \App\DataProviders\Domains::getDomains()));
+        $this->assertFalse(in_array('invoiceninja.com', \App\DataProviders\Domains::getDomains()));
 
+    }
+
+    public function testSubdomainValidation()
+    {
+        $this->assertFalse($this->checker('invoiceninja'));
+        $this->assertFalse($this->checker('hello'));
+        $this->assertTrue($this->checker('nasty.pasty'));
+    }
+
+    public function checker($subdomain)
+    {
+        return (!preg_match('/^[A-Za-z0-9](?:[A-Za-z0-9\-]{0,61}[A-Za-z0-9])?$/', $subdomain));
     }
 }
