@@ -12,6 +12,8 @@
 namespace App\Http\Requests\Nordigen;
 
 use App\Http\Requests\Request;
+use Cache;
+use Log;
 
 class ConnectNordigenBankIntegrationRequest extends Request
 {
@@ -33,9 +35,29 @@ class ConnectNordigenBankIntegrationRequest extends Request
     public function rules()
     {
         return [
-            'institutionId' => 'required|string',
-            'hash' => 'required|string', // One Time Token
-            'redirectUri' => 'string', // TODO: @turbo124 @todo validate, that this is a url without / at the end
+            'institution_id' => 'required|string',
+            'one_time_token' => 'required|string', // One Time Token
+            'redirect' => 'string', // TODO: @turbo124 @todo validate, that this is a url without / at the end
         ];
+    }
+
+    // @turbo124 @todo please check for validity, when issue request from frontend
+    public function prepareForValidation()
+    {
+        $input = $this->all();
+
+        if (!array_key_exists('redirect', $input)) {
+            $context = Cache::get($input['one_time_token']);
+
+            if (array_key_exists('is_react', $context))
+                $input["redirect"] = $context["is_react"] ? config("ninja.react_url") : config("ninja.app_url");
+            else
+                $input["redirect"] = config("ninja.app_url");
+
+            Log::info($input);
+
+            $this->replace($input);
+
+        }
     }
 }

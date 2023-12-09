@@ -16,6 +16,8 @@ namespace App\Helpers\Bank\Nordigen;
 use App\Exceptions\NordigenApiException;
 use App\Helpers\Bank\Nordigen\Transformer\AccountTransformer;
 use App\Helpers\Bank\Nordigen\Transformer\IncomeTransformer;
+use Log;
+use Nordigen\NordigenPHP\Exceptions\NordigenExceptions\NordigenException;
 
 class Nordigen
 {
@@ -31,6 +33,7 @@ class Nordigen
         $this->client = new \Nordigen\NordigenPHP\API\NordigenClient($secret_id, $secret_key);
 
         $this->client->createAccessToken(); // access_token is valid 24h -> so we dont have to implement a refresh-cycle
+
     }
 
     // metadata-section for frontend
@@ -56,52 +59,7 @@ class Nordigen
         return $this->client->requisition->getRequisition($requisitionId);
     }
 
-    // NOTE: this will only cleanup the requisitions from nordigen and not within the table: bank_integration_nordigen_requisitions
-    public function cleanupRequisitions()
-    {
-        $requisitions = $this->client->requisition->getRequisitions();
-
-        foreach ($requisitions as $requisition) {
-            // filter to expired OR older than 7 days created and no accounts
-            if ($requisition->status == "EXPIRED" || (sizeOf($requisition->accounts) != 0 && strtotime($requisition->created) > (new \DateTime())->modify('-7 days')))
-                continue;
-
-            $this->client->requisition->deleteRequisition($requisition->id);
-        }
-    }
-
-    // account-section: these methods should be used to get data of connected accounts
-    public function getAccounts(?array $requisitionIds)
-    {
-
-        // get all valid requisitions
-        $requisitions = $this->client->requisition->getRequisitions(); // no pagination used?!
-
-        // fetch all valid accounts for activated requisitions
-        $nordigen_accountIds = [];
-        foreach ($requisitions["results"] as $requisition) {
-            // FILTER: for requisitionIds
-            if ($requisitionIds && !in_array($requisition["id"], $requisitionIds))
-                continue;
-
-            foreach ($requisition["accounts"] as $accountId) {
-                array_push($nordigen_accountIds, $accountId);
-            }
-        }
-
-        $nordigen_accountIds = array_unique($nordigen_accountIds);
-
-        $nordigen_accounts = [];
-        foreach ($nordigen_accountIds as $accountId) {
-            $nordigen_account = $this->getAccount($accountId);
-
-            array_push($nordigen_accounts, $nordigen_account);
-        }
-
-        return $nordigen_accounts;
-
-    }
-
+    // TODO: return null on not found
     public function getAccount(string $account_id)
     {
 

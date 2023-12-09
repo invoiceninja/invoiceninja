@@ -22,6 +22,7 @@ use App\Models\Company;
 use Cache;
 use Illuminate\Http\Request;
 use Log;
+use Nordigen\NordigenPHP\Exceptions\NordigenExceptions\NordigenException;
 
 class NordigenController extends BaseController
 {
@@ -166,34 +167,42 @@ class NordigenController extends BaseController
    }*/
     public function connect(ConnectNordigenBankIntegrationRequest $request)
     {
-
-        $account = auth()->user()->account;
-        if (!$account->bank_integration_nordigen_secret_id || !$account->bank_integration_nordigen_secret_key)
-            return response()->json(['message' => 'Not yet authenticated with Nordigen Bank Integration service'], 400);
-
         $data = $request->all();
 
-        $context = Cache::get($data["hash"]);
-        Log::info($context);
-        if (!$context || $context["context"] != "nordigen" || array_key_exists("requisition", $context)) // TODO: check for requisition array key
-            return response()->json(['message' => 'Invalid context one_time_token. (not-found|invalid-context|already-used) Call /api/v1/one_time_token with context: \'nordigen\' first.'], 400);
+        $context = Cache::get($data["one_time_token"]);
 
-        Log::info(config('ninja.app_url') . '/api/v1/nordigen/confirm');
+        if (!$context || $context["context"] != "nordigen" || array_key_exists("requisitionId", $context))
+            return response()->redirectTo($data["redirect"] . "?action=nordigen_connect&status=failed&reason=one-time-token-invalid");
+
+        $company = Company::where('company_key', $context["company_key"])->first();
+        $account = $company->account;
+
+        if (!$account->bank_integration_nordigen_secret_id || !$account->bank_integration_nordigen_secret_key)
+            return response()->redirectTo($data["redirect"] . "?action=nordigen_connect&status=failed&reason=account-config-invalid");
 
         $nordigen = new Nordigen($account->bank_integration_nordigen_secret_id, $account->bank_integration_nordigen_secret_key);
-        $requisition = $nordigen->createRequisition(config('ninja.app_url') . '/api/v1/nordigen/confirm', $data['institutionId'], $data["hash"]);
+        try {
+            $requisition = $nordigen->createRequisition(config('ninja.app_url') . '/api/v1/nordigen/confirm', $data['institution_id'], "1");
+        } catch (NordigenException $e) { // TODO: property_exists returns null in these cases... => why => therefore we just get unknown error everytime $responseBody is typeof GuzzleHttp\Psr7\Stream
+            Log::error($e);
+            $responseBody = $e->getResponse()->getBody();
+            Log::info($responseBody);
+
+            if (property_exists($responseBody, "institution_id")) // provided institution_id was wrong
+                return response()->redirectTo($data["redirect"] . "?action=nordigen_connect&status=failed&reason=institution-invalid");
+            else if (property_exists($responseBody, "reference")) // this error can occur, when a reference was used double or is invalid => therefor we suggest the frontend to use another one-time-token
+                return response()->redirectTo($data["redirect"] . "?action=nordigen_connect&status=failed&reason=one-time-token-invalid");
+            else
+                return response()->redirectTo($data["redirect"] . "?action=nordigen_connect&status=failed&reason=unknown");
+        }
 
         // save cache
-        if (array_key_exists("redirectUri", $data))
-            $context["redirectUri"] = $data["redirectUri"];
+        if (array_key_exists("redirect", $data))
+            $context["redirect"] = $data["redirect"];
         $context["requisitionId"] = $requisition["id"];
-        Cache::put($data["hash"], $context, 3600);
+        Cache::put($data["one_time_token"], $context, 3600);
 
-        return response()->json([
-            'result' => $requisition,
-            'redirectUri' => array_key_exists("redirectUri", $data) ? $data["redirectUri"] : null,
-        ]);
-
+        return response()->redirectTo($requisition["link"]);
     }
 
     /**
@@ -266,62 +275,27 @@ class NordigenController extends BaseController
         $data = $request->all();
 
         $context = Cache::get($data["ref"]);
-        if (!$context || $context["context"] != "nordigen" || !array_key_exists("requisitionId", $context)) {
-            if ($context && array_key_exists("redirectUri", $context))
-                return response()->redirectTo($context["redirectUri"] . "?action=nordigen_connect&status=failed&reason=ref-invalid");
+        if (!$context || $context["context"] != "nordigen" || !array_key_exists("requisitionId", $context))
+            return response()->redirectTo($context["redirect"] . "?action=nordigen_connect&status=failed&reason=ref-invalid");
 
-            return response()->json([
-                'status' => 'failed',
-                'reason' => 'ref-invalid',
-            ], 400);
-        }
 
         $company = Company::where('company_key', $context["company_key"])->first();
         $account = $company->account;
 
-        if (!$account->bank_integration_nordigen_secret_id || !$account->bank_integration_nordigen_secret_key) {
-            if (array_key_exists("redirectUri", $context))
-                return response()->redirectTo($context["redirectUri"] . "?action=nordigen_connect&status=failed&reason=account-config-invalid");
-
-            return response()->json([
-                'status' => 'failed',
-                'reason' => 'account-config-invalid',
-            ], 400);
-        }
+        if (!$account->bank_integration_nordigen_secret_id || !$account->bank_integration_nordigen_secret_key)
+            return response()->redirectTo($context["redirect"] . "?action=nordigen_connect&status=failed&reason=account-config-invalid");
 
         // fetch requisition
         $nordigen = new Nordigen($account->bank_integration_nordigen_secret_id, $account->bank_integration_nordigen_secret_key);
         $requisition = $nordigen->getRequisition($context["requisitionId"]);
 
         // check validity of requisition
-        if (!$requisition) {
-            if (array_key_exists("redirectUri", $context))
-                return response()->redirectTo($context["redirectUri"] . "?action=nordigen_connect&status=failed&reason=requisition-not-found");
-
-            return response()->json([
-                'status' => 'failed',
-                'reason' => 'requisition-not-found',
-            ], 400);
-        }
-        if ($requisition["status"] != "LN") {
-            if (array_key_exists("redirectUri", $context))
-                return response()->redirectTo($context["redirectUri"] . "?action=nordigen_connect&status=failed&reason=requisition-invalid-status");
-
-            return response()->json([
-                'status' => 'failed',
-                'reason' => 'requisition-invalid-status',
-            ], 400);
-        }
-        if (sizeof($requisition["accounts"]) == 0) {
-            if (array_key_exists("redirectUri", $context))
-                return response()->redirectTo($context["redirectUri"] . "?action=nordigen_connect&status=failed&reason=requisition-no-accounts");
-
-            return response()->json([
-                'status' => 'failed',
-                'reason' => 'requisition-no-accounts',
-            ], 400);
-        }
-
+        if (!$requisition)
+            return response()->redirectTo($context["redirect"] . "?action=nordigen_connect&status=failed&reason=requisition-not-found");
+        if ($requisition["status"] != "LN")
+            return response()->redirectTo($context["redirect"] . "?action=nordigen_connect&status=failed&reason=requisition-invalid-status");
+        if (sizeof($requisition["accounts"]) == 0)
+            return response()->redirectTo($context["redirect"] . "?action=nordigen_connect&status=failed&reason=requisition-no-accounts");
 
         // connect new accounts
         $bank_integration_ids = [];
@@ -381,14 +355,8 @@ class NordigenController extends BaseController
         // prevent rerun of this method with same ref
         Cache::delete($data["ref"]);
 
-        // Successfull Response
-        if (array_key_exists("redirectUri", $context))
-            return response()->redirectTo($context["redirectUri"] . "?action=nordigen_connect&status=success&bank_integrations=" . implode(',', $bank_integration_ids));
-
-        return response()->json([
-            'status' => 'success',
-            'bank_integrations' => $bank_integration_ids,
-        ]);
+        // Successfull Response => Redirect
+        return response()->redirectTo($context["redirect"] . "?action=nordigen_connect&status=success&bank_integrations=" . implode(',', $bank_integration_ids));
 
     }
 
