@@ -153,10 +153,10 @@ class InvoiceFilters extends QueryFilters
                             
                                 $query->whereNull('due_date')
                                       ->orWhere(function ($q) {
-                                        $q->where('due_date', '>=', now()->startOfDay()->subSecond())->where('partial', 0);
+                                        $q->where('due_date', '>=', now()->startOfDay()->subSecond())->where('partial', 0)->company();
                                       })
                                       ->orWhere(function ($q) {
-                                        $q->where('partial_due_date', '>=', now()->startOfDay()->subSecond())->where('partial', '>', 0);
+                                        $q->where('partial_due_date', '>=', now()->startOfDay()->subSecond())->where('partial', '>', 0)->company();
                                       });
 
                             })
