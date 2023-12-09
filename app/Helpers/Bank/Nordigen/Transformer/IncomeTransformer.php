@@ -65,7 +65,22 @@ class IncomeTransformer implements BankRevenueInterface
 {
     use AppSetup;
 
-    public function transform(BankIntegration $bank_integration, $transaction)
+    public function transform($transaction)
+    {
+
+        $data = [];
+
+        if (!property_exists($transaction, 'transactions') || !property_exists($transaction->transactions, 'booked'))
+            throw new \Exception('invalid dataset');
+
+        foreach ($transaction->transactions->booked as $transaction) {
+            $data[] = $this->transformTransaction($transaction);
+        }
+
+        return $data;
+    }
+
+    public function transformTransaction($transaction)
     {
 
         if (!property_exists($transaction, 'transactionId') || !property_exists($transaction, 'transactionAmount') || !property_exists($transaction, 'balances') || !property_exists($transaction, 'institution'))
@@ -75,11 +90,9 @@ class IncomeTransformer implements BankRevenueInterface
             'transaction_id' => $transaction->transactionId,
             'amount' => abs($transaction->transactionAmount->amount),
             'currency_id' => $this->convertCurrency($transaction->transactionAmount->currency),
-            'account_type' => 'bank',
-            'category_id' => $transaction->highLevelCategoryId,
-            'category_type' => $transaction->categoryType,
+            'category_id' => $transaction->highLevelCategoryId, // TODO
+            'category_type' => $transaction->categoryType, // TODO
             'date' => $transaction->bookingDate,
-            'bank_account_id' => $bank_integration->id,
             'description' => $transaction->remittanceInformationUnstructured,
             'base_type' => $transaction->transactionAmount->amount > 0 ? 'DEBIT' : 'CREDIT',
         ];

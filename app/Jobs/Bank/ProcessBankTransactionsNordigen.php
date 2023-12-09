@@ -99,18 +99,11 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
             return;
         }
 
-        $data = [
-            'top' => 500,
-            'fromDate' => $this->from_date,
-            'accountId' => $this->bank_integration->bank_account_id,
-            'skip' => $this->skip,
-        ];
-
         //Get transaction count object
         $transactions = $nordigen->getTransactions($this->bank_integration->bank_account_id, $this->from_date);
 
         //Get int count
-        $count = sizeof($transactions->transactions->booked);
+        $count = sizeof($transactions);
 
         //if no transactions, update the from_date and move on
         if (count($transactions) == 0) {

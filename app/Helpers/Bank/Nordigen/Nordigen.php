@@ -114,10 +114,17 @@ class Nordigen
 
     }
 
+    /**
+     * this method returns booked transactions from the bank_account, pending transactions are not part of the result
+     * @todo @turbo124 should we include pending transactions within the integration-process and mark them with a specific category?!
+     */
     public function getTransactions(string $accountId, string $dateFrom = null)
     {
 
-        return $this->client->account($accountId)->getAccountTransactions($dateFrom);
+        $transactionResponse = $this->client->account($accountId)->getAccountTransactions($dateFrom);
+
+        $it = new IncomeTransformer();
+        return $it->transform($transactionResponse);
 
     }
 }
