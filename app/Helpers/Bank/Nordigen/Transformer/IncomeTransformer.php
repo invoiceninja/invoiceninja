@@ -15,6 +15,7 @@ use App\Helpers\Bank\BankRevenueInterface;
 use App\Models\BankIntegration;
 use App\Utils\Traits\AppSetup;
 use Illuminate\Support\Facades\Cache;
+use Log;
 
 /**
 {
@@ -65,15 +66,16 @@ class IncomeTransformer implements BankRevenueInterface
 {
     use AppSetup;
 
-    public function transform($transaction)
+    public function transform($transactionResponse)
     {
 
+        Log::info($transactionResponse);
         $data = [];
 
-        if (!property_exists($transaction, 'transactions') || !property_exists($transaction->transactions, 'booked'))
+        if (!array_key_exists('transactions', $transactionResponse) || !array_key_exists('booked', $transactionResponse["transactions"]))
             throw new \Exception('invalid dataset');
 
-        foreach ($transaction->transactions->booked as $transaction) {
+        foreach ($transactionResponse["transactions"]["booked"] as $transaction) {
             $data[] = $this->transformTransaction($transaction);
         }
 
@@ -83,18 +85,20 @@ class IncomeTransformer implements BankRevenueInterface
     public function transformTransaction($transaction)
     {
 
-        if (!property_exists($transaction, 'transactionId') || !property_exists($transaction, 'transactionAmount') || !property_exists($transaction, 'balances') || !property_exists($transaction, 'institution'))
+        if (!array_key_exists('transactionId', $transaction) || !array_key_exists('transactionAmount', $transaction))
             throw new \Exception('invalid dataset');
 
         return [
-            'transaction_id' => $transaction->transactionId,
-            'amount' => abs($transaction->transactionAmount->amount),
-            'currency_id' => $this->convertCurrency($transaction->transactionAmount->currency),
-            'category_id' => $transaction->highLevelCategoryId, // TODO
-            'category_type' => $transaction->categoryType, // TODO
-            'date' => $transaction->bookingDate,
-            'description' => $transaction->remittanceInformationUnstructured,
-            'base_type' => $transaction->transactionAmount->amount > 0 ? 'DEBIT' : 'CREDIT',
+            'transaction_id' => 'nordigen:' . $transaction["transactionId"],
+            'amount' => abs((int) $transaction["transactionAmount"]["amount"]),
+            'currency_id' => $this->convertCurrency($transaction["transactionAmount"]["currency"]),
+            'category_id' => 0, // TODO: institution specific keys like: GUTSCHRIFT, ABSCHLUSS, MONATSABSCHLUSS etc
+            'category_type' => $transaction["additionalInformation"], // TODO: institution specific keys like: GUTSCHRIFT, ABSCHLUSS, MONATSABSCHLUSS etc
+            'date' => $transaction["bookingDate"],
+            'description' => array_key_exists('bank_remittanceInformationStructured', $transaction) ? $transaction["bank_remittanceInformationStructured"] : array_key_exists('bank_remittanceInformationStructuredArray', $transaction) ? implode($transaction["bank_remittanceInformationStructured"], '\r\n') : '',
+            // 'description' => `IBAN: ${elem . json["bank_debtorAccount"] && elem . json["bank_debtorAccount"]["iban"] ? elem . json["bank_debtorAccount"]["iban"] : ' -'}\nVerwendungszweck: ${elem . json["bank_remittanceInformationStructured"] || ' -'}\nName: ${elem . json["bank_debtorName"] || ' -'}`, // 2 fields to get data from (structured and structuredArray (have to be joined))
+            // TODO: debitor name & iban & bic
+            'base_type' => (int) $transaction["transactionAmount"]["amount"] > 0 ? 'DEBIT' : 'CREDIT',
         ];
 
     }

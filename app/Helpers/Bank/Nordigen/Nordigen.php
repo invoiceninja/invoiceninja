@@ -93,28 +93,6 @@ class Nordigen
     }
 
     /**
-     * this method will remove all according requisitions => this can result in removing multiple accounts, if a user reuses a requisition
-     */
-    public function deleteAccount(string $account_id)
-    {
-
-        // get all valid requisitions
-        $requisitions = $this->client->requisition->getRequisitions();
-
-        // fetch all valid accounts for activated requisitions
-        foreach ($requisitions as $requisition) {
-            foreach ($requisition->accounts as $accountId) {
-
-                if ($accountId) {
-                    $this->client->requisition->deleteRequisition($accountId);
-                }
-
-            }
-        }
-
-    }
-
-    /**
      * this method returns booked transactions from the bank_account, pending transactions are not part of the result
      * @todo @turbo124 should we include pending transactions within the integration-process and mark them with a specific category?!
      */
