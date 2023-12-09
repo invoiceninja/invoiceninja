@@ -15,7 +15,6 @@ use App\Helpers\Bank\Nordigen\Nordigen;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Nordigen\ConfirmNordigenBankIntegrationRequest;
 use App\Http\Requests\Nordigen\ConnectNordigenBankIntegrationRequest;
-use App\Http\Requests\Yodlee\YodleeAuthRequest;
 use App\Jobs\Bank\ProcessBankTransactionsNordigen;
 use App\Models\BankIntegration;
 use App\Models\Company;
@@ -26,163 +25,39 @@ use Nordigen\NordigenPHP\Exceptions\NordigenExceptions\NordigenException;
 
 class NordigenController extends BaseController
 {
-    /**
-     * Process Nordigen Institutions GETTER.
-     *
-     *
-     * @OA\Post(
-     *      path="/api/v1/nordigen/institutions",
-     *      operationId="nordigenRefreshWebhook",
-     *      tags={"nordigen"},
-     *      summary="Getting available institutions from nordigen",
-     *      description="Used to determine the available institutions for sending and creating a new connect-link",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Response(
-     *          response=200,
-     *          description="",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Credit"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
-     */
 
-    /*
-    {
-      "event":{
-         "info":"REFRESH.PROCESS_COMPLETED",
-         "loginName":"fri21",
-         "data":{
-            "providerAccount":[
-               {
-                  "id":10995860,
-                  "providerId":16441,
-                  "isManual":false,
-                  "createdDate":"2017-12-22T05:47:35Z",
-                  "aggregationSource":"USER",
-                  "status":"SUCCESS",
-                  "requestId":"NSyMGo+R4dktywIu3hBIkc3PgWA=",
-                  "dataset":[
-                     {
-                        "name":"BASIC_AGG_DATA",
-                        "additionalStatus":"AVAILABLE_DATA_RETRIEVED",
-                        "updateEligibility":"ALLOW_UPDATE",
-                        "lastUpdated":"2017-12-22T05:48:16Z",
-                        "lastUpdateAttempt":"2017-12-22T05:48:16Z"
-                     }
-                  ]
-               }
-            ]
-         }
-      }
-   }*/
-    public function institutions(Request $request)
-    {
-        $account = auth()->user()->account;
-
-        if (!$account->bank_integration_nordigen_secret_id || !$account->bank_integration_nordigen_secret_key)
-            return response()->json(['message' => 'Not yet authenticated with Nordigen Bank Integration service'], 400);
-
-        $nordigen = new Nordigen($account->bank_integration_nordigen_secret_id, $account->bank_integration_nordigen_secret_key);
-        return response()->json($nordigen->getInstitutions());
-    }
-
-    /** Creates a new requisition (oAuth like connection of bank-account)
-     *
-     * @param ConnectNordigenBankIntegrationRequest $request
-     *
-     * @OA\Post(
-     *      path="/api/v1/nordigen/institutions",
-     *      operationId="nordigenRefreshWebhook",
-     *      tags={"nordigen"},
-     *      summary="Getting available institutions from nordigen",
-     *      description="Used to determine the available institutions for sending and creating a new connect-link",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Response(
-     *          response=200,
-     *          description="",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Credit"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
-     */
-
-    /* TODO
-    {
-      "event":{
-         "info":"REFRESH.PROCESS_COMPLETED",
-         "loginName":"fri21",
-         "data":{
-            "providerAccount":[
-               {
-                  "id":10995860,
-                  "providerId":16441,
-                  "isManual":false,
-                  "createdDate":"2017-12-22T05:47:35Z",
-                  "aggregationSource":"USER",
-                  "status":"SUCCESS",
-                  "requestId":"NSyMGo+R4dktywIu3hBIkc3PgWA=",
-                  "dataset":[
-                     {
-                        "name":"BASIC_AGG_DATA",
-                        "additionalStatus":"AVAILABLE_DATA_RETRIEVED",
-                        "updateEligibility":"ALLOW_UPDATE",
-                        "lastUpdated":"2017-12-22T05:48:16Z",
-                        "lastUpdateAttempt":"2017-12-22T05:48:16Z"
-                     }
-                  ]
-               }
-            ]
-         }
-      }
-   }*/
     public function connect(ConnectNordigenBankIntegrationRequest $request)
     {
         $data = $request->all();
-
-        $context = Cache::get($data["one_time_token"]);
+        $context = $request->getTokenContent();
 
         if (!$context || $context["context"] != "nordigen" || array_key_exists("requisitionId", $context))
-            return response()->redirectTo($data["redirect"] . "?action=nordigen_connect&status=failed&reason=one-time-token-invalid");
+            return response()->redirectTo($data["redirect"] . "?action=nordigen_connect&status=failed&reason=token-invalid");
 
-        $company = Company::where('company_key', $context["company_key"])->first();
-        $account = $company->account;
+        $company = $request->getCompany();
 
-        if (!$account->bank_integration_nordigen_secret_id || !$account->bank_integration_nordigen_secret_key)
+        if (!$company->account->bank_integration_nordigen_secret_id || !$company->account->bank_integration_nordigen_secret_key)
             return response()->redirectTo($data["redirect"] . "?action=nordigen_connect&status=failed&reason=account-config-invalid");
 
-        $nordigen = new Nordigen($account->bank_integration_nordigen_secret_id, $account->bank_integration_nordigen_secret_key);
+        $nordigen = new Nordigen($company->account->bank_integration_nordigen_secret_id, $company->account->bank_integration_nordigen_secret_key);
+
+        // show bank_selection_screen, when institution_id is not present
+        if (!array_key_exists("institution_id", $data)) {
+            $data = [
+                'token' => $request->token,
+                'context' => $context,
+                'institutions' => $nordigen->getInstitutions(),
+                'company' => $company,
+                'account' => $company->account,
+                'redirect' => config('ninja.app_url') . '/nordigen/connect',
+            ];
+
+            return view('bank.nordigen.connect', $data);
+        }
+
+        // redirect to requisition flow
         try {
-            $requisition = $nordigen->createRequisition(config('ninja.app_url') . '/api/v1/nordigen/confirm', $data['institution_id'], "1");
+            $requisition = $nordigen->createRequisition(config('ninja.app_url') . '/api/v1/nordigen/confirm', $data['institution_id'], $request->token);
         } catch (NordigenException $e) { // TODO: property_exists returns null in these cases... => why => therefore we just get unknown error everytime $responseBody is typeof GuzzleHttp\Psr7\Stream
             Log::error($e);
             $responseBody = $e->getResponse()->getBody();
@@ -190,8 +65,8 @@ class NordigenController extends BaseController
 
             if (property_exists($responseBody, "institution_id")) // provided institution_id was wrong
                 return response()->redirectTo($data["redirect"] . "?action=nordigen_connect&status=failed&reason=institution-invalid");
-            else if (property_exists($responseBody, "reference")) // this error can occur, when a reference was used double or is invalid => therefor we suggest the frontend to use another one-time-token
-                return response()->redirectTo($data["redirect"] . "?action=nordigen_connect&status=failed&reason=one-time-token-invalid");
+            else if (property_exists($responseBody, "reference")) // this error can occur, when a reference was used double or is invalid => therefor we suggest the frontend to use another token
+                return response()->redirectTo($data["redirect"] . "?action=nordigen_connect&status=failed&reason=token-invalid");
             else
                 return response()->redirectTo($data["redirect"] . "?action=nordigen_connect&status=failed&reason=unknown");
         }
@@ -200,7 +75,7 @@ class NordigenController extends BaseController
         if (array_key_exists("redirect", $data))
             $context["redirect"] = $data["redirect"];
         $context["requisitionId"] = $requisition["id"];
-        Cache::put($data["one_time_token"], $context, 3600);
+        Cache::put($request->token, $context, 3600);
 
         return response()->redirectTo($requisition["link"]);
     }
@@ -358,6 +233,81 @@ class NordigenController extends BaseController
         // Successfull Response => Redirect
         return response()->redirectTo($context["redirect"] . "?action=nordigen_connect&status=success&bank_integrations=" . implode(',', $bank_integration_ids));
 
+    }
+
+    /**
+     * Process Nordigen Institutions GETTER.
+     *
+     *
+     * @OA\Post(
+     *      path="/api/v1/nordigen/institutions",
+     *      operationId="nordigenRefreshWebhook",
+     *      tags={"nordigen"},
+     *      summary="Getting available institutions from nordigen",
+     *      description="Used to determine the available institutions for sending and creating a new connect-link",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Credit"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+
+    /*
+    {
+      "event":{
+         "info":"REFRESH.PROCESS_COMPLETED",
+         "loginName":"fri21",
+         "data":{
+            "providerAccount":[
+               {
+                  "id":10995860,
+                  "providerId":16441,
+                  "isManual":false,
+                  "createdDate":"2017-12-22T05:47:35Z",
+                  "aggregationSource":"USER",
+                  "status":"SUCCESS",
+                  "requestId":"NSyMGo+R4dktywIu3hBIkc3PgWA=",
+                  "dataset":[
+                     {
+                        "name":"BASIC_AGG_DATA",
+                        "additionalStatus":"AVAILABLE_DATA_RETRIEVED",
+                        "updateEligibility":"ALLOW_UPDATE",
+                        "lastUpdated":"2017-12-22T05:48:16Z",
+                        "lastUpdateAttempt":"2017-12-22T05:48:16Z"
+                     }
+                  ]
+               }
+            ]
+         }
+      }
+   }*/
+    public function institutions(Request $request)
+    {
+        $account = auth()->user()->account;
+
+        if (!$account->bank_integration_nordigen_secret_id || !$account->bank_integration_nordigen_secret_key)
+            return response()->json(['message' => 'Not yet authenticated with Nordigen Bank Integration service'], 400);
+
+        $nordigen = new Nordigen($account->bank_integration_nordigen_secret_id, $account->bank_integration_nordigen_secret_key);
+        return response()->json($nordigen->getInstitutions());
     }
 
 }

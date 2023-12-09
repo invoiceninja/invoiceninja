@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Bank\NordigenController;
 use App\Http\Controllers\Bank\YodleeController;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\ClientPortal\ApplePayDomainController;
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 //Auth::routes(['password.reset' => false]);
 
 Route::get('/', [BaseController::class, 'flutterRoute'])->middleware('guest');
-    // Route::get('self-update', [SelfUpdateController::class, 'update'])->middleware('guest');
+// Route::get('self-update', [SelfUpdateController::class, 'update'])->middleware('guest');
 
 Route::get('setup', [SetupController::class, 'index'])->middleware('guest');
 Route::post('setup', [SetupController::class, 'doSetup'])->middleware('guest');
@@ -54,6 +55,7 @@ Route::get('stripe/signup/{token}', [StripeConnectController::class, 'initialize
 Route::get('stripe/completed', [StripeConnectController::class, 'completed'])->name('stripe_connect.return');
 
 Route::get('yodlee/onboard/{token}', [YodleeController::class, 'auth'])->name('yodlee.auth');
+Route::get('nordigen/connect/{token}', [NordigenController::class, 'connect'])->name('nordigen.connect');
 
 Route::get('checkout/3ds_redirect/{company_key}/{company_gateway_id}/{hash}', [Checkout3dsController::class, 'index'])->middleware('domain_db')->name('checkout.3ds_redirect');
 Route::get('mollie/3ds_redirect/{company_key}/{company_gateway_id}/{hash}', [Mollie3dsController::class, 'index'])->middleware('domain_db')->name('mollie.3ds_redirect');

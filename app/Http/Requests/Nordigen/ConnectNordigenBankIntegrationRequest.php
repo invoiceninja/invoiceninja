@@ -12,6 +12,9 @@
 namespace App\Http\Requests\Nordigen;
 
 use App\Http\Requests\Request;
+use App\Libraries\MultiDB;
+use App\Models\Company;
+use App\Models\User;
 use Cache;
 use Log;
 
@@ -35,8 +38,7 @@ class ConnectNordigenBankIntegrationRequest extends Request
     public function rules()
     {
         return [
-            'institution_id' => 'required|string',
-            'one_time_token' => 'required|string', // One Time Token
+            'institution_id' => 'string',
             'redirect' => 'string', // TODO: @turbo124 @todo validate, that this is a url without / at the end
         ];
     }
@@ -47,17 +49,42 @@ class ConnectNordigenBankIntegrationRequest extends Request
         $input = $this->all();
 
         if (!array_key_exists('redirect', $input)) {
-            $context = Cache::get($input['one_time_token']);
+            $context = $this->getTokenContent();
 
-            if (array_key_exists('is_react', $context))
+            if ($context && array_key_exists('is_react', $context))
                 $input["redirect"] = $context["is_react"] ? config("ninja.react_url") : config("ninja.app_url");
             else
                 $input["redirect"] = config("ninja.app_url");
 
-            Log::info($input);
-
             $this->replace($input);
 
         }
+    }
+    public function getTokenContent()
+    {
+        if ($this->state) {
+            $this->token = $this->state;
+        }
+
+        $data = Cache::get($this->token);
+
+        return $data;
+    }
+
+    public function getContact()
+    {
+        MultiDB::findAndSetDbByCompanyKey($this->getTokenContent()['company_key']);
+
+        return User::findOrFail($this->getTokenContent()['user_id']);
+
+    }
+
+    public function getCompany()
+    {
+
+        MultiDB::findAndSetDbByCompanyKey($this->getTokenContent()['company_key']);
+
+        return Company::where('company_key', $this->getTokenContent()['company_key'])->firstOrFail();
+
     }
 }
