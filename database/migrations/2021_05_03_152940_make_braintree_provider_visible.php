@@ -2,8 +2,6 @@
 
 use App\Models\Gateway;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     /**
@@ -13,7 +11,7 @@ return new class extends Migration {
      */
     public function up()
     {
-        Gateway::where('id', 50)->update(['visible' => 1]);
+        Gateway::query()->where('id', 50)->update(['visible' => 1]);
     }
 
     /**

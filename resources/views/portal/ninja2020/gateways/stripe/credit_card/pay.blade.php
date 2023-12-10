@@ -7,7 +7,11 @@
     if($gateway_instance->token_billing == 'off' || $gateway_instance->token_billing == 'optin'){
         $token_billing_string = 'false';
     }
-    
+
+    if (isset($pre_payment) && $pre_payment == '1' && isset($is_recurring) && $is_recurring == '1') {
+        $token_billing_string = 'true';
+    }
+
     
 @endphp
 
@@ -93,5 +97,5 @@
     </script>
 
     <script src="https://js.stripe.com/v3/"></script>
-    <script src="{{ asset('js/clients/payments/stripe-credit-card.js') }}"></script>
+    @vite('resources/js/clients/payments/stripe-credit-card.js')
 @endsection

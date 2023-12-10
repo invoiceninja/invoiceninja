@@ -1,10 +1,10 @@
 <?php
 /**
- * client Ninja (https://clientninja.com).
+ * Invoice Ninja (https://invoiceninja.com).
  *
- * @link https://github.com/clientninja/clientninja source repository
+ * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. client Ninja LLC (https://clientninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -20,12 +20,14 @@ class BankTransactionMap
             1 => 'transaction.amount',
             2 => 'transaction.currency',
             3 => 'transaction.account_type',
-            4 => 'transaction.category_id',
+            4 => 'transaction.category',
             5 => 'transaction.category_type',
             6 => 'transaction.date',
-            7 => 'transaction.bank_account_id',
+            7 => 'transaction.bank_account',
             8 => 'transaction.description',
             9 => 'transaction.base_type',
+            10 => 'transaction.payment_type_Credit',
+            11 => 'transaction.payment_type_Debit',
         ];
     }
 
@@ -42,6 +44,8 @@ class BankTransactionMap
             7 => 'texts.bank_account_id',
             8 => 'texts.description',
             9 => 'texts.type',
+            10 => 'transaction.credit',
+            11 => 'transaction.debit',
         ];
     }
 }

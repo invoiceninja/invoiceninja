@@ -37,7 +37,9 @@ class UpdateCompanyRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->company);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        return $user->can('edit', $this->company);
     }
 
     public function rules()
@@ -53,17 +55,16 @@ class UpdateCompanyRequest extends Request
         $rules['country_id'] = 'integer|nullable';
         $rules['work_email'] = 'email|nullable';
         $rules['matomo_id'] = 'nullable|integer';
-        
+        $rules['e_invoice_certificate_passphrase'] = 'sometimes|nullable';
+        $rules['e_invoice_certificate'] = 'sometimes|nullable|file|mimes:p12,pfx,pem,cer,crt,der,txt,p7b,spc,bin';
         // $rules['client_registration_fields'] = 'array';
 
         if (isset($input['portal_mode']) && ($input['portal_mode'] == 'domain' || $input['portal_mode'] == 'iframe')) {
             $rules['portal_domain'] = 'sometimes|url';
-        } else {
-            if (Ninja::isHosted()) {
-                $rules['subdomain'] = ['nullable', 'regex:/^[a-zA-Z0-9.-]+[a-zA-Z0-9]$/', new ValidSubdomain($this->all())];
-            } else {
-                $rules['subdomain'] = 'nullable|alpha_num';
-            }
+        }
+
+        if (Ninja::isHosted()) {
+            $rules['subdomain'] = ['nullable', 'regex:/^[a-zA-Z0-9.-]+[a-zA-Z0-9]$/', new ValidSubdomain()];
         }
 
         return $rules;
@@ -71,7 +72,6 @@ class UpdateCompanyRequest extends Request
 
     public function prepareForValidation()
     {
-    
         $input = $this->all();
 
         if (array_key_exists('portal_domain', $input) && strlen($input['portal_domain']) > 1) {
@@ -81,6 +81,14 @@ class UpdateCompanyRequest extends Request
 
         if (array_key_exists('settings', $input)) {
             $input['settings'] = (array)$this->filterSaveableSettings($input['settings']);
+        }
+
+        if(array_key_exists('subdomain', $input) && $this->company->subdomain == $input['subdomain']) {
+            unset($input['subdomain']);
+        }
+
+        if(array_key_exists('e_invoice_certificate_passphrase', $input) && empty($input['e_invoice_certificate_passphrase'])) {
+            unset($input['e_invoice_certificate_passphrase']);
         }
 
         $this->replace($input);
@@ -94,22 +102,21 @@ class UpdateCompanyRequest extends Request
      * are saveable
      *
      * @param  object $settings
-     * @return stdClass $settings
+     * @return \stdClass $settings
      */
     private function filterSaveableSettings($settings)
     {
         $account = $this->company->account;
 
-        if(Ninja::isHosted())
-        {
-            foreach($this->protected_input as $protected_var)
-            {
+        if (Ninja::isHosted()) {
+            foreach ($this->protected_input as $protected_var) {
                 $settings[$protected_var] = str_replace("script", "", $settings[$protected_var]);
             }
         }
 
-        if(isset($settings['email_style_custom']))
+        if (isset($settings['email_style_custom'])) {
             $settings['email_style_custom'] = str_replace(['{{','}}'], ['',''], $settings['email_style_custom']);
+        }
 
         if (! $account->isFreeHostedClient()) {
             return $settings;
@@ -128,8 +135,7 @@ class UpdateCompanyRequest extends Request
 
     private function addScheme($url, $scheme = 'https://')
     {
-        if(Ninja::isHosted())
-        {
+        if (Ninja::isHosted()) {
             $url = str_replace('http://', '', $url);
             $url = parse_url($url, PHP_URL_SCHEME) === null ? $scheme.$url : $url;
         }

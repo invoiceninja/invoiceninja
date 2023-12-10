@@ -1,0 +1,314 @@
+  schemas:
+    CreditPaymentable:
+      properties:
+        credit_id:
+          description: 'The credit hashed id'
+          type: string
+          example: Opnel5aKBz
+        amount:
+          description: 'The credit amount'
+          type: string
+          example: '2'
+      type: object
+    GenericReportSchema:
+      properties:
+        date_range:
+          description: 'The string representation of the date range of data to be returned'
+          type: string
+          example: last7
+        date_key:
+          description: 'The date column to search between.'
+          type: string
+          example: created_at
+        start_date:
+          description: 'The start date to search between'
+          type: string
+          example: '2000-10-31'
+        end_date:
+          description: 'The end date to search between'
+          type: string
+          example: '2'
+        report_keys:
+          type: array
+          items:
+            description: 'Array of Keys to export'
+            type: string
+            example: '[''name'',''date'']'
+      type: object
+    GroupSetting:
+      properties:
+        id:
+          description: 'The group setting hashed id'
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: 'The user hashed id'
+          type: string
+          example: Opnel5aKBz
+        company_id:
+          description: 'The company hashed id'
+          type: string
+          example: Opnel5aKBz
+        name:
+          description: 'The name of the group'
+          type: string
+          example: 'A groupies group'
+        settings:
+          description: 'The settings object'
+          type: object
+          example: ''
+      type: object
+    InvoicePaymentable:
+      properties:
+        invoice_id:
+          description: ______
+          type: string
+          example: Opnel5aKBz
+        amount:
+          description: ______
+          type: string
+          example: '2'
+      type: object
+    
+    
+
+
+
+
+    TaskSchedulerSchema:
+      properties:
+        paused:
+          description: 'The scheduler paused state'
+          type: boolean
+          example: 'false'
+        repeat_every:
+          description: 'Accepted values (DAY,WEEK,MONTH,3MONTHS,YEAR)'
+          type: string
+          example: DAY
+        start_from:
+          description: 'Timestamp when we should start the scheduler, default is today'
+          type: integer
+          example: '1652898504'
+        job:
+          description: 'Job, we can find list of available jobs in Scheduler model'
+          type: string
+          example: create_credit_report
+        date_range:
+          description: 'The string representation of the date range of data to be returned'
+          type: string
+          example: last7
+        date_key:
+          description: 'The date column to search between.'
+          type: string
+          example: created_at
+        start_date:
+          description: 'The start date to search between'
+          type: string
+          example: '2022-10-31'
+        end_date:
+          description: 'The end date to search between'
+          type: string
+          example: '2022-10-31'
+        report_keys:
+          type: array
+          items:
+            description: 'Array of Keys to export'
+            type: string
+            example: '[''name'',''date'']'
+      type: object
+    UpdateTaskSchedulerSchema:
+      properties:
+        paused:
+          description: 'The scheduler paused state'
+          type: boolean
+          example: 'false'
+        repeat_every:
+          description: 'Accepted values (DAY,WEEK,MONTH,3MONTHS,YEAR)'
+          type: string
+          example: DAY
+        start_from:
+          description: 'Timestamp when we should start the scheduler, default is today'
+          type: integer
+          example: '1652898504'
+        job:
+          description: 'Job, we can find list of available jobs in Scheduler model'
+          type: string
+          example: create_credit_report
+        date_range:
+          description: 'The string representation of the date range of data to be returned'
+          type: string
+          example: last7
+        date_key:
+          description: 'The date column to search between.'
+          type: string
+          example: created_at
+        start_date:
+          description: 'The start date to search between'
+          type: string
+          example: '2022-10-31'
+        end_date:
+          description: 'The end date to search between'
+          type: string
+          example: '2022-10-31'
+      type: object
+    UpdateJobForASchedulerSchema:
+      properties:
+        job:
+          description: 'Set action name, action names can be found in Scheduler Model'
+          type: string
+          example: create_client_report
+      type: object
+    
+    TaskStatus:
+      properties:
+        id:
+          description: 'The task status hashed id'
+          type: string
+          example: Opnel5aKBz
+          readOnly: true
+        name:
+          description: 'The task status name'
+          type: string
+          example: Backlog
+        color:
+          description: 'The task status color - hex value'
+          type: string
+          example: '#000000'
+        task_status_order:
+          description: 'The order of the task status'
+          type: integer
+          example: '4'
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+          readOnly: true
+        is_deleted:
+          description: 'A boolean flag determining if the task status has been deleted'
+          type: boolean
+          example: true
+          readOnly: true
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+          readOnly: true
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+          readOnly: true
+      type: object
+    TaxRate:
+      properties:
+        id:
+          description: 'Thie hashed id of the tax'
+          type: string
+          example: Opnel5aKBz
+          readOnly: true
+        name:
+          description: 'The tax name'
+          type: string
+          example: GST
+        rate:
+          description: 'The tax rate'
+          type: number
+          example: '10'
+        is_deleted:
+          description: 'Boolean flag determining if the tax has been deleted'
+          type: boolean
+          example: true
+      type: object
+    Template:
+      properties:
+        html:
+          description: 'The template HTML'
+          type: string
+          example: '<HTML></HTML>'
+      type: object
+    
+    AuthenticationError:
+      type: object  
+      properties:
+        message:
+          description: 'These credentials do not match our records / Invalid Token'
+          type: string
+          example: 'These credentials do not match our records / Invalid Token'
+    ValidationError:
+      properties:
+        message:
+          description: 'The error message'
+          type: string
+          example: 'The given data was invalid.'
+        errors:
+          properties:
+            value:
+              type: array
+              items:
+                type: string
+          type: object
+      type: object
+    AuthorizationError:
+      properties:
+        message:
+          description: 'Insufficient permissions for this resource.'
+          type: string
+          example: 'Insufficient permissions for this resource.'
+        errors:
+          properties:
+            value:
+              type: array
+              items:
+                type: string
+          type: object
+      type: object
+    RateLimiterError:
+      properties:
+        message:
+          description: 'Rate limit exceeded.'
+          type: string
+          example: 'Rate limit exceeded.'
+        errors:
+          properties:
+            value:
+              type: array
+              items:
+                type: string
+          type: object
+      type: object
+    InvalidInputError:
+      properties:
+        message:
+          description: 'Invalid input'
+          type: string
+          example: 'Invalid input'
+        errors:
+          properties:
+            value:
+              type: array
+              items:
+                type: string
+          type: object
+      type: object
+    Webhook:
+      properties:
+        id:
+          description: 'The subscription hashed id'
+          type: string
+          example: AS3df3A
+        event_id:
+          description: 'The subscription event id'
+          type: string
+          example: AS3df3A
+        target_url:
+          description: 'The api endpoint'
+          type: string
+          example: AS3df3A
+        format:
+          description: 'JSON or UBL'
+          type: string
+          example: JSON
+      type: object

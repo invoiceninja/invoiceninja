@@ -33,12 +33,15 @@ class CreditsTest extends TestCase
     use DatabaseTransactions;
     use AppSetup;
 
+    private $faker;
+    
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->faker = Factory::create();
         $this->buildCache(true);
+        
     }
 
     public function testShowingOnlyCreditsWithDueDateLessOrEqualToNow()
@@ -104,6 +107,8 @@ class CreditsTest extends TestCase
             ->assertDontSee('testing-number-01')
             ->assertSee('testing-number-02')
             ->assertSee('testing-number-03');
+
+        $user->forceDelete();
     }
 
     public function testShowingCreditsWithNullDueDate()
@@ -171,5 +176,8 @@ class CreditsTest extends TestCase
             ->assertSee('testing-number-01')
             ->assertSee('testing-number-02')
             ->assertSee('testing-number-03');
+
+        $account->delete();
+
     }
 }

@@ -22,6 +22,8 @@ return [
      */
     'batch'     => true,
 
+   'cache_connection' => 'sentinel-cache',
+    // 'cache_connection' => 'cache',
     /*
      * The default key used to store
      * metrics for batching
@@ -34,10 +36,6 @@ return [
      * the built in metrics.
      */
     'system_logging' => [
-        'Turbo124\Beacon\Jobs\System\CpuMetric',
-        'Turbo124\Beacon\Jobs\System\HdMetric',
-        'Turbo124\Beacon\Jobs\System\MemMetric',
-        App\Jobs\Ninja\CheckDbStatus::class,
     ],
 
 ];

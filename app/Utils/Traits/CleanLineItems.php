@@ -37,7 +37,6 @@ trait CleanLineItems
     /**
      * Sets default values for the line_items.
      * @param $item
-     * @return $this
      */
     private function cleanLineItem($item)
     {
@@ -46,7 +45,6 @@ trait CleanLineItems
         unset($invoice_item->casts);
 
         foreach ($invoice_item as $key => $value) {
-
             //if the key has not been set, we set it to a default value
             if (! array_key_exists($key, $item) || ! isset($item[$key])) {
                 $item[$key] = $value;
@@ -64,12 +62,21 @@ trait CleanLineItems
                 $item['type_id'] = '1';
             }
 
-            // if($item['type_id'] == '2'){
-            //     str_replace()
-            // }
+            if (! array_key_exists('tax_id', $item)) {
+                $item['tax_id'] = '1';
+            } elseif(array_key_exists('tax_id', $item) && $item['tax_id'] == '') {
+                
+                if($item['type_id'] == '2') {
+                    $item['tax_id'] = '2';
+                } else {
+                    $item['tax_id'] = '1';
+                }
+                
+            }
+            
         }
 
-        if (array_key_exists('id', $item)) {
+        if (array_key_exists('id', $item) || array_key_exists('_id', $item)) {
             unset($item['id']);
         }
 

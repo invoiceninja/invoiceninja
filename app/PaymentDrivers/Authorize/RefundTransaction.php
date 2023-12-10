@@ -17,8 +17,10 @@ use App\Models\Payment;
 use App\Models\SystemLog;
 use App\PaymentDrivers\AuthorizePaymentDriver;
 use net\authorize\api\contract\v1\CreateTransactionRequest;
+use net\authorize\api\contract\v1\CreditCardType;
 use net\authorize\api\contract\v1\CustomerProfilePaymentType;
 use net\authorize\api\contract\v1\PaymentProfileType;
+use net\authorize\api\contract\v1\PaymentType;
 use net\authorize\api\contract\v1\TransactionRequestType;
 use net\authorize\api\controller\CreateTransactionController;
 
@@ -43,24 +45,42 @@ class RefundTransaction
 
         $transaction_details = $this->authorize_transaction->getTransactionDetails($payment->transaction_reference);
 
+        $creditCard = $transaction_details->getTransaction()->getPayment()->getCreditCard();
+        $creditCardNumber = $creditCard->getCardNumber();
+        $creditCardExpiry = $creditCard->getExpirationDate();
+        $transaction_status = $transaction_details->getTransaction()->getTransactionStatus();
+
+        $transaction_type = $transaction_status == 'capturedPendingSettlement' ? 'voidTransaction' : 'refundTransaction';
+
+        if($transaction_type == 'voidTransaction') {
+            $amount = $transaction_details->getTransaction()->getAuthAmount();
+        }
+
         $this->authorize->init();
 
         // Set the transaction's refId
         $refId = 'ref'.time();
 
-        $paymentProfile = new PaymentProfileType();
-        $paymentProfile->setPaymentProfileId($transaction_details->getTransaction()->getProfile()->getCustomerPaymentProfileId());
+        // $paymentProfile = new PaymentProfileType();
+        // $paymentProfile->setPaymentProfileId($transaction_details->getTransaction()->getProfile()->getCustomerPaymentProfileId());
 
-        // set customer profile
-        $customerProfile = new CustomerProfilePaymentType();
-        $customerProfile->setCustomerProfileId($transaction_details->getTransaction()->getProfile()->getCustomerProfileId());
-        $customerProfile->setPaymentProfile($paymentProfile);
+        // // // set customer profile
+        // $customerProfile = new CustomerProfilePaymentType();
+        // $customerProfile->setCustomerProfileId($transaction_details->getTransaction()->getProfile()->getCustomerProfileId());
+        // $customerProfile->setPaymentProfile($paymentProfile);
+
+        $creditCard = new CreditCardType();
+        $creditCard->setCardNumber($creditCardNumber);
+        $creditCard->setExpirationDate($creditCardExpiry);
+        $paymentOne = new PaymentType();
+        $paymentOne->setCreditCard($creditCard);
 
         //create a transaction
         $transactionRequest = new TransactionRequestType();
-        $transactionRequest->setTransactionType('refundTransaction');
+        $transactionRequest->setTransactionType($transaction_type);
         $transactionRequest->setAmount($amount);
-        $transactionRequest->setProfile($customerProfile);
+        // $transactionRequest->setProfile($customerProfile);
+        $transactionRequest->setPayment($paymentOne);
         $transactionRequest->setRefTransId($payment->transaction_reference);
 
         $request = new CreateTransactionRequest();
@@ -83,6 +103,7 @@ class RefundTransaction
                         'transaction_response' => $tresponse->getResponseCode(),
                         'payment_id' => $payment->id,
                         'amount' => $amount,
+                        'voided' => $transaction_status == 'capturedPendingSettlement' ? true : false,
                     ];
 
                     SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_AUTHORIZE, $this->authorize->client, $this->authorize->client->company);
@@ -166,4 +187,5 @@ class RefundTransaction
 
         SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_AUTHORIZE, $this->authorize->client, $this->authorize->client->company);
     }
+
 }

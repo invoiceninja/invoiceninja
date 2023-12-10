@@ -67,10 +67,10 @@ class ContactKeyLogin
             }
         } elseif ($request->segment(3) && config('ninja.db.multi_db_enabled')) {
             if (MultiDB::findAndSetDbByContactKey($request->segment(3))) {
-                if ($client_contact = ClientContact::with('company')->where('contact_key', $request->segment(3))->first()) {
-
-                    if($client_contact->company->settings->enable_client_portal_password)
+                if ($client_contact = ClientContact::query()->with('company')->where('contact_key', $request->segment(3))->first()) {
+                    if ($client_contact->company->settings->enable_client_portal_password) {
                         return redirect()->route('client.login', ['company_key' => $client_contact->company->company_key]);
+                    }
 
                     if (empty($client_contact->email)) {
                         $client_contact->email = Str::random(6).'@example.com';
@@ -88,9 +88,9 @@ class ContactKeyLogin
             }
         } elseif ($request->segment(2) && $request->segment(2) == 'key_login' && $request->segment(3)) {
             if ($client_contact = ClientContact::with('company')->where('contact_key', $request->segment(3))->first()) {
-
-                if($client_contact->company->settings->enable_client_portal_password)
+                if ($client_contact->company->settings->enable_client_portal_password) {
                     return redirect()->route('client.login', ['company_key' => $client_contact->company->company_key]);
+                }
 
                 if (empty($client_contact->email)) {
                     $client_contact->email = Str::random(6).'@example.com';
@@ -107,7 +107,7 @@ class ContactKeyLogin
             }
         } elseif ($request->has('client_hash') && config('ninja.db.multi_db_enabled')) {
             if (MultiDB::findAndSetDbByClientHash($request->input('client_hash'))) {
-                if ($client = Client::where('client_hash', $request->input('client_hash'))->first()) {
+                if ($client = Client::query()->where('client_hash', $request->input('client_hash'))->first()) {
                     $primary_contact = $client->primary_contact()->first();
 
                     if (empty($primary_contact->email)) {
@@ -121,7 +121,7 @@ class ContactKeyLogin
                 }
             }
         } elseif ($request->has('client_hash')) {
-            if ($client = Client::where('client_hash', $request->input('client_hash'))->first()) {
+            if ($client = Client::query()->where('client_hash', $request->input('client_hash'))->first()) {
                 $primary_contact = $client->primary_contact()->first();
 
                 if (empty($primary_contact->email)) {
@@ -134,10 +134,10 @@ class ContactKeyLogin
                 return redirect($this->setRedirectPath());
             }
         } elseif ($request->segment(3)) {
-            if ($client_contact = ClientContact::with('company')->where('contact_key', $request->segment(3))->first()) {
-
-                if($client_contact->company->settings->enable_client_portal_password)
+            if ($client_contact = ClientContact::query()->with('company')->where('contact_key', $request->segment(3))->first()) {
+                if ($client_contact->company->settings->enable_client_portal_password) {
                     return redirect()->route('client.login', ['company_key' => $client_contact->company->company_key]);
+                }
 
                 if (empty($client_contact->email)) {
                     $client_contact->email = Str::random(6).'@example.com';

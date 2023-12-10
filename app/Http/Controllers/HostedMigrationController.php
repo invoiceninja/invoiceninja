@@ -13,12 +13,9 @@ namespace App\Http\Controllers;
 
 use App\Jobs\Account\CreateAccount;
 use App\Libraries\MultiDB;
-use App\Models\Client;
-use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyToken;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
 
 class HostedMigrationController extends Controller
 {
@@ -39,9 +36,14 @@ class HostedMigrationController extends Controller
         $account = (new CreateAccount($request->all(), $request->getClientIp()))->handle();
         $account->hosted_client_count = 100;
         $account->hosted_company_count = 10;
+        $account->created_at = now()->subYears(2);
         $account->save();
 
+        MultiDB::findAndSetDbByAccountKey($account->key);
+
         $company = $account->companies->first();
+
+        /** @var \App\Models\CompanyToken $company_token **/
 
         $company_token = CompanyToken::where('user_id', auth()->user()->id)
             ->where('company_id', $company->id)
@@ -60,6 +62,7 @@ class HostedMigrationController extends Controller
 
         MultiDB::findAndSetDbByCompanyKey($input['account_key']);
 
+        /** @var \App\Models\Company $company **/
         $company = Company::with('account')->where('company_key', $input['account_key'])->first();
 
         $forward_url = $company->domain();

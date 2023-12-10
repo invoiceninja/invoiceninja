@@ -85,7 +85,6 @@ class CompanyGatewayApiTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/company_gateways/bulk', $data)
           ->assertStatus(200);
-
     }
 
 
@@ -556,6 +555,6 @@ class CompanyGatewayApiTest extends TestCase
 
         $company_gateway = CompanyGateway::find($id);
 
-        $this->assertEquals(1.2, round($company_gateway->calcGatewayFee(10, GatewayType::CREDIT_CARD, true),1));
+        $this->assertEquals(1.2, round($company_gateway->calcGatewayFee(10, GatewayType::CREDIT_CARD, true), 1));
     }
 }

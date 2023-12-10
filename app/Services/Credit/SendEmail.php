@@ -11,10 +11,10 @@
 
 namespace App\Services\Credit;
 
-use App\Helpers\Email\CreditEmail;
-use App\Jobs\Credit\EmailCredit;
+use App\Events\Credit\CreditWasEmailed;
 use App\Jobs\Entity\EmailEntity;
 use App\Models\ClientContact;
+use App\Utils\Ninja;
 
 class SendEmail
 {
@@ -35,7 +35,6 @@ class SendEmail
 
     /**
      * Builds the correct template to send.
-     * @return void
      */
     public function run()
     {
@@ -43,12 +42,17 @@ class SendEmail
             $this->reminder_template = $this->credit->calculateTemplate('credit');
         }
 
+        $this->credit->service()->markSent()->save();
+
         $this->credit->invitations->each(function ($invitation) {
             if (! $invitation->contact->trashed() && $invitation->contact->email) {
                 EmailEntity::dispatch($invitation, $invitation->company, $this->reminder_template)->delay(2);
             }
         });
 
-        $this->credit->service()->markSent()->save();
+        if ($this->credit->invitations->count() >= 1) {
+            event(new CreditWasEmailed($this->credit->invitations->first(), $this->credit->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), 'credit'));
+        }
+
     }
 }

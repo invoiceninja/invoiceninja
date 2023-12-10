@@ -39,7 +39,7 @@ class UserRepository extends BaseRepository
      * @param bool $unset_company_user
      * @return \App\Models\User user Object
      */
-    public function save(array $data, User $user, $unset_company_user = false)
+    public function save(array $data, User $user, $unset_company_user = false, $is_migrating = false)
     {
         $details = $data;
 
@@ -56,10 +56,7 @@ class UserRepository extends BaseRepository
         $company = auth()->user()->company();
         $account = $company->account;
 
-        // if(array_key_exists('oauth_provider_id', $details))
-        //     unset($details['oauth_provider_id']);
-        
-        if (request()->has('validated_phone')){
+        if (request()->has('validated_phone')) {
             $details['phone'] = request()->input('validated_phone');
             $user->verified_phone_number = false;
         }
@@ -71,7 +68,7 @@ class UserRepository extends BaseRepository
             $user->password = Hash::make($data['password']);
         }
 
-        if (! $user->confirmation_code) {
+        if (! $user->confirmation_code && !$is_migrating) {
             $user->confirmation_code = $this->createDbHash($company->db);
         }
 
@@ -84,7 +81,7 @@ class UserRepository extends BaseRepository
         $user->save();
 
         if (isset($data['company_user'])) {
-            $cu = CompanyUser::whereUserId($user->id)->whereCompanyId($company->id)->withTrashed()->first();
+            $cu = CompanyUser::query()->whereUserId($user->id)->whereCompanyId($company->id)->withTrashed()->first();
 
             /*No company user exists - attach the user*/
             if (! $cu) {
@@ -93,20 +90,18 @@ class UserRepository extends BaseRepository
                 $user->companies()->attach($company->id, $data['company_user']);
             } else {
                 if (auth()->user()->isAdmin()) {
-
                     $cu->fill($data['company_user']);
                     $cu->restore();
                     $cu->tokens()->restore();
                     $cu->save();
 
                     //05-08-2022
-                    if($cu->tokens()->count() == 0){
+                    if ($cu->tokens()->count() == 0) {
                         (new CreateCompanyToken($cu->company, $cu->user, 'restored_user'))->handle();
                     }
-
                 } else {
-                    $cu->notifications = $data['company_user']['notifications'];
-                    $cu->settings = $data['company_user']['settings'];
+                    $cu->notifications = $data['company_user']['notifications'] ?? '';
+                    $cu->settings = $data['company_user']['settings'] ?? '';
                     $cu->save();
                 }
             }
@@ -134,7 +129,7 @@ class UserRepository extends BaseRepository
 
             $company = auth()->user()->company();
 
-            $cu = CompanyUser::whereUserId($user->id)
+            $cu = CompanyUser::query()->whereUserId($user->id)
                              ->whereCompanyId($company->id)
                              ->first();
 
@@ -142,7 +137,7 @@ class UserRepository extends BaseRepository
             $cu->forceDelete();
         }
 
-        event(new UserWasDeleted($user, auth()->user(), $company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        event(new UserWasDeleted($user, auth()->user(), auth()->user()->company(), Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         $user->delete();
 
@@ -156,7 +151,7 @@ class UserRepository extends BaseRepository
     {
         $company = auth()->user()->company();
 
-        $cu = CompanyUser::whereUserId($user->id)
+        $cu = CompanyUser::query()->whereUserId($user->id)
                          ->whereCompanyId($company->id)
                          ->first();
 
@@ -195,7 +190,7 @@ class UserRepository extends BaseRepository
         }
 
         if (Ninja::isHosted()) {
-            $count = User::where('account_id', auth()->user()->account_id)->count();
+            $count = User::query()->where('account_id', auth()->user()->account_id)->count();
             if ($count >= auth()->user()->account->num_users) {
                 return;
             }
@@ -221,28 +216,23 @@ class UserRepository extends BaseRepository
      * and there are some that are not admins,
      * we force all companies to large to ensure
      * the queries are appropriate for all users
-     *     
-     * @param  User   $user 
+     *
+     * @param  User   $user
      * @return void
      */
     private function verifyCorrectCompanySizeForPermissions(User $user): void
     {
-
-        if(Ninja::isSelfHost() || (Ninja::isHosted() && $user->account->isEnterpriseClient()))
-        {
-
+        if (Ninja::isSelfHost() || (Ninja::isHosted() && $user->account->isEnterpriseClient())) {
             $user->account()
-               ->whereHas('companies', function ($query){
-                    $query->where('is_large',0);
+               ->whereHas('companies', function ($query) {
+                   $query->where('is_large', 0);
                })
-               ->whereHas('company_users', function ($query){
-                    $query->where('is_admin', 0);
-               })            
-               ->cursor()->each(function ($account){
-                    $account->companies()->update(['is_large' => true]);
+               ->whereHas('company_users', function ($query) {
+                   $query->where('is_admin', 0);
+               })
+               ->cursor()->each(function ($account) {
+                   $account->companies()->update(['is_large' => true]);
                });
-
         }
-
     }
 }

@@ -15,7 +15,6 @@ use App\Models\ClientGatewayToken;
 use App\Models\Company;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
@@ -26,7 +25,7 @@ class MethodDeleted
     /**
      * @var ClientGatewayToken
      */
-    private $payment_method;
+    public $payment_method;
 
     public $company;
 
@@ -53,6 +52,6 @@ class MethodDeleted
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('channel-name');
+        return [];
     }
 }

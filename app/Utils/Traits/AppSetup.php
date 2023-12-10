@@ -14,9 +14,7 @@ namespace App\Utils\Traits;
 use App\DataMapper\EmailTemplateDefaults;
 use App\Utils\Ninja;
 use App\Utils\SystemHealth;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 trait AppSetup
@@ -38,7 +36,6 @@ trait AppSetup
 
         foreach ($cached_tables as $name => $class) {
             if (! Cache::has($name) || $force) {
-
                 if ($name == 'payment_terms') {
                     $orderBy = 'num_days';
                 } elseif ($name == 'fonts') {
@@ -115,9 +112,6 @@ trait AppSetup
 
     private function updateEnvironmentProperty(string $property, $value): void
     {
-        // if (Str::contains($value, '#')) {
-        //     $value = sprintf('"%s"', $value);
-        // }
 
         $env = file(base_path('.env'));
 

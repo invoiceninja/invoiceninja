@@ -11,11 +11,12 @@
 
 namespace App\Jobs\Cron;
 
+use App\Jobs\Entity\EmailEntity;
 use App\Libraries\MultiDB;
 use App\Models\Invoice;
-use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
@@ -25,19 +26,13 @@ class AutoBill implements ShouldQueue
 
     public $tries = 1;
 
-    public int $invoice_id;
-
-    public string $db;
-
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(int $invoice_id, ?string $db)
+    public function __construct(public int $invoice_id, public ?string $db, public bool $send_email_on_failure = false)
     {
-        $this->invoice_id = $invoice_id;
-        $this->db = $db;
     }
 
     /**
@@ -53,14 +48,37 @@ class AutoBill implements ShouldQueue
             MultiDB::setDb($this->db);
         }
 
+        $invoice = false;
+        
         try {
             nlog("autobill {$this->invoice_id}");
             
             $invoice = Invoice::withTrashed()->find($this->invoice_id);
 
             $invoice->service()->autoBill();
+
         } catch (\Exception $e) {
             nlog("Failed to capture payment for {$this->invoice_id} ->".$e->getMessage());
+
+            if($this->send_email_on_failure && $invoice) {
+
+                $invoice->invitations->each(function ($invitation) use ($invoice) {
+                    if ($invitation->contact && ! $invitation->contact->trashed() && strlen($invitation->contact->email) >= 1 && $invoice->client->getSetting('auto_email_invoice')) {
+                        try {
+                            EmailEntity::dispatch($invitation, $invoice->company)->delay(rand(1, 2));
+
+                            $invoice->entityEmailEvent($invitation, 'invoice', 'email_template_invoice');
+                                
+                        } catch (\Exception $e) {
+                            nlog($e->getMessage());
+                        }
+
+                        nlog("Firing email for invoice {$invoice->number}");
+                    }
+                });
+
+            }
+
         }
     }
 }

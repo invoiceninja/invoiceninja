@@ -27,6 +27,76 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Laracasts\Presenter\PresentableTrait;
 
+/**
+ * App\Models\Account
+ *
+ * @property int $id
+ * @property string|null $plan
+ * @property string|null $plan_term
+ * @property string|null $plan_started
+ * @property string|null $plan_paid
+ * @property string|null $plan_expires
+ * @property string|null $user_agent
+ * @property string|null $key
+ * @property int|null $payment_id
+ * @property int $default_company_id
+ * @property string|null $trial_started
+ * @property string|null $trial_plan
+ * @property string|null $plan_price
+ * @property int $num_users
+ * @property string|null $utm_source
+ * @property string|null $utm_medium
+ * @property string|null $utm_campaign
+ * @property string|null $utm_term
+ * @property string|null $utm_content
+ * @property string $latest_version
+ * @property int $report_errors
+ * @property string|null $referral_code
+ * @property int|null $created_at
+ * @property int|null $updated_at
+ * @property int $is_scheduler_running
+ * @property int|null $trial_duration
+ * @property int $is_onboarding
+ * @property object|null $onboarding
+ * @property int $is_migrated
+ * @property string|null $platform
+ * @property int|null $hosted_client_count
+ * @property int|null $hosted_company_count
+ * @property string|null $inapp_transaction_id
+ * @property bool $set_react_as_default_ap
+ * @property bool $is_flagged
+ * @property int $is_verified_account
+ * @property string|null $account_sms_verification_code
+ * @property string|null $account_sms_verification_number
+ * @property bool $account_sms_verified
+ * @property string|null $bank_integration_yodlee_account_id
+ * @property string|null $bank_integration_nordigen_secret_id
+ * @property string|null $bank_integration_nordigen_secret_key
+ * @property int $is_trial
+ * @property-read int|null $bank_integrations_count
+ * @property-read int|null $companies_count
+ * @property-read int|null $company_users_count
+ * @property-read \App\Models\Company|null $default_company
+ * @property-read mixed $hashed_id
+ * @property-read \App\Models\Payment|null $payment
+ * @property-read int|null $users_count
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
+ * @method static \Database\Factories\AccountFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|Account newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Account newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Account query()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
+ * @method static \Illuminate\Database\Eloquent\Builder|Account first()
+ * @method static \Illuminate\Database\Eloquent\Builder|Account with()
+ * @method static \Illuminate\Database\Eloquent\Builder|Account count()
+ * @method static \Illuminate\Database\Eloquent\Builder|Account where($query)
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankIntegration> $bank_integrations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyUser> $company_users
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
+
+ * @mixin \Eloquent
+ */
 class Account extends BaseModel
 {
     use PresentableTrait;
@@ -35,21 +105,20 @@ class Account extends BaseModel
     private $free_plan_email_quota = 20;
 
     private $paid_plan_email_quota = 500;
+
     /**
      * @var string
      */
     protected $presenter = AccountPresenter::class;
 
-    /**
-     * @var array
-     */
     protected $fillable = [
-        'plan',
-        'plan_term',
-        'plan_price',
-        'plan_paid',
-        'plan_started',
-        'plan_expires',
+        // 'plan',
+        // 'plan_term',
+        // 'plan_price',
+        // 'plan_paid',
+        // 'plan_started',
+        // 'plan_expires',
+        // 'num_users',
         'utm_source',
         'utm_medium',
         'utm_campaign',
@@ -59,20 +128,8 @@ class Account extends BaseModel
         'platform',
         'set_react_as_default_ap',
         'inapp_transaction_id',
-        'num_users',
         'bank_integration_nordigen_secret_id',
         'bank_integration_nordigen_secret_key',
-    ];
-
-    /**
-     * @var array
-     */
-    protected $dates = [
-        'deleted_at',
-        'promo_expires',
-        'discount_expires',
-        // 'trial_started',
-        // 'plan_expires'
     ];
 
     protected $casts = [
@@ -80,7 +137,9 @@ class Account extends BaseModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'onboarding' => 'object',
-        'set_react_as_default_ap' => 'bool'
+        'set_react_as_default_ap' => 'bool',
+        'promo_expires' => 'date',
+        'discount_expires' => 'date',
     ];
 
     const PLAN_FREE = 'free';
@@ -112,6 +171,7 @@ class Account extends BaseModel
     const FEATURE_USERS = 'users'; // Grandfathered for old Pro users
     const FEATURE_DOCUMENTS = 'documents';
     const FEATURE_USER_PERMISSIONS = 'permissions';
+    const FEATURE_SUBSCRIPTIONS = 'subscriptions';
 
     const RESULT_FAILURE = 'failure';
     const RESULT_SUCCESS = 'success';
@@ -121,45 +181,55 @@ class Account extends BaseModel
         return self::class;
     }
 
-    public function users()
+    public function users(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(User::class)->withTrashed();
     }
 
-    public function default_company()
+    public function default_company(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Company::class, 'id', 'default_company_id');
     }
 
-    public function payment()
+    public function payment(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Payment::class)->withTrashed();
     }
 
-    public function companies()
+    public function companies(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Company::class);
     }
 
-    public function bank_integrations()
+    public function bank_integrations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(BankIntegration::class);
     }
 
-    public function company_users()
+    public function company_users(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(CompanyUser::class);
     }
 
+    /**
+     * Returns the owner of the Account - not a HasMany relation
+     * @return \App\Models\User | bool
+     */
     public function owner()
     {
         return $this->hasMany(CompanyUser::class)->where('is_owner', true)->first() ? $this->hasMany(CompanyUser::class)->where('is_owner', true)->first()->user : false;
     }
 
+    public function tokens(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CompanyToken::class)->withTrashed();
+    }
+
     public function getPlan()
     {
-        if (Carbon::parse($this->plan_expires)->lt(now()))
+        if (Carbon::parse($this->plan_expires)->lt(now())) {
             return '';
+        }
 
         return $this->plan ?: '';
     }
@@ -170,7 +240,6 @@ class Account extends BaseModel
         $self_host = !Ninja::isNinja();
 
         switch ($feature) {
-
             case self::FEATURE_TASKS:
             case self::FEATURE_EXPENSES:
             case self::FEATURE_QUOTES:
@@ -224,36 +293,39 @@ class Account extends BaseModel
         }
     }
 
-    public function isPaid()
+    public function isPaid(): bool
     {
         return Ninja::isNinja() ? ($this->isPaidHostedClient() && !$this->isTrial()) : $this->hasFeature(self::FEATURE_WHITE_LABEL);
     }
 
-    public function isPaidHostedClient()
+    public function isPaidHostedClient(): bool
     {
         if (!Ninja::isNinja()) {
             return false;
         }
 
-        if ($this->plan_expires && Carbon::parse($this->plan_expires)->lt(now()))
+        // 09-03-2023 - winds forward expiry checks to ensure we don't cut off users prior to billing cycle being commenced
+        if ($this->plan_expires && Carbon::parse($this->plan_expires)->lt(now()->subHours(12))) {
             return false;
+        }
 
         return $this->plan == 'pro' || $this->plan == 'enterprise';
     }
 
-    public function isFreeHostedClient()
+    public function isFreeHostedClient(): bool
     {
         if (!Ninja::isNinja()) {
             return false;
         }
 
-        if ($this->plan_expires && Carbon::parse($this->plan_expires)->lt(now()))
+        if ($this->plan_expires && Carbon::parse($this->plan_expires)->lt(now()->subHours(12))) {
             return true;
+        }
 
         return $this->plan == 'free' || is_null($this->plan) || empty($this->plan);
     }
 
-    public function isEnterpriseClient()
+    public function isEnterpriseClient(): bool
     {
         if (!Ninja::isNinja()) {
             return false;
@@ -262,7 +334,7 @@ class Account extends BaseModel
         return $this->plan == 'enterprise';
     }
 
-    public function isTrial()
+    public function isTrial(): bool
     {
         if (!Ninja::isNinja()) {
             return false;
@@ -273,7 +345,7 @@ class Account extends BaseModel
         return $plan_details && $plan_details['trial'];
     }
 
-    public function startTrial($plan)
+    public function startTrial($plan): void
     {
         if (!Ninja::isNinja()) {
             return;
@@ -299,6 +371,8 @@ class Account extends BaseModel
         }
 
         $trial_active = false;
+        $trial_expires = false;
+        $trial_started = false;
 
         //14 day trial
         $duration = 60 * 60 * 24 * 14;
@@ -310,14 +384,14 @@ class Account extends BaseModel
             if ($trial_expires->greaterThan(now())) {
                 $trial_active = true;
             }
-
         }
 
         $plan_active = false;
+        $plan_expires = false;
+
         if ($plan) {
             if ($this->plan_expires == null) {
                 $plan_active = true;
-                $plan_expires = false;
             } else {
                 $plan_expires = Carbon::parse($this->plan_expires);
                 if ($plan_expires->greaterThan(now())) {
@@ -329,7 +403,6 @@ class Account extends BaseModel
         if (!$include_inactive && !$plan_active && !$trial_active) {
             return null;
         }
-
 
         // Should we show plan details or trial details?
         if (($plan && !$trial_plan) || !$include_trial) {
@@ -387,21 +460,24 @@ class Account extends BaseModel
 
     public function getDailyEmailLimit()
     {
-        if ($this->is_flagged)
+        if ($this->is_flagged) {
             return 0;
+        }
 
-        if (Carbon::createFromTimestamp($this->created_at)->diffInWeeks() == 0)
+        if (Carbon::createFromTimestamp($this->created_at)->diffInWeeks() == 0) {
             return 20;
+        }
 
-        if (Carbon::createFromTimestamp($this->created_at)->diffInWeeks() <= 2 && !$this->payment_id)
+        if (Carbon::createFromTimestamp($this->created_at)->diffInWeeks() <= 2 && !$this->payment_id) {
             return 20;
+        }
 
         if ($this->isPaid()) {
             $limit = $this->paid_plan_email_quota;
             $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 50;
         } else {
             $limit = $this->free_plan_email_quota;
-            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 10;
+            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 3;
         }
 
         return min($limit, 5000);
@@ -409,22 +485,22 @@ class Account extends BaseModel
 
     public function emailsSent()
     {
-        if (is_null(Cache::get($this->key)))
+        if (is_null(Cache::get("email_quota" . $this->key))) {
             return 0;
+        }
 
-        return Cache::get($this->key);
+        return Cache::get("email_quota" . $this->key);
     }
 
     public function emailQuotaExceeded(): bool
     {
-        if (is_null(Cache::get($this->key)))
+        if (is_null(Cache::get("email_quota" . $this->key))) {
             return false;
+        }
 
         try {
-            if (Cache::get($this->key) > $this->getDailyEmailLimit()) {
-
+            if (Cache::get("email_quota" . $this->key) > $this->getDailyEmailLimit()) {
                 if (is_null(Cache::get("throttle_notified:{$this->key}"))) {
-
                     App::forgetInstance('translator');
                     $t = app('translator');
                     $t->replace(Ninja::transformTranslations($this->companies()->first()->settings));
@@ -436,10 +512,11 @@ class Account extends BaseModel
                     $nmo->to_user = $this->companies()->first()->owner();
                     NinjaMailerJob::dispatch($nmo, true);
 
-                    Cache::put("throttle_notified:{$this->key}", true, 60 * 24);
+                    Cache::put("throttle_notified:{$this->key}", true, 60 * 60 * 24);
 
-                    if (config('ninja.notification.slack'))
+                    if (config('ninja.notification.slack')) {
                         $this->companies()->first()->notification(new EmailQuotaNotification($this))->ninja();
+                    }
                 }
 
                 return true;
@@ -455,15 +532,14 @@ class Account extends BaseModel
     {
         nlog("checking if gmail credential notification has already been sent");
 
-        if (is_null(Cache::get($this->key)))
+        if (is_null(Cache::get($this->key))) {
             return false;
+        }
 
         nlog("Sending notification");
 
         try {
-
             if (is_null(Cache::get("gmail_credentials_notified:{$this->key}"))) {
-
                 App::forgetInstance('translator');
                 $t = app('translator');
                 $t->replace(Ninja::transformTranslations($this->companies()->first()->settings));
@@ -477,19 +553,17 @@ class Account extends BaseModel
 
                 Cache::put("gmail_credentials_notified:{$this->key}", true, 60 * 24);
 
-                if (config('ninja.notification.slack'))
+                if (config('ninja.notification.slack')) {
                     $this->companies()->first()->notification(new GmailCredentialNotification($this))->ninja();
+                }
             }
 
             return true;
-
         } catch (\Exception $e) {
             \Sentry\captureMessage("I encountered an error with sending with gmail for account {$this->key}");
         }
 
         return false;
-
-
     }
 
     public function resolveRouteBinding($value, $field = null)
@@ -505,23 +579,22 @@ class Account extends BaseModel
 
     public function getTrialDays()
     {
-        if ($this->payment_id)
+        if ($this->payment_id || $this->is_migrated) {
             return 0;
+        }
 
         $plan_expires = Carbon::parse($this->plan_expires);
 
-        if (!$this->payment_id && $plan_expires->gt(now())) {
-
+        if ($plan_expires->gt(now())) {
             $diff = $plan_expires->diffInDays();
 
-            if ($diff > 14)
-                ;
-            return 0;
+            if ($diff > 14) {
+                return 0;
+            }
 
             return $diff;
         }
 
         return 0;
     }
-
 }

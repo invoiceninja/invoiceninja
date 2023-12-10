@@ -29,7 +29,7 @@ trait Refundable
      * Entry point for processing of refunds.
      * @param array $data
      * @deprecated ???? 06-09-2022
-     * @return Refundable
+     * @return self
      * @throws PaymentRefundFailed
      */
     public function processRefund(array $data)
@@ -109,6 +109,7 @@ trait Refundable
         $ledger_string = '';
 
         foreach ($data['invoices'] as $invoice) {
+            /** @var \App\Models\Invoice $inv */
             $inv = Invoice::find($invoice['invoice_id']);
 
             $credit_line_item = InvoiceItemFactory::create();
@@ -170,6 +171,7 @@ trait Refundable
         $credit_note->save();
 
         if ($data['gateway_refund'] !== false && $total_refund > 0) {
+            /** @var \App\Models\CompanyGateway $gateway */
             $gateway = CompanyGateway::find($this->company_gateway_id);
 
             if ($gateway) {
@@ -189,8 +191,7 @@ trait Refundable
 
         $client_balance_adjustment = $this->adjustInvoices($data);
 
-        // $credit_note->ledger()->updateCreditBalance($client_balance_adjustment, $ledger_string);
-
+        /** @var \App\Models\Payment $this */
         $this->client->paid_to_date -= $data['amount'];
         $this->client->save();
 
@@ -207,6 +208,7 @@ trait Refundable
         $fields->company_id = $this->company_id;
         $fields->activity_type_id = Activity::REFUNDED_PAYMENT;
         $fields->credit_id = $credit_id;
+        $fields->client_id = $this->client_id;
 
         if (isset($data['invoices'])) {
             foreach ($data['invoices'] as $invoice) {
@@ -237,6 +239,7 @@ trait Refundable
         $adjustment_amount = 0;
 
         foreach ($data['invoices'] as $refunded_invoice) {
+            /** @var \App\Models\Invoice $invoice */
             $invoice = Invoice::find($refunded_invoice['invoice_id']);
 
             $invoice->service()->updateBalance($refunded_invoice['amount'])->save();

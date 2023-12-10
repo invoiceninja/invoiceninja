@@ -12,14 +12,8 @@
 namespace App\Notifications\Admin;
 
 use App\Utils\Number;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 class EntityViewedNotification extends Notification
 {
@@ -43,6 +37,8 @@ class EntityViewedNotification extends Notification
 
     protected $contact;
 
+    public $is_system;
+    
     public function __construct($invitation, $entity_name, $is_system = false, $settings = null)
     {
         $this->entity_name = $entity_name;
@@ -70,7 +66,7 @@ class EntityViewedNotification extends Notification
      * Get the mail representation of the notification.
      *
      * @param  mixed  $notifiable
-     * @return MailMessage
+     *
      */
     public function toMail($notifiable)
     {
@@ -106,7 +102,7 @@ class EntityViewedNotification extends Notification
                     $this->entity_name => $this->entity->number,
                 ]
             ))
-            ->attachment(function ($attachment) use ($amount) {
+            ->attachment(function ($attachment) {
                 $attachment->title(ctrans('texts.entity_number_placeholder', ['entity' => ucfirst($this->entity_name), 'entity_number' => $this->entity->number]), $this->invitation->getAdminLink())
                            ->fields([
                                ctrans('texts.client') => $this->contact->present()->name(),
@@ -115,30 +111,30 @@ class EntityViewedNotification extends Notification
             });
     }
 
-    private function buildDataArray()
-    {
-        $amount = Number::formatMoney($this->entity->amount, $this->entity->client);
+    // private function buildDataArray()
+    // {
+    //     $amount = Number::formatMoney($this->entity->amount, $this->entity->client);
 
-        $data = [
-            'title' => $this->buildSubject(),
-            'message' => ctrans(
-                "texts.notification_{$this->entity_name}_viewed",
-                [
-                    'amount' => $amount,
-                    'client' => $this->contact->present()->name(),
-                    $this->entity_name => $this->entity->number,
-                ]
-            ),
-            'url' => $this->invitation->getAdminLink(),
-            'button' => ctrans("texts.view_{$this->entity_name}"),
-            'signature' => $this->settings->email_signature,
-            'logo' => $this->company->present()->logo(),
-            'settings' => $this->settings,
+    //     $data = [
+    //         'title' => $this->buildSubject(),
+    //         'message' => ctrans(
+    //             "texts.notification_{$this->entity_name}_viewed",
+    //             [
+    //                 'amount' => $amount,
+    //                 'client' => $this->contact->present()->name(),
+    //                 $this->entity_name => $this->entity->number,
+    //             ]
+    //         ),
+    //         'url' => $this->invitation->getAdminLink(),
+    //         'button' => ctrans("texts.view_{$this->entity_name}"),
+    //         'signature' => $this->settings->email_signature,
+    //         'logo' => $this->company->present()->logo(),
+    //         'settings' => $this->settings,
 
-        ];
+    //     ];
 
-        return $data;
-    }
+    //     return $data;
+    // }
 
     private function buildSubject()
     {

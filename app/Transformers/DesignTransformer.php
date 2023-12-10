@@ -26,13 +26,13 @@ class DesignTransformer extends EntityTransformer
     /**
      * @var array
      */
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
     ];
 
     /**
      * @var array
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
     ];
 
     /**
@@ -47,12 +47,15 @@ class DesignTransformer extends EntityTransformer
             'name' => (string) $design->name,
             'is_custom' => (bool) $design->is_custom,
             'is_active' => (bool) $design->is_active,
+            'is_template' => (bool) $design->is_template,
             'design' => $design->design,
             'updated_at' => (int) $design->updated_at,
             'archived_at' => (int) $design->deleted_at,
             'created_at' => (int) $design->created_at,
             'is_deleted' => (bool) $design->is_deleted,
             'is_free' => ($design->id <= 4) ? true : false,
+            'is_template' => (bool) $design->is_template,
+            'entities' => (string) $design->entities ?: '',
         ];
     }
 }

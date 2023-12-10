@@ -25,6 +25,8 @@ class PurchaseOrderCreatedListener implements ShouldQueue
 {
     use UserNotifies;
 
+    public $delay = 7;
+    
     public function __construct()
     {
     }
@@ -32,26 +34,19 @@ class PurchaseOrderCreatedListener implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param  object  $event
+     * @param  PurchaseOrderWasCreated $event
      * @return void
      */
     public function handle(PurchaseOrderWasCreated $event)
     {
-        
         MultiDB::setDb($event->company->db);
 
         $first_notification_sent = true;
 
         $purchase_order = $event->purchase_order;
 
-        $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer((new EntityCreatedObject($purchase_order, 'purchase_order'))->build());
-        $nmo->company = $purchase_order->company;
-        $nmo->settings = $purchase_order->company->settings;
-
         /* We loop through each user and determine whether they need to be notified */
         foreach ($event->company->company_users as $company_user) {
-
             /* The User */
             $user = $company_user->user;
 
@@ -69,10 +64,16 @@ class PurchaseOrderCreatedListener implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
+                $nmo = new NinjaMailerObject;
+                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($purchase_order, 'purchase_order', $company_user->portalType()))->build());
+                $nmo->company = $purchase_order->company;
+                $nmo->settings = $purchase_order->company->settings;
+
                 $nmo->to_user = $user;
 
-                NinjaMailerJob::dispatch($nmo);
+                (new NinjaMailerJob($nmo))->handle();
 
+                $nmo = null;
                 /* This prevents more than one notification being sent */
                 $first_notification_sent = false;
             }

@@ -12,6 +12,7 @@
 namespace App\Http\Requests\Webhook;
 
 use App\Http\Requests\Request;
+use App\Models\Account;
 
 class StoreWebhookRequest extends Request
 {
@@ -22,7 +23,7 @@ class StoreWebhookRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->isAdmin();
+        return auth()->user()->isAdmin() && auth()->user()->account->hasFeature(Account::FEATURE_API);
     }
 
     public function rules()
@@ -39,8 +40,11 @@ class StoreWebhookRequest extends Request
     {
         $input = $this->all();
 
-            // if(isset($input['headers']) && count($input['headers']) == 0)
-                // $input['headers'] = null;
+        if (!isset($input['rest_method'])) {
+            $input['rest_method'] = 'post';
+        }
+        // if(isset($input['headers']) && count($input['headers']) == 0)
+        // $input['headers'] = null;
 
         $this->replace($input);
     }

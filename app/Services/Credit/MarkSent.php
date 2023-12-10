@@ -13,6 +13,7 @@ namespace App\Services\Credit;
 
 use App\Events\Credit\CreditWasMarkedSent;
 use App\Models\Credit;
+use App\Models\Webhook;
 use App\Utils\Ninja;
 
 class MarkSent
@@ -29,7 +30,6 @@ class MarkSent
 
     public function run()
     {
-
         /* Return immediately if status is not draft */
         if ($this->credit->status_id != Credit::STATUS_DRAFT) {
             return $this->credit;
@@ -42,15 +42,17 @@ class MarkSent
              ->setStatus(Credit::STATUS_SENT)
              ->applyNumber()
              ->adjustBalance($this->credit->amount)
-             ->touchPdf()
+            //  ->deletePdf()
              ->save();
 
         $this->client
              ->service()
              ->adjustCreditBalance($this->credit->amount)
              ->save();
-             
+
         event(new CreditWasMarkedSent($this->credit, $this->credit->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+
+        $this->credit->sendEvent(Webhook::EVENT_SENT_CREDIT);
 
         return $this->credit;
     }

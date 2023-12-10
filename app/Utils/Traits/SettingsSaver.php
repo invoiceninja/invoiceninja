@@ -18,6 +18,15 @@ use App\DataMapper\CompanySettings;
  */
 trait SettingsSaver
 {
+    private array $string_ids = [
+        'payment_refund_design_id',
+        'payment_receipt_design_id',
+        'delivery_note_design_id',
+        'statement_design_id',
+        'besr_id',
+        'gmail_sending_user_id',
+    ];
+
     /**
      * Used for custom validation of inbound
      * settings request.
@@ -35,9 +44,8 @@ trait SettingsSaver
         ksort($casts);
 
         foreach ($casts as $key => $value) {
-            
             //try casting floats here
-            if($value == 'float' && property_exists($settings, $key)){
+            if ($value == 'float' && property_exists($settings, $key)) {
                 $settings->{$key} = floatval($settings->{$key});
             }
 
@@ -52,11 +60,13 @@ trait SettingsSaver
                 continue;
             }
             /*Separate loop if it is a _id field which is an integer cast as a string*/
-            elseif (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter' || ($key == 'payment_terms' && property_exists($settings, $key) && strlen($settings->{$key}) >= 1) || ($key == 'valid_until' && property_exists($settings, $key) && strlen($settings->{$key}) >= 1)) {    
+            elseif (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter' || ($key == 'payment_terms' && property_exists($settings, $key) && strlen($settings->{$key}) >= 1) || ($key == 'valid_until' && property_exists($settings, $key) && strlen($settings->{$key}) >= 1)) {
                 $value = 'integer';
 
-                if($key == 'gmail_sending_user_id' || $key == 'besr_id')
+                if(in_array($key, $this->string_ids)) {
+                    // if ($key == 'gmail_sending_user_id' || $key == 'besr_id') {
                     $value = 'string';
+                }
 
                 if (! property_exists($settings, $key)) {
                     continue;
@@ -100,7 +110,7 @@ trait SettingsSaver
             case 'double':
                 return !is_string($value) && (is_float($value) || is_numeric(strval($value)));
             case 'string':
-                return !is_int($value) || ( is_string( $value ) && method_exists($value, '__toString') ) || is_null($value) || is_string($value);
+                return !is_int($value) || (is_string($value) && method_exists($value, '__toString')) || is_null($value) || is_string($value);
             case 'bool':
             case 'boolean':
                 return is_bool($value) || (int) filter_var($value, FILTER_VALIDATE_BOOLEAN);
@@ -111,7 +121,7 @@ trait SettingsSaver
             case 'json':
                 json_decode($value);
 
-                    return json_last_error() == JSON_ERROR_NONE;
+                return json_last_error() == JSON_ERROR_NONE;
             default:
                 return false;
         }

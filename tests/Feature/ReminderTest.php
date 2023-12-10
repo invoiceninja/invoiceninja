@@ -11,8 +11,16 @@
 
 namespace Tests\Feature;
 
+use App\DataMapper\CompanySettings;
+use App\Factory\CompanyUserFactory;
 use App\Jobs\Util\ReminderJob;
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\Company;
+use App\Models\CompanyToken;
 use App\Models\Invoice;
+use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -31,6 +39,8 @@ class ReminderTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
+    public $faker;
+
     protected function setUp() :void
     {
         parent::setUp();
@@ -47,11 +57,347 @@ class ReminderTest extends TestCase
 
         $this->withoutExceptionHandling();
     }
+    public $company;
+
+    public $user;
+
+    public $payload;
+
+    public $account;
+
+    public $client;
+
+    public $token;
+
+    public $cu;
+    
+    public $invoice;
+
+    private function buildData($settings = null)
+    {
+        $this->account = Account::factory()->create([
+            'hosted_client_count' => 1000,
+            'hosted_company_count' => 1000,
+        ]);
+
+        $this->account->num_users = 3;
+        $this->account->save();
+
+        $this->user = User::factory()->create([
+            'account_id' => $this->account->id,
+            'confirmation_code' => 'xyz123',
+            'email' => $this->faker->unique()->safeEmail(),
+        ]);
+
+        if(!$settings) {
+            $settings = CompanySettings::defaults();
+            $settings->client_online_payment_notification = false;
+            $settings->client_manual_payment_notification = false;
+        }
+
+        $this->company = Company::factory()->create([
+            'account_id' => $this->account->id,
+            'settings' => $settings,
+        ]);
+
+        $this->company->settings = $settings;
+        $this->company->save();
+
+        $this->cu = CompanyUserFactory::create($this->user->id, $this->company->id, $this->account->id);
+        $this->cu->is_owner = true;
+        $this->cu->is_admin = true;
+        $this->cu->is_locked = false;
+        $this->cu->save();
+
+        $this->token = \Illuminate\Support\Str::random(64);
+
+        $company_token = new CompanyToken;
+        $company_token->user_id = $this->user->id;
+        $company_token->company_id = $this->company->id;
+        $company_token->account_id = $this->account->id;
+        $company_token->name = 'test token';
+        $company_token->token = $this->token;
+        $company_token->is_system = true;
+
+        $company_token->save();
+
+        $this->client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'is_deleted' => 0,
+            'name' => 'bob',
+            'address1' => '1234',
+            'balance' => 100,
+            'paid_to_date' => 50,
+        ]);
+
+        ClientContact::factory()->create([
+                'user_id' => $this->user->id,
+                'client_id' => $this->client->id,
+                'company_id' => $this->company->id,
+                'is_primary' => 1,
+                'first_name' => 'john',
+                'last_name' => 'doe',
+                'email' => 'john@doe.com'
+            ]);
+
+        $this->invoice = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'date' => now()->addSeconds($this->client->timezone_offset())->format('Y-m-d'),
+            'next_send_date' => null,
+            'due_date' => Carbon::now()->addSeconds($this->client->timezone_offset())->addDays(5)->format('Y-m-d'),
+            'last_sent_date' => now()->addSeconds($this->client->timezone_offset()),
+            'reminder_last_sent' => null,
+            'status_id' => 2,
+            'amount' => 10,
+            'balance' => 10,
+        ]);
+
+    }
+
+    public function testReminderInThePast()
+    {
+       
+        $translations = new \stdClass;
+        $translations->late_fee_added = "Fee added :date";
+
+        $settings = $this->company->settings;
+        $settings->enable_reminder1 = false;
+        $settings->schedule_reminder1 = '';
+        $settings->num_days_reminder1 = 1;
+        $settings->enable_reminder2 = false;
+        $settings->schedule_reminder2 = '';
+        $settings->num_days_reminder2 = 2;
+        $settings->enable_reminder3 = false;
+        $settings->schedule_reminder3 = '';
+        $settings->num_days_reminder3 = 3;
+        $settings->timezone_id = '29';
+        $settings->entity_send_time = 0;
+        $settings->endless_reminder_frequency_id = '5';
+        $settings->enable_reminder_endless = true;
+        $settings->translations = $translations;
+        $settings->late_fee_amount1 = '0';
+        $settings->late_fee_amount2 = '0';
+        $settings->late_fee_amount3 = '0';
+
+        $this->buildData(($settings));
+
+        $this->invoice->date = now()->subMonths(2)->format('Y-m-d');
+        $this->invoice->due_date = now()->subMonth()->format('Y-m-d');
+        $this->invoice->last_sent_date = now();
+
+        $this->invoice->service()->setReminder($settings)->save();
+
+        $this->invoice = $this->invoice->fresh();
+
+        $this->assertEquals(now()->startOfDay()->addMonth()->format('Y-m-d'), \Carbon\Carbon::parse($this->invoice->next_send_date)->startOfDay()->format('Y-m-d'));
+    }
+
+    public function testsForTranslationsInReminders()
+    {
+
+        $translations = new \stdClass;
+        $translations->late_fee_added = "Fee added :date";
+
+        $settings = $this->company->settings;
+        $settings->enable_reminder1 = true;
+        $settings->schedule_reminder1 = 'after_invoice_date';
+        $settings->num_days_reminder1 = 1;
+        $settings->enable_reminder2 = true;
+        $settings->schedule_reminder2 = 'after_invoice_date';
+        $settings->num_days_reminder2 = 2;
+        $settings->enable_reminder3 = true;
+        $settings->schedule_reminder3 = 'after_invoice_date';
+        $settings->num_days_reminder3 = 3;
+        $settings->timezone_id = '29';
+        $settings->entity_send_time = 0;
+        $settings->endless_reminder_frequency_id = '';
+        $settings->enable_reminder_endless = false;
+        $settings->translations = $translations;
+        $settings->late_fee_amount1 = '101';
+        $settings->late_fee_amount2 = '102';
+        $settings->late_fee_amount3 = '103';
+
+        $this->buildData(($settings));
+
+        $this->assertEquals("Fee added :date", $this->company->settings->translations->late_fee_added);
+        $fetched_settings = $this->client->getMergedSettings();
+        $this->assertEquals("Fee added :date", $fetched_settings->translations->late_fee_added);
+
+        $this->invoice->service()->setReminder($settings)->save();
+
+        $this->invoice = $this->invoice->fresh();
+
+        $this->assertEquals(now()->addSeconds($this->client->timezone_offset())->format('Y-m-d'), $this->invoice->date);
+        $this->assertNotNull($this->invoice->next_send_date);
+        $this->assertEquals(now()->addDay()->addSeconds($this->client->timezone_offset())->format('Y-m-d 00:00:00'), $this->invoice->next_send_date);
+        
+        $this->travelTo(now()->addDay()->startOfDay()->addHour());
+
+        (new ReminderJob())->handle();
+        $this->invoice = $this->invoice->fresh();
+        $this->assertNotNull($this->invoice->reminder1_sent);
+        $this->assertNotNull($this->invoice->reminder_last_sent);
+
+        $fee = collect($this->invoice->line_items)->where('type_id', 5)->first();
+
+        $this->assertEquals(101, $fee->cost);
+        $this->assertEquals('Fee added '.now()->format('d/M/Y'), $fee->notes);
+
+        $this->travelTo(now()->addDay()->startOfDay()->addHour());
+
+        (new ReminderJob())->handle();
+        $this->invoice = $this->invoice->fresh();
+        $this->assertNotNull($this->invoice->reminder2_sent);
+        $this->assertNotNull($this->invoice->reminder_last_sent);
+
+        $fee = collect($this->invoice->line_items)->where('cost', 102)->first();
+
+        $this->assertEquals(102, $fee->cost);
+        $this->assertEquals('Fee added '.now()->format('d/M/Y'), $fee->notes);
+
+        $this->travelTo(now()->addDay()->startOfDay()->addHour());
+
+        (new ReminderJob())->handle();
+        $this->invoice = $this->invoice->fresh();
+        $this->assertNotNull($this->invoice->reminder3_sent);
+        $this->assertNotNull($this->invoice->reminder_last_sent);
+
+        $fee = collect($this->invoice->line_items)->where('cost', 103)->first();
+
+        $this->assertEquals(103, $fee->cost);
+        $this->assertEquals('Fee added '.now()->format('d/M/Y'), $fee->notes);
+
+        $this->travelBack();
+
+    }
+
+    public function testForReminderFiringCorrectly()
+    {
+        $this->invoice->status_id = 2;
+        $this->invoice->amount = 10;
+        $this->invoice->balance = 10;
+        $this->invoice->next_send_date = null;
+        $this->invoice->date = now()->format('Y-m-d');
+        $this->invoice->last_sent_date = now();
+        $this->invoice->due_date = Carbon::now()->addDays(5)->format('Y-m-d');
+        $this->invoice->reminder_last_sent = null;
+        $this->invoice->save();
+
+        $settings = $this->company->settings;
+        $settings->enable_reminder1 = true;
+        $settings->schedule_reminder1 = 'after_invoice_date';
+        $settings->num_days_reminder1 = 2;
+        $settings->enable_reminder2 = false;
+        $settings->schedule_reminder2 = '';
+        $settings->num_days_reminder2 = 0;
+        $settings->enable_reminder3 = false;
+        $settings->schedule_reminder3 = '';
+        $settings->num_days_reminder3 = 0;
+        $settings->timezone_id = '109';
+        $settings->entity_send_time = 6;
+        $settings->endless_reminder_frequency_id = '';
+        $settings->enable_reminder_endless = false;
+
+        $this->client->company->settings = $settings;
+        $this->client->push();
+
+        $client_settings = $settings;
+        $client_settings->timezone_id = '5';
+        $client_settings->entity_send_time = 8;
+
+        $this->invoice->client->settings = $client_settings;
+        $this->invoice->push();
+        
+        $this->invoice = $this->invoice->service()->markSent()->save();
+        $this->invoice->service()->setReminder($client_settings)->save();
+
+        $this->invoice = $this->invoice->fresh();
+
+        //due to UTC server time, we actually send the "day before"
+        $this->assertEquals(now()->addDays(1)->format('Y-m-d'), Carbon::parse($this->invoice->next_send_date)->format('Y-m-d'));
+
+        $this->travelTo(now()->startOfDay());
+
+        $travel_date = Carbon::parse($this->invoice->next_send_date);
+        $x = false;
+        for($x=0; $x<50; $x++) {
+
+            (new ReminderJob())->handle();
+
+            if(now()->gt($travel_date) && !$x) {
+                
+
+                $this->assertNotNull($this->invoice->reminder1_sent);
+                $this->assertNotNull($this->invoice->reminder_last_sent);
+                $x=true;
+            }
+
+
+            if(!$x) {
+                $this->invoice = $this->invoice->fresh();
+                $this->assertNull($this->invoice->reminder1_sent);
+                $this->assertNull($this->invoice->reminder_last_sent);
+            }
+
+            $this->travelTo(now()->addHours(1));
+
+        }
+
+        // nlog("traveller ".now()->format('Y-m-d'));
+        (new ReminderJob())->handle();
+        $this->invoice = $this->invoice->fresh();
+        $this->assertNotNull($this->invoice->reminder1_sent);
+
+    }
+
+    public function testForSingleEndlessReminder()
+    {
+        $this->invoice->next_send_date = null;
+        $this->invoice->date = now()->format('Y-m-d');
+        $this->invoice->last_sent_date = now();
+        $this->invoice->due_date = Carbon::now()->addDays(5)->format('Y-m-d');
+        $this->invoice->save();
+
+        $settings = $this->company->settings;
+        $settings->enable_reminder1 = false;
+        $settings->schedule_reminder1 = '';
+        $settings->num_days_reminder1 = 0;
+        $settings->enable_reminder2 = false;
+        $settings->schedule_reminder2 = '';
+        $settings->num_days_reminder2 = 0;
+        $settings->enable_reminder3 = false;
+        $settings->schedule_reminder3 = '';
+        $settings->num_days_reminder3 = 0;
+        $settings->timezone_id = '5';
+        $settings->entity_send_time = 8;
+        $settings->endless_reminder_frequency_id = '5';
+        $settings->enable_reminder_endless = true;
+
+        $this->client->company->settings = $settings;
+        $this->client->push();
+
+        $client_settings = $settings;
+        $client_settings->timezone_id = '5';
+        $client_settings->entity_send_time = 8;
+
+        $this->invoice->client->settings = $client_settings;
+        $this->invoice->push();
+
+        $this->invoice = $this->invoice->service()->markSent()->save();
+        $this->invoice->service()->setReminder($client_settings)->save();
+
+        $this->invoice = $this->invoice->fresh();
+
+        $this->assertEquals(now()->addMonthNoOverflow()->format('Y-m-d'), Carbon::parse($this->invoice->next_send_date)->format('Y-m-d'));
+
+    }
 
 
     public function testForClientTimezoneEdges()
     {
-
         $this->invoice->next_send_date = null;
         $this->invoice->date = now()->format('Y-m-d');
         $this->invoice->due_date = Carbon::now()->addDays(5)->format('Y-m-d');
@@ -86,10 +432,10 @@ class ReminderTest extends TestCase
         $next_send_date = Carbon::parse($this->invoice->next_send_date);
         $calculatedReminderDate = Carbon::parse($this->invoice->due_date)->subDays(4)->addSeconds($this->invoice->client->timezone_offset());
 
-        nlog($next_send_date->format('Y-m-d h:i:s'));
-        nlog($calculatedReminderDate->format('Y-m-d h:i:s'));
+        // nlog($next_send_date->format('Y-m-d h:i:s'));
+        // nlog($calculatedReminderDate->format('Y-m-d h:i:s'));
 
-        $this->travelTo(now()->addDays(1));
+        $this->travelTo($calculatedReminderDate);
 
         $reminder_template = $this->invoice->calculateTemplate('invoice');
 
@@ -108,7 +454,7 @@ class ReminderTest extends TestCase
 
         $next_send_date = Carbon::parse($this->invoice->next_send_date);
         
-        nlog($next_send_date->format('Y-m-d h:i:s'));
+        // nlog($next_send_date->format('Y-m-d h:i:s'));
 
         $calculatedReminderDate = Carbon::parse($this->invoice->due_date)->subDays(2)->addSeconds($this->invoice->client->timezone_offset());
         $this->assertTrue($next_send_date->eq($calculatedReminderDate));
@@ -127,8 +473,7 @@ class ReminderTest extends TestCase
         $calculatedReminderDate = Carbon::parse($this->invoice->due_date)->addDays(3)->addSeconds($this->invoice->client->timezone_offset());
         $this->assertTrue($next_send_date->eq($calculatedReminderDate));
 
-        nlog($next_send_date->format('Y-m-d h:i:s'));
-
+        // nlog($next_send_date->format('Y-m-d h:i:s'));
     }
 
     public function testReminderQueryCatchesDate()
@@ -163,7 +508,6 @@ class ReminderTest extends TestCase
 
         $this->assertEquals(Carbon::parse($this->invoice->next_send_date)->format('Y-m-d'), Carbon::now()->addDays(7)->format('Y-m-d'));
 
-        //   ReminderJob::dispatchNow();
     }
 
     public function testReminderHitsScenarioH1()
@@ -188,7 +532,6 @@ class ReminderTest extends TestCase
 
         $this->assertEquals(Carbon::parse($this->invoice->next_send_date)->format('Y-m-d'), Carbon::now()->addDays(30)->subDays(2)->format('Y-m-d'));
 
-        //   ReminderJob::dispatchNow();
     }
 
     /* Cant set a reminder in the past so need to skip reminder 2 and go straigh to reminder 3*/
@@ -272,6 +615,4 @@ class ReminderTest extends TestCase
 
         $this->assertNotNull($this->invoice->next_send_date);
     }
-
-
 }

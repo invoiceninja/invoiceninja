@@ -14,10 +14,8 @@ namespace App\PaymentDrivers\PayFast;
 
 use App\Exceptions\PaymentFailed;
 use App\Jobs\Util\SystemLogger;
-use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
-use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\PayFastPaymentDriver;
@@ -212,6 +210,8 @@ class CreditCard
     public function paymentResponse(Request $request)
     {
         $response_array = $request->all();
+
+        nlog($request->all());
 
         $state = [
             'server_response' => $request->all(),

@@ -2428,12 +2428,12 @@ var __webpack_exports__ = {};
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 /**
  * Invoice Ninja (https://invoiceninja.com)
  *
@@ -2448,7 +2448,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 var Setup = /*#__PURE__*/function () {
   function Setup() {
     _classCallCheck(this, Setup);
-
     this.checkDbButton = document.getElementById('test-db-connection');
     this.checkDbAlert = document.getElementById('database-response');
     this.checkSmtpButton = document.getElementById('test-smtp-connection');
@@ -2456,15 +2455,12 @@ var Setup = /*#__PURE__*/function () {
     this.checkPdfButton = document.getElementById('test-pdf');
     this.checkPdfAlert = document.getElementById('test-pdf-response');
   }
-
   _createClass(Setup, [{
     key: "handleDatabaseCheck",
     value: function handleDatabaseCheck() {
       var _this = this;
-
       var url = document.querySelector('meta[name=setup-db-check]').content,
-          data = {};
-
+        data = {};
       if (document.querySelector('input[name="db_host"]')) {
         data = {
           db_host: document.querySelector('input[name="db_host"]').value,
@@ -2474,7 +2470,6 @@ var Setup = /*#__PURE__*/function () {
           db_password: document.querySelector('input[name="db_password"]').value
         };
       }
-
       this.checkDbButton.disabled = true;
       axios__WEBPACK_IMPORTED_MODULE_0___default().post(url, data).then(function (response) {
         return _this.handleSuccess(_this.checkDbAlert, 'mail-wrapper');
@@ -2488,7 +2483,6 @@ var Setup = /*#__PURE__*/function () {
     key: "handleSmtpCheck",
     value: function handleSmtpCheck() {
       var _this2 = this;
-
       var url = document.querySelector('meta[name=setup-email-check]').content;
       var data = {
         mail_driver: document.querySelector('select[name="mail_driver"]').value,
@@ -2501,16 +2495,13 @@ var Setup = /*#__PURE__*/function () {
         mail_password: document.querySelector('input[name="mail_password"]').value
       };
       this.checkSmtpButton.disabled = true;
-
       if (data.mail_driver === 'log') {
         this.handleSuccess(this.checkSmtpAlert, 'account-wrapper');
         this.handleSuccess(this.checkSmtpAlert, 'submit-wrapper');
         return this.checkSmtpButton.disabled = false;
       }
-
       axios__WEBPACK_IMPORTED_MODULE_0___default().post(url, data).then(function (response) {
         _this2.handleSuccess(_this2.checkSmtpAlert, 'account-wrapper');
-
         _this2.handleSuccess(_this2.checkSmtpAlert, 'submit-wrapper');
       })["catch"](function (e) {
         return _this2.handleFailure(_this2.checkSmtpAlert, e.response.data.message);
@@ -2522,22 +2513,20 @@ var Setup = /*#__PURE__*/function () {
     key: "handleTestPdfCheck",
     value: function handleTestPdfCheck() {
       var _this3 = this;
-
       var url = document.querySelector('meta[name=setup-pdf-check]').content;
       this.checkPdfButton.disabled = true;
       axios__WEBPACK_IMPORTED_MODULE_0___default().post(url, {}).then(function (response) {
         try {
           //let win = window.open(response.data.url, '_blank');
           //win.focus();
+
           return _this3.handleSuccess(_this3.checkPdfAlert, 'database-wrapper');
         } catch (error) {
           _this3.handleSuccess(_this3.checkPdfAlert, 'database-wrapper');
-
           _this3.checkPdfAlert.textContent = "Success! PDF was generated succesfully.";
         }
       })["catch"](function (error) {
         console.log(error);
-
         _this3.handleFailure(_this3.checkPdfAlert);
       })["finally"](function () {
         return _this3.checkPdfButton.disabled = false;
@@ -2550,7 +2539,6 @@ var Setup = /*#__PURE__*/function () {
       element.classList.remove('alert-failure');
       element.innerText = 'Success!';
       element.classList.add('alert-success');
-
       if (nextStep) {
         document.getElementById(nextStep).classList.remove('hidden');
         document.getElementById(nextStep).scrollIntoView({
@@ -2571,7 +2559,6 @@ var Setup = /*#__PURE__*/function () {
     key: "handle",
     value: function handle() {
       var _this4 = this;
-
       this.checkDbButton.addEventListener('click', function () {
         return _this4.handleDatabaseCheck();
       });
@@ -2583,10 +2570,8 @@ var Setup = /*#__PURE__*/function () {
       });
     }
   }]);
-
   return Setup;
 }();
-
 new Setup().handle();
 })();
 

@@ -18,6 +18,8 @@ use App\Factory\InvoiceFactory;
 use App\Factory\PaymentFactory;
 use App\Factory\ProductFactory;
 use App\Factory\QuoteFactory;
+use App\Factory\RecurringInvoiceFactory;
+use App\Factory\TaskFactory;
 use App\Factory\VendorFactory;
 use App\Http\Requests\BankTransaction\StoreBankTransactionRequest;
 use App\Http\Requests\Client\StoreClientRequest;
@@ -26,18 +28,19 @@ use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Payment\StorePaymentRequest;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Quote\StoreQuoteRequest;
+use App\Http\Requests\RecurringInvoice\StoreRecurringInvoiceRequest;
+use App\Http\Requests\Task\StoreTaskRequest;
 use App\Http\Requests\Vendor\StoreVendorRequest;
-use App\Import\ImportException;
-use App\Import\Providers\BaseImport;
-use App\Import\Providers\ImportInterface;
+use App\Import\Transformer\Bank\BankTransformer;
 use App\Import\Transformer\Csv\ClientTransformer;
 use App\Import\Transformer\Csv\ExpenseTransformer;
 use App\Import\Transformer\Csv\InvoiceTransformer;
 use App\Import\Transformer\Csv\PaymentTransformer;
 use App\Import\Transformer\Csv\ProductTransformer;
 use App\Import\Transformer\Csv\QuoteTransformer;
+use App\Import\Transformer\Csv\RecurringInvoiceTransformer;
+use App\Import\Transformer\Csv\TaskTransformer;
 use App\Import\Transformer\Csv\VendorTransformer;
-use App\Import\Transformer\Bank\BankTransformer;
 use App\Repositories\BankTransactionRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\ExpenseRepository;
@@ -45,11 +48,11 @@ use App\Repositories\InvoiceRepository;
 use App\Repositories\PaymentRepository;
 use App\Repositories\ProductRepository;
 use App\Repositories\QuoteRepository;
+use App\Repositories\RecurringInvoiceRepository;
+use App\Repositories\TaskRepository;
 use App\Repositories\VendorRepository;
 use App\Services\Bank\BankMatchingService;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Facades\Validator;
-use Symfony\Component\HttpFoundation\ParameterBag;
 
 class Csv extends BaseImport implements ImportInterface
 {
@@ -69,6 +72,8 @@ class Csv extends BaseImport implements ImportInterface
                 'expense',
                 'quote',
                 'bank_transaction',
+                'recurring_invoice',
+                'task',
             ])
         ) {
             $this->{$entity}();
@@ -81,16 +86,12 @@ class Csv extends BaseImport implements ImportInterface
 
         $data = $this->getCsvData($entity_type);
 
-        if (is_array($data)) 
-        {
-
+        if (is_array($data)) {
             $data = $this->preTransformCsv($data, $entity_type);
 
-            foreach($data as $key => $value)
-            {
+            foreach ($data as $key => $value) {
                 $data[$key]['transaction.bank_integration_id'] = $this->decodePrimaryKey($this->request['bank_integration_id']);
             }
-
         }
 
         if (empty($data)) {
@@ -111,7 +112,6 @@ class Csv extends BaseImport implements ImportInterface
         nlog("bank matching co id = {$this->company->id}");
 
         (new BankMatchingService($this->company->id, $this->company->db))->handle();
-
     }
 
     public function client()
@@ -126,7 +126,6 @@ class Csv extends BaseImport implements ImportInterface
 
         if (empty($data)) {
             $this->entity_count['clients'] = 0;
-
             return;
         }
 
@@ -174,6 +173,35 @@ class Csv extends BaseImport implements ImportInterface
         $this->entity_count['products'] = $product_count;
     }
 
+    public function recurring_invoice()
+    {
+        $entity_type = 'recurring_invoice';
+
+        $data = $this->getCsvData($entity_type);
+
+        if (is_array($data)) {
+            $data = $this->preTransformCsv($data, $entity_type);
+        }
+
+        if (empty($data)) {
+            $this->entity_count['recurring_invoices'] = 0;
+            return;
+        }
+
+        $this->request_name = StoreRecurringInvoiceRequest::class;
+        $this->repository_name = RecurringInvoiceRepository::class;
+        $this->factory_name = RecurringInvoiceFactory::class;
+
+        $this->repository = app()->make($this->repository_name);
+        $this->repository->import_mode = true;
+
+        $this->transformer = new RecurringInvoiceTransformer($this->company);
+
+        $invoice_count = $this->ingestRecurringInvoices($data, 'invoice.number');
+
+        $this->entity_count['recurring_invoices'] = $invoice_count;
+    }
+    
     public function invoice()
     {
         $entity_type = 'invoice';
@@ -325,6 +353,33 @@ class Csv extends BaseImport implements ImportInterface
 
     public function task()
     {
+        $entity_type = 'task';
+
+        $data = $this->getCsvData($entity_type);
+
+        if (is_array($data)) {
+            $data = $this->preTransformCsv($data, $entity_type);
+        }
+
+        if (empty($data)) {
+            $this->entity_count['tasks'] = 0;
+            return;
+        }
+
+        $this->request_name = StoreTaskRequest::class;
+        $this->repository_name = TaskRepository::class;
+        $this->factory_name = TaskFactory::class;
+
+        $this->repository = app()->make($this->repository_name);
+        // $this->repository->import_mode = true;
+
+        $this->transformer = new TaskTransformer($this->company);
+
+        $task_count = $this->ingestTasks($data, 'task.number');
+
+        $this->entity_count['tasks'] = $task_count;
+
+
     }
 
     public function transform(array $data)

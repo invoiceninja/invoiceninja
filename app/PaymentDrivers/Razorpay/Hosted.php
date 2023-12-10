@@ -21,7 +21,6 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\RazorpayPaymentDriver;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -42,7 +41,7 @@ class Hosted implements MethodInterface
      * Show the authorization page for Razorpay.
      *
      * @param array $data
-     * @return View
+     * @return \Illuminate\View\View
      */
     public function authorizeView(array $data): View
     {
@@ -64,7 +63,7 @@ class Hosted implements MethodInterface
      * Payment view for the Razorpay.
      *
      * @param array $data
-     * @return View
+     * @return \Illuminate\View\View
      */
     public function paymentView(array $data): View
     {

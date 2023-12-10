@@ -13,7 +13,6 @@ namespace App\Transformers;
 
 use App\Models\Document;
 use App\Models\GroupSetting;
-use App\Transformers\DocumentTransformer;
 use App\Utils\Traits\MakesHash;
 use stdClass;
 
@@ -24,14 +23,14 @@ class GroupSettingTransformer extends EntityTransformer
 {
     use MakesHash;
 
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'documents',
     ];
 
     /**
      * @var array
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
     ];
 
     /**

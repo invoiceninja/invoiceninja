@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -15,20 +16,15 @@ use App\DataMapper\Analytics\LoginFailure;
 use App\DataMapper\Analytics\LoginSuccess;
 use App\Events\User\UserLoggedIn;
 use App\Http\Controllers\BaseController;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Login\LoginRequest;
 use App\Jobs\Account\CreateAccount;
 use App\Jobs\Company\CreateCompanyToken;
-use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Libraries\OAuth\OAuth;
 use App\Libraries\OAuth\Providers\Google;
 use App\Models\Account;
-use App\Models\Client;
-use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
-use App\Models\SystemLog;
 use App\Models\User;
 use App\Transformers\CompanyUserTransformer;
 use App\Utils\Ninja;
@@ -38,30 +34,19 @@ use App\Utils\TruthSource;
 use Google_Client;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Response;
 use Laravel\Socialite\Facades\Socialite;
 use Microsoft\Graph\Model;
 use PragmaRX\Google2FA\Google2FA;
 use Turbo124\Beacon\Facades\LightLogs;
-use Illuminate\Support\Facades\Http;
 
 class LoginController extends BaseController
 {
-    /**
-     * @OA\Tag(
-     *     name="login",
-     *     description="Authentication",
-     *     @OA\ExternalDocumentation(
-     *         description="Find out more",
-     *         url="https://invoiceninja.github.io"
-     *     )
-     * )
-     */
     use AuthenticatesUsers;
-
     use UserSessionAttributes;
     use LoginCache;
 
@@ -93,7 +78,7 @@ class LoginController extends BaseController
      * @param Request $request
      * @param User $user
      * @return void
-     * deprecated .1 API ONLY we don't need to set any session variables
+     * @deprecated .1 API ONLY we don't need to set any session variables
      */
     public function authenticated(Request $request, User $user): void
     {
@@ -103,63 +88,8 @@ class LoginController extends BaseController
     /**
      * Login via API.
      *
-     * @param Request $request The request
-     *
-     * @return     Response|User Process user login.
-     *
+     * @param LoginRequest $request The request
      * @throws \Illuminate\Validation\ValidationException
-     * @OA\Post(
-     *      path="/api/v1/login",
-     *      operationId="postLogin",
-     *      tags={"login"},
-     *      summary="Attempts authentication",
-     *      description="Returns a CompanyUser object on success",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(ref="#/components/parameters/include_static"),
-     *      @OA\Parameter(ref="#/components/parameters/clear_cache"),
-     *      @OA\RequestBody(
-     *         description="User credentials",
-     *         required=true,
-     *         @OA\MediaType(
-     *             mediaType="application/json",
-     *             @OA\Schema(
-     *                 type="object",
-     *                 @OA\Property(
-     *                     property="email",
-     *                     description="The user email address",
-     *                     type="string",
-     *                 ),
-     *                 @OA\Property(
-     *                     property="password",
-     *                     example="1234567",
-     *                     description="The user password must meet minimum criteria ~ >6 characters",
-     *                     type="string"
-     *                 )
-     *             )
-     *         )
-     *     ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="The Company User response",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/CompanyUser"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      */
     public function apiLogin(LoginRequest $request)
     {
@@ -179,8 +109,9 @@ class LoginController extends BaseController
         if ($this->attemptLogin($request)) {
             LightLogs::create(new LoginSuccess())
                 ->increment()
-                ->queue();
+                ->batch();
 
+            /** @var \App\Models\User $user */
             $user = $this->guard()->user();
 
             //2FA
@@ -207,7 +138,8 @@ class LoginController extends BaseController
                 $account->save();
                 $user = $user->fresh();
             }
-
+            
+            /** @var \App\Models\CompanyUser $cu */
             $cu = $this->hydrateCompanyUser();
 
             if ($cu->count() == 0) {
@@ -225,7 +157,7 @@ class LoginController extends BaseController
         } else {
             LightLogs::create(new LoginFailure())
                 ->increment()
-                ->queue();
+                ->batch();
 
             $this->incrementLoginAttempts($request);
 
@@ -240,39 +172,7 @@ class LoginController extends BaseController
      * Refreshes the data feed with the current Company User.
      *
      * @param Request $request
-     * @return     CompanyUser Refresh Feed.
-     *
-     *
-     * @OA\Post(
-     *      path="/api/v1/refresh",
-     *      operationId="refresh",
-     *      tags={"refresh"},
-     *      summary="Refreshes the dataset",
-     *      description="Refreshes the dataset",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(ref="#/components/parameters/include_static"),
-     *      @OA\Parameter(ref="#/components/parameters/clear_cache"),
-     *      @OA\Response(
-     *          response=200,
-     *          description="The Company User response",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/CompanyUser"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
+     * @return Response|JsonResponse
      */
     public function refresh(Request $request)
     {
@@ -291,11 +191,11 @@ class LoginController extends BaseController
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        // $cu->first()->account->companies->each(function ($company) use ($cu, $request) {
-        //     if ($company->tokens()->where('is_system', true)->count() == 0) {
-        //         (new CreateCompanyToken($company, $cu->first()->user, $request->server('HTTP_USER_AGENT')))->handle();
-        //     }
-        // });
+        $cu->first()->account->companies->each(function ($company) use ($cu, $request) {
+            if ($company->tokens()->where('is_system', true)->count() == 0) {
+                (new CreateCompanyToken($company, $cu->first()->user, $request->server('HTTP_USER_AGENT')))->handle();
+            }
+        });
 
         if ($request->has('current_company') && $request->input('current_company') == 'true') {
             $cu->where('company_id', $company_token->company_id);
@@ -350,7 +250,7 @@ class LoginController extends BaseController
     private function handleSocialiteLogin($provider, $token)
     {
         $user = $this->getSocialiteUser($provider, $token);
-        
+
         if ($user) {
             return $this->loginOrCreateFromSocialite($user, $provider);
         }
@@ -367,7 +267,7 @@ class LoginController extends BaseController
             'oauth_user_id' => $user->id,
             'oauth_provider_id' => $provider,
         ];
-        
+
         if ($existing_user = MultiDB::hasUser($query)) {
             if (!$existing_user->account) {
                 return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
@@ -375,6 +275,7 @@ class LoginController extends BaseController
 
             Auth::login($existing_user, true);
 
+            /** @var \App\Models\CompanyUser $cu */
             $cu = $this->hydrateCompanyUser();
 
             if ($cu->count() == 0) {
@@ -394,12 +295,16 @@ class LoginController extends BaseController
             }
 
             Auth::login($existing_login_user, true);
+            /** @var \App\Models\User $user */
 
-            auth()->user()->update([
+            $user = auth()->user();
+
+            $user->update([
                 'oauth_user_id' => $user->id,
                 'oauth_provider_id' => $provider,
             ]);
 
+            /** @var \App\Models\CompanyUser $cu */
             $cu = $this->hydrateCompanyUser();
 
             if ($cu->count() == 0) {
@@ -412,13 +317,13 @@ class LoginController extends BaseController
 
             return $this->timeConstrainedResponse($cu);
         }
-        
+
         nlog("socialite");
         nlog($user);
 
         $name = OAuth::splitName($user->name);
 
-        if($provider == 'apple') {
+        if ($provider == 'apple') {
             $name[0] = request()->has('first_name') ? request()->input('first_name') : $name[0];
             $name[1] = request()->has('last_name') ? request()->input('last_name') : $name[1];
         }
@@ -437,9 +342,14 @@ class LoginController extends BaseController
         $account = (new CreateAccount($new_account, request()->getClientIp()))->handle();
 
         Auth::login($account->default_company->owner(), true);
-        auth()->user()->email_verified_at = now();
-        auth()->user()->save();
 
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $user->email_verified_at = now();
+        $user->save();
+
+        /** @var \App\Models\CompanyUser $cu */
         $cu = $this->hydrateCompanyUser();
 
         if ($cu->count() == 0) {
@@ -455,53 +365,51 @@ class LoginController extends BaseController
 
     private function hydrateCompanyUser(): Builder
     {
-        $cu = CompanyUser::query()->where('user_id', auth()->user()->id);
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $cu = CompanyUser::query()->where('user_id', $user->id);
 
         if ($cu->count() == 0) {
             return $cu;
         }
 
-        if (CompanyUser::query()->where('user_id', auth()->user()->id)->where('company_id', auth()->user()->account->default_company_id)->exists()) {
-            $set_company = auth()->user()->account->default_company;
+        if (CompanyUser::query()->where('user_id', $user->id)->where('company_id', $user->account->default_company_id)->exists()) {
+            $set_company = $user->account->default_company;
         } else {
-            $set_company = $cu->first()->company;
+            $set_company = CompanyUser::query()->where('user_id', $user->id)->first()->company;
         }
 
-        auth()->user()->setCompany($set_company);
+        $user->setCompany($set_company);
 
-        $this->setLoginCache(auth()->user());
+        $this->setLoginCache($user);
 
         $truth = app()->make(TruthSource::class);
         $truth->setCompanyUser($cu->first());
-        $truth->setUser(auth()->user());
+        $truth->setUser($user);
         $truth->setCompany($set_company);
 
-        if ($cu->count() == 0) {
-            return $cu;
-        }
+        $user->account->companies->each(function ($company) use ($user) {
+            if ($company->tokens()->where('is_system', true)->count() == 0) {
+                (new CreateCompanyToken($company, $user, request()->server('HTTP_USER_AGENT')))->handle();
+            }
+        });
 
-        // if (auth()->user()->company_users()->count() != auth()->user()->tokens()->distinct('company_id')->count()) {
-        //     auth()->user()->companies->each(function ($company) {
-        //         if (!CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $company->id)->exists()) {
-        //             (new CreateCompanyToken($company, auth()->user(), 'Google_O_Auth'))->handle();
-        //         }
-        //     });
-        // }
+        $truth->setCompanyToken(CompanyToken::where('user_id', $user->id)->where('company_id', $set_company->id)->first());
 
-        $truth->setCompanyToken(CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $set_company->id)->first());
-
-        return $cu;
+        return CompanyUser::query()->where('user_id', $user->id);
     }
 
     private function handleMicrosoftOauth()
     {
-        if (request()->has('accessToken')) 
+        if (request()->has('accessToken')) {
             $accessToken = request()->input('accessToken');
-        elseif(request()->has('access_token'))
+        } elseif (request()->has('access_token')) {
             $accessToken = request()->input('access_token');
-        else
+        } else {
             return response()->json(['message' => 'Invalid response from oauth server, no access token in response.'], 400);
-
+        }
 
         $graph = new \Microsoft\Graph\Graph();
         $graph->setAccessToken($accessToken);
@@ -510,10 +418,12 @@ class LoginController extends BaseController
             ->setReturnType(Model\User::class)
             ->execute();
 
+        nlog($user);
+
         if ($user) {
             $account = request()->input('account');
 
-            $email = $user->getMail() ?: $user->getUserPrincipalName();
+            $email = $user->getUserPrincipalName() ?? false;
 
             $query = [
                 'oauth_user_id' => $user->getId(),
@@ -528,8 +438,8 @@ class LoginController extends BaseController
                 return $this->existingOauthUser($existing_user);
             }
 
-            //If this is a result user/email combo - lets add their OAuth details details
-            if ($existing_login_user = MultiDB::hasUser(['email' => $email])) {
+            // If this is a result user/email combo - lets add their OAuth details details
+            if ($email && $existing_login_user = MultiDB::hasUser(['email' => $email])) {
                 if (!$existing_login_user->account) {
                     return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
                 }
@@ -540,27 +450,37 @@ class LoginController extends BaseController
             }
 
             // Signup!
-            $new_account = [
-                'first_name' => $user->getGivenName() ?: '',
-                'last_name' => $user->getSurname() ?: '',
-                'password' => '',
-                'email' => $email,
-                'oauth_user_id' => $user->getId(),
-                'oauth_provider_id' => 'microsoft',
-            ];
+            if (request()->has('create') && request()->input('create') == 'true') {
+                $new_account = [
+                    'first_name' => $user->getGivenName() ?: '',
+                    'last_name' => $user->getSurname() ?: '',
+                    'password' => '',
+                    'email' => $email,
+                    'oauth_user_id' => $user->getId(),
+                    'oauth_provider_id' => 'microsoft',
+                ];
 
-            return $this->createNewAccount($new_account);
+                return $this->createNewAccount($new_account);
+            }
+
+            return response()->json(['message' => 'User not found. If you believe this is an error, please send an email to contact@invoiceninja.com'], 400);
         }
 
 
         return response()->json(['message' => 'Unable to authenticate this user'], 400);
-
     }
 
+    /**
+     * send login response to oauthed users
+     *
+     * @param \App\Models\User $existing_user
+     * @return Response | JsonResponse
+     */
     private function existingOauthUser($existing_user)
     {
         Auth::login($existing_user, true);
 
+        /** @var \App\Models\CompanyUser $cu */
         $cu = $this->hydrateCompanyUser();
 
         if ($cu->count() == 0) {
@@ -576,11 +496,16 @@ class LoginController extends BaseController
 
     private function existingLoginUser($oauth_user_id, $provider)
     {
-        auth()->user()->update([
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $user->update([
             'oauth_user_id' => $oauth_user_id,
             'oauth_provider_id' => $provider,
         ]);
 
+        /** @var \App\Models\CompanyUser $cu */
         $cu = $this->hydrateCompanyUser();
 
         if ($cu->count() == 0) {
@@ -600,10 +525,13 @@ class LoginController extends BaseController
 
         $google = new Google();
 
-        if(request()->has('id_token'))
+        if (request()->has('id_token')) {
             $user = $google->getTokenResponse(request()->input('id_token'));
-        else
+        } elseif(request()->has('access_token')) {
+            $user = $google->harvestUser(request()->input('access_token'));
+        } else {
             return response()->json(['message' => 'Illegal request'], 403);
+        }
 
         if (is_array($user)) {
             $query = [
@@ -632,7 +560,6 @@ class LoginController extends BaseController
         }
 
         if ($user) {
-
             //check the user doesn't already exist in some form
             if ($existing_login_user = MultiDB::hasUser(['email' => $google->harvestEmail($user)])) {
                 if (!$existing_login_user->account) {
@@ -644,19 +571,23 @@ class LoginController extends BaseController
                 return $this->existingLoginUser($google->harvestSubField($user), 'google');
             }
 
-            //user not found anywhere - lets sign them up.
-            $name = OAuth::splitName($google->harvestName($user));
+            if (request()->has('create') && request()->input('create') == 'true') {
+                //user not found anywhere - lets sign them up.
+                $name = OAuth::splitName($google->harvestName($user));
 
-            $new_account = [
-                'first_name' => $name[0],
-                'last_name' => $name[1],
-                'password' => '',
-                'email' => $google->harvestEmail($user),
-                'oauth_user_id' => $google->harvestSubField($user),
-                'oauth_provider_id' => 'google',
-            ];
+                $new_account = [
+                    'first_name' => $name[0],
+                    'last_name' => $name[1],
+                    'password' => '',
+                    'email' => $google->harvestEmail($user),
+                    'oauth_user_id' => $google->harvestSubField($user),
+                    'oauth_provider_id' => 'google',
+                ];
 
-            return $this->createNewAccount($new_account);
+                return $this->createNewAccount($new_account);
+            }
+
+            return response()->json(['message' => 'User not found. If you believe this is an error, please send an email to contact@invoiceninja.com'], 400);
         }
 
         return response()
@@ -675,9 +606,14 @@ class LoginController extends BaseController
         }
 
         Auth::login($account->default_company->owner(), true);
-        auth()->user()->email_verified_at = now();
-        auth()->user()->save();
 
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $user->email_verified_at = now();
+        $user->save();
+
+        /** @var \App\Models\CompanyUser $cu */
         $cu = $this->hydrateCompanyUser();
 
         if ($cu->count() == 0) {
@@ -702,9 +638,13 @@ class LoginController extends BaseController
             $parameters = ['access_type' => 'offline', 'prompt' => 'consent select_account', 'redirect_uri' => config('ninja.app_url') . '/auth/google'];
         }
 
-        if($provider == 'microsoft'){
+        if ($provider == 'microsoft') {
             $scopes = ['email', 'Mail.Send', 'offline_access', 'profile', 'User.Read openid'];
-            $parameters = ['response_type' => 'code', 'redirect_uri' => config('ninja.app_url')."/auth/microsoft"];
+            $parameters = ['response_type' => 'code', 'redirect_uri' => config('ninja.app_url') . "/auth/microsoft"];
+        }
+
+        if(request()->hasHeader('X-REACT') || request()->query('react')) {
+            Cache::put("react_redir:".auth()->user()?->account->key, 'true', 300);
         }
 
         if (request()->has('code')) {
@@ -746,16 +686,25 @@ class LoginController extends BaseController
                 'email' => $socialite_user->getEmail(),
                 'oauth_user_id' => $socialite_user->getId(),
                 'oauth_provider_id' => $provider,
-                'oauth_user_token' => $oauth_user_token,
-                'oauth_user_refresh_token' => $socialite_user->refreshToken,
             ];
 
             $user->update($update_user);
+            $user->oauth_user_token = $oauth_user_token;
+            $user->oauth_user_refresh_token = $socialite_user->refreshToken;
+            $user->save();
+
         } else {
             nlog('user not found for oauth');
         }
 
-        return redirect('/#/');
+        $redirect_url = '/#/';
+
+        $request_from_react = Cache::pull("react_redir:".auth()->user()?->account?->key);
+
+        // if($request_from_react)
+        $redirect_url = config('ninja.react_url')."/#/settings/user_details/connect";
+
+        return redirect($redirect_url);
     }
 
     public function handleMicrosoftProviderCallback($provider = 'microsoft')
@@ -766,8 +715,7 @@ class LoginController extends BaseController
 
         $oauth_expiry = now()->addSeconds($socialite_user->accessTokenResponseBody['expires_in']) ?: now()->addSeconds(300);
 
-        if($user = OAuth::handleAuth($socialite_user, $provider))
-        {
+        if ($user = OAuth::handleAuth($socialite_user, $provider)) {
             nlog('found user and updating their user record');
             $name = OAuth::splitName($socialite_user->getName());
 
@@ -777,16 +725,22 @@ class LoginController extends BaseController
                 'email' => $socialite_user->getEmail(),
                 'oauth_user_id' => $socialite_user->getId(),
                 'oauth_provider_id' => $provider,
-                'oauth_user_token' => $oauth_user_token,
-                'oauth_user_refresh_token' => $socialite_user->accessTokenResponseBody['refresh_token'],
                 'oauth_user_token_expiry' => $oauth_expiry,
             ];
 
             $user->update($update_user);
+            $user->oauth_user_refresh_token = $socialite_user->accessTokenResponseBody['refresh_token'];
+            $user->oauth_user_token = $oauth_user_token;
+            $user->save();
+
         } else {
             nlog('user not found for oauth');
         }
 
-        return redirect('/#/');
+        $redirect_url = config('ninja.react_url')."/#/settings/user_details/connect";
+
+        return redirect($redirect_url);
+
+        // return redirect('/#/');
     }
 }

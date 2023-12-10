@@ -13,7 +13,6 @@ namespace App\Factory;
 
 use App\Models\Client;
 use App\Models\PurchaseOrder;
-use Illuminate\Database\Eloquent\Model;
 
 class PurchaseOrderFactory
 {
@@ -50,7 +49,9 @@ class PurchaseOrderFactory
         $purchase_order->user_id = $user_id;
         $purchase_order->company_id = $company_id;
         $purchase_order->recurring_id = null;
-
+        $purchase_order->exchange_rate = 1;
+        $purchase_order->total_taxes = 0;
+        
         return $purchase_order;
     }
 }

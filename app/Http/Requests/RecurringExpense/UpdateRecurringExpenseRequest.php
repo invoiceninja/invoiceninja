@@ -48,6 +48,18 @@ class UpdateRecurringExpenseRequest extends Request
         $rules['tax_amount3'] = 'numeric';
         $rules['category_id'] = 'bail|nullable|sometimes|exists:expense_categories,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
 
+        if ($this->file('documents') && is_array($this->file('documents'))) {
+            $rules['documents.*'] = $this->file_validation;
+        } elseif ($this->file('documents')) {
+            $rules['documents'] = $this->file_validation;
+        }
+
+        if ($this->file('file') && is_array($this->file('file'))) {
+            $rules['file.*'] = $this->file_validation;
+        } elseif ($this->file('file')) {
+            $rules['file'] = $this->file_validation;
+        }
+
         return $this->globalRules($rules);
     }
 
@@ -63,6 +75,9 @@ class UpdateRecurringExpenseRequest extends Request
 
     public function prepareForValidation()
     {
+        /** @var \App\Models\User $user*/
+        $user = auth()->user();
+
         $input = $this->all();
 
         $input = $this->decodePrimaryKeys($input);
@@ -76,7 +91,7 @@ class UpdateRecurringExpenseRequest extends Request
         }
 
         if (! array_key_exists('currency_id', $input) || strlen($input['currency_id']) == 0) {
-            $input['currency_id'] = (string) auth()->user()->company()->settings->currency_id;
+            $input['currency_id'] = (string) $user->company()->settings->currency_id;
         }
 
         $this->replace($input);

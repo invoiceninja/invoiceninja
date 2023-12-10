@@ -11,11 +11,13 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\Cron\RecurringExpensesCron;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -30,6 +32,8 @@ class RecurringExpenseApiTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
+    public $faker;
+
     protected function setUp() :void
     {
         parent::setUp();
@@ -41,6 +45,175 @@ class RecurringExpenseApiTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
+    }
+
+    public function testRecurringExpenseGenerationWithCurrencyConversion()
+    {
+        $r = \App\Models\RecurringExpense::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 100,
+            'number' => Str::random(10),
+            'frequency_id' => 5,
+            'remaining_cycles' => -1,
+            'status_id' => \App\Models\RecurringInvoice::STATUS_ACTIVE,
+            'date' => now()->format('Y-m-d'),
+            'currency_id' => 1,
+            'next_send_date' => now(),
+            'next_send_date_client' => now(),
+            'invoice_currency_id' => 2,
+            'foreign_amount' => 50,
+        ]);
+
+        (new RecurringExpensesCron())->handle();
+
+        $expense = \App\Models\Expense::where('recurring_expense_id', $r->id)->orderBy('id', 'desc')->first();
+
+        $this->assertEquals($r->amount, $expense->amount);
+        $this->assertEquals($r->currency_id, $expense->currency_id);
+        $this->assertEquals($r->invoice_currency_id, $expense->invoice_currency_id);
+        $this->assertEquals($r->foreign_amount, $expense->foreign_amount);
+
+    }
+
+    public function testRecurringExpenseGenerationNullForeignCurrency()
+    {
+        $r = \App\Models\RecurringExpense::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 100,
+            'number' => Str::random(10),
+            'frequency_id' => 5,
+            'remaining_cycles' => -1,
+            'status_id' => \App\Models\RecurringInvoice::STATUS_ACTIVE,
+            'date' => now()->format('Y-m-d'),
+            'currency_id' => 1,
+            'next_send_date' => now(),
+            'next_send_date_client' => now(),
+            'invoice_currency_id' => null
+        ]);
+
+        (new RecurringExpensesCron())->handle();
+
+        $expense = \App\Models\Expense::where('recurring_expense_id', $r->id)->orderBy('id', 'desc')->first();
+
+        $this->assertEquals($r->amount, $expense->amount);
+        $this->assertEquals($r->currency_id, $expense->currency_id);
+        $this->assertEquals($r->invoice_currency_id, $expense->invoice_currency_id);
+
+    }
+
+    public function testRecurringExpenseGeneration()
+    {
+        $r = \App\Models\RecurringExpense::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 100,
+            'number' => Str::random(10),
+            'frequency_id' => 5,
+            'remaining_cycles' => -1,
+            'status_id' => \App\Models\RecurringInvoice::STATUS_ACTIVE,
+            'date' => now()->format('Y-m-d'),
+            'currency_id' => 1,
+            'next_send_date' => now(),
+            'next_send_date_client' => now(),
+        ]);
+
+        (new RecurringExpensesCron())->handle();
+
+        $expense = \App\Models\Expense::where('recurring_expense_id', $r->id)->orderBy('id', 'desc')->first();
+
+        $this->assertEquals($r->amount, $expense->amount);
+        $this->assertEquals($r->currency_id, $expense->currency_id);
+
+    }
+
+    public function testRecurringExpenseValidation()
+    {
+        $data = [
+            'amount' => 10,
+            'client_id' => $this->client->hashed_id,
+            'number' => '123321',
+            'frequency_id' => 5,
+            'remaining_cycles' =>5,
+            'currency_id' => 34545435425
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/recurring_expenses?start=true', $data);
+
+        $response->assertStatus(422);
+
+    }
+
+    public function testRecurringExpenseValidation2()
+    {
+        $data = [
+            'amount' => 10,
+            'client_id' => $this->client->hashed_id,
+            'number' => '123321',
+            'frequency_id' => 5,
+            'remaining_cycles' =>5,
+            'currency_id' => 1
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/recurring_expenses?start=true', $data);
+
+        $response->assertStatus(200);
+
+    }
+
+    public function testRecurringExpenseValidation3()
+    {
+        $data = [
+            'amount' => 10,
+            'client_id' => $this->client->hashed_id,
+            'number' => '123321',
+            'frequency_id' => 5,
+            'remaining_cycles' =>5,
+            'currency_id' => null
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/recurring_expenses?start=true', $data);
+        
+        $data = $response->json();
+
+        $response->assertStatus(200);
+
+        $this->assertEquals(1, $data['data']['currency_id']);
+
+    }
+
+    public function testRecurringExpenseValidation4()
+    {
+        $data = [
+            'amount' => 10,
+            'client_id' => $this->client->hashed_id,
+            'number' => '123321',
+            'frequency_id' => 5,
+            'remaining_cycles' =>5,
+            'currency_id' => ""
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/recurring_expenses?start=true', $data);
+        
+        $data = $response->json();
+
+        $response->assertStatus(200);
+
+        $this->assertEquals(1, $data['data']['currency_id']);
+
     }
 
     public function testRecurringExpenseGetFiltered()

@@ -3,7 +3,6 @@
 namespace App\Factory;
 
 use App\Models\PurchaseOrderInvitation;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class PurchaseOrderInvitationFactory

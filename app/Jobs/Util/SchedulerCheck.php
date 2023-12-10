@@ -11,7 +11,6 @@
 
 namespace App\Jobs\Util;
 
-use App\Models\Account;
 use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -40,8 +39,9 @@ class SchedulerCheck implements ShouldQueue
         set_time_limit(0);
 
 
-        if(Ninja::isHosted())
+        if (Ninja::isHosted()) {
             return;
+        }
         
         if (config('ninja.app_version') != base_path('VERSION.txt')) {
             try {
@@ -54,7 +54,8 @@ class SchedulerCheck implements ShouldQueue
             try {
                 Artisan::call('clear-compiled');
                 Artisan::call('route:clear');
-                Artisan::call('optimize');
+                Artisan::call('config:clear');
+                // Artisan::call('optimize');
             } catch (\Exception $e) {
                 nlog("I wasn't able to optimize.");
                 nlog($e->getMessage());

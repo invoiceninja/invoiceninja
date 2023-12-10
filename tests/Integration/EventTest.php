@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Integration;
 
 use App\Events\Client\ClientWasArchived;
@@ -31,15 +32,15 @@ use App\Events\Invoice\InvoiceWasDeleted;
 use App\Events\Invoice\InvoiceWasRestored;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Events\Payment\PaymentWasArchived;
-use App\Events\PurchaseOrder\PurchaseOrderWasCreated;
-use App\Events\PurchaseOrder\PurchaseOrderWasUpdated;
-use App\Events\PurchaseOrder\PurchaseOrderWasArchived;
-use App\Events\PurchaseOrder\PurchaseOrderWasRestored;            
-use App\Events\PurchaseOrder\PurchaseOrderWasDeleted;
 use App\Events\Payment\PaymentWasCreated;
 use App\Events\Payment\PaymentWasDeleted;
 use App\Events\Payment\PaymentWasRestored;
 use App\Events\Payment\PaymentWasUpdated;
+use App\Events\PurchaseOrder\PurchaseOrderWasArchived;
+use App\Events\PurchaseOrder\PurchaseOrderWasCreated;
+use App\Events\PurchaseOrder\PurchaseOrderWasDeleted;
+use App\Events\PurchaseOrder\PurchaseOrderWasRestored;
+use App\Events\PurchaseOrder\PurchaseOrderWasUpdated;
 use App\Events\Quote\QuoteWasApproved;
 use App\Events\Quote\QuoteWasArchived;
 use App\Events\Quote\QuoteWasCreated;
@@ -73,11 +74,13 @@ use App\Events\Vendor\VendorWasRestored;
 use App\Events\Vendor\VendorWasUpdated;
 use App\Http\Middleware\PasswordProtection;
 use App\Models\Invoice;
+use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -91,7 +94,9 @@ class EventTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
 
-    public function setUp() :void
+    public $faker;
+
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -109,13 +114,7 @@ class EventTest extends TestCase
 
     public function testExpenseEvents()
     {
-        $this->expectsEvents([
-            ExpenseWasCreated::class,
-            ExpenseWasUpdated::class,
-            ExpenseWasArchived::class,
-            ExpenseWasRestored::class,
-            ExpenseWasDeleted::class,
-        ]);
+        Event::fake();
 
         $data = [
             'public_notes' => $this->faker->firstName,
@@ -162,19 +161,21 @@ class EventTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/expenses/bulk?action=delete', $data)
         ->assertStatus(200);
+
+
+        Event::assertDispatched(ExpenseWasCreated::class);
+        Event::assertDispatched(ExpenseWasUpdated::class);
+        Event::assertDispatched(ExpenseWasArchived::class);
+        Event::assertDispatched(ExpenseWasRestored::class);
+        Event::assertDispatched(ExpenseWasDeleted::class);
+
     }
 
 
     public function testVendorEvents()
     {
-        
-        $this->expectsEvents([
-            VendorWasCreated::class,
-            VendorWasUpdated::class,
-            VendorWasArchived::class,
-            VendorWasRestored::class,
-            VendorWasDeleted::class,
-        ]);
+        Event::fake();
+
 
         $data = [
             'name' => $this->faker->firstName,
@@ -222,25 +223,27 @@ class EventTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/vendors/bulk?action=delete', $data)
         ->assertStatus(200);
+
+
+        Event::assertDispatched(VendorWasCreated::class);
+        Event::assertDispatched(VendorWasUpdated::class);
+        Event::assertDispatched(VendorWasArchived::class);
+        Event::assertDispatched(VendorWasRestored::class);
+        Event::assertDispatched(VendorWasDeleted::class);
+
     }
 
 
     public function testTaskEvents()
     {
-
         /* Test fire new invoice */
         $data = [
             'client_id' => $this->client->hashed_id,
             'description' => 'dude',
         ];
 
-        $this->expectsEvents([
-            TaskWasCreated::class,
-            TaskWasUpdated::class,
-            TaskWasArchived::class,
-            TaskWasRestored::class,
-            TaskWasDeleted::class,
-        ]);
+        Event::fake();
+
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -284,24 +287,25 @@ class EventTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/tasks/bulk?action=delete', $data)
         ->assertStatus(200);
+
+
+        Event::assertDispatched(TaskWasCreated::class);
+        Event::assertDispatched(TaskWasUpdated::class);
+        Event::assertDispatched(TaskWasArchived::class);
+        Event::assertDispatched(TaskWasRestored::class);
+        Event::assertDispatched(TaskWasDeleted::class);
+
     }
 
     public function testCreditEvents()
     {
-
         /* Test fire new invoice */
         $data = [
             'client_id' => $this->client->hashed_id,
             'number' => 'dude',
         ];
 
-        $this->expectsEvents([
-            CreditWasCreated::class,
-            CreditWasUpdated::class,
-            CreditWasArchived::class,
-            CreditWasRestored::class,
-            CreditWasDeleted::class,
-        ]);
+        Event::fake();
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -345,25 +349,27 @@ class EventTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/credits/bulk?action=delete', $data)
         ->assertStatus(200);
+
+
+        Event::assertDispatched(CreditWasCreated::class);
+        Event::assertDispatched(CreditWasUpdated::class);
+        Event::assertDispatched(CreditWasArchived::class);
+        Event::assertDispatched(CreditWasRestored::class);
+        Event::assertDispatched(CreditWasDeleted::class);
+
     }
+
 
     public function testQuoteEvents()
     {
-
         /* Test fire new invoice */
         $data = [
             'client_id' => $this->client->hashed_id,
             'number' => 'dude',
         ];
 
-        $this->expectsEvents([
-            QuoteWasCreated::class,
-            QuoteWasUpdated::class,
-            QuoteWasArchived::class,
-            QuoteWasRestored::class,
-            QuoteWasDeleted::class,
-            QuoteWasApproved::class,
-        ]);
+        Event::fake();
+
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -417,6 +423,15 @@ class EventTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/quotes/bulk?action=delete', $data)
         ->assertStatus(200);
+
+
+        Event::assertDispatched(QuoteWasCreated::class);
+        Event::assertDispatched(QuoteWasUpdated::class);
+        Event::assertDispatched(QuoteWasArchived::class);
+        Event::assertDispatched(QuoteWasRestored::class);
+        Event::assertDispatched(QuoteWasDeleted::class);
+        Event::assertDispatched(QuoteWasApproved::class);
+
     }
 
 
@@ -425,13 +440,8 @@ class EventTest extends TestCase
 
     public function testPaymentEvents()
     {
-        $this->expectsEvents([
-            PaymentWasCreated::class,
-            PaymentWasUpdated::class,
-            PaymentWasArchived::class,
-            PaymentWasRestored::class,
-            PaymentWasDeleted::class,
-        ]);
+        Event::fake();
+
 
         $data = [
             'amount' => $this->invoice->amount,
@@ -485,6 +495,14 @@ class EventTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/payments/bulk?action=delete', $data)
         ->assertStatus(200);
+
+
+        Event::assertDispatched(PaymentWasCreated::class);
+        Event::assertDispatched(PaymentWasUpdated::class);
+        Event::assertDispatched(PaymentWasArchived::class);
+        Event::assertDispatched(PaymentWasRestored::class);
+        Event::assertDispatched(PaymentWasDeleted::class);
+
     }
 
 
@@ -496,13 +514,8 @@ class EventTest extends TestCase
             'number' => 'dude',
         ];
 
-        $this->expectsEvents([
-            InvoiceWasCreated::class,
-            InvoiceWasUpdated::class,
-            InvoiceWasArchived::class,
-            InvoiceWasRestored::class,
-            InvoiceWasDeleted::class,
-        ]);
+        Event::fake();
+
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -546,6 +559,14 @@ class EventTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/invoices/bulk?action=delete', $data)
         ->assertStatus(200);
+
+
+        Event::assertDispatched(InvoiceWasCreated::class);
+        Event::assertDispatched(InvoiceWasUpdated::class);
+        Event::assertDispatched(InvoiceWasArchived::class);
+        Event::assertDispatched(InvoiceWasRestored::class);
+        Event::assertDispatched(InvoiceWasDeleted::class);
+
     }
 
 
@@ -559,13 +580,8 @@ class EventTest extends TestCase
             'frequency_id' => 1,
         ];
 
-        $this->expectsEvents([
-            RecurringInvoiceWasCreated::class,
-            RecurringInvoiceWasUpdated::class,
-            RecurringInvoiceWasArchived::class,
-            RecurringInvoiceWasRestored::class,
-            RecurringInvoiceWasDeleted::class,
-        ]);
+        Event::fake();
+
 
         try {
             $response = $this->withHeaders([
@@ -573,7 +589,7 @@ class EventTest extends TestCase
                 'X-API-TOKEN' => $this->token,
             ])->postJson('/api/v1/recurring_invoices/', $data);
         } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
+            // $message = json_decode($e->validator->getMessageBag(), 1);
         }
 
         $response->assertStatus(200);
@@ -615,19 +631,21 @@ class EventTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/recurring_invoices/bulk?action=delete', $data)
         ->assertStatus(200);
+
+        Event::assertDispatched(RecurringInvoiceWasCreated::class);
+        Event::assertDispatched(RecurringInvoiceWasUpdated::class);
+        Event::assertDispatched(RecurringInvoiceWasArchived::class);
+        Event::assertDispatched(RecurringInvoiceWasRestored::class);
+        Event::assertDispatched(RecurringInvoiceWasDeleted::class);
+
     }
 
 
 
     public function testClientEvents()
     {
-        $this->expectsEvents([
-            ClientWasCreated::class,
-            ClientWasUpdated::class,
-            ClientWasArchived::class,
-            ClientWasRestored::class,
-            ClientWasDeleted::class,
-        ]);
+        Event::fake();
+
 
         $data = [
             'name' => $this->faker->firstName,
@@ -673,6 +691,14 @@ class EventTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/clients/bulk?action=delete', $data)
         ->assertStatus(200);
+
+
+        Event::assertDispatched(ClientWasCreated::class);
+        Event::assertDispatched(ClientWasUpdated::class);
+        Event::assertDispatched(ClientWasArchived::class);
+        Event::assertDispatched(ClientWasRestored::class);
+        Event::assertDispatched(ClientWasDeleted::class);
+
     }
 
 
@@ -680,13 +706,7 @@ class EventTest extends TestCase
     {
         $this->withoutMiddleware(PasswordProtection::class);
 
-        $this->expectsEvents([
-            UserWasCreated::class,
-            UserWasUpdated::class,
-            UserWasArchived::class,
-            UserWasRestored::class,
-            UserWasDeleted::class,
-        ]);
+        Event::fake();
 
         $data = [
             'first_name' => 'hey',
@@ -705,7 +725,7 @@ class EventTest extends TestCase
                 'X-API-PASSWORD' => 'ALongAndBriliantPassword',
         ])->postJson('/api/v1/users?include=company_user', $data)
           ->assertStatus(200);
-       
+
         $arr = $response->json();
 
         $data = [
@@ -751,17 +771,27 @@ class EventTest extends TestCase
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
         ])->postJson('/api/v1/users/bulk?action=delete', $data)
         ->assertStatus(200);
+
+
+
+
+        Event::assertDispatched(UserWasCreated::class);
+
+        Event::assertDispatched(UserWasUpdated::class);
+
+        Event::assertDispatched(UserWasArchived::class);
+
+        Event::assertDispatched(UserWasRestored::class);
+
+        Event::assertDispatched(UserWasDeleted::class);
+
+
     }
 
     public function testSubscriptionEvents()
     {
-        $this->expectsEvents([
-            SubscriptionWasCreated::class,
-            SubscriptionWasUpdated::class,
-            SubscriptionWasArchived::class,
-            SubscriptionWasRestored::class,
-            SubscriptionWasDeleted::class,
-        ]);
+        Event::fake();
+
 
         $data = [
             'name' => $this->faker->firstName,
@@ -808,25 +838,26 @@ class EventTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/subscriptions/bulk?action=delete', $data)
         ->assertStatus(200);
+
+
+        Event::assertDispatched(SubscriptionWasCreated::class);
+        Event::assertDispatched(SubscriptionWasUpdated::class);
+        Event::assertDispatched(SubscriptionWasArchived::class);
+        Event::assertDispatched(SubscriptionWasRestored::class);
+        Event::assertDispatched(SubscriptionWasDeleted::class);
+
     }
 
 
-public function PurchaseOrderEvents()
+    public function testPurchaseOrderEvents()
     {
-
         /* Test fire new invoice */
         $data = [
-            'client_id' => $this->vendor->hashed_id,
+            'vendor_id' => $this->vendor->hashed_id,
             'number' => 'dude',
         ];
 
-        $this->expectsEvents([
-            PurchaseOrderWasCreated::class,
-            PurchaseOrderWasUpdated::class,
-            PurchaseOrderWasArchived::class,
-            PurchaseOrderWasRestored::class,
-            PurchaseOrderWasDeleted::class,
-        ]);
+        Event::fake();
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -838,7 +869,7 @@ public function PurchaseOrderEvents()
         $arr = $response->json();
 
         $data = [
-            'client_id' => $this->vendor->hashed_id,
+            'vendor_id' => $this->vendor->hashed_id,
             'number' => 'dude2',
         ];
 
@@ -872,7 +903,7 @@ public function PurchaseOrderEvents()
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->postJson('/api/v1/purchase_orders/bulk?action=approve', $data)
+        ])->postJson('/api/v1/purchase_orders/bulk?action=mark_sent', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
@@ -880,7 +911,12 @@ public function PurchaseOrderEvents()
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/purchase_orders/bulk?action=delete', $data)
         ->assertStatus(200);
+
+        Event::assertDispatched(PurchaseOrderWasCreated::class);
+        Event::assertDispatched(PurchaseOrderWasUpdated::class);
+        Event::assertDispatched(PurchaseOrderWasArchived::class);
+        Event::assertDispatched(PurchaseOrderWasRestored::class);
+        Event::assertDispatched(PurchaseOrderWasDeleted::class);
+
     }
-
-
 }

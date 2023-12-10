@@ -2,8 +2,6 @@
 
 use App\Models\Currency;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     /**
@@ -20,7 +18,7 @@ return new class extends Migration {
         ];
 
         foreach ($currencies as $currency) {
-            $record = Currency::whereCode($currency['code'])->first();
+            $record = Currency::query()->whereCode($currency['code'])->first();
             if ($record) {
                 $record->name = $currency['name'];
                 $record->symbol = $currency['symbol'];

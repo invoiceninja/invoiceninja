@@ -12,11 +12,8 @@
 namespace Tests\Feature\Export;
 
 use App\Jobs\Company\CompanyExport;
-use App\Models\Invoice;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Support\Facades\Storage;
-use League\Csv\Writer;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -49,7 +46,7 @@ class ExportCompanyTest extends TestCase
 
     public function testCompanyExport()
     {
-        $res = (new CompanyExport($this->company, $this->company->users->first()))->handle();
+        $res = (new CompanyExport($this->company, $this->company->users->first(), '123'))->handle();
 
         $this->assertTrue($res);
     }

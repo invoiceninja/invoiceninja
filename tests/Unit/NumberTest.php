@@ -11,7 +11,6 @@
 
 namespace Tests\Unit;
 
-use App\Models\Currency;
 use App\Utils\Number;
 use Tests\TestCase;
 
@@ -21,7 +20,6 @@ use Tests\TestCase;
  */
 class NumberTest extends TestCase
 {
-
     public function testFloatPrecision()
     {
         $value = 1.1;
@@ -97,5 +95,4 @@ class NumberTest extends TestCase
 
         $this->assertEquals(7.99, $converted_amount);
     }
-
 }

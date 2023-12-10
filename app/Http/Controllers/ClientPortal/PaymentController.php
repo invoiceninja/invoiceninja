@@ -12,27 +12,23 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
-use App\Exceptions\PaymentFailed;
 use App\Factory\PaymentFactory;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Jobs\Invoice\InjectSignature;
-use App\Jobs\Util\SystemLogger;
 use App\Models\CompanyGateway;
+use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
-use App\Models\SystemLog;
+use App\Models\PaymentType;
+use App\PaymentDrivers\Stripe\BankTransfer;
 use App\Services\ClientPortal\InstantPayment;
 use App\Services\Subscription\SubscriptionService;
-use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 /**
@@ -63,9 +59,34 @@ class PaymentController extends Controller
     public function show(Request $request, Payment $payment)
     {
         $payment->load('invoices');
+        $bank_details = false;
+        $payment_intent = false;
+        $data = false;
+        $gateway = false;
 
+        if ($payment->gateway_type_id == GatewayType::DIRECT_DEBIT && $payment->type_id == PaymentType::DIRECT_DEBIT) {
+            if (method_exists($payment->company_gateway->driver($payment->client), 'getPaymentIntent')) {
+                $stripe = $payment->company_gateway->driver($payment->client);
+                $payment_intent = $stripe->getPaymentIntent($payment->transaction_reference);
+
+                $bt = new BankTransfer($stripe);
+
+                match ($payment->currency->code) {
+                    'MXN' => $data = $bt->formatDataforMx($payment_intent),
+                    'EUR' => $data = $bt->formatDataforEur($payment_intent),
+                    'JPY' => $data = $bt->formatDataforJp($payment_intent),
+                    'GBP' => $data = $bt->formatDataforUk($payment_intent),
+                };
+
+                $gateway = $stripe;
+            }
+        }
+
+        
         return $this->render('payments.show', [
             'payment' => $payment,
+            'bank_details' => $payment_intent ? $data : false,
+            'currency' => $payment->currency ? strtolower($payment->currency->code) : strtolower($payment->client->currency()->code),
         ]);
     }
 
@@ -90,15 +111,14 @@ class PaymentController extends Controller
 
     public function response(PaymentResponseRequest $request)
     {
-
+        /** @var \App\Models\CompanyGateway $gateway **/
         $gateway = CompanyGateway::findOrFail($request->input('company_gateway_id'));
         $payment_hash = PaymentHash::where('hash', $request->payment_hash)->firstOrFail();
         $invoice = Invoice::with('client')->find($payment_hash->fee_invoice_id);
         $client = $invoice ? $invoice->client : auth()->guard('contact')->user()->client;
 
         // 09-07-2022 catch duplicate responses for invoices that already paid here.
-        if($invoice && $invoice->status_id == Invoice::STATUS_PAID){
-
+        if ($invoice && $invoice->status_id == Invoice::STATUS_PAID) {
             $data = [
                 'invoice' => $invoice,
                 'key' => false,
@@ -110,22 +130,21 @@ class PaymentController extends Controller
             }
 
             return $this->render('invoices.show', $data);
-
         }
 
-            return $gateway
-                ->driver($client)
-                ->setPaymentMethod($request->input('payment_method_id'))
-                ->setPaymentHash($payment_hash)
-                ->checkRequirements()
-                ->processPaymentResponse($request);
+        return $gateway
+            ->driver($client)
+            ->setPaymentMethod($request->input('payment_method_id'))
+            ->setPaymentHash($payment_hash)
+            ->checkRequirements()
+            ->processPaymentResponse($request);
     }
 
     /**
      * Pay for invoice/s using credits only.
      *
      * @param Request $request The request object
-     * @return Response         The response view
+     * @return \Response         The response view
      */
     public function credit_response(Request $request)
     {
@@ -148,12 +167,19 @@ class PaymentController extends Controller
 
         $payment = $payment->service()->applyCredits($payment_hash)->save();
 
-        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')));
+        /** @var \Illuminate\Database\Eloquent\Collection<\App\Models\Invoice> $invoices */
+        $invoices = Invoice::query()->whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')));
+
+        $invoices->each(function ($invoice) {
+            /** @var \App\Models\Invoice $invoice **/
+            $invoice->is_proforma = false;
+            $invoice->saveQuietly();
+        });
 
         event('eloquent.created: App\Models\Payment', $payment);
 
-        if($invoices->sum('balance') > 0){
-
+        if ($invoices->sum('balance') > 0) {
+            /** @var \App\Models\Invoice $invoice **/
             $invoice = $invoices->first();
 
             return redirect()->route('client.invoice.show', ['invoice' => $invoice->hashed_id, 'hash' => $request->input('hash')]);

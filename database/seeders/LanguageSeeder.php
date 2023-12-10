@@ -57,6 +57,14 @@ class LanguageSeeder extends Seeder
             ['id' => 30, 'name' => 'Arabic', 'locale' => 'ar'],
             ['id' => 31, 'name' => 'Persian', 'locale' => 'fa'],
             ['id' => 32, 'name' => 'Latvian', 'locale' => 'lv_LV'],
+            ['id' => 33, 'name' => 'Serbian', 'locale' => 'sr'],
+            ['id' => 34, 'name' => 'Slovak', 'locale' => 'sk'],
+            ['id' => 35, 'name' => 'Estonian', 'locale' => 'et'],
+            ['id' => 36, 'name' => 'Bulgarian', 'locale' => 'bg'],
+            ['id' => 37, 'name' => 'Hebrew', 'locale' => 'he'],
+            ['id' => 38, 'name' => 'Khmer', 'locale' => 'km_KH'],
+            ['id' => 39, 'name' => 'Hungarian', 'locale' => 'hu'],
+            ['id' => 40, 'name' => 'French - Swiss', 'locale' => 'fr_CH'],
         ];
 
         foreach ($languages as $language) {
@@ -69,39 +77,5 @@ class LanguageSeeder extends Seeder
             }
         }
 
-        if(!Language::find(33)) {
-            
-            $serbian = ['id' => 33, 'name' => 'Serbian', 'locale' => 'sr'];
-            Language::create($serbian);
-
-        }
-
-        if(!Language::find(34)) {
-            
-            $slovak = ['id' => 34, 'name' => 'Slovak', 'locale' => 'sk'];
-            Language::create($slovak);
-
-        }
-
-        if(!Language::find(35)) {
-            
-            $estonia = ['id' => 35, 'name' => 'Estonian', 'locale' => 'et'];
-            Language::create($estonia);
-
-        }
-
-        if(!Language::find(36)) {
-            
-            $bulgarian = ['id' => 36, 'name' => 'Bulgarian', 'locale' => 'bg'];
-            Language::create($bulgarian);
-
-        }
-
-        if(!Language::find(37)) {
-            
-            $hebrew = ['id' => 37, 'name' => 'Hebrew', 'locale' => 'he'];
-            Language::create($hebrew);
-
-        }
     }
 }

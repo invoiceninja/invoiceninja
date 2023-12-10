@@ -12,15 +12,13 @@
 namespace App\Services\Quote;
 
 use App\Events\Quote\QuoteWasApproved;
-use App\Factory\InvoiceInvitationFactory;
-use App\Jobs\Entity\CreateEntityPdf;
-use App\Jobs\Util\UnlinkFile;
-use App\Models\Invoice;
+use App\Exceptions\QuoteConversion;
+use App\Models\Project;
 use App\Models\Quote;
 use App\Repositories\QuoteRepository;
-use App\Services\Quote\TriggeredActions;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Facades\Storage;
 
 class QuoteService
 {
@@ -42,10 +40,17 @@ class QuoteService
         return $this;
     }
 
+    public function convertToProject(): Project
+    {
+        $project = (new ConvertQuoteToProject($this->quote))->run();
+
+        return $project;
+    }
+
     public function convert() :self
     {
         if ($this->quote->invoice_id) {
-            return $this;
+            throw new QuoteConversion();
         }
 
         $convert_quote = (new ConvertQuote($this->quote->client))->run($this->quote);
@@ -117,7 +122,7 @@ class QuoteService
             $this->invoice
                  ->service()
                  ->markSent()
-                 ->touchPdf()
+                //  ->deletePdf()
                  ->save();
         }
 
@@ -126,32 +131,7 @@ class QuoteService
         return $this;
     }
 
-    /**
-     * Sometimes we need to refresh the
-     * PDF when it is updated etc.
-     * 
-     * @return QuoteService
-     */
-    public function touchPdf($force = false)
-    {
-        try {
-            if ($force) {
-                $this->quote->invitations->each(function ($invitation) {
-                    (new CreateEntityPdf($invitation))->handle();
-                });
 
-                return $this;
-            }
-
-            $this->quote->invitations->each(function ($invitation) {
-                CreateEntityPdf::dispatch($invitation);
-            });
-        } catch (\Exception $e) {
-            nlog('failed creating invoices in Touch PDF');
-        }
-
-        return $this;
-    }
 
     public function approveWithNoCoversion($contact = null) :self
     {
@@ -226,7 +206,22 @@ class QuoteService
     public function deletePdf()
     {
         $this->quote->invitations->each(function ($invitation) {
-            (new UnlinkFile(config('filesystems.default'), $this->quote->client->quote_filepath($invitation).$this->quote->numberFormatter().'.pdf'))->handle();
+            // (new UnlinkFile(config('filesystems.default'), $this->quote->client->quote_filepath($invitation).$this->quote->numberFormatter().'.pdf'))->handle();
+
+            //30-06-2023
+            try {
+                // if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf')) {
+                Storage::disk(config('filesystems.default'))->delete($this->quote->client->quote_filepath($invitation).$this->quote->numberFormatter().'.pdf');
+                // }
+
+                // if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf')) {
+                if (Ninja::isHosted()) {
+                    Storage::disk('public')->delete($this->quote->client->quote_filepath($invitation).$this->quote->numberFormatter().'.pdf');
+                }
+            } catch (\Exception $e) {
+                nlog($e->getMessage());
+            }
+
         });
 
         return $this;

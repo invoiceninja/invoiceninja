@@ -24,7 +24,7 @@
             supported-color-schemes: light dark;
         }
         @if(isset($settings) && $settings->email_style === 'dark')
-            body {
+        body {
             background-color: #1a1a1a !important;
             color: #ffffff !important;
         }
@@ -82,7 +82,6 @@
         #content .left {
             text-align: left !important;
         }
-
         .stamp {
             transform: rotate(12deg);
             color: #555;
@@ -96,7 +95,6 @@
             z-index:200 !important;
             position: relative;
         }
-
         .is-paid {
             color:  #D23;
             border: 1rem double  #D23;
@@ -109,6 +107,20 @@
             z-index:200 !important;
             position: relative;
         } 
+        a.doc_links {
+            text-decoration: none;
+            padding-bottom: 10px;
+            display: inline-block;
+            color: inherit !important;
+        }
+        
+        .new_button a {
+            background-color: {{ $primary_color }};
+        }
+
+        .logo {
+
+        }
     </style>
 
     <!--[if gte mso 9]>
@@ -123,27 +135,24 @@
 
 <body
     style="margin: 0; padding: 0; font-family: 'roboto', Arial, Helvetica, sans-serif; color: #3b3b3b;-webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
-<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" >
     <tr>
         <td>
             <table align="center" border="0" cellpadding="0" cellspacing="0" width="570"
-                   style="border-collapse: collapse;" class="dark-bg-base">
-                <tr>
-                    <div style="text-align: center;margin-top: 25px; margin-bottom: 10px;"></div>
+                   style="border: 1px solid #c2c2c2;" class="dark-bg-base">
+                
+                <!--[if mso]>
+                <tr class="dark-bg" style="margin-top:10px; border: none;">
+                <td style="border: none;"></td>
                 </tr>
+                <![endif]-->
+                
                 <tr>
                     <td align="center" cellpadding="20">
-                        <div style="border: 1px solid #c2c2c2; border-bottom: none; padding-bottom: 10px; border-top-left-radius: 3px; border-top-right-radius: 3px;">
-
-                            <!--[if gte mso 9]>
-                            <img src="{{ $logo ?? '' }}" alt="" width="400" border="0" align="middle" style="display:block;" />
-                            <div style="mso-hide:all;">
-                            <![endif]-->
-                            <img src="{{ $logo ?? '' }}" alt="" width="400" style="margin-top: 40px; max-width: 200px; display: block; margin-left: auto; margin-right: auto;"/>
-                            <!--[if gte mso 9]>
-                            </div>
-                            <![endif]-->
-
+                        <div style="border: 1px solid #c2c2c2; border-bottom: none; padding-bottom: 10px; border-top-left-radius: 3px; border-top-right-radius: 3px; padding-top:10px;">
+                            @if($logo && strpos($logo, 'blank.png') === false)
+                             <img class="" src="{{ $logo ?? '' }}" width="50%" height="" alt=" " border="0" style="width: 50%; max-width: 570px; display: block;">
+                            @endif
                         </div>
                     </td>
                 </tr>
@@ -160,7 +169,17 @@
                                         style="display: inline-block;background-color: {{ $primary_color }}; color: #ffffff; text-transform: uppercase;letter-spacing: 2px; text-decoration: none; font-size: 13px; font-weight: 600;">
                                     </a>
                                 </div>
-                           </div>
+
+                                @isset($links)
+                                <div>
+                                    <ul style="list-style-type: none;">
+                                    @foreach($links as $link)
+                                            <li>{!! $link ?? '' !!} <img height="15px" src="{{ asset('images/svg/dark/file.svg') }}"></li>
+                                    @endforeach
+                                    </ul>
+                                </div>
+                                @endisset
+                        </div>
                     </td>
                 </tr>  
                 
@@ -184,8 +203,8 @@
                                 <p style="font-size: 15px; color: #2e2e2e; font-family: 'roboto', Arial, Helvetica, sans-serif; font-weight: 500; margin-bottom:0;">
                                     {{ $company->present()->name() }}</p>
                                 <p style="font-size: 15px; color: #2e2e2e; font-family: 'roboto', Arial, Helvetica, sans-serif; font-weight: 400; margin-top: 5px;">
-                                    <span>{{ $company->settings->phone }}</span>
-                                    <span style="font-weight: 500"> {{ $company->settings->website }}</span>
+                                    <p>{{ $company->settings->phone }}</p>
+                                    <p style="font-weight: 500"> {{ $company->settings->website }}</p>
                                 </p>
                             @endif
                         </div>

@@ -11,20 +11,9 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Events\Contact\ContactLoggedIn;
 use App\Http\Controllers\Controller;
-use App\Http\ViewComposers\PortalComposer;
-use App\Libraries\MultiDB;
-use App\Models\Account;
-use App\Models\ClientContact;
-use App\Models\Company;
-use App\Utils\Ninja;
 use Auth;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Route;
 
 class VendorContactLoginController extends Controller
 {
@@ -39,16 +28,13 @@ class VendorContactLoginController extends Controller
 
     public function catch()
     {
-        $data = [
-
-        ];
-
         return $this->render('purchase_orders.catch');
     }
 
     public function logout()
     {
         Auth::guard('vendor')->logout();
+        
         request()->session()->invalidate();
 
         return redirect('/vendors');

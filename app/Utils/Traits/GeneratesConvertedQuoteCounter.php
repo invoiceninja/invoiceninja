@@ -33,7 +33,6 @@ use Illuminate\Support\Str;
  */
 trait GeneratesConvertedQuoteCounter
 {
-
     private int $update_counter;
 
     private function harvestQuoteCounter($quote, $invoice, Client $client)
@@ -70,7 +69,7 @@ trait GeneratesConvertedQuoteCounter
 
         $number = $this->applyNumberPattern($invoice, $number, $pattern);
 
-        $check = Invoice::whereCompanyId($client->company_id)->whereNumber($number)->withTrashed()->exists();
+        $check = Invoice::query()->whereCompanyId($client->company_id)->whereNumber($number)->withTrashed()->exists();
 
         if ($check) {
             return false;
@@ -369,8 +368,7 @@ trait GeneratesConvertedQuoteCounter
         }
 
         //if ($type == 'credit') {
-            return (bool) $client->getSetting('shared_invoice_credit_counter');
-        
+        return (bool) $client->getSetting('shared_invoice_credit_counter');
     }
 
     /**
@@ -479,15 +477,12 @@ trait GeneratesConvertedQuoteCounter
         $reset_counter_frequency = (int) $client->getSetting('reset_counter_frequency_id');
 
         if ($reset_counter_frequency == 0) {
-
-                if($client->getSetting('reset_counter_date')){
-
-                    $settings = $client->company->settings;
-                    $settings->reset_counter_date = "";
-                    $client->company->settings = $settings;
-                    $client->company->save();
-                    
-                }
+            if ($client->getSetting('reset_counter_date')) {
+                $settings = $client->company->settings;
+                $settings->reset_counter_date = "";
+                $client->company->settings = $settings;
+                $client->company->save();
+            }
 
             return;
         }
@@ -536,7 +531,7 @@ trait GeneratesConvertedQuoteCounter
                 $new_reset_date = $reset_date->addYears(2);
                 break;
 
-                default:
+            default:
                 $new_reset_date = $reset_date->addYear();
                 break;
         }
@@ -655,7 +650,7 @@ trait GeneratesConvertedQuoteCounter
             $replace[] = str_pad(($user_id), 2, '0', STR_PAD_LEFT);
         }
 
-        $matches = false;
+        $matches = [];
         preg_match('/{\$date:(.*?)}/', $pattern, $matches);
         if (count($matches) > 1) {
             $format = $matches[1];

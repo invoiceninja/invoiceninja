@@ -41,12 +41,10 @@ class YodleeApiTest extends TestCase
         $this->markTestSkipped('Skip test no Yodlee API credentials found');
 
         $this->makeTestData();
-
     }
 
     public function testExpenseGenerationFromBankFeed()
     {
-
         $bi = BankIntegrationFactory::create($this->company->id, $this->user->id, $this->account->id);
         $bi->save();
 
@@ -73,7 +71,6 @@ class YodleeApiTest extends TestCase
 
         $this->assertNotNull($expense);
         $this->assertEquals(10, (int) $expense->amount);
-
     }
 
     public function testIncomeMatchingAndPaymentGeneration()
@@ -157,49 +154,48 @@ class YodleeApiTest extends TestCase
         $this->assertNotNull($x);
 
         $this->assertEquals('Automotive Expenses', $x->highLevelCategoryName);
-
     }
 
     //     public function testFunctionalMatching()
-//     {
+    //     {
 
     //         $yodlee = new Yodlee('sbMem62e1e69547bfb1');
 
     //         $accounts = $yodlee->getAccounts();
 
     //         foreach($accounts as $account)
-//         {
+    //         {
 
-    //             if(!BankIntegration::where('bank_account_id', $account['id'])->where('company_id', $this->company->id)->exists())
-//             {
-//                 $bank_integration = new BankIntegration();
-//                 $bank_integration->company_id = $this->company->id;
-//                 $bank_integration->account_id = $this->company->account_id;
-//                 $bank_integration->user_id = $this->user->id;
-//                 $bank_integration->bank_account_id = $account['id'];
-//                 $bank_integration->bank_account_type = $account['account_type'];
-//                 $bank_integration->bank_account_name = $account['account_name'];
-//                 $bank_integration->bank_account_status = $account['account_status'];
-//                 $bank_integration->bank_account_number = $account['account_number'];
-//                 $bank_integration->provider_id = $account['provider_id'];
-//                 $bank_integration->provider_name = $account['provider_name'];
-//                 $bank_integration->nickname = $account['nickname'];
-//                 $bank_integration->balance = $account['current_balance'];
-//                 $bank_integration->currency = $account['account_currency'];
+    //             if(!BankIntegration::where('bank_account_id', $account['id'])->where('company_id', $this->company->id)->exists()) // TODO: maybe filter to only yodlee-integrations
+    //             {
+    //                 $bank_integration = new BankIntegration();
+    //                 $bank_integration->company_id = $this->company->id;
+    //                 $bank_integration->account_id = $this->company->account_id;
+    //                 $bank_integration->user_id = $this->user->id;
+    //                 $bank_integration->bank_account_id = $account['id'];
+    //                 $bank_integration->bank_account_type = $account['account_type'];
+    //                 $bank_integration->bank_account_name = $account['account_name'];
+    //                 $bank_integration->bank_account_status = $account['account_status'];
+    //                 $bank_integration->bank_account_number = $account['account_number'];
+    //                 $bank_integration->provider_id = $account['provider_id'];
+    //                 $bank_integration->provider_name = $account['provider_name'];
+    //                 $bank_integration->nickname = $account['nickname'];
+    //                 $bank_integration->balance = $account['current_balance'];
+    //                 $bank_integration->currency = $account['account_currency'];
 
     //                 $bank_integration->save();
 
-    //                 ProcessBankTransactionsYodlee::dispatchSync('sbMem62e1e69547bfb1', $bank_integration);
+    //                 ProcessBankTransactions::dispatchSync('sbMem62e1e69547bfb1', $bank_integration);
 
     //             }
-//         }
+    //         }
 
     //         $this->assertGreaterThan(0, BankIntegration::count());
-//         $this->assertGreaterThan(0, BankTransaction::count());
+    //         $this->assertGreaterThan(0, BankTransaction::count());
 
     //         $this->invoice->company_id = $this->company->id;
-//         $this->invoice->number = "XXXXXX8501";
-//         $this->invoice->save();
+    //         $this->invoice->number = "XXXXXX8501";
+    //         $this->invoice->save();
 
     //         BankService::dispatchSync($this->company->id, $this->company->db);
 
@@ -216,7 +212,6 @@ class YodleeApiTest extends TestCase
 
     public function testDataMatching()
     {
-
         $transaction = collect([
             (object) [
                 'description' => 'tinkertonkton'
@@ -256,19 +251,14 @@ class YodleeApiTest extends TestCase
 
 
         $invoice = $transaction->first(function ($value, $key) {
-
             return str_contains($value->description, 'tinker');
-
         });
 
         $this->assertNotNull($invoice);
-
-
     }
 
     public function testYodleeInstance()
     {
-
         $yodlee = new Yodlee();
 
         $this->assertNotNull($yodlee);
@@ -278,7 +268,6 @@ class YodleeApiTest extends TestCase
 
     public function testAccessTokenGeneration()
     {
-
         $yodlee = new Yodlee('sbMem62e1e69547bfb1');
 
         $access_token = $yodlee->getAccessToken();
@@ -463,13 +452,11 @@ class YodleeApiTest extends TestCase
 
     public function testGetCategories()
     {
-
         $yodlee = new Yodlee('sbMem62e1e69547bfb2');
 
         $transactions = $yodlee->getTransactionCategories();
 
         $this->assertIsArray($transactions->transactionCategory);
-
     }
 
 
@@ -576,7 +563,6 @@ class YodleeApiTest extends TestCase
     */
     public function testGetAccounts()
     {
-
         $yodlee = new Yodlee('sbMem62e1e69547bfb1');
 
         $accounts = $yodlee->getAccounts();
@@ -633,18 +619,15 @@ class YodleeApiTest extends TestCase
 
     public function testGetTransactions()
     {
-
         $yodlee = new Yodlee('sbMem62e1e69547bfb1');
 
         $transactions = $yodlee->getTransactions(['categoryId' => 2, 'fromDate' => '2000-01-01']);
 
         $this->assertIsArray($transactions);
-
     }
 
     public function testGetTransactionsWithParams()
     {
-
         $yodlee = new Yodlee('sbMem62e1e69547bfb1');
 
         $data = [
@@ -657,7 +640,5 @@ class YodleeApiTest extends TestCase
         $accounts = $yodlee->getTransactions($data);
 
         $this->assertIsArray($accounts);
-
     }
-
 }

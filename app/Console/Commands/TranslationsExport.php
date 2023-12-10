@@ -11,14 +11,10 @@
 
 namespace App\Console\Commands;
 
-use App\Libraries\MultiDB;
-use App\Models\Backup;
-use App\Models\Design;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Storage;
-use stdClass;
 
 class TranslationsExport extends Command
 {
@@ -55,10 +51,13 @@ class TranslationsExport extends Command
         'fi',
         'fr',
         'fr_CA',
+        'fr_CH',
         'he',
         'hr',
+        'hu',
         'it',
         'ja',
+        'km_KH',
         'lt',
         'lv_LV',
         'mk_MK',
@@ -98,42 +97,35 @@ class TranslationsExport extends Command
     {
         $type =$this->option('type') ?? 'export';
 
-        if($type == 'import')
+        if ($type == 'import') {
             $this->import();
+        }
 
-        if($type == 'export')
+        if ($type == 'export') {
             $this->export();
-
+        }
     }
 
     private function import()
     {
         //loop and
 
-        foreach($this->langs as $lang)
-        {
-
+        foreach ($this->langs as $lang) {
             $import_file = "textsphp_{$lang}.php";
             $dir = $this->option('path') ?? storage_path('lang_import/');
             $path = $dir.$import_file;
 
-            if(file_exists($path)){
+            if (file_exists($path)) {
                 $this->logMessage($path);
 
                 $trans = file_get_contents($path);
 
                 file_put_contents(lang_path("/{$lang}/texts.php"), $trans);
-
-            }
-            else{
-
+            } else {
                 $this->logMessage("Could not open file");
                 $this->logMessage($path);
-            
             }
-
         }
-
     }
 
 
@@ -145,9 +137,8 @@ class TranslationsExport extends Command
             Storage::disk('local')->makeDirectory("lang/{$lang}");
 
             $translations = Lang::getLoader()->load($lang, 'texts');
-
             Storage::disk('local')->put("lang/{$lang}/{$lang}.json", json_encode(Arr::dot($translations), JSON_UNESCAPED_UNICODE));
-        } 
+        }
     }
 
     private function logMessage($str)
@@ -156,5 +147,4 @@ class TranslationsExport extends Command
         $this->info($str);
         $this->log .= $str."\n";
     }
-
 }

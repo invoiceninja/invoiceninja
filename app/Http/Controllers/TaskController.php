@@ -15,6 +15,7 @@ use App\Events\Task\TaskWasCreated;
 use App\Events\Task\TaskWasUpdated;
 use App\Factory\TaskFactory;
 use App\Filters\TaskFilters;
+use App\Http\Requests\Task\BulkTaskRequest;
 use App\Http\Requests\Task\CreateTaskRequest;
 use App\Http\Requests\Task\DestroyTaskRequest;
 use App\Http\Requests\Task\EditTaskRequest;
@@ -27,13 +28,13 @@ use App\Models\Account;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Repositories\TaskRepository;
+use App\Services\Template\TemplateAction;
 use App\Transformers\TaskTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use App\Utils\Traits\Uploadable;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**
@@ -51,7 +52,7 @@ class TaskController extends BaseController
     protected $entity_transformer = TaskTransformer::class;
 
     /**
-     * @var Taskepository
+     * @var TaskRepository
      */
     protected $task_repo;
 
@@ -75,7 +76,7 @@ class TaskController extends BaseController
      *      description="Lists tasks, search and filters allow fine grained lists to be generated.
      *
      *   Query parameters can be added to performed more fine grained filtering of the tasks, these are handled by the TaskFilters class which defines the methods available",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
@@ -122,7 +123,7 @@ class TaskController extends BaseController
      *      tags={"tasks"},
      *      summary="Shows a client",
      *      description="Displays a client by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -176,7 +177,7 @@ class TaskController extends BaseController
      *      tags={"tasks"},
      *      summary="Shows a client for editting",
      *      description="Displays a client by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -231,7 +232,7 @@ class TaskController extends BaseController
      *      tags={"tasks"},
      *      summary="Updates a client",
      *      description="Handles the updating of a client by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -275,6 +276,7 @@ class TaskController extends BaseController
         $old_task = json_decode(json_encode($task));
 
         $task = $this->task_repo->save($request->all(), $task);
+        
         $task = $this->task_repo->triggeredActions($request, $task);
 
         if ($task->status_order != $old_task->status_order) {
@@ -282,6 +284,8 @@ class TaskController extends BaseController
         }
 
         event(new TaskWasUpdated($task, $task->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+
+        event('eloquent.updated: App\Models\Task', $task);
 
         return $this->itemResponse($task->fresh());
     }
@@ -300,7 +304,7 @@ class TaskController extends BaseController
      *      tags={"tasks"},
      *      summary="Gets a new blank client object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -326,7 +330,10 @@ class TaskController extends BaseController
      */
     public function create(CreateTaskRequest $request)
     {
-        $task = TaskFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $task = TaskFactory::create($user->company()->id, $user->id);
 
         return $this->itemResponse($task);
     }
@@ -345,7 +352,7 @@ class TaskController extends BaseController
      *      tags={"tasks"},
      *      summary="Adds a client",
      *      description="Adds an client to a company",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -371,10 +378,16 @@ class TaskController extends BaseController
      */
     public function store(StoreTaskRequest $request)
     {
-        $task = $this->task_repo->save($request->all(), TaskFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $task = $this->task_repo->save($request->all(), TaskFactory::create($user->company()->id, $user->id));
         $task = $this->task_repo->triggeredActions($request, $task);
 
-        event(new TaskWasCreated($task, $task->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        event(new TaskWasCreated($task, $task->company, Ninja::eventVars($user->id)));
+
+        event('eloquent.created: App\Models\Task', $task);
+
 
         return $this->itemResponse($task);
     }
@@ -394,7 +407,7 @@ class TaskController extends BaseController
      *      tags={"tasks"},
      *      summary="Deletes a client",
      *      description="Handles the deletion of a client by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -448,7 +461,7 @@ class TaskController extends BaseController
      *      tags={"tasks"},
      *      summary="Performs bulk actions on an array of tasks",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
@@ -486,15 +499,37 @@ class TaskController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkTaskRequest $request)
     {
-        $action = request()->input('action');
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
-        $ids = request()->input('ids');
-        $tasks = Task::withTrashed()->find($this->transformKeys($ids));
+        $action = $request->input('action');
 
-        $tasks->each(function ($task, $key) use ($action) {
-            if (auth()->user()->can('edit', $task)) {
+        $ids = $request->input('ids');
+        
+        $tasks = Task::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
+
+        if($action == 'template' && $user->can('view', $tasks->first())) {
+
+            $hash_or_response = request()->boolean('send_email') ? 'email sent' : \Illuminate\Support\Str::uuid();
+
+            TemplateAction::dispatch(
+                $tasks->pluck('hashed_id')->toArray(),
+                $request->template_id,
+                Task::class,
+                $user->id,
+                $user->company(),
+                $user->company()->db,
+                $hash_or_response,
+                $request->boolean('send_email')
+            );
+
+            return response()->json(['message' => $hash_or_response], 200);
+        }
+
+        $tasks->each(function ($task) use ($action, $user) {
+            if ($user->can('edit', $task)) {
                 $this->task_repo->{$action}($task);
             }
         });
@@ -527,7 +562,7 @@ class TaskController extends BaseController
      *      tags={"tasks"},
      *      summary="Uploads a document to a task",
      *      description="Handles the uploading of a document to a task",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -569,7 +604,7 @@ class TaskController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $task);
+            $this->saveDocuments($request->file('documents'), $task, $request->input('is_public', true));
         }
 
         return $this->itemResponse($task->fresh());
@@ -578,7 +613,7 @@ class TaskController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param StoreTaskRequest $request
+     * @param SortTaskRequest $request
      * @return Response
      *
      *
@@ -589,7 +624,7 @@ class TaskController extends BaseController
      *      tags={"tasks"},
      *      summary="Sort tasks on KanBan",
      *      description="Sorts tasks after drag and drop on the KanBan.",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -616,10 +651,13 @@ class TaskController extends BaseController
     {
         $task_statuses = $request->input('status_ids');
         $tasks = $request->input('task_ids');
+        
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
-        collect($task_statuses)->each(function ($task_status_hashed_id, $key) {
-            $task_status = TaskStatus::where('id', $this->decodePrimaryKey($task_status_hashed_id))
-                                     ->where('company_id', auth()->user()->company()->id)
+        collect($task_statuses)->each(function ($task_status_hashed_id, $key) use ($user) {
+            $task_status = TaskStatus::query()->where('id', $this->decodePrimaryKey($task_status_hashed_id))
+                                     ->where('company_id', $user->company()->id)
                                      ->withTrashed()
                                      ->first();
 
@@ -631,8 +669,8 @@ class TaskController extends BaseController
             $sort_status_id = $this->decodePrimaryKey($key);
 
             foreach ($task_list as $key => $task) {
-                $task_record = Task::where('id', $this->decodePrimaryKey($task))
-                             ->where('company_id', auth()->user()->company()->id)
+                $task_record = Task::query()->where('id', $this->decodePrimaryKey($task))
+                             ->where('company_id', $user->company()->id)
                              ->withTrashed()
                              ->first();
 

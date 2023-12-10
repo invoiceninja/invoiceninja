@@ -13,14 +13,56 @@ namespace App\Models;
 
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * App\Models\GroupSetting
+ *
+ * @property int $id
+ * @property int $company_id
+ * @property int|null $user_id
+ * @property string|null $name
+ * @property object|null $settings
+ * @property int $is_default
+ * @property int|null $deleted_at
+ * @property int|null $created_at
+ * @property int|null $updated_at
+ * @property int $is_deleted
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Client> $clients
+ * @property-read int|null $clients_count
+ * @property-read \App\Models\Company $company
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read int|null $documents_count
+ * @property-read mixed $hashed_id
+ * @property-read \App\Models\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel company()
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel exclude($columns)
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupSetting newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupSetting newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupSetting onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupSetting query()
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupSetting whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupSetting whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupSetting whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupSetting whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupSetting whereIsDefault($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupSetting whereIsDeleted($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupSetting whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupSetting whereSettings($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupSetting whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupSetting whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupSetting withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupSetting withoutTrashed()
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Client> $clients
+ * @mixin \Eloquent
+ */
 class GroupSetting extends StaticModel
 {
     use MakesHash;
     use SoftDeletes;
-
+    use Filterable;
+    
     protected $casts = [
         'settings' => 'object',
         'updated_at' => 'timestamp',
@@ -59,7 +101,10 @@ class GroupSetting extends StaticModel
         return $this->hasMany(Client::class, 'id', 'group_settings_id');
     }
 
-    public function documents()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<Document>
+     */
+    public function documents(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
     }
@@ -73,7 +118,6 @@ class GroupSetting extends StaticModel
      */
     public function resolveRouteBinding($value, $field = null)
     {
-            
         if (is_numeric($value)) {
             throw new ModelNotFoundException("Record with value {$value} not found");
         }
@@ -82,7 +126,5 @@ class GroupSetting extends StaticModel
             ->withTrashed()
             ->company()
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
-
     }
 }
-

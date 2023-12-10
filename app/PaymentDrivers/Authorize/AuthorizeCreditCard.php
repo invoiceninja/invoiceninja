@@ -46,6 +46,7 @@ class AuthorizeCreditCard
         $tokens = ClientGatewayToken::where('client_id', $this->authorize->client->id)
                                     ->where('company_gateway_id', $this->authorize->company_gateway->id)
                                     ->where('gateway_type_id', GatewayType::CREDIT_CARD)
+                                    ->orderBy('is_default', 'desc')
                                     ->get();
 
         $data['tokens'] = $tokens;
@@ -68,19 +69,26 @@ class AuthorizeCreditCard
 
         $gateway_customer_reference = $authorise_create_customer->create($data);
 
-        $authorise_payment_method = new AuthorizePaymentMethod($this->authorize);
-
-        $payment_profile = $authorise_payment_method->addPaymentMethodToClient($gateway_customer_reference, $data);
-        $payment_profile_id = $payment_profile->getPaymentProfile()->getCustomerPaymentProfileId();
-
-        $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($gateway_customer_reference, $payment_profile_id, $data['amount_with_fee']);
-
         if ($request->has('store_card') && $request->input('store_card') === true) {
+
+            $authorise_payment_method = new AuthorizePaymentMethod($this->authorize);
+
+            $payment_profile = $authorise_payment_method->addPaymentMethodToClient($gateway_customer_reference, $data);
+            $payment_profile_id = $payment_profile->getPaymentProfile()->getCustomerPaymentProfileId();
+
+            $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($gateway_customer_reference, $payment_profile_id, $data['amount_with_fee']);
+
             $authorise_payment_method->payment_method = GatewayType::CREDIT_CARD;
             $client_gateway_token = $authorise_payment_method->createClientGatewayToken($payment_profile, $gateway_customer_reference);
+
         } else {
-            //remove the payment profile if we are not storing tokens in our system
-            $this->removePaymentProfile($gateway_customer_reference, $payment_profile_id);
+
+            $authorise_transaction = new AuthorizeTransaction($this->authorize);
+            $data = $authorise_transaction->chargeCustomer($gateway_customer_reference, $data);
+
+            $transaction_id = $data['transaction_id'];
+            nlog($transaction_id);
+
         }
 
         return $this->handleResponse($data, $request);
@@ -102,18 +110,18 @@ class AuthorizeCreditCard
         }
 
         // Delete a customer profile
-      // $request = new DeleteCustomerProfileRequest();
-      // $request->setMerchantAuthentication($this->authorize->merchant_authentication);
-      // $request->setCustomerProfileId( $customer_profile_id );
+        // $request = new DeleteCustomerProfileRequest();
+        // $request->setMerchantAuthentication($this->authorize->merchant_authentication);
+        // $request->setCustomerProfileId( $customer_profile_id );
 
-      // $controller = new DeleteCustomerProfileController($request);
-      // $response = $controller->executeWithApiResponse($this->authorize->mode());
-      // if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") )
-      // {
-      //     nlog("SUCCESS: Delete Customer Payment Profile  SUCCESS");
-      // }
-      // else
-      //   nlog("unable to delete profile {$customer_profile_id}");
+        // $controller = new DeleteCustomerProfileController($request);
+        // $response = $controller->executeWithApiResponse($this->authorize->mode());
+        // if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") )
+        // {
+        //     nlog("SUCCESS: Delete Customer Payment Profile  SUCCESS");
+        // }
+        // else
+        //   nlog("unable to delete profile {$customer_profile_id}");
     }
 
     private function processTokenPayment($request)

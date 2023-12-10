@@ -27,6 +27,8 @@ class CreditTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
+    public $faker;
+    
     protected function setUp(): void
     {
         parent::setUp();
@@ -40,9 +42,127 @@ class CreditTest extends TestCase
         $this->makeTestData();
     }
 
+    public function testApplicableFilters()
+    {
+        Credit::where('company_id', $this->company->id)->cursor()->each(function ($c) { $c->forceDelete(); });
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/credits');
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+        $this->assertCount(0, $arr['data']);
+
+        $c = Credit::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'status_id' => Credit::STATUS_DRAFT,
+            'due_date' => null,
+            'date' => now(),
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/credits');
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+
+        $this->assertCount(1, $arr['data']);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/credits?applicable=true');
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+
+        $this->assertCount(0, $arr['data']);
+
+        $c->status_id = Credit::STATUS_SENT;
+        $c->amount = 20;
+        $c->balance = 20;
+        $c->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/credits?applicable=true');
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+        $this->assertCount(1, $arr['data']);
+
+        $c->status_id = Credit::STATUS_SENT;
+        $c->amount = 20;
+        $c->balance = 20;
+        $c->due_date = now()->subYear();
+        $c->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/credits?applicable=true');
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+        $this->assertCount(0, $arr['data']);
+
+        $c->status_id = Credit::STATUS_SENT;
+        $c->amount = 20;
+        $c->balance = 20;
+        $c->due_date = now()->addYear();
+        $c->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/credits?applicable=true');
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+        $this->assertCount(1, $arr['data']);
+        
+        $c->status_id = Credit::STATUS_APPLIED;
+        $c->amount = 20;
+        $c->balance = 20;
+        $c->due_date = now()->addYear();
+        $c->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/credits?applicable=true');
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+        $this->assertCount(0, $arr['data']);
+
+
+
+    }
+
+    public function testQuoteDownloadPDF()
+    {
+        $i = $this->credit->invitations->first();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get("/api/v1/credit/{$i->key}/download");
+
+        $response->assertStatus(200);
+        $this->assertTrue($response->headers->get('content-type') == 'application/pdf');
+    }
+
+
     public function testBulkActions()
     {
-
         $data = [
             'action' => 'archive',
             'ids' => [$this->credit->hashed_id]
@@ -75,7 +195,6 @@ class CreditTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/credits/bulk', $data)
           ->assertStatus(200);
-
     }
 
 

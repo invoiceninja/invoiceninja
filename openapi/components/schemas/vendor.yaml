@@ -1,0 +1,149 @@
+    Vendor:
+      properties:
+        id:
+          description: 'The hashed id of the vendor. This is a unique identifier for the vendor.'
+          type: string
+          example: Opnel5aKBz
+          readOnly: true
+        user_id:
+          description: 'The hashed id of the user who created the vendor. This is a unique identifier for the user.'
+          type: string
+          example: Opnel5aKBz
+        assigned_user_id:
+          description: 'The hashed id of the assigned user to this vendor. This is a unique identifier for the user.'
+          type: string
+          example: Opnel5aKBz
+        company_id:
+          description: 'The hashed id of the company. This is a unique identifier for the company.'
+          type: string
+          example: Opnel5aKBz
+        contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/VendorContact'
+          description: 'An array of contacts associated with the vendor.'
+        name:
+          description: 'The name of the vendor.'
+          type: string
+          example: 'Harry cafe de wheels'
+        classification:
+          description: 'The classification of the vendor.'
+          type: string
+          example: 'individual'
+        website:
+          description: 'The website of the vendor.'
+          type: string
+          example: www.harry.com
+        private_notes:
+          description: 'The private notes of the vendor. These notes are only visible to users with appropriate permissions.'
+          type: string
+          example: 'Shhh, do not tell the vendor'
+        industry_id:
+          description: 'The industry id of the vendor. This is a unique identifier for the industry.'
+          type: string
+          example: '1'
+        size_id:
+          description: 'The size id of the vendor. This is a unique identifier for the size of the vendor.'
+          type: string
+          example: ''
+        address1:
+          description: 'The first line of the vendor''s address.'
+          type: string
+          example: ''
+        address2:
+          description: 'The second line of the vendor''s address.'
+          type: string
+          example: ''
+        city:
+          description: 'The city of the vendor''s address.'
+          type: string
+          example: ''
+        state:
+          description: 'The state of the vendor''s address.'
+          type: string
+          example: ''
+        postal_code:
+          description: 'The postal code of the vendor''s address.'
+          type: string
+          example: ''
+        phone:
+          description: 'The phone number of the vendor.'
+          type: string
+          example: 555-3434-3434
+        country_id:
+          description: 'The country id of the vendor. This is a unique identifier for the country.'
+          type: string
+          example: ''
+        currency_id:
+          description: 'The currency id of the vendor. This is a unique identifier for the currency.'
+          type: string
+          example: '4'
+        custom_value1:
+          description: 'The value of the first custom field for the vendor.'
+          type: string
+          example: ''
+        custom_value2:
+          description: 'The value of the second custom field for the vendor.'
+          type: string
+          example: ''
+        custom_value3:
+          description: 'The value of the third custom field for the vendor.'
+          type: string
+          example: ''
+        custom_value4:
+          description: 'The value of the fourth custom field for the vendor.'
+          type: string
+          example: ''
+        vat_number:
+          description: 'The VAT number of the vendor.'
+          type: string
+          example: ''
+        id_number:
+          description: 'The ID number of the vendor.'
+          type: string
+          example: ''
+        number:
+          description: 'The number of the vendor'
+          type: string
+          example: '11234'
+        is_deleted:
+          description: 'Boolean flag determining if the vendor has been deleted'
+          type: boolean
+          example: true
+        language_id:
+          description: 'The language id of the vendor. This is a unique identifier for the language.'
+          type: string
+          example: '1'
+        vendor_hash:
+          description: 'The vendor hash of the vendor. This is a unique identifier for the vendor.'
+          type: string
+          example: 'aaa-sss-www'
+          readOnly: true
+        transaction_name:
+          description: 'The transaction name of the vendor.'
+          type: string
+          example: 'aaa-sss-www'
+        last_login:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+          readOnly: true
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+          readOnly: true
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+          readOnly: true
+        display_name:
+          description: 'The display name of the vendor.'
+          type: string
+          example: 'Bob the vendor'
+          readOnly: true
+      type: object

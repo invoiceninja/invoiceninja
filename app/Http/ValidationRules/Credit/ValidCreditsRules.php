@@ -53,8 +53,7 @@ class ValidCreditsRules implements Rule
         
         $total_credit_amount = array_sum(array_column($this->input['credits'], 'amount'));
 
-        if($total_credit_amount <= 0){
-
+        if ($total_credit_amount <= 0) {
             $this->error_msg = "Total of credits must be more than zero.";
 
             return false;
@@ -65,18 +64,25 @@ class ValidCreditsRules implements Rule
         foreach ($this->input['credits'] as $credit) {
             $unique_array[] = $credit['credit_id'];
 
-            // $cred = Credit::find($this->decodePrimaryKey($credit['credit_id']));
             $cred = $cred_collection->firstWhere('id', $credit['credit_id']);
 
             if (! $cred) {
                 $this->error_msg = ctrans('texts.credit_not_found');
-
                 return false;
             }
 
             if ($cred->client_id != $this->input['client_id']) {
                 $this->error_msg = ctrans('texts.invoices_dont_match_client');
+                return false;
+            }
 
+            if($cred->status_id == Credit::STATUS_DRAFT) {
+                $cred->service()->markSent()->save();
+                $cred = $cred->fresh();
+            }
+
+            if($cred->balance < $credit['amount']) {
+                $this->error_msg = ctrans('texts.insufficient_credit_balance');
                 return false;
             }
         }

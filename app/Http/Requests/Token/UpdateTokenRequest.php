@@ -34,5 +34,4 @@ class UpdateTokenRequest extends Request
             'name' => 'required',
         ];
     }
-
 }

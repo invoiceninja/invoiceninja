@@ -40,8 +40,8 @@ class RegisterRequest extends FormRequest
         $rules = [];
 
         foreach ($this->company()->client_registration_fields as $field) {
-            if ($field['required']) {
-                $rules[$field['key']] = ['bail','required'];
+            if ($field['visible'] ?? true) {
+                $rules[$field['key']] = $field['required'] ? ['bail','required'] : ['sometimes'];
             }
         }
 
@@ -64,18 +64,17 @@ class RegisterRequest extends FormRequest
 
     public function company()
     {
-
         //this should be all we need, the rest SHOULD be redundant because of our Middleware
         if ($this->key) {
-            return Company::where('company_key', $this->key)->first();
+            return Company::query()->where('company_key', $this->key)->first();
         }
 
         if ($this->company_key) {
-            return Company::where('company_key', $this->company_key)->firstOrFail();
+            return Company::query()->where('company_key', $this->company_key)->firstOrFail();
         }
 
         if (! $this->route()->parameter('company_key') && Ninja::isSelfHost()) {
-            $company = Account::first()->default_company;
+            $company = Account::query()->first()->default_company;
 
             if (! $company->client_can_register) {
                 abort(403, 'This page is restricted');

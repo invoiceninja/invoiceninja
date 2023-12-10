@@ -28,21 +28,53 @@ class UpdateVendorRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->vendor);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        
+        return $user->can('edit', $this->vendor);
     }
 
     public function rules()
     {
-        /* Ensure we have a client name, and that all emails are unique*/
-
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        
         $rules['country_id'] = 'integer';
 
         if ($this->number) {
-            $rules['number'] = Rule::unique('vendors')->where('company_id', auth()->user()->company()->id)->ignore($this->vendor->id);
+            $rules['number'] = Rule::unique('vendors')->where('company_id', $user->company()->id)->ignore($this->vendor->id);
         }
         
-        $rules['contacts.*.email'] = 'nullable|distinct';
+        $rules['contacts'] = 'bail|array';
+        $rules['contacts.*.email'] = 'bail|nullable|distinct|sometimes|email';
+        $rules['contacts.*.password'] = [
+            'bail',
+            'nullable',
+            'sometimes',
+            'string',
+            'min:7',             // must be at least 10 characters in length
+            'regex:/[a-z]/',      // must contain at least one lowercase letter
+            'regex:/[A-Z]/',      // must contain at least one uppercase letter
+            'regex:/[0-9]/',      // must contain at least one digit
+            //'regex:/[@$!%*#?&.]/', // must contain a special character
+        ];
+        
         $rules['currency_id'] = 'bail|sometimes|exists:currencies,id';
+
+        if ($this->file('documents') && is_array($this->file('documents'))) {
+            $rules['documents.*'] = $this->file_validation;
+        } elseif ($this->file('documents')) {
+            $rules['documents'] = $this->file_validation;
+        }
+
+        if ($this->file('file') && is_array($this->file('file'))) {
+            $rules['file.*'] = $this->file_validation;
+        } elseif ($this->file('file')) {
+            $rules['file'] = $this->file_validation;
+        }
+
+        $rules['language_id'] = 'bail|nullable|sometimes|exists:languages,id';
+        $rules['classification'] = 'bail|sometimes|nullable|in:individual,company,partnership,trust,charity,government,other';
 
         return $rules;
     }
@@ -64,8 +96,9 @@ class UpdateVendorRequest extends Request
             $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
         }
 
-        if(array_key_exists('country_id', $input) && is_null($input['country_id']))
+        if (array_key_exists('country_id', $input) && is_null($input['country_id'])) {
             unset($input['country_id']);
+        }
 
         $input = $this->decodePrimaryKeys($input);
 

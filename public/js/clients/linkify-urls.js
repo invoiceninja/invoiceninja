@@ -358,8 +358,8 @@ var __webpack_exports__ = {};
  *
  * @license https://www.elastic.co/licensing/elastic-license 
  */
-var linkifyUrls = __webpack_require__(/*! linkify-urls */ "./node_modules/linkify-urls/index.js");
 
+var linkifyUrls = __webpack_require__(/*! linkify-urls */ "./node_modules/linkify-urls/index.js");
 document.querySelectorAll('[data-ref=entity-terms]').forEach(function (text) {
   if (linkifyUrls === 'function') {
     text.innerHTML = linkifyUrls(text.innerText, {

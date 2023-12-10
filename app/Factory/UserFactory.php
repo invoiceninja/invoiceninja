@@ -11,7 +11,6 @@
 
 namespace App\Factory;
 
-use App\Models\CompanyUser;
 use App\Models\User;
 
 class UserFactory
@@ -29,6 +28,7 @@ class UserFactory
         $user->failed_logins = 0;
         $user->signature = '';
         $user->theme_id = 0;
+        $user->user_logged_in_notification = true;
 
         return $user;
     }

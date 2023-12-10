@@ -1,5 +1,5 @@
 <div class="grid grid-cols-12">
-    <div class="col-span-8 bg-gray-50 flex flex-col max-h-100px items-center h-screen">
+    <div class="col-span-8 bg-gray-50 flex flex-col max-h-100px items-center min-h-screen">
         <div class="w-full p-4 md:max-w-3xl">
             <div class="w-full mb-4">
                 <img class="object-scale-down" style="max-height: 100px;"src="{{ $subscription->company->present()->logo }}" alt="{{ $subscription->company->present()->name }}">
@@ -36,16 +36,18 @@
             @if(!empty($subscription->recurring_product_ids))
                 @foreach($recurring_products as $index => $product)
                     <li class="flex py-6">
-                      @if(filter_var($product->custom_value1, FILTER_VALIDATE_URL))
+                      @if(filter_var($product->product_image, FILTER_VALIDATE_URL))
                       <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-2">
-                        <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center p-2">
+                        <img src="{{$product->product_image}}" alt="" class="h-full w-full object-cover object-center p-2">
                       </div>
                       @endif
                       <div class="ml-0 flex flex-1 flex-col">
                         <div>
                           <div class="flex justify-between text-base font-medium text-gray-900">
                             <h3>
-                              {!! nl2br($product->notes) !!}
+                                <article class="prose">
+                                    {!! $product->markdownNotes() !!}
+                                </article>
                             </h3>
                             <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }} / {{ App\Models\RecurringInvoice::frequencyForKey($subscription->frequency_id) }}</p>
                           </div>
@@ -74,7 +76,7 @@
                                         @endfor
                                     }
                                     @else
-                                        @for ($i = 2; $i <= ($subscription->use_inventory_management ? min($product->in_stock_quantity, max(100,$product->custom_value2)) : max(100,$product->custom_value2)); $i++)
+                                        @for ($i = 2; $i <= ($subscription->use_inventory_management ? min($product->in_stock_quantity, max(100,$product->max_quantity)) : max(100,$product->max_quantity)); $i++)
                                         <option value="{{$i}}">{{$i}}</option>
                                         @endfor
                                     @endif
@@ -96,16 +98,18 @@
             @if(!empty($subscription->product_ids))
                 @foreach($products as $product)
                     <li class="flex py-6">
-                      @if(filter_var($product->custom_value1, FILTER_VALIDATE_URL))
+                      @if(filter_var($product->product_image, FILTER_VALIDATE_URL))
                       <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-2">
-                        <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center  p-2">
+                        <img src="{{$product->product_image}}" alt="" class="h-full w-full object-cover object-center  p-2">
                       </div>
                       @endif
                       <div class="ml-0 flex flex-1 flex-col">
                         <div>
                           <div class="flex justify-between text-base font-medium text-gray-900">
                             <h3>
-                              {!! nl2br($product->notes) !!}
+                                <article class="prose">
+                                    {!! $product->markdownNotes() !!}
+                                </article>
                             </h3>
                             <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }}</p>
                           </div>
@@ -135,20 +139,24 @@
                 @if(!empty($subscription->optional_recurring_product_ids))
                     @foreach($optional_recurring_products as $index => $product)
                         <li class="flex py-6">
-                          @if(filter_var($product->custom_value1, FILTER_VALIDATE_URL))
+                          @if(filter_var($product->product_image, FILTER_VALIDATE_URL))
                           <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-2">
-                            <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center p-2">
+                            <img src="{{$product->product_image}}" alt="" class="h-full w-full object-cover object-center p-2">
                           </div>
                           @endif
                           <div class="ml-0 flex flex-1 flex-col">
                             <div>
                               <div class="flex justify-between text-base font-medium text-gray-900">
-                                <h3>{!! nl2br($product->notes) !!}</h3>
+                                <h3>
+                                    <article class="prose">
+                                        {!! $product->markdownNotes() !!}
+                                    </article>
+                                </h3>
                                 <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }} / {{ App\Models\RecurringInvoice::frequencyForKey($subscription->frequency_id) }}</p>
                               </div>
                             </div>
                             <div class="flex justify-between text-sm mt-1">
-                                @if(is_numeric($product->custom_value2))
+                                @if(is_numeric($product->max_quantity))
                                 <p class="text-gray-500 w-3/4"></p>
                                 <div class="flex place-content-end">
                                     @if($subscription->use_inventory_management && $product->in_stock_quantity == 0)
@@ -162,7 +170,7 @@
                                         @endif
                                         >
                                         <option value="0" selected="selected">0</option>
-                                        @for ($i = 1; $i <= ($subscription->use_inventory_management ? min($product->in_stock_quantity, max(100,$product->custom_value2)) : max(100,$product->custom_value2)); $i++)
+                                        @for ($i = 1; $i <= ($subscription->use_inventory_management ? min($product->in_stock_quantity, max(100,$product->max_quantity)) : max(100,$product->max_quantity)); $i++)
                                         <option value="{{$i}}">{{$i}}</option>
                                         @endfor
                                     </select>
@@ -176,21 +184,25 @@
                 @if(!empty($subscription->optional_product_ids))
                     @foreach($optional_products as $index => $product)
                         <li class="flex py-6">
-                      @if(filter_var($product->custom_value1, FILTER_VALIDATE_URL))
+                      @if(filter_var($product->product_image, FILTER_VALIDATE_URL))
                       <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-2">
-                        <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center p-2">
+                        <img src="{{$product->product_image}}" alt="" class="h-full w-full object-cover object-center p-2">
                       </div>
                       @endif
                           <div class="ml-0 flex flex-1 flex-col">
                             <div>
                               <div class="flex justify-between text-base font-medium text-gray-900">
-                                <h3>{!! nl2br($product->notes) !!}</h3>
+                                <h3>
+                                    <article class="prose">
+                                        {!! $product->markdownNotes() !!}
+                                    </article>
+                                </h3>
                                 <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }}</p>
                               </div>
                               <p class="mt-1 text-sm text-gray-500"></p>
                             </div>
                             <div class="flex justify-between text-sm mt-1">
-                                @if(is_numeric($product->custom_value2))
+                                @if(is_numeric($product->max_quantity))
                                 <p class="text-gray-500 w-3/4"></p>
                                 <div class="flex place-content-end">
                                     @if($subscription->use_inventory_management && $product->in_stock_quantity == 0)
@@ -200,7 +212,7 @@
                                     @endif
                                     <select wire:model.debounce.300ms="data.{{ $index }}.optional_qty" class="rounded-md border-gray-300 shadow-sm sm:text-sm">
                                         <option value="0" selected="selected">0</option>
-                                        @for ($i = 1; $i <= ($subscription->use_inventory_management ? min($product->in_stock_quantity, min(100,$product->custom_value2)) : min(100,$product->custom_value2)); $i++)
+                                        @for ($i = 1; $i <= ($subscription->use_inventory_management ? min($product->in_stock_quantity, min(100,$product->max_quantity)) : min(100,$product->max_quantity)); $i++)
                                         <option value="{{$i}}">{{$i}}</option>
                                         @endfor
                                     </select>
@@ -225,14 +237,14 @@
 
     </form>
 
-    <div class="col-span-4 bg-blue-500 flex flex-col item-center p-2 h-screen" wire:init="buildBundle">
+    <div class="col-span-4 bg-blue-500 flex flex-col item-center p-2 min-h-screen" wire:init="buildBundle">
         <div class="w-full p-4">
             <div id="summary" class="px-4 text-white">
                 <h1 class="font-semibold text-2xl border-b-2 border-gray-200 border-opacity-50 pb-2 text-white">{{ ctrans('texts.order') }}</h1>
 
                 @foreach($bundle->toArray() as $item)
                     <div class="flex justify-between mt-1 mb-1">
-                      <span class="font-light text-sm">{{ $item['qty'] }} x {{ substr(str_replace(["\r","\n","<BR>","<BR />","<br>","<br />"]," ", $item['product']), 0, 30) . "..." }}</span>
+                      <span class="font-light text-sm">{{ $item['qty'] }} x {{ $item['product'] }}</span>
                       <span class="font-bold text-sm">{{ $item['price'] }}</span>
                     </div>
                 @endforeach
@@ -253,21 +265,41 @@
                               <span>{{ ctrans('texts.apply') }}</span>
                             </button>
                           </div>
+                          @if($errors && $errors->has('coupon'))
+                                @error("coupon") 
+                                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                                    <span class="block sm:inline text-sm">{{ $message }} </span>
+                                    <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                                </div>
+                                @enderror
+                          @endif
                         </div>
                     </form>
                 @endif
 
                 <div class="border-gray-200 border-opacity-50 mt-4">
-                    @if($discount)
                     <div class="flex font-semibold justify-between py-1 text-sm uppercase">
+                        <span>{{ ctrans('texts.one_time_purchases') }}</span>
+                        <span>{{ $non_recurring_total }}</span>
+                    </div>
+                    
+                    <div class="flex font-semibold justify-between py-1 text-sm uppercase">
+                        <span>{{ ctrans('texts.recurring_purchases') }}</span>
+                        <span>{{ $recurring_total }}</span>
+                    </div>
+
+
+                    @if($discount)
+                    <!-- <div class="flex font-semibold justify-between py-1 text-sm uppercase">
                         <span>{{ ctrans('texts.subtotal') }}</span>
                         <span>{{ $sub_total }}</span>
-                    </div>
+                    </div> -->
                     <div class="flex font-semibold justify-between py-1 text-sm uppercase">
                         <span>{{ ctrans('texts.discount') }}</span>
                         <span>{{ $discount }}</span>
                     </div>
                     @endif
+
                     <div class="flex font-semibold justify-between py-1 text-sm uppercase border-t-2">
                         <span>{{ ctrans('texts.total') }}</span>
                         <span>{{ $total }}</span>
@@ -347,7 +379,6 @@
                                 <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
                             </div>
                             @enderror
-                            
                         </div>
                     </form>
                     @endif
@@ -380,8 +411,8 @@
                                 <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
                             </div>
                         @enderror
-                        <div class="flex w-full place-content-end mb-0 mt-4">
-                            <button wire:click="resetEmail" class="relative -ml-px inline-flex items-center space-x-1 rounded border border-gray-300 bg-gray-50 px-1 py-1 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">{{ ctrans('texts.reset') }}</button>
+                        <div class="flex w-full place-content-end mb-0 mt-6">
+                            <button wire:click="resetEmail" class="relative -ml-px inline-flex items-center space-x-1 rounded border border-red-900 bg-red-500 px-1 py-1 text-sm font-medium text-white-700 hover:bg-red-900 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500">{{ ctrans('texts.reset') }}</button>
                         </div>
                     </div>
                     @endif

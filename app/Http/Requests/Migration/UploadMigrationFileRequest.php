@@ -22,7 +22,9 @@ class UploadMigrationFileRequest extends Request
      */
     public function authorize()
     {
-        return auth()->user()->isAdmin();
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        return $user->isAdmin();
     }
 
     /**
@@ -30,7 +32,7 @@ class UploadMigrationFileRequest extends Request
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         $rules = [
             'migration' => [],

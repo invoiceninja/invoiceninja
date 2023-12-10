@@ -12,7 +12,6 @@
 namespace App\Jobs\Payment;
 
 use App\Events\Payment\PaymentWasEmailed;
-use App\Events\Payment\PaymentWasEmailedAndFailed;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
@@ -27,19 +26,12 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Mail;
 
 class EmailPayment implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $payment;
-
     public $email_builder;
-
-    private $contact;
-
-    private $company;
 
     public $settings;
 
@@ -51,50 +43,87 @@ class EmailPayment implements ShouldQueue
      * @param $contact
      * @param $company
      */
-    public function __construct(Payment $payment, Company $company, ClientContact $contact)
+    public function __construct(public Payment $payment, private Company $company, private ?ClientContact $contact)
     {
-        $this->payment = $payment;
-        $this->contact = $contact;
-        $this->company = $company;
         $this->settings = $payment->client->getMergedSettings();
     }
 
     /**
      * Execute the job.
      *
-     *
      * @return void
      */
     public function handle()
     {
         if ($this->company->is_disabled) {
-            return true;
+            return;
         }
 
         if ($this->contact->email) {
             MultiDB::setDb($this->company->db);
 
             $this->payment->load('invoices');
+
+            if (!$this->contact) {
+                $this->contact = $this->payment->client->contacts()->first();
+            }
+                
             $this->contact->load('client');
 
             $email_builder = (new PaymentEmailEngine($this->payment, $this->contact))->build();
 
-            $invitation = null;
-
-            if ($this->payment->invoices && $this->payment->invoices->count() >= 1) {
-                $invitation = $this->payment->invoices->first()->invitations()->first();
+            if($this->payment->client->getSetting('payment_email_all_contacts') && $this->payment->invoices && $this->payment->invoices->count() >= 1) {
+                $this->emailAllContacts($email_builder);
+                return;
             }
 
+            $invitation = null;
+
             $nmo = new NinjaMailerObject;
+
+            if ($this->payment->invoices && $this->payment->invoices->count() >= 1) {
+
+                if($this->contact) {
+                    $invitation = $this->payment->invoices->first()->invitations()->where('client_contact_id', $this->contact->id)->first();
+                } else {
+                    $invitation = $this->payment->invoices->first()->invitations()->first();
+                }
+
+                if($invitation) {
+                    $nmo->invitation = $invitation;
+                }
+            }
+
             $nmo->mailable = new TemplateEmail($email_builder, $this->contact, $invitation);
             $nmo->to_user = $this->contact;
             $nmo->settings = $this->settings;
             $nmo->company = $this->company;
             $nmo->entity = $this->payment;
 
-            NinjaMailerJob::dispatch($nmo);
+            (new NinjaMailerJob($nmo))->handle();
 
-            event(new PaymentWasEmailed($this->payment, $this->payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+            event(new PaymentWasEmailed($this->payment, $this->payment->company, $this->contact, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         }
+    }
+
+    private function emailAllContacts($email_builder): void
+    {
+
+        $invoice = $this->payment->invoices->first();
+
+        $invoice->invitations->each(function ($invite) use ($email_builder) {
+
+            $nmo = new NinjaMailerObject;
+            $nmo->mailable = new TemplateEmail($email_builder, $invite->contact, $invite);
+            $nmo->to_user = $invite->contact;
+            $nmo->settings = $this->settings;
+            $nmo->company = $this->company;
+            $nmo->entity = $this->payment;
+            (new NinjaMailerJob($nmo))->handle();
+
+            event(new PaymentWasEmailed($this->payment, $this->payment->company, $invite->contact, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+
+        });
+        
     }
 }

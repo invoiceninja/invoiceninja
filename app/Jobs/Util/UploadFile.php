@@ -51,7 +51,9 @@ class UploadFile implements ShouldQueue
 
     public $entity;
 
-    public function __construct($file, $type, $user, $company, $entity, $disk = null, $is_public = false)
+    public $disk;
+    
+    public function __construct($file, $type, $user, $company, $entity, $disk = null, $is_public = true)
     {
         $this->file = $file;
         $this->type = $type;
@@ -98,7 +100,7 @@ class UploadFile implements ShouldQueue
         $document->user_id = $this->user->id;
         $document->company_id = $this->company->id;
         $document->url = $instance;
-        $document->name = $this->file->getClientOriginalName();
+        $document->name = str_replace("/", "-", $this->file->getClientOriginalName());
         $document->type = $this->file->extension();
         $document->disk = $this->disk;
         $document->hash = $this->file->hashName();

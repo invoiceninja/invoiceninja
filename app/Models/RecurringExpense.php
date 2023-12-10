@@ -11,11 +11,148 @@
 
 namespace App\Models;
 
-use App\Models\RecurringInvoice;
 use App\Services\Recurring\RecurringService;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
+/**
+ * App\Models\RecurringExpense
+ *
+ * @property int $id
+ * @property int|null $created_at
+ * @property int|null $updated_at
+ * @property int|null $deleted_at
+ * @property int $company_id
+ * @property int|null $vendor_id
+ * @property int $user_id
+ * @property int $status_id
+ * @property int|null $invoice_id
+ * @property int|null $client_id
+ * @property int|null $bank_id
+ * @property int|null $project_id
+ * @property int|null $payment_type_id
+ * @property int|null $recurring_expense_id
+ * @property bool $is_deleted
+ * @property int $uses_inclusive_taxes
+ * @property string|null $tax_name1
+ * @property string|null $tax_name2
+ * @property string|null $tax_name3
+ * @property string|null $date
+ * @property string|null $payment_date
+ * @property int $should_be_invoiced
+ * @property int $invoice_documents
+ * @property string|null $transaction_id
+ * @property string|null $custom_value1
+ * @property string|null $custom_value2
+ * @property string|null $custom_value3
+ * @property string|null $custom_value4
+ * @property int|null $category_id
+ * @property int $calculate_tax_by_amount
+ * @property string|null $tax_amount1
+ * @property string|null $tax_amount2
+ * @property string|null $tax_amount3
+ * @property string|null $tax_rate1
+ * @property string|null $tax_rate2
+ * @property string|null $tax_rate3
+ * @property string|null $amount
+ * @property string|null $foreign_amount
+ * @property string $exchange_rate
+ * @property int|null $assigned_user_id
+ * @property string|null $number
+ * @property int|null $invoice_currency_id
+ * @property int|null $currency_id
+ * @property string|null $private_notes
+ * @property string|null $public_notes
+ * @property string|null $transaction_reference
+ * @property int $frequency_id
+ * @property string|null $last_sent_date
+ * @property string|null $next_send_date
+ * @property int|null $remaining_cycles
+ * @property string|null $next_send_date_client
+ * @property-read \App\Models\User|null $assigned_user
+ * @property-read \App\Models\Client|null $client
+ * @property-read \App\Models\Company $company
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read int|null $documents_count
+ * @property-read mixed $hashed_id
+ * @property-read \App\Models\User $user
+ * @property-read \App\Models\Vendor|null $vendor
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
+ * @method static \Database\Factories\RecurringExpenseFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense filter(\App\Filters\QueryFilters $filters)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense query()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereAssignedUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereBankId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereCalculateTaxByAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereCategoryId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereClientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereCurrencyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereCustomValue1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereCustomValue2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereCustomValue3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereCustomValue4($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereExchangeRate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereForeignAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereFrequencyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereInvoiceCurrencyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereInvoiceDocuments($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereInvoiceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereIsDeleted($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereLastSentDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereNextSendDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereNextSendDateClient($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense wherePaymentDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense wherePaymentTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense wherePrivateNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereProjectId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense wherePublicNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereRecurringExpenseId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereRemainingCycles($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereShouldBeInvoiced($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereStatusId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereTaxAmount1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereTaxAmount2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereTaxAmount3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereTaxName1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereTaxName2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereTaxName3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereTaxRate1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereTaxRate2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereTaxRate3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereTransactionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereTransactionReference($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereUsesInclusiveTaxes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereVendorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense withoutTrashed()
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @mixin \Eloquent
+ */
 class RecurringExpense extends BaseModel
 {
     use SoftDeletes;
@@ -203,7 +340,6 @@ class RecurringExpense extends BaseModel
 
     public function recurringDates()
     {
-
         /* Return early if nothing to send back! */
         if ($this->status_id == RecurringInvoice::STATUS_COMPLETED ||
             $this->remaining_cycles == 0 ||

@@ -85,13 +85,11 @@ class Wave extends BaseImport implements ImportInterface
 
     public function product()
     {
-
         //done automatically inside the invoice() method as we need to harvest the products from the line items
     }
 
     public function invoice()
     {
-
         //make sure we update and create products with wave
         $initial_update_products_value = $this->company->update_products;
         $this->company->update_products = true;
@@ -170,7 +168,7 @@ class Wave extends BaseImport implements ImportInterface
 
         $data = $this->getCsvData($entity_type);
 
-        if(!$data){
+        if (!$data) {
             $this->entity_count['expense'] = 0;
             return;
         }
@@ -191,7 +189,7 @@ class Wave extends BaseImport implements ImportInterface
 
         $this->transformer = new ExpenseTransformer($this->company);
 
-        $expense_count = $this->ingestExpenses($data, $entity_type);
+        $expense_count = $this->ingestExpenses($data);
 
         $this->entity_count['expenses'] = $expense_count;
     }
@@ -202,7 +200,7 @@ class Wave extends BaseImport implements ImportInterface
 
     private function groupExpenses($csvData)
     {
-        $grouped_expense = [];
+        $grouped = [];
         $key = 'Transaction ID';
 
         foreach ($csvData as $expense) {
@@ -279,6 +277,5 @@ class Wave extends BaseImport implements ImportInterface
         }
 
         return $count;
-
     }
 }

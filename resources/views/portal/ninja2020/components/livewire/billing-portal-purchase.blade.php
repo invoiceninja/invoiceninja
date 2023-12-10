@@ -101,7 +101,7 @@
                     <div class="mt-4">
                         @foreach($subscription->service()->getPlans() as $_subscription)
                             <button class="mt-8 mr-2">
-                                <a class="border mt-4 bg-white rounded py-2 px-4 hover:bg-gray-100 text-sm" target="_blank" href="{{ route('client.subscription.purchase', $_subscription->hashed_id) }}">{{ $_subscription->name }}</a>
+                                <a class="border mt-4 bg-white rounded py-2 px-4 hover:bg-gray-100 text-sm" href="{{ route('client.subscription.purchase', $_subscription->hashed_id) }}">{{ $_subscription->name }}</a>
                             </button>
                         @endforeach
                     </div>
@@ -209,7 +209,7 @@
 
                             @if($steps['passwordless_login_sent'])
                                 <span
-                                    class="block mt-2 text-sm text-green-600">{{ ctrans('texts.email_sent') }}</span>
+                                    class="block mt-2 text-sm text-green-600">{!! ctrans('texts.sent') !!}</span>
                             @endif
                         @endif
 

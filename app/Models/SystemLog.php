@@ -15,6 +15,41 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * App\Models\SystemLog
+ *
+ * @property int $id
+ * @property int $company_id
+ * @property int|null $user_id
+ * @property int|null $client_id
+ * @property int|null $category_id
+ * @property int|null $event_id
+ * @property int|null $type_id
+ * @property array $log
+ * @property int|null $created_at
+ * @property int|null $updated_at
+ * @property int|null $deleted_at
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemLog company()
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemLog filter(\App\Filters\QueryFilters $filters)
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemLog newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemLog newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemLog onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemLog query()
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemLog whereCategoryId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemLog whereClientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemLog whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemLog whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemLog whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemLog whereEventId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemLog whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemLog whereLog($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemLog whereTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemLog whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemLog whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemLog withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemLog withoutTrashed()
+ * @mixin \Eloquent
+ */
 class SystemLog extends Model
 {
     use Filterable;
@@ -113,6 +148,8 @@ class SystemLog extends Model
 
     const TYPE_RAZORPAY = 322;
 
+    const TYPE_PAYPAL_PPCP = 323;
+
     const TYPE_QUOTA_EXCEEDED = 400;
 
     const TYPE_UPSTREAM_FAILURE = 401;
@@ -160,7 +197,10 @@ class SystemLog extends Model
      */
     public function scopeCompany($query)
     {
-        $query->where('company_id', auth()->user()->companyId());
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $query->where('company_id', $user->companyId());
 
         return $query;
     }

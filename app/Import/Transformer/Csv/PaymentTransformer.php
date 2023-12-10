@@ -1,10 +1,10 @@
 <?php
 /**
- * client Ninja (https://clientninja.com).
+ * Invoice Ninja (https://invoiceninja.com).
  *
- * @link https://github.com/clientninja/clientninja source repository
+ * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. client Ninja LLC (https://clientninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -46,7 +46,7 @@ class PaymentTransformer extends BaseTransformer
                 $data,
                 'payment.transaction_reference '
             ),
-            'date' => $this->getString($data, 'payment.date'),
+            'date' => isset($data['payment.date']) ? $this->parseDate($data['payment.date']) : date('y-m-d'),
             'private_notes' => $this->getString($data, 'payment.private_notes'),
             'custom_value1' => $this->getString($data, 'payment.custom_value1'),
             'custom_value2' => $this->getString($data, 'payment.custom_value2'),

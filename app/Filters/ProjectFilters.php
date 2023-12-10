@@ -21,8 +21,8 @@ class ProjectFilters extends QueryFilters
     /**
      * Filter based on search text.
      *
-     * @param string query filter
-     * @return Illuminate\Eloquent\Query\Builder
+     * @param string $filter
+     * @return Builder
      * @deprecated
      */
     public function filter(string $filter = ''): Builder
@@ -33,6 +33,9 @@ class ProjectFilters extends QueryFilters
 
         return  $this->builder->where(function ($query) use ($filter) {
             $query->where('name', 'like', '%'.$filter.'%')
+                  ->orWhereHas('client', function ($q) use ($filter) {
+                        $q->where('name', 'like', '%'.$filter.'%');
+                    })
                   ->orWhere('public_notes', 'like', '%'.$filter.'%')
                   ->orWhere('private_notes', 'like', '%'.$filter.'%');
         });
@@ -50,25 +53,31 @@ class ProjectFilters extends QueryFilters
     /**
      * Sorts the list based on $sort.
      *
-     * @param string sort formatted as column|asc
-     * @return Illuminate\Eloquent\Query\Builder
+     * @param string $sort formatted as column|asc
+     * @return Builder
      */
     public function sort(string $sort = ''): Builder
     {
         $sort_col = explode('|', $sort);
 
+        if ($sort_col[0] == 'client_id') {
+            return $this->builder->orderBy(\App\Models\Client::select('name')
+                    ->whereColumn('clients.id', 'projects.client_id'), $sort_col[1]);
+        }
+
         if (!is_array($sort_col) || count($sort_col) != 2) {
             return $this->builder;
         }
 
-        if(is_array($sort_col))
+        if (is_array($sort_col)) {
             return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+        }
     }
 
     /**
      * Filters the query by the users company ID.
      *
-     * @return Illuminate\Eloquent\Query\Builder
+     * @return Builder
      */
     public function entityFilter(): Builder
     {

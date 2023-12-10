@@ -28,7 +28,7 @@ class AccountTransformer extends EntityTransformer
     /**
      * @var array
      */
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         //'default_company',
         //'user',
         //'company_users'
@@ -37,7 +37,7 @@ class AccountTransformer extends EntityTransformer
     /**
      * @var array
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'default_company',
         'company_users',
         'companies',
@@ -56,12 +56,12 @@ class AccountTransformer extends EntityTransformer
             'key' => (string) $account->key,
             'default_url' => config('ninja.app_url'),
             'plan' => $account->getPlan(),
-            'plan_term' => (string) $account->plan_terms,
+            'plan_term' => (string) $account->plan_term,
             'plan_started' => (string) $account->plan_started,
             'plan_paid' => (string) $account->plan_paid,
             'plan_expires' => (string) $account->plan_expires,
             'user_agent' => (string) $account->user_agent,
-            'payment_id' => (string) $account->payment_id,
+            'payment_id' => (string) $this->encodePrimaryKey($account->payment_id),
             'trial_started' => (string) $account->trial_started,
             'trial_plan' => (string) $account->trial_plan,
             'plan_price' => (float) $account->plan_price,
@@ -90,6 +90,9 @@ class AccountTransformer extends EntityTransformer
             'set_react_as_default_ap' => (bool) $account->set_react_as_default_ap,
             'trial_days_left' => Ninja::isHosted() ? (int) $account->getTrialDays() : 0,
             'account_sms_verified' => (bool) $account->account_sms_verified,
+            'has_iap_plan' => (bool)$account->inapp_transaction_id,
+            'tax_api_enabled' => (bool) config('services.tax.zip_tax.key') ? true : false
+
         ];
     }
 
@@ -112,6 +115,5 @@ class AccountTransformer extends EntityTransformer
         $transformer = new UserTransformer($this->serializer);
 
         return $this->includeItem(auth()->user(), $transformer, User::class);
-
     }
 }

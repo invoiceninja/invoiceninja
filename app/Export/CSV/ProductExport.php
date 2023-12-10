@@ -11,76 +11,65 @@
 
 namespace App\Export\CSV;
 
-use App\Libraries\MultiDB;
-use App\Models\Client;
-use App\Models\Company;
-use App\Models\Credit;
-use App\Models\Document;
-use App\Models\Product;
-use App\Transformers\ProductTransformer;
 use App\Utils\Ninja;
-use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
+use App\Models\Company;
+use App\Models\Product;
+use App\Libraries\MultiDB;
+use Illuminate\Support\Facades\App;
+use App\Export\Decorators\Decorator;
+use App\Transformers\ProductTransformer;
+use Illuminate\Database\Eloquent\Builder;
 
 class ProductExport extends BaseExport
 {
-    private Company $company;
-
-    protected array $input;
-
     private $entity_transformer;
 
-    protected $date_key = 'created_at';
+    public string $date_key = 'created_at';
 
-    protected array $entity_keys = [
-        'project' => 'project_id',
-        'vendor' => 'vendor_id',
-        'custom_value1' => 'custom_value1',
-        'custom_value2' => 'custom_value2',
-        'custom_value3' => 'custom_value3',
-        'custom_value4' => 'custom_value4',
-        'product_key' => 'product_key',
-        'notes' => 'notes',
-        'cost' => 'cost',
-        'price' => 'price',
-        'quantity' => 'quantity',
-        'tax_rate1' => 'tax_rate1',
-        'tax_rate2' => 'tax_rate2',
-        'tax_rate3' => 'tax_rate3',
-        'tax_name1' => 'tax_name1',
-        'tax_name2' => 'tax_name2',
-        'tax_name3' => 'tax_name3',
-    ];
+    public Writer $csv;
 
-    private array $decorate_keys = [
-        'vendor',
-        'project',
-    ];
+    private Decorator $decorator;
 
     public function __construct(Company $company, array $input)
     {
         $this->company = $company;
         $this->input = $input;
         $this->entity_transformer = new ProductTransformer();
+        $this->decorator = new Decorator();
     }
 
-    public function run()
+    public function returnJson()
     {
+        $query = $this->init();
+
+        $headerdisplay = $this->buildHeader();
+
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
+            return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
+        })->toArray();
+
+        $report = $query->cursor()
+                ->map(function ($resource) {
+                    $row = $this->buildRow($resource);
+                    return $this->processMetaData($row, $resource);
+                })->toArray();
+        
+        return array_merge(['columns' => $header], $report);
+    }
+
+    private function init(): Builder
+    {
+
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
         App::setLocale($this->company->locale());
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
-        //load the CSV document from a string
-        $this->csv = Writer::createFromString();
-
         if (count($this->input['report_keys']) == 0) {
-            $this->input['report_keys'] = array_values($this->entity_keys);
+            $this->input['report_keys'] = array_values($this->product_report_keys);
         }
-
-        //insert the header
-        $this->csv->insertOne($this->buildHeader());
 
         $query = Product::query()
                         ->withTrashed()
@@ -88,6 +77,21 @@ class ProductExport extends BaseExport
                         ->where('is_deleted', 0);
 
         $query = $this->addDateRange($query);
+
+        return $query;
+
+    }
+
+    public function run()
+    {
+        
+        $query = $this->init();
+
+        //load the CSV document from a string
+        $this->csv = Writer::createFromString();
+
+        //insert the header
+        $this->csv->insertOne($this->buildHeader());
 
         $query->cursor()
               ->each(function ($entity) {
@@ -104,16 +108,20 @@ class ProductExport extends BaseExport
         $entity = [];
 
         foreach (array_values($this->input['report_keys']) as $key) {
-            $keyval = array_search($key, $this->entity_keys);
+            $keyval = array_search($key, $this->product_report_keys);
 
             if (array_key_exists($key, $transformed_entity)) {
                 $entity[$keyval] = $transformed_entity[$key];
             } else {
-                $entity[$keyval] = '';
+                // nlog($key);
+                $entity[$key] = $this->decorator->transform($key, $product);
+                // $entity[$key] = '';
+
             }
         }
 
-        return $this->decorateAdvancedFields($product, $entity);
+        return $entity;
+        // return $this->decorateAdvancedFields($product, $entity);
     }
 
     private function decorateAdvancedFields(Product $product, array $entity) :array
@@ -122,9 +130,9 @@ class ProductExport extends BaseExport
             $entity['vendor'] = $product->vendor()->exists() ? $product->vendor->name : '';
         }
 
-        if (array_key_exists('project_id', $this->input['report_keys'])) {
-            $entity['project'] = $product->project()->exists() ? $product->project->name : '';
-        }
+        // if (array_key_exists('project_id', $this->input['report_keys'])) {
+        //     $entity['project'] = $product->project()->exists() ? $product->project->name : '';
+        // }
 
         return $entity;
     }

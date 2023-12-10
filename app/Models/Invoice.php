@@ -15,10 +15,7 @@ use App\Events\Invoice\InvoiceReminderWasEmailed;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
-use App\Jobs\Entity\CreateEntityPdf;
-use App\Models\Expense;
-use App\Models\Presenters\InvoicePresenter;
-use App\Models\Task;
+use App\Models\Presenters\EntityPresenter;
 use App\Services\Invoice\InvoiceService;
 use App\Services\Ledger\LedgerService;
 use App\Utils\Ninja;
@@ -29,9 +26,112 @@ use App\Utils\Traits\MakesReminders;
 use App\Utils\Traits\NumberFormatter;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Storage;
 use Laracasts\Presenter\PresentableTrait;
 
+/**
+ * App\Models\Invoice
+ *
+ * @property int $id
+ * @property int $client_id
+ * @property int $user_id
+ * @property int|null $assigned_user_id
+ * @property int $company_id
+ * @property int $status_id
+ * @property int|null $project_id
+ * @property int|null $vendor_id
+ * @property int|null $recurring_id
+ * @property int|null $design_id
+ * @property string|null $number
+ * @property float $discount
+ * @property bool $is_amount_discount
+ * @property string|null $po_number
+ * @property string|null $date
+ * @property string|null $last_sent_date
+ * @property string|null $due_date
+ * @property bool $is_deleted
+ * @property object|array|string $line_items
+ * @property object|null $backup
+ * @property string|null $footer
+ * @property string|null $public_notes
+ * @property string|null $private_notes
+ * @property string|null $terms
+ * @property string|null $tax_name1
+ * @property float $tax_rate1
+ * @property string|null $tax_name2
+ * @property float $tax_rate2
+ * @property string|null $tax_name3
+ * @property float $tax_rate3
+ * @property float $total_taxes
+ * @property bool $uses_inclusive_taxes
+ * @property string|null $custom_value1
+ * @property string|null $custom_value2
+ * @property string|null $custom_value3
+ * @property string|null $custom_value4
+ * @property string|null $next_send_date
+ * @property float|null $custom_surcharge1
+ * @property float|null $custom_surcharge2
+ * @property float|null $custom_surcharge3
+ * @property float|null $custom_surcharge4
+ * @property bool $custom_surcharge_tax1
+ * @property bool $custom_surcharge_tax2
+ * @property bool $custom_surcharge_tax3
+ * @property bool $custom_surcharge_tax4
+ * @property float $exchange_rate
+ * @property float $amount
+ * @property float $balance
+ * @property float|null $partial
+ * @property string|null $partial_due_date
+ * @property string|null $last_viewed
+ * @property int|null $created_at
+ * @property int|null $updated_at
+ * @property int|null $deleted_at
+ * @property string|null $reminder1_sent
+ * @property string|null $reminder2_sent
+ * @property string|null $reminder3_sent
+ * @property string|null $reminder_last_sent
+ * @property bool $auto_bill_enabled
+ * @property float $paid_to_date
+ * @property int|null $subscription_id
+ * @property int $auto_bill_tries
+ * @property bool $is_proforma
+ * @property-read int|null $activities_count
+ * @property \App\Models\User|null $assigned_user
+ * @property \App\Models\Client $client
+ * @property \App\Models\InvoiceInvitation $invitation
+ * @property \App\Models\Company $company
+ * @property-read int|null $company_ledger_count
+ * @property-read int|null $credits_count
+ * @property \App\Models\Design|null $design
+ * @property-read int|null $documents_count
+ * @property-read \App\Models\Expense|null $expense
+ * @property-read int|null $expenses_count
+ * @property-read mixed $balance_due
+ * @property-read mixed $hashed_id
+ * @property-read mixed $status
+ * @property-read mixed $total
+ * @property-read int|null $history_count
+ * @property-read int|null $invitations_count
+ * @property-read int|null $payments_count
+ * @property-read mixed $pivot
+ * @property-read \App\Models\Project|null $project
+ * @property-read \App\Models\RecurringInvoice|null $recurring_invoice
+ * @property-read \App\Models\Subscription|null $subscription
+ * @property-read \App\Models\Task|null $task
+ * @property-read int|null $tasks_count
+ * @property-read \App\Models\User $user
+ * @property-read \App\Models\Vendor|null $vendor
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
+ * @property object|null $tax_data
+ * @mixin \Eloquent
+ */
 class Invoice extends BaseModel
 {
     use SoftDeletes;
@@ -43,7 +143,7 @@ class Invoice extends BaseModel
     use MakesReminders;
     use ActionsInvoice;
 
-    protected $presenter = InvoicePresenter::class;
+    protected $presenter = EntityPresenter::class;
 
     protected $touches = [];
 
@@ -95,9 +195,6 @@ class Invoice extends BaseModel
     ];
 
     protected $casts = [
-        // 'date' => 'date:Y-m-d',
-        // 'due_date' => 'date:Y-m-d',
-        // 'partial_due_date' => 'date:Y-m-d',
         'line_items' => 'object',
         'backup' => 'object',
         'updated_at' => 'timestamp',
@@ -105,6 +202,7 @@ class Invoice extends BaseModel
         'deleted_at' => 'timestamp',
         'is_deleted' => 'bool',
         'is_amount_discount' => 'bool',
+        'tax_data' => 'object',
     ];
 
     protected $with = [];
@@ -150,67 +248,84 @@ class Invoice extends BaseModel
         return $this->dateMutator($value);
     }
 
-    public function company()
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function project()
+    public function project(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Project::class);
     }
 
-    public function vendor()
+    public function vendor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Vendor::class);
     }
 
-    public function design()
+    public function design(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Design::class);
     }
 
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
 
-    public function recurring_invoice()
+    public function recurring_invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(RecurringInvoice::class, 'recurring_id', 'id')->withTrashed();
     }
 
-    public function assigned_user()
+    public function assigned_user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
 
-    public function invitations()
+    public function invitations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(InvoiceInvitation::class);
     }
 
-    public function client()
+    public function client(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Client::class)->withTrashed();
     }
 
-    public function subscription()
+    public function subscription(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Subscription::class)->withTrashed();
     }
 
-    public function documents()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<Document>
+     */
+    public function documents(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
     }
 
-    public function payments()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany<Payment>
+     */
+    public function payments(): \Illuminate\Database\Eloquent\Relations\MorphToMany
     {
-        return $this->morphToMany(Payment::class, 'paymentable')->withTrashed()->withPivot('amount', 'refunded')->withTimestamps();
+        return $this->morphToMany(Payment::class, 'paymentable')->withTrashed()->withPivot('amount', 'refunded', 'deleted_at')->withTimestamps();
     }
 
-    public function company_ledger()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany<Payment>
+     */
+    public function net_payments(): \Illuminate\Database\Eloquent\Relations\MorphToMany
+    {
+        return $this->morphToMany(Payment::class, 'paymentable')->withTrashed()->where('is_deleted', 0)->withPivot('amount', 'refunded', 'deleted_at')->withTimestamps();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<CompanyLedger>
+     */
+    public function company_ledger(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(CompanyLedger::class, 'company_ledgerable');
     }
@@ -220,38 +335,49 @@ class Invoice extends BaseModel
         return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(50);
     }
 
-    public function history()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough<Backup>
+     */
+    public function history(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
         return $this->hasManyThrough(Backup::class, Activity::class);
     }
 
-    public function credits()
+    public function credits(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Credit::class);
     }
 
-    public function tasks()
+    public function tasks(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Task::class);
     }
 
-    public function task()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<Task>
+     */
+    public function task(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Task::class);
     }
 
-    public function expenses()
+    public function expenses(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Expense::class);
     }
 
-    public function expense()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<Expense>
+     */
+    public function expense(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Expense::class);
     }
-
+ 
     /**
      * Service entry points.
+     *
+     * @return InvoiceService
      */
     public function service() :InvoiceService
     {
@@ -331,78 +457,61 @@ class Invoice extends BaseModel
         return ($this->partial && $this->partial > 0) === true;
     }
 
-    public static function badgeForStatus(int $status)
+    public static function badgeForStatus(int $status): string
     {
         switch ($status) {
             case self::STATUS_DRAFT:
                 return '<h5><span class="badge badge-light">'.ctrans('texts.draft').'</span></h5>';
-                break;
             case self::STATUS_SENT:
                 return '<h5><span class="badge badge-primary">'.ctrans('texts.sent').'</span></h5>';
-                break;
             case self::STATUS_PARTIAL:
                 return '<h5><span class="badge badge-primary">'.ctrans('texts.partial').'</span></h5>';
-                break;
             case self::STATUS_PAID:
                 return '<h5><span class="badge badge-success">'.ctrans('texts.paid').'</span></h5>';
-                break;
             case self::STATUS_CANCELLED:
                 return '<h5><span class="badge badge-secondary">'.ctrans('texts.cancelled').'</span></h5>';
-                break;
             case self::STATUS_OVERDUE:
                 return '<h5><span class="badge badge-danger">'.ctrans('texts.overdue').'</span></h5>';
-                break;
             case self::STATUS_UNPAID:
                 return '<h5><span class="badge badge-warning text-white">'.ctrans('texts.unpaid').'</span></h5>';
-                break;
             case self::STATUS_REVERSED:
                 return '<h5><span class="badge badge-info">'.ctrans('texts.reversed').'</span></h5>';
-                break;
             default:
-                // code...
-                break;
+                return '<h5><span class="badge badge-primary">'.ctrans('texts.sent').'</span></h5>';
+                
         }
     }
 
-    public static function stringStatus(int $status)
+    public static function stringStatus(int $status): string
     {
         switch ($status) {
             case self::STATUS_DRAFT:
                 return ctrans('texts.draft');
-                break;
             case self::STATUS_SENT:
                 return ctrans('texts.sent');
-                break;
             case self::STATUS_PARTIAL:
                 return ctrans('texts.partial');
-                break;
             case self::STATUS_PAID:
                 return ctrans('texts.paid');
-                break;
             case self::STATUS_CANCELLED:
                 return ctrans('texts.cancelled');
-                break;
             case self::STATUS_OVERDUE:
                 return ctrans('texts.overdue');
-                break;
             case self::STATUS_UNPAID:
                 return ctrans('texts.unpaid');
-                break;
             case self::STATUS_REVERSED:
                 return ctrans('texts.reversed');
-                break;
             default:
-                // code...
-                break;
+                return ctrans('texts.sent');
         }
     }
 
     /**
      * Access the invoice calculator object.
      *
-     * @return stdClass The invoice calculator object getters
+     * @return InvoiceSumInclusive | InvoiceSum The invoice calculator object getters
      */
-    public function calc()
+    public function calc(): InvoiceSumInclusive | InvoiceSum
     {
         $invoice_calc = null;
 
@@ -413,66 +522,6 @@ class Invoice extends BaseModel
         }
 
         return $invoice_calc->build();
-    }
-
-    public function pdf_file_path($invitation = null, string $type = 'path', bool $portal = false)
-    {
-        if (! $invitation) {
-            if ($this->invitations()->exists()) {
-                $invitation = $this->invitations()->first();
-            } else {
-                $this->service()->createInvitations();
-                $invitation = $this->invitations()->first();
-            }
-        }
-
-        if (! $invitation) {
-            throw new \Exception('Hard fail, could not create an invitation - is there a valid contact?');
-        }
-
-        $file_path = $this->client->invoice_filepath($invitation).$this->numberFormatter().'.pdf';
-
-        $file_exists = false;
-
-        /* Flysystem throws an exception if the path is "corrupted" so lets wrap it in a try catch and return a bool  06/01/2022*/
-        try {
-            $file_exists = Storage::disk(config('filesystems.default'))->exists($file_path);
-        } catch (\Exception $e) {
-            nlog($e->getMessage());
-        }
-
-        if (Ninja::isHosted() && $portal && $file_exists) {
-            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
-        } elseif (Ninja::isHosted()) {
-            $file_path = (new CreateEntityPdf($invitation, config('filesystems.default')))->handle();
-
-            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
-        }
-
-        try {
-            $file_exists = Storage::disk(config('filesystems.default'))->exists($file_path);
-        } catch (\Exception $e) {
-            nlog($e->getMessage());
-        }
-
-        if ($file_exists) {
-            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
-        }
-
-
-        try {
-            $file_exists = Storage::disk('public')->exists($file_path);
-        } catch (\Exception $e) {
-            nlog($e->getMessage());
-        }
-
-        if ($file_exists) {
-            return Storage::disk('public')->{$type}($file_path);
-        }
-
-        $file_path = (new CreateEntityPdf($invitation))->handle();
-
-        return Storage::disk('public')->{$type}($file_path);
     }
 
     public function markInvitationsSent()
@@ -499,16 +548,12 @@ class Invoice extends BaseModel
         switch ($locked_status) {
             case 'off':
                 return false;
-                break;
             case 'when_sent':
                 return $this->status_id == self::STATUS_SENT;
-                break;
             case 'when_paid':
                 return $this->status_id == self::STATUS_PAID || $this->status_id == self::STATUS_PARTIAL;
-                break;
             default:
                 return false;
-                break;
         }
     }
 
@@ -532,30 +577,37 @@ class Invoice extends BaseModel
             return $this->balance;
         }
 
-        if ($this->status_id = 1) {
+        if ($this->status_id == 1) {
             return $this->amount;
         }
 
         return 0;
     }
 
-    public function entityEmailEvent($invitation, $reminder_template, $template)
+    public function entityEmailEvent($invitation, $reminder_template, $template = '')
     {
+
         switch ($reminder_template) {
             case 'invoice':
                 event(new InvoiceWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $template));
                 break;
             case 'reminder1':
-                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), Activity::INVOICE_REMINDER1_SENT));
+                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $template));
                 break;
             case 'reminder2':
-                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), Activity::INVOICE_REMINDER2_SENT));
+                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $template));
                 break;
             case 'reminder3':
-                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), Activity::INVOICE_REMINDER3_SENT));
+                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $template));
                 break;
             case 'reminder_endless':
-                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), Activity::INVOICE_REMINDER_ENDLESS_SENT));
+            case 'endless_reminder':
+                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $template));
+                break;
+            case 'custom1':
+            case 'custom2':
+            case 'custom3':
+                event(new InvoiceWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $template));
                 break;
             default:
                 // code...
@@ -579,56 +631,136 @@ class Invoice extends BaseModel
 
     public function expense_documents()
     {
-
         $line_items = $this->line_items;
             
         $expense_ids = [];
 
-        foreach($line_items as $item)
-        {
-
-            if(property_exists($item, 'expense_id'))
-            {
+        foreach ($line_items as $item) {
+            if (property_exists($item, 'expense_id')) {
                 $expense_ids[] = $item->expense_id;
             }
-
         }
             
-        return Expense::whereIn('id', $this->transformKeys($expense_ids))
+        return Expense::query()->whereIn('id', $this->transformKeys($expense_ids))
                            ->where('invoice_documents', 1)
                            ->where('company_id', $this->company_id)
                            ->cursor();
-            
     }
 
     public function task_documents()
     {
-
         $line_items = $this->line_items;
             
         $task_ids = [];
 
-        foreach($line_items as $item)
-        {
-
-            if(property_exists($item, 'task_id'))
-            {
+        foreach ($line_items as $item) {
+            if (property_exists($item, 'task_id')) {
                 $task_ids[] = $item->task_id;
             }
-
         }
             
-        return Task::whereIn('id', $this->transformKeys($task_ids))
-                           ->whereHas('company', function($query){
-                                $query->where('invoice_task_documents', 1);
+        return Task::query()->whereIn('id', $this->transformKeys($task_ids))
+                           ->whereHas('company', function ($query) {
+                               $query->where('invoice_task_documents', 1);
                            })
                            ->where('company_id', $this->company_id)
                            ->cursor();
-
     }
 
     public function translate_entity()
     {
         return ctrans('texts.invoice');
+    }
+
+    public function taxTypeString($id): string
+    {
+        $tax_type  = '';
+
+        match(intval($id)) {
+            Product::PRODUCT_TYPE_PHYSICAL => $tax_type = ctrans('texts.physical_goods'),
+            Product::PRODUCT_TYPE_SERVICE => $tax_type = ctrans('texts.services'),
+            Product::PRODUCT_TYPE_DIGITAL => $tax_type = ctrans('texts.digital_products'),
+            Product::PRODUCT_TYPE_SHIPPING => $tax_type = ctrans('texts.shipping'),
+            Product::PRODUCT_TYPE_EXEMPT => $tax_type = ctrans('texts.tax_exempt'),
+            Product::PRODUCT_TYPE_REDUCED_TAX => $tax_type = ctrans('texts.reduced_tax'),
+            Product::PRODUCT_TYPE_OVERRIDE_TAX => $tax_type = ctrans('texts.override_tax'),
+            Product::PRODUCT_TYPE_ZERO_RATED => $tax_type = ctrans('texts.zero_rated'),
+            Product::PRODUCT_TYPE_REVERSE_TAX => $tax_type = ctrans('texts.reverse_tax'),
+            default => $tax_type = ctrans('texts.physical_goods'),
+        };
+
+        return $tax_type;
+    }
+
+    public function typeIdString($id)
+    {
+        $type = '';
+        match($id) {
+            '1' => $type = ctrans('texts.product'),
+            '2' => $type = ctrans('texts.service'),
+            '3' => $type = ctrans('texts.gateway_fees'),
+            '4' => $type = ctrans('texts.gateway_fees'),
+            '5' => $type = ctrans('texts.late_fees'),
+            '6' => $type = ctrans('texts.expense'),
+            default => $type = ctrans('texts.product'),
+        };
+
+        return $type;
+
+    }
+
+    public function reminderSchedule(): string
+    {
+        $reminder_schedule = '';
+        $settings = $this->client->getMergedSettings();
+
+        $send_email_enabled =  ctrans('texts.send_email') . " " .ctrans('texts.enabled');
+        $send_email_disabled =  ctrans('texts.send_email') . " " .ctrans('texts.disabled');
+
+        $sends_email_1 = $settings->enable_reminder2 ? $send_email_enabled : $send_email_disabled;
+        $days_1 = $settings->num_days_reminder1 . " " . ctrans('texts.days');
+        $schedule_1 = ctrans("texts.{$settings->schedule_reminder1}"); //after due date etc or disabled
+        $label_1 = ctrans('texts.reminder1');
+
+        $sends_email_2 = $settings->enable_reminder2 ? $send_email_enabled : $send_email_disabled;
+        $days_2 = $settings->num_days_reminder2 . " " . ctrans('texts.days');
+        $schedule_2 = ctrans("texts.{$settings->schedule_reminder2}"); //after due date etc or disabled
+        $label_2 = ctrans('texts.reminder2');
+
+        $sends_email_3 = $settings->enable_reminder2 ? $send_email_enabled : $send_email_disabled;
+        $days_3 = $settings->num_days_reminder3 . " " . ctrans('texts.days');
+        $schedule_3 = ctrans("texts.{$settings->schedule_reminder3}"); //after due date etc or disabled
+        $label_3 = ctrans('texts.reminder3');
+
+        $sends_email_endless = $settings->enable_reminder_endless  ? $send_email_enabled : $send_email_disabled;
+        $days_endless = \App\Models\RecurringInvoice::frequencyForKey($settings->endless_reminder_frequency_id);
+        $label_endless = ctrans('texts.reminder_endless');
+
+        if($schedule_1 == ctrans('texts.disabled') || $settings->schedule_reminder1 == 'disabled' || $settings->schedule_reminder1 == '') {
+            $reminder_schedule .= "{$label_1}: " . ctrans('texts.disabled') ."<br>";
+        } else {
+            $reminder_schedule .= "{$label_1}: {$days_1} {$schedule_1} [{$sends_email_1}]<br>";
+        }
+
+        if($schedule_2 == ctrans('texts.disabled') || $settings->schedule_reminder2 == 'disabled' || $settings->schedule_reminder2 == '') {
+            $reminder_schedule .= "{$label_2}: " . ctrans('texts.disabled') ."<br>";
+        } else {
+            $reminder_schedule .= "{$label_2}: {$days_2} {$schedule_2} [{$sends_email_2}]<br>";
+        }
+        
+        if($schedule_3 == ctrans('texts.disabled') || $settings->schedule_reminder3 == 'disabled' || $settings->schedule_reminder3 == '') {
+            $reminder_schedule .= "{$label_3}: " . ctrans('texts.disabled') ."<br>";
+        } else {
+            $reminder_schedule .= "{$label_3}: {$days_3} {$schedule_3} [{$sends_email_3}]<br>";
+        }
+        
+        if($sends_email_endless == ctrans('texts.disabled') || $settings->endless_reminder_frequency_id == '0' || $settings->endless_reminder_frequency_id == '') {
+            $reminder_schedule .= "{$label_endless}: " . ctrans('texts.disabled') ."<br>";
+        } else {
+            $reminder_schedule .= "{$label_endless}: {$days_endless} [{$sends_email_endless}]<br>";
+        }
+        
+
+        return $reminder_schedule;
     }
 }

@@ -2,7 +2,7 @@
 /**
  * Payment Ninja (https://paymentninja.com).
  *
- * @link https://github.com/paymentninja/paymentninja source repository
+ * @link https://github.com/invoiceninja/invoiceninja source repository
  *
  * @copyright Copyright (c) 2022. Payment Ninja LLC (https://paymentninja.com)
  *
@@ -20,15 +20,10 @@ class ApplyNumber extends AbstractService
 {
     use GeneratesCounter;
 
-    private $payment;
-
     private bool $completed = true;
 
-    public function __construct(Payment $payment)
+    public function __construct(private Payment $payment)
     {
-        $this->client = $payment->client;
-
-        $this->payment = $payment;
     }
 
     public function run()
@@ -38,7 +33,6 @@ class ApplyNumber extends AbstractService
         }
 
         $this->trySaving();
-        // $this->payment->number = $this->getNextPaymentNumber($this->client, $this->payment);
 
         return $this->payment;
     }
@@ -49,7 +43,7 @@ class ApplyNumber extends AbstractService
 
         do {
             try {
-                $this->payment->number = $this->getNextPaymentNumber($this->client, $this->payment);
+                $this->payment->number = $this->getNextPaymentNumber($this->payment->client, $this->payment);
                 $this->payment->saveQuietly();
 
                 $this->completed = false;

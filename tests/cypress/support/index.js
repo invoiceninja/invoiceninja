@@ -23,7 +23,12 @@ before(() => {
     cy.task('activateCypressEnvFile', {}, { log: false });
     cy.artisan('config:clear', {}, { log: false });
     cy.refreshRoutes();
-    cy.seed("RandomDataSeeder");
+    cy.artisan("migrate:fresh", {
+        '--seed': true,
+    });
+    cy.artisan("db:seed", {
+        '--class': 'RandomDataSeeder',
+    });
 });
 
 after(() => {

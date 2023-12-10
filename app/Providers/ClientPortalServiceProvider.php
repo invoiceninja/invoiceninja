@@ -17,6 +17,7 @@ class ClientPortalServiceProvider extends ServiceProvider
         app()->bind('customMessage', function () {
             return new CustomMessage();
         });
+ 
     }
 
     /**
@@ -26,6 +27,6 @@ class ClientPortalServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+
     }
 }

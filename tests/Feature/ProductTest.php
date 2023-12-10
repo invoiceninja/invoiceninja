@@ -45,6 +45,42 @@ class ProductTest extends TestCase
         );
 
         $this->makeTestData();
+        $this->withoutExceptionHandling();
+
+    }
+
+    public function testSetTaxId()
+    {
+        $p = Product::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id
+        ]);
+
+
+        $this->assertEquals(1, $p->tax_id);
+
+        $update = [
+            'ids' => [$p->hashed_id],
+            'action' => 'set_tax_id',
+            'tax_id' => 6,
+        ];
+
+        $response = false;
+
+        try {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/products/bulk', $update)
+            ->assertStatus(200);
+        } catch(\Exception $e) {
+            
+        }
+
+        $p = $p->fresh();
+
+        $this->assertEquals(6, $p->tax_id);
+
     }
 
     public function testProductGetProductKeyFilter()

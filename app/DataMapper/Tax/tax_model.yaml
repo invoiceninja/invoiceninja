@@ -1,0 +1,219 @@
+region:
+  US:
+    tax_all_subregions: false
+    seller_subregion: CA
+    has_sales_above_threshold: false
+    subregions:
+      AL:
+        apply_tax: false
+      AK:
+        apply_tax: false
+      AZ:
+        apply_tax: false
+      AR:
+        apply_tax: false
+      CA:
+        apply_tax: false
+      CO:
+        apply_tax: false
+      CT:
+        apply_tax: false
+      DE:
+        apply_tax: false
+      FL:
+        apply_tax: false
+      GA:
+        apply_tax: false
+      HI:
+        apply_tax: false
+      ID:
+        apply_tax: false
+      IL:
+        apply_tax: false
+      IN:
+        apply_tax: false
+      IA:
+        apply_tax: false
+      KS:
+        apply_tax: false
+      KY:
+        apply_tax: false
+      LA:
+        apply_tax: false
+      ME:
+        apply_tax: false
+      MD:
+        apply_tax: false
+      MA:
+        apply_tax: false
+      MI:
+        apply_tax: false
+      MN:
+        apply_tax: false
+      MS:
+        apply_tax: false
+      MO:
+        apply_tax: false
+      MT:
+        apply_tax: false
+      NE:
+        apply_tax: false
+      NV:
+        apply_tax: false
+      NH:
+        apply_tax: false
+      NJ:
+        apply_tax: false
+      NM:
+        apply_tax: false
+      NY:
+        apply_tax: false
+      NC:
+        apply_tax: false
+      ND:
+        apply_tax: false
+      OH:
+        apply_tax: false
+      OK:
+        apply_tax: false
+      OR:
+        apply_tax: false
+      PA:
+        apply_tax: false
+      RI:
+        apply_tax: false
+      SC:
+        apply_tax: false
+      SD:
+        apply_tax: false
+      TN:
+        apply_tax: false
+      TX:
+        apply_tax: false
+      UT:
+        apply_tax: false
+      VT:
+        apply_tax: false
+      VA:
+        apply_tax: false
+      WA:
+        apply_tax: false
+      WV:
+        apply_tax: false
+      WI:
+        apply_tax: false
+      WY:
+        apply_tax: false
+  EU:
+    tax_all: false
+    tax_threshold: 10000
+    has_sales_above_threshold: false
+    subregions:
+      AT:
+        vat: 21
+        reduced_vat: 11
+        apply_tax: false
+      BE:
+        vat: 21
+        reduced_vat: 6
+        apply_tax: false
+      BG:
+        vat: 20
+        reduced_vat: 9
+        apply_tax: false
+      CY:
+        vat: 19
+        reduced_vat: 9
+        apply_tax: false
+      CZ:
+        vat: 21
+        reduced_vat: 15
+        apply_tax: false
+      DE:
+        vat: 19
+        reduced_vat: 7
+        apply_tax: false
+      DK:
+        vat: 25
+        reduced_vat: 0
+        apply_tax: false
+      EE:
+        vat: 20
+        reduced_vat: 9
+        apply_tax: false
+      ES:
+        vat: 21
+        reduced_vat: 10
+        apply_tax: false
+      FI:
+        vat: 24
+        reduced_vat: 14
+        apply_tax: false
+      FR:
+        vat: 20
+        reduced_vat: 5.5
+        apply_tax: false
+      GB:
+        vat: 20
+        reduced_vat: 0
+        apply_tax: false
+      GR:
+        vat: 24
+        reduced_vat: 13
+        apply_tax: false
+      HR:
+        vat: 25
+        reduced_vat: 5
+        apply_tax: false
+      HU:
+        vat: 27
+        reduced_vat: 5
+        apply_tax: false
+      IE:
+        vat: 23
+        reduced_vat: 0
+        apply_tax: false
+      IT:
+        vat: 22
+        reduced_vat: 10
+        apply_tax: false
+      LT:
+        vat: 21
+        reduced_vat: 9
+        apply_tax: false
+      LU:
+        vat: 17
+        reduced_vat: 3
+        apply_tax: false
+      LV:
+        vat: 21
+        reduced_vat: 12
+        apply_tax: false
+      MT:
+        vat: 18
+        reduced_vat: 5
+        apply_tax: false
+      NL:
+        vat: 21
+        reduced_vat: 9
+        apply_tax: false
+      PT:
+        vat: 23
+        reduced_vat: 6
+        apply_tax: false
+      RO:
+        vat: 19
+        reduced_vat: 5
+        apply_tax: false
+      SE:
+        vat: 25
+        reduced_vat: 12
+        apply_tax: false
+      SI:
+        vat: 22
+        reduced_vat: 9.5
+        apply_tax: false
+      SK:
+        vat: 20
+        reduced_vat: 10
+        apply_tax: false

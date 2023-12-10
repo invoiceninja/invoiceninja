@@ -11,12 +11,7 @@
 
 namespace Tests\Unit;
 
-use App\Models\Account;
-use App\Models\Client;
-use App\Models\Company;
 use App\Models\Credit;
-use App\Models\CreditInvitation;
-use App\Models\User;
 use App\Utils\Traits\AppSetup;
 use Tests\MockUnitData;
 use Tests\TestCase;
@@ -86,7 +81,7 @@ class CreditBalanceTest extends TestCase
         $credit->push();
 
 
-                //delete invoice
+        //delete invoice
         $data = [
             'ids' => [$credit->hashed_id],
         ];
@@ -101,7 +96,7 @@ class CreditBalanceTest extends TestCase
 
         $this->assertEquals(0, $client->credit_balance);
 
-                //restore invoice
+        //restore invoice
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,

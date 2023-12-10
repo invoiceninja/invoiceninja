@@ -32,7 +32,7 @@ class EntityPolicy
     public function before($user, $ability)
     {
         //if($user->isAdmin())
-         //	return true;
+        //	return true;
     }
 
     /**
@@ -48,7 +48,7 @@ class EntityPolicy
     {
         return ($user->isAdmin() && $entity->company_id == $user->companyId())
             || ($user->hasPermission('edit_'.\Illuminate\Support\Str::snake(class_basename($entity))) && $entity->company_id == $user->companyId())
-            || ($user->hasPermission('edit_all') && $entity->company_id == $user->companyId())
+            // || ($user->hasPermission('edit_all') && $entity->company_id == $user->companyId()) //this is redundant as the edit_ check covers the _all check
             || ($user->owns($entity) && $entity->company_id == $user->companyId())
             || ($user->assigned($entity) && $entity->company_id == $user->companyId());
     }
@@ -65,7 +65,7 @@ class EntityPolicy
     {
         return ($user->isAdmin() && $entity->company_id == $user->companyId())
             || ($user->hasPermission('view_'.\Illuminate\Support\Str::snake(class_basename($entity))) && $entity->company_id == $user->companyId())
-            || ($user->hasPermission('view_all') && $entity->company_id == $user->companyId())
+            // || ($user->hasPermission('view_all') && $entity->company_id == $user->companyId()) //this is redundant as the edit_ check covers the _all check
             || ($user->owns($entity) && $entity->company_id == $user->companyId())
             || ($user->assigned($entity) && $entity->company_id == $user->companyId());
     }

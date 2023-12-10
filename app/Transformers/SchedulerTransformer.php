@@ -27,12 +27,12 @@ class SchedulerTransformer extends EntityTransformer
             'next_run' => $scheduler->next_run_client->format('Y-m-d'),
             'template' => (string) $scheduler->template,
             'is_paused' => (bool) $scheduler->is_paused,
-            'is_deleted' => (bool) $scheduler->is_deleted,
             'parameters'=> (array) $scheduler->parameters,
             'is_deleted' => (bool) $scheduler->is_deleted,
             'updated_at' => (int) $scheduler->updated_at,
             'created_at' => (int) $scheduler->created_at,
             'archived_at' => (int) $scheduler->deleted_at,
+            'remaining_cycles' => (int) $scheduler->remaining_cycles,
         ];
     }
 }

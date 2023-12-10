@@ -1,0 +1,58 @@
+tags:
+  - name: login
+    description: |
+      Attempts to authenticate with the API using a email/password combination.
+    externalDocs:
+      description: "Find out more"
+      url: "https://invoiceninja.github.io"
+  - name: clients
+    description: |
+      Endpoint definitions for interacting with clients.
+  - name: products
+    description: |
+      Endpoint definitions for interacting with products.
+  - name: invoices
+    description: |
+      Endpoint definitions for interacting with invoices.
+  - name: Recurring Invoices
+    description: |
+      Endpoint definitions for interacting with recurring_invoices.
+  - name: payments
+    description: |
+      Endpoint definitions for interacting with payments.
+  - name: quotes
+    description: |
+      Endpoint definitions for interacting with quotes.
+  - name: credits
+    description: |
+      Endpoint definitions for interacting with credits.
+  - name: projects
+    description: |
+      Endpoint definitions for interacting with projects.
+  - name: tasks
+    description: |
+      Endpoint definitions for interacting with tasks.
+  - name: vendors
+    description: |
+      Endpoint definitions for interacting with vendors.
+  - name: Purchase Orders
+    summary: Purchase Orders
+    description: |
+      Endpoint definitions for interacting with purchase orders.
+  - name: expenses
+    description: |
+      Endpoint definitions for interacting with expenses.
+  - name: recurring_expenses
+    description: |
+      Endpoint definitions for interacting with recurring_expenses.
+  - name: bank_transactions
+    description: |
+      Endpoint definitions for interacting with bank transactions.
+  - name: reports
+    description: |
+      Endpoint definitions for interacting with reports.
+externalDocs:
+  description: "https://invoiceninja.github.io"
+  url: "https://invoiceninja.github.io"
+security:
+  - ApiKeyAuth: []

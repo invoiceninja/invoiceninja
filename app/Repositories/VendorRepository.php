@@ -43,25 +43,27 @@ class VendorRepository extends BaseRepository
      */
     public function save(array $data, Vendor $vendor) : ?Vendor
     {
-        $vendor->fill($data);
+        $saveable_vendor = $data;
 
-        $vendor->save();
+        if(array_key_exists('contacts', $data)) {
+            unset($saveable_vendor['contacts']);
+        }
+
+        $vendor->fill($saveable_vendor);
+                
+        $vendor->saveQuietly();
 
         if ($vendor->number == '' || ! $vendor->number) {
             $vendor->number = $this->getNextVendorNumber($vendor);
-        } //todo write tests for this and make sure that custom vendor numbers also works as expected from here
+        }
 
-        $vendor->save();
+        $vendor->saveQuietly();
 
-        if (isset($data['contacts'])) {
+        if (isset($data['contacts']) || $vendor->contacts()->count() == 0) {
             $this->contact_repo->save($data, $vendor);
         }
 
-        if (empty($data['name'])) {
-            $data['name'] = $vendor->present()->name();
-        }
-
-        if (array_key_exists('documents', $data)) {
+        if (array_key_exists('documents', $data) && count($data['documents']) >= 1) {
             $this->saveDocuments($data['documents'], $vendor);
         }
 

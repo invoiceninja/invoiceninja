@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -13,11 +12,9 @@ return new class extends Migration
      */
     public function up()
     {
-
         Schema::table('purchase_order_invitations', function (Blueprint $table) {
-                $table->enum('email_status', ['delivered', 'bounced', 'spam'])->nullable();
+            $table->enum('email_status', ['delivered', 'bounced', 'spam'])->nullable();
         });
-
     }
 
     /**
@@ -27,6 +24,5 @@ return new class extends Migration
      */
     public function down()
     {
-        
     }
 };

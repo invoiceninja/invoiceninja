@@ -11,22 +11,12 @@
 
 namespace Tests\Feature;
 
-use App\DataMapper\ClientSettings;
-use App\Factory\ClientFactory;
-use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
-use App\Factory\InvoiceItemFactory;
-use App\Factory\PaymentFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Credit;
-use App\Models\Invoice;
-use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\WithoutEvents;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
@@ -42,7 +32,8 @@ class UpdatePaymentTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
-    use WithoutEvents;
+
+    public $faker;
 
     protected function setUp() :void
     {
@@ -60,9 +51,39 @@ class UpdatePaymentTest extends TestCase
         );
     }
 
+    public function testUpdatingPaymentableDates()
+    {
+        $this->invoice = $this->invoice->service()->markPaid()->save();
+
+        $payment = $this->invoice->payments->first();
+
+        $this->assertNotNull($payment);
+
+        $payment->paymentables()->each(function ($pivot) {
+
+            $this->assertTrue(Carbon::createFromTimestamp($pivot->created_at)->isToday());
+        });
+
+        $payment->paymentables()->each(function ($pivot) {
+
+            $pivot->created_at = now()->startOfDay()->subMonth();
+            $pivot->save();
+
+        });
+
+        $payment->paymentables()->each(function ($pivot) {
+        
+            $this->assertTrue(Carbon::createFromTimestamp($pivot->created_at)->eq(now()->startOfDay()->subMonth()));
+
+        });
+
+
+
+
+    }
+
     public function testUpdatePaymentClientPaidToDate()
     {
-
         //Create new client
         $client = Client::factory()->create([
             'user_id' => $this->user->id,

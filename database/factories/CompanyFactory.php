@@ -12,7 +12,7 @@
 namespace Database\Factories;
 
 use App\DataMapper\CompanySettings;
-use App\Models\Company;
+use App\DataMapper\Tax\TaxModel;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -39,6 +39,7 @@ class CompanyFactory extends Factory
             'custom_fields' => (object) [
             ],
             'company_key' => $this->createHash(),
+            'tax_data' => new TaxModel(),
         ];
     }
 }

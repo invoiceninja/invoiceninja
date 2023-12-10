@@ -1,0 +1,273 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @import url($font_url);
+
+        @page {
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-top: 0;
+            margin-bottom: 0;
+            size: $page_size $page_layout;
+        }
+
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-family: $font_name, Helvetica, sans-serif;
+            font-size: $font_sizepx !important;
+            zoom: 80%;
+        }
+
+
+        table {
+            margin-bottom: 0rem;
+            min-width: 100%;
+            table-layout: fixed;
+            overflow-wrap: break-word;
+        }
+
+        .table-header>tr>th {
+            border-bottom: solid 1px #efefef;
+        }
+
+        .table-body>tr>td {
+            border-bottom: solid 1px #efefef;
+        }
+
+        th {
+            text-align: left;
+            padding-left: 6px;
+            padding-right: 6px;
+            padding-top: 6px;
+            padding-bottom: 6px;
+        }
+
+        td {
+            padding-left: 6px;
+            padding-right: 6px;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+
+        .item-row {
+            border-bottom: 1px #000 dotted;
+        }
+
+        .totals-row-label {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .totals-row-value {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .table-totals {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+        }
+
+        .centered {
+            text-align: center;
+        }
+
+        .doc-title {
+            font-size: 32px;
+        }
+
+        p {
+            margin: 0;
+            padding: 0;
+        }
+
+        span {
+            padding-right: 5px;
+            width: 100%;
+        }
+
+        div .label {
+            text-align: right;
+            padding-right: 10px;
+        }
+
+        div .value {
+            text-align: left;
+            padding-left: 5px;
+        }
+
+        .two-col-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .client-details {
+            margin-bottom: 0.3rem;
+        }
+
+        .container {
+            padding-top: 2rem;
+        }
+
+        .bottom-margin {
+            padding-bottom: 0.5rem;
+        }
+
+        .bottom-border {
+            border-bottom: 0.5px dashed $primary_color;
+        }
+
+        .top-border {
+            border-top: 0.5px dashed $primary_color;
+        }
+
+        .section-title {
+            font-style: italic;
+            color: #454545
+        }
+
+        .primary-color-highlight {
+            color: $primary_color;
+        }
+
+        .secondary-color-highlight {
+            color: $secondary_color;
+        }
+
+        .header-table {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+        }
+
+        #footer {
+            position: fixed;
+            bottom: 0;
+            border-top: 1px solid #000;
+            width: 82%;
+            min-height: 100px;
+            padding-top: 0.5rem;
+            margin-top: 40px;
+        }
+
+        .company-logo {
+            /*        max-width: 65%;*/
+            max-width: $company_logo_size;
+        }
+    </style>
+</head>
+
+<body>
+    <table style="min-width:100%">
+        <thead>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+
+                    <table width="100%" cellspacing="0" cellpadding="0" class="" border="0">
+                        <tr>
+                            <td align="left" class="doc-title">$delivery_note_label</td>
+                            <td align="right"><img src="$company.logo" class="company-logo"></td>
+                        </tr>
+                    </table>
+
+                    <table width="100%" height="100%" cellspacing="0" cellpadding="0" class="" border="0">
+                        <tr>
+                            <td align="left" class="">
+                                <div class="" style="">
+                                    <div class="client-details">
+                                        <p class="section-title">$to_label:</p>
+                                    </div>
+                                    <div id="client-details"></div>
+                                </div>
+                            </td>
+
+                            <td align="left">
+                                <div class="" style="height:100%;">
+                                    <div class="client-details">
+                                        <p class="section-title">$ship_to_label:</p>
+                                    </div>
+                                    <div id="shipping-details"></div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <table width="100%" cellspacing="0" cellpadding="0" class="">
+                        <tr>
+                            <td align="left" class="">
+                                <div>
+                                    <p class="bottom-border">$order_number_label # $invoice.po_number</p>
+                                </div>
+                            </td>
+                            <td align="left">
+                                <div class="">
+                                    <p class="bottom-border">$date_label: $invoice.date</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <ninja>
+                        {% set invoice = invoices|first %}
+                        <table width="100%" cellspacing="0" cellpadding="0" class="">
+                            <thead class="table-header">
+                                <tr class="table-header primary-color-highlight">
+                                    <th class="">$item_label #</th>
+                                    <th class="" width="50%">$description_label</th>
+                                    <th class="centered">$quantity_label</th>
+                                    <!-- <th class="totals-row-label centered">Delivered</th>
+                <th class="totals-row-label centered">Backorder</th> -->
+                                </tr>
+                            </thead>
+                            <tbody class="table-body">
+                                {% for item in invoice.line_items|filter(item => item.type_id == 1) %}
+                                <tr class="item-row">
+                                    <td class="">{{ item.product_key }}</td>
+                                    <td class="">{{ item.notes }}</td>
+                                    <td class="centered">{{ item.quantity }}</td>
+                                    <!-- <td class="totals-row-label centered">{{ item.quantity }}</td>
+                <td class="totals-row-label centered">{{ item.quantity - item.quantity }}</td> -->
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </ninja>
+
+                    <table width="100%" cellspacing="0" cellpadding="0" class="">
+                        <div class="container">
+                            <p class="bottom-margin primary-color-highlight">$notes_label:</p>
+                            $invoice.public_notes
+                        </div>
+                    </table>
+
+                </td>
+            </tr>
+        </tbody>
+
+        <tfoot>
+            <tr>
+                <td>
+                    <div style="border: 0px solid #000; height:100px;">
+
+                    </div>
+                </td>
+            </tr>
+        </tfoot>
+
+    </table>
+
+    <div id="footer" style="border: 0px solid red; width: 95%;">
+        <div style="width: 100%; padding:10px;" class="two-col-grid top-border">
+            <div id="company-details" style="margin-left:0; margin-right:auto;"></div>
+            <div id="company-address" style="margin-right:0; margin-left:auto;"></div>
+        </div>
+    </div>
+
+</body>
+
+</html>

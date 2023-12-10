@@ -26,17 +26,13 @@ use App\Models\QuoteInvitation;
 use App\Models\Vendor;
 use App\Models\VendorContact;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
-use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\MakesTemplateData;
-use App\Utils\VendorHtmlEngine;
 use DB;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Str;
 use League\CommonMark\CommonMarkConverter;
-use TijsVerkoyen\CssToInlineStyles\CssToInlineStyles;
 
 class TemplateEngine
 {
@@ -54,8 +50,10 @@ class TemplateEngine
 
     public $template;
 
-    private $entity_obj;
+    /** @var \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder | \App\Models\RecurringInvoice | \App\Models\Payment $entity_obj **/
+    private \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder | \App\Models\RecurringInvoice | \App\Models\Payment $entity_obj;
 
+    /** @var \App\Models\Company | \App\Models\Client | null $settings_entity **/
     private $settings_entity;
 
     private $settings;
@@ -81,14 +79,13 @@ class TemplateEngine
 
         $this->template = $template;
 
-        $this->entity_obj = null;
+        // $this->entity_obj = null;
 
         $this->settings_entity = null;
     }
 
     public function build()
     {
-
         return $this->setEntity()
             ->setSettingsObject()
             ->setTemplates()
@@ -100,7 +97,19 @@ class TemplateEngine
     {
         if (strlen($this->entity) > 1 && strlen($this->entity_id) > 1) {
             $class = 'App\Models\\' . ucfirst(Str::camel($this->entity));
-            $this->entity_obj = $class::withTrashed()->where('id', $this->decodePrimaryKey($this->entity_id))->company()->first();
+            $this->entity_obj = $class::query()->withTrashed()->where('id', $this->decodePrimaryKey($this->entity_id))->company()->first();
+        } elseif (stripos($this->template, 'quote') !== false && $quote = Quote::query()->whereHas('invitations')->withTrashed()->company()->first()) {
+            $this->entity = 'quote';
+            $this->entity_obj = $quote;
+        } elseif (stripos($this->template, 'purchase') !== false && $purchase_order = PurchaseOrder::query()->whereHas('invitations')->withTrashed()->company()->first()) {
+            $this->entity = 'purchase_order';
+            $this->entity_obj = $purchase_order;
+        } elseif (stripos($this->template, 'payment') !== false && $payment = Payment::query()->withTrashed()->company()->first()) {
+            $this->entity = 'payment';
+            $this->entity_obj = $payment;
+        } elseif ($invoice = Invoice::query()->whereHas('invitations')->withTrashed()->company()->first()) {
+            /** @var \App\Models\Invoice $invoice */
+            $this->entity_obj = $invoice;
         } else {
             $this->mockEntity();
         }
@@ -110,14 +119,17 @@ class TemplateEngine
 
     private function setSettingsObject()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         if ($this->entity == 'purchaseOrder' || $this->entity == 'purchase_order') {
-            $this->settings_entity = auth()->user()->company();
+            $this->settings_entity = $user->company();
             $this->settings = $this->settings_entity->settings;
         } elseif ($this->entity_obj->client()->exists()) {
             $this->settings_entity = $this->entity_obj->client;
             $this->settings = $this->settings_entity->getMergedSettings();
         } else {
-            $this->settings_entity = auth()->user()->company();
+            $this->settings_entity = $user->company();
             $this->settings = $this->settings_entity->settings;
         }
 
@@ -188,12 +200,13 @@ class TemplateEngine
 
     private function entityValues($contact)
     {
-        if (in_array($this->entity, ['purchaseOrder', 'purchase_order']))
+        if (in_array($this->entity, ['purchaseOrder', 'purchase_order'])) {
             $this->labels_and_values = (new VendorHtmlEngine($this->entity_obj->invitations->first()))->generateLabelsAndValues();
-        elseif($this->entity == 'payment')
+        } elseif ($this->entity == 'payment') {
             $this->labels_and_values = (new PaymentEmailEngine($this->entity_obj, $this->entity_obj->client->contacts->first()))->generateLabelsAndValues();
-        else
+        } else {
             $this->labels_and_values = (new HtmlEngine($this->entity_obj->invitations->first()))->generateLabelsAndValues();
+        }
 
 
         $this->body = strtr($this->body, $this->labels_and_values['labels']);
@@ -211,18 +224,20 @@ class TemplateEngine
 
     private function renderTemplate()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         /* wrapper */
         $email_style = $this->settings_entity->getSetting('email_style');
 
         $data['title'] = '';
         $data['body'] = '$body';
         $data['footer'] = '';
-        $data['logo'] = auth()->user()->company()->present()->logo();
+        $data['logo'] = $user->company()->present()->logo();
 
-        if ($this->entity_obj->client()->exists())
+        if ($this->entity_obj->client()->exists()) {
             $data = array_merge($data, Helpers::sharedEmailVariables($this->entity_obj->client));
-        else {
-
+        } else {
             $data['signature'] = $this->settings->email_signature;
             $data['settings'] = $this->settings;
             $data['whitelabel'] = $this->entity_obj ? $this->entity_obj->company->account->isPaid() : true;
@@ -269,136 +284,157 @@ class TemplateEngine
 
     private function mockEntity()
     {
-        if (!$this->entity && $this->template && str_contains($this->template, 'purchase_order'))
+        $invitation = false;
+
+        if (!$this->entity && $this->template && str_contains($this->template, 'purchase_order')) {
             $this->entity = 'purchaseOrder';
-        elseif(str_contains($this->template, 'payment'))
+        } elseif (str_contains($this->template, 'payment')) {
             $this->entity = 'payment';
+        }
 
         DB::connection(config('database.default'))->beginTransaction();
 
-        $vendor = false;
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
+        $vendor = false;
+        /** @var \App\Models\Client $client */
         $client = Client::factory()->create([
-            'user_id' => auth()->user()->id,
-            'company_id' => auth()->user()->company()->id,
+            'user_id' => $user->id,
+            'company_id' => $user->company()->id,
         ]);
 
+        /** @var \App\Models\ClientContact $contact */
         $contact = ClientContact::factory()->create([
-            'user_id' => auth()->user()->id,
-            'company_id' => auth()->user()->company()->id,
+            'user_id' => $user->id,
+            'company_id' => $user->company()->id,
             'client_id' => $client->id,
             'is_primary' => 1,
             'send_email' => true,
         ]);
 
         if ($this->entity == 'payment') {
-
-            
-            $this->entity_obj = Payment::factory()->create([
-                'user_id' => auth()->user()->id,
-                'company_id' => auth()->user()->company()->id,
+            /** @var \App\Models\Payment $payment */
+            $payment = Payment::factory()->create([
+                'user_id' => $user->id,
+                'company_id' => $user->company()->id,
                 'client_id' => $client->id,
                 'amount' => 10,
                 'applied' => 10,
                 'refunded' => 5,
             ]);
+            
+            $this->entity_obj = $payment;
 
+            /** @var \App\Models\Invoice $invoice */
             $invoice = Invoice::factory()->create([
-                'user_id' => auth()->user()->id,
-                'company_id' => auth()->user()->company()->id,
+                'user_id' => $user->id,
+                'company_id' => $user->company()->id,
                 'client_id' => $client->id,
                 'amount' => 10,
                 'balance' => 10,
-                'number' => rand(1,10000)
+                'number' => rand(1, 10000)
             ]);
 
+            /** @var \App\Models\InvoiceInvitation $invitation */
             $invitation = InvoiceInvitation::factory()->create([
-                'user_id' => auth()->user()->id,
-                'company_id' => auth()->user()->company()->id,
+                'user_id' => $user->id,
+                'company_id' => $user->company()->id,
                 'invoice_id' => $invoice->id,
                 'client_contact_id' => $contact->id,
             ]);
 
+            /** @var \App\Models\Invoice $invoice */
             $this->entity_obj->invoices()->attach($invoice->id, [
                 'amount' => 10,
             ]);
-
         }
 
         if (!$this->entity || $this->entity == 'invoice') {
-            $this->entity_obj = Invoice::factory()->create([
-                'user_id' => auth()->user()->id,
-                'company_id' => auth()->user()->company()->id,
+            /** @var \App\Models\Invoice $invoice */
+            $invoice = Invoice::factory()->create([
+                'user_id' => $user->id,
+                'company_id' => $user->company()->id,
                 'client_id' => $client->id,
+                'amount' => '10',
+                'balance' => '10',
             ]);
 
+            $this->entity_obj = $invoice;
+
             $invitation = InvoiceInvitation::factory()->create([
-                'user_id' => auth()->user()->id,
-                'company_id' => auth()->user()->company()->id,
+                'user_id' => $user->id,
+                'company_id' => $user->company()->id,
                 'invoice_id' => $this->entity_obj->id,
                 'client_contact_id' => $contact->id,
             ]);
         }
 
         if ($this->entity == 'quote') {
-            $this->entity_obj = Quote::factory()->create([
-                'user_id' => auth()->user()->id,
-                'company_id' => auth()->user()->company()->id,
+            /** @var \App\Models\Quote $quote */
+            $quote = Quote::factory()->create([
+                'user_id' => $user->id,
+                'company_id' => $user->company()->id,
                 'client_id' => $client->id,
             ]);
+            
+            $this->entity_obj = $quote;
 
             $invitation = QuoteInvitation::factory()->create([
-                'user_id' => auth()->user()->id,
-                'company_id' => auth()->user()->company()->id,
+                'user_id' => $user->id,
+                'company_id' => $user->company()->id,
                 'quote_id' => $this->entity_obj->id,
                 'client_contact_id' => $contact->id,
             ]);
         }
 
         if ($this->entity == 'purchaseOrder') {
-
+            /** @var \App\Models\Vendor $vendor **/
             $vendor = Vendor::factory()->create([
-                'user_id' => auth()->user()->id,
-                'company_id' => auth()->user()->company()->id,
+                'user_id' => $user->id,
+                'company_id' => $user->company()->id,
             ]);
 
+            /** @var \App\Models\VendorContact $contact **/
             $contact = VendorContact::factory()->create([
-                'user_id' => auth()->user()->id,
-                'company_id' => auth()->user()->company()->id,
+                'user_id' => $user->id,
+                'company_id' => $user->company()->id,
                 'vendor_id' => $vendor->id,
                 'is_primary' => 1,
                 'send_email' => true,
             ]);
-
-
-            $this->entity_obj = PurchaseOrder::factory()->create([
-                'user_id' => auth()->user()->id,
-                'company_id' => auth()->user()->company()->id,
+            
+            /** @var \App\Models\PurchaseOrder $purchase_order **/
+            $purchase_order = PurchaseOrder::factory()->create([
+                'user_id' => $user->id,
+                'company_id' => $user->company()->id,
                 'vendor_id' => $vendor->id,
             ]);
+            
+            $this->entity_obj = $purchase_order;
 
+            /** @var \App\Models\PurchaseOrderInvitation $invitation **/
             $invitation = PurchaseOrderInvitation::factory()->create([
-                'user_id' => auth()->user()->id,
-                'company_id' => auth()->user()->company()->id,
+                'user_id' => $user->id,
+                'company_id' => $user->company()->id,
                 'purchase_order_id' => $this->entity_obj->id,
                 'vendor_contact_id' => $contact->id,
             ]);
         }
 
         if ($vendor) {
-
             $this->entity_obj->setRelation('invitations', $invitation);
             $this->entity_obj->setRelation('vendor', $vendor);
-            $this->entity_obj->setRelation('company', auth()->user()->company());
+            $this->entity_obj->setRelation('company', $user->company());
             $this->entity_obj->load('vendor');
-            $vendor->setRelation('company', auth()->user()->company());
+            $vendor->setRelation('company', $user->company());
             $vendor->load('company');
         } else {
             $this->entity_obj->setRelation('invitations', $invitation);
             $this->entity_obj->setRelation('client', $client);
-            $this->entity_obj->setRelation('company', auth()->user()->company());
+            $this->entity_obj->setRelation('company', $user->company());
             $this->entity_obj->load('client');
-            $client->setRelation('company', auth()->user()->company());
+            $client->setRelation('company', $user->company());
             $client->load('company');
         }
     }

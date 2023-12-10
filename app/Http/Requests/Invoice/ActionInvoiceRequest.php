@@ -12,7 +12,6 @@
 namespace App\Http\Requests\Invoice;
 
 use App\Http\Requests\Request;
-use App\Models\Invoice;
 use App\Utils\Traits\Invoice\ActionsInvoice;
 use App\Utils\Traits\MakesHash;
 

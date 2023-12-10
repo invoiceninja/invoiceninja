@@ -12,7 +12,6 @@
 namespace App\Mail\Engine;
 
 use App\DataMapper\EmailTemplateDefaults;
-use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Entity\CreateRawPdf;
 use App\Models\Account;
 use App\Models\Expense;
@@ -22,7 +21,7 @@ use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\URL;
 
 class InvoiceEmailEngine extends BaseEmailEngine
 {
@@ -77,7 +76,6 @@ class InvoiceEmailEngine extends BaseEmailEngine
                     'company' => $this->invoice->company->present()->name(),
                     'amount' => Number::formatMoney($this->invoice->balance, $this->client),
                 ],
-                null,
                 $this->client->locale()
             );
 
@@ -85,15 +83,14 @@ class InvoiceEmailEngine extends BaseEmailEngine
         }
 
         $text_body = trans(
-                'texts.invoice_message',
-                [
-                    'invoice' => $this->invoice->number,
-                    'company' => $this->invoice->company->present()->name(),
-                    'amount' => Number::formatMoney($this->invoice->balance, $this->client),
-                ],
-                null,
-                $this->client->locale()
-            )."\n\n".$this->invitation->getLink();
+            'texts.invoice_message',
+            [
+                'invoice' => $this->invoice->number,
+                'company' => $this->invoice->company->present()->name(),
+                'amount' => Number::formatMoney($this->invoice->balance, $this->client),
+            ],
+            $this->client->locale()
+        )."\n\n".$this->invitation->getLink();
 
         if (is_array($this->template_data) && array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0) {
             $subject_template = $this->template_data['subject'];
@@ -110,40 +107,59 @@ class InvoiceEmailEngine extends BaseEmailEngine
                     'number' => $this->invoice->number,
                     'account' => $this->invoice->company->present()->name(),
                 ],
-                null,
                 $this->client->locale()
             );
         }
 
+        $contact = $this->contact->withoutRelations();
+        $variables = (new HtmlEngine($this->invitation))->makeValues();
+        $invitation = $this->invitation->withoutRelations();
+
         $this->setTemplate($this->client->getSetting('email_style'))
-            ->setContact($this->contact)
-            ->setVariables((new HtmlEngine($this->invitation))->makeValues())//move make values into the htmlengine
+            ->setContact($contact)
+            ->setVariables($variables)//move make values into the htmlengine
             ->setSubject($subject_template)
             ->setBody($body_template)
-            ->setFooter("<a href='{$this->invitation->getLink()}'>".ctrans('texts.view_invoice').'</a>')
-            ->setViewLink($this->invitation->getLink())
+            ->setFooter("<a href='{$invitation->getLink()}'>".ctrans('texts.view_invoice').'</a>')
+            ->setViewLink($invitation->getLink())
             ->setViewText(ctrans('texts.view_invoice'))
-            ->setInvitation($this->invitation)
+            ->setInvitation($invitation)
             ->setTextBody($text_body);
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->invoice->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
-            
-            $pdf = ((new CreateRawPdf($this->invitation, $this->invitation->company->db))->handle());
+            $pdf = ((new CreateRawPdf($this->invitation))->handle());
 
-            $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->invoice->numberFormatter().'.pdf']]);   
+            $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->invoice->numberFormatter().'.pdf']]);
         }
 
         //attach third party documents
         if ($this->client->getSetting('document_email_attachment') !== false && $this->invoice->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
+            if ($this->invoice->recurring_invoice()->exists()) {
+                $this->invoice->recurring_invoice->documents()->where('is_public', true)->cursor()->each(function ($document) {
+                    if ($document->size > $this->max_attachment_size) {
+                        $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
+                    } else {
+                        $this->setAttachments([['file' => base64_encode($document->getFile()), 'path' => $document->filePath(), 'name' => $document->name, 'mime' => null, ]]);
+                    }
+                });
+            }
 
             // Storage::url
-            foreach ($this->invoice->documents as $document) {
-                $this->setAttachments([['file' => base64_encode($document->getFile()), 'path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
-            }
+            $this->invoice->documents()->where('is_public', true)->cursor()->each(function ($document) {
+                if ($document->size > $this->max_attachment_size) {
+                    $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
+                } else {
+                    $this->setAttachments([['file' => base64_encode($document->getFile()), 'path' => $document->filePath(), 'name' => $document->name, 'mime' => null, ]]);
+                }
+            });
 
-            foreach ($this->invoice->company->documents as $document) {
-                $this->setAttachments([['file' => base64_encode($document->getFile()), 'path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
-            }
+            $this->invoice->company->documents()->where('is_public', true)->cursor()->each(function ($document) {
+                if ($document->size > $this->max_attachment_size) {
+                    $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
+                } else {
+                    $this->setAttachments([['file' => base64_encode($document->getFile()), 'path' => $document->filePath(), 'name' => $document->name, 'mime' => null, ]]);
+                }
+            });
 
             $line_items = $this->invoice->line_items;
 
@@ -155,13 +171,17 @@ class InvoiceEmailEngine extends BaseEmailEngine
                 }
 
                 if (count($expense_ids) > 0) {
-                    $expenses = Expense::whereIn('id', $this->transformKeys($expense_ids))
+                    $expenses = Expense::query()->whereIn('id', $this->transformKeys($expense_ids))
                                        ->where('invoice_documents', 1)
                                        ->cursor()
                                        ->each(function ($expense) {
-                                           foreach ($expense->documents as $document) {
-                                               $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
-                                           }
+                                           $expense->documents()->where('is_public', true)->cursor()->each(function ($document) {
+                                               if ($document->size > $this->max_attachment_size) {
+                                                   $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
+                                               } else {
+                                                   $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null, ]]);
+                                               }
+                                           });
                                        });
                 }
 
@@ -172,16 +192,29 @@ class InvoiceEmailEngine extends BaseEmailEngine
                 }
 
                 if (count($task_ids) > 0 && $this->invoice->company->invoice_task_documents) {
-                    $tasks = Task::whereIn('id', $this->transformKeys($task_ids))
+                    $tasks = Task::query()->whereIn('id', $this->transformKeys($task_ids))
                                        ->cursor()
                                        ->each(function ($task) {
-                                           foreach ($task->documents as $document) {
-                                               $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
-                                           }
+                                           $task->documents()->where('is_public', true)->cursor()->each(function ($document) {
+                                               if ($document->size > $this->max_attachment_size) {
+                                                   $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
+                                               } else {
+                                                   $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null, ]]);
+                                               }
+                                           });
                                        });
                 }
             }
         }
+        
+        $this->invitation = null;
+        $contact = null;
+        $variables = null;
+        $this->invoice = null;
+        $this->client = null;
+        $pdf = null;
+        $expenses = null;
+        $tasks = null;
 
         return $this;
     }

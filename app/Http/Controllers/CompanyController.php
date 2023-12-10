@@ -13,8 +13,6 @@ namespace App\Http\Controllers;
 
 use App\DataMapper\Analytics\AccountDeleted;
 use App\DataMapper\CompanySettings;
-use App\DataMapper\DefaultSettings;
-use App\Factory\CompanyFactory;
 use App\Http\Requests\Company\CreateCompanyRequest;
 use App\Http\Requests\Company\DefaultCompanyRequest;
 use App\Http\Requests\Company\DestroyCompanyRequest;
@@ -23,13 +21,13 @@ use App\Http\Requests\Company\ShowCompanyRequest;
 use App\Http\Requests\Company\StoreCompanyRequest;
 use App\Http\Requests\Company\UpdateCompanyRequest;
 use App\Http\Requests\Company\UploadCompanyRequest;
+use App\Jobs\Company\CompanyTaxRate;
 use App\Jobs\Company\CreateCompany;
 use App\Jobs\Company\CreateCompanyPaymentTerms;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
-use App\Jobs\Ninja\RefundCancelledAccount;
 use App\Mail\Company\CompanyDeleted;
 use App\Models\Account;
 use App\Models\Company;
@@ -42,9 +40,8 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use App\Utils\Traits\Uploadable;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Turbo124\Beacon\Facades\LightLogs;
 
 /**
@@ -90,8 +87,8 @@ class CompanyController extends BaseController
      *      summary="Gets a list of companies",
      *      description="Lists companies, search and filters allow fine grained lists to be generated.
 
-        Query parameters can be added to performed more fine grained filtering of the companies, these are handled by the CompanyFilters class which defines the methods available",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *   Query parameters can be added to performed more fine grained filtering of the companies, these are handled by the CompanyFilters class which defines the methods available",
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -117,7 +114,10 @@ class CompanyController extends BaseController
      */
     public function index()
     {
-        $companies = Company::whereAccountId(auth()->user()->company()->account->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $companies = Company::whereAccountId($user->company()->account->id);
 
         return $this->listResponse($companies);
     }
@@ -136,7 +136,7 @@ class CompanyController extends BaseController
      *      tags={"companies"},
      *      summary="Gets a new blank company object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -162,8 +162,12 @@ class CompanyController extends BaseController
      */
     public function create(CreateCompanyRequest $request)
     {
-        $cf = new \App\Factory\CompanyFactory;
-        $company = $cf->create(auth()->user()->company()->account->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $company_factory = new \App\Factory\CompanyFactory;
+
+        $company = $company_factory->create($user->company()->account->id);
 
         return $this->itemResponse($company);
     }
@@ -181,7 +185,7 @@ class CompanyController extends BaseController
      *      tags={"companies"},
      *      summary="Adds a company",
      *      description="Adds an company to the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -209,15 +213,18 @@ class CompanyController extends BaseController
     {
         $this->forced_includes = ['company_user'];
 
-        $company = (new CreateCompany($request->all(), auth()->user()->company()->account))->handle();
-        (new CreateCompanyPaymentTerms($company, auth()->user()))->handle();
-        (new CreateCompanyTaskStatuses($company, auth()->user()))->handle();
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $company = (new CreateCompany($request->all(), $user->company()->account))->handle();
+        (new CreateCompanyPaymentTerms($company, $user))->handle();
+        (new CreateCompanyTaskStatuses($company, $user))->handle();
 
         $company = $this->company_repo->save($request->all(), $company);
 
         $this->uploadLogo($request->file('company_logo'), $company, $company);
 
-        auth()->user()->companies()->attach($company->id, [
+        $user->companies()->attach($company->id, [
             'account_id' => $company->account->id,
             'is_owner' => 1,
             'is_admin' => 1,
@@ -234,7 +241,7 @@ class CompanyController extends BaseController
         /*
          * Required dependencies
          */
-        auth()->user()->setCompany($company);
+        $user->setCompany($company);
 
         /*
          * Create token
@@ -264,7 +271,7 @@ class CompanyController extends BaseController
      *      tags={"companies"},
      *      summary="Shows an company",
      *      description="Displays an company by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -318,7 +325,7 @@ class CompanyController extends BaseController
      *      tags={"companies"},
      *      summary="Shows an company for editting",
      *      description="Displays an company by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -372,7 +379,7 @@ class CompanyController extends BaseController
      *      tags={"companies"},
      *      summary="Updates an company",
      *      description="Handles the updating of an company by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -415,10 +422,19 @@ class CompanyController extends BaseController
 
         $company = $this->company_repo->save($request->all(), $company);
 
-        $company->saveSettings($request->input('settings'), $company);
-
         if ($request->has('documents')) {
-            $this->saveDocuments($request->input('documents'), $company, false);
+            $this->saveDocuments($request->input('documents'), $company, $request->input('is_public', true));
+        }
+
+        if($request->has('e_invoice_certificate') && !is_null($request->file("e_invoice_certificate"))) {
+
+            $company->e_invoice_certificate = base64_encode($request->file("e_invoice_certificate")->get());
+
+            $settings = $company->settings;
+            $settings->enable_e_invoice = true;
+            
+            $company->save();
+            
         }
 
         $this->uploadLogo($request->file('company_logo'), $company, $company);
@@ -441,7 +457,7 @@ class CompanyController extends BaseController
      *      tags={"companies"},
      *      summary="Deletes a company",
      *      description="Handles the deletion of an company by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -491,15 +507,20 @@ class CompanyController extends BaseController
                 $company_user->forceDelete();
             });
 
+            try {
+                Storage::disk(config('filesystems.default'))->deleteDirectory($company->company_key);
+            } catch(\Exception $e) {
+            }
+
             $account->delete();
 
             if (Ninja::isHosted()) {
-                \Modules\Admin\Jobs\Account\NinjaDeletedAccount::dispatch($account_key, $request->all());
+                \Modules\Admin\Jobs\Account\NinjaDeletedAccount::dispatch($account_key, $request->all(), auth()->user()->email);
             }
 
             LightLogs::create(new AccountDeleted())
                      ->increment()
-                     ->queue();
+                     ->batch();
         } else {
             $company_id = $company->id;
 
@@ -516,10 +537,18 @@ class CompanyController extends BaseController
             $nmo->to_user = auth()->user();
             (new NinjaMailerJob($nmo, true))->handle();
 
+            try {
+                Storage::disk(config('filesystems.default'))->deleteDirectory($company->company_key);
+            } catch(\Exception $e) {
+            }
+
+
             $company->delete();
 
             //If we are deleting the default companies, we'll need to make a new company the default.
             if ($account->default_company_id == $company_id) {
+                
+                /** @var \App\Models\Company $new_default_company **/
                 $new_default_company = Company::whereAccountId($account->id)->first();
                 $account->default_company_id = $new_default_company->id;
                 $account->save();
@@ -533,7 +562,7 @@ class CompanyController extends BaseController
      * Update the specified resource in storage.
      *
      * @param UploadCompanyRequest $request
-     * @param Company $client
+     * @param Company $company
      * @return Response
      *
      *
@@ -544,7 +573,7 @@ class CompanyController extends BaseController
      *      tags={"companies"},
      *      summary="Uploads a document to a company",
      *      description="Handles the uploading of a document to a company",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -586,7 +615,7 @@ class CompanyController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $company);
+            $this->saveDocuments($request->file('documents'), $company, $request->input('is_public', true));
         }
 
         return $this->itemResponse($company->fresh());
@@ -595,8 +624,8 @@ class CompanyController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param UploadCompanyRequest $request
-     * @param Company $client
+     * @param DefaultCompanyRequest $request
+     * @param Company $company
      * @return Response
      *
      *
@@ -607,7 +636,7 @@ class CompanyController extends BaseController
      *      tags={"companies"},
      *      summary="Sets the company as the default company.",
      *      description="Sets the company as the default company.",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -649,5 +678,36 @@ class CompanyController extends BaseController
         $account->save();
 
         return $this->itemResponse($company->fresh());
+    }
+
+    public function updateOriginTaxData(DefaultCompanyRequest $request, Company $company)
+    {
+        
+        if($company->settings->country_id == "840" && !$company?->account->isFreeHostedClient()) {
+            try {
+                (new CompanyTaxRate($company))->handle();
+            } catch(\Exception $e) {
+                return response()->json(['message' => 'There was a problem updating the tax rates. Please try again.'], 400);
+            }
+        } else {
+            return response()->json(['message' => 'Tax configuration not available due to settings / plan restriction.'], 400);
+        }
+
+        return $this->itemResponse($company->fresh());
+    }
+
+    public function logo()
+    {
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        $company = $user->company();
+        $logo = strlen($company->settings->company_logo) > 5 ? $company->settings->company_logo : 'https://pdf.invoicing.co/favicon-v2.png';
+        $headers = ['Content-Disposition' => 'inline'];
+     
+        return response()->streamDownload(function () use ($logo) {
+            echo @file_get_contents($logo);
+        }, 'logo.png', $headers);
+
     }
 }

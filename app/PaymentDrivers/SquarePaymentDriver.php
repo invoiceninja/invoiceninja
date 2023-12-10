@@ -21,8 +21,12 @@ use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Square\CreditCard;
+use App\PaymentDrivers\Square\SquareWebhook;
 use App\Utils\Traits\MakesHash;
-use Square\Http\ApiResponse;
+use Square\Models\Builders\RefundPaymentRequestBuilder;
+use Square\Models\CreateWebhookSubscriptionRequest;
+use Square\Models\WebhookSubscription;
+use Square\Utils\WebhooksHelper;
 
 class SquarePaymentDriver extends BaseDriver
 {
@@ -96,15 +100,113 @@ class SquarePaymentDriver extends BaseDriver
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
         $this->init();
+        $this->client = $payment->client;
 
         $amount_money = new \Square\Models\Money();
         $amount_money->setAmount($this->convertAmount($amount));
-        $amount_money->setCurrency($this->square_driver->client->currency()->code);
+        $amount_money->setCurrency($this->client->currency()->code);
 
-        $body = new \Square\Models\RefundPaymentRequest(\Illuminate\Support\Str::random(32), $amount_money, $payment->transaction_reference);
+        $body = RefundPaymentRequestBuilder::init(\Illuminate\Support\Str::random(32), $amount_money)
+                ->paymentId($payment->transaction_reference)
+                ->reason('Refund Request')
+                ->build();
 
-        /** @var ApiResponse */
-        $response = $this->square->getRefundsApi()->refund($body);
+        $apiResponse = $this->square->getRefundsApi()->refundPayment($body);
+
+        if ($apiResponse->isSuccess()) {
+
+            $refundPaymentResponse = $apiResponse->getResult();
+
+            nlog($refundPaymentResponse);
+
+            /**
+            * - `PENDING` - Awaiting approval.
+            * - `COMPLETED` - Successfully completed.
+            * - `REJECTED` - The refund was rejected.
+            * - `FAILED` - An error occurred.
+            */
+
+            $status = $refundPaymentResponse->getRefund()->getStatus();
+
+            if(in_array($status, ['COMPLETED', 'PENDING'])) {
+
+                $transaction_reference = $refundPaymentResponse->getRefund()->getId();
+
+                $data = [
+                    'transaction_reference' => $transaction_reference,
+                    'transaction_response' => json_encode($refundPaymentResponse->getRefund()->jsonSerialize()),
+                    'success' => true,
+                    'description' => $refundPaymentResponse->getRefund()->getReason(),
+                    'code' => $refundPaymentResponse->getRefund()->getReason(),
+                ];
+
+                SystemLogger::dispatch(
+                    [
+                        'server_response' => $data,
+                        'data' => request()->all()
+                    ],
+                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                    SystemLog::EVENT_GATEWAY_SUCCESS,
+                    SystemLog::TYPE_SQUARE,
+                    $this->client,
+                    $this->client->company
+                );
+
+                return $data;
+            } elseif(in_array($status, ['REJECTED', 'FAILED'])) {
+
+                $transaction_reference = $refundPaymentResponse->getRefund()->getId();
+
+                $data = [
+                    'transaction_reference' => $transaction_reference,
+                    'transaction_response' => json_encode($refundPaymentResponse->getRefund()->jsonSerialize()),
+                    'success' => false,
+                    'description' => $refundPaymentResponse->getRefund()->getReason(),
+                    'code' => $refundPaymentResponse->getRefund()->getReason(),
+                ];
+
+                SystemLogger::dispatch(
+                    [
+                        'server_response' => $data,
+                        'data' => request()->all()
+                    ],
+                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                    SystemLog::EVENT_GATEWAY_FAILURE,
+                    SystemLog::TYPE_SQUARE,
+                    $this->client,
+                    $this->client->company
+                );
+
+                return $data;
+            }
+
+        } else {
+            
+            /** @var \Square\Models\Error $error */
+            $error = end($apiResponse->getErrors());
+
+            $data = [
+                    'transaction_reference' => $payment->transaction_reference,
+                    'transaction_response' => $error->jsonSerialize(),
+                    'success' => false,
+                    'description' => $error->getDetail(),
+                    'code' => $error->getCode(),
+                ];
+
+            SystemLogger::dispatch(
+                [
+                    'server_response' => $data,
+                    'data' => request()->all()
+                ],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_SQUARE,
+                $this->client,
+                $this->client->company
+            );
+
+            return $data;
+        }
 
     }
 
@@ -115,7 +217,7 @@ class SquarePaymentDriver extends BaseDriver
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
         $amount = $this->convertAmount($amount);
 
-        $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
+        $invoice = Invoice::query()->whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
 
         if ($invoice) {
             $description = "Invoice {$invoice->number} for {$amount} for client {$this->client->present()->name()}";
@@ -127,10 +229,12 @@ class SquarePaymentDriver extends BaseDriver
         $amount_money->setAmount($amount);
         $amount_money->setCurrency($this->client->currency()->code);
 
-        $body = new \Square\Models\CreatePaymentRequest($cgt->token, \Illuminate\Support\Str::random(32), $amount_money);
+        $body = new \Square\Models\CreatePaymentRequest($cgt->token, \Illuminate\Support\Str::random(32));
         $body->setCustomerId($cgt->gateway_customer_reference);
+        $body->setAmountMoney($amount_money);
+        $body->setReferenceId($payment_hash->hash);
+        $body->setNote(substr($description, 0, 500));
 
-        /** @var ApiResponse */
         $response = $this->square->getPaymentsApi()->createPayment($body);
         $body = json_decode($response->getBody());
 
@@ -178,50 +282,133 @@ class SquarePaymentDriver extends BaseDriver
         return false;
     }
 
-    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
+    public function checkWebhooks(): mixed
     {
+        $this->init();
+        
+        $api_response = $this->square->getWebhookSubscriptionsApi()->listWebhookSubscriptions();
+
+        if ($api_response->isSuccess()) {
+            
+            //array of WebhookSubscription objects
+            foreach($api_response->getResult()->getSubscriptions() ?? [] as $subscription) {
+                if($subscription->getName() == 'Invoice_Ninja_Webhook_Subscription') {
+                    return $subscription->getId();
+                }
+            }
+                       
+        } else {
+            $errors = $api_response->getErrors();
+            nlog($errors);
+            return false;
+        }
+
+        return false;
     }
 
-    public function getClientRequiredFields(): array
+    // {
+    //   "subscription": {
+    //     "id": "wbhk_b35f6b3145074cf9ad513610786c19d5",
+    //     "name": "Example Webhook Subscription",
+    //     "enabled": true,
+    //     "event_types": [
+    //         "payment.created",
+    //         "order.updated",
+    //         "invoice.created"
+    //     ],
+    //     "notification_url": "https://example-webhook-url.com",
+    //     "api_version": "2021-12-15",
+    //     "signature_key": "1k9bIJKCeTmSQwyagtNRLg",
+    //     "created_at": "2022-08-17 23:29:48 +0000 UTC",
+    //     "updated_at": "2022-08-17 23:29:48 +0000 UTC"
+    //   }
+    // }
+    public function createWebhooks(): void
     {
-        $fields = [];
-
-        if ($this->company_gateway->require_client_name) {
-            $fields[] = ['name' => 'client_name', 'label' => ctrans('texts.client_name'), 'type' => 'text', 'validation' => 'required'];
+        
+        if($this->checkWebhooks()) {
+            return;
         }
 
-        if ($this->company_gateway->require_contact_name) {
-            $fields[] = ['name' => 'contact_first_name', 'label' => ctrans('texts.first_name'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'contact_last_name', 'label' => ctrans('texts.last_name'), 'type' => 'text', 'validation' => 'required'];
+        $this->init();
+
+        $event_types = ['payment.created', 'payment.updated'];
+        $subscription = new WebhookSubscription();
+        $subscription->setName('Invoice_Ninja_Webhook_Subscription');
+        $subscription->setEventTypes($event_types);
+
+        // $subscription->setNotificationUrl('https://invoicing.co');
+
+        $subscription->setNotificationUrl($this->company_gateway->webhookUrl());
+        // $subscription->setApiVersion('2021-12-15');
+
+        $body = new CreateWebhookSubscriptionRequest($subscription);
+        $body->setIdempotencyKey(\Illuminate\Support\Str::uuid());
+
+        $api_response = $this->square->getWebhookSubscriptionsApi()->createWebhookSubscription($body);
+
+        if ($api_response->isSuccess()) {
+            $subscription = $api_response->getResult()->getSubscription();
+            $signatureKey = $subscription->getSignatureKey();
+
+            $this->company_gateway->setConfigField('signatureKey', $signatureKey);
+            
+        } else {
+            $errors = $api_response->getErrors();
+            nlog($errors);
         }
 
-        if ($this->company_gateway->require_contact_email) {
-            $fields[] = ['name' => 'contact_email', 'label' => ctrans('texts.email'), 'type' => 'text', 'validation' => 'required,email:rfc'];
+    }
+
+    public function processWebhookRequest(PaymentWebhookRequest $request)
+    {
+        nlog("square webhook");
+
+        $signature_key = $this->company_gateway->getConfigField('signatureKey');
+        $notification_url = $this->company_gateway->webhookUrl();
+
+        $body = '';
+        $handle = fopen('php://input', 'r');
+        while(!feof($handle)) {
+            $body .= fread($handle, 1024);
         }
 
-        if ($this->company_gateway->require_client_phone) {
-            $fields[] = ['name' => 'client_phone', 'label' => ctrans('texts.client_phone'), 'type' => 'tel', 'validation' => 'required'];
+        if (WebhooksHelper::isValidWebhookEventSignature($body, $request->header('x-square-hmacsha256-signature'), $signature_key, $notification_url)) {
+            SquareWebhook::dispatch($request->all(), $request->company_key, $this->company_gateway->id)->delay(5);
+        } else {
+            nlog("Square Hash Mismatch");
+            nlog($request->all());
         }
 
-        if ($this->company_gateway->require_billing_address) {
-            $fields[] = ['name' => 'client_address_line_1', 'label' => ctrans('texts.address1'), 'type' => 'text', 'validation' => 'required'];
-//            $fields[] = ['name' => 'client_address_line_2', 'label' => ctrans('texts.address2'), 'type' => 'text', 'validation' => 'nullable'];
-            $fields[] = ['name' => 'client_postal_code', 'label' => ctrans('texts.postal_code'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'client_city', 'label' => ctrans('texts.city'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'client_state', 'label' => ctrans('texts.state'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'client_country_id', 'label' => ctrans('texts.country'), 'type' => 'text', 'validation' => 'required'];
+        return response()->json(['success' => true]);
+
+    }
+
+    public function testWebhook()
+    {
+        $this->init();
+
+        $body = new \Square\Models\TestWebhookSubscriptionRequest();
+        $body->setEventType('payment.created');
+
+        //getsubscriptionid here
+        $subscription_id = $this->checkWebhooks();
+
+        if(!$subscription_id) {
+            nlog('No Subscription Found');
+            return;
         }
 
-        if ($this->company_gateway->require_shipping_address) {
-            $fields[] = ['name' => 'client_shipping_address_line_1', 'label' => ctrans('texts.shipping_address1'), 'type' => 'text', 'validation' => 'required'];
-//            $fields[] = ['name' => 'client_shipping_address_line_2', 'label' => ctrans('texts.shipping_address2'), 'type' => 'text', 'validation' => 'sometimes'];
-            $fields[] = ['name' => 'client_shipping_city', 'label' => ctrans('texts.shipping_city'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'client_shipping_state', 'label' => ctrans('texts.shipping_state'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'client_shipping_postal_code', 'label' => ctrans('texts.shipping_postal_code'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'client_shipping_country_id', 'label' => ctrans('texts.shipping_country'), 'type' => 'text', 'validation' => 'required'];
+        $api_response = $this->square->getWebhookSubscriptionsApi()->testWebhookSubscription($subscription_id, $body);
+
+        if ($api_response->isSuccess()) {
+            $result = $api_response->getResult();
+            nlog($result);
+        } else {
+            $errors = $api_response->getErrors();
+            nlog($errors);
         }
 
-        return $fields;
     }
 
     public function convertAmount($amount)

@@ -14,23 +14,20 @@ namespace App\Transformers;
 use App\Models\Activity;
 use App\Models\Backup;
 use App\Models\Document;
-use App\Models\Quote;
 use App\Models\RecurringQuote;
 use App\Models\RecurringQuoteInvitation;
-use App\Transformers\ActivityTransformer;
-use App\Transformers\QuoteHistoryTransformer;
 use App\Utils\Traits\MakesHash;
 
 class RecurringQuoteTransformer extends EntityTransformer
 {
     use MakesHash;
 
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'invitations',
         'documents',
     ];
 
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'invitations',
         'documents',
         'activities',

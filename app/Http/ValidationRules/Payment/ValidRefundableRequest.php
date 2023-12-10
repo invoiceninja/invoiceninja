@@ -11,7 +11,6 @@
 
 namespace App\Http\ValidationRules\Payment;
 
-use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
@@ -46,7 +45,7 @@ class ValidRefundableRequest implements Rule
             return false;
         }
 
-        $payment = Payment::whereId($this->input['id'])->withTrashed()->first();
+        $payment = Payment::query()->where('id', $this->input['id'])->withTrashed()->first();
 
         if (! $payment) {
             $this->error_msg = ctrans('texts.unable_to_retrieve_payment');
@@ -55,12 +54,12 @@ class ValidRefundableRequest implements Rule
         }
 
         $request_invoices = request()->has('invoices') ? $this->input['invoices'] : [];
-        // $request_credits = request()->has('credits') ? $this->input['credits'] : [];
 
         if ($payment->invoices()->exists()) {
-            foreach ($payment->invoices as $paymentable_invoice) {
-                $this->checkInvoice($paymentable_invoice, $request_invoices);
-            }
+            $this->checkInvoice($payment->invoices, $request_invoices);
+            // foreach ($payment->invoices as $paymentable_invoice) {
+            //     $this->checkInvoice($paymentable_invoice, $request_invoices);
+            // }
         }
 
         foreach ($request_invoices as $request_invoice) {
@@ -76,7 +75,8 @@ class ValidRefundableRequest implements Rule
 
     private function checkInvoiceIsPaymentable($invoice, $payment)
     {
-        $invoice = Invoice::whereId($invoice['invoice_id'])->whereCompanyId($payment->company_id)->withTrashed()->first();
+        /**@var \App\Models\Invoice $invoice **/
+        $invoice = Invoice::query()->where('id', $invoice['invoice_id'])->where('company_id', $payment->company_id)->withTrashed()->first();
 
         if (! $invoice) {
             $this->error_msg = 'Invoice not found for refund';
@@ -99,74 +99,31 @@ class ValidRefundableRequest implements Rule
         }
     }
 
-    private function checkCreditIsPaymentable($credit, $payment)
-    {
-        $credit = Credit::whereId($credit['credit_id'])->whereCompanyId($payment->company_id)->first();
-
-        if ($payment->credits()->exists()) {
-            $paymentable_credit = $payment->credits->where('id', $credit->id)->first();
-
-            if (! $paymentable_invoice) {
-                $this->error_msg = ctrans('texts.credit_not_related_to_payment', ['credit' => $credit->hashed_id]);
-
-                return false;
-            }
-        } else {
-            $this->error_msg = ctrans('texts.credit_not_related_to_payment', ['credit' => $credit->hashed_id]);
-
-            return false;
-        }
-    }
-
-    private function checkInvoice($paymentable, $request_invoices)
+    private function checkInvoice($paymentables, $request_invoices)
     {
         $record_found = false;
 
-        foreach ($request_invoices as $request_invoice) {
-            if ($request_invoice['invoice_id'] == $paymentable->pivot->paymentable_id) {
-                $record_found = true;
+        foreach($paymentables as $paymentable) {
+            foreach ($request_invoices as $request_invoice) {
 
-                $refundable_amount = ($paymentable->pivot->amount - $paymentable->pivot->refunded);
+                if ($request_invoice['invoice_id'] == $paymentable->pivot->paymentable_id) {
+                    $record_found = true;
 
-                if ($request_invoice['amount'] > $refundable_amount) {
-                    $invoice = $paymentable;
+                    $refundable_amount = ($paymentable->pivot->amount - $paymentable->pivot->refunded);
 
-                    $this->error_msg = ctrans('texts.max_refundable_invoice', ['invoice' => $invoice->hashed_id, 'amount' => $refundable_amount]);
+                    if ($request_invoice['amount'] > $refundable_amount) {
+                        $invoice = $paymentable;
 
-                    return false;
+                        $this->error_msg = ctrans('texts.max_refundable_invoice', ['invoice' => $invoice->hashed_id, 'amount' => $refundable_amount]);
+
+                        return false;
+                    }
                 }
             }
         }
 
         if (! $record_found) {
             $this->error_msg = ctrans('texts.refund_without_invoices');
-
-            return false;
-        }
-    }
-
-    private function checkCredit($paymentable, $request_credits)
-    {
-        $record_found = null;
-
-        foreach ($request_credits as $request_credit) {
-            if ($request_credit['credit_id'] == $paymentable->pivot->paymentable_id) {
-                $record_found = true;
-
-                $refundable_amount = ($paymentable->pivot->amount - $paymentable->pivot->refunded);
-
-                if ($request_credit['amount'] > $refundable_amount) {
-                    $credit = $paymentable;
-
-                    $this->error_msg = ctrans('texts.max_refundable_credit', ['credit' => $credit->hashed_id, 'amount' => $refundable_amount]);
-
-                    return false;
-                }
-            }
-        }
-
-        if (! $record_found) {
-            $this->error_msg = ctrans('texts.refund_without_credits');
 
             return false;
         }

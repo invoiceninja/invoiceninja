@@ -15,7 +15,6 @@ class CompanyGatewayObserver
      */
     public function created(CompanyGateway $company_gateway)
     {
-
         /* Set company gateway if not exists*/
         if (! $company_gateway->label) {
             $company_gateway->label = $company_gateway->gateway->name;
@@ -55,7 +54,7 @@ class CompanyGatewayObserver
     public function restored(CompanyGateway $company_gateway)
     {
         //When we restore the gateway, bring back the tokens!
-        ClientGatewayToken::where('company_gateway_id', $company_gateway->id)
+        ClientGatewayToken::query()->where('company_gateway_id', $company_gateway->id)
                           ->withTrashed()->cursor()->each(function ($cgt) {
                               $cgt->restore();
                           });

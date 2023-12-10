@@ -51,7 +51,7 @@ class CreateInvitations extends AbstractService
         }
 
         $contacts->each(function ($contact) {
-            $invitation = PurchaseOrderInvitation::where('company_id', $this->purchase_order->company_id)
+            $invitation = PurchaseOrderInvitation::query()->where('company_id', $this->purchase_order->company_id)
                 ->where('vendor_contact_id', $contact->id)
                 ->where('purchase_order_id', $this->purchase_order->id)
                 ->withTrashed()
@@ -78,7 +78,7 @@ class CreateInvitations extends AbstractService
             } else {
                 $contact = $contacts->first();
 
-                $invitation = PurchaseOrderInvitation::where('company_id', $this->purchase_order->company_id)
+                $invitation = PurchaseOrderInvitation::query()->where('company_id', $this->purchase_order->company_id)
                     ->where('vendor_contact_id', $contact->id)
                     ->where('purchase_order_id', $this->purchase_order->id)
                     ->withTrashed()

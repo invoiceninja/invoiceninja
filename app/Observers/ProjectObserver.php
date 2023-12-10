@@ -32,7 +32,7 @@ class ProjectObserver
                             ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_PROJECT_CREATE, $project, $project->company, 'client')->delay(now()->addSeconds(2));
+            WebhookHandler::dispatch(Webhook::EVENT_PROJECT_CREATE, $project, $project->company, 'client')->delay(0);
         }
     }
 
@@ -44,12 +44,23 @@ class ProjectObserver
      */
     public function updated(Project $project)
     {
+        $event = Webhook::EVENT_PROJECT_UPDATE;
+
+        if ($project->getOriginal('deleted_at') && !$project->deleted_at) {
+            $event = Webhook::EVENT_RESTORE_PROJECT;
+        }
+        
+        if ($project->is_deleted) {
+            $event = Webhook::EVENT_PROJECT_DELETE;
+        }
+        
+        
         $subscriptions = Webhook::where('company_id', $project->company_id)
-                            ->where('event_id', Webhook::EVENT_PROJECT_UPDATE)
-                            ->exists();
+                                    ->where('event_id', $event)
+                                    ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_PROJECT_UPDATE, $project, $project->company, 'client')->delay(now()->addSeconds(2));
+            WebhookHandler::dispatch($event, $project, $project->company, 'client')->delay(0);
         }
     }
 
@@ -61,13 +72,16 @@ class ProjectObserver
      */
     public function deleted(Project $project)
     {
-        //EVENT_PROJECT_DELETE
+        if ($project->is_deleted) {
+            return;
+        }
+
         $subscriptions = Webhook::where('company_id', $project->company_id)
-                            ->where('event_id', Webhook::EVENT_PROJECT_DELETE)
+                            ->where('event_id', Webhook::EVENT_ARCHIVE_PROJECT)
                             ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_PROJECT_DELETE, $project, $project->company, 'client')->delay(now()->addSeconds(2));
+            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_PROJECT, $project, $project->company, 'client')->delay(0);
         }
     }
 

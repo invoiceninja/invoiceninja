@@ -3,12 +3,12 @@ var __webpack_exports__ = {};
 /*!***************************************************************!*\
   !*** ./resources/js/clients/payments/checkout-credit-card.js ***!
   \***************************************************************/
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 /**
  * Invoice Ninja (https://invoiceninja.com)
  *
@@ -21,10 +21,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 var CheckoutCreditCard = /*#__PURE__*/function () {
   function CheckoutCreditCard() {
     _classCallCheck(this, CheckoutCreditCard);
-
     this.tokens = [];
   }
-
   _createClass(CheckoutCreditCard, [{
     key: "mountFrames",
     value: function mountFrames() {
@@ -42,7 +40,6 @@ var CheckoutCreditCard = /*#__PURE__*/function () {
     key: "handlePaymentUsingCreditCard",
     value: function handlePaymentUsingCreditCard(e) {
       var _document$querySelect;
-
       document.getElementById('checkout--container').classList.remove('hidden');
       document.getElementById('pay-now-with-token--container').classList.add('hidden');
       document.getElementById('save-card--container').style.display = 'grid';
@@ -81,7 +78,6 @@ var CheckoutCreditCard = /*#__PURE__*/function () {
     key: "handle",
     value: function handle() {
       var _this = this;
-
       this.handlePaymentUsingCreditCard();
       Array.from(document.getElementsByClassName('toggle-payment-with-token')).forEach(function (element) {
         return element.addEventListener('click', _this.handlePaymentUsingToken);
@@ -90,10 +86,8 @@ var CheckoutCreditCard = /*#__PURE__*/function () {
       document.getElementById('pay-now-with-token').addEventListener('click', this.completePaymentUsingToken);
     }
   }]);
-
   return CheckoutCreditCard;
 }();
-
 new CheckoutCreditCard().handle();
 /******/ })()
 ;

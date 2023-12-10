@@ -3,14 +3,13 @@ var __webpack_exports__ = {};
 /*!************************************************************!*\
   !*** ./resources/js/clients/payments/wepay-credit-card.js ***!
   \************************************************************/
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 var _document$querySelect;
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -20,23 +19,19 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
-var action = (_document$querySelect = document.querySelector('meta[name="wepay-action"]')) === null || _document$querySelect === void 0 ? void 0 : _document$querySelect.content;
 
+var action = (_document$querySelect = document.querySelector('meta[name="wepay-action"]')) === null || _document$querySelect === void 0 ? void 0 : _document$querySelect.content;
 var WePayCreditCard = /*#__PURE__*/function () {
   function WePayCreditCard() {
     var action = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'payment';
-
     _classCallCheck(this, WePayCreditCard);
-
     this.action = action;
     this.errors = document.getElementById('errors');
   }
-
   _createClass(WePayCreditCard, [{
     key: "initializeWePay",
     value: function initializeWePay() {
       var _document$querySelect2;
-
       var environment = (_document$querySelect2 = document.querySelector('meta[name="wepay-environment"]')) === null || _document$querySelect2 === void 0 ? void 0 : _document$querySelect2.content;
       WePay.set_endpoint(environment === 'staging' ? 'stage' : 'production');
       return this;
@@ -45,7 +40,6 @@ var WePayCreditCard = /*#__PURE__*/function () {
     key: "validateCreditCardFields",
     value: function validateCreditCardFields() {
       this.myCard = $('#my-card');
-
       if (document.getElementById('cardholder_name') === "") {
         document.getElementById('cardholder_name').focus();
         this.errors.textContent = "Cardholder name required.";
@@ -72,18 +66,15 @@ var WePayCreditCard = /*#__PURE__*/function () {
         this.errors.hidden = false;
         return;
       }
-
       return true;
     }
   }, {
     key: "handleAuthorization",
     value: function handleAuthorization() {
       var _this = this;
-
       if (!this.validateCreditCardFields()) {
         return;
       }
-
       var cardButton = document.getElementById('card_button');
       cardButton.disabled = true;
       cardButton.querySelector('svg').classList.remove('hidden');
@@ -126,7 +117,6 @@ var WePayCreditCard = /*#__PURE__*/function () {
     key: "completePaymentWithoutToken",
     value: function completePaymentWithoutToken() {
       var _this2 = this;
-
       if (!this.validateCreditCardFields()) {
         this.payNowButton = document.getElementById('pay-now');
         this.payNowButton.disabled = false;
@@ -134,7 +124,6 @@ var WePayCreditCard = /*#__PURE__*/function () {
         this.payNowButton.querySelector('span').classList.remove('hidden');
         return;
       }
-
       WePay.credit_card.create({
         client_id: document.querySelector('meta[name=wepay-client-id]').content,
         user_name: document.getElementById('cardholder_name').value,
@@ -150,11 +139,8 @@ var WePayCreditCard = /*#__PURE__*/function () {
       }, function (data) {
         if (data.error) {
           _this2.payNowButton.disabled = false;
-
           _this2.payNowButton.querySelector('svg').classList.add('hidden');
-
           _this2.payNowButton.querySelector('span').classList.remove('hidden');
-
           _this2.errors.textContent = '';
           _this2.errors.textContent = data.error_description;
           _this2.errors.hidden = false;
@@ -169,9 +155,7 @@ var WePayCreditCard = /*#__PURE__*/function () {
     key: "handle",
     value: function handle() {
       var _this3 = this;
-
       this.initializeWePay();
-
       if (this.action === 'authorize') {
         document.getElementById('card_button').addEventListener('click', function () {
           return _this3.handleAuthorization();
@@ -192,31 +176,23 @@ var WePayCreditCard = /*#__PURE__*/function () {
         document.getElementById('pay-now').addEventListener('click', function () {
           _this3.payNowButton = document.getElementById('pay-now');
           _this3.payNowButton.disabled = true;
-
           _this3.payNowButton.querySelector('svg').classList.remove('hidden');
-
           _this3.payNowButton.querySelector('span').classList.add('hidden');
-
           var tokenInput = document.querySelector('input[name=token]');
           var storeCard = document.querySelector('input[name=token-billing-checkbox]:checked');
-
           if (storeCard) {
             document.getElementById("store_card").value = storeCard.value;
           }
-
           if (tokenInput.value) {
             return _this3.completePaymentUsingToken(tokenInput.value);
           }
-
           return _this3.completePaymentWithoutToken();
         });
       }
     }
   }]);
-
   return WePayCreditCard;
 }();
-
 new WePayCreditCard(action).handle();
 /******/ })()
 ;

@@ -34,7 +34,6 @@ use Illuminate\Support\Str;
  */
 trait GeneratesCounter
 {
-
     private int $update_counter;
 
     //todo in the form validation, we need to ensure that if a prefix and pattern is set we throw a validation error,
@@ -161,7 +160,6 @@ trait GeneratesCounter
 
             default:
                 return 'default_number_counter';
-
         }
     }
 
@@ -400,7 +398,7 @@ trait GeneratesCounter
         }
 
         //credit
-        return (bool) $client->getSetting('shared_invoice_credit_counter');    
+        return (bool) $client->getSetting('shared_invoice_credit_counter');
     }
 
     /**
@@ -421,7 +419,6 @@ trait GeneratesCounter
         $check_counter = 1;
 
         do {
-            
             $number = $this->padCounter($counter, $padding);
 
             $number = $this->applyNumberPattern($entity, $number, $pattern);
@@ -434,13 +431,10 @@ trait GeneratesCounter
             $check_counter++;
 
             if ($check_counter > 100) {
-                
                 $this->update_counter = $counter--;
 
                 return $number.'_'.Str::random(5);
-
             }
-
         } while ($check);
 
         $this->update_counter = $counter--;
@@ -518,15 +512,12 @@ trait GeneratesCounter
         $reset_counter_frequency = (int) $client->getSetting('reset_counter_frequency_id');
 
         if ($reset_counter_frequency == 0) {
-
-                if($client->getSetting('reset_counter_date')){
-
-                    $settings = $client->company->settings;
-                    $settings->reset_counter_date = "";
-                    $client->company->settings = $settings;
-                    $client->company->save();
-                    
-                }
+            if ($client->getSetting('reset_counter_date')) {
+                $settings = $client->company->settings;
+                $settings->reset_counter_date = "";
+                $client->company->settings = $settings;
+                $client->company->save();
+            }
 
             return;
         }
@@ -574,7 +565,7 @@ trait GeneratesCounter
                 $new_reset_date = $reset_date->addYears(2);
                 break;
 
-                default:
+            default:
                 $new_reset_date = $reset_date->addYear();
                 break;
         }
@@ -611,14 +602,11 @@ trait GeneratesCounter
         $reset_counter_frequency = (int) $settings->reset_counter_frequency_id;
 
         if ($reset_counter_frequency == 0) {
-
-                if($settings->reset_counter_date){
-
-                    $settings->reset_counter_date = "";
-                    $company->settings = $settings;
-                    $company->save();
-                    
-                }
+            if ($settings->reset_counter_date) {
+                $settings->reset_counter_date = "";
+                $company->settings = $settings;
+                $company->save();
+            }
 
             return;
         }
@@ -658,7 +646,7 @@ trait GeneratesCounter
                 $new_reset_date = $reset_date->addYears(2);
                 break;
 
-                default:
+            default:
                 $new_reset_date = $reset_date->addYear();
                 break;
         }
@@ -720,7 +708,8 @@ trait GeneratesCounter
             $replace[] = str_pad(($user_id), 2, '0', STR_PAD_LEFT);
         }
 
-        $matches = false;
+        $matches = [];
+
         preg_match('/{\$date:(.*?)}/', $pattern, $matches);
         if (count($matches) > 1) {
             $format = $matches[1];
@@ -805,16 +794,16 @@ trait GeneratesCounter
         $replace = [];
 
         $search[] = '{$user_custom1}';
-        $replace[] = $entity->user->custom_value1;
+        $replace[] = $entity->user->custom_value1 ?? '';
 
         $search[] = '{$user_custom2}';
-        $replace[] = $entity->user->custom_value2;
+        $replace[] = $entity->user->custom_value2 ?? '';
 
         $search[] = '{$user_custom3}';
-        $replace[] = $entity->user->custom_value3;
+        $replace[] = $entity->user->custom_value3 ?? '';
 
         $search[] = '{$user_custom4}';
-        $replace[] = $entity->user->custom_value4;
+        $replace[] = $entity->user->custom_value4 ?? '';
 
         return str_replace($search, $replace, $pattern);
     }

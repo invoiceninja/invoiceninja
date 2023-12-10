@@ -11,7 +11,6 @@
 
 namespace Database\Factories;
 
-use App\Models\ClientContact;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ClientContactFactory extends Factory

@@ -11,33 +11,25 @@
 
 namespace App\Jobs\Account;
 
-use App\DataMapper\Analytics\AccountCreated as AnalyticsAccountCreated;
-use App\DataMapper\Analytics\AccountPlatform;
-use App\Events\Account\AccountCreated;
+use App\Utils\Ninja;
+use App\Models\Account;
+use Illuminate\Support\Str;
+use App\Jobs\User\CreateUser;
+use App\DataProviders\Domains;
+use App\Jobs\Util\VersionCheck;
+use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Company\CreateCompany;
+use Illuminate\Support\Facades\App;
+use App\Jobs\Mail\NinjaMailerObject;
+use App\Utils\Traits\User\LoginCache;
+use App\Events\Account\AccountCreated;
+use Turbo124\Beacon\Facades\LightLogs;
+use App\Jobs\Company\CreateCompanyToken;
+use Illuminate\Foundation\Bus\Dispatchable;
+use App\DataMapper\Analytics\AccountPlatform;
 use App\Jobs\Company\CreateCompanyPaymentTerms;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
-use App\Jobs\Company\CreateCompanyToken;
-use App\Jobs\Mail\NinjaMailer;
-use App\Jobs\Mail\NinjaMailerJob;
-use App\Jobs\Mail\NinjaMailerObject;
-use App\Jobs\User\CreateUser;
-use App\Jobs\Util\VersionCheck;
-use App\Mail\Admin\AccountCreatedObject;
-use App\Mail\Admin\VerifyUserObject;
-use App\Models\Account;
-use App\Models\Timezone;
-use App\Notifications\Ninja\NewAccountCreated;
-use App\Utils\Ninja;
-use App\Utils\Traits\User\LoginCache;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
-use Symfony\Component\HttpFoundation\Response;
-use Turbo124\Beacon\Facades\LightLogs;
+use App\DataMapper\Analytics\AccountCreated as AnalyticsAccountCreated;
 
 class CreateAccount
 {
@@ -48,6 +40,8 @@ class CreateAccount
 
     protected $client_ip;
 
+    
+
     public function __construct(array $sp660339, $client_ip)
     {
         $this->request = $sp660339;
@@ -56,9 +50,9 @@ class CreateAccount
 
     public function handle()
     {
-        if (config('ninja.environment') == 'selfhost' && Account::all()->count() == 0) {
+        if (config('ninja.environment') == 'selfhost' && Account::count() == 0) {
             return $this->create();
-        } elseif (config('ninja.environment') == 'selfhost' && Account::all()->count() > 1) {
+        } elseif (config('ninja.environment') == 'selfhost' && Account::count() > 1) {
             return response()->json(['message' => Ninja::selfHostedMessage()], 400);
         } elseif (! Ninja::boot()) {
             return response()->json(['message' => Ninja::parse()], 401);
@@ -86,22 +80,22 @@ class CreateAccount
             $sp794f3f->hosted_company_count = config('ninja.quotas.free.max_companies');
             $sp794f3f->account_sms_verified = true;
 
-            if(in_array($this->getDomain($this->request['email']), ['givmail.com','yopmail.com','gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'aol.com', 'mail.ru','brand-app.biz','proton.me','ema-sofia.eu'])){
+            if (in_array($this->getDomain($this->request['email']), Domains::getDomains())) {
                 $sp794f3f->account_sms_verified = false;
             }
 
-            // $sp794f3f->trial_started = now();
-            // $sp794f3f->trial_plan = 'pro';
         }
 
         $sp794f3f->save();
 
-        $sp035a66 = (new CreateCompany($this->request,$sp794f3f))->handle();
+        $sp035a66 = (new CreateCompany($this->request, $sp794f3f))->handle();
         $sp035a66->load('account');
         $sp794f3f->default_company_id = $sp035a66->id;
         $sp794f3f->save();
 
         $spaa9f78 = (new CreateUser($this->request, $sp794f3f, $sp035a66, true))->handle();
+
+        $sp035a66->service()->localizeCompany($spaa9f78);
 
         (new CreateCompanyPaymentTerms($sp035a66, $spaa9f78))->handle();
         (new CreateCompanyTaskStatuses($sp035a66, $spaa9f78))->handle();
@@ -135,7 +129,7 @@ class CreateAccount
 
             NinjaMailerJob::dispatch($nmo, true);
 
-            \Modules\Admin\Jobs\Account\NinjaUser::dispatch([], $sp035a66);
+            (new \Modules\Admin\Jobs\Account\NinjaUser([], $sp035a66))->handle();
         }
 
         VersionCheck::dispatch();
@@ -164,7 +158,7 @@ class CreateAccount
 
     private function getDomain($email)
     {
-        if( filter_var( $email, FILTER_VALIDATE_EMAIL ) ) {
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
             // split on @ and return last value of array (the domain)
             $domain = explode('@', $email);
          
@@ -175,5 +169,8 @@ class CreateAccount
 
         return 'gmail.com';
     }
+
+
+
 
 }

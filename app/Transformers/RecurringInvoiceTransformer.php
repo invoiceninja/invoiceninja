@@ -15,24 +15,20 @@ use App\Models\Activity;
 use App\Models\Backup;
 use App\Models\Client;
 use App\Models\Document;
-use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringInvoiceInvitation;
-use App\Transformers\ActivityTransformer;
-use App\Transformers\ClientTransformer;
-use App\Transformers\InvoiceHistoryTransformer;
 use App\Utils\Traits\MakesHash;
 
 class RecurringInvoiceTransformer extends EntityTransformer
 {
     use MakesHash;
 
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'invitations',
         'documents',
     ];
 
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'activities',
         'client',
     ];
@@ -94,8 +90,8 @@ class RecurringInvoiceTransformer extends EntityTransformer
             'po_number' => $invoice->po_number ?: '',
             'date' => $invoice->date ?: '',
             'last_sent_date' => $invoice->last_sent_date ?: '',
-            // 'next_send_date' => $invoice->next_send_date ?: '',
             'next_send_date' => $invoice->next_send_date_client ?: '',
+            'next_send_datetime' => $invoice->next_send_date ?: '',
             'due_date' => $invoice->due_date ?: '',
             'terms' => $invoice->terms ?: '',
             'public_notes' => $invoice->public_notes ?: '',

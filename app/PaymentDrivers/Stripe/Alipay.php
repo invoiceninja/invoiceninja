@@ -33,13 +33,24 @@ class Alipay
 
     public function paymentView(array $data)
     {
+        $intent = \Stripe\PaymentIntent::create([
+            'amount' => $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
+            'currency' => $this->stripe->client->currency()->code,
+            'payment_method_types' => ['alipay'],
+            'customer' => $this->stripe->findOrCreateCustomer(),
+            'description' => $this->stripe->getDescription(false),
+            'metadata' => [
+                'payment_hash' => $this->stripe->payment_hash->hash,
+                'gateway_type_id' => GatewayType::ALIPAY,
+            ],
+        ], $this->stripe->stripe_connect_auth);
+
+
         $data['gateway'] = $this->stripe;
         $data['return_url'] = $this->buildReturnUrl();
-        $data['currency'] = $this->stripe->client->getCurrencyCode();
-        $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
-        $data['invoices'] = $this->stripe->payment_hash->invoices();
+        $data['ci_intent'] = $intent->client_secret;
 
-        $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $data['stripe_amount']]);
+        $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency())]);
         $this->stripe->payment_hash->save();
 
         return render('gateways.stripe.alipay.pay', $data);
@@ -56,30 +67,50 @@ class Alipay
 
     public function paymentResponse(PaymentResponseRequest $request)
     {
+        $this->stripe->init();
+
+        $this->stripe->setPaymentHash($request->getPaymentHash());
+        $this->stripe->client = $this->stripe->payment_hash->fee_invoice->client;
+
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $request->all());
         $this->stripe->payment_hash->save();
 
-        if (in_array($request->redirect_status, ['succeeded', 'pending'])) {
-            return $this->processSuccesfulRedirect($request->source);
+        if ($request->payment_intent) {
+            $pi = \Stripe\PaymentIntent::retrieve(
+                $request->payment_intent,
+                $this->stripe->stripe_connect_auth
+            );
+
+            nlog($pi);
+
+            if (in_array($pi->status, ['succeeded', 'pending'])) {
+                return $this->processSuccesfulRedirect($pi);
+            }
+
+            /** @phpstan-ignore-next-line */
+            if ($pi->status == 'requires_source_action' && $pi->next_action->alipay_handle_redirect) {
+                /** @phpstan-ignore-next-line */
+                return redirect($pi->next_action->alipay_handle_redirect->url);
+            }
         }
 
         return $this->processUnsuccesfulRedirect();
     }
 
-    public function processSuccesfulRedirect(string $source)
+    public function processSuccesfulRedirect($payment_intent)
     {
         $this->stripe->init();
 
         $data = [
-            'payment_method' => $this->stripe->payment_hash->data->source,
+            'payment_method' => $payment_intent->payment_method,
             'payment_type' => PaymentType::ALIPAY,
             'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
-            'transaction_reference' => $source,
+            'transaction_reference' => $payment_intent->id,
             'gateway_type_id' => GatewayType::ALIPAY,
 
         ];
 
-        $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
+        $payment = $this->stripe->createPayment($data, $payment_intent->status == 'pending' ? Payment::STATUS_PENDING : Payment::STATUS_COMPLETED);
 
         SystemLogger::dispatch(
             ['response' => $this->stripe->payment_hash->data, 'data' => $data],

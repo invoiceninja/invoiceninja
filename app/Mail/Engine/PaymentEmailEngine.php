@@ -14,11 +14,14 @@ namespace App\Mail\Engine;
 use App\DataMapper\EmailTemplateDefaults;
 use App\Jobs\Entity\CreateRawPdf;
 use App\Models\Account;
+use App\Models\Payment;
+use App\Services\Template\TemplateAction;
 use App\Utils\Helpers;
 use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\URL;
 
 class PaymentEmailEngine extends BaseEmailEngine
 {
@@ -41,6 +44,8 @@ class PaymentEmailEngine extends BaseEmailEngine
     private $payment_template_body;
 
     private $payment_template_subject;
+
+    public bool $is_refund = false;
 
     public function __construct($payment, $contact, $template_data = null)
     {
@@ -89,24 +94,75 @@ class PaymentEmailEngine extends BaseEmailEngine
             ->setViewText('');
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
-            
-            $this->payment->invoices->each(function ($invoice) {
 
-                $pdf = ((new CreateRawPdf($invoice->invitations->first(), $invoice->company->db))->handle());
+            $template_in_use = false;
 
-                $this->setAttachments([['file' => base64_encode($pdf), 'name' => $invoice->numberFormatter().'.pdf']]); 
+            if($this->is_refund && strlen($this->payment->client->getSetting('payment_refund_design_id')) > 2) {
+                $pdf = (new TemplateAction(
+                    [$this->payment->hashed_id],
+                    $this->payment->client->getSetting('payment_refund_design_id'),
+                    Payment::class,
+                    $this->payment->user_id,
+                    $this->payment->company,
+                    $this->payment->company->db,
+                    'nohash',
+                    false
+                ))->handle();
 
-                //attach invoice documents also to payments
-                if ($this->client->getSetting('document_email_attachment') !== false)
-                {
-                    foreach ($invoice->documents as $document) {
-                        $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
-                    }
+                $file_name = ctrans('texts.payment_refund_receipt', ['number' => $this->payment->number ]) . '.pdf';
+                $file_name = str_replace(' ', '_', $file_name);
+                $this->setAttachments([['file' => base64_encode($pdf), 'name' => $file_name]]);
+                $template_in_use = true;
+
+            } elseif(!$this->is_refund && strlen($this->payment->client->getSetting('payment_receipt_design_id')) > 2) {
+                $pdf = (new TemplateAction(
+                    [$this->payment->hashed_id],
+                    $this->payment->client->getSetting('payment_receipt_design_id'),
+                    Payment::class,
+                    $this->payment->user_id,
+                    $this->payment->company,
+                    $this->payment->company->db,
+                    'nohash',
+                    false
+                ))->handle();
+                                                
+                $file_name = ctrans('texts.payment_receipt', ['number' => $this->payment->number ]) . '.pdf';
+                $file_name = str_replace(' ', '_', $file_name);
+                $this->setAttachments([['file' => base64_encode($pdf), 'name' => $file_name]]);
+                $template_in_use = true;
+
+            }
+
+            $this->payment->invoices->each(function ($invoice) use ($template_in_use) {
+
+                if(!$template_in_use) {
+                    $pdf = ((new CreateRawPdf($invoice->invitations->first()))->handle());
+                    $file_name = $invoice->numberFormatter().'.pdf';
+                    $this->setAttachments([['file' => base64_encode($pdf), 'name' => $file_name]]);
                 }
 
+                //attach invoice documents also to payments
+                if ($this->client->getSetting('document_email_attachment') !== false) {
+                    $invoice->documents()->where('is_public', true)->cursor()->each(function ($document) {
+                        if ($document->size > $this->max_attachment_size) {
+                            $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
+                        } else {
+                            $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null, ]]);
+                        }
+                    });
+                }
+
+                // if($this->client->getSetting('enable_e_invoice'))
+                // {
+
+                //     $e_invoice_filepath = $invoice->service()->getEInvoice($this->contact);
+
+                //     if($e_invoice_filepath && strlen($e_invoice_filepath) > 1)
+                //         $this->setAttachments([['file' => base64_encode($e_invoice_filepath), 'name' => $invoice->getFileName("xml")]]);
+
+                // }
+
             });
-
-
         }
 
         return $this;
@@ -141,15 +197,19 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data = [];
 
         $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
+        $data['$amount_paid'] = ['value' => '', 'label' => ctrans('texts.amount_paid')];
+        $data['$refund'] = ['value' => '', 'label' => ctrans('texts.refund')];
         $data['$to'] = ['value' => '', 'label' => ctrans('texts.to')];
         $data['$number'] = ['value' => $this->payment->number ?: '&nbsp;', 'label' => ctrans('texts.payment_number')];
         $data['$payment.number'] = &$data['$number'];
         $data['$entity'] = ['value' => '', 'label' => ctrans('texts.payment')];
         $data['$payment.amount'] = ['value' => Number::formatMoney($this->payment->amount, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.amount')];
         $data['$payment.refunded'] = ['value' => Number::formatMoney($this->payment->refunded, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.refund')];
+        $data['$payment.unapplied'] = ['value' => Number::formatMoney(($this->payment->amount - $this->payment->refunded - $this->payment->applied), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.refund')];
         $data['$amount'] = &$data['$payment.amount'];
         $data['$payment.date'] = ['value' => $this->translateDate($this->payment->date, $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.payment_date')];
         $data['$transaction_reference'] = ['value' => $this->payment->transaction_reference, 'label' => ctrans('texts.transaction_reference')];
+        $data['$reference'] = ['value' => '', 'label' => ctrans('texts.reference')];
         $data['$public_notes'] = ['value' => $this->payment->public_notes, 'label' => ctrans('texts.notes')];
 
         $data['$payment1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'payment1', $this->payment->custom_value1, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'payment1')];
@@ -186,6 +246,12 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$client.vat_number'] = &$data['$vat_number'];
         $data['$client.website'] = &$data['$website'];
         $data['$client.phone'] = &$data['$phone'];
+        $data['$city'] = ['value' => $this->client->city ?: '&nbsp;', 'label' => ctrans('texts.city')];
+        $data['$client.city'] = &$data['$city'];
+        $data['$state'] = ['value' => $this->client->state ?: '&nbsp;', 'label' => ctrans('texts.state')];
+        $data['$client.state'] = &$data['$state'];
+        $data['$postal_code'] = ['value' => $this->client->postal_code ?: '&nbsp;', 'label' => ctrans('texts.postal_code')];
+        $data['$client.postal_code'] = &$data['$postal_code'];
         $data['$city_state_postal'] = ['value' => $this->client->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, false) ?: '&nbsp;', 'label' => ctrans('texts.city_state_postal')];
         $data['$client.city_state_postal'] = &$data['$city_state_postal'];
         $data['$postal_city_state'] = ['value' => $this->client->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city_state')];
@@ -239,12 +305,12 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$company3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company3', $this->settings->custom_value3, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company3')];
         $data['$company4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company4', $this->settings->custom_value4, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company4')];
 
-        $data['$view_link'] = ['value' => '<a class="button" href="'.$this->payment->getLink().'">'.ctrans('texts.view_payment').'</a>', 'label' => ctrans('texts.view_payment')];
+        $data['$view_link'] = ['value' => $this->buildViewButton($this->payment->getLink(), ctrans('texts.view_payment')), 'label' => ctrans('texts.view_payment')];
         $data['$view_button'] = &$data['$view_link'];
         $data['$viewButton'] = &$data['$view_link'];
         $data['$viewLink'] = &$data['$view_link'];
         $data['$paymentLink'] = &$data['$view_link'];
-        $data['$portalButton'] = ['value' => "<a href='{$this->payment->getPortalLink()}'>".ctrans('texts.login').'</a>', 'label' =>''];
+        $data['$portalButton'] = ['value' =>  $this->buildViewButton($this->payment->getPortalLink(), ctrans('texts.login')), 'label' =>''];
         $data['$portal_url'] = &$data['$portalButton'];
 
         $data['$view_url'] = ['value' => $this->payment->getLink(), 'label' => ctrans('texts.view_payment')];
@@ -252,6 +318,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$emailSignature'] = &$data['$signature'];
 
         $data['$invoices'] = ['value' => $this->formatInvoices(), 'label' => ctrans('texts.invoices')];
+        $data['$invoice_references_subject'] = ['value' => $this->formatInvoiceReferencesSubject(), 'label' => ctrans('texts.invoices')];
         $data['$invoice_references'] = ['value' => $this->formatInvoiceReferences(), 'label' => ctrans('texts.invoices')];
         $data['$invoice'] = ['value' => $this->formatInvoice(), 'label' => ctrans('texts.invoices')];
         $data['$invoice.po_number'] = ['value' => $this->formatPoNumber(), 'label' => ctrans('texts.po_number')];
@@ -261,13 +328,13 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$invoices.balance'] = ['value' => $this->formatInvoiceField('balance'), 'label' => ctrans('texts.invoices')];
         $data['$invoices.due_date'] = ['value' => $this->formatInvoiceField('due_date'), 'label' => ctrans('texts.invoices')];
         $data['$invoices.po_number'] = ['value' => $this->formatInvoiceField('po_number'), 'label' => ctrans('texts.invoices')];
+        $data['$invoice_numbers'] = ['value' => $this->formatInvoiceNumbersRaw(), 'label' => ctrans('texts.invoices')];
 
-
-        if($this->payment->status_id == 4) {
+        if ($this->payment->status_id == 4) {
             $data['$status_logo'] = ['value' => '<div class="stamp is-paid"> ' . ctrans('texts.paid') .'</div>', 'label' => ''];
-        }
-        else
+        } else {
             $data['$status_logo'] = ['value' => '', 'label' => ''];
+        }
 
 
         $arrKeysLength = array_map('strlen', array_keys($data));
@@ -281,21 +348,20 @@ class PaymentEmailEngine extends BaseEmailEngine
         $invoicex = '';
 
         foreach ($this->payment->invoices as $invoice) {
-
             $invoice_field = $invoice->{$field};
 
-            if(in_array($field, ['amount', 'balance']))
+            if (in_array($field, ['amount', 'balance'])) {
                 $invoice_field = Number::formatMoney($invoice_field, $this->client);
+            }
 
-            if($field == 'due_date')
+            if ($field == 'due_date') {
                 $invoice_field = $this->translateDate($invoice_field, $this->client->date_format(), $this->client->locale());
+            }
 
             $invoicex .= ctrans('texts.invoice_number_short') . "{$invoice->number} {$invoice_field}";
-
         }
 
         return $invoicex;
-
     }
 
     private function formatInvoice()
@@ -325,10 +391,39 @@ class PaymentEmailEngine extends BaseEmailEngine
         $invoice_list = '<br><br>';
 
         foreach ($this->payment->invoices as $invoice) {
-            $invoice_list .= ctrans('texts.invoice_number_short')." {$invoice->number} - ".Number::formatMoney($invoice->pivot->amount, $this->client).'<br>';
+            $invoice_list .= ctrans('texts.invoice_number_short')." {$invoice->number} ".Number::formatMoney($invoice->pivot->amount, $this->client).'<br>';
         }
 
         return $invoice_list;
+    }
+
+    private function formatInvoiceReferencesSubject()
+    {
+        $invoice_list = '';
+
+        foreach ($this->payment->invoices as $invoice) {
+            if (strlen($invoice->po_number) > 1) {
+                $invoice_list .= ctrans('texts.po_number')." {$invoice->po_number} <br>";
+            }
+
+            $invoice_list .= ctrans('texts.invoice_number_short')." {$invoice->number} " . Number::formatMoney($invoice->pivot->amount, $this->client).', ';
+
+        }
+
+        if(strlen($invoice_list) < 4) {
+            $invoice_list = Number::formatMoney($this->payment->amount, $this->client) ?: '&nbsp;';
+        }
+            
+
+        return $invoice_list;
+
+    }
+
+    private function formatInvoiceNumbersRaw()
+    {
+
+        return collect($this->payment->invoices->pluck('number')->toArray())->implode(', ');
+
     }
 
     private function formatInvoiceReferences()
@@ -336,15 +431,14 @@ class PaymentEmailEngine extends BaseEmailEngine
         $invoice_list = '<br><br>';
 
         foreach ($this->payment->invoices as $invoice) {
-            
-            if(strlen($invoice->po_number) > 1)
+            if (strlen($invoice->po_number) > 1) {
                 $invoice_list .= ctrans('texts.po_number')." {$invoice->po_number} <br>";
+            }
 
             $invoice_list .= ctrans('texts.invoice_number_short')." {$invoice->number} <br>";
             $invoice_list .= ctrans('texts.invoice_amount').' '.Number::formatMoney($invoice->pivot->amount, $this->client).'<br>';
             $invoice_list .= ctrans('texts.invoice_balance').' '.Number::formatMoney($invoice->fresh()->balance, $this->client).'<br>';
             $invoice_list .= '-----<br>';
-
         }
 
         return $invoice_list;
@@ -362,8 +456,13 @@ class PaymentEmailEngine extends BaseEmailEngine
 
         return $data;
     }
-
-    public function generateLabelsAndValues()
+    
+    /**
+     * generateLabelsAndValues
+     *
+     * @return array
+     */
+    public function generateLabelsAndValues(): array
     {
         $data = [];
 
@@ -375,5 +474,56 @@ class PaymentEmailEngine extends BaseEmailEngine
         }
 
         return $data;
+    }
+
+    /**
+     * buildViewButton
+     *
+     * @param  string $link
+     * @param  string $text
+     * @return string
+     */
+    private function buildViewButton(string $link, string $text): string
+    {
+        if ($this->settings->email_style == 'plain') {
+            return '<a href="'. $link .'" target="_blank">'. $text .'</a>';
+        }
+
+
+        return '
+<div>
+<!--[if (gte mso 9)|(IE)]>
+<table align="center" cellspacing="0" cellpadding="0" style="width: 600px;">
+    <tr>
+    <td align="center" valign="top">
+        <![endif]-->        
+        <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" >
+        <tbody><tr>
+        <td align="center" class="new_button" style="border-radius: 2px; background-color: '.$this->settings->primary_color.'">
+            <a href="'. $link . '" target="_blank" class="new_button" style="text-decoration: none; border: 1px solid '.$this->settings->primary_color.'; display: inline-block; border-radius: 2px; padding-top: 15px; padding-bottom: 15px; padding-left: 25px; padding-right: 25px; font-size: 20px; color: #fff">
+            <singleline label="cta button">'. $text .'</singleline>
+            </a>
+        </td>
+        </tr>
+        </tbody>
+        </table>
+<!--[if (gte mso 9)|(IE)]>
+    </td>
+    </tr>
+</table>
+<![endif]-->
+</div>
+        ';
+
+
+        return '
+            <table border="0" cellspacing="0" cellpadding="0" align="center">
+                <tr style="border: 0 !important; ">
+                    <td class="new_button" style="padding: 12px 18px 12px 18px; border-radius:5px;" align="center"> 
+                    <a href="'. $link .'" target="_blank" style="border: 0 !important;font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; display: inline-block;">'. $text .'</a>
+                    </td>
+                </tr>
+            </table>
+        ';
     }
 }

@@ -14,7 +14,6 @@ namespace App\Console\Commands;
 use App\DataMapper\InvoiceItem;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Jobs\Entity\EmailEntity;
-use App\Jobs\Ninja\SendReminders;
 use App\Jobs\Util\WebhookHandler;
 use App\Libraries\MultiDB;
 use App\Models\Invoice;
@@ -58,7 +57,6 @@ class SendRemindersCron extends Command
     /**
      * Execute the console command.
      *
-     * @return int
      */
     public function handle()
     {
@@ -97,7 +95,6 @@ class SendRemindersCron extends Command
                          $invoice->save();
                      }
                  });
-
     }
 
     private function calcLateFee($invoice, $template) :Invoice
@@ -175,15 +172,13 @@ class SendRemindersCron extends Command
 
         /**Refresh Invoice values*/
         $invoice->calc()->getInvoice()->save();
-        $invoice->fresh();
-        $invoice->service()->deletePdf()->save();
+        $invoice = $invoice->fresh();
 
         /* Refresh the client here to ensure the balance is fresh */
         $client = $invoice->client;
         $client = $client->fresh();
 
-        nlog('adjusting client balance and invoice balance by '.($invoice->balance - $temp_invoice_balance));
-        $client->service()->updateBalance($invoice->balance - $temp_invoice_balance)->save();
+        $client->service()->calculateBalance();
         $invoice->ledger()->updateInvoiceBalance($invoice->balance - $temp_invoice_balance, "Late Fee Adjustment for invoice {$invoice->number}");
 
         return $invoice;

@@ -23,7 +23,7 @@ class RecurringQuoteWasArchived
     use SerializesModels;
 
     /**
-     * @var Invoice
+     * @var RecurringQuote
      */
     public $recurring_quote;
 
@@ -34,7 +34,7 @@ class RecurringQuoteWasArchived
     /**
      * Create a new event instance.
      *
-     * @param Invoice $recurring_quote
+     * @param RecurringQuote $recurring_quote
      * @param Company $company
      * @param array $event_vars
      */

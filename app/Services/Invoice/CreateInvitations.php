@@ -23,11 +23,8 @@ class CreateInvitations extends AbstractService
 {
     use MakesHash;
 
-    private $invoice;
-
-    public function __construct(Invoice $invoice)
+    public function __construct(private Invoice $invoice)
     {
-        $this->invoice = $invoice;
     }
 
     public function run()
@@ -42,7 +39,7 @@ class CreateInvitations extends AbstractService
         }
 
         $contacts->each(function ($contact) {
-            $invitation = InvoiceInvitation::where('company_id', $this->invoice->company_id)
+            $invitation = InvoiceInvitation::query()->where('company_id', $this->invoice->company_id)
                                         ->where('client_contact_id', $contact->id)
                                         ->where('invoice_id', $this->invoice->id)
                                         ->withTrashed()
@@ -65,7 +62,7 @@ class CreateInvitations extends AbstractService
             } else {
                 $contact = $contacts->first();
 
-                $invitation = InvoiceInvitation::where('company_id', $this->invoice->company_id)
+                $invitation = InvoiceInvitation::query()->where('company_id', $this->invoice->company_id)
                                         ->where('client_contact_id', $contact->id)
                                         ->where('invoice_id', $this->invoice->id)
                                         ->withTrashed()

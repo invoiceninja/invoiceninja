@@ -52,6 +52,7 @@ class InvoicesTable extends Component
         $query = Invoice::query()
             ->where('company_id', $this->company->id)
             ->where('is_deleted', false)
+            ->where('is_proforma', false)
             ->with('client.gateway_tokens', 'client.contacts')
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
 
@@ -88,9 +89,12 @@ class InvoicesTable extends Component
             ->withTrashed()
             ->paginate($this->per_page);
 
+        /** @var \App\Models\ClientContact $client_contact */
+        $client_contact = auth()->user();
+
         return render('components.livewire.invoices-table', [
             'invoices' => $query,
-            'gateway_available' => ! empty(auth()->user()->client->service()->getPaymentMethods(-1)),
+            'gateway_available' => ! empty($client_contact->client->service()->getPaymentMethods(-1)),
         ]);
     }
 }

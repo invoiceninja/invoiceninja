@@ -13,20 +13,6 @@ namespace App\Jobs\Invoice;
 
 use App\Jobs\Entity\EmailEntity;
 use App\Models\Invoice;
-use CleverIt\UBL\Invoice\Address;
-use CleverIt\UBL\Invoice\Contact;
-use CleverIt\UBL\Invoice\Country;
-use CleverIt\UBL\Invoice\Generator;
-use CleverIt\UBL\Invoice\Invoice as UBLInvoice;
-use CleverIt\UBL\Invoice\InvoiceLine;
-use CleverIt\UBL\Invoice\Item;
-use CleverIt\UBL\Invoice\LegalMonetaryTotal;
-use CleverIt\UBL\Invoice\Party;
-use CleverIt\UBL\Invoice\TaxCategory;
-use CleverIt\UBL\Invoice\TaxScheme;
-use CleverIt\UBL\Invoice\TaxSubTotal;
-use CleverIt\UBL\Invoice\TaxTotal;
-use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -55,7 +41,7 @@ class BulkInvoiceJob implements ShouldQueue
      */
     public function handle()
     {   //only the reminder should mark the reminder sent field
-        // $this->invoice->service()->touchReminder($this->reminder_template)->markSent()->save();
+
         $this->invoice->service()->markSent()->save();
 
         $this->invoice->invitations->load('contact.client.country', 'invoice.client.country', 'invoice.company')->each(function ($invitation) {

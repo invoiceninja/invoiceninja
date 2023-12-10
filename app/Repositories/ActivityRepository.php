@@ -17,6 +17,7 @@ use App\Models\CompanyToken;
 use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Invoice;
+use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Models\User;
@@ -26,6 +27,7 @@ use App\Services\PdfMaker\PdfMaker as PdfMakerService;
 use App\Utils\HtmlEngine;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
+use App\Utils\VendorHtmlEngine;
 
 /**
  * Class for activity repository.
@@ -38,9 +40,9 @@ class ActivityRepository extends BaseRepository
     /**
      * Save the Activity.
      *
-     * @param stdClass $fields The fields
-     * @param Collection $entity The entity that you wish to have backed up (typically Invoice, Quote etc etc rather than Payment)
-     * @param $event_vars
+     * @param \stdClass $fields The fields
+     * @param \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder $entity
+     * @param array $event_vars
      */
     public function save($fields, $entity, $event_vars)
     {
@@ -48,6 +50,10 @@ class ActivityRepository extends BaseRepository
 
         foreach ($fields as $key => $value) {
             $activity->{$key} = $value;
+        }
+
+        if($entity->company) {
+            $activity->account_id = $entity->company->account_id;
         }
 
         if ($token_id = $this->getTokenId($event_vars)) {
@@ -60,14 +66,14 @@ class ActivityRepository extends BaseRepository
         $activity->save();
 
         //rate limiter
-       $this->createBackup($entity, $activity);
+        $this->createBackup($entity, $activity);
     }
 
     /**
      * Creates a backup.
      *
-     * @param      Collection $entity    The entity
-     * @param      Collection  $activity  The activity
+     * @param \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder $entity
+     * @param \App\Models\Activity $activity  The activity
      */
     public function createBackup($entity, $activity)
     {
@@ -82,20 +88,37 @@ class ActivityRepository extends BaseRepository
         ) {
             $backup = new Backup();
             $entity->load('client');
-            $contact = $entity->client->primary_contact()->first();
             $backup->amount = $entity->amount;
             $backup->activity_id = $activity->id;
             $backup->json_backup = '';
             $backup->save();
 
             $backup->storeRemotely($this->generateHtml($entity), $entity->client);
+
+            return;
+        }
+
+        if(get_class($entity) == PurchaseOrder::class) {
+           
+            $backup = new Backup();
+            $entity->load('client');
+            $backup->amount = $entity->amount;
+            $backup->activity_id = $activity->id;
+            $backup->json_backup = '';
+            $backup->save();
+
+            $backup->storeRemotely($this->generateVendorHtml($entity), $entity->vendor);
+
+            return;
+
         }
     }
 
     public function getTokenId(array $event_vars)
     {
         if ($event_vars['token']) {
-            $company_token = CompanyToken::where('token', $event_vars['token'])->first();
+            /** @var \App\Models\CompanyToken $company_token **/
+            $company_token = CompanyToken::query()->where('token', $event_vars['token'])->first();
 
             if ($company_token) {
                 return $company_token->id;
@@ -103,6 +126,59 @@ class ActivityRepository extends BaseRepository
         }
 
         return false;
+    }
+
+    private function generateVendorHtml($entity)
+    {
+        $entity_design_id = $entity->design_id ? $entity->design_id : $this->decodePrimaryKey($entity->vendor->getSetting('purchase_order_design_id'));
+        
+        $design = Design::withTrashed()->find($entity_design_id);
+
+        if (! $entity->invitations()->exists() || ! $design) {
+            return '';
+        }
+
+        $entity->load('vendor.company', 'invitations');
+
+        $html = new VendorHtmlEngine($entity->invitations->first()->load('purchase_order', 'contact'));
+
+        if ($design->is_custom) {
+            $options = [
+                'custom_partials' => json_decode(json_encode($design->design), true),
+            ];
+            $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
+        } else {
+            $template = new PdfMakerDesign(strtolower($design->name));
+        }
+
+        $state = [
+            'template' => $template->elements([
+                'vendor' => $entity->vendor,
+                'entity' => $entity,
+                'pdf_variables' => (array) $entity->company->settings->pdf_variables,
+                '$product' => $design->design->product,
+            ]),
+            'variables' => $html->generateLabelsAndValues(),
+            'options' => [
+                'all_pages_header' => $entity->vendor->getSetting('all_pages_header'),
+                'all_pages_footer' => $entity->vendor->getSetting('all_pages_footer'),
+                'vendor' => $entity->vendor,
+                'entity' => $entity,
+            ],
+            'process_markdown' => $entity->vendor->company->markdown_enabled,
+        ];
+
+        $maker = new PdfMakerService($state);
+
+        $html = $maker->design($template)
+                    ->build()
+                    ->getCompiledHTML(true);
+
+        $maker = null;
+        $state = null;
+                
+        return $html;
+
     }
 
     private function generateHtml($entity)
@@ -124,15 +200,11 @@ class ActivityRepository extends BaseRepository
             $entity_design_id = 'credit_design_id';
         }
 
-        // $entity->load('client.company');
-
         $entity_design_id = $entity->design_id ? $entity->design_id : $this->decodePrimaryKey($entity->client->getSetting($entity_design_id));
 
-        $design = Design::find($entity_design_id);
+        $design = Design::withTrashed()->find($entity_design_id);
 
         if (! $entity->invitations()->exists() || ! $design) {
-            nlog("No invitations for entity {$entity->id} - {$entity->number}");
-
             return '';
         }
 
@@ -160,6 +232,8 @@ class ActivityRepository extends BaseRepository
             'options' => [
                 'all_pages_header' => $entity->client->getSetting('all_pages_header'),
                 'all_pages_footer' => $entity->client->getSetting('all_pages_footer'),
+                'client' => $entity->client,
+                'entity' => $entity,
             ],
             'process_markdown' => $entity->client->company->markdown_enabled,
         ];

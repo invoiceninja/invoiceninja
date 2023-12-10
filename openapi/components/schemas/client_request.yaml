@@ -1,0 +1,145 @@
+    ClientRequest:
+      required:
+        - contacts
+        - country_id
+      properties:
+        id:
+          description: 'The unique identifier of the client'
+          type: string
+          example: Opnel5aKBz
+          readOnly: true
+        contacts:
+          type: array
+          description: 'A list of contacts associated with the client'
+          items:
+            $ref: '#/components/schemas/ClientContactRequest'
+        name:
+          description: 'The name of the client company or organization'
+          type: string
+          example: "Jim's Housekeeping"
+        website:
+          description: 'The website URL of the client company or organization'
+          type: string
+          example: 'https://www.jims-housekeeping.com'
+        private_notes:
+          description: 'Notes that are only visible to the user who created the client'
+          type: string
+          example: 'Client prefers email communication over phone calls'
+        industry_id:
+          description: 'The unique identifier of the industry the client operates in'
+          type: number
+          example: '5'
+        size_id:
+          description: 'The unique identifier for the size category of the client company or organization'
+          type: number
+          example: '2'
+        address1:
+          description: "First line of the client's address"
+          type: string
+          example: '123 Main St'
+        address2:
+          description: "Second line of the client's address, if needed"
+          type: string
+          example: 'Apt 4B'
+        city:
+          description: 'The city the client is located in'
+          type: string
+          example: 'Beverly Hills'
+        state:
+          description: 'The state, province, or locality the client is located in'
+          type: string
+          example: 'California'
+        postal_code:
+          description: 'The postal code or ZIP code of the client'
+          type: string
+          example: '90210'
+        phone:
+          description: "The client's phone number"
+          type: string
+          example: '555-3434-3434'
+        country_id:
+          description: "The unique identifier of the client's country"
+          type: number
+          format: integer
+          example: '1'
+        custom_value1:
+          description: 'A custom field for storing additional information'
+          type: string
+          example: 'Preferred contact: Email'
+        custom_value2:
+          description: 'A custom field for storing additional information'
+          type: string
+          example: 'Account manager: John Doe'
+        custom_value3:
+          description: 'A custom field for storing additional information'
+          type: string
+          example: 'VIP client: Yes'
+        custom_value4:
+          description: 'A custom field for storing additional information'
+          type: string
+          example: 'Annual contract value: $50,000'
+        vat_number:
+          description: "The client's VAT (Value Added Tax) number, if applicable"
+          type: string
+          example: 'VAT123456'
+        id_number:
+          description: 'A unique identification number for the client, such as a tax ID or business registration number'
+          type: string
+        number:
+          description: 'A system-assigned unique number for the client, typically used for invoicing purposes'
+          type: string
+          example: 'CL-0001'
+        shipping_address1:
+          description: "First line of the client's shipping address"
+          type: string
+          example: '5 Wallaby Way'
+        shipping_address2:
+          description: "Second line of the client's shipping address, if needed"
+          type: string
+          example: 'Suite 5'
+        shipping_city:
+          description: "The city of the client's shipping address"
+          type: string
+          example: 'Perth'
+        shipping_state:
+          description: "The state, province, or locality of the client's shipping address"
+          type: string
+          example: 'Western Australia'
+        shipping_postal_code:
+          description: "The postal code or ZIP code of the client's shipping address"
+          type: string
+          example: '6110'
+        shipping_country_id:
+          description: "The unique identifier of the country for the client's shipping address"
+          type: number
+          format: integer
+          example: '4'
+        is_deleted:
+          description: 'A boolean value indicating whether the client has been deleted or not'
+          type: boolean
+          example: false
+          readOnly: true
+        group_settings_id:
+          description: 'The group settings assigned to the client'
+          type: string
+          example: Opnel5aKBz
+        routing_id:
+          description: 'The routing address id for e-invoicing for this client'
+          type: string
+          example: Opnel5aKBz3489-dfkiu-2239-sdsd
+        is_tax_exempt:
+          description: 'Flag which defines if the client is exempt from taxes'
+          type: boolean
+          example: false
+        has_valid_vat_number:
+          description: 'Flag which defines if the client has a valid VAT number'
+          type: boolean
+          example: false
+          readOnly: true
+        classification:
+          description: 'The classification of the client'
+          type: string
+          example: 'individual'
+        settings:
+          $ref: '#/components/schemas/ClientSettings'
+      type: object

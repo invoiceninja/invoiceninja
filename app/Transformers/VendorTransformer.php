@@ -16,7 +16,6 @@ use App\Models\Document;
 use App\Models\Vendor;
 use App\Models\VendorContact;
 use App\Utils\Traits\MakesHash;
-use League\Fractal\Resource\Collection;
 
 /**
  * class VendorTransformer.
@@ -25,7 +24,7 @@ class VendorTransformer extends EntityTransformer
 {
     use MakesHash;
 
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'contacts',
         'documents',
     ];
@@ -33,14 +32,14 @@ class VendorTransformer extends EntityTransformer
     /**
      * @var array
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'activities',
     ];
 
     /**
      * @param Vendor $vendor
      *
-     * @return Collection
+     * @return \Illuminate\Support\Collection
      */
     public function includeActivities(Vendor $vendor)
     {
@@ -52,7 +51,7 @@ class VendorTransformer extends EntityTransformer
     /**
      * @param Vendor $vendor
      *
-     * @return Collection
+     * @return \Illuminate\Support\Collection
      */
     public function includeContacts(Vendor $vendor)
     {
@@ -103,6 +102,9 @@ class VendorTransformer extends EntityTransformer
             'archived_at' => (int) $vendor->deleted_at,
             'created_at' => (int) $vendor->created_at,
             'number' => (string) $vendor->number ?: '',
+            'language_id' => (string) $vendor->language_id ?: '',
+            'classification' => (string) $vendor->classification ?: '',
+            'display_name' =>  (string) $vendor->present()->name(),
         ];
     }
 }

@@ -11,16 +11,50 @@
 
 namespace App\Models;
 
-use App\Events\Quote\QuoteWasUpdated;
-use App\Jobs\Entity\CreateEntityPdf;
-use App\Utils\Ninja;
 use App\Utils\Traits\Inviteable;
 use App\Utils\Traits\MakesDates;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Storage;
 
+/**
+ * App\Models\QuoteInvitation
+ *
+ * @property int $id
+ * @property int $company_id
+ * @property int $user_id
+ * @property int $client_contact_id
+ * @property int $quote_id
+ * @property string $key
+ * @property string|null $transaction_reference
+ * @property string|null $message_id
+ * @property string|null $email_error
+ * @property string|null $signature_base64
+ * @property string|null $signature_date
+ * @property string|null $sent_date
+ * @property string|null $viewed_date
+ * @property string|null $opened_date
+ * @property int|null $created_at
+ * @property int|null $updated_at
+ * @property int|null $deleted_at
+ * @property string|null $signature_ip
+ * @property string|null $email_status
+ * @property \App\Models\Company $company
+ * @property \App\Models\ClientContact $contact
+ * @property mixed $hashed_id
+ * @property \App\Models\Quote $quote
+ * @property \App\Models\User $user
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
+ * @method static \Database\Factories\QuoteInvitationFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|QuoteInvitation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|QuoteInvitation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|QuoteInvitation onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|QuoteInvitation query()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
+ * @method static \Illuminate\Database\Eloquent\Builder|QuoteInvitation withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|QuoteInvitation withoutTrashed()
+ * @mixin \Eloquent
+ */
 class QuoteInvitation extends BaseModel
 {
     use MakesDates;
@@ -50,33 +84,41 @@ class QuoteInvitation extends BaseModel
     }
 
     /**
-     * @return mixed
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function quote()
+    public function quote(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Quote::class)->withTrashed();
     }
 
     /**
-     * @return mixed
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function contact()
+    public function entity(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Quote::class)->withTrashed();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function contact(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ClientContact::class, 'client_contact_id', 'id')->withTrashed();
     }
 
     /**
-     * @return mixed
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
 
     /**
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company()
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
@@ -96,15 +138,4 @@ class QuoteInvitation extends BaseModel
         $this->save();
     }
 
-    public function pdf_file_path()
-    {
-        $storage_path = Storage::url($this->quote->client->quote_filepath($this).$this->quote->numberFormatter().'.pdf');
-
-        if (! Storage::exists($this->quote->client->quote_filepath($this).$this->quote->numberFormatter().'.pdf')) {
-            event(new QuoteWasUpdated($this->quote, $this->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-            (new CreateEntityPdf($this))->handle();
-        }
-
-        return $storage_path;
-    }
 }

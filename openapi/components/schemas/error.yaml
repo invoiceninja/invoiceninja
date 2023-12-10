@@ -1,0 +1,11 @@
+    Error:
+      properties:
+        message:
+          description: 'Something terrible went wrong'
+          type: string
+          example: 'Unexpected error'
+        code:
+          description: 'The HTTP error code, ie 5xx 4xx'
+          type: integer
+          example: '500'
+      type: object

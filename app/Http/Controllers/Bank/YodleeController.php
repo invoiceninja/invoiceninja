@@ -11,8 +11,10 @@
 
 namespace App\Http\Controllers\Bank;
 
+use App\Helpers\Bank\Yodlee\DTO\AccountSummary;
 use App\Helpers\Bank\Yodlee\Yodlee;
 use App\Http\Controllers\BaseController;
+use App\Http\Requests\Yodlee\YodleeAdminRequest;
 use App\Http\Requests\Yodlee\YodleeAuthRequest;
 use App\Jobs\Bank\ProcessBankTransactionsYodlee;
 use App\Models\BankIntegration;
@@ -20,29 +22,18 @@ use Illuminate\Http\Request;
 
 class YodleeController extends BaseController
 {
-
     public function auth(YodleeAuthRequest $request)
     {
-
-        // create a user at this point
-        // use the one time token here to pull in the actual user
-        // store the user_account_id on the accounts table
 
         $yodlee = new Yodlee();
 
         $company = $request->getCompany();
 
-
-        //ensure user is enterprise!!
-
         if ($company->account->bank_integration_yodlee_account_id) {
-
             $flow = 'edit';
 
             $token = $company->account->bank_integration_yodlee_account_id;
-
         } else {
-
             $flow = 'add';
 
             $response = $yodlee->createUser($company);
@@ -52,13 +43,15 @@ class YodleeController extends BaseController
             $company->account->bank_integration_yodlee_account_id = $token;
 
             $company->push();
-
         }
 
         $yodlee = new Yodlee($token);
 
-        if ($request->has('window_closed') && $request->input("window_closed") == "true")
+        if ($request->has('window_closed') && $request->input("window_closed") == "true") {
             $this->getAccounts($company, $token);
+        }
+
+        $redirect_url = isset($request->getTokenContent()['is_react']) && $request->getTokenContent()['is_react'] ? config('ninja.react_url') : config('ninja.app_url');
 
         $data = [
             'access_token' => $yodlee->getAccessToken(),
@@ -68,10 +61,10 @@ class YodleeController extends BaseController
             'company' => $company,
             'account' => $company->account,
             'completed' => $request->has('window_closed') ? true : false,
+            'redirect_url' => $redirect_url,
         ];
 
         return view('bank.yodlee.auth', $data);
-
     }
 
     private function getAccounts($company, $token)
@@ -81,7 +74,6 @@ class YodleeController extends BaseController
         $accounts = $yodlee->getAccounts();
 
         foreach ($accounts as $account) {
-
             if (!BankIntegration::where('bank_account_id', $account['id'])->where('company_id', $company->id)->exists()) {
                 $bank_integration = new BankIntegration();
                 $bank_integration->company_id = $company->id;
@@ -99,18 +91,18 @@ class YodleeController extends BaseController
                 $bank_integration->currency = $account['account_currency'];
                 $bank_integration->from_date = now()->subYear();
 
+                $bank_integration->auto_sync = true;
+
                 $bank_integration->save();
             }
-
         }
 
 
-        $company->account->bank_integrations->each(function ($bank_integration) use ($company) {
+        $company->account->bank_integrations->each(function ($bank_integration) use ($company) { // TODO: filter to yodlee only
 
             ProcessBankTransactionsYodlee::dispatch($company->account, $bank_integration);
 
         });
-
     }
 
 
@@ -124,7 +116,7 @@ class YodleeController extends BaseController
      *      tags={"yodlee"},
      *      summary="Processing webhooks from Yodlee",
      *      description="Notifies the system when a data point can be refreshed",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -148,7 +140,6 @@ class YodleeController extends BaseController
      *       ),
      *     )
      */
-
     /*
     {
       "event":{
@@ -177,12 +168,12 @@ class YodleeController extends BaseController
             ]
          }
       }
-   }*/
+}*/
     public function refreshWebhook(Request $request)
     {
         //we should ignore this one
-        nlog("yodlee refresh");
-        nlog($request->all());
+        // nlog("yodlee refresh");
+        // nlog($request->all());
 
         return response()->json(['message' => 'Success'], 200);
 
@@ -215,7 +206,6 @@ class YodleeController extends BaseController
     */
     public function balanceWebhook(Request $request)
     {
-
         nlog("yodlee refresh");
         nlog($request->all());
 
@@ -252,8 +242,8 @@ class YodleeController extends BaseController
     public function refreshUpdatesWebhook(Request $request)
     {
         //notifies a user if there are problems with yodlee accessing the data
-        nlog("update refresh");
-        nlog($request->all());
+        // nlog("update refresh");
+        // nlog($request->all());
 
         return response()->json(['message' => 'Success'], 200);
 
@@ -288,8 +278,6 @@ class YodleeController extends BaseController
     {
         //this is the main hook we use for notifications
 
-        nlog("data refresh");
-        nlog($request->all());
 
         return response()->json(['message' => 'Success'], 200);
 
@@ -298,4 +286,27 @@ class YodleeController extends BaseController
         // return response()->json(['message' => 'Unauthorized'], 403);
     }
 
+    public function accountStatus(YodleeAdminRequest $request, $account_number)
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $bank_integration = BankIntegration::query()
+            ->withTrashed()
+            ->where('company_id', $user->company()->id)
+            ->where('account_id', $account_number)
+            ->exists();
+
+        if (!$bank_integration) {
+            return response()->json(['message' => 'Account does not exist.'], 400);
+        }
+
+        $yodlee = new Yodlee($user->account->bank_integration_yodlee_account_id);
+
+        $summary = $yodlee->getAccountSummary($account_number);
+
+        $transformed_summary = AccountSummary::from($summary[0]);
+
+        return response()->json($transformed_summary, 200);
+    }
 }

@@ -23,10 +23,10 @@ class WebCronController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @return Response
+     * @return \Illuminate\Http\JsonResponse
      *
      * @OA\Get(
-     *      path="/api/v1/webcron",
+     *      path="/webcron",
      *      operationId="webcron",
      *      tags={"webcron"},
      *      summary="Executes the task scheduler via a webcron service",

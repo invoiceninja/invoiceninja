@@ -11,7 +11,6 @@
 
 namespace Tests\Feature;
 
-use App\Factory\CompanyTokenFactory;
 use App\Factory\CompanyUserFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
@@ -25,7 +24,6 @@ use App\Models\Payment;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 /**
@@ -131,7 +129,7 @@ class MultiPaymentDeleteTest extends TestCase
         $this->assertEquals(325, $invoice->client->balance);
 
         //payment 163
-//
+        //
         $data = [
             'amount' => 163.0,
             'client_id' => $this->encodePrimaryKey($client->id),
@@ -225,6 +223,7 @@ class MultiPaymentDeleteTest extends TestCase
 
         $data = [
             'amount' => 162.0,
+            'transaction_reference' => 'something',
             'client_id' => $this->encodePrimaryKey($client->id),
             'invoices' => [
                 [
@@ -301,7 +300,7 @@ class MultiPaymentDeleteTest extends TestCase
         $this->assertEquals(325, $invoice->client->fresh()->paid_to_date);
 
         // delete payment 3
-//
+        //
 
         //
         $data = [

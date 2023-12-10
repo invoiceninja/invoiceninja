@@ -15,6 +15,8 @@ use App\Http\Requests\Export\StoreExportRequest;
 use App\Jobs\Company\CompanyExport;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class ExportController extends BaseController
 {
@@ -54,8 +56,15 @@ class ExportController extends BaseController
      */
     public function index(StoreExportRequest $request)
     {
-        CompanyExport::dispatch(auth()->user()->getCompany(), auth()->user());
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
-        return response()->json(['message' => 'Processing'], 200);
+        $hash = Str::uuid();
+        $url = \Illuminate\Support\Facades\URL::temporarySignedRoute('protected_download', now()->addHour(), ['hash' => $hash]);
+        Cache::put($hash, $url, now()->addHour());
+
+        CompanyExport::dispatch($user->getCompany(), $user, $hash);
+
+        return response()->json(['message' => 'Processing', 'url' => $url], 200);
     }
 }

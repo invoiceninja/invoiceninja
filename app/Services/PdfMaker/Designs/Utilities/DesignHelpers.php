@@ -54,6 +54,10 @@ trait DesignHelpers
             $this->payments = $this->context['payments'];
         }
 
+        if (isset($this->context['credits'])) {
+            $this->credits = $this->context['credits'];
+        }
+
         if (isset($this->context['aging'])) {
             $this->aging = $this->context['aging'];
         }
@@ -146,6 +150,8 @@ trait DesignHelpers
      */
     public function processTaxColumns(string $type): void
     {
+        $column_type = $type;
+
         if ($type == 'product') {
             $type_id = 1;
         }
@@ -153,13 +159,21 @@ trait DesignHelpers
         if ($type == 'task') {
             $type_id = 2;
         }
+        
+        /** 17-05-2023 need to explicity define product_quote here */
+        if ($type == 'product_quote') {
+            $type_id = 1;
+            $column_type = 'product_quote';
+            $type = 'product';
+        }
+
 
         // At the moment we pass "task" or "product" as type.
         // However, "pdf_variables" contains "$task.tax" or "$product.tax" <-- Notice the dollar sign.
         // This sprintf() will help us convert "task" or "product" into "$task" or "$product" without
         // evaluating the variable.
 
-        if (in_array(sprintf('%s%s.tax', '$', $type), (array) $this->context['pdf_variables']["{$type}_columns"])) {
+        if (in_array(sprintf('%s%s.tax', '$', $type), (array) $this->context['pdf_variables']["{$column_type}_columns"])) {
             $line_items = collect($this->entity->line_items)->filter(function ($item) use ($type_id) {
                 return $item->type_id = $type_id;
             });
@@ -182,10 +196,10 @@ trait DesignHelpers
                 array_push($taxes, sprintf('%s%s.tax_rate3', '$', $type));
             }
 
-            $key = array_search(sprintf('%s%s.tax', '$', $type), $this->context['pdf_variables']["{$type}_columns"], true);
+            $key = array_search(sprintf('%s%s.tax', '$', $type), $this->context['pdf_variables']["{$column_type}_columns"], true);
 
             if ($key !== false) {
-                array_splice($this->context['pdf_variables']["{$type}_columns"], $key, 1, $taxes);
+                array_splice($this->context['pdf_variables']["{$column_type}_columns"], $key, 1, $taxes);
             }
         }
     }
@@ -227,12 +241,13 @@ trait DesignHelpers
     {
         // We want to show headers for statements, no exceptions.
         $statements = "
-            document.querySelectorAll('#statement-invoice-table > thead > tr > th, #statement-payment-table > thead > tr > th, #statement-aging-table > thead > tr > th').forEach(t => {
+            document.querySelectorAll('#statement-credit-table > thead > tr > th, #statement-invoice-table > thead > tr > th, #statement-payment-table > thead > tr > th, #statement-aging-table > thead > tr > th').forEach(t => {
                 t.hidden = false;
             });
         ";
 
-        $javascript = 'document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("#product-table > tbody > tr > td, #task-table > tbody > tr > td, #delivery-note-table > tbody > tr > td").forEach(t=>{if(""!==t.innerText){let e=t.getAttribute("data-ref").slice(0,-3);document.querySelector(`th[data-ref="${e}-th"]`).removeAttribute("hidden")}}),document.querySelectorAll("#product-table > tbody > tr > td, #task-table > tbody > tr > td, #delivery-note-table > tbody > tr > td").forEach(t=>{let e=t.getAttribute("data-ref").slice(0,-3);(e=document.querySelector(`th[data-ref="${e}-th"]`)).hasAttribute("hidden")&&""==t.innerText&&t.setAttribute("hidden","true")})},!1);';
+        // $javascript = 'document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("#product-table > tbody > tr > td, #task-table > tbody > tr > td, #delivery-note-table > tbody > tr > td").forEach(t=>{if(""!==t.innerText){let e=t.getAttribute("data-ref").slice(0,-3);document.querySelector(`th[data-ref="${e}-th"]`).removeAttribute("hidden")}}),document.querySelectorAll("#product-table > tbody > tr > td, #task-table > tbody > tr > td, #delivery-note-table > tbody > tr > td").forEach(t=>{let e=t.getAttribute("data-ref").slice(0,-3);(e=document.querySelector(`th[data-ref="${e}-th"]`)).hasAttribute("hidden")&&""==t.innerText&&t.setAttribute("hidden","true")})},!1);';
+        $javascript = 'document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("#custom-table > tbody > tr >td, #product-table > tbody > tr > td, #task-table > tbody > tr > td, #delivery-note-table > tbody > tr > td").forEach(t=>{if(""!==t.innerText){let e=t.getAttribute("data-ref").slice(0,-3);document.querySelector(`th[data-ref="${e}-th"]`).removeAttribute("hidden")}}),document.querySelectorAll("#custom-table > tbody > tr > td, #product-table > tbody > tr > td, #task-table > tbody > tr > td, #delivery-note-table > tbody > tr > td").forEach(t=>{let e=t.getAttribute("data-ref").slice(0,-3);(e=document.querySelector(`th[data-ref="${e}-th"]`)).hasAttribute("hidden")&&""==t.innerText&&t.setAttribute("hidden","true")})},!1);';
 
         // Previously we've been decoding the HTML on the backend and XML parsing isn't good options because it requires,
         // strict & valid HTML to even output/decode. Decoding is now done on the frontend with this piece of Javascript.
@@ -245,6 +260,7 @@ trait DesignHelpers
             ['element' => 'script', 'content' => $html_decode],
         ]];
     }
+
 
     public function entityVariableCheck(string $variable): bool
     {
@@ -259,6 +275,10 @@ trait DesignHelpers
         // Some variables don't map 1:1 to table columns. This gives us support for such cases.
         $aliases = [
             '$quote.balance_due' => 'partial',
+            '$purchase_order.po_number' => 'number',
+            '$purchase_order.total' => 'amount',
+            '$purchase_order.due_date' => 'due_date',
+            '$purchase_order.balance_due' => 'balance_due',
         ];
 
         try {
@@ -280,6 +300,43 @@ trait DesignHelpers
         }
 
         return false;
+    }
+
+    public function entityVariableCheckx(string $variable): string
+    {
+        // Extract $invoice.date => date
+        // so we can append date as $entity->date and not $entity->$invoice.date;
+
+        // When it comes to invoice balance, we'll always show it.
+        if ($variable == '$invoice.total') {
+            return 'visible';
+        }
+
+        // Some variables don't map 1:1 to table columns. This gives us support for such cases.
+        $aliases = [
+            '$quote.balance_due' => 'partial',
+        ];
+
+        try {
+            $_variable = explode('.', $variable)[1];
+        } catch (Exception $e) {
+            nlog("Company settings seems to be broken. Could not resolve {$variable} type.");
+            return 'collapse';
+        }
+
+        if (\in_array($variable, \array_keys($aliases))) {
+            $_variable = $aliases[$variable];
+        }
+
+        if (is_null($this->entity->{$_variable})) {
+            return 'collapse';
+        }
+
+        if (empty($this->entity->{$_variable})) {
+            return 'collapse';
+        }
+
+        return 'visible';
     }
 
     public function composeFromPartials(array $partials)

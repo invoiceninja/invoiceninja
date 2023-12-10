@@ -11,7 +11,6 @@
 
 namespace App\Http\Requests\Company;
 
-use App\DataMapper\CompanySettings;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\Company\ValidCompanyQuantity;
 use App\Http\ValidationRules\Company\ValidSubdomain;
@@ -31,7 +30,9 @@ class StoreCompanyRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('create', Company::class);
+        /** @var \App\Models\User auth()->user */
+        $user = auth()->user();
+        return $user->can('create', Company::class);
     }
 
     public function rules()
@@ -48,7 +49,7 @@ class StoreCompanyRequest extends Request
             $rules['portal_domain'] = 'sometimes|url';
         } else {
             if (Ninja::isHosted()) {
-                $rules['subdomain'] = ['nullable', 'regex:/^[a-zA-Z0-9][a-zA-Z0-9.-]+[a-zA-Z0-9]$/', new ValidSubdomain($this->all())];
+                $rules['subdomain'] = ['nullable', 'regex:/^[a-zA-Z0-9][a-zA-Z0-9.-]+[a-zA-Z0-9]$/', new ValidSubdomain()];
             } else {
                 $rules['subdomain'] = 'nullable|alpha_num';
             }
@@ -61,8 +62,9 @@ class StoreCompanyRequest extends Request
     {
         $input = $this->all();
 
-        if(!isset($input['name']))
+        if (!isset($input['name'])) {
             $input['name'] = 'Untitled Company';
+        }
 
         if (array_key_exists('google_analytics_url', $input)) {
             $input['google_analytics_key'] = $input['google_analytics_url'];

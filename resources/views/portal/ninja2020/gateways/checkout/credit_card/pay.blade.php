@@ -86,5 +86,5 @@
 @endsection
 
 @section('gateway_footer')
-    <script src="{{ asset('js/clients/payments/checkout-credit-card.js') }}"></script>
+    @vite('resources/js/clients/payments/checkout-credit-card.js')
 @endsection

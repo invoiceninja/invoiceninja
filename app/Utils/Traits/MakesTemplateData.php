@@ -116,6 +116,8 @@ trait MakesTemplateData
         $data['$quote_total'] = ['value' => '$20.00', 'label' => ctrans('texts.quote_total')];
         $data['$credit_amount'] = ['value' => '$15.00', 'label' => ctrans('texts.credit_amount')];
         $data['$credit_balance'] = ['value' => '$12.00', 'label' => ctrans('texts.credit_balance')];
+        $data['$invoice_references'] = ['value' => 'Invoice #2222', 'label' => ctrans('texts.invoices')];
+        $data['$invoice_references_subject'] = ['value' => 'Invoice #2222', 'label' => ctrans('texts.invoices')];
 
         $data['$credit_number'] = &$data['$number'];
         $data['$credit_no'] = &$data['$number'];
@@ -203,7 +205,8 @@ trait MakesTemplateData
         $data['$task.tax_name3'] = ['value' => 'CA Sales Tax', 'label' => ctrans('texts.tax')];
         $data['$task.line_total'] = ['value' => '$100.00', 'label' => ctrans('texts.line_total')];
 
-        $data['$vendor_name'] = ['value' => 'Joey Diaz Denkins', 'label' => ctrans('texts.vendor_name')];;
+        $data['$vendor_name'] = ['value' => 'Joey Diaz Denkins', 'label' => ctrans('texts.vendor_name')];
+        ;
         $data['$vendor.name'] = &$data['$vendor_name'];
         $data['$vendor'] = &$data['$vendor_name'];
 

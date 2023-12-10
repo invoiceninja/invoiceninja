@@ -23,7 +23,7 @@ return new class extends Migration {
     {
         Gateway::query()->update(['visible' => 0]);
 
-        Gateway::whereIn('id', [1, 15, 20, 39])->update(['visible' => 1]);
+        Gateway::query()->whereIn('id', [1, 15, 20, 39])->update(['visible' => 1]);
 
         Schema::table('recurring_invoice_invitations', function ($t) {
             $t->string('transaction_reference')->nullable();

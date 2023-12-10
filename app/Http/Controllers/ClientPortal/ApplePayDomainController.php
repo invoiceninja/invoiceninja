@@ -13,11 +13,9 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
 use App\Libraries\MultiDB;
-use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Utils\Ninja;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class ApplePayDomainController extends Controller
 {
@@ -25,11 +23,11 @@ class ApplePayDomainController extends Controller
 
     public function showAppleMerchantId(Request $request)
     {
-
         /* Self Host */
 
         if (Ninja::isSelfHost()) {
-            $cgs = CompanyGateway::whereIn('gateway_key', $this->stripe_keys)
+            $cgs = CompanyGateway::query()
+                                 ->whereIn('gateway_key', $this->stripe_keys)
                                  ->where('is_deleted', false)
                                  ->get();
 
@@ -46,7 +44,7 @@ class ApplePayDomainController extends Controller
 
         $domain_name = $request->getHost();
 
-        if (strpos($domain_name, 'invoicing.co') !== false) {
+        if (strpos($domain_name, config('ninja.app_domain')) !== false) {
             $subdomain = explode('.', $domain_name)[0];
 
             $query = [

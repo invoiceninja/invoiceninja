@@ -17,6 +17,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 
 class CheckGatewayFee implements ShouldQueue
@@ -29,7 +30,9 @@ class CheckGatewayFee implements ShouldQueue
      * @param $invoice_id
      * @param string $db
      */
-    public function __construct(public int $invoice_id, public string $db){}
+    public function __construct(public int $invoice_id, public string $db)
+    {
+    }
 
     /**
      * Execute the job.
@@ -38,17 +41,22 @@ class CheckGatewayFee implements ShouldQueue
      */
     public function handle()
     {
+        
         MultiDB::setDb($this->db);
 
         $i = Invoice::withTrashed()->find($this->invoice_id);
 
-        if(!$i)
+        if (!$i) {
             return;
-
-        if($i->status_id == Invoice::STATUS_SENT)
-        {
-            $i->service()->removeUnpaidGatewayFees();
         }
 
+        if ($i->status_id == Invoice::STATUS_SENT) {
+            $i->service()->removeUnpaidGatewayFees();
+        }
+    }
+
+    public function middleware()
+    {
+        return [(new WithoutOverlapping($this->invoice_id.$this->db))];
     }
 }

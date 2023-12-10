@@ -1,0 +1,124 @@
+    FillableInvoice:
+      properties:
+        assigned_user_id:
+          description: "The assigned user's hashed ID"
+          type: string
+          example: 'a1b2c3d4'
+        client_id:
+          description: "The client's hashed ID"
+          type: string
+          example: 'x1y2z3a4'
+        number:
+          description: "The unique alphanumeric invoice number for each invoice per company"
+          type: string
+          example: INV_101
+        po_number:
+          description: "The purchase order number associated with the invoice"
+          type: string
+          example: 'PO12345'
+        terms:
+          description: "The terms and conditions for the invoice"
+          type: string
+          example: 'Net 30'
+        public_notes:
+          description: "Public notes visible to the client on the invoice"
+          type: string
+          example: 'Thank you for your business.'
+        private_notes:
+          description: "Private notes for internal use only"
+          type: string
+          example: 'Client is a slow payer.'
+        footer:
+          description: "The footer text displayed on the invoice"
+          type: string
+          example: 'Authorized Signature'
+        custom_value1:
+          description: "First custom value for additional information"
+          type: string
+          example: 'Project ABC'
+        custom_value2:
+          description: "Second custom value for additional information"
+          type: string
+          example: 'Department XYZ'
+        custom_value3:
+          description: "Third custom value for additional information"
+          type: string
+          example: 'Location 123'
+        custom_value4:
+          description: "Fourth custom value for additional information"
+          type: string
+          example: 'Currency USD'
+        tax_name1:
+          description: "Name of the first tax applied to the invoice"
+          type: string
+          example: 'VAT'
+        tax_name2:
+          description: "Name of the second tax applied to the invoice"
+          type: string
+          example: 'GST'
+        tax_rate1:
+          description: "Rate of the first tax applied to the invoice"
+          type: number
+          example: 10.00
+        tax_rate2:
+          description: "Rate of the second tax applied to the invoice"
+          type: number
+          example: 5.00
+        tax_name3:
+          description: "Name of the third tax applied to the invoice"
+          type: string
+          example: 'PST'
+        tax_rate3:
+          description: "Rate of the third tax applied to the invoice"
+          type: number
+          example: 8.00
+        line_items:
+          type: array
+          description: 'An array of objects which define the line items of the invoice'
+          items:
+            $ref: '#/components/schemas/InvoiceItem'
+        discount:
+          description: "The discount applied to the invoice"
+          type: number
+          example: 10.00
+        partial:
+          description: "The partial amount applied to the invoice"
+          type: number
+          example: 20.00
+        is_amount_discount:
+          description: "Indicates whether the discount applied is a fixed amount or a percentage"
+          type: boolean
+          example: true
+        uses_inclusive_taxes:
+          description: "Indicates whether the tax rates applied to the invoice are inclusive or exclusive"
+          type: boolean
+          example: true
+        date:
+          description: "The date the invoice was issued"
+          type: string
+          example: '1994-07-30'
+        partial_due_date:
+          description: "The due date for the partial payment"
+          type: string
+          example: '1994-08-15'
+        due_date:
+          description: "The due date for the invoice"
+          type: string
+          example: '1994-08-30'
+        custom_surcharge1:
+          description: "First custom surcharge applied to the invoice"
+          type: number
+          example: 10.00
+        custom_surcharge2:
+          description: "Second custom surcharge applied to the invoice"
+          type: number
+          example: 15.00
+        custom_surcharge3:
+          description: "Third custom surcharge applied to the invoice"
+          type: number
+          example: 5.00
+        custom_surcharge4:
+          description: "Fourth custom surcharge applied to the invoice"
+          type: number
+          example: 20.00
+      type: object

@@ -12,18 +12,17 @@
 namespace App\Services\Recurring;
 
 use App\Jobs\RecurringInvoice\SendRecurring;
-use App\Jobs\Util\UnlinkFile;
+use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
-use App\Services\Recurring\GetInvoicePdf;
+use App\Models\RecurringQuote;
+use App\Utils\Ninja;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class RecurringService
 {
-    protected $recurring_entity;
-
-    public function __construct($recurring_entity)
+    public function __construct(public RecurringInvoice | RecurringExpense | RecurringQuote $recurring_entity)
     {
-        $this->recurring_entity = $recurring_entity;
     }
 
     //set schedules - update next_send_dates
@@ -35,8 +34,9 @@ class RecurringService
      */
     public function stop()
     {
-        if($this->recurring_entity->status_id < RecurringInvoice::STATUS_PAUSED)
+        if ($this->recurring_entity->status_id < RecurringInvoice::STATUS_PAUSED) {
             $this->recurring_entity->status_id = RecurringInvoice::STATUS_PAUSED;
+        }
 
         return $this;
     }
@@ -50,9 +50,12 @@ class RecurringService
 
     public function start()
     {
-
-        if ($this->recurring_entity->remaining_cycles == 0) {
+        if ($this->recurring_entity->remaining_cycles == 0 || $this->recurring_entity->is_deleted) {
             return $this;
+        }
+    
+        if ($this->recurring_entity->trashed()) {
+            $this->recurring_entity->restore();
         }
 
         $this->setStatus(RecurringInvoice::STATUS_ACTIVE);
@@ -85,11 +88,18 @@ class RecurringService
 
     public function deletePdf()
     {
+        $this->recurring_entity->invitations->each(function ($invitation) {
 
-        $this->recurring_entity->invitations->each(function ($invitation){
+            //30-06-2023
+            try {
+                Storage::disk(config('filesystems.default'))->delete($this->recurring_entity->client->recurring_invoice_filepath($invitation) . $this->recurring_entity->numberFormatter().'.pdf');
+                Storage::disk('public')->delete($this->recurring_entity->client->recurring_invoice_filepath($invitation) . $this->recurring_entity->numberFormatter().'.pdf');
+                if (Ninja::isHosted()) {
+                }
+            } catch (\Exception $e) {
+                nlog($e->getMessage());
+            }
 
-        (new UnlinkFile(config('filesystems.default'), $this->recurring_entity->client->recurring_invoice_filepath($invitation) . $this->recurring_entity->numberFormatter().'.pdf'))->handle();
-        
         });
 
 
@@ -98,7 +108,6 @@ class RecurringService
     
     public function triggeredActions($request)
     {
-
         if ($request->has('start') && $request->input('start') == 'true') {
             $this->start();
         }
@@ -113,8 +122,7 @@ class RecurringService
             return $this;
         }
 
-        if(isset($this->recurring_entity->client))
-        {
+        if (isset($this->recurring_entity->client)) {
             $offset = $this->recurring_entity->client->timezone_offset();
             $this->recurring_entity->next_send_date = Carbon::parse($this->recurring_entity->next_send_date_client)->startOfDay()->addSeconds($offset);
         }
@@ -124,20 +132,31 @@ class RecurringService
 
     public function sendNow()
     {
-    
-        if($this->recurring_entity instanceof RecurringInvoice && $this->recurring_entity->status_id == RecurringInvoice::STATUS_DRAFT){
+        if ($this->recurring_entity instanceof RecurringInvoice && $this->recurring_entity->status_id == RecurringInvoice::STATUS_DRAFT) {
             $this->start()->save();
-           (new SendRecurring($this->recurring_entity, $this->recurring_entity->company->db))->handle(); 
+            (new SendRecurring($this->recurring_entity, $this->recurring_entity->company->db))->handle();
         }
 
         $this->recurring_entity = $this->recurring_entity->fresh();
 
         return $this;
-
     }
 
     public function fillDefaults()
     {
+        return $this;
+    }
+
+    public function increasePrice(float $percentage)
+    {
+        (new IncreasePrice($this->recurring_entity, $percentage))->run();
+        
+        return $this;
+    }
+
+    public function updatePrice()
+    {
+        (new UpdatePrice($this->recurring_entity))->run();
 
         return $this;
     }

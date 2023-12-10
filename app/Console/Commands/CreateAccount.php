@@ -11,41 +11,20 @@
 
 namespace App\Console\Commands;
 
+use App\DataMapper\ClientRegistrationFields;
 use App\DataMapper\CompanySettings;
-use App\DataMapper\FeesAndLimits;
-use App\Events\Invoice\InvoiceWasCreated;
-use App\Factory\InvoiceFactory;
-use App\Factory\InvoiceItemFactory;
-use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Company\CreateCompanyPaymentTerms;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Jobs\Util\VersionCheck;
 use App\Models\Account;
-use App\Models\Client;
-use App\Models\ClientContact;
 use App\Models\Company;
-use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
-use App\Models\Country;
-use App\Models\Credit;
-use App\Models\Expense;
-use App\Models\Product;
-use App\Models\Project;
-use App\Models\Quote;
-use App\Models\Task;
 use App\Models\User;
-use App\Models\Vendor;
-use App\Models\VendorContact;
-use App\Repositories\InvoiceRepository;
-use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
-use Carbon\Carbon;
-use Faker\Factory;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class CreateAccount extends Command
@@ -62,11 +41,6 @@ class CreateAccount extends Command
      */
     protected $signature = 'ninja:create-account {--email=} {--password=}';
 
-    /**
-     * Create a new command instance.
-     *
-     * @param InvoiceRepository $invoice_repo
-     */
     public function __construct()
     {
         parent::__construct();
@@ -88,14 +62,25 @@ class CreateAccount extends Command
 
     private function createAccount()
     {
+        $settings = CompanySettings::defaults();
+
+        $settings->name = "Untitled Company";
+        $settings->currency_id = '1';
+        $settings->language_id = '1';
+
         $account = Account::factory()->create();
         $company = Company::factory()->create([
             'account_id' => $account->id,
             'portal_domain' => config('ninja.app_url'),
             'portal_mode' => 'domain',
+            'settings' => $settings,
         ]);
-
+        
+        $company->client_registration_fields = ClientRegistrationFields::generate();
+        $company->save();
+        
         $account->default_company_id = $company->id;
+        $account->set_react_as_default_ap = true;
         $account->save();
 
         $email = $this->option('email') ?? 'admin@example.com';
@@ -136,7 +121,6 @@ class CreateAccount extends Command
         (new VersionCheck())->handle();
 
         $this->warmCache();
-        
     }
 
     private function warmCache()
@@ -158,7 +142,6 @@ class CreateAccount extends Command
             if ($tableData->count()) {
                 Cache::forever($name, $tableData);
             }
-        
         }
     }
 }

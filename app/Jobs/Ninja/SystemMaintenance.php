@@ -12,16 +12,15 @@
 namespace App\Jobs\Ninja;
 
 use App\Models\Backup;
+use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Quote;
-use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 
 class SystemMaintenance implements ShouldQueue
@@ -117,4 +116,47 @@ class SystemMaintenance implements ShouldQueue
                     $backup->delete();
                 });
     }
+
+    //double check this is correct.
+    
+    // private function cleanPdfs()
+    // {
+    //     $company_keys = Company::query()
+    //                             ->pluck('company_key')
+    //                             ->toArray();
+        
+    //     $directories = Storage::disk(config('filesystems.default'))->directories();
+
+    //     $del_dirs = ['quotes','invoices','credits','recurring_invoices', 'e_invoice'];
+
+    //     collect($directories)->each(function ($parent_directory) use ($del_dirs, $company_keys) {
+
+    //         if (! in_array($parent_directory, $company_keys)) {
+    //             nlog("Deleting {$parent_directory}");
+
+    //             /* Ensure we are not deleting the root folder */
+    //             if (strlen($parent_directory) > 1) {
+    //                 nlog("Company No Longer Exists => deleting {$parent_directory}");
+    //                 Storage::disk(config('filesystems.default'))->deleteDirectory($parent_directory);
+    //                 return;
+    //             }
+
+    //         }
+
+    //         $sub_directories = Storage::allDirectories($parent_directory);
+
+    //         collect($sub_directories)->each(function ($sub_dir) use ($del_dirs) {
+    //             foreach($del_dirs as $del_dir) {
+    //                 if(stripos($sub_dir, $del_dir) !== false) {
+    //                     nlog("Deleting {$sub_dir} as it matches {$del_dir}");
+    //                     Storage::deleteDirectory($sub_dir);
+    //                 }
+    //             }
+
+    //         });
+
+    //     });
+
+    // }
+
 }

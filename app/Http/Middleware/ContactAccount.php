@@ -11,7 +11,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Libraries\MultiDB;
 use App\Models\Account;
 use App\Utils\Ninja;
 use Closure;
@@ -29,6 +28,7 @@ class ContactAccount
     public function handle($request, Closure $next)
     {
         if (! Ninja::isHosted()) {
+            /** @var \App\Models\Account $account */
             $account = Account::first();
 
             session()->put('account_key', $account->key);

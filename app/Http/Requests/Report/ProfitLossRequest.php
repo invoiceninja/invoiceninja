@@ -22,7 +22,10 @@ class ProfitLossRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->isAdmin();
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->isAdmin();
     }
 
     public function rules()
@@ -42,7 +45,7 @@ class ProfitLossRequest extends Request
     {
         $input = $this->all();
 
-        if (! array_key_exists('date_range', $input)) {
+        if (! array_key_exists('date_range', $input) || $input['date_range'] == '') {
             $input['date_range'] = 'all';
         }
 

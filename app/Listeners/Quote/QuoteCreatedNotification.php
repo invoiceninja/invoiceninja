@@ -44,19 +44,20 @@ class QuoteCreatedNotification implements ShouldQueue
 
         $quote = $event->quote;
 
-        $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer((new EntityCreatedObject($quote, 'quote'))->build());
-        $nmo->company = $quote->company;
-        $nmo->settings = $quote->company->settings;
-
+        
         /* We loop through each user and determine whether they need to be notified */
         foreach ($event->company->company_users as $company_user) {
-
             /* The User */
             $user = $company_user->user;
 
             if (! $user) {
                 continue;
+            }
+
+            $use_react_link = false;
+            
+            if(isset($company_user->react_settings->react_notification_link) && $company_user->react_settings->react_notification_link) {
+                $use_react_link = true;
             }
 
             /* This is only here to handle the alternate message channels - ie Slack */
@@ -69,10 +70,17 @@ class QuoteCreatedNotification implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
+                $nmo = new NinjaMailerObject;
+                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($quote, 'quote', $company_user->portalType()))->build());
+                $nmo->company = $quote->company;
+                $nmo->settings = $quote->company->settings;
+
                 $nmo->to_user = $user;
 
-                NinjaMailerJob::dispatch($nmo);
+                (new NinjaMailerJob($nmo))->handle();
 
+                $nmo = null;
+                
                 /* This prevents more than one notification being sent */
                 $first_notification_sent = false;
             }

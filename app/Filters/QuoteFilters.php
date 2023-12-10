@@ -22,7 +22,7 @@ class QuoteFilters extends QueryFilters
     /**
      * Filter based on search text.
      *
-     * @param string query filter
+     * @param string $filter
      * @return Builder
      * @deprecated
      */
@@ -37,7 +37,15 @@ class QuoteFilters extends QueryFilters
                   ->orwhere('custom_value1', 'like', '%'.$filter.'%')
                   ->orWhere('custom_value2', 'like', '%'.$filter.'%')
                   ->orWhere('custom_value3', 'like', '%'.$filter.'%')
-                  ->orWhere('custom_value4', 'like', '%'.$filter.'%');
+                  ->orWhere('custom_value4', 'like', '%'.$filter.'%')
+                  ->orWhereHas('client', function ($q) use ($filter) {
+                      $q->where('name', 'like', '%'.$filter.'%');
+                  })
+                  ->orWhereHas('client.contacts', function ($q) use ($filter) {
+                      $q->where('first_name', 'like', '%'.$filter.'%')
+                        ->orWhere('last_name', 'like', '%'.$filter.'%')
+                        ->orWhere('email', 'like', '%'.$filter.'%');
+                  });
         });
     }
 
@@ -50,7 +58,7 @@ class QuoteFilters extends QueryFilters
      * - paused
      * - completed
      *
-     * @param string client_status The invoice status as seen by the client
+     * @param string $value The invoice status as seen by the client
      * @return Builder
      */
     public function client_status(string $value = ''): Builder
@@ -65,14 +73,13 @@ class QuoteFilters extends QueryFilters
             return $this->builder;
         }
 
-        $this->builder->where(function ($query) use ($status_parameters){
-
+        $this->builder->where(function ($query) use ($status_parameters) {
             if (in_array('sent', $status_parameters)) {
-                $query->orWhere(function ($q){
-                              $q->where('status_id', Quote::STATUS_SENT)
-                              ->whereNull('due_date')
-                              ->orWhere('due_date', '>=', now()->toDateString());
-                          });
+                $query->orWhere(function ($q) {
+                    $q->where('status_id', Quote::STATUS_SENT)
+                    ->whereNull('due_date')
+                    ->orWhere('due_date', '>=', now()->toDateString());
+                });
             }
     
             $quote_filters = [];
@@ -86,26 +93,31 @@ class QuoteFilters extends QueryFilters
                 $quote_filters[] = Quote::STATUS_APPROVED;
             }
 
-            if(count($quote_filters) >0){
+            if (count($quote_filters) >0) {
                 $query->orWhereIn('status_id', $quote_filters);
             }
 
             if (in_array('expired', $status_parameters)) {
-                $query->orWhere(function ($q){
-                              $q->where('status_id', Quote::STATUS_SENT)
-                              ->whereNotNull('due_date')
-                              ->where('due_date', '<=', now()->toDateString());
-                          });
+                $query->orWhere(function ($q) {
+                    $q->where('status_id', Quote::STATUS_SENT)
+                    ->whereNotNull('due_date')
+                    ->where('due_date', '<=', now()->toDateString());
+                });
             }
 
             if (in_array('upcoming', $status_parameters)) {
-                $query->orWhere(function ($q){
-                            $q->where('status_id', Quote::STATUS_SENT)
-                              ->where('due_date', '>=', now()->toDateString())
-                              ->orderBy('due_date', 'DESC');
-                          });
+                $query->orWhere(function ($q) {
+                    $q->where('status_id', Quote::STATUS_SENT)
+                      ->where('due_date', '>=', now()->toDateString())
+                      ->orderBy('due_date', 'DESC');
+                });
             }
 
+            if(in_array('converted', $status_parameters)) {
+                $query->orWhere(function ($q) {
+                    $q->whereNotNull('invoice_id');
+                });
+            }
         });
 
         return $this->builder;
@@ -123,7 +135,7 @@ class QuoteFilters extends QueryFilters
     /**
      * Sorts the list based on $sort.
      *
-     * @param string sort formatted as column|asc
+     * @param string $sort formatted as column|asc
      * @return Builder
      */
     public function sort(string $sort = ''): Builder
@@ -134,8 +146,16 @@ class QuoteFilters extends QueryFilters
             return $this->builder;
         }
 
-        if($sort_col[0] == 'valid_until')
+        if($sort_col[0] == 'client_id') {
+
+            return $this->builder->orderBy(\App\Models\Client::select('name')
+                    ->whereColumn('clients.id', 'quotes.client_id'), $sort_col[1]);
+
+        }
+
+        if ($sort_col[0] == 'valid_until') {
             $sort_col[0] = 'due_date';
+        }
 
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }
@@ -143,7 +163,7 @@ class QuoteFilters extends QueryFilters
     /**
      * Filters the query by the users company ID.
      *
-     * @return Illuminate\Eloquent\Query\Builder
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function entityFilter(): Builder
     {

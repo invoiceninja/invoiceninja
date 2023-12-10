@@ -23,7 +23,7 @@ class ClientPresenter extends EntityPresenter
      */
     public function name()
     {
-        if ($this->entity->name) {
+        if (strlen($this->entity->name) > 1) {
             return $this->entity->name;
         }
 
@@ -31,7 +31,7 @@ class ClientPresenter extends EntityPresenter
 
         $contact_name = 'No Contact Set';
 
-        if ($contact && (strlen($contact->first_name) >= 1 || strlen($contact->last_name) >= 1)) {
+        if ($contact && ((is_string($contact->first_name) && strlen($contact->first_name) >= 1) || (is_string($contact->last_name) && strlen($contact->last_name) >= 1))) {
             $contact_name = $contact->first_name.' '.$contact->last_name;
         } elseif ($contact && (strlen($contact->email))) {
             $contact_name = $contact->email;
@@ -42,17 +42,17 @@ class ClientPresenter extends EntityPresenter
 
     public function first_name()
     {
-        return $this->entity->primary_contact->first() !== null ? $this->entity->primary_contact->first()->first_name : $this->entity->contacts()->first()->first_name;
+        return $this->entity->primary_contact()->first()?->first_name ?: ($this->entity->contacts()->first()->first_name ?: '');
     }
 
     public function last_name()
     {
-        return $this->entity->primary_contact->first() !== null ? $this->entity->primary_contact->first()->last_name : $this->entity->contacts()->first()->last_name;
+        return $this->entity->primary_contact()->first()?->last_name ?: ($this->entity->contacts()->first()->last_name ?: '');
     }
 
     public function primary_contact_name()
     {
-        return $this->entity->primary_contact->first() !== null ? $this->entity->primary_contact->first()->first_name.' '.$this->entity->primary_contact->first()->last_name : 'No primary contact set';
+        return $this->entity?->primary_contact()?->first() ? $this->entity->primary_contact()->first()->first_name.' '.$this->entity->primary_contact()->first()->last_name : 'No primary contact set';
     }
 
     public function email()
@@ -100,14 +100,19 @@ class ClientPresenter extends EntityPresenter
         if ($address2 = $client->shipping_address2) {
             $str .= e($address2).'<br/>';
         }
-        if ($cityState = $this->getCityState()) {
+        if ($cityState = $this->getShippingCityState()) {
             $str .= e($cityState).'<br/>';
         }
-        if ($country = $client->country) {
+        if ($country = $client->shipping_country ?? $client->country) {
             $str .= e($country->name).'<br/>';
         }
 
         return $str;
+    }
+
+    public function shipping_country_code(): string
+    {
+        return $this->entity->shipping_country ? $this->entity->shipping_country->iso_3166_2 : $this->entity->country->iso_3166_2;
     }
 
     public function phone()
@@ -194,4 +199,6 @@ class ClientPresenter extends EntityPresenter
             return false;
         }
     }
+
+
 }

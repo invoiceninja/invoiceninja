@@ -16,6 +16,11 @@
                 <thead>
                 <tr>
                     <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
+                        <p role="button" wire:click="sortBy('status_id')" class="cursor-pointer">
+                            {{ ctrans('texts.status') }}
+                        </p>
+                    </th>
+                    <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
                         <p role="button" wire:click="sortBy('number')" class="cursor-pointer">
                             {{ ctrans('texts.subscription') }}
                         </p>
@@ -47,6 +52,9 @@
                 <tbody>
                 @forelse($recurring_invoices as $recurring_invoice)
                     <tr class="bg-white group hover:bg-gray-100">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
+                            {!! $recurring_invoice->badgeForStatus($recurring_invoice->status_id) !!}
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                             {{ $recurring_invoice->subscription->name }}
                         </td>

@@ -19,11 +19,9 @@ class AddSmsVerificationToHostedAccount extends Migration
             $table->boolean('account_sms_verified')->default(0);
         });
 
-        App\Models\Account::query()->cursor()->each(function ($account){
-
+        App\Models\Account::query()->cursor()->each(function ($account) {
             $account->account_sms_verified = true;
             $account->save();
-
         });
     }
 
@@ -34,6 +32,5 @@ class AddSmsVerificationToHostedAccount extends Migration
      */
     public function down()
     {
-
     }
 }

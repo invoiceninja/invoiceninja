@@ -12,7 +12,6 @@
 namespace App\Http\Requests\BankIntegration;
 
 use App\Http\Requests\Request;
-use App\Models\BankIntegration;
 
 class AdminBankIntegrationRequest extends Request
 {

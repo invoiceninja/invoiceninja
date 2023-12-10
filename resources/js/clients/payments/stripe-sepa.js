@@ -5,7 +5,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 class ProcessSEPA {
@@ -214,6 +214,22 @@ class ProcessSEPA {
         document.getElementById('pay-now').disabled = false;
         document.querySelector('#pay-now > svg').classList.add('hidden');
         document.querySelector('#pay-now > span').classList.remove('hidden');
+    }
+    handleSuccess(result) {
+        document.querySelector(
+            'input[name="gateway_response"]'
+        ).value = JSON.stringify(result.paymentIntent);
+
+        let tokenBillingCheckbox = document.querySelector(
+            'input[name="token-billing-checkbox"]:checked'
+        );
+
+        if (tokenBillingCheckbox) {
+            document.querySelector('input[name="store_card"]').value =
+                tokenBillingCheckbox.value;
+        }
+
+        document.getElementById('server-response').submit();
     }
 }
 

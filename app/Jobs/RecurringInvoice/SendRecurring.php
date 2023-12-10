@@ -12,7 +12,7 @@
 namespace App\Jobs\RecurringInvoice;
 
 use App\DataMapper\Analytics\SendRecurringFailure;
-use App\Events\Invoice\InvoiceWasEmailed;
+use App\Events\Invoice\InvoiceWasCreated;
 use App\Factory\InvoiceInvitationFactory;
 use App\Factory\RecurringInvoiceToInvoiceFactory;
 use App\Jobs\Cron\AutoBill;
@@ -22,7 +22,6 @@ use App\Models\RecurringInvoice;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesInvoiceValues;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -37,10 +36,6 @@ class SendRecurring implements ShouldQueue
     use GeneratesCounter;
     use MakesHash;
 
-    public $recurring_invoice;
-
-    protected $db;
-
     public $tries = 1;
 
     /**
@@ -49,7 +44,7 @@ class SendRecurring implements ShouldQueue
      * @param RecurringInvoice $recurring_invoice
      * @param string $db
      */
-    public function __construct(RecurringInvoice $recurring_invoice, string $db = 'db-ninja-01')
+    public function __construct(public RecurringInvoice $recurring_invoice, public string $db = 'db-ninja-01')
     {
         $this->recurring_invoice = $recurring_invoice;
         $this->db = $db;
@@ -62,7 +57,6 @@ class SendRecurring implements ShouldQueue
      */
     public function handle() : void
     {
-
         // Generate Standard Invoice
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice, $this->recurring_invoice->client);
 
@@ -88,17 +82,16 @@ class SendRecurring implements ShouldQueue
         }
 
         //12-01-2023 i moved this block after fillDefaults to handle if standard invoice auto bill config has been enabled, recurring invoice should override.
-        if ($this->recurring_invoice->auto_bill === 'always') {
+        if ($this->recurring_invoice->auto_bill == 'always') {
             $invoice->auto_bill_enabled = true;
-        } elseif ($this->recurring_invoice->auto_bill === 'optout' || $this->recurring_invoice->auto_bill === 'optin') {
-        } elseif ($this->recurring_invoice->auto_bill === 'off') {
+            $invoice->saveQuietly();
+        } elseif ($this->recurring_invoice->auto_bill == 'optout' || $this->recurring_invoice->auto_bill == 'optin') {
+        } elseif ($this->recurring_invoice->auto_bill == 'off') {
             $invoice->auto_bill_enabled = false;
+            $invoice->saveQuietly();
         }
 
         $invoice = $this->createRecurringInvitations($invoice);
-
-        /* 09-01-2022 ensure we create the PDFs at this point in time! */
-        $invoice->service()->touchPdf(true);
 
         /* Set next date here to prevent a recurring loop forming */
         $this->recurring_invoice->next_send_date = $this->recurring_invoice->nextSendDate();
@@ -114,37 +107,58 @@ class SendRecurring implements ShouldQueue
         $this->recurring_invoice->save();
 
         event('eloquent.created: App\Models\Invoice', $invoice);
-
-        if ($invoice->client->getSetting('auto_email_invoice')) {
-            //Admin notification for recurring invoice sent.
-            if ($invoice->invitations->count() >= 1) {
-                $invoice->entityEmailEvent($invoice->invitations->first(), 'invoice', 'email_template_invoice');
-            }
-
-            $invoice->invitations->each(function ($invitation) use ($invoice) {
-                if ($invitation->contact && ! $invitation->contact->trashed() && strlen($invitation->contact->email) >= 1 && $invoice->client->getSetting('auto_email_invoice')) {
-                    try {
-                        EmailEntity::dispatch($invitation, $invoice->company)->delay(rand(1,2));
-                    } catch (\Exception $e) {
-                        nlog($e->getMessage());
-                    }
-
-                    nlog("Firing email for invoice {$invoice->number}");
-                }
-            });
-        }
+        event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars()));
 
         //auto bill, BUT NOT DRAFTS!!
         if ($invoice->auto_bill_enabled && $invoice->client->getSetting('auto_bill_date') == 'on_send_date' && $invoice->client->getSetting('auto_email_invoice')) {
             nlog("attempting to autobill {$invoice->number}");
-                AutoBill::dispatch($invoice->id, $this->db)->delay(rand(1,2));
+            AutoBill::dispatch($invoice->id, $this->db, true)->delay(rand(1, 2));
 
-        } elseif ($invoice->auto_bill_enabled && $invoice->client->getSetting('auto_bill_date') == 'on_due_date' && $invoice->client->getSetting('auto_email_invoice')) {
-            if ($invoice->due_date && Carbon::parse($invoice->due_date)->startOfDay()->lte(now()->startOfDay())) {
-                nlog("attempting to autobill {$invoice->number}");
-                AutoBill::dispatch($invoice->id, $this->db)->delay(rand(1,2));
+            //04-08-2023 edge case to support where online payment notifications are not enabled
+            if(!$invoice->client->getSetting('client_online_payment_notification')) {
+                $this->sendRecurringEmails($invoice);
             }
+        } elseif ($invoice->auto_bill_enabled && $invoice->client->getSetting('auto_bill_date') == 'on_due_date' && $invoice->client->getSetting('auto_email_invoice') && ($invoice->due_date && Carbon::parse($invoice->due_date)->startOfDay()->lte(now()->startOfDay()))) {
+            nlog("attempting to autobill {$invoice->number}");
+            AutoBill::dispatch($invoice->id, $this->db, true)->delay(rand(1, 2));
+
+            //04-08-2023 edge case to support where online payment notifications are not enabled
+            if(!$invoice->client->getSetting('client_online_payment_notification')) {
+                $this->sendRecurringEmails($invoice);
+            }
+
+        } elseif ($invoice->client->getSetting('auto_email_invoice')) {
+            $this->sendRecurringEmails($invoice);
         }
+
+    }
+
+    /**
+     * Sends the recurring invoice emails to
+     * the designated contacts
+     *
+     * @param Invoice $invoice
+     * @return void
+     */
+    private function sendRecurringEmails(Invoice $invoice): void
+    {
+        //Admin notification for recurring invoice sent.
+        if ($invoice->invitations->count() >= 1) {
+            $invoice->entityEmailEvent($invoice->invitations->first(), 'invoice', 'email_template_invoice');
+        }
+
+        $invoice->invitations->each(function ($invitation) use ($invoice) {
+            if ($invitation->contact && ! $invitation->contact->trashed() && strlen($invitation->contact->email) >= 1 && $invoice->client->getSetting('auto_email_invoice')) {
+                try {
+                    EmailEntity::dispatch($invitation, $invoice->company)->delay(rand(1, 2));
+                } catch (\Exception $e) {
+                    nlog($e->getMessage());
+                }
+
+                nlog("Firing email for invoice {$invoice->number}");
+            }
+        });
+
     }
 
     /**
@@ -154,9 +168,9 @@ class SendRecurring implements ShouldQueue
      */
     private function createRecurringInvitations($invoice) :Invoice
     {
-
-        if($this->recurring_invoice->invitations->count() == 0) {
-            $this->recurring_invoice = $this->recurring_invoice->service()->createInvitations()->save();
+        if ($this->recurring_invoice->invitations->count() == 0) {
+            $this->recurring_invoice->service()->createInvitations()->save();
+            $this->recurring_invoice = $this->recurring_invoice->fresh();
         }
 
         $this->recurring_invoice->invitations->each(function ($recurring_invitation) use ($invoice) {
@@ -184,17 +198,3 @@ class SendRecurring implements ShouldQueue
         nlog(print_r($exception->getMessage(), 1));
     }
 }
-
-
-/**
- * 
- * 1/8/2022
- * 
- * Improvements here include moving the emailentity and autobilling into the queue.
- * 
- * Further improvements could using the CompanyRecurringCron.php stub which divides
- * the recurring invoices into companies and spins them off into their own queue to
- * improve parallel processing.
- * 
- * Need to be careful we do not overload redis and OOM.
-*/

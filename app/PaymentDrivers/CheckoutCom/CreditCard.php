@@ -17,7 +17,6 @@ use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
-use App\Models\Payment;
 use App\Models\SystemLog;
 use App\PaymentDrivers\CheckoutComPaymentDriver;
 use App\PaymentDrivers\Common\MethodInterface;
@@ -25,12 +24,10 @@ use App\Utils\Traits\MakesHash;
 use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
 use Checkout\CheckoutAuthorizationException;
-use Checkout\Library\Exceptions\CheckoutHttpException;
-use Checkout\Models\Payments\IdSource;
-use Checkout\Payments\Four\Request\PaymentRequest;
-use Checkout\Payments\Four\Request\Source\RequestTokenSource;
-use Checkout\Payments\PaymentRequest as PaymentsPaymentRequest;
-use Checkout\Payments\Source\RequestTokenSource as SourceRequestTokenSource;
+use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
+use Checkout\Payments\Previous\Source\RequestTokenSource;
+use Checkout\Payments\Request\PaymentRequest;
+use Checkout\Payments\Request\Source\RequestTokenSource as SourceRequestTokenSource;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -70,12 +67,12 @@ class CreditCard implements MethodInterface
         if ($this->checkout->is_four_api) {
             $token_source = new RequestTokenSource();
             $token_source->token = $token;
-            $request = new PaymentRequest();
+            $request = new PreviousPaymentRequest();
             $request->source = $token_source;
         } else {
             $token_source = new SourceRequestTokenSource();
             $token_source->token = $token;
-            $request = new PaymentsPaymentRequest();
+            $request = new PaymentRequest();
             $request->source = $token_source;
         }
 
@@ -123,45 +120,23 @@ class CreditCard implements MethodInterface
                 return redirect()->route('client.payment_methods.show', $payment_method->hashed_id);
             }
         } catch (CheckoutApiException $e) {
-            // API error
-            $request_id = $e->request_id ?: '';
-            $http_status_code = $e->http_status_code ?: '';
+
             $error_details = $e->error_details;
 
-            if(is_array($error_details)) {
+            if (isset($e->error_details['error_codes']) ?? false) {
                 $error_details = end($e->error_details['error_codes']);
+            } else {
+                $error_details = $e->getMessage();
             }
 
-            $human_exception = $error_details ? $error_details : $e->getMessage();
-
-            $human_exception = "{$human_exception} - Request ID: {$request_id}";
-
-            throw new PaymentFailed($human_exception, $http_status_code);
-
+            throw new PaymentFailed($error_details, $e->getCode());
         } catch (CheckoutArgumentException $e) {
             // Bad arguments
-
-            $error_details = $e->error_details;
-
-            if(is_array($error_details)) {
-                $error_details = end($e->error_details['error_codes']);
-            }
-
-            $human_exception = $error_details ? $error_details : $e->getMessage();
-
-            throw new PaymentFailed($human_exception, 422);
+            throw new PaymentFailed($e->getMessage(), $e->getCode());
         } catch (CheckoutAuthorizationException $e) {
             // Bad Invalid authorization
-  
-            $error_details = $e->error_details;
- 
-             if(is_array($error_details)) {
-                $error_details = end($e->error_details['error_codes']);
-            }
 
-            $human_exception = $error_details ? $error_details : $e->getMessage();
-
-            throw new PaymentFailed($human_exception, 401);
+            throw new PaymentFailed("There is a problem with your Checkout Gateway API keys", 401);
         }
     }
 
@@ -230,9 +205,9 @@ class CreditCard implements MethodInterface
     private function completePayment($paymentRequest, PaymentResponseRequest $request)
     {
         $paymentRequest->amount = $this->checkout->payment_hash->data->value;
-        $paymentRequest->reference = substr($this->checkout->getDescription(),0 , 49);
+        $paymentRequest->reference = substr($this->checkout->getDescription(), 0, 49);
         $paymentRequest->customer = $this->checkout->getCustomer();
-        $paymentRequest->metadata = ['udf1' => 'Invoice Ninja'];
+        $paymentRequest->metadata = ['udf1' => 'Invoice Ninja', 'udf2' => $this->checkout->payment_hash->hash];
         $paymentRequest->currency = $this->checkout->client->getCurrencyCode();
 
         $this->checkout->payment_hash->data = array_merge((array) $this->checkout->payment_hash->data, ['checkout_payment_ref' => $paymentRequest]);
@@ -255,7 +230,6 @@ class CreditCard implements MethodInterface
         }
 
         try {
-
             $response = $this->checkout->gateway->getPaymentsClient()->requestPayment($paymentRequest);
 
             if ($response['status'] == 'Authorized') {
@@ -285,75 +259,69 @@ class CreditCard implements MethodInterface
             }
         } catch (CheckoutApiException $e) {
             // API error
-            $request_id = $e->request_id;
-            $http_status_code = $e->http_status_code;
             $error_details = $e->error_details;
 
-            if(is_array($error_details)) {
+            if (is_array($error_details)) {
                 $error_details = end($e->error_details['error_codes']);
-            }
-
-            $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
-
-            $human_exception = $error_details ? new \Exception($error_details, 400) : $e;
 
                 SystemLogger::dispatch(
-                    $human_exception->getMessage(),
+                    $error_details,
                     SystemLog::CATEGORY_GATEWAY_RESPONSE,
                     SystemLog::EVENT_GATEWAY_ERROR,
                     SystemLog::TYPE_CHECKOUT,
                     $this->checkout->client,
                     $this->checkout->client->company,
                 );
+
+            }
+
+            $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
+
+            $human_exception = $error_details ? new \Exception($error_details, 400) : $e;
+
+            SystemLogger::dispatch(
+                $e->getMessage(),
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_ERROR,
+                SystemLog::TYPE_CHECKOUT,
+                $this->checkout->client,
+                $this->checkout->client->company,
+            );
 
             return $this->checkout->processInternallyFailedPayment($this->checkout, $human_exception);
         } catch (CheckoutArgumentException $e) {
             // Bad arguments
-            
-            $error_details = $e->error_details;
-
-            if(is_array($error_details)) {
-                $error_details = end($e->error_details['error_codes']);
-            }
 
             $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
 
-            $human_exception = $error_details ? new \Exception($error_details, 400) : $e;
+            SystemLogger::dispatch(
+                $e->getMessage(),
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_ERROR,
+                SystemLog::TYPE_CHECKOUT,
+                $this->checkout->client,
+                $this->checkout->client->company,
+            );
 
-                SystemLogger::dispatch(
-                    $human_exception->getMessage(),
-                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                    SystemLog::EVENT_GATEWAY_ERROR,
-                    SystemLog::TYPE_CHECKOUT,
-                    $this->checkout->client,
-                    $this->checkout->client->company,
-                );
+            return new PaymentFailed($e->getMessage(), $e->getCode());
 
-            return $this->checkout->processInternallyFailedPayment($this->checkout, $human_exception);
         } catch (CheckoutAuthorizationException $e) {
             // Bad Invalid authorization
 
-            $error_details = $e->error_details;
-
-            if(is_array($error_details)) {
-                $error_details = end($e->error_details['error_codes']);
-            }
-
             $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
 
-            $human_exception = $error_details ? new \Exception($error_details, 400) : $e;
+            SystemLogger::dispatch(
+                $e->getMessage(),
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_ERROR,
+                SystemLog::TYPE_CHECKOUT,
+                $this->checkout->client,
+                $this->checkout->client->company,
+            );
 
+            return new PaymentFailed("There was a problem communicating with the API credentials for Checkout", $e->getCode());
 
-                SystemLogger::dispatch(
-                    $human_exception->getMessage(),
-                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                    SystemLog::EVENT_GATEWAY_ERROR,
-                    SystemLog::TYPE_CHECKOUT,
-                    $this->checkout->client,
-                    $this->checkout->client->company,
-                );
-
-            return $this->checkout->processInternallyFailedPayment($this->checkout, $human_exception);
+            // return $this->checkout->processInternallyFailedPayment($this->checkout, $human_exception);
         }
     }
 }

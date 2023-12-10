@@ -11,10 +11,16 @@
 
 namespace App\Providers;
 
+use App\Http\Middleware\ThrottleRequestsWithPredis;
 use App\Models\Scheduler;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
@@ -29,9 +35,14 @@ class RouteServiceProvider extends ServiceProvider
     public function boot()
     {
         parent::boot();
+        
+        if (Ninja::isHosted() && !config('ninja.testvars.travis')) {
+            app('router')->aliasMiddleware('throttle', ThrottleRequestsWithPredis::class);
+        } else {
+            app('router')->aliasMiddleware('throttle', ThrottleRequests::class);
+        }
 
         Route::bind('task_scheduler', function ($value) {
-
             if (is_numeric($value)) {
                 throw new ModelNotFoundException("Record with value {$value} not found");
             }
@@ -40,7 +51,46 @@ class RouteServiceProvider extends ServiceProvider
                 ->withTrashed()
                 ->company()
                 ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+        });
 
+        RateLimiter::for('login', function (Request $request) {
+            if (Ninja::isSelfHost()) {
+                return Limit::none();
+            } else {
+                return Limit::perMinute(30)->by($request->ip());
+            }
+        });
+
+        RateLimiter::for('api', function (Request $request) {
+            if (Ninja::isSelfHost()) {
+                return Limit::none();
+            } else {
+                return Limit::perMinute(300)->by($request->ip());
+            }
+        });
+
+        RateLimiter::for('refresh', function (Request $request) {
+            if (Ninja::isSelfHost()) {
+                return Limit::none();
+            } else {
+                return Limit::perMinute(200)->by($request->ip());
+            }
+        });
+
+        RateLimiter::for('404', function (Request $request) {
+            if (Ninja::isSelfHost()) {
+                return Limit::none();
+            } else {
+                return Limit::perMinute(25)->by($request->ip());
+            }
+        });
+
+        RateLimiter::for('honeypot', function (Request $request) {
+            return Limit::perMinute(2)->by($request->ip());
+        });
+
+        RateLimiter::for('portal', function (Request $request) {
+            return Limit::perMinute(15)->by($request->ip());
         });
 
 

@@ -23,7 +23,7 @@ class StatementController extends Controller
     /**
      * Show the statement in the client portal.
      *
-     * @return View
+     * @return \Illuminate\View\View
      */
     public function index(): View
     {
@@ -39,7 +39,7 @@ class StatementController extends Controller
     public function raw(ShowStatementRequest $request)
     {
         $pdf = $request->client()->service()->statement(
-            $request->only(['start_date', 'end_date', 'show_payments_table', 'show_aging_table', 'status'])
+            $request->only(['start_date', 'end_date', 'show_payments_table', 'show_aging_table', 'show_credits_table', 'status'])
         );
 
         if ($pdf && $request->query('download')) {

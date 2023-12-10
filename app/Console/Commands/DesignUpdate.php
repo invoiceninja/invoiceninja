@@ -56,12 +56,11 @@ class DesignUpdate extends Command
         if (! config('ninja.db.multi_db_enabled')) {
             $this->handleOnDb();
         } else {
-
             //multiDB environment, need to
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
 
-                $this->handleOnDb($db);
+                $this->handleOnDb();
             }
 
             MultiDB::setDB($current_db);

@@ -52,7 +52,7 @@ class ValidCreditsPresentRule implements Rule
         //todo need to ensure the clients credits are here not random ones!
 
         if (array_key_exists('credits', $this->input) && is_array($this->input['credits']) && count($this->input['credits']) > 0) {
-            $credit_collection = Credit::whereIn('id', array_column($this->input['credits'], 'credit_id'))->count();
+            $credit_collection = Credit::query()->whereIn('id', array_column($this->input['credits'], 'credit_id'))->count();
 
             return $credit_collection == count($this->input['credits']);
         }

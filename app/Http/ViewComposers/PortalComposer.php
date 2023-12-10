@@ -14,7 +14,6 @@ namespace App\Http\ViewComposers;
 use App\Utils\Ninja;
 use App\Utils\TranslationHelper;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Lang;
 use Illuminate\View\View;
 
 /**
@@ -139,6 +138,10 @@ class PortalComposer
             $data[] = ['title' => ctrans('texts.subscriptions'), 'url' => 'client.subscriptions.index', 'icon' => 'calendar'];
         }
 
+        if (auth()->guard('contact')->user()->client->getSetting('client_initiated_payments')) {
+            $data[] = ['title' => ctrans('texts.pre_payment'), 'url' => 'client.pre_payments.index', 'icon' => 'dollar-sign'];
+        }
+        
         return $data;
     }
 }

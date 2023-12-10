@@ -12,6 +12,8 @@ class Preloader
 
     private array $fileMap;
 
+    private array $exclude_paths;
+
     public function __construct(string ...$paths)
     {
         $this->paths = $paths;
@@ -62,6 +64,10 @@ class Preloader
         // If the current path is a directory,
         // we'll load all files in it
         if (is_dir($path)) {
+            if (in_array($path, $this->exclude_paths)) {
+                return;
+            }
+
             $this->loadDir($path);
 
             return;
@@ -105,7 +111,14 @@ class Preloader
 
         self::$count++;
 
-        echo "[Preloader] Preloaded `{$class}`" . PHP_EOL;
+        // echo "[Preloader] Preloaded `{$class}`" . PHP_EOL;
+    }
+
+    public function excludePaths(array $exclude_paths): Preloader
+    {
+        $this->exclude_paths = $exclude_paths;
+
+        return $this;
     }
 
     private function shouldIgnore(?string $name): bool
@@ -126,6 +139,12 @@ class Preloader
 
 (new Preloader())
     ->paths(__DIR__ . '/vendor/laravel')
+    ->excludePaths([
+        __DIR__ . '/vendor/laravel/framework/src/Illuminate/Support/Testing',
+        __DIR__ . '/vendor/laravel/framework/src/Illuminate/Http/Testing',
+        __DIR__ . '/vendor/laravel/framework/src/Illuminate/Testing',
+        __DIR__ . '/vendor/laravel/framework/src/Illuminate/Foundation/Testing',
+    ])
     ->ignore(
         \Illuminate\Filesystem\Cache::class,
         \Illuminate\Log\LogManager::class,

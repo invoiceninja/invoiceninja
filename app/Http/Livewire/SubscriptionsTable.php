@@ -39,9 +39,9 @@ class SubscriptionsTable extends Component
             ->where('company_id', $this->company->id)
             ->whereNotNull('subscription_id')
             ->where('is_deleted', false)
-            ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
-            ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
+            ->whereIn('status_id', [RecurringInvoice::STATUS_ACTIVE, RecurringInvoice::STATUS_PAUSED])
             ->withTrashed()
+            ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
             ->paginate($this->per_page);
 
         return render('components.livewire.subscriptions-table', [
