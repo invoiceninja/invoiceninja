@@ -49,7 +49,7 @@ class BankTransactionSync implements ShouldQueue
         foreach (MultiDB::$dbs as $db) {
             MultiDB::setDB($db);
 
-            if (Ninja::isSelfHost()) { // @turbo124 @todo I migrated the schedule for the job within the kernel to execute on all platforms and use the same expression here to determine if yodlee can run or not. Please chek/verify
+            if (Ninja::isHosted()) { // @turbo124 @todo I migrated the schedule for the job within the kernel to execute on all platforms and use the same expression here to determine if yodlee can run or not. Please chek/verify
                 nlog("syncing transactions - yodlee");
 
                 $a = Account::with('bank_integrations')->whereNotNull('bank_integration_yodlee_account_id')->cursor()->each(function ($account) {
