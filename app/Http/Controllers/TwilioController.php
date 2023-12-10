@@ -22,6 +22,11 @@ use Twilio\Rest\Client;
 class TwilioController extends BaseController
 {
 
+    private array $invalid_codes = [
+        '+21',
+        '+17152567760',
+    ];
+
     public function __construct()
     {
         parent::__construct();
@@ -39,7 +44,7 @@ class TwilioController extends BaseController
 
         $account = $user->company()->account;
 
-        if(stripos($request->phone, '+21') !== false) {
+        if(!$this->checkPhoneValidity($request->phone)) {
             return response()->json(['message' => 'This phone number is not supported'], 400);
         }
 
@@ -68,6 +73,19 @@ class TwilioController extends BaseController
         $account->save();
 
         return response()->json(['message' => 'Code sent.'], 200);
+    }
+
+    private function checkPhoneValidity($phone)
+    {
+        foreach($this->invalid_codes as $code){
+
+            if(stripos($phone, $code) !== false) {
+                return false;
+            }
+
+            return true;
+
+        }
     }
 
     /**
