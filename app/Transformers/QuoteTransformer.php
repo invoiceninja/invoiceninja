@@ -13,10 +13,10 @@ namespace App\Transformers;
 
 use App\Models\Activity;
 use App\Models\Backup;
+use App\Models\Client;
 use App\Models\Document;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
-use App\Transformers\ActivityTransformer;
 use App\Utils\Traits\MakesHash;
 use League\Fractal\Resource\Item;
 
@@ -24,12 +24,12 @@ class QuoteTransformer extends EntityTransformer
 {
     use MakesHash;
 
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'invitations',
         'documents',
     ];
 
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'activities',
         'client',
     ];

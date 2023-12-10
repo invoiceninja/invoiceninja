@@ -27,20 +27,19 @@ use App\Http\Requests\Credit\UpdateCreditRequest;
 use App\Http\Requests\Credit\UploadCreditRequest;
 use App\Jobs\Credit\ZipCredits;
 use App\Jobs\Entity\EmailEntity;
-use App\Jobs\Invoice\EmailCredit;
-use App\Jobs\Invoice\ZipInvoices;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Repositories\CreditRepository;
 use App\Services\PdfMaker\PdfMerge;
+use App\Services\Template\TemplateAction;
 use App\Transformers\CreditTransformer;
 use App\Utils\Ninja;
-use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -79,7 +78,7 @@ class CreditController extends BaseController
      *      description="Lists credits, search and filters allow fine grained lists to be generated.
      *
      *      Query parameters can be added to performed more fine grained filtering of the credits, these are handled by the CreditFilters class which defines the methods available",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -124,7 +123,7 @@ class CreditController extends BaseController
      *      tags={"credits"},
      *      summary="Gets a new blank credit object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -150,7 +149,10 @@ class CreditController extends BaseController
      */
     public function create(CreateCreditRequest $request)
     {
-        $credit = CreditFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user **/
+        $user = auth()->user();
+        
+        $credit = CreditFactory::create($user->company()->id, $user->id);
 
         return $this->itemResponse($credit);
     }
@@ -169,7 +171,7 @@ class CreditController extends BaseController
      *      tags={"credits"},
      *      summary="Adds a credit",
      *      description="Adds an credit to the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -195,9 +197,11 @@ class CreditController extends BaseController
      */
     public function store(StoreCreditRequest $request)
     {
-        $client = Client::find($request->input('client_id'));
 
-        $credit = $this->credit_repository->save($request->all(), CreditFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        /** @var \App\Models\User $user **/
+        $user = auth()->user();
+
+        $credit = $this->credit_repository->save($request->all(), CreditFactory::create($user->company()->id, $user->id));
 
         $credit = $credit->service()
                          ->fillDefaults()
@@ -209,7 +213,7 @@ class CreditController extends BaseController
             $credit->client->service()->updatePaidToDate(-1 * $credit->balance)->save();
         }
 
-        event(new CreditWasCreated($credit, $credit->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        event(new CreditWasCreated($credit, $credit->company, Ninja::eventVars($user->id)));
 
         return $this->itemResponse($credit);
     }
@@ -229,7 +233,7 @@ class CreditController extends BaseController
      *      tags={"credits"},
      *      summary="Shows an credit",
      *      description="Displays an credit by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -283,7 +287,7 @@ class CreditController extends BaseController
      *      tags={"credits"},
      *      summary="Shows an credit for editting",
      *      description="Displays an credit by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -338,7 +342,7 @@ class CreditController extends BaseController
      *      tags={"Credits"},
      *      summary="Updates an Credit",
      *      description="Handles the updating of an Credit by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -382,10 +386,13 @@ class CreditController extends BaseController
         $credit = $this->credit_repository->save($request->all(), $credit);
 
         $credit->service()
-               ->triggeredActions($request)
-               ->deletePdf();
+               ->triggeredActions($request);
+        //    ->deletePdf();
 
-        event(new CreditWasUpdated($credit, $credit->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        /** @var \App\Models\User $user**/
+        $user = auth()->user();
+
+        event(new CreditWasUpdated($credit, $credit->company, Ninja::eventVars($user->id)));
 
         return $this->itemResponse($credit);
     }
@@ -405,7 +412,7 @@ class CreditController extends BaseController
      *      tags={"credits"},
      *      summary="Deletes a credit",
      *      description="Handles the deletion of an credit by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -449,7 +456,7 @@ class CreditController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Collection
+     * @return \Illuminate\Support\Collection
      *
      * @OA\Post(
      *      path="/api/v1/credits/bulk",
@@ -457,7 +464,7 @@ class CreditController extends BaseController
      *      tags={"credits"},
      *      summary="Performs bulk actions on an array of credits",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
@@ -497,10 +504,15 @@ class CreditController extends BaseController
      */
     public function bulk(BulkCreditRequest $request)
     {
+
+        /** @var \App\Models\User $user **/
+        $user = auth()->user();
+
         $action = $request->input('action');
 
-        if(Ninja::isHosted() && (stripos($action, 'email') !== false) && !auth()->user()->company()->account->account_sms_verified)
+        if (Ninja::isHosted() && (stripos($action, 'email') !== false) && !$user->company()->account->account_sms_verified) {
             return response(['message' => 'Please verify your account to send emails.'], 400);
+        }
 
         $credits = Credit::withTrashed()
                          ->whereIn('id', $request->ids)
@@ -516,40 +528,55 @@ class CreditController extends BaseController
          */
 
         if ($action == 'bulk_download' && $credits->count() > 1) {
-            $credits->each(function ($credit) {
-                if (auth()->user()->cannot('view', $credit)) {
-                    nlog('access denied');
-
+            $credits->each(function ($credit) use ($user) {
+                if ($user->cannot('view', $credit)) {
                     return response()->json(['message' => ctrans('text.access_denied')]);
                 }
             });
 
-            ZipCredits::dispatch($credits, $credits->first()->company, auth()->user());
+            ZipCredits::dispatch($credits->pluck('id')->toArray(), $user->company(), $user);
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
 
-        if($action == 'bulk_print' && auth()->user()->can('view', $credits->first())){
-
-            $paths = $credits->map(function ($credit){
-                return $credit->service()->getCreditPdf($credit->invitations->first());
+        if ($action == 'bulk_print' && $user->can('view', $credits->first())) {
+            $paths = $credits->map(function ($credit) {
+                return (new \App\Jobs\Entity\CreateRawPdf($credit->invitations->first()))->handle();
             });
 
             $merge = (new PdfMerge($paths->toArray()))->run();
 
-                return response()->streamDownload(function () use ($merge) {
-                    echo ($merge);
-                }, 'print.pdf', ['Content-Type' => 'application/pdf']);
-
+            return response()->streamDownload(function () use ($merge) {
+                echo($merge);
+            }, 'print.pdf', ['Content-Type' => 'application/pdf']);
         }
 
-        $credits->each(function ($credit, $key) use ($action) {
-            if (auth()->user()->can('edit', $credit)) {
+
+        if($action == 'template' && $user->can('view', $credits->first())) {
+
+            $hash_or_response = $request->boolean('send_email') ? 'email sent' : \Illuminate\Support\Str::uuid();
+
+            TemplateAction::dispatch(
+                $credits->pluck('hashed_id')->toArray(),
+                $request->template_id,
+                Credit::class,
+                $user->id,
+                $user->company(),
+                $user->company()->db,
+                $hash_or_response,
+                $request->boolean('send_email')
+            );
+
+            return response()->json(['message' => $hash_or_response], 200);
+        }
+
+        $credits->each(function ($credit, $key) use ($action, $user) {
+            if ($user->can('edit', $credit)) {
                 $this->performAction($credit, $action, true);
             }
         });
 
-        return $this->listResponse(Credit::withTrashed()->company()->whereIn('id', $request->ids));
+        return $this->listResponse(Credit::with(['invitations','documents'])->withTrashed()->company()->whereIn('id', $request->ids));
     }
 
     public function action(ActionCreditRequest $request, Credit $credit, $action)
@@ -565,7 +592,7 @@ class CreditController extends BaseController
                 $credit->service()->markPaid()->save();
 
                 return $this->itemResponse($credit);
-            break;
+                break;
 
             case 'clone_to_credit':
                 $credit = CloneCreditFactory::create($credit, auth()->user()->id);
@@ -583,15 +610,12 @@ class CreditController extends BaseController
                 }
                 break;
             case 'download':
-                // $file = $credit->pdf_file_path();
                 $file = $credit->service()->getCreditPdf($credit->invitations->first());
 
-                // return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
-
                 return response()->streamDownload(function () use ($file) {
-                    echo Storage::get($file);
-                }, basename($file), ['Content-Type' => 'application/pdf']);
-              break;
+                    echo $file;
+                }, $credit->numberFormatter().'.pdf', ['Content-Type' => 'application/pdf']);
+                break;
             case 'archive':
                 $this->credit_repository->archive($credit);
 
@@ -642,12 +666,61 @@ class CreditController extends BaseController
         }
     }
 
+    /**
+     * @OA\Get(
+     *      path="/api/v1/credit/{invitation_key}/download",
+     *      operationId="downloadCredit",
+     *      tags={"quotes"},
+     *      summary="Download a specific credit by invitation key",
+     *      description="Downloads a specific quote",
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="invitation_key",
+     *          in="path",
+     *          description="The Credit Invitation Key",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the credit pdf",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     * @param $invitation_key
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function downloadPdf($invitation_key)
     {
         $invitation = $this->credit_repository->getInvitationByKey($invitation_key);
 
+        if (! $invitation) {
+            return response()->json(['message' => 'no record found'], 400);
+        }
+
         $credit = $invitation->credit;
 
+        App::setLocale($invitation->contact->preferredLocale());
+        
         $file = $credit->service()->getCreditPdf($invitation);
 
         $headers = ['Content-Type' => 'application/pdf'];
@@ -657,15 +730,16 @@ class CreditController extends BaseController
         }
 
         return response()->streamDownload(function () use ($file) {
-            echo Storage::get($file);
-        }, basename($file), $headers);
+            echo $file;
+        }, $credit->numberFormatter().'.pdf', $headers);
+
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param UploadCreditRequest $request
-     * @param Credit $client
+     * @param Credit $credit
      * @return Response
      *
      *
@@ -676,7 +750,7 @@ class CreditController extends BaseController
      *      tags={"credits"},
      *      summary="Uploads a document to a credit",
      *      description="Handles the uploading of a document to a credit",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -718,7 +792,7 @@ class CreditController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $credit);
+            $this->saveDocuments($request->file('documents'), $credit, $request->input('is_public', true));
         }
 
         return $this->itemResponse($credit->fresh());

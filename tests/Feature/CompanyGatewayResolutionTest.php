@@ -124,8 +124,8 @@ class CompanyGatewayResolutionTest extends TestCase
         $amount = 10;
 
         $this->assertInstanceOf('\\stdClass', $this->cg->fees_and_limits);
-        $this->assertObjectHasAttribute('min_limit', $this->cg->fees_and_limits->{1});
-
+        // $this->assertObjectHasAttribute('min_limit', $this->cg->fees_and_limits->{1});
+        $this->assertNotNull($this->cg->fees_and_limits->{1}->min_limit);
         $payment_methods = $this->client->service()->getPaymentMethods($amount);
 
         $this->assertEquals(2, count($payment_methods));
@@ -233,6 +233,6 @@ class CompanyGatewayResolutionTest extends TestCase
         $this->cg->save();
 
         $fee = $this->cg->calcGatewayFee(89, GatewayType::CREDIT_CARD, false);
-        $this->assertEquals(1.89, round($fee,2));
+        $this->assertEquals(1.89, round($fee, 2));
     }
 }

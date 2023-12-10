@@ -1,0 +1,131 @@
+    ClientContact:
+      properties:
+        id:
+          description: 'The hashed if of the contact'
+          type: string
+          example: Opnel5aKBz
+          readOnly: true
+        user_id:
+          description: 'The hashed id of the user who created the contact'
+          type: string
+          example: Opnel5aKBz
+          readOnly: true
+        company_id:
+          description: 'The hashed id of the company'
+          type: string
+          example: Opnel5aKBz
+          readOnly: true
+        client_id:
+          description: 'The hashed id of the client'
+          type: string
+          example: Opnel5aKBz
+          readOnly: true
+        first_name:
+          description: 'The first name of the contact'
+          type: string
+          example: John
+        last_name:
+          description: 'The last name of the contact'
+          type: string
+          example: Doe
+        phone:
+          description: 'The phone number of the contact'
+          type: string
+          example: 555-152-4524
+        custom_value1:
+          description: 'A Custom field value'
+          type: string
+          example: ''
+        custom_value2:
+          description: 'A Custom field value'
+          type: string
+          example: ''
+        custom_value3:
+          description: 'A Custom field value'
+          type: string
+          example: ''
+        custom_value4:
+          description: 'A Custom field value'
+          type: string
+          example: ''
+        email:
+          description: 'The email of the contact'
+          type: string
+          example: ''
+        accepted_terms_version:
+          description: 'The terms of service which the contact has accpeted'
+          type: string
+          example: 'A long set of ToS'
+          readOnly: true
+        password:
+          description: 'The hashed password of the contact'
+          type: string
+          example: '*****'
+        confirmation_code:
+          description: 'The confirmation code used to authenticate the contacts email address'
+          type: string
+          example: 333-sdjkh34gbasd
+          readOnly: true
+        token:
+          description: 'A uuid based token.'
+          type: string
+          example: 333-sdjkh34gbasd
+          readOnly: true
+        contact_key:
+          description: 'A unique identifier for the contact'
+          type: string
+          example: JD0X52bkfZlJRiroCJ0tcSiAjsJTntZ5uqKdiZ0a
+          readOnly: true
+        is_primary:
+          description: 'Defines is this contact is the primary contact for the client'
+          type: boolean
+          example: true
+        confirmed:
+          description: 'Boolean value confirms the user has confirmed their account.'
+          type: boolean
+          example: true
+        is_locked:
+          description: 'Boolean value defines if the contact has been locked out.'
+          type: boolean
+          example: true
+        send_email:
+          description: 'Boolean value determines is this contact should receive emails'
+          type: boolean
+          example: true
+        failed_logins:
+          description: 'The number of failed logins the contact has had'
+          type: number
+          format: integer
+          example: '3'
+          readOnly: true
+        email_verified_at:
+          description: 'The date which the contact confirmed their email'
+          type: number
+          format: integer
+          example: '134341234234'
+          readOnly: true
+        last_login:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+          readOnly: true
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+          readOnly: true
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+          readOnly: true
+        deleted_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+          readOnly: true
+      type: object

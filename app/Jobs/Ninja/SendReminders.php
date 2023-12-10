@@ -209,18 +209,14 @@ class SendReminders implements ShouldQueue
         $invoice = $this->calcLateFee($invoice, $template);
 
         $invoice->invitations->each(function ($invitation) use ($template, $invoice) {
-
             //only send if enable_reminder setting is toggled to yes
             if ($this->checkSendSetting($invoice, $template) && $invoice->company->account->hasFeature(Account::FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
                 nlog('firing email');
 
                 EmailEntity::dispatch($invitation, $invitation->company, $template)->delay(10);
+                event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars(), $template));
             }
         });
-
-        if ($this->checkSendSetting($invoice, $template)) {
-            event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars(), $template));
-        }
 
         $invoice->last_sent_date = now();
         $invoice->next_send_date = $this->calculateNextSendDate($invoice);
@@ -316,7 +312,9 @@ class SendReminders implements ShouldQueue
         /**Refresh Invoice values*/
         $invoice = $invoice->calc()->getInvoice();
 
-        $invoice->client->service()->updateBalance($invoice->balance - $temp_invoice_balance)->save();
+        $invoice->client->service()->calculateBalance();
+
+        // $invoice->client->service()->updateBalance($invoice->balance - $temp_invoice_balance)->save();
         $invoice->ledger()->updateInvoiceBalance($invoice->balance - $temp_invoice_balance, "Late Fee Adjustment for invoice {$invoice->number}");
 
         return $invoice;

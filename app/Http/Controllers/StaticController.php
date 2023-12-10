@@ -11,21 +11,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Account\CreateAccountRequest;
-use App\Jobs\Account\CreateAccount;
-use App\Models\Account;
-use App\Models\CompanyUser;
-use App\Transformers\CompanyUserTransformer;
 use App\Utils\Statics;
-use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Response;
 
 class StaticController extends BaseController
 {
     /**
      * Show the list of Invoices.
-     *
-     * @param InvoiceFilters $filters  The filters
      *
      * @return Response
      *
@@ -36,7 +28,7 @@ class StaticController extends BaseController
      *      summary="Gets a list of statics",
      *      description="Lists all statics",
      *
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -60,7 +52,11 @@ class StaticController extends BaseController
      */
     public function __invoke()
     {
-        $response = Statics::company(auth()->user()->getCompany()->getLocale());
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        
+        $response = Statics::company($user->getLocale() ?? $user->company()->getLocale());
 
         return response()->json($response, 200, ['Content-type'=> 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
     }

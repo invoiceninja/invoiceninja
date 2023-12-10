@@ -1,0 +1,403 @@
+  /api/v1/projects:
+    get:
+      tags:
+        - projects
+      summary: "List projects"
+      description: "Lists projects"
+      operationId: getProjects
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - $ref: "#/components/parameters/index"
+      responses:
+        200:
+          description: "A list of projects"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:  
+                type: object
+                properties:
+                  data: 
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Project'
+                  meta:
+                    type: object
+                    $ref: '#/components/schemas/Meta'
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"
+    post:
+      tags:
+        - projects
+      summary: "Create project"
+      description: "Adds an project to a company"
+      operationId: storeProject
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+      responses:
+        200:
+          description: "Returns the saved project object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/projects/{id}":
+    get:
+      tags:
+        - projects
+      summary: "Show project"
+      description: "Displays a project by id"
+      operationId: showProject
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Project Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns the expense object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"
+    put:
+      tags:
+        - projects
+      summary: "Update project"
+      description: "Handles the updating of a project by id"
+      operationId: updateProject
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Project Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns the project object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"
+    delete:
+      tags:
+        - projects
+      summary: "Delete project"
+      description: "Handles the deletion of a project by id"
+      operationId: deleteProject
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Project Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns a HTTP status"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/projects/{id}/edit":
+    get:
+      tags:
+        - projects
+      summary: "Edit project"
+      description: "Displays a project by id"
+      operationId: editProject
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Project Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns the project object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/projects/create:
+    get:
+      tags:
+        - projects
+      summary: "Blank project"
+      description: "Returns a blank object with default values"
+      operationId: getProjectsCreate
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+      responses:
+        200:
+          description: "A blank project object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/projects/bulk:
+    post:
+      tags:
+        - projects
+      summary: "Bulk project actions"
+      description: ""
+      operationId: bulkProjects
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/index"
+      requestBody:
+        description: "User credentials"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                description: "Array of hashed IDs to be bulk 'actioned"
+                type: integer
+                example: "[0,1,2,3]"
+      responses:
+        200:
+          description: "The Project User response"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/projects/{id}/upload":
+    post:
+      tags:
+        - projects
+      summary: "Uploads a project document"
+      description: "Handles the uploading of a document to a project"
+      operationId: uploadProject
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Project Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
+      responses:
+        200:
+          description: "Returns the Project object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"

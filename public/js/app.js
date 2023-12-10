@@ -2169,18 +2169,18 @@ module.exports = {
  * https://github.com/axios/axios
  */
 window.axios = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+
 /**
  * card-validator
  *
  * Validate credit cards as users type.
  * https://github.com/braintree/card-validator
  */
-
 window.valid = __webpack_require__(/*! card-validator */ "./node_modules/card-validator/dist/index.js");
+
 /**
  * Remove flashing message div after 3 seconds.
  */
-
 document.querySelectorAll('.disposable-alert').forEach(function (element) {
   setTimeout(function () {
     element.remove();

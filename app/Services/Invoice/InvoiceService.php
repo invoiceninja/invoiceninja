@@ -12,20 +12,15 @@
 namespace App\Services\Invoice;
 
 use App\Events\Invoice\InvoiceWasArchived;
-use App\Jobs\Entity\CreateEntityPdf;
+use App\Jobs\Entity\CreateRawPdf;
 use App\Jobs\Inventory\AdjustProductInventory;
-use App\Jobs\Invoice\InvoiceWorkflowSettings;
-use App\Jobs\Util\UnlinkFile;
+use App\Jobs\Invoice\CreateEInvoice;
 use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\CompanyGateway;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Task;
-use App\Repositories\BaseRepository;
-use App\Services\Client\ClientService;
-use App\Services\Invoice\ApplyPaymentAmount;
-use App\Services\Invoice\UpdateReminder;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Carbon;
@@ -35,25 +30,34 @@ class InvoiceService
 {
     use MakesHash;
 
-    public function __construct(public Invoice $invoice){}
+    public function __construct(public Invoice $invoice)
+    {
+    }
 
     /**
      * Marks as invoice as paid
      * and executes child sub functions.
      * @return $this InvoiceService object
      */
-    public function markPaid()
+    public function markPaid(?string $reference = null)
     {
         $this->removeUnpaidGatewayFees();
 
-        $this->invoice = (new MarkPaid($this->invoice))->run();
+        $this->invoice = (new MarkPaid($this->invoice, $reference))->run();
 
         return $this;
     }
 
-    public function applyPaymentAmount($amount)
+    /**
+     * applyPaymentAmount
+     *
+     * @param  float $amount
+     * @param  ?string $reference
+     * @return self
+     */
+    public function applyPaymentAmount($amount, ?string $reference = null): self
     {
-        $this->invoice = (new ApplyPaymentAmount($this->invoice, $amount))->run();
+        $this->invoice = (new ApplyPaymentAmount($this->invoice, $amount, $reference))->run();
 
         return $this;
     }
@@ -73,9 +77,9 @@ class InvoiceService
      * Sets the exchange rate on the invoice if the client currency
      * is different to the company currency.
      */
-    public function setExchangeRate()
+    public function setExchangeRate($force = false)
     {
-        if ($this->invoice->exchange_rate != 1) {
+        if ($this->invoice->exchange_rate != 1 || $force) {
             return $this;
         }
 
@@ -107,11 +111,9 @@ class InvoiceService
      * @param  Payment $payment        The Payment
      * @param  float   $payment_amount The Payment amount
      * @return InvoiceService          Parent class object
-     * @deprecated 24-11-2022 - cannot find any references to this method anywhere
      */
     public function applyPayment(Payment $payment, float $payment_amount)
     {
-        // $this->deletePdf();
         $this->invoice = $this->markSent()->save();
 
         $this->invoice = (new ApplyPayment($this->invoice, $payment, $payment_amount))->run();
@@ -184,9 +186,21 @@ class InvoiceService
         return (new GetInvoicePdf($this->invoice, $contact))->run();
     }
 
+    public function getRawInvoicePdf($contact = null)
+    {
+        $invitation = $contact ? $this->invoice->invitations()->where('contact_id', $contact->id)->first() : $this->invoice->invitations()->first();
+
+        return (new CreateRawPdf($invitation))->handle();
+    }
+
     public function getInvoiceDeliveryNote(Invoice $invoice, \App\Models\ClientContact $contact = null)
     {
         return (new GenerateDeliveryNote($invoice, $contact))->run();
+    }
+
+    public function getEInvoice($contact = null)
+    {
+        return (new CreateEInvoice($this->invoice))->handle();
     }
 
     public function sendEmail($contact = null)
@@ -266,10 +280,39 @@ class InvoiceService
         }
 
         //12-10-2022
-        if($this->invoice->partial > 0 && !$this->invoice->partial_due_date)
+        if ($this->invoice->partial > 0 && !$this->invoice->partial_due_date) {
             $this->invoice->partial_due_date = Carbon::parse($this->invoice->date)->addDays($this->invoice->client->getSetting('payment_terms'));
-        else
+        } else {
             $this->invoice->due_date = Carbon::parse($this->invoice->date)->addDays($this->invoice->client->getSetting('payment_terms'));
+        }
+
+        return $this;
+    }
+    
+    /**
+     * Reset the reminders if only the
+     * partial has been paid.
+     *
+     * We can _ONLY_ call this _IF_ a partial
+     * amount has been paid, otherwise we end up wiping
+     * all reminders regardless
+     *
+     * @return self
+     */
+    public function checkReminderStatus(): self
+    {
+        
+        if($this->invoice->partial == 0) {
+            $this->invoice->partial_due_date = null;
+        }
+
+        if($this->invoice->partial == 0 && $this->invoice->balance > 0) {
+            $this->invoice->reminder1_sent = null;
+            $this->invoice->reminder2_sent = null;
+            $this->invoice->reminder3_sent = null;
+
+            $this->setReminder();
+        }
 
         return $this;
     }
@@ -294,11 +337,10 @@ class InvoiceService
             $this->setStatus(Invoice::STATUS_PAID);
         } elseif ($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount) {
             $this->setStatus(Invoice::STATUS_PARTIAL);
-        }
-        elseif ($this->invoice->balance < 0 || $this->invoice->balance > 0) {
+        } elseif ($this->invoice->balance < 0 || $this->invoice->balance > 0) {
             $this->invoice->status_id = Invoice::STATUS_SENT;
         }
-        
+
         return $this;
     }
 
@@ -312,8 +354,7 @@ class InvoiceService
             $this->invoice->status_id = Invoice::STATUS_PAID;
         } elseif ($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount) {
             $this->invoice->status_id = Invoice::STATUS_PARTIAL;
-        }
-        elseif ($this->invoice->balance < 0 || $this->invoice->balance > 0) {
+        } elseif ($this->invoice->balance < 0 || $this->invoice->balance > 0) {
             $this->invoice->status_id = Invoice::STATUS_SENT;
         }
 
@@ -331,7 +372,8 @@ class InvoiceService
                                          return $item;
                                      })->toArray();
 
-        $this->touchPdf();
+        // $this->deletePdf();
+        $this->deleteEInvoice();
 
         return $this;
     }
@@ -340,14 +382,38 @@ class InvoiceService
     {
         $this->invoice->load('invitations');
 
+        //30-06-2023
         $this->invoice->invitations->each(function ($invitation) {
             try {
-                if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf')) {
-                    Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf');
-                }
+                // if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf')) {
+                Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf');
+                // }
 
-                if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf')) {
+                // if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf')) {
+                if (Ninja::isHosted()) {
                     Storage::disk('public')->delete($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf');
+                }
+            } catch (\Exception $e) {
+                nlog($e->getMessage());
+            }
+        });
+
+        return $this;
+    }
+
+    public function deleteEInvoice()
+    {
+        $this->invoice->load('invitations');
+
+        $this->invoice->invitations->each(function ($invitation) {
+            try {
+                // if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
+                Storage::disk(config('filesystems.default'))->delete($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"));
+                // }
+
+                // if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
+                if (Ninja::isHosted()) {
+                    Storage::disk('public')->delete($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"));
                 }
             } catch (\Exception $e) {
                 nlog($e->getMessage());
@@ -368,13 +434,14 @@ class InvoiceService
 
         $pre_count = count($this->invoice->line_items);
 
-        $this->invoice->line_items = collect($this->invoice->line_items)
+        $items = collect($this->invoice->line_items)
                                      ->reject(function ($item) {
                                          return $item->type_id == '3';
                                      })->toArray();
 
+        $this->invoice->line_items = array_values($items);
+
         $this->invoice = $this->invoice->calc()->getInvoice();
-        $this->invoice->service()->touchPdf();
 
         /* 24-03-2022 */
         $new_balance = $this->invoice->balance;
@@ -385,15 +452,18 @@ class InvoiceService
         if ((int) $pre_count != (int) $post_count) {
             $adjustment = $balance - $new_balance;
 
-            $this->invoice
-            ->client
-            ->service()
-            ->updateBalance($adjustment * -1)
-            ->save();
+            // $this->invoice
+            // ->client
+            // ->service()
+            // ->updateBalance($adjustment * -1)
+            // ->save();
 
             $this->invoice
             ->ledger()
             ->updateInvoiceBalance($adjustment * -1, 'Adjustment for removing gateway fee');
+
+            $this->invoice->client->service()->calculateBalance();
+
         }
 
         return $this;
@@ -412,32 +482,6 @@ class InvoiceService
     public function updatePartial($amount)
     {
         $this->invoice->partial += $amount;
-
-        return $this;
-    }
-
-    /**
-     * Sometimes we need to refresh the
-     * PDF when it is updated etc.
-     * @return InvoiceService
-     */
-    public function touchPdf($force = false)
-    {
-        try {
-            if ($force) {
-                $this->invoice->invitations->each(function ($invitation) {
-                    (new CreateEntityPdf($invitation))->handle();
-                });
-
-                return $this;
-            }
-
-            $this->invoice->invitations->each(function ($invitation) {
-                CreateEntityPdf::dispatch($invitation);
-            });
-        } catch (\Exception $e) {
-            nlog('failed creating invoices in Touch PDF');
-        }
 
         return $this;
     }
@@ -493,8 +537,8 @@ class InvoiceService
             return $item;
         });
 
-        Task::whereIn('id', $tasks->pluck('task_id'))->update(['invoice_id' => $this->invoice->id]);
-        Expense::whereIn('id', $tasks->pluck('expense_id'))->update(['invoice_id' => $this->invoice->id]);
+        Task::query()->whereIn('id', $tasks->pluck('task_id'))->update(['invoice_id' => $this->invoice->id]);
+        Expense::query()->whereIn('id', $tasks->pluck('expense_id'))->update(['invoice_id' => $this->invoice->id]);
 
         return $this;
     }
@@ -506,7 +550,7 @@ class InvoiceService
         $settings = $this->invoice->client->getMergedSettings();
 
         if (! $this->invoice->design_id) {
-            $this->invoice->design_id = $this->decodePrimaryKey($settings->invoice_design_id);
+            $this->invoice->design_id = intval($this->decodePrimaryKey($settings->invoice_design_id));
         }
 
         if (! isset($this->invoice->footer) || empty($this->invoice->footer)) {

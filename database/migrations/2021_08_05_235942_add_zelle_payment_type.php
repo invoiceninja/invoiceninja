@@ -3,8 +3,6 @@
 use App\Models\PaymentType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     /**
@@ -16,7 +14,7 @@ return new class extends Migration {
     {
         Model::unguard();
 
-        $pt = PaymentType::where('name', 'Zelle')->first();
+        $pt = PaymentType::query()->where('name', 'Zelle')->first();
 
         if (! $pt) {
             $payment_type = new PaymentType();

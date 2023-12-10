@@ -7,9 +7,9 @@
     @else
     <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
     @endif
-    <meta name="return-url" content="{{ $return_url }}">
-    <meta name="currency" content="{{ $currency }}">
-    <meta name="amount" content="{{ $stripe_amount }}">
+    <meta name="return_url" content="{{ $return_url }}">
+    <meta name="ci_intent" content="{{ $ci_intent }}">
+    
 @endsection
 
 @section('gateway_content')
@@ -26,5 +26,5 @@
 
 @push('footer')
     <script src="https://js.stripe.com/v3/"></script>
-    <script src="{{ asset('js/clients/payments/stripe-alipay.js') }}"></script>
+    @vite('resources/js/clients/payments/stripe-alipay.js')
 @endpush

@@ -11,7 +11,6 @@
 
 namespace App\Factory;
 
-use App\DataMapper\FeesAndLimits;
 use App\Models\CompanyGateway;
 
 class CompanyGatewayFactory

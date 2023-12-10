@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\PurchaseOrderInvitation;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 

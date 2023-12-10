@@ -18,12 +18,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v1
         with:
-          ref: v5-stable
-          
+          ref: v5-develop
+      
       - name: Copy .env file
         run: |
           cp .env.example .env
-             
+
       - name: Install composer dependencies
         run: |
           composer config -g github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
@@ -32,9 +32,9 @@ jobs:
       - name: Prepare Laravel Application
         run: |
           cp .env.example .env
-          php artisan key:generate
+          php artisan key:generate --force
           php artisan optimize
-          php artisan storage:link
+          php artisan storage:link --force
           sudo php artisan cache:clear
           sudo find ./vendor/bin/ -type f -exec chmod +x {} \;
           sudo find ./ -type d -exec chmod 755 {} \;
@@ -46,7 +46,13 @@ jobs:
           git checkout main
           npm i
           npm run build
-          cp -r dist/react/* ../public/react
+          
+          mkdir -p ../public/react/${{ github.event.release.tag_name }}/
+          cp -r dist/react/* ../public/react/${{ github.event.release.tag_name }}/
+          cp -r dist/react/* ../public/react/
+
+          mkdir -p ../public/tinymce_6.4.2/tinymce/js/
+          cp -r node_modules/tinymce ../public/tinymce_6.4.2/tinymce/js/
           cd ..
           rm -rf ui
           php artisan ninja:react
@@ -65,8 +71,9 @@ jobs:
 
       - name: Build project
         run: |
-          zip -r ./invoiceninja.zip .* -x "../*"
-      
+          zip -r /home/runner/work/invoiceninja/invoiceninja.zip .* -x "../*"
+          shopt -s dotglob
+          tar --exclude='public/storage' --exclude='.htaccess' --exclude='invoiceninja.zip' -zcvf /home/runner/work/invoiceninja/invoiceninja.tar *
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
@@ -74,4 +81,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: |
-            invoiceninja.zip
+            /home/runner/work/invoiceninja/invoiceninja.tar
+            /home/runner/work/invoiceninja/invoiceninja.zip

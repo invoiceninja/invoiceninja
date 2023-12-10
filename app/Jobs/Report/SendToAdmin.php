@@ -11,7 +11,6 @@
 
 namespace App\Jobs\Report;
 
-use App\Http\Requests\Report\GenericReportRequest;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
@@ -21,6 +20,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 
 class SendToAdmin implements ShouldQueue
@@ -59,5 +59,10 @@ class SendToAdmin implements ShouldQueue
         $nmo->to_user = $this->company->owner();
 
         NinjaMailerJob::dispatch($nmo);
+    }
+
+    public function middleware()
+    {
+        return [new WithoutOverlapping("report-{$this->company->company_key}")];
     }
 }

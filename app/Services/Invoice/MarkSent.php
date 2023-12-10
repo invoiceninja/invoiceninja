@@ -14,25 +14,18 @@ namespace App\Services\Invoice;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Models\Client;
 use App\Models\Invoice;
+use App\Models\Webhook;
 use App\Services\AbstractService;
 use App\Utils\Ninja;
 
 class MarkSent extends AbstractService
 {
-    public $client;
-
-    public $invoice;
-
-    public function __construct(Client $client, Invoice $invoice)
+    public function __construct(public Client $client, public Invoice $invoice)
     {
-        $this->client = $client;
-
-        $this->invoice = $invoice;
     }
 
     public function run($fire_webhook = false)
     {
-
         /* Return immediately if status is not draft or invoice has been deleted */
         if ($this->invoice && ($this->invoice->fresh()->status_id != Invoice::STATUS_DRAFT || $this->invoice->is_deleted)) {
             return $this->invoice;
@@ -52,25 +45,25 @@ class MarkSent extends AbstractService
              ->ledger()
              ->updateInvoiceBalance($adjustment, "Invoice {$this->invoice->number} marked as sent.");
 
+        $this->invoice->client->service()->calculateBalance();
+
         /* Perform additional actions on invoice */
         $this->invoice
              ->service()
              ->applyNumber()
              ->setDueDate()
-             ->touchPdf()
              ->setReminder()
              ->save();
-
-        /*Adjust client balance*/
-        $this->invoice->client->service()->updateBalance($adjustment)->save();
 
         $this->invoice->markInvitationsSent();
 
         event(new InvoiceWasUpdated($this->invoice, $this->invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
-        if($fire_webhook)
+        if ($fire_webhook) {
             event('eloquent.updated: App\Models\Invoice', $this->invoice);
+        }
 
+        $this->invoice->sendEvent(Webhook::EVENT_SENT_INVOICE, "client");
 
         return $this->invoice->fresh();
     }

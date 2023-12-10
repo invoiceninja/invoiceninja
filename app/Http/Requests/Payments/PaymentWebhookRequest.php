@@ -14,7 +14,6 @@ namespace App\Http\Requests\Payments;
 
 use App\Http\Requests\Request;
 use App\Libraries\MultiDB;
-use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\Payment;
@@ -40,7 +39,6 @@ class PaymentWebhookRequest extends Request
     /**
      * Resolve company gateway.
      *
-     * @param mixed $id
      * @return null|\App\Models\CompanyGateway
      */
     public function getCompanyGateway()
@@ -48,13 +46,11 @@ class PaymentWebhookRequest extends Request
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
         return CompanyGateway::withTrashed()->find($this->decodePrimaryKey($this->company_gateway_id));
-
     }
 
     /**
      * Resolve payment hash.
      *
-     * @param string $hash
      * @return null|\App\Models\PaymentHash
      */
     public function getPaymentHash()

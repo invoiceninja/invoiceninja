@@ -37,10 +37,11 @@ class SendEmail
      */
     public function run()
     {
+
         if (! $this->reminder_template) {
             $this->reminder_template = $this->quote->calculateTemplate('quote');
         }
-        
+
         $this->quote->service()->markSent()->save();
 
         $this->quote->invitations->each(function ($invitation) {
@@ -48,6 +49,8 @@ class SendEmail
                 EmailEntity::dispatch($invitation, $invitation->company, $this->reminder_template);
             }
         });
+
+
 
     }
 }

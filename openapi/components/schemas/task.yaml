@@ -1,0 +1,114 @@
+    Task:
+      properties:
+        id:
+          description: 'The hashed id of the task'
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: 'The hashed id of the user who created the task'
+          type: string
+          example: Opnel5aKBz
+        assigned_user_id:
+          description: 'The assigned user of the task'
+          type: string
+          example: Opnel5aKBz
+        company_id:
+          description: 'The hashed id of the company'
+          type: string
+          example: Opnel5aKBz
+        client_id:
+          description: 'The hashed if of the client'
+          type: string
+          example: Opnel5aKBz
+        invoice_id:
+          description: 'The hashed id of the invoice associated with the task'
+          type: string
+          example: Opnel5aKBz
+        project_id:
+          description: 'The hashed id of the project associated with the task'
+          type: string
+          example: Opnel5aKBz
+        number:
+          description: 'The number of the task'
+          type: string
+          example: TASK-123
+        time_log:
+          description: 'An array of unix time stamps defining the start and end times of the task'
+          type: string
+          example: '[[1,2],[3,4]]'
+        is_running:
+          description: 'Determines if the task is still running'
+          type: boolean
+          example: true
+        is_deleted:
+          description: 'Boolean flag determining if the task has been deleted'
+          type: boolean
+          example: true
+        task_status_id:
+          description: 'The hashed id of the task status'
+          type: string
+          example: Opnel5aKBz
+        description:
+          description: 'The task description'
+          type: string
+          example: 'A wonder task to work on'
+        duration:
+          description: 'The task duration in seconds'
+          type: integer
+          example: '3600'
+        task_status_order:
+          description: 'The order of the task'
+          type: integer
+          example: '4'
+        rate:
+          description: 'The task rate'
+          type: number
+          example: 10.00
+        custom_value1:
+          description: 'A custom value'
+          type: string
+          example: '2022-10-10'
+        custom_value2:
+          description: 'A custom value'
+          type: string
+          example: $1100
+        custom_value3:
+          description: 'A custom value'
+          type: string
+          example: 'I need help'
+        custom_value4:
+          description: 'A custom value'
+          type: string
+          example: INV-3343
+        is_date_based:
+          description: 'Boolean flag determining if the task is date based'
+          type: boolean
+          example: true
+        calculated_start_date:
+          description: 'The calculated start date of the task'
+          type: string
+          example: '2022-10-10'
+          readOnly: true
+        invoice_documents:
+          description: "Boolean flags which determines whether to include the task documents on the invoice"
+          type: boolean
+          example: true
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+          readOnly: true
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+          readOnly: true
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+          readOnly: true
+      type: object

@@ -14,10 +14,51 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Auth;
 
 class VendorLocale
 {
+    private array $locales = [
+                    'en',
+                    'it',
+                    'de',
+                    'fr',
+                    'pt_BR',
+                    'nl',
+                    'es',
+                    'nb_NO',
+                    'da',
+                    'ja',
+                    'sv',
+                    'es_ES',
+                    'fr_CA',
+                    'lt',
+                    'pl',
+                    'cs',
+                    'hr',
+                    'sq',
+                    'el',
+                    'en_GB',
+                    'pt_PT',
+                    'sl',
+                    'fi',
+                    'ro',
+                    'tr_TR',
+                    'th',
+                    'mk_MK',
+                    'zh_TW',
+                    'ru_RU',
+                    'ar',
+                    'fa',
+                    'lv_LV',
+                    'sr',
+                    'sk',
+                    'et',
+                    'bg',
+                    'he',
+                    'km_KH',
+                    'hu',
+                    'fr_CH',
+                ];
     /**
      * Handle an incoming request.
      *
@@ -33,11 +74,11 @@ class VendorLocale
         }
 
         /*LOCALE SET */
-        if ($request->has('lang')) {
+        if ($request->has('lang') && in_array($request->input('lang', 'en'), $this->locales)) {
             $locale = $request->input('lang');
             App::setLocale($locale);
         } elseif (auth()->guard('vendor')->user()) {
-            App::setLocale(auth()->guard('vendor')->user()->company->locale());
+            App::setLocale(auth()->guard('vendor')->user()->vendor->locale());
         } elseif (auth()->user()) {
             try {
                 App::setLocale(auth()->user()->company()->getLocale());

@@ -12,15 +12,15 @@
 namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
-use Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redirect;
 
 class TempRouteController extends Controller
 {
     /**
      * Logs a user into the client portal using their contact_key
-     * @param  string $contact_key  The contact key
-     * @return Auth|Redirect
+     * @param  string $hash  The hash
+     * @return Redirect
      */
     public function index(string $hash)
     {

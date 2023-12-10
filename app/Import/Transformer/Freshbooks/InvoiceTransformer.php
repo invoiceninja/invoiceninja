@@ -1,10 +1,10 @@
 <?php
 /**
- * client Ninja (https://clientninja.com).
+ * Invoice Ninja (https://invoiceninja.com).
  *
- * @link https://github.com/clientninja/clientninja source repository
+ * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. client Ninja LLC (https://clientninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -14,7 +14,6 @@ namespace App\Import\Transformer\Freshbooks;
 use App\Import\ImportException;
 use App\Import\Transformer\BaseTransformer;
 use App\Models\Invoice;
-use App\Utils\Number;
 
 /**
  * Class InvoiceTransformer.
@@ -82,8 +81,9 @@ class InvoiceTransformer extends BaseTransformer
     //Line Subtotal
     public function calcTaxRate($record, $field)
     {
-        if(isset($record['Line Subtotal']) && $record['Line Subtotal'] > 0)
+        if (isset($record['Line Subtotal']) && $record['Line Subtotal'] > 0) {
             return ($record[$field] / $record['Line Subtotal']) * 100;
+        }
 
         $tax_amount1 = isset($record['Tax 1 Amount']) ? $record['Tax 1 Amount'] : 0;
 
@@ -93,11 +93,11 @@ class InvoiceTransformer extends BaseTransformer
 
         $subtotal = $line_total - $tax_amount2 - $tax_amount1;
 
-        if($subtotal > 0)
+        if ($subtotal > 0) {
             return $record[$field] / $subtotal * 100;
+        }
 
         return 0;
-
     }
 
     /** @return float  */

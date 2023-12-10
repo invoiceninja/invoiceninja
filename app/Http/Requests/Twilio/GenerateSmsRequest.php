@@ -13,10 +13,8 @@ namespace App\Http\Requests\Twilio;
 
 use App\Http\Requests\Request;
 
-
 class GenerateSmsRequest extends Request
 {
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -30,10 +28,8 @@ class GenerateSmsRequest extends Request
 
     public function rules()
     {
-
         return [
             'phone' => 'required|regex:^\+[1-9]\d{1,14}$^',
         ];
-        
     }
 }

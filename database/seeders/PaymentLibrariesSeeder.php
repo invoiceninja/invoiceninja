@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 namespace Database\Seeders;
 
@@ -80,9 +80,11 @@ class PaymentLibrariesSeeder extends Seeder
             ['id' => 53, 'name' => 'PagSeguro', 'provider' => 'PagSeguro', 'key' => 'ef498756b54db63c143af0ec433da803', 'fields' => '{"email":"","token":"","sandbox":false}'],
             ['id' => 54, 'name' => 'PAYMILL', 'provider' => 'Paymill', 'key' => 'ca52f618a39367a4c944098ebf977e1c', 'fields' => '{"apiKey":""}'],
             ['id' => 55, 'name' => 'Custom', 'provider' => 'Custom', 'is_offsite' => true, 'sort_order' => 21, 'key' => '54faab2ab6e3223dbe848b1686490baa', 'fields' => '{"name":"","text":""}'],
-            ['id' => 57, 'name' => 'Square', 'provider' => 'Square', 'is_offsite' => false, 'sort_order' => 21, 'key' => '65faab2ab6e3223dbe848b1686490baz', 'fields' => '{"accessToken":"","applicationId":"","locationId":"","testMode":false}'],
+            ['id' => 57, 'name' => 'Square', 'provider' => 'Square', 'is_offsite' => false, 'sort_order' => 21, 'key' => '65faab2ab6e3223dbe848b1686490baz', 'fields' => '{"accessToken":"","applicationId":"","locationId":"","signatureKey":"","testMode":false}'],
             ['id' => 58, 'name' => 'Razorpay', 'provider' => 'Razorpay', 'is_offsite' => false, 'sort_order' => 21, 'key' => 'hxd6gwg3ekb9tb3v9lptgx1mqyg69zu9', 'fields' => '{"apiKey":"","apiSecret":""}'],
             ['id' => 59, 'name' => 'Forte', 'provider' => 'Forte', 'is_offsite' => false, 'sort_order' => 21, 'key' => 'kivcvjexxvdiyqtj3mju5d6yhpeht2xs', 'fields' => '{"testMode":false,"apiLoginId":"","apiAccessId":"","secureKey":"","authOrganizationId":"","organizationId":"","locationId":""}'],
+            ['id' => 60, 'name' => 'PayPal REST', 'provider' => 'PayPal_Rest', 'key' => '80af24a6a691230bbec33e930ab40665', 'fields' => '{"clientId":"","secret":"","signature":"","testMode":false}'],
+            ['id' => 61, 'name' => 'PayPal Platform', 'provider' => 'PayPal_PPCP', 'key' => '80af24a6a691230bbec33e930ab40666', 'fields' => '{"testMode":false}'],
         ];
 
         foreach ($gateways as $gateway) {
@@ -99,12 +101,11 @@ class PaymentLibrariesSeeder extends Seeder
 
         Gateway::query()->update(['visible' => 0]);
 
-        Gateway::whereIn('id', [1,3,7,11,15,20,39,46,55,50,57,52,58,59])->update(['visible' => 1]);
+        Gateway::whereIn('id', [1,3,7,11,15,20,39,46,55,50,57,52,58,59,60])->update(['visible' => 1]);
 
         if (Ninja::isHosted()) {
-            Gateway::whereIn('id', [20])->update(['visible' => 0]);
-            Gateway::whereIn('id', [56])->update(['visible' => 1]);
-            Gateway::whereIn('id', [49])->update(['visible' => 1]);
+            Gateway::whereIn('id', [20,49])->update(['visible' => 0]);
+            Gateway::whereIn('id', [56,61])->update(['visible' => 1]);
         }
         
         Gateway::all()->each(function ($gateway) {

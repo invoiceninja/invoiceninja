@@ -31,7 +31,6 @@ use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use App\Utils\Traits\Uploadable;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**
@@ -49,7 +48,7 @@ class VendorController extends BaseController
     protected $entity_transformer = VendorTransformer::class;
 
     /**
-     * @var Vendorepository
+     * @var VendorRepository
      */
     protected $vendor_repo;
 
@@ -73,7 +72,7 @@ class VendorController extends BaseController
      *      description="Lists vendors, search and filters allow fine grained lists to be generated.
 
     Query parameters can be added to performed more fine grained filtering of the vendors, these are handled by the VendorFilters class which defines the methods available",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
@@ -120,7 +119,7 @@ class VendorController extends BaseController
      *      tags={"vendors"},
      *      summary="Shows a client",
      *      description="Displays a client by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -174,7 +173,7 @@ class VendorController extends BaseController
      *      tags={"vendors"},
      *      summary="Shows a client for editting",
      *      description="Displays a client by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -229,7 +228,7 @@ class VendorController extends BaseController
      *      tags={"vendors"},
      *      summary="Updates a client",
      *      description="Handles the updating of a client by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -276,6 +275,8 @@ class VendorController extends BaseController
 
         event(new VendorWasUpdated($vendor, $vendor->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
+        event('eloquent.updated: App\Models\Vendor', $vendor);
+
         return $this->itemResponse($vendor->fresh());
     }
 
@@ -293,7 +294,7 @@ class VendorController extends BaseController
      *      tags={"vendors"},
      *      summary="Gets a new blank client object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -338,7 +339,7 @@ class VendorController extends BaseController
      *      tags={"vendors"},
      *      summary="Adds a client",
      *      description="Adds an client to a company",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -372,6 +373,8 @@ class VendorController extends BaseController
 
         event(new VendorWasCreated($vendor, $vendor->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
+        event('eloquent.created: App\Models\Vendor', $vendor);
+
         return $this->itemResponse($vendor);
     }
 
@@ -390,7 +393,7 @@ class VendorController extends BaseController
      *      tags={"vendors"},
      *      summary="Deletes a client",
      *      description="Handles the deletion of a client by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -444,7 +447,7 @@ class VendorController extends BaseController
      *      tags={"vendors"},
      *      summary="Performs bulk actions on an array of vendors",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
@@ -523,7 +526,7 @@ class VendorController extends BaseController
      *      tags={"vendors"},
      *      summary="Uploads a document to a vendor",
      *      description="Handles the uploading of a document to a vendor",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -565,7 +568,7 @@ class VendorController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $vendor);
+            $this->saveDocuments($request->file('documents'), $vendor, $request->input('is_public', true));
         }
 
         return $this->itemResponse($vendor->fresh());

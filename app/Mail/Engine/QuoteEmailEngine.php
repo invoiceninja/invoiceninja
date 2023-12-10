@@ -17,7 +17,7 @@ use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
 use App\Utils\Number;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\URL;
 
 class QuoteEmailEngine extends BaseEmailEngine
 {
@@ -68,7 +68,6 @@ class QuoteEmailEngine extends BaseEmailEngine
                     'company' => $this->quote->company->present()->name(),
                     'amount' => Number::formatMoney($this->quote->amount, $this->client),
                 ],
-                null,
                 $this->client->locale()
             );
 
@@ -88,22 +87,19 @@ class QuoteEmailEngine extends BaseEmailEngine
                     'number' => $this->quote->number,
                     'account' => $this->quote->company->present()->name(),
                 ],
-                null,
                 $this->client->locale()
             );
         }
 
         $text_body = trans(
-                'texts.quote_message',
-                [
-                    'quote' => $this->quote->number,
-                    'company' => $this->quote->company->present()->name(),
-                    'amount' => Number::formatMoney($this->quote->amount, $this->client),
-                ],
-                null,
-                $this->client->locale()
-
-            )."\n\n".$this->invitation->getLink();
+            'texts.quote_message',
+            [
+                'quote' => $this->quote->number,
+                'company' => $this->quote->company->present()->name(),
+                'amount' => Number::formatMoney($this->quote->amount, $this->client),
+            ],
+            $this->client->locale()
+        )."\n\n".$this->invitation->getLink();
 
         $this->setTemplate($this->client->getSetting('email_style'))
             ->setContact($this->contact)
@@ -117,23 +113,29 @@ class QuoteEmailEngine extends BaseEmailEngine
             ->setTextBody($text_body);
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->quote->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
+            $pdf = ((new CreateRawPdf($this->invitation))->handle());
 
-            $pdf = ((new CreateRawPdf($this->invitation, $this->invitation->company->db))->handle());
-
-            $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->quote->numberFormatter().'.pdf']]);  
+            $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->quote->numberFormatter().'.pdf']]);
         }
 
         //attach third party documents
         if ($this->client->getSetting('document_email_attachment') !== false && $this->quote->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
-
             // Storage::url
-            foreach ($this->quote->documents as $document) {
-                $this->setAttachments([['file' => base64_encode($document->getFile()), 'path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
-            }
+            $this->quote->documents()->where('is_public', true)->cursor()->each(function ($document) {
+                if ($document->size > $this->max_attachment_size) {
+                    $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
+                } else {
+                    $this->setAttachments([['file' => base64_encode($document->getFile()), 'path' => $document->filePath(), 'name' => $document->name, 'mime' => null, ]]);
+                }
+            });
 
-            foreach ($this->quote->company->documents as $document) {
-                $this->setAttachments([['file' => base64_encode($document->getFile()), 'path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
-            }
+            $this->quote->company->documents()->where('is_public', true)->cursor()->each(function ($document) {
+                if ($document->size > $this->max_attachment_size) {
+                    $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
+                } else {
+                    $this->setAttachments([['file' => base64_encode($document->getFile()), 'path' => $document->filePath(), 'name' => $document->name, 'mime' => null, ]]);
+                }
+            });
         }
 
         return $this;

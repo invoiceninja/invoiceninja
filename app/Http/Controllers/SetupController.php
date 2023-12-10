@@ -20,20 +20,16 @@ use App\Jobs\Util\SchedulerCheck;
 use App\Jobs\Util\VersionCheck;
 use App\Models\Account;
 use App\Utils\CurlUtils;
-use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\Ninja;
 use App\Utils\SystemHealth;
 use App\Utils\Traits\AppSetup;
-use Beganovich\Snappdf\Snappdf;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
@@ -125,6 +121,18 @@ class SetupController extends Controller
             unset($env_values['DB_DATABASE']);
             unset($env_values['DB_USERNAME']);
             unset($env_values['DB_PASSWORD']);
+        } else {
+            
+            config(['database.connections.mysql.host' => $request->input('db_host')]);
+            config(['database.connections.mysql.port' => $request->input('db_port')]);
+            config(['database.connections.mysql.database' => $request->input('db_database')]);
+            config(['database.connections.mysql.username' => $request->input('db_username')]);
+            config(['database.connections.mysql.password' => $request->input('db_password')]);
+            config(['database.default' => 'mysql']);
+
+            DB::purge('mysql');
+            /* Make sure no stale connections are cached */
+
         }
 
         try {
@@ -135,11 +143,12 @@ class SetupController extends Controller
             /* We need this in some environments that do not have STDIN defined */
             define('STDIN', fopen('php://stdin', 'r'));
 
-            /* Make sure no stale connections are cached */
-            DB::purge('mysql');
-            Artisan::call('optimize');
+            Artisan::call('config:clear');
+
+
             Artisan::call('migrate', ['--force' => true]);
             Artisan::call('db:seed', ['--force' => true]);
+            Artisan::call('config:clear');
 
             Storage::disk('local')->delete('test.pdf');
 
@@ -157,6 +166,8 @@ class SetupController extends Controller
             nlog($e->getMessage());
             info($e->getMessage());
 
+            echo $e->getMessage();
+
             return redirect()
                 ->back()
                 ->with('setup_error', $e->getMessage());
@@ -171,6 +182,7 @@ class SetupController extends Controller
      */
     public function checkDB(CheckDatabaseRequest $request)
     {
+        
         try {
             $status = SystemHealth::dbCheck($request);
 
@@ -180,6 +192,8 @@ class SetupController extends Controller
 
             return response($status, 400);
         } catch (Exception $e) {
+            nlog("failed?");
+            nlog($e->getMessage());
             nlog(['message' => $e->getMessage(), 'action' => 'SetupController::checkDB()']);
 
             return response()->json(['message' => $e->getMessage()], 400);
@@ -212,31 +226,7 @@ class SetupController extends Controller
     public function checkPdf(Request $request)
     {
         try {
-
-            // if (config('ninja.pdf_generator') == 'phantom') {
-            //     return $this->testPhantom();
-            // }
-
-            // $pdf = new Snappdf();
-
-            // if (config('ninja.snappdf_chromium_path')) {
-            //     $pdf->setChromiumPath(config('ninja.snappdf_chromium_path'));
-            // }
-
-            // if (config('ninja.snappdf_chromium_arguments')) {
-            //     $pdf->clearChromiumArguments();
-            //     $pdf->addChromiumArguments(config('ninja.snappdf_chromium_arguments'));
-            // }
-
-            // $pdf = $pdf
-            //     ->setHtml('GENERATING PDFs WORKS! Thank you for using Invoice Ninja!')
-            //     ->generate();
-
-            // Storage::disk(config('filesystems.default'))->put('test.pdf', $pdf);
-            // Storage::disk('local')->put('test.pdf', $pdf);
             return response(['url' => ''], 200);
-
-            // return response(['url' => Storage::disk('local')->url('test.pdf')], 200);
         } catch (Exception $e) {
             nlog($e->getMessage());
 
@@ -309,7 +299,9 @@ class SetupController extends Controller
         Artisan::call('clear-compiled');
         Artisan::call('route:clear');
         Artisan::call('view:clear');
-        Artisan::call('optimize');
+        Artisan::call('config:clear');
+
+        // Artisan::call('optimize');
 
         Artisan::call('migrate', ['--force' => true]);
         Artisan::call('db:seed', ['--force' => true]);

@@ -28,13 +28,16 @@ class StoreCompanyGatewayRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->isAdmin();
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->isAdmin();
     }
 
     public function rules()
     {
         $rules = [
-            'gateway_key' => ['bail', 'required','alpha_num',Rule::exists('gateways','key')],
+            'gateway_key' => ['bail', 'required','alpha_num',Rule::exists('gateways', 'key')],
             'fees_and_limits' => new ValidCompanyGatewayFeesAndLimitsRule(),
         ];
 
@@ -64,9 +67,9 @@ class StoreCompanyGatewayRequest extends Request
             if (isset($input['fees_and_limits'])) {
                 $input['fees_and_limits'] = $this->cleanFeesAndLimits($input['fees_and_limits']);
             }
+            
         }
 
         $this->replace($input);
     }
-
 }

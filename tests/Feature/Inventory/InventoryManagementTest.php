@@ -39,7 +39,7 @@ class InventoryManagementTest extends TestCase
         );
 
         if (config('ninja.testvars.travis') !== false) {
-               $this->markTestSkipped('Skip test for Travis');
+            $this->markTestSkipped('Skip test for Travis');
         }
     }
 
@@ -90,7 +90,7 @@ class InventoryManagementTest extends TestCase
 
         $data = $response->json();
 
-        $invoice = Invoice::find($this->decodePrimaryKey($data['data']['id'])); 
+        $invoice = Invoice::find($this->decodePrimaryKey($data['data']['id']));
 
         $invoice->service()->markDeleted()->save();
         $invoice->is_deleted = true;
@@ -98,13 +98,10 @@ class InventoryManagementTest extends TestCase
         
         $this->assertEquals(100, $product->fresh()->in_stock_quantity);
 
-        $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($data['data']['id'])); 
+        $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($data['data']['id']));
 
         $invoice->service()->handleRestore()->save();
 
         $this->assertEquals(90, $product->fresh()->in_stock_quantity);
-
-
-
     }
 }

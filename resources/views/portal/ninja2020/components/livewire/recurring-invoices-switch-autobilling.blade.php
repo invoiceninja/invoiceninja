@@ -3,6 +3,6 @@
            wire:change="updateAutoBilling" {{ $invoice->auto_bill_enabled ? 'checked' : '' }}>
 
     <span class="text-sm leading-5 font-medium text-gray-900">
-        {{ $invoice->auto_bill_enabled || $invoice->auto_bill === 'optout' ? ctrans('texts.auto_bill_enabled') : ctrans('texts.auto_bill_disabled') }}
+        {{ ctrans('texts.enable_auto_bill') }}
     </span>
 </label>

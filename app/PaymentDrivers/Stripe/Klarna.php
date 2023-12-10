@@ -19,8 +19,6 @@ use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
-use App\Utils\Number;
-use Illuminate\Support\Facades\Cache;
 
 class Klarna
 {
@@ -48,15 +46,7 @@ class Klarna
         $data['customer'] = $this->stripe->findOrCreateCustomer()->id;
         $data['country'] = $this->stripe->client->country->iso_3166_2;
 
-        $amount = $data['total']['amount_with_fee'];
-
-        $invoice_numbers = collect($data['invoices'])->pluck('invoice_number');
-
-        if ($invoice_numbers->count() > 0) {
-            $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice_numbers->implode(', '), 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
-        } else {
-            $description = ctrans('texts.stripe_payment_text_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
-        }
+        $description = $this->stripe->getDescription(false);
 
         $intent = \Stripe\PaymentIntent::create([
             'amount' => $data['stripe_amount'],
@@ -68,7 +58,7 @@ class Klarna
                 'payment_hash' => $this->stripe->payment_hash->hash,
                 'gateway_type_id' => GatewayType::KLARNA,
             ],
-        ], array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st",true)]));
+        ], array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st", true)]));
 
         $data['pi_client_secret'] = $intent->client_secret;
 
@@ -92,7 +82,7 @@ class Klarna
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $request->all());
         $this->stripe->payment_hash->save();
 
-        if (in_array($request->redirect_status,  ['succeeded','pending'])) {
+        if (in_array($request->redirect_status, ['succeeded','pending'])) {
             return $this->processSuccessfulPayment($request->payment_intent);
         }
 
@@ -101,7 +91,6 @@ class Klarna
 
     public function processSuccessfulPayment(string $payment_intent)
     {
-
         $this->stripe->init();
 
         //catch duplicate submissions.

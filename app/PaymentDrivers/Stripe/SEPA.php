@@ -14,6 +14,7 @@ namespace App\PaymentDrivers\Stripe;
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Util\SystemLogger;
+use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
@@ -60,14 +61,14 @@ class SEPA
             'payment_method_types' => ['sepa_debit'],
             'setup_future_usage' => 'off_session',
             'customer' => $this->stripe->findOrCreateCustomer(),
-            'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices').': '.collect($data['invoices'])->pluck('invoice_number')),
+            'description' => $this->stripe->getDescription(false),
             'metadata' => [
                 'payment_hash' => $this->stripe->payment_hash->hash,
                 'gateway_type_id' => GatewayType::SEPA,
             ],
         ];
 
-        $intent = \Stripe\PaymentIntent::create($intent_data, array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st",true)]));
+        $intent = \Stripe\PaymentIntent::create($intent_data, array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st", true)]));
 
         $data['pi_client_secret'] = $intent->client_secret;
 
@@ -158,6 +159,17 @@ class SEPA
                 'token' => $intent->payment_method,
                 'payment_method_id' => GatewayType::SEPA,
             ];
+
+            $token = ClientGatewayToken::where([
+                'gateway_customer_reference' => $method->customer,
+                'token' => $method->id,
+                'client_id' => $this->stripe->client->id,
+                'company_id' => $this->stripe->client->company_id,
+            ])->first();
+
+            if($token) {
+                return $token;
+            }
 
             $this->stripe->storeGatewayToken($data, ['gateway_customer_reference' => $method->customer]);
         } catch (\Exception $e) {

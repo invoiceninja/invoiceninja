@@ -15,7 +15,7 @@ class PaymentMethodsTable extends Component
     use WithPagination;
     use WithSorting;
 
-    public int $per_page = 10;
+    public $per_page = 10;
 
     public Client $client;
 
@@ -29,7 +29,7 @@ class PaymentMethodsTable extends Component
     {
         MultiDB::setDb($this->db);
 
-        $this->client = Client::with('company')->find($this->client_id);
+        $this->client = Client::withTrashed()->with('company')->find($this->client_id);
 
         $this->company = $this->client->company;
     }

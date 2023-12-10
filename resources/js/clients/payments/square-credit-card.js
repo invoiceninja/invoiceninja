@@ -125,7 +125,10 @@ class SquareCreditCard {
     }
 
     async handle() {
-        await this.init();
+
+        document.getElementById('payment-list').classList.add('hidden');
+
+        await this.init().then(() => {
 
         document
             .getElementById('authorize-card')
@@ -146,7 +149,7 @@ class SquareCreditCard {
         Array.from(
             document.getElementsByClassName('toggle-payment-with-token')
         ).forEach((element) =>
-            element.addEventListener('click', (element) => {
+            element.addEventListener('click', async (element) => {
                 document
                     .getElementById('card-container')
                     .classList.add('hidden');
@@ -168,13 +171,17 @@ class SquareCreditCard {
                 document.querySelector('input[name=token]').value = '';
             });
 
-        let toggleWithToken = document.querySelector(
-            '.toggle-payment-with-token'
-        );
+        // let toggleWithToken = document.querySelector(
+        //     '.toggle-payment-with-token'
+        // );
 
-        if (!toggleWithToken) {
+        // if (!toggleWithToken) {
+            document.getElementById('loader').classList.add('hidden');
+            document.getElementById('payment-list').classList.remove('hidden');
             document.getElementById('toggle-payment-with-credit-card')?.click();
-        }
+        // }
+    });
+
     }
 }
 

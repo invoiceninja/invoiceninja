@@ -21,7 +21,7 @@ class ExpenseCategoryFilters extends QueryFilters
     /**
      * Filter based on search text.
      *
-     * @param string query filter
+     * @param string $filter
      * @return Builder
      * @deprecated
      */
@@ -32,13 +32,12 @@ class ExpenseCategoryFilters extends QueryFilters
         }
 
         return  $this->builder->where('name', 'like', '%'.$filter.'%');
-
     }
 
     /**
      * Sorts the list based on $sort.
      *
-     * @param string sort formatted as column|asc
+     * @param string $sort formatted as column|asc
      * @return Builder
      */
     public function sort(string $sort = ''): Builder
@@ -49,8 +48,9 @@ class ExpenseCategoryFilters extends QueryFilters
             return $this->builder;
         }
 
-        if (is_array($sort_col) && in_array($sort_col[1], ['asc', 'desc']) && in_array($sort_col[0], ['name']))
+        if (is_array($sort_col) && in_array($sort_col[1], ['asc', 'desc']) && in_array($sort_col[0], ['name'])) {
             return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+        }
         
 
         return $this->builder;
@@ -59,9 +59,9 @@ class ExpenseCategoryFilters extends QueryFilters
     /**
      * Filters the query by the users company ID.
      *
-     * @return Illuminate\Database\Query\Builder
+     * @return Builder
      */
-    public function entityFilter()
+    public function entityFilter(): Builder
     {
         return $this->builder->company();
     }

@@ -12,16 +12,16 @@
 
 namespace App\PaymentDrivers\Forte;
 
-use App\Models\Payment;
+use App\Http\Requests\Request;
+use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
+use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use App\Http\Requests\Request;
+use App\Models\SystemLog;
+use App\PaymentDrivers\FortePaymentDriver;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Validator;
-use App\PaymentDrivers\FortePaymentDriver;
-use App\Jobs\Util\SystemLogger;
-use App\Models\SystemLog;
 
 class ACH
 {
@@ -41,7 +41,7 @@ class ACH
         $this->forte = $forte;
 
         $this->forte_base_uri = "https://sandbox.forte.net/api/v3/";
-        if($this->forte->company_gateway->getConfigField('testMode') == false){
+        if ($this->forte->company_gateway->getConfigField('testMode') == false) {
             $this->forte_base_uri = "https://api.forte.net/v3/";
         }
         $this->forte_api_access_id = $this->forte->company_gateway->getConfigField('apiAccessId');
@@ -60,7 +60,6 @@ class ACH
 
     public function authorizeResponse(Request $request)
     {
-        
         $payment_meta = new \stdClass;
         $payment_meta->brand = (string)ctrans('texts.ach');
         $payment_meta->last4 = (string) $request->last_4;
@@ -93,7 +92,7 @@ class ACH
 
         try {
             $curl = curl_init();
-            curl_setopt_array($curl, array(
+            curl_setopt_array($curl, [
             CURLOPT_URL => $this->forte_base_uri.'organizations/'.$this->forte_organization_id.'/locations/'.$this->forte_location_id.'/transactions',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
@@ -116,13 +115,12 @@ class ACH
                    "one_time_token":"'.$request->payment_token.'"
                 }
             }',
-            CURLOPT_HTTPHEADER => array(
+            CURLOPT_HTTPHEADER => [
                 'X-Forte-Auth-Organization-Id: '.$this->forte_organization_id,
                 'Content-Type: application/json',
                 'Authorization: Basic '.base64_encode($this->forte_api_access_id.':'.$this->forte_secure_key),
-                'Cookie: visid_incap_621087=u18+3REYR/iISgzZxOF5s2ODW2IAAAAAQUIPAAAAAADuGqKgECQLS81FcSDrmhGe; nlbi_621087=YHngadhJ2VU+yr7/R1efXgAAAAD3mQyhqmnLls8PRu4iN58G; incap_ses_1136_621087=CVdrXUdhIlm9WJNDieLDD4QVXGIAAAAAvBwvkUcwhM0+OwvdPm2stg=='
-            ),
-            ));
+            ],
+            ]);
 
             $response = curl_exec($curl);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);

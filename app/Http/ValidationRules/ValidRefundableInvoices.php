@@ -45,6 +45,7 @@ class ValidRefundableInvoices implements Rule
             return false;
         }
 
+        /**@var \App\Models\Payment $payment **/
         $payment = Payment::whereId($this->input['id'])->first();
 
         if (! $payment) {
@@ -57,7 +58,7 @@ class ValidRefundableInvoices implements Rule
         $invoices = [];
 
         if (is_array($value)) {
-            $invoices = Invoice::whereIn('id', array_column($this->input['invoices'], 'invoice_id'))->company()->get();
+            $invoices = Invoice::query()->whereIn('id', array_column($this->input['invoices'], 'invoice_id'))->company()->get();
         } else {
             return true;
         }
@@ -71,8 +72,6 @@ class ValidRefundableInvoices implements Rule
 
             foreach ($this->input['invoices'] as $val) {
                 if ($val['invoice_id'] == $invoice->id) {
-
-                    //$pivot_record = $invoice->payments->where('id', $invoice->id)->first();
                     $pivot_record = $payment->paymentables->where('paymentable_id', $invoice->id)->first();
 
                     if ($val['amount'] > ($pivot_record->amount - $pivot_record->refunded)) {

@@ -213,6 +213,10 @@
                   errors.textContent = "You will receive an email with details on how to verify your bank account and process payment.";
                   errors.hidden = false;
                   document.getElementById('new-bank').style.visibility = 'hidden'
+
+                    let gateway_response = document.getElementById('gateway_response');
+                    gateway_response.value = JSON.stringify(paymentIntent);
+                    document.getElementById('server-response').submit();
             }
           });
     

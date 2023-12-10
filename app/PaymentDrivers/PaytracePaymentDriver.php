@@ -12,9 +12,11 @@
 namespace App\PaymentDrivers;
 
 use App\Exceptions\SystemError;
+use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
@@ -89,7 +91,6 @@ class PaytracePaymentDriver extends BaseDriver
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
-
         $data = [
             'amount' => $amount,
             'transaction_id' => $payment->transaction_reference,
@@ -125,10 +126,20 @@ class PaytracePaymentDriver extends BaseDriver
     {
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
 
+        $_invoice = collect($payment_hash->data->invoices)->first();
+        $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
+
+        if ($invoice) {
+            $invoice_id =  ctrans('texts.invoice_number').'# '.$invoice->number;
+        }
+
+        $invoice_id = ctrans('texts.invoice_number').'# '.substr($payment_hash->hash, 0, 6);
+
         $data = [
             'customer_id' => $cgt->token,
             'integrator_id' =>  $this->company_gateway->getConfigField('integratorId'),
             'amount' => $amount,
+            'invoice_id' => $invoice_id,
         ];
 
         $response = $this->gatewayRequest('/v1/transactions/sale/by_customer', $data);
@@ -166,51 +177,6 @@ class PaytracePaymentDriver extends BaseDriver
         $this->processUnsuccessfulTransaction($data, false);
     }
 
-    public function getClientRequiredFields(): array
-    {
-        $fields = [];
-
-        if ($this->company_gateway->require_client_name) {
-            $fields[] = ['name' => 'client_name', 'label' => ctrans('texts.client_name'), 'type' => 'text', 'validation' => 'required'];
-        }
-
-        if ($this->company_gateway->require_contact_name) {
-            $fields[] = ['name' => 'contact_first_name', 'label' => ctrans('texts.first_name'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'contact_last_name', 'label' => ctrans('texts.last_name'), 'type' => 'text', 'validation' => 'required'];
-        }
-
-        if ($this->company_gateway->require_contact_email) {
-            $fields[] = ['name' => 'contact_email', 'label' => ctrans('texts.email'), 'type' => 'text', 'validation' => 'required,email:rfc'];
-        }
-
-        if ($this->company_gateway->require_client_phone) {
-            $fields[] = ['name' => 'client_phone', 'label' => ctrans('texts.client_phone'), 'type' => 'tel', 'validation' => 'required'];
-        }
-
-            $fields[] = ['name' => 'client_address_line_1', 'label' => ctrans('texts.address1'), 'type' => 'text', 'validation' => 'required'];
-
-        if ($this->company_gateway->require_billing_address) {
-            $fields[] = ['name' => 'client_city', 'label' => ctrans('texts.city'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'client_state', 'label' => ctrans('texts.state'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'client_country_id', 'label' => ctrans('texts.country'), 'type' => 'text', 'validation' => 'required'];
-        }
-
-        // if ($this->company_gateway->require_postal_code) {
-            $fields[] = ['name' => 'client_postal_code', 'label' => ctrans('texts.postal_code'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'client_shipping_city', 'label' => ctrans('texts.shipping_city'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'client_shipping_state', 'label' => ctrans('texts.shipping_state'), 'type' => 'text', 'validation' => 'required'];
-
-        // }
-
-        if ($this->company_gateway->require_shipping_address) {
-            $fields[] = ['name' => 'client_shipping_address_line_1', 'label' => ctrans('texts.shipping_address1'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'client_shipping_postal_code', 'label' => ctrans('texts.shipping_postal_code'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'client_shipping_country_id', 'label' => ctrans('texts.shipping_country'), 'type' => 'text', 'validation' => 'required'];
-        }
-
-        return $fields;
-    }
-
     public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
     {
     }
@@ -218,7 +184,10 @@ class PaytracePaymentDriver extends BaseDriver
     /*Helpers*/
     private function generateAuthHeaders()
     {
-        $url = 'https://api.paytrace.com/oauth/token';
+        $api_endpoint = $this->company_gateway->getConfigField('testMode') ? 'https://api.sandbox.paytrace.com' : 'https://api.paytrace.com';
+
+        $url = "{$api_endpoint}/oauth/token";
+        
         $data = [
             'grant_type' => 'password',
             'username' => $this->company_gateway->getConfigField('username'),
@@ -229,7 +198,7 @@ class PaytracePaymentDriver extends BaseDriver
 
         $auth_data = json_decode($response);
 
-        if (! property_exists($auth_data, 'access_token')) {
+        if (!isset($auth_data) || ! property_exists($auth_data, 'access_token')) {
             throw new SystemError('Error authenticating with PayTrace');
         }
 
@@ -242,9 +211,12 @@ class PaytracePaymentDriver extends BaseDriver
 
     public function getAuthToken()
     {
+
+        $api_endpoint = $this->company_gateway->getConfigField('testMode') ? 'https://api.sandbox.paytrace.com' : 'https://api.paytrace.com';
+
         $headers = $this->generateAuthHeaders();
 
-        $response = CurlUtils::post('https://api.paytrace.com/v1/payment_fields/token/create', [], $headers);
+        $response = CurlUtils::post("{$api_endpoint}/v1/payment_fields/token/create", [], $headers);
 
         $response = json_decode($response);
 
@@ -257,7 +229,10 @@ class PaytracePaymentDriver extends BaseDriver
 
     public function gatewayRequest($uri, $data, $headers = false)
     {
-        $base_url = "https://api.paytrace.com{$uri}";
+        
+        $api_endpoint = $this->company_gateway->getConfigField('testMode') ? 'https://api.sandbox.paytrace.com' : 'https://api.paytrace.com';
+
+        $base_url = "{$api_endpoint}{$uri}";
 
         $headers = $this->generateAuthHeaders();
 

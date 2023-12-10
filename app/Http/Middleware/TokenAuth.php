@@ -11,7 +11,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Events\User\UserLoggedIn;
 use App\Models\CompanyToken;
 use App\Models\User;
 use App\Utils\Ninja;
@@ -31,7 +30,10 @@ class TokenAuth
      */
     public function handle($request, Closure $next)
     {
-        if ($request->header('X-API-TOKEN') && ($company_token = CompanyToken::with(['user', 'company'])->where('token', $request->header('X-API-TOKEN'))->first())) {
+        if ($request->header('X-API-TOKEN') && ($company_token = CompanyToken::with([
+            'user' => [
+                'account',
+            ], 'company'])->where('token', $request->header('X-API-TOKEN'))->first())) {
             $user = $company_token->user;
 
             $error = [
@@ -52,6 +54,13 @@ class TokenAuth
                 return response()->json($error, 403);
             }
 
+            /*
+            |
+            | Necessary evil here: As we are authenticating on CompanyToken,
+            | we need to link the company to the user manually. This allows
+            | us to decouple a $user and their attached companies completely.
+            |
+            */
             $truth = app()->make(TruthSource::class);
 
             $truth->setCompanyUser($company_token->cu);
@@ -60,13 +69,9 @@ class TokenAuth
             $truth->setCompanyToken($company_token);
 
             /*
-            |
-            | Necessary evil here: As we are authenticating on CompanyToken,
-            | we need to link the company to the user manually. This allows
-            | us to decouple a $user and their attached companies completely.
-            |
-            */
-
+            | This method binds the db to the jobs created using this
+            | session
+             */
             app('queue')->createPayloadUsing(function () use ($company_token) {
                 return ['db' => $company_token->company->db];
             });

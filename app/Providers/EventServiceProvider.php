@@ -12,14 +12,12 @@
 namespace App\Providers;
 
 use App\Events\Account\AccountCreated;
+use App\Events\Account\StripeConnectFailure;
 use App\Events\Client\ClientWasArchived;
 use App\Events\Client\ClientWasCreated;
 use App\Events\Client\ClientWasDeleted;
 use App\Events\Client\ClientWasRestored;
 use App\Events\Client\ClientWasUpdated;
-use App\Events\Client\DesignWasDeleted;
-use App\Events\Client\DesignWasRestored;
-use App\Events\Client\DesignWasUpdated;
 use App\Events\Company\CompanyDocumentsDeleted;
 use App\Events\Contact\ContactLoggedIn;
 use App\Events\Credit\CreditWasArchived;
@@ -32,6 +30,14 @@ use App\Events\Credit\CreditWasRestored;
 use App\Events\Credit\CreditWasUpdated;
 use App\Events\Credit\CreditWasViewed;
 use App\Events\Design\DesignWasArchived;
+use App\Events\Design\DesignWasDeleted;
+use App\Events\Design\DesignWasRestored;
+use App\Events\Design\DesignWasUpdated;
+use App\Events\Document\DocumentWasArchived;
+use App\Events\Document\DocumentWasCreated;
+use App\Events\Document\DocumentWasDeleted;
+use App\Events\Document\DocumentWasRestored;
+use App\Events\Document\DocumentWasUpdated;
 use App\Events\Expense\ExpenseWasArchived;
 use App\Events\Expense\ExpenseWasCreated;
 use App\Events\Expense\ExpenseWasDeleted;
@@ -65,7 +71,6 @@ use App\Events\PurchaseOrder\PurchaseOrderWasArchived;
 use App\Events\PurchaseOrder\PurchaseOrderWasCreated;
 use App\Events\PurchaseOrder\PurchaseOrderWasDeleted;
 use App\Events\PurchaseOrder\PurchaseOrderWasEmailed;
-use App\Events\PurchaseOrder\PurchaseOrderWasMarkedSent;
 use App\Events\PurchaseOrder\PurchaseOrderWasRestored;
 use App\Events\PurchaseOrder\PurchaseOrderWasUpdated;
 use App\Events\PurchaseOrder\PurchaseOrderWasViewed;
@@ -108,11 +113,13 @@ use App\Events\User\UserWasCreated;
 use App\Events\User\UserWasDeleted;
 use App\Events\User\UserWasRestored;
 use App\Events\User\UserWasUpdated;
+use App\Events\Vendor\VendorContactLoggedIn;
 use App\Events\Vendor\VendorWasArchived;
 use App\Events\Vendor\VendorWasCreated;
 use App\Events\Vendor\VendorWasDeleted;
 use App\Events\Vendor\VendorWasRestored;
 use App\Events\Vendor\VendorWasUpdated;
+use App\Listeners\Account\StripeConnectFailureListener;
 use App\Listeners\Activity\ArchivedClientActivity;
 use App\Listeners\Activity\ClientUpdatedActivity;
 use App\Listeners\Activity\CreatedClientActivity;
@@ -157,14 +164,13 @@ use App\Listeners\Credit\CreditRestoredActivity;
 use App\Listeners\Credit\CreditViewedActivity;
 use App\Listeners\Document\DeleteCompanyDocuments;
 use App\Listeners\Invoice\CreateInvoiceActivity;
-use App\Listeners\Invoice\CreateInvoicePdf;
 use App\Listeners\Invoice\InvoiceArchivedActivity;
 use App\Listeners\Invoice\InvoiceCancelledActivity;
 use App\Listeners\Invoice\InvoiceCreatedNotification;
 use App\Listeners\Invoice\InvoiceDeletedActivity;
 use App\Listeners\Invoice\InvoiceEmailActivity;
-use App\Listeners\Invoice\InvoiceEmailFailedActivity;
 use App\Listeners\Invoice\InvoiceEmailedNotification;
+use App\Listeners\Invoice\InvoiceEmailFailedActivity;
 use App\Listeners\Invoice\InvoiceFailedEmailNotification;
 use App\Listeners\Invoice\InvoicePaidActivity;
 use App\Listeners\Invoice\InvoiceReminderEmailActivity;
@@ -174,7 +180,7 @@ use App\Listeners\Invoice\InvoiceViewedActivity;
 use App\Listeners\Invoice\UpdateInvoiceActivity;
 use App\Listeners\Mail\MailSentListener;
 use App\Listeners\Misc\InvitationViewedListener;
-use App\Listeners\Payment\PaymentEmailFailureActivity;
+use App\Listeners\Payment\PaymentBalanceActivity;
 use App\Listeners\Payment\PaymentEmailedActivity;
 use App\Listeners\Payment\PaymentNotification;
 use App\Listeners\Payment\PaymentRestoredActivity;
@@ -188,7 +194,6 @@ use App\Listeners\PurchaseOrder\PurchaseOrderEmailActivity;
 use App\Listeners\PurchaseOrder\PurchaseOrderEmailedNotification;
 use App\Listeners\PurchaseOrder\PurchaseOrderRestoredActivity;
 use App\Listeners\PurchaseOrder\PurchaseOrderViewedActivity;
-use App\Listeners\PurchaseOrder\PurchaseOrderViewedNotification;
 use App\Listeners\PurchaseOrder\UpdatePurchaseOrderActivity;
 use App\Listeners\Quote\QuoteApprovedActivity;
 use App\Listeners\Quote\QuoteApprovedNotification;
@@ -221,8 +226,9 @@ use App\Listeners\User\ArchivedUserActivity;
 use App\Listeners\User\CreatedUserActivity;
 use App\Listeners\User\DeletedUserActivity;
 use App\Listeners\User\RestoredUserActivity;
-use App\Listeners\User\UpdateUserLastLogin;
 use App\Listeners\User\UpdatedUserActivity;
+use App\Listeners\User\UpdateUserLastLogin;
+use App\Listeners\Vendor\UpdateVendorContactLastLogin;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -241,6 +247,7 @@ use App\Models\Quote;
 use App\Models\Subscription;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Vendor;
 use App\Models\VendorContact;
 use App\Observers\AccountObserver;
 use App\Observers\ClientContactObserver;
@@ -258,9 +265,10 @@ use App\Observers\ProposalObserver;
 use App\Observers\PurchaseOrderObserver;
 use App\Observers\QuoteObserver;
 use App\Observers\SubscriptionObserver;
-use App\Observers\VendorContactObserver;
 use App\Observers\TaskObserver;
 use App\Observers\UserObserver;
+use App\Observers\VendorContactObserver;
+use App\Observers\VendorObserver;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Mail\Events\MessageSending;
 use Illuminate\Mail\Events\MessageSent;
@@ -270,9 +278,15 @@ class EventServiceProvider extends ServiceProvider
     /**
      * The event listener mappings for the application.
      *
-     * @var array
      */
     protected $listen = [
+        
+        // RequestSending::class => [
+        //     LogRequestSending::class,
+        // ],
+        // ResponseReceived::class => [
+        //     LogResponseReceived::class,
+        // ],
         AccountCreated::class => [
         ],
         MessageSending::class => [
@@ -305,24 +319,30 @@ class EventServiceProvider extends ServiceProvider
         PaymentWasCreated::class => [
             PaymentCreatedActivity::class,
             PaymentNotification::class,
+            PaymentBalanceActivity::class,
         ],
         PaymentWasDeleted::class => [
             PaymentDeletedActivity::class,
+            PaymentBalanceActivity::class,
         ],
         PaymentWasArchived::class => [
             PaymentArchivedActivity::class,
         ],
         PaymentWasUpdated::class => [
             PaymentUpdatedActivity::class,
+            PaymentBalanceActivity::class,
         ],
         PaymentWasRefunded::class => [
             PaymentRefundedActivity::class,
+            PaymentBalanceActivity::class,
         ],
         PaymentWasVoided::class => [
             PaymentVoidedActivity::class,
+            PaymentBalanceActivity::class,
         ],
         PaymentWasRestored::class => [
             PaymentRestoredActivity::class,
+            PaymentBalanceActivity::class,
         ],
         // Clients
         ClientWasCreated::class => [
@@ -360,7 +380,6 @@ class EventServiceProvider extends ServiceProvider
         ],
         CreditWasUpdated::class => [
             UpdatedCreditActivity::class,
-            CreateInvoicePdf::class,
         ],
         CreditWasEmailedAndFailed::class => [
         ],
@@ -407,16 +426,13 @@ class EventServiceProvider extends ServiceProvider
         ],
         InvoiceWasUpdated::class => [
             UpdateInvoiceActivity::class,
-            CreateInvoicePdf::class,
         ],
         InvoiceWasCreated::class => [
             CreateInvoiceActivity::class,
             InvoiceCreatedNotification::class,
-            //    CreateInvoicePdf::class,
         ],
         InvoiceWasPaid::class => [
             InvoicePaidActivity::class,
-            CreateInvoicePdf::class,
         ],
         InvoiceWasViewed::class => [
             InvoiceViewedActivity::class,
@@ -431,10 +447,10 @@ class EventServiceProvider extends ServiceProvider
         ],
         InvoiceReminderWasEmailed::class => [
             InvoiceReminderEmailActivity::class,
+            InvoiceEmailedNotification::class,
         ],
         InvoiceWasDeleted::class => [
             InvoiceDeletedActivity::class,
-            CreateInvoicePdf::class,
         ],
         InvoiceWasArchived::class => [
             InvoiceArchivedActivity::class,
@@ -444,7 +460,6 @@ class EventServiceProvider extends ServiceProvider
         ],
         InvoiceWasReversed::class => [
             InvoiceReversedActivity::class,
-            CreateInvoicePdf::class,
         ],
         InvoiceWasCancelled::class => [
             InvoiceCancelledActivity::class,
@@ -500,7 +515,6 @@ class EventServiceProvider extends ServiceProvider
         ],
         QuoteWasUpdated::class => [
             QuoteUpdatedActivity::class,
-            CreateInvoicePdf::class,
         ],
         QuoteWasEmailed::class => [
             QuoteEmailActivity::class,
@@ -578,6 +592,9 @@ class EventServiceProvider extends ServiceProvider
         TaskWasRestored::class => [
             TaskRestoredActivity::class,
         ],
+        StripeConnectFailure::class => [
+            StripeConnectFailureListener::class,
+        ],
         SubscriptionWasCreated::class => [
             CreatedSubscriptionActivity::class,
         ],
@@ -607,6 +624,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         VendorWasUpdated::class => [
             VendorUpdatedActivity::class,
+        ],
+        VendorContactLoggedIn::class => [
+            UpdateVendorContactLastLogin::class,
         ],
         \SocialiteProviders\Manager\SocialiteWasCalled::class => [
             // ... Manager won't register drivers that are not added to this listener.
@@ -651,6 +671,7 @@ class EventServiceProvider extends ServiceProvider
         Quote::observe(QuoteObserver::class);
         Task::observe(TaskObserver::class);
         User::observe(UserObserver::class);
+        Vendor::observe(VendorObserver::class);
         VendorContact::observe(VendorContactObserver::class);
         PurchaseOrder::observe(PurchaseOrderObserver::class);
     }

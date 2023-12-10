@@ -15,7 +15,7 @@ use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
 use App\Utils\Number;
 use Illuminate\Support\Facades\App;
-        use stdClass;
+use stdClass;
 
 class EntityFailedSendObject
 {
@@ -39,7 +39,9 @@ class EntityFailedSendObject
 
     private $message;
 
-    public function __construct($invitation, $entity_type, $template, $message)
+    protected $use_react_url;
+    
+    public function __construct($invitation, $entity_type, $template, $message, $use_react_url)
     {
         $this->invitation = $invitation;
         $this->entity_type = $entity_type;
@@ -48,6 +50,7 @@ class EntityFailedSendObject
         $this->company = $invitation->company;
         $this->template = $template;
         $this->message = $message;
+        $this->use_react_url = $use_react_url;
     }
 
     public function build()
@@ -74,7 +77,6 @@ class EntityFailedSendObject
 
     private function setTemplate()
     {
-        // nlog($this->template);
 
         switch ($this->template) {
             case 'invoice':
@@ -149,7 +151,7 @@ class EntityFailedSendObject
                     'contact' => $this->contact->present()->name(),
                 ]
             ),
-            'url' => $this->invitation->getAdminLink(),
+            'url' => $this->invitation->getAdminLink($this->use_react_url),
             'button' => ctrans("texts.view_{$this->entity_type}"),
             'signature' => $signature,
             'logo' => $this->company->present()->logo(),

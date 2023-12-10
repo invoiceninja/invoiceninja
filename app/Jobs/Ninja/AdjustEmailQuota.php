@@ -21,6 +21,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redis;
 use Turbo124\Beacon\Facades\LightLogs;
 
 class AdjustEmailQuota implements ShouldQueue
@@ -61,21 +62,42 @@ class AdjustEmailQuota implements ShouldQueue
         Account::query()->cursor()->each(function ($account) {
             nlog("resetting email quota for {$account->key}");
 
-            $email_count = Cache::get($account->key);
+            $email_count = Cache::get("email_quota".$account->key);
 
-            if($email_count > 0){
-
-                try{
-                    LightLogs::create(new EmailCount($email_count, $account->key))->send();
-                }
-                catch(\Exception $e){
+            if ($email_count > 0) {
+                try {
+                    LightLogs::create(new EmailCount($email_count, $account->key))->send(); // this runs syncronously
+                } catch(\Exception $e) {
                     nlog($e->getMessage());
                 }
             }
-
-            Cache::forget($account->key);
-            Cache::forget("throttle_notified:{$account->key}");
-
         });
+
+        /** Use redis pipelines to execute bulk deletes efficiently */
+        $redis = Redis::connection('sentinel-cache');
+        $prefix =  config('cache.prefix'). ":email_quota*";
+
+        $keys = $redis->keys($prefix);
+
+        if (is_array($keys)) {
+            $redis->pipeline(function ($pipe) use ($keys) {
+                foreach ($keys as $key) {
+                    $pipe->del($key);
+                }
+            });
+        }
+        $keys = null;
+
+        $prefix =  config('cache.prefix'). ":throttle_notified*";
+
+        $keys = $redis->keys($prefix);
+
+        if (is_array($keys)) {
+            $redis->pipeline(function ($pipe) use ($keys) {
+                foreach ($keys as $key) {
+                    $pipe->del($key);
+                }
+            });
+        }
     }
 }

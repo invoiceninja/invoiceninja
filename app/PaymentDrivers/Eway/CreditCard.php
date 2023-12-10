@@ -14,18 +14,11 @@ namespace App\PaymentDrivers\Eway;
 
 use App\Exceptions\PaymentFailed;
 use App\Jobs\Util\SystemLogger;
-use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
-use App\Models\Payment;
-use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\Eway\ErrorCode;
 use App\PaymentDrivers\EwayPaymentDriver;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 
 class CreditCard
 {
@@ -77,12 +70,15 @@ class CreditCard
 
         $response = $this->eway_driver->init()->eway->createCustomer(\Eway\Rapid\Enum\ApiMethod::DIRECT, $transaction);
 
-        $response_status = ErrorCode::getStatus($response->ResponseMessage);
+        if($response->getErrors()) {
+    
+            $response_status['message'] = \Eway\Rapid::getMessage($response->getErrors()[0]);
 
-        if (! $response_status['success']) {
             $this->eway_driver->sendFailureMail($response_status['message']);
 
-            throw new PaymentFailed($response_status['message'], 400);
+            $this->logResponse($response);
+
+            throw new PaymentFailed($response_status['message'] ?? 'Unknown response from gateway, please contact you merchant.', 400);
         }
 
         //success
@@ -100,6 +96,8 @@ class CreditCard
         $cgt['payment_meta'] = $payment_meta;
 
         $token = $this->eway_driver->storeGatewayToken($cgt, []);
+
+        $this->logResponse($response);
 
         return $token;
     }
@@ -142,7 +140,7 @@ class CreditCard
 
         $amount = array_sum(array_column($this->eway_driver->payment_hash->invoices(), 'amount')) + $this->eway_driver->payment_hash->fee_total;
 
-        $description = "Invoices: {$invoice_numbers} for {$amount} for client {$this->eway_driver->client->present()->name()}";
+        // $description = "Invoices: {$invoice_numbers} for {$amount} for client {$this->eway_driver->client->present()->name()}";
 
         $transaction = [
             'Payment' => [
@@ -158,29 +156,6 @@ class CreditCard
         $response = $this->eway_driver->init()->eway->createTransaction(\Eway\Rapid\Enum\ApiMethod::DIRECT, $transaction);
 
         $this->logResponse($response);
-
-        // if(!$response || !property_exists($response, 'ResponseMessage'))
-        //     throw new PaymentFailed('The gateway did not return a valid response. Please check your gateway credentials.', 400);
-
-        // $response_status = ErrorCode::getStatus($response->ResponseMessage);
-
-        // if(!$response_status['success']){
-
-        //     if($response->getErrors())
-        //     {
-        //         $message = false;
-
-        //         foreach ($response->getErrors() as $error) {
-        //             $message = \Eway\Rapid::getMessage($error);
-        //         }
-
-        //         $return_message = $message ?: $response_status['message'];
-        //     }
-
-        //     $this->eway_driver->sendFailureMail($response_status['message']);
-
-        //     throw new PaymentFailed($response_status['message'], 400);
-        // }
 
         if ($response->TransactionStatus) {
             $payment = $this->storePayment($response);
@@ -276,7 +251,7 @@ class CreditCard
 
         $response = $this->eway_driver->init()->eway->createTransaction(\Eway\Rapid\Enum\ApiMethod::DIRECT, $transaction);
 
-        if ($response->TransactionStatus) {
+        if ($response->TransactionStatus ?? false) {
             $this->logResponse($response, true);
             $payment = $this->storePayment($response);
         } else {

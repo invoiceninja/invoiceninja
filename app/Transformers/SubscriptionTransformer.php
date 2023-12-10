@@ -22,13 +22,13 @@ class SubscriptionTransformer extends EntityTransformer
     /**
      * @var array
      */
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
     ];
 
     /**
      * @var array
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
     ];
 
     public function transform(Subscription $subscription): array

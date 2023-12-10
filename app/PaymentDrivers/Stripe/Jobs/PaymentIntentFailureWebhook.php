@@ -12,16 +12,10 @@
 namespace App\PaymentDrivers\Stripe\Jobs;
 
 use App\Jobs\Mail\PaymentFailedMailer;
-use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Models\Company;
-use App\Models\CompanyGateway;
-use App\Models\GatewayType;
-use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
-use App\Models\PaymentType;
-use App\Models\SystemLog;
 use App\PaymentDrivers\Stripe\Utilities;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -56,7 +50,7 @@ class PaymentIntentFailureWebhook implements ShouldQueue
     {
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
-        $company = Company::where('company_key', $this->company_key)->first();
+        $company = Company::query()->where('company_key', $this->company_key)->first();
 
         foreach ($this->stripe_request as $transaction) {
             if (array_key_exists('payment_intent', $transaction)) {
@@ -84,7 +78,7 @@ class PaymentIntentFailureWebhook implements ShouldQueue
                 $payment->status_id = Payment::STATUS_FAILED;
                 $payment->save();
 
-                $payment_hash = PaymentHash::where('payment_id', $payment->id)->first();
+                $payment_hash = PaymentHash::query()->where('payment_id', $payment->id)->first();
 
                 if ($payment_hash) {
                     $error = ctrans('texts.client_payment_failure_body', [
@@ -99,11 +93,11 @@ class PaymentIntentFailureWebhook implements ShouldQueue
                 }
 
                 PaymentFailedMailer::dispatch(
-                        $payment_hash,
-                        $client->company,
-                        $client,
-                        $error
-                    );
+                    $payment_hash,
+                    $client->company,
+                    $client,
+                    $error
+                );
             }
         }
     }

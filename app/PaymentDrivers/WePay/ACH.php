@@ -19,11 +19,9 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\SystemLog;
 use App\Notifications\Ninja\WePayFailureNotification;
-use App\PaymentDrivers\WePay\WePayCommon;
 use App\PaymentDrivers\WePayPaymentDriver;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
-use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Support\Str;
 
 class ACH
@@ -115,7 +113,7 @@ class ACH
     }
 
     /* If the bank transfer token is PENDING - we need to verify!! */
-//
+    //
 
     public function verificationView(ClientGatewayToken $token)
     {
@@ -203,7 +201,7 @@ class ACH
 
     public function paymentResponse($request)
     {
-        $token = ClientGatewayToken::find($this->decodePrimaryKey($request->input('source')));
+        $token = ClientGatewayToken::query()->find($this->decodePrimaryKey($request->input('source')));
         $token_meta = $token->meta;
 
         if (! property_exists($token_meta, 'state') || $token_meta->state != 'authorized') {

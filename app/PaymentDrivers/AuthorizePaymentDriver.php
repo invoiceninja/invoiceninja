@@ -66,6 +66,16 @@ class AuthorizePaymentDriver extends BaseDriver
 
     public function getClientRequiredFields(): array
     {
+        $data = [
+            ['name' => 'client_name', 'label' => ctrans('texts.name'), 'type' => 'text', 'validation' => 'required|min:2'],
+            ['name' => 'client_phone', 'label' => ctrans('texts.phone'), 'type' => 'text', 'validation' => 'required'],
+            ['name' => 'contact_email', 'label' => ctrans('texts.email'), 'type' => 'text', 'validation' => 'required|email:rfc'],
+            ['name' => 'client_address_line_1', 'label' => ctrans('texts.address1'), 'type' => 'text', 'validation' => 'required'],
+            ['name' => 'client_city', 'label' => ctrans('texts.city'), 'type' => 'text', 'validation' => 'required'],
+            ['name' => 'client_state', 'label' => ctrans('texts.state'), 'type' => 'text', 'validation' => 'required'],
+            ['name' => 'client_postal_code', 'label' => ctrans('texts.postal_code'), 'type' => 'text', 'validation' => 'required'],
+            ['name' => 'client_country_id', 'label' => ctrans('texts.country'), 'type' => 'select', 'validation' => 'required'],
+        ];
 
         $fields = [];
 
@@ -77,19 +87,25 @@ class AuthorizePaymentDriver extends BaseDriver
             $fields[] = ['name' => 'client_shipping_country_id', 'label' => ctrans('texts.shipping_country'), 'type' => 'text', 'validation' => 'required'];
         }
 
+        if ($this->company_gateway->require_custom_value1) {
+            $fields[] = ['name' => 'client_custom_value1', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client1'), 'type' => 'text', 'validation' => 'required'];
+        }
+        
 
-        $data = [
-            ['name' => 'client_name', 'label' => ctrans('texts.name'), 'type' => 'text', 'validation' => 'required|min:2'],
-            ['name' => 'contact_email', 'label' => ctrans('texts.email'), 'type' => 'text', 'validation' => 'required|email:rfc'],
-            ['name' => 'client_address_line_1', 'label' => ctrans('texts.address1'), 'type' => 'text', 'validation' => 'required'],
-            ['name' => 'client_city', 'label' => ctrans('texts.city'), 'type' => 'text', 'validation' => 'required'],
-            ['name' => 'client_state', 'label' => ctrans('texts.state'), 'type' => 'text', 'validation' => 'required'],
-            ['name' => 'client_postal_code', 'label' => ctrans('texts.postal_code'), 'type' => 'text', 'validation' => 'required'],
-            ['name' => 'client_country_id', 'label' => ctrans('texts.country'), 'type' => 'select', 'validation' => 'required'],
-        ];
+        if ($this->company_gateway->require_custom_value2) {
+            $fields[] = ['name' => 'client_custom_value2', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client2'), 'type' => 'text', 'validation' => 'required'];
+        }
 
-        return array_merge($fields, $data);
 
+        if ($this->company_gateway->require_custom_value3) {
+            $fields[] = ['name' => 'client_custom_value3', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client3'), 'type' => 'text', 'validation' => 'required'];
+        }
+
+        if ($this->company_gateway->require_custom_value4) {
+            $fields[] = ['name' => 'client_custom_value4', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client4'), 'type' => 'text', 'validation' => 'required'];
+        }
+
+        return array_merge($data, $fields);
     }
 
     public function authorizeView($payment_method)

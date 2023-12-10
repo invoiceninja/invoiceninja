@@ -11,7 +11,6 @@
 
 namespace App\Utils\Traits;
 
-use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use stdClass;
 
@@ -32,7 +31,7 @@ trait ClientGroupSettingsSaver
      * Works for groups|clients|companies
      * @param  array|object $settings The request input settings array
      * @param  object $entity   The entity which the settings belongs to
-     * @return void
+     * @return array|object
      */
     public function saveSettings($settings, $entity)
     {
@@ -85,6 +84,12 @@ trait ClientGroupSettingsSaver
 
         if (property_exists($settings, 'translations')) {
             unset($settings->translations);
+        }
+
+        foreach(['translations','pdf_variables'] as $key) {
+            if (property_exists($settings, $key)) {
+                unset($settings->{$key});
+            }
         }
 
         //18-07-2022 removed || empty($settings->{$key}) from this check to allow "0" values to persist
@@ -234,7 +239,7 @@ trait ClientGroupSettingsSaver
             case 'json':
                 json_decode($value);
 
-                    return json_last_error() == JSON_ERROR_NONE;
+                return json_last_error() == JSON_ERROR_NONE;
             default:
                 return false;
         }

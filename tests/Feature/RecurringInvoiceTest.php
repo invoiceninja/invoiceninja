@@ -13,12 +13,16 @@ namespace Tests\Feature;
 
 use App\Factory\InvoiceItemFactory;
 use App\Factory\InvoiceToRecurringInvoiceFactory;
+use App\Factory\RecurringInvoiceFactory;
 use App\Factory\RecurringInvoiceToInvoiceFactory;
+use App\Jobs\RecurringInvoice\UpdateRecurring;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\Product;
 use App\Models\RecurringInvoice;
 use App\Utils\Helpers;
 use App\Utils\Traits\MakesHash;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
@@ -35,6 +39,8 @@ class RecurringInvoiceTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
+
+    public $faker;
 
     protected function setUp() :void
     {
@@ -53,6 +59,293 @@ class RecurringInvoiceTest extends TestCase
         $this->makeTestData();
     }
 
+
+
+    public function testStartDate()
+    {
+        $line_items = [];
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 10;
+        $item->task_id = $this->encodePrimaryKey($this->task->id);
+        $item->expense_id = $this->encodePrimaryKey($this->expense->id);
+        $item->notes = "Hello this is the month of :MONTH";
+
+        $line_items[] = $item;
+
+
+        $data = [
+            'frequency_id' => 1,
+            'status_id' => 1,
+            'discount' => 0,
+            'is_amount_discount' => 1,
+            'po_number' => '3434343',
+            'public_notes' => 'notes',
+            'is_deleted' => 0,
+            'custom_value1' => 0,
+            'custom_value2' => 0,
+            'custom_value3' => 0,
+            'custom_value4' => 0,
+            'status' => 1,
+            'client_id' => $this->encodePrimaryKey($this->client->id),
+            'line_items' => $line_items,
+            'remaining_cycles' => -1,
+            'date' => '0001-01-01',
+            'due_date' => '0001-01-01',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/recurring_invoices/', $data)
+            ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals('0001-01-01', $arr['data']['date']);
+
+    }
+
+    public function testNextSendDateCatch()
+    {
+        $line_items = [];
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 10;
+        $item->task_id = $this->encodePrimaryKey($this->task->id);
+        $item->expense_id = $this->encodePrimaryKey($this->expense->id);
+        $item->notes = "Hello this is the month of :MONTH";
+
+        $line_items[] = $item;
+
+
+        $data = [
+            'frequency_id' => 1,
+            'status_id' => 2,
+            'discount' => 0,
+            'is_amount_discount' => 1,
+            'po_number' => '3434343',
+            'public_notes' => 'notes',
+            'is_deleted' => 0,
+            'custom_value1' => 0,
+            'custom_value2' => 0,
+            'custom_value3' => 0,
+            'custom_value4' => 0,
+            'status' => 1,
+            'client_id' => $this->encodePrimaryKey($this->client->id),
+            'line_items' => $line_items,
+            'remaining_cycles' => -1,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/recurring_invoices/', $data)
+            ->assertStatus(200);
+
+        $arr = $response->json();
+        
+        $this->assertEquals(now()->startOfDay(), $arr['data']['next_send_date']);
+
+    }
+
+    public function testBulkIncreasePriceWithJob()
+    {
+
+        $recurring_invoice = RecurringInvoiceFactory::create($this->company->id, $this->user->id);
+        $recurring_invoice->client_id = $this->client->id;
+        $line_items[] = [
+            'product_key' => 'pink',
+            'notes' => 'test',
+            'cost' => 10,
+            'quantity' => 1,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+        ];
+        $recurring_invoice->line_items = $line_items;
+
+        $recurring_invoice->calc()->getInvoice()->service()->start()->save()->fresh();
+
+        (new UpdateRecurring([$recurring_invoice->id], $this->company, $this->user, 'increase_prices', 10))->handle();
+
+        $recurring_invoice->refresh();
+
+        $this->assertEquals(11, $recurring_invoice->amount);
+
+    }
+
+    public function testBulkUpdateWithJob()
+    {
+        $p = Product::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'cost' => 20,
+            'price' => 20,
+            'product_key' => 'pink',
+        ]);
+
+        $recurring_invoice = RecurringInvoiceFactory::create($this->company->id, $this->user->id);
+        $recurring_invoice->client_id = $this->client->id;
+        $line_items[] = [
+            'product_key' => 'pink',
+            'notes' => 'test',
+            'cost' => 10,
+            'quantity' => 1,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+        ];
+        $recurring_invoice->line_items = $line_items;
+
+        $recurring_invoice->calc()->getInvoice()->service()->start()->save()->fresh();
+
+        (new UpdateRecurring([$recurring_invoice->id], $this->company, $this->user, 'update_prices'))->handle();
+
+        $recurring_invoice->refresh();
+
+        $this->assertEquals(20, $recurring_invoice->amount);
+
+    }
+
+    public function testBulkUpdatePrices()
+    {
+        $p = Product::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'cost' => 10,
+            'price' => 10,
+            'product_key' => 'pink',
+        ]);
+
+        $recurring_invoice = RecurringInvoiceFactory::create($this->company->id, $this->user->id);
+        $recurring_invoice->client_id = $this->client->id;
+        $line_items[] = [
+            'product_key' => 'pink',
+            'notes' => 'test',
+            'cost' => 10,
+            'quantity' => 1,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+        ];
+        $recurring_invoice->line_items = $line_items;
+
+        $recurring_invoice->calc()->getInvoice()->service()->start()->save()->fresh();
+
+        $this->assertEquals(10, $recurring_invoice->amount);
+
+        $p->cost = 20;
+        $p->price = 20;
+        $p->save();
+
+        $recurring_invoice->service()->updatePrice();
+
+        $recurring_invoice->refresh();
+
+        $this->assertEquals(20, $recurring_invoice->amount);
+
+        $recurring_invoice->service()->increasePrice(10);
+
+        $recurring_invoice->refresh();
+
+        $this->assertEquals(22, $recurring_invoice->amount);
+
+
+    }
+
+    public function testBulkUpdateMultiPrices()
+    {
+        $p1 = Product::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'cost' => 10,
+            'price' => 10,
+            'product_key' => 'pink',
+        ]);
+
+        $p2 = Product::factory()->create([
+           'company_id' => $this->company->id,
+           'user_id' => $this->user->id,
+           'cost' => 20,
+           'price' => 20,
+           'product_key' => 'floyd',
+        ]);
+
+        $recurring_invoice = RecurringInvoiceFactory::create($this->company->id, $this->user->id);
+        $recurring_invoice->client_id = $this->client->id;
+        $line_items[] = [
+            'product_key' => 'floyd',
+            'notes' => 'test',
+            'cost' => 20,
+            'quantity' => 1,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+        ];
+
+        $line_items[] = [
+            'product_key' => 'pink',
+            'notes' => 'test',
+            'cost' => 10,
+            'quantity' => 1,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+        ];
+
+        $recurring_invoice->line_items = $line_items;
+
+        $recurring_invoice->calc()->getInvoice()->service()->start()->save()->fresh();
+
+        $this->assertEquals(30, $recurring_invoice->amount);
+
+        $p1->cost = 20;
+        $p1->price = 20;
+        $p1->save();
+
+        $p2->cost = 40;
+        $p2->price = 40;
+        $p2->save();
+
+        $recurring_invoice->service()->updatePrice();
+
+        $recurring_invoice->refresh();
+
+        $this->assertEquals(60, $recurring_invoice->amount);
+
+        $recurring_invoice->service()->increasePrice(10);
+
+        $recurring_invoice->refresh();
+
+        $this->assertEquals(66, $recurring_invoice->amount);
+
+        $recurring_invoice->service()->increasePrice(1);
+
+        $recurring_invoice->refresh();
+
+        $this->assertEquals(66.66, $recurring_invoice->amount);
+
+    }
+
+
     public function testRecurringGetStatus()
     {
         $response = $this->withHeaders([
@@ -60,7 +353,6 @@ class RecurringInvoiceTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->get('/api/v1/recurring_invoices?client_status=active')
           ->assertStatus(200);
-
     }
 
 
@@ -370,5 +662,238 @@ class RecurringInvoiceTest extends TestCase
         $invoice = RecurringInvoiceToInvoiceFactory::create($recurring_invoice, $this->client);
 
         $this->assertEquals(null, $invoice->subscription_id);
+    }
+
+    public function testFilterProductKey()
+    {
+        $p1 = Product::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'cost' => 10,
+            'price' => 10,
+            'product_key' => $this->faker->unique()->word(),
+        ]);
+
+        $p2 = Product::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'cost' => 20,
+            'price' => 20,
+            'product_key' => $this->faker->unique()->word(),
+        ]);
+
+        $recurring_invoice = RecurringInvoiceFactory::create($this->company->id, $this->user->id);
+        $recurring_invoice->client_id = $this->client->id;
+        $recurring_invoice->line_items = [[
+            'product_key' => $p1->product_key,
+            'notes' => 'test',
+            'cost' => 20,
+            'quantity' => 1,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+        ]];
+
+        $recurring_invoice->calc()->getInvoice()->service()->start()->save()->fresh();
+
+        $recurring_invoice2 = RecurringInvoiceFactory::create($this->company->id, $this->user->id);
+        $recurring_invoice2->client_id = $this->client->id;
+        $recurring_invoice2->line_items = [[
+            'product_key' => $p2->product_key,
+            'notes' => 'test',
+            'cost' => 10,
+            'quantity' => 1,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+        ]];
+
+        $recurring_invoice2->calc()->getInvoice()->service()->start()->save()->fresh();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/recurring_invoices?product_key=' . $this->faker->unique()->word())
+            ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals('0', $arr['meta']['pagination']['total']);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/recurring_invoices?product_key=' . $p1->product_key)
+            ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals('1', $arr['meta']['pagination']['total']);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/recurring_invoices?product_key=' . $p1->product_key .',' . $p2->product_key)
+            ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals('2', $arr['meta']['pagination']['total']);
+    }
+
+    public function testFilterFrequency()
+    {
+        $p1 = Product::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'cost' => 10,
+            'price' => 10,
+            'product_key' => $this->faker->word,
+        ]);
+
+        $p2 = Product::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'cost' => 20,
+            'price' => 20,
+            'product_key' => $this->faker->word,
+        ]);
+
+        $recurring_invoice = RecurringInvoiceFactory::create($this->company->id, $this->user->id);
+        $recurring_invoice->frequency_id = RecurringInvoice::FREQUENCY_TWO_WEEKS;
+        $recurring_invoice->client_id = $this->client->id;
+        $recurring_invoice->line_items = [[
+            'product_key' => $p1->product_key,
+            'notes' => 'test',
+            'cost' => 20,
+            'quantity' => 1,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+        ]];
+
+        $recurring_invoice->calc()->getInvoice()->service()->start()->save()->fresh();
+
+        $recurring_invoice2 = RecurringInvoiceFactory::create($this->company->id, $this->user->id);
+        $recurring_invoice2->frequency_id = RecurringInvoice::FREQUENCY_ANNUALLY;
+        $recurring_invoice2->client_id = $this->client->id;
+        $recurring_invoice2->line_items = [[
+            'product_key' => $p2->product_key,
+            'notes' => 'test',
+            'cost' => 10,
+            'quantity' => 1,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+        ]];
+
+        $recurring_invoice2->calc()->getInvoice()->service()->start()->save()->fresh();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/recurring_invoices?frequency_id=' . RecurringInvoice::FREQUENCY_SIX_MONTHS)
+            ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals('0', $arr['meta']['pagination']['total']);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/recurring_invoices?frequency_id=' . RecurringInvoice::FREQUENCY_TWO_WEEKS)
+            ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals('1', $arr['meta']['pagination']['total']);
+    }
+
+    public function testFilterNextDateBetween()
+    {
+        $p1 = Product::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'cost' => 10,
+            'price' => 10,
+            'product_key' => $this->faker->word,
+        ]);
+
+        $p2 = Product::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'cost' => 20,
+            'price' => 20,
+            'product_key' => $this->faker->word,
+        ]);
+
+        $recurring_invoice = RecurringInvoiceFactory::create($this->company->id, $this->user->id);
+        $recurring_invoice->client_id = $this->client->id;
+        $recurring_invoice->next_send_date = Carbon::now()->subDays(7)->format('Y-m-d H:i:s');
+        $recurring_invoice->line_items = [[
+            'product_key' => $p1->product_key,
+            'notes' => 'test',
+            'cost' => 20,
+            'quantity' => 1,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+        ]];
+
+        $recurring_invoice->calc()->getInvoice()->service()->start()->save()->fresh();
+
+        $recurring_invoice2 = RecurringInvoiceFactory::create($this->company->id, $this->user->id);
+        $recurring_invoice2->next_send_date = Carbon::now()->subDays(2)->format('Y-m-d H:i:s');
+        $recurring_invoice2->client_id = $this->client->id;
+        $recurring_invoice2->line_items = [[
+            'product_key' => $p2->product_key,
+            'notes' => 'test',
+            'cost' => 10,
+            'quantity' => 1,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+        ]];
+
+        $recurring_invoice2->calc()->getInvoice()->service()->start()->save()->fresh();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/recurring_invoices?next_send_between=2020-01-01 00:00:00|2020-01-01 00:00:10')
+            ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals('0', $arr['meta']['pagination']['total']);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/recurring_invoices?next_send_between=' . $recurring_invoice->next_send_date . '|' . $recurring_invoice->next_send_date)
+            ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals('1', $arr['meta']['pagination']['total']);
     }
 }

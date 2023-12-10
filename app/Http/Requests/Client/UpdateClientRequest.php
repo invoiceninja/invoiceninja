@@ -31,21 +31,28 @@ class UpdateClientRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->client);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('edit', $this->client);
     }
 
     public function rules()
     {
         /* Ensure we have a client name, and that all emails are unique*/
+        /** @var  \App\Models\User $user */
+        $user = auth()->user();
 
-        if ($this->input('documents') && is_array($this->input('documents'))) {
-            $documents = count($this->input('documents'));
+        if ($this->file('documents') && is_array($this->file('documents'))) {
+            $rules['documents.*'] = $this->file_validation;
+        } elseif ($this->file('documents')) {
+            $rules['documents'] = $this->file_validation;
+        }
 
-            foreach (range(0, $documents) as $index) {
-                $rules['documents.'.$index] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
-            }
-        } elseif ($this->input('documents')) {
-            $rules['documents'] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+        if ($this->file('file') && is_array($this->file('file'))) {
+            $rules['file.*'] = $this->file_validation;
+        } elseif ($this->file('file')) {
+            $rules['file'] = $this->file_validation;
         }
 
         $rules['company_logo'] = 'mimes:jpeg,jpg,png,gif|max:10000';
@@ -53,15 +60,14 @@ class UpdateClientRequest extends Request
         $rules['size_id'] = 'integer|nullable';
         $rules['country_id'] = 'integer|nullable';
         $rules['shipping_country_id'] = 'integer|nullable';
-        //$rules['id_number'] = 'unique:clients,id_number,,id,company_id,' . auth()->user()->company()->id;
-        //$rules['id_number'] = 'unique:clients,id_number,'.$this->id.',id,company_id,'.$this->company_id;
+        $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,partnership,trust,charity,government,other';
 
         if ($this->id_number) {
-            $rules['id_number'] = Rule::unique('clients')->where('company_id', auth()->user()->company()->id)->ignore($this->client->id);
+            $rules['id_number'] = Rule::unique('clients')->where('company_id', $user->company()->id)->ignore($this->client->id);
         }
 
         if ($this->number) {
-            $rules['number'] = Rule::unique('clients')->where('company_id', auth()->user()->company()->id)->ignore($this->client->id);
+            $rules['number'] = Rule::unique('clients')->where('company_id', $user->company()->id)->ignore($this->client->id);
         }
 
         $rules['settings'] = new ValidClientGroupSettingsRule();
@@ -97,9 +103,12 @@ class UpdateClientRequest extends Request
     {
         $input = $this->all();
 
+        /** @var  \App\Models\User $user */
+        $user = auth()->user();
+
         /* If the user removes the currency we must always set the default */
         if (array_key_exists('settings', $input) && ! array_key_exists('currency_id', $input['settings'])) {
-            $input['settings']['currency_id'] = (string) auth()->user()->company()->settings->currency_id;
+            $input['settings']['currency_id'] = (string) $user->company()->settings->currency_id;
         }
 
         if (isset($input['language_code'])) {
@@ -141,8 +150,8 @@ class UpdateClientRequest extends Request
      * down to the free plan setting properties which
      * are saveable
      *
-     * @param  object $settings
-     * @return stdClass $settings
+     * @param  \stdClass $settings
+     * @return \stdClass $settings
      */
     private function filterSaveableSettings($settings)
     {

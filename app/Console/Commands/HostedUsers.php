@@ -11,9 +11,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\ClientContact;
 use App\Models\Company;
-use App\Models\User;
 use App\Utils\Ninja;
 use Illuminate\Console\Command;
 
@@ -46,7 +44,6 @@ class HostedUsers extends Command
     /**
      * Execute the console command.
      *
-     * @return int
      */
     public function handle()
     {

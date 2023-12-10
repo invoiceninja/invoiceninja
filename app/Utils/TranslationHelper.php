@@ -11,8 +11,8 @@
 
 namespace App\Utils;
 
+use \Illuminate\Support\Facades\Cache;
 use App\Models\PaymentTerm;
-use Cache;
 use Illuminate\Support\Str;
 
 class TranslationHelper

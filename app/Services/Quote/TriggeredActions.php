@@ -49,9 +49,28 @@ class TriggeredActions extends AbstractService
             $this->quote = $this->quote->service()->convert()->save();
         }
 
-        if ($this->request->has('approve') && $this->request->input('approve') == 'true' && in_array($this->quote->status_id, [Quote::STATUS_SENT, Quote::STATUS_DRAFT])) {
+        // if ($this->request->has('approve') && $this->request->input('approve') == 'true' && in_array($this->quote->status_id, [Quote::STATUS_SENT, Quote::STATUS_DRAFT])) {
+        if ($this->request->has('approve') && $this->request->input('approve') == 'true') {
             $this->quote = $this->quote->service()->approveWithNoCoversion()->save();
         }
+
+        if ($this->request->has('save_default_footer') && $this->request->input('save_default_footer') == 'true') {
+            $company = $this->quote->company;
+            $settings = $company->settings;
+            $settings->quote_footer = $this->quote->footer;
+            $company->settings = $settings;
+            $company->save();
+        }
+
+        if ($this->request->has('save_default_terms') && $this->request->input('save_default_terms') == 'true') {
+            $company = $this->quote->company;
+            $settings = $company->settings;
+            $settings->quote_terms = $this->quote->terms;
+            $company->settings = $settings;
+            $company->save();
+        }
+
+
 
         return $this->quote;
     }

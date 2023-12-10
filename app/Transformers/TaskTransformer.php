@@ -11,10 +11,13 @@
 
 namespace App\Transformers;
 
+use App\Models\Client;
 use App\Models\Document;
+use App\Models\Invoice;
+use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskStatus;
-use App\Transformers\TaskStatusTransformer;
+use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use League\Fractal\Resource\Item;
 
@@ -25,16 +28,20 @@ class TaskTransformer extends EntityTransformer
 {
     use MakesHash;
 
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'documents',
+        'project',
     ];
 
     /**
      * @var array
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'client',
-        'status'
+        'status',
+        'project',
+        'user',
+        'invoice',
     ];
 
     public function includeDocuments(Task $task)
@@ -44,12 +51,36 @@ class TaskTransformer extends EntityTransformer
         return $this->includeCollection($task->documents, $transformer, Document::class);
     }
 
+    public function includeInvoice(Task $task): ?Item
+    {
+        $transformer = new InvoiceTransformer($this->serializer);
+
+        if (!$task->invoice) {
+            return null;
+        }
+
+        return $this->includeItem($task->invoice, $transformer, Invoice::class);
+    }
+
+    public function includeUser(Task $task): ?Item
+    {
+        $transformer = new UserTransformer($this->serializer);
+
+        if (!$task->user) {
+            return null;
+        }
+
+        return $this->includeItem($task->user, $transformer, User::class);
+    }
+
+
     public function includeClient(Task $task): ?Item
     {
         $transformer = new ClientTransformer($this->serializer);
 
-        if(!$task->client)
+        if (!$task->client) {
             return null;
+        }
 
         return $this->includeItem($task->client, $transformer, Client::class);
     }
@@ -58,12 +89,23 @@ class TaskTransformer extends EntityTransformer
     {
         $transformer = new TaskStatusTransformer($this->serializer);
 
-        if(!$task->status)
+        if (!$task->status) {
             return null;
+        }
 
         return $this->includeItem($task->status, $transformer, TaskStatus::class);
     }
 
+    public function includeProject(Task $task): ?Item
+    {
+        $transformer = new ProjectTransformer($this->serializer);
+
+        if (!$task->project) {
+            return null;
+        }
+
+        return $this->includeItem($task->project, $transformer, Project::class);
+    }
 
     public function transform(Task $task)
     {
@@ -92,6 +134,7 @@ class TaskTransformer extends EntityTransformer
             'status_sort_order' => (int) $task->status_sort_order, //deprecated 5.0.34
             'is_date_based' => (bool) $task->is_date_based,
             'status_order' => is_null($task->status_order) ? null : (int) $task->status_order,
+            'date' => $task->calculated_start_date ?: '',
         ];
     }
 }

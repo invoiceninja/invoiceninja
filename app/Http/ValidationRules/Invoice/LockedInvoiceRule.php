@@ -54,7 +54,6 @@ class LockedInvoiceRule implements Rule
         switch ($lock_invoices) {
             case 'off':
                 return true;
-                break;
             case 'when_sent':
                 if ($this->invoice->status_id == Invoice::STATUS_SENT) {
                     return false;
@@ -62,17 +61,14 @@ class LockedInvoiceRule implements Rule
 
                 return true;
 
-                break;
             case 'when_paid':
                 if ($this->invoice->status_id == Invoice::STATUS_PAID) {
                     return false;
                 }
 
                 return true;
-                break;
             default:
                 return true;
-                break;
         }
     }
 }

@@ -11,19 +11,16 @@
 
 namespace App\Mail\Admin;
 
+use App\Models\Company;
+use App\Models\User;
 use App\Utils\Ninja;
 use Illuminate\Support\Facades\App;
 
 class AccountCreatedObject
 {
-    public $user;
-
-    public $company;
-
-    public function __construct($user, $company)
+    
+    public function __construct(public User $user, public Company $company)
     {
-        $this->user = $user;
-        $this->company = $company;
     }
 
     public function build()

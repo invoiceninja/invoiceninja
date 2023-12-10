@@ -12,7 +12,6 @@
 namespace App\Http\Requests\Product;
 
 use App\Http\Requests\Request;
-use App\Models\Product;
 use App\Utils\Traits\ChecksEntityStatus;
 
 class UpdateProductRequest extends Request
@@ -26,21 +25,23 @@ class UpdateProductRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('create', Product::class);
+        return auth()->user()->can('edit', $this->product);
     }
 
     public function rules()
     {
-        if ($this->input('documents') && is_array($this->input('documents'))) {
-            $documents = count($this->input('documents'));
-
-            foreach (range(0, $documents) as $index) {
-                $rules['documents.'.$index] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
-            }
-        } elseif ($this->input('documents')) {
-            $rules['documents'] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+        if ($this->file('documents') && is_array($this->file('documents'))) {
+            $rules['documents.*'] = $this->file_validation;
+        } elseif ($this->file('documents')) {
+            $rules['documents'] = $this->file_validation;
         }
 
+        if ($this->file('file') && is_array($this->file('file'))) {
+            $rules['file.*'] = $this->file_validation;
+        } elseif ($this->file('file')) {
+            $rules['file'] = $this->file_validation;
+        }
+        
         $rules['cost'] = 'numeric';
         $rules['price'] = 'numeric';
         $rules['quantity'] = 'numeric';

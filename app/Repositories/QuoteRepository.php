@@ -26,6 +26,6 @@ class QuoteRepository extends BaseRepository
 
     public function getInvitationByKey($key) :?QuoteInvitation
     {
-        return QuoteInvitation::where('key', $key)->first();
+        return QuoteInvitation::query()->where('key', $key)->first();
     }
 }

@@ -19,14 +19,14 @@ use Illuminate\View\View;
  *
  * @param $page
  * @param bool $boolean
- * @return bool
+ * @return bool | string
  */
 function isActive($page, bool $boolean = false)
 {
     $current_page = Route::currentRouteName();
     $action = Route::currentRouteAction(); // string
 
-    $show = str_replace(['.show','payment_methodss','documentss','subscriptionss','paymentss'],['s.index','payment_methods','documents','subscriptions','payments'], $current_page);
+    $show = str_replace(['.show','payment_methodss','documentss','subscriptionss','paymentss'], ['s.index','payment_methods','documents','subscriptions','payments'], $current_page);
 
     if ($page == $current_page && $boolean) {
         return true;
@@ -36,11 +36,9 @@ function isActive($page, bool $boolean = false)
         return 'bg-gray-200';
     }
 
-    if(($page == $show) && $boolean){
+    if (($page == $show) && $boolean) {
         return true;
     }
-
-
 
     return false;
 }

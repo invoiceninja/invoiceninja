@@ -15,9 +15,7 @@ namespace App\PaymentDrivers\CheckoutCom;
 use App\Exceptions\PaymentFailed;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
-use App\Models\PaymentType;
 use App\Models\SystemLog;
-use Checkout\Models\Payments\Payment;
 use Exception;
 use stdClass;
 
@@ -62,7 +60,7 @@ trait Utilities
 
         $data = [
             'payment_method' => $_payment['source']['id'],
-            'payment_type' => 12,
+            'payment_type' => \App\Models\PaymentType::CREDIT_CARD_OTHER,
             'amount' => $this->getParent()->payment_hash->data->raw_value,
             'transaction_reference' => $_payment['id'],
             'gateway_type_id' => GatewayType::CREDIT_CARD,
@@ -84,7 +82,6 @@ trait Utilities
 
     public function processUnsuccessfulPayment($_payment, $throw_exception = true)
     {
-
         $error_message = '';
 
         nlog("checkout failure");
@@ -92,10 +89,16 @@ trait Utilities
         
         if (is_array($_payment) && array_key_exists('status', $_payment)) {
             $error_message = $_payment['status'];
-        }
-        else {
+        } else {
             $error_message = 'Error processing payment.';
         }
+
+        if(isset($_payment['actions'][0]['response_summary']) ?? false) {
+            $error_message = $_payment['actions'][0]['response_summary'];
+        }
+
+        //checkout does not return a integer status code as an alias for a http status code.
+        $error_code = 400;
 
         $this->getParent()->sendFailureMail($error_message);
 
@@ -114,7 +117,7 @@ trait Utilities
         );
 
         if ($throw_exception) {
-            throw new PaymentFailed($error_message, 500);
+            throw new PaymentFailed($error_message, $error_code);
         }
     }
 

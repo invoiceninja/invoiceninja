@@ -11,83 +11,48 @@
 
 namespace App\Export\CSV;
 
+use App\Export\Decorators\Decorator;
 use App\Libraries\MultiDB;
-use App\Models\Client;
 use App\Models\Company;
-use App\Models\Credit;
-use App\Models\Document;
 use App\Models\Payment;
 use App\Transformers\PaymentTransformer;
 use App\Utils\Ninja;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
 class PaymentExport extends BaseExport
 {
-    private Company $company;
-
-    protected array $input;
-
     private $entity_transformer;
 
-    protected $date_key = 'date';
+    public string $date_key = 'date';
 
-    protected array $entity_keys = [
-        'amount' => 'amount',
-        'applied' => 'applied',
-        'client' => 'client_id',
-        'currency' => 'currency_id',
-        'custom_value1' => 'custom_value1',
-        'custom_value2' => 'custom_value2',
-        'custom_value3' => 'custom_value3',
-        'custom_value4' => 'custom_value4',
-        'date' => 'date',
-        'exchange_currency' => 'exchange_currency_id',
-        'gateway' => 'gateway_type_id',
-        'number' => 'number',
-        'private_notes' => 'private_notes',
-        'project' => 'project_id',
-        'refunded' => 'refunded',
-        'status' => 'status_id',
-        'transaction_reference' => 'transaction_reference',
-        'type' => 'type_id',
-        'vendor' => 'vendor_id',
-    ];
+    public Writer $csv;
 
-    private array $decorate_keys = [
-        'vendor',
-        'status',
-        'project',
-        'client',
-        'currency',
-        'exchange_currency',
-        'type',
-    ];
+    private Decorator $decorator;
 
     public function __construct(Company $company, array $input)
     {
         $this->company = $company;
         $this->input = $input;
         $this->entity_transformer = new PaymentTransformer();
+        $this->decorator = new Decorator();
     }
-
-    public function run()
+ 
+    private function init(): Builder
     {
+
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
         App::setLocale($this->company->locale());
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
-        //load the CSV document from a string
-        $this->csv = Writer::createFromString();
-
         if (count($this->input['report_keys']) == 0) {
-            $this->input['report_keys'] = array_values($this->entity_keys);
+            $this->input['report_keys'] = array_values($this->payment_report_keys);
         }
 
-        //insert the header
-        $this->csv->insertOne($this->buildHeader());
+        $this->input['report_keys'] = array_merge($this->input['report_keys'], array_diff($this->forced_client_fields, $this->input['report_keys']));
 
         $query = Payment::query()
                             ->withTrashed()
@@ -95,6 +60,39 @@ class PaymentExport extends BaseExport
                             ->where('is_deleted', 0);
 
         $query = $this->addDateRange($query);
+
+        return $query;
+    }
+
+    public function returnJson()
+    {
+
+        $query = $this->init();
+
+        $headerdisplay = $this->buildHeader();
+
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
+            return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
+        })->toArray();
+
+        $report = $query->cursor()
+                ->map(function ($resource) {
+                    $row = $this->buildRow($resource);
+                    return $this->processMetaData($row, $resource);
+                })->toArray();
+                
+        return array_merge(['columns' => $header], $report);
+
+    }
+
+    public function run()
+    {
+        $query =  $this->init();
+        //load the CSV document from a string
+        $this->csv = Writer::createFromString();
+
+        //insert the header
+        $this->csv->insertOne($this->buildHeader());
 
         $query->cursor()
               ->each(function ($entity) {
@@ -111,16 +109,24 @@ class PaymentExport extends BaseExport
         $entity = [];
 
         foreach (array_values($this->input['report_keys']) as $key) {
-            $keyval = array_search($key, $this->entity_keys);
+    
+            $parts = explode('.', $key);
 
-            if (array_key_exists($key, $transformed_entity)) {
-                $entity[$keyval] = $transformed_entity[$key];
+            if (is_array($parts) && $parts[0] == 'payment' && array_key_exists($parts[1], $transformed_entity)) {
+                $entity[$key] = $transformed_entity[$parts[1]];
+            } elseif (array_key_exists($key, $transformed_entity)) {
+                $entity[$key] = $transformed_entity[$key];
             } else {
-                $entity[$keyval] = '';
+
+                // nlog($key);
+                $entity[$key] = $this->decorator->transform($key, $payment);
+                // $entity[$key] = $this->resolveKey($key, $payment, $this->entity_transformer);
             }
+
         }
 
-        return $this->decorateAdvancedFields($payment, $entity);
+        return $entity;
+        // return $this->decorateAdvancedFields($payment, $entity);
     }
 
     private function decorateAdvancedFields(Payment $payment, array $entity) :array
@@ -141,6 +147,10 @@ class PaymentExport extends BaseExport
             $entity['currency'] = $payment->currency()->exists() ? $payment->currency->code : '';
         }
 
+        if (in_array('payment.currency', $this->input['report_keys'])) {
+            $entity['payment.currency'] = $payment->currency()->exists() ? $payment->currency->code : '';
+        }
+
         if (in_array('exchange_currency_id', $this->input['report_keys'])) {
             $entity['exchange_currency'] = $payment->exchange_currency()->exists() ? $payment->exchange_currency->code : '';
         }
@@ -153,9 +163,27 @@ class PaymentExport extends BaseExport
             $entity['type'] = $payment->translatedType();
         }
 
+        if (in_array('payment.method', $this->input['report_keys'])) {
+            $entity['payment.method'] = $payment->translatedType();
+        }
+
+        if (in_array('payment.status', $this->input['report_keys'])) {
+            $entity['payment.status'] = $payment->stringStatus($payment->status_id);
+        }
+
         if (in_array('gateway_type_id', $this->input['report_keys'])) {
             $entity['gateway'] = $payment->gateway_type ? $payment->gateway_type->name : 'Unknown Type';
         }
+
+        if (in_array('payment.assigned_user_id', $this->input['report_keys'])) {
+            $entity['payment.assigned_user_id'] = $payment->assigned_user ? $payment->assigned_user->present()->name() : '';
+        }
+
+        if (in_array('payment.user_id', $this->input['report_keys'])) {
+            $entity['payment.user_id'] = $payment->user ? $payment->user->present()->name() : '';
+        }
+
+        // $entity['invoices'] = $payment->invoices()->exists() ? $payment->invoices->pluck('number')->implode(',') : '';
 
         return $entity;
     }

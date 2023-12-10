@@ -33,8 +33,9 @@ trait SavesDocuments
             return false;
         }
 
-        if(!is_array($document_array))
+        if (!is_array($document_array)) {
             return;
+        }
 
         foreach ($document_array as $document) {
             $document = (new UploadFile(

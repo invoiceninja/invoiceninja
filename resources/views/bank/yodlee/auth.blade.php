@@ -68,7 +68,7 @@
     </div>
 
     <div id="completed" class="mb-4">
-      <a class="button button-primary bg-blue-600 my-4" href="{{ config('ninja.app_url') }}">Return to admin portal.</a>
+      <a class="button button-primary bg-blue-600 my-4" href="{{ $redirect_url }}">Return to admin portal.</a>
     </div>
 
 </div>

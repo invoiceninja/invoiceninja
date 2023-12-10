@@ -1,0 +1,27 @@
+    ExpenseCategory:
+      properties:
+        id:
+          description: 'The expense hashed id'
+          type: string
+          example: Opnel5aKBz
+        name:
+          description: 'The expense category name'
+          type: string
+          example: Accounting
+        user_id:
+          description: 'The user hashed id'
+          type: string
+          example: XS987sD
+        is_deleted:
+          description: 'Flag determining whether the expense category has been deleted'
+          type: boolean
+          example: true
+        updated_at:
+          description: 'The updated at timestamp'
+          type: integer
+          example: '2'
+        created_at:
+          description: 'The created at timestamp'
+          type: integer
+          example: '2'
+      type: object

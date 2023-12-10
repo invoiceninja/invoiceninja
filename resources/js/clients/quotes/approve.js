@@ -9,9 +9,10 @@
  */
 
 class Approve {
-    constructor(displaySignature, displayTerms) {
+    constructor(displaySignature, displayTerms, userInput) {
         this.shouldDisplaySignature = displaySignature;
         this.shouldDisplayTerms = displayTerms;
+        this.shouldDisplayUserInput = userInput;
         this.termsAccepted = false;
     }
 
@@ -45,20 +46,59 @@ class Approve {
         displayTermsModal.removeAttribute("style");
     }
 
+    displayInput() {
+        let displayInputModal = document.getElementById("displayInputModal");
+        displayInputModal.removeAttribute("style");
+    }
+
     handle() {
 
         document.getElementById("signature-next-step").disabled = true;
-        document.getElementById("close_button").addEventListener('click', () => {
+
+        document.getElementById("close-button").addEventListener('click', () => {
             const approveButton = document.getElementById("approve-button");
+
+            console.log('close button');
 
             if(approveButton)
                 approveButton.disabled = false;
 
         });
 
+        document.getElementById("close-terms-button").addEventListener('click', () => {
+            const approveButton = document.getElementById("approve-button");
+
+            console.log('close terms-button');
+
+            if (approveButton)
+                approveButton.disabled = false;
+
+        });
+
+
         document
             .getElementById('approve-button')
             .addEventListener('click', () => {
+
+                if (!this.shouldDisplaySignature && !this.shouldDisplayTerms && this.shouldDisplayUserInput){
+                    this.displayInput();
+
+                        document
+                            .getElementById('input-next-step')
+                            .addEventListener('click', () => {
+                                document.querySelector(
+                                    'input[name="user_input"'
+                                ).value = document.getElementById('user_input').value;
+                                this.termsAccepted = true;
+                                this.submitForm();
+                            });
+                            
+                }
+
+                if(this.shouldDisplayUserInput)
+                    this.displayInput();
+
+
                 if (this.shouldDisplaySignature && this.shouldDisplayTerms) {
                     this.displaySignature();
 
@@ -73,13 +113,18 @@ class Approve {
                                     document.querySelector(
                                         'input[name="signature"'
                                     ).value = this.signaturePad.toDataURL();
+                                    document.querySelector(
+                                        'input[name="user_input"'
+                                    ).value = document.getElementById('user_input').value;
                                     this.termsAccepted = true;
                                     this.submitForm();
                                 });
+                                
                         });
                 }
 
                 if (this.shouldDisplaySignature && !this.shouldDisplayTerms) {
+
                     this.displaySignature();
 
                     document
@@ -88,6 +133,9 @@ class Approve {
                             document.querySelector(
                                 'input[name="signature"'
                             ).value = this.signaturePad.toDataURL();
+                            document.querySelector(
+                                'input[name="user_input"'
+                            ).value = document.getElementById('user_input').value;
                             this.submitForm();
                         });
                 }
@@ -103,7 +151,7 @@ class Approve {
                         });
                 }
 
-                if (!this.shouldDisplaySignature && !this.shouldDisplayTerms) {
+                if (!this.shouldDisplaySignature && !this.shouldDisplayTerms && !this.shouldDisplayUserInput) {
                     this.submitForm();
                 }
             });
@@ -115,4 +163,6 @@ const signature = document.querySelector('meta[name="require-quote-signature"]')
 
 const terms = document.querySelector('meta[name="show-quote-terms"]').content;
 
-new Approve(Boolean(+signature), Boolean(+terms)).handle();
+const user_input = document.querySelector('meta[name="accept-user-input"]').content;
+
+new Approve(Boolean(+signature), Boolean(+terms), Boolean(+user_input)).handle();

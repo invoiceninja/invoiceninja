@@ -12,7 +12,6 @@
 namespace App\Factory;
 
 use App\Models\BankTransaction;
-use Illuminate\Support\Str;
 
 class BankTransactionFactory
 {

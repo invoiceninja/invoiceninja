@@ -1,0 +1,104 @@
+    User:
+      properties:
+        id:
+          description: 'The hashed id of the user'
+          type: string
+          example: Opnel5aKBz
+          readOnly: true
+        first_name:
+          description: 'The first name of the user'
+          type: string
+          example: Brad
+        last_name:
+          description: 'The last name of the user'
+          type: string
+          example: Pitt
+        email:
+          description: 'The users email address'
+          type: string
+          example: brad@pitt.com
+        phone:
+          description: 'The users phone number'
+          type: string
+          example: 555-1233-23232
+        signature:
+          description: 'The users sign off signature'
+          type: string
+          example: 'Have a nice day!'
+        avatar:
+          description: 'The users avatar'
+          type: string
+          example: 'https://url.to.your/avatar.png'
+        accepted_terms_version:
+          description: 'The version of the invoice ninja terms that has been accepted by the user'
+          type: string
+          example: 1.0.1
+          readOnly: true
+        oauth_user_id:
+          description: 'The provider id of the oauth entity'
+          type: string
+          example: jkhasdf789as6f675sdf768sdfs
+          readOnly: true
+        oauth_provider_id:
+          description: 'The oauth entity id'
+          type: string
+          example: google
+          readOnly: true
+        language_id:
+          description: 'The language id of the user'
+          type: string
+          example: 1  
+        verified_phone_number:
+          description: 'Boolean flag if the user has their phone verified. Required to settings up 2FA'
+          type: boolean
+          example: true
+          readOnly: true
+        sms_verification_code:
+          description: 'The sms verification code for the user. Required to settings up 2FA'
+          type: string
+          example: '123456'
+          readOnly: true
+        oauth_user_token_expiry:
+          description: 'The expiry date of the oauth token'
+          type: string
+          example: '2022-10-10'
+          readOnly: true
+        has_password:
+          description: 'Boolean flag determining if the user has a password'
+          type: boolean
+          example: true
+          readOnly: true
+        last_confirmed_email_address:
+          description: 'The last confirmed email address of the user'
+          type: string
+          example: 'bob@gmail.com'
+          readOnly: true
+        custom_value1:
+          description: 'A custom value'
+          type: string
+          example: 'Custom value 1'
+        custom_value2:
+          description: 'A custom value'
+          type: string
+          example: '$1000'
+        custom_value3:
+          description: 'A custom value'
+          type: string
+          example: 'Custom value 3'
+        custom_value4:
+          description: 'A custom value'
+          type: string
+          example: 'Custom value 4'
+        is_deleted:
+          description: 'Boolean flag determining if the user has been deleted'
+          type: boolean
+          example: true
+          readOnly: true
+        google_2fa_secret:
+          description: 'The google 2fa secret for the user'
+          type: string
+          example: '123456'
+          readOnly: true
+        company_user:
+          $ref: '#/components/schemas/CompanyUser'
+      type: object

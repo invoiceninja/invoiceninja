@@ -22,15 +22,19 @@ class PreImportRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->isAdmin();
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->isAdmin();
     }
 
     public function rules()
     {
         return [
-            'files.*' => 'file|mimes:csv,txt',
+            'files.*' => 'file|mimetypes:text/csv,text/plain,application/octet-stream',
             'files' => 'required|array|min:1|max:6',
             'import_type' => 'required',
         ];
     }
+
 }

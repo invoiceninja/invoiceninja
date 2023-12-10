@@ -22,6 +22,6 @@ class ShowSchedulerRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('view', $this->scheduler);
+        return auth()->user()->can('view', $this->task_scheduler);
     }
 }

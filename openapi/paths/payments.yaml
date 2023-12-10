@@ -1,0 +1,545 @@
+  /api/v1/payments:
+    get:
+      tags:
+        - payments
+      summary: "List payments"
+      description: "Lists payments, search and filters allow fine grained lists to be generated.\n\n        Query parameters can be added to performed more fine grained filtering of the payments, these are handled by the PaymentFilters class which defines the methods available"
+      operationId: getPayments
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - $ref: "#/components/parameters/status"
+        - $ref: "#/components/parameters/client_id"
+        - $ref: "#/components/parameters/created_at"
+        - $ref: "#/components/parameters/updated_at"
+        - $ref: "#/components/parameters/is_deleted"
+        - $ref: "#/components/parameters/filter_deleted_clients"
+        - $ref: "#/components/parameters/vendor_id"
+        - name: filter
+          in: query
+          description: |
+            Searches across a range of columns including:  
+            - amount  
+            - date  
+            - custom_value1  
+            - custom_value2  
+            - custom_value3  
+            - custom_value4
+          required: false
+          schema:
+            type: string
+          example: ?filter=10
+        - name: number
+          in: query
+          description: |
+            Search payments by payment number 
+          required: false
+          schema:
+            type: string
+          example: ?number=0001
+        - name: sort
+          in: query
+          description: Returns the list sorted by column in ascending or descending order.
+          required: false
+          schema:
+            type: string
+          example: id|desc number|desc balance|asc 
+      responses:
+        200:
+          description: "A list of payments"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:  
+                type: object
+                properties:
+                  data: 
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Payment'
+                  meta:
+                    type: object
+                    $ref: '#/components/schemas/Meta'
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"
+    post:
+      tags:
+        - payments
+      summary: "Create payment"
+      description: "Adds an Payment to the system"
+      operationId: storePayment
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+      requestBody:
+        description: "The payment request"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Payment"
+      responses:
+        200:
+          description: "Returns the saved Payment object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"
+  
+  "/api/v1/payments/{id}":
+    get:
+      tags:
+        - payments
+      summary: "Show payment"
+      description: "Displays an Payment by id"
+      operationId: showPayment
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Payment Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns the Payment object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"
+    put:
+      tags:
+        - payments
+      summary: "Update payment"
+      description: "Handles the updating of an Payment by id"
+      operationId: updatePayment
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Payment Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns the Payment object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"
+    delete:
+      tags:
+        - payments
+      summary: "Delete payment"
+      description: "Handles the deletion of an Payment by id"
+      operationId: deletePayment
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Payment Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns a HTTP status"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/payments/{id}/edit":
+    get:
+      tags:
+        - payments
+      summary: "Edit payment"
+      description: "Displays an Payment by id"
+      operationId: editPayment
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Payment Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns the Payment object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/payments/create:
+    get:
+      tags:
+        - payments
+      summary: "Blank payment"
+      description: "Returns a blank object with default values"
+      operationId: getPaymentsCreate
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+      responses:
+        200:
+          description: "A blank Payment object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/payments/refund:
+    post:
+      tags:
+        - payments
+      summary: "Refund payment"
+      description: "Adds an Refund to the system"
+      operationId: storeRefund
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+      requestBody:
+        description: "The refund request"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Payment"
+      responses:
+        200:
+          description: "Returns the saved Payment object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/payments/bulk:
+    post:
+      tags:
+        - payments
+      summary: "Bulk payment actions"
+      description: ""
+      operationId: bulkPayments
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/index"
+      requestBody:
+        description: "User credentials"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                description: "Array of hashed IDs to be bulk 'actioned"
+                type: integer
+                example: "[0,1,2,3]"
+      responses:
+        200:
+          description: "The Payment response"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/payments/{id}/{action}":
+    get:
+      deprecated: true
+      tags:
+        - payments
+      summary: "Custom payment actions"
+      description: "Performs a custom action on an Payment.\n\n    The current range of actions are as follows\n    - clone_to_Payment\n    - clone_to_quote\n    - history\n    - delivery_note\n    - mark_paid\n    - download\n    - archive\n    - delete\n    - email"
+      operationId: actionPayment
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Payment Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+        - name: action
+          in: path
+          description: "The action string to be performed"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: clone_to_quote
+      responses:
+        200:
+          description: "Returns the Payment object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"
+  
+  "/api/v1/payments/{id}/upload":
+    post:
+      tags:
+        - payments
+      summary: "Upload a payment document"
+      description: "Handles the uploading of a document to a payment"
+      operationId: uploadPayment
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Payment Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
+      responses:
+        200:
+          description: "Returns the Payment object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"

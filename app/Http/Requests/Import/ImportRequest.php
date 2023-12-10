@@ -22,7 +22,10 @@ class ImportRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->isAdmin();
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->isAdmin();
     }
 
     public function rules()
@@ -34,6 +37,7 @@ class ImportRequest extends Request
             'column_map' => 'required_with:hash|array',
             'skip_header' => 'required_with:hash|boolean',
             'files.*' => 'file|mimes:csv,txt',
+            'bank_integration_id' => 'bail|required_if:column_map,bank_transaction|min:2'
         ];
     }
 }

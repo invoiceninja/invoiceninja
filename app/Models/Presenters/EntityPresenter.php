@@ -13,10 +13,13 @@ namespace App\Models\Presenters;
 
 use App\Utils\Traits\MakesHash;
 use Laracasts\Presenter\Presenter;
-use URL;
 
 /**
  * Class EntityPresenter.
+ *
+ * @property \App\Models\Company | \App\Models\Client | \App\Models\ClientContact | \App\Models\Vendor | \App\Models\VendorContact $entity
+ * @property \App\Models\Client $client
+ * @property \App\Models\Company $company
  */
 class EntityPresenter extends Presenter
 {

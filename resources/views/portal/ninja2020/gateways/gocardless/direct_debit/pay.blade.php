@@ -22,7 +22,7 @@
                     <label class="mr-4">
                         <input type="radio" data-token="{{ $token->token }}" name="payment-type"
                             class="form-radio cursor-pointer toggle-payment-with-token" />
-                        <span class="ml-1 cursor-pointer">{{ ctrans('texts.payment_type_direct_debit') }}
+                        <span class="ml-1 cursor-pointer">{{ App\Models\GatewayType::getAlias($token->gateway_type_id) }}
                             (#{{ $token->token }})</span>
                     </label>
                 @endforeach
@@ -38,7 +38,9 @@
         @endcomponent
     @endif
 
-    @include('portal.ninja2020.gateways.includes.pay_now')
+    @if (count($tokens) > 0)
+        @include('portal.ninja2020.gateways.includes.pay_now')
+    @endif
 @endsection
 
 @push('footer')

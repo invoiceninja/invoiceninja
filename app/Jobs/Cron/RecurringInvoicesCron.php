@@ -17,6 +17,7 @@ use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class RecurringInvoicesCron
 {
@@ -43,6 +44,8 @@ class RecurringInvoicesCron
         /* Get all invoices where the send date is less than NOW + 30 minutes() */
         $start = Carbon::now()->format('Y-m-d h:i:s');
         nlog('Sending recurring invoices '.$start);
+        
+        Auth::logout();
 
         if (! config('ninja.db.multi_db_enabled')) {
             $recurring_invoices = RecurringInvoice::where('status_id', RecurringInvoice::STATUS_ACTIVE)
@@ -70,7 +73,6 @@ class RecurringInvoicesCron
                 /* Special check if we should generate another invoice is the previous one is yet to be paid */
                 if ($recurring_invoice->company->stop_on_unpaid_recurring && $recurring_invoice->invoices()->whereIn('status_id', [2, 3])->where('is_deleted', 0)->where('balance', '>', 0)->exists()) {
                     nlog('Existing invoice exists, skipping');
-
                     return;
                 }
 
@@ -104,7 +106,6 @@ class RecurringInvoicesCron
                 nlog(now()->format('Y-m-d').' Sending Recurring Invoices. Count = '.$recurring_invoices->count());
 
                 $recurring_invoices->each(function ($recurring_invoice, $key) {
-
                     nlog("Trying to send {$recurring_invoice->number}");
 
                     if ($recurring_invoice->company->stop_on_unpaid_recurring) {
@@ -123,6 +124,5 @@ class RecurringInvoicesCron
         }
 
         nlog("Recurring invoice send duration " . $start . " - " . Carbon::now()->format('Y-m-d h:i:s'));
-        
     }
 }

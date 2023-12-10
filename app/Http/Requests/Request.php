@@ -11,7 +11,6 @@
 
 namespace App\Http\Requests;
 
-use App\Http\Requests\RuntimeFormRequest;
 use App\Http\ValidationRules\User\RelatedUserRule;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Http\FormRequest;
@@ -21,6 +20,7 @@ class Request extends FormRequest
     use MakesHash;
     use RuntimeFormRequest;
 
+    protected $file_validation = 'sometimes|file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx,webp,xml,zip,csv,ods,odt,odp|max:100000';
     /**
      * Get the validation rules that apply to the request.
      *
@@ -63,14 +63,20 @@ class Request extends FormRequest
 
     private function invoice_id($rules)
     {
-        $rules['invoice_id'] = 'bail|nullable|sometimes|exists:invoices,id,company_id,'.auth()->user()->company()->id.',client_id,'.$this['client_id'];
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $rules['invoice_id'] = 'bail|nullable|sometimes|exists:invoices,id,company_id,'.$user->company()->id.',client_id,'.$this['client_id'];
 
         return $rules;
     }
 
     private function vendor_id($rules)
     {
-        $rules['vendor_id'] = 'bail|nullable|sometimes|exists:vendors,id,company_id,'.auth()->user()->company()->id;
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $rules['vendor_id'] = 'bail|nullable|sometimes|exists:vendors,id,company_id,'.$user->company()->id;
 
         return $rules;
     }
@@ -125,6 +131,10 @@ class Request extends FormRequest
             $input['company_gateway_id'] = $this->decodePrimaryKey($input['company_gateway_id']);
         }
 
+        if (array_key_exists('transaction_id', $input) && is_string($input['transaction_id'])) {
+            $input['transaction_id'] = $this->decodePrimaryKey($input['transaction_id']);
+        }
+
         if (array_key_exists('category_id', $input) && is_string($input['category_id'])) {
             $input['category_id'] = $this->decodePrimaryKey($input['category_id']);
         }
@@ -154,7 +164,6 @@ class Request extends FormRequest
                 if (array_key_exists('vendor_contact_id', $input['invitations'][$key]) && is_string($input['invitations'][$key]['vendor_contact_id'])) {
                     $input['invitations'][$key]['vendor_contact_id'] = $this->decodePrimaryKey($input['invitations'][$key]['vendor_contact_id']);
                 }
-
             }
         }
 
@@ -171,7 +180,7 @@ class Request extends FormRequest
                 }
 
                 //Filter the client contact password - if it is sent with ***** we should ignore it!
-                if (isset($contact['password'])) {
+                if (isset($contact['password']) && is_string($contact['password'])) {
                     if (strlen($contact['password']) == 0) {
                         $input['contacts'][$key]['password'] = '';
                     } else {
@@ -194,5 +203,72 @@ class Request extends FormRequest
 
     public function prepareForValidation()
     {
+    }
+
+    /**
+     * Convert to boolean
+     *
+     * @param $bool
+     * @return bool
+     */
+    public function toBoolean($bool): bool
+    {
+        return filter_var($bool, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+    }
+    
+    public function checkTimeLog(array $log): bool
+    {
+        if (count($log) == 0) {
+            return true;
+        }
+
+        /*Get first value of all arrays*/
+        $result = array_column($log, 0);
+
+        /*Sort the array in ascending order*/
+        asort($result);
+
+        $new_array = [];
+
+        /*Rebuild the array in order*/
+        foreach ($result as $key => $value) {
+            $new_array[] = $log[$key];
+        }
+
+        /*Iterate through the array and perform checks*/
+        foreach ($new_array as $key => $array) {
+            /*Flag which helps us know if there is a NEXT timelog*/
+            $next = false;
+            /* If there are more than 1 time log in the array, ensure the last timestamp is not zero*/
+            if (count($new_array) >1 && $array[1] == 0) {
+                return false;
+            }
+
+            /* Check if the start time is greater than the end time */
+            /* Ignore the last value for now, we'll do a separate check for this */
+            if ($array[0] > $array[1] && $array[1] != 0) {
+                return false;
+            }
+            
+            /* Find the next time log value - if it exists */
+            if (array_key_exists($key+1, $new_array)) {
+                $next = $new_array[$key+1];
+            }
+
+            /* check the next time log and ensure the start time is GREATER than the end time of the previous record */
+            if ($next && $next[0] < $array[1]) {
+                return false;
+            }
+
+            /* Get the last row of the timelog*/
+            $last_row = end($new_array);
+            
+            /*If the last value is NOT zero, ensure start time is not GREATER than the endtime */
+            if ($last_row[1] != 0 && $last_row[0] > $last_row[1]) {
+                return false;
+            }
+
+            return true;
+        }
     }
 }

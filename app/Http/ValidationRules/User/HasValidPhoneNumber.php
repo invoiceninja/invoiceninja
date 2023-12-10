@@ -11,8 +11,6 @@
 
 namespace App\Http\ValidationRules\User;
 
-use App\Models\CompanyUser;
-use App\Models\User;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
@@ -26,8 +24,8 @@ class HasValidPhoneNumber implements Rule
     {
     }
 
-    public function message() 
-    { 
+    public function message()
+    {
         return [
             'phone' => ctrans('texts.phone_validation_error'),
         ];
@@ -40,44 +38,41 @@ class HasValidPhoneNumber implements Rule
      */
     public function passes($attribute, $value)
     {
+        $sid = config('ninja.twilio_account_sid');
+        $token = config('ninja.twilio_auth_token');
 
-		$sid = config('ninja.twilio_account_sid');
-		$token = config('ninja.twilio_auth_token');
+        if (!$sid) {
+            return true;
+        }
 
-		if(!$sid)
-			return true; 
-
-        if(is_null($value))
+        if (is_null($value)) {
             return false;
+        }
         
-		$twilio = new \Twilio\Rest\Client($sid, $token);
+        $twilio = new \Twilio\Rest\Client($sid, $token);
 
-		$country = auth()->user()->account?->companies()?->first()?->country();
+        $country = auth()->user()->account?->companies()?->first()?->country();
 
-		if(!$country || strlen(auth()->user()->phone) < 2)
-		  return true;
+        if (!$country || strlen(auth()->user()->phone) < 2) {
+            return true;
+        }
 
-		$countryCode = $country->iso_3166_2;
+        $countryCode = $country->iso_3166_2;
         
-		try{
-
-			$phone_number = $twilio->lookups->v1->phoneNumbers($value)
-		                                        ->fetch(["countryCode" => $countryCode]);
+        try {
+            $phone_number = $twilio->lookups->v1->phoneNumbers($value)
+                                                ->fetch(["countryCode" => $countryCode]);
 
             $user = auth()->user();
 
             request()->merge(['validated_phone' => $phone_number->phoneNumber ]);
 
-			$user->verified_phone_number = false;
+            $user->verified_phone_number = false;
             $user->save();
             
             return true;
-
-		}
-		catch(\Exception $e) {
-			return false;
-		}
-
+        } catch(\Exception $e) {
+            return false;
+        }
     }
-
 }

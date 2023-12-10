@@ -2,7 +2,6 @@
 
 use App\Models\Company;
 use App\Models\Language;
-use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -24,7 +23,7 @@ return new class extends Migration {
             $table->integer('default_password_timeout')->default(30);
         });
 
-        Company::whereNotNull('id')->update(['default_password_timeout' => 30]);
+        Company::query()->whereNotNull('id')->update(['default_password_timeout' => 30]);
     }
 
     /**

@@ -45,7 +45,7 @@ class TriggeredActions extends AbstractService
             $this->credit = $this->credit->service()->markSent()->save();
         }
 
-        if($this->request->has('save_default_footer') && $this->request->input('save_default_footer') == 'true') {
+        if ($this->request->has('save_default_footer') && $this->request->input('save_default_footer') == 'true') {
             $company = $this->credit->company;
             $settings = $company->settings;
             $settings->credit_footer = $this->credit->footer;
@@ -53,12 +53,16 @@ class TriggeredActions extends AbstractService
             $company->save();
         }
 
-        if($this->request->has('save_default_terms') && $this->request->input('save_default_terms') == 'true') {
+        if ($this->request->has('save_default_terms') && $this->request->input('save_default_terms') == 'true') {
             $company = $this->credit->company;
             $settings = $company->settings;
             $settings->credit_terms = $this->credit->terms;
             $company->settings = $settings;
             $company->save();
+        }
+
+        if ($this->request->has('mark_paid') && $this->request->input('mark_paid') == 'true') {
+            $this->credit->service()->markPaid()->save();
         }
 
         return $this->credit;

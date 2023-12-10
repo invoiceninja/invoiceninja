@@ -53,9 +53,8 @@ class QuoteEmailActivity implements ShouldQueue
         $fields->client_id = $event->invitation->quote->client_id;
         $fields->company_id = $event->invitation->quote->company_id;
         $fields->client_contact_id = $event->invitation->quote->client_contact_id;
-        $fields->client_id = $event->invitation->quote->client_id;
         $fields->activity_type_id = Activity::EMAIL_QUOTE;
 
-        $this->activity_repo->save($fields, $event->invitation->quote, $event->event_vars);
+        $this->activity_repo->save($fields, $event->invitation, $event->event_vars);
     }
 }

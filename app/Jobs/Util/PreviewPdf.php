@@ -24,25 +24,14 @@ class PreviewPdf implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, PdfMaker, PageNumbering;
 
-    public $company;
-
-    private $disk;
-
-    public $design_string;
-
     /**
      * Create a new job instance.
      *
      * @param $design_string
      * @param Company $company
      */
-    public function __construct($design_string, Company $company)
+    public function __construct(public string $design_string, public Company $company)
     {
-        $this->company = $company;
-
-        $this->design_string = $design_string;
-
-        $this->disk = $disk ?? config('filesystems.default');
     }
 
     public function handle()

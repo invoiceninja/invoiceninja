@@ -24,7 +24,6 @@ use App\Models\ExpenseCategory;
 use App\Repositories\BaseRepository;
 use App\Transformers\ExpenseCategoryTransformer;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**
@@ -104,7 +103,7 @@ class ExpenseCategoryController extends BaseController
      *      tags={"expense_categories"},
      *      summary="Gets a new blank Expens Category object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Response(
      *          response=200,
@@ -138,8 +137,7 @@ class ExpenseCategoryController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param StoreInvoiceRequest $request  The request
-     *
+     * @param StoreExpenseCategoryRequest $request
      * @return Response
      *
      *
@@ -149,7 +147,7 @@ class ExpenseCategoryController extends BaseController
      *      tags={"expense_categories"},
      *      summary="Adds a expense category",
      *      description="Adds an expense category to the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -175,7 +173,10 @@ class ExpenseCategoryController extends BaseController
      */
     public function store(StoreExpenseCategoryRequest $request)
     {
-        $expense_category = ExpenseCategoryFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user **/
+        $user = auth()->user();
+
+        $expense_category = ExpenseCategoryFactory::create($user->company()->id, $user->id);
         $expense_category->fill($request->all());
         $expense_category->save();
 
@@ -196,7 +197,7 @@ class ExpenseCategoryController extends BaseController
      *      tags={"expense_categories"},
      *      summary="Shows a Expens Category",
      *      description="Displays an ExpenseCategory by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="id",
@@ -249,7 +250,7 @@ class ExpenseCategoryController extends BaseController
      *      tags={"expense_categories"},
      *      summary="Shows a Expens Category for editting",
      *      description="Displays a Expens Category by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="id",
@@ -303,7 +304,7 @@ class ExpenseCategoryController extends BaseController
      *      tags={"expense_categories"},
      *      summary="Updates a tax rate",
      *      description="Handles the updating of a tax rate by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="id",
@@ -360,7 +361,7 @@ class ExpenseCategoryController extends BaseController
      *      tags={"expense_categories"},
      *      summary="Deletes a ExpenseCategory",
      *      description="Handles the deletion of an ExpenseCategory by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="id",
@@ -414,7 +415,7 @@ class ExpenseCategoryController extends BaseController
      *      tags={"expense_categories"},
      *      summary="Performs bulk actions on an array of ExpenseCategorys",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
@@ -454,14 +455,17 @@ class ExpenseCategoryController extends BaseController
      */
     public function bulk()
     {
+        /** @var \App\Models\User $user **/
+        $user = auth()->user();
+
         $action = request()->input('action');
 
         $ids = request()->input('ids');
 
         $expense_categories = ExpenseCategory::withTrashed()->find($this->transformKeys($ids));
 
-        $expense_categories->each(function ($expense_category, $key) use ($action) {
-            if (auth()->user()->can('edit', $expense_category)) {
+        $expense_categories->each(function ($expense_category, $key) use ($action, $user) {
+            if ($user->can('edit', $expense_category)) {
                 $this->base_repo->{$action}($expense_category);
             }
         });

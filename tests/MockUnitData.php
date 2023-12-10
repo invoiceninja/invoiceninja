@@ -20,6 +20,7 @@ use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\User;
+use App\Models\Vendor;
 
 /**
  * Class MockUnitData.
@@ -33,6 +34,8 @@ trait MockUnitData
     public $user;
 
     public $client;
+
+    public $vendor;
 
     public $faker;
 
@@ -88,6 +91,11 @@ trait MockUnitData
         $company_token->save();
 
         $this->client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $this->vendor = Vendor::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
         ]);

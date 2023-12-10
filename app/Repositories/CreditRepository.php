@@ -41,7 +41,7 @@ class CreditRepository extends BaseRepository
 
     public function getInvitationByKey($key) :?CreditInvitation
     {
-        return CreditInvitation::where('key', $key)->first();
+        return CreditInvitation::query()->where('key', $key)->first();
     }
 
     public function delete($credit)
@@ -53,7 +53,6 @@ class CreditRepository extends BaseRepository
         $credit = $credit->service()->deleteCredit()->save();
 
         return parent::delete($credit);
-
     }
 
     public function restore($credit)
@@ -69,5 +68,4 @@ class CreditRepository extends BaseRepository
 
         return $credit;
     }
-
 }

@@ -13,7 +13,6 @@ namespace App\Http\Requests\TaskStatus;
 
 use App\Http\Requests\Request;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Validation\Rule;
 
 class UpdateTaskStatusRequest extends Request
 {
@@ -32,11 +31,6 @@ class UpdateTaskStatusRequest extends Request
     public function rules()
     {
         $rules = [];
-
-        // 26/10/2021 we disable this as it prevent updating existing task status meta data where the same name already exists
-        // if ($this->input('name')) {
-        //     $rules['name'] = Rule::unique('task_statuses')->where('company_id', auth()->user()->company()->id)->ignore($this->task_status->id);
-        // }
 
         return $rules;
     }

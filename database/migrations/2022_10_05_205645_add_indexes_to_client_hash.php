@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -13,21 +12,18 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('clients', function (Blueprint $table) {
-            $table->index([\DB::raw('client_hash(20)')]);
-        });
 
+        \DB::statement('CREATE INDEX client_hash_idx ON clients (client_hash(20));');
+        \DB::statement('CREATE INDEX client_contact_key_idx ON client_contacts (contact_key(20));');
+        \DB::statement('CREATE INDEX vendor_contact_key_idx ON vendor_contacts (contact_key(20));');
 
         Schema::table('client_contacts', function (Blueprint $table) {
-            $table->index([\DB::raw('contact_key(20)')]);
             $table->index('email');
         });
 
         Schema::table('vendor_contacts', function (Blueprint $table) {
-            $table->index([\DB::raw('contact_key(20)')]);
             $table->index('email');
         });
-
     }
 
     /**

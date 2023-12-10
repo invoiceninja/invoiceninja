@@ -13,28 +13,31 @@ namespace App\Transformers;
 
 use App\Models\Activity;
 use App\Models\Backup;
+use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\Credit;
+use App\Models\Expense;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\PurchaseOrder;
+use App\Models\Quote;
+use App\Models\RecurringInvoice;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Models\VendorContact;
-use App\Transformers\PurchaseOrderTransformer;
-use App\Transformers\VendorContactTransformer;
-use App\Transformers\VendorTransformer;
 use App\Utils\Traits\MakesHash;
 
 class ActivityTransformer extends EntityTransformer
 {
     use MakesHash;
 
-    protected $defaultIncludes = [];
+    protected array $defaultIncludes = [];
 
     /**
      * @var array
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'history',
         'user',
         'client',

@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\Builder;
 
 class PurchaseOrderFilters extends QueryFilters
 {
-
     /**
      * Filter based on client status.
      *
@@ -41,8 +40,7 @@ class PurchaseOrderFilters extends QueryFilters
             return $this->builder;
         }
 
-        $this->builder->where(function ($query) use ($status_parameters){
-
+        $this->builder->where(function ($query) use ($status_parameters) {
             $po_status = [];
 
             if (in_array('draft', $status_parameters)) {
@@ -50,12 +48,11 @@ class PurchaseOrderFilters extends QueryFilters
             }
 
             if (in_array('sent', $status_parameters)) {
-                $query->orWhere(function ($q){
-                              $q->where('status_id', PurchaseOrder::STATUS_SENT)
-                              ->whereNull('due_date')
-                              ->orWhere('due_date', '>=', now()->toDateString());
-                          });
-            
+                $query->orWhere(function ($q) {
+                    $q->where('status_id', PurchaseOrder::STATUS_SENT)
+                    ->whereNull('due_date')
+                    ->orWhere('due_date', '>=', now()->toDateString());
+                });
             }
 
             if (in_array('accepted', $status_parameters)) {
@@ -66,8 +63,8 @@ class PurchaseOrderFilters extends QueryFilters
                 $po_status[] = PurchaseOrder::STATUS_CANCELLED;
             }
 
-            if(count($status_parameters) >=1) {
-                $query->whereIn('status_id', $status_parameters);
+            if (count($po_status) >=1) {
+                $query->whereIn('status_id', $po_status);
             }
         });
 
@@ -77,7 +74,7 @@ class PurchaseOrderFilters extends QueryFilters
     /**
      * Filter based on search text.
      *
-     * @param string query filter
+     * @param string $filter
      * @return Builder
      * @deprecated
      */
@@ -96,7 +93,10 @@ class PurchaseOrderFilters extends QueryFilters
                 ->orWhere('custom_value1', 'like', '%'.$filter.'%')
                 ->orWhere('custom_value2', 'like', '%'.$filter.'%')
                 ->orWhere('custom_value3', 'like', '%'.$filter.'%')
-                ->orWhere('custom_value4', 'like', '%'.$filter.'%');
+                ->orWhere('custom_value4', 'like', '%'.$filter.'%')
+                ->orWhereHas('vendor', function ($q) use ($filter) {
+                    $q->where('name', 'like', '%'.$filter.'%');
+                });
         });
     }
 
@@ -112,7 +112,7 @@ class PurchaseOrderFilters extends QueryFilters
     /**
      * Sorts the list based on $sort.
      *
-     * @param string sort formatted as column|asc
+     * @param string $sort formatted as column|asc
      * @return Builder
      */
     public function sort(string $sort = ''): Builder
@@ -121,6 +121,11 @@ class PurchaseOrderFilters extends QueryFilters
 
         if (!is_array($sort_col) || count($sort_col) != 2) {
             return $this->builder;
+        }
+
+        if ($sort_col[0] == 'vendor_id') {
+            return $this->builder->orderBy(\App\Models\Vendor::select('name')
+                    ->whereColumn('vendors.id', 'purchase_orders.vendor_id'), $sort_col[1]);
         }
 
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
@@ -140,7 +145,7 @@ class PurchaseOrderFilters extends QueryFilters
             return $this->builder->company();
         }
 
-//            return $this->builder->whereCompanyId(auth()->user()->company()->id);
+        //            return $this->builder->whereCompanyId(auth()->user()->company()->id);
     }
 
     /**

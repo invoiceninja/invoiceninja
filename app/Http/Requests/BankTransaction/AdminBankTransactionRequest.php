@@ -12,7 +12,6 @@
 namespace App\Http\Requests\BankTransaction;
 
 use App\Http\Requests\Request;
-use App\Models\BankTransaction;
 
 class AdminBankTransactionRequest extends Request
 {

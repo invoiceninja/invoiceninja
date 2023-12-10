@@ -1,10 +1,10 @@
 <?php
 /**
- * Quote Ninja (https://paymentninja.com).
+ * Invoice Ninja (https://invoiceninja.com).
  *
- * @link https://github.com/paymentninja/paymentninja source repository
+ * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Quote Ninja LLC (https://paymentninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -29,10 +29,18 @@ class UploadRecurringQuoteRequest extends Request
     {
         $rules = [];
 
-        if ($this->input('documents')) {
-            $rules['documents'] = 'file|mimes:csv,png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:2000000';
+        if ($this->file('documents') && is_array($this->file('documents'))) {
+            $rules['documents.*'] = $this->file_validation;
+        } elseif ($this->file('documents')) {
+            $rules['documents'] = $this->file_validation;
         }
 
+        if ($this->file('file') && is_array($this->file('file'))) {
+            $rules['file.*'] = $this->file_validation;
+        } elseif ($this->file('file')) {
+            $rules['file'] = $this->file_validation;
+        }
+        
         return $rules;
     }
 }

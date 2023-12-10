@@ -3,12 +3,12 @@ var __webpack_exports__ = {};
 /*!***********************************************************!*\
   !*** ./resources/js/clients/payments/eway-credit-card.js ***!
   \***********************************************************/
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -21,7 +21,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 var EwayRapid = /*#__PURE__*/function () {
   function EwayRapid() {
     _classCallCheck(this, EwayRapid);
-
     this.cardStyles = 'padding: 2px; border: 1px solid #AAA; border-radius: 3px; height: 34px; width: 100%;';
     this.errorCodes = new Map();
     this.errorCodes.set('V6000', 'Validation error');
@@ -187,12 +186,10 @@ var EwayRapid = /*#__PURE__*/function () {
     this.errorCodes.set('V6522', 'Invalid or missing Amex Original transaction date time');
     this.errorCodes.set('V6530', 'Credit Card Number in non Credit Card Field');
   }
-
   _createClass(EwayRapid, [{
     key: "groupFieldConfig",
     get: function get() {
       var _document$querySelect, _document$querySelect2, _document$querySelect3, _document$querySelect4, _document$querySelect5;
-
       return {
         publicApiKey: (_document$querySelect = document.querySelector('meta[name=public-api-key]')) === null || _document$querySelect === void 0 ? void 0 : _document$querySelect.content,
         fieldDivId: 'eway-secure-panel',
@@ -268,35 +265,27 @@ var EwayRapid = /*#__PURE__*/function () {
     key: "securePanelCallback",
     value: function securePanelCallback(event) {
       document.getElementById('errors').hidden = true;
-
       if (event.errors) {
         return this.handleErrors(event.errors);
       }
-
       if (document.getElementById('authorize-card')) {
         document.getElementById('authorize-card').disabled = false;
       }
-
       if (document.getElementById('pay-now')) {
         document.getElementById('pay-now').disabled = false;
       }
-
       document.querySelector('input[name=securefieldcode]').value = event.secureFieldCode;
     }
   }, {
     key: "handleErrors",
     value: function handleErrors(errors) {
       var _this = this;
-
       var _errors = errors.split(' ');
-
       var shouldShowGenericError = false;
       var message = '';
-
       _errors.forEach(function (error) {
         message = message.concat(_this.errorCodes.get(error) + '<br>');
       });
-
       document.getElementById('errors').innerHTML = message;
       document.getElementById('errors').hidden = false;
     }
@@ -317,18 +306,15 @@ var EwayRapid = /*#__PURE__*/function () {
     value: function completePaymentWithoutToken(event) {
       event.target.parentElement.disabled = true;
       var tokenBillingCheckbox = document.querySelector('input[name="token-billing-checkbox"]:checked');
-
       if (tokenBillingCheckbox) {
         document.querySelector('input[name="store_card"]').value = tokenBillingCheckbox.value;
       }
-
       document.getElementById('server-response').submit();
     }
   }, {
     key: "initialize",
     value: function initialize() {
       var _this2 = this;
-
       this.eWAY = eWAY.setupSecureField(this.groupFieldConfig, function (event) {
         return _this2.securePanelCallback(event);
       });
@@ -337,9 +323,8 @@ var EwayRapid = /*#__PURE__*/function () {
     key: "handle",
     value: function handle() {
       var _document$getElementB,
-          _this3 = this,
-          _document$getElementB2;
-
+        _this3 = this,
+        _document$getElementB2;
       this.initialize();
       (_document$getElementB = document.getElementById('authorize-card')) === null || _document$getElementB === void 0 ? void 0 : _document$getElementB.addEventListener('click', function (e) {
         return _this3.completeAuthorization(e);
@@ -360,19 +345,15 @@ var EwayRapid = /*#__PURE__*/function () {
       });
       (_document$getElementB2 = document.getElementById('pay-now')) === null || _document$getElementB2 === void 0 ? void 0 : _document$getElementB2.addEventListener('click', function (e) {
         var tokenInput = document.querySelector('input[name=token]');
-
         if (tokenInput.value) {
           return _this3.completePaymentUsingToken(e);
         }
-
         return _this3.completePaymentWithoutToken(e);
       });
     }
   }]);
-
   return EwayRapid;
 }();
-
 new EwayRapid().handle();
 /******/ })()
 ;

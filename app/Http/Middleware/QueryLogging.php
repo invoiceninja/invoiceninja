@@ -23,6 +23,7 @@ use Turbo124\Beacon\Facades\LightLogs;
  */
 class QueryLogging
 {
+
     /**
      * Handle an incoming request.
      *
@@ -38,22 +39,26 @@ class QueryLogging
         if (! Ninja::isHosted() || ! config('beacon.enabled')) {
             return $next($request);
         }
-
-        $timeStart = microtime(true);
+        
         DB::enableQueryLog();
+        return $next($request);
 
-        $response = $next($request);
+    }
+
+    public function terminate($request, $response)
+    {
+        if (! Ninja::isHosted() || ! config('beacon.enabled')) {
+            return;
+        }
+
         // hide requests made by debugbar
         if (strstr($request->url(), '_debugbar') === false) {
+
             $queries = DB::getQueryLog();
             $count = count($queries);
             $timeEnd = microtime(true);
-            $time = $timeEnd - $timeStart;
+            $time = $timeEnd - LARAVEL_START;
 
-            // nlog("Query count = {$count}");
-            // nlog($queries);
-            // nlog($request->url());
-            
             if ($count > 175) {
                 nlog("Query count = {$count}");
                 nlog($queries);
@@ -61,18 +66,17 @@ class QueryLogging
 
             $ip = '';
 
-            if (request()->hasHeader('Cf-Connecting-Ip')) {
-                $ip = request()->header('Cf-Connecting-Ip');
-            } elseif (request()->hasHeader('X-Forwarded-For')) {
-                $ip = request()->header('Cf-Connecting-Ip');
+            if ($request->hasHeader('Cf-Connecting-Ip')) {
+                $ip = $request->header('Cf-Connecting-Ip');
+            } elseif ($request->hasHeader('X-Forwarded-For')) {
+                $ip = $request->header('Cf-Connecting-Ip');
             } else {
-                $ip = request()->ip();
+                $ip = $request->ip();
             }
 
-            LightLogs::create(new DbQuery($request->method(), substr(urldecode($request->url()),0,180), $count, $time, $ip))
-                 ->batch();
+            LightLogs::create(new DbQuery($request->method(), substr(urldecode($request->url()), 0, 180), $count, $time, $ip))
+                ->batch();
         }
 
-        return $response;
     }
 }

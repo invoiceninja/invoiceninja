@@ -11,7 +11,14 @@
 
 namespace App\Helpers\Invoice;
 
+use App\DataMapper\Tax\RuleInterface;
+use App\Models\Client;
+use App\Models\Credit;
 use App\Models\Invoice;
+use App\Models\PurchaseOrder;
+use App\Models\Quote;
+use App\Models\RecurringInvoice;
+use App\Models\RecurringQuote;
 use App\Utils\Traits\NumberFormatter;
 
 class InvoiceItemSumInclusive
@@ -20,13 +27,74 @@ class InvoiceItemSumInclusive
     use Discounter;
     use Taxer;
 
-    protected $invoice;
 
-    private $items;
+    private array $eu_tax_jurisdictions = [
+        'AT', // Austria
+        'BE', // Belgium
+        'BG', // Bulgaria
+        'CY', // Cyprus
+        'CZ', // Czech Republic
+        'DE', // Germany
+        'DK', // Denmark
+        'EE', // Estonia
+        'ES', // Spain
+        'FI', // Finland
+        'FR', // France
+        'GR', // Greece
+        'HR', // Croatia
+        'HU', // Hungary
+        'IE', // Ireland
+        'IT', // Italy
+        'LT', // Lithuania
+        'LU', // Luxembourg
+        'LV', // Latvia
+        'MT', // Malta
+        'NL', // Netherlands
+        'PL', // Poland
+        'PT', // Portugal
+        'RO', // Romania
+        'SE', // Sweden
+        'SI', // Slovenia
+        'SK', // Slovakia
+    ];
 
-    private $line_total;
+    private array $tax_jurisdictions = [
+        'AT', // Austria
+        'BE', // Belgium
+        'BG', // Bulgaria
+        'CY', // Cyprus
+        'CZ', // Czech Republic
+        'DE', // Germany
+        'DK', // Denmark
+        'EE', // Estonia
+        'ES', // Spain
+        'FI', // Finland
+        'FR', // France
+        'GR', // Greece
+        'HR', // Croatia
+        'HU', // Hungary
+        'IE', // Ireland
+        'IT', // Italy
+        'LT', // Lithuania
+        'LU', // Luxembourg
+        'LV', // Latvia
+        'MT', // Malta
+        'NL', // Netherlands
+        'PL', // Poland
+        'PT', // Portugal
+        'RO', // Romania
+        'SE', // Sweden
+        'SI', // Slovenia
+        'SK', // Slovakia
 
-    private $currency;
+        'US', // USA
+
+        'AU', // Australia
+    ];
+
+    protected RecurringInvoice | Invoice | Quote | Credit | PurchaseOrder | RecurringQuote $invoice;
+
+    private \App\Models\Currency $currency;
 
     private $total_taxes;
 
@@ -36,13 +104,15 @@ class InvoiceItemSumInclusive
 
     private $sub_total;
 
-    private $total_discount;
-
     private $tax_collection;
 
-    private $tax_amount;
+    private bool $calc_tax = false;
 
-    public function __construct($invoice)
+    private ?Client $client;
+
+    private RuleInterface $rule;
+
+    public function __construct(RecurringInvoice | Invoice | Quote | Credit | PurchaseOrder | RecurringQuote $invoice)
     {
         $this->tax_collection = collect([]);
 
@@ -50,6 +120,8 @@ class InvoiceItemSumInclusive
 
         if ($this->invoice->client) {
             $this->currency = $this->invoice->client->currency();
+            $this->client = $this->invoice->client;
+            $this->shouldCalculateTax();
         } else {
             $this->currency = $this->invoice->vendor->currency();
         }
@@ -59,9 +131,7 @@ class InvoiceItemSumInclusive
 
     public function process()
     {
-        if (! $this->invoice->line_items || ! is_array($this->invoice->line_items) || count($this->invoice->line_items) == 0) {
-            $this->items = [];
-
+        if (!$this->invoice->line_items || ! is_iterable($this->invoice->line_items) || count($this->invoice->line_items) == 0) {
             return $this;
         }
 
@@ -111,21 +181,56 @@ class InvoiceItemSumInclusive
         return $this;
     }
 
+
+    /**
+     * Attempts to calculate taxes based on the clients location
+     *
+     * @return self
+     */
+    private function calcTaxesAutomatically(): self
+    {
+        $this->rule->tax($this->item);
+        
+        $precision = strlen(substr(strrchr($this->rule->tax_rate1, "."), 1));
+
+        $this->item->tax_name1 = $this->rule->tax_name1;
+        $this->item->tax_rate1 = round($this->rule->tax_rate1, $precision);
+
+        $precision = strlen(substr(strrchr($this->rule->tax_rate2, "."), 1));
+
+        $this->item->tax_name2 = $this->rule->tax_name2;
+        $this->item->tax_rate2 = round($this->rule->tax_rate2, $precision);
+
+        $precision = strlen(substr(strrchr($this->rule->tax_rate3, "."), 1));
+
+        $this->item->tax_name3 = $this->rule->tax_name3;
+        $this->item->tax_rate3 = round($this->rule->tax_rate3, $precision);
+
+        return $this;
+    }
+    
+
     /**
      * Taxes effect the line totals and item costs. we decrement both on
      * application of inclusive tax rates.
      */
     private function calcTaxes()
     {
+
+        if ($this->calc_tax) {
+            $this->calcTaxesAutomatically();
+        }
+
         $item_tax = 0;
 
         $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / 100));
 
+        /** @var float $item_tax_rate1_total */
         $item_tax_rate1_total = $this->calcInclusiveLineTax($this->item->tax_rate1, $amount);
-
+        
+        /** @var float $item_tax */
         $item_tax += $this->formatValue($item_tax_rate1_total, $this->currency->precision);
 
-        // if($item_tax_rate1_total != 0)
         if (strlen($this->item->tax_name1) > 1) {
             $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total);
         }
@@ -243,14 +348,16 @@ class InvoiceItemSumInclusive
     {
         $this->setGroupedTaxes(collect([]));
 
-        $item_tax = 0;
 
         foreach ($this->line_items as $this->item) {
             if ($this->sub_total == 0) {
                 $amount = $this->item->line_total;
             } else {
-                $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / $this->sub_total));
+                $amount = $this->item->line_total - ($this->invoice->discount * ($this->item->line_total / $this->sub_total));
+                // $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / $this->sub_total));
             }
+            
+            $item_tax = 0;
 
             $item_tax_rate1_total = $this->calcInclusiveLineTax($this->item->tax_rate1, $amount);
 
@@ -275,8 +382,49 @@ class InvoiceItemSumInclusive
             if ($item_tax_rate3_total != 0) {
                 $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
             }
+
+            $this->setTotalTaxes($this->getTotalTaxes() + $item_tax);
+            $this->item->gross_line_total = $this->getLineTotal();
+            
+            $this->item->tax_amount = $item_tax;
+
         }
 
-        $this->setTotalTaxes($item_tax);
+        return $this;
+
+        // $this->setTotalTaxes($item_tax);
     }
+
+
+    private function shouldCalculateTax(): self
+    {
+        
+        if (!$this->invoice->company?->calculate_taxes || $this->invoice->company->account->isFreeHostedClient()) {
+            $this->calc_tax = false;
+            return $this;
+        }
+        
+        if (in_array($this->client->company->country()->iso_3166_2, $this->tax_jurisdictions)) { //only calculate for supported tax jurisdictions
+            
+            $class = "App\DataMapper\Tax\\".$this->client->company->country()->iso_3166_2."\\Rule";
+
+            $this->rule = new $class();
+
+            if($this->rule->regionWithNoTaxCoverage($this->client->country->iso_3166_2)) {
+                return $this;
+            }
+
+            $this->rule
+                 ->setEntity($this->invoice)
+                 ->init();
+                 
+            $this->calc_tax = $this->rule->shouldCalcTax();
+
+            return $this;
+        }
+        
+        return $this;
+    }
+
+
 }

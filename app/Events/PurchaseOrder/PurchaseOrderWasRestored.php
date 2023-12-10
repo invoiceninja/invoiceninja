@@ -22,29 +22,7 @@ class PurchaseOrderWasRestored
 {
     use SerializesModels;
 
-    /**
-     * @var PurchaseOrder
-     */
-    public $purchase_order;
-
-    public $company;
-
-    public $event_vars;
-
-    public $fromDeleted;
-
-    /**
-     * Create a new event instance.
-     *
-     * @param PurchaseOrder $purchase_order
-     * @param Company $company
-     * @param array $event_vars
-     */
-    public function __construct(PurchaseOrder $purchase_order, $fromDeleted, Company $company, array $event_vars)
+    public function __construct(public PurchaseOrder $purchase_order, public bool $fromDeleted, public Company $company, public array $event_vars)
     {
-        $this->purchase_order = $purchase_order;
-        $this->fromDeleted = $fromDeleted;
-        $this->company = $company;
-        $this->event_vars = $event_vars;
     }
 }

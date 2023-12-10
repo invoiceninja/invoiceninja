@@ -16,8 +16,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\Subscriptions\ShowPlanSwitchRequest;
 use App\Models\RecurringInvoice;
 use App\Models\Subscription;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class SubscriptionPlanSwitchController extends Controller
 {
@@ -26,12 +24,11 @@ class SubscriptionPlanSwitchController extends Controller
      *
      * @param ShowPlanSwitchRequest $request
      * @param RecurringInvoice $recurring_invoice
-     * @param string $target
+     * @param Subscription $target
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function index(ShowPlanSwitchRequest $request, RecurringInvoice $recurring_invoice, Subscription $target)
     {
-
         $amount = $recurring_invoice->subscription
                                     ->service()
                                     ->calculateUpgradePriceV2($recurring_invoice, $target);
@@ -45,7 +42,7 @@ class SubscriptionPlanSwitchController extends Controller
             render('subscriptions.denied');
         }
 
-        $amount = max(0,$amount);
+        $amount = max(0, $amount);
 
         return render('subscriptions.switch', [
             'subscription' => $recurring_invoice->subscription,
@@ -53,6 +50,10 @@ class SubscriptionPlanSwitchController extends Controller
             'target' => $target,
             'amount' => $amount,
         ]);
-        
+    }
+
+    public function not_availabe()
+    {
+        abort(404, 'ewwo');
     }
 }

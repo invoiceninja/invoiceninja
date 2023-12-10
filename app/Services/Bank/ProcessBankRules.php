@@ -31,91 +31,81 @@ class ProcessBankRules extends AbstractService
 
     protected $categories;
 
-    public function __construct(public BankTransaction $bank_transaction){}
+    protected $invoices;
+    
+    /**
+     * @param \App\Models\BankTransaction $bank_transaction
+     */
+    public function __construct(public BankTransaction $bank_transaction)
+    {
+    }
 
     public function run()
     {
-        if($this->bank_transaction->base_type == 'DEBIT')
+        if ($this->bank_transaction->base_type == 'DEBIT') {
             $this->matchDebit();
-        else
+        } else {
             $this->matchCredit();
+        }
     }
 
     private function matchCredit()
     {
-
-        $this->invoices = Invoice::where('company_id', $this->bank_transaction->company_id)
+        $this->invoices = Invoice::query()->where('company_id', $this->bank_transaction->company_id)
                                 ->whereIn('status_id', [1,2,3])
                                 ->where('is_deleted', 0)
                                 ->get();
 
-        $invoice = $this->invoices->first(function ($value, $key){
-
+        $invoice = $this->invoices->first(function ($value, $key) {
             return str_contains($this->bank_transaction->description, $value->number);
-                
         });
 
-        if($invoice)
-        {
+        if ($invoice) {
             $this->bank_transaction->invoice_ids = $invoice->hashed_id;
             $this->bank_transaction->status_id = BankTransaction::STATUS_MATCHED;
-            $this->bank_transaction->save();   
+            $this->bank_transaction->save();
             return;
         }
 
         $this->credit_rules = $this->bank_transaction->company->credit_rules();
 
         //stub for credit rules
-        foreach($this->credit_rules as $rule)
-        {
+        foreach ($this->credit_rules as $rule) {
             //   $this->bank_transaction->bank_transaction_rule_id = $bank_transaction_rule->id;
-
         }
-                       
     }
 
     private function matchDebit()
     {
-
         $this->debit_rules = $this->bank_transaction->company->debit_rules();
 
         $this->categories = collect(Cache::get('bank_categories'));
 
 
 
-        foreach($this->debit_rules as $bank_transaction_rule)
-        {
-            
+        foreach ($this->debit_rules as $bank_transaction_rule) {
             $matches = 0;
 
-            if(!is_array($bank_transaction_rule['rules']))
+            if (!is_array($bank_transaction_rule['rules'])) {
                 continue;
+            }
 
-            foreach($bank_transaction_rule['rules'] as $rule)
-            {
+            foreach ($bank_transaction_rule['rules'] as $rule) {
                 $rule_count = count($bank_transaction_rule['rules']);
 
-                if($rule['search_key'] == 'description')
-                {
-
-                    if($this->matchStringOperator($this->bank_transaction->description, $rule['value'], $rule['operator'])){
+                if ($rule['search_key'] == 'description') {
+                    if ($this->matchStringOperator($this->bank_transaction->description, $rule['value'], $rule['operator'])) {
                         $matches++;
                     }
-
                 }
 
-                if($rule['search_key'] == 'amount')
-                {
-
-                    if($this->matchNumberOperator($this->bank_transaction->amount,  $rule['value'] , $rule['operator'])){
+                if ($rule['search_key'] == 'amount') {
+                    if ($this->matchNumberOperator($this->bank_transaction->amount, $rule['value'], $rule['operator'])) {
                         $matches++;
                     }
-
                 }
 
-                if(($bank_transaction_rule['matches_on_all'] && ($matches == $rule_count)) || (!$bank_transaction_rule['matches_on_all'] && $matches > 0))
-                {
-
+                if (($bank_transaction_rule['matches_on_all'] && ($matches == $rule_count)) || (!$bank_transaction_rule['matches_on_all'] && $matches > 0)) {
                     // $this->bank_transaction->client_id = empty($rule['client_id']) ? null : $rule['client_id'];
                     $this->bank_transaction->vendor_id = $bank_transaction_rule->vendor_id;
                     $this->bank_transaction->ninja_category_id = $bank_transaction_rule->category_id;
@@ -123,9 +113,7 @@ class ProcessBankRules extends AbstractService
                     $this->bank_transaction->bank_transaction_rule_id = $bank_transaction_rule->id;
                     $this->bank_transaction->save();
 
-                    if($bank_transaction_rule['auto_convert'])
-                    {
-
+                    if ($bank_transaction_rule['auto_convert']) {
                         $expense = ExpenseFactory::create($this->bank_transaction->company_id, $this->bank_transaction->user_id);
                         $expense->category_id = $bank_transaction_rule->category_id ?: $this->resolveCategory();
                         $expense->amount = $this->bank_transaction->amount;
@@ -140,18 +128,25 @@ class ProcessBankRules extends AbstractService
                         $expense->should_be_invoiced = $this->bank_transaction->company->mark_expenses_invoiceable;
                         $expense->save();
 
-                        $this->bank_transaction->expense_id = $expense->id;
+                        $this->bank_transaction->expense_id = $this->coalesceExpenses($expense->hashed_id);
                         $this->bank_transaction->status_id = BankTransaction::STATUS_CONVERTED;
                         $this->bank_transaction->save();
 
                         break;
-                        
                     }
-
                 }
             }
-
         }
+    }
+
+    private function coalesceExpenses($expense): string
+    {
+
+        if (!$this->bank_transaction->expense_id || strlen($this->bank_transaction->expense_id) < 1) {
+            return $expense;
+        }
+
+        return collect(explode(",", $this->bank_transaction->expense_id))->push($expense)->implode(",");
 
     }
 
@@ -159,13 +154,13 @@ class ProcessBankRules extends AbstractService
     {
         $category = $this->categories->firstWhere('highLevelCategoryId', $this->bank_transaction->category_id);
 
-        $ec = ExpenseCategory::where('company_id', $this->bank_transaction->company_id)->where('bank_category_id', $this->bank_transaction->category_id)->first();
+        $ec = ExpenseCategory::query()->where('company_id', $this->bank_transaction->company_id)->where('bank_category_id', $this->bank_transaction->category_id)->first();
 
-        if($ec)
+        if ($ec) {
             return $ec->id;
+        }
 
-        if($category)
-        {
+        if ($category) {
             $ec = ExpenseCategoryFactory::create($this->bank_transaction->company_id, $this->bank_transaction->user_id);
             $ec->bank_category_id = $this->bank_transaction->category_id;
             $ec->name = $category->highLevelCategoryName;
@@ -177,7 +172,6 @@ class ProcessBankRules extends AbstractService
 
     private function matchNumberOperator($bt_value, $rule_value, $operator) :bool
     {
-
         return match ($operator) {
             '>' => floatval($bt_value) > floatval($rule_value),
             '>=' => floatval($bt_value) >= floatval($rule_value),
@@ -186,7 +180,6 @@ class ProcessBankRules extends AbstractService
             '<=' => floatval($bt_value) <= floatval($rule_value),
             default => false,
         };
-
     }
 
     private function matchStringOperator($bt_value, $rule_value, $operator) :bool
@@ -202,10 +195,5 @@ class ProcessBankRules extends AbstractService
             'is_empty' => empty($bt_value),
             default => false,
         };
-
     }
-
-
-
-
 }

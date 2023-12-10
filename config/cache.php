@@ -17,6 +17,7 @@ return [
 
     'default' => env('CACHE_DRIVER', 'file'),
 
+    'limiter' => env('LIMITER_DRIVER', null),
     /*
     |--------------------------------------------------------------------------
     | Cache Stores
@@ -30,7 +31,6 @@ return [
     |         "memcached", "redis", "dynamodb", "octane", "null"
     |
     */
-
     'stores' => [
 
         'apc' => [
@@ -76,7 +76,7 @@ return [
         'redis' => [
             'driver' => 'redis',
             'connection' => env('REDIS_CACHE_CONNECTION', 'cache'),
-            'lock_connection' => 'default',
+            'lock_connection' => env('REDIS_CACHE_CONNECTION', 'cache'),
         ],
 
         'dynamodb' => [

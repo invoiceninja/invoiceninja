@@ -37,7 +37,6 @@ class EmailSuccess extends GenericMixedMetric
      *
      * date("Y-m-d H:i:s")
      *
-     * @var DateTime
      */
     public $datetime;
 
@@ -61,7 +60,6 @@ class EmailSuccess extends GenericMixedMetric
      * The counter
      * set to 1.
      *
-     * @var string
      */
     public $int_metric1 = 1;
 
@@ -71,8 +69,15 @@ class EmailSuccess extends GenericMixedMetric
      */
     public $string_metric7 = '';
 
-    public function __construct($string_metric7)
+    /**
+     * Subject
+     * @var string
+     */
+    public $string_metric8 = '';
+
+    public function __construct($string_metric7 = '', $string_metric8 = '')
     {
         $this->string_metric7 = $string_metric7;
+        $this->string_metric8 = $string_metric8;
     }
 }

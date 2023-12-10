@@ -12,7 +12,6 @@
 namespace App\Providers;
 
 use App\Models\Activity;
-use App\Models\Bank;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
 use App\Models\BankTransactionRule;

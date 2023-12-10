@@ -59,6 +59,10 @@
 @endsection
 
 @section('gateway_footer')
+    @if($gateway->company_gateway->getConfigField('testMode'))
+    <script src='https://protect.sandbox.paytrace.com/js/protect.min.js'></script>
+    @else
     <script src='https://protect.paytrace.com/js/protect.min.js'></script>
-    <script src="{{ asset('js/clients/payments/paytrace-credit-card.js') }}"></script>
+    @endif
+    @vite('resources/js/clients/payments/paytrace-credit-card.js')
 @endsection

@@ -36,7 +36,7 @@ class BankIntegrationFilters extends QueryFilters
     /**
      * Filter based on search text.
      *
-     * @param string query filter
+     * @param string $filter
      * @return Builder
      * @deprecated
      */
@@ -49,14 +49,13 @@ class BankIntegrationFilters extends QueryFilters
         return  $this->builder->where(function ($query) use ($filter) {
             $query->where('bank_account_name', 'like', '%'.$filter.'%');
         });
-
     }
 
     /**
      * Filters the list based on the status
      * archived, active, deleted.
      *
-     * @param string filter
+     * @param string $filter
      * @return Builder
      */
     public function status(string $filter = ''): Builder
@@ -68,7 +67,6 @@ class BankIntegrationFilters extends QueryFilters
         $filters = explode(',', $filter);
 
         return $this->builder->where(function ($query) use ($filters) {
-         
             if (in_array(parent::STATUS_ACTIVE, $filters)) {
                 $query->orWhereNull('deleted_at');
             }
@@ -88,7 +86,7 @@ class BankIntegrationFilters extends QueryFilters
     /**
      * Sorts the list based on $sort.
      *
-     * @param string sort formatted as column|asc
+     * @param string $sort formatted as column|asc
      * @return Builder
      */
     public function sort(string $sort = ''): Builder
@@ -105,7 +103,7 @@ class BankIntegrationFilters extends QueryFilters
     /**
      * Filters the query by the users company ID.
      *
-     * @return Illuminate\Database\Query\Builder
+     * @return Builder
      */
     public function entityFilter(): Builder
     {

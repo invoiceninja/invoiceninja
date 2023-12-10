@@ -32,7 +32,6 @@ return new class extends Migration {
         });
 
         RecurringInvoice::withTrashed()->whereNotNull('next_send_date')->cursor()->each(function ($recurring_invoice) {
-
             // $offset = $recurring_invoice->client->timezone_offset();
             // $re = Carbon::parse($recurring_invoice->next_send_date)->subSeconds($offset)->format('Y-m-d');
             $re = Carbon::parse($recurring_invoice->next_send_date)->format('Y-m-d');

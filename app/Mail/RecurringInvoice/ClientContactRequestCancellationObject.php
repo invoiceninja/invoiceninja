@@ -12,14 +12,18 @@
 namespace App\Mail\RecurringInvoice;
 
 use App\Models\ClientContact;
+use App\Models\Company;
 use App\Models\RecurringInvoice;
 use App\Utils\Ninja;
 use Illuminate\Support\Facades\App;
 
 class ClientContactRequestCancellationObject
 {
+    public Company $company;
 
-    public function __construct(public RecurringInvoice $recurring_invoice, public ClientContact $client_contact, private bool $gateway_refund_attempted){}
+    public function __construct(public RecurringInvoice $recurring_invoice, public ClientContact $client_contact, private bool $gateway_refund_attempted)
+    {
+    }
 
     public function build()
     {
@@ -32,8 +36,9 @@ class ClientContactRequestCancellationObject
         $t->replace(Ninja::transformTranslations($this->company->settings));
         $content = ctrans('texts.recurring_cancellation_request_body', ['contact' => $this->client_contact->present()->name(), 'client' => $this->client_contact->client->present()->name(), 'invoice' => $this->recurring_invoice->number]);
 
-        if($this->gateway_refund_attempted)
+        if ($this->gateway_refund_attempted) {
             $content .= "\n\n" . ctrans('texts.status') . " : " . ctrans('texts.payment_status_6');
+        }
 
         $data = [
             'title' => ctrans('texts.recurring_cancellation_request', ['contact' => $this->client_contact->present()->name()]),

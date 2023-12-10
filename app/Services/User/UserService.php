@@ -21,18 +21,16 @@ use App\Utils\Ninja;
 
 class UserService
 {
-    public $user;
-
-    public function __construct(User $user)
+    public function __construct(public User $user)
     {
-        $this->user = $user;
     }
 
-    public function invite($company)
+    public function invite(Company $company, bool $is_react=true)
     {
+
         try {
             $nmo = new NinjaMailerObject;
-            $nmo->mailable = new NinjaMailer((new VerifyUserObject($this->user, $company))->build());
+            $nmo->mailable = new NinjaMailer((new VerifyUserObject($this->user, $company, $is_react))->build());
             $nmo->company = $company;
             $nmo->to_user = $this->user;
             $nmo->settings = $company->settings;

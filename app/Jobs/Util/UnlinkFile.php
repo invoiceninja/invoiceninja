@@ -22,14 +22,8 @@ class UnlinkFile implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $file_path;
-
-    protected $disk;
-
-    public function __construct(string $disk, string $file_path)
+    public function __construct(protected string $disk = '', protected ?string $file_path = '')
     {
-        $this->file_path = $file_path;
-        $this->disk = $disk;
     }
 
     /**
@@ -43,7 +37,16 @@ class UnlinkFile implements ShouldQueue
         if (config('queue.default') == 'sync') {
             return;
         }
+        
 
-        Storage::disk($this->disk)->delete($this->file_path);
+        if (!$this->file_path) {
+            return;
+        }
+
+        try {
+            Storage::disk($this->disk)->delete($this->file_path);
+        } catch (\Exception $e) {
+          
+        }
     }
 }

@@ -45,6 +45,39 @@ class WebhookAPITest extends TestCase
         $this->withoutExceptionHandling();
     }
 
+    public function testWebhookRetry()
+    {
+        
+        $data = [
+            'target_url' => 'http://hook.com',
+            'event_id' => 1, //create client
+            'format' => 'JSON',
+            'headers' => []
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/webhooks", $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $data = [
+            'entity' => 'client',
+            'entity_id' => $this->client->hashed_id,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/webhooks/".$arr['data']['id']."/retry", $data);
+            
+        $response->assertStatus(200);
+
+    }
+
     public function testWebhookGetFilter()
     {
         $response = $this->withHeaders([
@@ -70,6 +103,19 @@ class WebhookAPITest extends TestCase
         $data = [
             'target_url' => 'http://hook.com',
             'event_id' => 1,
+            'format' => 'JSON',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/webhooks', $data);
+
+        $response->assertStatus(200);
+
+        $data = [
+            'target_url' => 'http://hook.com',
+            'event_id' => 1,
             'rest_method' => 'post',
             'format' => 'JSON',
         ];
@@ -84,6 +130,20 @@ class WebhookAPITest extends TestCase
         $arr = $response->json();
 
         $this->assertEquals(1, $arr['data']['event_id']);
+
+        $data = [
+            'target_url' => 'http://hook.com',
+            'event_id' => 2,
+            'format' => 'JSON',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/webhooks/'.$arr['data']['id'], $data);
+
+        $response->assertStatus(200);
+
 
         $data = [
             'target_url' => 'http://hook.com',

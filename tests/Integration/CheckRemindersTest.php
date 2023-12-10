@@ -12,7 +12,6 @@
 namespace Tests\Integration;
 
 use App\Models\Invoice;
-use App\Utils\Traits\MakesReminders;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Carbon;
 use Tests\MockAccountData;

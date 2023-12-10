@@ -11,10 +11,14 @@
 
 namespace App\Observers;
 
+use App\Jobs\Util\WebhookHandler;
 use App\Models\Product;
+use App\Models\Webhook;
 
 class ProductObserver
 {
+    public $afterCommit = true;
+
     /**
      * Handle the product "created" event.
      *
@@ -23,12 +27,12 @@ class ProductObserver
      */
     public function created(Product $product)
     {
-        $subscriptions = Webhook::where('company_id', $product->company->id)
-                        ->where('event_id', Webhook::EVENT_CREATE_PRODUCT)
-                        ->exists();
+        $subscriptions = Webhook::where('company_id', $product->company_id)
+            ->where('event_id', Webhook::EVENT_CREATE_PRODUCT)
+            ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_CREATE_PRODUCT, $product, $product->company)->delay(now()->addSeconds(2));
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_PRODUCT, $product, $product->company)->delay(0);
         }
     }
 
@@ -40,12 +44,23 @@ class ProductObserver
      */
     public function updated(Product $product)
     {
-        $subscriptions = Webhook::where('company_id', $product->company->id)
-                        ->where('event_id', Webhook::EVENT_UPDATE_PRODUCT)
-                        ->exists();
+        $event = Webhook::EVENT_UPDATE_PRODUCT;
+
+        if ($product->getOriginal('deleted_at') && !$product->deleted_at) {
+            $event = Webhook::EVENT_RESTORE_PRODUCT;
+        }
+
+        if ($product->is_deleted) {
+            $event = Webhook::EVENT_DELETE_PRODUCT;
+        }
+
+
+        $subscriptions = Webhook::where('company_id', $product->company_id)
+            ->where('event_id', $event)
+            ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_UPDATE_PRODUCT, $product, $product->company)->delay(now()->addSeconds(2));
+            WebhookHandler::dispatch($event, $product, $product->company)->delay(0);
         }
     }
 
@@ -57,12 +72,16 @@ class ProductObserver
      */
     public function deleted(Product $product)
     {
-        $subscriptions = Webhook::where('company_id', $product->company->id)
-                        ->where('event_id', Webhook::EVENT_DELETE_PRODUCT)
-                        ->exists();
+        if ($product->is_deleted) {
+            return;
+        }
+
+        $subscriptions = Webhook::where('company_id', $product->company_id)
+            ->where('event_id', Webhook::EVENT_ARCHIVE_PRODUCT)
+            ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_DELETE_PRODUCT, $product, $product->company)->delay(now()->addSeconds(2));
+            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_PRODUCT, $product, $product->company)->delay(0);
         }
     }
 

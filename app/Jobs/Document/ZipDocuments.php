@@ -11,18 +11,15 @@
 
 namespace App\Jobs\Document;
 
-use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\UnlinkFile;
 use App\Libraries\MultiDB;
 use App\Mail\DownloadDocuments;
-use App\Mail\DownloadInvoices;
 use App\Models\Company;
 use App\Models\Document;
 use App\Models\User;
 use App\Utils\Ninja;
-use App\Utils\TempFile;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -31,9 +28,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
-use ZipArchive;
 
 class ZipDocuments implements ShouldQueue
 {
@@ -71,9 +66,6 @@ class ZipDocuments implements ShouldQueue
      * Execute the job.
      *
      * @return void
-     * @throws \ZipStream\Exception\FileNotFoundException
-     * @throws \ZipStream\Exception\FileNotReadableException
-     * @throws \ZipStream\Exception\OverflowException
      */
     public function handle()
     {
@@ -90,7 +82,7 @@ class ZipDocuments implements ShouldQueue
         $path = $this->company->file_path();
 
         try {
-            $documents = Document::whereIn('id', $this->document_ids)->get();
+            $documents = Document::query()->whereIn('id', $this->document_ids)->get();
 
             foreach ($documents as $document) {
                 $zipFile->addFromString($this->buildFileName($document), $document->getFile());
@@ -128,7 +120,7 @@ class ZipDocuments implements ShouldQueue
 
         $entity = ctrans('texts.document');
 
-        if(isset($document->documentable)){
+        if (isset($document->documentable)) {
             $entity = $document->documentable->translate_entity();
         }
 

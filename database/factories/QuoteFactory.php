@@ -11,6 +11,7 @@
 
 namespace Database\Factories;
 
+use App\Factory\InvoiceItemFactory;
 use App\Models\Quote;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -39,7 +40,7 @@ class QuoteFactory extends Factory
             // 'custom_value4' => $this->faker->numberBetween(1, 4),
             'is_deleted' => false,
             'po_number' => $this->faker->text(10),
-            'line_items' => false,
+            'line_items' => InvoiceItemFactory::generate(5),
         ];
     }
 }

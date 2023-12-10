@@ -23,6 +23,61 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Cache;
 use Laracasts\Presenter\PresentableTrait;
 
+/**
+ * App\Models\VendorContact
+ *
+ * @property int $id
+ * @property int $company_id
+ * @property int $user_id
+ * @property int $vendor_id
+ * @property int|null $created_at
+ * @property int|null $updated_at
+ * @property int|null $deleted_at
+ * @property bool $is_primary
+ * @property string|null $first_name
+ * @property string|null $last_name
+ * @property string|null $email
+ * @property string|null $phone
+ * @property string|null $custom_value1
+ * @property string|null $custom_value2
+ * @property string|null $custom_value3
+ * @property string|null $custom_value4
+ * @property bool $send_email
+ * @property string|null $email_verified_at
+ * @property string|null $confirmation_code
+ * @property bool $confirmed
+ * @property string|null $last_login
+ * @property int|null $failed_logins
+ * @property string|null $oauth_user_id
+ * @property int|null $oauth_provider_id
+ * @property string|null $google_2fa_secret
+ * @property string|null $accepted_terms_version
+ * @property string|null $avatar
+ * @property string|null $avatar_type
+ * @property string|null $avatar_size
+ * @property string $password
+ * @property string|null $token
+ * @property bool $is_locked
+ * @property string|null $contact_key
+ * @property string|null $remember_token
+ * @property-read \App\Models\Company $company
+ * @property-read mixed $contact_id
+ * @property-read mixed $hashed_id
+ * @property-read int|null $notifications_count
+ * @property-read int|null $purchase_order_invitations_count
+ * @property-read \App\Models\User $user
+ * @property-read \App\Models\Vendor $vendor
+ * @method static \Database\Factories\VendorContactFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact query()
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact withoutTrashed()
+ * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $purchase_order_invitations
+ * @mixin \Eloquent
+ */
 class VendorContact extends Authenticatable implements HasLocalePreference
 {
     use Notifiable;
@@ -51,6 +106,7 @@ class VendorContact extends Authenticatable implements HasLocalePreference
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
+        'last_login' => 'timestamp',
     ];
 
     protected $fillable = [
@@ -100,7 +156,7 @@ class VendorContact extends Authenticatable implements HasLocalePreference
         return $this->encodePrimaryKey($this->id);
     }
 
-    public function vendor()
+    public function vendor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Vendor::class)->withTrashed();
     }
@@ -110,12 +166,12 @@ class VendorContact extends Authenticatable implements HasLocalePreference
         return $this->where('is_primary', true);
     }
 
-    public function company()
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
@@ -145,7 +201,7 @@ class VendorContact extends Authenticatable implements HasLocalePreference
     {
         return $this
             ->withTrashed()
-            ->company()
+            // ->company()
             ->where('id', $this->decodePrimaryKey($value))
             ->firstOrFail();
     }
@@ -157,10 +213,8 @@ class VendorContact extends Authenticatable implements HasLocalePreference
 
     public function getLoginLink()
     {
-
         $domain = isset($this->company->portal_domain) ? $this->company->portal_domain : $this->company->domain();
 
         return $domain.'/vendor/key_login/'.$this->contact_key;
-
     }
 }

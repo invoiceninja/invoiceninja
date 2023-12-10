@@ -2,9 +2,6 @@
 
 use App\Models\Gateway;
 use App\Models\GatewayType;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class FortePaymentGateway extends Migration
@@ -27,8 +24,8 @@ class FortePaymentGateway extends Migration
 
         $forte = new Gateway;
         $forte->id = 59;
-        $forte->name = 'Forte'; 
-        $forte->key = 'kivcvjexxvdiyqtj3mju5d6yhpeht2xs'; 
+        $forte->name = 'Forte';
+        $forte->key = 'kivcvjexxvdiyqtj3mju5d6yhpeht2xs';
         $forte->provider = 'Forte';
         $forte->is_offsite = true;
         $forte->fields = \json_encode($fields);

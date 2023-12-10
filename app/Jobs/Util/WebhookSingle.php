@@ -11,15 +11,15 @@
 
 namespace App\Jobs\Util;
 
-use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
-use App\Models\Client as ClientModel;
 use App\Models\Company;
 use App\Models\SystemLog;
 use App\Models\Webhook;
 use App\Transformers\ArraySerializer;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -28,8 +28,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Item;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\ServerException;
 
 class WebhookSingle implements ShouldQueue
 {
@@ -48,6 +46,7 @@ class WebhookSingle implements ShouldQueue
     private string $includes;
 
     private Company $company;
+    
     /**
      * Create a new job instance.
      *
@@ -64,23 +63,22 @@ class WebhookSingle implements ShouldQueue
 
     public function backoff()
     {
-        return [10, 30, 60, 180, 3600];
+        return [rand(10, 15), rand(30, 40), rand(60, 79), rand(160, 200), rand(3000, 5000)];
     }
 
     /**
      * Execute the job.
      *
-     * @return bool
      */
     public function handle()
     {
-
         MultiDB::setDb($this->db);
 
-        $subscription = Webhook::with('company')->find($this->subscription_id);
-        
-        if(!$subscription){
+        $subscription = Webhook::query()->with('company')->find($this->subscription_id);
+               
+        if (!$subscription) {
             $this->fail();
+            nlog("failed to fire event, could not find webhook ID {$this->subscription_id}");
             return;
         }
 
@@ -99,8 +97,10 @@ class WebhookSingle implements ShouldQueue
 
         $resource = new Item($this->entity, $transformer, $this->entity->getEntityType());
         $data = $manager->createData($resource)->toArray();
+        
+        $headers = is_array($subscription->headers) ? $subscription->headers : [];
 
-        $this->postData($subscription, $data, []);
+        $this->postData($subscription, $data, $headers);
     }
 
     private function postData($subscription, $data, $headers = [])
@@ -113,141 +113,153 @@ class WebhookSingle implements ShouldQueue
         $client = new Client(['headers' => array_merge($base_headers, $headers)]);
 
         try {
-            $response = $client->post($subscription->target_url, [
+            $verb = $subscription->rest_method ?? 'post';
+
+            $response = $client->{$verb}($subscription->target_url, [
                 RequestOptions::JSON => $data, // or 'json' => [...]
             ]);
 
-            SystemLogger::dispatch(
+            (new SystemLogger(
                 array_merge((array) $response, $data),
                 SystemLog::CATEGORY_WEBHOOK,
                 SystemLog::EVENT_WEBHOOK_SUCCESS,
                 SystemLog::TYPE_WEBHOOK_RESPONSE,
                 $this->resolveClient(),
                 $this->company
-            );
-
-        } 
-        catch(\GuzzleHttp\Exception\ConnectException $e){
-
+            ))->handle();
+        } catch(\GuzzleHttp\Exception\ConnectException $e) {
             nlog("connection problem");
             nlog($e->getCode());
             nlog($e->getMessage());
 
-            SystemLogger::dispatch(
+            (new SystemLogger(
                 ['message' => "Error connecting to ". $subscription->target_url],
                 SystemLog::CATEGORY_WEBHOOK,
                 SystemLog::EVENT_WEBHOOK_FAILURE,
                 SystemLog::TYPE_WEBHOOK_RESPONSE,
                 $this->resolveClient(),
                 $this->company
-            );
+            ))->handle();
+        } catch (BadResponseException $e) {
+            if ($e->getResponse()->getStatusCode() >= 400 && $e->getResponse()->getStatusCode() < 500) {
 
-        }
-        catch (BadResponseException $e) {
+                /* Some 400's should never be repeated */
+                if (in_array($e->getResponse()->getStatusCode(), [404, 410, 405])) {
 
-            if ($e->getResponse()->getStatusCode() >= 400 && $e->getResponse()->getStatusCode() < 500){
+                    $message = "There was a problem when connecting to {$subscription->target_url} => status code ". $e->getResponse()->getStatusCode(). " This webhook call will be suspended until further action is taken.";
 
-                $message = "Server encountered a problem when connecting to {$subscription->target_url} => status code ". $e->getResponse()->getStatusCode(). " scheduling retry.";
-                
+                    (new SystemLogger(
+                        ['message' => $message],
+                        SystemLog::CATEGORY_WEBHOOK,
+                        SystemLog::EVENT_WEBHOOK_FAILURE,
+                        SystemLog::TYPE_WEBHOOK_RESPONSE,
+                        $this->resolveClient(),
+                        $this->company
+                    ))->handle();
+
+                    $subscription->delete();
+                    $this->fail();
+                    return;
+                }
+
+                $message = "There was a problem when connecting to {$subscription->target_url} => status code ". $e->getResponse()->getStatusCode();
+                                
                 nlog($message);
 
-                SystemLogger::dispatch(
+                (new SystemLogger(
                     ['message' => $message],
                     SystemLog::CATEGORY_WEBHOOK,
                     SystemLog::EVENT_WEBHOOK_FAILURE,
                     SystemLog::TYPE_WEBHOOK_RESPONSE,
                     $this->resolveClient(),
                     $this->company
-                );
+                ))->handle();
+
+                if (in_array($e->getResponse()->getStatusCode(), [400])) {
+                    $this->fail();
+                    return;
+                }
 
                 $this->release($this->backoff()[$this->attempts()-1]);
-
             }
 
-            if($e->getResponse()->getStatusCode() >= 500){
-                nlog("endpoint returned a 500, failing");
+            if ($e->getResponse()->getStatusCode() >= 500) {
+                nlog("{$subscription->target_url} returned a 500, failing");
 
-                $message = "Server encountered a problem when connecting to {$subscription->target_url} => status code ". $e->getResponse()->getStatusCode(). " no retry attempted.";
+                $message = "There was a problem when connecting to {$subscription->target_url} => status code ". $e->getResponse()->getStatusCode(). " no retry attempted.";
 
-                SystemLogger::dispatch(
+                (new SystemLogger(
                     ['message' => $message],
                     SystemLog::CATEGORY_WEBHOOK,
                     SystemLog::EVENT_WEBHOOK_FAILURE,
                     SystemLog::TYPE_WEBHOOK_RESPONSE,
                     $this->resolveClient(),
                     $this->company
-                );
+                ))->handle();
 
                 $this->fail();
                 return;
             }
-
-
-        }
-        catch (ServerException $e) {
-
+        } catch (ServerException $e) {
             nlog("Server exception");
             $error = json_decode($e->getResponse()->getBody()->getContents());
 
-            SystemLogger::dispatch(
+            (new SystemLogger(
                 ['message' => $error],
                 SystemLog::CATEGORY_WEBHOOK,
                 SystemLog::EVENT_WEBHOOK_FAILURE,
                 SystemLog::TYPE_WEBHOOK_RESPONSE,
                 $this->resolveClient(),
                 $this->company
-            );
-            
-        }
-        catch (ClientException $e) {
-
+            ))->handle();
+        } catch (ClientException $e) {
             nlog("Client exception");
             $error = json_decode($e->getResponse()->getBody()->getContents());
 
-            SystemLogger::dispatch(
+            (new SystemLogger(
                 ['message' => $error],
                 SystemLog::CATEGORY_WEBHOOK,
                 SystemLog::EVENT_WEBHOOK_FAILURE,
                 SystemLog::TYPE_WEBHOOK_RESPONSE,
                 $this->resolveClient(),
                 $this->company
-            );
-            
-
-        }
-        catch (\Exception $e) {
-            
+            ))->handle();
+        } catch (\Exception $e) {
             nlog("Exception handler => " . $e->getMessage());
             nlog($e->getCode());
 
-            SystemLogger::dispatch(
+            (new SystemLogger(
                 $e->getMessage(),
                 SystemLog::CATEGORY_WEBHOOK,
                 SystemLog::EVENT_WEBHOOK_FAILURE,
                 SystemLog::TYPE_WEBHOOK_RESPONSE,
                 $this->resolveClient(),
                 $this->company,
-            );
+            ))->handle();
+
+            //add some entropy to the retry
+            sleep(rand(0, 3));
 
             $this->release($this->backoff()[$this->attempts()-1]);
-
         }
     }
 
     private function resolveClient()
     {
         //make sure it isn't an instance of the Client Model
-        if ((! $this->entity instanceof ClientModel) && $this->entity->client()->exists()) {
+        if (!$this->entity instanceof \App\Models\Client &&
+            !$this->entity instanceof \App\Models\Vendor &&
+            !$this->entity instanceof \App\Models\Product &&
+            !$this->entity instanceof \App\Models\PurchaseOrder &&
+            $this->entity->client()->exists()) {
             return $this->entity->client;
         }
 
-        return $this->company->clients()->first();
+        return null;
     }
 
     public function failed($exception = null)
     {
-        if($exception)
-            nlog($exception->getMessage());
-
+        config(['queue.failed.driver' => null]);
     }
 }

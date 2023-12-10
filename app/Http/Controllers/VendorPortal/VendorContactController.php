@@ -15,7 +15,6 @@ use App\Http\Controllers\Controller;
 use App\Models\VendorContact;
 use App\Utils\Traits\MakesHash;
 use App\Utils\TranslationHelper;
-use Illuminate\Http\Request;
 
 class VendorContactController extends Controller
 {

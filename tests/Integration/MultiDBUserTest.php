@@ -180,8 +180,7 @@ class MultiDBUserTest extends TestCase
 
     public function test_cross_db_user_linking_fails_appropriately()
     {
-
-    //$this->withoutExceptionHandling();
+        //$this->withoutExceptionHandling();
 
         $data = [
             'first_name' => 'hey',

@@ -11,6 +11,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\TaxRate;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -29,6 +30,8 @@ class TaxRateApiTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
+    public $faker;
+    
     protected function setUp() :void
     {
         parent::setUp();
@@ -40,6 +43,44 @@ class TaxRateApiTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
+    }
+
+    public function testRemovingDefaultTaxes()
+    {
+        $t = TaxRate::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'name' => 'nastytax1',
+            'rate' => 10,
+        ]);
+
+        $settings = $this->company->settings;
+        $settings->tax_rate1 = $t->rate;
+        $settings->tax_name1 = $t->name;
+
+        $this->company->saveSettings($settings, $this->company);
+
+        $this->company->fresh();
+
+        $this->assertEquals('nastytax1', $this->company->settings->tax_name1);
+        $this->assertEquals(10, $this->company->settings->tax_rate1);
+
+        $data = [
+            'ids' => [$this->encodePrimaryKey($t->id)],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/tax_rates/bulk?action=archive', $data);
+
+        $response->assertStatus(200);
+
+        $this->company = $this->company->fresh();
+
+        $this->assertEquals('', $this->company->getSetting('tax_name1'));
+        $this->assertEquals(0, $this->company->getSetting('tax_rate1'));
+
     }
 
     public function testTaxRatesGetFilter()

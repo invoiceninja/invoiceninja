@@ -11,18 +11,106 @@
 
 namespace App\Models;
 
-
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
-use App\Jobs\Entity\CreateEntityPdf;
-use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Services\PurchaseOrder\PurchaseOrderService;
-use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Storage;
 
+/**
+ * App\Models\PurchaseOrder
+ *
+ * @property int $id
+ * @property int|null $client_id
+ * @property int $user_id
+ * @property int|null $assigned_user_id
+ * @property int $company_id
+ * @property int $status_id
+ * @property int|null $project_id
+ * @property int|null $vendor_id
+ * @property int|null $recurring_id
+ * @property int|null $design_id
+ * @property int|null $invoice_id
+ * @property string|null $number
+ * @property float $discount
+ * @property bool $is_amount_discount
+ * @property string|null $po_number
+ * @property string|null $date
+ * @property string|null $last_sent_date
+ * @property string|null $due_date
+ * @property bool $is_deleted
+ * @property object|array|string $line_items
+ * @property object|null $backup
+ * @property string|null $footer
+ * @property string|null $public_notes
+ * @property string|null $private_notes
+ * @property string|null $terms
+ * @property string|null $tax_name1
+ * @property float $tax_rate1
+ * @property string|null $tax_name2
+ * @property float $tax_rate2
+ * @property string|null $tax_name3
+ * @property float $tax_rate3
+ * @property float $total_taxes
+ * @property int $uses_inclusive_taxes
+ * @property string|null $reminder1_sent
+ * @property string|null $reminder2_sent
+ * @property string|null $reminder3_sent
+ * @property string|null $reminder_last_sent
+ * @property string|null $custom_value1
+ * @property string|null $custom_value2
+ * @property string|null $custom_value3
+ * @property string|null $custom_value4
+ * @property string|null $next_send_date
+ * @property string|null $custom_surcharge1
+ * @property string|null $custom_surcharge2
+ * @property string|null $custom_surcharge3
+ * @property string|null $custom_surcharge4
+ * @property int $custom_surcharge_tax1
+ * @property int $custom_surcharge_tax2
+ * @property int $custom_surcharge_tax3
+ * @property int $custom_surcharge_tax4
+ * @property float $exchange_rate
+ * @property float $balance
+ * @property float|null $partial
+ * @property float $amount
+ * @property float $paid_to_date
+ * @property string|null $partial_due_date
+ * @property string|null $last_viewed
+ * @property int|null $deleted_at
+ * @property int|null $created_at
+ * @property int|null $updated_at
+ * @property int|null $expense_id
+ * @property int|null $currency_id
+ * @property-read int|null $activities_count
+ * @property \App\Models\User|null $assigned_user
+ * @property \App\Models\Client|null $client
+ * @property \App\Models\Company $company
+ * @property-read int|null $documents_count
+ * @property \App\Models\Expense|null $expense
+ * @property string $hashed_id
+ * @property \App\Models\Invoice|null $invoice
+ * @property \App\Models\Project|null $project
+ * @property \App\Models\User $user
+ * @property \App\Models\Vendor $vendor
+ * @property \App\Models\PurchaseOrderInvitation $invitation
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder exclude($columns)
+ * @method static \Database\Factories\PurchaseOrderFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder filter(\App\Filters\QueryFilters $filters)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder query()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $invitations
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder withoutTrashed()
+ * @mixin \Eloquent
+ */
 class PurchaseOrder extends BaseModel
 {
     use Filterable;
@@ -104,18 +192,15 @@ class PurchaseOrder extends BaseModel
         switch ($status) {
             case self::STATUS_DRAFT:
                 return ctrans('texts.draft');
-                break;
             case self::STATUS_SENT:
                 return ctrans('texts.sent');
-                break;
             case self::STATUS_ACCEPTED:
                 return ctrans('texts.accepted');
-                break;
             case self::STATUS_CANCELLED:
                 return ctrans('texts.cancelled');
-                break;
-                // code...
-                break;
+            default:
+                return ctrans('texts.sent');
+                
         }
     }
 
@@ -125,116 +210,91 @@ class PurchaseOrder extends BaseModel
         switch ($status) {
             case self::STATUS_DRAFT:
                 return '<h5><span class="badge badge-light">'.ctrans('texts.draft').'</span></h5>';
-                break;
             case self::STATUS_SENT:
                 return '<h5><span class="badge badge-primary">'.ctrans('texts.sent').'</span></h5>';
-                break;
             case self::STATUS_ACCEPTED:
                 return '<h5><span class="badge badge-primary">'.ctrans('texts.accepted').'</span></h5>';
-                break;
             case self::STATUS_CANCELLED:
                 return '<h5><span class="badge badge-secondary">'.ctrans('texts.cancelled').'</span></h5>';
-                break;
             default:
-                // code...
-                break;
+                return '<h5><span class="badge badge-primary">'.ctrans('texts.sent').'</span></h5>';
         }
     }
 
+    public function getEntityType()
+    {
+        return self::class;
+    }
 
-    public function assigned_user()
+    public function assigned_user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
 
-    public function vendor()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function vendor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Vendor::class)->withTrashed();
     }
 
-    public function history()
+    public function history(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
         return $this->hasManyThrough(Backup::class, Activity::class);
     }
 
-    public function activities()
+    public function activities(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(50);
     }
 
-    public function company()
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function expense()
+    public function expense(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Expense::class);
     }
 
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
 
-    public function client()
+    public function client(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Client::class)->withTrashed();
     }
-    public function markInvitationsSent()
+
+    public function currency(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Currency::class);
+    }
+
+    public function markInvitationsSent(): void
     {
         $this->invitations->each(function ($invitation) {
             if (! isset($invitation->sent_date)) {
                 $invitation->sent_date = Carbon::now();
-                $invitation->save();
+                $invitation->saveQuietly();
             }
         });
     }
 
-    public function pdf_file_path($invitation = null, string $type = 'path', bool $portal = false)
-    {
-        if (! $invitation) {
-
-            if($this->invitations()->exists())
-                $invitation = $this->invitations()->first();
-            else{
-                $this->service()->createInvitations();
-                $invitation = $this->invitations()->first();
-            }
-
-        }
-
-        if(!$invitation)
-            throw new \Exception('Hard fail, could not create an invitation - is there a valid contact?');
-
-        $file_path = $this->vendor->purchase_order_filepath($invitation).$this->numberFormatter().'.pdf';
-
-        if(Ninja::isHosted() && $portal && Storage::disk(config('filesystems.default'))->exists($file_path)){
-            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
-        }
-        elseif(Ninja::isHosted() && $portal){
-            $file_path = (new CreatePurchaseOrderPdf($invitation,config('filesystems.default')))->handle();
-            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
-        }
-
-        if(Storage::disk('public')->exists($file_path))
-            return Storage::disk('public')->{$type}($file_path);
-
-        $file_path = (new CreatePurchaseOrderPdf($invitation))->handle();
-        return Storage::disk('public')->{$type}($file_path);
-    }
-
-    public function invitations()
+    public function invitations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(PurchaseOrderInvitation::class);
     }
 
-    public function project()
+    public function project(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Project::class)->withTrashed();
     }
 
-    public function invoice()
+    public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Invoice::class);
     }
@@ -245,22 +305,27 @@ class PurchaseOrder extends BaseModel
         return new PurchaseOrderService($this);
     }
 
-    public function invoices()
+    public function invoices(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Invoice::class)->using(Paymentable::class);
     }
 
-    public function payments()
+    public function payments(): \Illuminate\Database\Eloquent\Relations\MorphToMany
     {
         return $this->morphToMany(Payment::class, 'paymentable');
     }
 
-    public function documents()
+    public function documents(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
     }
 
-    public function calc()
+    /**
+     * Access the invoice calculator object.
+     *
+     * @return InvoiceSumInclusive | InvoiceSum The invoice calculator object getters
+     */
+    public function calc(): InvoiceSumInclusive | InvoiceSum
     {
         $purchase_order_calc = null;
 
@@ -273,8 +338,46 @@ class PurchaseOrder extends BaseModel
         return $purchase_order_calc->build();
     }
 
-    public function translate_entity()
+    public function translate_entity(): string
     {
         return ctrans('texts.purchase_order');
     }
+
+    public function typeIdString($id): string
+    {
+        $type = '';
+        match($id) {
+            '1' => $type = ctrans('texts.product'),
+            '2' => $type = ctrans('texts.service'),
+            '3' => $type = ctrans('texts.gateway_fees'),
+            '4' => $type = ctrans('texts.gateway_fees'),
+            '5' => $type = ctrans('texts.late_fees'),
+            '6' => $type = ctrans('texts.expense'),
+            default => $type = ctrans('texts.product'),
+        };
+
+        return $type;
+
+    }
+
+    public function taxTypeString($id): string
+    {
+        $tax_type = '';
+
+        match(intval($id)) {
+            Product::PRODUCT_TYPE_PHYSICAL => $tax_type = ctrans('texts.physical_goods'),
+            Product::PRODUCT_TYPE_SERVICE => $tax_type = ctrans('texts.services'),
+            Product::PRODUCT_TYPE_DIGITAL => $tax_type = ctrans('texts.digital_products'),
+            Product::PRODUCT_TYPE_SHIPPING => $tax_type = ctrans('texts.shipping'),
+            Product::PRODUCT_TYPE_EXEMPT => $tax_type = ctrans('texts.tax_exempt'),
+            Product::PRODUCT_TYPE_REDUCED_TAX => $tax_type = ctrans('texts.reduced_tax'),
+            Product::PRODUCT_TYPE_OVERRIDE_TAX => $tax_type = ctrans('texts.override_tax'),
+            Product::PRODUCT_TYPE_ZERO_RATED => $tax_type = ctrans('texts.zero_rated'),
+            Product::PRODUCT_TYPE_REVERSE_TAX => $tax_type = ctrans('texts.reverse_tax'),
+            default => $tax_type = ctrans('texts.physical_goods'),
+        };
+
+        return $tax_type;
+    }
+
 }

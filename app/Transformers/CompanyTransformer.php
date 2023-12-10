@@ -15,6 +15,7 @@ use App\Models\Account;
 use App\Models\Activity;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
+use App\Models\BankTransactionRule;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
@@ -27,6 +28,7 @@ use App\Models\Document;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\GroupSetting;
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentTerm;
 use App\Models\Product;
@@ -42,12 +44,8 @@ use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Models\TaxRate;
 use App\Models\User;
+use App\Models\Vendor;
 use App\Models\Webhook;
-use App\Transformers\BankIntegrationTransformer;
-use App\Transformers\BankTransactionRuleTransformer;
-use App\Transformers\BankTransactionTransformer;
-use App\Transformers\PurchaseOrderTransformer;
-use App\Transformers\RecurringExpenseTransformer;
 use App\Utils\Traits\MakesHash;
 use stdClass;
 
@@ -61,14 +59,14 @@ class CompanyTransformer extends EntityTransformer
     /**
      * @var array
      */
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'documents',
     ];
 
     /**
      * @var array
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'documents',
         'users',
         'designs',
@@ -135,15 +133,15 @@ class CompanyTransformer extends EntityTransformer
             'show_product_details' => (bool) $company->show_product_details,
             'enable_product_quantity' => (bool) $company->enable_product_quantity,
             'default_quantity' => (bool) $company->default_quantity,
-            'custom_fields' => $company->custom_fields ?: $std,
+            'custom_fields' =>  (object) $company->custom_fields ?? $std,
             'size_id' => (string) $company->size_id ?: '',
             'industry_id' => (string) $company->industry_id ?: '',
-            'first_month_of_year' => (string) $company->first_month_of_year ?: '',
+            'first_month_of_year' => (string) $company->first_month_of_year ?: '1',
             'first_day_of_week' => (string) $company->first_day_of_week ?: '',
             'subdomain' => (string) $company->subdomain ?: '',
             'portal_mode' => (string) $company->portal_mode ?: '',
             'portal_domain' => (string) $company->portal_domain ?: '',
-            'settings' => $company->settings ?: '',
+            'settings' => $company->settings ?? '',
             'enabled_tax_rates' => (int) $company->enabled_tax_rates,
             'enabled_modules' => (int) $company->enabled_modules,
             'updated_at' => (int) $company->updated_at,
@@ -156,7 +154,8 @@ class CompanyTransformer extends EntityTransformer
             'matomo_id' => (string) $company->matomo_id ?: '',
             'enabled_item_tax_rates' => (int) $company->enabled_item_tax_rates,
             'client_can_register' => (bool) $company->client_can_register,
-            'is_large' => (bool) $company->is_large,
+            // 'is_large' => (bool) $company->is_large,
+            'is_large' => (bool) $this->isLarge($company),
             'is_disabled' => (bool) $company->is_disabled,
             'enable_shop_api' => (bool) $company->enable_shop_api,
             'mark_expenses_invoiceable'=> (bool) $company->mark_expenses_invoiceable,
@@ -198,7 +197,27 @@ class CompanyTransformer extends EntityTransformer
             'convert_expense_currency' => (bool) $company->convert_expense_currency,
             'notify_vendor_when_paid' => (bool) $company->notify_vendor_when_paid,
             'invoice_task_hours' => (bool) $company->invoice_task_hours,
+            'calculate_taxes' => (bool) $company->calculate_taxes,
+            'tax_data' => $company->tax_data ?: new \stdClass,
+            'has_e_invoice_certificate' => $company->e_invoice_certificate ? true : false,
+            'has_e_invoice_certificate_passphrase' => $company->e_invoice_certificate_passphrase ? true : false,
+            'invoice_task_project_header' => (bool) $company->invoice_task_project_header,
+            'invoice_task_item_description' => (bool) $company->invoice_task_item_description,
+            'origin_tax_data' => $company->origin_tax_data ?: new \stdClass,
         ];
+    }
+
+    private function isLarge(Company $company): bool
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        //if the user is attached to more than one company AND they are not an admin across all companies
+        if ($company->is_large || ($user->company_users()->count() > 1 && ($user->company_users()->where('is_admin', 1)->count() != $user->company_users()->count()))) {
+            return true;
+        }
+
+        return false;
     }
 
     public function includeExpenseCategories(Company $company)

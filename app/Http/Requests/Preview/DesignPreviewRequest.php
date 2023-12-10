@@ -12,7 +12,6 @@
 namespace App\Http\Requests\Preview;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\Project\ValidProjectForClient;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\PurchaseOrder;
@@ -20,7 +19,6 @@ use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Validation\Rule;
 
 class DesignPreviewRequest extends Request
 {
@@ -34,22 +32,25 @@ class DesignPreviewRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('create', Invoice::class) || 
-               auth()->user()->can('create', Quote::class) || 
-               auth()->user()->can('create', RecurringInvoice::class) || 
-               auth()->user()->can('create', Credit::class) || 
-               auth()->user()->can('create', PurchaseOrder::class);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('create', Invoice::class) ||
+               $user->can('create', Quote::class) ||
+               $user->can('create', RecurringInvoice::class) ||
+               $user->can('create', Credit::class) ||
+               $user->can('create', PurchaseOrder::class);
     }
 
     public function rules()
     {
         $rules = [
-            'entity' => 'bail|sometimes|string',
-            'entity_id' => 'bail|sometimes|string',
+            'entity_type' => 'bail|required|in:invoice,quote,credit,purchase_order,statement,payment_receipt,payment_refund,delivery_note',
             'settings_type' => 'bail|required|in:company,group,client',
             'settings' => 'sometimes',
             'group_id' => 'sometimes',
             'client_id' => 'sometimes',
+            'design' => 'bail|sometimes|array',
         ];
 
         return $rules;

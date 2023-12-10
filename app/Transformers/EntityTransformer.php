@@ -44,7 +44,7 @@ class EntityTransformer extends TransformerAbstract
         return $this->item($data, $transformer, $entityType);
     }
 
-    public function getDefaultIncludes()
+    public function getDefaultIncludes(): array
     {
         return $this->defaultIncludes;
     }

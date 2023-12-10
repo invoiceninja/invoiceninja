@@ -4,7 +4,6 @@ var __webpack_exports__ = {};
   !*** ./resources/js/clients/payment_methods/braintree-ach.js ***!
   \***************************************************************/
 var _document$querySelect;
-
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -14,6 +13,7 @@ var _document$querySelect;
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
+
 window.braintree.client.create({
   authorization: (_document$querySelect = document.querySelector('meta[name="client-token"]')) === null || _document$querySelect === void 0 ? void 0 : _document$querySelect.content
 }).then(function (clientInstance) {
@@ -22,7 +22,6 @@ window.braintree.client.create({
   });
 }).then(function (usBankAccountInstance) {
   var _document$getElementB;
-
   (_document$getElementB = document.getElementById('authorize-bank-account')) === null || _document$getElementB === void 0 ? void 0 : _document$getElementB.addEventListener('click', function (e) {
     e.target.parentElement.disabled = true;
     document.getElementById('errors').hidden = true;
@@ -40,7 +39,6 @@ window.braintree.client.create({
         postalCode: document.getElementById('billing-postal-code').value
       }
     };
-
     if (bankDetails.ownershipType === 'personal') {
       var name = document.getElementById('account-holder-name').value.split(' ', 2);
       bankDetails.firstName = name[0];
@@ -48,7 +46,6 @@ window.braintree.client.create({
     } else {
       bankDetails.businessName = document.getElementById('account-holder-name').value;
     }
-
     usBankAccountInstance.tokenize({
       bankDetails: bankDetails,
       mandateText: 'By clicking ["Checkout"], I authorize Braintree, a service of PayPal, on behalf of [your business name here] (i) to verify my bank account information using bank information and consumer reports and (ii) to debit my bank account.'

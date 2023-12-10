@@ -39,6 +39,8 @@ trait PdfMaker
             $pdf->addChromiumArguments(config('ninja.snappdf_chromium_arguments'));
         }
 
+        $html = str_replace(['file:/', 'iframe', '&lt;object', '<object', '127.0.0.1', 'localhost'], ['','','','','',''], $html);
+
         $generated = $pdf
                         ->setHtml($html)
                         ->generate();

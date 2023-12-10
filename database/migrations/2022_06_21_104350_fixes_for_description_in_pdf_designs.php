@@ -9,8 +9,6 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 class FixesForDescriptionInPdfDesigns extends Migration
 {
@@ -31,6 +29,5 @@ class FixesForDescriptionInPdfDesigns extends Migration
      */
     public function down()
     {
-
     }
 }

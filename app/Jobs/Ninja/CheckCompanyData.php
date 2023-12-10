@@ -11,7 +11,6 @@
 
 namespace App\Jobs\Ninja;
 
-use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyLedger;
 use App\Models\Credit;
@@ -25,7 +24,6 @@ use Illuminate\Queue\Middleware\RateLimited;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Turbo124\Beacon\Jobs\Database\MySQL\DbStatus;
 
 class CheckCompanyData implements ShouldQueue
 {
@@ -124,8 +122,8 @@ class CheckCompanyData implements ShouldQueue
 
         $this->company->clients->where('is_deleted', 0)->each(function ($client) use ($wrong_balances) {
             $client->invoices->where('is_deleted', false)->whereIn('status_id', '!=', Invoice::STATUS_DRAFT)->each(function ($invoice) use ($wrong_balances, $client) {
-                $total_amount = $invoice->payments->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->sum('pivot.amount');
-                $total_refund = $invoice->payments->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->sum('pivot.refunded');
+                $total_amount = $invoice->payments->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->sum('pivot.amount');
+                $total_refund = $invoice->payments->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->sum('pivot.refunded');
                 $total_credit = $invoice->credits->sum('amount');
 
                 $total_paid = $total_amount - $total_refund;
@@ -153,22 +151,11 @@ class CheckCompanyData implements ShouldQueue
             $total_invoice_payments = 0;
 
             foreach ($client->invoices->where('is_deleted', false)->where('status_id', '>', 1) as $invoice) {
-                $total_amount = $invoice->payments->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])->sum('pivot.amount');
-                $total_refund = $invoice->payments->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])->sum('pivot.refunded');
+                $total_amount = $invoice->payments->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])->sum('pivot.amount');
+                $total_refund = $invoice->payments->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])->sum('pivot.refunded');
 
                 $total_invoice_payments += ($total_amount - $total_refund);
             }
-
-            //10/02/21
-            // foreach ($client->payments as $payment) {
-            //     $credit_total_applied += $payment->paymentables->where('paymentable_type', App\Models\Credit::class)->sum(DB::raw('amount'));
-            // }
-
-            // if ($credit_total_applied < 0) {
-            //     $total_invoice_payments += $credit_total_applied;
-            // } //todo this is contentious
-
-            // nlog("total invoice payments = {$total_invoice_payments} with client paid to date of of {$client->paid_to_date}");
 
             if (round($total_invoice_payments, 2) != round($client->paid_to_date, 2)) {
                 $wrong_paid_to_dates++;
@@ -260,19 +247,6 @@ class CheckCompanyData implements ShouldQueue
             $this->is_valid = false;
         }
 
-        // if ($this->option('fix') == 'true') {
-        //     foreach ($clients as $client) {
-        //         $contact = new ClientContact();
-        //         $contact->company_id = $client->company_id;
-        //         $contact->user_id = $client->user_id;
-        //         $contact->client_id = $client->id;
-        //         $contact->is_primary = true;
-        //         $contact->send_invoice = true;
-        //         $contact->contact_key = str_random(config('ninja.key_length'));
-        //         $contact->save();
-        //     }
-        // }
-
         // check for more than one primary contact
         $clients = DB::table('clients')
                     ->where('clients.company_id', $this->company->id)
@@ -283,10 +257,6 @@ class CheckCompanyData implements ShouldQueue
                     })
                     ->groupBy('clients.id')
                     ->havingRaw('count(client_contacts.id) != 1');
-
-        // if ($this->option('client_id')) {
-        //     $clients->where('clients.id', '=', $this->option('client_id'));
-        // }
 
         $clients = $clients->get(['clients.id', DB::raw('count(client_contacts.id)')]);
         $this->company_data[] = $clients->count().' clients without a single primary contact';
@@ -327,7 +297,7 @@ class CheckCompanyData implements ShouldQueue
                 }
                 $records = DB::table($table)
                                 ->join($tableName, "{$tableName}.id", '=', "{$table}.{$field}_id")
-                                ->where("{$table}.{$company_id}", '!=', DB::raw("{$tableName}.company_id"))
+                                ->where("{$table}.{$company_id}", '!=', "{$tableName}.company_id")
                                 ->get(["{$table}.id"]);
 
                 if ($records->count()) {

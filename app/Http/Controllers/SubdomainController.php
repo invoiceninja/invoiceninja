@@ -15,43 +15,19 @@ use App\Libraries\MultiDB;
 
 class SubdomainController extends BaseController
 {
-    private $protected = [
-        'www',
-        'app',
-        'ninja',
-        'sentry',
-        'sentry2',
-        'staging',
-        'pdf',
-        'demo',
-        'docs',
-        'client_domain',
-        'custom_domain',
-        'preview',
-        'invoiceninja',
-        'cname',
-        'sandbox',
-        'stage',
-        'html',
-        'lb',
-        'shopify',
-        'beta',
-        'prometh'
-    ];
 
     public function __construct()
     {
     }
 
     /**
-     * Display a listing of the resource.
+     * Return if a subdomain is available.
      *
-     * @return void
      */
     public function index()
     {
-        if (in_array(request()->input('subdomain'), $this->protected) || MultiDB::findAndSetDbByDomain(['subdomain' => request()->input('subdomain')])) {
-            return response()->json(['message' => 'Domain not available'], 401);
+        if (!MultiDB::checkDomainAvailable(request()->input('subdomain'))) {
+            return response()->json(['message' => ctrans('texts.subdomain_is_not_available')], 401);
         }
 
         return response()->json(['message' => 'Domain available'], 200);

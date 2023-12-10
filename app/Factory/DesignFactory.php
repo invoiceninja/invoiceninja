@@ -11,6 +11,7 @@
 
 namespace App\Factory;
 
+use App\DataProviders\DesignBlocks;
 use App\Models\Design;
 
 class DesignFactory
@@ -24,7 +25,9 @@ class DesignFactory
         $design->is_active = true;
         $design->is_custom = true;
         $design->name = '';
-        $design->design = '';
+        $design->is_template = false;
+        $design->entities = '';
+        $design->design = new DesignBlocks();
 
         return $design;
     }

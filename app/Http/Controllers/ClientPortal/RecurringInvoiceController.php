@@ -20,7 +20,6 @@ use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Mail\RecurringInvoice\ClientContactRequestCancellationObject;
 use App\Models\RecurringInvoice;
-use App\Notifications\ClientContactRequestCancellation;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Notifications\UserNotifies;
@@ -51,7 +50,7 @@ class RecurringInvoiceController extends Controller
      *
      * @param ShowRecurringInvoiceRequest $request
      * @param RecurringInvoice $recurring_invoice
-     * 
+     *
      * @return Factory|View
      */
     public function show(ShowRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice)
@@ -63,17 +62,15 @@ class RecurringInvoiceController extends Controller
 
     /**
      * Handle the request cancellation notification
-     * 
+     *
      * @param  RequestCancellationRequest $request           [description]
      * @param  RecurringInvoice           $recurring_invoice [description]
-     * 
+     *
      * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
      */
     public function requestCancellation(RequestCancellationRequest $request, RecurringInvoice $recurring_invoice)
     {
-
         if ($recurring_invoice->subscription?->allow_cancellation) {
-
             $nmo = new NinjaMailerObject;
             $nmo->mailable = (new NinjaMailer((new ClientContactRequestCancellationObject($recurring_invoice, auth()->user(), false))->build()));
             $nmo->company = $recurring_invoice->company;

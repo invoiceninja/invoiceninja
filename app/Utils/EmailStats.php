@@ -28,7 +28,7 @@ class EmailStats
      */
     public static function inc($company_key)
     {
-        Cache::increment(self::EMAIL.$company_key);
+        Cache::increment("email_quota".self::EMAIL.$company_key);
     }
 
     /**
@@ -57,12 +57,13 @@ class EmailStats
      * Iterates through a list of companies
      * and flushes the email sent data.
      *
-     * @param  Collection $companies The company key
+     * @param  \Illuminate\Database\Eloquent\Collection<\App\Models\Company> $companies The company key
      * @return void
      */
     public static function clearCompanies($companies)
     {
         $companies->each(function ($company) {
+            /** @var \App\Models\Company $company */
             self::clear($company->company_key);
         });
     }

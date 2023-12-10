@@ -15,7 +15,6 @@ namespace App\PaymentDrivers\GoCardless;
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Util\SystemLogger;
-use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -31,6 +30,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Illuminate\View\View;
 
+//@deprecated
 class ACH implements MethodInterface
 {
     use MakesHash;
@@ -142,7 +142,7 @@ class ACH implements MethodInterface
      * Show the payment page for ACH.
      *
      * @param array $data
-     * @return View
+     * @return \Illuminate\View\View
      */
     public function paymentView(array $data): View
     {
@@ -163,7 +163,7 @@ class ACH implements MethodInterface
     {
         $this->go_cardless->ensureMandateIsReady($request->source);
 
-        $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($this->go_cardless->payment_hash->invoices(), 'invoice_id')))
+        $invoice = Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->go_cardless->payment_hash->invoices(), 'invoice_id')))
                           ->withTrashed()
                           ->first();
 
@@ -173,10 +173,13 @@ class ACH implements MethodInterface
             $description = "Amount {$request->amount} from client {$this->go_cardless->client->present()->name()}";
         }
 
+        $amount = $this->go_cardless->convertToGoCardlessAmount($this->go_cardless->payment_hash?->amount_with_fee(), $this->go_cardless->client->currency()->precision);
+
         try {
             $payment = $this->go_cardless->gateway->payments()->create([
                 'params' => [
-                    'amount' => $request->amount,
+                    // 'amount' => $request->amount,
+                    'amount' => $amount,
                     'currency' => $request->currency,
                     'description' => $description,
                     'metadata' => [

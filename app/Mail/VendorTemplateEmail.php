@@ -11,21 +11,11 @@
 
 namespace App\Mail;
 
-use App\Jobs\Invoice\CreateUbl;
-use App\Jobs\Vendor\CreatePurchaseOrderPdf;
-use App\Models\Account;
-use App\Models\Client;
-use App\Models\User;
 use App\Models\VendorContact;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
-use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
-use App\Utils\TemplateEngine;
 use App\Utils\VendorHtmlEngine;
-use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Storage;
 
 class VendorTemplateEmail extends Mailable
 {
@@ -52,6 +42,31 @@ class VendorTemplateEmail extends Mailable
         $this->invitation = $invitation;
     }
 
+    /**
+     * Supports inline attachments for large
+     * attachments in custom designs
+     *
+     * @return string
+     */
+    private function buildLinksForCustomDesign(): string
+    {
+        $links = $this->build_email->getAttachmentLinks();
+
+        if (count($links) == 0) {
+            return '';
+        }
+
+        $link_string = '<ul>';
+
+        foreach ($this->build_email->getAttachmentLinks() as $link) {
+            $link_string .= "<li>{$link}</li>";
+        }
+
+        $link_string .= '</ul>';
+
+        return $link_string;
+    }
+    
     public function build()
     {
         $template_name = 'email.template.'.$this->build_email->getTemplate();
@@ -61,7 +76,7 @@ class VendorTemplateEmail extends Mailable
         }
 
         if ($this->build_email->getTemplate() == 'custom') {
-            $this->build_email->setBody(str_replace('$body', $this->build_email->getBody(), $this->company->getSetting('email_style_custom')));
+            $this->build_email->setBody(str_replace('$body', $this->build_email->getBody().$this->buildLinksForCustomDesign(), $this->company->getSetting('email_style_custom')));
         }
 
         $settings = $this->company->settings;
@@ -88,8 +103,19 @@ class VendorTemplateEmail extends Mailable
         $this->from(config('mail.from.address'), $email_from_name);
 
         if (strlen($settings->bcc_email) > 1) {
-            $this->bcc(explode(',', str_replace(' ', '', $settings->bcc_email)));
-        }//remove whitespace if any has been inserted.
+        
+            if (Ninja::isHosted()) {
+
+                if($this->company->account->isPaid()) {
+                    $bccs = explode(',', str_replace(' ', '', $settings->bcc_email));
+                    $this->bcc(array_slice($bccs, 0, 5));
+                }
+
+            } else {
+                $this->bcc(explode(',', str_replace(' ', '', $settings->bcc_email)));
+            }
+        
+        }
 
         $this->subject($this->build_email->getSubject())
             ->text('email.template.text', [
@@ -109,16 +135,16 @@ class VendorTemplateEmail extends Mailable
                 'company' => $this->company,
                 'whitelabel' => $this->vendor->user->account->isPaid() ? true : false,
                 'logo' => $this->company->present()->logo($settings),
+                'links' => $this->build_email->getAttachmentLinks(),
             ]);
 
 
         foreach ($this->build_email->getAttachments() as $file) {
-
-            if(array_key_exists('file', $file))
+            if (array_key_exists('file', $file)) {
                 $this->attachData(base64_decode($file['file']), $file['name']);
-            else
+            } else {
                 $this->attach($file['path'], ['as' => $file['name'], 'mime' => null]);
-
+            }
         }
 
         return $this;

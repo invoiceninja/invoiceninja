@@ -1,10 +1,10 @@
 <?php
 /**
- * client Ninja (https://clientninja.com).
+ * Invoice Ninja (https://invoiceninja.com).
  *
- * @link https://github.com/clientninja/clientninja source repository
+ * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. client Ninja LLC (https://clientninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -52,17 +52,6 @@ class VendorTransformer extends BaseTransformer
             'custom_value2' => $this->getString($data, 'vendor.custom_value2'),
             'custom_value3' => $this->getString($data, 'vendor.custom_value3'),
             'custom_value4' => $this->getString($data, 'vendor.custom_value4'),
-            // 'vendor_contacts' => [
-            //     [
-            //         'first_name' => $this->getString(
-            //             $data,
-            //             'vendor.first_name'
-            //         ),
-            //         'last_name' => $this->getString($data, 'vendor.last_name'),
-            //         'email' => $this->getString($data, 'vendor.email'),
-            //         'phone' => $this->getString($data, 'vendor.phone'),
-            //     ],
-            // ],
             'contacts' => [
                 [
                     'first_name' => $this->getString(
@@ -70,7 +59,7 @@ class VendorTransformer extends BaseTransformer
                         'contact.first_name'
                     ),
                     'last_name' => $this->getString($data, 'contact.last_name'),
-                    'email' => $this->getString($data, 'contact.email'),
+                    'email' => strlen($this->getString($data, 'contact.email')) > 1 ? $this->getString($data, 'contact.email') : $this->getString($data, 'vendor.email'),
                     'phone' => $this->getString($data, 'contact.phone'),
                     'custom_value1' => $this->getString(
                         $data,

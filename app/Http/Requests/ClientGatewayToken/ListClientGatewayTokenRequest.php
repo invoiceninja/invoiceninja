@@ -12,7 +12,6 @@
 namespace App\Http\Requests\ClientGatewayToken;
 
 use App\Http\Requests\Request;
-use App\Models\ClientGatewayToken;
 
 class ListClientGatewayTokenRequest extends Request
 {
@@ -23,6 +22,9 @@ class ListClientGatewayTokenRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->isAdmin();
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->isAdmin();
     }
 }

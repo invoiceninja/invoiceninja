@@ -27,6 +27,7 @@ class ProcessQuotesInBulkRequest extends FormRequest
     {
         return [
             'quotes' => ['array'],
+            'action' => 'sometimes',
         ];
     }
 }

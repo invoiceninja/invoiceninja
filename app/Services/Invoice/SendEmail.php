@@ -11,31 +11,21 @@
 
 namespace App\Services\Invoice;
 
+use App\Events\Invoice\InvoiceWasEmailed;
 use App\Jobs\Entity\EmailEntity;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Services\AbstractService;
+use App\Utils\Ninja;
 
 class SendEmail extends AbstractService
 {
-    protected $invoice;
-
-    protected $reminder_template;
-
-    protected $contact;
-
-    public function __construct(Invoice $invoice, $reminder_template = null, ClientContact $contact = null)
+    public function __construct(protected Invoice $invoice, protected $reminder_template = null, protected ?ClientContact $contact = null)
     {
-        $this->invoice = $invoice;
-
-        $this->reminder_template = $reminder_template;
-
-        $this->contact = $contact;
     }
 
     /**
      * Builds the correct template to send.
-     * @return void
      */
     public function run()
     {
@@ -48,5 +38,10 @@ class SendEmail extends AbstractService
                 EmailEntity::dispatch($invitation, $invitation->company, $this->reminder_template)->delay(10);
             }
         });
+
+        if ($this->invoice->invitations->count() >= 1) {
+            event(new InvoiceWasEmailed($this->invoice->invitations->first(), $this->invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $this->reminder_template ?? 'invoice'));
+        }
+
     }
 }

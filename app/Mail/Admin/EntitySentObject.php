@@ -36,7 +36,9 @@ class EntitySentObject
 
     private $template_body;
 
-    public function __construct($invitation, $entity_type, $template)
+    protected $use_react_url;
+
+    public function __construct($invitation, $entity_type, $template, $use_react_url)
     {
         $this->invitation = $invitation;
         $this->entity_type = $entity_type;
@@ -44,6 +46,7 @@ class EntitySentObject
         $this->contact = $invitation->contact;
         $this->company = $invitation->company;
         $this->template = $template;
+        $this->use_react_url = $use_react_url;
     }
 
     public function build()
@@ -58,12 +61,11 @@ class EntitySentObject
 
         $this->setTemplate();
 
-        if($this->template == 'purchase_order')
-        {
-
+        if ($this->template == 'purchase_order') {
             $mail_obj = new stdClass;
             $mail_obj->amount = Number::formatMoney($this->entity->amount, $this->entity->vendor);
-            $mail_obj->subject = ctrans($this->template_subject,
+            $mail_obj->subject = ctrans(
+                $this->template_subject,
                 [
                     'vendor' => $this->contact->vendor->present()->name(),
                     'purchase_order' => $this->entity->number,
@@ -71,14 +73,15 @@ class EntitySentObject
             );
             $mail_obj->data = [
                 'title' => $mail_obj->subject,
-                'message' => ctrans($this->template_body,
-                            [
-                                'amount' => $mail_obj->amount,
-                                'vendor' => $this->contact->vendor->present()->name(),
-                                'purchase_order' => $this->entity->number,
-                            ]
-                        ),
-                'url' => $this->invitation->getAdminLink(),
+                'content' => ctrans(
+                    $this->template_body,
+                    [
+                        'amount' => $mail_obj->amount,
+                        'vendor' => $this->contact->vendor->present()->name(),
+                        'purchase_order' => $this->entity->number,
+                    ]
+                ),
+                'url' => $this->invitation->getAdminLink($this->use_react_url),
                 'button' => ctrans("texts.view_{$this->entity_type}"),
                 'signature' => $this->company->settings->email_signature,
                 'logo' => $this->company->present()->logo(),
@@ -87,25 +90,20 @@ class EntitySentObject
             ];
             $mail_obj->markdown = 'email.admin.generic';
             $mail_obj->tag = $this->company->company_key;
-        
-        }
-        else {
-        
+        } else {
             $mail_obj = new stdClass;
             $mail_obj->amount = $this->getAmount();
             $mail_obj->subject = $this->getSubject();
             $mail_obj->data = $this->getData();
             $mail_obj->markdown = 'email.admin.generic';
             $mail_obj->tag = $this->company->company_key;
-        
         }
-        
+        // nlog($mail_obj);
         return $mail_obj;
     }
 
     private function setTemplate()
     {
-        // nlog($this->template);
 
         switch ($this->template) {
             case 'invoice':
@@ -140,6 +138,12 @@ class EntitySentObject
                 $this->template_subject = 'texts.notification_purchase_order_sent_subject';
                 $this->template_body = 'texts.notification_purchase_order_sent';
                 break;
+            case 'custom1':
+            case 'custom2':
+            case 'custom3':
+                $this->template_subject = 'texts.notification_invoice_custom_sent_subject';
+                $this->template_body = 'texts.notification_invoice_sent';
+                break;
             default:
                 $this->template_subject = 'texts.notification_invoice_sent_subject';
                 $this->template_body = 'texts.notification_invoice_sent';
@@ -167,13 +171,13 @@ class EntitySentObject
     private function getMessage()
     {
         return ctrans(
-                $this->template_body,
-                [
-                    'amount' => $this->getAmount(),
-                    'client' => $this->contact->client->present()->name(),
-                    'invoice' => $this->entity->number,
-                ]
-            );
+            $this->template_body,
+            [
+                'amount' => $this->getAmount(),
+                'client' => $this->contact->client->present()->name(),
+                'invoice' => $this->entity->number,
+            ]
+        );
     }
 
     private function getData()
@@ -182,8 +186,8 @@ class EntitySentObject
 
         return [
             'title' => $this->getSubject(),
-            'message' => $this->getMessage(),
-            'url' => $this->invitation->getAdminLink(),
+            'content' => $this->getMessage(),
+            'url' => $this->invitation->getAdminLink($this->use_react_url),
             'button' => ctrans("texts.view_{$this->entity_type}"),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),

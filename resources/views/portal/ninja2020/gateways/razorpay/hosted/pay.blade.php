@@ -32,5 +32,5 @@ ctrans('texts.aio_checkout')])
 
 @section('gateway_footer')
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script src="{{ asset('js/clients/payments/razorpay-aio.js') }}"></script>
+    @vite('resources/js/clients/payments/razorpay-aio.js')
 @endsection

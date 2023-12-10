@@ -46,6 +46,9 @@ class UpdateExpenseRequest extends Request
         }
 
         $rules['category_id'] = 'bail|sometimes|nullable|exists:expense_categories,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+        $rules['transaction_id'] = 'bail|sometimes|nullable|exists:bank_transactions,id,company_id,'.auth()->user()->company()->id;
+        $rules['invoice_id'] = 'bail|sometimes|nullable|exists:invoices,id,company_id,'.auth()->user()->company()->id;
+
 
         return $this->globalRules($rules);
     }
@@ -68,14 +71,11 @@ class UpdateExpenseRequest extends Request
         if (array_key_exists('project_id', $input) && isset($input['project_id'])) {
             $project = Project::withTrashed()->where('id', $input['project_id'])->company()->first();
 
-            if($project){
+            if ($project) {
                 $input['client_id'] = $project->client_id;
-            }
-            else
-            {
+            } else {
                 unset($input['project_id']);
             }
-
         }
 
         $this->replace($input);

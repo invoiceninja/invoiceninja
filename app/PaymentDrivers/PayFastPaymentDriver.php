@@ -53,7 +53,7 @@ class PayFastPaymentDriver extends BaseDriver
         if ($this->client->currency()->code == 'ZAR') {
             $types[] = GatewayType::CREDIT_CARD;
         }
-
+        
         return $types;
     }
 
@@ -69,7 +69,7 @@ class PayFastPaymentDriver extends BaseDriver
     public function init()
     {
         try {
-            $this->payfast = new \PayFast\PayFastPayment(
+            $this->payfast = new \Payfast\PayFastPayment(
                 [
                     'merchantId' => $this->company_gateway->getConfigField('merchantId'),
                     'merchantKey' => $this->company_gateway->getConfigField('merchantKey'),

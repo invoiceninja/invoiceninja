@@ -1,0 +1,166 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @import url($font_url);
+
+        @page {
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-top: 0;
+            margin-bottom: 0;
+            size: A5 landscape;
+            /* size: 210mm 75mm; */
+            border: 0px solid #000;
+        }
+
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-family: $font_name, Helvetica, sans-serif;
+            font-size: $font_sizepx !important;
+            zoom: 80%;
+        }
+
+
+        .centered {
+            text-align: center;
+        }
+
+        p {
+            margin: 0;
+            padding: 0;
+        }
+
+        .two-col-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .four-col-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+        }
+
+        .key-value-grid {
+            display: grid;
+            grid-template-columns: 1fr 4fr;
+        }
+
+        .primary-color-highlight {
+            color: $primary_color;
+        }
+
+        .secondary-color-highlight {
+            color: $secondary_color;
+        }
+
+        .company-logo {
+            max-width: $company_logo_size;
+            max-height: 100px;
+            vertical-align: middle;
+        }
+
+        .border {
+            border: 1px solid #000;
+        }
+
+        .zero {
+            margin: 0;
+            padding: 0;
+        }
+
+        .pull-left {
+            margin-left: 0;
+            margin-right: auto;
+        }
+
+        .pull-right {
+            margin-left: auto;
+            margin-right: 0;
+        }
+
+        .italic {
+            font-style: italic;
+        }
+
+        .bottom-border {
+            border-bottom: 1px solid $primary_color;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="two-col-grid" style="">
+        <ninja>
+            <div class="pull-left">
+                <h1 class="primary-color-highlight" style="margin-top:0;">$receipt_label {%if payments|length == 1%}#$number{% endif %}</h2>
+            </div>
+        </ninja>
+        <div class="pull-right"><img src="$company.logo" class="company-logo"></div>
+    </div>
+
+    <div class="two-col-grid">
+        <div class="pull-left">
+            <h4 class="italic" style="margin-bottom:0.5rem;">$to_label</h3>
+                <p style="margin-bottom:0.5rem;">$client.name</p>
+                <ninja>
+                    {% set payment = payments|first %}
+                    {% if payment.client.vat_number %}
+                    <p>$vat_number_label: $vat_number</p>
+                    {% endif %}
+                </ninja>
+        </div>
+        <div class="pull-right">
+            <!-- <h3 class="secondary-color-highlight zero italic">$to_label</h3>
+      <p>$company.name</p> -->
+        </div>
+    </div>
+
+    <div class="" style="margin-top:20px;">
+        <div class="four-col-grid" style="padding:2px; margin-bottom:2px;">
+            <div style="">$number_label</div>
+            <div style="">$date_label</div>
+            <div style="">$method_label</div>
+            <div style="">$amount_label</div>
+        </div>
+
+        <ninja>
+            {% if payments|e %}
+            {% for payment in payments %}
+            <div class="four-col-grid bottom-border" style="padding:2px;">
+                <div>
+                    <p class="primary-color-highlight">#{{ payment.number }}</p>
+                </div>
+                <div>
+                    <p>{{ payment.date }}</p>
+                </div>
+                <div>
+                    <p>{{ payment.method }}</p>
+                </div>
+                <div>
+                    <p>{{ payment.amount }}</p>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </ninja>
+
+    </div>
+
+    <div class="two-col-grid"
+        style="margin-top: 1rem; position:absolute; bottom: 0; width:100%; margin-right:0rem !important; padding-right:0rem;">
+        <div id="company-details" class="pull-left" style="padding-bottom:1rem;">
+            <!-- <h3>$company.name</h3> -->
+        </div>
+        <div class="pull-right" style="padding-right:1rem;">
+            <p>$public_notes</p>
+        </div>
+    </div>
+
+</body>
+
+</html>

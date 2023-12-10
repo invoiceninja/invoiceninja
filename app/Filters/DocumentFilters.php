@@ -22,7 +22,7 @@ class DocumentFilters extends QueryFilters
     /**
      * Filter based on search text.
      *
-     * @param string query filter
+     * @param string $filter
      * @return Builder
      * @deprecated
      */
@@ -39,10 +39,10 @@ class DocumentFilters extends QueryFilters
      * Overriding method as client_id does
      * not exist on this model, just pass
      * back the builder
-     * 
+     *
      * @param  string $client_id The client hashed id.
-     * 
-     * @return Builder           
+     *
+     * @return Builder
      */
     public function client_id(string $client_id = ''): Builder
     {
@@ -52,7 +52,7 @@ class DocumentFilters extends QueryFilters
     /**
      * Sorts the list based on $sort.
      *
-     * @param string sort formatted as column|asc
+     * @param string $sort formatted as column|asc
      * @return Builder
      */
     public function sort(string $sort = ''): Builder
@@ -69,8 +69,9 @@ class DocumentFilters extends QueryFilters
 
     public function company_documents($value = 'false')
     {
-        if($value == 'true')
+        if ($value == 'true') {
             return $this->builder->where('documentable_type', Company::class);
+        }
     
         return $this->builder;
     }
@@ -78,9 +79,9 @@ class DocumentFilters extends QueryFilters
     /**
      * Filters the query by the users company ID.
      *
-     * @return Illuminate\Database\Query\Builder
+     * @return Builder
      */
-    public function entityFilter()
+    public function entityFilter(): Builder
     {
         return $this->builder->company();
     }

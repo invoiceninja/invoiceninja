@@ -12,13 +12,11 @@
 namespace App\Jobs\User;
 
 use App\DataMapper\CompanySettings;
-use App\DataMapper\DefaultSettings;
 use App\Events\User\UserWasCreated;
 use App\Models\User;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Http\Request;
 
 class CreateUser
 {
@@ -78,12 +76,12 @@ class CreateUser
             'is_admin' => 1,
             'is_locked' => 0,
             'permissions' => '',
-            'notifications' => CompanySettings::notificationDefaults(),
+            'notifications' => CompanySettings::notificationAdminDefaults(),
             'settings' => null,
         ]);
 
         if (! Ninja::isSelfHost()) {
-            event(new UserWasCreated($user, $user, $this->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+            event(new UserWasCreated($user, $user, $this->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), request()->hasHeader('X-REACT') ?? false));
         }
 
         return $user;

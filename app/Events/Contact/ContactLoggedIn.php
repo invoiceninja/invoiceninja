@@ -14,7 +14,6 @@ namespace App\Events\Contact;
 use App\Models\ClientContact;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
@@ -25,9 +24,6 @@ class ContactLoggedIn
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /**
-     * @var
-     */
     public $client_contact;
 
     public $company;
@@ -55,6 +51,6 @@ class ContactLoggedIn
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('channel-name');
+        return [];
     }
 }

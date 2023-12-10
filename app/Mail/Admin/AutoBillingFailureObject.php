@@ -14,11 +14,11 @@ namespace App\Mail\Admin;
 use App\Models\Invoice;
 use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
-use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\App;
 use stdClass;
 
+//@deprecated
 class AutoBillingFailureObject
 {
     use MakesHash;
@@ -64,7 +64,7 @@ class AutoBillingFailureObject
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
-        $this->invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->get();
+        $this->invoices = Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->get();
 
         $mail_obj = new stdClass;
         $mail_obj->amount = $this->getAmount();

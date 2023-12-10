@@ -6,7 +6,7 @@
         @component('portal.ninja2020.upload.index') @endcomponent
     @endif
 
-    <script src="{{ asset('js/clients/shared/multiple-downloads.js') }}"></script>
+    @vite('resources/js/clients/shared/multiple-downloads.js')
 @endsection
 
 @section('body')

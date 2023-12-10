@@ -15,7 +15,6 @@ use App\DataMapper\ClientSettings;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Services\Chart\ChartService;
-use App\Utils\Ninja;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -51,7 +50,7 @@ class ChartCurrencyTest extends TestCase
 
         $this->assertDatabaseHas('invoices', ['number' => 'db_record']);
 
-        $cs = new ChartService($this->company);
+        $cs = new ChartService($this->company, $this->user, true);
         // nlog($cs->getRevenueQuery(now()->subDays(20)->format('Y-m-d'), now()->addDays(100)->format('Y-m-d')));
 
         $data = [
@@ -87,7 +86,7 @@ class ChartCurrencyTest extends TestCase
             'settings' => $settings,
         ]);
 
-        $cs = new ChartService($this->company);
+        $cs = new ChartService($this->company, $this->user, true);
 
         $this->assertTrue(is_array($cs->getCurrencyCodes()));
 
@@ -132,7 +131,7 @@ class ChartCurrencyTest extends TestCase
             ],
         ];
 
-        $cs = new ChartService($this->company);
+        $cs = new ChartService($this->company, $this->user, true);
 
         // nlog($cs->totals(now()->subYears(10), now()));
 

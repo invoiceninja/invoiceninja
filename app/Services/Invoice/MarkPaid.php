@@ -26,18 +26,14 @@ class MarkPaid extends AbstractService
 {
     use GeneratesCounter;
 
-    private $invoice;
-
     private $payable_balance;
 
-    public function __construct(Invoice $invoice)
+    public function __construct(private Invoice $invoice, private ?string $reference)
     {
-        $this->invoice = $invoice;
     }
 
     public function run()
     {
-
         /*Don't double pay*/
         if ($this->invoice->status_id == Invoice::STATUS_PAID) {
             return $this->invoice;
@@ -48,22 +44,20 @@ class MarkPaid extends AbstractService
         }
 
         \DB::connection(config('database.default'))->transaction(function () {
-
             $this->invoice = Invoice::withTrashed()->where('id', $this->invoice->id)->lockForUpdate()->first();
 
-            if($this->invoice)
-            {
+            if ($this->invoice) {
                 $this->payable_balance = $this->invoice->balance;
 
                 $this->invoice
                     ->service()
                     ->setExchangeRate()
+                    ->clearPartial()
                     ->updateBalance($this->payable_balance * -1)
                     ->updatePaidToDate($this->payable_balance)
                     ->setStatus(Invoice::STATUS_PAID)
                     ->save();
             }
-
         }, 1);
 
         /* Create Payment */
@@ -73,12 +67,12 @@ class MarkPaid extends AbstractService
         $payment->applied = $this->payable_balance;
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->client_id = $this->invoice->client_id;
-        $payment->transaction_reference = ctrans('texts.manual_entry');
+        $payment->transaction_reference = $this->reference ?: ctrans('texts.manual_entry');
         $payment->currency_id = $this->invoice->client->getSetting('currency_id');
         $payment->is_manual = true;
 
         if ($this->invoice->company->timezone()) {
-            $payment->date = now()->addSeconds($this->invoice->company->timezone()->utc_offset)->format('Y-m-d');
+            $payment->date = now()->addSeconds($this->invoice->company->utc_offset())->format('Y-m-d');
         }
 
         $payment_type_id = $this->invoice->client->getSetting('payment_type_id');
@@ -96,8 +90,9 @@ class MarkPaid extends AbstractService
             'amount' => $this->payable_balance,
         ]);
 
-        if($payment->company->getSetting('send_email_on_mark_paid'))
+        if ($payment->client->getSetting('send_email_on_mark_paid')) {
             $payment->service()->sendEmail();
+        }
 
         $this->setExchangeRate($payment);
 
@@ -108,7 +103,7 @@ class MarkPaid extends AbstractService
         $this->invoice
                 ->service()
                 ->applyNumber()
-                ->touchPdf()
+                // ->deletePdf()
                 ->save();
 
         $payment->ledger()

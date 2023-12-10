@@ -19,7 +19,6 @@ class StripeCreditCard {
     setupStripe() {
 
         if (this.stripeConnect){
-           // this.stripe.stripeAccount = this.stripeConnect;
            
            this.stripe = Stripe(this.key, {
               stripeAccount: this.stripeConnect,
@@ -198,6 +197,8 @@ class StripeCreditCard {
             document
                 .getElementById('pay-now')
                 .addEventListener('click', () => {
+
+                try {
                     let tokenInput = document.querySelector('input[name=token]');
 
                     if (tokenInput.value) {
@@ -205,6 +206,10 @@ class StripeCreditCard {
                     }
 
                     return this.completePaymentWithoutToken();
+                }catch(error){
+                    console.log(error.message);
+                }
+
                 });
         }
     }

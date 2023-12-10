@@ -15,7 +15,8 @@ use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\PaymentFactory;
 use App\Factory\QuoteFactory;
-use App\Http\Requests\Invoice\StoreInvoiceRequest;
+use App\Factory\RecurringInvoiceFactory;
+use App\Factory\TaskFactory;
 use App\Http\Requests\Quote\StoreQuoteRequest;
 use App\Import\ImportException;
 use App\Jobs\Mail\NinjaMailerJob;
@@ -29,14 +30,14 @@ use App\Repositories\ClientRepository;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\PaymentRepository;
 use App\Repositories\QuoteRepository;
+use App\Repositories\RecurringInvoiceRepository;
+use App\Repositories\TaskRepository;
 use App\Utils\Traits\CleanLineItems;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 use League\Csv\Reader;
 use League\Csv\Statement;
-use Symfony\Component\HttpFoundation\ParameterBag;
 
 class BaseImport
 {
@@ -58,6 +59,16 @@ class BaseImport
 
     public $transformer;
 
+    public ?array $column_map = [];
+
+    public ?string $hash;
+
+    public ?string $import_type;
+
+    public ?bool $skip_header;
+
+    public array $entity_count = [];
+    
     public function __construct(array $request, Company $company)
     {
         $this->company = $company;
@@ -74,21 +85,32 @@ class BaseImport
 
         auth()->login($this->company->owner(), true);
 
-        auth()
-            ->user()
-            ->setCompany($this->company);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $user->setCompany($this->company);
     }
 
     public function getCsvData($entity_type)
     {
+        if (! ini_get('auto_detect_line_endings')) {
+            ini_set('auto_detect_line_endings', '1');
+        }
+
+        /** @var string $base64_encoded_csv */
         $base64_encoded_csv = Cache::pull($this->hash.'-'.$entity_type);
+
         if (empty($base64_encoded_csv)) {
             return null;
         }
 
         $csv = base64_decode($base64_encoded_csv);
-        $csv = Reader::createFromString($csv);
+        $csv = mb_convert_encoding($csv, 'UTF-8', 'UTF-8');
 
+        $csv = Reader::createFromString($csv);
+        $csvdelimiter = self::detectDelimiter($csv);
+
+        $csv->setDelimiter($csvdelimiter);
         $stmt = new Statement();
         $data = iterator_to_array($stmt->process($csv));
 
@@ -113,6 +135,22 @@ class BaseImport
         return $data;
     }
 
+    public function detectDelimiter($csvfile)
+    {
+        $delimiters = [',', '.', ';', '|'];
+        $bestDelimiter = ',';
+        $count = 0;
+        foreach ($delimiters as $delimiter) {
+
+            if (substr_count(strstr($csvfile, "\n", true), $delimiter) >= $count) {
+                $count = substr_count($csvfile, $delimiter);
+                $bestDelimiter = $delimiter;
+            }
+
+        }
+        return $bestDelimiter;
+    }
+
     public function mapCSVHeaderToKeys($csvData)
     {
         $keys = array_shift($csvData);
@@ -120,6 +158,33 @@ class BaseImport
         return array_map(function ($values) use ($keys) {
             return array_combine($keys, $values);
         }, $csvData);
+    }
+
+    private function groupTasks($csvData, $key)
+    {
+        nlog($csvData[0]);
+
+        if (! $key || !is_array($csvData) || count($csvData) == 0 || !isset($csvData[0]['task.number']) || empty($csvData[0]['task.number'])) {
+            return $csvData;
+        }
+        
+        // Group by tasks.
+        $grouped = [];
+
+        foreach ($csvData as $item) {
+            if (empty($item[$key])) {
+                $this->error_array['task'][] = [
+                    'task' => $item,
+                    'error' => 'No task number',
+                ];
+            } else {
+                $grouped[$item[$key]][] = $item;
+            }
+        }
+
+        return $grouped;
+
+
     }
 
     private function groupInvoices($csvData, $key)
@@ -152,7 +217,7 @@ class BaseImport
 
 
     private function runValidation($data)
-    {        
+    {
         $_syn_request_class = new $this->request_name;
         $_syn_request_class->setContainer(app());
         $_syn_request_class->initialize($data);
@@ -163,7 +228,6 @@ class BaseImport
         $_syn_request_class->setValidator($validator);
 
         return $validator;
-
     }
 
     public function ingest($data, $entity_type)
@@ -173,8 +237,7 @@ class BaseImport
         $is_free_hosted_client = $this->company->account->isFreeHostedClient();
         $hosted_client_count = $this->company->account->hosted_client_count;
 
-        if($this->factory_name == 'App\Factory\ClientFactory' && $is_free_hosted_client && (count($data) > $hosted_client_count))
-        {
+        if ($this->factory_name == 'App\Factory\ClientFactory' && $is_free_hosted_client && (count($data) > $hosted_client_count)) {
             $this->error_array[$entity_type][] = [
                 $entity_type => 'client',
                 'error' => 'Error, you are attempting to import more clients than your plan allows',
@@ -184,12 +247,15 @@ class BaseImport
         }
 
         foreach ($data as $key => $record) {
+            
+            unset($record['']);
 
             try {
                 $entity = $this->transformer->transform($record);
 
-                if(!$entity)
+                if (!$entity) {
                     continue;
+                }
 
                 $validator = $this->runValidation($entity);
 
@@ -226,7 +292,8 @@ class BaseImport
                     'error' => $message,
                 ];
              
-             nlog("Ingest {$ex->getMessage()}");   
+                nlog("Ingest {$ex->getMessage()}");
+                nlog($record);
             }
         }
 
@@ -284,21 +351,17 @@ class BaseImport
         return $count;
     }
 
-    public function ingestInvoices($invoices, $invoice_number_key)
+    public function ingestRecurringInvoices($invoices, $invoice_number_key)
     {
         $count = 0;
 
         $invoice_transformer = $this->transformer;
 
-        /** @var PaymentRepository $payment_repository */
-        $payment_repository = app()->make(PaymentRepository::class);
-        $payment_repository->import_mode = true;
-
         /** @var ClientRepository $client_repository */
         $client_repository = app()->make(ClientRepository::class);
         $client_repository->import_mode = true;
 
-        $invoice_repository = new InvoiceRepository();
+        $invoice_repository = new RecurringInvoiceRepository();
         $invoice_repository->import_mode = true;
 
         $invoices = $this->groupInvoices($invoices, $invoice_number_key);
@@ -340,7 +403,7 @@ class BaseImport
                         'error' => $validator->errors()->all(),
                     ];
                 } else {
-                    $invoice = InvoiceFactory::create(
+                    $invoice = RecurringInvoiceFactory::create(
                         $this->company->id,
                         $this->getUserIDForRecord($invoice_data)
                     );
@@ -348,6 +411,170 @@ class BaseImport
                         $invoice->status_id = $invoice_data['status_id'];
                     }
                     $invoice_repository->save($invoice_data, $invoice);
+
+                    $count++;
+                    // If we're doing a generic CSV import, only import payment data if we're not importing a payment CSV.
+                    // If we're doing a platform-specific import, trust the platform to only return payment info if there's not a separate payment CSV.
+                    
+
+                }
+            } catch (\Exception $ex) {
+                if (\DB::connection(config('database.default'))->transactionLevel() > 0) {
+                    \DB::connection(config('database.default'))->rollBack();
+                }
+
+                if ($ex instanceof ImportException) {
+                    $message = $ex->getMessage();
+                } else {
+                    report($ex);
+                    $message = 'Unknown error ';
+                    nlog($ex->getMessage());
+                    nlog($invoice_data);
+                }
+
+                $this->error_array['recurring_invoice'][] = [
+                    'recurring_invoice' => $raw_invoice,
+                    'error' => $message,
+                ];
+            }
+        }
+
+        return $count;
+    }
+
+    public function ingestTasks($tasks, $task_number_key)
+    {
+        $count = 0;
+
+        $task_transformer = $this->transformer;
+
+        $task_repository = new TaskRepository();
+
+        $tasks = $this->groupTasks($tasks, $task_number_key);
+        
+        foreach ($tasks as $raw_task) {
+            $task_data = [];
+            try {
+                $task_data = $task_transformer->transform($raw_task);
+                $task_data['user_id'] = $this->company->owner()->id;
+                
+                $validator = $this->request_name::runFormRequest($task_data);
+
+                if ($validator->fails()) {
+                    $this->error_array['task'][] = [
+                        'invoice' => $task_data,
+                        'error' => $validator->errors()->all(),
+                    ];
+                } else {
+                    $task = TaskFactory::create(
+                        $this->company->id,
+                        $this->company->owner()->id
+                    );
+                    
+                    $task_repository->save($task_data, $task);
+
+                    $count++;
+                    
+                }
+            } catch (\Exception $ex) {
+                if (\DB::connection(config('database.default'))->transactionLevel() > 0) {
+                    \DB::connection(config('database.default'))->rollBack();
+                }
+
+                if ($ex instanceof ImportException) {
+                    $message = $ex->getMessage();
+                } else {
+                    report($ex);
+                    $message = 'Unknown error ';
+                    nlog($ex->getMessage());
+                    nlog($task_data);
+                }
+
+                $this->error_array['task'][] = [
+                    'task' => $task_data,
+                    'error' => $message,
+                ];
+            }
+        }
+        
+        return $count;
+    }
+
+
+
+    public function ingestInvoices($invoices, $invoice_number_key)
+    {
+        $count = 0;
+
+        $invoice_transformer = $this->transformer;
+
+        /** @var PaymentRepository $payment_repository */
+        $payment_repository = app()->make(PaymentRepository::class);
+        $payment_repository->import_mode = true;
+
+        /** @var ClientRepository $client_repository */
+        $client_repository = app()->make(ClientRepository::class);
+        $client_repository->import_mode = true;
+
+        $invoice_repository = new InvoiceRepository();
+        $invoice_repository->import_mode = true;
+
+        $invoices = $this->groupInvoices($invoices, $invoice_number_key);
+
+        foreach ($invoices as $raw_invoice) {
+            try {
+                $invoice_data = $invoice_transformer->transform($raw_invoice);
+                $invoice_data['user_id'] = $this->company->owner()->id;
+                
+                $invoice_data['line_items'] = $this->cleanItems(
+                    $invoice_data['line_items'] ?? []
+                );
+
+                // If we don't have a client ID, but we do have client data, go ahead and create the client.
+                if (
+                    empty($invoice_data['client_id']) &&
+                    ! empty($invoice_data['client'])
+                ) {
+                    $client_data = $invoice_data['client'];
+                    $client_data['user_id'] = $this->getUserIDForRecord(
+                        $invoice_data
+                    );
+
+                    $client_repository->save(
+                        $client_data,
+                        $client = ClientFactory::create(
+                            $this->company->id,
+                            $client_data['user_id']
+                        )
+                    );
+                    $invoice_data['client_id'] = $client->id;
+                    unset($invoice_data['client']);
+                }
+
+                $validator = $this->request_name::runFormRequest($invoice_data);
+
+                if ($validator->fails()) {
+                    $this->error_array['invoice'][] = [
+                        'invoice' => $invoice_data,
+                        'error' => $validator->errors()->all(),
+                    ];
+                } else {
+                    $invoice = InvoiceFactory::create(
+                        $this->company->id,
+                        $this->company->owner()->id
+                    );
+                    if (! empty($invoice_data['status_id'])) {
+                        $invoice->status_id = $invoice_data['status_id'];
+                    }
+                    
+                    nlog($invoice_data);
+                    $saveable_invoice_data = $invoice_data;
+                    
+                    if(array_key_exists('payments', $saveable_invoice_data)) {
+                        unset($saveable_invoice_data['payments']);
+                    }
+
+                    $invoice_repository->save($saveable_invoice_data, $invoice);
 
                     $count++;
                     // If we're doing a generic CSV import, only import payment data if we're not importing a payment CSV.
@@ -368,13 +595,14 @@ class BaseImport
                                 $payment_data['invoices'] = [
                                     [
                                         'invoice_id' => $invoice->id,
-                                        'amount' => $payment_data['amount'] ?? null,
+                                        'amount' => min($invoice->amount, $payment_data['amount']) ?? null,
                                     ],
                                 ];
 
                                 /* Make sure we don't apply any payments to invoices with a Zero Amount*/
-                                if ($invoice->amount > 0) {
-                                    $payment_repository->save(
+                                if ($invoice->amount > 0 && $payment_data['amount'] > 0) {
+                                    
+                                    $payment = $payment_repository->save(
                                         $payment_data,
                                         PaymentFactory::create(
                                             $this->company->id,
@@ -382,6 +610,15 @@ class BaseImport
                                             $invoice->client_id
                                         )
                                     );
+
+                                    $payment_date = Carbon::parse($payment->date);
+
+                                    if(!$payment_date->isToday()) {
+
+                                        $payment->paymentables()->update(['created_at' => $payment_date]);
+
+                                    }
+
                                 }
                             }
                         }
@@ -402,7 +639,9 @@ class BaseImport
                     $message = $ex->getMessage();
                 } else {
                     report($ex);
-                    $message = 'Unknown error';
+                    $message = 'Unknown error ';
+                    nlog($ex->getMessage());
+                    nlog($raw_invoice);
                 }
 
                 $this->error_array['invoice'][] = [
@@ -413,7 +652,6 @@ class BaseImport
         }
 
         return $count;
-
     }
 
     private function actionInvoiceStatus(
@@ -460,12 +698,12 @@ class BaseImport
         $quote_data,
         $quote_repository
     ) {
-        if (! empty($invoice_data['archived'])) {
+        if (! empty($quote_data['archived'])) {
             $quote_repository->archive($quote);
             $quote->fresh();
         }
 
-        if (! empty($invoice_data['viewed'])) {
+        if (! empty($quote_data['viewed'])) {
             $quote = $quote
                 ->service()
                 ->markViewed()
@@ -566,11 +804,9 @@ class BaseImport
                     'error' => $message,
                 ];
             }
-
         }
 
         return $count;
-
     }
 
     protected function getUserIDForRecord($record)
@@ -584,12 +820,22 @@ class BaseImport
 
     protected function findUser($user_hash)
     {
-        $user = User::where('account_id', $this->company->account->id)
-            ->where(
-                \DB::raw('CONCAT_WS(" ", first_name, last_name)'),
-                'like',
-                '%'.$user_hash.'%'
-            )
+        $user = false;
+
+        if(is_numeric($user_hash)) {
+        
+            $user = User::query()
+                        ->where('account_id', $this->company->account->id)
+                        ->where('id', $user_hash)
+                        ->first();
+
+        }
+
+        if($user) {
+            return $user->id;
+        }
+
+        $user = User::whereRaw("account_id = ? AND CONCAT_WS(' ', first_name, last_name) like ?", [$this->company->account_id, '%'.$user_hash.'%'])
             ->first();
 
         if ($user) {
@@ -618,9 +864,6 @@ class BaseImport
 
     public function preTransform(array $data, $entity_type)
     {
-        //sort the array by key
-        // $keys = $this->column_map[$entity_type];
-
         $keys = array_shift($data);
         ksort($keys);
 
@@ -644,6 +887,13 @@ class BaseImport
         ksort($keys);
 
         $data = array_map(function ($row) use ($keys) {
+            $row_count = count($row);
+            $key_count = count($keys);
+            
+            if ($key_count > $row_count) {
+                $row = array_pad($row, $key_count, ' ');
+            }
+
             return array_combine($keys, array_intersect_key($row, $keys));
         }, $data);
 

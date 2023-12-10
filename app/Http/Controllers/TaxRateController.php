@@ -23,7 +23,6 @@ use App\Models\TaxRate;
 use App\Repositories\BaseRepository;
 use App\Transformers\TaxRateTransformer;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**
@@ -101,7 +100,7 @@ class TaxRateController extends BaseController
      *      tags={"tax_rates"},
      *      summary="Gets a new blank Tax Rate object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Response(
      *          response=200,
@@ -126,7 +125,10 @@ class TaxRateController extends BaseController
      */
     public function create(CreateTaxRateRequest $request)
     {
-        $tax_rate = TaxRateFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $tax_rate = TaxRateFactory::create($user->company()->id, auth()->user()->id);
 
         return $this->itemResponse($tax_rate);
     }
@@ -139,7 +141,10 @@ class TaxRateController extends BaseController
      */
     public function store(StoreTaxRateRequest $request)
     {
-        $tax_rate = TaxRateFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $tax_rate = TaxRateFactory::create($user->company()->id, $user->id);
         $tax_rate->fill($request->all());
         $tax_rate->save();
 
@@ -160,7 +165,7 @@ class TaxRateController extends BaseController
      *      tags={"tax_rates"},
      *      summary="Shows a Tax Rate",
      *      description="Displays an TaxRate by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="id",
@@ -213,7 +218,7 @@ class TaxRateController extends BaseController
      *      tags={"tax_rates"},
      *      summary="Shows a Tax Rate for editting",
      *      description="Displays a Tax Rate by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="id",
@@ -267,7 +272,7 @@ class TaxRateController extends BaseController
      *      tags={"tax_rates"},
      *      summary="Updates a tax rate",
      *      description="Handles the updating of a tax rate by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="id",
@@ -324,7 +329,7 @@ class TaxRateController extends BaseController
      *      tags={"tax_rates"},
      *      summary="Deletes a TaxRate",
      *      description="Handles the deletion of an TaxRate by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="id",
@@ -378,7 +383,7 @@ class TaxRateController extends BaseController
      *      tags={"tax_rates"},
      *      summary="Performs bulk actions on an array of TaxRates",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
@@ -418,15 +423,33 @@ class TaxRateController extends BaseController
      */
     public function bulk()
     {
-        $action = request()->input('action');
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
+        $action = request()->input('action');
         $ids = request()->input('ids');
 
         $tax_rates = TaxRate::withTrashed()->find($this->transformKeys($ids));
 
-        $tax_rates->each(function ($tax_rate, $key) use ($action) {
-            if (auth()->user()->can('edit', $tax_rate)) {
+        $tax_rates->each(function ($tax_rate, $key) use ($action, $user) {
+            if ($user->can('edit', $tax_rate)) {
+
+                if(in_array($action, ['archive','delete'])) {
+                    $settings = $user->company()->settings;
+
+                    foreach(['tax_name1','tax_name2','tax_name3'] as $tax_name) {
+
+                        if($settings->{$tax_name} == $tax_rate->name) {
+                            $settings->{$tax_name} = '';
+                            $settings->{str_replace("name", "rate", $tax_name)} = '';
+                        }
+                    }
+
+                    $user->company()->saveSettings($settings, $user->company());
+                }
+
                 $this->base_repo->{$action}($tax_rate);
+
             }
         });
 

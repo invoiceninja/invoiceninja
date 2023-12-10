@@ -48,7 +48,7 @@ class BraintreePaymentDriver extends BaseDriver
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_BRAINTREE;
 
-    public function init(): void
+    public function init(): self
     {
         $this->gateway = new Gateway([
             'environment' => $this->company_gateway->getConfigField('testMode') ? 'sandbox' : 'production',
@@ -56,6 +56,8 @@ class BraintreePaymentDriver extends BaseDriver
             'publicKey' => $this->company_gateway->getConfigField('publicKey'),
             'privateKey' => $this->company_gateway->getConfigField('privateKey'),
         ]);
+
+        return $this;
     }
 
     public function setPaymentMethod($payment_method_id)
@@ -109,6 +111,12 @@ class BraintreePaymentDriver extends BaseDriver
             return $this->gateway->customer()->find($existing->gateway_customer_reference);
         }
 
+        $customer = $this->searchByEmail();
+
+        if ($customer) {
+            return $customer;
+        }
+
         $result = $this->gateway->customer()->create([
             'firstName' => $this->client->present()->name(),
             'email' => $this->client->present()->email(),
@@ -126,18 +134,56 @@ class BraintreePaymentDriver extends BaseDriver
 
             return $result->customer;
         }
-            //12-08-2022 catch when the customer is not created.
-            $data = [
-                'transaction_reference' => null,
-                'transaction_response' => $result,
-                'success' => false,
-                'description' => 'Could not create customer',
-                'code' => 500,
-            ];
+        //12-08-2022 catch when the customer is not created.
+        $data = [
+            'transaction_reference' => null,
+            'transaction_response' => $result,
+            'success' => false,
+            'description' => 'Could not create customer',
+            'code' => 500,
+        ];
 
-            SystemLogger::dispatch(['server_response' => $result, 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_BRAINTREE, $this->client, $this->client->company);
-
+        SystemLogger::dispatch(['server_response' => $result, 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_BRAINTREE, $this->client, $this->client->company);
     }
+
+    private function searchByEmail()
+    {
+        $result = $this->gateway->customer()->search([
+            \Braintree\CustomerSearch::email()->is($this->client->present()->email()),
+        ]);
+
+        if ($result->maximumCount() > 0) {
+            return $result->firstItem();
+        }
+    }
+
+    // public function updateCustomer()
+    // {
+    //     $customer = $this->findOrCreateCustomer();
+
+    //     $result = $this->gateway->customer()->update(
+    //         $customer->id,
+    //         [
+    //             'firstName' => $this->client->present()->name(),
+    //             'email' => $this->client->present()->email(),
+    //             'phone' => $this->client->present()->phone(),
+    //             'creditCard' => [
+    //             'billingAddress' => [
+    //                  'options' => [
+    //                     'updateExisting' => true
+    //                  ],
+    //                 'firstName' => $this->client->present()->first_name() ?: $this->client->present()->name(),
+    //                 'lastName' => $this->client->present()->last_name() ?: '',
+    //                 'streetAddress' => $this->client->address1 ?: '',
+    //                 'extendedAddress' =>$this->client->address2 ?: '',
+    //                 'locality' => $this->client->city ?: '',
+    //                 'postalCode' => $this->client->postal_code ?: '',
+    //                 'countryCodeAlpha2' => $this->client->country ? $this->client->country->iso_3166_2 : 'US',
+    //             ],
+    //         ],
+    //         ]
+    //     );
+    // }
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
@@ -192,7 +238,7 @@ class BraintreePaymentDriver extends BaseDriver
     {
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
 
-        $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
+        $invoice = Invoice::query()->whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
 
         if ($invoice) {
             $description = "Invoice {$invoice->number} for {$amount} for client {$this->client->present()->name()}";
@@ -272,7 +318,8 @@ class BraintreePaymentDriver extends BaseDriver
         $this->init();
 
         $webhookNotification = $this->gateway->webhookNotification()->parse(
-            $request->input('bt_signature'), $request->input('bt_payload')
+            $request->input('bt_signature'),
+            $request->input('bt_payload')
         );
 
         nlog('braintree webhook');

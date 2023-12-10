@@ -35,7 +35,7 @@ class ImportController extends Controller
      *      tags={"imports"},
      *      summary="Pre Import checks - returns a reference to the job and the headers of the CSV",
      *      description="Pre Import checks - returns a reference to the job and the headers of the CSV",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\RequestBody(
@@ -81,27 +81,106 @@ class ImportController extends Controller
         /** @var UploadedFile $file */
         foreach ($request->files->get('files') as $entityType => $file) {
             $contents = file_get_contents($file->getPathname());
-            // $contents = mb_convert_encoding($contents, 'UTF-16LE', 'UTF-8');
+
+            $contents = $this->convertEncoding($contents);
 
             // Store the csv in cache with an expiry of 10 minutes
             Cache::put($hash.'-'.$entityType, base64_encode($contents), 600);
-
+            
             // Parse CSV
             $csv_array = $this->getCsvData($contents);
 
             $class_map = $this->getEntityMap($entityType);
+            
+            $hints = $this->setImportHints($entityType, $class_map::importable(), $csv_array[0]);
 
             $data['mappings'][$entityType] = [
                 'available' => $class_map::importable(),
                 'headers'   => array_slice($csv_array, 0, 2),
+                'hints' => $hints,
             ];
         }
 
         return response()->json($data);
     }
 
+    private function setImportHints($entity_type, $available_keys, $headers): array
+    {
+        $hints = [];
+
+        $translated_keys = collect($available_keys)->map(function ($value, $key) {
+            
+            $parts = explode(".", $value);
+            $index = $parts[0];
+            $label = $parts[1] ?? $parts[0];
+
+            return ['key' => $key, 'index' => ctrans("texts.{$index}"), 'label' => ctrans("texts.{$label}")];
+
+        })->toArray();
+
+
+        foreach($headers as $key => $value) {
+            
+            foreach($translated_keys as $tkey => $tvalue) {
+                
+                if($this->testMatch($value, $tvalue['label'])) {
+                    $hit = $tvalue['key'];
+                    $hints[$key] = $hit;
+                    unset($translated_keys[$tkey]);
+                    break;
+                } else {
+                    $hints[$key] = null;
+                }
+             
+            }
+
+           
+        }
+
+        //second pass using the index of the translation here
+        foreach($headers as $key => $value) {
+            if(isset($hints[$key])) {
+                continue;
+            }
+
+            foreach($translated_keys as $tkey => $tvalue) {
+                if($this->testMatch($value, $tvalue['index'])) {
+                    $hit = $tvalue['key'];
+                    $hints[$key] = $hit;
+                    unset($translated_keys[$tkey]);
+                    break;
+                } else {
+                    $hints[$key] = null;
+                }
+            }
+            
+        }
+
+        return $hints;
+    }
+
+    private function testMatch($haystack, $needle): bool
+    {
+        return stripos($haystack, $needle) !== false;
+    }
+
+    private function convertEncoding($data)
+    {
+        
+        $enc = mb_detect_encoding($data, mb_list_encodings(), true);
+        
+        if($enc !== false) {
+            $data = mb_convert_encoding($data, "UTF-8", $enc);
+        }
+
+        return $data;
+    }
+
     public function import(ImportRequest $request)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $data = $request->all();
 
         if (empty($data['hash'])) {
@@ -117,7 +196,7 @@ class ImportController extends Controller
         }
 
         unset($data['files']);
-        CSVIngest::dispatch($data, auth()->user()->company());
+        CSVIngest::dispatch($data, $user->company());
 
         return response()->json(['message' => ctrans('texts.import_started')], 200);
     }
@@ -157,16 +236,27 @@ class ImportController extends Controller
         return $data;
     }
 
-    public function detectDelimiter($csvfile)
+    /**
+     * Returns the best delimiter
+     *
+     * @param string $csvfile
+     * @return string
+     */
+    public function detectDelimiter($csvfile): string
     {
-        $delimiters = array(',', '.', ';');
+        $delimiters = [',', '.', ';'];
         $bestDelimiter = ' ';
         $count = 0;
-        foreach ($delimiters as $delimiter)
-            if (substr_count($csvfile, $delimiter) > $count) {
-                $count = substr_count($csvfile, $delimiter);
+
+        foreach ($delimiters as $delimiter) {
+
+            if (substr_count(strstr($csvfile, "\n", true), $delimiter) >= $count) {
+                $count = substr_count(strstr($csvfile, "\n", true), $delimiter);
                 $bestDelimiter = $delimiter;
             }
+        
+        }
+
         return $bestDelimiter;
     }
 }

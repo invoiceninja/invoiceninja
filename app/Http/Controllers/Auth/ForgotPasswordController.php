@@ -14,6 +14,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Libraries\MultiDB;
 use App\Models\Account;
+use App\Models\Company;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -81,6 +82,7 @@ class ForgotPasswordController extends Controller
     {
         if ($request->has('company_key')) {
             MultiDB::findAndSetDbByCompanyKey($request->input('company_key'));
+            /** @var \App\Models\Company $company **/
             $company = Company::where('company_key', $request->input('company_key'))->first();
             $account = $company->account;
         } else {
@@ -88,6 +90,8 @@ class ForgotPasswordController extends Controller
             $account = Account::find($account_id);
         }
 
-        return $this->render('auth.passwords.request', ['root' => 'themes', 'account' => $account]);
+        $is_react = request()->has('react') ? true : false;
+
+        return $this->render('auth.passwords.request', ['root' => 'themes', 'account' => $account, 'is_react' => $is_react]);
     }
 }

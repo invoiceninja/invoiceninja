@@ -6,9 +6,9 @@ use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
 use LimitIterator;
 use SplFileObject;
-use Illuminate\Support\Carbon;
 
 class SupportMessageSent extends Mailable
 {
@@ -67,14 +67,15 @@ class SupportMessageSent extends Mailable
         $db = str_replace('db-ninja-', '', $company->db);
         $is_large = $company->is_large ? 'L' : 'S';
         $platform = array_key_exists('platform', $this->data) ? $this->data['platform'] : 'U';
-        $migrated = strlen($company->company_key) == 32 ? 'M' : '';
+        $migrated = ctype_lower(preg_replace('/[0-9]+/', '', $company->company_key)) ? 'M' : '';
         $trial = $account->isTrial() ? 'T' : '';
         $plan = str_replace('_', ' ', $plan);
 
         $plan_status = '';
 
-        if($account->plan_expires && Carbon::parse($account->plan_expires)->lt(now()))
+        if ($account->plan_expires && Carbon::parse($account->plan_expires)->lt(now())) {
             $plan_status = 'Plan Expired :: ';
+        }
   
         if (Ninja::isHosted()) {
             $subject = "{$priority}Hosted-{$db}-{$is_large}{$platform}{$migrated}{$trial} :: {$plan} :: {$plan_status} ".date('M jS, g:ia');

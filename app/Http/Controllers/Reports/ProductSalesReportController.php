@@ -11,11 +11,10 @@
 
 namespace App\Http\Controllers\Reports;
 
-use App\Export\CSV\ProductExport;
 use App\Export\CSV\ProductSalesExport;
 use App\Http\Controllers\BaseController;
-use App\Http\Requests\Report\GenericReportRequest;
 use App\Http\Requests\Report\ProductSalesReportRequest;
+use App\Jobs\Report\PreviewReport;
 use App\Jobs\Report\SendToAdmin;
 use App\Models\Client;
 use App\Utils\Traits\MakesHash;
@@ -65,24 +64,20 @@ class ProductSalesReportController extends BaseController
      */
     public function __invoke(ProductSalesReportRequest $request)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         if ($request->has('send_email') && $request->get('send_email')) {
-            SendToAdmin::dispatch(auth()->user()->company(), $request->all(), ProductSalesExport::class, $this->filename);
+            SendToAdmin::dispatch($user->company(), $request->all(), ProductSalesExport::class, $this->filename);
 
             return response()->json(['message' => 'working...'], 200);
         }
-        // expect a list of visible fields, or use the default
 
-        $export = new ProductSalesExport(auth()->user()->company(), $request->all());
+        $hash = \Illuminate\Support\Str::uuid();
 
-        $csv = $export->run();
+        PreviewReport::dispatch($user->company(), $request->all(), ProductSalesExport::class, $hash);
 
-        $headers = [
-            'Content-Disposition' => 'attachment',
-            'Content-Type' => 'text/csv',
-        ];
+        return response()->json(['message' => $hash], 200);
 
-        return response()->streamDownload(function () use ($csv) {
-            echo $csv;
-        }, $this->filename, $headers);
     }
 }

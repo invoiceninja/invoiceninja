@@ -12,7 +12,6 @@
 namespace Tests\Unit;
 
 use App\Factory\InvoiceInvitationFactory;
-use App\Models\CompanyToken;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
@@ -51,6 +50,7 @@ class InvitationTest extends TestCase
 
         $this->assertEquals(1, count($invites));
 
+        /** @phpstan-ignore-next-line **/
         $this->invoice->invitations = $invites;
 
         $this->invoice->line_items = [];
@@ -84,7 +84,9 @@ class InvitationTest extends TestCase
 
         $invitations->push($new_invite);
 
+        /** @phpstan-ignore-next-line **/
         $this->invoice->invitations = $invitations->toArray();
+        
         $this->invoice->line_items = [];
 
         $response = $this->withHeaders([

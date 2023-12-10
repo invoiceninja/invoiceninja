@@ -14,19 +14,24 @@ namespace App\Http\Controllers\ClientPortal;
 use App\Http\Controllers\Controller;
 use App\Http\ViewComposers\PortalComposer;
 use App\Models\RecurringInvoice;
-use Auth;
+use Illuminate\Support\Facades\Redirect;
 
 class ContactHashLoginController extends Controller
 {
     /**
      * Logs a user into the client portal using their contact_key
      * @param  string $contact_key  The contact key
-     * @return Auth|Redirect
+     * @return Redirect
      */
     public function login(string $contact_key)
     {
         if (request()->has('subscription') && request()->subscription == 'true') {
-            $recurring_invoice = RecurringInvoice::where('client_id', auth()->guard('contact')->client->id)
+
+            /** @var \App\Models\ClientContact $client_contact **/
+            $client_contact = auth()->guard('contact');
+
+            /** @var \App\Models\RecurringInvoice $recurring_invoice **/
+            $recurring_invoice = RecurringInvoice::where('client_id', $client_contact->client->id)
                                                  ->whereNotNull('subscription_id')
                                                  ->whereNull('deleted_at')
                                                  ->first();
@@ -41,10 +46,20 @@ class ContactHashLoginController extends Controller
     {
         return redirect($this->setRedirectPath());
     }
-
+    
+    /**
+     * Generic error page for client portal.
+     *
+     * @return void
+     */
     public function errorPage()
     {
-        return render('generic.error', ['title' => session()->get('title'), 'notification' => session()->get('notification')]);
+        return render('generic.error', [
+            'title' => session()->get('title'),
+            'notification' => session()->get('notification'),
+            'account' => auth()->guard('contact')?->user()?->user?->account,
+            'company' => auth()->guard('contact')?->user()?->user?->company
+        ]);
     }
 
     private function setRedirectPath()

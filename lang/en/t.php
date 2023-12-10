@@ -1,7 +1,7 @@
 <?php
 
-$lang = [
+$lang = array(
     'client_settings' => 'Client Settings',
-];
+);
 
 return $lang;

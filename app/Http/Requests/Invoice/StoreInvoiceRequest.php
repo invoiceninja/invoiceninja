@@ -30,39 +30,36 @@ class StoreInvoiceRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('create', Invoice::class);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('create', Invoice::class);
     }
 
     public function rules()
     {
         $rules = [];
 
-        if ($this->input('documents') && is_array($this->input('documents'))) {
-            $documents = count($this->input('documents'));
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
-            foreach (range(0, $documents) as $index) {
-                $rules['documents.'.$index] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
-            }
-        } elseif ($this->input('documents')) {
-            $rules['documents'] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+        if ($this->file('documents') && is_array($this->file('documents'))) {
+            $rules['documents.*'] = $this->file_validation;
+        } elseif ($this->file('documents')) {
+            $rules['documents'] = $this->file_validation;
         }
 
-        if ($this->input('file') && is_array($this->input('file'))) {
-            $documents = count($this->input('file'));
-
-            foreach (range(0, $documents) as $index) {
-                $rules['file.'.$index] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
-            }
-        } elseif ($this->input('file')) {
-            $rules['file'] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+        if ($this->file('file') && is_array($this->file('file'))) {
+            $rules['file.*'] = $this->file_validation;
+        } elseif ($this->file('file')) {
+            $rules['file'] = $this->file_validation;
         }
-
-        $rules['client_id'] = 'bail|required|exists:clients,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
-        // $rules['client_id'] = ['required', Rule::exists('clients')->where('company_id', auth()->user()->company()->id)];
+        
+        $rules['client_id'] = 'bail|required|exists:clients,id,company_id,'.$user->company()->id.',is_deleted,0';
 
         $rules['invitations.*.client_contact_id'] = 'distinct';
 
-        $rules['number'] = ['bail', 'nullable', Rule::unique('invoices')->where('company_id', auth()->user()->company()->id)];
+        $rules['number'] = ['bail', 'nullable', Rule::unique('invoices')->where('company_id', $user->company()->id)];
 
         $rules['project_id'] = ['bail', 'sometimes', new ValidProjectForClient($this->all())];
         $rules['is_amount_discount'] = ['boolean'];
@@ -75,7 +72,10 @@ class StoreInvoiceRequest extends Request
         $rules['tax_name1'] = 'bail|sometimes|string|nullable';
         $rules['tax_name2'] = 'bail|sometimes|string|nullable';
         $rules['tax_name3'] = 'bail|sometimes|string|nullable';
-        
+        $rules['exchange_rate'] = 'bail|sometimes|numeric';
+        $rules['partial'] = 'bail|sometimes|nullable|numeric|gte:0';
+        $rules['partial_due_date'] = ['bail', 'sometimes', 'exclude_if:partial,0', Rule::requiredIf(fn () => $this->partial > 0), 'date', 'before:due_date'];
+
         return $rules;
     }
 
@@ -87,6 +87,10 @@ class StoreInvoiceRequest extends Request
 
         if (isset($input['line_items']) && is_array($input['line_items'])) {
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+        }
+
+        if(isset($input['partial']) && $input['partial'] == 0 && isset($input['partial_due_date'])) {
+           $input['partial_due_date'] = '';
         }
 
         $input['amount'] = 0;

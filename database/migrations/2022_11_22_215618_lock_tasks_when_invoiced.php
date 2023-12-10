@@ -1,13 +1,12 @@
 <?php
 
 use App\Models\Currency;
+use App\Utils\Traits\AppSetup;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\Utils\Traits\AppSetup;
 
-return new class extends Migration
-{
+return new class extends Migration {
     use AppSetup;
 
     /**
@@ -17,30 +16,24 @@ return new class extends Migration
      */
     public function up()
     {
-
-        Schema::table('companies', function (Blueprint $table)
-        {
+        Schema::table('companies', function (Blueprint $table) {
             $table->boolean('invoice_task_lock')->default(false);
             $table->boolean('use_vendor_currency')->default(false);
         });
 
-        Schema::table('purchase_orders', function (Blueprint $table)
-        {
+        Schema::table('purchase_orders', function (Blueprint $table) {
             $table->unsignedInteger('currency_id')->nullable();
         });
 
-        Schema::table('bank_transactions', function (Blueprint $table)
-        {
+        Schema::table('bank_transactions', function (Blueprint $table) {
             $table->bigInteger('bank_transaction_rule_id')->nullable();
         });
 
-        Schema::table('subscriptions', function (Blueprint $table)
-        {
+        Schema::table('subscriptions', function (Blueprint $table) {
             $table->boolean('registration_required')->default(false);
             $table->boolean('use_inventory_management')->default(false);
             $table->text('optional_product_ids')->nullable();
             $table->text('optional_recurring_product_ids')->nullable();
-            
         });
 
         $currencies = [
@@ -50,7 +43,7 @@ return new class extends Migration
         ];
 
         foreach ($currencies as $currency) {
-            $record = Currency::whereCode($currency['code'])->first();
+            $record = Currency::query()->whereCode($currency['code'])->first();
             if ($record) {
                 $record->name = $currency['name'];
                 $record->symbol = $currency['symbol'];
@@ -69,8 +62,6 @@ return new class extends Migration
         \Illuminate\Support\Facades\Artisan::call('ninja:design-update');
 
         $this->buildCache(true);
-
-
     }
 
     /**

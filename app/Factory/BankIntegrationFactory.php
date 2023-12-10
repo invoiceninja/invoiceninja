@@ -12,7 +12,6 @@
 namespace App\Factory;
 
 use App\Models\BankIntegration;
-use Illuminate\Support\Str;
 
 class BankIntegrationFactory
 {
@@ -31,6 +30,7 @@ class BankIntegrationFactory
         $bank_integration->bank_account_type = '';
         $bank_integration->balance = 0;
         $bank_integration->currency = '';
+        $bank_integration->auto_sync = 1;
         
         return $bank_integration;
     }

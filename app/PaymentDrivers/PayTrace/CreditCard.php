@@ -12,20 +12,15 @@
 
 namespace App\PaymentDrivers\PayTrace;
 
-use App\Exceptions\PaymentFailed;
-use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\PayFastPaymentDriver;
 use App\PaymentDrivers\PaytracePaymentDriver;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class CreditCard
@@ -87,6 +82,9 @@ class CreditCard
             return $this->paytrace->processUnsuccessfulTransaction($data);
         }
 
+        nlog("paytrace response createCustomer");
+        nlog($response);
+
         $cgt = [];
         $cgt['token'] = $response->customer_id;
         $cgt['payment_method_id'] = GatewayType::CREDIT_CARD;
@@ -125,6 +123,7 @@ class CreditCard
             'city' => $this->paytrace->client->city,
             'state' => $this->paytrace->client->state,
             'zip' => $this->paytrace->client->postal_code,
+            'country' => $this->paytrace->client->country->iso_3166_2
         ];
 
         return $data;
@@ -179,11 +178,12 @@ class CreditCard
             'customer_id' => $token,
             'integrator_id' =>  $this->paytrace->company_gateway->getConfigField('integratorId'),
             'amount' => $request->input('amount_with_fee'),
+            'invoice_id' => $this->harvestInvoiceId(),
         ];
 
         $response = $this->paytrace->gatewayRequest('/v1/transactions/sale/by_customer', $data);
 
-        if ($response->success) {
+        if ($response->success ?? false) {
             $this->paytrace->logSuccessfulGatewayResponse(['response' => $response, 'data' => $this->paytrace->payment_hash], SystemLog::TYPE_PAYTRACE);
 
             return $this->processSuccessfulPayment($response);

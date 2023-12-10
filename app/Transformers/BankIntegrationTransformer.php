@@ -13,6 +13,8 @@ namespace App\Transformers;
 
 use App\Models\Account;
 use App\Models\BankIntegration;
+use App\Models\BankTransaction;
+use App\Models\Company;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -25,7 +27,7 @@ class BankIntegrationTransformer extends EntityTransformer
     /**
      * @var array
      */
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         //'default_company',
         //'user',
         //'company_users'
@@ -34,7 +36,7 @@ class BankIntegrationTransformer extends EntityTransformer
     /**
      * @var array
      */
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'company',
         'account',
         'bank_transactions',
@@ -88,5 +90,4 @@ class BankIntegrationTransformer extends EntityTransformer
 
         return $this->includeCollection($bank_integration->transactions, $transformer, BankTransaction::class);
     }
-
 }

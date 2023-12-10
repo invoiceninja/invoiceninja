@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use stdClass;
 
+//30-10-2023: due to HTML encoding, need to remove </ from string when searching for matches
 class Helpers
 {
     use MakesDates;
@@ -49,15 +50,42 @@ class Helpers
      * @param mixed|null $custom_fields
      * @param mixed $field
      * @param mixed $value
-     * @param \App\Models\Client|null $client
+     * @param \App\Models\Client|null $entity
      *
      * @return null|string
      */
     public function formatCustomFieldValue($custom_fields, $field, $value, $entity = null): ?string
     {
         $custom_field = '';
+        $quote_or_credit_field = false;
 
-        if ($custom_fields && property_exists($custom_fields, $field)) {
+        if($custom_fields && stripos($field, 'quote') !== false && property_exists($custom_fields, $field)) {
+            $custom_field = $custom_fields->{$field};
+            $custom_field_parts = explode('|', $custom_field);
+
+            if (count($custom_field_parts) >= 2) {
+                $custom_field = $custom_field_parts[1];
+            }
+
+            $quote_or_credit_field = true;
+
+        } elseif($custom_fields && stripos($field, 'credit') !== false && property_exists($custom_fields, $field)) {
+            $custom_field = $custom_fields->{$field};
+            $custom_field_parts = explode('|', $custom_field);
+
+            if (count($custom_field_parts) >= 2) {
+                $custom_field = $custom_field_parts[1];
+            }
+
+            $quote_or_credit_field = true;
+
+        } elseif($custom_fields && stripos($field, 'credit') !== false) {
+            $field = str_replace("credit", "invoice", $field);
+        } elseif($custom_fields && stripos($field, 'quote') !== false) {
+            $field = str_replace("quote", "invoice", $field);
+        }
+
+        if (!$quote_or_credit_field && $custom_fields && property_exists($custom_fields, $field)) {
             $custom_field = $custom_fields->{$field};
             $custom_field_parts = explode('|', $custom_field);
 
@@ -90,6 +118,17 @@ class Helpers
      */
     public function makeCustomField($custom_fields, $field): string
     {
+
+        if ($custom_fields && property_exists($custom_fields, $field)) {
+            $custom_field = $custom_fields->{$field};
+
+            $custom_field_parts = explode('|', $custom_field);
+
+            return $custom_field_parts[0];
+        }
+
+        $field = str_replace(["quote","credit"], ["invoice", "invoice"], $field);
+
         if ($custom_fields && property_exists($custom_fields, $field)) {
             $custom_field = $custom_fields->{$field};
 
@@ -105,7 +144,7 @@ class Helpers
      * Process reserved keywords on PDF.
      *
      * @param string $value
-     * @param Client|Company $entity
+     * @param \App\Models\Client|\App\Models\Company|\App\Models\Vendor $entity
      * @param null|Carbon $currentDateTime
      * @return null|string
      */
@@ -118,17 +157,15 @@ class Helpers
         // 04-10-2022 Return Early if no reserved keywords are present, this is a very expensive process
         $string_hit = false;
 
-        foreach ( [':MONTH',':YEAR',':QUARTER',':WEEK'] as $string ) 
-        {
-        
-            if(stripos($value, $string) !== FALSE) {
-                $string_hit = true; 
+        foreach ([':MONTH',':YEAR',':QUARTER',':WEEK'] as $string) {
+            if (stripos($value, $string) !== false) {
+                $string_hit = true;
             }
-            
         }
 
-        if(!$string_hit)
+        if (!$string_hit) {
             return $value;
+        }
 
         // 04-10-2022 Return Early if no reserved keywords are present, this is a very expensive process
         Carbon::setLocale($entity->locale());
@@ -141,27 +178,27 @@ class Helpers
             'literal' => [
                 ':MONTH_BEFORE' => \sprintf(
                     '%s %s %s',
-                    $currentDateTime->copy()->subMonth(1)->translatedFormat($entity->date_format()),
+                    $currentDateTime->copy()->subMonth()->translatedFormat($entity->date_format()),
                     ctrans('texts.to'),
-                    $currentDateTime->copy()->subDay(1)->translatedFormat($entity->date_format()),
+                    $currentDateTime->copy()->subDay()->translatedFormat($entity->date_format()),
                 ),
                 ':YEAR_BEFORE' => \sprintf(
                     '%s %s %s',
-                    $currentDateTime->copy()->subYear(1)->translatedFormat($entity->date_format()),
+                    $currentDateTime->copy()->subYear()->translatedFormat($entity->date_format()),
                     ctrans('texts.to'),
-                    $currentDateTime->copy()->subDay(1)->translatedFormat($entity->date_format()),
+                    $currentDateTime->copy()->subDay()->translatedFormat($entity->date_format()),
                 ),
                 ':MONTH_AFTER' => \sprintf(
                     '%s %s %s',
                     $currentDateTime->translatedFormat($entity->date_format()),
                     ctrans('texts.to'),
-                    $currentDateTime->copy()->addMonth(1)->subDay(1)->translatedFormat($entity->date_format()),
+                    $currentDateTime->copy()->addMonth()->subDay()->translatedFormat($entity->date_format()),
                 ),
                 ':YEAR_AFTER' => \sprintf(
                     '%s %s %s',
                     $currentDateTime->translatedFormat($entity->date_format()),
                     ctrans('texts.to'),
-                    $currentDateTime->copy()->addYear(1)->subDay(1)->translatedFormat($entity->date_format()),
+                    $currentDateTime->copy()->addYear()->subDay()->translatedFormat($entity->date_format()),
                 ),
                 ':MONTHYEAR' => \sprintf(
                     '%s %s',
@@ -230,12 +267,12 @@ class Helpers
                 $_right = '';
 
                 // If right side doesn't have any calculations, replace with raw ranges keyword.
-                if (! Str::contains($right, ['-', '+', '/', '*'])) {
+                if (! Str::contains(str_replace("</", "", $right), ['-', '+', '/', '*'])) {
                     $_right = Carbon::createFromDate($currentDateTime->year, $currentDateTime->month)->translatedFormat('F Y');
                 }
 
                 // If right side contains one of math operations, calculate.
-                if (Str::contains($right, ['+'])) {
+                if (Str::contains(str_replace("</", "", $right), ['+'])) {
                     $operation = preg_match_all('/(?!^-)[+*\/-](\s?-)?/', $right, $_matches);
 
                     $_operation = array_shift($_matches)[0]; // + -
@@ -248,7 +285,10 @@ class Helpers
                 $replacement = sprintf('%s to %s', $_left, $_right);
 
                 $value = preg_replace(
-                    sprintf('/%s/', preg_quote($match)), $replacement, $value, 1
+                    sprintf('/%s/', preg_quote($match)),
+                    $replacement,
+                    $value,
+                    1
                 );
             }
         }
@@ -267,13 +307,16 @@ class Helpers
                 continue;
             }
 
-            if (! Str::contains($match, ['-', '+', '/', '*'])) {
+            if (! Str::contains(str_replace("</", "", $match), ['-', '+', '/', '*'])) {
                 $value = preg_replace(
-                    sprintf('/%s/', $matches->keys()->first()), $replacements['literal'][$matches->keys()->first()], $value, 1
+                    sprintf('/%s/', $matches->keys()->first()),
+                    $replacements['literal'][$matches->keys()->first()],
+                    $value,
+                    1
                 );
             }
 
-            if (Str::contains($match, ['-', '+', '/', '*'])) {
+            if (Str::contains(str_replace("</", "", $match), ['-', '+', '/', '*'])) {
                 $operation = preg_match_all('/(?!^-)[+*\/-](\s?-)?/', $match, $_matches);
 
                 $_operation = array_shift($_matches)[0];
@@ -312,20 +355,22 @@ class Helpers
                     $final_date = $currentDateTime->copy()->addMonths($output - $currentDateTime->month);
 
                     $output = \sprintf(
-                            '%s %s',
-                            $final_date->translatedFormat('F'),
-                            $final_date->year,
-                        );
+                        '%s %s',
+                        $final_date->translatedFormat('F'),
+                        $final_date->year,
+                    );
                 }
 
                 $value = preg_replace(
-                    $target, $output, $value, 1
+                    $target,
+                    $output,
+                    $value,
+                    1
                 );
             }
         }
 
         return $value;
-        
     }
 
     /**

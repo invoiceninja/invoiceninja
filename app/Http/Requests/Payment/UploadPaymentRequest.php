@@ -2,7 +2,7 @@
 /**
  * Payment Ninja (https://paymentninja.com).
  *
- * @link https://github.com/paymentninja/paymentninja source repository
+ * @link https://github.com/invoiceninja/invoiceninja source repository
  *
  * @copyright Copyright (c) 2022. Payment Ninja LLC (https://paymentninja.com)
  *
@@ -22,17 +22,42 @@ class UploadPaymentRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->payment);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('edit', $this->payment);
     }
 
     public function rules()
     {
         $rules = [];
 
-        if ($this->input('documents')) {
-            $rules['documents'] = 'file|mimes:csv,png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:2000000';
+        if ($this->file('documents') && is_array($this->file('documents'))) {
+            $rules['documents.*'] = $this->file_validation;
+        } elseif ($this->file('documents')) {
+            $rules['documents'] = $this->file_validation;
         }
 
+        if ($this->file('file') && is_array($this->file('file'))) {
+            $rules['file.*'] = $this->file_validation;
+        } elseif ($this->file('file')) {
+            $rules['file'] = $this->file_validation;
+        }
+
+        $rules['is_public'] = 'sometimes|boolean';
+
         return $rules;
+    }
+
+    public function prepareForValidation()
+    {
+        $input = $this->all();
+
+        if(isset($input['is_public'])) {
+            $input['is_public'] = $this->toBoolean($input['is_public']);
+        }
+
+        $this->replace($input);
+      
     }
 }

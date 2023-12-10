@@ -71,7 +71,6 @@ class Statics
 
         foreach (config('ninja.cached_tables') as $name => $class) {
             if (! Cache::has($name)) {
-
                 // check that the table exists in case the migration is pending
                 if (! Schema::hasTable((new $class())->getTable())) {
                     continue;

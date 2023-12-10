@@ -21,8 +21,8 @@ class RecurringQuoteFilters extends QueryFilters
     /**
      * Filter based on search text.
      *
-     * @param string query filter
-     * @return Illuminate\Database\Eloquent\Builder
+     * @param string $filter
+     * @return Builder
      * @deprecated
      */
     public function filter(string $filter = ''): Builder
@@ -51,8 +51,8 @@ class RecurringQuoteFilters extends QueryFilters
     /**
      * Sorts the list based on $sort.
      *
-     * @param string sort formatted as column|asc
-     * @return Illuminate\Database\Eloquent\Builder
+     * @param string $sort formatted as column|asc
+     * @return Builder
      */
     public function sort(string $sort = ''): Builder
     {
@@ -68,7 +68,7 @@ class RecurringQuoteFilters extends QueryFilters
     /**
      * Filters the query by the users company ID.
      *
-     * @return Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     public function entityFilter(): Builder
     {

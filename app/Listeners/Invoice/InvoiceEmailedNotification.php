@@ -16,7 +16,6 @@ use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
 use App\Mail\Admin\EntitySentObject;
-use App\Notifications\Admin\EntitySentNotification;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -24,7 +23,7 @@ class InvoiceEmailedNotification implements ShouldQueue
 {
     use UserNotifies;
 
-    public $delay = 5;
+    public $delay = 10;
 
     public function __construct()
     {
@@ -38,6 +37,8 @@ class InvoiceEmailedNotification implements ShouldQueue
      */
     public function handle($event)
     {
+        nlog($event->template);
+
         MultiDB::setDb($event->company->db);
 
         $first_notification_sent = true;
@@ -46,14 +47,9 @@ class InvoiceEmailedNotification implements ShouldQueue
         $invoice->last_sent_date = now();
         $invoice->saveQuietly();
 
-        $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer((new EntitySentObject($event->invitation, 'invoice', $event->template))->build());
-        $nmo->company = $invoice->company;
-        $nmo->settings = $invoice->company->settings;
 
         /* We loop through each user and determine whether they need to be notified */
         foreach ($event->invitation->company->company_users as $company_user) {
-
             /* The User */
             $user = $company_user->user;
 
@@ -67,10 +63,15 @@ class InvoiceEmailedNotification implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
+                $nmo = new NinjaMailerObject;
+                $nmo->mailable = new NinjaMailer((new EntitySentObject($event->invitation, 'invoice', $event->template, $company_user->portalType()))->build());
+                $nmo->company = $invoice->company;
+                $nmo->settings = $invoice->company->settings;
                 $nmo->to_user = $user;
 
-                NinjaMailerJob::dispatch($nmo);
-
+                (new NinjaMailerJob($nmo))->handle();
+                
+                $nmo = null;
                 /* This prevents more than one notification being sent */
                 $first_notification_sent = false;
             }

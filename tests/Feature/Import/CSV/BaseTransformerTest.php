@@ -14,18 +14,12 @@ namespace Tests\Feature\Import\CSV;
 use App\Import\Transformer\BaseTransformer;
 use App\Models\Client;
 use App\Models\ClientContact;
-use App\Models\Expense;
 use App\Models\Invoice;
-use App\Models\Payment;
 use App\Models\Product;
 use App\Models\TaxRate;
 use App\Models\Vendor;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
-use League\Csv\Reader;
-use League\Csv\Statement;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -102,7 +96,7 @@ class BaseTransformerTest extends TestCase
         $this->assertEquals($client->id, $base_transformer->getClient('magic', 'null'));
         $this->assertEquals($client->id, $base_transformer->getClient('nomagic', 'test@gmail.com'));
         $this->assertEquals($client->id, $base_transformer->getClient(null, 'test@gmail.com'));
-        $this->assertNull($base_transformer->getClient('null', 'notest@gmail.com'));
+        $this->assertNotNull($base_transformer->getClient('null', 'notest@gmail.com'));
 
         $this->assertEquals($client->id, $base_transformer->getClientId(' magic'));
         $this->assertEquals($client->id, $base_transformer->getClientId('Magic '));

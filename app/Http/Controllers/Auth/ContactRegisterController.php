@@ -39,7 +39,8 @@ class ContactRegisterController extends Controller
         } else {
             $key = request()->session()->has('company_key') ? request()->session()->get('company_key') : $company_key;
         }
-
+        
+        /** @var \App\Models\Company $company **/
         $company = Company::where('company_key', $key)->firstOrFail();
 
         App::forgetInstance('translator');
@@ -51,7 +52,6 @@ class ContactRegisterController extends Controller
 
     public function register(RegisterRequest $request)
     {
-
         $request->merge(['company' => $request->company()]);
 
         $client = $this->getClient($request->all());
@@ -70,7 +70,7 @@ class ContactRegisterController extends Controller
 
         $client->save();
 
-        if(isset($data['currency_id'])) {
+        if (isset($data['currency_id'])) {
             $settings = $client->settings;
             $settings->currency_id = isset($data['currency_id']) ? $data['currency_id'] : $data['company']->settings->currency_id;
             $client->settings = $settings;

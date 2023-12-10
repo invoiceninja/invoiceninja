@@ -11,8 +11,6 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Company;
-use App\Models\User;
 use App\Utils\CurlUtils;
 use Illuminate\Console\Command;
 
@@ -63,12 +61,14 @@ class MobileLocalization extends Command
 
     private function laravelResources()
     {
-        $resources = $this->getResources();
+        $resources =(array)$this->getResources();
 
-        foreach ($resources as $key => $val) {
-            $transKey = "texts.{$key}";
-            if (trans($transKey) == $transKey) {
-                echo "'$key' => '$val',\n";
+        if(is_iterable($resources)) {
+            foreach ($resources as $key => $val) {
+                $transKey = "texts.{$key}";
+                if (trans($transKey) == $transKey) {
+                    echo "'$key' => '$val',\n";
+                }
             }
         }
     }

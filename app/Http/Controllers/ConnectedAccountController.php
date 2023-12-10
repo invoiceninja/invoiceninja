@@ -13,15 +13,12 @@ namespace App\Http\Controllers;
 
 use App\Libraries\MultiDB;
 use App\Libraries\OAuth\Providers\Google;
-use App\Models\CompanyUser;
 use App\Models\User;
-use App\Transformers\CompanyUserTransformer;
 use App\Transformers\UserTransformer;
 use App\Utils\Traits\User\LoginCache;
 use Google_Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 use Microsoft\Graph\Model;
 
 class ConnectedAccountController extends BaseController
@@ -41,7 +38,7 @@ class ConnectedAccountController extends BaseController
      * Connect an OAuth account to a regular email/password combination account
      *
      * @param Request $request
-     * @return User Refresh Feed.
+     * @return \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(
@@ -50,7 +47,7 @@ class ConnectedAccountController extends BaseController
      *      tags={"connected_account"},
      *      summary="Connect an oauth user to an existing user",
      *      description="Refreshes the dataset",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(ref="#/components/parameters/include_static"),
@@ -93,27 +90,29 @@ class ConnectedAccountController extends BaseController
 
     private function handleMicrosoftOauth($request)
     {
-        nlog($request->all());
+        $access_token = false;
+        $access_token = $request->has('access_token') ? $request->input('access_token') : $request->input('accessToken');
 
-        if(!$request->has('access_token'))
+        if (!$access_token) {
             return response()->json(['message' => 'No access_token parameter found!'], 400);
+        }
 
         $graph = new \Microsoft\Graph\Graph();
-        $graph->setAccessToken($request->input('access_token'));
+        $graph->setAccessToken($access_token);
 
         $user = $graph->createRequest("GET", "/me")
                       ->setReturnType(Model\User::class)
                       ->execute();
 
-        if($user){
-
-            $email = $user->getMail() ?: $user->getUserPrincipalName();
+        if ($user) {
+            $email = $user->getUserPrincipalName() ?? false;
 
             nlog("microsoft");
             nlog($email);
 
-            if(auth()->user()->email != $email && MultiDB::checkUserEmailExists($email))
+            if (auth()->user()->email != $email && MultiDB::checkUserEmailExists($email)) {
                 return response()->json(['message' => ctrans('texts.email_already_register')], 400);
+            }
 
             $connected_account = [
                 'email' => $email,
@@ -129,14 +128,12 @@ class ConnectedAccountController extends BaseController
             $this->setLoginCache(auth()->user());
             
             return $this->itemResponse(auth()->user());
-
         }
 
         return response()
         ->json(['message' => ctrans('texts.invalid_credentials')], 401)
         ->header('X-App-Version', config('ninja.app_version'))
         ->header('X-Api-Version', config('ninja.minimum_client_version'));
-
     }
 
     private function handleGoogleOauth()
@@ -207,10 +204,10 @@ class ConnectedAccountController extends BaseController
             $connected_account = [
                 'email' => $google->harvestEmail($user),
                 'oauth_user_id' => $google->harvestSubField($user),
-                'oauth_user_token' => $token,
-                'oauth_user_refresh_token' => $refresh_token,
+                // 'oauth_user_token' => $token,
+                // 'oauth_user_refresh_token' => $refresh_token,
                 'oauth_provider_id' => 'google',
-                'email_verified_at' =>now(),
+                // 'email_verified_at' =>now(),
             ];
 
             if (auth()->user()->email != $google->harvestEmail($user)) {
@@ -219,6 +216,9 @@ class ConnectedAccountController extends BaseController
 
             auth()->user()->update($connected_account);
             auth()->user()->email_verified_at = now();
+            auth()->user()->oauth_user_token = $token;
+            auth()->user()->oauth_user_refresh_token = $refresh_token;
+
             auth()->user()->save();
 
             $this->activateGmail(auth()->user());
