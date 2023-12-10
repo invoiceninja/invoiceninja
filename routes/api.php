@@ -121,7 +121,7 @@ Route::group(['middleware' => ['throttle:api', 'api_secret_check']], function ()
     Route::post('api/v1/oauth_login', [LoginController::class, 'oauthApiLogin']);
 });
 
-Route::group(['middleware' => ['throttle:login','api_secret_check','email_db']], function () {
+Route::group(['middleware' => ['throttle:login', 'api_secret_check', 'email_db']], function () {
     Route::post('api/v1/login', [LoginController::class, 'apiLogin'])->name('login.submit');
     Route::post('api/v1/reset_password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 });
@@ -427,13 +427,9 @@ Route::post('api/v1/yodlee/data_updates', [YodleeController::class, 'dataUpdates
 Route::post('api/v1/yodlee/refresh_updates', [YodleeController::class, 'refreshUpdatesWebhook'])->middleware('throttle:100,1');
 Route::post('api/v1/yodlee/balance', [YodleeController::class, 'balanceWebhook'])->middleware('throttle:100,1');
 
-<<<<<<< HEAD
 Route::get('api/v1/nordigen/institutions', [NordigenController::class, 'institutions'])->middleware('throttle:100,1')->middleware('token_auth')->name('nordigen_institutions');
 Route::any('api/v1/nordigen/confirm', [NordigenController::class, 'confirm'])->middleware('throttle:100,1')->name('nordigen_callback');
 
-Route::fallback([BaseController::class, 'notFound']);
-=======
 Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::class, 'index'])->name('protected_download')->middleware('throttle:300,1');
 
 Route::fallback([BaseController::class, 'notFound'])->middleware('throttle:404');
->>>>>>> v5-develop

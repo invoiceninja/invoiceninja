@@ -55,6 +55,7 @@ Route::get('stripe/signup/{token}', [StripeConnectController::class, 'initialize
 Route::get('stripe/completed', [StripeConnectController::class, 'completed'])->name('stripe_connect.return');
 
 Route::get('yodlee/onboard/{token}', [YodleeController::class, 'auth'])->name('yodlee.auth');
+
 Route::get('nordigen/connect/{token}', [NordigenController::class, 'connect'])->name('nordigen.connect');
 
 Route::get('checkout/3ds_redirect/{company_key}/{company_gateway_id}/{hash}', [Checkout3dsController::class, 'index'])->middleware('domain_db')->name('checkout.3ds_redirect');

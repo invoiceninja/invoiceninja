@@ -73,9 +73,6 @@ class BankIntegration extends BaseModel
         'auto_sync',
     ];
 
-    protected $dates = [
-    ];
-
     const INTEGRATION_TYPE_YODLEE = 'YODLEE';
 
     const INTEGRATION_TYPE_NORDIGEN = 'NORDIGEN';
