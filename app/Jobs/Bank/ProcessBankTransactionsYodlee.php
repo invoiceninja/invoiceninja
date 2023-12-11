@@ -11,7 +11,6 @@
 
 namespace App\Jobs\Bank;
 
-use App\Helpers\Bank\Yodlee\Nordigen;
 use App\Helpers\Bank\Yodlee\Transformer\AccountTransformer;
 use App\Helpers\Bank\Yodlee\Yodlee;
 use App\Libraries\MultiDB;

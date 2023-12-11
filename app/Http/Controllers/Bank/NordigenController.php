@@ -154,7 +154,7 @@ class NordigenController extends BaseController
             return response()->redirectTo(($context && array_key_exists("redirect", $context) ? $context["redirect"] : config('ninja.app_url')) . "?action=nordigen_connect&status=failed&reason=ref-invalid");
 
 
-        $company = Company::where('company_key', $context["company_key"])->first();
+        $company = Company::where('company_key', $context["company_key"])->firstOrFail();
         $account = $company->account;
 
         if (!(($account->bank_integration_nordigen_secret_id && $account->bank_integration_nordigen_secret_key) || (config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key'))))

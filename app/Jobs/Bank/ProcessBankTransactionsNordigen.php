@@ -30,8 +30,9 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private Account $account;
-
     private BankIntegration $bank_integration;
+    private string $secret_id;
+    private string $secret_key;
 
     private ?string $from_date;
 
@@ -56,10 +57,18 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
         if ($this->bank_integration->integration_type != BankIntegration::INTEGRATION_TYPE_NORDIGEN)
             throw new \Exception("Invalid BankIntegration Type");
 
-        if (!(($this->account->bank_integration_nordigen_secret_id && $this->account->bank_integration_nordigen_secret_key) || (config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key'))))
+        if (!(($this->account->bank_integration_secret_id && $this->account->integration_secret_key) || (config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key'))))
             throw new \Exception("Missing credentials for bank_integration service nortigen");
 
-        $this->nordigen = ($this->account->bank_integration_nordigen_secret_id && $this->account->bank_integration_nordigen_secret_key) ? new Nordigen($this->account->bank_integration_nordigen_secret_id, $this->account->bank_integration_nordigen_secret_key) : new Nordigen(config('ninja.nordigen.secret_id'), config('ninja.nordigen.secret_key'));
+        if ($this->account->bank_integration_secret_id && $this->account->bank_integration_secret_key) {
+            $this->secret_id = $this->account->bank_integration_secret_id;
+            $this->secret_key = $this->account->bank_integration_secret_key;
+        } else {
+            $this->secret_id = config('ninja.nordigen.secret_id');
+            $this->secret_key = config('ninja.nordigen.secret_key');
+        }
+
+        $this->nordigen = new Nordigen($this->secret_id, $this->secret_key);
     }
 
     /**
@@ -80,8 +89,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
         try {
             $this->updateAccount();
         } catch (\Exception $e) {
-            $secretId = $this->account->bank_integration_nordigen_secret_id ?: config('ninja.nortigen.secret_id');
-            nlog("{$secretId} - exited abnormally => " . $e->getMessage());
+            nlog("{$this->secret_id} - exited abnormally => " . $e->getMessage());
 
             $content = [
                 "Processing transactions for account: {$this->bank_integration->account->key} failed",
@@ -101,8 +109,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
             try {
                 $this->processTransactions();
             } catch (\Exception $e) {
-                $secretId = $this->account->bank_integration_nordigen_secret_id ?: config('ninja.nortigen.secret_id');
-                nlog("{$secretId} - exited abnormally => " . $e->getMessage());
+                nlog("{$this->secret_id} - exited abnormally => " . $e->getMessage());
 
                 $content = [
                     "Processing transactions for account: {$this->bank_integration->account->key} failed",
