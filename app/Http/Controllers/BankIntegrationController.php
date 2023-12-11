@@ -213,7 +213,7 @@ class BankIntegrationController extends BaseController
 
             });
 
-        if ($user->account->bank_integration_nordigen_secret_id && $user->account->bank_integration_nordigen_secret_key)
+        if (($user->account->bank_integration_nordigen_secret_id && $user->account->bank_integration_nordigen_secret_key) || (config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key')))
             $user_account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->andWhere('auto_sync', true)->each(function ($bank_integration) use ($user_account) {
 
                 ProcessBankTransactionsNordigen::dispatch($user_account, $bank_integration);
@@ -263,10 +263,12 @@ class BankIntegrationController extends BaseController
 
     private function refreshAccountsNordigen(User $user)
     {
-        if (!$user->account->bank_integration_nordigen_secret_id || !$user->account->bank_integration_nordigen_secret_key)
+        $account = $user->account;
+
+        if (!(($account->bank_integration_nordigen_secret_id && $account->bank_integration_nordigen_secret_key) || (config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key'))))
             return;
 
-        $nordigen = new Nordigen($user->account->bank_integration_nordigen_secret_id, $user->account->bank_integration_nordigen_secret_key);
+        $nordigen = ($account->bank_integration_nordigen_secret_id && $account->bank_integration_nordigen_secret_key) ? new Nordigen($account->bank_integration_nordigen_secret_id, $account->bank_integration_nordigen_secret_key) : new Nordigen(config('ninja.nordigen.secret_id'), config('ninja.nordigen.secret_key'));
 
         BankIntegration::withTrashed()->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->each(function (BankIntegration $bank_integration) use ($nordigen) {
             $account = $nordigen->getAccount($bank_integration->nordigen_account_id);

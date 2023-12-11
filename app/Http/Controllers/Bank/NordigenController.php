@@ -35,11 +35,12 @@ class NordigenController extends BaseController
             return response()->redirectTo($data["redirect"] . "?action=nordigen_connect&status=failed&reason=token-invalid");
 
         $company = $request->getCompany();
+        $account = $company->account;
 
-        if (!$company->account->bank_integration_nordigen_secret_id || !$company->account->bank_integration_nordigen_secret_key)
+        if (!(($account->bank_integration_nordigen_secret_id && $account->bank_integration_nordigen_secret_key) || (config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key'))))
             return response()->redirectTo($data["redirect"] . "?action=nordigen_connect&status=failed&reason=account-config-invalid");
 
-        $nordigen = new Nordigen($company->account->bank_integration_nordigen_secret_id, $company->account->bank_integration_nordigen_secret_key);
+        $nordigen = ($account->bank_integration_nordigen_secret_id && $account->bank_integration_nordigen_secret_key) ? new Nordigen($account->bank_integration_nordigen_secret_id, $account->bank_integration_nordigen_secret_key) : new Nordigen(config('ninja.nordigen.secret_id'), config('ninja.nordigen.secret_key'));
 
         // show bank_selection_screen, when institution_id is not present
         if (!array_key_exists("institution_id", $data)) {
@@ -156,11 +157,11 @@ class NordigenController extends BaseController
         $company = Company::where('company_key', $context["company_key"])->first();
         $account = $company->account;
 
-        if (!$account->bank_integration_nordigen_secret_id || !$account->bank_integration_nordigen_secret_key)
+        if (!(($account->bank_integration_nordigen_secret_id && $account->bank_integration_nordigen_secret_key) || (config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key'))))
             return response()->redirectTo($context["redirect"] . "?action=nordigen_connect&status=failed&reason=account-config-invalid");
 
         // fetch requisition
-        $nordigen = new Nordigen($account->bank_integration_nordigen_secret_id, $account->bank_integration_nordigen_secret_key);
+        $nordigen = ($account->bank_integration_nordigen_secret_id && $account->bank_integration_nordigen_secret_key) ? new Nordigen($account->bank_integration_nordigen_secret_id, $account->bank_integration_nordigen_secret_key) : new Nordigen(config('ninja.nordigen.secret_id'), config('ninja.nordigen.secret_key'));
         $requisition = $nordigen->getRequisition($context["requisitionId"]);
 
         // check validity of requisition
@@ -302,10 +303,10 @@ class NordigenController extends BaseController
     {
         $account = auth()->user()->account;
 
-        if (!$account->bank_integration_nordigen_secret_id || !$account->bank_integration_nordigen_secret_key)
+        if (!(($account->bank_integration_nordigen_secret_id && $account->bank_integration_nordigen_secret_key) || (config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key'))))
             return response()->json(['message' => 'Not yet authenticated with Nordigen Bank Integration service'], 400);
 
-        $nordigen = new Nordigen($account->bank_integration_nordigen_secret_id, $account->bank_integration_nordigen_secret_key);
+        $nordigen = ($account->bank_integration_nordigen_secret_id && $account->bank_integration_nordigen_secret_key) ? new Nordigen($account->bank_integration_nordigen_secret_id, $account->bank_integration_nordigen_secret_key) : new Nordigen(config('ninja.nordigen.secret_id'), config('ninja.nordigen.secret_key'));
         return response()->json($nordigen->getInstitutions());
     }
 

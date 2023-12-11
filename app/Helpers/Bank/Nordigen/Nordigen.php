@@ -21,7 +21,7 @@ use Nordigen\NordigenPHP\Exceptions\NordigenExceptions\NordigenException;
 
 class Nordigen
 {
-    public bool $test_mode = false; // https://developer.gocardless.com/bank-account-data/sandbox
+    public bool $test_mode = config('ninja.nordigen.test_mode'); // https://developer.gocardless.com/bank-account-data/sandbox
 
     public string $sandbox_institutionId = "SANDBOXFINANCE_SFIN0000";
 
