@@ -63,7 +63,7 @@ class UpdateSchedulerRequest extends Request
             $input['frequency_id'] = 0;
         }
 
-        if(isset($input['parameters']) && isset($input['parameters']['clients'])) {
+        if(isset($input['parameters']) && !isset($input['parameters']['clients'])) {
             $input['parameters']['clients'] = [];
         }
 
