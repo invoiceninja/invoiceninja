@@ -221,7 +221,7 @@ class NordigenController extends BaseController
         }
 
         // perform update in background
-        $company->account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->andWhere('auto_sync', true)->each(function ($bank_integration) use ($company) {
+        $company->account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->where('auto_sync', true)->each(function ($bank_integration) use ($company) {
 
             ProcessBankTransactionsNordigen::dispatch($company->account, $bank_integration);
 

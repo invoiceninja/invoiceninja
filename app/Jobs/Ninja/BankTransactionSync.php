@@ -56,7 +56,7 @@ class BankTransactionSync implements ShouldQueue
                     // $queue = Ninja::isHosted() ? 'bank' : 'default';
 
                     if ($account->isPaid() && $account->plan == 'enterprise') {
-                        $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_YODLEE)->andWhere('auto_sync', true)->cursor()->each(function ($bank_integration) use ($account) {
+                        $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_YODLEE)->where('auto_sync', true)->cursor()->each(function ($bank_integration) use ($account) {
                             (new ProcessBankTransactionsYodlee($account, $bank_integration))->handle();
                         });
                     }
@@ -67,13 +67,13 @@ class BankTransactionSync implements ShouldQueue
 
             if (config("ninja.nortigen.secret_id") && config("ninja.nortigen.secret_key"))
                 Account::with('bank_integrations')->cursor()->each(function ($account) {
-                    $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_NORDIGEN)->andWhere('auto_sync', true)->cursor()->each(function ($bank_integration) use ($account) {
+                    $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_NORDIGEN)->where('auto_sync', true)->cursor()->each(function ($bank_integration) use ($account) {
                         (new ProcessBankTransactionsNordigen($account, $bank_integration))->handle();
                     });
                 });
             else
-                Account::with('bank_integrations')->whereNotNull('bank_integration_nordigen_secret_id')->andWhereNotNull('bank_integration_nordigen_secret_key')->cursor()->each(function ($account) {
-                    $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_NORDIGEN)->andWhere('auto_sync', true)->cursor()->each(function ($bank_integration) use ($account) {
+                Account::with('bank_integrations')->whereNotNull('bank_integration_nordigen_secret_id')->whereNotNull('bank_integration_nordigen_secret_key')->cursor()->each(function ($account) {
+                    $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_NORDIGEN)->where('auto_sync', true)->cursor()->each(function ($bank_integration) use ($account) {
                         (new ProcessBankTransactionsNordigen($account, $bank_integration))->handle();
                     });
                 });
