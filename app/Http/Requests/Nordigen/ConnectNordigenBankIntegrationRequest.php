@@ -43,7 +43,7 @@ class ConnectNordigenBankIntegrationRequest extends Request
         ];
     }
 
-    // @turbo124 @todo please check for validity, when issue request from frontend
+    // @turbo124 @todo please check for validity, when request from frontend
     public function prepareForValidation()
     {
         $input = $this->all();

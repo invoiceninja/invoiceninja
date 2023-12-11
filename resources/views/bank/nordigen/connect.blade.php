@@ -32,7 +32,7 @@
         styles: {
             // Primary
             // Link to google font
-            fontFamily: 'https://fonts.googleapis.com/css2?family=Roboto&display=swap', // @todo replace to match german law: not use google fonts and use local instead
+            fontFamily: '/assets/fonts/Roboto-Regular.ttf',
             fontSize: '15',
             backgroundColor: '#F2F2F2',
             textColor: '#222',
