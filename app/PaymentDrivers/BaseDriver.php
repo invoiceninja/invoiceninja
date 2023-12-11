@@ -568,7 +568,8 @@ class BaseDriver extends AbstractPaymentDriver
         $error = array_key_exists('error', $response) ? $response['error'] : 'Undefined Error';
         $error_code = array_key_exists('error_code', $response) ? $response['error_code'] : 'Undefined Error Code';
 
-        $this->unWindGatewayFees($this->payment_hash);
+        if($this->payment_hash)
+            $this->unWindGatewayFees($this->payment_hash);
 
         $this->sendFailureMail($error);
 
@@ -578,10 +579,6 @@ class BaseDriver extends AbstractPaymentDriver
         $nmo->settings = $this->client->company->settings;
 
         $invoices = Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
-
-        // $invoices->each(function ($invoice) {
-        //     $invoice->service()->deletePdf();
-        // });
 
         $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
             if (! $invitation->contact->trashed()) {
