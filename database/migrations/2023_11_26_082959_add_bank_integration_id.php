@@ -16,6 +16,7 @@ return new class extends Migration {
     {
         Schema::table('bank_integrations', function (Blueprint $table) {
             $table->string('integration_type')->nullable();
+            $table->string('nordigen_meta')->nullable(); // accountId,institutionId @todo: maybe replace with the following below
             // $table->string('provider_id'); // migrate to string, because nordigen provides a string like: SANDBOXFINANCE_SFIN0000
             // $table->string('bank_account_id'); // migrate to string, because nordigen uses uuid() strings
         });

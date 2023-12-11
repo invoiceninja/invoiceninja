@@ -206,17 +206,19 @@ class BankIntegrationController extends BaseController
             return response()->json(BankIntegration::query()->company(), 200);
 
         // Processing transactions for each bank account
-        $user_account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_YODLEE)->each(function ($bank_integration) use ($user_account) {
+        if (!$user->account->bank_integration_yodlee_account_id)
+            $user_account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_YODLEE)->each(function ($bank_integration) use ($user_account) {
 
-            ProcessBankTransactionsYodlee::dispatch($user_account, $bank_integration);
+                ProcessBankTransactionsYodlee::dispatch($user_account, $bank_integration);
 
-        });
+            });
 
-        $user_account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->each(function ($bank_integration) use ($user_account) {
+        if (!$user->account->bank_integration_nordigen_secret_id || !$user->account->bank_integration_nordigen_secret_key)
+            $user_account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->each(function ($bank_integration) use ($user_account) {
 
-            ProcessBankTransactionsNordigen::dispatch($user_account, $bank_integration);
+                ProcessBankTransactionsNordigen::dispatch($user_account, $bank_integration);
 
-        });
+            });
 
         Cache::put("throttle_polling:{$user_account->key}", true, 300);
 
@@ -225,9 +227,8 @@ class BankIntegrationController extends BaseController
 
     private function refreshAccountsYodlee(User $user)
     {
-        if (!$user->account->bank_integration_yodlee_account_id) {
-            return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
-        }
+        if (!$user->account->bank_integration_yodlee_account_id)
+            return;
 
         $yodlee = new Yodlee($user->account->bank_integration_yodlee_account_id);
 
@@ -263,36 +264,26 @@ class BankIntegrationController extends BaseController
     private function refreshAccountsNordigen(User $user)
     {
         if (!$user->account->bank_integration_nordigen_secret_id || !$user->account->bank_integration_nordigen_secret_key)
-            return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
+            return;
 
         $nordigen = new Nordigen($user->account->bank_integration_nordigen_secret_id, $user->account->bank_integration_nordigen_secret_key);
 
-        $accounts = $nordigen->getAccounts(); // TODO?!
+        BankIntegration::withTrashed()->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->each(function (BankIntegration $bank_integration) use ($nordigen, $user) {
+            $account = $nordigen->getAccount(explode(',', $bank_integration->nordigen_meta)[0]);
 
-        foreach ($accounts as $account) {
-            if ($bi = BankIntegration::withTrashed()->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->where('bank_account_id', $account['id'])->where('company_id', $user->company()->id)->first()) {
-                $bi->balance = $account['current_balance'];
-                $bi->currency = $account['account_currency'];
-                $bi->save();
-            } else {
-                $bank_integration = new BankIntegration();
-                $bank_integration->company_id = $user->company()->id;
-                $bank_integration->account_id = $user->account_id;
-                $bank_integration->user_id = $user->id;
-                $bank_integration->bank_account_id = $account['id'];
-                $bank_integration->bank_account_type = $account['account_type'];
-                $bank_integration->bank_account_name = $account['account_name'];
-                $bank_integration->bank_account_status = $account['account_status'];
-                $bank_integration->bank_account_number = $account['account_number'];
-                $bank_integration->provider_id = $account['provider_id'];
-                $bank_integration->provider_name = $account['provider_name'];
-                $bank_integration->nickname = $account['nickname'];
-                $bank_integration->balance = $account['current_balance'];
-                $bank_integration->currency = $account['account_currency'];
+            if (!$account) {
+                $bank_integration->disabled_upstream = true;
 
                 $bank_integration->save();
+                return;
             }
-        }
+
+            $bank_integration->bank_account_status = $account['account_status'];
+            $bank_integration->balance = $account['current_balance'];
+            $bank_integration->currency = $account['account_currency'];
+
+            $bank_integration->save();
+        });
     }
 
     /**
@@ -314,8 +305,7 @@ class BankIntegrationController extends BaseController
 
         if ($bank_integration->integration_type == BankIntegration::INTEGRATION_TYPE_YODLEE)
             $this->removeAccountYodlee($account, $bank_integration);
-        else if ($bank_integration->integration_type == BankIntegration::INTEGRATION_TYPE_NORDIGEN)
-            $this->removeAccountNordigen($account, $bank_integration);
+        // we dont remove Accounts from nordigen, because they could be used within other companies
 
         $this->bank_integration_repo->delete($bank_integration);
 
@@ -331,16 +321,6 @@ class BankIntegrationController extends BaseController
         $yodlee = new Yodlee($account->bank_integration_yodlee_account_id);
         $yodlee->deleteAccount($bank_integration->bank_account_id);
     }
-
-    private function removeAccountNordigen(Account $account, BankIntegration $bank_integration)
-    {
-        if (!$account->bank_integration_nordigen_secret_id || !$account->bank_integration_nordigen_secret_key)
-            return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
-
-        $nordigen = new Nordigen($account->bank_integration_nordigen_secret_id, $account->bank_integration_nordigen_secret_key);
-        $nordigen->deleteAccount($bank_integration->bank_account_id);
-    }
-
 
     /**
      * Return the remote list of accounts stored on the third party provider

@@ -17,6 +17,7 @@ use App\Models\Account;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
 use App\Models\Company;
+use App\Notifications\Ninja\GenericNinjaAdminNotification;
 use App\Services\Bank\BankMatchingService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -39,6 +40,8 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
     private int $skip = 0;
 
     public Company $company;
+    public Nordigen $nordigen;
+    public $nordigen_account;
 
     /**
      * Create a new job instance.
@@ -52,6 +55,8 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
 
         if ($this->bank_integration->integration_type != BankIntegration::INTEGRATION_TYPE_NORDIGEN)
             throw new \Exception("Invalid BankIntegration Type");
+
+        $this->nordigen = new Nordigen($this->account->bank_integration_nordigen_secret_id, $this->account->bank_integration_nordigen_secret_key);
 
     }
 
@@ -69,12 +74,39 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
         //Loop through everything until we are up to date
         $this->from_date = $this->from_date ?: '2021-01-01';
 
+        // UPDATE ACCOUNT
+        try {
+            $this->updateAccount();
+        } catch (\Exception $e) {
+            nlog("{$this->account->bank_integration_nordigen_secret_id} - exited abnormally => " . $e->getMessage());
+
+            $content = [
+                "Processing transactions for account: {$this->bank_integration->account->key} failed",
+                "Exception Details => ",
+                $e->getMessage(),
+            ];
+
+            $this->bank_integration->company->notification(new GenericNinjaAdminNotification($content))->ninja();
+            return;
+        }
+        if (!$this->nordigen_account)
+            return;
+
+        // UPDATE TRANSACTIONS
         do {
 
             try {
                 $this->processTransactions();
             } catch (\Exception $e) {
                 nlog("{$this->account->bank_integration_nordigen_secret_id} - exited abnormally => " . $e->getMessage());
+
+                $content = [
+                    "Processing transactions for account: {$this->bank_integration->account->key} failed",
+                    "Exception Details => ",
+                    $e->getMessage(),
+                ];
+
+                $this->bank_integration->company->notification(new GenericNinjaAdminNotification($content))->ninja();
                 return;
             }
 
@@ -85,13 +117,12 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
 
     }
 
-
-    private function processTransactions()
+    private function updateAccount()
     {
 
-        $nordigen = new Nordigen($this->account->bank_integration_nordigen_secret_id, $this->account->bank_integration_nordigen_secret_key); // TODO: maybe implement credentials
+        $bank_account_id = explode(',', $this->bank_integration->nordigen_meta)[0]; // maybe replace it later with bank_account_id
 
-        if (!$nordigen->isAccountActive($this->bank_integration->bank_account_id)) {
+        if (!$this->nordigen->isAccountActive($bank_account_id)) {
             $this->bank_integration->disabled_upstream = true;
             $this->bank_integration->save();
             $this->stop_loop = false;
@@ -99,8 +130,21 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
             return;
         }
 
+        $this->nordigen_account = $this->nordigen->getAccount($bank_account_id);
+
+        $this->bank_integration->bank_account_status = $this->nordigen_account['account_status'];
+        $this->bank_integration->balance = $this->nordigen_account['current_balance'];
+        $this->bank_integration->currency = $this->nordigen_account['account_currency'];
+
+        $this->bank_integration->save();
+
+    }
+
+    private function processTransactions()
+    {
+
         //Get transaction count object
-        $transactions = $nordigen->getTransactions($this->bank_integration->bank_account_id, $this->from_date);
+        $transactions = $this->nordigen->getTransactions($this->nordigen_account["id"], $this->from_date);
 
         //Get int count
         $count = sizeof($transactions);
@@ -108,7 +152,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
         //if no transactions, update the from_date and move on
         if (count($transactions) == 0) {
 
-            $this->bank_integration->from_date = now()->subDays(2);
+            $this->bank_integration->from_date = now()->subDays(5);
             $this->bank_integration->disabled_upstream = false;
             $this->bank_integration->save();
             $this->stop_loop = false;
@@ -133,7 +177,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
                 continue;
 
             //this should be much faster to insert than using ::create()
-            $bt = \DB::table('bank_transactions')->insert(
+            \DB::table('bank_transactions')->insert(
                 array_merge($transaction, [
                     'company_id' => $this->company->id,
                     'user_id' => $user_id,
@@ -146,14 +190,18 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
         }
 
 
-        $this->skip = $this->skip + 500;
+        // $this->skip = $this->skip + 500;
 
-        if ($count < 500) {
-            $this->stop_loop = false;
-            $this->bank_integration->from_date = now()->subDays(2);
-            $this->bank_integration->save();
+        // if ($count < 500) {
+        //     $this->stop_loop = false;
+        //     $this->bank_integration->from_date = now()->subDays(5);
+        //     $this->bank_integration->save();
 
-        }
+        // }
+
+        $this->stop_loop = false;
+        $this->bank_integration->from_date = now()->subDays(5);
+        $this->bank_integration->save();
 
     }
 }

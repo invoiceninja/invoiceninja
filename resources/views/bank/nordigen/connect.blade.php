@@ -22,8 +22,8 @@
 
     // Pass your redirect link after user has been authorized in institution
     const config = {
-        // Text that will be displayed on the left side under the logo. Text is limited to 100 characters, and rest will be truncated.
-        text: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean mavdvd",
+        // Text that will be displayed on the left side under the logo. Text is limited to 100 characters, and rest will be truncated. @turbo124 replace with a translated version like ctrans()
+        text: "{{ $account && !$account->isPaid() ? 'Invoice Ninja' : (isset($company) && !is_null($company) ? $company->name : '') }} will gain access for your selected bank account. After selecting your institution you are redirected to theire front-page to complete the request with your account credentials.",
         // Logo URL that will be shown below the modal form.
         logoUrl: "{{ $account && !$account->isPaid() ? asset('images/invoiceninja-black-logo-2.png') : (isset($company) && !is_null($company) ? $company->present()->logo() : '') }}",
         // Will display country list with corresponding institutions. When `countryFilter` is set to `false`, only list of institutions will be shown.
@@ -32,7 +32,7 @@
         styles: {
             // Primary
             // Link to google font
-            fontFamily: '/assets/fonts/Roboto-Regular.ttf',
+            fontFamily: new URL("assets/fonts/Roboto-Regular.ttf", window.location.origin).href,
             fontSize: '15',
             backgroundColor: '#F2F2F2',
             textColor: '#222',
@@ -58,7 +58,7 @@
             const institutionId = institution.getAttribute('data-institution');
             const url = new URL(window.location.href);
             url.searchParams.set('institution_id', institutionId);
-            window.location.href = url.href;
+         w.location.href = url.href;
         });
     });
 

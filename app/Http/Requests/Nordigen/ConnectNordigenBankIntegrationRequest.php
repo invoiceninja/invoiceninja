@@ -51,10 +51,7 @@ class ConnectNordigenBankIntegrationRequest extends Request
         if (!array_key_exists('redirect', $input)) {
             $context = $this->getTokenContent();
 
-            if ($context && array_key_exists('is_react', $context))
-                $input["redirect"] = $context["is_react"] ? config("ninja.react_url") : config("ninja.app_url");
-            else
-                $input["redirect"] = config("ninja.app_url");
+            $input["redirect"] = isset($context['is_react']) && $context['is_react'] ? config('ninja.react_url') : config('ninja.app_url');
 
             $this->replace($input);
 

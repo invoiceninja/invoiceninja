@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property float $balance
  * @property int|null $currency
  * @property string $nickname
+ * @property string $nordigen_meta // TODO: maybe move to bank_account_id and provider_id
  * @property string|null $from_date
  * @property bool $is_deleted
  * @property int|null $created_at
