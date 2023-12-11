@@ -165,7 +165,7 @@ class GoCardlessPaymentDriver extends BaseDriver
                 ],
             ]);
 
-            if ($payment->status === 'pending_submission') {
+            if (in_array($payment->status, ['submitted', 'pending_submission'])) {
                 $this->confirmGatewayFee();
 
                 $data = [

@@ -12,7 +12,8 @@
 
 namespace App\DataProviders;
 
-class Domains {
+class Domains 
+{
 
 private static array $verify_domains = [
         '0-00.usa.cc',

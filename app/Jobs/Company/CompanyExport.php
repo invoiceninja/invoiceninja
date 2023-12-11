@@ -387,19 +387,19 @@ class CompanyExport implements ShouldQueue
         })->all();
 
 
-        $this->export_data['bank_integrations'] = $this->company->bank_integrations()->orderBy('id', 'ASC')->cursor()->map(function ($bank_integration) {
+        $this->export_data['bank_integrations'] = $this->company->bank_integrations()->withTrashed()->orderBy('id', 'ASC')->cursor()->map(function ($bank_integration) {
             $bank_integration = $this->transformArrayOfKeys($bank_integration, ['account_id','company_id', 'user_id']);
 
-            return $bank_integration->makeVisible(['id','user_id','company_id','account_id']);
+            return $bank_integration->makeVisible(['id','user_id','company_id','account_id','hashed_id']);
         })->all();
 
-        $this->export_data['bank_transactions'] = $this->company->bank_transactions()->orderBy('id', 'ASC')->cursor()->map(function ($bank_transaction) {
-            $bank_transaction = $this->transformArrayOfKeys($bank_transaction, ['company_id', 'user_id','bank_integration_id','expense_id','category_id','ninja_category_id','vendor_id']);
+        $this->export_data['bank_transactions'] = $this->company->bank_transactions()->withTrashed()->orderBy('id', 'ASC')->cursor()->map(function ($bank_transaction) {
+            $bank_transaction = $this->transformArrayOfKeys($bank_transaction, ['company_id', 'user_id','bank_integration_id','expense_id','ninja_category_id','vendor_id']);
 
             return $bank_transaction->makeVisible(['id','user_id','company_id']);
         })->all();
 
-        $this->export_data['schedulers'] = $this->company->schedulers()->orderBy('id', 'ASC')->cursor()->map(function ($scheduler) {
+        $this->export_data['schedulers'] = $this->company->schedulers()->withTrashed()->orderBy('id', 'ASC')->cursor()->map(function ($scheduler) {
             $scheduler = $this->transformArrayOfKeys($scheduler, ['company_id', 'user_id']);
 
             return $scheduler->makeVisible(['id','user_id','company_id']);
