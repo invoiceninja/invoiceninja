@@ -206,15 +206,15 @@ class BankIntegrationController extends BaseController
             return response()->json(BankIntegration::query()->company(), 200);
 
         // Processing transactions for each bank account
-        if (!$user->account->bank_integration_yodlee_account_id)
-            $user_account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_YODLEE)->each(function ($bank_integration) use ($user_account) {
+        if ($user->account->bank_integration_yodlee_account_id)
+            $user_account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_YODLEE)->andWhere('auto_sync', true)->each(function ($bank_integration) use ($user_account) {
 
                 ProcessBankTransactionsYodlee::dispatch($user_account, $bank_integration);
 
             });
 
-        if (!$user->account->bank_integration_nordigen_secret_id || !$user->account->bank_integration_nordigen_secret_key)
-            $user_account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->each(function ($bank_integration) use ($user_account) {
+        if ($user->account->bank_integration_nordigen_secret_id && $user->account->bank_integration_nordigen_secret_key)
+            $user_account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->andWhere('auto_sync', true)->each(function ($bank_integration) use ($user_account) {
 
                 ProcessBankTransactionsNordigen::dispatch($user_account, $bank_integration);
 
