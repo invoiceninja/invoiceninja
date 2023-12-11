@@ -76,7 +76,7 @@ class Kernel extends ConsoleKernel
         /* Runs cleanup code for subscriptions */
         $schedule->job(new SubscriptionCron)->dailyAt('00:01')->withoutOverlapping()->name('subscription-job')->onOneServer();
 
-        /* Sends recurring invoices*/
+        /* Sends recurring expenses*/
         $schedule->job(new RecurringExpensesCron)->dailyAt('00:10')->withoutOverlapping()->name('recurring-expense-job')->onOneServer();
 
         /* Checks the status of the scheduler */
