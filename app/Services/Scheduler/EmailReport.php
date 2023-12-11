@@ -70,7 +70,7 @@ class EmailReport
             'report_keys' => []
         ];
 
-        if (count($this->scheduler->parameters['clients']) >= 1) {
+        if (isset($this->scheduler->parameters['clients']) && count($this->scheduler->parameters['clients']) >= 1) {
             $data['clients'] = $this->transformKeys($this->scheduler->parameters['clients']);
         }
         
