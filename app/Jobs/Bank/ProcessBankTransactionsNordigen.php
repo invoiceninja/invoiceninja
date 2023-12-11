@@ -120,9 +120,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
     private function updateAccount()
     {
 
-        $bank_account_id = explode(',', $this->bank_integration->nordigen_meta)[0]; // maybe replace it later with bank_account_id
-
-        if (!$this->nordigen->isAccountActive($bank_account_id)) {
+        if (!$this->nordigen->isAccountActive($this->bank_integration->nordigen_account_id)) {
             $this->bank_integration->disabled_upstream = true;
             $this->bank_integration->save();
             $this->stop_loop = false;
@@ -130,7 +128,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
             return;
         }
 
-        $this->nordigen_account = $this->nordigen->getAccount($bank_account_id);
+        $this->nordigen_account = $this->nordigen->getAccount($this->bank_integration->nordigen_account_id);
 
         $this->bank_integration->bank_account_status = $this->nordigen_account['account_status'];
         $this->bank_integration->balance = $this->nordigen_account['current_balance'];
@@ -144,7 +142,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
     {
 
         //Get transaction count object
-        $transactions = $this->nordigen->getTransactions($this->nordigen_account["id"], $this->from_date);
+        $transactions = $this->nordigen->getTransactions($this->bank_integration->nordigen_account_id, $this->from_date);
 
         //Get int count
         $count = sizeof($transactions);

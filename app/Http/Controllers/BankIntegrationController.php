@@ -268,8 +268,8 @@ class BankIntegrationController extends BaseController
 
         $nordigen = new Nordigen($user->account->bank_integration_nordigen_secret_id, $user->account->bank_integration_nordigen_secret_key);
 
-        BankIntegration::withTrashed()->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->each(function (BankIntegration $bank_integration) use ($nordigen, $user) {
-            $account = $nordigen->getAccount(explode(',', $bank_integration->nordigen_meta)[0]);
+        BankIntegration::withTrashed()->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->each(function (BankIntegration $bank_integration) use ($nordigen) {
+            $account = $nordigen->getAccount($bank_integration->nordigen_account_id);
 
             if (!$account) {
                 $bank_integration->disabled_upstream = true;
