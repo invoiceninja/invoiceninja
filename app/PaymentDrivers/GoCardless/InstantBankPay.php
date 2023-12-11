@@ -136,10 +136,10 @@ class InstantBankPay implements MethodInterface
     public function processPendingPayment(\GoCardlessPro\Resources\Payment $payment, array $data = [])
     {
         $data = [
-            'payment_method' => $payment->links->mandate,
+            'payment_method' => $payment->links->mandate, //@phpstan-ignore tag
             'payment_type' => PaymentType::INSTANT_BANK_PAY,
             'amount' => $this->go_cardless->payment_hash->data->amount_with_fee,
-            'transaction_reference' => $payment->id,
+            'transaction_reference' => $payment->id, //@phpstan-ignore tag
             'gateway_type_id' => GatewayType::INSTANT_BANK_PAY,
         ];
 

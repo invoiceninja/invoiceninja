@@ -206,6 +206,16 @@ class PurchaseOrderItemExport extends BaseExport
             $entity['status'] = $purchase_order->stringStatus($purchase_order->status_id);
         }
 
+        if (in_array('purchase_order.user_id', $this->input['report_keys'])) {
+            $entity['purchase_order.user_id'] = $purchase_order->user ? $purchase_order->user->present()->name() : '';
+        }
+
+        if (in_array('purchase_order.assigned_user_id', $this->input['report_keys'])) {
+            $entity['purchase_order.assigned_user_id'] = $purchase_order->assigned_user ? $purchase_order->assigned_user->present()->name() : '';
+        }
+
+
+
         return $entity;
     }
 

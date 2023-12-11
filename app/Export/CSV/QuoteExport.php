@@ -133,8 +133,8 @@ class QuoteExport extends BaseExport
             }
 
         }
-        return $entity;
-        // return $this->decorateAdvancedFields($quote, $entity);
+        // return $entity;
+        return $this->decorateAdvancedFields($quote, $entity);
     }
 
     private function decorateAdvancedFields(Quote $quote, array $entity) :array

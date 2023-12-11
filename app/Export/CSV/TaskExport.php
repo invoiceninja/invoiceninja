@@ -197,7 +197,7 @@ class TaskExport extends BaseExport
                 $entity['task.duration'] = $task->calcDuration();
             }
             
-            // $entity = $this->decorateAdvancedFields($task, $entity);
+            $entity = $this->decorateAdvancedFields($task, $entity);
             
             $this->storage_array[] = $entity;
             
@@ -218,6 +218,15 @@ class TaskExport extends BaseExport
             $entity['task.project_id'] = $task->project()->exists() ? $task->project->name : '';
         }
         
+        if (in_array('task.user_id', $this->input['report_keys'])) {
+            $entity['task.user_id'] = $task->user ? $task->user->present()->name() : '';
+        }
+
+        if (in_array('task.assigned_user_id', $this->input['report_keys'])) {
+            $entity['task.assigned_user_id'] = $task->assigned_user ? $task->assigned_user->present()->name() : '';
+        }
+
+
         return $entity;
     }
 }
