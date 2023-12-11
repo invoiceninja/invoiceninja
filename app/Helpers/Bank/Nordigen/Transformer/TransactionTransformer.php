@@ -62,7 +62,7 @@ use Log;
 }
 */
 
-class IncomeTransformer implements BankRevenueInterface
+class TransactionTransformer implements BankRevenueInterface
 {
     use AppSetup;
 

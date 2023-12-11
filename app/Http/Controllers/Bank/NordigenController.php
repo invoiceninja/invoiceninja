@@ -192,7 +192,7 @@ class NordigenController extends BaseController
                 $bank_integration->bank_account_name = $nordigen_account['account_name'];
                 $bank_integration->bank_account_status = $nordigen_account['account_status'];
                 $bank_integration->bank_account_number = $nordigen_account['account_number'];
-                $bank_integration->nordigen_provider_id = $nordigen_account['provider_id'];
+                $bank_integration->nordigen_institution_id = $nordigen_account['provider_id'];
                 $bank_integration->provider_name = $nordigen_account['provider_name'];
                 $bank_integration->nickname = $nordigen_account['nickname'];
                 $bank_integration->balance = $nordigen_account['current_balance'];

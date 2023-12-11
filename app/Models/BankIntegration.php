@@ -32,7 +32,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $currency
  * @property string $nickname
  * @property string $nordigen_account_id
- * @property string $nordigen_provider_id
+ * @property string $nordigen_institution_id
  * @property string|null $from_date
  * @property bool $is_deleted
  * @property int|null $created_at

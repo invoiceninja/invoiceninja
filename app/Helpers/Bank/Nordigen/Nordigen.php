@@ -15,13 +15,13 @@ namespace App\Helpers\Bank\Nordigen;
 
 use App\Exceptions\NordigenApiException;
 use App\Helpers\Bank\Nordigen\Transformer\AccountTransformer;
-use App\Helpers\Bank\Nordigen\Transformer\IncomeTransformer;
+use App\Helpers\Bank\Nordigen\Transformer\TransactionTransformer;
 use Log;
 use Nordigen\NordigenPHP\Exceptions\NordigenExceptions\NordigenException;
 
 class Nordigen
 {
-    public bool $test_mode = config('ninja.nordigen.test_mode'); // https://developer.gocardless.com/bank-account-data/sandbox
+    public bool $test_mode; // https://developer.gocardless.com/bank-account-data/sandbox
 
     public string $sandbox_institutionId = "SANDBOXFINANCE_SFIN0000";
 
@@ -29,6 +29,8 @@ class Nordigen
 
     public function __construct(string $secret_id, string $secret_key)
     {
+
+        $this->test_mode = config('ninja.nordigen.test_mode');
 
         $this->client = new \Nordigen\NordigenPHP\API\NordigenClient($secret_id, $secret_key);
 
@@ -101,7 +103,7 @@ class Nordigen
 
         $transactionResponse = $this->client->account($accountId)->getAccountTransactions($dateFrom);
 
-        $it = new IncomeTransformer();
+        $it = new TransactionTransformer();
         return $it->transform($transactionResponse);
 
     }

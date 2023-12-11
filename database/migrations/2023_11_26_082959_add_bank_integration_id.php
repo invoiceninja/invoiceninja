@@ -17,7 +17,7 @@ return new class extends Migration {
         Schema::table('bank_integrations', function (Blueprint $table) {
             $table->string('integration_type')->nullable();
             $table->string('nordigen_account_id')->nullable();
-            $table->string('nordigen_provider_id')->nullable();
+            $table->string('nordigen_institution_id')->nullable();
         });
 
         // migrate old account to be used with yodlee

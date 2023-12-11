@@ -58,7 +58,7 @@
             const institutionId = institution.getAttribute('data-institution');
             const url = new URL(window.location.href);
             url.searchParams.set('institution_id', institutionId);
-         w.location.href = url.href;
+            window.location.href = url.href;
         });
     });
 
