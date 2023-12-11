@@ -32,7 +32,7 @@ class NordigenController extends BaseController
         $context = $request->getTokenContent();
 
         if (!$context || $context["context"] != "nordigen" || array_key_exists("requisitionId", $context))
-            return response()->redirectTo($data["redirect"] . "?action=nordigen_connect&status=failed&reason=token-invalid");
+            return response()->redirectTo(($context && array_key_exists("redirect", $context) ? $context["redirect"] : config('ninja.app_url')) . "?action=nordigen_connect&status=failed&reason=token-invalid");
 
         $company = $request->getCompany();
         $account = $company->account;
@@ -151,7 +151,7 @@ class NordigenController extends BaseController
 
         $context = Cache::get($data["ref"]);
         if (!$context || $context["context"] != "nordigen" || !array_key_exists("requisitionId", $context))
-            return response()->redirectTo($context["redirect"] . "?action=nordigen_connect&status=failed&reason=ref-invalid");
+            return response()->redirectTo(($context && array_key_exists("redirect", $context) ? $context["redirect"] : config('ninja.app_url')) . "?action=nordigen_connect&status=failed&reason=ref-invalid");
 
 
         $company = Company::where('company_key', $context["company_key"])->first();
@@ -168,7 +168,7 @@ class NordigenController extends BaseController
         if (!$requisition)
             return response()->redirectTo($context["redirect"] . "?action=nordigen_connect&status=failed&reason=requisition-not-found");
         if ($requisition["status"] != "LN")
-            return response()->redirectTo($context["redirect"] . "?action=nordigen_connect&status=failed&reason=requisition-invalid-status");
+            return response()->redirectTo($context["redirect"] . "?action=nordigen_connect&status=failed&reason=requisition-invalid-status&status=" . $requisition["status"]);
         if (sizeof($requisition["accounts"]) == 0)
             return response()->redirectTo($context["redirect"] . "?action=nordigen_connect&status=failed&reason=requisition-no-accounts");
 
