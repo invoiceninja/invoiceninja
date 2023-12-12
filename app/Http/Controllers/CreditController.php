@@ -11,36 +11,37 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\Credit\CreditWasCreated;
-use App\Events\Credit\CreditWasUpdated;
-use App\Factory\CloneCreditFactory;
+use App\Utils\Ninja;
+use App\Models\Client;
+use App\Models\Credit;
+use App\Models\Account;
+use App\Models\Invoice;
+use App\Models\Webhook;
+use Illuminate\Http\Response;
 use App\Factory\CreditFactory;
 use App\Filters\CreditFilters;
-use App\Http\Requests\Credit\ActionCreditRequest;
+use App\Jobs\Credit\ZipCredits;
+use App\Utils\Traits\MakesHash;
+use App\Jobs\Entity\EmailEntity;
+use App\Factory\CloneCreditFactory;
+use App\Services\PdfMaker\PdfMerge;
+use Illuminate\Support\Facades\App;
+use App\Utils\Traits\SavesDocuments;
+use App\Repositories\CreditRepository;
+use App\Events\Credit\CreditWasCreated;
+use App\Events\Credit\CreditWasUpdated;
+use App\Transformers\CreditTransformer;
+use Illuminate\Support\Facades\Storage;
+use App\Services\Template\TemplateAction;
 use App\Http\Requests\Credit\BulkCreditRequest;
-use App\Http\Requests\Credit\CreateCreditRequest;
-use App\Http\Requests\Credit\DestroyCreditRequest;
 use App\Http\Requests\Credit\EditCreditRequest;
 use App\Http\Requests\Credit\ShowCreditRequest;
 use App\Http\Requests\Credit\StoreCreditRequest;
+use App\Http\Requests\Credit\ActionCreditRequest;
+use App\Http\Requests\Credit\CreateCreditRequest;
 use App\Http\Requests\Credit\UpdateCreditRequest;
 use App\Http\Requests\Credit\UploadCreditRequest;
-use App\Jobs\Credit\ZipCredits;
-use App\Jobs\Entity\EmailEntity;
-use App\Models\Account;
-use App\Models\Client;
-use App\Models\Credit;
-use App\Models\Invoice;
-use App\Repositories\CreditRepository;
-use App\Services\PdfMaker\PdfMerge;
-use App\Services\Template\TemplateAction;
-use App\Transformers\CreditTransformer;
-use App\Utils\Ninja;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\SavesDocuments;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\Credit\DestroyCreditRequest;
 
 /**
  * Class CreditController.
@@ -638,22 +639,13 @@ class CreditController extends BaseController
                 }
                 break;
             case 'email':
-
-                $credit->invitations->load('contact.client.country', 'credit.client.country', 'credit.company')->each(function ($invitation) use ($credit) {
-                    EmailEntity::dispatch($invitation, $credit->company, 'credit');
-                });
-
-
-                if (! $bulk) {
-                    return response()->json(['message'=>'email sent'], 200);
-                }
-                break;
-
             case 'send_email':
 
                 $credit->invitations->load('contact.client.country', 'credit.client.country', 'credit.company')->each(function ($invitation) use ($credit) {
                     EmailEntity::dispatch($invitation, $credit->company, 'credit');
                 });
+
+                $credit->sendEvent(Webhook::EVENT_SENT_CREDIT, "client");
 
                 if (! $bulk) {
                     return response()->json(['message'=>'email sent'], 200);
