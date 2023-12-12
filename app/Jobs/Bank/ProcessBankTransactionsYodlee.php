@@ -52,10 +52,6 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
         $this->bank_integration = $bank_integration;
         $this->from_date = $bank_integration->from_date;
         $this->company = $this->bank_integration->company;
-
-        if ($this->bank_integration->integration_type != BankIntegration::INTEGRATION_TYPE_YODLEE)
-            throw new \Exception("Invalid BankIntegration Type");
-
     }
 
     /**
@@ -66,6 +62,10 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
      */
     public function handle()
     {
+
+        if ($this->bank_integration->integration_type != BankIntegration::INTEGRATION_TYPE_YODLEE)
+            throw new \Exception("Invalid BankIntegration Type");
+
         set_time_limit(0);
 
         //Loop through everything until we are up to date
