@@ -74,7 +74,7 @@ class ProductTransformer extends EntityTransformer
             'notes' => $product->notes ?: '',
             'cost' => (float) $product->cost ?: 0,
             'price' => (float) $product->price ?: 0,
-            'quantity' => (float) $product->quantity ?: 1.0,
+            'quantity' => (float) is_numeric($product->quantity) ? $product->quantity : 1.0,
             'tax_name1' => $product->tax_name1 ?: '',
             'tax_rate1' => (float) $product->tax_rate1 ?: 0,
             'tax_name2' => $product->tax_name2 ?: '',
