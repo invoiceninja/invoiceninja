@@ -95,7 +95,7 @@ class TransactionTransformer implements BankRevenueInterface
             'category_id' => 0, // TODO: institution specific keys like: GUTSCHRIFT, ABSCHLUSS, MONATSABSCHLUSS etc
             'category_type' => $transaction["additionalInformation"], // TODO: institution specific keys like: GUTSCHRIFT, ABSCHLUSS, MONATSABSCHLUSS etc
             'date' => $transaction["bookingDate"],
-            'description' => array_key_exists('bank_remittanceInformationStructured', $transaction) ? $transaction["bank_remittanceInformationStructured"] : array_key_exists('bank_remittanceInformationStructuredArray', $transaction) ? implode($transaction["bank_remittanceInformationStructured"], '\r\n') : '',
+            'description' => array_key_exists('bank_remittanceInformationStructured', $transaction) ? $transaction["bank_remittanceInformationStructured"] : (array_key_exists('bank_remittanceInformationStructuredArray', $transaction) ? implode($transaction["bank_remittanceInformationStructured"], '\r\n') : ''),
             // 'description' => `IBAN: ${elem . json["bank_debtorAccount"] && elem . json["bank_debtorAccount"]["iban"] ? elem . json["bank_debtorAccount"]["iban"] : ' -'}\nVerwendungszweck: ${elem . json["bank_remittanceInformationStructured"] || ' -'}\nName: ${elem . json["bank_debtorName"] || ' -'}`, // 2 fields to get data from (structured and structuredArray (have to be joined))
             // TODO: debitor name & iban & bic
             'base_type' => (int) $transaction["transactionAmount"]["amount"] > 0 ? 'DEBIT' : 'CREDIT',

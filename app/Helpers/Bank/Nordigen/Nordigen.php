@@ -29,13 +29,11 @@ class Nordigen
 
     public function __construct(string $secret_id, string $secret_key)
     {
-
         $this->test_mode = config('ninja.nordigen.test_mode');
 
         $this->client = new \Nordigen\NordigenPHP\API\NordigenClient($secret_id, $secret_key);
 
         $this->client->createAccessToken(); // access_token is valid 24h -> so we dont have to implement a refresh-cycle
-
     }
 
     // metadata-section for frontend
@@ -64,22 +62,26 @@ class Nordigen
     // TODO: return null on not found
     public function getAccount(string $account_id)
     {
+        try {
+            $out = new \stdClass();
 
-        $out = new \stdClass();
+            $out->data = $this->client->account($account_id)->getAccountDetails()["account"];
+            $out->metadata = $this->client->account($account_id)->getAccountMetaData();
+            $out->balances = $this->client->account($account_id)->getAccountBalances()["balances"];
+            $out->institution = $this->client->institution->getInstitution($out->metadata["institution_id"]);
 
-        $out->data = $this->client->account($account_id)->getAccountDetails()["account"];
-        $out->metadata = $this->client->account($account_id)->getAccountMetaData();
-        $out->balances = $this->client->account($account_id)->getAccountBalances()["balances"];
-        $out->institution = $this->client->institution->getInstitution($out->metadata["institution_id"]);
+            $it = new AccountTransformer();
+            return $it->transform($out);
+        } catch (\Exception $e) {
+            if (strpos($e->getMessage(), "Invalid Account ID") !== false)
+                return null;
 
-        $it = new AccountTransformer();
-        return $it->transform($out);
-
+            throw $e;
+        }
     }
 
     public function isAccountActive(string $account_id)
     {
-
         try {
             $account = $this->client->account($account_id)->getAccountMetaData();
 
@@ -88,10 +90,11 @@ class Nordigen
 
             return true;
         } catch (\Exception $e) {
-            // TODO: check for not-found exception
-            return false;
-        }
+            if (strpos($e->getMessage(), "Invalid Account ID") !== false)
+                return false;
 
+            throw $e;
+        }
     }
 
     /**
@@ -100,11 +103,9 @@ class Nordigen
      */
     public function getTransactions(string $accountId, string $dateFrom = null)
     {
-
         $transactionResponse = $this->client->account($accountId)->getAccountTransactions($dateFrom);
 
         $it = new TransactionTransformer();
         return $it->transform($transactionResponse);
-
     }
 }

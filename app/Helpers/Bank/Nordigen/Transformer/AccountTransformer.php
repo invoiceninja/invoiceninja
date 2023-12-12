@@ -102,7 +102,7 @@ class AccountTransformer implements AccountTransformerInterface
         }
 
         return [
-            'id' => 'nordigen:' . $nordigen_account->metadata["id"],
+            'id' => $nordigen_account->metadata["id"],
             'account_type' => "bank",
             'account_name' => $nordigen_account->data["iban"],
             'account_status' => $nordigen_account->metadata["status"],

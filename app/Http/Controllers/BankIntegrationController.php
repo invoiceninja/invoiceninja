@@ -270,7 +270,7 @@ class BankIntegrationController extends BaseController
 
         $nordigen = ($account->bank_integration_nordigen_secret_id && $account->bank_integration_nordigen_secret_key) ? new Nordigen($account->bank_integration_nordigen_secret_id, $account->bank_integration_nordigen_secret_key) : new Nordigen(config('ninja.nordigen.secret_id'), config('ninja.nordigen.secret_key'));
 
-        BankIntegration::withTrashed()->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->each(function (BankIntegration $bank_integration) use ($nordigen) {
+        BankIntegration::withTrashed()->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->whereNotNull('nordigen_account_id')->each(function (BankIntegration $bank_integration) use ($nordigen) {
             $account = $nordigen->getAccount($bank_integration->nordigen_account_id);
 
             if (!$account) {
@@ -280,6 +280,7 @@ class BankIntegrationController extends BaseController
                 return;
             }
 
+            $bank_integration->disabled_upstream = false;
             $bank_integration->bank_account_status = $account['account_status'];
             $bank_integration->balance = $account['current_balance'];
             $bank_integration->currency = $account['account_currency'];
