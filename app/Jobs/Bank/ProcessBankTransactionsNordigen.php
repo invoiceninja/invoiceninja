@@ -24,6 +24,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Log;
 
 class ProcessBankTransactionsNordigen implements ShouldQueue
 {
@@ -141,9 +142,9 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
 
         $this->nordigen_account = $this->nordigen->getAccount($this->bank_integration->nordigen_account_id);
 
+        $this->bank_integration->disabled_upstream = false;
         $this->bank_integration->bank_account_status = $this->nordigen_account['account_status'];
         $this->bank_integration->balance = $this->nordigen_account['current_balance'];
-        $this->bank_integration->currency = $this->nordigen_account['account_currency'];
 
         $this->bank_integration->save();
 
@@ -154,6 +155,8 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
 
         //Get transaction count object
         $transactions = $this->nordigen->getTransactions($this->bank_integration->nordigen_account_id, $this->from_date);
+
+        Log::Info($transactions);
 
         //Get int count
         $count = sizeof($transactions);
@@ -179,6 +182,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
         BankTransaction::unguard();
 
         $now = now();
+
 
         foreach ($transactions as $transaction) {
 

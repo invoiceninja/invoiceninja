@@ -178,7 +178,7 @@ class NordigenController extends BaseController
 
             $nordigen_account = $nordigen->getAccount($nordigenAccountId);
 
-            $existing_bank_integration = BankIntegration::where('bank_account_id', $nordigen_account['id'])->where('company_id', $company->id)->first();
+            $existing_bank_integration = BankIntegration::where('nordigen_account_id', $nordigen_account['id'])->where('company_id', $company->id)->first();
 
             if (!$existing_bank_integration) {
 
@@ -199,7 +199,7 @@ class NordigenController extends BaseController
                 $bank_integration->currency = $nordigen_account['account_currency'];
                 $bank_integration->disabled_upstream = false;
                 $bank_integration->auto_sync = true;
-                $bank_integration->from_date = now()->subYear();
+                $bank_integration->from_date = now()->subDays(90); // default max-fetch interval of nortigen is 90 days
 
                 $bank_integration->save();
 
@@ -212,6 +212,7 @@ class NordigenController extends BaseController
                 $existing_bank_integration->bank_account_status = $account['account_status'];
                 $existing_bank_integration->disabled_upstream = false;
                 $existing_bank_integration->auto_sync = true;
+                $bank_integration->from_date = now()->subDays(90); // default max-fetch interval of nortigen is 90 days
 
                 $existing_bank_integration->save();
 

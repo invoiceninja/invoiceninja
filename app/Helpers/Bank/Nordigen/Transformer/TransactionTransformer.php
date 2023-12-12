@@ -68,8 +68,6 @@ class TransactionTransformer implements BankRevenueInterface
 
     public function transform($transactionResponse)
     {
-
-        Log::info($transactionResponse);
         $data = [];
 
         if (!array_key_exists('transactions', $transactionResponse) || !array_key_exists('booked', $transactionResponse["transactions"]))
