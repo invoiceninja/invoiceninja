@@ -189,22 +189,22 @@ class QuoteItemExport extends BaseExport
             }
         }
 
-        return $entity;
-        // return $this->decorateAdvancedFields($quote, $entity);
+        // return $entity;
+        return $this->decorateAdvancedFields($quote, $entity);
     }
     private function decorateAdvancedFields(Quote $quote, array $entity) :array
     {
-        if (in_array('currency_id', $this->input['report_keys'])) {
-            $entity['currency'] = $quote->client->currency() ? $quote->client->currency()->code : $quote->company->currency()->code;
-        }
+        // if (in_array('currency_id', $this->input['report_keys'])) {
+        //     $entity['currency'] = $quote->client->currency() ? $quote->client->currency()->code : $quote->company->currency()->code;
+        // }
 
-        if (in_array('client_id', $this->input['report_keys'])) {
-            $entity['client'] = $quote->client->present()->name();
-        }
+        // if (in_array('client_id', $this->input['report_keys'])) {
+        //     $entity['client'] = $quote->client->present()->name();
+        // }
 
-        if (in_array('status_id', $this->input['report_keys'])) {
-            $entity['status'] = $quote->stringStatus($quote->status_id);
-        }
+        // if (in_array('status_id', $this->input['report_keys'])) {
+        //     $entity['status'] = $quote->stringStatus($quote->status_id);
+        // }
         
         if (in_array('quote.assigned_user_id', $this->input['report_keys'])) {
             $entity['quote.assigned_user_id'] = $quote->assigned_user ? $quote->assigned_user->present()->name(): '';

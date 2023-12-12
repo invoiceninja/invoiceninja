@@ -30,7 +30,7 @@
 
 @push('footer')
 
-<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&currency={!! $currency !!}&merchant-id={!! $merchantId !!}&components=buttons,funding-eligibility&intent=capture"  data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
+<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&currency={!! $currency !!}&merchant-id={!! $merchantId !!}&components=buttons,funding-eligibility&intent=capture&enable-funding={!! $funding_source !!}"  data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
 <div id="paypal-button-container"></div>
 <script>
 
@@ -67,7 +67,13 @@
             document.getElementById("server_response").submit();
         }
     
-    }).render('#paypal-button-container');
+    }).render('#paypal-button-container').catch(function(err) {
+        
+      document.getElementById('errors').textContent = err;
+      document.getElementById('errors').hidden = false;
+        
+    });
+    
 </script>
 
 @endpush

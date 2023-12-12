@@ -28,13 +28,13 @@
 @endsection
 
 @push('footer')
-<script src="https://www.paypal.com/sdk/js?enable-funding={!! $funding_options !!}&disable-funding=credit&components=buttons,hosted-fields,funding-eligibility&intent=capture&client-id={!! $client_id !!}" data-client-token="{!! $token !!}">
+<script src="https://www.paypal.com/sdk/js?enable-funding={!! $funding_options !!}&disable-funding=credit&components=buttons,hosted-fields,funding-eligibility&intent=capture&client-id={!! $client_id !!}&buyer-country=US&currency=USD" data-client-token="{!! $token !!}">
 </script>
 
 <script>
 
     paypal.Buttons({ 
-    
+    fundingSource: "{{ $funding_options }}",
     env: "{{ $gateway->company_gateway->getConfigField('testMode') ? 'sandbox' : 'production' }}",
     client: {
         @if($gateway->company_gateway->getConfigField('testMode'))
@@ -60,7 +60,12 @@
           console.log(err);
     }
     
-    }).render('#paypal-button-container');
+    }).render('#paypal-button-container').catch(function(err) {
+        
+      document.getElementById('errors').textContent = err;
+      document.getElementById('errors').hidden = false;
+        
+    })
 
 
 

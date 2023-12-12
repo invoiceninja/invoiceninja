@@ -49,7 +49,7 @@ class StoreSchedulerRequest extends Request
             'parameters.entity_id' => ['bail', 'sometimes', 'string'],
             'parameters.report_name' => ['bail','sometimes', 'string', 'required_if:template,email_report','in:ar_detailed,ar_summary,client_balance,tax_summary,profitloss,client_sales,user_sales,product_sales,activity,client,contact,client_contact,credit,document,expense,invoice,invoice_item,quote,quote_item,recurring_invoice,payment,product,task'],
             'parameters.date_key' => ['bail','sometimes', 'string'],
-            'parameters.status' => ['bail','sometimes', 'string', 'in:all,draft,paid,unpaid,overdue'],
+            'parameters.status' => ['bail','sometimes', 'string'],
         ];
 
         return $rules;
@@ -71,6 +71,14 @@ class StoreSchedulerRequest extends Request
             $input['parameters']['clients'] = [];
         }
         
+        if(isset($input['parameters']['status'])) {
+
+            $input['parameters']['status'] = collect(explode(",", $input['parameters']['status']))
+                                                    ->filter(function($status) {
+                                                        return in_array($status, ['all','draft','paid','unpaid','overdue']);
+                                                    })->implode(",") ?? '';
+        }
+
         $this->replace($input);
     }
 }

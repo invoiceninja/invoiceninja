@@ -173,8 +173,8 @@ class PurchaseOrderExport extends BaseExport
 
             
         }
-        return $entity;
-        // return $this->decorateAdvancedFields($purchase_order, $entity);
+        // return $entity;
+        return $this->decorateAdvancedFields($purchase_order, $entity);
     }
 
     private function decorateAdvancedFields(PurchaseOrder $purchase_order, array $entity) :array
@@ -194,6 +194,15 @@ class PurchaseOrderExport extends BaseExport
         if (in_array('purchase_order.status', $this->input['report_keys'])) {
             $entity['purchase_order.status'] = $purchase_order->stringStatus($purchase_order->status_id);
         }
+
+        if (in_array('purchase_order.user_id', $this->input['report_keys'])) {
+            $entity['purchase_order.user_id'] = $purchase_order->user ? $purchase_order->user->present()->name() : '';
+        }
+
+        if (in_array('purchase_order.assigned_user_id', $this->input['report_keys'])) {
+            $entity['purchase_order.assigned_user_id'] = $purchase_order->assigned_user ? $purchase_order->assigned_user->present()->name() : '';
+        }
+
 
         return $entity;
     }
