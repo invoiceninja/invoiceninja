@@ -40,4 +40,14 @@ class ImportRequest extends Request
             'bank_integration_id' => 'bail|required_with:column_map.bank_transaction|min:2'
         ];
     }
+
+    public function prepareForValidation()
+    {
+        $input = $this->all();
+
+        if(!isset($input['column_map']['bank_transaction']) && array_key_exists('bank_integration_id',$input)) 
+            unset($input['bank_integration_id']);
+
+        $this->replace($input);
+    }
 }
