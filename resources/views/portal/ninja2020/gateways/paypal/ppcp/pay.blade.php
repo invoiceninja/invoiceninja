@@ -67,7 +67,13 @@
             document.getElementById("server_response").submit();
         }
     
-    }).render('#paypal-button-container');
+    }).render('#paypal-button-container').catch(function(err) {
+        
+      document.getElementById('errors').textContent = err;
+      document.getElementById('errors').hidden = false;
+        
+    });
+    
 </script>
 
 @endpush

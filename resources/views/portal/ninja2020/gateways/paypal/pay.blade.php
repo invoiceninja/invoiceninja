@@ -34,7 +34,6 @@
 <script>
 
     paypal.Buttons({ 
-    
     env: "{{ $gateway->company_gateway->getConfigField('testMode') ? 'sandbox' : 'production' }}",
     client: {
         @if($gateway->company_gateway->getConfigField('testMode'))
@@ -60,7 +59,12 @@
           console.log(err);
     }
     
-    }).render('#paypal-button-container');
+    }).render('#paypal-button-container').catch(function(err) {
+        
+      document.getElementById('errors').textContent = err;
+      document.getElementById('errors').hidden = false;
+        
+    })
 
 
 
