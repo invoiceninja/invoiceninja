@@ -31,6 +31,12 @@ return new class extends Migration {
             $table->renameColumn('bank_integration_account_id', 'bank_integration_yodlee_account_id');
         });
 
+        // MAYBE migration of account->bank_account_id etc
+        Schema::table('bank_transactions', function (Blueprint $table) {
+            $table->string('debitor')->nullable(); // iban, credit-card info or else
+            $table->string('debitor_name')->nullable(); // name
+        });
+
     }
 
     /**

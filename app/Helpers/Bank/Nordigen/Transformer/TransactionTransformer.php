@@ -105,8 +105,8 @@ class TransactionTransformer implements BankRevenueInterface
             'category_type' => array_key_exists('additionalInformation', $transaction) ? $transaction["additionalInformation"] : '', // TODO: institution specific keys like: GUTSCHRIFT, ABSCHLUSS, MONATSABSCHLUSS etc
             'date' => $transaction["bookingDate"],
             'description' => $description,
-            // 'description' => `IBAN: ${elem . json["bank_debtorAccount"] && elem . json["bank_debtorAccount"]["iban"] ? elem . json["bank_debtorAccount"]["iban"] : ' -'}\nVerwendungszweck: ${elem . json["bank_remittanceInformationStructured"] || ' -'}\nName: ${elem . json["bank_debtorName"] || ' -'}`, // 2 fields to get data from (structured and structuredArray (have to be joined))
-            // TODO: debitor name & iban & bic
+            'debitor' => array_key_exists('debtorAccount', $transaction) && array_key_exists('iban', $transaction["debtorAccount"]) ? $transaction['debtorAccount']['iban'] : null,
+            'debitor_name' => array_key_exists('debtorName', $transaction) ? $transaction['debtorName'] : null,
             'base_type' => (int) $transaction["transactionAmount"]["amount"] <= 0 ? 'DEBIT' : 'CREDIT',
         ];
 
