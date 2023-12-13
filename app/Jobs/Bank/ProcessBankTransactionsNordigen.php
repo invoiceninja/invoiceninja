@@ -30,7 +30,6 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private Account $account;
     private BankIntegration $bank_integration;
     private string $secret_id;
     private string $secret_key;
@@ -48,9 +47,8 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(Account $account, BankIntegration $bank_integration)
+    public function __construct(BankIntegration $bank_integration)
     {
-        $this->account = $account;
         $this->bank_integration = $bank_integration;
         $this->from_date = $bank_integration->from_date;
         $this->company = $this->bank_integration->company;
@@ -68,18 +66,10 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
         if ($this->bank_integration->integration_type != BankIntegration::INTEGRATION_TYPE_NORDIGEN)
             throw new \Exception("Invalid BankIntegration Type");
 
-        if (!(($this->account->bank_integration_nordigen_secret_id && $this->account->bank_integration_nordigen_secret_key) || (config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key'))))
+        if (!(config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key')))
             throw new \Exception("Missing credentials for bank_integration service nortigen");
 
-        if ($this->account->bank_integration_nordigen_secret_id && $this->account->bank_integration_nordigen_secret_key) {
-            $this->secret_id = $this->account->bank_integration_nordigen_secret_id;
-            $this->secret_key = $this->account->bank_integration_nordigen_secret_key;
-        } else {
-            $this->secret_id = config('ninja.nordigen.secret_id');
-            $this->secret_key = config('ninja.nordigen.secret_key');
-        }
-
-        $this->nordigen = new Nordigen($this->secret_id, $this->secret_key);
+        $this->nordigen = new Nordigen();
 
         set_time_limit(0);
 

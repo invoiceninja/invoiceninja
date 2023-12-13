@@ -9,15 +9,18 @@
  * @license https://www.elastic.co/licensing/elastic-license
  *
  * Documentation of Api-Usage: https://developer.gocardless.com/bank-account-data/overview
+ *
+ * Institutions: Are Banks or Payment-Providers, which manages bankaccounts.
+ *
+ * Accounts: Accounts are existing bank_accounts at a specific institution.
+ *
+ * Requisitions: Are registered/active user-flows to authenticate one or many accounts. After completition, the accoundId could be used to fetch data for this account. After the access expires, the user could create a new requisition to connect accounts again.
  */
 
 namespace App\Helpers\Bank\Nordigen;
 
-use App\Exceptions\NordigenApiException;
 use App\Helpers\Bank\Nordigen\Transformer\AccountTransformer;
 use App\Helpers\Bank\Nordigen\Transformer\TransactionTransformer;
-use Log;
-use Nordigen\NordigenPHP\Exceptions\NordigenExceptions\NordigenException;
 
 class Nordigen
 {
@@ -27,11 +30,14 @@ class Nordigen
 
     protected \Nordigen\NordigenPHP\API\NordigenClient $client;
 
-    public function __construct(string $secret_id, string $secret_key)
+    public function __construct()
     {
         $this->test_mode = config('ninja.nordigen.test_mode');
 
-        $this->client = new \Nordigen\NordigenPHP\API\NordigenClient($secret_id, $secret_key);
+        if (!(config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key')))
+            throw new \Exception('missing nordigen credentials');
+
+        $this->client = new \Nordigen\NordigenPHP\API\NordigenClient(config('ninja.nordigen.secret_id'), config('ninja.nordigen.secret_key'));
 
         $this->client->createAccessToken(); // access_token is valid 24h -> so we dont have to implement a refresh-cycle
     }
@@ -51,7 +57,7 @@ class Nordigen
         if ($this->test_mode && $initutionId != $this->sandbox_institutionId)
             throw new \Exception('invalid institutionId while in test-mode');
 
-        return $this->client->requisition->createRequisition($redirect, $initutionId, null, $reference); // we dont reuse existing requisitions, to prevent double usage of them. see: deleteAccount
+        return $this->client->requisition->createRequisition($redirect, $initutionId, null, $reference);
     }
 
     public function getRequisition(string $requisitionId)

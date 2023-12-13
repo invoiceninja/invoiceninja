@@ -29,8 +29,6 @@ return new class extends Migration {
         // MAYBE migration of account->bank_account_id etc
         Schema::table('accounts', function (Blueprint $table) {
             $table->renameColumn('bank_integration_account_id', 'bank_integration_yodlee_account_id');
-            $table->string('bank_integration_nordigen_secret_id')->nullable();
-            $table->string('bank_integration_nordigen_secret_key')->nullable();
         });
 
     }

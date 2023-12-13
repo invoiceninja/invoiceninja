@@ -70,8 +70,6 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $account_sms_verification_number
  * @property bool $account_sms_verified
  * @property string|null $bank_integration_yodlee_account_id
- * @property string|null $bank_integration_nordigen_secret_id
- * @property string|null $bank_integration_nordigen_secret_key
  * @property int $is_trial
  * @property-read int|null $bank_integrations_count
  * @property-read int|null $companies_count
@@ -128,8 +126,6 @@ class Account extends BaseModel
         'platform',
         'set_react_as_default_ap',
         'inapp_transaction_id',
-        'bank_integration_nordigen_secret_id',
-        'bank_integration_nordigen_secret_key',
     ];
 
     protected $casts = [

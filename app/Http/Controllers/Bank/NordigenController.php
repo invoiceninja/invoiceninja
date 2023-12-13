@@ -18,6 +18,7 @@ use App\Http\Requests\Nordigen\ConnectNordigenBankIntegrationRequest;
 use App\Jobs\Bank\ProcessBankTransactionsNordigen;
 use App\Models\BankIntegration;
 use App\Models\Company;
+use App\Utils\Ninja;
 use Cache;
 use Illuminate\Http\Request;
 use Log;
@@ -37,10 +38,13 @@ class NordigenController extends BaseController
         $company = $request->getCompany();
         $account = $company->account;
 
-        if (!(($account->bank_integration_nordigen_secret_id && $account->bank_integration_nordigen_secret_key) || (config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key'))))
+        if (!(config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key')))
             return response()->redirectTo($data["redirect"] . "?action=nordigen_connect&status=failed&reason=account-config-invalid");
 
-        $nordigen = ($account->bank_integration_nordigen_secret_id && $account->bank_integration_nordigen_secret_key) ? new Nordigen($account->bank_integration_nordigen_secret_id, $account->bank_integration_nordigen_secret_key) : new Nordigen(config('ninja.nordigen.secret_id'), config('ninja.nordigen.secret_key'));
+        if (!(Ninja::isSelfHost() || (Ninja::isHosted() && $account->isPaid() && $account->plan == 'enterprise')))
+            return response()->redirectTo($context["redirect"] . "?action=nordigen_connect&status=failed&reason=not-available");
+
+        $nordigen = new Nordigen();
 
         // show bank_selection_screen, when institution_id is not present
         if (!array_key_exists("institution_id", $data)) {
@@ -157,11 +161,14 @@ class NordigenController extends BaseController
         $company = Company::where('company_key', $context["company_key"])->firstOrFail();
         $account = $company->account;
 
-        if (!(($account->bank_integration_nordigen_secret_id && $account->bank_integration_nordigen_secret_key) || (config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key'))))
+        if (!(config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key')))
             return response()->redirectTo($context["redirect"] . "?action=nordigen_connect&status=failed&reason=account-config-invalid");
 
+        if (!(Ninja::isSelfHost() || (Ninja::isHosted() && $account->isPaid() && $account->plan == 'enterprise')))
+            return response()->redirectTo($context["redirect"] . "?action=nordigen_connect&status=failed&reason=not-available");
+
         // fetch requisition
-        $nordigen = ($account->bank_integration_nordigen_secret_id && $account->bank_integration_nordigen_secret_key) ? new Nordigen($account->bank_integration_nordigen_secret_id, $account->bank_integration_nordigen_secret_key) : new Nordigen(config('ninja.nordigen.secret_id'), config('ninja.nordigen.secret_key'));
+        $nordigen = new Nordigen();
         $requisition = $nordigen->getRequisition($context["requisitionId"]);
 
         // check validity of requisition
@@ -222,9 +229,9 @@ class NordigenController extends BaseController
         }
 
         // perform update in background
-        $company->account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->where('auto_sync', true)->each(function ($bank_integration) use ($company) {
+        $company->account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->where('auto_sync', true)->each(function ($bank_integration) {
 
-            ProcessBankTransactionsNordigen::dispatch($company->account, $bank_integration);
+            ProcessBankTransactionsNordigen::dispatch($bank_integration);
 
         });
 
@@ -304,10 +311,10 @@ class NordigenController extends BaseController
     {
         $account = auth()->user()->account;
 
-        if (!(($account->bank_integration_nordigen_secret_id && $account->bank_integration_nordigen_secret_key) || (config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key'))))
+        if (!(config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key')))
             return response()->json(['message' => 'Not yet authenticated with Nordigen Bank Integration service'], 400);
 
-        $nordigen = ($account->bank_integration_nordigen_secret_id && $account->bank_integration_nordigen_secret_key) ? new Nordigen($account->bank_integration_nordigen_secret_id, $account->bank_integration_nordigen_secret_key) : new Nordigen(config('ninja.nordigen.secret_id'), config('ninja.nordigen.secret_key'));
+        $nordigen = new Nordigen();
         return response()->json($nordigen->getInstitutions());
     }
 
