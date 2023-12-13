@@ -344,7 +344,7 @@ class BankIntegrationController extends BaseController
             });
         }
 
-        if (config("ninja.nortigen.secret_id") && config("ninja.nortigen.secret_key") && (Ninja::isSelfHost() || (Ninja::isHosted() && $account->isPaid() && $account->plan == 'enterprise'))) {
+        if (config("ninja.nordigen.secret_id") && config("ninja.nordigen.secret_key") && (Ninja::isSelfHost() || (Ninja::isHosted() && $account->isPaid() && $account->plan == 'enterprise'))) {
             $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_NORDIGEN)->where('auto_sync', true)->cursor()->each(function ($bank_integration) {
                 (new ProcessBankTransactionsNordigen($bank_integration))->handle();
             });

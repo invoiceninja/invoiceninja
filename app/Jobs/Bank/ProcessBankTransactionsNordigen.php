@@ -67,7 +67,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
             throw new \Exception("Invalid BankIntegration Type");
 
         if (!(config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key')))
-            throw new \Exception("Missing credentials for bank_integration service nortigen");
+            throw new \Exception("Missing credentials for bank_integration service nordigen");
 
         $this->nordigen = new Nordigen();
 

@@ -63,7 +63,7 @@ class BankTransactionSync implements ShouldQueue
                 });
             }
 
-            if (config("ninja.nortigen.secret_id") && config("ninja.nortigen.secret_key")) { // @turbo124 check condition, when to execute this should be placed here (isSelfHosted || isPro/isEnterprise)
+            if (config("ninja.nordigen.secret_id") && config("ninja.nordigen.secret_key")) { // @turbo124 check condition, when to execute this should be placed here (isSelfHosted || isPro/isEnterprise)
                 nlog("syncing transactions - nordigen");
 
                 Account::with('bank_integrations')->cursor()->each(function ($account) {
