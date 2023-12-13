@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -143,8 +142,8 @@ class PayPalPPCPPaymentDriver extends BaseDriver
     public function init(): self
     {
 
-        // $this->api_endpoint_url = 'https://api-m.paypal.com';
-        $this->api_endpoint_url = 'https://api-m.sandbox.paypal.com';
+        $this->api_endpoint_url = 'https://api-m.paypal.com';
+        // $this->api_endpoint_url = 'https://api-m.sandbox.paypal.com';
         $secret = config('ninja.paypal.secret');
         $client_id = config('ninja.paypal.client_id');
 
@@ -539,7 +538,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
     public function processWebhookRequest(Request $request)
     {
         
-        nlog(json_encode($request->all()));
+        // nlog(json_encode($request->all()));
         $this->init();
 
         PayPalWebhook::dispatch($request->all(), $request->headers->all(), $this->access_token);

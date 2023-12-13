@@ -50,7 +50,7 @@ class PayPalWebhook implements ShouldQueue
     public function handle()
     {
         //testing
-        $this->endpoint = $this->test_endpoint;
+        // $this->endpoint = $this->test_endpoint;
 
         //this can cause problems verifying the webhook, so unset it if it exists
         if(isset($this->webhook_request['q']))
@@ -230,6 +230,7 @@ class PayPalWebhook implements ShouldQueue
                     'merchant_id' => $merchant_id,
                 ]);
             }
+
         }
 
     }
