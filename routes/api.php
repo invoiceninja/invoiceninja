@@ -400,7 +400,9 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::get('statics', StaticController::class);
     // Route::post('apple_pay/upload_file','ApplyPayController::class, 'upload');
 
-    Route::post('api/v1/yodlee/status/{account_number}', [YodleeController::class, 'accountStatus']);
+    Route::post('api/v1/yodlee/status/{account_number}', [YodleeController::class, 'accountStatus']); // @todo @turbo124 check route-path?!
+
+    Route::get('nordigen/institutions', [NordigenController::class, 'institutions'])->name('nordigen.institutions');
 });
 
 Route::post('api/v1/sms_reset', [TwilioController::class, 'generate2faResetCode'])->name('sms_reset.generate')->middleware('throttle:10,1');
@@ -426,9 +428,6 @@ Route::post('api/v1/yodlee/refresh', [YodleeController::class, 'refreshWebhook']
 Route::post('api/v1/yodlee/data_updates', [YodleeController::class, 'dataUpdatesWebhook'])->middleware('throttle:100,1');
 Route::post('api/v1/yodlee/refresh_updates', [YodleeController::class, 'refreshUpdatesWebhook'])->middleware('throttle:100,1');
 Route::post('api/v1/yodlee/balance', [YodleeController::class, 'balanceWebhook'])->middleware('throttle:100,1');
-
-Route::get('api/v1/nordigen/institutions', [NordigenController::class, 'institutions'])->middleware('throttle:100,1')->middleware('token_auth')->name('nordigen_institutions');
-Route::any('api/v1/nordigen/confirm', [NordigenController::class, 'confirm'])->middleware('throttle:100,1')->name('nordigen_callback');
 
 Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::class, 'index'])->name('protected_download')->middleware('throttle:300,1');
 

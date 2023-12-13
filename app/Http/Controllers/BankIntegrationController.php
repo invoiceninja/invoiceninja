@@ -200,12 +200,12 @@ class BankIntegrationController extends BaseController
 
         $user_account = $user->account;
 
-        // if (Cache::get("throttle_polling:{$user_account->key}")) // @todo uncomment for PR
-        //     return response()->json(BankIntegration::query()->company(), 200);
-
         $this->refreshAccountsYodlee($user);
 
         $this->refreshAccountsNordigen($user);
+
+        if (Cache::get("throttle_polling:{$user_account->key}"))
+            return response()->json(BankIntegration::query()->company(), 200);
 
         // Processing transactions for each bank account
         if (Ninja::isHosted() && $user->account->bank_integration_account_id)

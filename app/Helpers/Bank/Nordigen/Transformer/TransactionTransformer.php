@@ -88,10 +88,10 @@ class TransactionTransformer implements BankRevenueInterface
 
         // description could be in varios places
         $description = '';
-        if (array_key_exists('bank_remittanceInformationStructured', $transaction))
-            $description = $transaction["bank_remittanceInformationStructured"];
-        else if (array_key_exists('bank_remittanceInformationStructuredArray', $transaction))
-            $description = implode($transaction["bank_remittanceInformationStructured"], '\r\n');
+        if (array_key_exists('remittanceInformationStructured', $transaction))
+            $description = $transaction["remittanceInformationStructured"];
+        else if (array_key_exists('remittanceInformationStructuredArray', $transaction))
+            $description = implode(' \r\n', $transaction["remittanceInformationStructuredArray"]);
         else if (array_key_exists('remittanceInformationUnstructured', $transaction))
             $description = $transaction["remittanceInformationUnstructured"];
         else
