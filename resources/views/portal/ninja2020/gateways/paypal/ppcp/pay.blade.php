@@ -53,11 +53,9 @@
                 return actions.restart();
             }
 
-            // return actions.order.capture().then(function(details) {
                 document.getElementById("gateway_response").value =JSON.stringify( data );
-                // document.getElementById("gateway_response").value =JSON.stringify( details );
                 document.getElementById("server_response").submit();
-            // });           
+
         },
         onCancel: function() {
             window.location.href = "/client/invoices/";
@@ -65,6 +63,9 @@
         onError: function(error) {
             document.getElementById("gateway_response").value = error;
             document.getElementById("server_response").submit();
+        },
+        onClick: function (){
+            document.getElementById('paypal-button-container').hidden = true;
         }
     
     }).render('#paypal-button-container').catch(function(err) {

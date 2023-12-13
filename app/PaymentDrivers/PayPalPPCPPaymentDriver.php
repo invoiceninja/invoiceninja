@@ -443,7 +443,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
         $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
 
-        nlog($r->json());
+        // nlog($r->json());
 
         return $r->json()['id'];
 
@@ -499,8 +499,8 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                 ->withHeaders($this->getHeaders($headers))
                 ->{$verb}("{$this->api_endpoint_url}{$uri}", $data);
 
-        nlog($r);
-        nlog($r->json());
+        // nlog($r);
+        // nlog($r->json());
 
         if($r->successful()) {
             return $r;
@@ -538,8 +538,8 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
     public function processWebhookRequest(Request $request)
     {
-        // nlog($request->all());
-        // nlog($request->headers->all());
+        
+        nlog(json_encode($request->all()));
         $this->init();
 
         PayPalWebhook::dispatch($request->all(), $request->headers->all(), $this->access_token);

@@ -39,12 +39,22 @@ class PayPalWebhook implements ShouldQueue
 
     private $gateway_key = '80af24a6a691230bbec33e930ab40666';
 
+    private string $test_endpoint = 'https://api-m.sandbox.paypal.com';
+
+    private string $endpoint = 'https://api-m.paypal.com';
+
     public function __construct(protected array $webhook_request, protected array $headers, protected string $access_token)
     {
     }
 
     public function handle()
     {
+        //testing
+        $this->endpoint = $this->test_endpoint;
+
+        //this can cause problems verifying the webhook, so unset it if it exists
+        if(isset($this->webhook_request['q']))
+            unset($this->webhook_request['q']);
 
         if($this->verifyWebhook()) {
             nlog('verified');
@@ -53,9 +63,10 @@ class PayPalWebhook implements ShouldQueue
                 'CHECKOUT.ORDER.COMPLETED' => $this->checkoutOrderCompleted(),
             };
 
-
+            return;
         }
 
+        nlog(" NOT VERIFIED ");
     }
   /*
   'id' => 'WH-COC11055RA711503B-4YM959094A144403T',
@@ -293,27 +304,26 @@ class PayPalWebhook implements ShouldQueue
 
     //--------------------------------------------------------------------------------------//
     private function verifyWebhook(): bool
-    {
+    {nlog($this->headers);
         $request = [
-            'auth_algo' => $this->headers['paypal-auth-algo'],
-            'cert_url' => $this->headers['paypal-cert-url'],
-            'transmission_id' => $this->headers['paypal-transmission-id'],
-            'transmission_sig' => $this->headers['paypal-transmission-sig'],
-            'transmission_time' => $this->headers['paypal-transmission-time'],
+            'auth_algo' => $this->headers['paypal-auth-algo'][0],
+            'cert_url' => $this->headers['paypal-cert-url'][0],
+            'transmission_id' => $this->headers['paypal-transmission-id'][0],
+            'transmission_sig' => $this->headers['paypal-transmission-sig'][0],
+            'transmission_time' => $this->headers['paypal-transmission-time'][0],
             'webhook_id' => config('ninja.paypal.webhook_id'),
-            'webhook_event' => $this->webhook_request,
+            'webhook_event' =>  $this->webhook_request
         ];
 
+        nlog($request);
+
         $headers = [
-            'Accept' => 'application/json',
             'Content-type' => 'application/json',
-            'Accept-Language' => 'en_US',
-            'PayPal-Partner-Attribution-Id' => 'invoiceninja_SP_PPCP',
         ];
 
         $r = Http::withToken($this->access_token)
         ->withHeaders($headers)
-        ->post("https://api-m.paypal.com/v1/notifications/verify-webhook-signature", $request);
+        ->post("{$this->endpoint}/v1/notifications/verify-webhook-signature", $request);
 
         nlog($r);
         nlog($r->json());
