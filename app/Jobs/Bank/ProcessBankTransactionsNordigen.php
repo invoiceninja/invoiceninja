@@ -31,8 +31,6 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private BankIntegration $bank_integration;
-    private string $secret_id;
-    private string $secret_key;
 
     private ?string $from_date;
 
@@ -80,7 +78,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
         try {
             $this->updateAccount();
         } catch (\Exception $e) {
-            nlog("{$this->secret_id} - exited abnormally => " . $e->getMessage());
+            nlog("{$this->bank_integration->account->key} - exited abnormally => " . $e->getMessage());
 
             $content = [
                 "Processing transactions for account: {$this->bank_integration->account->key} failed",
@@ -89,7 +87,8 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
             ];
 
             $this->bank_integration->company->notification(new GenericNinjaAdminNotification($content))->ninja();
-            return;
+
+            throw $e;
         }
         if (!$this->nordigen_account)
             return;
@@ -100,7 +99,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
             try {
                 $this->processTransactions();
             } catch (\Exception $e) {
-                nlog("{$this->secret_id} - exited abnormally => " . $e->getMessage());
+                nlog("{$this->bank_integration->account->key} - exited abnormally => " . $e->getMessage());
 
                 $content = [
                     "Processing transactions for account: {$this->bank_integration->account->key} failed",
@@ -109,7 +108,8 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
                 ];
 
                 $this->bank_integration->company->notification(new GenericNinjaAdminNotification($content))->ninja();
-                return;
+
+                throw $e;
             }
 
         }
@@ -122,10 +122,12 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
     private function updateAccount()
     {
 
+        Log::info("try to execute updateAccount");
         if (!$this->nordigen->isAccountActive($this->bank_integration->nordigen_account_id)) {
             $this->bank_integration->disabled_upstream = true;
             $this->bank_integration->save();
             $this->stop_loop = false;
+            Log::info("account inactive");
             // @turbo124 @todo send email for expired account
             return;
         }
@@ -176,7 +178,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
 
         foreach ($transactions as $transaction) {
 
-            if (BankTransaction::where('transaction_id', $transaction['transaction_id'])->where('company_id', $this->company->id)->withTrashed()->exists())
+            if (BankTransaction::where('transaction_id', $transaction['transaction_id'])->where('company_id', $this->company->id)->where('bank_integration_id', $this->bank_integration->id)->withTrashed()->exists())
                 continue;
 
             //this should be much faster to insert than using ::create()

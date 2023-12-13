@@ -21,6 +21,7 @@ namespace App\Helpers\Bank\Nordigen;
 
 use App\Helpers\Bank\Nordigen\Transformer\AccountTransformer;
 use App\Helpers\Bank\Nordigen\Transformer\TransactionTransformer;
+use Log;
 
 class Nordigen
 {
@@ -110,6 +111,8 @@ class Nordigen
     public function getTransactions(string $accountId, string $dateFrom = null)
     {
         $transactionResponse = $this->client->account($accountId)->getAccountTransactions($dateFrom);
+
+        Log::info($transactionResponse);
 
         $it = new TransactionTransformer();
         return $it->transform($transactionResponse);

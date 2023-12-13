@@ -86,17 +86,28 @@ class TransactionTransformer implements BankRevenueInterface
         if (!array_key_exists('transactionId', $transaction) || !array_key_exists('transactionAmount', $transaction))
             throw new \Exception('invalid dataset');
 
+        // description could be in varios places
+        $description = '';
+        if (array_key_exists('bank_remittanceInformationStructured', $transaction))
+            $description = $transaction["bank_remittanceInformationStructured"];
+        else if (array_key_exists('bank_remittanceInformationStructuredArray', $transaction))
+            $description = implode($transaction["bank_remittanceInformationStructured"], '\r\n');
+        else if (array_key_exists('remittanceInformationUnstructured', $transaction))
+            $description = $transaction["remittanceInformationUnstructured"];
+        else
+            Log::warning("Missing description for the following transaction: " . json_encode($transaction));
+
         return [
-            'transaction_id' => 'nordigen:' . $transaction["transactionId"],
+            'transaction_id' => $transaction["transactionId"],
             'amount' => abs((int) $transaction["transactionAmount"]["amount"]),
             'currency_id' => $this->convertCurrency($transaction["transactionAmount"]["currency"]),
             'category_id' => 0, // TODO: institution specific keys like: GUTSCHRIFT, ABSCHLUSS, MONATSABSCHLUSS etc
-            'category_type' => $transaction["additionalInformation"], // TODO: institution specific keys like: GUTSCHRIFT, ABSCHLUSS, MONATSABSCHLUSS etc
+            'category_type' => array_key_exists('additionalInformation', $transaction) ? $transaction["additionalInformation"] : '', // TODO: institution specific keys like: GUTSCHRIFT, ABSCHLUSS, MONATSABSCHLUSS etc
             'date' => $transaction["bookingDate"],
-            'description' => array_key_exists('bank_remittanceInformationStructured', $transaction) ? $transaction["bank_remittanceInformationStructured"] : (array_key_exists('bank_remittanceInformationStructuredArray', $transaction) ? implode($transaction["bank_remittanceInformationStructured"], '\r\n') : ''),
+            'description' => $description,
             // 'description' => `IBAN: ${elem . json["bank_debtorAccount"] && elem . json["bank_debtorAccount"]["iban"] ? elem . json["bank_debtorAccount"]["iban"] : ' -'}\nVerwendungszweck: ${elem . json["bank_remittanceInformationStructured"] || ' -'}\nName: ${elem . json["bank_debtorName"] || ' -'}`, // 2 fields to get data from (structured and structuredArray (have to be joined))
             // TODO: debitor name & iban & bic
-            'base_type' => (int) $transaction["transactionAmount"]["amount"] > 0 ? 'DEBIT' : 'CREDIT',
+            'base_type' => (int) $transaction["transactionAmount"]["amount"] <= 0 ? 'DEBIT' : 'CREDIT',
         ];
 
     }

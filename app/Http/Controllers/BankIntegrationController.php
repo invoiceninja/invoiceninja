@@ -35,6 +35,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
+use Log;
 
 class BankIntegrationController extends BaseController
 {
@@ -199,12 +200,12 @@ class BankIntegrationController extends BaseController
 
         $user_account = $user->account;
 
+        // if (Cache::get("throttle_polling:{$user_account->key}")) // @todo uncomment for PR
+        //     return response()->json(BankIntegration::query()->company(), 200);
+
         $this->refreshAccountsYodlee($user);
 
         $this->refreshAccountsNordigen($user);
-
-        if (Cache::get("throttle_polling:{$user_account->key}"))
-            return response()->json(BankIntegration::query()->company(), 200);
 
         // Processing transactions for each bank account
         if (Ninja::isHosted() && $user->account->bank_integration_yodlee_account_id)
@@ -346,6 +347,8 @@ class BankIntegrationController extends BaseController
 
         if (config("ninja.nordigen.secret_id") && config("ninja.nordigen.secret_key") && (Ninja::isSelfHost() || (Ninja::isHosted() && $account->isPaid() && $account->plan == 'enterprise'))) {
             $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_NORDIGEN)->where('auto_sync', true)->cursor()->each(function ($bank_integration) {
+                Log::info($bank_integration);
+
                 (new ProcessBankTransactionsNordigen($bank_integration))->handle();
             });
         }
