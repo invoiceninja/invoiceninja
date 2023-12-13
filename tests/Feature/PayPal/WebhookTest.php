@@ -90,7 +90,7 @@ class WebhookTest extends TestCase
         $payment_hash->save();
 
 
-        $driver = $company_gateway->driver($this->client)->init();
+        $driver = $company_gateway->driver($this->client);
         $driver->setPaymentHash($payment_hash);
 
         $source = 'paypal';
