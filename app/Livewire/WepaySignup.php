@@ -10,7 +10,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
 
 use App\DataMapper\FeesAndLimits;
 use App\Factory\CompanyGatewayFactory;

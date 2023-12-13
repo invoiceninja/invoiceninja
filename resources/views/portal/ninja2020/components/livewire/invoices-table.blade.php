@@ -2,7 +2,7 @@
     <div class="flex items-center justify-between">
         <div class="flex items-center">
             <span class="hidden mr-2 text-sm md:block">{{ ctrans('texts.per_page') }}</span>
-            <select wire:model="per_page" class="py-1 text-sm form-select">
+            <select wire:model.live="per_page" class="py-1 text-sm form-select">
                 <option>5</option>
                 <option selected>10</option>
                 <option>15</option>
@@ -11,15 +11,15 @@
         </div>
         <div class="flex items-center">
             <div class="mr-3">
-                <input wire:model="status" value="paid" type="checkbox" class="cursor-pointer form-checkbox" id="paid-checkbox">
+                <input wire:model.live="status" value="paid" type="checkbox" class="cursor-pointer form-checkbox" id="paid-checkbox">
                 <label for="paid-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.status_paid') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:model="status" value="unpaid" type="checkbox" class="cursor-pointer form-checkbox" id="unpaid-checkbox">
+                <input wire:model.live="status" value="unpaid" type="checkbox" class="cursor-pointer form-checkbox" id="unpaid-checkbox">
                 <label for="unpaid-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.status_unpaid') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:model="status" value="overdue" type="checkbox" class="cursor-pointer form-checkbox" id="overdue-checkbox">
+                <input wire:model.live="status" value="overdue" type="checkbox" class="cursor-pointer form-checkbox" id="overdue-checkbox">
                 <label for="overdue-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.past_due') }}</label>
             </div>
         </div>

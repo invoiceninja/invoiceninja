@@ -9,7 +9,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
 
 use App\DataMapper\ClientSettings;
 use App\Factory\ClientFactory;
@@ -411,7 +411,7 @@ class BillingPortalPurchase extends Component
             'campaign' => $this->campaign,
         ], now()->addMinutes(60));
 
-        $this->emit('beforePaymentEventsCompleted');
+        $this->dispatch('beforePaymentEventsCompleted');
     }
 
     /**

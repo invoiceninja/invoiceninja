@@ -10,7 +10,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Http\Livewire\Profile\Settings;
+namespace App\Livewire\Profile\Settings;
 
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;

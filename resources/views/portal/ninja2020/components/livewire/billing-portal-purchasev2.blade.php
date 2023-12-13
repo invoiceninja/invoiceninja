@@ -30,7 +30,7 @@
             </div>
             @endif
 
-            <form wire:submit.prevent="submit">
+            <form wire:submit="submit">
             <!-- Recurring Plan Products-->
             <ul role="list" class="-my-6 divide-y divide-gray-200">
             @if(!empty($subscription->recurring_product_ids))
@@ -62,7 +62,7 @@
                                 @else
                                 <p class="text-sm font-light text-gray-700 text-right mr-2 mt-2">{{ ctrans('texts.qty') }}</p>
                                 @endif
-                                <select wire:model.debounce.300ms="data.{{ $index }}.recurring_qty" class="rounded-md border-gray-300 shadow-sm sm:text-sm" 
+                                <select wire:model.live.debounce.300ms="data.{{ $index }}.recurring_qty" class="rounded-md border-gray-300 shadow-sm sm:text-sm" 
                                     @if($subscription->use_inventory_management && $product->in_stock_quantity == 0)
                                     disabled 
                                     @endif
@@ -164,7 +164,7 @@
                                     @else
                                     <p class="text-sm font-light text-gray-700 text-right mr-2 mt-2">{{ ctrans('texts.qty') }}</p>
                                     @endif
-                                    <select wire:model.debounce.300ms="data.{{ $index }}.optional_recurring_qty" class="rounded-md border-gray-300 shadow-sm sm:text-sm" 
+                                    <select wire:model.live.debounce.300ms="data.{{ $index }}.optional_recurring_qty" class="rounded-md border-gray-300 shadow-sm sm:text-sm" 
                                         @if($subscription->use_inventory_management && $product->in_stock_quantity == 0)
                                         disabled 
                                         @endif
@@ -210,7 +210,7 @@
                                     @else
                                     <p class="text-sm font-light text-gray-700 text-right mr-2 mt-2">{{ ctrans('texts.qty') }}</p>
                                     @endif
-                                    <select wire:model.debounce.300ms="data.{{ $index }}.optional_qty" class="rounded-md border-gray-300 shadow-sm sm:text-sm">
+                                    <select wire:model.live.debounce.300ms="data.{{ $index }}.optional_qty" class="rounded-md border-gray-300 shadow-sm sm:text-sm">
                                         <option value="0" selected="selected">0</option>
                                         @for ($i = 1; $i <= ($subscription->use_inventory_management ? min($product->in_stock_quantity, min(100,$product->max_quantity)) : min(100,$product->max_quantity)); $i++)
                                         <option value="{{$i}}">{{$i}}</option>
@@ -250,7 +250,7 @@
                 @endforeach
 
                 @if(!empty($subscription->promo_code) && !$subscription->trial_enabled)
-                    <form wire:submit.prevent="handleCoupon" class="">
+                    <form wire:submit="handleCoupon" class="">
                     @csrf
                         <div class="mt-4">
                           <label for="coupon" class="block text-sm font-medium text-white">{{ ctrans('texts.promo_code') }}</label>
@@ -258,7 +258,7 @@
                             <div class="relative flex flex-grow items-stretch focus-within:z-10">
                               <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                               </div>
-                              <input type="text" wire:model.defer="coupon" class="block w-full rounded-none rounded-l-md border-gray-300 pl-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-700" placeholder="">
+                              <input type="text" wire:model="coupon" class="block w-full rounded-none rounded-l-md border-gray-300 pl-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-700" placeholder="">
                             </div>
                             <button class="relative -ml-px inline-flex items-center space-x-2 rounded-r-md border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
                               
@@ -305,7 +305,7 @@
                         <span>{{ $total }}</span>
                     </div>
 
-                    <div class="mx-auto text-center mt-20 content-center" x-data="{open: @entangle('payment_started'), toggle: @entangle('payment_confirmed'), buttonDisabled: false}" x-show.important="open" x-transition>
+                    <div class="mx-auto text-center mt-20 content-center" x-data="{open: @entangle('payment_started').live, toggle: @entangle('payment_confirmed').live, buttonDisabled: false}" x-show.important="open" x-transition>
                     <h2 class="text-2xl font-bold tracking-wide border-b-2 pb-4">{{ $heading_text ?? ctrans('texts.checkout') }}</h2>
                         @if (session()->has('message'))
                             @component('portal.ninja2020.components.message')
@@ -313,7 +313,7 @@
                             @endcomponent
                         @endif
                         @if($subscription->trial_enabled)
-                            <form wire:submit.prevent="handleTrial" class="mt-8">
+                            <form wire:submit="handleTrial" class="mt-8">
                             @csrf
                             <button class="relative -ml-px inline-flex items-center space-x-2 rounded border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
                             {{ ctrans('texts.trial_call_to_action') }}
@@ -331,7 +331,7 @@
                             @endforeach
                         </div>
                         @elseif(intval($float_amount_total) == 0)
-                            <form wire:submit.prevent="handlePaymentNotRequired" class="mt-8">
+                            <form wire:submit="handlePaymentNotRequired" class="mt-8">
                                 @csrf
                                 <button class="relative -ml-px inline-flex items-center space-x-2 rounded border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
                                     {{ ctrans('texts.click_to_continue') }}
@@ -358,7 +358,7 @@
                     </div>
 
                     @if(!$email || $errors->has('email'))
-                    <form wire:submit.prevent="handleEmail" class="">
+                    <form wire:submit="handleEmail" class="">
                     @csrf
                         <div class="mt-4">
                           <label for="email" class="block text-sm font-medium text-white">{{ ctrans('texts.email') }}</label>
@@ -366,7 +366,7 @@
                             <div class="relative flex flex-grow items-stretch focus-within:z-10">
                               <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                               </div>
-                              <input type="text" wire:model.defer="email" class="block w-full rounded-none rounded-l-md border-gray-300 pl-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-700" placeholder="">
+                              <input type="text" wire:model="email" class="block w-full rounded-none rounded-l-md border-gray-300 pl-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-700" placeholder="">
                             </div>
                             <button class="relative -ml-px inline-flex items-center space-x-2 rounded-r-md border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
                               
@@ -388,7 +388,7 @@
                         <p class="w-full p-2">{{ ctrans('texts.otp_code_message', ['email' => $email])}}</p>
                     </div>
                     <div class="pb-6 px-6 w-80 mx-auto text-center">
-                        <form wire:submit.prevent="handleLogin" class="" x-data="otpForm()">
+                        <form wire:submit="handleLogin" class="" x-data="otpForm()">
                             <p class="mb-4"></p>
                             <div class="flex justify-between">
                               <template x-for="(input, index) in length" :key="index">

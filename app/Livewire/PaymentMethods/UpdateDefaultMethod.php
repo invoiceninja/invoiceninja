@@ -10,7 +10,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Http\Livewire\PaymentMethods;
+namespace App\Livewire\PaymentMethods;
 
 use App\Libraries\MultiDB;
 use Livewire\Component;
@@ -46,7 +46,7 @@ class UpdateDefaultMethod extends Component
         $this->token->is_default = 1;
         $this->token->save();
 
-        $this->emit('UpdateDefaultMethod::method-updated');
+        $this->dispatch('UpdateDefaultMethod::method-updated');
     }
 
     public function render()

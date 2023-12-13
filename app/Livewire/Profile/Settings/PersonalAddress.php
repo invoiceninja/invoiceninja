@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire\Profile\Settings;
+namespace App\Livewire\Profile\Settings;
 
 use Livewire\Component;
 

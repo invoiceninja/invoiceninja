@@ -33,7 +33,7 @@
                 </div>
             </div>
             @endif
-            <div @click.away="open = false" class="ml-3 relative" x-data="{ open: false }">
+            <div @click.outside="open = false" class="ml-3 relative" x-data="{ open: false }">
                 <div>
                     <button data-ref="client-profile-dropdown" @click="open = !open"
                             class="max-w-xs flex items-center text-sm rounded-full focus:outline-none focus:ring">
