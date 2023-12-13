@@ -60,7 +60,7 @@ class UpdateCreditRequest extends Request
             $rules['file'] = $this->file_validation;
         }
 
-        $rules['number'] = ['bail', 'sometimes', Rule::unique('credits')->where('company_id', $user->company()->id)->ignore($this->credit->id)];
+        $rules['number'] = ['bail', 'sometimes', 'nullable', Rule::unique('credits')->where('company_id', $user->company()->id)->ignore($this->credit->id)];
         
         $rules['client_id'] = ['bail', 'sometimes',Rule::in([$this->credit->client_id])];
 

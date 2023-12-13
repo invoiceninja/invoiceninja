@@ -445,17 +445,11 @@ class SchedulerTest extends TestCase
         ];
 
         $response = false;
-
-        try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/task_schedulers', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-        }
-
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $data);
+        
         $response->assertStatus(200);
 
         $data = $response->json();
@@ -509,19 +503,13 @@ class SchedulerTest extends TestCase
 
         $response = false;
 
-        try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/task_schedulers', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-        }
-
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $data);
+        
         $response->assertStatus(200);
-
-
+        
         $data = [
             'name' => 'A single Client',
             'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
