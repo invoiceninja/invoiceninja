@@ -88,8 +88,8 @@ class MatchBankTransactions implements ShouldQueue
 
         $this->company = Company::query()->find($this->company_id);
 
-        if ($this->company->account->bank_integration_yodlee_account_id) {
-            $yodlee = new Yodlee($this->company->account->bank_integration_yodlee_account_id);
+        if ($this->company->account->bank_integration_account_id) {
+            $yodlee = new Yodlee($this->company->account->bank_integration_account_id);
         } else {
             $yodlee = false;
         }

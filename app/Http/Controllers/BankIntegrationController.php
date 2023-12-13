@@ -208,7 +208,7 @@ class BankIntegrationController extends BaseController
         $this->refreshAccountsNordigen($user);
 
         // Processing transactions for each bank account
-        if (Ninja::isHosted() && $user->account->bank_integration_yodlee_account_id)
+        if (Ninja::isHosted() && $user->account->bank_integration_account_id)
             $user_account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_YODLEE)->where('auto_sync', true)->each(function ($bank_integration) use ($user_account) {
 
                 ProcessBankTransactionsYodlee::dispatch($user_account, $bank_integration);
@@ -229,10 +229,10 @@ class BankIntegrationController extends BaseController
 
     private function refreshAccountsYodlee(User $user)
     {
-        if (!$user->account->bank_integration_yodlee_account_id)
+        if (!$user->account->bank_integration_account_id)
             return;
 
-        $yodlee = new Yodlee($user->account->bank_integration_yodlee_account_id);
+        $yodlee = new Yodlee($user->account->bank_integration_account_id);
 
         $accounts = $yodlee->getAccounts();
 
@@ -319,11 +319,11 @@ class BankIntegrationController extends BaseController
 
     private function removeAccountYodlee(Account $account, BankIntegration $bank_integration)
     {
-        if (!$account->bank_integration_yodlee_account_id) {
+        if (!$account->bank_integration_account_id) {
             return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
         }
 
-        $yodlee = new Yodlee($account->bank_integration_yodlee_account_id);
+        $yodlee = new Yodlee($account->bank_integration_account_id);
         $yodlee->deleteAccount($bank_integration->bank_account_id);
     }
 

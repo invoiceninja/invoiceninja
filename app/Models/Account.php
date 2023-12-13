@@ -69,7 +69,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $account_sms_verification_code
  * @property string|null $account_sms_verification_number
  * @property bool $account_sms_verified
- * @property string|null $bank_integration_yodlee_account_id
+ * @property string|null $bank_integration_account_id
  * @property int $is_trial
  * @property-read int|null $bank_integrations_count
  * @property-read int|null $companies_count

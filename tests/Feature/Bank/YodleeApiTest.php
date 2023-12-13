@@ -75,7 +75,7 @@ class YodleeApiTest extends TestCase
 
     public function testIncomeMatchingAndPaymentGeneration()
     {
-        $this->account->bank_integration_yodlee_account_id = 'sbMem62e1e69547bfb2';
+        $this->account->bank_integration_account_id = 'sbMem62e1e69547bfb2';
         $this->account->save();
 
         $invoice = Invoice::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);

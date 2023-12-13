@@ -77,7 +77,7 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
             try {
                 $this->processTransactions();
             } catch (\Exception $e) {
-                nlog("{$this->account->bank_integration_yodlee_account_id} - exited abnormally => " . $e->getMessage());
+                nlog("{$this->account->bank_integration_account_id} - exited abnormally => " . $e->getMessage());
 
                 $content = [
                     "Processing transactions for account: {$this->bank_integration->account->key} failed",
@@ -97,7 +97,7 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
     private function processTransactions()
     {
 
-        $yodlee = new Yodlee($this->account->bank_integration_yodlee_account_id);
+        $yodlee = new Yodlee($this->account->bank_integration_account_id);
 
         if (!$yodlee->getAccount($this->bank_integration->bank_account_id)) {
             $this->bank_integration->disabled_upstream = true;
@@ -193,7 +193,7 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
 
     public function middleware()
     {
-        return [new WithoutOverlapping($this->account->bank_integration_yodlee_account_id)];
+        return [new WithoutOverlapping($this->account->bank_integration_account_id)];
     }
 
     public function backoff()

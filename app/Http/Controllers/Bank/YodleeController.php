@@ -29,10 +29,10 @@ class YodleeController extends BaseController
 
         $company = $request->getCompany();
 
-        if ($company->account->bank_integration_yodlee_account_id) {
+        if ($company->account->bank_integration_account_id) {
             $flow = 'edit';
 
-            $token = $company->account->bank_integration_yodlee_account_id;
+            $token = $company->account->bank_integration_account_id;
         } else {
             $flow = 'add';
 
@@ -40,7 +40,7 @@ class YodleeController extends BaseController
 
             $token = $response->user->loginName;
 
-            $company->account->bank_integration_yodlee_account_id = $token;
+            $company->account->bank_integration_account_id = $token;
 
             $company->push();
         }
@@ -301,7 +301,7 @@ class YodleeController extends BaseController
             return response()->json(['message' => 'Account does not exist.'], 400);
         }
 
-        $yodlee = new Yodlee($user->account->bank_integration_yodlee_account_id);
+        $yodlee = new Yodlee($user->account->bank_integration_account_id);
 
         $summary = $yodlee->getAccountSummary($account_number);
 
