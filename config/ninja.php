@@ -219,8 +219,8 @@ return [
         'config_name' => env("YODLEE_CONFIG_NAME", false),
     ],
     'nordigen' => [
-        'client_id' => env('NORDIGEN_SECRET_ID', false),
-        'client_secret' => env('NORDIGEN_SECRET_KEY', false),
+        'secret_id' => env('NORDIGEN_SECRET_ID', false),
+        'secret_key' => env('NORDIGEN_SECRET_KEY', false),
         'test_mode' => env("NORDIGEN_TEST_MODE", false),
     ],
     'licenses' => env('LICENSES', false),
