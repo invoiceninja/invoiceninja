@@ -65,7 +65,6 @@
 
         <!-- Scripts -->
         @vite('resources/js/app.js')
-        {{-- <script src="{{ asset('vendor/alpinejs@2.8.2/alpine.js') }}" defer></script> --}}
 
         <!-- Fonts -->
         <style>
