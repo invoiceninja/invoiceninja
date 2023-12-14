@@ -388,6 +388,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     // Route::post('hooks', [SubscriptionController::class, 'subscribe'])->name('hooks.subscribe');
     // Route::delete('hooks/{subscription_id}', [SubscriptionController::class, 'unsubscribe'])->name('hooks.unsubscribe');
 
+
     Route::post('stripe/update_payment_methods', [StripeController::class, 'update'])->middleware('password_protected')->name('stripe.update');
     Route::post('stripe/import_customers', [StripeController::class, 'import'])->middleware('password_protected')->name('stripe.import');
 
@@ -415,6 +416,7 @@ Route::match(['get', 'post'], 'payment_notification_webhook/{company_key}/{compa
 
 Route::post('api/v1/postmark_webhook', [PostMarkController::class, 'webhook'])->middleware('throttle:1000,1');
 Route::post('api/v1/postmark_inbound_webhook', [PostMarkController::class, 'inboundWebhook'])->middleware('throttle:1000,1');
+Route::post('api/v1/mailgun_inbound_webhook', [MailgunController::class, 'inboundWebhook'])->middleware('throttle:1000,1');
 Route::get('token_hash_router', [OneTimeTokenController::class, 'router'])->middleware('throttle:500,1');
 Route::get('webcron', [WebCronController::class, 'index'])->middleware('throttle:100,1');
 Route::post('api/v1/get_migration_account', [HostedMigrationController::class, 'getAccount'])->middleware('guest')->middleware('throttle:100,1');

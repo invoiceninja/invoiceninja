@@ -15,12 +15,11 @@ use Ddeboer\Imap\MessageInterface;
 use Ddeboer\Imap\Server;
 use Ddeboer\Imap\SearchExpression;
 use Ddeboer\Imap\Search\Date\Since;
-use Ddeboer\Imap\Search\Flag\Unflagged;
 
 /**
- * GmailTransport.
+ * TODO
  */
-class ImapMailbox
+class Pop3Mailbox implements BaseMailbox
 {
     private $server;
     public $connection;
@@ -42,10 +41,6 @@ class ImapMailbox
         $today = new \DateTimeImmutable();
         $thirtyDaysAgo = $today->sub(new \DateInterval('P30D'));
         $search->addCondition(new Since($thirtyDaysAgo));
-
-        // not flagged with IN-PARSED
-        $search->addCondition(new Unflagged());
-
 
         return $mailbox->getMessages($search);
     }

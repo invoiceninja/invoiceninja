@@ -17,7 +17,7 @@ use App\Events\Expense\ExpenseWasCreated;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Events\Payment\PaymentWasEmailedAndFailed;
 use App\Factory\ExpenseFactory;
-use App\Helpers\Mail\ImapMailbox;
+use App\Helpers\Mail\Mailbox\Imap\ImapMailbox;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\Google\Google;
 use App\Libraries\MultiDB;
