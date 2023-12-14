@@ -120,7 +120,7 @@ Route::group(['middleware' => ['throttle:api', 'api_secret_check']], function ()
     Route::post('api/v1/oauth_login', [LoginController::class, 'oauthApiLogin']);
 });
 
-Route::group(['middleware' => ['throttle:login','api_secret_check','email_db']], function () {
+Route::group(['middleware' => ['throttle:login', 'api_secret_check', 'email_db']], function () {
     Route::post('api/v1/login', [LoginController::class, 'apiLogin'])->name('login.submit');
     Route::post('api/v1/reset_password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 });
@@ -324,7 +324,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('reports/user_sales_report', UserSalesReportController::class);
     Route::post('reports/preview/{hash}', ReportPreviewController::class);
     Route::post('exports/preview/{hash}', ReportExportController::class);
-    
+
     Route::post('templates/preview/{hash}', TemplatePreviewController::class);
     Route::post('search', SearchController::class);
 
@@ -414,6 +414,7 @@ Route::match(['get', 'post'], 'payment_notification_webhook/{company_key}/{compa
     ->name('payment_notification_webhook');
 
 Route::post('api/v1/postmark_webhook', [PostMarkController::class, 'webhook'])->middleware('throttle:1000,1');
+Route::post('api/v1/postmark_inbound_webhook', [PostMarkController::class, 'inboundWebhook'])->middleware('throttle:1000,1');
 Route::get('token_hash_router', [OneTimeTokenController::class, 'router'])->middleware('throttle:500,1');
 Route::get('webcron', [WebCronController::class, 'index'])->middleware('throttle:100,1');
 Route::post('api/v1/get_migration_account', [HostedMigrationController::class, 'getAccount'])->middleware('guest')->middleware('throttle:100,1');
