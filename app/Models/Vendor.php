@@ -54,6 +54,8 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $id_number
  * @property string|null $language_id
  * @property int|null $last_login
+ * @property string|null $expense_sender_email
+ * @property string|null $expense_sender_domain
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
  * @property-read int|null $activities_count
  * @property-read \App\Models\User|null $assigned_user
@@ -115,6 +117,8 @@ class Vendor extends BaseModel
         'number',
         'language_id',
         'classification',
+        'expense_sender_email',
+        'expense_sender_domain',
     ];
 
     protected $casts = [
@@ -169,11 +173,11 @@ class Vendor extends BaseModel
     {
         $currencies = Cache::get('currencies');
 
-        if (! $currencies) {
+        if (!$currencies) {
             $this->buildCache(true);
         }
 
-        if (! $this->currency_id) {
+        if (!$this->currency_id) {
             return $this->company->currency();
         }
 
@@ -205,18 +209,18 @@ class Vendor extends BaseModel
         return ctrans('texts.vendor');
     }
 
-    public function setCompanyDefaults($data, $entity_name) :array
+    public function setCompanyDefaults($data, $entity_name): array
     {
         $defaults = [];
 
-        if (! (array_key_exists('terms', $data) && strlen($data['terms']) > 1)) {
-            $defaults['terms'] = $this->getSetting($entity_name.'_terms');
+        if (!(array_key_exists('terms', $data) && strlen($data['terms']) > 1)) {
+            $defaults['terms'] = $this->getSetting($entity_name . '_terms');
         } elseif (array_key_exists('terms', $data)) {
             $defaults['terms'] = $data['terms'];
         }
 
-        if (! (array_key_exists('footer', $data) && strlen($data['footer']) > 1)) {
-            $defaults['footer'] = $this->getSetting($entity_name.'_footer');
+        if (!(array_key_exists('footer', $data) && strlen($data['footer']) > 1)) {
+            $defaults['footer'] = $this->getSetting($entity_name . '_footer');
         } elseif (array_key_exists('footer', $data)) {
             $defaults['footer'] = $data['footer'];
         }
@@ -245,7 +249,7 @@ class Vendor extends BaseModel
         return '';
     }
 
-    public function getMergedSettings() :object
+    public function getMergedSettings(): object
     {
         return $this->company->settings;
     }
@@ -254,7 +258,7 @@ class Vendor extends BaseModel
     {
         $contact_key = $invitation->contact->contact_key;
 
-        return $this->company->company_key.'/'.$this->vendor_hash.'/'.$contact_key.'/purchase_orders/';
+        return $this->company->company_key . '/' . $this->vendor_hash . '/' . $contact_key . '/purchase_orders/';
     }
 
     public function locale(): string
@@ -277,9 +281,9 @@ class Vendor extends BaseModel
         return $this->company->date_format();
     }
 
-    public function backup_path() :string
+    public function backup_path(): string
     {
-        return $this->company->company_key.'/'.$this->vendor_hash.'/backups';
+        return $this->company->company_key . '/' . $this->vendor_hash . '/backups';
     }
 
     public function service()
