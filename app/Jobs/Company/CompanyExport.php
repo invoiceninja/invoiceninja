@@ -331,7 +331,8 @@ class CompanyExport implements ShouldQueue
             $task = $this->transformBasicEntities($task);
             $task = $this->transformArrayOfKeys($task, ['client_id', 'invoice_id', 'project_id', 'status_id']);
 
-            return $task->makeVisible(['id']);
+            return $task->makeHidden(['hash','meta'])->makeVisible(['id']);
+// return $task->makeHidden(['hash','meta'])->makeVisible(['id']); //@release v5.7.63
         })->all();
 
         $this->export_data['task_statuses'] = $this->company->task_statuses->map(function ($status) {
