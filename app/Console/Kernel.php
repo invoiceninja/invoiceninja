@@ -18,6 +18,7 @@ use App\Jobs\Cron\SubscriptionCron;
 use App\Jobs\Cron\UpdateCalculatedFields;
 use App\Jobs\Invoice\InvoiceCheckLateWebhook;
 use App\Jobs\Mail\ExpenseImportJob;
+use App\Jobs\Mail\ExpenseMailboxJob;
 use App\Jobs\Ninja\AdjustEmailQuota;
 use App\Jobs\Ninja\BankTransactionSync;
 use App\Jobs\Ninja\CheckACHStatus;
@@ -97,6 +98,9 @@ class Kernel extends ConsoleKernel
 
         /* Fires webhooks for overdue Invoice */
         $schedule->job(new InvoiceCheckLateWebhook)->dailyAt('07:00')->withoutOverlapping()->name('invoice-overdue-job')->onOneServer();
+
+        /* Check ExpenseMainboxes */
+        $schedule->job(new ExpenseMailboxJob)->everyThirtyMinutes()->withoutOverlapping()->name('expense-mailboxes-job')->onOneServer();
 
         if (Ninja::isSelfHost()) {
             $schedule->call(function () {

@@ -17,7 +17,7 @@ use App\Events\Expense\ExpenseWasCreated;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Events\Payment\PaymentWasEmailedAndFailed;
 use App\Factory\ExpenseFactory;
-use App\Helpers\Mail\IncomingMailHandler;
+use App\Helpers\Mail\ImapMailbox;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\Google\Google;
 use App\Libraries\MultiDB;
@@ -46,7 +46,7 @@ use Turbo124\Beacon\Facades\LightLogs;
 
 /*Multi Mailer implemented*/
 
-class InboundExpensesJob implements ShouldQueue
+class ExpenseMailboxJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
 
@@ -63,7 +63,7 @@ class InboundExpensesJob implements ShouldQueue
 
         $this->getImapCredentials();
 
-        $this->expense_repo = new ExpenseRepository();
+        $this->expense_repo = new ExpenseRepository(); // @turbo124 @todo is this the right aproach? should it be handled just with the model?
     }
 
     public function handle()
@@ -73,20 +73,20 @@ class InboundExpensesJob implements ShouldQueue
         foreach (MultiDB::$dbs as $db) {
             MultiDB::setDB($db);
 
-            nlog("importing expenses from imap-servers");
+            if (sizeOf($this->imap_credentials) != 0) {
+                nlog("importing expenses from imap-servers");
 
-            Account::with('companies')->cursor()->each(function ($account) {
-                $account->companies()->whereIn('id', $this->imap_companies)->cursor()->each(function ($company) {
-                    $this->handleCompanyImap($company);
+                Company::whereIn('id', $this->imap_companies)->cursor()->each(function ($company) {
+                    $this->handleImapCompany($company);
                 });
-            });
+            }
         }
 
     }
 
     private function getImapCredentials()
     {
-        $servers = explode(",", config('ninja.imap_inbound_expense.servers'));
+        $servers = array_map('trim', explode(",", config('ninja.imap_inbound_expense.servers')));
         $ports = explode(",", config('ninja.imap_inbound_expense.servers'));
         $users = explode(",", config('ninja.imap_inbound_expense.servers'));
         $passwords = explode(",", config('ninja.imap_inbound_expense.servers'));
@@ -98,51 +98,59 @@ class InboundExpensesJob implements ShouldQueue
         foreach ($companies as $index => $companyId) {
             $this->imap_credentials[$companyId] = [
                 "server" => $servers[$index],
-                "port" => $servers[$index],
-                "user" => $servers[$index],
-                "password" => $servers[$index],
+                "port" => $ports[$index] != '' ? $ports[$index] : null,
+                "user" => $users[$index],
+                "password" => $passwords[$index],
             ];
             $this->imap_companies[] = $companyId;
         }
     }
 
-    private function handleCompanyImap(Company $company)
+    private function handleImapCompany(Company $company)
     {
+        nlog("importing expenses for company: " . $company->id);
+
         $credentials = $this->imap_credentials[$company->id];
+        $imapMailbox = new ImapMailbox($credentials->server, $credentials->port, $credentials->user, $credentials->password);
 
-        $incommingMails = new IncomingMailHandler($credentials->server, $credentials->port, $credentials->user, $credentials->password);
-
-        $emails = $incommingMails->getUnprocessedEmails();
+        $emails = $imapMailbox->getUnprocessedEmails();
 
         foreach ($emails as $mail) {
 
-            $sender = $mail->getSender();
+            try {
 
-            $vendor = Vendor::where('expense_sender_email', $sender)->orWhere($sender, 'LIKE', "CONCAT('%',expense_sender_domain)")->first();
+                $sender = $mail->getSender();
 
-            if ($vendor !== null)
-                $vendor = Vendor::where("email", $sender)->first();
+                $vendor = Vendor::where('expense_sender_email', $sender)->first();
+                if ($vendor == null)
+                    $vendor = Vendor::where($sender, 'LIKE', "CONCAT('%',expense_sender_domain)")->first();
+                if ($vendor == null)
+                    $vendor = Vendor::where("email", $sender)->first();
 
-            $documents = []; // TODO: $mail->getAttachments() + save email as document (.html)
+                $documents = []; // TODO: $mail->getAttachments() + save email as document (.html)
 
-            $data = [
-                "vendor_id" => $vendor !== null ? $vendor->id : null,
-                "date" => $mail->getDate(),
-                "public_notes" => $mail->getSubject(),
-                "private_notes" => $mail->getCompleteBodyText(),
-                "documents" => $documents, // FIXME: https://github.com/ddeboer/imap?tab=readme-ov-file#message-attachments
-            ];
+                $data = [
+                    "vendor_id" => $vendor !== null ? $vendor->id : null,
+                    "date" => $mail->getDate(),
+                    "public_notes" => $mail->getSubject(),
+                    "private_notes" => $mail->getCompleteBodyText(),
+                    "documents" => $documents, // FIXME: https://github.com/ddeboer/imap?tab=readme-ov-file#message-attachments
+                ];
 
-            $expense = $this->expense_repo->save($data, ExpenseFactory::create($company->company->id, $company->company->owner()->id)); // TODO: dont assign a new number at beginning
+                $expense = $this->expense_repo->save($data, ExpenseFactory::create($company->company->id, $company->company->owner()->id)); // TODO: dont assign a new number at beginning
 
-            // TODO: check for recurring expense?! => maybe replace existing ?!
+                event(new ExpenseWasCreated($expense, $expense->company, Ninja::eventVars(null)));
 
-            event(new ExpenseWasCreated($expense, $expense->company, Ninja::eventVars(null)));
+                event('eloquent.created: App\Models\Expense', $expense);
 
-            event('eloquent.created: App\Models\Expense', $expense);
+                $mail->markAsSeen();
+                $imapMailbox->moveProcessed($mail);
 
-            $mail->markAsSeen();
-            $incommingMails->moveProcessed($mail);
+            } catch (\Exception $e) {
+                $imapMailbox->moveFailed($mail);
+
+                nlog("processing of an email failed upnormally: " . $company->id . " message: " . $e->getMessage()); // @turbo124 @todo should this be handled in an other way?
+            }
 
         }
     }

@@ -20,13 +20,13 @@ use Ddeboer\Imap\Search\Flag\Unflagged;
 /**
  * GmailTransport.
  */
-class IncomingMailHandler
+class ImapMailbox
 {
     private $server;
     public $connection;
     public function __construct(string $server, string $port, string $user, string $password)
     {
-        $this->server = new Server($server, $port == '' ? null : $port);
+        $this->server = new Server($server, $port != '' ? $port : null);
 
         $this->connection = $this->server->authenticate($user, $password);
     }
@@ -53,5 +53,10 @@ class IncomingMailHandler
     public function moveProcessed(MessageInterface $mail)
     {
         return $mail->move($this->connection->getMailbox('PROCESSED'));
+    }
+
+    public function moveFailed(MessageInterface $mail)
+    {
+        return $mail->move($this->connection->getMailbox('FAILED'));
     }
 }
