@@ -50,7 +50,7 @@ class SetupController extends Controller
         }
 
         if (Ninja::isHosted()) {
-            // return redirect('/');
+            return redirect('/');
         }
 
         return view('setup.index', ['check' => $check]);
