@@ -9,7 +9,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Jobs\PostMark;
+namespace App\Jobs\Mailgun;
 
 use App\DataMapper\Analytics\Mail\EmailBounce;
 use App\DataMapper\Analytics\Mail\EmailSpam;
