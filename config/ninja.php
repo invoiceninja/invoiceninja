@@ -7,7 +7,7 @@ return [
     'license_url' => 'https://app.invoiceninja.com',
     'react_url' => env('REACT_URL', 'https://app.invoicing.co'),
     'production' => env('NINJA_PROD', false),
-    'license'   => env('NINJA_LICENSE', ''),
+    'license' => env('NINJA_LICENSE', ''),
     'version_url' => 'https://pdf.invoicing.co/api/version',
     'app_name' => env('APP_NAME', 'Invoice Ninja'),
     'app_env' => env('APP_ENV', 'selfhosted'),
@@ -86,7 +86,7 @@ return [
         'password' => 'password',
         'stripe' => env('STRIPE_KEYS', ''),
         'paypal' => env('PAYPAL_KEYS', ''),
-        'ppcp' =>  env('PPCP_KEYS', ''),
+        'ppcp' => env('PPCP_KEYS', ''),
         'paypal_rest' => env('PAYPAL_REST_KEYS', ''),
         'authorize' => env('AUTHORIZE_KEYS', ''),
         'checkout' => env('CHECKOUT_KEYS', ''),
@@ -196,7 +196,7 @@ return [
     'ninja_default_company_id' => env('NINJA_COMPANY_ID', null),
     'ninja_default_company_gateway_id' => env('NINJA_COMPANY_GATEWAY_ID', null),
     'ninja_hosted_secret' => env('NINJA_HOSTED_SECRET', ''),
-    'ninja_hosted_header' =>env('NINJA_HEADER', ''),
+    'ninja_hosted_header' => env('NINJA_HEADER', ''),
     'ninja_connect_secret' => env('NINJA_CONNECT_SECRET', ''),
     'internal_queue_enabled' => env('INTERNAL_QUEUE_ENABLED', true),
     'ninja_apple_api_key' => env('APPLE_API_KEY', false),
@@ -227,5 +227,12 @@ return [
     'paypal' => [
         'secret' => env('PAYPAL_SECRET', null),
         'client_id' => env('PAYPAL_CLIENT_ID', null),
+    ],
+    'imap_inbound_expense' => [
+        'servers' => env('IMAP_INBOUND_EXPENSE_SERVERS', ''),
+        'ports' => env('IMAP_INBOUND_EXPENSE_PORTS', ''),
+        'users' => env('IMAP_INBOUND_EXPENSE_USERS', ''),
+        'passwords' => env('IMAP_INBOUND_EXPENSE_PASSWORDS', ''),
+        'companies' => env('IMAP_INBOUND_EXPENSE_COMPANIES', ''),
     ]
 ];

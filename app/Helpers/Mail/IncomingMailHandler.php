@@ -24,9 +24,9 @@ class IncomingMailHandler
 {
     private $server;
     public $connection;
-    public function __construct(string $server, string $user, string $password)
+    public function __construct(string $server, string $port, string $user, string $password)
     {
-        $this->server = new Server($server);
+        $this->server = new Server($server, $port == '' ? null : $port);
 
         $this->connection = $this->server->authenticate($user, $password);
     }

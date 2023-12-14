@@ -46,30 +46,24 @@ use Turbo124\Beacon\Facades\LightLogs;
 
 /*Multi Mailer implemented*/
 
-class ExpenseImportJob implements ShouldQueue
+class InboundExpensesJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
 
     public $tries = 4; //number of retries
 
     public $deleteWhenMissingModels = true;
-
-    /** @var null|\App\Models\Company $company  **/
-    public Company $company;
-
+    private array $imap_companies;
+    private array $imap_credentials;
     private $expense_repo;
 
     public function __construct()
     {
+        $this->credentials = [];
+
+        $this->getImapCredentials();
 
         $this->expense_repo = new ExpenseRepository();
-    }
-
-    public function backoff()
-    {
-        // return [5, 10, 30, 240];
-        return [rand(5, 10), rand(30, 40), rand(60, 79), rand(160, 400)];
-
     }
 
     public function handle()
@@ -81,8 +75,8 @@ class ExpenseImportJob implements ShouldQueue
 
             nlog("importing expenses from imap-servers");
 
-            $a = Account::with('companies')->cursor()->each(function ($account) {
-                $account->companies()->where('expense_import', true)->whereNotNull('expense_mailbox_imap_host')->whereNotNull('expense_mailbox_imap_user')->whereNotNull('expense_mailbox_imap_password')->cursor()->each(function ($company) {
+            Account::with('companies')->cursor()->each(function ($account) {
+                $account->companies()->whereIn('id', $this->imap_companies)->cursor()->each(function ($company) {
                     $this->handleCompanyImap($company);
                 });
             });
@@ -90,9 +84,33 @@ class ExpenseImportJob implements ShouldQueue
 
     }
 
+    private function getImapCredentials()
+    {
+        $servers = explode(",", config('ninja.imap_inbound_expense.servers'));
+        $ports = explode(",", config('ninja.imap_inbound_expense.servers'));
+        $users = explode(",", config('ninja.imap_inbound_expense.servers'));
+        $passwords = explode(",", config('ninja.imap_inbound_expense.servers'));
+        $companies = explode(",", config('ninja.imap_inbound_expense.servers'));
+
+        if (sizeOf($servers) != sizeOf($ports) || sizeOf($servers) != sizeOf($users) || sizeOf($servers) != sizeOf($passwords) || sizeOf($servers) != sizeOf($companies))
+            throw new \Exception('invalid configuration imap_inbound_expenses (wrong element-count)');
+
+        foreach ($companies as $index => $companyId) {
+            $this->imap_credentials[$companyId] = [
+                "server" => $servers[$index],
+                "port" => $servers[$index],
+                "user" => $servers[$index],
+                "password" => $servers[$index],
+            ];
+            $this->imap_companies[] = $companyId;
+        }
+    }
+
     private function handleCompanyImap(Company $company)
     {
-        $incommingMails = new IncomingMailHandler($company->expense_mailbox_imap_host, $company->company->expense_mailbox_imap_user, $company->company->expense_mailbox_imap_password);
+        $credentials = $this->imap_credentials[$company->id];
+
+        $incommingMails = new IncomingMailHandler($credentials->server, $credentials->port, $credentials->user, $credentials->password);
 
         $emails = $incommingMails->getUnprocessedEmails();
 
@@ -100,18 +118,19 @@ class ExpenseImportJob implements ShouldQueue
 
             $sender = $mail->getSender();
 
-            $vendor = Vendor::where('expense_sender_email', $sender)->orWhere($sender, 'LIKE', "CONCAT('%',expense_sender_email)")->first();
+            $vendor = Vendor::where('expense_sender_email', $sender)->orWhere($sender, 'LIKE', "CONCAT('%',expense_sender_domain)")->first();
 
             if ($vendor !== null)
                 $vendor = Vendor::where("email", $sender)->first();
 
-            // TODO: check email for existing vendor?!
+            $documents = []; // TODO: $mail->getAttachments() + save email as document (.html)
+
             $data = [
                 "vendor_id" => $vendor !== null ? $vendor->id : null,
                 "date" => $mail->getDate(),
                 "public_notes" => $mail->getSubject(),
                 "private_notes" => $mail->getCompleteBodyText(),
-                "documents" => $mail->getAttachments(), // FIXME: https://github.com/ddeboer/imap?tab=readme-ov-file#message-attachments
+                "documents" => $documents, // FIXME: https://github.com/ddeboer/imap?tab=readme-ov-file#message-attachments
             ];
 
             $expense = $this->expense_repo->save($data, ExpenseFactory::create($company->company->id, $company->company->owner()->id)); // TODO: dont assign a new number at beginning
@@ -126,6 +145,13 @@ class ExpenseImportJob implements ShouldQueue
             $incommingMails->moveProcessed($mail);
 
         }
+    }
+
+    public function backoff()
+    {
+        // return [5, 10, 30, 240];
+        return [rand(5, 10), rand(30, 40), rand(60, 79), rand(160, 400)];
+
     }
 
 }
