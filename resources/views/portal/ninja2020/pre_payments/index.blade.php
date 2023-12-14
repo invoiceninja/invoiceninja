@@ -63,7 +63,7 @@
                             @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.number_of_payments')])
                                 <select name="remaining_cycles" class="form-select input w-full bg-white">
                                     <option value="-1">{{ ctrans('texts.pre_payment_indefinitely')}}</option>
-                                    @for($i = 1; $i < 60; $i++)
+                                    @for($i = 1; $i < 62; $i++)
                                     <option value={{$i}}  @if($i == 1) selected @endif>{{$i}}</option>
                                     @endfor
                                 </select>

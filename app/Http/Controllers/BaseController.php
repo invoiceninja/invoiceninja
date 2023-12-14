@@ -1091,7 +1091,7 @@ class BaseController extends Controller
      */
     public function flutterRoute()
     {
-        
+
         if ((bool) $this->checkAppSetup() !== false && $account = Account::first()) {
             
             /** @var \App\Models\Account $account */

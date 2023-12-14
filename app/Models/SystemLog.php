@@ -169,6 +169,8 @@ class SystemLog extends Model
     const TYPE_LOGIN_FAILURE = 801;
 
     const TYPE_GENERIC = 900;
+    
+    const TYPE_EASYMERCHANT = 901;
 
     protected $fillable = [
         'client_id',
@@ -303,6 +305,8 @@ class SystemLog extends Model
                 return "Payfast";
             case self::TYPE_FORTE:
                 return "Forte";
+            case self::TYPE_EASYMERCHANT:
+                return 'Easymerchant';
             default:
                 return 'undefined';
         }

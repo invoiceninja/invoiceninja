@@ -215,6 +215,11 @@ class Gateway extends StaticModel
                     // GatewayType::PRZELEWY24 => ['refund' => false, 'token_billing' => false],
                     // GatewayType::SOFORT => ['refund' => false, 'token_billing' => false],
                 ]; //Paypal PPCP
+            case 63:
+                return [
+                    GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true], // Easymerchant
+                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => [' ']],
+                ];
             default:
                 return [];
         }
