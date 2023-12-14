@@ -166,6 +166,7 @@ class InvoiceController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
         $invoice = InvoiceFactory::create($user->company()->id, $user->id);
+        $invoice->date = now()->addSeconds($user->company()->utc_offset())->format('Y-m-d');
 
         return $this->itemResponse($invoice);
     }

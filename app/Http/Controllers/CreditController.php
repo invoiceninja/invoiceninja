@@ -154,6 +154,7 @@ class CreditController extends BaseController
         $user = auth()->user();
         
         $credit = CreditFactory::create($user->company()->id, $user->id);
+        $credit->date = now()->addSeconds($user->company()->utc_offset())->format('Y-m-d');
 
         return $this->itemResponse($credit);
     }
