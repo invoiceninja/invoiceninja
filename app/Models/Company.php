@@ -111,6 +111,8 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int $convert_expense_currency
  * @property int $notify_vendor_when_paid
  * @property int $invoice_task_hours
+ * @property boolean $expense_import
+ * @property string|null $expense_mailbox
  * @property int $deleted_at
  * @property-read \App\Models\Account $account
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
@@ -352,6 +354,8 @@ class Company extends BaseModel
         'calculate_taxes',
         'tax_data',
         'e_invoice_certificate_passphrase',
+        'expense_import',
+        'expense_mailbox', // TODO: @turbo124 custom validation: self-hosted => free change, hosted => not changeable, only changeable with env-mask
     ];
 
     protected $hidden = [
@@ -404,17 +408,17 @@ class Company extends BaseModel
         return $this->morphMany(Document::class, 'documentable');
     }
 
-    public function schedulers() :HasMany
+    public function schedulers(): HasMany
     {
         return $this->hasMany(Scheduler::class);
     }
 
-    public function task_schedulers() :HasMany
+    public function task_schedulers(): HasMany
     {
         return $this->hasMany(Scheduler::class);
     }
 
-    public function all_documents() :HasMany
+    public function all_documents(): HasMany
     {
         return $this->hasMany(Document::class);
     }
@@ -424,22 +428,22 @@ class Company extends BaseModel
         return self::class;
     }
 
-    public function ledger() :HasMany
+    public function ledger(): HasMany
     {
         return $this->hasMany(CompanyLedger::class);
     }
 
-    public function bank_integrations() :HasMany
+    public function bank_integrations(): HasMany
     {
         return $this->hasMany(BankIntegration::class);
     }
 
-    public function bank_transactions() :HasMany
+    public function bank_transactions(): HasMany
     {
         return $this->hasMany(BankTransaction::class);
     }
 
-    public function bank_transaction_rules() :HasMany
+    public function bank_transaction_rules(): HasMany
     {
         return $this->hasMany(BankTransactionRule::class);
     }
@@ -454,7 +458,7 @@ class Company extends BaseModel
         return $this->belongsTo(Account::class);
     }
 
-    public function client_contacts() :HasMany
+    public function client_contacts(): HasMany
     {
         return $this->hasMany(ClientContact::class)->withTrashed();
     }
@@ -467,27 +471,27 @@ class Company extends BaseModel
         return $this->hasManyThrough(User::class, CompanyUser::class, 'company_id', 'id', 'id', 'user_id')->withTrashed();
     }
 
-    public function expense_categories() :HasMany
+    public function expense_categories(): HasMany
     {
         return $this->hasMany(ExpenseCategory::class)->withTrashed();
     }
 
-    public function subscriptions() :HasMany
+    public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class)->withTrashed();
     }
 
-    public function purchase_orders() :HasMany
+    public function purchase_orders(): HasMany
     {
         return $this->hasMany(PurchaseOrder::class)->withTrashed();
     }
 
-    public function task_statuses() :HasMany
+    public function task_statuses(): HasMany
     {
         return $this->hasMany(TaskStatus::class)->withTrashed();
     }
 
-    public function clients() :HasMany
+    public function clients(): HasMany
     {
         return $this->hasMany(Client::class)->withTrashed();
     }
@@ -495,12 +499,12 @@ class Company extends BaseModel
     /**
      * @return HasMany
      */
-    public function tasks() :HasMany
+    public function tasks(): HasMany
     {
         return $this->hasMany(Task::class)->withTrashed();
     }
 
-    public function webhooks() :HasMany
+    public function webhooks(): HasMany
     {
         return $this->hasMany(Webhook::class);
     }
@@ -508,7 +512,7 @@ class Company extends BaseModel
     /**
      * @return HasMany
      */
-    public function projects() :HasMany
+    public function projects(): HasMany
     {
         return $this->hasMany(Project::class)->withTrashed();
     }
@@ -516,7 +520,7 @@ class Company extends BaseModel
     /**
      * @return HasMany
      */
-    public function vendor_contacts() :HasMany
+    public function vendor_contacts(): HasMany
     {
         return $this->hasMany(VendorContact::class)->withTrashed();
     }
@@ -524,17 +528,17 @@ class Company extends BaseModel
     /**
      * @return HasMany
      */
-    public function vendors() :HasMany
+    public function vendors(): HasMany
     {
         return $this->hasMany(Vendor::class)->withTrashed();
     }
 
-    public function all_activities() :\Illuminate\Database\Eloquent\Relations\HasMany
+    public function all_activities(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Activity::class);
     }
 
-    public function activities() :HasMany
+    public function activities(): HasMany
     {
         return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(50);
     }
@@ -620,7 +624,7 @@ class Company extends BaseModel
     {
         $companies = Cache::get('countries');
 
-        if (! $companies) {
+        if (!$companies) {
             $this->buildCache(true);
 
             $companies = Cache::get('countries');
@@ -643,7 +647,7 @@ class Company extends BaseModel
     {
         $timezones = Cache::get('timezones');
 
-        if (! $timezones) {
+        if (!$timezones) {
             $this->buildCache(true);
         }
 
@@ -679,7 +683,7 @@ class Company extends BaseModel
         $languages = Cache::get('languages');
 
         //build cache and reinit
-        if (! $languages) {
+        if (!$languages) {
             $this->buildCache(true);
             $languages = Cache::get('languages');
         }
@@ -699,7 +703,7 @@ class Company extends BaseModel
         return isset($this->settings->language_id) && $this->language() ? $this->language()->locale : config('ninja.i18n.locale');
     }
 
-    public function getLogo() :?string
+    public function getLogo(): ?string
     {
         return $this->settings->company_logo ?: null;
     }
@@ -713,7 +717,7 @@ class Company extends BaseModel
     {
         App::setLocale($this->getLocale());
     }
-    
+
     public function getSetting($setting)
     {
         //todo $this->setting ?? false
@@ -809,7 +813,7 @@ class Company extends BaseModel
     {
         return $this->hasMany(CreditInvitation::class);
     }
-    
+
     public function purchase_order_invitations(): HasMany
     {
         return $this->hasMany(PurchaseOrderInvitation::class);
@@ -826,25 +830,25 @@ class Company extends BaseModel
     public function credit_rules()
     {
         return BankTransactionRule::query()
-                                  ->where('company_id', $this->id)
-                                  ->where('applies_to', 'CREDIT')
-                                  ->get();
+            ->where('company_id', $this->id)
+            ->where('applies_to', 'CREDIT')
+            ->get();
     }
 
     public function debit_rules()
     {
         return BankTransactionRule::query()
-                          ->where('company_id', $this->id)
-                          ->where('applies_to', 'DEBIT')
-                          ->get();
+            ->where('company_id', $this->id)
+            ->where('applies_to', 'DEBIT')
+            ->get();
     }
 
 
     public function resolveRouteBinding($value, $field = null)
     {
         return $this->where('id', $this->decodePrimaryKey($value))
-                    ->where('account_id', auth()->user()->account_id)
-                    ->firstOrFail();
+            ->where('account_id', auth()->user()->account_id)
+            ->firstOrFail();
     }
 
     public function domain(): string
@@ -854,7 +858,7 @@ class Company extends BaseModel
                 return $this->portal_domain;
             }
 
-            return "https://{$this->subdomain}.".config('ninja.app_domain');
+            return "https://{$this->subdomain}." . config('ninja.app_domain');
         }
 
         return config('ninja.app_url');
@@ -872,7 +876,7 @@ class Company extends BaseModel
 
     public function file_path(): string
     {
-        return $this->company_key.'/';
+        return $this->company_key . '/';
     }
 
     public function rBits()
@@ -951,7 +955,7 @@ class Company extends BaseModel
     {
         $date_formats = Cache::get('date_formats');
 
-        if (! $date_formats) {
+        if (!$date_formats) {
             $this->buildCache(true);
         }
 
@@ -962,7 +966,7 @@ class Company extends BaseModel
 
     public function getInvoiceCert()
     {
-        if($this->e_invoice_certificate) {
+        if ($this->e_invoice_certificate) {
             return base64_decode($this->e_invoice_certificate);
         }
 

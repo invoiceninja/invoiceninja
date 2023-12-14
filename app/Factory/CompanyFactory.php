@@ -27,7 +27,7 @@ class CompanyFactory
      * @param int $account_id
      * @return Company
      */
-    public function create(int $account_id) :Company
+    public function create(int $account_id): Company
     {
         $company = new Company;
         $company->account_id = $account_id;
@@ -49,6 +49,11 @@ class CompanyFactory
         $company->markdown_enabled = false;
         $company->tax_data = new TaxModel();
         $company->first_month_of_year = 1;
+
+        // default mailbox
+        $company->expense_mailbox = config('ninja.inbound_expense.webhook.mailbox_template') != '' ?
+            str_replace('{{company_key}}', $company->company_key, config('ninja.inbound_expense.webhook.mailbox_template')) : null;
+
         return $company;
     }
 }

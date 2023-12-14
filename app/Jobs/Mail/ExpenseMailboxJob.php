@@ -86,14 +86,14 @@ class ExpenseMailboxJob implements ShouldQueue
 
     private function getImapCredentials()
     {
-        $servers = array_map('trim', explode(",", config('ninja.imap_inbound_expense.servers')));
-        $ports = explode(",", config('ninja.imap_inbound_expense.servers'));
-        $users = explode(",", config('ninja.imap_inbound_expense.servers'));
-        $passwords = explode(",", config('ninja.imap_inbound_expense.servers'));
-        $companies = explode(",", config('ninja.imap_inbound_expense.servers'));
+        $servers = array_map('trim', explode(",", config('ninja.inbound_expense.imap.servers')));
+        $ports = explode(",", config('ninja.inbound_expense.imap.servers'));
+        $users = explode(",", config('ninja.inbound_expense.imap.servers'));
+        $passwords = explode(",", config('ninja.inbound_expense.imap.servers'));
+        $companies = explode(",", config('ninja.inbound_expense.imap.servers'));
 
         if (sizeOf($servers) != sizeOf($ports) || sizeOf($servers) != sizeOf($users) || sizeOf($servers) != sizeOf($passwords) || sizeOf($servers) != sizeOf($companies))
-            throw new \Exception('invalid configuration imap_inbound_expenses (wrong element-count)');
+            throw new \Exception('invalid configuration inbound_expense.imap (wrong element-count)');
 
         foreach ($companies as $index => $companyId) {
             $this->imap_credentials[$companyId] = [
