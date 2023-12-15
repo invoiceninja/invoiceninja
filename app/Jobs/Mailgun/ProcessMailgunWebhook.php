@@ -406,6 +406,7 @@ class ProcessMailgunWebhook implements ShouldQueue
     }
 
 
+    // TODO: unknown
     public function getBounceId(string $message_id): ?int
     {
 
@@ -441,7 +442,7 @@ class ProcessMailgunWebhook implements ShouldQueue
             ])->getItems())->map(function ($event) {
 
                 return [
-                    'bounce_id' => array_key_exists("id", $event) ? $event["id"] : '',
+                    'bounce_id' => array_key_exists("id", $event) ? $event["id"] : '', // TODO: unknown
                     'recipient' => array_key_exists("recipient", $event) ? $event["recipient"] : '',
                     'status' => array_key_exists("delivery-status", $event) && array_key_exists("code", $event["delivery-status"]) ? $event["delivery-status"]["code"] : '',
                     'delivery_message' => array_key_exists("delivery-status", $event) && array_key_exists("message", $event["delivery-status"]) ? $event["delivery-status"]["message"] : (array_key_exists("delivery-status", $event) && array_key_exists("description", $event["delivery-status"]) ? $event["delivery-status"]["description"] : ''),
