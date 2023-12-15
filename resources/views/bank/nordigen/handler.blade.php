@@ -129,7 +129,7 @@
         const returnButton = document.createElement('div');
         returnButton.className = "mt-4";
         returnButton.innerHTML = `<a class="button button-primary bg-blue-600 my-4" href="${restartFlow ? restartUrl.href : config.redirectUrl}">${restartFlow ? "{{ ctrans('texts.nordigen_handler_restart', [], $lang ?? 'en') }}" : "{{ ctrans('texts.nordigen_handler_return', [], $lang ?? 'en') }}"}</a>`
-        wrapper.ald(returnButton);
+        wrapper.appendChild(returnButton);
     }
 
 </script>
