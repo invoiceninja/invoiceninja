@@ -13,6 +13,7 @@ namespace App\Http\Requests\Company;
 
 use App\DataMapper\CompanySettings;
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\Company\ValidExpenseMailbox;
 use App\Http\ValidationRules\Company\ValidSubdomain;
 use App\Http\ValidationRules\ValidSettingsRule;
 use App\Utils\Ninja;
@@ -35,7 +36,7 @@ class UpdateCompanyRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -67,6 +68,8 @@ class UpdateCompanyRequest extends Request
             $rules['subdomain'] = ['nullable', 'regex:/^[a-zA-Z0-9.-]+[a-zA-Z0-9]$/', new ValidSubdomain()];
         }
 
+        $rules['expense_mailbox'] = new ValidExpenseMailbox($this->company->key, $this->company->account->isPaid() && $this->company->account->plan == 'enterprise'); // @turbo124 check if this is right
+
         return $rules;
     }
 
@@ -80,14 +83,14 @@ class UpdateCompanyRequest extends Request
         }
 
         if (array_key_exists('settings', $input)) {
-            $input['settings'] = (array)$this->filterSaveableSettings($input['settings']);
+            $input['settings'] = (array) $this->filterSaveableSettings($input['settings']);
         }
 
-        if(array_key_exists('subdomain', $input) && $this->company->subdomain == $input['subdomain']) {
+        if (array_key_exists('subdomain', $input) && $this->company->subdomain == $input['subdomain']) {
             unset($input['subdomain']);
         }
 
-        if(array_key_exists('e_invoice_certificate_passphrase', $input) && empty($input['e_invoice_certificate_passphrase'])) {
+        if (array_key_exists('e_invoice_certificate_passphrase', $input) && empty($input['e_invoice_certificate_passphrase'])) {
             unset($input['e_invoice_certificate_passphrase']);
         }
 
@@ -115,17 +118,17 @@ class UpdateCompanyRequest extends Request
         }
 
         if (isset($settings['email_style_custom'])) {
-            $settings['email_style_custom'] = str_replace(['{{','}}'], ['',''], $settings['email_style_custom']);
+            $settings['email_style_custom'] = str_replace(['{{', '}}'], ['', ''], $settings['email_style_custom']);
         }
 
-        if (! $account->isFreeHostedClient()) {
+        if (!$account->isFreeHostedClient()) {
             return $settings;
         }
 
         $saveable_casts = CompanySettings::$free_plan_casts;
 
         foreach ($settings as $key => $value) {
-            if (! array_key_exists($key, $saveable_casts)) {
+            if (!array_key_exists($key, $saveable_casts)) {
                 unset($settings->{$key});
             }
         }
@@ -137,7 +140,7 @@ class UpdateCompanyRequest extends Request
     {
         if (Ninja::isHosted()) {
             $url = str_replace('http://', '', $url);
-            $url = parse_url($url, PHP_URL_SCHEME) === null ? $scheme.$url : $url;
+            $url = parse_url($url, PHP_URL_SCHEME) === null ? $scheme . $url : $url;
         }
 
         return rtrim($url, '/');

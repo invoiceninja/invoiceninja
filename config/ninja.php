@@ -238,7 +238,9 @@ return [
         ],
         'webhook' => [
             'mailbox_template' => env('INBOUND_EXPENSE_WEBHOOK_MAILBOXTEMPLATE', null),
-            'mailbox_template_enterprise' => env('INBOUND_EXPENSE_WEBHOOK_MAILBOXTEMPLATE_ENTERPRISE', '{{input}}@expense.invoicing.co'),
+            'mailbox_schema' => env('INBOUND_EXPENSE_WEBHOOK_MAILBOX_SCHEMA', null),
+            'mailbox_schema_hascompanykey' => env('INBOUND_EXPENSE_WEBHOOK_MAILBOX_SCHEMA_HASCOMPANYKEY', false),
+            'mailbox_schema_enterprise' => env('INBOUND_EXPENSE_WEBHOOK_MAILBOX_SCHEMA_ENTERPRISE', '.*@expense\.invoicing\.co$'),
         ],
     ],
 ];

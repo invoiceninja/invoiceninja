@@ -11,10 +11,17 @@
 
 namespace App\Helpers\Mail\Webhook;
 
+use App\Models\Company;
+
 interface BaseWebhookHandler
 {
     public function process()
     {
 
+    }
+
+    protected function matchCompany(string $email)
+    {
+        return Company::where("expense_mailbox", $email)->first();
     }
 }

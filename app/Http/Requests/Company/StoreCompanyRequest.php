@@ -13,6 +13,7 @@ namespace App\Http\Requests\Company;
 
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\Company\ValidCompanyQuantity;
+use App\Http\ValidationRules\Company\ValidExpenseMailbox;
 use App\Http\ValidationRules\Company\ValidSubdomain;
 use App\Http\ValidationRules\ValidSettingsRule;
 use App\Models\Company;
@@ -28,7 +29,7 @@ class StoreCompanyRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User auth()->user */
         $user = auth()->user();
@@ -54,6 +55,8 @@ class StoreCompanyRequest extends Request
                 $rules['subdomain'] = 'nullable|alpha_num';
             }
         }
+
+        $rules['expense_mailbox'] = new ValidExpenseMailbox($this->company->key, $this->company->account->isPaid() && $this->company->account->plan == 'enterprise'); // @turbo124 check if this is right
 
         return $rules;
     }

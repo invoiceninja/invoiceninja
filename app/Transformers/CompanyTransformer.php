@@ -133,7 +133,7 @@ class CompanyTransformer extends EntityTransformer
             'show_product_details' => (bool) $company->show_product_details,
             'enable_product_quantity' => (bool) $company->enable_product_quantity,
             'default_quantity' => (bool) $company->default_quantity,
-            'custom_fields' =>  (object) $company->custom_fields ?? $std,
+            'custom_fields' => (object) $company->custom_fields ?? $std,
             'size_id' => (string) $company->size_id ?: '',
             'industry_id' => (string) $company->industry_id ?: '',
             'first_month_of_year' => (string) $company->first_month_of_year ?: '1',
@@ -146,7 +146,7 @@ class CompanyTransformer extends EntityTransformer
             'enabled_modules' => (int) $company->enabled_modules,
             'updated_at' => (int) $company->updated_at,
             'archived_at' => (int) $company->deleted_at,
-            'created_at' =>(int) $company->created_at,
+            'created_at' => (int) $company->created_at,
             'slack_webhook_url' => (string) $company->slack_webhook_url,
             'google_analytics_url' => (string) $company->google_analytics_key, //@deprecate 1-2-2021
             'google_analytics_key' => (string) $company->google_analytics_key,
@@ -158,7 +158,7 @@ class CompanyTransformer extends EntityTransformer
             'is_large' => (bool) $this->isLarge($company),
             'is_disabled' => (bool) $company->is_disabled,
             'enable_shop_api' => (bool) $company->enable_shop_api,
-            'mark_expenses_invoiceable'=> (bool) $company->mark_expenses_invoiceable,
+            'mark_expenses_invoiceable' => (bool) $company->mark_expenses_invoiceable,
             'mark_expenses_paid' => (bool) $company->mark_expenses_paid,
             'invoice_expense_documents' => (bool) $company->invoice_expense_documents,
             'invoice_task_timelog' => (bool) $company->invoice_task_timelog,
@@ -168,10 +168,10 @@ class CompanyTransformer extends EntityTransformer
             'use_credits_payment' => 'always', // @deprecate 1-2-2021
             'default_task_is_date_based' => (bool) $company->default_task_is_date_based,
             'enable_product_discount' => (bool) $company->enable_product_discount,
-            'calculate_expense_tax_by_amount' =>(bool) $company->calculate_expense_tax_by_amount,
+            'calculate_expense_tax_by_amount' => (bool) $company->calculate_expense_tax_by_amount,
             'hide_empty_columns_on_pdf' => false, // @deprecate 1-2-2021
             'expense_inclusive_taxes' => (bool) $company->expense_inclusive_taxes,
-            'expense_amount_is_pretax' =>(bool) true, //@deprecate 1-2-2021
+            'expense_amount_is_pretax' => (bool) true, //@deprecate 1-2-2021
             'oauth_password_required' => (bool) $company->oauth_password_required,
             'session_timeout' => (int) $company->session_timeout,
             'default_password_timeout' => (int) $company->default_password_timeout,
@@ -204,6 +204,7 @@ class CompanyTransformer extends EntityTransformer
             'invoice_task_project_header' => (bool) $company->invoice_task_project_header,
             'invoice_task_item_description' => (bool) $company->invoice_task_item_description,
             'origin_tax_data' => $company->origin_tax_data ?: new \stdClass,
+            'expense_mailbox' => $company->expense_mailbox,
         ];
     }
 

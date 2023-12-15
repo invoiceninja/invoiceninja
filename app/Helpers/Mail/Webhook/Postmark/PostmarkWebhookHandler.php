@@ -11,12 +11,21 @@
 
 namespace App\Helpers\Mail\Webhook\Postmark;
 
+use App\Factory\ExpenseFactory;
 use App\Helpers\Mail\Webhook\BaseWebhookHandler;
 
 interface PostmarkWebhookHandler extends BaseWebhookHandler
 {
-    public function process()
+    public function process($data)
     {
+
+        $email = '';
+
+        $company = $this->matchCompany($email);
+        if (!$company)
+            return false;
+
+        $expense = ExpenseFactory::create($company->id, $company->owner()->id);
 
     }
 }
