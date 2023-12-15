@@ -110,7 +110,7 @@
                 contents.innerHTML = "{{ ctrans('texts.nordigen_handler_error_contents_not_found', [], $lang ?? 'en') }}";
                 break;
             case "requisition-invalid-status":
-                heading.innerHTML = "{{ ctrans('texts.nordigen_handler_error_heading_requisition_invalid_status') }}";
+                heading.innerHTML = "{{ ctrans('texts.nordigen_handler_error_heading_requisition_invalid_status', [], $lang ?? 'en') }}";
                 contents.innerHTML = "{{ ctrans('texts.nordigen_handler_error_contents_requisition_invalid_status', [], $lang ?? 'en') }}";
                 break;
             case "requisition-no-accounts":
