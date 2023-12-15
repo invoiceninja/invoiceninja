@@ -34,8 +34,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $date
  * @property int $bank_account_id
  * @property string|null $description
- * @property string|null $debitor
- * @property string|null $debitor_name
+ * @property string|null $participant
+ * @property string|null $participant_name
  * @property string $invoice_ids
  * @property int|null $expense_id
  * @property int|null $vendor_id
@@ -87,8 +87,8 @@ class BankTransaction extends BaseModel
         'expense_id',
         'vendor_id',
         'amount',
-        'debitor',
-        'debitor_name'
+        'participant',
+        'participant_name'
     ];
 
 
