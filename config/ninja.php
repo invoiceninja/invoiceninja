@@ -237,7 +237,7 @@ return [
             'companies' => env('INBOUND_EXPENSE_IMAP_COMPANIES', ''),
         ],
         'webhook' => [
-            'mailbox_template' => env('INBOUND_EXPENSE_WEBHOOK_MAILBOXTEMPLATE', null),
+            'mailbox_template' => env('INBOUND_EXPENSE_WEBHOOK_MAILBOX_TEMPLATE', null),
             'mailbox_endings_endings' => env('INBOUND_EXPENSE_WEBHOOK_MAILBOX_ENDINGS', ''),
             'mailbox_hascompanykey' => env('INBOUND_EXPENSE_WEBHOOK_MAILBOX_HASCOMPANYKEY', false),
             'mailbox_endings_enterprise' => env('INBOUND_EXPENSE_WEBHOOK_MAILBOX_ENTERPRISE_ENDINGS', '@expense.invoicing.co'),
