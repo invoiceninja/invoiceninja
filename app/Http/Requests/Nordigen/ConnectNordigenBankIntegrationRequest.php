@@ -38,6 +38,7 @@ class ConnectNordigenBankIntegrationRequest extends Request
     public function rules()
     {
         return [
+            'lang' => 'string',
             'institution_id' => 'string',
             'redirect' => 'string', // TODO: @turbo124 @todo validate, that this is a url without / at the end
         ];

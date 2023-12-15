@@ -34,6 +34,7 @@ class ConfirmNordigenBankIntegrationRequest extends Request
     {
         return [
             'ref' => 'required|string', // nordigen redirects only with the ref-property
+            'lang' => 'string',
         ];
     }
 }
