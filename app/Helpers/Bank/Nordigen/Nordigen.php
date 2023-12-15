@@ -47,7 +47,7 @@ class Nordigen
     public function getInstitutions()
     {
         if ($this->test_mode)
-            return (array) $this->client->institution->getInstitution($this->sandbox_institutionId);
+            return [$this->client->institution->getInstitution($this->sandbox_institutionId)];
 
         return $this->client->institution->getInstitutions();
     }

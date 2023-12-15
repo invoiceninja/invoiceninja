@@ -32,31 +32,50 @@ class NordigenController extends BaseController
         $data = $request->all();
         $context = $request->getTokenContent();
 
-        if (!$context || $context["context"] != "nordigen" || array_key_exists("requisitionId", $context))
-            return response()->redirectTo(($context && array_key_exists("redirect", $context) ? $context["redirect"] : config('ninja.app_url')) . "?action=nordigen_connect&status=failed&reason=token-invalid");
+        if (!$context)
+            return view('bank.nordigen.handler', [
+                'failed_reason' => "token-invalid",
+                "redirectUrl" => config("ninja.app_url") . "?action=nordigen_connect&status=failed&reason=token-invalid",
+            ]);
+
+        $context["redirect"] = $data["redirect"];
+        if ($context["context"] != "nordigen" || array_key_exists("requisitionId", $context))
+            return view('bank.nordigen.handler', [
+                'failed_reason' => "token-invalid",
+                "redirectUrl" => ($context["redirect"]) . "?action=nordigen_connect&status=failed&reason=token-invalid",
+            ]);
 
         $company = $request->getCompany();
         $account = $company->account;
 
         if (!(config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key')))
-            return response()->redirectTo($data["redirect"] . "?action=nordigen_connect&status=failed&reason=account-config-invalid");
+            return view('bank.nordigen.handler', [
+                'company' => $company,
+                'account' => $company->account,
+                'failed_reason' => "account-config-invalid",
+                "redirectUrl" => $context["redirect"] . "?action=nordigen_connect&status=failed&reason=account-config-invalid",
+            ]);
 
         if (!(Ninja::isSelfHost() || (Ninja::isHosted() && $account->isPaid() && $account->plan == 'enterprise')))
-            return response()->redirectTo($context["redirect"] . "?action=nordigen_connect&status=failed&reason=not-available");
+            return view('bank.nordigen.handler', [
+                'company' => $company,
+                'account' => $company->account,
+                'failed_reason' => "not-available",
+                "redirectUrl" => $context["redirect"] . "?action=nordigen_connect&status=failed&reason=not-available",
+            ]);
 
         $nordigen = new Nordigen();
 
         // show bank_selection_screen, when institution_id is not present
         if (!array_key_exists("institution_id", $data)) {
             $data = [
-                'token' => $request->token,
-                'context' => $context,
-                'institutions' => $nordigen->getInstitutions(),
                 'company' => $company,
                 'account' => $company->account,
+                'institutions' => $nordigen->getInstitutions(),
+                'redirectUrl' => $context["redirect"] . "?action=nordigen_connect&status=user-aborted"
             ];
 
-            return view('bank.nordigen.connect', $data);
+            return view('bank.nordigen.handler', $data);
         }
 
         // redirect to requisition flow
@@ -64,20 +83,33 @@ class NordigenController extends BaseController
             $requisition = $nordigen->createRequisition(config('ninja.app_url') . '/nordigen/confirm', $data['institution_id'], $request->token);
         } catch (NordigenException $e) { // TODO: property_exists returns null in these cases... => why => therefore we just get unknown error everytime $responseBody is typeof GuzzleHttp\Psr7\Stream
             Log::error($e);
-            $responseBody = $e->getResponse()->getBody();
-            Log::info($responseBody);
+            Log::info((string) $e->getResponse()->getBody());
+            $responseBody = (string) $e->getResponse()->getBody();
 
-            if (property_exists($responseBody, "institution_id")) // provided institution_id was wrong
-                return response()->redirectTo($data["redirect"] . "?action=nordigen_connect&status=failed&reason=institution-invalid");
-            else if (property_exists($responseBody, "reference")) // this error can occur, when a reference was used double or is invalid => therefor we suggest the frontend to use another token
-                return response()->redirectTo($data["redirect"] . "?action=nordigen_connect&status=failed&reason=token-invalid");
+            if (str_contains($responseBody, '"institution_id"')) // provided institution_id was wrong
+                return view('bank.nordigen.handler', [
+                    'company' => $company,
+                    'account' => $company->account,
+                    'failed_reason' => "institution-invalid",
+                    "redirectUrl" => $context["redirect"] . "?action=nordigen_connect&status=failed&reason=institution-invalid",
+                ]);
+            else if (str_contains($responseBody, '"reference"')) // this error can occur, when a reference was used double or is invalid => therefor we suggest the frontend to use another token
+                return view('bank.nordigen.handler', [
+                    'company' => $company,
+                    'account' => $company->account,
+                    'failed_reason' => "token-invalid",
+                    "redirectUrl" => $context["redirect"] . "?action=nordigen_connect&status=failed&reason=token-invalid",
+                ]);
             else
-                return response()->redirectTo($data["redirect"] . "?action=nordigen_connect&status=failed&reason=unknown");
+                return view('bank.nordigen.handler', [
+                    'company' => $company,
+                    'account' => $company->account,
+                    'failed_reason' => "unknown",
+                    "redirectUrl" => $context["redirect"] . "?action=nordigen_connect&status=failed&reason=unknown",
+                ]);
         }
 
         // save cache
-        if (array_key_exists("redirect", $data))
-            $context["redirect"] = $data["redirect"];
         $context["requisitionId"] = $requisition["id"];
         Cache::put($request->token, $context, 3600);
 
@@ -155,17 +187,30 @@ class NordigenController extends BaseController
 
         $context = Cache::get($data["ref"]);
         if (!$context || $context["context"] != "nordigen" || !array_key_exists("requisitionId", $context))
-            return response()->redirectTo(($context && array_key_exists("redirect", $context) ? $context["redirect"] : config('ninja.app_url')) . "?action=nordigen_connect&status=failed&reason=ref-invalid");
+            return view('bank.nordigen.handler', [
+                'failed_reason' => "ref-invalid",
+                "redirectUrl" => ($context && array_key_exists("redirect", $context) ? $context["redirect"] : config('ninja.app_url')) . "?action=nordigen_connect&status=failed&reason=ref-invalid",
+            ]);
 
 
         $company = Company::where('company_key', $context["company_key"])->firstOrFail();
         $account = $company->account;
 
         if (!(config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key')))
-            return response()->redirectTo($context["redirect"] . "?action=nordigen_connect&status=failed&reason=account-config-invalid");
+            return view('bank.nordigen.handler', [
+                'company' => $company,
+                'account' => $company->account,
+                'failed_reason' => "account-config-invalid",
+                "redirectUrl" => $context["redirect"] . "?action=nordigen_connect&status=failed&reason=account-config-invalid",
+            ]);
 
         if (!(Ninja::isSelfHost() || (Ninja::isHosted() && $account->isPaid() && $account->plan == 'enterprise')))
-            return response()->redirectTo($context["redirect"] . "?action=nordigen_connect&status=failed&reason=not-available");
+            return view('bank.nordigen.handler', [
+                'company' => $company,
+                'account' => $company->account,
+                'failed_reason' => "not-available",
+                "redirectUrl" => $context["redirect"] . "?action=nordigen_connect&status=failed&reason=not-available",
+            ]);
 
         // fetch requisition
         $nordigen = new Nordigen();
@@ -173,11 +218,26 @@ class NordigenController extends BaseController
 
         // check validity of requisition
         if (!$requisition)
-            return response()->redirectTo($context["redirect"] . "?action=nordigen_connect&status=failed&reason=requisition-not-found");
+            return view('bank.nordigen.handler', [
+                'company' => $company,
+                'account' => $company->account,
+                'failed_reason' => "requisition-not-found",
+                "redirectUrl" => $context["redirect"] . "?action=nordigen_connect&status=failed&reason=requisition-not-found",
+            ]);
         if ($requisition["status"] != "LN")
-            return response()->redirectTo($context["redirect"] . "?action=nordigen_connect&status=failed&reason=requisition-invalid-status&status=" . $requisition["status"]);
+            return view('bank.nordigen.handler', [
+                'company' => $company,
+                'account' => $company->account,
+                'failed_reason' => "requisition-invalid-status",
+                "redirectUrl" => $context["redirect"] . "?action=nordigen_connect&status=failed&reason=requisition-invalid-status&status=" . $requisition["status"],
+            ]);
         if (sizeof($requisition["accounts"]) == 0)
-            return response()->redirectTo($context["redirect"] . "?action=nordigen_connect&status=failed&reason=requisition-no-accounts");
+            return view('bank.nordigen.handler', [
+                'company' => $company,
+                'account' => $company->account,
+                'failed_reason' => "requisition-no-accounts",
+                "redirectUrl" => $context["redirect"] . "?action=nordigen_connect&status=failed&reason=requisition-no-accounts",
+            ]);
 
         // connect new accounts
         $bank_integration_ids = [];
