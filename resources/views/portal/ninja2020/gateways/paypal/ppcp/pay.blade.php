@@ -75,6 +75,14 @@
         
     });
     
+    document.getElementById("server_response").addEventListener('submit', (e) => {
+		if (document.getElementById("server_response").classList.contains('is-submitting')) {
+			e.preventDefault();
+		}
+		
+		document.getElementById("server_response").classList.add('is-submitting');
+	});
+
 </script>
 
 @endpush

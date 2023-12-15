@@ -539,8 +539,6 @@ class InvoiceController extends BaseController
                 return (new \App\Jobs\Entity\CreateRawPdf($invoice->invitations->first()))->handle();
             });
 
-            
-
             return response()->streamDownload(function () use ($paths) {
                 echo $merge = (new PdfMerge($paths->toArray()))->run();
             }, 'print.pdf', ['Content-Type' => 'application/pdf']);
