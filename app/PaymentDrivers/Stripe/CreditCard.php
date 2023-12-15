@@ -60,6 +60,7 @@ class CreditCard
     public function paymentView(array $data)
     {
         $description = $this->stripe->getDescription(false);
+        $suffix = $this->stripe->getDescription(true);
         
         $payment_intent_data = [
             'amount' => $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
@@ -72,6 +73,7 @@ class CreditCard
             ],
             'setup_future_usage' => 'off_session',
             'payment_method_types' => ['card'],
+            'statement_descriptor_suffix' => $suffix,
         ];
 
         $data['intent'] = $this->stripe->createPaymentIntent($payment_intent_data);
