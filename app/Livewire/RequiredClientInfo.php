@@ -190,9 +190,10 @@ class RequiredClientInfo extends Component
         }
 
         if ($this->updateClientDetails($data)) {
-            $this->emit('passed-required-fields-check', [
-                'client_postal_code' => $this->contact->client->postal_code,
-            ]);
+            $this->dispatch(
+                'passed-required-fields-check',
+                client_postal_code: $this->contact->client->postal_code
+            );
 
             //if stripe is enabled, we want to update the customer at this point.
 
@@ -258,7 +259,6 @@ class RequiredClientInfo extends Component
             }
 
             if (Str::startsWith($field['name'], 'contact_')) {
-                
                 if (empty($this->contact->{$_field}) || is_null($this->contact->{$_field}) || str_contains($this->contact->{$_field}, '@example.com')) {
                     $this->show_form = true;
                 } else {
@@ -289,14 +289,15 @@ class RequiredClientInfo extends Component
 
     public function handleCopyBilling(): void
     {
-        $this->emit('update-shipping-data', [
-            'client_shipping_address_line_1' => $this->contact->client->address1,
-            'client_shipping_address_line_2' => $this->contact->client->address2,
-            'client_shipping_city' => $this->contact->client->city,
-            'client_shipping_state' => $this->contact->client->state,
-            'client_shipping_postal_code' => $this->contact->client->postal_code,
-            'client_shipping_country_id' => $this->contact->client->country_id,
-        ]);
+        $this->dispatch(
+            'update-shipping-data',
+            client_shipping_address_line_1: $this->contact->client->address1,
+            client_shipping_address_line_2: $this->contact->client->address2,
+            client_shipping_city: $this->contact->client->city,
+            client_shipping_state: $this->contact->client->state,
+            client_shipping_postal_code: $this->contact->client->postal_code,
+            client_shipping_country_id: $this->contact->client->country_id,
+        );
     }
 
     public function render()

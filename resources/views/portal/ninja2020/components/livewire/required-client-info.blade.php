@@ -10,7 +10,7 @@
             </p>
         </div>
 
-        <form id="required-client-info-form" wire:submit="handleSubmit(Object.fromEntries(new FormData(document.getElementById('required-client-info-form'))))">
+        <form id="required-client-info-form" x-on:submit.prevent="$wire.handleSubmit(Object.fromEntries(new FormData(document.getElementById('required-client-info-form'))))">
             @foreach($fields as $field)
                 @if(!array_key_exists('filled', $field))
                     @component('portal.ninja2020.components.general.card-element', ['title' => $field['label']])
@@ -48,16 +48,16 @@
             @if($show_terms)
 
                 @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.terms_of_service') ])
-                <div x-data="{ open: false }"> 
+                <div x-data="{ open: false }">
                 <input
                     wire:click="toggleTermsAccepted()"
                     id="terms"
                     name="terms_accepted"
                     type="checkbox"
                     class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                  /> 
+                  />
                 <a href="#" class="group relative inline-block ml-4 text-blue-500 hover:text-red-500 duration-300 no-underline" @click="open = true">{{ ctrans('texts.agree_to_terms', ['terms' => ctrans('texts.terms')]) }}</a>
-                
+
 
 
 <div x-show="open" class="fixed bottom-0 inset-x-0 px-4 pb-4 sm:inset-0 sm:flex sm:items-center sm:justify-center z-50"
@@ -102,7 +102,7 @@
 
 
 
-                </div>                    
+                </div>
 
                 @endcomponent
 

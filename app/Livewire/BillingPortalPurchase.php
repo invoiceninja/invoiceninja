@@ -251,7 +251,7 @@ class BillingPortalPurchase extends Component
         $company = $this->subscription->company;
         $user = $this->subscription->user;
         $user->setCompany($company);
-        
+
         $client_repo = new ClientRepository(new ClientContactRepository());
 
         $data = [
@@ -432,7 +432,7 @@ class BillingPortalPurchase extends Component
     public function handlePaymentNotRequired()
     {
         $is_eligible = $this->subscription->service()->isEligible($this->contact);
-        
+
         if ($is_eligible['status_code'] != 200) {
             $this->steps['not_eligible'] = true;
             $this->steps['not_eligible_message'] = $is_eligible['message'];
