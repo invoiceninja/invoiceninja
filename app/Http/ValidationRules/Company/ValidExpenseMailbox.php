@@ -24,11 +24,17 @@ class ValidExpenseMailbox implements Rule
     private $validated_schema = false;
     private $company_key = false;
     private $isEnterprise = false;
+    private array $endings;
+    private bool $hasCompanyKey;
+    private array $enterprise_endings;
 
     public function __construct(string $company_key, bool $isEnterprise = false)
     {
         $this->company_key = $company_key;
         $this->isEnterprise = $isEnterprise;
+        $this->endings = explode(",", config('ninja.inbound_expense.webhook.mailbox_endings'));
+        $this->hasCompanyKey = config('ninja.inbound_expense.webhook.mailbox_hascompanykey');
+        $this->enterprise_endings = explode(",", config('ninja.inbound_expense.webhook.mailbox_enterprise_endings'));
     }
 
     public function passes($attribute, $value)
@@ -44,8 +50,24 @@ class ValidExpenseMailbox implements Rule
         }
 
         // Validate Schema
-        $validated = !config('ninja.inbound_expense.webhook.mailbox_schema') || (preg_match(config('ninja.inbound_expense.webhook.mailbox_schema'), $value) && (!config('ninja.inbound_expense.webhook.mailbox_schema_hascompanykey') || str_contains($value, $this->company_key))) ? true : false;
-        $validated_enterprise = !config('ninja.inbound_expense.webhook.mailbox_schema_enterprise') || (Ninja::isHosted() && $this->isEnterprise && preg_match(config('ninja.inbound_expense.webhook.mailbox_schema_enterprise'), $value));
+        $validated_hasCompanyKey = !$this->hasCompanyKey || str_contains($value, $this->company_key);
+        $validated = false;
+        if ($validated_hasCompanyKey)
+            foreach ($this->endings as $ending) {
+                if (str_ends_with($ending, $value)) {
+                    $validated = true;
+                    break;
+                }
+            }
+
+        $validated_enterprise = false;
+        if (Ninja::isHosted() && $this->isEnterprise)
+            foreach ($this->endings as $ending) {
+                if (str_ends_with($ending, $value)) {
+                    $validated_enterprise = true;
+                    break;
+                }
+            }
 
         if (!$validated && !$validated_enterprise)
             return false;
