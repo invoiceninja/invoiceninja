@@ -11,18 +11,13 @@
 
 namespace App\Http\Requests\TaskScheduler;
 
-use App\Utils\Ninja;
 use App\Http\Requests\Request;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Auth\Access\AuthorizationException;
 use App\Http\ValidationRules\Scheduler\ValidClientIds;
+use App\Utils\Traits\MakesHash;
 
 class StoreSchedulerRequest extends Request
 {
     use MakesHash;
-
-    private string $error_message = '';
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -30,13 +25,10 @@ class StoreSchedulerRequest extends Request
      */
     public function authorize(): bool
     {
-        // /** @var \App\Models\User $user */
-        // $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
-        // return $user->isAdmin();
-
-        return $this->checkUserAbleToSave();
-
+        return $user->isAdmin();
     }
 
     public function rules()
@@ -82,39 +74,11 @@ class StoreSchedulerRequest extends Request
         if(isset($input['parameters']['status'])) {
 
             $input['parameters']['status'] = collect(explode(",", $input['parameters']['status']))
-                                                    ->filter(function($status) {
+                                                    ->filter(function ($status) {
                                                         return in_array($status, ['all','draft','paid','unpaid','overdue']);
                                                     })->implode(",") ?? '';
         }
 
         $this->replace($input);
     }
-
-
-    private function checkUserAbleToSave()
-    {
-        
-        $this->error_message = ctrans('texts.authorization_failure');
-
-        /** @var \App\Models\User $user */
-        $user = auth()->user();
-        
-        if(Ninja::isSelfHost() && $user->isAdmin())
-            return true;
-
-        if(Ninja::isHosted() && $user->account->isPaid() && $user->isAdmin()) {
-            return true;
-        }
-
-        if(Ninja::isHosted() && !$user->account->isPaid())
-            $this->error_message = ctrans('texts.upgrade_to_paid_plan');
-
-        return false;
-    }
-
-    protected function failedAuthorization()
-    {
-        throw new AuthorizationException($this->error_message);
-    }
-
 }
