@@ -11,16 +11,18 @@
 
 namespace App\Http\Requests\Email;
 
-use App\Http\Requests\Request;
 use App\Utils\Ninja;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Str;
+use App\Http\Requests\Request;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Validation\Rule;
+use Illuminate\Auth\Access\AuthorizationException;
 
 class SendEmailRequest extends Request
 {
     use MakesHash;
 
+    private string $entity_plural = '';
     private string $error_message = '';
     /**
      * Determine if the user is authorized to make this request.
@@ -39,10 +41,13 @@ class SendEmailRequest extends Request
      */
     public function rules()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         return [
             'template' => 'bail|required',
-            'entity' => 'bail|required',
-            'entity_id' => 'bail|required',
+            'entity' => 'bail|required|in:App\Models\Invoice,App\Models\Quote,App\Models\Credit,App\Models\RecurringInvoice,App\Models\PurchaseOrder,App\Models\Payment',
+            'entity_id' => ['bail', 'required', Rule::exists($this->entity_plural, 'id')->where('company_id', $user->company()->id)],
             'cc_email.*' => 'bail|sometimes|email',
         ];
 
@@ -70,6 +75,8 @@ class SendEmailRequest extends Request
             $input['entity_id'] = $this->decodePrimaryKey($input['entity_id']);
         }
         
+        $this->entity_plural = Str::plural($input['entity']) ?? '';
+
         if (isset($input['entity'])) {
             $input['entity'] = "App\Models\\".ucfirst(Str::camel($input['entity']));
         }
