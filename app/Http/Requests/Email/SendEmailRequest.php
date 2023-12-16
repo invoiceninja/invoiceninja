@@ -24,6 +24,24 @@ class SendEmailRequest extends Request
 
     private string $entity_plural = '';
     private string $error_message = '';
+
+    public array $templates = [
+        'email_template_invoice',
+        'email_template_quote',
+        'email_template_credit',
+        'email_template_payment',
+        'email_template_payment_partial',
+        'email_template_statement',
+        'email_template_reminder1',
+        'email_template_reminder2',
+        'email_template_reminder3',
+        'email_template_reminder_endless',
+        'email_template_custom1',
+        'email_template_custom2',
+        'email_template_custom3',
+        'email_template_purchase_order',
+    ];
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -45,12 +63,11 @@ class SendEmailRequest extends Request
         $user = auth()->user();
 
         return [
-            'template' => 'bail|required',
+            'template' => 'bail|required|in:'.implode(',', $this->templates),
             'entity' => 'bail|required|in:App\Models\Invoice,App\Models\Quote,App\Models\Credit,App\Models\RecurringInvoice,App\Models\PurchaseOrder,App\Models\Payment',
             'entity_id' => ['bail', 'required', Rule::exists($this->entity_plural, 'id')->where('company_id', $user->company()->id)],
             'cc_email.*' => 'bail|sometimes|email',
         ];
-
 
     }
 
