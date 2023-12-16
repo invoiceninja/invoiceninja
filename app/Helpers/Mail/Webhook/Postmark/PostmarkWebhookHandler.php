@@ -11,10 +11,10 @@
 
 namespace App\Helpers\Mail\Webhook\Postmark;
 
-use App\Factory\ExpenseFactory;
 use App\Helpers\Mail\Webhook\BaseWebhookHandler;
+use App\Utils\TempFile;
 
-interface PostmarkWebhookHandler extends BaseWebhookHandler
+class PostmarkWebhookHandler extends BaseWebhookHandler
 {
     // {
     //   "FromName": "Postmarkapp Support",
@@ -104,15 +104,20 @@ interface PostmarkWebhookHandler extends BaseWebhookHandler
         $plain_message = $data["TextBody"];
         $html_message = $data["HtmlBody"];
         $date = $data["Date"]; // TODO
-        $attachments = $data["Attachments"]; // TODO
+
+        // parse documents as UploadedFile from webhook-data
+        $documents = [];
+        foreach ($data["Attachments"] as $attachment) {
+            $documents[] = TempFile::UploadedFileFromRaw($attachment["Content"], $attachment["Name"], $attachment["ContentType"]);
+        }
 
         return $this->createExpense(
-            $from, // from
-            $subject, // subject
-            $plain_message, // plain_message
-            $html_message, // html_message
-            $date, // date
-            $attachments, // attachments
+            $from,
+            $subject,
+            $plain_message,
+            $html_message,
+            $date,
+            $documents,
         );
 
     }

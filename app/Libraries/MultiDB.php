@@ -513,6 +513,27 @@ class MultiDB
         return false;
     }
 
+    public static function findAndSetDbByExpenseMailbox($expense_mailbox)
+    {
+        if (!config('ninja.db.multi_db_enabled')) {
+            return Company::where("expense_mailbox", $expense_mailbox)->first();
+        }
+
+        $current_db = config('database.default');
+
+        foreach (self::$dbs as $db) {
+            if ($company = Company::on($db)->where("expense_mailbox", $expense_mailbox)->first()) {
+                self::setDb($db);
+
+                return $company;
+            }
+        }
+
+        self::setDB($current_db);
+
+        return false;
+    }
+
     public static function findAndSetDbByInvitation($entity, $invitation_key)
     {
         $class = 'App\Models\\' . ucfirst(Str::camel($entity)) . 'Invitation';

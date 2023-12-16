@@ -13,10 +13,11 @@ namespace App\Helpers\Mail\Webhook;
 
 use App\Factory\ExpenseFactory;
 use App\Models\Company;
+use App\Utils\TempFile;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\SavesDocuments;
 
-interface BaseWebhookHandler
+abstract class BaseWebhookHandler
 {
     use GeneratesCounter;
     use SavesDocuments;
@@ -36,7 +37,8 @@ interface BaseWebhookHandler
         $expense->private_notes = $plain_message;
         $expense->date = $date;
 
-        // TODO: add html_message as document to the expense
+        // add html_message as document to the expense
+        $documents[] = TempFile::UploadedFileFromRaw($html_message, "E-Mail.html", "text/html");
 
         $this->saveDocuments($documents, $expense);
 
