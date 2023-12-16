@@ -9,7 +9,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Helpers\Mail;
+namespace App\Helpers\Mail\Mailbox\Imap;
 
 use Ddeboer\Imap\MessageInterface;
 use Ddeboer\Imap\Server;

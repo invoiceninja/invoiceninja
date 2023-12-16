@@ -11,44 +11,28 @@
 
 namespace App\Jobs\Mail;
 
-use App\DataMapper\Analytics\EmailFailure;
-use App\DataMapper\Analytics\EmailSuccess;
 use App\Events\Expense\ExpenseWasCreated;
-use App\Events\Invoice\InvoiceWasEmailedAndFailed;
-use App\Events\Payment\PaymentWasEmailedAndFailed;
 use App\Factory\ExpenseFactory;
 use App\Helpers\Mail\Mailbox\Imap\ImapMailbox;
-use App\Jobs\Util\SystemLogger;
-use App\Libraries\Google\Google;
 use App\Libraries\MultiDB;
-use App\Models\Account;
-use App\Models\ClientContact;
 use App\Models\Company;
-use App\Models\Expense;
-use App\Models\Invoice;
-use App\Models\Payment;
-use App\Models\SystemLog;
-use App\Models\User;
 use App\Models\Vendor;
 use App\Repositories\ExpenseRepository;
 use App\Utils\Ninja;
+use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
-use GuzzleHttp\Exception\ClientException;
+use App\Utils\Traits\SavesDocuments;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Mail;
-use Turbo124\Beacon\Facades\LightLogs;
 
 /*Multi Mailer implemented*/
 
 class ExpenseMailboxJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash, SavesDocuments;
 
     public $tries = 4; //number of retries
 
@@ -70,15 +54,22 @@ class ExpenseMailboxJob implements ShouldQueue
     {
 
         //multiDB environment, need to
-        foreach (MultiDB::$dbs as $db) {
-            MultiDB::setDB($db);
+        if (sizeOf($this->imap_credentials) == 0)
+            return;
 
-            if (sizeOf($this->imap_credentials) != 0) {
-                nlog("importing expenses from imap-servers");
+        foreach ($this->imap_companies as $companyId) {
+            $company = MultiDB::findAndSetDbByCompanyId($companyId);
+            if (!$company) {
+                nlog("processing of an imap_mailbox skipped because of unknown companyId: " . $companyId);
+                return;
+            }
 
-                Company::whereIn('id', $this->imap_companies)->cursor()->each(function ($company) {
-                    $this->handleImapCompany($company);
-                });
+            try {
+                nlog("start importing expenses from imap-server of company: " . $companyId);
+                $this->handleImapCompany($company);
+
+            } catch (\Exception $e) {
+                nlog("processing of an imap_mailbox failed upnormally: " . $companyId . " message: " . $e->getMessage()); // @turbo124 @todo should this be handled in an other way?
             }
         }
 
@@ -87,15 +78,18 @@ class ExpenseMailboxJob implements ShouldQueue
     private function getImapCredentials()
     {
         $servers = array_map('trim', explode(",", config('ninja.inbound_expense.imap.servers')));
-        $ports = explode(",", config('ninja.inbound_expense.imap.servers'));
-        $users = explode(",", config('ninja.inbound_expense.imap.servers'));
-        $passwords = explode(",", config('ninja.inbound_expense.imap.servers'));
-        $companies = explode(",", config('ninja.inbound_expense.imap.servers'));
+        $ports = array_map('trim', explode(",", config('ninja.inbound_expense.imap.ports')));
+        $users = array_map('trim', explode(",", config('ninja.inbound_expense.imap.users')));
+        $passwords = array_map('trim', explode(",", config('ninja.inbound_expense.imap.passwords')));
+        $companies = array_map('trim', explode(",", config('ninja.inbound_expense.imap.companies')));
 
         if (sizeOf($servers) != sizeOf($ports) || sizeOf($servers) != sizeOf($users) || sizeOf($servers) != sizeOf($passwords) || sizeOf($servers) != sizeOf($companies))
             throw new \Exception('invalid configuration inbound_expense.imap (wrong element-count)');
 
         foreach ($companies as $index => $companyId) {
+            if ($servers[$index] == '') // if property is empty, ignore => this happens exspecialy when no config is provided and it enabled us to set a single default company for env (usefull on self-hosted)
+                continue;
+
             $this->imap_credentials[$companyId] = [
                 "server" => $servers[$index],
                 "port" => $ports[$index] != '' ? $ports[$index] : null,
@@ -137,10 +131,21 @@ class ExpenseMailboxJob implements ShouldQueue
                     "documents" => $documents, // FIXME: https://github.com/ddeboer/imap?tab=readme-ov-file#message-attachments
                 ];
 
-                $expense = $this->expense_repo->save($data, ExpenseFactory::create($company->company->id, $company->company->owner()->id)); // TODO: dont assign a new number at beginning
+                $expense = ExpenseFactory::create($company->company->id, $company->company->owner()->id);
+
+                $expense->vendor_id = $vendor !== null ? $vendor->id : null;
+                $expense->public_notes = $mail->getSubject();
+                $expense->private_notes = $mail->getBodyText();
+                $expense->date = $mail->getDate();
+
+                // add html_message as document to the expense
+                $documents[] = TempFile::UploadedFileFromRaw($mail->getBodyHtml(), "E-Mail.html", "text/html");
+
+                $this->saveDocuments($documents, $expense);
+
+                $expense->saveQuietly();
 
                 event(new ExpenseWasCreated($expense, $expense->company, Ninja::eventVars(null)));
-
                 event('eloquent.created: App\Models\Expense', $expense);
 
                 $mail->markAsSeen();

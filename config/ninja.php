@@ -234,7 +234,7 @@ return [
             'ports' => env('INBOUND_EXPENSE_IMAP_PORTS', ''),
             'users' => env('INBOUND_EXPENSE_IMAP_USERS', ''),
             'passwords' => env('INBOUND_EXPENSE_IMAP_PASSWORDS', ''),
-            'companies' => env('INBOUND_EXPENSE_IMAP_COMPANIES', ''),
+            'companies' => env('INBOUND_EXPENSE_IMAP_COMPANIES', '1'),
         ],
         'webhook' => [
             'mailbox_template' => env('INBOUND_EXPENSE_WEBHOOK_MAILBOX_TEMPLATE', null),

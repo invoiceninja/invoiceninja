@@ -11,8 +11,10 @@
 
 namespace App\Helpers\Mail\Webhook;
 
+use App\Events\Expense\ExpenseWasCreated;
 use App\Factory\ExpenseFactory;
 use App\Models\Company;
+use App\Utils\Ninja;
 use App\Utils\TempFile;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\SavesDocuments;
@@ -43,6 +45,9 @@ abstract class BaseWebhookHandler
         $this->saveDocuments($documents, $expense);
 
         $expense->saveQuietly();
+
+        event(new ExpenseWasCreated($expense, $expense->company, Ninja::eventVars(null)));
+        event('eloquent.created: App\Models\Expense', $expense);
 
         return $expense;
     }
