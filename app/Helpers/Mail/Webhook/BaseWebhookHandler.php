@@ -21,8 +21,7 @@ use App\Utils\Traits\SavesDocuments;
 
 abstract class BaseWebhookHandler
 {
-    use GeneratesCounter;
-    use SavesDocuments;
+    use GeneratesCounter, SavesDocuments;
     public function process()
     {
 
