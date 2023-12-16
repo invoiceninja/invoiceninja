@@ -55,6 +55,8 @@ class PdfSlot extends Component
 
     public $is_quote = false;
 
+    private $entity_calc;
+
     public function mount()
     {
         MultiDB::setDb($this->db);
@@ -123,6 +125,7 @@ class PdfSlot extends Component
     {
 
         $this->entity_type = $this->resolveEntityType();
+        $this->entity_calc = $this->entity->calc();
 
         $this->settings = $this->entity->client ? $this->entity->client->getMergedSettings() : $this->entity->company->settings;
 
@@ -149,6 +152,8 @@ class PdfSlot extends Component
             'services' => $this->getServices(),
             'amount' => Number::formatMoney($this->entity->amount, $this->entity->client ?: $this->entity->vendor),
             'balance' => Number::formatMoney($this->entity->balance, $this->entity->client ?: $this->entity->vendor),
+            'discount' => $this->entity_calc->getTotalDiscount() > 0 ? Number::formatMoney($this->entity_calc->getTotalDiscount(), $this->entity->client ?: $this->entity->vendor) : false,
+            'taxes' => $this->entity_calc->getTotalTaxes() > 0 ? Number::formatMoney($this->entity_calc->getTotalTaxes(), $this->entity->client ?: $this->entity->vendor) : false,
             'company_details' => $this->getCompanyDetails(),
             'company_address' => $this->getCompanyAddress(),
             'entity_details' => $this->getEntityDetails(),

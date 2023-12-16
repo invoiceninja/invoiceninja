@@ -60,7 +60,7 @@ class UpdateCompanyRequest extends Request
         // $rules['client_registration_fields'] = 'array';
 
         if (isset($input['portal_mode']) && ($input['portal_mode'] == 'domain' || $input['portal_mode'] == 'iframe')) {
-            $rules['portal_domain'] = 'sometimes|url';
+            $rules['portal_domain'] = 'bail|nullable|sometimes|url';
         }
 
         if (Ninja::isHosted()) {

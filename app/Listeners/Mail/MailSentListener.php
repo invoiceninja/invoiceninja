@@ -76,18 +76,18 @@ class MailSentListener implements ShouldQueue
 
         foreach (MultiDB::$dbs as $db) {
             if ($invitation = InvoiceInvitation::on($db)->where('key', $key)->first()) {
-                $invitation->invoice->sendEvent(Webhook::EVENT_SENT_INVOICE, "client");
+                // $invitation->invoice->sendEvent(Webhook::EVENT_SENT_INVOICE, "client");
                 return $invitation;
             } elseif ($invitation = QuoteInvitation::on($db)->where('key', $key)->first()) {
-                $invitation->quote->sendEvent(Webhook::EVENT_SENT_QUOTE, "client");
+                // $invitation->quote->sendEvent(Webhook::EVENT_SENT_QUOTE, "client");
                 return $invitation;
             } elseif ($invitation = RecurringInvoiceInvitation::on($db)->where('key', $key)->first()) {
                 return $invitation;
             } elseif ($invitation = CreditInvitation::on($db)->where('key', $key)->first()) {
-                $invitation->credit->sendEvent(Webhook::EVENT_SENT_CREDIT, "client");
+                // $invitation->credit->sendEvent(Webhook::EVENT_SENT_CREDIT, "client");
                 return $invitation;
             } elseif ($invitation = PurchaseOrderInvitation::on($db)->where('key', $key)->first()) {
-                $invitation->purchase_order->sendEvent(Webhook::EVENT_SENT_PURCHASE_ORDER, "vendor");
+                // $invitation->purchase_order->sendEvent(Webhook::EVENT_SENT_PURCHASE_ORDER, "vendor");
                 return $invitation;
             }
         }

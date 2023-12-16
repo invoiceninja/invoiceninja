@@ -11,13 +11,14 @@
 
 namespace App\Services\Credit;
 
-use App\Events\Credit\CreditWasEmailed;
-use App\Jobs\Entity\EmailEntity;
-use App\Models\Credit;
-use App\Services\AbstractService;
 use App\Utils\Ninja;
-use App\Utils\Traits\GeneratesCounter;
+use App\Models\Credit;
+use App\Models\Webhook;
 use Illuminate\Http\Request;
+use App\Jobs\Entity\EmailEntity;
+use App\Services\AbstractService;
+use App\Utils\Traits\GeneratesCounter;
+use App\Events\Credit\CreditWasEmailed;
 
 class TriggeredActions extends AbstractService
 {
@@ -78,6 +79,7 @@ class TriggeredActions extends AbstractService
 
         if ($this->credit->invitations->count() > 0) {
             event(new CreditWasEmailed($this->credit->invitations->first(), $this->credit->company, Ninja::eventVars(), 'credit'));
+            $this->credit->sendEvent(Webhook::EVENT_SENT_CREDIT, "client");
         }
     }
 }

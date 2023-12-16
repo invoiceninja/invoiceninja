@@ -74,7 +74,7 @@ class StoreSchedulerRequest extends Request
         if(isset($input['parameters']['status'])) {
 
             $input['parameters']['status'] = collect(explode(",", $input['parameters']['status']))
-                                                    ->filter(function($status) {
+                                                    ->filter(function ($status) {
                                                         return in_array($status, ['all','draft','paid','unpaid','overdue']);
                                                     })->implode(",") ?? '';
         }
