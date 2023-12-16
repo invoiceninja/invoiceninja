@@ -17,7 +17,6 @@ use App\Jobs\Cron\RecurringInvoicesCron;
 use App\Jobs\Cron\SubscriptionCron;
 use App\Jobs\Cron\UpdateCalculatedFields;
 use App\Jobs\Invoice\InvoiceCheckLateWebhook;
-use App\Jobs\Mail\ExpenseImportJob;
 use App\Jobs\Mail\ExpenseMailboxJob;
 use App\Jobs\Ninja\AdjustEmailQuota;
 use App\Jobs\Ninja\BankTransactionSync;
@@ -131,7 +130,6 @@ class Kernel extends ConsoleKernel
             $schedule->command('queue:restart')->everyFiveMinutes()->withoutOverlapping();
         }
 
-        $schedule->job(new ExpenseImportJob)->everyThirtyMinutes()->withoutOverlapping()->name('expense-import-job')->onOneServer();
     }
 
     /**
