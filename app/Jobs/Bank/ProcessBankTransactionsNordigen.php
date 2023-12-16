@@ -34,10 +34,6 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
 
     private ?string $from_date;
 
-    private bool $stop_loop = true;
-
-    private int $skip = 0;
-
     public Company $company;
     public Nordigen $nordigen;
     public $nordigen_account;
@@ -48,7 +44,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
     public function __construct(BankIntegration $bank_integration)
     {
         $this->bank_integration = $bank_integration;
-        $this->from_date = $bank_integration->from_date;
+        $this->from_date = $bank_integration->from_date ?: now()->subDays(90);
         $this->company = $this->bank_integration->company;
     }
 
@@ -71,9 +67,6 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
 
         set_time_limit(0);
 
-        //Loop through everything until we are up to date
-        $this->from_date = $this->from_date ?: '2021-01-01';
-
         // UPDATE ACCOUNT
         try {
             $this->updateAccount();
@@ -94,27 +87,27 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
             return;
 
         // UPDATE TRANSACTIONS
-        do {
+        try {
+            $this->processTransactions();
+        } catch (\Exception $e) {
+            // reset from_date in case this was the error (self-heal) and perform a max sync of data we can fetch (next-time) @todo we should analyze the error for this
+            $this->bank_integration->from_date = now()->subDays(90);
+            $this->bank_integration->save();
 
-            try {
-                $this->processTransactions();
-            } catch (\Exception $e) {
-                nlog("{$this->bank_integration->account->key} - exited abnormally => " . $e->getMessage());
+            nlog("{$this->bank_integration->account->key} - exited abnormally => " . $e->getMessage());
 
-                $content = [
-                    "Processing transactions for account: {$this->bank_integration->account->key} failed",
-                    "Exception Details => ",
-                    $e->getMessage(),
-                ];
+            $content = [
+                "Processing transactions for account: {$this->bank_integration->account->key} failed",
+                "Exception Details => ",
+                $e->getMessage(),
+            ];
 
-                $this->bank_integration->company->notification(new GenericNinjaAdminNotification($content))->ninja();
+            $this->bank_integration->company->notification(new GenericNinjaAdminNotification($content))->ninja();
 
-                throw $e;
-            }
-
+            throw $e;
         }
-        while ($this->stop_loop);
 
+        // Perform Matching
         BankMatchingService::dispatch($this->company->id, $this->company->db);
 
     }
@@ -148,18 +141,13 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
         //Get transaction count object
         $transactions = $this->nordigen->getTransactions($this->bank_integration->nordigen_account_id, $this->from_date);
 
-        Log::Info($transactions);
-
-        //Get int count
-        $count = sizeof($transactions);
-
         //if no transactions, update the from_date and move on
         if (count($transactions) == 0) {
 
             $this->bank_integration->from_date = now()->subDays(5);
             $this->bank_integration->disabled_upstream = false;
             $this->bank_integration->save();
-            $this->stop_loop = false;
+
             return;
         }
 
@@ -174,7 +162,6 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
         BankTransaction::unguard();
 
         $now = now();
-
 
         foreach ($transactions as $transaction) {
 
@@ -194,17 +181,6 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
 
         }
 
-
-        // $this->skip = $this->skip + 500;
-
-        // if ($count < 500) {
-        //     $this->stop_loop = false;
-        //     $this->bank_integration->from_date = now()->subDays(5);
-        //     $this->bank_integration->save();
-
-        // }
-
-        $this->stop_loop = false;
         $this->bank_integration->from_date = now()->subDays(5);
         $this->bank_integration->save();
 
