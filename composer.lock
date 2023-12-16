@@ -485,16 +485,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.294.0",
+            "version": "3.294.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "ab796bc3334e263b52b0b8c6de3edf057675cca4"
+                "reference": "63c720229a9c9cdedff6bac98d6e72be8cc241f1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/ab796bc3334e263b52b0b8c6de3edf057675cca4",
-                "reference": "ab796bc3334e263b52b0b8c6de3edf057675cca4",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/63c720229a9c9cdedff6bac98d6e72be8cc241f1",
+                "reference": "63c720229a9c9cdedff6bac98d6e72be8cc241f1",
                 "shasum": ""
             },
             "require": {
@@ -574,9 +574,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.294.0"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.294.1"
             },
-            "time": "2023-12-14T19:14:39+00:00"
+            "time": "2023-12-15T19:25:52+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -3717,16 +3717,16 @@
         },
         {
             "name": "imdhemy/google-play-billing",
-            "version": "1.5.0",
+            "version": "1.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/imdhemy/google-play-billing.git",
-                "reference": "a227174a71bc5d7b3e5f9aa4fcad2c4a9a11a8a4"
+                "reference": "bb94f3b6ddb021605815e528f31b8c930c41677c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/imdhemy/google-play-billing/zipball/a227174a71bc5d7b3e5f9aa4fcad2c4a9a11a8a4",
-                "reference": "a227174a71bc5d7b3e5f9aa4fcad2c4a9a11a8a4",
+                "url": "https://api.github.com/repos/imdhemy/google-play-billing/zipball/bb94f3b6ddb021605815e528f31b8c930c41677c",
+                "reference": "bb94f3b6ddb021605815e528f31b8c930c41677c",
                 "shasum": ""
             },
             "require": {
@@ -3762,22 +3762,22 @@
             "description": "Google Play Billing",
             "support": {
                 "issues": "https://github.com/imdhemy/google-play-billing/issues",
-                "source": "https://github.com/imdhemy/google-play-billing/tree/1.5.0"
+                "source": "https://github.com/imdhemy/google-play-billing/tree/1.5.1"
             },
-            "time": "2023-09-17T12:33:33+00:00"
+            "time": "2023-12-15T10:25:05+00:00"
         },
         {
             "name": "imdhemy/laravel-purchases",
-            "version": "1.9.0",
+            "version": "1.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/imdhemy/laravel-in-app-purchases.git",
-                "reference": "4471f5dc211931b847ac0bf88f78bd4fa9e3760d"
+                "reference": "b74e09b78fb3e0f1b1630dbcfd23d9f6fe251b90"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/imdhemy/laravel-in-app-purchases/zipball/4471f5dc211931b847ac0bf88f78bd4fa9e3760d",
-                "reference": "4471f5dc211931b847ac0bf88f78bd4fa9e3760d",
+                "url": "https://api.github.com/repos/imdhemy/laravel-in-app-purchases/zipball/b74e09b78fb3e0f1b1630dbcfd23d9f6fe251b90",
+                "reference": "b74e09b78fb3e0f1b1630dbcfd23d9f6fe251b90",
                 "shasum": ""
             },
             "require": {
@@ -3833,7 +3833,7 @@
             ],
             "support": {
                 "issues": "https://github.com/imdhemy/laravel-in-app-purchases/issues",
-                "source": "https://github.com/imdhemy/laravel-in-app-purchases/tree/1.9.0"
+                "source": "https://github.com/imdhemy/laravel-in-app-purchases/tree/1.9.1"
             },
             "funding": [
                 {
@@ -3841,7 +3841,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-09-19T06:01:35+00:00"
+            "time": "2023-12-15T10:35:56+00:00"
         },
         {
             "name": "intervention/image",
@@ -9148,16 +9148,16 @@
         },
         {
             "name": "pusher/pusher-php-server",
-            "version": "7.2.3",
+            "version": "7.2.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pusher/pusher-http-php.git",
-                "reference": "416e68dd5f640175ad5982131c42a7a666d1d8e9"
+                "reference": "de2f72296808f9cafa6a4462b15a768ff130cddb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pusher/pusher-http-php/zipball/416e68dd5f640175ad5982131c42a7a666d1d8e9",
-                "reference": "416e68dd5f640175ad5982131c42a7a666d1d8e9",
+                "url": "https://api.github.com/repos/pusher/pusher-http-php/zipball/de2f72296808f9cafa6a4462b15a768ff130cddb",
+                "reference": "de2f72296808f9cafa6a4462b15a768ff130cddb",
                 "shasum": ""
             },
             "require": {
@@ -9203,9 +9203,9 @@
             ],
             "support": {
                 "issues": "https://github.com/pusher/pusher-http-php/issues",
-                "source": "https://github.com/pusher/pusher-http-php/tree/7.2.3"
+                "source": "https://github.com/pusher/pusher-http-php/tree/7.2.4"
             },
-            "time": "2023-05-17T16:00:06+00:00"
+            "time": "2023-12-15T10:58:53+00:00"
         },
         {
             "name": "ralouphie/getallheaders",
@@ -17681,16 +17681,16 @@
         },
         {
             "name": "spatie/laravel-ignition",
-            "version": "2.3.1",
+            "version": "2.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-ignition.git",
-                "reference": "bf21cd15aa47fa4ec5d73bbc932005c70261efc8"
+                "reference": "4800661a195e15783477d99f7f8f669a49793996"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-ignition/zipball/bf21cd15aa47fa4ec5d73bbc932005c70261efc8",
-                "reference": "bf21cd15aa47fa4ec5d73bbc932005c70261efc8",
+                "url": "https://api.github.com/repos/spatie/laravel-ignition/zipball/4800661a195e15783477d99f7f8f669a49793996",
+                "reference": "4800661a195e15783477d99f7f8f669a49793996",
                 "shasum": ""
             },
             "require": {
@@ -17769,7 +17769,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-10-09T12:55:26+00:00"
+            "time": "2023-12-15T13:44:49+00:00"
         },
         {
             "name": "spaze/phpstan-stripe",

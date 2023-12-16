@@ -10,11 +10,16 @@
  */
 namespace App\Http\Requests\TaskScheduler;
 
+use App\Utils\Ninja;
 use App\Http\Requests\Request;
+use Illuminate\Auth\Access\AuthorizationException;
 use App\Http\ValidationRules\Scheduler\ValidClientIds;
 
 class UpdateSchedulerRequest extends Request
 {
+    
+    private string $error_message = '';
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -22,10 +27,9 @@ class UpdateSchedulerRequest extends Request
      */
     public function authorize(): bool
     {
-        /** @var \App\Models\User $user */
-        $user = auth()->user();
 
-        return $user->isAdmin() && $this->task_scheduler->company_id == $user->company()->id;
+        return $this->checkUserAbleToSave();
+
     }
 
     public function rules(): array
@@ -78,7 +82,32 @@ class UpdateSchedulerRequest extends Request
 
         $this->replace($input);
 
-
-
     }
+
+    private function checkUserAbleToSave()
+    {
+        
+        $this->error_message = ctrans('texts.authorization_failure');
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        
+        if(Ninja::isSelfHost() && $user->isAdmin() && $this->task_scheduler->company_id == $user->company()->id)
+            return true;
+
+        if(Ninja::isHosted() && $user->account->isPaid() && $user->isAdmin() && $this->task_scheduler->company_id == $user->company()->id) {
+            return true;
+        }
+
+        if(Ninja::isHosted() && !$user->account->isPaid())
+            $this->error_message = ctrans('texts.upgrade_to_paid_plan');
+
+        return false;
+    }
+
+    protected function failedAuthorization()
+    {
+        throw new AuthorizationException($this->error_message);
+    }
+
 }
