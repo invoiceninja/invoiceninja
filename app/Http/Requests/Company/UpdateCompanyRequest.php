@@ -115,7 +115,7 @@ class UpdateCompanyRequest extends Request
         }
 
         if (isset($settings['email_style_custom'])) {
-            $settings['email_style_custom'] = str_replace(['{{','}}'], ['',''], $settings['email_style_custom']);
+            $settings['email_style_custom'] = str_replace(['{!!','!!}','{{','}}','@if(','@endif','@isset','@unless','@auth','@empty','@guest','@env','@section','@switch', '@foreach', '@while', '@include', '@each', '@once', '@push', '@use', '@forelse', '@verbatim', '<?php', '@php', '@for'], '', $settings['email_style_custom']);
         }
 
         if (! $account->isFreeHostedClient()) {
