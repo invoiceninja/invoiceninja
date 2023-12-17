@@ -36,7 +36,8 @@ We offer a $30 per year white-label license to remove the Invoice Ninja branding
 ### Desktop Apps
 * [macOS](https://apps.apple.com/app/id1503970375?platform=mac)
 * [Windows](https://microsoft.com/en-us/p/invoice-ninja/9n3f2bbcfdr6)
-* [Linux](https://snapcraft.io/invoiceninja)
+* [Linux - Snap](https://snapcraft.io/invoiceninja)
+* [Linux - Flatpak](https://flathub.org/apps/com.invoiceninja.InvoiceNinja)
 
 ### Installation Options
 * [Docker File](https://hub.docker.com/r/invoiceninja/invoiceninja/)
