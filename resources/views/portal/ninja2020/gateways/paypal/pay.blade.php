@@ -1,11 +1,6 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.payment_type_credit_card'), 'card_title' => 'PayPal'])
+@extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.payment_type_credit_card'), 'card_title' => ''])
 
 @section('gateway_head')
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="https://www.paypalobjects.com/webstatic/en_US/developer/docs/css/cardfields.css"
-    />
 
 @endsection
 
@@ -20,7 +15,7 @@
 
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
-<div id="paypal-button-container" class="paypal-button-container"></div>
+    <div id="paypal-button-container" class="paypal-button-container"></div>
    
 @endsection
 
@@ -46,6 +41,9 @@
     createOrder: function(data, actions) {
       return "{!! $order_id !!}"  
     },
+    onCancel: function() {
+        window.location.href = "/client/invoices/";
+    },
     onApprove: function(data, actions) {
 
       return actions.order.capture().then(function(details) {                                    
@@ -58,6 +56,9 @@
       },
     onError: function(err) {
           console.log(err);
+    },
+    onClick: function (){
+            document.getElementById('paypal-button-container').hidden = true;
     }
     
     }).render('#paypal-button-container').catch(function(err) {
