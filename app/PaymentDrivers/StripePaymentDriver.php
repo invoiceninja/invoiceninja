@@ -469,6 +469,16 @@ class StripePaymentDriver extends BaseDriver
         return SetupIntent::create($params, array_merge($meta, ['idempotency_key' => uniqid("st", true)]));
     }
 
+    public function getSetupIntentId(string $id): SetupIntent
+    {
+        $this->init();
+
+        return SetupIntent::retrieve(
+            $id,
+            $this->stripe_connect_auth
+        );
+    }
+
     /**
      * Returns the Stripe publishable key.
      * @return null|string The stripe publishable key

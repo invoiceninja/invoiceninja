@@ -51,6 +51,9 @@ class Charge
         if ($cgt->gateway_type_id == GatewayType::BANK_TRANSFER) {
             return (new ACH($this->stripe))->tokenBilling($cgt, $payment_hash);
         }
+        elseif($cgt->gateway_type_id == GatewayType::ACSS){
+            return (new ACSS($this->stripe))->tokenBilling($cgt, $payment_hash);
+        }
 
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
 
