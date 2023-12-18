@@ -62,48 +62,13 @@ class IngresEmailEngine implements ShouldQueue
                 continue;
 
             $this->isUnknownRecipent = false;
-            if (!$this->validateExpenseActive())
+            if (!$this->validateExpenseShouldProcess())
                 continue;
 
             $this->createExpense();
         }
 
         $this->saveMeta();
-    }
-
-    // MAIN-PROCESSORS
-    protected function createExpense()
-    {
-        if (!$this->validateExpenseSender()) {
-            nlog('invalid sender of an ingest email to company: ' . $this->company->id . ' from: ' . $this->email->from);
-            return;
-        }
-
-        $expense = ExpenseFactory::create($this->company->id, $this->company->owner()->id);
-
-        $expense->public_notes = $this->email->subject;
-        $expense->private_notes = $this->email->text_body;
-        $expense->date = $this->email->date;
-
-        // handle vendor assignment
-        $expense_vendor = $this->getExpenseVendor();
-        if ($expense_vendor)
-            $expense->vendor_id = $expense_vendor->id;
-
-        // handle documents
-        $this->processHtmlBodyToDocument();
-        $documents = [];
-        array_push($documents, ...$this->email->documents);
-        if ($this->email->body_document)
-            $documents[] = $this->email->body_document;
-        $this->saveDocuments($documents, $expense);
-
-        $expense->saveQuietly();
-
-        event(new ExpenseWasCreated($expense, $expense->company, Ninja::eventVars(null))); // @turbo124 please check, I copied from API
-        event('eloquent.created: App\Models\Expense', $expense); // @turbo124 please check, I copied from API
-
-        return $expense;
     }
 
     // SPAM Protection
@@ -166,7 +131,7 @@ class IngresEmailEngine implements ShouldQueue
         Cache::add('ingresEmailBlockedSender:' . $this->email->from, true, now()->addHours(12));
         $this->saveMeta();
 
-        // TODO: ignore, when known sender
+        // TODO: ignore, when known sender (for heavy email-usage mostly on isHosted())
         // TODO: handle external blocking
     }
     private function saveMeta()
@@ -185,15 +150,52 @@ class IngresEmailEngine implements ShouldQueue
             }
         }
     }
-    // PARSING
+
+    // MAIL-PARSING
     private function processHtmlBodyToDocument()
     {
         if (!$this->email->body_document && property_exists($this->email, "body")) {
             $this->email->body_document = TempFile::UploadedFileFromRaw($this->email->body, "E-Mail.html", "text/html");
         }
     }
+
+    // MAIN-PROCESSORS
+    protected function createExpense()
+    {
+        if (!$this->validateExpenseSender()) {
+            nlog('invalid sender of an ingest email to company: ' . $this->company->id . ' from: ' . $this->email->from);
+            return;
+        }
+
+        $expense = ExpenseFactory::create($this->company->id, $this->company->owner()->id);
+
+        $expense->public_notes = $this->email->subject;
+        $expense->private_notes = $this->email->text_body;
+        $expense->date = $this->email->date;
+
+        // handle vendor assignment
+        $expense_vendor = $this->getExpenseVendor();
+        if ($expense_vendor)
+            $expense->vendor_id = $expense_vendor->id;
+
+        // handle documents
+        $this->processHtmlBodyToDocument();
+        $documents = [];
+        array_push($documents, ...$this->email->documents);
+        if ($this->email->body_document)
+            $documents[] = $this->email->body_document;
+        $this->saveDocuments($documents, $expense);
+
+        $expense->saveQuietly();
+
+        event(new ExpenseWasCreated($expense, $expense->company, Ninja::eventVars(null))); // @turbo124 please check, I copied from API
+        event('eloquent.created: App\Models\Expense', $expense); // @turbo124 please check, I copied from API
+
+        return $expense;
+    }
+
     // HELPERS
-    private function validateExpenseActive()
+    private function validateExpenseShouldProcess()
     {
         return $this->company?->expense_mailbox_active ?: false;
     }
