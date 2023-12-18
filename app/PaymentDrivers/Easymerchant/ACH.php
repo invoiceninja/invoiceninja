@@ -156,7 +156,7 @@ class ACH
         ];
 
         $state = array_merge($state, $request->all());
-        // $state['source'] = $source->token;
+        $state['status'] = 'paid_unsettled';
 
         $this->easymerchant->payment_hash->data = array_merge((array) $this->easymerchant->payment_hash->data, $state);
         $this->easymerchant->payment_hash->save();
@@ -214,7 +214,7 @@ class ACH
             $message,
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_FAILURE,
-            SystemLog::TYPE_STRIPE,
+            SystemLog::TYPE_EASYMERCHANT,
             $this->easymerchant->client,
             $this->easymerchant->client->company,
         );
@@ -227,7 +227,7 @@ class ACH
         $state = $this->easymerchant->payment_hash->data;
 
         $data = [
-            'payment_type' => PaymentType::parseCardType("ACH"),
+            'payment_type' => PaymentType::ACH,
             'amount' => $response['amount'],
             'transaction_reference' => $response['charge'],
             'gateway_type_id' => GatewayType::BANK_TRANSFER,

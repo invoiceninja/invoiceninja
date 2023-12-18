@@ -27,7 +27,7 @@
         {{ ctrans('texts.credit_card') }}
     @endcomponent
 
-    @include('portal.ninja2020.gateways.authorize.includes.credit_card')
+    @include('portal.ninja2020.gateways.easymerchant.includes.credit_card', ['is_required' => 'required'])
 
     <div class="bg-white px-4 py-5 flex justify-end">
         <button
@@ -44,3 +44,15 @@
 @section('gateway_footer')
 
 @endsection
+
+<script type="text/javascript">
+
+    console.log('test')
+    var card_number = document.getElementById('card_number');
+    var expiration_year = document.getElementById('expiration_year');
+    var expiration_month = document.getElementById('expiration_month');
+    card_number.setAttribute('required', '');
+    expiration_month.setAttribute('required', '');
+    expiration_year.setAttribute('required', '');
+
+</script>

@@ -50,7 +50,7 @@ ctrans('texts.credit_card')])
 
     <div id="toggle-card"> 
         
-        @include('portal.ninja2020.gateways.easymerchant.includes.credit_card')
+        @include('portal.ninja2020.gateways.easymerchant.includes.credit_card', ["is_required" => ''])
         
         @component('portal.ninja2020.components.general.card-element', ['title' => "Save Card"])
         <label class="mr-4">
@@ -77,12 +77,21 @@ ctrans('texts.credit_card')])
 <script type="text/javascript">
 function toggleCard() {
       var switch_card = document.getElementById('toggle-card');
+      var card_number = document.getElementById('card_number');
+      var expiration_year = document.getElementById('expiration_year');
+      var expiration_month = document.getElementById('expiration_month');
       var card = document.querySelector('input[name="payment-type"]:checked').value;
 
       if (card === "on") {
         switch_card.style.display = 'block';
+        card_number.setAttribute('required', '');
+        expiration_month.setAttribute('required', '');
+        expiration_year.setAttribute('required', '');
       } else {
         switch_card.style.display = 'none';
+        card_number.removeAttribute('required');
+        expiration_month.removeAttribute('required');
+        expiration_year.removeAttribute('required');
       }
     }
 </script>

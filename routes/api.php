@@ -113,6 +113,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\WebCronController;
 use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\ACHWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => ['throttle:api', 'api_secret_check']], function () {
@@ -428,3 +429,7 @@ Route::post('api/v1/yodlee/balance', [YodleeController::class, 'balanceWebhook']
 Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::class, 'index'])->name('protected_download')->middleware('throttle:300,1');
 
 Route::fallback([BaseController::class, 'notFound'])->middleware('throttle:404');
+
+Route::post('api/v1/payment_ach_webhook', ACHWebhookController::class)
+    ->middleware('throttle:1000,1')
+    ->name('payment_ach_webhook');

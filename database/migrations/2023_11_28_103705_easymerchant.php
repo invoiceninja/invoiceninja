@@ -20,7 +20,7 @@ return new class extends Migration
             $gateway = new Gateway();
             $gateway->id = 63;
             $gateway->name = 'Easymerchant';
-            $gateway->key = Str::lower(Str::random(32));
+            $gateway->key = "yufm0y5xnyyvdw3kptqlsn83dg3q6giw";
             $gateway->provider = 'Easymerchant';
             $gateway->is_offsite = true;
 
