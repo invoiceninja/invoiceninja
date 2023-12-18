@@ -71,16 +71,16 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
         //Loop through everything until we are up to date
         $this->from_date = $this->from_date ?: '2021-01-01';
 
-        nlog("Processing transactions for account: {$this->bank_integration->account->key}");
+        nlog("Yodlee: Processing transactions for account: {$this->bank_integration->account->key}");
 
         do {
             try {
                 $this->processTransactions();
             } catch (\Exception $e) {
-                nlog("{$this->account->bank_integration_account_id} - exited abnormally => " . $e->getMessage());
+                nlog("Yodlee: {$this->bank_integration->bank_account_id} - exited abnormally => " . $e->getMessage());
 
                 $content = [
-                    "Processing transactions for account: {$this->bank_integration->account->key} failed",
+                    "Processing transactions for account: {$this->bank_integration->bank_account_id} failed",
                     "Exception Details => ",
                     $e->getMessage(),
                 ];
@@ -164,7 +164,7 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
         $now = now();
 
         foreach ($transactions as $transaction) {
-            if (BankTransaction::query()->where('transaction_id', $transaction['transaction_id'])->where('company_id', $this->company->id)->withTrashed()->exists()) {
+            if (BankTransaction::query()->where('transaction_id', $transaction['transaction_id'])->where('company_id', $this->company->id)->where('bank_integration_id', $this->bank_integration->id)->withTrashed()->exists()) { // @turbo124 was not scoped to bank_integration_id => from my pov this should be present, because when an account was historized (is_deleted) a transaction can occur multiple (in the archived bank_integration and in the new one
                 continue;
             }
 

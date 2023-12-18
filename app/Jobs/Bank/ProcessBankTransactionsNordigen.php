@@ -67,14 +67,16 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
 
         set_time_limit(0);
 
+        nlog("Nordigen: Processing transactions for account: {$this->bank_integration->account->key}");
+
         // UPDATE ACCOUNT
         try {
             $this->updateAccount();
         } catch (\Exception $e) {
-            nlog("{$this->bank_integration->account->key} - exited abnormally => " . $e->getMessage());
+            nlog("Nordigen: {$this->bank_integration->nordigen_account_id} - exited abnormally => " . $e->getMessage());
 
             $content = [
-                "Processing transactions for account: {$this->bank_integration->account->key} failed",
+                "Processing transactions for account: {$this->bank_integration->nordigen_account_id} failed",
                 "Exception Details => ",
                 $e->getMessage(),
             ];
@@ -94,10 +96,10 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
             $this->bank_integration->from_date = now()->subDays(90);
             $this->bank_integration->save();
 
-            nlog("{$this->bank_integration->account->key} - exited abnormally => " . $e->getMessage());
+            nlog("Nordigen: {$this->bank_integration->nordigen_account_id} - exited abnormally => " . $e->getMessage());
 
             $content = [
-                "Processing transactions for account: {$this->bank_integration->account->key} failed",
+                "Processing transactions for account: {$this->bank_integration->nordigen_account_id} failed",
                 "Exception Details => ",
                 $e->getMessage(),
             ];
@@ -114,13 +116,11 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
 
     private function updateAccount()
     {
-
-        Log::info("try to execute updateAccount");
         if (!$this->nordigen->isAccountActive($this->bank_integration->nordigen_account_id)) {
             $this->bank_integration->disabled_upstream = true;
             $this->bank_integration->save();
             $this->stop_loop = false;
-            Log::info("account inactive");
+            Log::info("Nordigen: account inactive: " . $this->bank_integration->nordigen_account_id);
             // @turbo124 @todo send email for expired account
             return;
         }
