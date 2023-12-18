@@ -12,9 +12,7 @@
 
 namespace App\PaymentDrivers\Stripe;
 
-use Stripe\Customer;
 use App\Models\Payment;
-use Stripe\SetupIntent;
 use App\Models\SystemLog;
 use App\Models\GatewayType;
 use App\Models\PaymentHash;
@@ -24,16 +22,12 @@ use App\Http\Requests\Request;
 use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
 use App\Exceptions\PaymentFailed;
-use App\Jobs\Mail\NinjaMailerJob;
 use App\Models\ClientGatewayToken;
-use Stripe\Exception\CardException;
-use App\Jobs\Mail\NinjaMailerObject;
 use Illuminate\Support\Facades\Cache;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\PaymentDrivers\StripePaymentDriver;
-use Stripe\Exception\InvalidRequestException;
-use App\Mail\Gateways\ACHVerificationNotification;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use Stripe\PaymentIntent;
 
 class ACSS
 {
@@ -87,7 +81,7 @@ class ACSS
     /**
      * Authorizes the mandate for future billing
      *
-     * @param  mixed $request
+     * @param  Request $request
      * @return void
      */
     public function authorizeResponse(Request $request)
@@ -138,8 +132,14 @@ class ACSS
         return redirect()->route('client.payment_methods.show', $client_gateway_token->hashed_id);
 
     }
-    
-    private function tokenIntent(ClientGatewayToken $token)
+        
+    /**
+     * Generates a token Payment Intent
+     *
+     * @param  ClientGatewayToken $token
+     * @return void
+     */
+    private function tokenIntent(ClientGatewayToken $token): PaymentIntent
     {
 
         $intent = \Stripe\PaymentIntent::create([
@@ -159,7 +159,15 @@ class ACSS
 
         return $intent;
     }
+    
+    /**
+     * Payment view for ACSS
+     * 
+     * Determines if any payment tokens are available and if not, generates a mandate
+     *
+     * @param  array $data
 
+     */
     public function paymentView(array $data)
     {
       
@@ -173,7 +181,13 @@ class ACSS
 
         return $this->continuePayment($data);
     }
+    
+    /**
+     * Generate a payment Mandate for ACSS
+     *
+     * @param  array $data
 
+     */
     private function generateMandate(array $data)
     {
 
@@ -204,7 +218,13 @@ class ACSS
         return render('gateways.stripe.acss.authorize', array_merge($data));
 
     }
-
+    
+    /**
+     * Continues the payment flow after a Mandate has been successfully generated
+     *
+     * @param  array $data
+     * @return void
+     */
     private function continuePayment(array $data)
     {
 
@@ -222,7 +242,12 @@ class ACSS
 
         return render('gateways.stripe.acss.pay', $data);
     }
-
+    
+    /**
+     * ?redundant
+     *
+     * @return string
+     */
     private function buildReturnUrl(): string
     {
         return route('client.payments.response', [
@@ -231,13 +256,20 @@ class ACSS
             'payment_method_id' => GatewayType::ACSS,
         ]);
     }
-
+    
+    /**
+     * PaymentResponseRequest
+     *
+     * @param  mixed $request
+     */
     public function paymentResponse(PaymentResponseRequest $request)
     {
 
         $gateway_response = json_decode($request->gateway_response);
 
         $cgt = ClientGatewayToken::find($this->decodePrimaryKey($request->token));
+
+        /** @var Stripe\PaymentIntent $intent */
         $intent = $this->tokenIntent($cgt);
 
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $request->all());
@@ -250,7 +282,13 @@ class ACSS
 
         return $this->processUnsuccessfulPayment();
     }
-
+    
+    /**
+     * Performs token billing using a ACSS payment method
+     *
+     * @param  ClientGatewayToken $cgt
+     * @param  PaymentHash $payment_hash
+     */
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
         $this->stripe->init();
@@ -260,6 +298,7 @@ class ACSS
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $stripe_amount]);
         $this->stripe->payment_hash->save();
 
+        /** @var Stripe\PaymentIntent $intent */
         $intent = $this->tokenIntent($cgt);
 
         if ($intent->status && $intent->status == 'processing') {
@@ -272,7 +311,13 @@ class ACSS
 
 
     }
-
+    
+    /**
+     * Creates a payment for the transaction
+     *
+     * @param  string $payment_intent
+     * @return Illuminate\Http\RedirectResponse
+     */
     public function processSuccessfulPayment(string $payment_intent): \Illuminate\Http\RedirectResponse
     {
         $data = [
@@ -324,7 +369,15 @@ class ACSS
 
         throw new PaymentFailed('Failed to process the payment.', 500);
     }
-
+    
+    /**
+     * Stores the payment token
+     *
+     * @param  string $payment_method
+     * @param  string $mandate
+     * @param  string $status
+     * @return ClientGatewayToken
+     */
     private function storePaymentMethod(string $payment_method, string $mandate, string $status = 'authorized'): ?ClientGatewayToken
     {
         try {
