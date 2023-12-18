@@ -190,8 +190,6 @@ class IngresEmailEngine implements ShouldQueue
 
         event(new ExpenseWasCreated($expense, $expense->company, Ninja::eventVars(null))); // @turbo124 please check, I copied from API
         event('eloquent.created: App\Models\Expense', $expense); // @turbo124 please check, I copied from API
-
-        return $expense;
     }
 
     // HELPERS
