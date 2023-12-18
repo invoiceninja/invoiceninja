@@ -293,36 +293,6 @@ class NordigenController extends BaseController
      *       ),
      *     )
      */
-
-    /*
-    {
-      "event":{
-         "info":"REFRESH.PROCESS_COMPLETED",
-         "loginName":"fri21",
-         "data":{
-            "providerAccount":[
-               {
-                  "id":10995860,
-                  "providerId":16441,
-                  "isManual":false,
-                  "createdDate":"2017-12-22T05:47:35Z",
-                  "aggregationSource":"USER",
-                  "status":"SUCCESS",
-                  "requestId":"NSyMGo+R4dktywIu3hBIkc3PgWA=",
-                  "dataset":[
-                     {
-                        "name":"BASIC_AGG_DATA",
-                        "additionalStatus":"AVAILABLE_DATA_RETRIEVED",
-                        "updateEligibility":"ALLOW_UPDATE",
-                        "lastUpdated":"2017-12-22T05:48:16Z",
-                        "lastUpdateAttempt":"2017-12-22T05:48:16Z"
-                     }
-                  ]
-               }
-            ]
-         }
-      }
-   }*/
     public function institutions(Request $request)
     {
         if (!(config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key')))
