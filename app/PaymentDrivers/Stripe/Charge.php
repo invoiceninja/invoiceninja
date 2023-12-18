@@ -102,12 +102,9 @@ class Charge
             ];
 
             switch ($e) {
+                /** @var \Stripe\Exception\CardException $e */
                 case $e instanceof CardException:
-                    $data['status'] = $e->getHttpStatus();
-                    $data['error_type'] = $e->getError()->type;
-                    $data['error_code'] = $e->getError()->code;
-                    $data['param'] = $e->getError()->param;
-                    $data['message'] = $e->getError()->message;
+                    $data['message'] = $e->getError()->message ?? $e->getMessage();
                     break;
                 case $e instanceof RateLimitException:
                     $data['message'] = 'Too many requests made to the API too quickly';

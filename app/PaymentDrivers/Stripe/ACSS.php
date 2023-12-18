@@ -137,7 +137,7 @@ class ACSS
      * Generates a token Payment Intent
      *
      * @param  ClientGatewayToken $token
-     * @return void
+     * @return PaymentIntent
      */
     private function tokenIntent(ClientGatewayToken $token): PaymentIntent
     {
@@ -223,7 +223,6 @@ class ACSS
      * Continues the payment flow after a Mandate has been successfully generated
      *
      * @param  array $data
-     * @return void
      */
     private function continuePayment(array $data)
     {
@@ -260,7 +259,7 @@ class ACSS
     /**
      * PaymentResponseRequest
      *
-     * @param  mixed $request
+     * @param  PaymentResponseRequest $request
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
@@ -269,7 +268,7 @@ class ACSS
 
         $cgt = ClientGatewayToken::find($this->decodePrimaryKey($request->token));
 
-        /** @var Stripe\PaymentIntent $intent */
+        /** @var \Stripe\PaymentIntent $intent */
         $intent = $this->tokenIntent($cgt);
 
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $request->all());
@@ -298,7 +297,7 @@ class ACSS
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $stripe_amount]);
         $this->stripe->payment_hash->save();
 
-        /** @var Stripe\PaymentIntent $intent */
+        /** @var \Stripe\PaymentIntent $intent */
         $intent = $this->tokenIntent($cgt);
 
         if ($intent->status && $intent->status == 'processing') {
@@ -316,9 +315,8 @@ class ACSS
      * Creates a payment for the transaction
      *
      * @param  string $payment_intent
-     * @return Illuminate\Http\RedirectResponse
      */
-    public function processSuccessfulPayment(string $payment_intent): \Illuminate\Http\RedirectResponse
+    public function processSuccessfulPayment(string $payment_intent)
     {
         $data = [
             'payment_method' => $payment_intent,
