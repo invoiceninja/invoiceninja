@@ -25,6 +25,7 @@ use App\Utils\TempFile;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\SavesDocuments;
 use App\Utils\Traits\MakesHash;
+use Cache;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -38,6 +39,7 @@ class IngresEmailEngine implements ShouldQueue
 
     private IngresEmail $email;
     private ?Company $company;
+    private ?bool $isUnknownRecipent = null;
     private array $globalBlacklist = [];
     function __constructor(IngresEmail $email)
     {
@@ -45,19 +47,28 @@ class IngresEmailEngine implements ShouldQueue
     }
     /**
      * if there is not a company with an matching mailbox, we do nothing
+     * reuse this method to add more mail-parsing behaviors
      */
     public function handle()
     {
+        if ($this->isInvalidOrBlocked())
+            return;
+        $this->isUnknownRecipent = true;
+
         // Expense Mailbox => will create an expense
         foreach ($this->email->to as $expense_mailbox) {
             $this->company = MultiDB::findAndSetDbByExpenseMailbox($expense_mailbox);
-            if (!$this->company || !$this->validateExpenseActive())
+            if (!$this->company)
+                continue;
+
+            $this->isUnknownRecipent = false;
+            if (!$this->validateExpenseActive())
                 continue;
 
             $this->createExpense();
         }
 
-        // TODO reuse this method to add more mail-parsing behaviors
+        $this->saveMeta();
     }
 
     // MAIN-PROCESSORS
@@ -95,29 +106,101 @@ class IngresEmailEngine implements ShouldQueue
         return $expense;
     }
 
-    // HELPERS
+    // SPAM Protection
+    private function isInvalidOrBlocked()
+    {
+        // invalid email
+        if (!filter_var($this->email->from, FILTER_VALIDATE_EMAIL)) {
+            nlog('[IngressMailEngine] E-Mail blocked, because from e-mail has the wrong format: ' . $this->email->from);
+            return true;
+        }
+
+        $parts = explode('@', $this->email->from);
+        $domain = array_pop($parts);
+
+        // global blacklist
+        if (in_array($domain, $this->globalBlacklist)) {
+            nlog('[IngressMailEngine] E-Mail blocked, because the domain was found on globalBlocklist: ' . $this->email->from);
+            return true;
+        }
+
+        if (Cache::has('ingresEmailBlockedSender:' . $this->email->from)) { // was marked as blocked before, so we block without any console output
+            return true;
+        }
+
+        // sender occured in more than 500 emails in the last 12 hours
+        $senderMailCountTotal = Cache::get('ingresEmailSender:' . $this->email->from, 0);
+        if ($senderMailCountTotal >= 5000) {
+            nlog('[IngressMailEngine] E-Mail blocked permanent, because the sender sended more than ' . $senderMailCountTotal . ' emails in the last 12 hours: ' . $this->email->from);
+            $this->blockSender();
+            return true;
+        }
+        if ($senderMailCountTotal >= 1000) {
+            nlog('[IngressMailEngine] E-Mail blocked, because the sender sended more than ' . $senderMailCountTotal . ' emails in the last 12 hours: ' . $this->email->from);
+            $this->saveMeta();
+            return true;
+        }
+
+        // sender sended more than 50 emails to the wrong mailbox in the last 6 hours
+        $senderMailCountUnknownRecipent = Cache::get('ingresEmailSenderUnknownRecipent:' . $this->email->from, 0);
+        if ($senderMailCountUnknownRecipent >= 50) {
+            nlog('[IngressMailEngine] E-Mail blocked, because the sender sended more than ' . $senderMailCountUnknownRecipent . ' emails to the wrong mailbox in the last 6 hours: ' . $this->email->from);
+            $this->saveMeta();
+            return true;
+        }
+
+        // wrong recipent occurs in more than 100 emails in the last 12 hours, so the processing is blocked
+        foreach ($this->email->to as $recipent) {
+            $mailCountUnknownRecipent = Cache::get('ingresEmailUnknownRecipent:' . $recipent, 0); // @turbo124 maybe use many to save resources in case of spam with multiple to addresses each time
+            if ($mailCountUnknownRecipent >= 100) {
+                nlog('[IngressMailEngine] E-Mail blocked, because anyone sended more than ' . $mailCountUnknownRecipent . ' emails to the wrong mailbox in the last 12 hours. Current sender was blocked as well: ' . $this->email->from);
+                $this->blockSender();
+                return true;
+            }
+        }
+
+        return false;
+    }
+    private function blockSender()
+    {
+        Cache::add('ingresEmailBlockedSender:' . $this->email->from, true, now()->addHours(12));
+        $this->saveMeta();
+
+        // TODO: ignore, when known sender
+        // TODO: handle external blocking
+    }
+    private function saveMeta()
+    {
+        // save cache
+        Cache::add('ingresEmailSender:' . $this->email->from, 0, now()->addHours(12));
+        Cache::increment('ingresEmailSender:' . $this->email->from);
+
+        if ($this->isUnknownRecipent) {
+            Cache::add('ingresEmailSenderUnknownRecipent:' . $this->email->from, 0, now()->addHours(6));
+            Cache::increment('ingresEmailSenderUnknownRecipent:' . $this->email->from); // we save the sender, to may block him
+
+            foreach ($this->email->to as $recipent) {
+                Cache::add('ingresEmailUnknownRecipent:' . $recipent, 0, now()->addHours(12));
+                Cache::increment('ingresEmailUnknownRecipent:' . $recipent); // we save the sender, to may block him
+            }
+        }
+    }
+    // PARSING
     private function processHtmlBodyToDocument()
     {
         if (!$this->email->body_document && property_exists($this->email, "body")) {
             $this->email->body_document = TempFile::UploadedFileFromRaw($this->email->body, "E-Mail.html", "text/html");
         }
     }
+    // HELPERS
     private function validateExpenseActive()
     {
         return $this->company?->expense_mailbox_active ?: false;
     }
     private function validateExpenseSender()
     {
-        // invalid email
-        if (!filter_var($this->email->from, FILTER_VALIDATE_EMAIL))
-            return false;
-
         $parts = explode('@', $this->email->from);
         $domain = array_pop($parts);
-
-        // global blacklist
-        if (in_array($domain, $this->globalBlacklist))
-            return false;
 
         // whitelists
         $email_whitelist = explode(",", $this->company->expense_mailbox_whitelist_emails);
