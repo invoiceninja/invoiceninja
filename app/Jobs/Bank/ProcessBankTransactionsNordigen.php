@@ -56,7 +56,6 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
      */
     public function handle()
     {
-
         if ($this->bank_integration->integration_type != BankIntegration::INTEGRATION_TYPE_NORDIGEN)
             throw new \Exception("Invalid BankIntegration Type");
 
@@ -111,7 +110,6 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
 
         // Perform Matching
         BankMatchingService::dispatch($this->company->id, $this->company->db);
-
     }
 
     private function updateAccount()
@@ -132,12 +130,10 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
         $this->bank_integration->balance = $this->nordigen_account['current_balance'];
 
         $this->bank_integration->save();
-
     }
 
     private function processTransactions()
     {
-
         //Get transaction count object
         $transactions = $this->nordigen->getTransactions($this->bank_integration->nordigen_account_id, $this->from_date);
 
@@ -183,6 +179,5 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
 
         $this->bank_integration->from_date = now()->subDays(5);
         $this->bank_integration->save();
-
     }
 }

@@ -62,7 +62,6 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
      */
     public function handle()
     {
-
         if ($this->bank_integration->integration_type != BankIntegration::INTEGRATION_TYPE_YODLEE)
             throw new \Exception("Invalid BankIntegration Type");
 
@@ -96,7 +95,6 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
 
     private function processTransactions()
     {
-
         $yodlee = new Yodlee($this->account->bank_integration_account_id);
 
         if (!$yodlee->getAccount($this->bank_integration->bank_account_id)) {

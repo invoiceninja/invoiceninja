@@ -45,7 +45,7 @@ class BankTransactionSync implements ShouldQueue
      */
     public function handle()
     {
-        //multiDB environment, need to
+        // multiDB environment, need to @turbo124 do we need any changes here for selfhosted non-multidb envs
         foreach (MultiDB::$dbs as $db) {
             MultiDB::setDB($db);
 

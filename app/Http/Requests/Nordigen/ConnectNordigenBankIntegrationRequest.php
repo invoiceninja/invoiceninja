@@ -55,7 +55,6 @@ class ConnectNordigenBankIntegrationRequest extends Request
             $input["redirect"] = isset($context['is_react']) && $context['is_react'] ? config('ninja.react_url') : config('ninja.app_url');
 
             $this->replace($input);
-
         }
     }
     public function getTokenContent()
@@ -74,15 +73,12 @@ class ConnectNordigenBankIntegrationRequest extends Request
         MultiDB::findAndSetDbByCompanyKey($this->getTokenContent()['company_key']);
 
         return User::findOrFail($this->getTokenContent()['user_id']);
-
     }
 
     public function getCompany()
     {
-
         MultiDB::findAndSetDbByCompanyKey($this->getTokenContent()['company_key']);
 
         return Company::where('company_key', $this->getTokenContent()['company_key'])->firstOrFail();
-
     }
 }
