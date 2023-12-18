@@ -9,13 +9,32 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Helpers\Mail\Webhook\Postmark;
+namespace App\Helpers\IngresMail\Transformer;
 
-use App\Helpers\Mail\Webhook\BaseWebhookHandler;
+use App\Services\IngresEmail\IngresEmail;
 use App\Utils\TempFile;
 
-class PostmarkWebhookHandler extends BaseWebhookHandler
+class PostmarkInboundWebhookTransformer
 {
+    public function process($data)
+    {
+
+        $ingresEmail = new IngresEmail();
+
+        $ingresEmail->from = $data["From"];
+        $ingresEmail->subject = $data["Subject"];
+        $ingresEmail->plain_message = $data["TextBody"];
+        $ingresEmail->html_message = $data["HtmlBody"];
+        $ingresEmail->date = $data["Date"]; // TODO: parsing
+
+        // parse documents as UploadedFile from webhook-data
+        foreach ($data["Attachments"] as $attachment) {
+            $ingresEmail->documents[] = TempFile::UploadedFileFromRaw($attachment["Content"], $attachment["Name"], $attachment["ContentType"]);
+        }
+
+        return $ingresEmail;
+
+    }
     // {
     //   "FromName": "Postmarkapp Support",
     //   "MessageStream": "inbound",
@@ -96,29 +115,4 @@ class PostmarkWebhookHandler extends BaseWebhookHandler
     //     }
     //   ]
     // }
-    public function process($data)
-    {
-
-        $from = $data["From"];
-        $subject = $data["Subject"];
-        $plain_message = $data["TextBody"];
-        $html_message = $data["HtmlBody"];
-        $date = $data["Date"]; // TODO
-
-        // parse documents as UploadedFile from webhook-data
-        $documents = [];
-        foreach ($data["Attachments"] as $attachment) {
-            $documents[] = TempFile::UploadedFileFromRaw($attachment["Content"], $attachment["Name"], $attachment["ContentType"]);
-        }
-
-        return $this->createExpense(
-            $from,
-            $subject,
-            $plain_message,
-            $html_message,
-            $date,
-            $documents,
-        );
-
-    }
 }

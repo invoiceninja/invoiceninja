@@ -105,8 +105,8 @@ class VendorTransformer extends EntityTransformer
             'language_id' => (string) $vendor->language_id ?: '',
             'classification' => (string) $vendor->classification ?: '',
             'display_name' => (string) $vendor->present()->name(),
-            'expense_sender_email' => (string) $vendor->expense_sender_email ?: '',
-            'expense_sender_domain' => (string) $vendor->expense_sender_domain ?: '',
+            'invoicing_email' => (string) $vendor->invoicing_email ?: '',
+            'invoicing_domain' => (string) $vendor->invoicing_domain ?: '',
         ];
     }
 }

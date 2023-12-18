@@ -11,15 +11,12 @@
 
 namespace App\Jobs\Mail;
 
-use App\Events\Expense\ExpenseWasCreated;
-use App\Factory\ExpenseFactory;
+use App\Helpers\IngresMail\Transformer\ImapMailTransformer;
 use App\Helpers\Mail\Mailbox\Imap\ImapMailbox;
 use App\Libraries\MultiDB;
 use App\Models\Company;
-use App\Models\Vendor;
 use App\Repositories\ExpenseRepository;
-use App\Utils\Ninja;
-use App\Utils\TempFile;
+use App\Services\IngresEmail\IngresEmailEngine;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use Illuminate\Bus\Queueable;
@@ -87,6 +84,7 @@ class ExpenseMailboxJob implements ShouldQueue
             throw new \Exception('invalid configuration inbound_expense.imap (wrong element-count)');
 
         foreach ($companies as $index => $companyId) {
+
             if ($servers[$index] == '') // if property is empty, ignore => this happens exspecialy when no config is provided and it enabled us to set a single default company for env (usefull on self-hosted)
                 continue;
 
@@ -97,6 +95,7 @@ class ExpenseMailboxJob implements ShouldQueue
                 "password" => $passwords[$index],
             ];
             $this->imap_companies[] = $companyId;
+
         }
     }
 
@@ -106,55 +105,25 @@ class ExpenseMailboxJob implements ShouldQueue
 
         $credentials = $this->imap_credentials[$company->id];
         $imapMailbox = new ImapMailbox($credentials->server, $credentials->port, $credentials->user, $credentials->password);
+        $transformer = new ImapMailTransformer();
 
         $emails = $imapMailbox->getUnprocessedEmails();
 
-        foreach ($emails as $mail) {
+
+        foreach ($emails as $email) {
 
             try {
 
-                $sender = $mail->getSender();
+                $email->markAsSeen();
 
-                $vendor = Vendor::where('expense_sender_email', $sender)->first();
-                if ($vendor == null)
-                    $vendor = Vendor::where($sender, 'LIKE', "CONCAT('%',expense_sender_domain)")->first();
-                if ($vendor == null)
-                    $vendor = Vendor::where("email", $sender)->first();
+                IngresEmailEngine::dispatch($transformer->transform($email));
 
-                $documents = []; // TODO: $mail->getAttachments() + save email as document (.html)
-
-                $data = [
-                    "vendor_id" => $vendor !== null ? $vendor->id : null,
-                    "date" => $mail->getDate(),
-                    "public_notes" => $mail->getSubject(),
-                    "private_notes" => $mail->getCompleteBodyText(),
-                    "documents" => $documents, // FIXME: https://github.com/ddeboer/imap?tab=readme-ov-file#message-attachments
-                ];
-
-                $expense = ExpenseFactory::create($company->company->id, $company->company->owner()->id);
-
-                $expense->vendor_id = $vendor !== null ? $vendor->id : null;
-                $expense->public_notes = $mail->getSubject();
-                $expense->private_notes = $mail->getBodyText();
-                $expense->date = $mail->getDate();
-
-                // add html_message as document to the expense
-                $documents[] = TempFile::UploadedFileFromRaw($mail->getBodyHtml(), "E-Mail.html", "text/html");
-
-                $this->saveDocuments($documents, $expense);
-
-                $expense->saveQuietly();
-
-                event(new ExpenseWasCreated($expense, $expense->company, Ninja::eventVars(null)));
-                event('eloquent.created: App\Models\Expense', $expense);
-
-                $mail->markAsSeen();
-                $imapMailbox->moveProcessed($mail);
+                $imapMailbox->moveProcessed($email);
 
             } catch (\Exception $e) {
-                $imapMailbox->moveFailed($mail);
+                $imapMailbox->moveFailed($email);
 
-                nlog("processing of an email failed upnormally: " . $company->id . " message: " . $e->getMessage()); // @turbo124 @todo should this be handled in an other way?
+                nlog("processing of an email failed upnormally: " . $company->id . " message: " . $e->getMessage());
             }
 
         }
