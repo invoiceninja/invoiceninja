@@ -91,5 +91,8 @@ class UserPresenter extends EntityPresenter
         return $this->entity->last_name ?? 'Last Name';
     }
 
-
+    public function phone(): string
+    {
+        return $this->entity->phone ?? ' ';
+    }
 }

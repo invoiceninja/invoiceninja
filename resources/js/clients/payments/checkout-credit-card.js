@@ -37,6 +37,7 @@ class CheckoutCreditCard {
             .value = '';
 
         const payButton = document.getElementById('pay-button');
+        
         const publicKey = document.querySelector('meta[name="public-key"]').content ?? '';
         const form = document.getElementById('payment-form');
 
@@ -47,7 +48,7 @@ class CheckoutCreditCard {
         });
 
         Frames.addEventHandler(Frames.Events.CARD_TOKENIZATION_FAILED, function (event) {
-            pay.button.disabled = false;
+            payButton.disabled = false;
         });
 
         Frames.addEventHandler(Frames.Events.CARD_TOKENIZED, function (event) {
@@ -68,6 +69,7 @@ class CheckoutCreditCard {
 
         form.addEventListener('submit', function (event) {
             event.preventDefault();
+            payButton.disabled = true;
             Frames.submitCard();
         });
     }

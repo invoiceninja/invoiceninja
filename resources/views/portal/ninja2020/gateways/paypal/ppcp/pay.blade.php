@@ -1,11 +1,6 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.payment_type_credit_card'), 'card_title' => 'PayPal'])
 
 @section('gateway_head')
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="https://www.paypalobjects.com/webstatic/en_US/developer/docs/css/cardfields.css"
-    />
 
 @endsection
 
@@ -30,7 +25,7 @@
 
 @push('footer')
 
-<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&currency={!! $currency !!}&merchant-id={!! $merchantId !!}&components=buttons,funding-eligibility&intent=capture"  data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
+<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&currency={!! $currency !!}&merchant-id={!! $merchantId !!}&components=buttons,funding-eligibility&intent=capture&enable-funding={!! $funding_source !!}"  data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
 <div id="paypal-button-container"></div>
 <script>
 
@@ -53,10 +48,9 @@
                 return actions.restart();
             }
 
-            return actions.order.capture().then(function(details) {
-                document.getElementById("gateway_response").value =JSON.stringify( details );
+                document.getElementById("gateway_response").value =JSON.stringify( data );
                 document.getElementById("server_response").submit();
-            });           
+
         },
         onCancel: function() {
             window.location.href = "/client/invoices/";
@@ -64,9 +58,26 @@
         onError: function(error) {
             document.getElementById("gateway_response").value = error;
             document.getElementById("server_response").submit();
+        },
+        onClick: function (){
+            document.getElementById('paypal-button-container').hidden = true;
         }
     
-    }).render('#paypal-button-container');
+    }).render('#paypal-button-container').catch(function(err) {
+        
+      document.getElementById('errors').textContent = err;
+      document.getElementById('errors').hidden = false;
+        
+    });
+    
+    document.getElementById("server_response").addEventListener('submit', (e) => {
+		if (document.getElementById("server_response").classList.contains('is-submitting')) {
+			e.preventDefault();
+		}
+		
+		document.getElementById("server_response").classList.add('is-submitting');
+	});
+
 </script>
 
 @endpush

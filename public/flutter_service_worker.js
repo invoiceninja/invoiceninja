@@ -5,10 +5,10 @@ const CACHE_NAME = 'flutter-app-cache';
 
 const RESOURCES = {"manifest.json": "ef43d90e57aa7682d7e2cfba2f484a40",
 "flutter.js": "6fef97aeca90b426343ba6c5c9dc5d4a",
-"version.json": "2eb34c2b54ed5d497150e3cf68af209c",
+"version.json": "430931db36f5a7d8948f0a06cdeaab4d",
 "favicon.ico": "51636d3a390451561744c42188ccd628",
 "favicon.png": "dca91c54388f52eded692718d5a98b8b",
-"/": "340741302529077f96cae301d98aeb9c",
+"/": "c6bdccef5d9ba49b95beffea385d3a01",
 "icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed",
 "icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35",
 "assets/FontManifest.json": "087fb858dc3cbfbf6baf6a30004922f1",
@@ -305,7 +305,7 @@ const RESOURCES = {"manifest.json": "ef43d90e57aa7682d7e2cfba2f484a40",
 "canvaskit/canvaskit.wasm": "42df12e09ecc0d5a4a34a69d7ee44314",
 "canvaskit/chromium/canvaskit.js": "96ae916cd2d1b7320fff853ee22aebb0",
 "canvaskit/chromium/canvaskit.wasm": "be0e3b33510f5b7b0cc76cc4d3e50048",
-"main.dart.js": "748519137264a9384d95155694f6b02a"};
+"main.dart.js": "59515b43f0f60feea2662d711b93e46e"};
 // The application shell files that are downloaded before a service worker can
 // start.
 const CORE = ["main.dart.js",

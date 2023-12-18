@@ -196,43 +196,43 @@ class InvoiceItemExport extends BaseExport
                 // $entity[$key] = $this->resolveKey($key, $invoice, $this->invoice_transformer);
             }
         }
-        return $entity;
-        // return $this->decorateAdvancedFields($invoice, $entity);
+        // return $entity;
+        return $this->decorateAdvancedFields($invoice, $entity);
     }
 
     private function decorateAdvancedFields(Invoice $invoice, array $entity) :array
     {
-        if (in_array('currency_id', $this->input['report_keys'])) {
-            $entity['currency'] = $invoice->client->currency() ? $invoice->client->currency()->code : $invoice->company->currency()->code;
-        }
+        // if (in_array('currency_id', $this->input['report_keys'])) {
+        //     $entity['currency'] = $invoice->client->currency() ? $invoice->client->currency()->code : $invoice->company->currency()->code;
+        // }
 
-        if(array_key_exists('type', $entity)) {
-            $entity['type'] = $invoice->typeIdString($entity['type']);
-        }
+        // if(array_key_exists('type', $entity)) {
+        //     $entity['type'] = $invoice->typeIdString($entity['type']);
+        // }
 
-        if(array_key_exists('tax_category', $entity)) {
-            $entity['tax_category'] = $invoice->taxTypeString($entity['tax_category']);
-        }
+        // if(array_key_exists('tax_category', $entity)) {
+        //     $entity['tax_category'] = $invoice->taxTypeString($entity['tax_category']);
+        // }
 
-        if (in_array('invoice.country_id', $this->input['report_keys'])) {
-            $entity['invoice.country_id'] = $invoice->client->country ? ctrans("texts.country_{$invoice->client->country->name}") : '';
-        }
+        // if (in_array('invoice.country_id', $this->input['report_keys'])) {
+        //     $entity['invoice.country_id'] = $invoice->client->country ? ctrans("texts.country_{$invoice->client->country->name}") : '';
+        // }
 
-        if (in_array('invoice.currency_id', $this->input['report_keys'])) {
-            $entity['invoice.currency_id'] = $invoice->client->currency() ? $invoice->client->currency()->code : $invoice->company->currency()->code;
-        }
+        // if (in_array('invoice.currency_id', $this->input['report_keys'])) {
+        //     $entity['invoice.currency_id'] = $invoice->client->currency() ? $invoice->client->currency()->code : $invoice->company->currency()->code;
+        // }
 
-        if (in_array('invoice.client_id', $this->input['report_keys'])) {
-            $entity['invoice.client_id'] = $invoice->client->present()->name();
-        }
+        // if (in_array('invoice.client_id', $this->input['report_keys'])) {
+        //     $entity['invoice.client_id'] = $invoice->client->present()->name();
+        // }
 
-        if (in_array('invoice.status', $this->input['report_keys'])) {
-            $entity['invoice.status'] = $invoice->stringStatus($invoice->status_id);
-        }
+        // if (in_array('invoice.status', $this->input['report_keys'])) {
+        //     $entity['invoice.status'] = $invoice->stringStatus($invoice->status_id);
+        // }
 
-        if (in_array('invoice.recurring_id', $this->input['report_keys'])) {
-            $entity['invoice.recurring_id'] = $invoice->recurring_invoice->number ?? '';
-        }
+        // if (in_array('invoice.recurring_id', $this->input['report_keys'])) {
+        //     $entity['invoice.recurring_id'] = $invoice->recurring_invoice->number ?? '';
+        // }
 
         if (in_array('invoice.assigned_user_id', $this->input['report_keys'])) {
             $entity['invoice.assigned_user_id'] = $invoice->assigned_user ? $invoice->assigned_user->present()->name(): '';

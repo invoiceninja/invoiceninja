@@ -39,13 +39,14 @@ class UpdateSchedulerRequest extends Request
             'template' => 'bail|required|string',
             'parameters' => 'bail|array',
             'parameters.clients' => ['bail','sometimes', 'array', new ValidClientIds()],
-            'parameters.date_range' => 'bail|sometimes|string|in:last7_days,last30_days,last365_days,this_month,last_month,this_quarter,last_quarter,this_year,last_year,all_time,custom',
+            'parameters.date_range' => 'bail|sometimes|string|in:last7_days,last30_days,last365_days,this_month,last_month,this_quarter,last_quarter,this_year,last_year,all_time,custom,all',
             'parameters.start_date' => ['bail', 'sometimes', 'date:Y-m-d', 'required_if:parameters.date_rate,custom'],
             'parameters.end_date' => ['bail', 'sometimes', 'date:Y-m-d', 'required_if:parameters.date_rate,custom', 'after_or_equal:parameters.start_date'],
             'parameters.entity' => ['bail', 'sometimes', 'string', 'in:invoice,credit,quote,purchase_order'],
             'parameters.entity_id' => ['bail', 'sometimes', 'string'],
-            'parameters.report_name' => ['bail','sometimes', 'string', 'required_if:template,email_report', 'in:ar_detailed,ar_summary,client_balance,tax_summary,profitloss,client_sales,user_sales,product_sales,clients,client_contacts,credits,documents,expenses,invoices,invoice_items,quotes,quote_items,recurring_invoices,payments,products,tasks'],
+            'parameters.report_name' => ['bail','sometimes', 'string', 'required_if:template,email_report','in:ar_detailed,ar_summary,client_balance,tax_summary,profitloss,client_sales,user_sales,product_sales,activity,client,contact,client_contact,credit,document,expense,invoice,invoice_item,quote,quote_item,recurring_invoice,payment,product,task'],
             'parameters.date_key' => ['bail','sometimes', 'string'],
+            'parameters.status' => ['bail','sometimes', 'string'],
         ];
 
         return $rules;
@@ -63,7 +64,20 @@ class UpdateSchedulerRequest extends Request
             $input['frequency_id'] = 0;
         }
 
+        if(isset($input['parameters']) && !isset($input['parameters']['clients'])) {
+            $input['parameters']['clients'] = [];
+        }
+                
+        if(isset($input['parameters']['status'])) {
+
+            $input['parameters']['status'] = collect(explode(",", $input['parameters']['status']))
+                                                    ->filter(function ($status) {
+                                                        return in_array($status, ['all','draft','paid','unpaid','overdue']);
+                                                    })->implode(",") ?? '';
+        }
+
         $this->replace($input);
+
 
 
     }

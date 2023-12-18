@@ -146,12 +146,26 @@ class InvoiceFilters extends QueryFilters
      */
     public function upcoming(): Builder
     {
-        return $this->builder->whereIn('status_id', [Invoice::STATUS_PARTIAL, Invoice::STATUS_SENT])
-                    ->where(function ($query) {
-                        $query->whereNull('due_date')
-                              ->orWhere('due_date', '>', now());
+
+        return $this->builder->where(function ($query) {
+            $query->whereIn('status_id', [Invoice::STATUS_PARTIAL, Invoice::STATUS_SENT])
+            ->where('is_deleted', 0)
+            ->where('balance', '>', 0)
+            ->where(function ($query) {
+
+                $query->whereNull('due_date')
+                    ->orWhere(function ($q) {
+                        $q->where('due_date', '>=', now()->startOfDay()->subSecond())->where('partial', 0);
                     })
-                    ->orderBy('due_date', 'ASC');
+                    ->orWhere(function ($q) {
+                        $q->where('partial_due_date', '>=', now()->startOfDay()->subSecond())->where('partial', '>', 0);
+                    });
+
+            })
+            ->orderByRaw('ISNULL(due_date), due_date ' . 'desc')
+            ->orderByRaw('ISNULL(partial_due_date), partial_due_date ' . 'desc');
+        });
+
     }
 
     /**
@@ -161,13 +175,18 @@ class InvoiceFilters extends QueryFilters
      */
     public function overdue(): Builder
     {
-        return $this->builder->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+        return $this->builder->where(function ($query) {
+
+            $query->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                     ->where('is_deleted', 0)
+                    ->where('balance', '>', 0)
                     ->where(function ($query) {
                         $query->where('due_date', '<', now())
                             ->orWhere('partial_due_date', '<', now());
                     })
                     ->orderBy('due_date', 'ASC');
+        });
+
     }
 
     /**

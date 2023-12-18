@@ -65,7 +65,7 @@ class CreateCompany
         $company->settings = $settings;
         $company->db = config('database.default');
         $company->enabled_modules = config('ninja.enabled_modules');
-        $company->subdomain = isset($this->request['subdomain']) ? $this->request['subdomain'] : '';
+        $company->subdomain = isset($this->request['subdomain']) ? $this->request['subdomain'] : MultiDB::randomSubdomainGenerator();
         $company->custom_fields = new \stdClass;
         $company->default_password_timeout = 1800000;
         $company->client_registration_fields = ClientRegistrationFields::generate();

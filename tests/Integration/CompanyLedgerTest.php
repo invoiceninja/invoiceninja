@@ -11,31 +11,33 @@
 
 namespace Tests\Integration;
 
-use App\DataMapper\CompanySettings;
-use App\DataMapper\InvoiceItem;
-use App\Factory\CompanyUserFactory;
-use App\Jobs\Ledger\UpdateLedger;
-use App\Models\Account;
+use Tests\TestCase;
+use App\Models\User;
 use App\Models\Client;
-use App\Models\ClientContact;
+use App\Models\Account;
 use App\Models\Company;
-use App\Models\CompanyLedger;
-use App\Models\CompanyToken;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\User;
+use App\Models\CompanyToken;
+use App\Models\ClientContact;
+use App\Models\CompanyLedger;
+use App\Utils\Traits\AppSetup;
+use App\DataMapper\InvoiceItem;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use App\Jobs\Ledger\UpdateLedger;
+use App\DataMapper\CompanySettings;
+use App\Factory\CompanyUserFactory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /** @test*/
 class CompanyLedgerTest extends TestCase
 {
     use DatabaseTransactions;
     use MakesHash;
-
+    use AppSetup;
+    
     public $company;
 
     public $client;
@@ -55,7 +57,8 @@ class CompanyLedgerTest extends TestCase
         $this->withoutExceptionHandling();
 
         $this->artisan('db:seed --force');
-
+        $this->buildCache(true);
+        
         $this->faker = \Faker\Factory::create();
         $fake_email = $this->faker->email();
 

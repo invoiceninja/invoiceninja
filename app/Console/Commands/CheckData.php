@@ -127,6 +127,7 @@ class CheckData extends Command
         $this->checkCompanyTokens();
         $this->checkUserState();
         $this->checkContactEmailAndSendEmailStatus();
+        $this->checkPaymentCurrency();
 
         if (Ninja::isHosted()) {
             $this->checkAccountStatuses();
@@ -313,7 +314,7 @@ class CheckData extends Command
                 $new_contact->client_id = $client->id;
                 $new_contact->contact_key = Str::random(40);
                 $new_contact->is_primary = true;
-                $new_contact->save();
+                $new_contact->saveQuietly();
             }
         }
     }
@@ -325,6 +326,7 @@ class CheckData extends Command
                         ->whereNull('contact_key')
                         ->orderBy('id')
                         ->get(['id']);
+
         $this->logMessage($contacts->count().' contacts without a contact_key');
 
         if ($contacts->count() > 0) {
@@ -341,21 +343,9 @@ class CheckData extends Command
                     ]);
             }
         }
-
-        // check for missing contacts
-        $vendors = DB::table('vendors')
-                    ->leftJoin('vendor_contacts', function ($join) {
-                        $join->on('vendor_contacts.vendor_id', '=', 'vendors.id')
-                            ->whereNull('vendor_contacts.deleted_at');
-                    })
-                    ->groupBy('vendors.id', 'vendors.user_id', 'vendors.company_id')
-                    ->havingRaw('count(vendor_contacts.id) = 0');
-
-        if ($this->option('vendor_id')) {
-            $vendors->where('vendors.id', '=', $this->option('vendor_id'));
-        }
-
-        $vendors = $vendors->get(['vendors.id', 'vendors.user_id', 'vendors.company_id']);
+        
+        $vendors = Vendor::withTrashed()->doesntHave('contacts');
+        
         $this->logMessage($vendors->count().' vendors without any contacts');
 
         if ($vendors->count() > 0) {
@@ -372,26 +362,9 @@ class CheckData extends Command
                 $new_contact->vendor_id = $vendor->id;
                 $new_contact->contact_key = Str::random(40);
                 $new_contact->is_primary = true;
-                $new_contact->save();
+                $new_contact->saveQuietly();
             }
         }
-    }
-
-
-    private function checkFailedJobs()
-    {
-        if (config('ninja.testvars.travis')) {
-            return;
-        }
-
-        $queueDB = config('queue.connections.database.connection');
-        $count = DB::connection($queueDB)->table('failed_jobs')->count();
-
-        if ($count > 25) {
-            $this->isValid = false;
-        }
-
-        $this->logMessage($count.' failed jobs');
     }
 
     private function checkInvitations()
@@ -419,7 +392,7 @@ class CheckData extends Command
                 $invitation->invoice_id = $invoice->id;
                 $invitation->client_contact_id = ClientContact::whereClientId($invoice->client_id)->first()->id;
                 $invitation->key = Str::random(config('ninja.key_length'));
-                $invitation->save();
+                $invitation->saveQuietly();
             }
         }
     }
@@ -610,7 +583,7 @@ class CheckData extends Command
                 if ($this->option('paid_to_date')) {
                     $this->logMessage("# {$client->id} " . $client->present()->name().' - '.$client->number." Fixing {$client->paid_to_date} to {$total_paid_to_date}");
                     $client->paid_to_date = $total_paid_to_date;
-                    $client->save();
+                    $client->saveQuietly();
                 }
             }
         }
@@ -659,7 +632,7 @@ class CheckData extends Command
                 if ($this->option('client_balance')) {
                     $this->logMessage("# {$client_object->id} " . $client_object->present()->name().' - '.$client_object->number." Fixing {$client_object->balance} to " . $client['invoice_balance']);
                     $client_object->balance = $client['invoice_balance'];
-                    $client_object->save();
+                    $client_object->saveQuietly();
                 }
 
                 $this->isValid = false;
@@ -683,6 +656,8 @@ class CheckData extends Command
                               ->count();
 
                   if ($count == 0) {
+                    $this->isValid = false;
+
                       //factor in over payments to the client balance
                       $over_payment = Payment::where('client_id', $client->id)
                                               ->where('is_deleted', 0)
@@ -703,7 +678,7 @@ class CheckData extends Command
                           $this->logMessage("# {$client->id} " . $client->present()->name().' - '.$client->number." Fixing {$client->balance} to 0");
 
                           $client->balance = $over_payment;
-                          $client->save();
+                          $client->saveQuietly();
                       }
                   }
               });
@@ -745,6 +720,8 @@ class CheckData extends Command
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
             if (number_format($invoice_balance, 4) != number_format($client->balance, 4)) {
+                $this->isValid = false;
+
                 $this->wrong_balances++;
                 $ledger_balance = $ledger ? $ledger->balance : 0;
 
@@ -755,7 +732,7 @@ class CheckData extends Command
                 if ($this->option('client_balance')) {
                     $this->logMessage("# {$client->id} " . $client->present()->name().' - '.$client->number." Fixing {$client->balance} to {$invoice_balance}");
                     $client->balance = $invoice_balance;
-                    $client->save();
+                    $client->saveQuietly();
                 }
 
                 if ($ledger && (number_format($invoice_balance, 4) != number_format($ledger->balance, 4))) {
@@ -789,7 +766,7 @@ class CheckData extends Command
                 if ($this->option('ledger_balance')) {
                     $this->logMessage("# {$client->id} " . $client->present()->name().' - '.$client->number." Fixing {$client->balance} to {$invoice_balance}");
                     $client->balance = $invoice_balance;
-                    $client->save();
+                    $client->saveQuietly();
 
                     $ledger->adjustment = $invoice_balance;
                     $ledger->balance = $invoice_balance;
@@ -893,6 +870,8 @@ class CheckData extends Command
                               ->exists();
               
                 if ($payment) {
+                    $this->isValid = false;
+
                     $this->logMessage("I found a payment for {$account->key}");
                 }
             }
@@ -905,7 +884,7 @@ class CheckData extends Command
         if ($this->option('fix') == 'true') {
             Client::query()->whereNull('country_id')->cursor()->each(function ($client) {
                 $client->country_id = $client->company->settings->country_id;
-                $client->save();
+                $client->saveQuietly();
 
                 $this->logMessage("Fixing country for # {$client->id}");
             });
@@ -917,7 +896,7 @@ class CheckData extends Command
         if ($this->option('fix') == 'true') {
             Vendor::query()->whereNull('currency_id')->orWhere('currency_id', '')->cursor()->each(function ($vendor) {
                 $vendor->currency_id = $vendor->company->settings->currency_id;
-                $vendor->save();
+                $vendor->saveQuietly();
 
                 $this->logMessage("Fixing vendor currency for # {$vendor->id}");
             });
@@ -940,14 +919,14 @@ class CheckData extends Command
 
                 $invoice->balance = 0;
                 $invoice->paid_to_date=$val;
-                $invoice->save();
+                $invoice->saveQuietly();
 
                 $p = $invoice->payments->first();
 
                 if ($p && (int)$p->amount == 0) {
                     $p->amount = $val;
                     $p->applied = $val;
-                    $p->save();
+                    $p->saveQuietly();
 
                     $pivot = $p->paymentables->first();
                     $pivot->amount = $val;
@@ -1008,6 +987,7 @@ class CheckData extends Command
         BankTransaction::with('payment')->withTrashed()->where('invoice_ids', ',,,,,,,,')->cursor()->each(function ($bt) {
 
             if($bt->payment->exists()) {
+                $this->isValid = false;
 
                 $bt->invoice_ids = collect($bt->payment->invoices)->pluck('hashed_id')->implode(',');
                 $bt->save();
@@ -1037,5 +1017,31 @@ class CheckData extends Command
 
             });
         }
+    }
+
+    public function checkPaymentCurrency()
+    {
+        $p = Payment::with('company','client')
+                ->withTrashed()
+                ->where('currency_id', '')
+                ->orWhereNull('currency_id');
+
+        $this->logMessage($p->count() . " Payments with No currency set");
+
+        if($p->count() != 0)
+            $this->isValid = false;
+
+        if ($this->option('fix') == 'true') {
+
+            $p->cursor()->each(function ($c) {
+                $c->currency_id = $c->client->settings->currency_id ?? $c->company->settings->currency_id;
+                $c->saveQuietly();
+
+                $this->logMessage("Fixing - {$c->id}");
+
+            });
+        }
+
+
     }
 }

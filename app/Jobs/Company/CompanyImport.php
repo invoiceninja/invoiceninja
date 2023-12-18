@@ -63,14 +63,12 @@ use App\Utils\Ninja;
 use App\Utils\TempFile;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
-use function GuzzleHttp\json_encode;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use JsonMachine\JsonDecoder\ExtJsonDecoder;
@@ -142,7 +140,6 @@ class CompanyImport implements ShouldQueue
         'recurring_expenses',
         'expenses',
         'tasks',
-        'payments',
         'company_ledger',
         'designs',
         'documents',
@@ -569,7 +566,7 @@ class CompanyImport implements ShouldQueue
                 ['expenses' => 'expense_id'],
                 ['vendors' => 'vendor_id'],
                 ['expense_categories' => 'ninja_category_id'],
-                ['expense_categories' => 'category_id'],
+                // ['expense_categories' => 'category_id'],
                 ['bank_integrations' => 'bank_integration_id']
             ],
             'bank_transactions',
@@ -1143,7 +1140,34 @@ class CompanyImport implements ShouldQueue
                 continue;
             }
 
+            $storage_url = (object)$this->getObject('storage_url', true);
+
+            if (!Storage::exists($document->url) && is_string($storage_url)) {
+                $url = $storage_url . $document->url;
+
+                $file = @file_get_contents($url);
+
+
+                if ($file) {
+                    try {
+                        Storage::disk(config('filesystems.default'))->put($document->url, $file);
+
+                        
+                    } catch(\Exception $e) {
+                        nlog($e->getMessage());
+                        nlog("I could not upload {$document->url}");
+
+                    }
+                }
+                else 
+                    continue;
+
+            }
+            else
+                continue;
+
             $new_document = new Document();
+            $new_document->disk = config('filesystems.default');
             $new_document->user_id = $this->transformId('users', $document->user_id);
             $new_document->assigned_user_id = $this->transformId('users', $document->assigned_user_id);
             $new_document->company_id = $this->company->id;
@@ -1169,26 +1193,6 @@ class CompanyImport implements ShouldQueue
 
             $new_document->save(['timestamps' => false]);
 
-            $storage_url = (object)$this->getObject('storage_url', true);
-
-            if (!Storage::exists($new_document->url) && is_string($storage_url)) {
-                $url = $storage_url . $new_document->url;
-
-                $file = @file_get_contents($url);
-
-                if ($file) {
-                    try {
-                        Storage::disk(config('filesystems.default'))->put($new_document->url, $file);
-
-                        $new_document->disk = config('filesystems.default');
-                        $new_document->save();
-                    } catch(\Exception $e) {
-                        nlog($e->getMessage());
-                        nlog("I could not upload {$new_document->url}");
-                        $new_document->forceDelete();
-                    }
-                }
-            }
         }
 
         return $this;
@@ -1727,7 +1731,9 @@ class CompanyImport implements ShouldQueue
     */
     private function transformId(string $resource, ?string $old): ?int
     {
-        if (empty($old)) {
+
+        // WjnegYbwZ1 == 0 return null;
+        if (empty($old) || $old == 'WjnegYbwZ1') {
             return null;
         }
 
@@ -1736,6 +1742,7 @@ class CompanyImport implements ShouldQueue
         }
 
         if (! array_key_exists($resource, $this->ids)) {
+
             $this->sendImportMail("The Import failed due to missing data in the import file. Resource {$resource} not available.");
 
             throw new \Exception("Resource {$resource} not available.");
@@ -1744,16 +1751,12 @@ class CompanyImport implements ShouldQueue
         if (! array_key_exists("{$old}", $this->ids[$resource])) {
             // nlog($this->ids[$resource]);
             nlog("searching for {$old} in {$resource}");
-
-            nlog("If we are missing a user - default to the company owner");
             
             if ($resource == 'users') {
                 return $this->company_owner->id;
             }
 
-            $this->sendImportMail("The Import failed due to missing data in the import file. Resource {$resource} not available.");
-            
-            nlog($this->ids[$resource]);
+            $this->sendImportMail("The Import failed due to missing data in the import file. Key {$old} not found in {$resource}.");
 
             throw new \Exception("Missing {$resource} key: {$old}");
         }
