@@ -112,8 +112,6 @@ class Nordigen
     {
         $transactionResponse = $this->client->account($accountId)->getAccountTransactions($dateFrom);
 
-        Log::info($transactionResponse);
-
         $it = new TransactionTransformer();
         return $it->transform($transactionResponse);
     }

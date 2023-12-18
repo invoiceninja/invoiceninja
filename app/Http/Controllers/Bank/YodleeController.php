@@ -105,7 +105,6 @@ class YodleeController extends BaseController
         });
     }
 
-
     /**
      * Process Yodlee Refresh Webhook.
      *

@@ -120,7 +120,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
             $this->bank_integration->disabled_upstream = true;
             $this->bank_integration->save();
             $this->stop_loop = false;
-            Log::info("Nordigen: account inactive: " . $this->bank_integration->nordigen_account_id);
+            nlog("Nordigen: account inactive: " . $this->bank_integration->nordigen_account_id);
             // @turbo124 @todo send email for expired account
             return;
         }
