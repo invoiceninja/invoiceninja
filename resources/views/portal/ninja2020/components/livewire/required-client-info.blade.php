@@ -1,4 +1,4 @@
-<div class="container mx-auto grid grid-cols-12 mb-4" data-ref="required-fields-container">
+<div wire:ignore.self class="container mx-auto grid grid-cols-12 mb-4" data-ref="required-fields-container">
     <div class="col-span-12 lg:col-span-6 lg:col-start-4 overflow-hidden bg-white shadow rounded-lg">
         <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
             <h3 class="text-lg font-medium leading-6 text-gray-900">
