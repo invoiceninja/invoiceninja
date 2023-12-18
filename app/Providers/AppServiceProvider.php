@@ -54,7 +54,7 @@ class AppServiceProvider extends ServiceProvider
 
         /* Defines the name used in polymorphic tables */
         Relation::morphMap([
-            'invoices'  => Invoice::class,
+            'invoices' => Invoice::class,
             'proposals' => Proposal::class,
         ]);
 
@@ -96,11 +96,10 @@ class AppServiceProvider extends ServiceProvider
                 'transport' => 'postmark',
                 'token' => $postmark_key
             ]));
-     
+
             return $this;
         });
-        
-    
+
         Mailer::macro('mailgun_config', function (string $secret, string $domain, string $endpoint = 'api.mailgun.net') {
             // @phpstan-ignore /** @phpstan-ignore-next-line **/
             Mailer::setSymfonyTransport(app('mail.manager')->createSymfonyTransport([
@@ -110,7 +109,20 @@ class AppServiceProvider extends ServiceProvider
                 'endpoint' => $endpoint,
                 'scheme' => config('services.mailgun.scheme'),
             ]));
- 
+
+            return $this;
+        });
+
+        Mailer::macro('brevo_config', function (string $secret, string $domain, string $endpoint = 'api.mailgun.net') {
+            // @phpstan-ignore /** @phpstan-ignore-next-line **/
+            Mailer::setSymfonyTransport(app('mail.manager')->createSymfonyTransport([
+                'transport' => 'brevo',
+                'secret' => $secret,
+                'domain' => $domain,
+                'endpoint' => $endpoint,
+                'scheme' => config('services.brevo.scheme'),
+            ]));
+
             return $this;
         });
 
