@@ -33,9 +33,11 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  */
 class StaticModel extends Model
 {
+    protected $connection = 'mysql';
+
     use MakesHash;
     use Excludable;
-    
+
     protected $casts = [
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
