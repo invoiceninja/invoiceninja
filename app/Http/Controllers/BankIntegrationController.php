@@ -210,16 +210,12 @@ class BankIntegrationController extends BaseController
         // Processing transactions for each bank account
         if (Ninja::isHosted() && $user->account->bank_integration_account_id)
             $user_account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_YODLEE)->where('auto_sync', true)->each(function ($bank_integration) use ($user_account) {
-
                 ProcessBankTransactionsYodlee::dispatch($user_account, $bank_integration);
-
             });
 
         if (config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key') && (Ninja::isSelfHost() || (Ninja::isHosted() && $user_account->isPaid() && $user_account->plan == 'enterprise')))
             $user_account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->where('auto_sync', true)->each(function ($bank_integration) {
-
                 ProcessBankTransactionsNordigen::dispatch($bank_integration);
-
             });
 
         Cache::put("throttle_polling:{$user_account->key}", true, 300);
@@ -272,9 +268,9 @@ class BankIntegrationController extends BaseController
 
         $nordigen = new Nordigen();
 
-        BankIntegration::withTrashed()->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->whereNotNull('nordigen_account_id')->each(function (BankIntegration $bank_integration) use ($nordigen) {
+        BankIntegration::where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->whereNotNull('nordigen_account_id')->each(function (BankIntegration $bank_integration) use ($nordigen) {
             $account = $nordigen->getAccount($bank_integration->nordigen_account_id);
-
+            Log::info($bank_integration);
             if (!$account) {
                 $bank_integration->disabled_upstream = true;
 
@@ -340,13 +336,13 @@ class BankIntegrationController extends BaseController
         $account = auth()->user()->account();
 
         if (Ninja::isHosted() && $account->isPaid() && $account->plan == 'enterprise') {
-            $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_YODLEE)->where('auto_sync', true)->where('is_deleted', false)->cursor()->each(function ($bank_integration) use ($account) {
+            $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_YODLEE)->where('auto_sync', true)->cursor()->each(function ($bank_integration) use ($account) {
                 (new ProcessBankTransactionsYodlee($account, $bank_integration))->handle();
             });
         }
 
         if (config("ninja.nordigen.secret_id") && config("ninja.nordigen.secret_key") && (Ninja::isSelfHost() || (Ninja::isHosted() && $account->isPaid() && $account->plan == 'enterprise'))) {
-            $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_NORDIGEN)->where('auto_sync', true)->where('is_deleted', false)->cursor()->each(function ($bank_integration) {
+            $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_NORDIGEN)->where('auto_sync', true)->cursor()->each(function ($bank_integration) {
                 (new ProcessBankTransactionsNordigen($bank_integration))->handle();
             });
         }

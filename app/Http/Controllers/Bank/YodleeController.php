@@ -98,10 +98,8 @@ class YodleeController extends BaseController
         }
 
 
-        $company->account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_YODLEE)->where('auto_sync', true)->where('is_deleted', false)->each(function ($bank_integration) use ($company) { // TODO: filter to yodlee only
-
+        $company->account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_YODLEE)->where('auto_sync', true)->each(function ($bank_integration) use ($company) { // TODO: filter to yodlee only
             ProcessBankTransactionsYodlee::dispatch($company->account, $bank_integration);
-
         });
     }
 
