@@ -46,7 +46,7 @@ class IngresEmailEngine implements ShouldQueue
         $this->email = $email;
     }
     /**
-     * if there is not a company with an matching mailbox, we do nothing
+     * if there is not a company with an matching mailbox, we only do monitoring
      * reuse this method to add more mail-parsing behaviors
      */
     public function handle()
@@ -62,9 +62,6 @@ class IngresEmailEngine implements ShouldQueue
                 continue;
 
             $this->isUnknownRecipent = false;
-            if (!$this->validateExpenseShouldProcess())
-                continue;
-
             $this->createExpense();
         }
 
@@ -162,11 +159,21 @@ class IngresEmailEngine implements ShouldQueue
     // MAIN-PROCESSORS
     protected function createExpense()
     {
+        // Skipping executions: will not result in not saving Metadata to prevent usage of these conditions, to spam
+        if (!$this->validateExpenseShouldProcess()) {
+            nlog('email parsing not active for this company: ' . $this->company->id . ' from: ' . $this->email->from);
+            return;
+        }
         if (!$this->validateExpenseSender()) {
             nlog('invalid sender of an ingest email to company: ' . $this->company->id . ' from: ' . $this->email->from);
             return;
         }
+        if (sizeOf($this->email->documents) == 0) {
+            nlog('email does not contain any attachments and is likly not an expense. company: ' . $this->company->id . ' from: ' . $this->email->from);
+            return;
+        }
 
+        // create expense
         $expense = ExpenseFactory::create($this->company->id, $this->company->owner()->id);
 
         $expense->public_notes = $this->email->subject;
@@ -188,8 +195,8 @@ class IngresEmailEngine implements ShouldQueue
 
         $expense->saveQuietly();
 
-        event(new ExpenseWasCreated($expense, $expense->company, Ninja::eventVars(null))); // @turbo124 please check, I copied from API
-        event('eloquent.created: App\Models\Expense', $expense); // @turbo124 please check, I copied from API
+        event(new ExpenseWasCreated($expense, $expense->company, Ninja::eventVars(null))); // @turbo124 please check, I copied from API-Controller
+        event('eloquent.created: App\Models\Expense', $expense); // @turbo124 please check, I copied from API-Controller
     }
 
     // HELPERS
