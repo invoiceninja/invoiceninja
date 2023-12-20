@@ -161,8 +161,10 @@ class ClientFilters extends QueryFilters
         if ($sort_col[0] == 'display_name') {
             $sort_col[0] = 'name';
         }
+
+        $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
         
-        return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+        return $this->builder->orderBy($sort_col[0], $dir);
     }
     
     /**
