@@ -135,9 +135,9 @@ class NordigenController extends BaseController
     public function confirm(ConfirmNordigenBankIntegrationRequest $request)
     {
         $data = $request->all();
+        $context = $request->getTokenContent();
         $lang = $data['lang'] ?? 'en';
 
-        $context = Cache::get($data["ref"]);
         if (!$context || $context["context"] != "nordigen" || !array_key_exists("requisitionId", $context))
             return view('bank.nordigen.handler', [
                 'lang' => $lang,
@@ -145,7 +145,7 @@ class NordigenController extends BaseController
                 "redirectUrl" => ($context && array_key_exists("redirect", $context) ? $context["redirect"] : config('ninja.app_url')) . "?action=nordigen_connect&status=failed&reason=ref-invalid",
             ]);
 
-        $company = Company::where('company_key', $context["company_key"])->firstOrFail();
+        $company = $request->getCompany();
         $account = $company->account;
 
         if (!(config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key')))

@@ -40,7 +40,7 @@ class ConnectNordigenBankIntegrationRequest extends Request
         return [
             'lang' => 'string',
             'institution_id' => 'string',
-            'redirect' => 'string', // TODO: @turbo124 @todo validate, that this is a url without / at the end
+            'redirect' => 'string',
         ];
     }
 
@@ -52,7 +52,7 @@ class ConnectNordigenBankIntegrationRequest extends Request
         if (!array_key_exists('redirect', $input)) {
             $context = $this->getTokenContent();
 
-            $input["redirect"] = isset($context['is_react']) && $context['is_react'] ? config('ninja.react_url') : config('ninja.app_url');
+            $input["redirect"] = isset($context["is_react"]) && $context['is_react'] ? redirect(config('ninja.react_url') . "/#/settings/bank_accounts") : redirect(config('ninja.app_url'));
 
             $this->replace($input);
         }
@@ -66,13 +66,6 @@ class ConnectNordigenBankIntegrationRequest extends Request
         $data = Cache::get($this->token);
 
         return $data;
-    }
-
-    public function getContact()
-    {
-        MultiDB::findAndSetDbByCompanyKey($this->getTokenContent()['company_key']);
-
-        return User::findOrFail($this->getTokenContent()['user_id']);
     }
 
     public function getCompany()

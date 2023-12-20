@@ -18,8 +18,6 @@
 <script type='text/javascript' src='https://unpkg.com/nordigen-bank-ui@1.5.2/package/src/selector.min.js'></script>
 
 <script>
-
-
     // Pass your redirect link after user has been authorized in institution
     const config = {
         // Redirect URL that is being used when modal is being closed.

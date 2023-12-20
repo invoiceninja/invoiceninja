@@ -12,6 +12,9 @@
 namespace App\Http\Requests\Nordigen;
 
 use App\Http\Requests\Request;
+use App\Libraries\MultiDB;
+use App\Models\Company;
+use Cache;
 
 class ConfirmNordigenBankIntegrationRequest extends Request
 {
@@ -36,5 +39,22 @@ class ConfirmNordigenBankIntegrationRequest extends Request
             'ref' => 'required|string', // nordigen redirects only with the ref-property
             'lang' => 'string',
         ];
+    }
+    public function getTokenContent()
+    {
+        if ($this->state) {
+            $this->token = $this->state;
+        }
+
+        $data = Cache::get($this->token);
+
+        return $data;
+    }
+
+    public function getCompany()
+    {
+        MultiDB::findAndSetDbByCompanyKey($this->getTokenContent()['company_key']);
+
+        return Company::where('company_key', $this->getTokenContent()['company_key'])->firstOrFail();
     }
 }
