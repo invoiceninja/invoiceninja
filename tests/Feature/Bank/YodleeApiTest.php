@@ -166,7 +166,7 @@ class YodleeApiTest extends TestCase
     //         foreach($accounts as $account)
     //         {
 
-    //             if(!BankIntegration::where('bank_account_id', $account['id'])->where('company_id', $this->company->id)->exists()) // TODO: maybe filter to only yodlee-integrations
+    //             if(!BankIntegration::where('bank_account_id', $account['id'])->where('company_id', $this->company->id)->exists())
     //             {
     //                 $bank_integration = new BankIntegration();
     //                 $bank_integration->company_id = $this->company->id;
