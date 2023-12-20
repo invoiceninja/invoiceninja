@@ -14,9 +14,7 @@ namespace App\Http\Requests\Nordigen;
 use App\Http\Requests\Request;
 use App\Libraries\MultiDB;
 use App\Models\Company;
-use App\Models\User;
 use Cache;
-use Log;
 
 class ConnectNordigenBankIntegrationRequest extends Request
 {
@@ -52,7 +50,7 @@ class ConnectNordigenBankIntegrationRequest extends Request
         if (!array_key_exists('redirect', $input)) {
             $context = $this->getTokenContent();
 
-            $input["redirect"] = isset($context["is_react"]) && $context['is_react'] ? redirect(config('ninja.react_url') . "/#/settings/bank_accounts") : redirect(config('ninja.app_url'));
+            $input["redirect"] = isset($context["is_react"]) && $context['is_react'] ? config('ninja.react_url') . "/#/settings/bank_accounts" : config('ninja.app_url');
 
             $this->replace($input);
         }

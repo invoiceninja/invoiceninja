@@ -42,11 +42,9 @@ class ConfirmNordigenBankIntegrationRequest extends Request
     }
     public function getTokenContent()
     {
-        if ($this->state) {
-            $this->token = $this->state;
-        }
+        $input = $this->all();
 
-        $data = Cache::get($this->token);
+        $data = Cache::get($input['ref']);
 
         return $data;
     }

@@ -17,12 +17,9 @@ use App\Http\Requests\Nordigen\ConfirmNordigenBankIntegrationRequest;
 use App\Http\Requests\Nordigen\ConnectNordigenBankIntegrationRequest;
 use App\Jobs\Bank\ProcessBankTransactionsNordigen;
 use App\Models\BankIntegration;
-use App\Models\Company;
-use App\Models\User;
 use App\Utils\Ninja;
 use Cache;
 use Illuminate\Http\Request;
-use Log;
 use Nordigen\NordigenPHP\Exceptions\NordigenExceptions\NordigenException;
 
 class NordigenController extends BaseController
@@ -36,6 +33,7 @@ class NordigenController extends BaseController
         $data = $request->all();
         $context = $request->getTokenContent();
         $lang = $data['lang'] ?? 'en';
+        $context["lang"] = $lang;
 
         if (!$context)
             return view('bank.nordigen.handler', [
@@ -136,6 +134,8 @@ class NordigenController extends BaseController
     {
         $data = $request->all();
         $context = $request->getTokenContent();
+        if (!array_key_exists('lang', $data) && $context['lang'] != 'en')
+            return redirect()->route('nordigen.confirm', array_merge(["lang" => $context['lang']], $request->query())); // redirect is required in order for the bank-ui to display everything properly
         $lang = $data['lang'] ?? 'en';
 
         if (!$context || $context["context"] != "nordigen" || !array_key_exists("requisitionId", $context))
