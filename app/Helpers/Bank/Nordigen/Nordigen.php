@@ -21,7 +21,6 @@ namespace App\Helpers\Bank\Nordigen;
 
 use App\Helpers\Bank\Nordigen\Transformer\AccountTransformer;
 use App\Helpers\Bank\Nordigen\Transformer\TransactionTransformer;
-use Log;
 
 class Nordigen
 {
@@ -99,8 +98,10 @@ class Nordigen
         try {
             $account = $this->client->account($account_id)->getAccountMetaData();
 
-            if ($account["status"] != "READY")
+            if ($account["status"] != "READY") {
+                nlog('nordigen account was not in status ready. accountId: ' . $account_id . ' status: ' . $account["status"]);
                 return false;
+            }
 
             return true;
         } catch (\Exception $e) {

@@ -94,19 +94,31 @@ class TransactionTransformer implements BankRevenueInterface
             $description = implode(' \r\n', $transaction["remittanceInformationStructuredArray"]);
         else if (array_key_exists('remittanceInformationUnstructured', $transaction))
             $description = $transaction["remittanceInformationUnstructured"];
+        else if (array_key_exists('remittanceInformationUnstructuredArray', $transaction))
+            $description = implode(' \r\n', $transaction["remittanceInformationUnstructuredArray"]);
         else
             Log::warning("Missing description for the following transaction: " . json_encode($transaction));
+
+        // participant
+        $participant = array_key_exists('debtorAccount', $transaction) && array_key_exists('iban', $transaction["debtorAccount"]) ?
+            $transaction['debtorAccount']['iban'] :
+            (array_key_exists('creditorAccount', $transaction) && array_key_exists('iban', $transaction["creditorAccount"]) ?
+                $transaction['creditorAccount']['iban'] : null);
+        $participant_name = array_key_exists('debtorName', $transaction) ?
+            $transaction['debtorName'] :
+            (array_key_exists('creditorName', $transaction) ?
+                $transaction['creditorName'] : null);
 
         return [
             'transaction_id' => $transaction["transactionId"],
             'amount' => abs((int) $transaction["transactionAmount"]["amount"]),
             'currency_id' => $this->convertCurrency($transaction["transactionAmount"]["currency"]),
             'category_id' => null, // nordigen has no categories
-            'category_type' => array_key_exists('additionalInformation', $transaction) ? $transaction["additionalInformation"] : '', // TODO: institution specific keys like: GUTSCHRIFT, ABSCHLUSS, MONATSABSCHLUSS etc
+            'category_type' => array_key_exists('additionalInformation', $transaction) ? $transaction["additionalInformation"] : null, // TODO: institution specific keys like: GUTSCHRIFT, ABSCHLUSS, MONATSABSCHLUSS etc
             'date' => $transaction["bookingDate"],
             'description' => $description,
-            'participant' => array_key_exists('debtorAccount', $transaction) && array_key_exists('iban', $transaction["debtorAccount"]) ? $transaction['debtorAccount']['iban'] : null,
-            'participant_name' => array_key_exists('debtorName', $transaction) ? $transaction['debtorName'] : null,
+            'participant' => $participant,
+            'participant_name' => $participant_name,
             'base_type' => (int) $transaction["transactionAmount"]["amount"] <= 0 ? 'DEBIT' : 'CREDIT',
         ];
 
