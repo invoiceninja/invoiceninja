@@ -5221,6 +5221,12 @@ $lang = array(
     'charges' => 'Charges',
     'email_report' => 'Email Report',
     'payment_type_Pay Later' => 'Pay Later',
+    'payment_type_credit' => 'Payment Type Credit',
+    'payment_type_debit' => 'Payment Type Debit',
+    'send_emails_to' => 'Send Emails To',
+    'primary_contact' => 'Primary Contact',
+    'all_contacts' => 'All Contacts',
+    'insert_below' => 'Insert Below',
 );
 
 return $lang;
