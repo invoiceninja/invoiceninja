@@ -131,17 +131,19 @@ class TaskFilters extends QueryFilters
             return $this->builder;
         }
 
+        $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
+
         if ($sort_col[0] == 'client_id') {
             return $this->builder->orderBy(\App\Models\Client::select('name')
-                    ->whereColumn('clients.id', 'tasks.client_id'), $sort_col[1]);
+                    ->whereColumn('clients.id', 'tasks.client_id'), $dir);
         }
 
         if ($sort_col[0] == 'user_id') {
             return $this->builder->orderBy(\App\Models\User::select('first_name')
-                    ->whereColumn('users.id', 'tasks.user_id'), $sort_col[1]);
+                    ->whereColumn('users.id', 'tasks.user_id'), $dir);
         }
 
-        return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+        return $this->builder->orderBy($sort_col[0], $dir);
     }
 
     public function task_status(string $value = ''): Builder

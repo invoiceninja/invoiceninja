@@ -47,7 +47,7 @@ class ExpenseCategoryFilters extends QueryFilters
         if (!is_array($sort_col) || count($sort_col) != 2) {
             return $this->builder;
         }
-
+        
         if (is_array($sort_col) && in_array($sort_col[1], ['asc', 'desc']) && in_array($sort_col[0], ['name'])) {
             return $this->builder->orderBy($sort_col[0], $sort_col[1]);
         }
