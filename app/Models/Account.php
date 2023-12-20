@@ -330,6 +330,33 @@ class Account extends BaseModel
         return $this->plan == 'enterprise';
     }
 
+    public function isEnterprisePaidClient(): bool
+    {
+        if (! Ninja::isNinja()) {
+            return false;
+        }
+
+        return $this->isEnterpriseClient() && $this->isPaid();
+    }
+
+    public function isProClient(): bool
+    {
+        if (! Ninja::isNinja()) {
+            return false;
+        }
+
+        return $this->plan == 'pro';
+    }
+
+    public function isProPaidClient(): bool
+    {
+        if (! Ninja::isNinja()) {
+            return false;
+        }
+
+        return $this->isProClient() && $this->isPaid();
+    }
+
     public function isTrial(): bool
     {
         if (!Ninja::isNinja()) {

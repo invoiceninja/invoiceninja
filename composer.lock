@@ -437,16 +437,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.294.1",
+            "version": "3.294.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "63c720229a9c9cdedff6bac98d6e72be8cc241f1"
+                "reference": "05761093c61ca7a02c1b5ae9be279bf69360e060"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/63c720229a9c9cdedff6bac98d6e72be8cc241f1",
-                "reference": "63c720229a9c9cdedff6bac98d6e72be8cc241f1",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/05761093c61ca7a02c1b5ae9be279bf69360e060",
+                "reference": "05761093c61ca7a02c1b5ae9be279bf69360e060",
                 "shasum": ""
             },
             "require": {
@@ -522,9 +522,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.294.1"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.294.3"
             },
-            "time": "2023-12-15T19:25:52+00:00"
+            "time": "2023-12-19T19:07:14+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -1901,16 +1901,16 @@
         },
         {
             "name": "endroid/qr-code",
-            "version": "5.0.2",
+            "version": "5.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/endroid/qr-code.git",
-                "reference": "e58d34fa0b86a62696144baba9d80ee98845f957"
+                "reference": "c4c864a401da6afa763dfef887b131bfcc78b535"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/endroid/qr-code/zipball/e58d34fa0b86a62696144baba9d80ee98845f957",
-                "reference": "e58d34fa0b86a62696144baba9d80ee98845f957",
+                "url": "https://api.github.com/repos/endroid/qr-code/zipball/c4c864a401da6afa763dfef887b131bfcc78b535",
+                "reference": "c4c864a401da6afa763dfef887b131bfcc78b535",
                 "shasum": ""
             },
             "require": {
@@ -1921,7 +1921,7 @@
                 "khanamiryan/qrcode-detector-decoder": "^1.0.6"
             },
             "require-dev": {
-                "endroid/quality": "dev-master",
+                "endroid/quality": "dev-main",
                 "ext-gd": "*",
                 "khanamiryan/qrcode-detector-decoder": "^1.0.4||^2.0.2",
                 "setasign/fpdf": "^1.8.2"
@@ -1935,7 +1935,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "5.x-dev"
+                    "dev-main": "5.x-dev"
                 }
             },
             "autoload": {
@@ -1956,7 +1956,7 @@
             "keywords": ["code", "endroid", "php", "qr", "qrcode"],
             "support": {
                 "issues": "https://github.com/endroid/qr-code/issues",
-                "source": "https://github.com/endroid/qr-code/tree/5.0.2"
+                "source": "https://github.com/endroid/qr-code/tree/5.0.3"
             },
             "funding": [
                 {
@@ -1964,7 +1964,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-10-04T22:55:54+00:00"
+            "time": "2023-12-19T23:41:52+00:00"
         },
         {
             "name": "eway/eway-rapid-php",
@@ -4060,16 +4060,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v10.37.3",
+            "version": "v10.38.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "996375dd61f8c6e4ac262b57ed485655d71fcbdc"
+                "reference": "531732a17e4d0fa4fc4fb987a72abbdb93537d3a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/996375dd61f8c6e4ac262b57ed485655d71fcbdc",
-                "reference": "996375dd61f8c6e4ac262b57ed485655d71fcbdc",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/531732a17e4d0fa4fc4fb987a72abbdb93537d3a",
+                "reference": "531732a17e4d0fa4fc4fb987a72abbdb93537d3a",
                 "shasum": ""
             },
             "require": {
@@ -4253,7 +4253,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2023-12-13T20:10:58+00:00"
+            "time": "2023-12-19T14:59:00+00:00"
         },
         {
             "name": "laravel/prompts",
@@ -4544,16 +4544,16 @@
         },
         {
             "name": "laravel/ui",
-            "version": "v4.2.3",
+            "version": "v4.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/ui.git",
-                "reference": "eb532ea096ca1c0298c87c19233daf011fda743a"
+                "reference": "d166e09cdcb2e23836f694774cba77a32edb6007"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/ui/zipball/eb532ea096ca1c0298c87c19233daf011fda743a",
-                "reference": "eb532ea096ca1c0298c87c19233daf011fda743a",
+                "url": "https://api.github.com/repos/laravel/ui/zipball/d166e09cdcb2e23836f694774cba77a32edb6007",
+                "reference": "d166e09cdcb2e23836f694774cba77a32edb6007",
                 "shasum": ""
             },
             "require": {
@@ -4593,9 +4593,9 @@
             "description": "Laravel UI utilities and presets.",
             "keywords": ["laravel", "ui"],
             "support": {
-                "source": "https://github.com/laravel/ui/tree/v4.2.3"
+                "source": "https://github.com/laravel/ui/tree/v4.3.0"
             },
-            "time": "2023-11-23T14:44:22+00:00"
+            "time": "2023-12-19T14:46:09+00:00"
         },
         {
             "name": "lcobucci/clock",
@@ -5739,16 +5739,16 @@
         },
         {
             "name": "mollie/mollie-api-php",
-            "version": "v2.63.0",
+            "version": "v2.64.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mollie/mollie-api-php.git",
-                "reference": "642f1b87624bd1535cd198134113e14bc01ba245"
+                "reference": "b54e0b05b98e15233d89724933c42c249d4b13d4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mollie/mollie-api-php/zipball/642f1b87624bd1535cd198134113e14bc01ba245",
-                "reference": "642f1b87624bd1535cd198134113e14bc01ba245",
+                "url": "https://api.github.com/repos/mollie/mollie-api-php/zipball/b54e0b05b98e15233d89724933c42c249d4b13d4",
+                "reference": "b54e0b05b98e15233d89724933c42c249d4b13d4",
                 "shasum": ""
             },
             "require": {
@@ -5823,9 +5823,9 @@
             ],
             "support": {
                 "issues": "https://github.com/mollie/mollie-api-php/issues",
-                "source": "https://github.com/mollie/mollie-api-php/tree/v2.63.0"
+                "source": "https://github.com/mollie/mollie-api-php/tree/v2.64.0"
             },
-            "time": "2023-11-06T09:20:50+00:00"
+            "time": "2023-12-19T16:06:39+00:00"
         },
         {
             "name": "moneyphp/money",

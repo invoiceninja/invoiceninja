@@ -114,6 +114,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\WebCronController;
 use App\Http\Controllers\WebhookController;
+use App\PaymentDrivers\PayPalPPCPPaymentDriver;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => ['throttle:api', 'api_secret_check']], function () {
@@ -430,5 +431,6 @@ Route::post('api/v1/yodlee/refresh_updates', [YodleeController::class, 'refreshU
 Route::post('api/v1/yodlee/balance', [YodleeController::class, 'balanceWebhook'])->middleware('throttle:100,1');
 
 Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::class, 'index'])->name('protected_download')->middleware('throttle:300,1');
+Route::post('api/v1/ppcp/webhook', [PayPalPPCPPaymentDriver::class, 'processWebhookRequest'])->middleware('throttle:1000,1');
 
 Route::fallback([BaseController::class, 'notFound'])->middleware('throttle:404');

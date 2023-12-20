@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -12,16 +11,18 @@
 
 namespace App\PaymentDrivers;
 
-use App\Exceptions\PaymentFailed;
-use App\Jobs\Util\SystemLogger;
-use App\Models\GatewayType;
-use App\Models\Invoice;
-use App\Models\PaymentType;
-use App\Models\SystemLog;
-use App\Utils\Traits\MakesHash;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Http;
 use Str;
+use Carbon\Carbon;
+use App\Models\Invoice;
+use App\Models\SystemLog;
+use App\Models\GatewayType;
+use App\Models\PaymentType;
+use Illuminate\Http\Request;
+use App\Jobs\Util\SystemLogger;
+use App\Utils\Traits\MakesHash;
+use App\Exceptions\PaymentFailed;
+use Illuminate\Support\Facades\Http;
+use App\PaymentDrivers\PayPal\PayPalWebhook;
 
 class PayPalPPCPPaymentDriver extends BaseDriver
 {
@@ -165,8 +166,14 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         return $this;
 
     }
-
-    public function setPaymentMethod($payment_method_id)
+    
+    /**
+     * Payment method setter
+     *
+     * @param  mixed $payment_method_id
+     * @return self
+     */
+    public function setPaymentMethod($payment_method_id): self
     {
         if(!$payment_method_id) {
             return $this;
@@ -192,7 +199,12 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
         return $this;
     }
-
+    
+    /**
+     * Checks whether payments are enabled on the account
+     *
+     * @return self
+     */
     private function checkPaymentsReceivable(): self
     {
 
@@ -217,7 +229,13 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         return $this;
         
     }
-
+    
+    /**
+     * Presents the Payment View to the client
+     *
+     * @param  mixed $data
+     * @return void
+     */
     public function processPaymentView($data)
     {
         $this->init()->checkPaymentsReceivable();
@@ -238,7 +256,13 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         return render('gateways.paypal.ppcp.pay', $data);
 
     }
-
+    
+    /**
+     * Processes the payment response
+     *
+     * @param  mixed $request
+     * @return void
+     */
     public function processPaymentResponse($request)
     {
 
@@ -293,9 +317,21 @@ class PayPalPPCPPaymentDriver extends BaseDriver
             throw new PaymentFailed($message, 400);
         }
     }
+    
+    public function getOrder(string $order_id)
+    {
+        $this->init();
 
+        $r = $this->gatewayRequest("/v2/checkout/orders/{$order_id}", 'get', ['body' => '']);
 
+        return $r->json();
+    }
 
+    /**
+     * Generates a client token for the payment form.
+     *
+     * @return string
+     */
     private function getClientToken(): string
     {
 
@@ -308,7 +344,12 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         throw new PaymentFailed('Unable to gain client token from Paypal. Check your configuration', 401);
 
     }
-
+    
+    /**
+     * Builds the payment request.
+     *
+     * @return array
+     */
     private function paymentSource(): array
     {
         /** we only need to support paypal as payment source until as we are only using hosted payment buttons */
@@ -335,7 +376,13 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         ];
 
     }
-
+    
+    /**
+     * Creates the PayPal Order object
+     *
+     * @param  array $data
+     * @return string
+     */
     private function createOrder(array $data): string
     {
 
@@ -353,7 +400,8 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                 "payment_source" => $this->paymentSource(),
                 "purchase_units" => [
                     [
-                    "description" =>ctrans('texts.invoice_number').'# '.$invoice->number,
+                    "custom_id" => $this->payment_hash->hash,
+                    "description" => ctrans('texts.invoice_number').'# '.$invoice->number,
                     "invoice_id" => $invoice->number,
                     "payee" => [
                         "merchant_id" => $this->company_gateway->getConfigField('merchantId'),
@@ -394,7 +442,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
         $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
 
-        nlog($r->json());
+        // nlog($r->json());
 
         return $r->json()['id'];
 
@@ -432,7 +480,16 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         : null;
 
     }
-
+    
+    /**
+     * Generates the gateway request
+     *
+     * @param  string $uri
+     * @param  string $verb
+     * @param  array $data
+     * @param  ?array $headers
+     * @return \Illuminate\Http\Client\Response
+     */
     public function gatewayRequest(string $uri, string $verb, array $data, ?array $headers = [])
     {
         $this->init();
@@ -441,13 +498,12 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                 ->withHeaders($this->getHeaders($headers))
                 ->{$verb}("{$this->api_endpoint_url}{$uri}", $data);
 
-        nlog($r);
-        nlog($r->json());
+        // nlog($r);
+        // nlog($r->json());
 
         if($r->successful()) {
             return $r;
         }
-
 
         SystemLogger::dispatch(
             ['response' => $r->body()],
@@ -461,7 +517,13 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         throw new PaymentFailed("Gateway failure - {$r->body()}", 401);
 
     }
-
+    
+    /**
+     * Generates the request headers
+     *
+     * @param  array $headers
+     * @return array
+     */
     private function getHeaders(array $headers = []): array
     {
         return array_merge([
@@ -473,8 +535,13 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         ], $headers);
     }
 
-    private function feeCalc($invoice, $invoice_total)
+    public function processWebhookRequest(Request $request)
     {
+        
+        // nlog(json_encode($request->all()));
+        $this->init();
 
+        PayPalWebhook::dispatch($request->all(), $request->headers->all(), $this->access_token);
     }
+
 }

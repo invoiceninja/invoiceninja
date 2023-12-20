@@ -560,6 +560,7 @@ class Client extends BaseModel implements HasLocalePreference
 
         return null;
     }
+
     public function getBACSGateway() :?CompanyGateway
     {
         $pms = $this->service()->getPaymentMethods(-1);
@@ -583,6 +584,31 @@ class Client extends BaseModel implements HasLocalePreference
 
         return null;
     }
+
+    public function getACSSGateway() :?CompanyGateway
+    {
+        $pms = $this->service()->getPaymentMethods(-1);
+
+        foreach ($pms as $pm) {
+            if ($pm['gateway_type_id'] == GatewayType::ACSS) {
+                $cg = CompanyGateway::query()->find($pm['company_gateway_id']);
+
+                if ($cg && ! property_exists($cg->fees_and_limits, GatewayType::ACSS)) {
+                    $fees_and_limits = $cg->fees_and_limits;
+                    $fees_and_limits->{GatewayType::ACSS} = new FeesAndLimits;
+                    $cg->fees_and_limits = $fees_and_limits;
+                    $cg->save();
+                }
+
+                if ($cg && $cg->fees_and_limits->{GatewayType::ACSS}->is_enabled) {
+                    return $cg;
+                }
+            }
+        }
+
+        return null;
+    }
+
 
     //todo refactor this  - it is only searching for existing tokens
     public function getBankTransferGateway() :?CompanyGateway
@@ -632,6 +658,19 @@ class Client extends BaseModel implements HasLocalePreference
             }
         }
 
+        if ($this->currency()->code == 'CAD' && in_array(GatewayType::ACSS, array_column($pms, 'gateway_type_id'))) {
+            foreach ($pms as $pm) {
+                if ($pm['gateway_type_id'] == GatewayType::ACSS) {
+                    $cg = CompanyGateway::query()->find($pm['company_gateway_id']);
+
+                    if ($cg && $cg->fees_and_limits->{GatewayType::ACSS}->is_enabled) {
+                        return $cg;
+                    }
+                }
+            }
+        }
+
+
         return null;
     }
 
@@ -647,6 +686,10 @@ class Client extends BaseModel implements HasLocalePreference
 
         if (in_array($this->currency()->code, ['EUR', 'GBP','DKK','SEK','AUD','NZD','USD'])) {
             return GatewayType::DIRECT_DEBIT;
+        }
+
+        if(in_array($this->currency()->code, ['CAD'])) {
+            return GatewayType::ACSS;
         }
     }
 

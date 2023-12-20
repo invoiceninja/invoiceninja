@@ -102,7 +102,7 @@ class Kernel extends ConsoleKernel
 
         if (Ninja::isSelfHost()) {
             $schedule->call(function () {
-                Account::whereNotNull('id')->update(['is_scheduler_running' => true]);
+                Account::query()->whereNotNull('id')->update(['is_scheduler_running' => true]);
             })->everyFiveMinutes();
         }
 
