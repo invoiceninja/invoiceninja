@@ -35,7 +35,6 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
-use Log;
 
 class BankIntegrationController extends BaseController
 {
@@ -209,12 +208,12 @@ class BankIntegrationController extends BaseController
 
         // Processing transactions for each bank account
         if (Ninja::isHosted() && $user->account->bank_integration_account_id)
-            $user_account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_YODLEE)->where('auto_sync', true)->each(function ($bank_integration) use ($user_account) {
+            $user_account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_YODLEE)->each(function ($bank_integration) use ($user_account) {
                 ProcessBankTransactionsYodlee::dispatch($user_account, $bank_integration);
             });
 
         if (config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key') && (Ninja::isSelfHost() || (Ninja::isHosted() && $user_account->isPaid() && $user_account->plan == 'enterprise')))
-            $user_account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->where('auto_sync', true)->each(function ($bank_integration) {
+            $user_account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->each(function ($bank_integration) {
                 ProcessBankTransactionsNordigen::dispatch($bank_integration);
             });
 
@@ -225,7 +224,7 @@ class BankIntegrationController extends BaseController
 
     private function refreshAccountsYodlee(User $user)
     {
-        if (!$user->account->bank_integration_account_id)
+        if (!Ninja::isHosted() || !$user->account->bank_integration_account_id)
             return;
 
         $yodlee = new Yodlee($user->account->bank_integration_account_id);
@@ -261,8 +260,6 @@ class BankIntegrationController extends BaseController
 
     private function refreshAccountsNordigen(User $user)
     {
-        $account = $user->account;
-
         if (!(config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key')))
             return;
 
@@ -270,7 +267,6 @@ class BankIntegrationController extends BaseController
 
         BankIntegration::where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->whereNotNull('nordigen_account_id')->each(function (BankIntegration $bank_integration) use ($nordigen) {
             $account = $nordigen->getAccount($bank_integration->nordigen_account_id);
-            Log::info($bank_integration);
             if (!$account) {
                 $bank_integration->disabled_upstream = true;
 

@@ -13,7 +13,6 @@ namespace App\Jobs\Bank;
 
 use App\Helpers\Bank\Nordigen\Nordigen;
 use App\Libraries\MultiDB;
-use App\Models\Account;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
 use App\Models\Company;
@@ -24,7 +23,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Log;
 
 class ProcessBankTransactionsNordigen implements ShouldQueue
 {
@@ -91,7 +89,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
         try {
             $this->processTransactions();
         } catch (\Exception $e) {
-            // reset from_date in case this was the error (self-heal) and perform a max sync of data we can fetch (next-time) @todo we should analyze the error for this
+            // reset from_date in case this was the error (self-heal) and perform a max sync of data we can fetch (next-time)
             $this->bank_integration->from_date = now()->subDays(90);
             $this->bank_integration->save();
 
