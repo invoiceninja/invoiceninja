@@ -63,7 +63,14 @@ class Nordigen
 
     public function getRequisition(string $requisitionId)
     {
-        return $this->client->requisition->getRequisition($requisitionId);
+        try {
+            return $this->client->requisition->getRequisition($requisitionId);
+        } catch (\Exception $e) {
+            if (strpos($e->getMessage(), "Invalid Requisition ID") !== false)
+                return false;
+
+            throw $e;
+        }
     }
 
     // TODO: return null on not found
@@ -81,7 +88,7 @@ class Nordigen
             return $it->transform($out);
         } catch (\Exception $e) {
             if (strpos($e->getMessage(), "Invalid Account ID") !== false)
-                return null;
+                return false;
 
             throw $e;
         }
