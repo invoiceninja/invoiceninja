@@ -213,7 +213,7 @@ class SettingsData
 
     public bool $show_accept_quote_terms = false;  //@TODO ben to confirm
 
-    public string $email_sending_method = 'default'; // enum 'default', 'gmail', 'office365', 'client_postmark', 'client_mailgun' , 'brevo_mailgun' //@implemented
+    public string $email_sending_method = 'default'; // enum 'default', 'gmail', 'office365', 'client_postmark', 'client_mailgun' , 'client_brevo' //@implemented
 
     public string $gmail_sending_user_id = '0'; //@implemented
 
@@ -434,10 +434,6 @@ class SettingsData
     public string $mailgun_endpoint = 'api.mailgun.net'; // api.eu.mailgun.net
 
     public string $brevo_secret = '';
-
-    public string $brevo_domain = '';
-
-    public string $brevo_endpoint = 'api.mailgun.net'; // api.eu.mailgun.net
 
     public bool $auto_bill_standard_invoices = false;
 

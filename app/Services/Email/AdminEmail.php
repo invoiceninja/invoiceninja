@@ -57,10 +57,6 @@ class AdminEmail implements ShouldQueue
 
     protected ?string $client_brevo_secret = null;
 
-    protected ?string $client_brevo_domain = null;
-
-    protected ?string $client_brevo_endpoint = null;
-
     private string $mailer = 'default';
 
     public Mailable $mailable;
@@ -140,7 +136,7 @@ class AdminEmail implements ShouldQueue
         }
 
         if ($this->client_brevo_secret) {
-            $mailer->brevo_config($this->client_brevo_secret, $this->client_brevo_domain, $this->client_brevo_endpoint);
+            $mailer->brevo_config($this->client_brevo_secret);
         }
 
         /* Attempt the send! */
@@ -254,7 +250,7 @@ class AdminEmail implements ShouldQueue
         }
 
         /* GMail users are uncapped */
-        if (in_array($this->email_object->settings->email_sending_method, ['gmail', 'office365', 'client_postmark', 'client_mailgun'])) {
+        if (in_array($this->email_object->settings->email_sending_method, ['gmail', 'office365', 'client_postmark', 'client_mailgun', 'client_brevo'])) {
             return false;
         }
 
@@ -402,10 +398,6 @@ class AdminEmail implements ShouldQueue
 
         $this->client_brevo_secret = null;
 
-        $this->client_brevo_domain = null;
-
-        $this->client_brevo_endpoint = null;
-
         //always dump the drivers to prevent reuse
         app('mail.manager')->forgetMailers();
     }
@@ -476,10 +468,8 @@ class AdminEmail implements ShouldQueue
      */
     private function setBrevoMailer()
     {
-        if (strlen($this->email_object->settings->brevo_secret) > 2 && strlen($this->email_object->settings->brevo_domain) > 2) {
+        if (strlen($this->email_object->settings->brevo_secret) > 2) {
             $this->client_brevo_secret = $this->email_object->settings->brevo_secret;
-            $this->client_brevo_domain = $this->email_object->settings->brevo_domain;
-            $this->client_brevo_endpoint = $this->email_object->settings->brevo_endpoint;
 
         } else {
             $this->email_object->settings->email_sending_method = 'default';

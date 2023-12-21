@@ -40,6 +40,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
+use Log;
 use Turbo124\Beacon\Facades\LightLogs;
 
 class Email implements ShouldQueue
@@ -61,10 +62,6 @@ class Email implements ShouldQueue
     protected ?string $client_mailgun_endpoint = null;
 
     protected ?string $client_brevo_secret = null;
-
-    protected ?string $client_brevo_domain = null;
-
-    protected ?string $client_brevo_endpoint = null;
 
     private string $mailer = 'default';
 
@@ -238,9 +235,12 @@ class Email implements ShouldQueue
     public function email()
     {
         // $this->setMailDriver();
+        Log::info("mail(): " . $this->mailer);
+        Log::info($this->client_brevo_secret);
 
         /* Init the mailer*/
         $mailer = Mail::mailer($this->mailer);
+
 
         /* Additional configuration if using a client third party mailer */
         if ($this->client_postmark_secret) {
@@ -252,7 +252,7 @@ class Email implements ShouldQueue
         }
 
         if ($this->client_brevo_secret) {
-            $mailer->brevo_config($this->client_brevo_secret, $this->client_brevo_domain, $this->client_brevo_endpoint);
+            $mailer->brevo_config($this->client_brevo_secret);
         }
 
         /* Attempt the send! */
@@ -385,7 +385,7 @@ class Email implements ShouldQueue
         }
 
         /* GMail users are uncapped */
-        if (in_array($this->email_object->settings->email_sending_method, ['gmail', 'office365', 'client_postmark', 'client_mailgun'])) {
+        if (in_array($this->email_object->settings->email_sending_method, ['gmail', 'office365', 'client_postmark', 'client_mailgun', 'client_brevo'])) {
             return false;
         }
 
@@ -461,6 +461,8 @@ class Email implements ShouldQueue
      */
     private function setMailDriver(): self
     {
+        Log::info("E-Mail Sending Method (setMailDriver): " . $this->email_object->settings->email_sending_method);
+        Log::info(json_encode($this->email_object->settings));
         switch ($this->email_object->settings->email_sending_method) {
             case 'default':
                 $this->mailer = config('mail.default');
@@ -541,10 +543,6 @@ class Email implements ShouldQueue
 
         $this->client_brevo_secret = null;
 
-        $this->client_brevo_domain = null;
-
-        $this->client_brevo_endpoint = null;
-
         //always dump the drivers to prevent reuse
         app('mail.manager')->forgetMailers();
     }
@@ -615,10 +613,8 @@ class Email implements ShouldQueue
      */
     private function setBrevoMailer()
     {
-        if (strlen($this->email_object->settings->brevo_secret) > 2 && strlen($this->email_object->settings->brevo_domain) > 2) {
+        if (strlen($this->email_object->settings->brevo_secret) > 2) {
             $this->client_brevo_secret = $this->email_object->settings->brevo_secret;
-            $this->client_brevo_domain = $this->email_object->settings->brevo_domain;
-            $this->client_brevo_endpoint = $this->email_object->settings->brevo_endpoint;
 
         } else {
             $this->email_object->settings->email_sending_method = 'default';

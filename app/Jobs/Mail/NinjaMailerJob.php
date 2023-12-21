@@ -64,8 +64,6 @@ class NinjaMailerJob implements ShouldQueue
 
     protected $client_brevo_secret = false;
 
-    protected $client_brevo_domain = false;
-
     public function __construct(NinjaMailerObject $nmo, bool $override = false)
     {
         $this->nmo = $nmo;
@@ -137,7 +135,7 @@ class NinjaMailerJob implements ShouldQueue
             }
 
             if ($this->client_brevo_secret) {
-                $mailer->brevo_config($this->client_brevo_secret, $this->client_brevo_domain, $this->nmo->settings->brevo_endpoint);
+                $mailer->brevo_config($this->client_brevo_secret);
             }
 
             $mailer
@@ -335,8 +333,6 @@ class NinjaMailerJob implements ShouldQueue
 
         $this->client_brevo_secret = false;
 
-        $this->client_brevo_domain = false;
-
         //always dump the drivers to prevent reuse
         app('mail.manager')->forgetMailers();
     }
@@ -406,9 +402,8 @@ class NinjaMailerJob implements ShouldQueue
      */
     private function setBrevoMailer()
     {
-        if (strlen($this->nmo->settings->brevo_secret) > 2 && strlen($this->nmo->settings->brevo_domain) > 2) {
+        if (strlen($this->nmo->settings->brevo_secret) > 2) {
             $this->client_brevo_secret = $this->nmo->settings->brevo_secret;
-            $this->client_brevo_domain = $this->nmo->settings->brevo_domain;
         } else {
             $this->nmo->settings->email_sending_method = 'default';
             return $this->setMailDriver();

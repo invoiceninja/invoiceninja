@@ -28,6 +28,8 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
+use Symfony\Component\Mailer\Bridge\Brevo\Transport\BrevoTransportFactory;
+use Symfony\Component\Mailer\Transport\Dsn;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -113,15 +115,24 @@ class AppServiceProvider extends ServiceProvider
             return $this;
         });
 
-        Mailer::macro('brevo_config', function (string $secret, string $domain, string $endpoint = 'api.mailgun.net') {
+        Mail::extend('brevo', function () {
+            return (new BrevoTransportFactory)->create(
+                new Dsn(
+                    'brevo+api',
+                    'default',
+                    config('services.brevo.key')
+                )
+            );
+        });
+        Mailer::macro('brevo_config', function (string $key) {
             // @phpstan-ignore /** @phpstan-ignore-next-line **/
-            Mailer::setSymfonyTransport(app('mail.manager')->createSymfonyTransport([
-                'transport' => 'brevo',
-                'secret' => $secret,
-                'domain' => $domain,
-                'endpoint' => $endpoint,
-                'scheme' => config('services.brevo.scheme'),
-            ]));
+            Mail::setSymfonyTransport((new BrevoTransportFactory)->create(
+                new Dsn(
+                    'brevo+api',
+                    'default',
+                    $key
+                )
+            ));
 
             return $this;
         });

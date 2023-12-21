@@ -453,10 +453,6 @@ class CompanySettings extends BaseSettings
 
     public $brevo_secret = '';
 
-    public $brevo_domain = '';
-
-    public $brevo_endpoint = 'api.mailgun.net'; //api.eu.mailgun.net
-
     public $auto_bill_standard_invoices = false;
 
     public $email_alignment = 'center'; // center , left, right
@@ -511,7 +507,6 @@ class CompanySettings extends BaseSettings
         'default_expense_payment_type_id' => 'string',
         'e_invoice_type' => 'string',
         'mailgun_endpoint' => 'string',
-        'brevo_endpoint' => 'string',
         'client_initiated_payments' => 'bool',
         'client_initiated_payments_minimum' => 'float',
         'sync_invoice_quote_columns' => 'bool',
@@ -529,7 +524,6 @@ class CompanySettings extends BaseSettings
         'mailgun_secret' => 'string',
         'mailgun_domain' => 'string',
         'brevo_secret' => 'string',
-        'brevo_domain' => 'string',
         'send_email_on_mark_paid' => 'bool',
         'vendor_portal_enable_uploads' => 'bool',
         'besr_id' => 'string',

@@ -26,10 +26,7 @@ return [
     ],
 
     'brevo' => [
-        'domain' => env('BREVO_DOMAIN', ''),
-        'secret' => env('BREVO_SECRET', ''),
-        'endpoint' => env('BREVO_ENDPOINT', 'api.mailgun.net'),
-        'scheme' => 'https',
+        'key' => env('BREVO_SECRET', ''),
     ],
 
     'postmark' => [
