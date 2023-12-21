@@ -235,8 +235,6 @@ class Email implements ShouldQueue
     public function email()
     {
         // $this->setMailDriver();
-        Log::info("mail(): " . $this->mailer);
-        Log::info($this->client_brevo_secret);
 
         /* Init the mailer*/
         $mailer = Mail::mailer($this->mailer);
@@ -461,8 +459,6 @@ class Email implements ShouldQueue
      */
     private function setMailDriver(): self
     {
-        Log::info("E-Mail Sending Method (setMailDriver): " . $this->email_object->settings->email_sending_method);
-        Log::info(json_encode($this->email_object->settings));
         switch ($this->email_object->settings->email_sending_method) {
             case 'default':
                 $this->mailer = config('mail.default');
