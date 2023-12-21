@@ -42,6 +42,10 @@ class TwilioController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
+        if(!$user->email_verified_at) {
+            return response()->json(['message' => 'Please verify your email address before verifying your phone number'], 400);
+        }
+
         $account = $user->company()->account;
 
         if(!$this->checkPhoneValidity($request->phone)) {
@@ -144,6 +148,10 @@ class TwilioController extends BaseController
 
         if (!$user) {
             return response()->json(['message' => 'Unable to retrieve user.'], 400);
+        }
+
+        if(!$user->email_verified_at) {
+            return response()->json(['message' => 'Please verify your email address before verifying your phone number'], 400);
         }
 
         if (!$user->phone || $user->phone == '') {
