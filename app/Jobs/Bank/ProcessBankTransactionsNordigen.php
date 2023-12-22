@@ -89,10 +89,6 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
         try {
             $this->processTransactions();
         } catch (\Exception $e) {
-            // reset from_date in case this was the error (self-heal) and perform a max sync of data we can fetch (next-time)
-            $this->bank_integration->from_date = now()->subDays(90);
-            $this->bank_integration->save();
-
             nlog("Nordigen: {$this->bank_integration->nordigen_account_id} - exited abnormally => " . $e->getMessage());
 
             $content = [
