@@ -15,6 +15,7 @@ use App\Http\Requests\Request;
 use App\Http\ValidationRules\Account\BlackListRule;
 use App\Http\ValidationRules\Account\EmailBlackListRule;
 use App\Http\ValidationRules\NewUniqueUserRule;
+use App\Services\Cloudflare\Turnstile;
 use App\Utils\Ninja;
 
 class CreateAccountRequest extends Request
@@ -24,9 +25,9 @@ class CreateAccountRequest extends Request
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(Turnstile $turnstile)
     {
-        return true;
+        return Ninja::isHosted() ? $turnstile->authorize() : true;
     }
 
     /**
