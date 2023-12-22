@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b6f77d8c2532d7f443899c5ed77fcf8f",
+    "content-hash": "4b12f1e3b0be21cb7f772d3c2a9d72ff",
     "packages": [
         {
             "name": "afosto/yaac",
@@ -10781,7 +10781,7 @@
         },
         {
             "name": "symfony/brevo-mailer",
-            "version": "v7.0.0",
+            "version": "v6.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/brevo-mailer.git",
@@ -10830,7 +10830,7 @@
             "description": "Symfony Brevo Mailer Bridge",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/brevo-mailer/tree/v7.0.0"
+                "source": "https://github.com/symfony/brevo-mailer/tree/v7.0.0-RC1"
             },
             "funding": [
                 {

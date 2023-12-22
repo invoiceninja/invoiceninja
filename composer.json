@@ -92,7 +92,7 @@
         "sprain/swiss-qr-bill": "^4.3",
         "square/square": "30.0.0.*",
         "stripe/stripe-php": "^12",
-        "symfony/brevo-mailer": "^7.0",
+        "symfony/brevo-mailer": "6.4",
         "symfony/http-client": "^6.0",
         "symfony/mailgun-mailer": "^6.1",
         "symfony/postmark-mailer": "^6.1",
@@ -174,10 +174,10 @@
         }
     },
     "repositories": [
-    {
-        "type": "vcs",
-        "url": "https://github.com/turbo124/apple"
-    }
+        {
+            "type": "vcs",
+            "url": "https://github.com/turbo124/apple"
+        }
     ],
     "minimum-stability": "dev",
     "prefer-stable": true
