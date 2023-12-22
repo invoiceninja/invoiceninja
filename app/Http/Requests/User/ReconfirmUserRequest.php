@@ -12,7 +12,8 @@
 namespace App\Http\Requests\User;
 
 use App\Http\Requests\Request;
-use App\Models\User;
+use App\Services\Cloudflare\Turnstile;
+use App\Utils\Ninja;
 
 class ReconfirmUserRequest extends Request
 {
@@ -21,8 +22,16 @@ class ReconfirmUserRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(Turnstile $turnstile): bool
     {
-        return auth()->user()->id == $this->user->id || auth()->user()->isAdmin();
+        if (auth()->user()->id == $this->user->id || auth()->user()->isAdmin()) {
+            if (Ninja::isHosted()) {
+                return $turnstile->authorize();
+            }
+
+            return true;
+        }
+
+        return false;
     }
 }
