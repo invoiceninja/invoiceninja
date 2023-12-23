@@ -65,6 +65,25 @@ class AccountController extends BaseController
      */
     public function store(CreateAccountRequest $request)
     {
+
+        if(config('ninja.cloudflare.turnstile.secret')) {
+            $r = \Illuminate\Support\Facades\Http::post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+                'secret' => config('ninja.cloudflare.turnstile.secret'),
+                'response' => $request->input('cf-turnstile-response'),
+                'remoteip' => $request->getClientIp(),
+            ]);
+
+            if($r->successful()){
+
+                if($r->json()['success'] === true) {
+                    // return response()->json(['message' => 'Captcha Success'], 200);
+                } else {
+                    return response()->json(['message' => 'Captcha Failed'], 400);
+                }
+            }
+
+        }
+
         $account = (new CreateAccount($request->all(), $request->getClientIp()))->handle();
         if (! ($account instanceof Account)) {
             return $account;

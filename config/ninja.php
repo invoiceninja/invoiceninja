@@ -228,5 +228,10 @@ return [
         'secret' => env('PAYPAL_SECRET', null),
         'client_id' => env('PAYPAL_CLIENT_ID', null),
         'webhook_id' => env('PAYPAL_WEBHOOK_ID', null),
+    ],
+    'cloudflare' => [
+        'turnstile' => [
+            'secret' => env('CLOUDFLARE_SECRET', null),
+        ]
     ]
 ];
