@@ -233,5 +233,9 @@ return [
         'turnstile' => [
             'secret' => env('CLOUDFLARE_SECRET', null),
         ]
-    ]
+    ],
+    'encryption' => [
+        'public_key' => env('NINJA_PUBLIC_KEY', false),
+        'private_key' => env('NINJA_PRIVATE_KEY', false),
+    ],
 ];
