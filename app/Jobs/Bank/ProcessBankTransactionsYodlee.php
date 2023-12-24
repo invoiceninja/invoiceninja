@@ -31,7 +31,7 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private Account $account;
+    private string $bank_integration_account_id;
 
     private BankIntegration $bank_integration;
 
@@ -46,9 +46,9 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(Account $account, BankIntegration $bank_integration)
+    public function __construct(string $bank_integration_account_id, BankIntegration $bank_integration)
     {
-        $this->account = $account;
+        $this->bank_integration_account_id = $bank_integration_account_id;
         $this->bank_integration = $bank_integration;
         $this->from_date = $bank_integration->from_date;
         $this->company = $this->bank_integration->company;
@@ -95,7 +95,7 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
 
     private function processTransactions()
     {
-        $yodlee = new Yodlee($this->account->bank_integration_account_id);
+        $yodlee = new Yodlee($this->bank_integration_account_id);
 
         if (!$yodlee->getAccount($this->bank_integration->bank_account_id)) {
             $this->bank_integration->disabled_upstream = true;
@@ -191,7 +191,7 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
 
     public function middleware()
     {
-        return [new WithoutOverlapping($this->account->bank_integration_account_id)];
+        return [new WithoutOverlapping($this->bank_integration_account_id)];
     }
 
     public function backoff()

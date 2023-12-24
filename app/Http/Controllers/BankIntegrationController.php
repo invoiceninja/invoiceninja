@@ -209,7 +209,7 @@ class BankIntegrationController extends BaseController
         // Processing transactions for each bank account
         if (Ninja::isHosted() && $user->account->bank_integration_account_id)
             $user_account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_YODLEE)->each(function ($bank_integration) use ($user_account) {
-                ProcessBankTransactionsYodlee::dispatch($user_account, $bank_integration);
+                ProcessBankTransactionsYodlee::dispatch($user_account->id, $bank_integration);
             });
 
         if (config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key') && (Ninja::isSelfHost() || (Ninja::isHosted() && $user_account->isPaid() && $user_account->plan == 'enterprise')))
@@ -333,7 +333,7 @@ class BankIntegrationController extends BaseController
 
         if (Ninja::isHosted() && $account->isPaid() && $account->plan == 'enterprise') {
             $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_YODLEE)->where('auto_sync', true)->cursor()->each(function ($bank_integration) use ($account) {
-                (new ProcessBankTransactionsYodlee($account, $bank_integration))->handle();
+                (new ProcessBankTransactionsYodlee($account->id, $bank_integration))->handle();
             });
         }
 
