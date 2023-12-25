@@ -25,10 +25,6 @@ class ReconfirmUserRequest extends Request
     public function authorize(Turnstile $turnstile): bool
     {
         if (auth()->user()->id == $this->user->id || auth()->user()->isAdmin()) {
-            if (Ninja::isHosted()) {
-                return $turnstile->authorize();
-            }
-
             return true;
         }
 
