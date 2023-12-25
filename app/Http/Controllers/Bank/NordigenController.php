@@ -128,11 +128,13 @@ class NordigenController extends BaseController
 
     /**
      * VIEW: Confirm Nordigen Bank Integration (redirect after nordigen flow)
-     * @param ConnectNordigenBankIntegrationRequest $request
+     * @param ConfirmNordigenBankIntegrationRequest $request
      */
     public function confirm(ConfirmNordigenBankIntegrationRequest $request)
     {
         $data = $request->all();
+        
+        /** @var array $context */
         $context = $request->getTokenContent();
         if (!array_key_exists('lang', $data) && $context['lang'] != 'en')
             return redirect()->route('nordigen.confirm', array_merge(["lang" => $context['lang']], $request->query())); // redirect is required in order for the bank-ui to display everything properly
