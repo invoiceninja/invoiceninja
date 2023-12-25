@@ -80,8 +80,6 @@ class BankTransactionSync implements ShouldQueue
     }
     private function processNordigen()
     {
-
-
         if (config("ninja.nordigen.secret_id") && config("ninja.nordigen.secret_key")) { // @turbo124 check condition, when to execute this should be placed here (isSelfHosted || isPro/isEnterprise)
             nlog("syncing transactions - nordigen");
 

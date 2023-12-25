@@ -329,7 +329,7 @@ class BankIntegrationController extends BaseController
     public function getTransactions(AdminBankIntegrationRequest $request)
     {
         /** @var \App\Models\Account $account */
-        $account = auth()->user()->account();
+        $account = auth()->user()->account;
 
         if (Ninja::isHosted() && $account->isPaid() && $account->plan == 'enterprise') {
             $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_YODLEE)->where('auto_sync', true)->cursor()->each(function ($bank_integration) use ($account) {
