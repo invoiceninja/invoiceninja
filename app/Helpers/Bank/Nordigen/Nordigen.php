@@ -85,6 +85,7 @@ class Nordigen
 
             $it = new AccountTransformer();
             return $it->transform($out);
+            
         } catch (\Exception $e) {
             if (strpos($e->getMessage(), "Invalid Account ID") !== false)
                 return false;
@@ -92,8 +93,14 @@ class Nordigen
             throw $e;
         }
     }
-
-    public function isAccountActive(string $account_id)
+    
+    /**
+     * isAccountActive
+     *
+     * @param  string $account_id
+     * @return bool
+     */
+    public function isAccountActive(string $account_id): bool
     {
         try {
             $account = $this->client->account($account_id)->getAccountMetaData();
@@ -112,11 +119,15 @@ class Nordigen
         }
     }
 
+    
     /**
-     * this method returns booked transactions from the bank_account, pending transactions are not part of the result
-     * @todo @turbo124 should we include pending transactions within the integration-process and mark them with a specific category?!
+     * getTransactions
+     *
+     * @param  string $accountId
+     * @param  string $dateFrom
+     * @return array
      */
-    public function getTransactions(string $accountId, string $dateFrom = null)
+    public function getTransactions(string $accountId, string $dateFrom = null): array
     {
         $transactionResponse = $this->client->account($accountId)->getAccountTransactions($dateFrom);
 
