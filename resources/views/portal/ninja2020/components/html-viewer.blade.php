@@ -77,6 +77,8 @@ span {
                     <td>
                         <div class="product-information">
                             <div class="item-details">
+                                 
+                                <p class="overflow-ellipsis overflow-hidden px-1 mb-2">{!! $product['notes'] !!}</p>
                                 <p class="mt-2">
                                     @if($show_quantity)
                                     {{ $product['quantity'] }} x
@@ -85,8 +87,8 @@ span {
                                     @if($show_cost)
                                     {{ $product['cost'] }}
                                     @endif
-                                </p> 
-                                <p class="overflow-ellipsis overflow-hidden px-1 mb-2">{!! $product['notes'] !!}</p>
+                                </p>
+                                
                             </div>
                         </div>
                     </td>
