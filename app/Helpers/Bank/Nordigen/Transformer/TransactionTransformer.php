@@ -114,7 +114,7 @@ class TransactionTransformer implements BankRevenueInterface
             'amount' => abs((int) $transaction["transactionAmount"]["amount"]),
             'currency_id' => $this->convertCurrency($transaction["transactionAmount"]["currency"]),
             'category_id' => null, // nordigen has no categories
-            'category_type' => array_key_exists('additionalInformation', $transaction) ? $transaction["additionalInformation"] : null, // TODO: institution specific keys like: GUTSCHRIFT, ABSCHLUSS, MONATSABSCHLUSS etc
+            'category_type' => array_key_exists('additionalInformation', $transaction) ? $transaction["additionalInformation"] : '', // TODO: institution specific keys like: GUTSCHRIFT, ABSCHLUSS, MONATSABSCHLUSS etc
             'date' => $transaction["bookingDate"],
             'description' => $description,
             'participant' => $participant,
