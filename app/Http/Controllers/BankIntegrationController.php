@@ -298,11 +298,14 @@ class BankIntegrationController extends BaseController
 
         $account = $user->account;
 
-        $bank_integration = BankIntegration::withTrashed()->where('bank_account_id', $acc_id)->orWhere('nordigen_account_id', $acc_id)->company()->firstOrFail(); // @turbo124 please check
+        $bank_integration = BankIntegration::withTrashed()
+                                        ->where('bank_account_id', $acc_id)
+                                        ->orWhere('nordigen_account_id', $acc_id)
+                                        ->company()
+                                        ->firstOrFail();
 
         if ($bank_integration->integration_type == BankIntegration::INTEGRATION_TYPE_YODLEE)
             $this->removeAccountYodlee($account, $bank_integration);
-        // we dont remove Accounts from nordigen, because they could be used within other companies
 
         $this->bank_integration_repo->delete($bank_integration);
 

@@ -39,7 +39,7 @@ class Nordigen
 
         $this->client = new \Nordigen\NordigenPHP\API\NordigenClient(config('ninja.nordigen.secret_id'), config('ninja.nordigen.secret_key'));
 
-        $this->client->createAccessToken(); // access_token is valid 24h -> so we dont have to implement a refresh-cycle
+        $this->client->createAccessToken();
     }
 
     // metadata-section for frontend
