@@ -145,7 +145,7 @@ return [
             'options'        => [],
         ],
 
-        'db-admin-01' => [
+        'db-admin2' => [
             'driver'   => 'sqlite',
             'database' => env('DB_DATABASE', database_path('database.sqlite')),
             'prefix'   => '',
