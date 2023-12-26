@@ -144,6 +144,12 @@ return [
             'engine'         => 'InnoDB ROW_FORMAT=DYNAMIC',
             'options'        => [],
         ],
+
+        'db-admin-01' => [
+            'driver'   => 'sqlite',
+            'database' => env('DB_DATABASE', database_path('database.sqlite')),
+            'prefix'   => '',
+        ],
     ],
 
     /*
