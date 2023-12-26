@@ -52,4 +52,32 @@ class BlacklistValidationTest extends TestCase
         $v = $this->app['validator']->make($data, $rules);
         $this->assertFalse($v->passes());
     }
+
+    public function testInValidEmailRule2()
+    {
+        $rules = [
+            'email' => [new BlackListRule],
+        ];
+
+        $data = [
+            'email' => 'jimmy@zzz.com',
+        ];
+
+        $v = $this->app['validator']->make($data, $rules);
+        $this->assertFalse($v->passes());
+    }
+
+    public function testInValidEmailRule3()
+    {
+        $rules = [
+            'email' => [new BlackListRule],
+        ];
+
+        $data = [
+            'email' => 'jimmy@gmail.com',
+        ];
+
+        $v = $this->app['validator']->make($data, $rules);
+        $this->assertTrue($v->passes());
+    }
 }

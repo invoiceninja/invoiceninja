@@ -11,12 +11,13 @@
 
 namespace App\Http\ValidationRules\Account;
 
-use Illuminate\Contracts\Validation\Rule;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
 
 /**
  * Class BlackListRule.
  */
-class BlackListRule implements Rule
+class BlackListRule implements ValidationRule
 {
     private array $blacklist = [
         'secure-coinspot.com',
@@ -3497,27 +3498,13 @@ class BlackListRule implements Rule
         'zzz.com',
     ];
 
-    /**
-     * @param string $attribute
-     * @param mixed $value
-     * @return bool
-     */
-    public function passes($attribute, $value): bool
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $parts = explode("@", $value);
 
-        if (is_array($parts)) {
-            return ! in_array($parts[1], $this->blacklist);
-        } else {
-            return true;
+        if (is_array($parts) && in_array($parts[1], $this->blacklist)) {
+            $fail('This domain is blacklisted, if you think this is in error, please email contact@invoiceninja.com');
         }
     }
 
-    /**
-     * @return string
-     */
-    public function message(): string
-    {
-        return 'This domain is blacklisted, if you think this is in error, please email contact@invoiceninja.com';
-    }
 }
