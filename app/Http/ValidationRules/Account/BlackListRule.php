@@ -19,6 +19,9 @@ use Illuminate\Contracts\Validation\Rule;
 class BlackListRule implements Rule
 {
     private array $blacklist = [
+        'secure-coinspot.com',
+        'casasotombo.com',
+        'otpku.com',
         'ckptr.com',
         'pretreer.com',
         'candassociates.com',
