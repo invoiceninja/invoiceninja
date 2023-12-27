@@ -42,7 +42,6 @@ class VerifyUserObject
 
         if($this->is_react) {
             $react_redirect = '?react=true';
-            nlog("is react");
         }
 
         $data = [
