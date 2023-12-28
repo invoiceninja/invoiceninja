@@ -20,12 +20,6 @@ return new class extends Migration {
             $table->string("expense_mailbox_whitelist_domains")->nullable();
             $table->string("expense_mailbox_whitelist_emails")->nullable();
         });
-        Company::query()->cursor()->each(function ($company) { // TODO: @turbo124 check migration on staging environment with real data to ensure, this works as exspected
-            $company->expense_mailbox = config('ninja.inbound_expense.webhook.mailbox_template') != '' ?
-                str_replace('{{company_key}}', $company->company_key, config('ninja.inbound_expense.webhook.mailbox_template')) : null;
-
-            $company->save();
-        });
         Schema::table('vendor', function (Blueprint $table) {
             $table->string("invoicing_email")->nullable();
             $table->string("invoicing_domain")->nullable();
