@@ -83,7 +83,7 @@ class ProcessBrevoWebhook implements ShouldQueue
      */
     public function handle()
     {
-        MultiDB::findAndSetDbByCompanyKey($this->request['tag']);
+        MultiDB::findAndSetDbByCompanyKey($this->request['tags'][0]);
 
         $this->invitation = $this->discoverInvitation($this->request['message-id']);
 
@@ -107,6 +107,7 @@ class ProcessBrevoWebhook implements ShouldQueue
                 return $this->processSpamComplaint();
             case 'unique_opened':
             case 'opened':
+            case 'click':
                 return $this->processOpen();
             default:
                 # code...
@@ -115,41 +116,59 @@ class ProcessBrevoWebhook implements ShouldQueue
     }
 
     // {
-    //     "id": 948562,
-    //     "email": "test@example.com",
-    //     "message-id": "<202312211546.94160606300@smtp-relay.mailin.fr>",
-    //     "date": "2023-12-21 18:34:42",
-    //     "tags": [
-    //       "gMtwiTIJtJxklXCj1OUFANgY6YYynQxV"
-    //     ],
-    //     "tag": "[\"gMtwiTIJtJxklXCj1OUFANgY6YYynQxV\"]",
-    //     "event": "unique_opened",
-    //     "subject": "Reminder: Invoice 0002 from Untitled Company",
-    //     "sending_ip": "74.125.208.8",
-    //     "ts": 1703180082,
-    //     "ts_epoch": 1703180082286,
-    //     "ts_event": 1703180082,
-    //     "link": "",
-    //     "sender_email": "user@example.com"
-    //   }
+    //   "id": 948562,
+    //   "email": "test@example.com",
+    //   "message-id": "<202312211546.94160606300@smtp-relay.mailin.fr>",
+    //   "date": "2023-12-21 18:34:42",
+    //   "tags": [
+    //     "gMtwiTIJtJxklXCj1OUFANgY6YYynQxV"
+    //   ],
+    //   "tag": "[\"gMtwiTIJtJxklXCj1OUFANgY6YYynQxV\"]",
+    //   "event": "unique_opened",
+    //   "subject": "Reminder: Invoice 0002 from Untitled Company",
+    //   "sending_ip": "74.125.208.8",
+    //   "ts": 1703180082,
+    //   "ts_epoch": 1703180082286,
+    //   "ts_event": 1703180082,
+    //   "link": "",
+    //   "sender_email": "user@example.com"
+    // }
     // {
-    //     "id": 948562,
-    //     "email": "test@example.com",
-    //     "message-id": "<202312211555.14720890391@smtp-relay.mailin.fr>",
-    //     "date": "2023-12-21 18:34:53",
-    //     "tags": [
-    //       "gMtwiTIJtJxklXCj1OUFANgY6YYynQxV"
-    //     ],
-    //     "tag": "[\"gMtwiTIJtJxklXCj1OUFANgY6YYynQxV\"]",
-    //     "event": "opened",
-    //     "subject": "Reminder: Invoice 0002 from Untitled Company",
-    //     "sending_ip": "74.125.208.8",
-    //     "ts": 1703180093,
-    //     "ts_epoch": 1703180093075,
-    //     "ts_event": 1703180093,
-    //     "link": "",
-    //     "sender_email": "user@example.com"
-    //   }
+    //   "id": 948562,
+    //   "email": "test@example.com",
+    //   "message-id": "<202312211555.14720890391@smtp-relay.mailin.fr>",
+    //   "date": "2023-12-21 18:34:53",
+    //   "tags": [
+    //     "gMtwiTIJtJxklXCj1OUFANgY6YYynQxV"
+    //   ],
+    //   "tag": "[\"gMtwiTIJtJxklXCj1OUFANgY6YYynQxV\"]",
+    //   "event": "opened",
+    //   "subject": "Reminder: Invoice 0002 from Untitled Company",
+    //   "sending_ip": "74.125.208.8",
+    //   "ts": 1703180093,
+    //   "ts_epoch": 1703180093075,
+    //   "ts_event": 1703180093,
+    //   "link": "",
+    //   "sender_email": "user@example.com"
+    // }
+    // {
+    //   "id": 948562,
+    //   "email": "paul@wer-ner.de",
+    //   "message-id": "<202312280812.10968711117@smtp-relay.mailin.fr>",
+    //   "date": "2023-12-28 09:20:18",
+    //   "tags": [
+    //     "gMtwiTIJtJxklXCj1OUFANgY6YYynQxV"
+    //   ],
+    //   "tag": "[\"gMtwiTIJtJxklXCj1OUFANgY6YYynQxV\"]",
+    //   "event": "click",
+    //   "subject": "Reminder: Invoice 0002 from Untitled Company",
+    //   "sending_ip": "79.235.133.157",
+    //   "ts": 1703751618,
+    //   "ts_epoch": 1703751618831,
+    //   "ts_event": 1703751618,
+    //   "link": "http://localhost/client/invoice/CssCvqOcKsenMCgYJ7EUNRZwxSDGUkau",
+    //   "sender_email": "user@example.com"
+    // }
 
     private function processOpen()
     {
@@ -176,23 +195,23 @@ class ProcessBrevoWebhook implements ShouldQueue
     }
 
     // {
-    //     "id": 948562,
-    //     "email": "test@example",
-    //     "message-id": "<202312211742.12697514322@smtp-relay.mailin.fr>",
-    //     "date": "2023-12-21 18:42:31",
-    //     "tags": [
-    //       "gMtwiTIJtJxklXCj1OUFANgY6YYynQxV"
-    //     ],
-    //     "tag": "[\"gMtwiTIJtJxklXCj1OUFANgY6YYynQxV\"]",
-    //     "event": "delivered",
-    //     "subject": "Reminder: Invoice 0002 from Untitled Company",
-    //     "sending_ip": "77.32.148.26",
-    //     "ts_event": 1703180551,
-    //     "ts": 1703180551,
-    //     "reason": "sent",
-    //     "ts_epoch": 1703180551324,
-    //     "sender_email": "user@example.com"
-    //   }
+    //   "id": 948562,
+    //   "email": "test@example",
+    //   "message-id": "<202312211742.12697514322@smtp-relay.mailin.fr>",
+    //   "date": "2023-12-21 18:42:31",
+    //   "tags": [
+    //     "gMtwiTIJtJxklXCj1OUFANgY6YYynQxV"
+    //   ],
+    //   "tag": "[\"gMtwiTIJtJxklXCj1OUFANgY6YYynQxV\"]",
+    //   "event": "delivered",
+    //   "subject": "Reminder: Invoice 0002 from Untitled Company",
+    //   "sending_ip": "77.32.148.26",
+    //   "ts_event": 1703180551,
+    //   "ts": 1703180551,
+    //   "reason": "sent",
+    //   "ts_epoch": 1703180551324,
+    //   "sender_email": "user@example.com"
+    // }
     private function processDelivery()
     {
         $this->invitation->email_status = 'delivered';
@@ -218,74 +237,74 @@ class ProcessBrevoWebhook implements ShouldQueue
     }
 
     // {
-    //     "id": 948562,
-    //     "email": "ryder36@example.net",
-    //     "message-id": "<202312211744.55168080257@smtp-relay.mailin.fr>",
-    //     "date": "2023-12-21 18:44:52",
-    //     "tags": [
-    //       "gMtwiTIJtJxklXCj1OUFANgY6YYynQxV"
-    //     ],
-    //     "tag": "[\"gMtwiTIJtJxklXCj1OUFANgY6YYynQxV\"]",
-    //     "event": "soft_bounce",
-    //     "subject": "Reminder: Invoice 0001 from Untitled Company",
-    //     "sending_ip": "77.32.148.26",
-    //     "ts_event": 1703180692,
-    //     "ts": 1703180692,
-    //     "reason": "Unable to find MX of domain example.net",
-    //     "ts_epoch": 1703180692382,
-    //     "sender_email": "user@example.com"
-    //   }
+    //   "id": 948562,
+    //   "email": "ryder36@example.net",
+    //   "message-id": "<202312211744.55168080257@smtp-relay.mailin.fr>",
+    //   "date": "2023-12-21 18:44:52",
+    //   "tags": [
+    //     "gMtwiTIJtJxklXCj1OUFANgY6YYynQxV"
+    //   ],
+    //   "tag": "[\"gMtwiTIJtJxklXCj1OUFANgY6YYynQxV\"]",
+    //   "event": "soft_bounce",
+    //   "subject": "Reminder: Invoice 0001 from Untitled Company",
+    //   "sending_ip": "77.32.148.26",
+    //   "ts_event": 1703180692,
+    //   "ts": 1703180692,
+    //   "reason": "Unable to find MX of domain example.net",
+    //   "ts_epoch": 1703180692382,
+    //   "sender_email": "user@example.com"
+    // }
     // {
-    //     "id": 948562,
-    //     "email": "gloria46@example.com",
-    //     "message-id": "<202312211744.57456703957@smtp-relay.mailin.fr>",
-    //     "date": "2023-12-21 18:44:54",
-    //     "tags": [
-    //       "gMtwiTIJtJxklXCj1OUFANgY6YYynQxV"
-    //     ],
-    //     "tag": "[\"gMtwiTIJtJxklXCj1OUFANgY6YYynQxV\"]",
-    //     "event": "hard_bounce",
-    //     "subject": "Reminder: Invoice 0001 from Untitled Company",
-    //     "sending_ip": "77.32.148.25",
-    //     "ts_event": 1703180694,
-    //     "ts": 1703180694,
-    //     "reason": "blocked by Admin",
-    //     "ts_epoch": 1703180694175,
-    //     "sender_email": "user@example.com"
-    //   }
-    //  {
-    //     "event" :  "invalid_email",
-    //     "email" :  "example@example.com",
-    //     "id" :  1,
-    //     "date" :  "yyyy-mm-dd hh:i:s",
-    //     "message-id" :  "<xxx@msgid.domain>",
-    //     "subject" :  "Test subject",
-    //     "tag" :  "<defined-tag>",//json of array
-    //     "tags": [
-    //          "company_key"
-    //      ],
-    //     "sending_ip" :  "xxx.xx.xxx.xx",
-    //     "ts_epoch" :  1534486682000,
-    //     "template_id" :  1,
-    //     "sender_email": "user@example.com",
-    //  }
+    //   "id": 948562,
+    //   "email": "gloria46@example.com",
+    //   "message-id": "<202312211744.57456703957@smtp-relay.mailin.fr>",
+    //   "date": "2023-12-21 18:44:54",
+    //   "tags": [
+    //     "gMtwiTIJtJxklXCj1OUFANgY6YYynQxV"
+    //   ],
+    //   "tag": "[\"gMtwiTIJtJxklXCj1OUFANgY6YYynQxV\"]",
+    //   "event": "hard_bounce",
+    //   "subject": "Reminder: Invoice 0001 from Untitled Company",
+    //   "sending_ip": "77.32.148.25",
+    //   "ts_event": 1703180694,
+    //   "ts": 1703180694,
+    //   "reason": "blocked by Admin",
+    //   "ts_epoch": 1703180694175,
+    //   "sender_email": "user@example.com"
+    // }
     // {
-    //     "id": 948562,
-    //     "email": "neoma.langosh@example.com",
-    //     "message-id": "<202312211745.65538701430@smtp-relay.mailin.fr>",
-    //     "date": "2023-12-21 18:45:48",
-    //     "tags": [
-    //         "gMtwiTIJtJxklXCj1OUFANgY6YYynQxV"
-    //     ],
-    //     "tag": "[\"gMtwiTIJtJxklXCj1OUFANgY6YYynQxV\"]",
-    //     "event": "blocked",
-    //     "subject": "Reminder: Invoice 0001 from Untitled Company",
-    //     "ts_event": 1703180748,
-    //     "ts": 1703180748,
-    //     "reason": "blocked : due to blacklist user",
-    //     "ts_epoch": 1703180748987,
-    //     "sender_email": "user@example.com"
-    //     }
+    //   "event" :  "invalid_email",
+    //   "email" :  "example@example.com",
+    //   "id" :  1,
+    //   "date" :  "yyyy-mm-dd hh:i:s",
+    //   "message-id" :  "<xxx@msgid.domain>",
+    //   "subject" :  "Test subject",
+    //   "tag" :  "<defined-tag>",//json of array
+    //   "tags": [
+    //        "company_key"
+    //    ],
+    //   "sending_ip" :  "xxx.xx.xxx.xx",
+    //   "ts_epoch" :  1534486682000,
+    //   "template_id" :  1,
+    //   "sender_email": "user@example.com",
+    // }
+    // {
+    //   "id": 948562,
+    //   "email": "neoma.langosh@example.com",
+    //   "message-id": "<202312211745.65538701430@smtp-relay.mailin.fr>",
+    //   "date": "2023-12-21 18:45:48",
+    //   "tags": [
+    //       "gMtwiTIJtJxklXCj1OUFANgY6YYynQxV"
+    //   ],
+    //   "tag": "[\"gMtwiTIJtJxklXCj1OUFANgY6YYynQxV\"]",
+    //   "event": "blocked",
+    //   "subject": "Reminder: Invoice 0001 from Untitled Company",
+    //   "ts_event": 1703180748,
+    //   "ts": 1703180748,
+    //   "reason": "blocked : due to blacklist user",
+    //   "ts_epoch": 1703180748987,
+    //   "sender_email": "user@example.com"
+    // }
 
     private function processBounce()
     {
@@ -316,17 +335,17 @@ class ProcessBrevoWebhook implements ShouldQueue
     }
 
     // {
-    //     "event" :  "spam",
-    //     "email" :  "example@example.com",
-    //     "id" :  1,
-    //     "date" :  "yyyy-mm-dd hh:i:s",
-    //     "message-id" :  "<xxx@msgid.domain>",
-    //     "tag" :  "<defined-tag>",//json of array
-    //     "tags": [
-    //          "company_key"
-    //      ],
-    //     "sending_ip" :  "xxx.xx.xxx.xx",
-    //     "sender_email": "user@example.com",
+    //   "event" :  "spam",
+    //   "email" :  "example@example.com",
+    //   "id" :  1,
+    //   "date" :  "yyyy-mm-dd hh:i:s",
+    //   "message-id" :  "<xxx@msgid.domain>",
+    //   "tag" :  "<defined-tag>",//json of array
+    //   "tags": [
+    //        "company_key"
+    //    ],
+    //   "sending_ip" :  "xxx.xx.xxx.xx",
+    //   "sender_email": "user@example.com",
     //  }
     private function processSpamComplaint()
     {
@@ -357,7 +376,7 @@ class ProcessBrevoWebhook implements ShouldQueue
         }
     }
 
-    private function discoverInvitation($message_id)
+    private function discoverInvitation(string $message_id)
     {
         $invitation = false;
 
