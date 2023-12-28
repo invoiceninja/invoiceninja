@@ -56,7 +56,7 @@ class StoreCompanyRequest extends Request
             }
         }
 
-        $rules['expense_mailbox'] = new ValidExpenseMailbox($this->company->key, $this->company->account->isPaid() && $this->company->account->plan == 'enterprise'); // @turbo124 check if this is right
+        $rules['expense_mailbox'] = new ValidExpenseMailbox($this->company->key);
 
         return $rules;
     }
@@ -75,6 +75,10 @@ class StoreCompanyRequest extends Request
 
         if (array_key_exists('portal_domain', $input)) {
             $input['portal_domain'] = rtrim(strtolower($input['portal_domain']), "/");
+        }
+
+        if (isset($input['expense_mailbox']) && Ninja::isHosted() && !($this->company->account->isPaid() && $this->company->account->plan == 'enterprise')) {
+            unset($input['expense_mailbox']);
         }
 
         $this->replace($input);

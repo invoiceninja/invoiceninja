@@ -21,7 +21,6 @@ use Illuminate\Contracts\Validation\Rule;
 class ValidExpenseMailbox implements Rule
 {
 
-    private $is_enterprise_error = false;
     private $validated_schema = false;
     private $company_key = false;
     private $isEnterprise = false;
@@ -32,7 +31,6 @@ class ValidExpenseMailbox implements Rule
     public function __construct(string $company_key, bool $isEnterprise = false)
     {
         $this->company_key = $company_key;
-        $this->isEnterprise = $isEnterprise;
         $this->endings = explode(",", config('ninja.ingest_mail.expense_mailbox_endings'));
     }
 
@@ -40,12 +38,6 @@ class ValidExpenseMailbox implements Rule
     {
         if (empty($value)) {
             return true;
-        }
-
-        // denie on hosted and not enterprise
-        if (Ninja::isHosted() && !$this->isEnterprise) {
-            $this->is_enterprise_error = true;
-            return false;
         }
 
         // early return, if we dont have any additional validation
@@ -75,9 +67,6 @@ class ValidExpenseMailbox implements Rule
      */
     public function message()
     {
-        if ($this->is_enterprise_error)
-            return ctrans('texts.expense_mailbox_not_available');
-
         if (!$this->validated_schema)
             return ctrans('texts.expense_mailbox_invalid');
 
