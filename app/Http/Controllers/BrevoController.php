@@ -61,12 +61,12 @@ class BrevoController extends BaseController
      */
     public function webhook(Request $request)
     {
-        // if ($request->has('token') && $request->get('token') == config('services.brevo.key')) {
-        ProcessBrevoWebhook::dispatch($request->all())->delay(10);
+        if ($request->has('token') && $request->get('token') == config('services.brevo.key')) {
+            ProcessBrevoWebhook::dispatch($request->all())->delay(10);
 
-        return response()->json(['message' => 'Success'], 200);
-        // }
+            return response()->json(['message' => 'Success'], 200);
+        }
 
-        // return response()->json(['message' => 'Unauthorized'], 403);
+        return response()->json(['message' => 'Unauthorized'], 403);
     }
 }
