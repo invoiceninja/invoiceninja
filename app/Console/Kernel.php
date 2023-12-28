@@ -101,18 +101,18 @@ class Kernel extends ConsoleKernel
         /* Check ExpenseMainboxes */
         $schedule->job(new ExpenseMailboxJob)->everyThirtyMinutes()->withoutOverlapping()->name('expense-mailboxes-job')->onOneServer();
 
+        /* Pulls in bank transactions from third party services */
+        $schedule->job(new BankTransactionSync)->everyFourHours()->withoutOverlapping()->name('bank-trans-sync-job')->onOneServer();
+
         if (Ninja::isSelfHost()) {
             $schedule->call(function () {
-                Account::whereNotNull('id')->update(['is_scheduler_running' => true]);
+                Account::query()->whereNotNull('id')->update(['is_scheduler_running' => true]);
             })->everyFiveMinutes();
         }
 
         /* Run hosted specific jobs */
         if (Ninja::isHosted()) {
             $schedule->job(new AdjustEmailQuota)->dailyAt('23:30')->withoutOverlapping();
-
-            /* Pulls in bank transactions from third party services */
-            $schedule->job(new BankTransactionSync)->everyFourHours()->withoutOverlapping()->name('bank-trans-sync-job')->onOneServer();
 
             /* Checks ACH verification status and updates state to authorize when verified */
             $schedule->job(new CheckACHStatus)->everySixHours()->withoutOverlapping()->name('ach-status-job')->onOneServer();

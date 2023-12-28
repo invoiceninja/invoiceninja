@@ -11,25 +11,26 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\Credit\CreditWasEmailed;
-use App\Events\Quote\QuoteWasEmailed;
-use App\Http\Requests\Email\SendEmailRequest;
-use App\Jobs\PurchaseOrder\PurchaseOrderEmail;
+use App\Utils\Ninja;
+use App\Models\Quote;
 use App\Models\Credit;
 use App\Models\Invoice;
+use App\Models\Webhook;
 use App\Models\PurchaseOrder;
-use App\Models\Quote;
-use App\Models\RecurringInvoice;
 use App\Services\Email\Email;
+use App\Utils\Traits\MakesHash;
+use App\Models\RecurringInvoice;
 use App\Services\Email\EmailObject;
+use App\Events\Quote\QuoteWasEmailed;
+use App\Transformers\QuoteTransformer;
+use Illuminate\Mail\Mailables\Address;
+use App\Events\Credit\CreditWasEmailed;
 use App\Transformers\CreditTransformer;
 use App\Transformers\InvoiceTransformer;
+use App\Http\Requests\Email\SendEmailRequest;
+use App\Jobs\PurchaseOrder\PurchaseOrderEmail;
 use App\Transformers\PurchaseOrderTransformer;
-use App\Transformers\QuoteTransformer;
 use App\Transformers\RecurringInvoiceTransformer;
-use App\Utils\Ninja;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Mail\Mailables\Address;
 
 class EmailController extends BaseController
 {
@@ -100,6 +101,7 @@ class EmailController extends BaseController
 
             if ($entity_obj->invitations->count() >= 1) {
                 $entity_obj->entityEmailEvent($entity_obj->invitations->first(), 'invoice', $template);
+                $entity_obj->sendEvent(Webhook::EVENT_SENT_INVOICE, "client");
             }
         }
 
@@ -109,6 +111,8 @@ class EmailController extends BaseController
 
             if ($entity_obj->invitations->count() >= 1) {
                 event(new QuoteWasEmailed($entity_obj->invitations->first(), $entity_obj->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), 'quote'));
+                $entity_obj->sendEvent(Webhook::EVENT_SENT_QUOTE, "client");
+
             }
         }
 
@@ -118,6 +122,7 @@ class EmailController extends BaseController
 
             if ($entity_obj->invitations->count() >= 1) {
                 event(new CreditWasEmailed($entity_obj->invitations->first(), $entity_obj->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), 'credit'));
+                $entity_obj->sendEvent(Webhook::EVENT_SENT_CREDIT, "client");
             }
         }
 
@@ -143,7 +148,8 @@ class EmailController extends BaseController
         $data['template'] = $template;
         
         PurchaseOrderEmail::dispatch($entity_obj, $entity_obj->company, $data);
-        
+        $entity_obj->sendEvent(Webhook::EVENT_SENT_PURCHASE_ORDER, "vendor");
+
         return $this->itemResponse($entity_obj);
     }
 

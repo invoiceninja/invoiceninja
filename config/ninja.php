@@ -17,8 +17,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
-    'app_version' => env('APP_VERSION', '5.7.59'),
-    'app_tag' => env('APP_TAG', '5.7.59'),
+    'app_version' => env('APP_VERSION', '5.7.63'),
+    'app_tag' => env('APP_TAG', '5.7.63'),
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', false),
@@ -218,6 +218,11 @@ return [
         'dev_mode' => env("YODLEE_DEV_MODE", false),
         'config_name' => env("YODLEE_CONFIG_NAME", false),
     ],
+    'nordigen' => [
+        'secret_id' => env('NORDIGEN_SECRET_ID', false),
+        'secret_key' => env('NORDIGEN_SECRET_KEY', false),
+        'test_mode' => env("NORDIGEN_TEST_MODE", false),
+    ],
     'licenses' => env('LICENSES', false),
     'google_application_credentials' => env("GOOGLE_APPLICATION_CREDENTIALS", false),
     'shopify' => [
@@ -227,6 +232,7 @@ return [
     'paypal' => [
         'secret' => env('PAYPAL_SECRET', null),
         'client_id' => env('PAYPAL_CLIENT_ID', null),
+        'webhook_id' => env('PAYPAL_WEBHOOK_ID', null),
     ],
     'ingest_mail' => [
         'imap' => [
@@ -238,5 +244,14 @@ return [
         ],
         'expense_mailbox_template' => env('ingest_mail_EXPENSE_MAILBOX_TEMPLATE', null),
         'expense_mailbox_endings' => env('ingest_mail_EXPENSE_MAILBOX_ENDINGS', '@expense.invoicing.co'),
+    ],
+    'cloudflare' => [
+        'turnstile' => [
+            'secret' => env('CLOUDFLARE_SECRET', null),
+        ]
+    ],
+    'encryption' => [
+        'public_key' => env('NINJA_PUBLIC_KEY', false),
+        'private_key' => env('NINJA_PRIVATE_KEY', false),
     ],
 ];

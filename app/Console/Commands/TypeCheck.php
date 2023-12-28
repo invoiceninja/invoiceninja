@@ -100,7 +100,7 @@ class TypeCheck extends Command
         $entity_settings = $this->checkSettingType($client->settings);
         $entity_settings->md5 = md5(time());
         $client->settings = $entity_settings;
-        $client->save();
+        $client->saveQuietly();
     }
 
     private function checkCompany($company)
@@ -119,7 +119,7 @@ class TypeCheck extends Command
             $entity_settings = $this->checkSettingType($client->settings);
             $entity_settings->md5 = md5(time());
             $client->settings = $entity_settings;
-            $client->save();
+            $client->saveQuietly();
         });
 
         Company::query()->cursor()->each(function ($company) {

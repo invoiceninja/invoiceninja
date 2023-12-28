@@ -11,16 +11,17 @@
 
 namespace App\Libraries;
 
-use App\Models\Account;
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Company;
-use App\Models\CompanyToken;
-use App\Models\Document;
 use App\Models\User;
+use App\Models\Client;
+use App\Models\Account;
+use App\Models\Company;
+use App\Models\Document;
+use App\Models\PaymentHash;
+use Illuminate\Support\Str;
+use App\Models\CompanyToken;
+use App\Models\ClientContact;
 use App\Models\VendorContact;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 /**
  * Class MultiDB.
@@ -526,6 +527,27 @@ class MultiDB
                 self::setDb($db);
 
                 return $company;
+            }
+        }
+
+        self::setDB($current_db);
+
+        return false;
+    }
+
+    public static function findAndSetByPaymentHash(string $hash)
+    {
+        if (!config('ninja.db.multi_db_enabled')) {
+            return PaymentHash::with('fee_invoice')->where('hash', $hash)->first();
+        }
+
+        $current_db = config('database.default');
+
+        foreach (self::$dbs as $db) {
+            if ($payment_hash = PaymentHash::on($db)->where('hash', $hash)->first()) {
+                self::setDb($db);
+
+                return $payment_hash;
             }
         }
 

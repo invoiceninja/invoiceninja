@@ -73,6 +73,18 @@ class UpdatePaymentMethods
             $this->addOrUpdateCard($method, $customer->id, $client, GatewayType::SOFORT);
         }
 
+        $sepa_methods = PaymentMethod::all(
+            [
+                    'customer' => $customer->id,
+                    'type' => 'sepa_debit',
+                ],
+            $this->stripe->stripe_connect_auth
+        );
+
+        foreach ($sepa_methods as $method) {
+            $this->addOrUpdateCard($method, $customer->id, $client, GatewayType::SEPA);
+        }
+
         $this->importBankAccounts($customer, $client);
         
         $this->importPMBankAccounts($customer, $client);
@@ -189,7 +201,7 @@ class UpdatePaymentMethods
         }
 
         /* Ignore Expired cards */
-        if ($method->card->exp_year <= date('Y') && $method->card->exp_month < date('m')) {
+        if ($method->card && $method->card->exp_year <= date('Y') && $method->card->exp_month < date('m')) {
             return;
         }
 
@@ -231,6 +243,15 @@ class UpdatePaymentMethods
 
                 return new \stdClass;
 
+            case GatewayType::SEPA:
+                
+                    $payment_meta = new \stdClass;
+                    $payment_meta->brand = (string) \sprintf('%s (%s)', $method->sepa_debit->bank_code, ctrans('texts.sepa'));
+                    $payment_meta->last4 = (string) $method->sepa_debit->last4;
+                    $payment_meta->state = 'authorized';
+                    $payment_meta->type = GatewayType::SEPA;
+    
+                    return $payment_meta;
             default:
 
                 break;

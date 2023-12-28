@@ -61,7 +61,7 @@ class UpdateCompanyRequest extends Request
         // $rules['client_registration_fields'] = 'array';
 
         if (isset($input['portal_mode']) && ($input['portal_mode'] == 'domain' || $input['portal_mode'] == 'iframe')) {
-            $rules['portal_domain'] = 'sometimes|url';
+            $rules['portal_domain'] = 'bail|nullable|sometimes|url';
         }
 
         if (Ninja::isHosted()) {
@@ -118,7 +118,7 @@ class UpdateCompanyRequest extends Request
         }
 
         if (isset($settings['email_style_custom'])) {
-            $settings['email_style_custom'] = str_replace(['{{', '}}'], ['', ''], $settings['email_style_custom']);
+            $settings['email_style_custom'] = str_replace(['{!!', '!!}', '{{', '}}', '@if(', '@endif', '@isset', '@unless', '@auth', '@empty', '@guest', '@env', '@section', '@switch', '@foreach', '@while', '@include', '@each', '@once', '@push', '@use', '@forelse', '@verbatim', '<?php', '@php', '@for'], '', $settings['email_style_custom']);
         }
 
         if (!$account->isFreeHostedClient()) {

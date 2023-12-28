@@ -146,16 +146,26 @@ class InvoiceFilters extends QueryFilters
      */
     public function upcoming(): Builder
     {
-        return $this->builder->whereIn('status_id', [Invoice::STATUS_PARTIAL, Invoice::STATUS_SENT])
-                    ->whereNull('due_date')
+
+        return $this->builder->where(function ($query) {
+            $query->whereIn('status_id', [Invoice::STATUS_PARTIAL, Invoice::STATUS_SENT])
+            ->where('is_deleted', 0)
+            ->where('balance', '>', 0)
+            ->where(function ($query) {
+
+                $query->whereNull('due_date')
                     ->orWhere(function ($q) {
                         $q->where('due_date', '>=', now()->startOfDay()->subSecond())->where('partial', 0);
                     })
-                     ->orWhere(function ($q) {
-                         $q->where('partial_due_date', '>=', now()->startOfDay()->subSecond())->where('partial', '>', 0);
-                     })
-                    ->orderByRaw('ISNULL(due_date), due_date '. 'desc')
-                    ->orderByRaw('ISNULL(partial_due_date), partial_due_date '. 'desc');
+                    ->orWhere(function ($q) {
+                        $q->where('partial_due_date', '>=', now()->startOfDay()->subSecond())->where('partial', '>', 0);
+                    });
+
+            })
+            ->orderByRaw('ISNULL(due_date), due_date ' . 'desc')
+            ->orderByRaw('ISNULL(partial_due_date), partial_due_date ' . 'desc');
+        });
+
     }
 
     /**
@@ -165,13 +175,18 @@ class InvoiceFilters extends QueryFilters
      */
     public function overdue(): Builder
     {
-        return $this->builder->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+        return $this->builder->where(function ($query) {
+
+            $query->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                     ->where('is_deleted', 0)
+                    ->where('balance', '>', 0)
                     ->where(function ($query) {
                         $query->where('due_date', '<', now())
                             ->orWhere('partial_due_date', '<', now());
                     })
                     ->orderBy('due_date', 'ASC');
+        });
+
     }
 
     /**
@@ -271,14 +286,16 @@ class InvoiceFilters extends QueryFilters
             return $this->builder;
         }
 
+        $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
+
         if ($sort_col[0] == 'client_id') {
 
             return $this->builder->orderBy(\App\Models\Client::select('name')
-                             ->whereColumn('clients.id', 'invoices.client_id'), $sort_col[1]);
+                             ->whereColumn('clients.id', 'invoices.client_id'), $dir);
             
         }
 
-        return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+        return $this->builder->orderBy($sort_col[0], $dir);
     }
 
     /**

@@ -105,7 +105,7 @@ class PaymentFailedMailer implements ShouldQueue
         });
 
         //add client payment failures here.
-        //
+        
         if ($this->client->contacts()->whereNotNull('email')->exists() && $this->payment_hash) {
             $contact = $this->client->contacts()->whereNotNull('email')->first();
 

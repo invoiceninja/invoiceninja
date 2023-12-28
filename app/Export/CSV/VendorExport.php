@@ -126,15 +126,14 @@ class VendorExport extends BaseExport
             } elseif (is_array($parts) && $parts[0] == 'vendor_contact' && isset($transformed_contact[$parts[1]])) {
                 $entity[$key] = $transformed_contact[$parts[1]];
             } else {
-                // nlog($key);
+
                 $entity[$key] = $this->decorator->transform($key, $vendor);
 
-                // $entity[$key] = $this->resolveKey($key, $vendor, $this->vendor_transformer);
             }
         }
 
-        return $entity;
-        // return $this->decorateAdvancedFields($vendor, $entity);
+        // return $entity;
+        return $this->decorateAdvancedFields($vendor, $entity);
     }
 
     private function decorateAdvancedFields(Vendor $vendor, array $entity) :array
@@ -150,6 +149,15 @@ class VendorExport extends BaseExport
         if (in_array('vendor.classification', $this->input['report_keys']) && isset($vendor->classification)) {
             $entity['vendor.classification'] = ctrans("texts.{$vendor->classification}") ?? '';
         }
+
+        if (in_array('vendor.user_id', $this->input['report_keys'])) {
+            $entity['vendor.user_id'] = $vendor->user ? $vendor->user->present()->name() : '';
+        }
+
+        if (in_array('vendor.assigned_user_id', $this->input['report_keys'])) {
+            $entity['vendor.assigned_user_id'] = $vendor->assigned_user ? $vendor->assigned_user->present()->name() : '';
+        }
+
 
         // $entity['status'] = $this->calculateStatus($vendor);
 

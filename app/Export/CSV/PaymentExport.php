@@ -125,55 +125,55 @@ class PaymentExport extends BaseExport
 
         }
 
-        return $entity;
-        // return $this->decorateAdvancedFields($payment, $entity);
+        // return $entity;
+        return $this->decorateAdvancedFields($payment, $entity);
     }
 
     private function decorateAdvancedFields(Payment $payment, array $entity) :array
     {
-        if (in_array('status_id', $this->input['report_keys'])) {
-            $entity['status'] = $payment->stringStatus($payment->status_id);
-        }
+        // if (in_array('status_id', $this->input['report_keys'])) {
+        //     $entity['status'] = $payment->stringStatus($payment->status_id);
+        // }
 
-        if (in_array('vendor_id', $this->input['report_keys'])) {
-            $entity['vendor'] = $payment->vendor()->exists() ? $payment->vendor->name : '';
-        }
+        // if (in_array('vendor_id', $this->input['report_keys'])) {
+        //     $entity['vendor'] = $payment->vendor()->exists() ? $payment->vendor->name : '';
+        // }
 
-        if (in_array('project_id', $this->input['report_keys'])) {
-            $entity['project'] = $payment->project()->exists() ? $payment->project->name : '';
-        }
+        // if (in_array('project_id', $this->input['report_keys'])) {
+        //     $entity['project'] = $payment->project()->exists() ? $payment->project->name : '';
+        // }
 
-        if (in_array('currency_id', $this->input['report_keys'])) {
-            $entity['currency'] = $payment->currency()->exists() ? $payment->currency->code : '';
-        }
+        // if (in_array('currency_id', $this->input['report_keys'])) {
+        //     $entity['currency'] = $payment->currency()->exists() ? $payment->currency->code : '';
+        // }
 
-        if (in_array('payment.currency', $this->input['report_keys'])) {
-            $entity['payment.currency'] = $payment->currency()->exists() ? $payment->currency->code : '';
-        }
+        // if (in_array('payment.currency', $this->input['report_keys'])) {
+        //     $entity['payment.currency'] = $payment->currency()->exists() ? $payment->currency->code : '';
+        // }
 
-        if (in_array('exchange_currency_id', $this->input['report_keys'])) {
-            $entity['exchange_currency'] = $payment->exchange_currency()->exists() ? $payment->exchange_currency->code : '';
-        }
+        // if (in_array('exchange_currency_id', $this->input['report_keys'])) {
+        //     $entity['exchange_currency'] = $payment->exchange_currency()->exists() ? $payment->exchange_currency->code : '';
+        // }
 
-        if (in_array('client_id', $this->input['report_keys'])) {
-            $entity['client'] = $payment->client->present()->name();
-        }
+        // if (in_array('client_id', $this->input['report_keys'])) {
+        //     $entity['client'] = $payment->client->present()->name();
+        // }
 
-        if (in_array('type_id', $this->input['report_keys'])) {
-            $entity['type'] = $payment->translatedType();
-        }
+        // if (in_array('type_id', $this->input['report_keys'])) {
+        //     $entity['type'] = $payment->translatedType();
+        // }
 
-        if (in_array('payment.method', $this->input['report_keys'])) {
-            $entity['payment.method'] = $payment->translatedType();
-        }
+        // if (in_array('payment.method', $this->input['report_keys'])) {
+        //     $entity['payment.method'] = $payment->translatedType();
+        // }
 
-        if (in_array('payment.status', $this->input['report_keys'])) {
-            $entity['payment.status'] = $payment->stringStatus($payment->status_id);
-        }
+        // if (in_array('payment.status', $this->input['report_keys'])) {
+        //     $entity['payment.status'] = $payment->stringStatus($payment->status_id);
+        // }
 
-        if (in_array('gateway_type_id', $this->input['report_keys'])) {
-            $entity['gateway'] = $payment->gateway_type ? $payment->gateway_type->name : 'Unknown Type';
-        }
+        // if (in_array('gateway_type_id', $this->input['report_keys'])) {
+        //     $entity['gateway'] = $payment->gateway_type ? $payment->gateway_type->name : 'Unknown Type';
+        // }
 
         if (in_array('payment.assigned_user_id', $this->input['report_keys'])) {
             $entity['payment.assigned_user_id'] = $payment->assigned_user ? $payment->assigned_user->present()->name() : '';

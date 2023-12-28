@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $account_id
  * @property int $company_id
  * @property int $user_id
+ * @property string $integration_type
  * @property string $provider_name
  * @property int $provider_id
  * @property int $bank_account_id
@@ -30,6 +31,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property float $balance
  * @property int|null $currency
  * @property string $nickname
+ * @property string $nordigen_account_id
+ * @property string $nordigen_institution_id
  * @property string|null $from_date
  * @property bool $is_deleted
  * @property int|null $created_at
@@ -60,7 +63,7 @@ class BankIntegration extends BaseModel
 {
     use SoftDeletes;
     use Filterable;
-    
+
     protected $fillable = [
         'bank_account_name',
         'provider_name',
@@ -72,6 +75,10 @@ class BankIntegration extends BaseModel
         'from_date',
         'auto_sync',
     ];
+
+    const INTEGRATION_TYPE_YODLEE = 'YODLEE';
+
+    const INTEGRATION_TYPE_NORDIGEN = 'NORDIGEN';
 
     public function getEntityType()
     {

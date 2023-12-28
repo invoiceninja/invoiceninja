@@ -14,6 +14,7 @@ namespace App\Jobs\Bank;
 use App\Helpers\Bank\Yodlee\Transformer\AccountTransformer;
 use App\Helpers\Bank\Yodlee\Yodlee;
 use App\Libraries\MultiDB;
+use App\Models\Account;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
 use App\Models\Company;
@@ -26,7 +27,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 
-class ProcessBankTransactions implements ShouldQueue
+class ProcessBankTransactionsYodlee implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -61,21 +62,24 @@ class ProcessBankTransactions implements ShouldQueue
      */
     public function handle()
     {
+        if ($this->bank_integration->integration_type != BankIntegration::INTEGRATION_TYPE_YODLEE)
+            throw new \Exception("Invalid BankIntegration Type");
+
         set_time_limit(0);
 
         //Loop through everything until we are up to date
         $this->from_date = $this->from_date ?: '2021-01-01';
 
-        nlog("Processing transactions for account: {$this->bank_integration->account->key}");
+        nlog("Yodlee: Processing transactions for account: {$this->bank_integration->account->key}");
 
         do {
             try {
                 $this->processTransactions();
-            } catch(\Exception $e) {
-                nlog("{$this->bank_integration_account_id} - exited abnormally => ". $e->getMessage());
+            } catch (\Exception $e) {
+                nlog("Yodlee: {$this->bank_integration->bank_account_id} - exited abnormally => " . $e->getMessage());
 
                 $content = [
-                    "Processing transactions for account: {$this->bank_integration->account->key} failed",
+                    "Processing transactions for account: {$this->bank_integration->bank_account_id} failed",
                     "Exception Details => ",
                     $e->getMessage(),
                 ];
@@ -103,21 +107,21 @@ class ProcessBankTransactions implements ShouldQueue
         try {
             $account_summary = $yodlee->getAccountSummary($this->bank_integration->bank_account_id);
 
-            if($account_summary) {
+            if ($account_summary) {
 
                 $at = new AccountTransformer();
                 $account = $at->transform($account_summary);
 
-                if($account[0]['current_balance']) {
+                if ($account[0]['current_balance']) {
                     $this->bank_integration->balance = $account[0]['current_balance'];
                     $this->bank_integration->currency = $account[0]['account_currency'];
                     $this->bank_integration->bank_account_status = $account[0]['account_status'];
                     $this->bank_integration->save();
                 }
-                
+
             }
-        } catch(\Exception $e) {
-            nlog("YODLEE: unable to update account summary for {$this->bank_integration->bank_account_id} => ". $e->getMessage());
+        } catch (\Exception $e) {
+            nlog("YODLEE: unable to update account summary for {$this->bank_integration->bank_account_id} => " . $e->getMessage());
         }
 
         $data = [
@@ -151,14 +155,14 @@ class ProcessBankTransactions implements ShouldQueue
 
         /*Get the user */
         $user_id = $this->company->owner()->id;
-        
+
         /* Unguard the model to perform batch inserts */
         BankTransaction::unguard();
 
         $now = now();
-        
+
         foreach ($transactions as $transaction) {
-            if (BankTransaction::query()->where('transaction_id', $transaction['transaction_id'])->where('company_id', $this->company->id)->withTrashed()->exists()) {
+            if (BankTransaction::query()->where('transaction_id', $transaction['transaction_id'])->where('company_id', $this->company->id)->where('bank_integration_id', $this->bank_integration->id)->withTrashed()->exists()) { 
                 continue;
             }
 
@@ -189,7 +193,7 @@ class ProcessBankTransactions implements ShouldQueue
     {
         return [new WithoutOverlapping($this->bank_integration_account_id)];
     }
-    
+
     public function backoff()
     {
         return [rand(10, 15), rand(30, 40), rand(60, 79), rand(160, 200), rand(3000, 5000)];
