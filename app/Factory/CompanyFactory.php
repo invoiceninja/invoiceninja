@@ -50,10 +50,6 @@ class CompanyFactory
         $company->tax_data = new TaxModel();
         $company->first_month_of_year = 1;
 
-        // default mailbox
-        $company->expense_mailbox = config('ninja.ingest_mail.expense_mailbox_template') != '' ?
-            str_replace('{{company_key}}', $company->company_key, config('ninja.ingest_mail.expense_mailbox_template')) : null;
-
         return $company;
     }
 }
