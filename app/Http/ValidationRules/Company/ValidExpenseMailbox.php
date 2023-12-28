@@ -21,6 +21,7 @@ use Illuminate\Contracts\Validation\Rule;
 class ValidExpenseMailbox implements Rule
 {
 
+    private $is_enterprise_error = false;
     private $validated_schema = false;
     private $company_key = false;
     private $isEnterprise = false;
@@ -32,9 +33,7 @@ class ValidExpenseMailbox implements Rule
     {
         $this->company_key = $company_key;
         $this->isEnterprise = $isEnterprise;
-        $this->endings = explode(",", config('ninja.inbound_expense.webhook.mailbox_endings'));
-        $this->hasCompanyKey = config('ninja.inbound_expense.webhook.mailbox_hascompanykey');
-        $this->enterprise_endings = explode(",", config('ninja.inbound_expense.webhook.mailbox_enterprise_endings'));
+        $this->endings = explode(",", config('ninja.ingest_mail.expense_mailbox_endings'));
     }
 
     public function passes($attribute, $value)
@@ -43,33 +42,28 @@ class ValidExpenseMailbox implements Rule
             return true;
         }
 
+        // denie on hosted and not enterprise
+        if (Ninja::isHosted() && !$this->isEnterprise) {
+            $this->is_enterprise_error = true;
+            return false;
+        }
+
         // early return, if we dont have any additional validation
-        if (!config('ninja.inbound_expense.webhook.mailbox_schema') && !(Ninja::isHosted() && config('ninja.inbound_expense.webhook.mailbox_schema_enterprise'))) {
+        if (!config('ninja.ingest_mail.expense_mailbox_endings')) {
             $this->validated_schema = true;
             return MultiDB::checkExpenseMailboxAvailable($value);
         }
 
         // Validate Schema
-        $validated_hasCompanyKey = !$this->hasCompanyKey || str_contains($value, $this->company_key);
         $validated = false;
-        if ($validated_hasCompanyKey)
-            foreach ($this->endings as $ending) {
-                if (str_ends_with($ending, $value)) {
-                    $validated = true;
-                    break;
-                }
+        foreach ($this->endings as $ending) {
+            if (str_ends_with($ending, $value)) {
+                $validated = true;
+                break;
             }
+        }
 
-        $validated_enterprise = false;
-        if (Ninja::isHosted() && $this->isEnterprise)
-            foreach ($this->endings as $ending) {
-                if (str_ends_with($ending, $value)) {
-                    $validated_enterprise = true;
-                    break;
-                }
-            }
-
-        if (!$validated && !$validated_enterprise)
+        if (!$validated)
             return false;
 
         $this->validated_schema = true;
@@ -81,6 +75,12 @@ class ValidExpenseMailbox implements Rule
      */
     public function message()
     {
-        return $this->validated_schema ? ctrans('texts.expense_mailbox_taken') : ctrans('texts.expense_mailbox_invalid');
+        if ($this->validated_schema)
+            return ctrans('texts.expense_mailbox_not_available');
+
+        if ($this->validated_schema)
+            return ctrans('texts.expense_mailbox_taken');
+
+        return ctrans('texts.expense_mailbox_invalid');
     }
 }

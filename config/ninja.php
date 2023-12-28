@@ -228,19 +228,15 @@ return [
         'secret' => env('PAYPAL_SECRET', null),
         'client_id' => env('PAYPAL_CLIENT_ID', null),
     ],
-    'inbound_expense' => [
+    'ingest_mail' => [
         'imap' => [
-            'servers' => env('INBOUND_EXPENSE_IMAP_SERVERS', ''),
-            'ports' => env('INBOUND_EXPENSE_IMAP_PORTS', ''),
-            'users' => env('INBOUND_EXPENSE_IMAP_USERS', ''),
-            'passwords' => env('INBOUND_EXPENSE_IMAP_PASSWORDS', ''),
-            'companies' => env('INBOUND_EXPENSE_IMAP_COMPANIES', '1'),
+            'servers' => env('ingest_mail_IMAP_SERVERS', ''),
+            'ports' => env('ingest_mail_IMAP_PORTS', ''),
+            'users' => env('ingest_mail_IMAP_USERS', ''),
+            'passwords' => env('ingest_mail_IMAP_PASSWORDS', ''),
+            'companies' => env('ingest_mail_IMAP_COMPANIES', '1'),
         ],
-        'webhook' => [
-            'mailbox_template' => env('INBOUND_EXPENSE_WEBHOOK_MAILBOX_TEMPLATE', null),
-            'mailbox_endings_endings' => env('INBOUND_EXPENSE_WEBHOOK_MAILBOX_ENDINGS', ''),
-            'mailbox_hascompanykey' => env('INBOUND_EXPENSE_WEBHOOK_MAILBOX_HASCOMPANYKEY', false),
-            'mailbox_endings_enterprise' => env('INBOUND_EXPENSE_WEBHOOK_MAILBOX_ENTERPRISE_ENDINGS', '@expense.invoicing.co'),
-        ],
+        'expense_mailbox_template' => env('ingest_mail_EXPENSE_MAILBOX_TEMPLATE', null),
+        'expense_mailbox_endings' => env('ingest_mail_EXPENSE_MAILBOX_ENDINGS', '@expense.invoicing.co'),
     ],
 ];

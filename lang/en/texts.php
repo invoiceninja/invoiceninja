@@ -2534,6 +2534,7 @@ $lang = array(
     'local_storage_required' => 'Error: local storage is not available.',
     'your_password_reset_link' => 'Your Password Reset Link',
     'subdomain_taken' => 'The subdomain is already in use',
+    'expense_mailbox_not_available' => 'You are not allowed to set an expense_inbox. Please upgrade plan to enterpise.',
     'expense_mailbox_taken' => 'The mailbox is already in use',
     'expense_mailbox_invalid' => 'The mailbox does not match the required schema',
     'client_login' => 'Client Login',

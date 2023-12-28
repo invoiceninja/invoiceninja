@@ -51,8 +51,8 @@ class CompanyFactory
         $company->first_month_of_year = 1;
 
         // default mailbox
-        $company->expense_mailbox = config('ninja.inbound_expense.webhook.mailbox_template') != '' ?
-            str_replace('{{company_key}}', $company->company_key, config('ninja.inbound_expense.webhook.mailbox_template')) : null;
+        $company->expense_mailbox = config('ninja.ingest_mail.expense_mailbox_template') != '' ?
+            str_replace('{{company_key}}', $company->company_key, config('ninja.ingest_mail.expense_mailbox_template')) : null;
 
         return $company;
     }

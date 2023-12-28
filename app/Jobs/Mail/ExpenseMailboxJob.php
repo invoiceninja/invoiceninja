@@ -74,14 +74,14 @@ class ExpenseMailboxJob implements ShouldQueue
 
     private function getImapCredentials()
     {
-        $servers = array_map('trim', explode(",", config('ninja.inbound_expense.imap.servers')));
-        $ports = array_map('trim', explode(",", config('ninja.inbound_expense.imap.ports')));
-        $users = array_map('trim', explode(",", config('ninja.inbound_expense.imap.users')));
-        $passwords = array_map('trim', explode(",", config('ninja.inbound_expense.imap.passwords')));
-        $companies = array_map('trim', explode(",", config('ninja.inbound_expense.imap.companies')));
+        $servers = array_map('trim', explode(",", config('ninja.ingest_mail.imap.servers')));
+        $ports = array_map('trim', explode(",", config('ninja.ingest_mail.imap.ports')));
+        $users = array_map('trim', explode(",", config('ninja.ingest_mail.imap.users')));
+        $passwords = array_map('trim', explode(",", config('ninja.ingest_mail.imap.passwords')));
+        $companies = array_map('trim', explode(",", config('ninja.ingest_mail.imap.companies')));
 
         if (sizeOf($servers) != sizeOf($ports) || sizeOf($servers) != sizeOf($users) || sizeOf($servers) != sizeOf($passwords) || sizeOf($servers) != sizeOf($companies))
-            throw new \Exception('invalid configuration inbound_expense.imap (wrong element-count)');
+            throw new \Exception('invalid configuration ingest_mail.imap (wrong element-count)');
 
         foreach ($companies as $index => $companyId) {
 
