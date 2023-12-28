@@ -75,12 +75,12 @@ class ValidExpenseMailbox implements Rule
      */
     public function message()
     {
-        if ($this->validated_schema)
+        if ($this->is_enterprise_error)
             return ctrans('texts.expense_mailbox_not_available');
 
-        if ($this->validated_schema)
-            return ctrans('texts.expense_mailbox_taken');
+        if (!$this->validated_schema)
+            return ctrans('texts.expense_mailbox_invalid');
 
-        return ctrans('texts.expense_mailbox_invalid');
+        return ctrans('texts.expense_mailbox_taken');
     }
 }
