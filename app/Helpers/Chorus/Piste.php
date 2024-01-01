@@ -26,7 +26,7 @@ class Piste
 
     private bool $test_mode = false;
 
-    public function __construct()
+    public function __construct(private string $username, private string $password)
     {
     }
 
@@ -40,11 +40,11 @@ class Piste
     private function oauthHeaders(): array
     {
         return [
-                    'grant_type' => 'client_credentials',
-                    'client_id' => config('services.chorus.client_id'),
-                    'client_secret' => config('services.chorus.secret'),
-                    'scope' => 'openid'
-            ];
+            'grant_type' => 'client_credentials',
+            'client_id' => config('services.chorus.client_id'),
+            'client_secret' => config('services.chorus.secret'),
+            'scope' => 'openid profile'
+        ];
     }
         
     private function oauthUrl(): string
@@ -68,21 +68,29 @@ class Piste
         return null;
     }
 
-    public function startOauthFlow()
+    public function execute(string $uri, array $data = [])
     {
         $access_token = $this->getOauthAccessToken();
 
-        Http::withToken($access_token)->post($this->apiUrl() . '/cpro/factures/v1/deposer/flux', [
-            
-                'base_uri' => $this->apiUrl(),
-                'allow_redirects' => true,
-                'headers' => [
-                    'cpro-account' => base64_encode($username . ':' . $password),
-                    'Content-Type' => 'application/json;charset=utf-8',
-                    'Accept' => 'application/json;charset=utf-8'
-                ]
-        ]);
+        nlog($access_token);
+        nlog($this->username);
+        nlog($this->password);
+        nlog(base64_encode($this->username . ':' . $this->password));
 
+        $r = Http::withToken($access_token)
+                    ->withHeaders([
+                        'cpro-account' => base64_encode($this->username . ':' . $this->password),
+                        'Content-Type' => 'application/json;charset=utf-8',
+                        'Accept' => 'application/json;charset=utf-8'
+                    ])
+                    ->post($this->apiUrl() . '/cpro/factures/'. $uri, $data);
+
+        nlog($r);
+        nlog($r->json());
+        nlog($r->successful());
+        nlog($r->body());
+        nlog($r->collect());
+        return $r;
     }
 
 }
