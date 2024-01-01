@@ -201,6 +201,7 @@ class GeneratesCounterTest extends TestCase
         $settings = $this->client->company->settings;
         $settings->invoice_number_counter = 1;
         $settings->invoice_number_pattern = '{$year}-{$counter}';
+        $settings->timezone_id = '31';
 
         $this->client->company->settings = $settings;
         $this->client->company->save();
@@ -222,6 +223,7 @@ class GeneratesCounterTest extends TestCase
         $settings = $this->client->company->settings;
         $settings->quote_number_counter = 1;
         $settings->quote_number_pattern = '{$year}-{$counter}';
+        $settings->timezone_id = '31';
 
         $this->client->company->settings = $settings;
         $this->client->company->save();
