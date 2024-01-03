@@ -30,6 +30,11 @@
                                 {{ ctrans('texts.bacs') }}
                             </a>
                         @endif
+                        @if($client->getACSSGateway())
+                            <a data-cy="add-bacs-link" href="{{ route('client.payment_methods.create', ['method' => App\Models\GatewayType::ACSS]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150">
+                                {{ ctrans('texts.acss') }}
+                            </a>
+                        @endif
                     </div>
                 </div>
             @endif

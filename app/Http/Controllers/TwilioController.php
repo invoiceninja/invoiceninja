@@ -42,6 +42,10 @@ class TwilioController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
+        if(!$user->email_verified_at) {
+            return response()->json(['message' => 'Please verify your email address before verifying your phone number'], 400);
+        }
+
         $account = $user->company()->account;
 
         if(!$this->checkPhoneValidity($request->phone)) {
@@ -140,10 +144,22 @@ class TwilioController extends BaseController
      */
     public function generate2faResetCode(Generate2faRequest $request)
     {
+        nlog($request->all());
+        nlog($request->headers());
+
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
             return response()->json(['message' => 'Unable to retrieve user.'], 400);
+        }
+
+        if(!$user->email_verified_at) {
+            return response()->json(['message' => 'Please verify your email address before verifying your phone number'], 400);
+        }
+
+
+        if(!$user->first_name || !$user->last_name) {
+            return response()->json(['message' => 'Please update your first and/or last name in the User Details before verifying your number.'], 400);
         }
 
         if (!$user->phone || $user->phone == '') {

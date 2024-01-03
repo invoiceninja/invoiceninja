@@ -17,7 +17,7 @@ use App\Factory\BankTransactionFactory;
 use App\Helpers\Bank\Yodlee\Yodlee;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Bank\MatchBankTransactions;
-use App\Jobs\Bank\ProcessBankTransactions;
+use App\Jobs\Bank\ProcessBankTransactionsYodlee;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
 use App\Models\Expense;
@@ -70,7 +70,7 @@ class YodleeApiTest extends TestCase
         $expense = Expense::where('transaction_reference', 'Fuel')->first();
 
         $this->assertNotNull($expense);
-        $this->assertEquals(10, (int)$expense->amount);
+        $this->assertEquals(10, (int) $expense->amount);
     }
 
     public function testIncomeMatchingAndPaymentGeneration()
@@ -114,7 +114,7 @@ class YodleeApiTest extends TestCase
         $bt->date = now()->format('Y-m-d');
         $bt->transaction_id = 123456;
         $bt->save();
-    
+
         $data['transactions'][] = [
             'id' => $bt->id,
             'invoice_ids' => $invoice->hashed_id
@@ -127,7 +127,7 @@ class YodleeApiTest extends TestCase
 
         $this->assertNotNull($payment);
 
-        $this->assertEquals(10, (int)$payment->amount);
+        $this->assertEquals(10, (int) $payment->amount);
         $this->assertEquals(4, $payment->status_id);
         $this->assertEquals(1, $payment->invoices()->count());
 
@@ -182,7 +182,7 @@ class YodleeApiTest extends TestCase
     //                 $bank_integration->nickname = $account['nickname'];
     //                 $bank_integration->balance = $account['current_balance'];
     //                 $bank_integration->currency = $account['account_currency'];
-    
+
     //                 $bank_integration->save();
 
     //                 ProcessBankTransactions::dispatchSync('sbMem62e1e69547bfb1', $bank_integration);
@@ -198,7 +198,7 @@ class YodleeApiTest extends TestCase
     //         $this->invoice->save();
 
     //         BankService::dispatchSync($this->company->id, $this->company->db);
-    
+
     //         $bt = BankTransaction::where('invoice_ids', $this->invoice->hashed_id)->first();
 
     // nlog(BankTransaction::where('company_id', $this->company->id)->pluck('invoice_ids'));
@@ -213,10 +213,10 @@ class YodleeApiTest extends TestCase
     public function testDataMatching()
     {
         $transaction = collect([
-            (object)[
+            (object) [
                 'description' => 'tinkertonkton'
             ],
-            (object)[
+            (object) [
                 'description' => 'spud'
             ],
         ]);
@@ -237,10 +237,10 @@ class YodleeApiTest extends TestCase
 
 
         $transaction = collect([
-            (object)[
+            (object) [
                 'description' => 'tinker and spice'
             ],
-            (object)[
+            (object) [
                 'description' => 'spud with water'
             ],
         ]);
@@ -455,7 +455,7 @@ class YodleeApiTest extends TestCase
         $yodlee = new Yodlee('sbMem62e1e69547bfb2');
 
         $transactions = $yodlee->getTransactionCategories();
- 
+
         $this->assertIsArray($transactions->transactionCategory);
     }
 

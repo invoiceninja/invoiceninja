@@ -11,17 +11,19 @@
 
 namespace App\Listeners\User;
 
-use App\Jobs\Mail\NinjaMailerJob;
-use App\Jobs\Mail\NinjaMailerObject;
-use App\Jobs\Util\SystemLogger;
-use App\Libraries\MultiDB;
-use App\Mail\User\UserLoggedIn;
+use App\Utils\Ninja;
 use App\Models\SystemLog;
-use Illuminate\Broadcasting\InteractsWithSockets;
+use App\Libraries\MultiDB;
+use App\Jobs\Util\SystemLogger;
+use App\Mail\User\UserLoggedIn;
+use App\Jobs\Mail\NinjaMailerJob;
+use Illuminate\Support\Facades\App;
+use App\Jobs\Mail\NinjaMailerObject;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Broadcasting\InteractsWithSockets;
 
 class UpdateUserLastLogin implements ShouldQueue
 {
@@ -46,6 +48,11 @@ class UpdateUserLastLogin implements ShouldQueue
     {
         MultiDB::setDb($event->company->db);
 
+        App::forgetInstance('translator');
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($event->company->settings));
+        App::setLocale($event->company->locale());
+        
         $user = $event->user;
         $user->last_login = now();
         $user->save();

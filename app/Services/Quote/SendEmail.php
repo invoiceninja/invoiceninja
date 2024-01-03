@@ -11,8 +11,9 @@
 
 namespace App\Services\Quote;
 
-use App\Jobs\Entity\EmailEntity;
+use App\Models\Webhook;
 use App\Models\ClientContact;
+use App\Jobs\Entity\EmailEntity;
 
 class SendEmail
 {
@@ -50,7 +51,7 @@ class SendEmail
             }
         });
 
-
+        $this->quote->sendEvent(Webhook::EVENT_SENT_QUOTE, "client");
 
     }
 }

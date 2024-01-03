@@ -269,6 +269,9 @@ trait MockAccountData
         $this->company->save();
 
         $this->account->default_company_id = $this->company->id;
+        $this->account->plan = 'pro';
+        $this->account->plan_expires = now()->addMonth();
+        $this->account->plan_term = "month";
         $this->account->save();
 
         $user = User::whereEmail($fake_email)->first();

@@ -314,7 +314,7 @@ class CheckData extends Command
                 $new_contact->client_id = $client->id;
                 $new_contact->contact_key = Str::random(40);
                 $new_contact->is_primary = true;
-                $new_contact->save();
+                $new_contact->saveQuietly();
             }
         }
     }
@@ -362,7 +362,7 @@ class CheckData extends Command
                 $new_contact->vendor_id = $vendor->id;
                 $new_contact->contact_key = Str::random(40);
                 $new_contact->is_primary = true;
-                $new_contact->save();
+                $new_contact->saveQuietly();
             }
         }
     }
@@ -392,7 +392,7 @@ class CheckData extends Command
                 $invitation->invoice_id = $invoice->id;
                 $invitation->client_contact_id = ClientContact::whereClientId($invoice->client_id)->first()->id;
                 $invitation->key = Str::random(config('ninja.key_length'));
-                $invitation->save();
+                $invitation->saveQuietly();
             }
         }
     }
@@ -583,7 +583,7 @@ class CheckData extends Command
                 if ($this->option('paid_to_date')) {
                     $this->logMessage("# {$client->id} " . $client->present()->name().' - '.$client->number." Fixing {$client->paid_to_date} to {$total_paid_to_date}");
                     $client->paid_to_date = $total_paid_to_date;
-                    $client->save();
+                    $client->saveQuietly();
                 }
             }
         }
@@ -632,7 +632,7 @@ class CheckData extends Command
                 if ($this->option('client_balance')) {
                     $this->logMessage("# {$client_object->id} " . $client_object->present()->name().' - '.$client_object->number." Fixing {$client_object->balance} to " . $client['invoice_balance']);
                     $client_object->balance = $client['invoice_balance'];
-                    $client_object->save();
+                    $client_object->saveQuietly();
                 }
 
                 $this->isValid = false;
@@ -678,7 +678,7 @@ class CheckData extends Command
                           $this->logMessage("# {$client->id} " . $client->present()->name().' - '.$client->number." Fixing {$client->balance} to 0");
 
                           $client->balance = $over_payment;
-                          $client->save();
+                          $client->saveQuietly();
                       }
                   }
               });
@@ -732,7 +732,7 @@ class CheckData extends Command
                 if ($this->option('client_balance')) {
                     $this->logMessage("# {$client->id} " . $client->present()->name().' - '.$client->number." Fixing {$client->balance} to {$invoice_balance}");
                     $client->balance = $invoice_balance;
-                    $client->save();
+                    $client->saveQuietly();
                 }
 
                 if ($ledger && (number_format($invoice_balance, 4) != number_format($ledger->balance, 4))) {
@@ -766,7 +766,7 @@ class CheckData extends Command
                 if ($this->option('ledger_balance')) {
                     $this->logMessage("# {$client->id} " . $client->present()->name().' - '.$client->number." Fixing {$client->balance} to {$invoice_balance}");
                     $client->balance = $invoice_balance;
-                    $client->save();
+                    $client->saveQuietly();
 
                     $ledger->adjustment = $invoice_balance;
                     $ledger->balance = $invoice_balance;
@@ -884,7 +884,7 @@ class CheckData extends Command
         if ($this->option('fix') == 'true') {
             Client::query()->whereNull('country_id')->cursor()->each(function ($client) {
                 $client->country_id = $client->company->settings->country_id;
-                $client->save();
+                $client->saveQuietly();
 
                 $this->logMessage("Fixing country for # {$client->id}");
             });
@@ -896,7 +896,7 @@ class CheckData extends Command
         if ($this->option('fix') == 'true') {
             Vendor::query()->whereNull('currency_id')->orWhere('currency_id', '')->cursor()->each(function ($vendor) {
                 $vendor->currency_id = $vendor->company->settings->currency_id;
-                $vendor->save();
+                $vendor->saveQuietly();
 
                 $this->logMessage("Fixing vendor currency for # {$vendor->id}");
             });
@@ -919,14 +919,14 @@ class CheckData extends Command
 
                 $invoice->balance = 0;
                 $invoice->paid_to_date=$val;
-                $invoice->save();
+                $invoice->saveQuietly();
 
                 $p = $invoice->payments->first();
 
                 if ($p && (int)$p->amount == 0) {
                     $p->amount = $val;
                     $p->applied = $val;
-                    $p->save();
+                    $p->saveQuietly();
 
                     $pivot = $p->paymentables->first();
                     $pivot->amount = $val;

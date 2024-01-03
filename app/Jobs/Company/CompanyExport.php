@@ -224,7 +224,7 @@ class CompanyExport implements ShouldQueue
 
         $this->export_data['invoices'] = $this->company->invoices()->orderBy('number', 'DESC')->cursor()->map(function ($invoice) {
             $invoice = $this->transformBasicEntities($invoice);
-            $invoice = $this->transformArrayOfKeys($invoice, ['recurring_id','client_id', 'vendor_id', 'project_id', 'design_id', 'subscription_id','project_id']);
+            $invoice = $this->transformArrayOfKeys($invoice, ['recurring_id','client_id', 'vendor_id', 'project_id', 'design_id', 'subscription_id']);
             $invoice->tax_data = '';
 
             return $invoice->makeVisible(['id',
@@ -331,7 +331,8 @@ class CompanyExport implements ShouldQueue
             $task = $this->transformBasicEntities($task);
             $task = $this->transformArrayOfKeys($task, ['client_id', 'invoice_id', 'project_id', 'status_id']);
 
-            return $task->makeVisible(['id']);
+            return $task->makeHidden(['hash','meta'])->makeVisible(['id']);
+// return $task->makeHidden(['hash','meta'])->makeVisible(['id']); //@release v5.7.63
         })->all();
 
         $this->export_data['task_statuses'] = $this->company->task_statuses->map(function ($status) {

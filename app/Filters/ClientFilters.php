@@ -132,6 +132,8 @@ class ClientFilters extends QueryFilters
         return  $this->builder->where(function ($query) use ($filter) {
             $query->where('name', 'like', '%'.$filter.'%')
                           ->orWhere('id_number', 'like', '%'.$filter.'%')
+                          ->orWhere('number', 'like', '%'.$filter.'%')
+                          
                           ->orWhereHas('contacts', function ($query) use ($filter) {
                               $query->where('first_name', 'like', '%'.$filter.'%');
                               $query->orWhere('last_name', 'like', '%'.$filter.'%');
@@ -161,8 +163,10 @@ class ClientFilters extends QueryFilters
         if ($sort_col[0] == 'display_name') {
             $sort_col[0] = 'name';
         }
+
+        $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
         
-        return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+        return $this->builder->orderBy($sort_col[0], $dir);
     }
     
     /**

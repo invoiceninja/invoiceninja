@@ -33,8 +33,6 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  */
 class StaticModel extends Model
 {
-    protected $connection = 'mysql';
-
     use MakesHash;
     use Excludable;
 

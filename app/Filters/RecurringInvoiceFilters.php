@@ -36,6 +36,7 @@ class RecurringInvoiceFilters extends QueryFilters
         return  $this->builder->where(function ($query) use ($filter) {
             $query->where('date', 'like', '%'.$filter.'%')
                   ->orWhere('amount', 'like', '%'.$filter.'%')
+                  ->orWhere('number', 'like', '%'.$filter.'%')
                   ->orWhere('custom_value1', 'like', '%'.$filter.'%')
                   ->orWhere('custom_value2', 'like', '%'.$filter.'%')
                   ->orWhere('custom_value3', 'like', '%'.$filter.'%')
@@ -114,20 +115,25 @@ class RecurringInvoiceFilters extends QueryFilters
      */
     public function sort(string $sort = ''): Builder
     {
-        $sort_col = explode('|', $sort);
 
+        $sort_col = explode('|', $sort);
+        
         if (!is_array($sort_col) || count($sort_col) != 2) {
             return $this->builder;
         }
 
+        $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
 
         if ($sort_col[0] == 'client_id') {
             return $this->builder->orderBy(\App\Models\Client::select('name')
-                    ->whereColumn('clients.id', 'recurring_invoices.client_id'), $sort_col[1]);
+                    ->whereColumn('clients.id', 'recurring_invoices.client_id'), $dir);
         }
 
+        if($sort_col[0] == 'number'){
+            return $this->builder->orderByRaw("ABS(number) {$dir}");
+        }
 
-        return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+        return $this->builder->orderBy($sort_col[0], $dir);
     }
 
     /**
