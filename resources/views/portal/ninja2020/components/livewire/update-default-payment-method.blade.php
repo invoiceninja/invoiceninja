@@ -14,7 +14,7 @@
                 </div>
             </div>
             <div class="mt-5 sm:mt-0 sm:ml-6 sm:flex-shrink-0 sm:flex sm:items-center">
-                <form wire:submit.prevent="makeDefault">
+                <form wire:submit="makeDefault">
                     <button class="button button-primary bg-primary" {{ $token->is_default ? 'disabled' : '' }}>
                         {{ ctrans('texts.save_as_default') }}
                     </button>

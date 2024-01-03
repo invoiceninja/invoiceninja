@@ -46,9 +46,6 @@
                     ga('send', 'event', category, action, this.src);
                 }
             </script>
-            <script>
-                Vue.config.devtools = true;
-            </script>
         @else
             <script>
                 function gtag() {
@@ -74,7 +71,6 @@
 
         <!-- Scripts -->
         @vite('resources/js/app.js')
-        <script src="{{ asset('vendor/alpinejs@2.8.2/alpine.js') }}" defer></script>
 
         <!-- Fonts -->
         <style>

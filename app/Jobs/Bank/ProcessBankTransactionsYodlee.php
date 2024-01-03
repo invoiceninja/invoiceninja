@@ -162,7 +162,7 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
         $now = now();
 
         foreach ($transactions as $transaction) {
-            if (BankTransaction::query()->where('transaction_id', $transaction['transaction_id'])->where('company_id', $this->company->id)->where('bank_integration_id', $this->bank_integration->id)->withTrashed()->exists()) { // @turbo124 was not scoped to bank_integration_id => from my pov this should be present, because when an account was historized (is_deleted) a transaction can occur multiple (in the archived bank_integration and in the new one
+            if (BankTransaction::query()->where('transaction_id', $transaction['transaction_id'])->where('company_id', $this->company->id)->where('bank_integration_id', $this->bank_integration->id)->withTrashed()->exists()) { 
                 continue;
             }
 

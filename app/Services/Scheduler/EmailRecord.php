@@ -30,7 +30,7 @@ class EmailRecord
         $entity = $class::find($this->decodePrimaryKey($this->scheduler->parameters['entity_id']));
         
         if($entity) {
-            $entity->service()->sendEmail();
+            $entity->service()->markSent()->sendEmail();
         }
 
         $this->scheduler->forceDelete();

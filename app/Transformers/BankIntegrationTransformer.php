@@ -68,6 +68,7 @@ class BankIntegrationTransformer extends EntityTransformer
             'created_at' => (int) $bank_integration->created_at,
             'updated_at' => (int) $bank_integration->updated_at,
             'archived_at' => (int) $bank_integration->deleted_at,
+            'integration_type' => (string) $bank_integration->integration_type ?: '',
         ];
     }
 

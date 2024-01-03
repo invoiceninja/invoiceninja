@@ -1,6 +1,6 @@
 <div class="flex flex-col justify-center items-center my-10">
 
-    <form wire:submit.prevent="submit">
+    <form wire:submit="submit">
         @csrf
         @method('POST')
         <div class="shadow overflow-hidden rounded">
@@ -8,7 +8,7 @@
                 <div class="grid grid-cols-6 gap-6 max-w-4xl">
                     <div class="col-span-6 sm:col-span-3">
                         <label for="first_name" class="input-label">@lang('texts.first_name')</label>
-                        <input id="first_name" class="input w-full" name="first_name" wire:model.defer="first_name"/>
+                        <input id="first_name" class="input w-full" name="first_name" wire:model="first_name"/>
                         @error('first_name')
                         <div class="validation validation-fail">
                             {{ $message }}
@@ -18,7 +18,7 @@
 
                     <div class="col-span-6 sm:col-span-3">
                         <label for="last_name" class="input-label">@lang('texts.last_name')</label>
-                        <input id="last_name" class="input w-full" name="last_name" wire:model.defer="last_name"/>
+                        <input id="last_name" class="input w-full" name="last_name" wire:model="last_name"/>
                         @error('last_name')
                         <div class="validation validation-fail">
                             {{ $message }}
@@ -29,7 +29,7 @@
                     <div class="col-span-6 sm:col-span-4">
                         <label for="email_address" class="input-label">@lang('texts.email_address')</label>
                         <input id="email_address" class="input w-full" type="email" name="email"
-                               wire:model.defer="email" disabled="true"/>
+                               wire:model="email" disabled="true"/>
                         @error('email')
                         <div class="validation validation-fail">
                             {{ $message }}
@@ -40,7 +40,7 @@
                     <div class="col-span-6 sm:col-span-4">
                         <label for="company_name" class="input-label">@lang('texts.company_name')</label>
                         <input id="company_name" class="input w-full" name="company_name"
-                               wire:model.defer="company_name"/>
+                               wire:model="company_name"/>
                         @error('company_name')
                         <div class="validation validation-fail">
                             {{ $message }}
@@ -53,19 +53,19 @@
 
                         <div class="radio mr-4">
                             <input class="form-radio cursor-pointer" type="radio" value="US" name="country" checked
-                                   wire:model.defer="country">
+                                   wire:model="country">
                             <span>{{ ctrans('texts.country_United States') }}</span>
                         </div>
 
                         <div class="radio mr-4">
                             <input class="form-radio cursor-pointer" type="radio" value="CA" name="country"
-                                   wire:model.defer="country">
+                                   wire:model="country">
                             <span>{{ ctrans('texts.country_Canada') }}</span>
                         </div>
 
                         <div class="radio mr-4">
                             <input class="form-radio cursor-pointer" type="radio" value="GB" name="country"
-                                   wire:model.defer="country">
+                                   wire:model="country">
                             <span>{{ ctrans('texts.country_United Kingdom') }}</span>
                         </div>
 
@@ -76,7 +76,7 @@
                             <label for="country" class="input-label">@lang('texts.debit_cards')</label>
 
                             <div class="checkbox">
-                                <input class="form-checkbox cursor-pointer mr-2" type="checkbox" name="debit_cards" value="1" wire:model.defer="debit_cards">
+                                <input class="form-checkbox cursor-pointer mr-2" type="checkbox" name="debit_cards" value="1" wire:model="debit_cards">
                                 <span>{{ ctrans('texts.accept_debit_cards') }}</span>
                             </div>
                         </div>
@@ -87,7 +87,7 @@
                     <div class="col-span-6 sm:col-span-4 {{ $country != 'US' ? 'hidden' : 'block' }}">
                         <label for="country" class="input-label">@lang('texts.ach')</label>
                         <div class="checkbox">
-                            <input class="form-checkbox cursor-pointer mr-2" type="checkbox" name="ach" value="1" wire:model="ach">
+                            <input class="form-checkbox cursor-pointer mr-2" type="checkbox" name="ach" value="1" wire:model.live="ach">
                             <span>{{ ctrans('texts.enable_ach')}}</span>
                         </div>
                     </div>
@@ -96,7 +96,7 @@
                     <div class="col-span-6 sm:col-span-4">
                         <label for="country" class="input-label"></label>
                         <div class="checkbox">
-                            <input class="form-checkbox cursor-pointer mr-2" type="checkbox" name="wepay_payment_tos_agree" value="1" wire:model.defer="wepay_payment_tos_agree">
+                            <input class="form-checkbox cursor-pointer mr-2" type="checkbox" name="wepay_payment_tos_agree" value="1" wire:model="wepay_payment_tos_agree">
                             <span>{!! ctrans('texts.wepay_payment_tos_agree', ['terms' => $terms, 'privacy_policy' => $privacy_policy]) !!}</span>
                         </div>
                         @error('wepay_payment_tos_agree')

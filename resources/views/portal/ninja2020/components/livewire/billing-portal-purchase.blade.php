@@ -161,14 +161,14 @@
                         @endif
                     </div>
                 @elseif(!$steps['payment_required'])
-                    <form wire:submit.prevent="handlePaymentNotRequired" class="mt-8">
+                    <form wire:submit="handlePaymentNotRequired" class="mt-8">
                         @csrf
                         <button class="px-3 py-2 border rounded mr-4 hover:border-blue-600">
                             {{ ctrans('texts.click_to_continue') }}
                         </button>
                     </form>
                 @elseif($steps['show_start_trial'])
-                    <form wire:submit.prevent="handleTrial" class="mt-8">
+                    <form wire:submit="handleTrial" class="mt-8">
                         @csrf
                         <button class="px-3 py-2 border rounded mr-4 hover:border-blue-600">
                             {{ ctrans('texts.trial_call_to_action') }}
@@ -176,12 +176,12 @@
                     </form>
 
                 @else
-                    <form wire:submit.prevent="authenticate" class="mt-8">
+                    <form wire:submit="authenticate" class="mt-8">
                         @csrf
 
                         <label for="email_address">
                             <span class="input-label">{{ ctrans('texts.email_address') }}</span>
-                            <input wire:model.defer="email" type="email" class="input w-full"/>
+                            <input wire:model="email" type="email" class="input w-full"/>
 
                             @error('email')
                             <p class="validation validation-fail block w-full" role="alert">
@@ -193,7 +193,7 @@
                         @if($steps['existing_user'])
                             <label for="password" class="block mt-2">
                                 <span class="input-label">{{ ctrans('texts.password') }}</span>
-                                <input wire:model.defer="password" type="password" class="input w-full" autofocus/>
+                                <input wire:model="password" type="password" class="input w-full" autofocus/>
 
                                 @error('password')
                                 <p class="validation validation-fail block w-full" role="alert">
@@ -229,11 +229,11 @@
                         </div>
                     </div>
 
-                    <form wire:submit.prevent="handleCoupon" class="flex items-center mt-4">
+                    <form wire:submit="handleCoupon" class="flex items-center mt-4">
                         @csrf
 
                         <label class="w-full mr-2">
-                            <input type="text" wire:model.defer="coupon" class="input w-full m-0"/>
+                            <input type="text" wire:model="coupon" class="input w-full m-0"/>
                         </label>
 
                         <button class="button button-primary bg-primary">{{ ctrans('texts.apply') }}</button>

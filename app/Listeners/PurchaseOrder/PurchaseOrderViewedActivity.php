@@ -45,7 +45,7 @@ class PurchaseOrderViewedActivity implements ShouldQueue
 
         $fields = new stdClass;
 
-        $user_id = array_key_exists('user_id', $event->event_vars) ? $event->event_vars['user_id'] : $event->invitation->purchase_order->user_id;
+        $user_id = isset($event->event_vars['user_id']) ? $event->event_vars['user_id'] : $event->invitation->purchase_order->user_id;
 
         $event->invitation->purchase_order->service()->markSent()->save();
 

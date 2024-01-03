@@ -271,6 +271,9 @@ class Handler extends ExceptionHandler
             case 'vendor':
                 $login = 'vendor.catchall';
                 break;
+            case 'ronin':
+                $login = 'ronin.login';
+                break;
             default:
                 $login = 'default';
                 break;
