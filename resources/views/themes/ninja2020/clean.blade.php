@@ -11,7 +11,7 @@
     })(window,document,'script','dataLayer','GTM-WMJ5W23');</script>
     <!-- End Google Tag Manager -->
     @endif
-    
+
         <!-- Error: {{ session('error') }} -->
 
         @if (config('services.analytics.tracking_id'))
@@ -58,7 +58,6 @@
 
         <!-- Scripts -->
         @vite('resources/js/app.js')
-        <script src="{{ asset('vendor/alpinejs@2.8.2/alpine.js') }}" defer></script>
 
         <!-- Fonts -->
         {{-- <link rel="dns-prefetch" href="https://fonts.gstatic.com"> --}}
@@ -75,7 +74,7 @@
               unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
             }
         </style>
-        
+
         <!-- Styles -->
         @vite('resources/sass/app.scss')
         @if(auth()->guard('contact')->user() && !auth()->guard('contact')->user()->user->account->isPaid())
