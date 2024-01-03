@@ -184,14 +184,16 @@ class ProcessBrevoWebhook implements ShouldQueue
             return;
         }
 
-        (new SystemLogger(
-            $data,
-            SystemLog::CATEGORY_MAIL,
-            SystemLog::EVENT_MAIL_OPENED,
-            SystemLog::TYPE_WEBHOOK_RESPONSE,
-            $this->invitation->contact->client,
-            $this->invitation->company
-        ))->handle();
+        (
+            new SystemLogger(
+                $data,
+                SystemLog::CATEGORY_MAIL,
+                SystemLog::EVENT_MAIL_OPENED,
+                SystemLog::TYPE_WEBHOOK_RESPONSE,
+                $this->invitation->contact->client,
+                $this->invitation->company
+            )
+        )->handle();
     }
 
     // {
@@ -226,14 +228,16 @@ class ProcessBrevoWebhook implements ShouldQueue
             return;
         }
 
-        (new SystemLogger(
-            $data,
-            SystemLog::CATEGORY_MAIL,
-            SystemLog::EVENT_MAIL_DELIVERY,
-            SystemLog::TYPE_WEBHOOK_RESPONSE,
-            $this->invitation->contact->client,
-            $this->invitation->company
-        ))->handle();
+        (
+            new SystemLogger(
+                $data,
+                SystemLog::CATEGORY_MAIL,
+                SystemLog::EVENT_MAIL_DELIVERY,
+                SystemLog::TYPE_WEBHOOK_RESPONSE,
+                $this->invitation->contact->client,
+                $this->invitation->company
+            )
+        )->handle();
     }
 
     // {
@@ -449,7 +453,7 @@ class ProcessBrevoWebhook implements ShouldQueue
                     'delivery_message' => $event->Details->DeliveryMessage ?? $event->Details->Summary ?? '',
                     'server' => $event->Details->DestinationServer ?? '',
                     'server_ip' => $event->Details->DestinationIP ?? '',
-                    'date' => \Carbon\Carbon::parse($event->ReceivedAt)->format('Y-m-d H:i:s') ?? '',
+                    'date' => \Carbon\Carbon::parse($event->getTime())->format('Y-m-d H:i:s') ?? '',
                 ];
 
             })->toArray();
