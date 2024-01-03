@@ -11,23 +11,24 @@
 
 namespace App\Providers;
 
-use App\Helpers\Mail\GmailTransport;
-use App\Helpers\Mail\Office365MailTransport;
-use App\Http\Middleware\SetDomainNameDb;
+use App\Utils\Ninja;
+use Livewire\Livewire;
 use App\Models\Invoice;
 use App\Models\Proposal;
-use App\Utils\Ninja;
 use App\Utils\TruthSource;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Mail\Mailer;
-use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Blade;
+use App\Helpers\Mail\GmailTransport;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
-use Livewire\Livewire;
+use App\Http\Middleware\SetDomainNameDb;
+use Illuminate\Queue\Events\JobProcessing;
+use App\Helpers\Mail\Office365MailTransport;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -72,6 +73,12 @@ class AppServiceProvider extends ServiceProvider
             ]);
         }
 
+        Livewire::setUpdateRoute(function ($handle) {
+            return Route::post('/livewire/update', $handle)
+                ->middleware('client');
+        });
+
+
         /* Ensure we don't have stale state in jobs */
         Queue::before(function (JobProcessing $event) {
             App::forgetInstance('truthsource');
@@ -96,11 +103,11 @@ class AppServiceProvider extends ServiceProvider
                 'transport' => 'postmark',
                 'token' => $postmark_key
             ]));
-     
+
             return $this;
         });
-        
-    
+
+
         Mailer::macro('mailgun_config', function (string $secret, string $domain, string $endpoint = 'api.mailgun.net') {
             // @phpstan-ignore /** @phpstan-ignore-next-line **/
             Mailer::setSymfonyTransport(app('mail.manager')->createSymfonyTransport([
@@ -110,7 +117,7 @@ class AppServiceProvider extends ServiceProvider
                 'endpoint' => $endpoint,
                 'scheme' => config('services.mailgun.scheme'),
             ]));
- 
+
             return $this;
         });
 

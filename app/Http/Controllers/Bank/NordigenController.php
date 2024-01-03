@@ -161,7 +161,7 @@ class NordigenController extends BaseController
                 "redirectUrl" => $context["redirect"] . "?action=nordigen_connect&status=failed&reason=account-config-invalid",
             ]);
 
-        if (!(Ninja::isSelfHost() || (Ninja::isHosted() && $account->isPaid() && $account->plan == 'enterprise')))
+        if (!(Ninja::isSelfHost() || (Ninja::isHosted() && $account->isEnterprisePaidClient())))
             return view('bank.nordigen.handler', [
                 'lang' => $lang,
                 'company' => $company,

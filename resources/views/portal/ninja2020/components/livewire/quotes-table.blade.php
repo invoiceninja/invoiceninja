@@ -2,7 +2,7 @@
     <div class="flex items-center justify-between">
         <div class="flex items-center">
             <span class="hidden mr-2 text-sm md:block">{{ ctrans('texts.per_page') }}</span>
-            <select wire:model="per_page" class="py-1 text-sm form-select">
+            <select wire:model.live="per_page" class="py-1 text-sm form-select">
                 <option>5</option>
                 <option selected>10</option>
                 <option>15</option>
@@ -11,15 +11,15 @@
         </div>
         <div class="flex items-center">
             <div class="mr-3">
-                <input wire:model="status" value="{{ App\Models\Quote::STATUS_SENT }}" value="sent" type="checkbox" class="cursor-pointer form-checkbox" id="sent-checkbox">
+                <input wire:model.live="status" value="{{ App\Models\Quote::STATUS_SENT }}" value="sent" type="checkbox" class="cursor-pointer form-checkbox" id="sent-checkbox">
                 <label for="sent-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.status_pending') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:model="status" value="{{ App\Models\Quote::STATUS_APPROVED }}" value="approved" type="checkbox" class="cursor-pointer form-checkbox" id="approved-checkbox">
+                <input wire:model.live="status" value="{{ App\Models\Quote::STATUS_APPROVED }}" value="approved" type="checkbox" class="cursor-pointer form-checkbox" id="approved-checkbox">
                 <label for="approved-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.approved') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:model="status" value="{{ App\Models\Quote::STATUS_EXPIRED }}" value="expired" type="checkbox" class="cursor-pointer form-checkbox" id="expired-checkbox">
+                <input wire:model.live="status" value="{{ App\Models\Quote::STATUS_EXPIRED }}" value="expired" type="checkbox" class="cursor-pointer form-checkbox" id="expired-checkbox">
                 <label for="expired-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.expired') }}</label>
             </div>
         </div>
