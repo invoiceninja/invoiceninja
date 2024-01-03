@@ -4690,7 +4690,7 @@ $lang = array(
     'period' => 'Periode',
     'fields_per_row' => 'Felter pr. række',
     'total_active_invoices' => 'Aktiv Fakturaer',
-    'total_outstanding_invoices' => 'Fremragende Fakturaer',
+    'total_outstanding_invoices' => 'Udestående Fakturaer',
     'total_completed_payments' => 'Gennemført Betalinger',
     'total_refunded_payments' => 'Refunderet Betalinger',
     'total_active_quotes' => 'Aktive citater',
@@ -5219,6 +5219,7 @@ $lang = array(
     'receipt' => 'Receipt',
     'charges' => 'Charges',
     'email_report' => 'Email Report',
+    'payment_type_Pay Later' => 'Pay Later',
 );
 
 return $lang;

@@ -73,6 +73,7 @@
         "microsoft/microsoft-graph": "^1.69",
         "mollie/mollie-api-php": "^2.36",
         "nelexa/zip": "^4.0",
+        "nordigen/nordigen-php": "^1.1",
         "nwidart/laravel-modules": "^10.0",
         "omnipay/paypal": "^3.0",
         "payfast/payfast-php-sdk": "^1.1",

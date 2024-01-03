@@ -29,3 +29,4 @@ parameters:
         - '#Call to an undefined method#'
         - '#makeHidden#'
         - '#Socialite#'
+        - '#Access to protected property#'

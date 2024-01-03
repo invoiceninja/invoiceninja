@@ -167,8 +167,8 @@ class PaymentMethodController extends Controller
         if (request()->query('method') == GatewayType::BACS) {
             return $client_contact->client->getBACSGateway();
         }
-
-        if (in_array(request()->query('method'), [GatewayType::BANK_TRANSFER, GatewayType::DIRECT_DEBIT, GatewayType::SEPA])) {
+        
+        if (in_array(request()->query('method'), [GatewayType::BANK_TRANSFER, GatewayType::DIRECT_DEBIT, GatewayType::SEPA, GatewayType::ACSS])) {
             return $client_contact->client->getBankTransferGateway();
         }
 

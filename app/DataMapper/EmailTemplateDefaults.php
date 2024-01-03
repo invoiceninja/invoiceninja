@@ -15,6 +15,23 @@ use Illuminate\Support\Facades\App;
 
 class EmailTemplateDefaults
 {
+    public array $templates = [
+        'email_template_invoice',
+        'email_template_quote',
+        'email_template_credit',
+        'email_template_payment',
+        'email_template_payment_partial',
+        'email_template_statement',
+        'email_template_reminder1',
+        'email_template_reminder2',
+        'email_template_reminder3',
+        'email_template_reminder_endless',
+        'email_template_custom1',
+        'email_template_custom2',
+        'email_template_custom3',
+        'email_template_purchase_order',
+    ];
+
     public static function getDefaultTemplate($template, $locale)
     {
         App::setLocale($locale);

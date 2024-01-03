@@ -146,10 +146,12 @@ class QuoteFilters extends QueryFilters
             return $this->builder;
         }
 
+        $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
+
         if($sort_col[0] == 'client_id') {
 
             return $this->builder->orderBy(\App\Models\Client::select('name')
-                    ->whereColumn('clients.id', 'quotes.client_id'), $sort_col[1]);
+                    ->whereColumn('clients.id', 'quotes.client_id'), $dir);
 
         }
 
@@ -157,7 +159,7 @@ class QuoteFilters extends QueryFilters
             $sort_col[0] = 'due_date';
         }
 
-        return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+        return $this->builder->orderBy($sort_col[0], $dir);
     }
 
     /**

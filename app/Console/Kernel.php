@@ -97,18 +97,18 @@ class Kernel extends ConsoleKernel
         /* Fires webhooks for overdue Invoice */
         $schedule->job(new InvoiceCheckLateWebhook)->dailyAt('07:00')->withoutOverlapping()->name('invoice-overdue-job')->onOneServer();
 
+        /* Pulls in bank transactions from third party services */
+        $schedule->job(new BankTransactionSync)->everyFourHours()->withoutOverlapping()->name('bank-trans-sync-job')->onOneServer();
+
         if (Ninja::isSelfHost()) {
             $schedule->call(function () {
-                Account::whereNotNull('id')->update(['is_scheduler_running' => true]);
+                Account::query()->whereNotNull('id')->update(['is_scheduler_running' => true]);
             })->everyFiveMinutes();
         }
 
         /* Run hosted specific jobs */
         if (Ninja::isHosted()) {
             $schedule->job(new AdjustEmailQuota)->dailyAt('23:30')->withoutOverlapping();
-
-            /* Pulls in bank transactions from third party services */
-            $schedule->job(new BankTransactionSync)->everyFourHours()->withoutOverlapping()->name('bank-trans-sync-job')->onOneServer();
 
             /* Checks ACH verification status and updates state to authorize when verified */
             $schedule->job(new CheckACHStatus)->everySixHours()->withoutOverlapping()->name('ach-status-job')->onOneServer();
@@ -120,7 +120,7 @@ class Kernel extends ConsoleKernel
             $schedule->command('ninja:s3-cleanup')->dailyAt('23:15')->withoutOverlapping()->name('s3-cleanup-job')->onOneServer();
         }
 
-        if (config('queue.default') == 'database' && Ninja::isSelfHost() && config('ninja.internal_queue_enabled') && ! config('ninja.is_docker')) {
+        if (config('queue.default') == 'database' && Ninja::isSelfHost() && config('ninja.internal_queue_enabled') && !config('ninja.is_docker')) {
             $schedule->command('queue:work database --stop-when-empty --memory=256')->everyMinute()->withoutOverlapping();
 
             $schedule->command('queue:restart')->everyFiveMinutes()->withoutOverlapping();
@@ -134,7 +134,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }

@@ -34,7 +34,7 @@ $lang = array(
     'frequency_id' => 'Fréquence',
     'discount' => 'Escompte',
     'taxes' => 'Taxes',
-    'tax' => 'Taxe',
+    'tax' => 'TVA',
     'item' => 'Article',
     'description' => 'Description',
     'unit_cost' => 'Coût unitaire',
@@ -722,11 +722,11 @@ $lang = array(
     'create_tax_rate' => 'Ajouter un taux de taxe',
     'updated_tax_rate' => 'Le taux de taxe a été mis à jour avec succès',
     'created_tax_rate' => 'Le taux de taxe a été créé avec succès',
-    'edit_tax_rate' => 'Éditer le taux de taxe',
+    'edit_tax_rate' => 'Éditer le taux de TVA',
     'archive_tax_rate' => 'Archiver le taux de taxe',
     'archived_tax_rate' => 'Le taux de taxe a été archivé avec succès',
     'default_tax_rate_id' => 'Taux de taxe par défaut',
-    'tax_rate' => 'Taux de taxe',
+    'tax_rate' => 'Taux de TVA',
     'recurring_hour' => 'Heure récurrente',
     'pattern' => 'Modèle',
     'pattern_help_title' => 'Aide pour les modèles',
@@ -5212,6 +5212,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'receipt' => 'Receipt',
     'charges' => 'Charges',
     'email_report' => 'Email Report',
+    'payment_type_Pay Later' => 'Pay Later',
 );
 
 return $lang;

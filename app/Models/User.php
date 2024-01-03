@@ -372,9 +372,12 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isOwner() : bool
     {
         return $this->token()->cu->is_owner;
-
     }
 
+    public function hasOwnerFlag(): bool
+    {
+        return $this->company_users()->where('is_owner',true)->exists();
+    }
     /**
      * Returns true is user is an admin _or_ owner
      *

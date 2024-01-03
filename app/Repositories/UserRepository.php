@@ -120,7 +120,7 @@ class UserRepository extends BaseRepository
 
     public function destroy(array $data, User $user)
     {
-        if ($user->isOwner()) {
+        if ($user->hasOwnerFlag()) {
             return $user;
         }
 

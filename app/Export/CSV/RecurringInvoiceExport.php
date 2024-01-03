@@ -109,8 +109,6 @@ class RecurringInvoiceExport extends BaseExport
     private function buildRow(RecurringInvoice $invoice) :array
     {
         $transformed_invoice = $this->invoice_transformer->transform($invoice);
-        $transformed_invoice['frequency_id'] = $invoice->frequencyForKey($invoice->frequency_id); //need to inject this here because it is also a valid key
-// nlog($transformed_invoice);
 
         $entity = [];
 
@@ -131,36 +129,36 @@ class RecurringInvoiceExport extends BaseExport
             }
 
         }
-// nlog($entity);
-        return $entity;
-        // return $this->decorateAdvancedFields($invoice, $entity);
+
+        // return $entity;
+        return $this->decorateAdvancedFields($invoice, $entity);
     }
 
     private function decorateAdvancedFields(RecurringInvoice $invoice, array $entity) :array
     {
-        if (in_array('country_id', $this->input['report_keys'])) {
-            $entity['country'] = $invoice->client->country ? ctrans("texts.country_{$invoice->client->country->name}") : '';
-        }
+        // if (in_array('country_id', $this->input['report_keys'])) {
+        //     $entity['country'] = $invoice->client->country ? ctrans("texts.country_{$invoice->client->country->name}") : '';
+        // }
 
-        if (in_array('currency_id', $this->input['report_keys'])) {
-            $entity['currency'] = $invoice->client->currency() ? $invoice->client->currency()->code : $invoice->company->currency()->code;
-        }
+        // if (in_array('currency_id', $this->input['report_keys'])) {
+        //     $entity['currency'] = $invoice->client->currency() ? $invoice->client->currency()->code : $invoice->company->currency()->code;
+        // }
 
-        if (in_array('client_id', $this->input['report_keys'])) {
-            $entity['client'] = $invoice->client->present()->name();
-        }
+        // if (in_array('client_id', $this->input['report_keys'])) {
+        //     $entity['client'] = $invoice->client->present()->name();
+        // }
 
-        if (in_array('recurring_invoice.status', $this->input['report_keys'])) {
-            $entity['recurring_invoice.status'] = $invoice->stringStatus($invoice->status_id);
-        }
+        // if (in_array('recurring_invoice.status', $this->input['report_keys'])) {
+        //     $entity['recurring_invoice.status'] = $invoice->stringStatus($invoice->status_id);
+        // }
 
-        if (in_array('project_id', $this->input['report_keys'])) {
-            $entity['project'] = $invoice->project ? $invoice->project->name : '';
-        }
+        // if (in_array('project_id', $this->input['report_keys'])) {
+        //     $entity['project'] = $invoice->project ? $invoice->project->name : '';
+        // }
 
-        if (in_array('vendor_id', $this->input['report_keys'])) {
-            $entity['vendor'] = $invoice->vendor ? $invoice->vendor->name : '';
-        }
+        // if (in_array('vendor_id', $this->input['report_keys'])) {
+        //     $entity['vendor'] = $invoice->vendor ? $invoice->vendor->name : '';
+        // }
 
         if (in_array('recurring_invoice.frequency_id', $this->input['report_keys']) || in_array('frequency_id', $this->input['report_keys'])) {
             $entity['recurring_invoice.frequency_id'] = $invoice->frequencyForKey($invoice->frequency_id);

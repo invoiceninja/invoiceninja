@@ -128,13 +128,15 @@ class BankTransactionFilters extends QueryFilters
         if (!is_array($sort_col) || count($sort_col) != 2) {
             return $this->builder;
         }
-        
+
+        $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
+
         if ($sort_col[0] == 'deposit') {
-            return $this->builder->where('base_type', 'CREDIT')->orderBy('amount', $sort_col[1]);
+            return $this->builder->where('base_type', 'CREDIT')->orderBy('amount', $dir);
         }
 
         if ($sort_col[0] == 'withdrawal') {
-            return $this->builder->where('base_type', 'DEBIT')->orderBy('amount', $sort_col[1]);
+            return $this->builder->where('base_type', 'DEBIT')->orderBy('amount', $dir);
         }
 
         if ($sort_col[0] == 'status') {
@@ -145,7 +147,7 @@ class BankTransactionFilters extends QueryFilters
             return $this->builder;
         }
 
-        return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+        return $this->builder->orderBy($sort_col[0], $dir);
     }
 
     /**

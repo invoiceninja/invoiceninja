@@ -65,6 +65,34 @@ class ClientTest extends TestCase
         $this->makeTestData();
     }
 
+    public function testStoreClientFixes2()
+    {
+        $data = [
+            "contacts" => [
+                [
+                "email" => "tenda@gmail.com",
+                "first_name" => "Tenda",
+                "last_name" => "Bavuma",
+                ],
+            ],
+            "name" => "Tenda Bavuma",
+            ];
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/clients', $data);
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+
+        $this->assertTrue($arr['data']['contacts'][0]['is_primary']);
+        $this->assertTrue($arr['data']['contacts'][0]['send_email']);
+
+    }
+
+
     public function testStoreClientFixes()
     {
         $data = [

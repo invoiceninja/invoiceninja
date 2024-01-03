@@ -583,7 +583,7 @@ class NinjaMailerJob implements ShouldQueue
         /* On the hosted platform if the user has not verified their account we fail here - but still check what they are trying to send! */
         if (Ninja::isHosted() && $this->company->account && !$this->company->account->account_sms_verified) {
             if (class_exists(\Modules\Admin\Jobs\Account\EmailQuality::class)) {
-                return (new \Modules\Admin\Jobs\Account\EmailQuality($this->nmo, $this->company))->run();
+                (new \Modules\Admin\Jobs\Account\EmailQuality($this->nmo, $this->company))->run();
             }
 
             return true;

@@ -11,17 +11,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Account\CreateAccountRequest;
-use App\Http\Requests\Account\UpdateAccountRequest;
-use App\Jobs\Account\CreateAccount;
-use App\Libraries\MultiDB;
 use App\Models\Account;
+use App\Libraries\MultiDB;
+use App\Utils\TruthSource;
 use App\Models\CompanyUser;
+use Illuminate\Http\Response;
+use App\Helpers\Encrypt\Secure;
+use App\Jobs\Account\CreateAccount;
 use App\Transformers\AccountTransformer;
 use App\Transformers\CompanyUserTransformer;
-use App\Utils\TruthSource;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Http\Response;
+use App\Http\Requests\Account\CreateAccountRequest;
+use App\Http\Requests\Account\UpdateAccountRequest;
 
 class AccountController extends BaseController
 {
@@ -65,6 +66,33 @@ class AccountController extends BaseController
      */
     public function store(CreateAccountRequest $request)
     {
+
+        if($request->has('cf-turnstile-response') && config('ninja.cloudflare.turnstile.secret')) {
+            $r = \Illuminate\Support\Facades\Http::post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+                'secret' => config('ninja.cloudflare.turnstile.secret'),
+                'response' => $request->input('cf-turnstile-response'),
+                'remoteip' => $request->getClientIp(),
+            ]);
+
+            if($r->successful()){
+
+                if($r->json()['success'] === true) {
+                    // Captcha passed
+                } else {
+                    return response()->json(['message' => 'Captcha Failed'], 400);
+                }
+            }
+
+        }
+
+        if($request->has('hash') && config('ninja.cloudflare.turnstile.secret')) { //@todo once all platforms are implemented, we disable access to the rest of this route without a success response.
+            
+            if(Secure::decrypt($request->input('hash')) !== $request->input('email')) {
+                return response()->json(['message' => 'Invalid Signup Payload'], 400);
+            }
+
+        }
+
         $account = (new CreateAccount($request->all(), $request->getClientIp()))->handle();
         if (! ($account instanceof Account)) {
             return $account;

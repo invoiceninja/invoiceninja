@@ -7,7 +7,7 @@ return [
     'license_url' => 'https://app.invoiceninja.com',
     'react_url' => env('REACT_URL', 'https://app.invoicing.co'),
     'production' => env('NINJA_PROD', false),
-    'license'   => env('NINJA_LICENSE', ''),
+    'license' => env('NINJA_LICENSE', ''),
     'version_url' => 'https://pdf.invoicing.co/api/version',
     'app_name' => env('APP_NAME', 'Invoice Ninja'),
     'app_env' => env('APP_ENV', 'selfhosted'),
@@ -17,8 +17,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
-    'app_version' => env('APP_VERSION', '5.7.59'),
-    'app_tag' => env('APP_TAG', '5.7.59'),
+    'app_version' => env('APP_VERSION', '5.7.63'),
+    'app_tag' => env('APP_TAG', '5.7.63'),
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', false),
@@ -86,7 +86,7 @@ return [
         'password' => 'password',
         'stripe' => env('STRIPE_KEYS', ''),
         'paypal' => env('PAYPAL_KEYS', ''),
-        'ppcp' =>  env('PPCP_KEYS', ''),
+        'ppcp' => env('PPCP_KEYS', ''),
         'paypal_rest' => env('PAYPAL_REST_KEYS', ''),
         'authorize' => env('AUTHORIZE_KEYS', ''),
         'checkout' => env('CHECKOUT_KEYS', ''),
@@ -196,7 +196,7 @@ return [
     'ninja_default_company_id' => env('NINJA_COMPANY_ID', null),
     'ninja_default_company_gateway_id' => env('NINJA_COMPANY_GATEWAY_ID', null),
     'ninja_hosted_secret' => env('NINJA_HOSTED_SECRET', ''),
-    'ninja_hosted_header' =>env('NINJA_HEADER', ''),
+    'ninja_hosted_header' => env('NINJA_HEADER', ''),
     'ninja_connect_secret' => env('NINJA_CONNECT_SECRET', ''),
     'internal_queue_enabled' => env('INTERNAL_QUEUE_ENABLED', true),
     'ninja_apple_api_key' => env('APPLE_API_KEY', false),
@@ -218,6 +218,11 @@ return [
         'dev_mode' => env("YODLEE_DEV_MODE", false),
         'config_name' => env("YODLEE_CONFIG_NAME", false),
     ],
+    'nordigen' => [
+        'secret_id' => env('NORDIGEN_SECRET_ID', false),
+        'secret_key' => env('NORDIGEN_SECRET_KEY', false),
+        'test_mode' => env("NORDIGEN_TEST_MODE", false),
+    ],
     'licenses' => env('LICENSES', false),
     'google_application_credentials' => env("GOOGLE_APPLICATION_CREDENTIALS", false),
     'shopify' => [
@@ -227,5 +232,15 @@ return [
     'paypal' => [
         'secret' => env('PAYPAL_SECRET', null),
         'client_id' => env('PAYPAL_CLIENT_ID', null),
-    ]
+        'webhook_id' => env('PAYPAL_WEBHOOK_ID', null),
+    ],
+    'cloudflare' => [
+        'turnstile' => [
+            'secret' => env('CLOUDFLARE_SECRET', null),
+        ]
+    ],
+    'encryption' => [
+        'public_key' => env('NINJA_PUBLIC_KEY', false),
+        'private_key' => env('NINJA_PRIVATE_KEY', false),
+    ],
 ];
