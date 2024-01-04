@@ -245,6 +245,9 @@ class Invoice extends BaseModel
 
     public function getPartialDueDateAttribute($value)
     {
+        if($value == "0000-00-00 00:00:00")
+            return null;
+
         return $this->dateMutator($value);
     }
 
@@ -396,7 +399,7 @@ class Invoice extends BaseModel
     public function getStatusAttribute()
     {
         $due_date = $this->due_date ? Carbon::parse($this->due_date) : false;
-        $partial_due_date = $this->partial_due_Date ? Carbon::parse($this->partial_due_date) : false;
+        $partial_due_date = $this->partial_due_date ? Carbon::parse($this->partial_due_date) : false;
 
         if ($this->status_id == self::STATUS_SENT && $due_date && $due_date->gt(now())) {
             return self::STATUS_UNPAID;
