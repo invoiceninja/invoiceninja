@@ -115,7 +115,7 @@ class SwissQrGenerator
         } else {
             $tempInvoiceNumber = $this->invoice->number;
             $tempInvoiceNumber = preg_replace('/[^A-Za-z0-9]/', '', $tempInvoiceNumber);
-            $tempInvoiceNumber = substr($tempInvoiceNumber, 1);
+            // $tempInvoiceNumber = substr($tempInvoiceNumber, 1);
         
             $calcInvoiceNumber = "";
             $array = str_split($tempInvoiceNumber);
