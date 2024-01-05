@@ -11,23 +11,24 @@
 
 namespace Tests\Unit;
 
-use App\DataMapper\ClientSettings;
+use Tests\TestCase;
+use App\Models\Quote;
+use App\Models\Client;
+use App\Models\Credit;
+use App\Models\Company;
+use App\Models\Invoice;
+use App\Models\Timezone;
+use Tests\MockAccountData;
+use App\Models\GroupSetting;
 use App\Factory\ClientFactory;
 use App\Factory\VendorFactory;
-use App\Models\Client;
-use App\Models\Company;
-use App\Models\Credit;
-use App\Models\Invoice;
-use App\Models\Quote;
-use App\Models\RecurringInvoice;
-use App\Models\Timezone;
-use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
+use App\Models\RecurringInvoice;
+use App\DataMapper\ClientSettings;
+use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
-use Tests\MockAccountData;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * @test
@@ -51,6 +52,121 @@ class GeneratesCounterTest extends TestCase
         Model::reguard();
 
         $this->makeTestData();
+    }
+
+    public function testResetCounterGroup()
+    {
+        $timezone = Timezone::find(1);
+
+        $date_formatted = now($timezone->name)->format('Ymd');
+
+        $gs = new GroupSetting;        
+        $gs->name = 'Test';
+        $gs->company_id = $this->client->company_id;
+        $gs->settings = ClientSettings::buildClientSettings($this->company->settings, $this->client->settings);
+        $gs->save();
+
+        $this->client->group_settings_id = $gs->id;
+        $this->client->save();
+
+        $settings = $gs->settings;
+        // $settings = $this->client->settings;
+        $settings->invoice_number_pattern = '{$date:Ymd}-{$group_counter}';
+        $settings->timezone_id = 1;        
+        $gs->settings = $settings;
+        $gs->save();
+
+        $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
+        $this->assertEquals($date_formatted.'-0001', $invoice_number);
+        $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
+        $this->assertEquals($date_formatted.'-0002', $invoice_number);
+        $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
+        $this->assertEquals($date_formatted.'-0003', $invoice_number);
+        $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
+        $this->assertEquals($date_formatted.'-0004', $invoice_number);
+
+        $settings->reset_counter_date = now($timezone->name)->format('Y-m-d');
+        $settings->reset_counter_frequency_id = RecurringInvoice::FREQUENCY_DAILY;
+        $gs->settings = $settings;
+        $gs->save();
+
+        $this->travel(5)->days();
+        $date_formatted = now($timezone->name)->format('Ymd');
+
+        $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
+        $this->assertEquals($date_formatted.'-0001', $invoice_number);
+
+        $this->invoice->number = $invoice_number;
+        $this->invoice->save();
+
+        $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
+        $this->assertEquals($date_formatted.'-0002', $invoice_number);
+
+        $settings->reset_counter_date = now($timezone->name)->format('Y-m-d');
+        $settings->reset_counter_frequency_id = RecurringInvoice::FREQUENCY_DAILY;
+        $gs->settings = $settings;
+        $gs->save();
+
+        $this->travel(5)->days();
+        $date_formatted = now($timezone->name)->format('Ymd');
+
+        $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
+        $this->assertEquals($date_formatted.'-0001', $invoice_number);
+
+        $this->travelBack();
+    }
+
+
+    public function testResetCounterClient()
+    {
+        $timezone = Timezone::find(1);
+
+        $date_formatted = now($timezone->name)->format('Ymd');
+
+        $settings = $this->client->settings;
+        $settings->invoice_number_pattern = '{$date:Ymd}-{$client_counter}';
+        $settings->timezone_id = 1;
+        $this->client->settings = $settings;
+        $this->client->save();
+
+        $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
+        $this->assertEquals($date_formatted.'-0001', $invoice_number);
+        $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
+        $this->assertEquals($date_formatted.'-0002', $invoice_number);
+        $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
+        $this->assertEquals($date_formatted.'-0003', $invoice_number);
+        $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
+        $this->assertEquals($date_formatted.'-0004', $invoice_number);
+
+        $settings->reset_counter_date = now($timezone->name)->format('Y-m-d');
+        $settings->reset_counter_frequency_id = RecurringInvoice::FREQUENCY_DAILY;
+        $this->client->settings = $settings;
+        $this->client->save();
+
+        $this->travel(5)->days();
+        $date_formatted = now($timezone->name)->format('Ymd');
+
+        $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
+        $this->assertEquals($date_formatted.'-0001', $invoice_number);
+
+        $this->invoice->number = $invoice_number;
+        $this->invoice->save();
+
+        $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
+        $this->assertEquals($date_formatted.'-0002', $invoice_number);
+
+        $settings->reset_counter_date = now($timezone->name)->format('Y-m-d');
+        $settings->reset_counter_frequency_id = RecurringInvoice::FREQUENCY_DAILY;
+        $this->client->settings = $settings;
+        $this->client->save();
+
+        $this->travel(5)->days();
+        $date_formatted = now($timezone->name)->format('Ymd');
+
+        $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
+        $this->assertEquals($date_formatted.'-0001', $invoice_number);
+
+        $this->travelBack();
     }
 
     public function testResetCounter()
@@ -82,8 +198,8 @@ class GeneratesCounterTest extends TestCase
         $this->company->settings = $settings;
         $this->company->save();
 
-        $this->client->settings = $settings;
-        $this->client->save();
+        // $this->client->settings = $settings;
+        // $this->client->save();
 
         $this->travel(5)->days();
         $date_formatted = now($timezone->name)->format('Ymd');
