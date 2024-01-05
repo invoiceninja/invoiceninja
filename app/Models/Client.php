@@ -545,14 +545,14 @@ class Client extends BaseModel implements HasLocalePreference
                 
                 $cg = CompanyGateway::query()->find($pm['company_gateway_id']);
 
-                if ($cg && ! property_exists($cg->fees_and_limits, strval(GatewayType::CREDIT_CARD))) {
+                if ($cg && is_object($cg->fees_and_limits) && ! property_exists($cg->fees_and_limits, strval(GatewayType::CREDIT_CARD))) {
                     $fees_and_limits = $cg->fees_and_limits;
                     $fees_and_limits->{GatewayType::CREDIT_CARD} = new FeesAndLimits;
                     $cg->fees_and_limits = $fees_and_limits;
                     $cg->save();
                 }
 
-                if ($cg && $cg->fees_and_limits->{GatewayType::CREDIT_CARD}->is_enabled) {
+                if ($cg && is_object($cg->fees_and_limits)&& $cg->fees_and_limits->{GatewayType::CREDIT_CARD}->is_enabled) {
                     return $cg;
                 }
             }
