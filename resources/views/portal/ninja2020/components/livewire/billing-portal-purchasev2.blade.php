@@ -391,17 +391,68 @@
                         <form wire:submit="handleLogin" class="" x-data="otpForm()">
                             <p class="mb-4"></p>
                             <div class="flex justify-between">
-                              <template x-for="(input, index) in length" :key="index">
+                              <!-- <template x-for="(input, index) in length" :key="index"> -->
                                 <input
+                                    id="0"
                                     type="text"
                                     maxlength="1"
                                     class="border border-gray-500 w-10 h-10 text-center text-gray-700"
-                                    :x-ref="index"
+                                    :x-ref="0"
                                     x-on:input="handleInput($event)"
                                     x-on:paste="handlePaste($event)"
                                     x-on:keydown.backspace="$event.target.value || handleBackspace($event.target.getAttribute('x-ref'))"
                                 />
-                              </template>
+                                <input
+                                    id="1"
+                                    type="text"
+                                    maxlength="1"
+                                    class="border border-gray-500 w-10 h-10 text-center text-gray-700"
+                                    :x-ref="1"
+                                    x-on:input="handleInput($event)"
+                                    x-on:paste="handlePaste($event)"
+                                    x-on:keydown.backspace="$event.target.value || handleBackspace($event.target.getAttribute('x-ref'))"
+                                />
+                                <input
+                                    id="2"
+                                    type="text"
+                                    maxlength="1"
+                                    class="border border-gray-500 w-10 h-10 text-center text-gray-700"
+                                    :x-ref="2"
+                                    x-on:input="handleInput($event)"
+                                    x-on:paste="handlePaste($event)"
+                                    x-on:keydown.backspace="$event.target.value || handleBackspace($event.target.getAttribute('x-ref'))"
+                                />
+                                <input
+                                    id="3"
+                                    type="text"
+                                    maxlength="1"
+                                    class="border border-gray-500 w-10 h-10 text-center text-gray-700"
+                                    :x-ref="3"
+                                    x-on:input="handleInput($event)"
+                                    x-on:paste="handlePaste($event)"
+                                    x-on:keydown.backspace="$event.target.value || handleBackspace($event.target.getAttribute('x-ref'))"
+                                />
+                                <input
+                                    id="4"
+                                    type="text"
+                                    maxlength="1"
+                                    class="border border-gray-500 w-10 h-10 text-center text-gray-700"
+                                    :x-ref="4"
+                                    x-on:input="handleInput($event)"
+                                    x-on:paste="handlePaste($event)"
+                                    x-on:keydown.backspace="$event.target.value || handleBackspace($event.target.getAttribute('x-ref'))"
+                                />
+                                <input
+                                    id="5"
+                                    type="text"
+                                    maxlength="1"
+                                    class="border border-gray-500 w-10 h-10 text-center text-gray-700"
+                                    :x-ref="5"
+                                    x-on:input="handleInput($event)"
+                                    x-on:paste="handlePaste($event)"
+                                    x-on:keydown.backspace="$event.target.value || handleBackspace($event.target.getAttribute('x-ref'))"
+                                />
+                              <!-- </template> -->
                             </div>
                             
                         </form>
@@ -430,7 +481,7 @@
                 const input = e.target;
 
                 this.login = Array.from(Array(this.length), (element, i) => {
-                return this.$refs[i].value || "";
+                    return document.getElementById(i.toString()).value || '';
                 }).join("");
 
                 if (input.nextElementSibling && input.value) {
@@ -451,8 +502,17 @@
                 const inputs = Array.from(Array(this.length));
 
                 inputs.forEach((element, i) => {
-                    this.$refs[i].value = paste[i] || '';
+                    document.getElementById(i.toString()).value = paste[i] || '';
                 });
+
+                this.login = Array.from(Array(this.length), (element, i) => {
+                    return document.getElementById(i.toString()).value || '';
+                }).join("");
+
+                if(this.login.length == 6){
+                    this.$wire.handleLogin(this.login);
+                }
+
             },
 
             handleBackspace(e) {
