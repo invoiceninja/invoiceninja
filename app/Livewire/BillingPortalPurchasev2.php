@@ -96,7 +96,8 @@ class BillingPortalPurchasev2 extends Component
      *
      * @var Invoice
      */
-    public $invoice;
+    
+    public \App\Models\Invoice $invoice;
 
     /**
      * Coupon model for user input
@@ -112,6 +113,9 @@ class BillingPortalPurchasev2 extends Component
      */
     public $quantity;
 
+    public $invoice_hashed_id = '';
+
+    public $payable_amount = 0;
     /**
      * First-hit request data (queries, locales...).
      *
@@ -160,7 +164,7 @@ class BillingPortalPurchasev2 extends Component
     public $payment_confirmed = false;
     public $is_eligible = true;
     public $not_eligible_message = '';
-    
+
     public function mount()
     {
         MultiDB::setDb($this->db);
@@ -182,6 +186,9 @@ class BillingPortalPurchasev2 extends Component
         $this->sub_total = 0;
         $this->float_amount_total = 0;
 
+        $this->invoice_hashed_id = '';
+        $this->payable_amount = 0;
+        
         $this->data = [];
 
         $this->price = $this->subscription->price; // ?
@@ -493,6 +500,9 @@ class BillingPortalPurchasev2 extends Component
         $this->payment_method_id = $gateway_type_id;
 
         $this->handleBeforePaymentEvents();
+
+        $this->dispatch('beforePaymentEventsCompleted');
+
     }
 
     /**
@@ -500,7 +510,7 @@ class BillingPortalPurchasev2 extends Component
      *
      * @return self
      */
-    public function handleBeforePaymentEvents() :self
+    public function handleBeforePaymentEvents(): self
     {
         $eligibility_check = $this->subscription->service()->isEligible($this->contact);
 
@@ -520,7 +530,6 @@ class BillingPortalPurchasev2 extends Component
             ]],
             'user_input_promo_code' => $this->coupon,
             'coupon' => empty($this->subscription->promo_code) ? '' : $this->coupon,
-
         ];
 
         $this->invoice = $this->subscription
@@ -532,6 +541,9 @@ class BillingPortalPurchasev2 extends Component
             ->adjustInventory()
             ->save();
 
+        $this->payable_amount = $this->invoice->partial > 0 ? \App\Utils\Number::formatValue($this->invoice->partial, $this->invoice->client->currency()) : \App\Utils\Number::formatValue($this->invoice->balance, $this->invoice->client->currency());
+        $this->invoice_hashed_id = $this->invoice->hashed_id;
+
         Cache::put($this->hash, [
             'subscription_id' => $this->subscription->hashed_id,
             'email' => $this->email ?? $this->contact->email,
@@ -541,8 +553,6 @@ class BillingPortalPurchasev2 extends Component
             'campaign' => $this->campaign,
             'bundle' => $this->bundle,
         ], now()->addMinutes(60));
-
-        $this->dispatch('beforePaymentEventsCompleted');
 
         return $this;
     }

@@ -132,7 +132,7 @@ class InvoiceTransformer extends EntityTransformer
             'is_amount_discount' => (bool) ($invoice->is_amount_discount ?: false),
             'footer' => $invoice->footer ?: '',
             'partial' => (float) ($invoice->partial ?: 0.0),
-            'partial_due_date' => ($invoice->partial_due_date && $invoice->partial_due_date != "-0001-11-30") ?: '',
+            'partial_due_date' => ($invoice->partial_due_date && $invoice->partial_due_date != "-0001-11-30") ? $invoice->partial_due_date : '',
             'custom_value1' => (string) $invoice->custom_value1 ?: '',
             'custom_value2' => (string) $invoice->custom_value2 ?: '',
             'custom_value3' => (string) $invoice->custom_value3 ?: '',
