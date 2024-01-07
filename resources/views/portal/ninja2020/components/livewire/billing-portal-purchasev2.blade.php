@@ -8,27 +8,21 @@
                 </h1>
             </div>
 
-            @if(isset($invoice))
             <div class="flex items-center mt-4 text-sm">
                 <form action="{{ route('client.payments.process', ['hash' => $hash, 'sidebar' => 'hidden']) }}"
                       method="post"
                       id="payment-method-form">
                     @csrf
 
-                    @if($invoice instanceof \App\Models\Invoice)
-                        <input type="hidden" name="invoices[]" value="{{ $invoice->hashed_id }}">
-                        <input type="hidden" name="payable_invoices[0][amount]"
-                               value="{{ $invoice->partial > 0 ? \App\Utils\Number::formatValue($invoice->partial, $invoice->client->currency()) : \App\Utils\Number::formatValue($invoice->balance, $invoice->client->currency()) }}">
-                        <input type="hidden" name="payable_invoices[0][invoice_id]"
-                               value="{{ $invoice->hashed_id }}">
-                    @endif
+                        <input type="hidden" name="invoices[]" value="{{ $invoice_hashed_id }}">
+                        <input type="hidden" name="payable_invoices[0][amount]" value="{{ $payable_amount }}">
+                        <input type="hidden" name="payable_invoices[0][invoice_id]" value="{{ $invoice_hashed_id }}">
 
                     <input type="hidden" name="action" value="payment">
                     <input type="hidden" name="company_gateway_id" value="{{ $company_gateway_id }}"/>
                     <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}"/>
                 </form>
             </div>
-            @endif
 
             <form wire:submit="submit">
             <!-- Recurring Plan Products-->
