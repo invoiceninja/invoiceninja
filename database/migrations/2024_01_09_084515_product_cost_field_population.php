@@ -17,6 +17,8 @@ return new class extends Migration
             return;
         }
         
+        set_time_limit(0);
+        
         Invoice::withTrashed()
             ->where('is_deleted', false)
             ->cursor()

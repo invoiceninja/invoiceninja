@@ -32,6 +32,8 @@ class ProductTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
+    protected $faker;
+    
     protected function setUp() :void
     {
         parent::setUp();
