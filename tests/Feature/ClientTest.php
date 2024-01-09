@@ -45,6 +45,8 @@ class ClientTest extends TestCase
 
     public $faker;
 
+    public $client_id;
+    
     protected function setUp() :void
     {
         parent::setUp();
