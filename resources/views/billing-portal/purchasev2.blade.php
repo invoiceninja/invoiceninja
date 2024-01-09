@@ -14,6 +14,10 @@
             document.getElementById('payment_method_id').value = paymentMethodId;
         }
 
-        Livewire.on('beforePaymentEventsCompleted', () => document.getElementById('payment-method-form').submit());
+        Livewire.on('beforePaymentEventsCompleted', () => {
+            setTimeout(() => {
+                document.getElementById('payment-method-form').submit()
+            }, 2500);
+        });
     </script>
 @endpush
