@@ -812,6 +812,15 @@ class Client extends BaseModel implements HasLocalePreference
         return $defaults;
     }
 
+    public function setExchangeRate()
+    {
+        
+        $converter = new CurrencyApi();
+
+        return 1/$converter->convert(1, $this->currency()->id, $this->company->settings->currency_id);
+
+    }
+
     public function timezone_offset() :int
     {
         $offset = 0;
