@@ -567,7 +567,7 @@ class InvoiceService
 
         /* If client currency differs from the company default currency, then insert the client exchange rate on the model.*/
         if (! isset($this->invoice->exchange_rate) && $this->invoice->client->currency()->id != (int) $this->invoice->company->settings->currency_id) {
-            $this->invoice->exchange_rate = $this->invoice->client->currency()->exchange_rate;
+            $this->invoice->exchange_rate = $this->invoice->client->setExchangeRate();
         }
 
         if ($this->invoice->client->getSetting('auto_bill_standard_invoices')) {

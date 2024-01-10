@@ -8,27 +8,21 @@
                 </h1>
             </div>
 
-            @if(isset($invoice))
             <div class="flex items-center mt-4 text-sm">
                 <form action="{{ route('client.payments.process', ['hash' => $hash, 'sidebar' => 'hidden']) }}"
                       method="post"
                       id="payment-method-form">
                     @csrf
 
-                    @if($invoice instanceof \App\Models\Invoice)
-                        <input type="hidden" name="invoices[]" value="{{ $invoice->hashed_id }}">
-                        <input type="hidden" name="payable_invoices[0][amount]"
-                               value="{{ $invoice->partial > 0 ? \App\Utils\Number::formatValue($invoice->partial, $invoice->client->currency()) : \App\Utils\Number::formatValue($invoice->balance, $invoice->client->currency()) }}">
-                        <input type="hidden" name="payable_invoices[0][invoice_id]"
-                               value="{{ $invoice->hashed_id }}">
-                    @endif
+                        <input type="hidden" name="invoices[]" value="{{ $invoice_hashed_id }}">
+                        <input type="hidden" name="payable_invoices[0][amount]" value="{{ $payable_amount }}">
+                        <input type="hidden" name="payable_invoices[0][invoice_id]" value="{{ $invoice_hashed_id }}">
 
                     <input type="hidden" name="action" value="payment">
                     <input type="hidden" name="company_gateway_id" value="{{ $company_gateway_id }}"/>
                     <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}"/>
                 </form>
             </div>
-            @endif
 
             <form wire:submit="submit">
             <!-- Recurring Plan Products-->
@@ -391,17 +385,68 @@
                         <form wire:submit="handleLogin" class="" x-data="otpForm()">
                             <p class="mb-4"></p>
                             <div class="flex justify-between">
-                              <template x-for="(input, index) in length" :key="index">
+                              <!-- <template x-for="(input, index) in length" :key="index"> -->
                                 <input
+                                    id="0"
                                     type="text"
                                     maxlength="1"
                                     class="border border-gray-500 w-10 h-10 text-center text-gray-700"
-                                    :x-ref="index"
+                                    :x-ref="0"
                                     x-on:input="handleInput($event)"
                                     x-on:paste="handlePaste($event)"
                                     x-on:keydown.backspace="$event.target.value || handleBackspace($event.target.getAttribute('x-ref'))"
                                 />
-                              </template>
+                                <input
+                                    id="1"
+                                    type="text"
+                                    maxlength="1"
+                                    class="border border-gray-500 w-10 h-10 text-center text-gray-700"
+                                    :x-ref="1"
+                                    x-on:input="handleInput($event)"
+                                    x-on:paste="handlePaste($event)"
+                                    x-on:keydown.backspace="$event.target.value || handleBackspace($event.target.getAttribute('x-ref'))"
+                                />
+                                <input
+                                    id="2"
+                                    type="text"
+                                    maxlength="1"
+                                    class="border border-gray-500 w-10 h-10 text-center text-gray-700"
+                                    :x-ref="2"
+                                    x-on:input="handleInput($event)"
+                                    x-on:paste="handlePaste($event)"
+                                    x-on:keydown.backspace="$event.target.value || handleBackspace($event.target.getAttribute('x-ref'))"
+                                />
+                                <input
+                                    id="3"
+                                    type="text"
+                                    maxlength="1"
+                                    class="border border-gray-500 w-10 h-10 text-center text-gray-700"
+                                    :x-ref="3"
+                                    x-on:input="handleInput($event)"
+                                    x-on:paste="handlePaste($event)"
+                                    x-on:keydown.backspace="$event.target.value || handleBackspace($event.target.getAttribute('x-ref'))"
+                                />
+                                <input
+                                    id="4"
+                                    type="text"
+                                    maxlength="1"
+                                    class="border border-gray-500 w-10 h-10 text-center text-gray-700"
+                                    :x-ref="4"
+                                    x-on:input="handleInput($event)"
+                                    x-on:paste="handlePaste($event)"
+                                    x-on:keydown.backspace="$event.target.value || handleBackspace($event.target.getAttribute('x-ref'))"
+                                />
+                                <input
+                                    id="5"
+                                    type="text"
+                                    maxlength="1"
+                                    class="border border-gray-500 w-10 h-10 text-center text-gray-700"
+                                    :x-ref="5"
+                                    x-on:input="handleInput($event)"
+                                    x-on:paste="handlePaste($event)"
+                                    x-on:keydown.backspace="$event.target.value || handleBackspace($event.target.getAttribute('x-ref'))"
+                                />
+                              <!-- </template> -->
                             </div>
                             
                         </form>
@@ -430,7 +475,7 @@
                 const input = e.target;
 
                 this.login = Array.from(Array(this.length), (element, i) => {
-                return this.$refs[i].value || "";
+                    return document.getElementById(i.toString()).value || '';
                 }).join("");
 
                 if (input.nextElementSibling && input.value) {
@@ -451,8 +496,17 @@
                 const inputs = Array.from(Array(this.length));
 
                 inputs.forEach((element, i) => {
-                    this.$refs[i].value = paste[i] || '';
+                    document.getElementById(i.toString()).value = paste[i] || '';
                 });
+
+                this.login = Array.from(Array(this.length), (element, i) => {
+                    return document.getElementById(i.toString()).value || '';
+                }).join("");
+
+                if(this.login.length == 6){
+                    this.$wire.handleLogin(this.login);
+                }
+
             },
 
             handleBackspace(e) {

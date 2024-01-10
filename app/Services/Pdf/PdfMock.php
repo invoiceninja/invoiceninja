@@ -462,7 +462,7 @@ class PdfMock
     '$viewLink' => '<a class="button" href="http://ninja.test:8000/client/invoice/UAUY8vIPuno72igmXbbpldwo5BDDKIqs">View Invoice</a>',
     '$autoBill' => 'This invoice will automatically be billed to your credit card on file on the due date.',
     '$view_url' => 'http://ninja.test:8000/client/invoice/UAUY8vIPuno72igmXbbpldwo5BDDKIqs',
-    '$font_url' => 'https://fonts.googleapis.com/css2?family=Roboto&display=swap',
+    '$font_url' => isset($this->settings?->primary_font) ? \App\Utils\Helpers::resolveFont($this->settings->primary_font)['url'] : 'https://fonts.googleapis.com/css2?family=Roboto&display=swap',
     '$details' => '',
     '$balance' => '$40.00',
     '$partial' => '$30.00',

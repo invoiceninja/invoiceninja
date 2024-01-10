@@ -107,7 +107,12 @@ class PaymentRepository extends BaseRepository
         }
 
         /*Fill the payment*/
-        $payment->fill($data);
+        $fill_data = $data;
+
+        if($this->import_mode && isset($fill_data['invoices']))
+            unset($fill_data['invoices']);
+
+        $payment->fill($fill_data);
         $payment->is_manual = true;
         $payment->status_id = Payment::STATUS_COMPLETED;
 
