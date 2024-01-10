@@ -95,18 +95,21 @@ class ProductTest extends TestCase
             ->cursor()
             ->each(function (Invoice $invoice) {
 
-
                 $line_items = $invoice->line_items;
 
                 foreach ($line_items as $key => $item) {
 
-                    if(property_exists($item, 'product_cost') && $item->product_cost == 0 && $product = Product::where('company_id', $invoice->company_id)->where('product_key', $item->product_key)->where('cost', '>', 0)->first()) {
-                        $line_items[$key]->product_cost = $product->cost;
+                    if($product = Product::where('company_id', $invoice->company_id)->where('product_key', $item->product_key)->where('cost', '>', 0)->first()) {
+                        if((property_exists($item, 'product_cost') && $item->product_cost == 0) || !property_exists($item, 'product_cost')) {
+                            $line_items[$key]->product_cost = $product->cost;
+                        }
                     }
+
                 }
 
                 $invoice->line_items = $line_items;
                 $invoice->saveQuietly();
+
 
             });
 
