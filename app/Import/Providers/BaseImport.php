@@ -140,6 +140,10 @@ class BaseImport
         $delimiters = [',', '.', ';', '|'];
         $bestDelimiter = ',';
         $count = 0;
+
+        // 10-01-2024 - A better way to resolve the csv file delimiter.
+        $csvfile = substr($csvfile, 0, strpos($csvfile, "\n"));
+
         foreach ($delimiters as $delimiter) {
 
             if (substr_count(strstr($csvfile, "\n", true), $delimiter) >= $count) {
