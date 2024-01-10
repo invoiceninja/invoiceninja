@@ -316,7 +316,7 @@ class BaseTransformer
     {
         if (array_key_exists($field, $data)) {
             //$number = preg_replace('/[^0-9-.]+/', '', $data[$field]);
-            return Number::parseStringFloat($data[$field]);
+            return Number::parseFloat($data[$field]);
         } else {
             //$number = 0;
             return 0;
@@ -334,7 +334,7 @@ class BaseTransformer
     public function getFloatOrOne($data, $field)
     {
         if (array_key_exists($field, $data)) {
-            return Number::parseStringFloat($data[$field]) > 0 ? Number::parseStringFloat($data[$field]) : 1;
+            return Number::parseFloat($data[$field]) > 0 ? Number::parseFloat($data[$field]) : 1;
         }
  
         return 1;
