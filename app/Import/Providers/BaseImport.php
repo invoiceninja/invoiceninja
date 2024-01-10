@@ -166,7 +166,6 @@ class BaseImport
 
     private function groupTasks($csvData, $key)
     {
-        nlog($csvData[0]);
 
         if (! $key || !is_array($csvData) || count($csvData) == 0 || !isset($csvData[0]['task.number']) || empty($csvData[0]['task.number'])) {
             return $csvData;
