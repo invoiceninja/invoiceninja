@@ -25,7 +25,7 @@ use App\PaymentDrivers\EasymerchantPaymentDriver;
 use App\Utils\Traits\MakesHash;
 use App\PaymentDrivers\Easymerchant\Utilities;
 use Illuminate\Support\Facades\Http;
-
+use Illuminate\Support\Str;
 use Exception;
 
 class ACH
@@ -46,6 +46,22 @@ class ACH
     public function authorizeView(array $data)
     {
         $data['gateway'] = $this->easymerchant;
+        $postData = $this->getHeaders();
+
+        $customer = $this->checkCustomerExists();
+        $data['customer'] = $customer ? : NULL;
+        $data['url'] = $postData['api_url'].'/ach/account';
+        $data['payment_method_id'] = GatewayType::BANK_TRANSFER;
+        $data['publish_key'] = $this->getPublishKey();
+
+        if($data['customer'] == NULL){
+            $customer_input = $this->findOrCreateCustomer($postData['api_url'], $postData['headers']);
+            if($customer_input['status']){
+                $data['customer'] = $customer_input['data']['customer'];
+            }else{
+                throw new PaymentFailed($customer_input['message'], 500);
+            }
+        }
 
         return render('gateways.easymerchant.ach.authorize', array_merge($data));
     }
@@ -58,7 +74,7 @@ class ACH
         $ach_data = $this->getACHCustomer($request);
 
         $source = [
-            'token' => null,
+            'token' => $request->account_id,
             'account_type' => 'checking',
             'account_number' => $request->account_number,
             'routing_number' => $request->routing_number,
@@ -67,54 +83,8 @@ class ACH
             'company_gateway_id' => $request->company_gateway_id
         ];
 
-        if(array_key_exists('create_customer', $ach_data) && $ach_data['create_customer'] == "1") {
-
-            try {
-                $customer_url = $postData['api_url'].'/customers';
-
-                $response = Http::withHeaders($postData['headers'])->post($customer_url, $ach_data);
-                
-                $result = $response->json();
-                
-                if($result['status']){
-                    $ach_data['customerId'] = $result['customer_id'];
-                }
-            } catch (\Exception $e) {
-                $this->easymerchant->sendFailureMail($e->getMessage());
-
-                throw new PaymentFailed($e->getMessage(), $e->getCode());
-            }
-        }
-
-        try {
-            $api_url = $postData['api_url'].'/ach/account';
-
-            $response = Http::withHeaders($postData['headers'])->post($api_url, $ach_data);
-
-            $result = $response->json();
-
-            if($result['status']){
-
-                $source['token'] = $result['account_id'];
-                $source['gateway_customer_reference'] = $ach_data['customerId'];
-                $customer_reference = (array_key_exists('customerId', $ach_data)) ? $ach_data['customerId'] : null; 
-                $this->storeACHPaymentMethod($source, $request->input('method'), $customer_reference);
-
-                return redirect()->route('client.payment_methods.index');
-            }
-
-        } catch (\Exception $e) {
-
-            if ($e instanceof \Easymerchant\Exception\Authorization) {
-                $this->easymerchant->sendFailureMail(ctrans('texts.generic_gateway_error'));
-
-                throw new PaymentFailed(ctrans('texts.generic_gateway_error'), $e->getCode());
-            }
-
-            $this->easymerchant->sendFailureMail($e->getMessage());
-
-            throw new PaymentFailed($e->getMessage(), $e->getCode());
-        }
+        $source['token'] = $request->payment_intent;
+        $this->storeACHPaymentMethod($source, $request->input('method'), $request->customer);
 
         return redirect()->route('client.payment_methods.index');
     }
@@ -127,16 +97,55 @@ class ACH
         $data['gateway'] = $this->easymerchant;
         $data['currency'] = $this->easymerchant->client->getCurrencyCode();
         $data['payment_method_id'] = GatewayType::BANK_TRANSFER;
-        $data['customer'] = null;//$this->easymerchant->findOrCreateCustomer();
         $data['amount'] = $data['total']['amount_with_fee'];
+        $customer = $this->checkCustomerExists();
+        $data['customer'] = ($customer) ? $customer : NULL;
 
         $description = $this->easymerchant->getDescription(false);
 
-        $intent = false;
+        $postData = $this->getHeaders();
+        // create new customer if not added to easymerchant
+        if($data['customer'] == NULL){
+            $customer_input = $this->findOrCreateCustomer($postData['api_url'], $postData['headers']);
+            if($customer_input['status']){
+                $data['customer'] = $customer_input['data']['customer'];
+            }else{
+                throw new PaymentFailed($customer_input['message'], 500);
+            }
+        }
 
-        $data['client_secret'] = $intent ? $intent->client_secret : false;
+        $api_url = $postData['api_url'].'/paymentintent/add';
 
-        return render('gateways.easymerchant.ach.pay', $data);
+        try {
+            $params = ['currency' => $data['currency'], 'amount' => $data['amount'],'payment_type' => 'Ach'];
+
+            $response = Http::withHeaders($postData['headers'])->post($api_url, $params);
+
+            $result = $response->json();
+
+        } catch (\Exception $e) {
+            if ($e instanceof \Easymerchant\Exception\Authorization) {
+                $this->easymerchant->sendFailureMail(ctrans('texts.generic_gateway_error'));
+
+                throw new PaymentFailed(ctrans('texts.generic_gateway_error'), $e->getCode());
+            }
+
+            $this->easymerchant->sendFailureMail($e->getMessage());
+
+            throw new PaymentFailed($e->getMessage(), $e->getCode());
+        }
+
+        if($result['status']){
+            $intent = false;
+            $data['payment_intent'] = $result['payment_intent'];
+            $data['url'] = $postData['api_url'].'/ach/account';
+            $data['publish_key'] = $this->getPublishKey();
+            $data['client_secret'] = $intent ? $intent->client_secret : false;
+
+            return render('gateways.easymerchant.ach.pay', $data);
+        }else {
+            throw new PaymentFailed($e->getMessage(), $e->getCode());
+        }
     }
 
     public function paymentResponse($request)
@@ -145,7 +154,7 @@ class ACH
 
         $postData = $this->getHeaders();
 
-        $paymentData = $this->getACHPaymentDetails($request);
+        $paymentData = $this->achChargeDetails($request);
 
         $state = [
             'payment_method' => $request->payment_method_id,
@@ -164,6 +173,7 @@ class ACH
         $paymentData['description'] = $this->easymerchant->getDescription(false);
         $paymentData['amount'] = $this->formatAmount($request->amount);
         $paymentData['payment_method_id'] = $request->payment_method_id;
+        $paymentData['save_account'] = $request->has('save_account') ? $request->save_account : false;
 
         try {
             $api_url = $postData['api_url'].'/ach/charge';
@@ -174,16 +184,12 @@ class ACH
 
             if($result['status']){
                 $paymentData['charge'] = $result['charge_id'];
-                if(array_key_exists('account_id', $result)){
-                    $paymentData['token'] = $result['account_id'];
-                }
-                if(array_key_exists('customer_id', $result)){
-                    $paymentData['customer'] = $result['customer_id'];
-                }
+                $paymentData['token'] = $request['payment_intent'];
+                $paymentData['customer'] = $request['customer'];
+
                 $this->processSuccessfulPayment($paymentData);
             }else{
                 throw new PaymentFailed($result['message'], 500);
-                return false;
             }
 
         } catch (\Exception $e) {

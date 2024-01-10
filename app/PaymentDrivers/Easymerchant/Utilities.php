@@ -12,8 +12,10 @@
 
 namespace App\PaymentDrivers\Easymerchant;
 
+use App\Models\GatewayType;
 use App\Models\ClientGatewayToken;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
 
 trait Utilities
 {
@@ -31,10 +33,12 @@ trait Utilities
             $input_array['api_url'] = $this->easymerchant->company_gateway->getConfigField('test_url');
             $api_key = $this->easymerchant->company_gateway->getConfigField('test_api_key');
             $api_secret = $this->easymerchant->company_gateway->getConfigField('test_api_secret');
+            $publish_key = $this->easymerchant->company_gateway->getConfigField('test_publish_key');
         }else{
             $input_array['api_url'] = $this->easymerchant->company_gateway->getConfigField('production_url');
             $api_key = $this->easymerchant->company_gateway->getConfigField('api_key');
             $api_secret = $this->easymerchant->company_gateway->getConfigField('api_secret');
+            $publish_key = $this->easymerchant->company_gateway->getConfigField('publish_key');
         }
         
         $input_array['headers'] = [ 
@@ -44,6 +48,16 @@ trait Utilities
         ];
 
         return $input_array;
+    }
+
+    private function getPublishKey()
+    {
+        $testMode = $this->easymerchant->company_gateway->getConfigField('testMode');
+        if($testMode){
+            return $this->easymerchant->company_gateway->getConfigField('test_publish_key');
+        }else{
+            return $this->easymerchant->company_gateway->getConfigField('publish_key');
+        }
     }
 
     private function getACHPaymentDetails($data){
@@ -187,7 +201,7 @@ trait Utilities
         return $meta_data;
     }
 
-    function getNewCustomerAchData($ach = true, $input){
+    function getNewCustomerAchData($ach = true, $input=''){
         $data['name'] = ($ach) ? $this->getFullName() : '';
         $data['email'] = ($ach) ? $this->easymerchant->client->present()->email() : '';
         $data['address'] = ($ach) ? $this->getAddress() : '';
@@ -222,5 +236,102 @@ trait Utilities
             return ($currentyear+1).$expiry_year;
         }
         return $currentyear.$expiry_year;
+    }
+
+    public function cardChargeDetails($request)
+    {
+        $customer = $this->checkCustomerExists();
+        $chargeData = [
+            "payment_mode" => "auth_and_capture",
+            "currency" => "usd",
+            "levelIndicator" => 1,
+            'customer' => $customer
+        ];
+
+        if(strpos($request['payment_intent'], 'pi_') !== false){
+            $chargeData['payment_intent'] = $request['payment_intent'];
+        }else{
+            $chargeData['card_id'] = $request['payment_intent'];
+        }
+
+        return $chargeData;
+    }
+
+    public function achChargeDetails($request)
+    {
+        $customer = $this->checkCustomerExists();
+        $chargeData = [
+            "payment_mode" => "auth_and_capture",
+            "currency" => $request['currency'] ? : "usd",
+            "levelIndicator" => 1,
+            'customer' => $request['customer']
+        ];
+
+        if(strpos($request['payment_intent'], 'pi_') !== false){
+            $chargeData['payment_intent'] = $request['payment_intent'];
+        }else{
+            $chargeData['card_id'] = $request['payment_intent'];
+        }
+
+        return $chargeData;
+    }
+
+    public function findOrCreateCustomer($url='', $headers='')
+    {
+        $customer_input = $this->getNewCustomerAchData();
+        $customer_input['username'] = strtolower($this->easymerchant->client->present()->first_name()).Str::random(10);
+        $customer_input['payment_intent'] = '1';
+        $customer_url = $url.'/customers';
+
+        try{
+            $customer_response = Http::withHeaders($headers)->post($customer_url, $customer_input);
+            $customer_result = $customer_response->json();
+
+            if($customer_result['status']){
+                $customer_input['customer'] = $customer_result['customer_id'];
+                return ['status'=> true, 'message' => 'success', 'data' => $customer_input];
+
+            }else{
+                if(array_key_exists('customer_id', $customer_result)){
+                    $customer_input['customer'] = $customer_result['customer_id'];
+                    return ['status'=> true, 'message' => 'success', 'data' => $customer_input];
+                }
+                return ['status'=> false, 'message' => $customer_result['message']];
+            }
+
+        }catch (\Exception $e) {
+            if ($e instanceof \Easymerchant\Exception\Authorization) {
+
+                return ['status'=> false, 'message' => ctrans('texts.generic_gateway_error')];
+            }
+
+            return ['status'=> false, 'message' => $e->getMessage()];
+        }
+    }
+
+    public function updateCustomer($customer='', $gateway='card')
+    {//cus_65794bcab8ff25064
+        $existing = ClientGatewayToken::query()
+            ->where('company_gateway_id', $this->easymerchant->company_gateway->id)
+            ->where('client_id', $this->easymerchant->client->id)
+            ->first();
+
+        $gateway_id = ($gateway == 'card') ? GatewayType::CREDIT_CARD : GatewayType::BANK_TRANSFER;
+        if(!$existing){
+            $newGateway = [
+                'company_gateway_id' => $this->easymerchant->company_gateway->id,
+                'client_id' => $this->easymerchant->client->id,
+                'company_id' => $this->easymerchant->client->company->id,
+                'gateway_type_id' => $gateway_id,
+                'gateway_customer_reference' => $customer
+            ];
+            ClientGatewayToken::create($newGateway);
+        }else{
+            if(!$existing->gateway_customer_reference){
+                ClientGatewayToken::where('id', $existing->id)->update(['gateway_customer_reference' => $customer]);
+            }
+        }
+
+        return true;
     }
 }

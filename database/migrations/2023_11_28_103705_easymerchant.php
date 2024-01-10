@@ -24,7 +24,7 @@ return new class extends Migration
             $gateway->provider = 'Easymerchant';
             $gateway->is_offsite = true;
 
-            $configuration = ['test_api_key' => 'testkey', 'test_api_secret' => 'testsecret', 'api_key' => 'livekey', 'api_secret' => 'livesecret', 'testMode' => true, 'test_url' => 'https://stage-api.stage-easymerchant.io/api/v1', 'production_url' => 'https://api.lyfepay.io/api/v1'];
+            $configuration = ['test_api_key' => 'testkey', 'test_api_secret' => 'testsecret', 'test_publish_key' => 'testpublishkey', 'api_key' => 'livekey', 'api_secret' => 'livesecret', 'publish_key' => 'publishkey', 'testMode' => true, 'test_url' => 'https://stage-api.stage-easymerchant.io/api/v1', 'production_url' => 'https://api.lyfepay.io/api/v1'];
 
             $gateway->fields = \json_encode($configuration);
             $gateway->site_url = 'https://api.lyfepay.io/';

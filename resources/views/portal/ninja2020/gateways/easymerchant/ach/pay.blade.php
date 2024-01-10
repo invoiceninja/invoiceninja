@@ -1,7 +1,7 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => 'ACH', 'card_title' => 'ACH'])
 
 @section('gateway_head')
-
+        <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
         <meta name="client_secret" content="{{ $client_secret }}">
         <meta name="viewport" content="width=device-width, minimum-scale=1" />
 
@@ -14,14 +14,13 @@
         @csrf
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->getCompanyGatewayId() }}">
         <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}">
-        <input type="hidden" name="source" value="">
         <input type="hidden" name="amount" value="{{ $amount }}">
         <input type="hidden" name="currency" value="{{ $currency }}">
         <input type="hidden" name="customer" value="{{ $customer }}">
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
-        <input type="hidden" name="client_secret" value="{{ $client_secret }}">
         <input type="hidden" name="gateway_response" id="gateway_response" value="">
-        <input type="hidden" name="bank_account_response" id="bank_account_response" value="">
+        <input type="hidden" name="type" id="type" value="{{ $type ?? 'ACH'}}">
+        <input type="hidden" name="payment_intent" id="payment_intent" value="{{ $payment_intent }}">
     
 
         @include('portal.ninja2020.gateways.includes.payment_details')
@@ -57,6 +56,8 @@
             </ul>
             @endif
         @endcomponent
+
+    </form>
         <div id="toggle-account">
             @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.account_holder_type')])
                 <span class="flex items-center mr-4 new_account">
@@ -82,34 +83,30 @@
                 <input class="input w-full" name="account_number" id="account-number" type="text" required>
             @endcomponent
 
-            @component('portal.ninja2020.components.general.card-element', ['title' => 'Save Account'])
-                <!-- <span class="flex items-center new_account"> -->
-                    <input class="form-radio mr-2" type="radio" value="1" name="save_account">Yes
-                    <input class="form-radio mr-2" type="radio" value="0" name="save_account" checked>No
-                <!-- <span>{{ "Save Account" }}</span> -->
-            </span>
-            @endcomponent
-
         </div>
             @component('portal.ninja2020.components.general.card-element-single')
-                <input type="checkbox" class="form-checkbox mr-1" id="accept-terms" required>
+                <input type="checkbox" class="form-checkbox mr-1" name='accept-terms' id="accept-terms" required>
                 <label for="accept-terms" class="cursor-pointer">{{ ctrans('texts.ach_authorization', ['company' => auth()->user()->company->present()->name, 'email' => auth()->guard('contact')->user()->client->company->settings->email]) }}</label>
             @endcomponent
-
+            <span id="error_message" style="margin-left: 3rem;"></span>
         <div class="bg-white px-4 py-5 flex justify-end">
             <button 
-                id="{{ $id ?? 'pay-now' }}"
+                type="button" 
+                id='pay-now'
                 class="button button-primary bg-primary {{ $class ?? '' }}">
                 <span>{{ ctrans('texts.pay_now') }}</span>
             </button>
         </div>
-        </form>
+        <!-- </form> -->
     @endsection
 
 @push('footer')
-<!-- <script src="https://js.stripe.com/v3/"></script> -->
 
 @endpush
+
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.7.1.min.js"></script>
+<!-- <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.7/jquery.validate.min.js"></script> -->
+
 <script type="text/javascript">
 
     function toggleAccount() {
@@ -127,4 +124,75 @@
         account_number.removeAttribute('required');
       }
     }
+
+    $(document).ready(function(){
+    $('#pay-now').click(function(){
+        $('#error_message').text('')
+        var switch_account = document.getElementById('toggle-account');
+        var routing_number = document.getElementById('routing-number').value;
+        var account_number = document.getElementById('account-number').value;
+        var account = document.querySelector('input[name="payment-type"]:checked').value;
+        var terms = document.querySelector('input[name="accept-terms"]:checked').value;
+
+        if(account == 'new_account'){
+
+            var errors = [];
+            if(!routing_number){
+                errors.push('Routing number');
+            }
+            if(!account_number){
+                errors.push('Account number');
+            }
+
+            if(errors.length > 0){
+                var message = ' (s) are required.!';
+                if(errors.length == 1){
+                    message = ' is required.!';
+                }
+                $('#error_message').text(errors.toString() + message).css({'color':'red', "font-weight":"bold"})
+                return false;
+            }
+
+        // var data = JSON.parse('{"status": true, "message": "Payment Intent created successfully.!", "last_4": "1116", "payment_intent": "pi_65965f8a7a687"}');
+        //     $('#payment_intent').val(data.payment_intent)
+        //     $('#account-number').val(data.last_4)
+
+        //         $('#server-response').submit();
+            $.ajax({
+                headers: {
+                    "X-Publishable-Key": "{{ $publish_key }}",
+                },
+                url : "{{ $url }}",
+                data : { 
+                    payment_intent : "{{ $payment_intent }}", 
+                    customerId: "{{ $customer }}",
+                    account_validation : "no",
+                    accountType : "checking",
+                    accountNumber : account_number,
+                    routingNumber : routing_number
+                },
+                type : 'POST',
+                dataType : 'json',
+                success : function(data){
+
+                    // var data = JSON.parse(result);
+
+                    if(data.status){
+                        $('#payment_intent').val(data.payment_intent)
+                        $('#account-number').val(data.last_4)
+                    }else{
+                        $('#error_message').text(data.message).css({'color':'red', "font-weight":"bold"})
+                        return false;
+                    }
+
+                    $('#server-response').submit();
+
+                }
+            });
+        }else{
+            $('#payment_intent').val(account);
+            $('#server-response').submit();
+        }
+    })
+})
 </script>

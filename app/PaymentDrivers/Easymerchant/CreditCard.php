@@ -20,9 +20,11 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\Models\ClientGatewayToken;
 use App\PaymentDrivers\EasymerchantPaymentDriver;
 use App\PaymentDrivers\Easymerchant\Utilities;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class CreditCard
 {
@@ -41,44 +43,42 @@ class CreditCard
 
     public function authorizeView(array $data)
     {
+        $postData = $this->getHeaders();
         $data['gateway'] = $this->easymerchant;
-        $data['threeds_enable'] = $this->easymerchant->company_gateway->getConfigField('threeds') ? "true" : "false";
-        $data['public_client_id'] = 1;//$this->authorize->init()->getPublicClientKey();
-        $data['api_login_id'] = $this->easymerchant->company_gateway->getConfigField('apiLoginId');
+
+        $customer = $this->checkCustomerExists();//'cus_659cf3e921b375064';
+        $data['customer'] = $customer ? : NULL;
+        $data['url'] = $postData['api_url'].'/card';
+        $data['payment_method_id'] = GatewayType::CREDIT_CARD;
+        $data['publish_key'] = $this->getPublishKey();
+
+        if($data['customer'] == NULL){
+            $customer_input = $this->findOrCreateCustomer($postData['api_url'], $postData['headers']);
+            if($customer_input['status']){
+                $data['customer'] = $customer_input['data']['customer'];
+            }else{
+                throw new PaymentFailed($customer_input['message'], 500);
+            }
+        }
 
         return render('gateways.easymerchant.credit_card.authorize', $data);
     }
 
     public function authorizeResponse($data): \Illuminate\Http\RedirectResponse
     {
-        $postData = $this->getHeaders();
-
-        $card_data = $this->getCustomerCardData($data, $postData['api_url']);
-
         try {
 
-            $response = Http::withHeaders($postData['headers'])->post($card_data['api_url'], $card_data);
+            $store_data = [
+                'expirationMonth' => $data['expiry-month'],
+                'expirationYear' => $this->formatExpiryYear($data['expiry-year']),
+                'last4' => $data['card-number'],
+                'cardType' => 'Visa',
+                'token' => $data['payment_intent']
+            ];
 
-            $result = $response->json();
+            $store = $this->storePaymentMethod($store_data , $data['customer']);
+            return redirect()->route('client.payment_methods.index');
 
-            if($result['status']){
-
-                $store_data = [
-                    'expirationMonth' => $card_data['exp_month'],
-                    'expirationYear' => $this->formatExpiryYear($data['expiry-year']),
-                    'last4' => $result['card_last_4'],
-                    'cardType' => 'Visa',
-                    'token' => $result['card_id']
-                ];
-
-                $customer_reference = (array_key_exists('customer', $card_data)) ? $card_data['customer'] : $result['customer_id']; 
-                $store = $this->storePaymentMethod($store_data , $customer_reference);
-                return redirect()->route('client.payment_methods.index');
-            }
-
-            $this->easymerchant->sendFailureMail($result['message']);
-
-            throw new PaymentFailed($e->getMessage(), 500);
         } catch (\Exception $e) {
 
             if ($e instanceof \Easymerchant\Exception\Authorization) {
@@ -95,9 +95,62 @@ class CreditCard
 
     public function paymentView(array $data)
     {
-        $data['gateway'] = $this->easymerchant;
+        $tokens = ClientGatewayToken::where('client_id', $this->easymerchant->client->id)
+                    ->where('company_gateway_id', $this->easymerchant->company_gateway->id)
+                    ->where('gateway_type_id', GatewayType::CREDIT_CARD)
+                    ->orderBy('is_default', 'desc')
+                    ->get();
 
-        return render('gateways.easymerchant.credit_card.pay', $data);
+        $data['tokens'] = $tokens;
+        $data['gateway'] = $this->easymerchant;
+        $customer = $this->checkCustomerExists();
+        $data['customer'] = $customer ? : NULL;
+        $currency = 'usd';
+        if($data['client']->currency() && $data['client']->currency()->code){
+            $currency = $data['client']->currency()->code;
+        }
+
+        $postData = $this->getHeaders();
+        // create new customer if not added to easymerchant
+        if($data['customer'] == NULL){
+            $customer_input = $this->findOrCreateCustomer($postData['api_url'], $postData['headers']);
+            if($customer_input['status']){
+                $data['customer'] = $customer_input['data']['customer'];
+            }else{
+                throw new PaymentFailed($customer_input['message'], 500);
+            }
+        }
+        $api_url = $postData['api_url'].'/paymentintent/add';
+
+        try {
+            $params = ['currency' => $currency, 'amount' => $data['amount_with_fee'], 'payment_type' => 'card'];
+
+            $response = Http::withHeaders($postData['headers'])->post($api_url, $params);
+
+            $result = $response->json();
+
+        } catch (\Exception $e) {
+            if ($e instanceof \Easymerchant\Exception\Authorization) {
+                $this->easymerchant->sendFailureMail(ctrans('texts.generic_gateway_error'));
+
+                throw new PaymentFailed(ctrans('texts.generic_gateway_error'), $e->getCode());
+            }
+
+            $this->easymerchant->sendFailureMail($e->getMessage());
+
+            throw new PaymentFailed($e->getMessage(), $e->getCode());
+        }
+
+        if($result['status']){
+
+            $data['payment_intent'] = $result['payment_intent'];
+            $data['url'] = $postData['api_url'].'/card';
+            $data['publish_key'] = $this->getPublishKey();
+
+            return render('gateways.easymerchant.credit_card.pay', $data);
+        }else{
+            throw new PaymentFailed($result['message'], 404);
+        }
     }
 
     /**
@@ -124,8 +177,9 @@ class CreditCard
 
         $postData = $this->getHeaders();
 
-        $data = $this->getCustomerCardData($request->all());
+        $data = $this->cardChargeDetails($request->all());
         $data['description'] = $this->easymerchant->getDescription(false);
+        $data['amount'] = $this->formatAmount($this->easymerchant->payment_hash->data->amount_with_fee);
 
         $api_url = $postData['api_url'].'/charges';
 
@@ -161,7 +215,7 @@ class CreditCard
                 'expirationYear' => $this->formatExpiryYear($request['expiry-year']),
                 'last4' => substr($this->removeBlankSpace($request['card-number']), -4),
                 'cardType' => 'Visa',
-                'token' => $result['card_id']
+                'token' => $result['payment_intent']
             ];
 
             $customer_reference = (array_key_exists('customer_id', $result)) ? $result['customer_id'] : $data['customer']; 
