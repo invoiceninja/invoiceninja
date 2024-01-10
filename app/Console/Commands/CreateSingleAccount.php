@@ -100,6 +100,31 @@ class CreateSingleAccount extends Command
         $this->warmCache();
 
         $this->createSmallAccount();
+
+        
+        try {
+            $pdo = \DB::connection('ronin')->getPdo();
+            
+            if(class_exists(\Modules\Ronin\app\Models\Admin::class)){
+                $this->info('Creating Ronin Account');
+                $this->createRoninAccount();
+            }
+
+        } catch (\Exception $e) {
+            
+        }
+
+    }
+
+    private function createRoninAccount()
+    {
+        $admin = \Modules\Ronin\app\Models\Admin::create([
+            'first_name' => 'small',
+            'last_name' => 'example',
+            'email' => 'small@example.com',
+            'password' => Hash::make('password'),
+        ]);
+
     }
 
     private function createSmallAccount()
