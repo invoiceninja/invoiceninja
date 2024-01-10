@@ -2,6 +2,7 @@
 
 use App\Utils\Ninja;
 use App\Models\Invoice;
+use App\Models\Product;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
