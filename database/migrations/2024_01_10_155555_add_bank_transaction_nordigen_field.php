@@ -17,7 +17,7 @@ return new class extends Migration {
 
         // FIX: used column transaction_id was int and resulted in wrong value in field
         Schema::table('bank_transactions', function (Blueprint $table) {
-            $table->string('nordigen_transaction_id')->nullable();
+            $table->text('nordigen_transaction_id')->nullable();
         });
 
     }
