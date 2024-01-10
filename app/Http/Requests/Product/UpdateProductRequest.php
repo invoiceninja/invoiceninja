@@ -56,7 +56,7 @@ class UpdateProductRequest extends Request
     {
         $input = $this->all();
 
-        if (! isset($input['quantity']) || $input['quantity'] < 1) {
+        if (! isset($input['quantity'])) {
             $input['quantity'] = 1;
         }
 

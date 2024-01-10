@@ -196,7 +196,7 @@ class UserController extends BaseController
      */
     public function destroy(DestroyUserRequest $request, User $user)
     {
-        if ($user->isOwner()) {
+        if ($user->hasOwnerFlag()) {
             return response()->json(['message', 'Cannot detach owner.'], 401);
         }
 

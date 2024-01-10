@@ -144,6 +144,7 @@ class PurchaseOrderController extends BaseController
         $user = auth()->user();
 
         $purchase_order = PurchaseOrderFactory::create($user->company()->id, $user->id);
+        $purchase_order->date = now()->addSeconds($user->company()->utc_offset())->format('Y-m-d');
 
         return $this->itemResponse($purchase_order);
     }

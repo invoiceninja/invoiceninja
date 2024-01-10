@@ -132,6 +132,18 @@ span {
     <div id="totals" class="mb-10 mr-3 ml-3">
         <table width="100%">
             <tbody>
+                @if($discount)
+                <tr>
+                    <td style="text-align:left; padding-right:10px;" class="text-lg">{{ ctrans('texts.discount') }}</td>
+                    <td style="text-align:right; padding-right:10px;" class="text-lg">{{ $discount }}</td>
+                </tr>
+                @endif
+                @if($taxes)
+                <tr>
+                    <td style="text-align:left; padding-right:10px;" class="text-lg">{{ ctrans('texts.tax') }}</td>
+                    <td style="text-align:right; padding-right:10px;" class="text-lg">{{ $taxes }}</td>
+                </tr>
+                @endif
                 <tr>
                     <td style="text-align:left; padding-right:10px;" class="text-lg">{{ ctrans('texts.total') }}</td>
                     <td style="text-align:right; padding-right:10px;" class="text-lg">{{ $amount }}</td>

@@ -168,6 +168,7 @@ class QuoteController extends BaseController
         $user = auth()->user();
 
         $quote = QuoteFactory::create($user->company()->id, $user->id);
+        $quote->date = now()->addSeconds($user->company()->utc_offset())->format('Y-m-d');
 
         return $this->itemResponse($quote);
     }

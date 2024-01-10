@@ -1933,6 +1933,7 @@ $lang = array(
     'require_quote_signature_help' => 'Require client to provide their signature.',
     'i_agree' => 'I Agree To The Terms',
     'sign_here' => 'Please sign here:',
+    'sign_here_ux_tip' => 'Use the mouse or your touchpad to trace your signature.',
     'authorization' => 'Authorization',
     'signed' => 'Signed',
 
@@ -3371,7 +3372,7 @@ $lang = array(
     'credit_number_counter' => 'Credit Number Counter',
     'reset_counter_date' => 'Reset Counter Date',
     'counter_padding' => 'Counter Padding',
-    'shared_invoice_quote_counter' => 'Share Invoice Quote Counter',
+    'shared_invoice_quote_counter' => 'Share Invoice/Quote Counter',
     'default_tax_name_1' => 'Default Tax Name 1',
     'default_tax_rate_1' => 'Default Tax Rate 1',
     'default_tax_name_2' => 'Default Tax Name 2',
@@ -5219,6 +5220,7 @@ $lang = array(
     'receipt' => 'Receipt',
     'charges' => 'Charges',
     'email_report' => 'Email Report',
+    'payment_type_Pay Later' => 'Pay Later',
 );
 
 return $lang;

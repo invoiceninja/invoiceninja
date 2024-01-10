@@ -30,11 +30,16 @@ class UpdateQuoteRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->quote);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('edit', $this->quote);
     }
 
     public function rules()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
         $rules = [];
 
         if ($this->file('documents') && is_array($this->file('documents'))) {
@@ -50,9 +55,9 @@ class UpdateQuoteRequest extends Request
         }
 
         
-        if ($this->number) {
-            $rules['number'] = Rule::unique('quotes')->where('company_id', auth()->user()->company()->id)->ignore($this->quote->id);
-        }
+        $rules['number'] = ['bail', 'sometimes', 'nullable', Rule::unique('quotes')->where('company_id', $user->company()->id)->ignore($this->quote->id)];
+
+        $rules['client_id'] = ['bail', 'sometimes', Rule::in([$this->quote->client_id])];
 
         $rules['line_items'] = 'array';
         $rules['discount'] = 'sometimes|numeric';
@@ -68,6 +73,8 @@ class UpdateQuoteRequest extends Request
 
         $input = $this->decodePrimaryKeys($input);
 
+        $input['id'] = $this->quote->id;
+
         if (isset($input['line_items'])) {
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
         }
@@ -80,7 +87,6 @@ class UpdateQuoteRequest extends Request
             $input['exchange_rate'] = 1;
         }
 
-        $input['id'] = $this->quote->id;
 
         $this->replace($input);
     }

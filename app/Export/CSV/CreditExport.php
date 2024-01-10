@@ -161,29 +161,29 @@ class CreditExport extends BaseExport
 
     private function decorateAdvancedFields(Credit $credit, array $entity) :array
     {
-        if (in_array('country_id', $this->input['report_keys'])) {
-            $entity['country'] = $credit->client->country ? ctrans("texts.country_{$credit->client->country->name}") : '';
-        }
+        // if (in_array('country_id', $this->input['report_keys'])) {
+        //     $entity['country'] = $credit->client->country ? ctrans("texts.country_{$credit->client->country->name}") : '';
+        // }
         
-        if (in_array('currency_id', $this->input['report_keys'])) {
-            $entity['currency_id'] = $credit->client->currency() ? $credit->client->currency()->code : $credit->company->currency()->code;
-        }
+        // if (in_array('currency_id', $this->input['report_keys'])) {
+        //     $entity['currency_id'] = $credit->client->currency() ? $credit->client->currency()->code : $credit->company->currency()->code;
+        // }
 
-        if (in_array('invoice_id', $this->input['report_keys'])) {
-            $entity['invoice'] = $credit->invoice ? $credit->invoice->number : '';
-        }
+        // if (in_array('invoice_id', $this->input['report_keys'])) {
+        //     $entity['invoice'] = $credit->invoice ? $credit->invoice->number : '';
+        // }
 
-        if (in_array('client_id', $this->input['report_keys'])) {
-            $entity['client'] = $credit->client->present()->name();
-        }
+        // if (in_array('client_id', $this->input['report_keys'])) {
+        //     $entity['client'] = $credit->client->present()->name();
+        // }
 
-        if (in_array('status_id', $this->input['report_keys'])) {
-            $entity['status'] = $credit->stringStatus($credit->status_id);
-        }
+        // if (in_array('status_id', $this->input['report_keys'])) {
+        //     $entity['status'] = $credit->stringStatus($credit->status_id);
+        // }
 
-        if(in_array('credit.status', $this->input['report_keys'])) {
-            $entity['credit.status'] = $credit->stringStatus($credit->status_id);
-        }
+        // if(in_array('credit.status', $this->input['report_keys'])) {
+        //     $entity['credit.status'] = $credit->stringStatus($credit->status_id);
+        // }
 
         if (in_array('credit.assigned_user_id', $this->input['report_keys'])) {
             $entity['credit.assigned_user_id'] = $credit->assigned_user ? $credit->assigned_user->present()->name(): '';

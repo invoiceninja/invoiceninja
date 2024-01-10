@@ -21,6 +21,12 @@ use Twilio\Rest\Client;
 
 class TwilioController extends BaseController
 {
+
+    private array $invalid_codes = [
+        '+21',
+        '+17152567760',
+    ];
+
     public function __construct()
     {
         parent::__construct();
@@ -37,6 +43,10 @@ class TwilioController extends BaseController
         $user = auth()->user();
 
         $account = $user->company()->account;
+
+        if(!$this->checkPhoneValidity($request->phone)) {
+            return response()->json(['message' => 'This phone number is not supported'], 400);
+        }
 
         if (MultiDB::hasPhoneNumber($request->phone)) {
             return response()->json(['message' => 'This phone number has already been verified with another account'], 400);
@@ -63,6 +73,19 @@ class TwilioController extends BaseController
         $account->save();
 
         return response()->json(['message' => 'Code sent.'], 200);
+    }
+
+    private function checkPhoneValidity($phone)
+    {
+        foreach($this->invalid_codes as $code){
+
+            if(stripos($phone, $code) !== false) {
+                return false;
+            }
+
+            return true;
+
+        }
     }
 
     /**

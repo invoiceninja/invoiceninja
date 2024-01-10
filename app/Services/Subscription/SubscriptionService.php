@@ -715,10 +715,8 @@ class SubscriptionService
         nlog($response);
 
         if ($credit) {
-            // return $this->handleRedirect('/client/credits/'.$credit->hashed_id);
             return '/client/credits/'.$credit->hashed_id;
         } else {
-            // return $this->handleRedirect('/client/credits');
             return '/client/credits';
         }
     }
@@ -1492,12 +1490,12 @@ class SubscriptionService
      * Handles redirecting the user
      */
     private function handleRedirect($default_redirect)
-    {
-        if (array_key_exists('return_url', $this->subscription->webhook_configuration) && strlen($this->subscription->webhook_configuration['return_url']) >=1) {
-            return redirect($this->subscription->webhook_configuration['return_url']);
+    {   
+        if (array_key_exists('return_url', $this->subscription->webhook_configuration) && strlen($this->subscription->webhook_configuration['return_url']) >=1) {   
+            return redirect($this->subscription->webhook_configuration['return_url'])->send();
         }
 
-        return redirect($default_redirect);
+        return redirect($default_redirect)->send();
     }
 
     /**
