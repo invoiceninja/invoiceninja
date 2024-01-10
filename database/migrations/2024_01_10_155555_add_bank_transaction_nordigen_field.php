@@ -23,7 +23,7 @@ return new class extends Migration {
         });
 
         // remove invalid transactions
-        BankIntegration::query()->where('bank_integration_type', BankIntegration::INTEGRATION_TYPE_NORDIGEN)->cursor()->each(function ($bank_integration) {
+        BankIntegration::query()->where('integration_type', BankIntegration::INTEGRATION_TYPE_NORDIGEN)->cursor()->each(function ($bank_integration) {
             $bank_integration->from_date = now()->subDays(90);
             $bank_integration->save();
 
