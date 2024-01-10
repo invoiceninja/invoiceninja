@@ -6,13 +6,13 @@
             </div>
         </div>
         <div class="mt-5 md:mt-0 md:col-span-2">
-            <form wire:submit.prevent="submit" method="POST" id="update_billing_address">
+            <form wire:submit="submit" method="POST" id="update_billing_address">
                 @csrf
                 <div class="px-4 py-5 bg-white sm:p-6">
                     <div class="grid grid-cols-6 gap-6">
                         <div class="col-span-6 sm:col-span-4">
                             <label for="address1" class="input-label">{{ ctrans('texts.address1') }}</label>
-                            <input id="address1" class="input w-full {{ in_array('billing_address1', (array) session('missing_required_fields')) ? 'border border-red-400' : '' }}" name="address1" wire:model.defer="address1" />
+                            <input id="address1" class="input w-full {{ in_array('billing_address1', (array) session('missing_required_fields')) ? 'border border-red-400' : '' }}" name="address1" wire:model="address1" />
                             @error('address1')
                             <div class="validation validation-fail">
                                 {{ $message }}
@@ -21,7 +21,7 @@
                         </div>
                         <div class="col-span-6 sm:col-span-3">
                             <label for="address2" class="input-label">{{ ctrans('texts.address2') }}</label>
-                            <input id="address2" class="input w-full {{ in_array('billing_address2', (array) session('missing_required_fields')) ? 'border border-red-400' : '' }}" name="address2" wire:model.defer="address2" />
+                            <input id="address2" class="input w-full {{ in_array('billing_address2', (array) session('missing_required_fields')) ? 'border border-red-400' : '' }}" name="address2" wire:model="address2" />
                             @error('address2')
                             <div class="validation validation-fail">
                                 {{ $message }}
@@ -30,7 +30,7 @@
                         </div>
                         <div class="col-span-6 sm:col-span-3">
                             <label for="city" class="input-label">{{ ctrans('texts.city') }}</label>
-                            <input id="city" class="input w-full {{ in_array('billing_city', (array) session('missing_required_fields')) ? 'border border-red-400' : '' }}" name="city" wire:model.defer="city" />
+                            <input id="city" class="input w-full {{ in_array('billing_city', (array) session('missing_required_fields')) ? 'border border-red-400' : '' }}" name="city" wire:model="city" />
                             @error('city')
                             <div class="validation validation-fail">
                                 {{ $message }}
@@ -39,7 +39,7 @@
                         </div>
                         <div class="col-span-6 sm:col-span-2">
                             <label for="state" class="input-label">{{ ctrans('texts.state') }}</label>
-                            <input id="state" class="input w-full {{ in_array('billing_state', (array) session('missing_required_fields')) ? 'border border-red-400' : '' }}" name="state" wire:model.defer="state" />
+                            <input id="state" class="input w-full {{ in_array('billing_state', (array) session('missing_required_fields')) ? 'border border-red-400' : '' }}" name="state" wire:model="state" />
                             @error('state')
                             <div class="validation validation-fail">
                                 {{ $message }}
@@ -48,7 +48,7 @@
                         </div>
                         <div class="col-span-6 sm:col-span-2">
                             <label for="postal_code" class="input-label">{{ ctrans('texts.postal_code') }}</label>
-                            <input id="postal_code" class="input w-full {{ in_array('billing_postal_code', (array) session('missing_required_fields')) ? 'border border-red-400' : '' }}" name="postal_code" wire:model.defer="postal_code" />
+                            <input id="postal_code" class="input w-full {{ in_array('billing_postal_code', (array) session('missing_required_fields')) ? 'border border-red-400' : '' }}" name="postal_code" wire:model="postal_code" />
                             @error('postal_code')
                             <div class="validation validation-fail">
                                 {{ $message }}
@@ -57,7 +57,7 @@
                         </div>
                         <div class="col-span-6 sm:col-span-2">
                             <label for="country" class="input-label">@lang('texts.country')</label>
-                            <select id="country" class="input w-full form-select bg-white {{ in_array('billing_country', (array) session('missing_required_fields')) ? 'border border-red-400' : '' }}" wire:model.defer="country_id">
+                            <select id="country" class="input w-full form-select bg-white {{ in_array('billing_country', (array) session('missing_required_fields')) ? 'border border-red-400' : '' }}" wire:model="country_id">
                                 <option value="none"></option>
                                 @foreach($countries as $country)
                                     <option value="{{ $country->id }}">

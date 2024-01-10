@@ -35,7 +35,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
     public Company $company;
     public Nordigen $nordigen;
     public $nordigen_account;
-
+    private bool $stop_loop = false;
     /**
      * Create a new job instance.
      */

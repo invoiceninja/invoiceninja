@@ -510,13 +510,17 @@ trait GeneratesCounter
     private function resetCounters(Client $client)
     {
         $reset_counter_frequency = (int) $client->getSetting('reset_counter_frequency_id');
+        $settings_entity = $client->getSettingEntity('reset_counter_frequency_id');
+        $settings = $settings_entity->settings;
 
         if ($reset_counter_frequency == 0) {
             if ($client->getSetting('reset_counter_date')) {
-                $settings = $client->company->settings;
+                // $settings = $client->company->settings;
                 $settings->reset_counter_date = "";
-                $client->company->settings = $settings;
-                $client->company->save();
+                $settings_entity->settings = $settings;
+                $settings_entity->saveQuietly();
+                // $client->company->settings = $settings;
+                // $client->company->save();
             }
 
             return;
@@ -570,7 +574,7 @@ trait GeneratesCounter
                 break;
         }
 
-        $settings = $client->company->settings;
+        // $settings = $client->company->settings;
         $settings->reset_counter_date = $new_reset_date->format('Y-m-d');
         $settings->invoice_number_counter = 1;
         $settings->quote_number_counter = 1;
@@ -583,8 +587,10 @@ trait GeneratesCounter
         $settings->recurring_expense_number_counter = 1;
         $settings->purchase_order_number_counter = 1;
 
-        $client->company->settings = $settings;
-        $client->company->save();
+        // $client->company->settings = $settings;
+        // $client->company->save();
+        $settings_entity->settings = $settings;
+        $settings_entity->saveQuietly();
     }
 
     private function resetCompanyCounters($company)

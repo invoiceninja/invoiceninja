@@ -1,6 +1,6 @@
 <div>
     @unless(count($methods) == 0)
-        <div x-data="{ open: false }" @keydown.window.escape="open = false" @click.away="open = false"
+        <div x-data="{ open: false }" @keydown.window.escape="open = false" @click.outside="open = false"
              class="relative inline-block text-left" dusk="payment-methods-dropdown">
             <div>
                 <div class="rounded-md shadow-sm">
@@ -20,7 +20,7 @@
                     <div class="py-1">
                         @foreach($methods as $index => $method)
                             @if($method['label'] == 'Custom')
-                                <a href="#" @click="{ open = false }" dusk="pay-with-custom"
+                                <a href="#" @click="open = false" dusk="pay-with-custom"
                                    data-company-gateway-id="{{ $method['company_gateway_id'] }}"
                                    data-gateway-type-id="{{ $method['gateway_type_id'] }}"
                                    class="block px-4 py-2 text-sm leading-5 text-gray-700 dropdown-gateway-button hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900"
@@ -28,7 +28,7 @@
                                     {{ \App\Models\CompanyGateway::find($method['company_gateway_id'])->firstOrFail()->getConfigField('name') }}
                                 </a>
                             @elseif($total > 0)
-                                <a href="#" @click="{ open = false }" dusk="pay-with-{{ $index }}"
+                                <a href="#" @click="open = false" dusk="pay-with-{{ $index }}"
                                    data-company-gateway-id="{{ $method['company_gateway_id'] }}"
                                    data-gateway-type-id="{{ $method['gateway_type_id'] }}"
                                    class="block px-4 py-2 text-sm leading-5 text-gray-700 dropdown-gateway-button hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900"

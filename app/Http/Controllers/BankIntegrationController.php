@@ -212,7 +212,7 @@ class BankIntegrationController extends BaseController
                 ProcessBankTransactionsYodlee::dispatch($user_account->id, $bank_integration);
             });
 
-        if (config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key') && (Ninja::isSelfHost() || (Ninja::isHosted() && $user_account->isPaid() && $user_account->plan == 'enterprise')))
+        if (config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key') && (Ninja::isSelfHost() || (Ninja::isHosted() && $user_account->isEnterprisePaidClient())))
             $user_account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->each(function ($bank_integration) {
                 ProcessBankTransactionsNordigen::dispatch($bank_integration);
             });
@@ -298,11 +298,14 @@ class BankIntegrationController extends BaseController
 
         $account = $user->account;
 
-        $bank_integration = BankIntegration::withTrashed()->where('bank_account_id', $acc_id)->orWhere('nordigen_account_id', $acc_id)->company()->firstOrFail(); // @turbo124 please check
+        $bank_integration = BankIntegration::withTrashed()
+                                        ->where('bank_account_id', $acc_id)
+                                        ->orWhere('nordigen_account_id', $acc_id)
+                                        ->company()
+                                        ->firstOrFail();
 
         if ($bank_integration->integration_type == BankIntegration::INTEGRATION_TYPE_YODLEE)
             $this->removeAccountYodlee($account, $bank_integration);
-        // we dont remove Accounts from nordigen, because they could be used within other companies
 
         $this->bank_integration_repo->delete($bank_integration);
 

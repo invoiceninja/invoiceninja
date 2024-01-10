@@ -545,14 +545,17 @@ class Client extends BaseModel implements HasLocalePreference
                 
                 $cg = CompanyGateway::query()->find($pm['company_gateway_id']);
 
-                if ($cg && ! property_exists($cg->fees_and_limits, strval(GatewayType::CREDIT_CARD))) {
+                if($cg->gateway_key == '80af24a6a691230bbec33e930ab40666') //ensure we don't attempt to authorize paypal platform - yet.
+                    continue;
+
+                if ($cg && is_object($cg->fees_and_limits) && ! property_exists($cg->fees_and_limits, strval(GatewayType::CREDIT_CARD))) {
                     $fees_and_limits = $cg->fees_and_limits;
                     $fees_and_limits->{GatewayType::CREDIT_CARD} = new FeesAndLimits;
                     $cg->fees_and_limits = $fees_and_limits;
                     $cg->save();
                 }
 
-                if ($cg && $cg->fees_and_limits->{GatewayType::CREDIT_CARD}->is_enabled) {
+                if ($cg && is_object($cg->fees_and_limits)&& $cg->fees_and_limits->{GatewayType::CREDIT_CARD}->is_enabled) {
                     return $cg;
                 }
             }
@@ -807,6 +810,15 @@ class Client extends BaseModel implements HasLocalePreference
         $defaults['exchange_rate'] = 1/$exchange_rate->exchangeRate($this->getSetting('currency_id'), $this->company->settings->currency_id);
 
         return $defaults;
+    }
+
+    public function setExchangeRate()
+    {
+        
+        $converter = new CurrencyApi();
+
+        return 1/$converter->convert(1, $this->currency()->id, $this->company->settings->currency_id);
+
     }
 
     public function timezone_offset() :int

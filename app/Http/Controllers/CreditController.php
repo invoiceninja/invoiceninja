@@ -605,7 +605,7 @@ class CreditController extends BaseController
                 // code...
                 break;
             case 'mark_sent':
-                $credit->service()->markSent()->save();
+                $credit->service()->markSent(true)->save();
 
                 if (! $bulk) {
                     return $this->itemResponse($credit);
@@ -646,7 +646,7 @@ class CreditController extends BaseController
                     EmailEntity::dispatch($invitation, $credit->company, 'credit');
                 });
 
-                $credit->sendEvent(Webhook::EVENT_SENT_CREDIT, "client");
+                // $credit->sendEvent(Webhook::EVENT_SENT_CREDIT, "client");
 
                 if (! $bulk) {
                     return response()->json(['message'=>'email sent'], 200);

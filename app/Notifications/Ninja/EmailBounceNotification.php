@@ -21,11 +21,9 @@ class EmailBounceNotification extends Notification
      *
      * @return void
      */
-    protected $account;
 
-    public function __construct($account)
+    public function __construct(private string $email_address)
     {
-        $this->account = $account;
     }
 
     /**
@@ -64,11 +62,7 @@ class EmailBounceNotification extends Notification
 
     public function toSlack($notifiable)
     {
-        $content = "Email bounce notification for Account {$this->account->key} \n";
-
-        $owner = $this->account->companies()->first()->owner();
-
-        $content .= "Owner {$owner->present()->name() } | {$owner->email}";
+        $content = "Email bounce notification for {$this->email_address} \n";
 
         return (new SlackMessage)
                 ->success()

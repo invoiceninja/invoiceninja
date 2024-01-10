@@ -97,11 +97,7 @@ class BaseModel extends Model
 
     public function dateMutator($value)
     {
-        if (! empty($value)) {
-            return (new Carbon($value))->format('Y-m-d');
-        }
-
-        return $value;
+        return (new Carbon($value))->format('Y-m-d');
     }
 
     // public function __call($method, $params)

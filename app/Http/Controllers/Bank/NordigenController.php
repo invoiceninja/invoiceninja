@@ -31,8 +31,11 @@ class NordigenController extends BaseController
     public function connect(ConnectNordigenBankIntegrationRequest $request)
     {
         $data = $request->all();
+
+        /** @var array $context */
         $context = $request->getTokenContent();
-        $lang = $data['lang'] ?? 'en';
+        $company = $request->getCompany();
+        $lang = $company->locale();
         $context["lang"] = $lang;
 
         if (!$context)
@@ -62,7 +65,7 @@ class NordigenController extends BaseController
                 "redirectUrl" => $context["redirect"] . "?action=nordigen_connect&status=failed&reason=account-config-invalid",
             ]);
 
-        if (!(Ninja::isSelfHost() || (Ninja::isHosted() && $account->isPaid() && $account->plan == 'enterprise')))
+        if (!(Ninja::isSelfHost() || (Ninja::isHosted() && $account->isEnterprisePaidClient())))
             return view('bank.nordigen.handler', [
                 'lang' => $lang,
                 'company' => $company,
@@ -85,7 +88,7 @@ class NordigenController extends BaseController
 
         // redirect to requisition flow
         try {
-            $requisition = $nordigen->createRequisition(config('ninja.app_url') . '/nordigen/confirm', $data['institution_id'], $request->token);
+            $requisition = $nordigen->createRequisition(config('ninja.app_url') . '/nordigen/confirm', $data['institution_id'], $request->token, $lang);
         } catch (NordigenException $e) { // TODO: property_exists returns null in these cases... => why => therefore we just get unknown error everytime $responseBody is typeof GuzzleHttp\Psr7\Stream
             $responseBody = (string) $e->getResponse()->getBody();
 
@@ -128,15 +131,19 @@ class NordigenController extends BaseController
 
     /**
      * VIEW: Confirm Nordigen Bank Integration (redirect after nordigen flow)
-     * @param ConnectNordigenBankIntegrationRequest $request
+     * @param ConfirmNordigenBankIntegrationRequest $request
      */
     public function confirm(ConfirmNordigenBankIntegrationRequest $request)
     {
         $data = $request->all();
+        $company = $request->getCompany();
+        $account = $company->account;
+        $lang = $company->locale();
+
+        /** @var array $context */
         $context = $request->getTokenContent();
         if (!array_key_exists('lang', $data) && $context['lang'] != 'en')
-            return redirect()->route('nordigen.confirm', array_merge(["lang" => $context['lang']], $request->query())); // redirect is required in order for the bank-ui to display everything properly
-        $lang = $data['lang'] ?? 'en';
+            return redirect()->route('nordigen.confirm', array_merge(["lang" => $context['lang']], $request->query()));
 
         if (!$context || $context["context"] != "nordigen" || !array_key_exists("requisitionId", $context))
             return view('bank.nordigen.handler', [
@@ -144,9 +151,6 @@ class NordigenController extends BaseController
                 'failed_reason' => "ref-invalid",
                 "redirectUrl" => ($context && array_key_exists("redirect", $context) ? $context["redirect"] : config('ninja.app_url')) . "?action=nordigen_connect&status=failed&reason=ref-invalid",
             ]);
-
-        $company = $request->getCompany();
-        $account = $company->account;
 
         if (!(config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key')))
             return view('bank.nordigen.handler', [
@@ -157,7 +161,7 @@ class NordigenController extends BaseController
                 "redirectUrl" => $context["redirect"] . "?action=nordigen_connect&status=failed&reason=account-config-invalid",
             ]);
 
-        if (!(Ninja::isSelfHost() || (Ninja::isHosted() && $account->isPaid() && $account->plan == 'enterprise')))
+        if (!(Ninja::isSelfHost() || (Ninja::isHosted() && $account->isEnterprisePaidClient())))
             return view('bank.nordigen.handler', [
                 'lang' => $lang,
                 'company' => $company,

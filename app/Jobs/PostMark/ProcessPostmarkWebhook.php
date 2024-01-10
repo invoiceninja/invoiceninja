@@ -30,6 +30,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use App\DataMapper\Analytics\Mail\EmailSpam;
 use App\DataMapper\Analytics\Mail\EmailBounce;
 use App\Notifications\Ninja\EmailSpamNotification;
+use App\Notifications\Ninja\EmailBounceNotification;
 
 class ProcessPostmarkWebhook implements ShouldQueue
 {
@@ -103,6 +104,11 @@ class ProcessPostmarkWebhook implements ShouldQueue
             case 'Delivery':
                 return $this->processDelivery();
             case 'Bounce':
+
+                if($this->request['Subject'] == ctrans('texts.confirmation_subject')) {
+                    $company->notification(new EmailBounceNotification($this->request['Email']))->ninja();
+                }
+
                 return $this->processBounce();
             case 'SpamComplaint':
                 return $this->processSpamComplaint();
@@ -263,8 +269,6 @@ class ProcessPostmarkWebhook implements ShouldQueue
 
         (new SystemLogger($data, SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_BOUNCED, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client, $this->invitation->company))->handle();
 
-        // if(config('ninja.notification.slack'))
-        // $this->invitation->company->notification(new EmailBounceNotification($this->invitation->company->account))->ninja();
     }
 
     // {
