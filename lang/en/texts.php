@@ -5248,6 +5248,11 @@ $lang = array(
     'nordigen_handler_error_contents_requisition_no_accounts' => 'The service has not returned any valid accounts. Considder restarting the flow.',
     'nordigen_handler_restart' => 'Restart flow.',
     'nordigen_handler_return' => 'Return to application.',
+    'lang_Lao' => 'Lao',
+    'currency_lao_kip' => 'Lao kip',
+    'yodlee_regions' => 'Regions: USA, UK, Australia & India',
+    'nordigen_regions' => 'Regions: Europe & UK',
+    'select_provider' => 'Select Provider',
 );
 
 return $lang;
