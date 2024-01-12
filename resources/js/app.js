@@ -10,6 +10,9 @@
 
 import axios from 'axios';
 import cardValidator from 'card-validator';
+import { Livewire } from '../../vendor/livewire/livewire/dist/livewire.esm'
+
+Livewire.start()
 
 window.axios = axios;
 window.valid = cardValidator;

@@ -96,7 +96,6 @@
         {{-- Feel free to push anything to header using @push('header') --}}
         @stack('head')
 
-        @livewireStyles
 
         <link rel="stylesheet" type="text/css" href="{{ asset('vendor/cookieconsent@3/cookieconsent.min.css') }}" defer>
     </head>

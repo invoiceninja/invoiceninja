@@ -67,8 +67,6 @@
         <link rel="canonical" href="{{ config('ninja.site_url') }}/{{ request()->path() }}"/>
 
 
-        @livewireStyles
-
         {{-- Feel free to push anything to header using @push('header') --}}
         @stack('head')
 
