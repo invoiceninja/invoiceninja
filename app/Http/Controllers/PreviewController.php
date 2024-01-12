@@ -71,7 +71,6 @@ class PreviewController extends BaseController
 
         $ps = new PdfService($invitation, 'product', [
             'client' => $client ?? false,
-            // 'vendor' => $vendor ?? false,
             "{$entity_prop}s" => [$entity_obj],
         ]);
 

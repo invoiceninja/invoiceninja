@@ -221,7 +221,6 @@ class PdfConfiguration
             $this->vendor = $this->entity->vendor;
             $this->vendor_contact = $this->service->invitation->contact;
             $this->path = $this->vendor->purchase_order_filepath($this->service->invitation);
-            $this->entity_design_id = 'invoice_design_id';
             $this->entity_design_id = 'purchase_order_design_id';
             $this->settings = $this->vendor->company->settings;
             $this->settings_object = $this->vendor;
@@ -274,6 +273,7 @@ class PdfConfiguration
      */
     private function setDesign(): self
     {
+        
         $design_id = $this->entity->design_id ?: $this->decodePrimaryKey($this->settings_object->getSetting($this->entity_design_id));
 
         $this->design = Design::withTrashed()->find($design_id) ?? Design::withTrashed()->find(2);

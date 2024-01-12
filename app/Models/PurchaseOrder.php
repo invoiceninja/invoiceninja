@@ -117,6 +117,14 @@ class PurchaseOrder extends BaseModel
     use SoftDeletes;
     use MakesDates;
 
+    protected $hidden = [
+        'id',
+        'private_notes',
+        'user_id',
+        'vendor_id',
+        'company_id',
+    ];
+
     protected $fillable = [
         'number',
         'discount',
