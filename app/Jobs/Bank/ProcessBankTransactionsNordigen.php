@@ -155,12 +155,13 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
 
         foreach ($transactions as $transaction) {
 
-            if (BankTransaction::where('transaction_id', $transaction['transaction_id'])->where('company_id', $this->company->id)->where('bank_integration_id', $this->bank_integration->id)->withTrashed()->exists())
+            if (BankTransaction::where('nordigen_transaction_id', $transaction['nordigen_transaction_id'])->where('company_id', $this->company->id)->where('bank_integration_id', $this->bank_integration->id)->where('is_deleted', 0)->withTrashed()->exists())
                 continue;
 
             //this should be much faster to insert than using ::create()
             \DB::table('bank_transactions')->insert(
                 array_merge($transaction, [
+                    'transaction_id' => 0,
                     'company_id' => $this->company->id,
                     'user_id' => $user_id,
                     'bank_integration_id' => $this->bank_integration->id,

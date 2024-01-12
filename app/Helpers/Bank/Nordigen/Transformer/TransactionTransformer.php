@@ -110,7 +110,7 @@ class TransactionTransformer implements BankRevenueInterface
                 $transaction['creditorName'] : null);
 
         return [
-            'transaction_id' => $transaction["transactionId"],
+            'nordigen_transaction_id' => $transaction["transactionId"],
             'amount' => abs((int) $transaction["transactionAmount"]["amount"]),
             'currency_id' => $this->convertCurrency($transaction["transactionAmount"]["currency"]),
             'category_id' => null,
