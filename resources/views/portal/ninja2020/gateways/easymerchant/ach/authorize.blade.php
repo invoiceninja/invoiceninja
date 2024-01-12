@@ -1,3 +1,4 @@
+
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => 'ACH', 'card_title' => 'ACH'])
 
 @section('gateway_content')
@@ -63,7 +64,7 @@
         <input type="checkbox" class="form-checkbox mr-1" id="accept-terms" required>
         <label for="accept-terms" class="cursor-pointer">{{ ctrans('texts.ach_authorization', ['company' => auth()->user()->company->present()->name, 'email' => auth()->guard('contact')->user()->client->company->settings->email]) }}</label>
     @endcomponent
-<span id="error_message" style="margin-left: 3rem;"></span>
+<span id="error_message" style="margin-left: 3rem;font-size: 12px;"></span>
     <div class="bg-white px-4 py-5 flex justify-end">
     <button
         type="button"
@@ -101,6 +102,23 @@
             accountType: 'checking',
             accountNumber: account_number,
             routingNumber: routing_number,
+        }
+
+        var errors = [];
+        if(!account_number){
+            errors.push('Account number');
+        }
+        if(!routing_number){
+            errors.push('Routing number');
+        }
+
+        if(errors.length > 0){
+            var message = ' (s) are required.!';
+            if(errors.length == 1){
+                message = ' is required.!';
+            }
+            $('#error_message').text(errors.toString() + message).css({'color':'red', "font-weight":"bold"})
+            return false;
         }
 
         $.ajax({

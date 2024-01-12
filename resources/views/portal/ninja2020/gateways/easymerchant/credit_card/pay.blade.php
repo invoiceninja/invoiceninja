@@ -70,7 +70,7 @@ ctrans('texts.credit_card')])
         @endcomponent -->
     </div>
     </form>
-        <span id="error_message" style="margin-left: 3rem;"></span>
+        <span id="error_message" style="margin-left: 3rem;font-size: 12px;"></span>
     <div class="bg-white px-4 py-5 flex justify-end">
         <button
             type="button"
@@ -127,6 +127,9 @@ $(document).ready(function(){
             var errors = [];
             if(!card_number){
                 errors.push('Card number');
+            }
+            if(!name){
+                errors.push('Cardholder name');
             }
             if(!expiration_year){
                 errors.push('Expiry Year');

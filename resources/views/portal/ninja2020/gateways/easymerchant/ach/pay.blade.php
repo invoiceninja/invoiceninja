@@ -88,7 +88,7 @@
                 <input type="checkbox" class="form-checkbox mr-1" name='accept-terms' id="accept-terms" required>
                 <label for="accept-terms" class="cursor-pointer">{{ ctrans('texts.ach_authorization', ['company' => auth()->user()->company->present()->name, 'email' => auth()->guard('contact')->user()->client->company->settings->email]) }}</label>
             @endcomponent
-            <span id="error_message" style="margin-left: 3rem;"></span>
+            <span id="error_message" style="margin-left: 3rem;font-size: 12px;"></span>
         <div class="bg-white px-4 py-5 flex justify-end">
             <button 
                 type="button" 

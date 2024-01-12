@@ -35,7 +35,7 @@
 
     @include('portal.ninja2020.gateways.easymerchant.includes.credit_card', ['is_required' => 'required'])
 
-    <span id="error_message" style="margin-left: 3rem;"></span>
+    <span id="error_message" style="margin-left: 3rem; font-size: 12px;"></span>
     <div class="bg-white px-4 py-5 flex justify-end">
         <button
             type="button"
@@ -65,11 +65,17 @@
         var name = document.querySelector('input[name="card-holders-name"]').value;
         var cvv = document.querySelector('input[name="cvc"]').value;
         var customer = "{{ $customer }}";
+
+
+        if(expiration_month.toString().length < 2){
+            expiration_month = "0" + expiration_month;
+        }
+
         var params = {
             card_number: card_number.replace(/\s+/g, ""),
             cardholder_name: name,
             exp_month: expiration_month,
-            exp_year: '20'+ expiration_year,
+            exp_year: "20" + expiration_year,
             cvc: cvv,
             customer: "{{ $customer }}"
         }
