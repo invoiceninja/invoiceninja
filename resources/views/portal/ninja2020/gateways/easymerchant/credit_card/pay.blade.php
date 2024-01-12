@@ -19,7 +19,7 @@ ctrans('texts.credit_card')])
 
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->getCompanyGatewayId() }}">
         <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}">
-
+        <input type="hidden" name="customer" id="customer" value="{{ $customer }}">
         <input type="hidden" name="type" id="type" value="{{ $type ?? 'card'}}">
         <input type="hidden" name="payment_intent" id="payment_intent" value="{{$payment_intent}}">
     

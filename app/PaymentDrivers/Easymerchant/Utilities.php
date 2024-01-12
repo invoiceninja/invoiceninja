@@ -204,7 +204,7 @@ trait Utilities
     function getNewCustomerAchData($ach = true, $input=''){
         $data['name'] = ($ach) ? $this->getFullName() : '';
         $data['email'] = ($ach) ? $this->easymerchant->client->present()->email() : '';
-        $data['address'] = ($ach) ? $this->getAddress() : '';
+        $data['address'] = ($ach) ? $this->getAddress() : 'test address';
         $data['city'] = ($ach) ? $this->easymerchant->client->city : '';
         $data['state'] = ($ach) ? $this->easymerchant->client->state : '';
         $data['zip'] = ($ach) ? $this->easymerchant->client->postal_code : '';
@@ -245,7 +245,7 @@ trait Utilities
             "payment_mode" => "auth_and_capture",
             "currency" => "usd",
             "levelIndicator" => 1,
-            'customer' => $customer
+            'customer' => $request['customer']
         ];
 
         if(strpos($request['payment_intent'], 'pi_') !== false){
@@ -282,6 +282,9 @@ trait Utilities
         $customer_input['username'] = strtolower($this->easymerchant->client->present()->first_name()).Str::random(10);
         $customer_input['payment_intent'] = '1';
         $customer_url = $url.'/customers';
+        if(strlen($customer_input['address']) < 8){
+            $customer_input['address'] = $customer_input['address'].' test address'; 
+        }
 
         try{
             $customer_response = Http::withHeaders($headers)->post($customer_url, $customer_input);
