@@ -343,6 +343,21 @@ class RecurringInvoice extends BaseModel
         }
     }
 
+    public function calculateStatus()
+    {
+
+        if($this->remaining_cycles == 0) {
+            return self::STATUS_COMPLETED;
+        }
+        elseif ($this->status_id == self::STATUS_ACTIVE && Carbon::parse($this->next_send_date)->isFuture()) {
+            return self::STATUS_PENDING;
+        } 
+        else {
+            return $this->status_id;
+        }
+
+    }
+
     public function nextSendDate() :?Carbon
     {
         if (! $this->next_send_date_client) {
