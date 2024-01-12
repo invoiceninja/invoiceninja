@@ -19,8 +19,13 @@
 
 namespace App\Helpers\Bank\Nordigen;
 
+use App\Services\Email\Email;
+use App\Models\BankIntegration;
+use App\Services\Email\EmailObject;
+use Illuminate\Support\Facades\App;
 use App\Helpers\Bank\Nordigen\Transformer\AccountTransformer;
 use App\Helpers\Bank\Nordigen\Transformer\TransactionTransformer;
+use Illuminate\Mail\Mailables\Address;
 
 class Nordigen
 {
@@ -134,4 +139,25 @@ class Nordigen
         $it = new TransactionTransformer();
         return $it->transform($transactionResponse);
     }
+
+    public function disabledAccountEmail(BankIntegration $bank_integration): void
+    {
+
+        App::setLocale($bank_integration->company->getLocale());
+
+        $mo = new EmailObject();
+        $mo->subject = ctrans('texts.nordigen_requisition_subject');
+        $mo->body = ctrans('texts.nordigen_requisition_body');
+        $mo->text_body = ctrans('texts.nordigen_requisition_body');
+        $mo->company_key = $bank_integration->company->company_key;
+        $mo->html_template = 'email.template.generic';
+        $mo->to = [new Address($bank_integration->company->owner()->email, $bank_integration->company->owner()->present()->name())];
+        $mo->email_template_body = 'nordigen_requisition_body';
+        $mo->email_template_subject = 'nordigen_requisition_subject';
+
+        Email::dispatch($mo, $bank_integration->company);
+
+
+    }
+
 }

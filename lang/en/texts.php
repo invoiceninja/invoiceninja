@@ -5248,6 +5248,13 @@ $lang = array(
     'nordigen_handler_error_contents_requisition_no_accounts' => 'The service has not returned any valid accounts. Considder restarting the flow.',
     'nordigen_handler_restart' => 'Restart flow.',
     'nordigen_handler_return' => 'Return to application.',
+    'lang_Lao' => 'Lao',
+    'currency_lao_kip' => 'Lao kip',
+    'yodlee_regions' => 'Regions: USA, UK, Australia & India',
+    'nordigen_regions' => 'Regions: Europe & UK',
+    'select_provider' => 'Select Provider',
+    'nordigen_requisition_subject' => 'Requisition expired, please reauthenticate.',
+    'nordigen_requisition_body' => 'Access to bank account feeds has expired as set in End User Agreement. <br><br>Please log into Invoice Ninja and re-authenticate with your banks to continue receiving transactions.',
 );
 
 return $lang;

@@ -70,7 +70,7 @@ class BankTransactionSync implements ShouldQueue
             Account::with('bank_integrations')->whereNotNull('bank_integration_account_id')->cursor()->each(function ($account) {
 
                 if ($account->isEnterprisePaidClient()) {
-                    $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_YODLEE)->where('auto_sync', true)->cursor()->each(function ($bank_integration) use ($account) {
+                    $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_YODLEE)->where('auto_sync', true)->where('disabled_upstream', 0)->cursor()->each(function ($bank_integration) use ($account) {
                         (new ProcessBankTransactionsYodlee($account->id, $bank_integration))->handle();
                     });
                 }
@@ -86,7 +86,7 @@ class BankTransactionSync implements ShouldQueue
             Account::with('bank_integrations')->cursor()->each(function ($account) {
 
                 if ((Ninja::isSelfHost() || (Ninja::isHosted() && $account->isEnterprisePaidClient()))) {
-                    $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_NORDIGEN)->where('auto_sync', true)->cursor()->each(function ($bank_integration) {
+                    $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_NORDIGEN)->where('auto_sync', true)->where('disabled_upstream', 0)->cursor()->each(function ($bank_integration) {
                         (new ProcessBankTransactionsNordigen($bank_integration))->handle();
                     });
                 }
