@@ -90,6 +90,7 @@
             </style>
         @endif
 
+        @livewireStyles
 
         {{-- Feel free to push anything to header using @push('header') --}}
         @stack('head')
