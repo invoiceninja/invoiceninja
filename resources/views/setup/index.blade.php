@@ -12,7 +12,7 @@
                 <p class="text-sm text-center">{{ ctrans('texts.if_you_need_help') }}
                     <a 
                         target="_blank" 
-                        href="https://www.invoiceninja.com/forums/forum/support/" 
+                        href="https://forum.invoiceninja.com" 
                         class="button-link underline">
                         {{ ctrans('texts.support_forum') }}
                     </a>
