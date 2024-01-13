@@ -191,7 +191,7 @@ class PreviewPurchaseOrderController extends BaseController
             $invitation->setRelation($request->entity, $entity_obj);
 
         }
-
+        
         $ps = new PdfService($invitation, 'purchase_order', [
             'client' => $entity_obj->client ?? false,
             'vendor' => $vendor ?? false,

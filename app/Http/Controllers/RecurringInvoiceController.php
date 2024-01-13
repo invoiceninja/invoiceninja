@@ -387,7 +387,6 @@ class RecurringInvoiceController extends BaseController
 
         $recurring_invoice->service()
                           ->triggeredActions($request)
-                        //   ->deletePdf()
                           ->save();
 
         event(new RecurringInvoiceWasUpdated($recurring_invoice, $recurring_invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
@@ -425,13 +424,26 @@ class RecurringInvoiceController extends BaseController
 
         $recurring_invoices = RecurringInvoice::withTrashed()->find($request->ids);
 
+                
+        if($request->action == 'set_payment_link' && $request->has('subscription_id')) {
+
+            $recurring_invoices->each(function ($invoice) use ($user, $request) {
+                if($user->can('edit', $invoice)) {
+                    $invoice->service()->setPaymentLink($request->subscription_id)->save();
+                }
+            });
+
+            return $this->listResponse(RecurringInvoice::query()->withTrashed()->whereIn('id', $request->ids)->company());
+        }
+
         $recurring_invoices->each(function ($recurring_invoice, $key) use ($request, $user) {
             if ($user->can('edit', $recurring_invoice)) {
                 $this->performAction($recurring_invoice, $request->action, true);
             }
         });
 
-        return $this->listResponse(RecurringInvoice::withTrashed()->whereIn('id', $request->ids));
+        return $this->listResponse(RecurringInvoice::query()->withTrashed()->whereIn('id', $request->ids)->company());
+
     }
 
     /**

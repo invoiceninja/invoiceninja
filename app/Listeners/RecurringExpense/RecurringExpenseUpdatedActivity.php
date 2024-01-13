@@ -43,7 +43,7 @@ class RecurringExpenseUpdatedActivity implements ShouldQueue
 
         $recurring_expense = $event->recurring_expense;
 
-        $user_id = array_key_exists('user_id', $event->event_vars) ? $event->event_vars['user_id'] : $event->recurring_expense->user_id;
+        $user_id = isset($event->event_vars['user_id']) ? $event->event_vars['user_id'] : $event->recurring_expense->user_id;
 
         $fields = new stdClass;
 

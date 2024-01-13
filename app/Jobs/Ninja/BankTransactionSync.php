@@ -64,13 +64,13 @@ class BankTransactionSync implements ShouldQueue
 
     private function processYodlee()
     {
-        if (Ninja::isHosted()) { // @turbo124 @todo I migrated the schedule for the job within the kernel to execute on all platforms and use the same expression here to determine if yodlee can run or not. Please chek/verify
+        if (Ninja::isHosted()) {
             nlog("syncing transactions - yodlee");
 
             Account::with('bank_integrations')->whereNotNull('bank_integration_account_id')->cursor()->each(function ($account) {
 
-                if ($account->isPaid() && $account->plan == 'enterprise') {
-                    $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_YODLEE)->where('auto_sync', true)->cursor()->each(function ($bank_integration) use ($account) {
+                if ($account->isEnterprisePaidClient()) {
+                    $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_YODLEE)->where('auto_sync', true)->where('disabled_upstream', 0)->cursor()->each(function ($bank_integration) use ($account) {
                         (new ProcessBankTransactionsYodlee($account->id, $bank_integration))->handle();
                     });
                 }
@@ -80,13 +80,13 @@ class BankTransactionSync implements ShouldQueue
     }
     private function processNordigen()
     {
-        if (config("ninja.nordigen.secret_id") && config("ninja.nordigen.secret_key")) { // @turbo124 check condition, when to execute this should be placed here (isSelfHosted || isPro/isEnterprise)
+        if (config("ninja.nordigen.secret_id") && config("ninja.nordigen.secret_key")) { 
             nlog("syncing transactions - nordigen");
 
             Account::with('bank_integrations')->cursor()->each(function ($account) {
 
-                if ((Ninja::isSelfHost() || (Ninja::isHosted() && $account->isPaid() && $account->plan == 'enterprise'))) {
-                    $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_NORDIGEN)->where('auto_sync', true)->cursor()->each(function ($bank_integration) {
+                if ((Ninja::isSelfHost() || (Ninja::isHosted() && $account->isEnterprisePaidClient()))) {
+                    $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_NORDIGEN)->where('auto_sync', true)->where('disabled_upstream', 0)->cursor()->each(function ($bank_integration) {
                         (new ProcessBankTransactionsNordigen($bank_integration))->handle();
                     });
                 }

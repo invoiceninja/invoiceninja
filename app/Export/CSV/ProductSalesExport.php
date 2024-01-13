@@ -37,6 +37,7 @@ class ProductSalesExport extends BaseExport
         'product_key' => 'product_key',
         'notes' => 'notes',
         'quantity' => 'quantity',
+        'currency' => 'currency',
         'cost' => 'price',
         'price' => 'cost',
         'markup' => 'markup',
@@ -163,6 +164,7 @@ class ProductSalesExport extends BaseExport
     private function buildRow($invoice, $invoice_item) :array
     {
         $transformed_entity = (array)$invoice_item;
+        $transformed_entity['price'] = ($invoice_item->product_cost ?? 1 ) * ($invoice->exchange_rate ?? 1) ;
 
         $entity = [];
 
@@ -171,6 +173,8 @@ class ProductSalesExport extends BaseExport
 
             if (array_key_exists($key, $transformed_entity)) {
                 $entity[$keyval] = $transformed_entity[$key];
+            } elseif($key == 'currency') {
+                $entity['currency'] = $invoice->client->currency()->code;
             } else {
                 $entity[$keyval] = '';
             }
@@ -184,9 +188,9 @@ class ProductSalesExport extends BaseExport
 
     private function decorateAdvancedFields(Invoice $invoice, $entity) :array
     {
-        $product = $this->getProduct($entity['product_key']);
-
-        $entity['cost'] = $product->cost ?? 0;
+        
+        //$product = $this->getProduct($entity['product_key']);
+        // $entity['cost'] = $product->cost ?? 0;
         /** @var float $unit_cost */
         $unit_cost = $entity['cost'] == 0 ? 1 : $entity['cost'];
 

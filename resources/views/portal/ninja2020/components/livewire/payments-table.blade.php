@@ -2,7 +2,7 @@
     <div class="flex items-center justify-between">
         <div class="flex items-center">
             <span class="mr-2 text-sm hidden md:block">{{ ctrans('texts.per_page') }}</span>
-            <select wire:model="per_page" class="form-select py-1 text-sm">
+            <select wire:model.live="per_page" class="form-select py-1 text-sm">
                 <option>5</option>
                 <option selected>10</option>
                 <option>15</option>

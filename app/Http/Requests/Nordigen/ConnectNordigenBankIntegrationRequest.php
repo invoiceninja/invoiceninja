@@ -36,24 +36,19 @@ class ConnectNordigenBankIntegrationRequest extends Request
     public function rules()
     {
         return [
-            'lang' => 'string',
-            'institution_id' => 'string',
-            'redirect' => 'string',
         ];
     }
 
-    // @turbo124 @todo please check for validity, when request from frontend
     public function prepareForValidation()
     {
         $input = $this->all();
 
-        if (!array_key_exists('redirect', $input)) {
-            $context = $this->getTokenContent();
+        $context = $this->getTokenContent();
 
-            $input["redirect"] = isset($context["is_react"]) && $context['is_react'] ? config('ninja.react_url') . "/#/settings/bank_accounts" : config('ninja.app_url');
+        $input["redirect"] = isset($context["is_react"]) && $context['is_react'] ? config('ninja.react_url') . "/#/settings/bank_accounts" : config('ninja.app_url');
 
-            $this->replace($input);
-        }
+        $this->replace($input);
+       
     }
     public function getTokenContent()
     {

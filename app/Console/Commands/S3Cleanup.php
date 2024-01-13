@@ -50,9 +50,9 @@ class S3Cleanup extends Command
      */
     public function handle()
     {
-        if (!Ninja::isHosted()) {
-            return;
-        }
+        // if (!Ninja::isHosted()) {
+        //     return;
+        // }
 
         $c1 = Company::on('db-ninja-01')->pluck('company_key');
         $c2 = Company::on('db-ninja-02')->pluck('company_key');

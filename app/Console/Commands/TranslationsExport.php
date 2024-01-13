@@ -58,6 +58,7 @@ class TranslationsExport extends Command
         'it',
         'ja',
         'km_KH',
+        'lo_LA',
         'lt',
         'lv_LV',
         'mk_MK',

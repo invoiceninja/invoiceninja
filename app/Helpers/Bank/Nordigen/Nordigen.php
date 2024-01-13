@@ -19,8 +19,13 @@
 
 namespace App\Helpers\Bank\Nordigen;
 
+use App\Services\Email\Email;
+use App\Models\BankIntegration;
+use App\Services\Email\EmailObject;
+use Illuminate\Support\Facades\App;
 use App\Helpers\Bank\Nordigen\Transformer\AccountTransformer;
 use App\Helpers\Bank\Nordigen\Transformer\TransactionTransformer;
+use Illuminate\Mail\Mailables\Address;
 
 class Nordigen
 {
@@ -39,7 +44,7 @@ class Nordigen
 
         $this->client = new \Nordigen\NordigenPHP\API\NordigenClient(config('ninja.nordigen.secret_id'), config('ninja.nordigen.secret_key'));
 
-        $this->client->createAccessToken(); // access_token is valid 24h -> so we dont have to implement a refresh-cycle
+        $this->client->createAccessToken();
     }
 
     // metadata-section for frontend
@@ -52,12 +57,12 @@ class Nordigen
     }
 
     // requisition-section
-    public function createRequisition(string $redirect, string $initutionId, string $reference)
+    public function createRequisition(string $redirect, string $initutionId, string $reference, string $userLanguage)
     {
         if ($this->test_mode && $initutionId != $this->sandbox_institutionId)
             throw new \Exception('invalid institutionId while in test-mode');
 
-        return $this->client->requisition->createRequisition($redirect, $initutionId, null, $reference);
+        return $this->client->requisition->createRequisition($redirect, $initutionId, null, $reference, $userLanguage);
     }
 
     public function getRequisition(string $requisitionId)
@@ -85,6 +90,7 @@ class Nordigen
 
             $it = new AccountTransformer();
             return $it->transform($out);
+            
         } catch (\Exception $e) {
             if (strpos($e->getMessage(), "Invalid Account ID") !== false)
                 return false;
@@ -92,8 +98,14 @@ class Nordigen
             throw $e;
         }
     }
-
-    public function isAccountActive(string $account_id)
+    
+    /**
+     * isAccountActive
+     *
+     * @param  string $account_id
+     * @return bool
+     */
+    public function isAccountActive(string $account_id): bool
     {
         try {
             $account = $this->client->account($account_id)->getAccountMetaData();
@@ -112,15 +124,40 @@ class Nordigen
         }
     }
 
+    
     /**
-     * this method returns booked transactions from the bank_account, pending transactions are not part of the result
-     * @todo @turbo124 should we include pending transactions within the integration-process and mark them with a specific category?!
+     * getTransactions
+     *
+     * @param  string $accountId
+     * @param  string $dateFrom
+     * @return array
      */
-    public function getTransactions(string $accountId, string $dateFrom = null)
+    public function getTransactions(string $accountId, string $dateFrom = null): array
     {
         $transactionResponse = $this->client->account($accountId)->getAccountTransactions($dateFrom);
 
         $it = new TransactionTransformer();
         return $it->transform($transactionResponse);
     }
+
+    public function disabledAccountEmail(BankIntegration $bank_integration): void
+    {
+
+        App::setLocale($bank_integration->company->getLocale());
+
+        $mo = new EmailObject();
+        $mo->subject = ctrans('texts.nordigen_requisition_subject');
+        $mo->body = ctrans('texts.nordigen_requisition_body');
+        $mo->text_body = ctrans('texts.nordigen_requisition_body');
+        $mo->company_key = $bank_integration->company->company_key;
+        $mo->html_template = 'email.template.generic';
+        $mo->to = [new Address($bank_integration->company->owner()->email, $bank_integration->company->owner()->present()->name())];
+        $mo->email_template_body = 'nordigen_requisition_body';
+        $mo->email_template_subject = 'nordigen_requisition_subject';
+
+        Email::dispatch($mo, $bank_integration->company);
+
+
+    }
+
 }

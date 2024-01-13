@@ -562,6 +562,16 @@ class InvoiceController extends BaseController
             return response()->json(['message' => $hash_or_response], 200);
         }
 
+        if($action == 'set_payment_link' && $request->has('subscription_id')) {
+            
+            $invoices->each(function ($invoice)  use($user, $request){
+                if($user->can('edit', $invoice))
+                    $invoice->service()->setPaymentLink($request->subscription_id)->save();
+            });
+
+            return $this->listResponse(Invoice::query()->withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
+        }
+
         /*
          * Send the other actions to the switch
          */

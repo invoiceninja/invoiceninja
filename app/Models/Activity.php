@@ -410,6 +410,12 @@ class Activity extends StaticModel
 
         $found_variables = array_intersect(explode(" ", trans("texts.activity_{$this->activity_type_id}")), $intersect);
 
+        if($this->activity_type_id == 10 && $this->client_contact_id && !$this->token_id)
+            $found_variables = array_intersect(explode(" ", trans("texts.activity_10_online")), $intersect);
+
+        if($this->activity_type_id == 54 && !$this->token_id)
+            array_push($found_variables, ':contact');
+
         $replacements = [];
 
         foreach($found_variables as $var) {
@@ -475,6 +481,10 @@ class Activity extends StaticModel
 
         $contact_entity = $this->contact ? 'clients' : 'vendors';
 
+        if(!$contact) {
+            return [];
+        }
+        
         return ['contact' => [ 'label' => $contact?->present()->name() ?? '', 'hashed_id' => $entity->hashed_id ?? '', 'contact_entity' => $contact_entity]];
     }
 }

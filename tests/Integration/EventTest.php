@@ -397,6 +397,7 @@ class EventTest extends TestCase
         ];
 
         $quote = Quote::find($this->decodePrimaryKey($arr['data']['id']));
+        $quote->due_date = now()->addYear();
         $quote->status_id = Quote::STATUS_SENT;
         $quote->save();
 

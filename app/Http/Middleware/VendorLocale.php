@@ -58,6 +58,7 @@ class VendorLocale
                     'km_KH',
                     'hu',
                     'fr_CH',
+                    'lo_LA',
                 ];
     /**
      * Handle an incoming request.

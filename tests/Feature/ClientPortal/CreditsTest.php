@@ -14,7 +14,7 @@ namespace Tests\Feature\ClientPortal;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
-use App\Http\Livewire\CreditsTable;
+use App\Livewire\CreditsTable;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;

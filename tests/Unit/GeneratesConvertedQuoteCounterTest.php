@@ -35,6 +35,11 @@ class GeneratesConvertedQuoteCounterTest extends TestCase
     use DatabaseTransactions;
     use MakesHash;
 
+    protected $account;
+    protected $faker;
+    protected $client;
+    protected $company;
+
     protected function setUp() :void
     {
         parent::setUp();
@@ -90,6 +95,7 @@ class GeneratesConvertedQuoteCounterTest extends TestCase
         $settings->invoice_number_pattern = '{$year}-I{$counter}';
         $settings->quote_number_pattern = '{$year}-Q{$counter}';
         $settings->shared_invoice_quote_counter = 1;
+        $settings->timezone_id = '31';
         $this->company->settings = $settings;
 
         $this->company->save();
@@ -117,6 +123,8 @@ class GeneratesConvertedQuoteCounterTest extends TestCase
         $settings->invoice_number_pattern = 'I{$counter}';
         $settings->quote_number_pattern = 'Q{$counter}';
         $settings->shared_invoice_quote_counter = 1;
+        $settings->timezone_id = '31';
+
         $this->company->settings = $settings;
 
         $this->company->save();

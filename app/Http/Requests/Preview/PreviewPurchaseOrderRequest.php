@@ -58,7 +58,11 @@ class PreviewPurchaseOrderRequest extends Request
         $input['amount'] = 0;
         $input['balance'] = 0;
         $input['number'] = isset($input['number']) ? $input['number'] : ctrans('texts.live_preview').' #'.rand(0, 1000); //30-06-2023
-        
+                
+        if($input['entity_id'] ?? false) {
+            $input['entity_id'] = $this->decodePrimaryKey($input['entity_id'], true);
+        }
+
         $this->replace($input);
     }
 
