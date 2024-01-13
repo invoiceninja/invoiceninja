@@ -625,7 +625,7 @@ class InvoiceService
 
         $sub_id = $this->decodePrimaryKey($subscription_id);
 
-        if(Subscription::withTrashed()->where('id', $sub_id)->company()->exists()) {
+        if(Subscription::withTrashed()->where('id', $sub_id)->where('company_id', $this->invoice->company_id)->exists()) {
             $this->invoice->subscription_id = $sub_id;
         }
 

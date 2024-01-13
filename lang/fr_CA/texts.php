@@ -5240,6 +5240,13 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'nordigen_handler_error_contents_requisition_no_accounts' => 'Le service n\'a retourné aucun compte valide. Veuillez redémarrer le processus.',
     'nordigen_handler_restart' => 'Redémarrer le processus',
     'nordigen_handler_return' => 'Retour à l\'application',
+    'lang_Lao' => 'Lao',
+    'currency_lao_kip' => 'Kip laotien',
+    'yodlee_regions' => 'Régions: USA, Royaume-Uni, Australie et Inde',
+    'nordigen_regions' => 'Régions: Europe et Royaume-Uni',
+    'select_provider' => 'Sélectionner le fournisseur',
+    'nordigen_requisition_subject' => 'La réquisition a expiré, veuillez vous réauthentifier.',
+    'nordigen_requisition_body' => 'L\'accès aux flux de compte bancaire a expiré tel que défini dans l\'accord de l\'utilisateur final. <br><br>Veuillez vous connecter à Invoice Ninja et réauthentifier auprès de vos banques pour continuer à recevoir les transactions.',
 );
 
 return $lang;
