@@ -11,16 +11,20 @@
 
 namespace App\Services\Recurring;
 
-use App\Jobs\RecurringInvoice\SendRecurring;
+use App\Utils\Ninja;
+use App\Models\Subscription;
+use App\Models\RecurringQuote;
+use Illuminate\Support\Carbon;
+use App\Utils\Traits\MakesHash;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
-use App\Models\RecurringQuote;
-use App\Utils\Ninja;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
+use App\Jobs\RecurringInvoice\SendRecurring;
 
 class RecurringService
 {
+    use MakesHash;
+    
     public function __construct(public RecurringInvoice | RecurringExpense | RecurringQuote $recurring_entity)
     {
     }
@@ -161,6 +165,19 @@ class RecurringService
         return $this;
     }
     
+    public function setPaymentLink(string $subscription_id): self
+    {
+
+        $sub_id = $this->decodePrimaryKey($subscription_id);
+
+        if(Subscription::withTrashed()->where('id', $sub_id)->where('company_id', $this->recurring_entity->company_id)->exists()) {
+            $this->recurring_entity->subscription_id = $sub_id;
+        }
+
+        return $this;
+
+    }
+
     public function save()
     {
         $this->recurring_entity->saveQuietly();

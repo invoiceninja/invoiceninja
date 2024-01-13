@@ -31,10 +31,14 @@ class BulkRecurringInvoiceRequest extends Request
 
     public function rules()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         return [
-            'ids' => ['required','bail','array',Rule::exists('recurring_invoices', 'id')->where('company_id', auth()->user()->company()->id)],
-            'action' => 'in:archive,restore,delete,increase_prices,update_prices,start,stop,send_now',
+            'ids' => ['required','bail','array', Rule::exists('recurring_invoices', 'id')->where('company_id', $user->company()->id)],
+            'action' => 'in:archive,restore,delete,increase_prices,update_prices,start,stop,send_now,set_payment_link',
             'percentage_increase' => 'required_if:action,increase_prices|numeric|min:0|max:100',
+            'subscription_id' => 'sometimes|string'
         ];
     }
 
