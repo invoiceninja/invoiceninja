@@ -5255,6 +5255,8 @@ $lang = array(
     'select_provider' => 'Select Provider',
     'nordigen_requisition_subject' => 'Requisition expired, please reauthenticate.',
     'nordigen_requisition_body' => 'Access to bank account feeds has expired as set in End User Agreement. <br><br>Please log into Invoice Ninja and re-authenticate with your banks to continue receiving transactions.',
+    'participant' => 'Participant',
+    'participant_name' => 'Participant name',
 );
 
 return $lang;

@@ -11,20 +11,21 @@
 
 namespace App\Services\Invoice;
 
-use App\Events\Invoice\InvoiceWasArchived;
-use App\Jobs\Entity\CreateRawPdf;
-use App\Jobs\Inventory\AdjustProductInventory;
-use App\Jobs\Invoice\CreateEInvoice;
-use App\Libraries\Currency\Conversion\CurrencyApi;
-use App\Models\CompanyGateway;
+use App\Models\Task;
+use App\Utils\Ninja;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\Task;
-use App\Utils\Ninja;
-use App\Utils\Traits\MakesHash;
+use App\Models\Subscription;
+use App\Models\CompanyGateway;
 use Illuminate\Support\Carbon;
+use App\Utils\Traits\MakesHash;
+use App\Jobs\Entity\CreateRawPdf;
+use App\Jobs\Invoice\CreateEInvoice;
 use Illuminate\Support\Facades\Storage;
+use App\Events\Invoice\InvoiceWasArchived;
+use App\Jobs\Inventory\AdjustProductInventory;
+use App\Libraries\Currency\Conversion\CurrencyApi;
 
 class InvoiceService
 {
@@ -617,6 +618,19 @@ class InvoiceService
         }
 
         return $this;
+    }
+
+    public function setPaymentLink(string $subscription_id): self
+    {
+
+        $sub_id = $this->decodePrimaryKey($subscription_id);
+
+        if(Subscription::withTrashed()->where('id', $sub_id)->where('company_id', $this->invoice->company_id)->exists()) {
+            $this->invoice->subscription_id = $sub_id;
+        }
+
+        return $this;
+
     }
 
     /**

@@ -5248,6 +5248,13 @@ $lang = array(
     'nordigen_handler_error_contents_requisition_no_accounts' => 'ການບໍລິການບໍ່ໄດ້ສົ່ງຄືນບັນຊີທີ່ຖືກຕ້ອງໃດໆ. ພິຈາລະນາເລີ່ມການໄຫຼເຂົ້າໃໝ່.',
     'nordigen_handler_restart' => 'ເລີ່ມການໄຫຼເຂົ້າໃໝ່.',
     'nordigen_handler_return' => 'ກັບຄືນໄປຫາແອັບພລິເຄຊັນ.',
+    'lang_Lao' => 'ລາວ',
+    'currency_lao_kip' => 'ລາວກີບ',
+    'yodlee_regions' => 'Regions: USA, UK, Australia & India',
+    'nordigen_regions' => 'Regions: Europe & UK',
+    'select_provider' => 'ເລືອກຜູ້ໃຫ້ບໍລິການ',
+    'nordigen_requisition_subject' => 'Requisition expired, please reauthenticate.',
+    'nordigen_requisition_body' => 'Access to bank account feeds has expired as set in End User Agreement. <br><br>Please log into Invoice Ninja and re-authenticate with your banks to continue receiving transactions.',
 );
 
 return $lang;
