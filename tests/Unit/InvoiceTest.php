@@ -86,7 +86,9 @@ class InvoiceTest extends TestCase
 
         $invoice_calc = new InvoiceSum($this->invoice);
 
-        $invoice = $invoice_calc->build()->getInvoice()->service()->markSent()->save();
+        /** @var \App\Models\Invoice $ii */
+        $ii = $invoice_calc->build()->getInvoice();
+        $invoice = $ii->service()->markSent()->save();
 
         $this->assertEquals(5, $invoice->partial);
         $this->assertNotNull($invoice->partial_due_date);
