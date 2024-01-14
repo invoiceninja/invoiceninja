@@ -11,16 +11,18 @@
 
 namespace Tests\Feature;
 
+use Tests\TestCase;
+use App\Models\Invoice;
 use App\Models\Product;
+use App\Models\RecurringInvoice;
+use Tests\MockAccountData;
+use Illuminate\Support\Str;
 use App\Models\Subscription;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Tests\MockAccountData;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * @test
@@ -31,6 +33,8 @@ class SubscriptionApiTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
+
+    protected $faker;
 
     protected function setUp(): void
     {
@@ -47,6 +51,82 @@ class SubscriptionApiTest extends TestCase
         Model::reguard();
     }
 
+    public function testAssignInvoice()
+    {
+        $i = Invoice::factory()
+        ->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+        ]);
+
+        
+        $s = Subscription::factory()
+        ->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            
+        ]);
+
+        $data = [
+            'ids' => [$s->hashed_id],
+            'entity' => 'invoice',
+            'entity_id' => $i->hashed_id,
+            'action' => 'assign_invoice'
+        ];
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/subscriptions/bulk', $data);
+
+        $response->assertStatus(200);
+
+        $i = $i->fresh();
+
+        $this->assertEquals($s->id, $i->subscription_id);
+
+    }
+
+    public function testAssignRecurringInvoice()
+    {
+        $i = RecurringInvoice::factory()
+        ->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+        ]);
+
+        
+        $s = Subscription::factory()
+        ->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            
+        ]);
+
+        $data = [
+            'ids' => [$s->hashed_id],
+            'entity' => 'recurring_invoice',
+            'entity_id' => $i->hashed_id,
+            'action' => 'assign_invoice'
+        ];
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/subscriptions/bulk', $data);
+
+        $response->assertStatus(200);
+
+        $i = $i->fresh();
+
+        $this->assertEquals($s->id, $i->subscription_id);
+
+    }
+    
     public function testSubscriptionFilter()
     {
         $response = $this->withHeaders([

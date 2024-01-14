@@ -21,6 +21,7 @@ use App\Models\InvoiceInvitation;
 use App\Models\Subscription;
 use App\Utils\Traits\CleanLineItems;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class SubscriptionRepository extends BaseRepository
 {
@@ -162,5 +163,19 @@ class SubscriptionRepository extends BaseRepository
         $item->custom_value4 = $product->custom_value4 ?: '';
 
         return $item;
+    }
+
+    public function assign_invoice(Subscription $subscription, $request)
+    {
+        $class = "\\App\\Models\\".ucfirst(Str::camel($request->entity));
+
+        $entity = $class::withTrashed()->find($request->entity_id);
+
+        if($entity){
+            $entity->subscription_id = $subscription->id;
+            $entity->save();
+        }
+        
+        return $subscription;
     }
 }
