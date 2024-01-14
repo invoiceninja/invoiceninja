@@ -204,6 +204,7 @@ class Invoice extends BaseModel
         'is_deleted' => 'bool',
         'is_amount_discount' => 'bool',
         'tax_data' => 'object',
+        'partial_due_date' => 'date:Y-m-d'
     ];
 
     protected $with = [];
@@ -244,10 +245,10 @@ class Invoice extends BaseModel
         return $value ? $this->dateMutator($value) : null;
     }
 
-    public function getPartialDueDateAttribute($value)
-    {
-        return $value ? $this->dateMutator($value) : null;
-    }
+    // public function getPartialDueDateAttribute($value)
+    // {
+    //     return $value ? $this->dateMutator($value) : null;
+    // }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Company>
