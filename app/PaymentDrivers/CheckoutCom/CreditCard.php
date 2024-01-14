@@ -173,6 +173,10 @@ class CreditCard implements MethodInterface
         if ($request->has('token') && ! is_null($request->token) && ! empty($request->token)) {
             return $this->attemptPaymentUsingToken($request);
         }
+        
+        if($this->checkout->company_gateway->update_details) {
+            $this->checkout->updateCustomer();
+        }
 
         return $this->attemptPaymentUsingCreditCard($request);
     }
@@ -321,7 +325,6 @@ class CreditCard implements MethodInterface
 
             return new PaymentFailed("There was a problem communicating with the API credentials for Checkout", $e->getCode());
 
-            // return $this->checkout->processInternallyFailedPayment($this->checkout, $human_exception);
         }
     }
 }

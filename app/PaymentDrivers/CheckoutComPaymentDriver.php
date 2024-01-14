@@ -216,6 +216,9 @@ class CheckoutComPaymentDriver extends BaseDriver
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
         $this->init();
+        
+        if($this->company_gateway->update_details)
+            $this->updateCustomer();
 
         $request = new RefundRequest();
         $request->reference = "{$payment->transaction_reference} ".now();
@@ -303,9 +306,6 @@ class CheckoutComPaymentDriver extends BaseDriver
             $request->name = $this->client->present()->name();
             $request->phone = $phone;
 
-            // if($this->company_gateway->update_details)
-            //     $this->updateCustomer();
-
             try {
                 $response = $this->gateway->getCustomersClient()->create($request);
             } catch (CheckoutApiException $e) {
@@ -334,16 +334,16 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     public function updateCustomer()
     {
-        $phone = new Phone();
-        $phone->number = substr(str_pad($this->client->present()->phone(), 6, "0", STR_PAD_RIGHT), 0, 24);
-
-        $request = new CustomerRequest();
-
-        $request->email = $this->client->present()->email();
-        $request->name = $this->client->present()->name();
-        $request->phone = $phone;
-
         try {
+        
+            $request = new CustomerRequest();
+
+            $phone = new Phone();
+            $phone->number = substr(str_pad($this->client->present()->phone(), 6, "0", STR_PAD_RIGHT), 0, 24);
+            $request->email = $this->client->present()->email();
+            $request->name = $this->client->present()->name();
+            $request->phone = $phone;
+
             $response = $this->gateway->getCustomersClient()->update("customer_id", $request);
         } catch (CheckoutApiException $e) {
 
@@ -384,6 +384,10 @@ class CheckoutComPaymentDriver extends BaseDriver
         $this->payment_hash = $payment_hash;
 
         $this->init();
+        
+        if($this->company_gateway->update_details) {
+            $this->updateCustomer();
+        }
 
         $paymentRequest = $this->bootTokenRequest($cgt->token);
         $paymentRequest->amount = $this->convertToCheckoutAmount($amount, $this->client->getCurrencyCode());
