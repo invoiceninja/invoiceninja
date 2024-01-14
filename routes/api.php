@@ -422,6 +422,7 @@ Route::get('token_hash_router', [OneTimeTokenController::class, 'router'])->midd
 Route::get('webcron', [WebCronController::class, 'index'])->middleware('throttle:100,1');
 Route::post('api/v1/get_migration_account', [HostedMigrationController::class, 'getAccount'])->middleware('guest')->middleware('throttle:100,1');
 Route::post('api/v1/confirm_forwarding', [HostedMigrationController::class, 'confirmForwarding'])->middleware('guest')->middleware('throttle:100,1');
+Route::post('api/v1/check_status', [HostedMigrationController::class, 'checkStatus'])->middleware('guest')->middleware('throttle:100,1');
 Route::post('api/v1/process_webhook', [AppleController::class, 'process_webhook'])->middleware('throttle:1000,1');
 Route::post('api/v1/confirm_purchase', [AppleController::class, 'confirm_purchase'])->middleware('throttle:1000,1');
 
