@@ -15,6 +15,7 @@ use App;
 use App\Factory\ClientContactFactory;
 use App\Factory\VendorContactFactory;
 use App\Jobs\Company\CreateCompanyToken;
+use App\Libraries\MultiDB;
 use App\Models\Account;
 use App\Models\BankTransaction;
 use App\Models\Client;
@@ -128,6 +129,7 @@ class CheckData extends Command
         $this->checkUserState();
         $this->checkContactEmailAndSendEmailStatus();
         $this->checkPaymentCurrency();
+        $this->checkSubdomainsSet();
 
         if (Ninja::isHosted()) {
             $this->checkAccountStatuses();
@@ -1017,6 +1019,23 @@ class CheckData extends Command
 
             });
         }
+    }
+
+    public function checkSubdomainsSet()
+    {
+        if(Ninja::isSelfHost())
+            return;
+
+        Company::query()
+        ->whereNull('subdomain')
+        ->orWhere('subdomain', '')
+        ->cursor()
+        ->each(function ($c){
+
+            $c->subdomain = MultiDB::randomSubdomainGenerator();
+            $c->save();
+            
+        });
     }
 
     public function checkPaymentCurrency()
