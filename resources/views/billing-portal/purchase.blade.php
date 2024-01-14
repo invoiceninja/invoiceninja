@@ -15,7 +15,7 @@
 
 document.addEventListener('livewire:init', () => {
 
-        Livewire.on('beforePaymentEventsCompleted', () => document.getElementById('payment-method-form').submit());
+    Livewire.on('beforePaymentEventsCompleted', () => document.getElementById('payment-method-form').submit());
 
 });
 
