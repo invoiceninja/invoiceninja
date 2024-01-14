@@ -111,7 +111,7 @@ class TransactionTransformer implements BankRevenueInterface
 
     return [
       'transaction_id' => $transaction["transactionId"],
-      'amount' => (int) $transaction["transactionAmount"]["amount"],
+      'amount' => (float) $transaction["transactionAmount"]["amount"],
       'currency_id' => $this->convertCurrency($transaction["transactionAmount"]["currency"]),
       'category_id' => null,
       'category_type' => array_key_exists('additionalInformation', $transaction) ? $transaction["additionalInformation"] : '',
