@@ -46,7 +46,7 @@ class EntityCreatedObject
      * @return stdClass
      * @throws BindingResolutionException
      */
-    public function build() :stdClass
+    public function build(): stdClass
     {
         App::forgetInstance('translator');
         /* Init a new copy of the translator*/
@@ -61,9 +61,9 @@ class EntityCreatedObject
         if ($this->entity_type == 'purchase_order') {
             $this->entity->load('vendor.company');
 
-            $mail_obj = new stdClass;
+            $mail_obj = new stdClass();
             $mail_obj->amount = Number::formatMoney($this->entity->amount, $this->entity->vendor);
-            
+
             $mail_obj->subject = ctrans(
                 $this->template_subject,
                 [
@@ -95,14 +95,14 @@ class EntityCreatedObject
             $this->entity->load('client.country', 'client.company');
             $this->client = $this->entity->client;
 
-            $mail_obj = new stdClass;
+            $mail_obj = new stdClass();
             $mail_obj->amount = $this->getAmount();
             $mail_obj->subject = $this->getSubject();
             $mail_obj->data = $this->getData();
             $mail_obj->markdown = 'email.admin.generic';
             // $mail_obj->tag = $this->entity->company->company_key;
         }
-        
+
         return $mail_obj;
     }
 

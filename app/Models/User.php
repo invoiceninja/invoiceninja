@@ -326,7 +326,7 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @return int
      */
-    public function companyId() :int
+    public function companyId(): int
     {
         return $this->company()->id;
     }
@@ -363,27 +363,27 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @return bool
      */
-    public function isAdmin() : bool
+    public function isAdmin(): bool
     {
         return $this->token()->cu->is_admin;
 
     }
 
-    public function isOwner() : bool
+    public function isOwner(): bool
     {
         return $this->token()->cu->is_owner;
     }
 
     public function hasOwnerFlag(): bool
     {
-        return $this->company_users()->where('is_owner',true)->exists();
+        return $this->company_users()->where('is_owner', true)->exists();
     }
     /**
      * Returns true is user is an admin _or_ owner
      *
      * @return boolean
      */
-    public function isSuperUser() :bool
+    public function isSuperUser(): bool
     {
         return $this->token()->cu->is_owner || $this->token()->cu->is_admin;
     }
@@ -404,7 +404,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @param  mixed $entity
      * @return bool
      */
-    public function owns($entity) : bool
+    public function owns($entity): bool
     {
         return ! empty($entity->user_id) && $entity->user_id == $this->id;
     }
@@ -415,7 +415,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @param  mixed $entity
      * @return bool
      */
-    public function assigned($entity) : bool
+    public function assigned($entity): bool
     {
         return ! empty($entity->assigned_user_id) && $entity->assigned_user_id == $this->id;
     }
@@ -426,7 +426,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @param  string $permission
      * @return bool
      */
-    public function hasPermission($permission) : bool
+    public function hasPermission($permission): bool
     {
         /**
          * We use the limit parameter here to ensure we don't split on permissions that have multiple underscores.
@@ -546,7 +546,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
         return false;
     }
-    
+
     /**
      * Used when we need to filter permissions carefully.
      *
@@ -569,7 +569,7 @@ class User extends Authenticatable implements MustVerifyEmail
         if ($this->isSuperUser()) {
             return false;
         }
-        
+
         foreach ($excluded_permissions as $permission) {
             if ($this->hasExactPermission($permission)) {
                 return false;
@@ -642,7 +642,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $is_react = request()->has('react') || request()->hasHeader('X-React') ? true : false;
 
-        $nmo = new NinjaMailerObject;
+        $nmo = new NinjaMailerObject();
         $nmo->mailable = new NinjaMailer((new ResetPasswordObject($token, $this, $this->account->default_company, $is_react))->build());
         $nmo->to_user = $this;
         $nmo->settings = $this->account->default_company->settings;
@@ -665,7 +665,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getLocale()
     {
         $locale = $this->language->locale ?? null;
-    
+
         if($locale) {
             App::setLocale($locale);
         }

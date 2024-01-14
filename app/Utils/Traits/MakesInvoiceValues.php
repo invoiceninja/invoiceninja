@@ -81,7 +81,7 @@ trait MakesInvoiceValues
         return '';
     }
 
-    public function makeLabels($contact = null) :array
+    public function makeLabels($contact = null): array
     {
         $data = [];
 
@@ -102,7 +102,7 @@ trait MakesInvoiceValues
      * @return array returns an array
      * of keyed labels (appended with _label)
      */
-    public function makeValues($contact = null) :array
+    public function makeValues($contact = null): array
     {
         $data = [];
 
@@ -120,7 +120,7 @@ trait MakesInvoiceValues
      * @param  array $columns The array (or string of column headers)
      * @return string  injectable HTML string
      */
-    public function buildTableHeader($columns) :?string
+    public function buildTableHeader($columns): ?string
     {
         $data = $this->makeLabels();
 
@@ -144,7 +144,7 @@ trait MakesInvoiceValues
      * @param string $table_prefix
      * @return string  injectable HTML string
      */
-    public function buildTableBody(array $default_columns, $user_columns, string $table_prefix) :?string
+    public function buildTableBody(array $default_columns, $user_columns, string $table_prefix): ?string
     {
         $items = $this->transformLineItems($this->line_items, $table_prefix);
 
@@ -189,7 +189,7 @@ trait MakesInvoiceValues
      * @param  array  $columns The column header values
      * @return array          The new column header variables
      */
-    private function transformColumnsForHeader(array $columns) :array
+    private function transformColumnsForHeader(array $columns): array
     {
         if (count($columns) == 0) {
             return [];
@@ -221,7 +221,7 @@ trait MakesInvoiceValues
      * @param  array  $columns The column header values
      * @return array          The invoice variables
      */
-    private function transformColumnsForLineItems(array $columns) :array
+    private function transformColumnsForLineItems(array $columns): array
     {
         /* Removes any invalid columns the user has entered. */
         $columns = array_intersect($columns, self::$master_columns);
@@ -258,7 +258,7 @@ trait MakesInvoiceValues
      *
      * @return array
      */
-    public function transformLineItems($items, $table_type = '$product') :array
+    public function transformLineItems($items, $table_type = '$product'): array
     {   //$start = microtime(true);
         $entity = $this->client ? $this->client : $this->vendor;
 
@@ -366,7 +366,7 @@ trait MakesInvoiceValues
         }
 
         //nlog(microtime(true) - $start);
-        
+
         return $data;
     }
 
@@ -379,7 +379,7 @@ trait MakesInvoiceValues
      * @return string a collection of <tr> rows with line item
      * aggregate data
      */
-    private function makeLineTaxes() :string
+    private function makeLineTaxes(): string
     {
         $tax_map = $this->calc()->getTaxMap();
         $entity = $this->client ? $this->client : $this->vendor;
@@ -399,7 +399,7 @@ trait MakesInvoiceValues
      * @return string a collectino of <tr> with
      * itemised total tax data
      */
-    private function makeTotalTaxes() :string
+    private function makeTotalTaxes(): string
     {
         $data = '';
         $entity = $this->client ? $this->client : $this->vendor;
@@ -417,7 +417,7 @@ trait MakesInvoiceValues
         return $data;
     }
 
-    private function totalTaxLabels() :string
+    private function totalTaxLabels(): string
     {
         $data = '';
 
@@ -432,7 +432,7 @@ trait MakesInvoiceValues
         return $data;
     }
 
-    private function totalTaxValues() :string
+    private function totalTaxValues(): string
     {
         $data = '';
         $entity = $this->client ? $this->client : $this->vendor;
@@ -448,7 +448,7 @@ trait MakesInvoiceValues
         return $data;
     }
 
-    private function lineTaxLabels() :string
+    private function lineTaxLabels(): string
     {
         $tax_map = $this->calc()->getTaxMap();
 
@@ -461,7 +461,7 @@ trait MakesInvoiceValues
         return $data;
     }
 
-    private function lineTaxValues() :string
+    private function lineTaxValues(): string
     {
         $tax_map = $this->calc()->getTaxMap();
         $entity = $this->client ? $this->client : $this->vendor;
@@ -489,7 +489,7 @@ trait MakesInvoiceValues
      * of Repeating headers and footers on the PDF.
      * @return string The css string
      */
-    public function generateCustomCSS() :string
+    public function generateCustomCSS(): string
     {
         $settings = $this->client ? $this->client->getMergedSettings() : $this->company->settings;
 

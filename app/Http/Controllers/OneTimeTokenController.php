@@ -71,7 +71,7 @@ class OneTimeTokenController extends BaseController
 
         $data = [
             'user_id' => $user->id,
-            'company_key'=> $user->company()->company_key,
+            'company_key' => $user->company()->company_key,
             'context' => $request->input('context'),
             'is_react' => $request->hasHeader('X-REACT') ? true : false,
         ];

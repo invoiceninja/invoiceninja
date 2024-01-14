@@ -29,7 +29,7 @@ class SetDomainNameDb
     {
         $error = [
             'message' => 'Invalid token',
-            'errors' => new stdClass,
+            'errors' => new stdClass(),
         ];
         /*
          * Use the host name to set the active DB

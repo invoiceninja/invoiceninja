@@ -23,7 +23,7 @@ class SystemLogFilters extends QueryFilters
         if (strlen($type_id) == 0) {
             return $this->builder;
         }
-        
+
         return $this->builder->where('type_id', $type_id);
     }
 

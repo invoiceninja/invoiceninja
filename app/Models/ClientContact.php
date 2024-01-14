@@ -98,7 +98,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
     use SoftDeletes;
     use HasFactory;
     use AppSetup;
-    
+
     /* Used to authenticate a contact */
     protected $guard = 'contact';
 
@@ -259,7 +259,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         $this->token = $token;
         $this->save();
 
-        $nmo = new NinjaMailerObject;
+        $nmo = new NinjaMailerObject();
         $nmo->mailable = new NinjaMailer((new ClientContactResetPasswordObject($token, $this))->build());
         $nmo->to_user = $this;
         $nmo->company = $this->company;

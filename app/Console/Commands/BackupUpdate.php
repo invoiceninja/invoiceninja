@@ -59,7 +59,7 @@ class BackupUpdate extends Command
         if(Ninja::isSelfHost()) {
             return;
         }
-            
+
         $current_db = config('database.default');
 
         if (! config('ninja.db.multi_db_enabled')) {
@@ -91,7 +91,7 @@ class BackupUpdate extends Command
 
                    $logo = @file_get_contents($company_logo_path);
                    $extension = @pathinfo($company->settings->company_logo, PATHINFO_EXTENSION);
-            
+
                    if ($logo && $extension) {
                        $path = "{$company->company_key}/{$company->company_key}.{$extension}";
 
@@ -117,7 +117,7 @@ class BackupUpdate extends Command
 
                   $logo = @file_get_contents($company_logo_path);
                   $extension = @pathinfo($company_logo_path, PATHINFO_EXTENSION);
-       
+
                   if ($logo && $extension) {
                       $path = "{$client->company->company_key}/{$client->client_hash}.{$extension}";
 
@@ -148,7 +148,7 @@ class BackupUpdate extends Command
 
                   $logo = @file_get_contents($company_logo_path);
                   $extension = @pathinfo($company_logo_path, PATHINFO_EXTENSION);
-       
+
                   if ($logo && $extension) {
                       $path = "{$group->company->company_key}/{$group->hashed_id}.{$extension}";
 

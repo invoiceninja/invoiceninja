@@ -313,7 +313,7 @@ class MigrationController extends BaseController
                 App::setLocale($user->account->companies()->first()->getLocale());
 
                 if (! $existing_company && $company_count >= 10) {
-                    $nmo = new NinjaMailerObject;
+                    $nmo = new NinjaMailerObject();
                     $nmo->mailable = new MaxCompanies($user->account->companies()->first());
                     $nmo->company = $user->account->companies()->first();
                     $nmo->settings = $user->account->companies()->first()->settings;
@@ -325,7 +325,7 @@ class MigrationController extends BaseController
 
                     return;
                 } elseif ($existing_company && $company_count > 10) {
-                    $nmo = new NinjaMailerObject;
+                    $nmo = new NinjaMailerObject();
                     $nmo->mailable = new MaxCompanies($user->account->companies()->first());
                     $nmo->company = $user->account->companies()->first();
                     $nmo->settings = $user->account->companies()->first()->settings;
@@ -347,7 +347,7 @@ class MigrationController extends BaseController
                 if ($checks['existing_company'] == true && $checks['force'] == false) {
                     nlog('Migrating: Existing company without force. (CASE_01)');
 
-                    $nmo = new NinjaMailerObject;
+                    $nmo = new NinjaMailerObject();
                     $nmo->mailable = new ExistingMigration($existing_company);
                     $nmo->company = $user->account->companies()->first();
                     $nmo->settings = $user->account->companies()->first();
@@ -456,7 +456,7 @@ class MigrationController extends BaseController
                 'method' => config('queue.default'),
                 'started_at' => now(),
             ], 200);
-        
+
         }
 
     }

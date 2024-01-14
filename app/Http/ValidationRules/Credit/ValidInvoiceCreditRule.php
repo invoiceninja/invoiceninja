@@ -46,7 +46,7 @@ class ValidInvoiceCreditRule implements Rule
     /**
      * @return bool
      */
-    private function checkIfCreditInvoiceValid($value) : bool
+    private function checkIfCreditInvoiceValid($value): bool
     {
         $invoice = Invoice::withTrashed()->find($value);
 

@@ -85,12 +85,12 @@ use App\Helpers\Bank\AccountTransformerInterface;
 
 class AccountTransformer implements AccountTransformerInterface
 {
-
     public function transform($nordigen_account)
     {
 
-        if (!property_exists($nordigen_account, 'data') || !property_exists($nordigen_account, 'metadata') || !property_exists($nordigen_account, 'balances') || !property_exists($nordigen_account, 'institution'))
+        if (!property_exists($nordigen_account, 'data') || !property_exists($nordigen_account, 'metadata') || !property_exists($nordigen_account, 'balances') || !property_exists($nordigen_account, 'institution')) {
             throw new \Exception('invalid dataset');
+        }
 
         $used_balance = $nordigen_account->balances[0];
         // prefer entry with closingBooked
@@ -117,5 +117,3 @@ class AccountTransformer implements AccountTransformerInterface
 
     }
 }
-
-

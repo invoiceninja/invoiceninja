@@ -47,7 +47,7 @@ class PdfMock
     {
         //need to resolve the pdf type here, ie product / purchase order
         $document_type = $this->request['entity_type'] == 'purchase_order' ? 'purchase_order' : 'product';
-             
+
         $pdf_service = new PdfService($this->mock->invitation, $document_type);
 
         $pdf_config = (new PdfConfiguration($pdf_service));
@@ -72,7 +72,7 @@ class PdfMock
         } else {
             $pdf_config->design = Design::withTrashed()->find($this->decodePrimaryKey($pdf_config->entity_design_id));
         }
-        
+
         $pdf_service->config = $pdf_config;
 
         if(isset($this->request['design'])) {
@@ -80,7 +80,7 @@ class PdfMock
         } else {
             $pdf_designer = (new PdfDesigner($pdf_service))->build();
         }
-        
+
         $pdf_service->designer = $pdf_designer;
 
         $pdf_service->html_variables = $document_type == 'purchase_order' ? $this->getVendorStubVariables() : $this->getStubVariables();
@@ -96,13 +96,13 @@ class PdfMock
     public function build(): self
     {
         $this->mock = $this->initEntity();
- 
+
         return $this;
     }
 
     public function initEntity(): mixed
     {
-        $settings = new \stdClass;
+        $settings = new \stdClass();
         $settings->entity = Client::class;
         $settings->currency_id = '1';
         $settings->industry_id = '';
@@ -144,20 +144,20 @@ class PdfMock
                 break;
         }
 
-    
+
         $entity->tax_map = $this->getTaxMap();
         $entity->total_tax_map = $this->getTotalTaxMap();
         $entity->invitation->company = $this->company;
 
         return $entity;
     }
-    
+
     /**
      * getMergedSettings
      *
      * @return object
      */
-    public function getMergedSettings() :object
+    public function getMergedSettings(): object
     {
         $settings = $this->company->settings;
 
@@ -168,11 +168,11 @@ class PdfMock
         };
 
         $settings = CompanySettings::setProperties($settings);
-        
+
         return $settings;
     }
 
-    
+
     /**
      * getTaxMap
      *
@@ -182,7 +182,7 @@ class PdfMock
     {
         return collect([['name' => 'GST', 'total' => 10]]);
     }
-    
+
     /**
      * getTotalTaxMap
      *
@@ -192,7 +192,7 @@ class PdfMock
     {
         return [['name' => 'GST', 'total' => 10]];
     }
-    
+
     /**
      * getStubVariables
      *
@@ -849,7 +849,7 @@ class PdfMock
             '$order_number_label' => ctrans('texts.order_number'),
         ];
     }
-    
+
     private function getVendorStubVariables()
     {
         return ['values' => [

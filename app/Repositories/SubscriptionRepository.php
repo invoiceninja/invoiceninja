@@ -43,7 +43,7 @@ class SubscriptionRepository extends BaseRepository
         return $subscription;
     }
 
-    private function calculatePrice($subscription) :array
+    private function calculatePrice($subscription): array
     {
         // DB::beginTransaction();
         DB::connection(config('database.default'))->beginTransaction();
@@ -128,7 +128,7 @@ class SubscriptionRepository extends BaseRepository
         $line_items = collect($bundle)->filter(function ($item) {
             return $item->is_recurring;
         })->map(function ($item) {
-            $line_item = new InvoiceItem;
+            $line_item = new InvoiceItem();
             $line_item->product_key = $item->product_key;
             $line_item->quantity = (float)$item->qty;
             $line_item->cost = (float)$item->unit_cost;
@@ -146,7 +146,7 @@ class SubscriptionRepository extends BaseRepository
 
     private function makeLineItem($product, $multiplier)
     {
-        $item = new InvoiceItem;
+        $item = new InvoiceItem();
         $item->quantity = $this->quantity;
         $item->product_key = $product->product_key;
         $item->notes = $product->notes;
@@ -171,11 +171,11 @@ class SubscriptionRepository extends BaseRepository
 
         $entity = $class::withTrashed()->find($request->entity_id);
 
-        if($entity){
+        if($entity) {
             $entity->subscription_id = $subscription->id;
             $entity->save();
         }
-        
+
         return $subscription;
     }
 }

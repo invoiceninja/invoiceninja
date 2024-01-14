@@ -26,7 +26,11 @@ use Illuminate\Support\Facades\Mail;
 
 class PaymentFailureMailer implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, UserNotifies;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use UserNotifies;
 
     public $client;
 
@@ -85,7 +89,7 @@ class PaymentFailureMailer implements ShouldQueue
                 unset($methods[$key]);
 
                 $use_react_link = false;
-                            
+
                 if(isset($company_user->react_settings->react_notification_link) && $company_user->react_settings->react_notification_link) {
                     $use_react_link = true;
                 }
@@ -93,7 +97,7 @@ class PaymentFailureMailer implements ShouldQueue
 
                 $mail_obj = (new PaymentFailureObject($this->client, $this->error, $this->company, $this->amount, null, $use_react_link))->build();
 
-                $nmo = new NinjaMailerObject;
+                $nmo = new NinjaMailerObject();
                 $nmo->mailable = new NinjaMailer($mail_obj);
                 $nmo->company = $this->company;
                 $nmo->to_user = $company_user->user;

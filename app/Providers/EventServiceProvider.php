@@ -280,7 +280,7 @@ class EventServiceProvider extends ServiceProvider
      *
      */
     protected $listen = [
-        
+
         // RequestSending::class => [
         //     LogRequestSending::class,
         // ],

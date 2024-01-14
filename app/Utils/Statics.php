@@ -65,7 +65,7 @@ class Statics
      * @param  string|bool $locale The user locale
      * @return array          Array of statics
      */
-    public static function company($locale = false) :array
+    public static function company($locale = false): array
     {
         $data = [];
 

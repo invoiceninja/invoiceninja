@@ -90,7 +90,7 @@ class CreditCard implements MethodInterface
         $gateway_response = \json_decode($request->gateway_response);
 
         $customerRequest = $this->checkout->getCustomer();
-        
+
         $request = $this->bootRequest($gateway_response->token);
         $request->capture = false;
         $request->reference = '$1 payment for authorization.';
@@ -102,7 +102,7 @@ class CreditCard implements MethodInterface
             $response = $this->checkout->gateway->getPaymentsClient()->requestPayment($request);
 
             if ($response['approved'] && $response['status'] === 'Authorized') {
-                $payment_meta = new \stdClass;
+                $payment_meta = new \stdClass();
                 $payment_meta->exp_month = (string) $response['source']['expiry_month'];
                 $payment_meta->exp_year = (string) $response['source']['expiry_year'];
                 $payment_meta->brand = (string) $response['source']['scheme'];

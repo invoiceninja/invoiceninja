@@ -67,10 +67,10 @@ class InvoiceFilters extends QueryFilters
                 $invoice_filters[] = Invoice::STATUS_PARTIAL;
             }
 
-            if (count($invoice_filters) >0) {
+            if (count($invoice_filters) > 0) {
                 $query->whereIn('status_id', $invoice_filters);
             }
-            
+
             if (in_array('overdue', $status_parameters)) {
                 $query->orWhereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                 ->where('due_date', '<', Carbon::now())
@@ -86,7 +86,7 @@ class InvoiceFilters extends QueryFilters
         if (strlen($number) == 0) {
             return $this->builder;
         }
-        
+
         return $this->builder->where('number', $number);
     }
 
@@ -292,7 +292,7 @@ class InvoiceFilters extends QueryFilters
 
             return $this->builder->orderBy(\App\Models\Client::select('name')
                              ->whereColumn('clients.id', 'invoices.client_id'), $dir);
-            
+
         }
 
         return $this->builder->orderBy($sort_col[0], $dir);

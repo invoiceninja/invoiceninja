@@ -84,7 +84,7 @@ class MarkPaid extends AbstractService
         $payment->saveQuietly();
 
         $payment->service()->applyNumber()->save();
-        
+
         /* Create a payment relationship to the invoice entity */
         $payment->invoices()->attach($this->invoice->id, [
             'amount' => $this->payable_balance,
@@ -113,7 +113,7 @@ class MarkPaid extends AbstractService
         $this->invoice
              ->client
              ->service()
-             ->updateBalanceAndPaidToDate($payment->amount*-1, $payment->amount)
+             ->updateBalanceAndPaidToDate($payment->amount * -1, $payment->amount)
              ->save();
 
         $this->invoice = $this->invoice
@@ -126,7 +126,7 @@ class MarkPaid extends AbstractService
         event(new InvoiceWasPaid($this->invoice, $payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         event('eloquent.updated: App\Models\Invoice', $this->invoice);
-        
+
         return $this->invoice;
     }
 

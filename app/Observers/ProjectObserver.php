@@ -49,12 +49,12 @@ class ProjectObserver
         if ($project->getOriginal('deleted_at') && !$project->deleted_at) {
             $event = Webhook::EVENT_RESTORE_PROJECT;
         }
-        
+
         if ($project->is_deleted) {
             $event = Webhook::EVENT_PROJECT_DELETE;
         }
-        
-        
+
+
         $subscriptions = Webhook::where('company_id', $project->company_id)
                                     ->where('event_id', $event)
                                     ->exists();

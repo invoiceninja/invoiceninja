@@ -37,7 +37,7 @@ class ClientTransformer extends BaseTransformer
             'phone'     => $this->getString($data, 'Phone'),
             'country_id'     => isset($data['Country']) ? $this->getCountryIdBy2($data['Country']) : null,
             'credit_balance' => 0,
-            'settings'       => new \stdClass,
+            'settings'       => new \stdClass(),
             'client_hash'    => Str::random(40),
             'contacts'       => [
                 [

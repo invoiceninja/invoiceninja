@@ -30,7 +30,8 @@ use Livewire\WithPagination;
 
 class DocumentsTable extends Component
 {
-    use WithPagination, WithSorting;
+    use WithPagination;
+    use WithSorting;
 
     public Company $company;
 

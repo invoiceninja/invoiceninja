@@ -15,14 +15,14 @@ use App\Models\CompanyGateway;
 
 class CompanyGatewayFactory
 {
-    public static function create(int $company_id, int $user_id) :CompanyGateway
+    public static function create(int $company_id, int $user_id): CompanyGateway
     {
-        $company_gateway = new CompanyGateway;
+        $company_gateway = new CompanyGateway();
         $company_gateway->company_id = $company_id;
         $company_gateway->user_id = $user_id;
         $company_gateway->require_billing_address = false;
         $company_gateway->require_shipping_address = false;
-        $company_gateway->config = encrypt(json_encode(new \stdClass));
+        $company_gateway->config = encrypt(json_encode(new \stdClass()));
 
         return $company_gateway;
     }

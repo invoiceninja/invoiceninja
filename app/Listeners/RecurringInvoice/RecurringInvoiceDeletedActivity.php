@@ -41,7 +41,7 @@ class RecurringInvoiceDeletedActivity implements ShouldQueue
     {
         MultiDB::setDb($event->company->db);
 
-        $fields = new stdClass;
+        $fields = new stdClass();
         $user_id = isset($event->event_vars['user_id']) ? $event->event_vars['user_id'] : $event->recurring_invoice->user_id;
 
         $fields->user_id = $user_id;

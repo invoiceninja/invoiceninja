@@ -77,12 +77,17 @@ use ZipArchive;
 
 class CompanyImport implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash, GeneratesCounter;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use MakesHash;
+    use GeneratesCounter;
 
     public $tries = 1;
 
     public $timeout = 0;
-    
+
     protected $current_app_version;
 
     private $account;
@@ -247,7 +252,7 @@ class CompanyImport implements ShouldQueue
     {
         set_time_limit(0);
 
-        $json = JsonMachine::fromFile($this->file_path, '/'.$key, new ExtJsonDecoder);
+        $json = JsonMachine::fromFile($this->file_path, '/'.$key, new ExtJsonDecoder());
 
         if ($force_array) {
             return iterator_to_array($json);
@@ -272,7 +277,7 @@ class CompanyImport implements ShouldQueue
         if (empty($this->file_location)) {
             throw new \Exception('No import data found, has the cache expired?');
         }
-        
+
         // $this->backup_file = json_decode(file_get_contents($this->file_location));
         $tmp_file = $this->unzipFile();
 
@@ -298,7 +303,7 @@ class CompanyImport implements ShouldQueue
 
                 $_company = Company::query()->find($this->company->id);
 
-                $nmo = new NinjaMailerObject;
+                $nmo = new NinjaMailerObject();
                 $nmo->mailable = new ImportCompleted($_company, $data);
                 $nmo->company = $_company;
                 $nmo->settings = $_company->settings;
@@ -370,7 +375,7 @@ class CompanyImport implements ShouldQueue
         $backup_users = $this->getObject('users', true);
 
         $company_users = $this->company->users;
-        
+
         nlog("Backup user count = ".count($backup_users));
 
         if (count($backup_users) > 1) {
@@ -404,7 +409,7 @@ class CompanyImport implements ShouldQueue
             $client_count = count($this->getObject('clients', true));
 
             $this->message = "You are attempting to import ({$client_count}) clients, your current plan allows a total of ({$client_limit})";
-                
+
             $this->pre_flight_checks_pass = false;
         }
 
@@ -416,15 +421,15 @@ class CompanyImport implements ShouldQueue
      Company and settings only
      Data
      */
-    
+
     private function preFlightChecks()
     {
         //check the file version and perform any necessary adjustments to the file in order to proceed - needed when we change schema
 
         $data = (object)$this->getObject('app_version', true);
-        
+
         $this->import_version = $data->app_version;
-        
+
         if ($this->pre_flight_checks_pass === false) {
             $this->sendImportMail($this->message);
 
@@ -501,7 +506,7 @@ class CompanyImport implements ShouldQueue
                 $this->company->{$value} = $tmp_company->{$value};
             }
         }
-        
+
         if (Ninja::isHosted()) {
             $this->company->portal_mode = 'subdomain';
             $this->company->portal_domain = '';
@@ -696,7 +701,7 @@ class CompanyImport implements ShouldQueue
         $this->genericImport(
             Vendor::class,
             ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id'],
-            [['users' => 'user_id'], ['users' =>'assigned_user_id']],
+            [['users' => 'user_id'], ['users' => 'assigned_user_id']],
             'vendors',
             'number'
         );
@@ -722,11 +727,11 @@ class CompanyImport implements ShouldQueue
         $this->genericImport(
             Project::class,
             ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id','client_id'],
-            [['users' => 'user_id'], ['users' =>'assigned_user_id'], ['clients' => 'client_id']],
+            [['users' => 'user_id'], ['users' => 'assigned_user_id'], ['clients' => 'client_id']],
             'projects',
             'number'
         );
-     
+
         return $this;
     }
 
@@ -735,7 +740,7 @@ class CompanyImport implements ShouldQueue
         $this->genericNewClassImport(
             Product::class,
             ['user_id', 'company_id', 'hashed_id', 'id'],
-            [['users' => 'user_id'], ['users' =>'assigned_user_id'], ['vendors' => 'vendor_id'], ['projects' => 'project_id']],
+            [['users' => 'user_id'], ['users' => 'assigned_user_id'], ['vendors' => 'vendor_id'], ['projects' => 'project_id']],
             'products'
         );
 
@@ -1041,7 +1046,7 @@ class CompanyImport implements ShouldQueue
             'payments',
             'number'
         );
-        
+
         $this->paymentablesImport();
 
         return $this;
@@ -1152,19 +1157,19 @@ class CompanyImport implements ShouldQueue
                     try {
                         Storage::disk(config('filesystems.default'))->put($document->url, $file);
 
-                        
+
                     } catch(\Exception $e) {
                         nlog($e->getMessage());
                         nlog("I could not upload {$document->url}");
 
                     }
-                }
-                else 
+                } else {
                     continue;
+                }
 
-            }
-            else
+            } else {
                 continue;
+            }
 
             $new_document = new Document();
             $new_document->disk = config('filesystems.default');
@@ -1321,7 +1326,7 @@ class CompanyImport implements ShouldQueue
                 return $this->transformId('clients', $id);
                 break;
 
-            
+
             default:
                 return false;
                 break;
@@ -1382,7 +1387,7 @@ class CompanyImport implements ShouldQueue
                 if($this->import_version == $key) {
                     $version_index = $index;
                 }
-                                                            
+
                 $index++;
                 return $value;
 
@@ -1397,7 +1402,7 @@ class CompanyImport implements ShouldQueue
         return collect($obj_array)->diffKeys($filters->flatten()->flip())->toArray();
 
     }
-        
+
     private function genericNewClassImport($class, $unset, $transforms, $object_property)
     {
         $class::unguard();
@@ -1450,7 +1455,7 @@ class CompanyImport implements ShouldQueue
                     if ($class == 'App\Models\Activity' && $activity_invitation_key && $key == 'invitations') {
                         $key = $activity_invitation_key;
                     }
-                    
+
                     $obj_array["{$value}"] = $this->transformId($key, $obj->{$value});
                 }
             }
@@ -1494,7 +1499,7 @@ class CompanyImport implements ShouldQueue
             $new_obj->fill($obj_array);
 
             $new_obj->save(['timestamps' => false]);
-            
+
             $this->ids["{$object_property}"]["{$obj->hashed_id}"] = $new_obj->id;
         }
 
@@ -1523,7 +1528,7 @@ class CompanyImport implements ShouldQueue
                     $obj_array["{$value}"] = $this->transformId($key, $obj->{$value});
                 }
             }
-            
+
             if (array_key_exists('deleted_at', $obj_array) && $obj_array['deleted_at'] > 1) {
                 $obj_array['deleted_at'] = now();
             }
@@ -1534,7 +1539,7 @@ class CompanyImport implements ShouldQueue
                 $obj_array['recurring_product_ids'] = $this->recordProductIds($obj_array['recurring_product_ids']);
                 $obj_array['webhook_configuration'] = \json_encode($obj_array['webhook_configuration']);
             }
-            
+
             $obj_array = $this->filterVersionProps($class, $obj_array);
 
             $new_obj = $class::firstOrNew(
@@ -1543,7 +1548,7 @@ class CompanyImport implements ShouldQueue
             );
 
             $new_obj->save(['timestamps' => false]);
-            
+
             if ($new_obj instanceof CompanyLedger) {
             } else {
                 $this->ids["{$object_property}"]["{$obj->hashed_id}"] = $new_obj->id;
@@ -1572,7 +1577,7 @@ class CompanyImport implements ShouldQueue
                     $obj_array["{$value}"] = $this->transformId($key, $obj->{$value});
                 }
             }
-            
+
             if (array_key_exists('deleted_at', $obj_array) && $obj_array['deleted_at'] > 1) {
                 $obj_array['deleted_at'] = now();
             }
@@ -1587,7 +1592,7 @@ class CompanyImport implements ShouldQueue
                 $obj_array['recurring_product_ids'] = '';
                 $obj_array['product_ids'] = '';
             }
-            
+
             $obj_array = $this->filterVersionProps($class, $obj_array);
 
             /* Expenses that don't have a number will not be inserted - so need to override here*/
@@ -1624,7 +1629,7 @@ class CompanyImport implements ShouldQueue
                 $new_obj->fill($obj_array);
                 $new_obj->save(['timestamps' => false]);
                 $new_obj->number = $this->getNextQuoteNumber($client = Client::withTrashed()->find($obj_array['client_id']), $new_obj);
-            }elseif ($class == 'App\Models\Credit' && is_null($obj->{$match_key})) {
+            } elseif ($class == 'App\Models\Credit' && is_null($obj->{$match_key})) {
                 $new_obj = new Credit();
                 $new_obj->company_id = $this->company->id;
                 $new_obj->design_id = 2;
@@ -1702,7 +1707,7 @@ class CompanyImport implements ShouldQueue
             }
 
             $new_obj->save(['timestamps' => false]);
-            
+
             if ($new_obj instanceof CompanyLedger) {
             } else {
                 $this->ids["{$object_property}"]["{$obj->hashed_id}"] = $new_obj->id;
@@ -1761,7 +1766,7 @@ class CompanyImport implements ShouldQueue
         if (! array_key_exists("{$old}", $this->ids[$resource])) {
             // nlog($this->ids[$resource]);
             nlog("searching for {$old} in {$resource}");
-            
+
             if ($resource == 'users') {
                 return $this->company_owner->id;
             }
@@ -1783,7 +1788,7 @@ class CompanyImport implements ShouldQueue
 
         $_company = Company::find($this->company->id);
 
-        $nmo = new NinjaMailerObject;
+        $nmo = new NinjaMailerObject();
         $nmo->mailable = new CompanyImportFailure($_company, $message);
         $nmo->company = $this->company;
         $nmo->settings = $this->company->settings;

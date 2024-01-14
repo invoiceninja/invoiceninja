@@ -37,7 +37,11 @@ use Illuminate\Support\Facades\Storage;
 
 class CompanyExport implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use MakesHash;
 
     private $export_format = 'json';
 
@@ -151,11 +155,11 @@ class CompanyExport implements ShouldQueue
 
         $this->export_data['company'] = $this->company->toArray();
         $this->export_data['company']['company_key'] = $this->createHash();
-        
+
         $this->export_data['company_gateways'] = $this->company->company_gateways()->withTrashed()->cursor()->map(function ($company_gateway) {
             $company_gateway = $this->transformArrayOfKeys($company_gateway, ['company_id', 'user_id']);
             $company_gateway->config = decrypt($company_gateway->config);
-            
+
             return $company_gateway->makeVisible(['id']);
         })->all();
 
@@ -203,7 +207,7 @@ class CompanyExport implements ShouldQueue
 
         $this->export_data['expense_categories'] = $this->company->expense_categories()->cursor()->map(function ($expense_category) {
             $expense_category = $this->transformArrayOfKeys($expense_category, ['user_id', 'company_id']);
-            
+
             return $expense_category->makeVisible(['id']);
         })->all();
 
@@ -288,14 +292,14 @@ class CompanyExport implements ShouldQueue
         $this->export_data['recurring_expenses'] = $this->company->recurring_expenses()->orderBy('number', 'DESC')->cursor()->map(function ($expense) {
             $expense = $this->transformBasicEntities($expense);
             $expense = $this->transformArrayOfKeys($expense, ['vendor_id', 'invoice_id', 'client_id', 'category_id', 'project_id']);
-            
+
             return $expense->makeVisible(['id']);
         })->all();
 
         $this->export_data['recurring_invoices'] = $this->company->recurring_invoices()->orderBy('number', 'DESC')->cursor()->map(function ($ri) {
             $ri = $this->transformBasicEntities($ri);
             $ri = $this->transformArrayOfKeys($ri, ['client_id', 'vendor_id', 'project_id', 'design_id', 'subscription_id']);
-            
+
             return $ri->makeVisible(['id']);
         })->all();
 
@@ -332,7 +336,7 @@ class CompanyExport implements ShouldQueue
             $task = $this->transformArrayOfKeys($task, ['client_id', 'invoice_id', 'project_id', 'status_id']);
 
             return $task->makeHidden(['hash','meta'])->makeVisible(['id']);
-// return $task->makeHidden(['hash','meta'])->makeVisible(['id']); //@release v5.7.63
+            // return $task->makeHidden(['hash','meta'])->makeVisible(['id']); //@release v5.7.63
         })->all();
 
         $this->export_data['task_statuses'] = $this->company->task_statuses->map(function ($status) {
@@ -407,7 +411,7 @@ class CompanyExport implements ShouldQueue
         })->all();
 
         //write to tmp and email to owner();
-        
+
         $this->zipAndSend();
 
         return true;
@@ -458,7 +462,7 @@ class CompanyExport implements ShouldQueue
         $zip_path = storage_path('backups/'.\Illuminate\Support\Str::ascii($file_name));
         $zip = new \ZipArchive();
 
-        if ($zip->open($zip_path, \ZipArchive::CREATE)!==true) {
+        if ($zip->open($zip_path, \ZipArchive::CREATE) !== true) {
             nlog("cannot open {$zip_path}");
         }
 
@@ -487,19 +491,19 @@ class CompanyExport implements ShouldQueue
 
         // $company_reference = Company::find($this->company->id);
 
-        $nmo = new NinjaMailerObject;
+        $nmo = new NinjaMailerObject();
         $nmo->mailable = new DownloadBackup($url, $this->company->withoutRelations());
         $nmo->to_user = $this->user;
         $nmo->company = $this->company->withoutRelations();
         $nmo->settings = $this->company->settings;
-        
+
         (new NinjaMailerJob($nmo, true))->handle();
-        
+
         UnlinkFile::dispatch(config('filesystems.default'), $storage_path)->delay(now()->addHours(1));
 
         if (Ninja::isHosted()) {
             sleep(3);
-            
+
             if(file_exists($zip_path)) {
                 unlink($zip_path);
             }

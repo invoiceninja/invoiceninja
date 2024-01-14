@@ -41,7 +41,11 @@ use Turbo124\Beacon\Facades\LightLogs;
 
 class NinjaMailerJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use MakesHash;
 
     public $tries = 4; //number of retries
 
@@ -200,11 +204,11 @@ class NinjaMailerJob implements ShouldQueue
                     app('sentry')->captureException($e);
                 }
             }
-        
+
             /* Releasing immediately does not add in the backoff */
             sleep(rand(0, 3));
 
-            $this->release($this->backoff()[$this->attempts()-1]);
+            $this->release($this->backoff()[$this->attempts() - 1]);
         }
 
         $this->nmo = null;
@@ -417,7 +421,7 @@ class NinjaMailerJob implements ShouldQueue
         $user = $this->resolveSendingUser();
 
         $this->checkValidSendingUser($user);
-        
+
         nlog("Sending via {$user->name()}");
 
         $token = $this->refreshOfficeToken($user);
@@ -545,7 +549,7 @@ class NinjaMailerJob implements ShouldQueue
         if (!str_contains($this->nmo->to_user->email, "@")) {
             return true;
         }
-     
+
         /* On the hosted platform if the user has not verified their account we fail here - but still check what they are trying to send! */
         if (Ninja::isHosted() && $this->company->account && !$this->company->account->account_sms_verified) {
             if (class_exists(\Modules\Admin\Jobs\Account\EmailQuality::class)) {
@@ -570,7 +574,7 @@ class NinjaMailerJob implements ShouldQueue
      * @param  \App\Models\User | \App\Models\Client | null $recipient_object
      * @return void
      */
-    private function logMailError($errors, $recipient_object) :void
+    private function logMailError($errors, $recipient_object): void
     {
         (new SystemLogger(
             $errors,
@@ -618,7 +622,7 @@ class NinjaMailerJob implements ShouldQueue
                     'refresh_token' => $user->oauth_user_refresh_token
                 ],
             ])->getBody()->getContents());
-            
+
             if ($token) {
                 $user->oauth_user_refresh_token = property_exists($token, 'refresh_token') ? $token->refresh_token : $user->oauth_user_refresh_token;
                 $user->oauth_user_token = $token->access_token;

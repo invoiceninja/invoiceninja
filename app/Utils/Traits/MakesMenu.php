@@ -23,7 +23,7 @@ trait MakesMenu
      * @param  string $entity Class name
      * @return array of modules
      */
-    public function makeEntityTabMenu(string $entity) : array
+    public function makeEntityTabMenu(string $entity): array
     {
         $tabs = [];
 

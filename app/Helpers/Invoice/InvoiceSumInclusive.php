@@ -63,7 +63,7 @@ class InvoiceSumInclusive
             $this->precision = $this->invoice->vendor->currency()->precision;
         }
 
-        $this->tax_map = new Collection;
+        $this->tax_map = new Collection();
     }
 
     public function build()

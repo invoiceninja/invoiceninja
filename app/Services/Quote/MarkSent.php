@@ -54,6 +54,6 @@ class MarkSent
         }
 
         return $this->quote;
-        
+
     }
 }

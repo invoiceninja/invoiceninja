@@ -43,7 +43,7 @@ class ExpenseArchivedActivity implements ShouldQueue
 
         $expense = $event->expense;
 
-        $fields = new stdClass;
+        $fields = new stdClass();
 
         $user_id = isset($event->event_vars['user_id']) ? $event->event_vars['user_id'] : $event->expense->user_id;
 

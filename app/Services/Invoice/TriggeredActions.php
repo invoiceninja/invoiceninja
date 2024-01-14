@@ -36,7 +36,7 @@ class TriggeredActions extends AbstractService
             try {
                 $this->invoice->service()->autoBill();
             } catch(\Exception $e) {
-                
+
             } //update notification sends automatically for this.
         }
 
@@ -48,7 +48,7 @@ class TriggeredActions extends AbstractService
             $this->invoice = $this->invoice->service()->markSent()->save(); //update notification NOT sent
             $this->updated = true;
         }
-        
+
         if ($this->request->has('amount_paid') && is_numeric($this->request->input('amount_paid'))) {
             $this->invoice = $this->invoice->service()->applyPaymentAmount($this->request->input('amount_paid'), $this->request->input('reference'))->save();
             // $this->updated = false;
@@ -81,7 +81,7 @@ class TriggeredActions extends AbstractService
             $company->save();
         }
 
-        if ($this->updated) { 
+        if ($this->updated) {
             // event('eloquent.updated: App\Models\Invoice', $this->invoice);
             $this->invoice->sendEvent(Webhook::EVENT_SENT_INVOICE, "client");
 

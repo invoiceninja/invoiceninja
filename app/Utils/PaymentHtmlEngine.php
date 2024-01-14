@@ -45,20 +45,20 @@ class PaymentHtmlEngine
         $this->helpers = new Helpers();
     }
 
-    public function setSettings($settings):self
+    public function setSettings($settings): self
     {
         $this->settings = $settings;
 
         return $this;
     }
-    
+
     public function makePaymentVariables()
     {
         App::forgetInstance('translator');
         $t = app('translator');
         App::setLocale($this->contact->preferredLocale());
         $t->replace(Ninja::transformTranslations($this->client->getMergedSettings()));
- 
+
         $data = [];
 
         $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
@@ -173,7 +173,7 @@ class PaymentHtmlEngine
         $data['$viewButton'] = &$data['$view_link'];
         $data['$viewLink'] = &$data['$view_link'];
         $data['$paymentLink'] = &$data['$view_link'];
-        $data['$portalButton'] = ['value' =>  $this->buildViewButton($this->payment->getPortalLink(), ctrans('texts.login')), 'label' =>''];
+        $data['$portalButton'] = ['value' =>  $this->buildViewButton($this->payment->getPortalLink(), ctrans('texts.login')), 'label' => ''];
         $data['$portal_url'] = &$data['$portalButton'];
 
         $data['$view_url'] = ['value' => $this->payment->getLink(), 'label' => ctrans('texts.view_payment')];
@@ -203,13 +203,12 @@ class PaymentHtmlEngine
         $data['$reference'] = ['value' => '', 'label' => ctrans('texts.reference')];
         $data['$total'] = ['value' => '', 'label' => ctrans('texts.total')];
         $data['$history'] = ['value' => '', 'label' => ctrans('texts.history')];
-        
+
         if ($this->payment->status_id == 4) {
             $data['$status_logo'] = ['value' => '<div class="stamp is-paid"> ' . ctrans('texts.paid') .'</div>', 'label' => ''];
         } else {
             $data['$status_logo'] = ['value' => '', 'label' => ''];
         }
-
 
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);
@@ -289,7 +288,7 @@ class PaymentHtmlEngine
         return $invoice_list;
     }
 
-    public function makeValues() :array
+    public function makeValues(): array
     {
         $data = [];
 
@@ -301,7 +300,7 @@ class PaymentHtmlEngine
 
         return $data;
     }
-    
+
     /**
      * generateLabelsAndValues
      *

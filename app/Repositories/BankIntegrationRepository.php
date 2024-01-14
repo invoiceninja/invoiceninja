@@ -24,7 +24,7 @@ class BankIntegrationRepository extends BaseRepository
     {
         //stub to store
         $bank_integration->fill($data);
-        
+
         $bank_integration->save();
 
         return $bank_integration->fresh();
@@ -37,7 +37,7 @@ class BankIntegrationRepository extends BaseRepository
     *
     * @return BankIntegration $bank_integration
     */
-    public function delete($bank_integration) :BankIntegration
+    public function delete($bank_integration): BankIntegration
     {
         if ($bank_integration->is_deleted) {
             return $bank_integration;
@@ -58,7 +58,7 @@ class BankIntegrationRepository extends BaseRepository
             }
 
         }
-        
+
         parent::delete($bank_integration);
 
         return $bank_integration;

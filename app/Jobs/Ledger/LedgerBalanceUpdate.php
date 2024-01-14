@@ -21,7 +21,10 @@ use Illuminate\Queue\SerializesModels;
 
 class LedgerBalanceUpdate implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $tries = 1;
 
@@ -35,7 +38,7 @@ class LedgerBalanceUpdate implements ShouldQueue
      *
      * @return void
      */
-    public function handle() :void
+    public function handle(): void
     {
         nlog('Updating company ledgers');
 

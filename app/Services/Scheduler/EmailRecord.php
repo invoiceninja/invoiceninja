@@ -28,7 +28,7 @@ class EmailRecord
         $class = 'App\\Models\\' . Str::camel($this->scheduler->parameters['entity']);
 
         $entity = $class::find($this->decodePrimaryKey($this->scheduler->parameters['entity_id']));
-        
+
         if($entity) {
             $entity->service()->markSent()->sendEmail();
         }

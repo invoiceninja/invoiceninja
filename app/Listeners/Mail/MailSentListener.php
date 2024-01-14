@@ -42,7 +42,7 @@ class MailSentListener implements ShouldQueue
      */
     public function handle(MessageSent $event)
     {
-                   
+
         try {
             $message_id = $event->sent->getMessageId();
 

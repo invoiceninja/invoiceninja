@@ -20,7 +20,7 @@ class UploadProductRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -57,6 +57,6 @@ class UploadProductRequest extends Request
         }
 
         $this->replace($input);
-      
+
     }
 }

@@ -23,7 +23,7 @@ class UpdateClientRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         return $this->encodePrimaryKey(auth()->user()->id) === request()->segment(3);
     }

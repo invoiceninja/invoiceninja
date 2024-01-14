@@ -46,7 +46,7 @@ class SquarePaymentDriver extends BaseDriver
         GatewayType::CREDIT_CARD => CreditCard::class, //maps GatewayType => Implementation class
     ];
 
-    const SYSTEM_LOG_TYPE = SystemLog::TYPE_SQUARE;
+    public const SYSTEM_LOG_TYPE = SystemLog::TYPE_SQUARE;
 
     public function init()
     {
@@ -181,7 +181,7 @@ class SquarePaymentDriver extends BaseDriver
             }
 
         } else {
-            
+
             /** @var \Square\Models\Error $error */
             $error = end($apiResponse->getErrors());
 
@@ -285,18 +285,18 @@ class SquarePaymentDriver extends BaseDriver
     public function checkWebhooks(): mixed
     {
         $this->init();
-        
+
         $api_response = $this->square->getWebhookSubscriptionsApi()->listWebhookSubscriptions();
 
         if ($api_response->isSuccess()) {
-            
+
             //array of WebhookSubscription objects
             foreach($api_response->getResult()->getSubscriptions() ?? [] as $subscription) {
                 if($subscription->getName() == 'Invoice_Ninja_Webhook_Subscription') {
                     return $subscription->getId();
                 }
             }
-                       
+
         } else {
             $errors = $api_response->getErrors();
             nlog($errors);
@@ -325,7 +325,7 @@ class SquarePaymentDriver extends BaseDriver
     // }
     public function createWebhooks(): void
     {
-        
+
         if($this->checkWebhooks()) {
             return;
         }
@@ -352,7 +352,7 @@ class SquarePaymentDriver extends BaseDriver
             $signatureKey = $subscription->getSignatureKey();
 
             $this->company_gateway->setConfigField('signatureKey', $signatureKey);
-            
+
         } else {
             $errors = $api_response->getErrors();
             nlog($errors);

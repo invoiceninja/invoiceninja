@@ -82,7 +82,7 @@ class PaymentController extends Controller
             }
         }
 
-        
+
         return $this->render('payments.show', [
             'payment' => $payment,
             'bank_details' => $payment_intent ? $data : false,

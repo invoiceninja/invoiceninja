@@ -17,7 +17,6 @@ use App\Services\AbstractService;
 
 class ApplyPayment extends AbstractService
 {
-
     public function __construct(private Invoice $invoice, private Payment $payment, private float $payment_amount)
     {
     }
@@ -35,19 +34,19 @@ class ApplyPayment extends AbstractService
 
                 $amount_paid = $this->payment_amount * -1;
 
-                $this->invoice->service()->clearPartial()->setDueDate()->setStatus(Invoice::STATUS_PARTIAL)->updateBalance($amount_paid)->updatePaidToDate($amount_paid*-1)->save();
+                $this->invoice->service()->clearPartial()->setDueDate()->setStatus(Invoice::STATUS_PARTIAL)->updateBalance($amount_paid)->updatePaidToDate($amount_paid * -1)->save();
             } elseif ($this->invoice->partial > 0 && $this->invoice->partial > $this->payment_amount) {
                 //partial amount exists, but the amount is less than the partial amount
 
                 $amount_paid = $this->payment_amount * -1;
 
-                $this->invoice->service()->updatePartial($amount_paid)->updateBalance($amount_paid)->updatePaidToDate($amount_paid*-1)->save();
+                $this->invoice->service()->updatePartial($amount_paid)->updateBalance($amount_paid)->updatePaidToDate($amount_paid * -1)->save();
             } elseif ($this->invoice->partial > 0 && $this->invoice->partial < $this->payment_amount) {
                 //partial exists and the amount paid is GREATER than the partial amount
 
                 $amount_paid = $this->payment_amount * -1;
 
-                $this->invoice->service()->clearPartial()->setDueDate()->setStatus(Invoice::STATUS_PARTIAL)->updateBalance($amount_paid)->updatePaidToDate($amount_paid*-1)->save();
+                $this->invoice->service()->clearPartial()->setDueDate()->setStatus(Invoice::STATUS_PARTIAL)->updateBalance($amount_paid)->updatePaidToDate($amount_paid * -1)->save();
             }
 
             $this->invoice->service()->checkReminderStatus()->save();
@@ -56,19 +55,19 @@ class ApplyPayment extends AbstractService
             if ($this->payment_amount == $this->invoice->balance) {
                 $amount_paid = $this->payment_amount * -1;
 
-                $this->invoice->service()->clearPartial()->setStatus(Invoice::STATUS_PAID)->updateBalance($amount_paid)->updatePaidToDate($amount_paid*-1)->save();
+                $this->invoice->service()->clearPartial()->setStatus(Invoice::STATUS_PAID)->updateBalance($amount_paid)->updatePaidToDate($amount_paid * -1)->save();
             } elseif ($this->payment_amount < $this->invoice->balance) {
                 //partial invoice payment made
 
                 $amount_paid = $this->payment_amount * -1;
 
-                $this->invoice->service()->clearPartial()->setStatus(Invoice::STATUS_PARTIAL)->updateBalance($amount_paid)->updatePaidToDate($amount_paid*-1)->save();
+                $this->invoice->service()->clearPartial()->setStatus(Invoice::STATUS_PARTIAL)->updateBalance($amount_paid)->updatePaidToDate($amount_paid * -1)->save();
             } elseif ($this->payment_amount > $this->invoice->balance) {
                 //partial invoice payment made
 
                 $amount_paid = $this->invoice->balance * -1;
 
-                $this->invoice->service()->clearPartial()->setStatus(Invoice::STATUS_PAID)->updateBalance($amount_paid)->updatePaidToDate($amount_paid*-1)->save();
+                $this->invoice->service()->clearPartial()->setStatus(Invoice::STATUS_PAID)->updateBalance($amount_paid)->updatePaidToDate($amount_paid * -1)->save();
             }
         }
 

@@ -22,7 +22,8 @@ use Livewire\WithPagination;
 
 class InvoicesTable extends Component
 {
-    use WithPagination, WithSorting;
+    use WithPagination;
+    use WithSorting;
 
     public int $per_page = 10;
 

@@ -192,7 +192,7 @@ class QuoteController extends Controller
                 }
 
                 $quote->service()->approve(auth()->user())->save();
-                
+
                 if (request()->has('signature') && ! is_null(request()->signature) && ! empty(request()->signature)) {
                     InjectSignature::dispatch($quote, auth()->guard('contact')->user()->id, request()->signature, request()->getClientIp());
                 }

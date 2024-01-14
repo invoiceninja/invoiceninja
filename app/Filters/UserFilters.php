@@ -70,11 +70,11 @@ class UserFilters extends QueryFilters
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        return $this->builder->whereHas('company_users', function ($q) use ($user){
+        return $this->builder->whereHas('company_users', function ($q) use ($user) {
             $q->where('company_id', '=', $user->company()->id);
         });
     }
-    
+
     /**
      * Hides owner users from the list.
      *
@@ -84,7 +84,7 @@ class UserFilters extends QueryFilters
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
-        
+
         return $this->builder->whereHas('company_users', function ($q) use ($user) {
             $q->where('company_id', '=', $user->company()->id)->where('is_owner', false);
         });
@@ -129,7 +129,7 @@ class UserFilters extends QueryFilters
             ->orderByRaw("{$this->with_property} = ? DESC", [$value])
             ->where('account_id', $user->account_id);
     }
-        
+
     /**
      * Returns users with permissions to send emails via OAuth
      *
@@ -144,7 +144,7 @@ class UserFilters extends QueryFilters
 
         return $this->builder->whereNotNull('oauth_user_refresh_token');
     }
-    
+
     /**
      * Exclude a list of user_ids, can pass multiple
      * user IDs by separating them with a comma.

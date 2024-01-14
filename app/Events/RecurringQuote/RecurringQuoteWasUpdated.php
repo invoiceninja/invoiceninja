@@ -22,7 +22,9 @@ use Illuminate\Queue\SerializesModels;
  */
 class RecurringQuoteWasUpdated
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
 
     public function __construct(public RecurringQuote $recurring_quote, public Company $company, public array $event_vars)

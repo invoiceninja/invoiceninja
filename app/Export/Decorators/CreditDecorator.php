@@ -27,7 +27,7 @@ class CreditDecorator implements DecoratorInterface
 
         if($credit && method_exists($this, $key)) {
             return $this->{$key}($credit);
-        } elseif($credit && $credit->{$key}){
+        } elseif($credit && $credit->{$key}) {
             return $credit->{$key};
         }
 
@@ -125,11 +125,11 @@ class CreditDecorator implements DecoratorInterface
     }
     public function assigned_user_id(Credit $credit)
     {
-        return $credit->assigned_user ? $credit->assigned_user->present()->name(): '';
+        return $credit->assigned_user ? $credit->assigned_user->present()->name() : '';
     }
     public function user_id(Credit $credit)
     {
-        return $credit->user ? $credit->user->present()->name(): '';
+        return $credit->user ? $credit->user->present()->name() : '';
     }
 
 }

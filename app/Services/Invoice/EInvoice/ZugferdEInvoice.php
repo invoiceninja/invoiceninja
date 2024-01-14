@@ -159,17 +159,17 @@ class ZugferdEInvoice extends AbstractService
             }
         }
 
-        $this->xrechnung->setDocumentSummation($this->invoice->amount, $this->invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), 0.0, $this->invoice->amount-$this->invoice->balance);
+        $this->xrechnung->setDocumentSummation($this->invoice->amount, $this->invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), 0.0, $this->invoice->amount - $this->invoice->balance);
 
         foreach ($this->tax_map as $item) {
-            $this->xrechnung->addDocumentTax($item["tax_type"], "VAT", $item["net_amount"], $item["tax_rate"]*$item["net_amount"], $item["tax_rate"]*100);
+            $this->xrechnung->addDocumentTax($item["tax_type"], "VAT", $item["net_amount"], $item["tax_rate"] * $item["net_amount"], $item["tax_rate"] * 100);
         }
 
         // The validity can be checked using https://portal3.gefeg.com/invoice/validation or https://e-rechnung.bayern.de/app/#/upload
         return $this;
-        
+
     }
-    
+
     /**
      * Returns the XML document
      * in string format

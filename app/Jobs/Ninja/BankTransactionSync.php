@@ -25,7 +25,10 @@ use Illuminate\Queue\SerializesModels;
 
 class BankTransactionSync implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * Create a new job instance.
@@ -80,7 +83,7 @@ class BankTransactionSync implements ShouldQueue
     }
     private function processNordigen()
     {
-        if (config("ninja.nordigen.secret_id") && config("ninja.nordigen.secret_key")) { 
+        if (config("ninja.nordigen.secret_id") && config("ninja.nordigen.secret_key")) {
             nlog("syncing transactions - nordigen");
 
             Account::with('bank_integrations')->cursor()->each(function ($account) {

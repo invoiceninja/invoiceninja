@@ -31,7 +31,11 @@ use App\Utils\Traits\Pdf\PdfMaker;
 
 class CreateRawPdf
 {
-    use NumberFormatter, MakesInvoiceHtml, PdfMaker, MakesHash, PageNumbering;
+    use NumberFormatter;
+    use MakesInvoiceHtml;
+    use PdfMaker;
+    use MakesHash;
+    use PageNumbering;
 
     public Invoice | Credit | Quote | RecurringInvoice | PurchaseOrder $entity;
 
@@ -105,7 +109,7 @@ class CreateRawPdf
 
         throw new FilePermissionsFailure('Unable to generate the raw PDF');
     }
-    
+
     public function failed($e)
     {
     }

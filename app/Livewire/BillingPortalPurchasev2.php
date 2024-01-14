@@ -96,7 +96,7 @@ class BillingPortalPurchasev2 extends Component
      *
      * @var Invoice
      */
-    
+
     public \App\Models\Invoice $invoice;
 
     /**
@@ -188,7 +188,7 @@ class BillingPortalPurchasev2 extends Component
 
         $this->invoice_hashed_id = '';
         $this->payable_amount = 0;
-        
+
         $this->data = [];
 
         $this->price = $this->subscription->price; // ?
@@ -256,11 +256,11 @@ class BillingPortalPurchasev2 extends Component
     public function handleEmail()
     {
         $this->validateOnly('email', ['email' => 'required|bail|email:rfc']);
-     
+
         $rand = rand(100000, 999999);
 
         $email_hash = "subscriptions:otp:{$this->email}";
-         
+
         Cache::put($email_hash, $rand, 120);
 
         $this->emailOtpCode($rand);
@@ -271,7 +271,7 @@ class BillingPortalPurchasev2 extends Component
         $cc = new ClientContact();
         $cc->email = $this->email;
 
-        $nmo = new NinjaMailerObject;
+        $nmo = new NinjaMailerObject();
         $nmo->mailable = new OtpCode($this->subscription->company, $this->contact, $code);
         $nmo->company = $this->subscription->company;
         $nmo->settings = $this->subscription->company->settings;
@@ -454,7 +454,7 @@ class BillingPortalPurchasev2 extends Component
      *
      * @return BillingPortalPurchasev2
      */
-    public function updated($propertyName) :self
+    public function updated($propertyName): self
     {
         if (in_array($propertyName, ['login','email'])) {
             return $this;
@@ -470,7 +470,7 @@ class BillingPortalPurchasev2 extends Component
      *
      * @return $this
      */
-    protected function getPaymentMethods() :self
+    protected function getPaymentMethods(): self
     {
         nlog("total amount = {$this->float_amount_total}");
 
@@ -621,7 +621,7 @@ class BillingPortalPurchasev2 extends Component
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    
+
     public function rules()
     {
         $rules = [
@@ -653,7 +653,7 @@ class BillingPortalPurchasev2 extends Component
         $company = $this->subscription->company;
         $user = $this->subscription->user;
         $user->setCompany($company);
-        
+
         $client_repo = new ClientRepository(new ClientContactRepository());
 
         $data = [
@@ -711,7 +711,7 @@ class BillingPortalPurchasev2 extends Component
     }
 
 
-    
+
     /**
      * Proxy method for starting the trial.
      *

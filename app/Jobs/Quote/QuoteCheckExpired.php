@@ -27,7 +27,11 @@ use Illuminate\Queue\SerializesModels;
 
 class QuoteCheckExpired implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, UserNotifies;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use UserNotifies;
 
     /**
      * Create a new job instance.
@@ -94,7 +98,7 @@ class QuoteCheckExpired implements ShouldQueue
 
     private function queueExpiredQuoteNotification(Quote $quote)
     {
-        $nmo = new NinjaMailerObject;
+        $nmo = new NinjaMailerObject();
         $nmo->company = $quote->company;
         $nmo->settings = $quote->company->settings;
 
@@ -106,7 +110,7 @@ class QuoteCheckExpired implements ShouldQueue
             if (! $user) {
                 continue;
             }
-            
+
             $nmo->mailable = new NinjaMailer((new QuoteExpiredObject($quote, $quote->company, $company_user->portalType()))->build());
 
             /* Returns an array of notification methods */

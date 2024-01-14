@@ -49,7 +49,8 @@ use Illuminate\Support\Facades\Auth;
 
 class CheckoutComPaymentDriver extends BaseDriver
 {
-    use SystemLogTrait, Utilities;
+    use SystemLogTrait;
+    use Utilities;
 
     /* The company gateway instance*/
     public $company_gateway;
@@ -79,7 +80,7 @@ class CheckoutComPaymentDriver extends BaseDriver
         GatewayType::CREDIT_CARD => CreditCard::class,
     ];
 
-    const SYSTEM_LOG_TYPE = SystemLog::TYPE_CHECKOUT;
+    public const SYSTEM_LOG_TYPE = SystemLog::TYPE_CHECKOUT;
 
     /**
      * Returns the default gateway type.
@@ -118,7 +119,7 @@ class CheckoutComPaymentDriver extends BaseDriver
     {
 
         if (str_contains($this->company_gateway->getConfigField('secretApiKey'), '-')) {
-        
+
             $this->is_four_api = true; //was four api, now known as previous.
 
             /** @phpstan-ignore-next-line **/
@@ -130,7 +131,7 @@ class CheckoutComPaymentDriver extends BaseDriver
                     ->secretKey($this->company_gateway->getConfigField('secretApiKey'));
 
             $this->gateway = $builder->build();
-                
+
         } else {
 
             /** @phpstan-ignore-next-line **/
@@ -156,7 +157,7 @@ class CheckoutComPaymentDriver extends BaseDriver
     {
         return 'gateways.checkout.credit_card.pay';
     }
-    
+
     /**
      * Authorize View
      *
@@ -167,7 +168,7 @@ class CheckoutComPaymentDriver extends BaseDriver
     {
         return $this->payment_method->authorizeView($data);
     }
-    
+
     /**
      * Authorize Response
      *
@@ -200,7 +201,7 @@ class CheckoutComPaymentDriver extends BaseDriver
     {
         return $this->payment_method->paymentResponse($request);
     }
-    
+
     /**
      * Store PaymentMethod
      *
@@ -295,7 +296,7 @@ class CheckoutComPaymentDriver extends BaseDriver
         } catch (\Exception $e) {
 
             $request = new CustomerRequest();
-                    
+
             $phone = new Phone();
             $phone->number = substr(str_pad($this->client->present()->phone(), 6, "0", STR_PAD_RIGHT), 0, 24);
             $request->email = $this->client->present()->email();
@@ -330,7 +331,7 @@ class CheckoutComPaymentDriver extends BaseDriver
             return $response;
         }
     }
-    
+
     public function updateCustomer()
     {
         $phone = new Phone();
@@ -454,7 +455,7 @@ class CheckoutComPaymentDriver extends BaseDriver
             } else {
                 $error_details = $e->getMessage();
             }
-  
+
             $data = [
                 'status' => $e->error_details,
                 'error_type' => '',

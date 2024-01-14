@@ -51,7 +51,7 @@ class InvoiceSum
     private $precision;
 
     public InvoiceItemSum $invoice_items;
-    
+
     /**
      * Constructs the object with Invoice and Settings object.
      *
@@ -67,7 +67,7 @@ class InvoiceSum
             $this->precision = $this->invoice->vendor->currency()->precision;
         }
 
-        $this->tax_map = new Collection;
+        $this->tax_map = new Collection();
     }
 
     public function build()

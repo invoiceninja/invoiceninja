@@ -110,7 +110,7 @@ class Response
             }
 
         }
-        
+
     }
 
 }

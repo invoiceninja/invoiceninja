@@ -74,7 +74,7 @@ class AccountController extends BaseController
                 'remoteip' => $request->getClientIp(),
             ]);
 
-            if($r->successful()){
+            if($r->successful()) {
 
                 if($r->json()['success'] === true) {
                     // Captcha passed
@@ -86,7 +86,7 @@ class AccountController extends BaseController
         }
 
         if($request->has('hash') && config('ninja.cloudflare.turnstile.secret')) { //@todo once all platforms are implemented, we disable access to the rest of this route without a success response.
-            
+
             if(Secure::decrypt($request->input('hash')) !== $request->input('email')) {
                 return response()->json(['message' => 'Invalid Signup Payload'], 400);
             }
@@ -97,7 +97,7 @@ class AccountController extends BaseController
         if (! ($account instanceof Account)) {
             return $account;
         }
-        
+
         MultiDB::findAndSetDbByAccountKey($account->key);
 
         $cu = CompanyUser::query()->where('user_id', $account->users()->first()->id);

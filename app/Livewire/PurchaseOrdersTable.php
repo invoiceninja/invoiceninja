@@ -21,7 +21,8 @@ use Livewire\WithPagination;
 
 class PurchaseOrdersTable extends Component
 {
-    use WithPagination, WithSorting;
+    use WithPagination;
+    use WithSorting;
 
     public $per_page = 10;
 

@@ -22,7 +22,10 @@ use Illuminate\Queue\SerializesModels;
 
 class CheckACHStatus implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * Create a new job instance.
@@ -94,7 +97,7 @@ class CheckACHStatus implements ShouldQueue
                 try {
                     $pi = $stripe->getPaymentIntent($p->transaction_reference);
                 } catch(\Exception $e) {
-    
+
                 }
 
                 if(!$pi) {

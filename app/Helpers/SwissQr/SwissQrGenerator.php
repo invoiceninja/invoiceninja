@@ -108,7 +108,7 @@ class SwissQrGenerator
 
         // Add payment reference
         // This is what you will need to identify incoming payments.
-        
+
         if (stripos($this->invoice->number, "Live") === 0) {
             // we're currently in preview status. Let's give a dummy reference for now
             $invoice_number = "123456789";
@@ -116,7 +116,7 @@ class SwissQrGenerator
             $tempInvoiceNumber = $this->invoice->number;
             $tempInvoiceNumber = preg_replace('/[^A-Za-z0-9]/', '', $tempInvoiceNumber);
             // $tempInvoiceNumber = substr($tempInvoiceNumber, 1);
-        
+
             $calcInvoiceNumber = "";
             $array = str_split($tempInvoiceNumber);
             foreach ($array as $char) {
@@ -132,7 +132,7 @@ class SwissQrGenerator
                 }
                 $calcInvoiceNumber .= $char;
             }
-       
+
             $invoice_number = $calcInvoiceNumber;
         }
 
@@ -176,7 +176,7 @@ class SwissQrGenerator
         } catch (\Exception $e) {
 
             if(is_iterable($qrBill->getViolations())) {
-           
+
                 foreach ($qrBill->getViolations() as $key => $violation) {
                     nlog("qr");
                     nlog($violation);
@@ -185,7 +185,7 @@ class SwissQrGenerator
             }
 
             nlog($e->getMessage());
-            
+
             return '';
             // return $e->getMessage();
         }
@@ -207,7 +207,7 @@ class SwissQrGenerator
             case 'fr_CA':
             case 'fr_CH':
                 return 'fr';
-            
+
             default:
                 return 'en';
         }

@@ -36,7 +36,7 @@ class SubscriptionCron
      *
      * @return void
      */
-    public function handle() : void
+    public function handle(): void
     {
         nlog('Subscription Cron');
 

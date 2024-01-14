@@ -70,8 +70,9 @@ class TransactionTransformer implements BankRevenueInterface
     {
         $data = [];
 
-        if (!array_key_exists('transactions', $transactionResponse) || !array_key_exists('booked', $transactionResponse["transactions"]))
+        if (!array_key_exists('transactions', $transactionResponse) || !array_key_exists('booked', $transactionResponse["transactions"])) {
             throw new \Exception('invalid dataset');
+        }
 
         foreach ($transactionResponse["transactions"]["booked"] as $transaction) {
             $data[] = $this->transformTransaction($transaction);
@@ -83,21 +84,23 @@ class TransactionTransformer implements BankRevenueInterface
     public function transformTransaction($transaction)
     {
 
-        if (!array_key_exists('transactionId', $transaction) || !array_key_exists('transactionAmount', $transaction))
+        if (!array_key_exists('transactionId', $transaction) || !array_key_exists('transactionAmount', $transaction)) {
             throw new \Exception('invalid dataset');
+        }
 
         // description could be in varios places
         $description = '';
-        if (array_key_exists('remittanceInformationStructured', $transaction))
+        if (array_key_exists('remittanceInformationStructured', $transaction)) {
             $description = $transaction["remittanceInformationStructured"];
-        else if (array_key_exists('remittanceInformationStructuredArray', $transaction))
+        } elseif (array_key_exists('remittanceInformationStructuredArray', $transaction)) {
             $description = implode('\n', $transaction["remittanceInformationStructuredArray"]);
-        else if (array_key_exists('remittanceInformationUnstructured', $transaction))
+        } elseif (array_key_exists('remittanceInformationUnstructured', $transaction)) {
             $description = $transaction["remittanceInformationUnstructured"];
-        else if (array_key_exists('remittanceInformationUnstructuredArray', $transaction))
+        } elseif (array_key_exists('remittanceInformationUnstructuredArray', $transaction)) {
             $description = implode('\n', $transaction["remittanceInformationUnstructuredArray"]);
-        else
+        } else {
             Log::warning("Missing description for the following transaction: " . json_encode($transaction));
+        }
 
         // participant
         $participant = array_key_exists('debtorAccount', $transaction) && array_key_exists('iban', $transaction["debtorAccount"]) ?
@@ -137,13 +140,12 @@ class TransactionTransformer implements BankRevenueInterface
             return $item->code == $code;
         })->first();
 
-        if ($currency)
+        if ($currency) {
             return $currency->id;
+        }
 
         return 1;
 
     }
 
 }
-
-

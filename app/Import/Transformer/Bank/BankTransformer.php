@@ -51,7 +51,7 @@ class BankTransformer extends BaseTransformer
         return $transformed;
     }
 
-    private function calculateAmount(array $transaction):float
+    private function calculateAmount(array $transaction): float
     {
 
         if (array_key_exists('transaction.amount', $transaction) && is_numeric($transaction['transaction.amount'])) {

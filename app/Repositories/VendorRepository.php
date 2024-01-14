@@ -41,7 +41,7 @@ class VendorRepository extends BaseRepository
      * @return     vendor|\App\Models\Vendor|null  Vendor Object
      * @throws \Laracasts\Presenter\Exceptions\PresenterException
      */
-    public function save(array $data, Vendor $vendor) : ?Vendor
+    public function save(array $data, Vendor $vendor): ?Vendor
     {
         $saveable_vendor = $data;
 
@@ -50,7 +50,7 @@ class VendorRepository extends BaseRepository
         }
 
         $vendor->fill($saveable_vendor);
-                
+
         $vendor->saveQuietly();
 
         if ($vendor->number == '' || ! $vendor->number) {

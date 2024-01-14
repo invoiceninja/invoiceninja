@@ -41,7 +41,7 @@ class CreatedVendorActivity implements ShouldQueue
     {
         MultiDB::setDb($event->company->db);
 
-        $fields = new stdClass;
+        $fields = new stdClass();
 
         $user_id = isset($event->event_vars['user_id']) ? $event->event_vars['user_id'] : $event->vendor->user_id;
 

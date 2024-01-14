@@ -26,7 +26,7 @@ class ClientContactRepository extends BaseRepository
 
     private bool $set_send_email_on_contact = false;
 
-    public function save(array $data, Client $client) : void
+    public function save(array $data, Client $client): void
     {
 
         if (isset($data['contacts']) && (count($data['contacts']) !== count($data['contacts'], COUNT_RECURSIVE))) {

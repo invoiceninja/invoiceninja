@@ -18,7 +18,6 @@ use Http;
  */
 class Piste
 {
-
     private string $oauth_sandbox_url = 'https://sandbox-oauth.piste.gouv.fr/api/oauth/token';
     private string $oauth_production_url = 'https://oauth.piste.gouv.fr/api/oauth/token';
     private string $sandbox_url = 'https://sandbox-api.piste.gouv.fr';
@@ -46,7 +45,7 @@ class Piste
             'scope' => 'openid profile'
         ];
     }
-        
+
     private function oauthUrl(): string
     {
         return $this->test_mode ? $this->oauth_sandbox_url : $this->oauth_production_url;

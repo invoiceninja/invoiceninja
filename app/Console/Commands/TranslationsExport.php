@@ -96,7 +96,7 @@ class TranslationsExport extends Command
      */
     public function handle()
     {
-        $type =$this->option('type') ?? 'export';
+        $type = $this->option('type') ?? 'export';
 
         if ($type == 'import') {
             $this->import();

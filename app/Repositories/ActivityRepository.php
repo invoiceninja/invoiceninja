@@ -99,7 +99,7 @@ class ActivityRepository extends BaseRepository
         }
 
         if(get_class($entity) == PurchaseOrder::class) {
-           
+
             $backup = new Backup();
             $entity->load('client');
             $backup->amount = $entity->amount;
@@ -131,7 +131,7 @@ class ActivityRepository extends BaseRepository
     private function generateVendorHtml($entity)
     {
         $entity_design_id = $entity->design_id ? $entity->design_id : $this->decodePrimaryKey($entity->vendor->getSetting('purchase_order_design_id'));
-        
+
         $design = Design::withTrashed()->find($entity_design_id);
 
         if (! $entity->invitations()->exists() || ! $design) {
@@ -176,7 +176,7 @@ class ActivityRepository extends BaseRepository
 
         $maker = null;
         $state = null;
-                
+
         return $html;
 
     }
@@ -246,7 +246,7 @@ class ActivityRepository extends BaseRepository
 
         $maker = null;
         $state = null;
-        
+
         return $html;
     }
 }

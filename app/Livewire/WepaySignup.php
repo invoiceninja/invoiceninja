@@ -105,9 +105,9 @@ class WepaySignup extends Component
                             ->firstOrNew();
 
         if (! $cg->id) {
-            $fees_and_limits = new \stdClass;
-            $fees_and_limits->{GatewayType::CREDIT_CARD} = new FeesAndLimits;
-            $fees_and_limits->{GatewayType::BANK_TRANSFER} = new FeesAndLimits;
+            $fees_and_limits = new \stdClass();
+            $fees_and_limits->{GatewayType::CREDIT_CARD} = new FeesAndLimits();
+            $fees_and_limits->{GatewayType::BANK_TRANSFER} = new FeesAndLimits();
 
             $cg = CompanyGatewayFactory::create($this->company->id, $this->user->id);
             $cg->gateway_key = '8fdeed552015b3c7b44ed6c8ebd9e992';
@@ -174,7 +174,7 @@ class WepaySignup extends Component
             if ($ex->getMessage() == 'This access_token is already approved.') {
                 $confirmation_required = false;
             } else {
-                
+
                 /** @phpstan-ignore-next-line */
                 request()->session()->flash('message', $ex->getMessage());
             }
@@ -198,7 +198,7 @@ class WepaySignup extends Component
         $cg->save();
 
         if ($confirmation_required) {
-            
+
             /** @phpstan-ignore-next-line **/
             request()->session()->flash('message', trans('texts.created_wepay_confirmation_required'));
         } else {

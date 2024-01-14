@@ -39,7 +39,7 @@ class UpdateDocumentRequest extends Request
         ];
     }
 
-    
+
     public function prepareForValidation()
     {
         $input = $this->all();

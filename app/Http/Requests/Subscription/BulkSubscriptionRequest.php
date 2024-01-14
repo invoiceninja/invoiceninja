@@ -20,7 +20,7 @@ class BulkSubscriptionRequest extends Request
     use MakesHash;
 
     private $entity_table = 'invoices';
-    
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -53,12 +53,14 @@ class BulkSubscriptionRequest extends Request
             $input['ids'] = $this->transformKeys($input['ids']);
         }
 
-        if(isset($input['entity']) && $input['entity'] == 'recurring_invoice')
+        if(isset($input['entity']) && $input['entity'] == 'recurring_invoice') {
             $this->entity_table = 'recurring_invoices';
+        }
 
-        if(isset($input['entity_id']) && $input['entity_id'] != null)
+        if(isset($input['entity_id']) && $input['entity_id'] != null) {
             $input['entity_id'] = $this->decodePrimaryKey($input['entity_id']);
-        
+        }
+
         $this->replace($input);
     }
 }

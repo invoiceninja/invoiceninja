@@ -30,7 +30,7 @@ class UpdateInvoiceRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -60,7 +60,7 @@ class UpdateInvoiceRequest extends Request
         $rules['id'] = new LockedInvoiceRule($this->invoice);
 
         $rules['number'] = ['bail', 'sometimes', 'nullable', Rule::unique('invoices')->where('company_id', $user->company()->id)->ignore($this->invoice->id)];
-        
+
         $rules['is_amount_discount'] = ['boolean'];
         $rules['client_id'] = ['bail', 'sometimes', Rule::in([$this->invoice->client_id])];
         $rules['line_items'] = 'array';

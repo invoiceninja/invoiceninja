@@ -13,7 +13,6 @@ namespace App\Import\Definitions;
 
 class TaskMap
 {
-
     public static function importable()
     {
         return [

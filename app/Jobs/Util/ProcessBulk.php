@@ -20,7 +20,11 @@ use Illuminate\Queue\SerializesModels;
 
 class ProcessBulk implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, BulkOptions;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use BulkOptions;
 
     /**
      * Repository for target resource.

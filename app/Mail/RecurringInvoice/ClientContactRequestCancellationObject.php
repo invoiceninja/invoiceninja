@@ -50,7 +50,7 @@ class ClientContactRequestCancellationObject
             'logo' => $this->company->present()->logo(),
         ];
 
-        $mail_obj = new \stdClass;
+        $mail_obj = new \stdClass();
         $mail_obj->subject = ctrans('texts.recurring_cancellation_request', ['contact' => $this->client_contact->present()->name()]);
         $mail_obj->data = $data;
         $mail_obj->markdown = 'email.admin.generic';

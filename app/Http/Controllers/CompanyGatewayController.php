@@ -202,13 +202,13 @@ class CompanyGatewayController extends BaseController
         $company_gateway->save();
 
         /*Always ensure at least one fees and limits object is set per gateway*/
-        $gateway_types = $company_gateway->driver(new Client)->getAvailableMethods();
-        
+        $gateway_types = $company_gateway->driver(new Client())->getAvailableMethods();
+
         $fees_and_limits = $company_gateway->fees_and_limits;
-        
+
         foreach($gateway_types as $key => $gateway_type) {
             if(!property_exists($fees_and_limits, $key)) {
-                $fees_and_limits->{$key} = new FeesAndLimits;
+                $fees_and_limits->{$key} = new FeesAndLimits();
             }
         }
 
@@ -388,13 +388,13 @@ class CompanyGatewayController extends BaseController
         $company_gateway->fill($request->all());
 
         /*Always ensure at least one fees and limits object is set per gateway*/
-        $gateway_types = $company_gateway->driver(new Client)->getAvailableMethods();
-                
+        $gateway_types = $company_gateway->driver(new Client())->getAvailableMethods();
+
         $fees_and_limits = $company_gateway->fees_and_limits;
-                
+
         foreach($gateway_types as $key => $gateway_type) {
             if(!property_exists($fees_and_limits, $key)) {
-                $fees_and_limits->{$key} = new FeesAndLimits;
+                $fees_and_limits->{$key} = new FeesAndLimits();
             }
         }
 
@@ -404,7 +404,7 @@ class CompanyGatewayController extends BaseController
         if($company_gateway->gateway_key == $this->checkout_key) {
             CheckoutSetupWebhook::dispatch($company_gateway->company->company_key, $company_gateway->fresh()->id);
         }
-        
+
         return $this->itemResponse($company_gateway);
     }
 
@@ -459,7 +459,7 @@ class CompanyGatewayController extends BaseController
      */
     public function destroy(DestroyCompanyGatewayRequest $request, CompanyGateway $company_gateway)
     {
-        $company_gateway->driver(new Client)
+        $company_gateway->driver(new Client())
                          ->disconnect();
 
         $company_gateway->delete();

@@ -34,7 +34,10 @@ use App\Notifications\Ninja\EmailBounceNotification;
 
 class ProcessPostmarkWebhook implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $tries = 1;
 
@@ -85,7 +88,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
     {
         MultiDB::findAndSetDbByCompanyKey($this->request['Tag']);
         $company = Company::where('company_key', $this->request['Tag'])->first();
-        
+
         $this->invitation = $this->discoverInvitation($this->request['MessageID']);
 
         if ($company && $this->request['RecordType'] == 'SpamComplaint' && config('ninja.notification.slack')) {
@@ -99,7 +102,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
         if (array_key_exists('Details', $this->request)) {
             $this->invitation->email_error = $this->request['Details'];
         }
-        
+
         switch ($this->request['RecordType']) {
             case 'Delivery':
                 return $this->processDelivery();
@@ -349,7 +352,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
         $postmark = new PostmarkClient(config('services.postmark.token'));
         $messageDetail = $postmark->getOutboundMessageDetails($message_id);
         return $messageDetail;
-        
+
     }
 
 
@@ -358,7 +361,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
 
         $messageDetail = $this->getRawMessage($message_id);
 
-        
+
         $event =  collect($messageDetail->messageevents)->first(function ($event) {
 
             return $event?->Details?->BounceID ?? false;
@@ -374,7 +377,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
         if(strlen($this->request['MessageID']) < 1) {
             return $this->default_response;
         }
-    
+
         try {
 
             $postmark = new PostmarkClient(config('services.postmark.token'));

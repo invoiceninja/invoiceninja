@@ -355,7 +355,7 @@ class WebhookController extends BaseController
             return response()->json('Invalid event', 400);
         }
 
-        $webhook = new Webhook;
+        $webhook = new Webhook();
         $webhook->company_id = auth()->user()->company()->id;
         $webhook->user_id = auth()->user()->id;
         $webhook->event_id = $event_id;
@@ -488,7 +488,7 @@ class WebhookController extends BaseController
         $webhooks->each(function ($webhook, $key) use ($action) {
             /** @var \App\Models\User $user */
             $user = auth()->user();
-            
+
             if ($user->can('edit', $webhook)) {
                 $this->base_repo->{$action}($webhook);
             }
@@ -502,11 +502,11 @@ class WebhookController extends BaseController
         $includes = '';
 
         match ($request->entity) {
-            'invoice' => $includes ='client',
-            'payment' => $includes ='invoices,client',
-            'project' => $includes ='client',
-            'purchase_order' => $includes ='vendor',
-            'quote' => $includes ='client',
+            'invoice' => $includes = 'client',
+            'payment' => $includes = 'invoices,client',
+            'project' => $includes = 'client',
+            'purchase_order' => $includes = 'vendor',
+            'quote' => $includes = 'client',
             default => $includes = ''
         };
 
@@ -517,7 +517,7 @@ class WebhookController extends BaseController
         if (!$entity) {
             return response()->json(['message' => ctrans('texts.record_not_found')], 400);
         }
-        
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
 

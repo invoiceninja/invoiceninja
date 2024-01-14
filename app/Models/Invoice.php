@@ -212,21 +212,21 @@ class Invoice extends BaseModel
         'status',
     ];
 
-    const STATUS_DRAFT = 1;
+    public const STATUS_DRAFT = 1;
 
-    const STATUS_SENT = 2;
+    public const STATUS_SENT = 2;
 
-    const STATUS_PARTIAL = 3;
+    public const STATUS_PARTIAL = 3;
 
-    const STATUS_PAID = 4;
+    public const STATUS_PAID = 4;
 
-    const STATUS_CANCELLED = 5;
+    public const STATUS_CANCELLED = 5;
 
-    const STATUS_REVERSED = 6;
+    public const STATUS_REVERSED = 6;
 
-    const STATUS_OVERDUE = -1; //status < 4 || < 3 && !is_deleted && !trashed() && due_date < now()
+    public const STATUS_OVERDUE = -1; //status < 4 || < 3 && !is_deleted && !trashed() && due_date < now()
 
-    const STATUS_UNPAID = -2; //status < 4 || < 3 && !is_deleted && !trashed()
+    public const STATUS_UNPAID = -2; //status < 4 || < 3 && !is_deleted && !trashed()
 
     public function getEntityType()
     {
@@ -373,13 +373,13 @@ class Invoice extends BaseModel
     {
         return $this->hasOne(Expense::class);
     }
- 
+
     /**
      * Service entry points.
      *
      * @return InvoiceService
      */
-    public function service() :InvoiceService
+    public function service(): InvoiceService
     {
         return new InvoiceService($this);
     }
@@ -478,7 +478,7 @@ class Invoice extends BaseModel
                 return '<h5><span class="badge badge-info">'.ctrans('texts.reversed').'</span></h5>';
             default:
                 return '<h5><span class="badge badge-primary">'.ctrans('texts.sent').'</span></h5>';
-                
+
         }
     }
 
@@ -541,7 +541,7 @@ class Invoice extends BaseModel
      * based on the current status of the invoice.
      * @return bool [description]
      */
-    public function isLocked() :bool
+    public function isLocked(): bool
     {
         $locked_status = $this->client->getSetting('lock_invoices');
 
@@ -632,7 +632,7 @@ class Invoice extends BaseModel
     public function expense_documents()
     {
         $line_items = $this->line_items;
-            
+
         $expense_ids = [];
 
         foreach ($line_items as $item) {
@@ -640,7 +640,7 @@ class Invoice extends BaseModel
                 $expense_ids[] = $item->expense_id;
             }
         }
-            
+
         return Expense::query()->whereIn('id', $this->transformKeys($expense_ids))
                            ->where('invoice_documents', 1)
                            ->where('company_id', $this->company_id)
@@ -650,7 +650,7 @@ class Invoice extends BaseModel
     public function task_documents()
     {
         $line_items = $this->line_items;
-            
+
         $task_ids = [];
 
         foreach ($line_items as $item) {
@@ -658,7 +658,7 @@ class Invoice extends BaseModel
                 $task_ids[] = $item->task_id;
             }
         }
-            
+
         return Task::query()->whereIn('id', $this->transformKeys($task_ids))
                            ->whereHas('company', function ($query) {
                                $query->where('invoice_task_documents', 1);
@@ -732,7 +732,7 @@ class Invoice extends BaseModel
         $schedule_3 = ctrans("texts.{$settings->schedule_reminder3}"); //after due date etc or disabled
         $label_3 = ctrans('texts.reminder3');
 
-        $sends_email_endless = $settings->enable_reminder_endless  ? $send_email_enabled : $send_email_disabled;
+        $sends_email_endless = $settings->enable_reminder_endless ? $send_email_enabled : $send_email_disabled;
         $days_endless = \App\Models\RecurringInvoice::frequencyForKey($settings->endless_reminder_frequency_id);
         $label_endless = ctrans('texts.reminder_endless');
 
@@ -747,19 +747,19 @@ class Invoice extends BaseModel
         } else {
             $reminder_schedule .= "{$label_2}: {$days_2} {$schedule_2} [{$sends_email_2}]<br>";
         }
-        
+
         if($schedule_3 == ctrans('texts.disabled') || $settings->schedule_reminder3 == 'disabled' || $settings->schedule_reminder3 == '') {
             $reminder_schedule .= "{$label_3}: " . ctrans('texts.disabled') ."<br>";
         } else {
             $reminder_schedule .= "{$label_3}: {$days_3} {$schedule_3} [{$sends_email_3}]<br>";
         }
-        
+
         if($sends_email_endless == ctrans('texts.disabled') || $settings->endless_reminder_frequency_id == '0' || $settings->endless_reminder_frequency_id == '') {
             $reminder_schedule .= "{$label_endless}: " . ctrans('texts.disabled') ."<br>";
         } else {
             $reminder_schedule .= "{$label_endless}: {$days_endless} [{$sends_email_endless}]<br>";
         }
-        
+
 
         return $reminder_schedule;
     }

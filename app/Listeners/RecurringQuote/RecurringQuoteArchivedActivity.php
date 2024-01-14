@@ -43,7 +43,7 @@ class RecurringQuoteArchivedActivity implements ShouldQueue
 
         $event->recurring_quote->service()->deletePdf();
 
-        $fields = new stdClass;
+        $fields = new stdClass();
         $user_id = isset($event->event_vars['user_id']) ? $event->event_vars['user_id'] : $event->recurring_quote->user_id;
 
         $fields->user_id = $user_id;

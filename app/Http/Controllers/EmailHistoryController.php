@@ -32,7 +32,7 @@ class EmailHistoryController extends BaseController
                  ->orderBy('id', 'DESC')
                  ->cursor()
                 ->filter(function ($system_log) {
-                    return (isset($system_log->log['history']) && isset($system_log->log['history']['events']) && count($system_log->log['history']['events']) >=1) !== false;
+                    return (isset($system_log->log['history']) && isset($system_log->log['history']['events']) && count($system_log->log['history']['events']) >= 1) !== false;
                 })->map(function ($system_log) {
                     return $system_log->log['history'];
                 })->values()->all();
@@ -40,7 +40,7 @@ class EmailHistoryController extends BaseController
         return response()->json($data, 200);
 
     }
-    
+
     /**
      * May need to expand on this using
      * just the message-id and search for the
@@ -58,7 +58,7 @@ class EmailHistoryController extends BaseController
         ->orderBy('id', 'DESC')
         ->cursor()
         ->filter(function ($system_log) {
-            return ($system_log->log['history'] && isset($system_log->log['history']['events']) && count($system_log->log['history']['events']) >=1) !== false;
+            return ($system_log->log['history'] && isset($system_log->log['history']['events']) && count($system_log->log['history']['events']) >= 1) !== false;
         })->map(function ($system_log) {
             return $system_log->log['history'];
         })->values()->all();

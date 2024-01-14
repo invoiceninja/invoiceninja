@@ -20,7 +20,7 @@ class DestroySchedulerRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         return auth()->user()->isAdmin() && $this->task_scheduler->company_id == auth()->user()->company()->id;
     }

@@ -23,7 +23,10 @@ use Illuminate\Support\Facades\Cache;
 
 class PreviewReport implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * Create a new job instance
@@ -44,7 +47,7 @@ class PreviewReport implements ShouldQueue
         } else {
             $report = $export->run();
         }
-            
+
         // nlog($report);
 
         Cache::put($this->hash, $report, 60 * 60);

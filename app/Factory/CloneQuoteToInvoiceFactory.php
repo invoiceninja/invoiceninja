@@ -16,7 +16,7 @@ use App\Models\Quote;
 
 class CloneQuoteToInvoiceFactory
 {
-    public static function create(Quote $quote, $user_id) : ?Invoice
+    public static function create(Quote $quote, $user_id): ?Invoice
     {
         $invoice = new Invoice();
 
@@ -29,7 +29,7 @@ class CloneQuoteToInvoiceFactory
         unset($quote_array['id']);
         unset($quote_array['invitations']);
         unset($quote_array['user']);
-        
+
         //preserve terms if they exist on Quotes
         //if(array_key_exists('terms', $quote_array) && strlen($quote_array['terms']) < 2)
         if (! $quote->company->use_quote_terms_on_conversion) {

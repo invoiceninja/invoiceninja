@@ -60,7 +60,7 @@ class TokenFilters extends QueryFilters
 
         return $this->builder->orderBy($sort_col[0], $dir);
     }
-    
+
     /**
      * Filters the query by the users company ID.
      *

@@ -72,11 +72,11 @@ class BankTransaction extends BaseModel
     use MakesHash;
     use Filterable;
 
-    const STATUS_UNMATCHED = 1;
+    public const STATUS_UNMATCHED = 1;
 
-    const STATUS_MATCHED = 2;
+    public const STATUS_MATCHED = 2;
 
-    const STATUS_CONVERTED = 3;
+    public const STATUS_CONVERTED = 3;
 
     protected $fillable = [
         'currency_id',

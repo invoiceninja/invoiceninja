@@ -64,8 +64,8 @@ class RenewalFailureNotification extends Notification
     {
         $content = "Plan paid, account not updated\n";
         $content .= "Contact/Inapp Purchase: {$this->notification_message}";
-        
-        return (new SlackMessage)
+
+        return (new SlackMessage())
                 ->success()
                 ->from(ctrans('texts.notification_bot'))
                 ->image('https://app.invoiceninja.com/favicon.png')

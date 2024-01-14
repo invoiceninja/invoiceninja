@@ -19,7 +19,7 @@ use Illuminate\Support\Str;
 
 class RecurringExpenseToExpenseFactory
 {
-    public static function create(RecurringExpense $recurring_expense) :Expense
+    public static function create(RecurringExpense $recurring_expense): Expense
     {
         $expense = new Expense();
         $expense->user_id = $recurring_expense->user_id;
@@ -245,7 +245,7 @@ class RecurringExpenseToExpenseFactory
 
                 if ($matches->keys()->first() == ':MONTHYEAR') {
 
-                    $final_date = now()->addMonths($output-now()->month);
+                    $final_date = now()->addMonths($output - now()->month);
 
                     $output =    \sprintf(
                         '%s %s',

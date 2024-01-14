@@ -81,7 +81,7 @@ class PayPalRestPaymentDriver extends BaseDriver
         $this->omnipay_gateway->initialize((array) $this->company_gateway->getConfig());
 
         $this->api_endpoint_url = $this->company_gateway->getConfigField('testMode') ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com';
-        
+
         return $this;
     }
 
@@ -115,7 +115,7 @@ class PayPalRestPaymentDriver extends BaseDriver
         $this->init();
 
         $data['gateway'] = $this;
-        
+
         $this->payment_hash->data = array_merge((array) $this->payment_hash->data, ['amount' => $data['total']['amount_with_fee']]);
         $this->payment_hash->save();
 
@@ -128,7 +128,7 @@ class PayPalRestPaymentDriver extends BaseDriver
 
     }
 
-    private function getFundingOptions():string
+    private function getFundingOptions(): string
     {
 
         $enums = [
@@ -153,7 +153,7 @@ class PayPalRestPaymentDriver extends BaseDriver
 
             if($value->is_enabled) {
 
-                $funding_options .=$enums[$key].',';
+                $funding_options .= $enums[$key].',';
 
             }
 
@@ -167,7 +167,7 @@ class PayPalRestPaymentDriver extends BaseDriver
     {
 
         $response = json_decode($request['gateway_response'], true);
-        
+
         if($response['status'] == 'COMPLETED' && isset($response['purchase_units'])) {
 
             $data = [
@@ -214,7 +214,7 @@ class PayPalRestPaymentDriver extends BaseDriver
         if($r->successful()) {
             return $r->json()['client_token'];
         }
-        
+
         throw new PaymentFailed('Unable to gain client token from Paypal. Check your configuration', 401);
 
     }
@@ -245,11 +245,11 @@ class PayPalRestPaymentDriver extends BaseDriver
             ],
           "purchase_units" => [
                 [
-            "description" =>ctrans('texts.invoice_number').'# '.$invoice->number,
+            "description" => ctrans('texts.invoice_number').'# '.$invoice->number,
             "invoice_id" => $invoice->number,
             "amount" => [
                 "value" => (string)$data['amount_with_fee'],
-                "currency_code"=> $this->client->currency()->code,
+                "currency_code" => $this->client->currency()->code,
                 "breakdown" => [
                     "item_total" => [
                         "currency_code" => $this->client->currency()->code,
@@ -257,7 +257,7 @@ class PayPalRestPaymentDriver extends BaseDriver
                     ]
                 ]
             ],
-            "items"=> [
+            "items" => [
                 [
                     "name" => ctrans('texts.invoice_number').'# '.$invoice->number,
                     "quantity" => "1",
@@ -270,7 +270,7 @@ class PayPalRestPaymentDriver extends BaseDriver
           ]
           ]
         ];
-        
+
         $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
 
         return $r->json()['id'];

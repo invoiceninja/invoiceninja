@@ -58,7 +58,7 @@ class UniqueUserRule implements Rule
      * @param $email
      * @return bool
      */
-    private function checkIfEmailExists($email) : bool
+    private function checkIfEmailExists($email): bool
     {
         return MultiDB::checkUserEmailExists($email);
     }

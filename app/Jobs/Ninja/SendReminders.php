@@ -33,7 +33,12 @@ use Illuminate\Support\Facades\App;
 //@DEPRECATED
 class SendReminders implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesDates, MakesReminders;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use MakesDates;
+    use MakesReminders;
 
     /**
      * Create a new job instance.
@@ -177,7 +182,7 @@ class SendReminders implements ShouldQueue
      * @param  int $num_days_reminder
      * @return Carbon  $date
      */
-    private function calculateScheduledDate($invoice, $schedule_reminder, $num_days_reminder) :?Carbon
+    private function calculateScheduledDate($invoice, $schedule_reminder, $num_days_reminder): ?Carbon
     {
         $offset = $invoice->client->timezone_offset();
 
@@ -204,7 +209,7 @@ class SendReminders implements ShouldQueue
      * @param  string $template
      * @return void
      */
-    private function sendReminder($invoice, $template) :void
+    private function sendReminder($invoice, $template): void
     {
         $invoice = $this->calcLateFee($invoice, $template);
 
@@ -237,7 +242,7 @@ class SendReminders implements ShouldQueue
      * @param  string $template
      * @return Invoice
      */
-    private function calcLateFee($invoice, $template) :Invoice
+    private function calcLateFee($invoice, $template): Invoice
     {
         $late_fee_amount = 0;
         $late_fee_percent = 0;
@@ -277,7 +282,7 @@ class SendReminders implements ShouldQueue
      *
      * @return Invoice
      */
-    private function setLateFee($invoice, $amount, $percent) :Invoice
+    private function setLateFee($invoice, $amount, $percent): Invoice
     {
         App::forgetInstance('translator');
         $t = app('translator');
@@ -298,7 +303,7 @@ class SendReminders implements ShouldQueue
             $fee += round($invoice->balance * $percent / 100, 2);
         }
 
-        $invoice_item = new InvoiceItem;
+        $invoice_item = new InvoiceItem();
         $invoice_item->type_id = '5';
         $invoice_item->product_key = trans('texts.fee');
         $invoice_item->notes = ctrans('texts.late_fee_added', ['date' => $this->translateDate(now()->startOfDay(), $invoice->client->date_format(), $invoice->client->locale())]);

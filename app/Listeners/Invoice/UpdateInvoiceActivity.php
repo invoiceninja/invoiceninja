@@ -41,7 +41,7 @@ class UpdateInvoiceActivity implements ShouldQueue
     {
         MultiDB::setDB($event->company->db);
 
-        $fields = new stdClass;
+        $fields = new stdClass();
 
         $user_id = isset($event->event_vars['user_id']) ? $event->event_vars['user_id'] : $event->invoice->user_id;
 
