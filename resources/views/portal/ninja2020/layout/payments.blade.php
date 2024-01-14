@@ -46,28 +46,33 @@
     @yield('gateway_footer')
 
     <script>
-        Livewire.on('passed-required-fields-check', () => {
-            document.querySelector('div[data-ref="required-fields-container"]').classList.add('opacity-25');
-            document.querySelector('div[data-ref="required-fields-container"]').classList.add('pointer-events-none');
 
-            document.querySelector('div[data-ref="gateway-container"]').classList.remove('opacity-25');
-            document.querySelector('div[data-ref="gateway-container"]').classList.remove('pointer-events-none');
+        document.addEventListener('livewire:init', () => {
 
-            document
-                .querySelector('div[data-ref="gateway-container"]')
-                .scrollIntoView({behavior: "smooth"});
-        });
+            Livewire.on('passed-required-fields-check', () => {
+                document.querySelector('div[data-ref="required-fields-container"]').classList.add('opacity-25');
+                document.querySelector('div[data-ref="required-fields-container"]').classList.add('pointer-events-none');
 
-        Livewire.on('update-shipping-data', (event) => {
-            for (field in event) {
-                let element = document.querySelector(`input[name=${field}]`);
+                document.querySelector('div[data-ref="gateway-container"]').classList.remove('opacity-25');
+                document.querySelector('div[data-ref="gateway-container"]').classList.remove('pointer-events-none');
 
-                if (element) {
-                    element.value = event[field];
+                document
+                    .querySelector('div[data-ref="gateway-container"]')
+                    .scrollIntoView({behavior: "smooth"});
+            });
+
+            Livewire.on('update-shipping-data', (event) => {
+                for (field in event) {
+                    let element = document.querySelector(`input[name=${field}]`);
+
+                    if (element) {
+                        element.value = event[field];
+                    }
                 }
-            }
-        });
+            });
 
+        });
+        
         document.addEventListener('DOMContentLoaded', function() {
             let toggleWithToken = document.querySelector('.toggle-payment-with-token');
             let toggleWithCard = document.querySelector('#toggle-payment-with-credit-card');

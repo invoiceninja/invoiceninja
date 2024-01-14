@@ -72,11 +72,17 @@
 
 @section('gateway_footer')
     <script>
-        Livewire.on('passed-required-fields-check', (event) => {
-            if (event.hasOwnProperty('client_postal_code')) {
-                document.querySelector('meta[name=client-postal-code]').content = event.client_postal_code;
-            }
+
+        document.addEventListener('livewire:init', () => {
+
+            Livewire.on('passed-required-fields-check', (event) => {
+                if (event.hasOwnProperty('client_postal_code')) {
+                    document.querySelector('meta[name=client-postal-code]').content = event.client_postal_code;
+                }
+            });
+
         });
+
     </script>
 
     @vite('resources/js/clients/payments/wepay-credit-card.js')
