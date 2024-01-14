@@ -120,7 +120,7 @@
             @yield('body')
         @endcomponent
 
-        @livewireScripts
+        @livewireScriptConfig 
 
         <script src="{{ asset('vendor/cookieconsent@3/cookieconsent.min.js') }}" data-cfasync="false"></script>
         <script>
