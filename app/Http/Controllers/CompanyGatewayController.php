@@ -149,7 +149,11 @@ class CompanyGatewayController extends BaseController
      */
     public function create(CreateCompanyGatewayRequest $request)
     {
-        $company_gateway = CompanyGatewayFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $company_gateway = CompanyGatewayFactory::create($user->company()->id, auth()->user()->id);
 
         return $this->itemResponse($company_gateway);
     }

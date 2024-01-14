@@ -60,7 +60,10 @@ class SystemLogController extends BaseController
     {
         $system_logs = SystemLog::filter($filters);
 
-        if (auth()->user()->isAdmin()) {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if ($user->isAdmin()) {
             return $this->listResponse($system_logs);
         }
 

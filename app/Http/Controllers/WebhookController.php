@@ -355,8 +355,11 @@ class WebhookController extends BaseController
             return response()->json('Invalid event', 400);
         }
 
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $webhook = new Webhook();
-        $webhook->company_id = auth()->user()->company()->id;
+        $webhook->company_id = $user->company()->id;
         $webhook->user_id = auth()->user()->id;
         $webhook->event_id = $event_id;
         $webhook->target_url = $target_url;

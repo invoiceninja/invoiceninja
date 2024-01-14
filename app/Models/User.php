@@ -98,6 +98,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel companies()
  * @method bool hasPermissionTo(string $permission)
  * @method \App\Models\Company getCompany()
  * @method \App\Models\Company company()

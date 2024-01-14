@@ -121,9 +121,13 @@ class ConnectedAccountController extends BaseController
                 'email_verified_at' => now()
             ];
 
-            auth()->user()->update($connected_account);
-            auth()->user()->email_verified_at = now();
-            auth()->user()->save();
+            
+            /** @var \App\Models\User $user */
+            $user = auth()->user();
+
+            $user->update($connected_account);
+            $user->email_verified_at = now();
+            $user->save();
 
             $this->setLoginCache(auth()->user());
 

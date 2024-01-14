@@ -109,6 +109,7 @@ use Illuminate\Support\Carbon;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $invitations
  * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @mixin \Eloquent
  */
 class PurchaseOrder extends BaseModel

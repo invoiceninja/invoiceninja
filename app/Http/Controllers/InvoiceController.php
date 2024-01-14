@@ -497,7 +497,7 @@ class InvoiceController extends BaseController
             return response(['message' => ctrans('texts.email_quota_exceeded_subject')], 400);
         }
 
-        if(in_array($request->action, ['auto_bill','mark_paid']) && $user->cannot('create', \App\Models\Payment::class)) {
+        if(in_array($request->action, ['auto_bill', 'mark_paid']) && $user->cannot('create', \App\Models\Payment::class)) {
             return response(['message' => ctrans('texts.not_authorized'), 'errors' => ['ids' => [ctrans('texts.not_authorized')]]], 422);
         }
 
@@ -514,8 +514,6 @@ class InvoiceController extends BaseController
         if ($action == 'bulk_download' && $invoices->count() > 1) {
             $invoices->each(function ($invoice) use ($user) {
                 if ($user->cannot('view', $invoice)) {
-                    nlog('access denied');
-
                     return response()->json(['message' => ctrans('text.access_denied')]);
                 }
             });
@@ -570,7 +568,7 @@ class InvoiceController extends BaseController
                 }
             });
 
-            return $this->listResponse(Invoice::query()->withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
+            return $this->listResponse(Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
         }
 
         /*
@@ -584,7 +582,7 @@ class InvoiceController extends BaseController
 
         /* Need to understand which permission are required for the given bulk action ie. view / edit */
 
-        return $this->listResponse(Invoice::query()->withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
+        return $this->listResponse(Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
     }
 
     /**

@@ -305,7 +305,7 @@ class MigrationController extends BaseController
                 $fresh_company = false;
 
                 // Look for possible existing company (based on company keys).
-                $existing_company = Company::whereRaw('BINARY `company_key` = ?', [$company['company_key']])->first();
+                $existing_company = Company::query()->whereRaw('BINARY `company_key` = ?', [$company['company_key']])->first();
 
                 App::forgetInstance('translator');
                 $t = app('translator');
@@ -386,6 +386,7 @@ class MigrationController extends BaseController
                     $fresh_company_token->is_system = true;
                     $fresh_company_token->save();
 
+                    /** @var \App\Models\User $user */
                     $user->companies()->attach($fresh_company->id, [
                         'account_id' => $account->id,
                         'is_owner' => 1,
@@ -417,6 +418,7 @@ class MigrationController extends BaseController
 
                     $fresh_company_token->save();
 
+                    /** @var \App\Models\User $user */
                     $user->companies()->attach($fresh_company->id, [
                         'account_id' => $account->id,
                         'is_owner' => 1,

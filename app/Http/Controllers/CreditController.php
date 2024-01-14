@@ -616,7 +616,7 @@ class CreditController extends BaseController
 
                 return response()->streamDownload(function () use ($file) {
                     echo $file;
-                }, $credit->numberFormatter().'.pdf', ['Content-Type' => 'application/pdf']);
+                }, $credit->numberFormatter() . '.pdf', ['Content-Type' => 'application/pdf']);
                 break;
             case 'archive':
                 $this->credit_repository->archive($credit);
@@ -724,7 +724,7 @@ class CreditController extends BaseController
 
         return response()->streamDownload(function () use ($file) {
             echo $file;
-        }, $credit->numberFormatter().'.pdf', $headers);
+        }, $credit->numberFormatter() . '.pdf', $headers);
 
     }
 

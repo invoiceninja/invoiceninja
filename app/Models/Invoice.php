@@ -98,7 +98,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property \App\Models\User|null $assigned_user
  * @property \App\Models\Client $client
  * @property \App\Models\InvoiceInvitation $invitation
- * @property \App\Models\Company $company
+ * @property-read \App\Models\Company $company
  * @property-read int|null $company_ledger_count
  * @property-read int|null $credits_count
  * @property \App\Models\Design|null $design
@@ -129,6 +129,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invitations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @property object|null $tax_data
  * @mixin \Eloquent
  */
@@ -248,7 +249,10 @@ class Invoice extends BaseModel
         return $value ? $this->dateMutator($value) : null;
     }
 
-    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Company>
+     */
+    public function company()
     {
         return $this->belongsTo(Company::class);
     }
