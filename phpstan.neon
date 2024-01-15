@@ -7,9 +7,8 @@ parameters:
     paths:
         - app
     excludePaths:
-        - 'vendor/*'
+        - vendor/*
         - resources/*
-        - '../resources/views/*'
         - 'app/Jobs/Ninja/*'
         - 'app/Models/Presenters/*'
         - 'app/Console/Commands/*'
