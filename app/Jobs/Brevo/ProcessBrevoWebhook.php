@@ -441,25 +441,28 @@ class ProcessBrevoWebhook implements ShouldQueue
 
             $messageDetail = $this->getRawMessage($this->request['message-id']);
 
-            $recipients = $this->request["email"];
+            $recipient = array_key_exists("email", $this->request) ? $this->request["email"] : '';
+            $server_ip = array_key_exists("sending_ip", $this->request) ? $this->request["sending_ip"] : '';
+            $delivery_message = array_key_exists("reason", $this->request) ? $this->request["reason"] : '';
             $subject = $messageDetail->getSubject() ?? '';
 
-            $events = collect($messageDetail->getEvents())->map(function (GetTransacEmailContentEvents $event) { // @turbo124 event does only contain name & time property, how to handle transformation?!
+            $events = collect($messageDetail->getEvents())->map(function (GetTransacEmailContentEvents $event) use ($recipient, $server_ip, $delivery_message) { // @turbo124 event does only contain name & time property, how to handle transformation?!
 
                 return [
-                    'bounce_id' => $event?->Details?->BounceID ?? '',
-                    'recipient' => $event->Recipient ?? '',
-                    'status' => $event->Type ?? '',
-                    'delivery_message' => $event->Details->DeliveryMessage ?? $event->Details->Summary ?? '',
-                    'server' => $event->Details->DestinationServer ?? '',
-                    'server_ip' => $event->Details->DestinationIP ?? '',
+                    'bounce_id' => '',
+                    'recipient' => $recipient,
+                    'status' => $event->name ?? '',
+                    'delivery_message' => $delivery_message, // TODO: @turbo124 this results in all cases for the history in the string, which may be incorrect
+
+                    'server' => '',
+                    'server_ip' => $server_ip,
                     'date' => \Carbon\Carbon::parse($event->getTime())->format('Y-m-d H:i:s') ?? '',
                 ];
 
             })->toArray();
 
             return [
-                'recipients' => $recipients,
+                'recipients' => $recipient,
                 'subject' => $subject,
                 'entity' => $this->entity ?? '',
                 'entity_id' => $this->invitation->{$this->entity}->hashed_id ?? '',
