@@ -50,12 +50,12 @@ class Apple
         ];
 
         $payload = [
-            'iss'=> $this->issuer_id,
-            'iat'=> $issue_time,
-            'exp'=> $expiration_time,
-            'aud'=> 'appstoreconnect-v1',
-            'nonce'=> $this->guidv4(),
-            'bid'=> $this->bundle_id,
+            'iss' => $this->issuer_id,
+            'iat' => $issue_time,
+            'exp' => $expiration_time,
+            'aud' => 'appstoreconnect-v1',
+            'nonce' => $this->guidv4(),
+            'bid' => $this->bundle_id,
         ];
 
         $jwt = JWT::encode($payload, $this->private_key, $this->alg, $header);

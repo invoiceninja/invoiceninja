@@ -54,13 +54,13 @@ class UpdateTaxData implements ShouldQueue
         if($this->company->account->isFreeHostedClient() || $this->client->country_id != 840) {
             return;
         }
-            
+
         $tax_provider = new \App\Services\Tax\Providers\TaxProvider($this->company, $this->client);
-        
+
         try {
-            
+
             $tax_provider->updateClientTaxData();
-        
+
             if (!$this->client->state && $this->client->postal_code) {
 
                 $this->client->update(['state' => USStates::getState($this->client->postal_code)]);
@@ -68,7 +68,7 @@ class UpdateTaxData implements ShouldQueue
 
             }
 
-        
+
         } catch(\Exception $e) {
             nlog("problem getting tax data => ".$e->getMessage());
         }

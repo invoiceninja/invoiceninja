@@ -98,7 +98,7 @@ class PaymentMigrationRepository extends BaseRepository
         }
 
         $payment->deleted_at = $data['deleted_at'] ?: null;
-        
+
 
         if ($payment->currency_id == 0) {
             $payment->currency_id = $payment->company->settings->currency_id;
@@ -164,7 +164,7 @@ class PaymentMigrationRepository extends BaseRepository
             });
         }
 
-        $fields = new stdClass;
+        $fields = new stdClass();
 
         $fields->payment_id = $payment->id;
         $fields->client_id = $payment->client_id;

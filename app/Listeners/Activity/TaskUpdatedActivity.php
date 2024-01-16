@@ -43,7 +43,7 @@ class TaskUpdatedActivity implements ShouldQueue
 
         $task = $event->task;
 
-        $fields = new stdClass;
+        $fields = new stdClass();
 
         $user_id = isset($event->event_vars['user_id']) ? $event->event_vars['user_id'] : $event->task->user_id;
 

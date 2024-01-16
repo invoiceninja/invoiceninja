@@ -47,7 +47,7 @@ class PaymentDeletedActivity implements ShouldQueue
 
         $invoices = $payment->invoices;
 
-        $fields = new stdClass;
+        $fields = new stdClass();
 
         $fields->payment_id = $payment->id;
         $fields->client_id = $payment->client_id;

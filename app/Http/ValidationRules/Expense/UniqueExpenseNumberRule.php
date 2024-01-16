@@ -47,7 +47,7 @@ class UniqueExpenseNumberRule implements Rule
     /**
      * @return bool
      */
-    private function checkIfExpenseNumberUnique() : bool
+    private function checkIfExpenseNumberUnique(): bool
     {
         if (empty($this->input['number'])) {
             return true;

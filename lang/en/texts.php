@@ -272,13 +272,6 @@ $lang = array(
     'erase_data' => 'Your account is not registered, this will permanently erase your data.',
     'password' => 'Password',
     'pro_plan_product' => 'Pro Plan',
-    'pro_plan_success' => 'Thanks for choosing Invoice Ninja\'s Pro plan!<p/>&nbsp;<br/>
-                          <b>Next Steps</b><p/>A payable invoice has been sent to the email
-                          address associated with your account. To unlock all of the awesome
-                          Pro features, please follow the instructions on the invoice to pay
-                          for a year of Pro-level invoicing.<p/>
-                          Can\'t find the invoice? Need further assistance? We\'re happy to help
-                          -- email us at contact@invoiceninja.com',
     'unsaved_changes' => 'You have unsaved changes',
     'custom_fields' => 'Custom Fields',
     'company_fields' => 'Company Fields',
@@ -395,7 +388,6 @@ $lang = array(
     'bought_designs' => 'Successfully added additional invoice designs',
     'sent' => 'Sent',
     'vat_number' => 'VAT Number',
-    'timesheets' => 'Timesheets',
     'payment_title' => 'Enter Your Billing Address and Credit Card information',
     'payment_cvv' => '*This is the 3-4 digit number on the back of your card',
     'payment_footer1' => '*Billing address must match address associated with credit card.',
@@ -437,7 +429,6 @@ $lang = array(
     'reset_all' => 'Reset All',
     'approve' => 'Approve',
     'token_billing_type_id' => 'Token Billing',
-    'token_billing_help' => 'Store payment details with WePay, Stripe, Braintree or GoCardless.',
     'token_billing_1' => 'Disabled',
     'token_billing_2' => 'Opt-in - checkbox is shown but not selected',
     'token_billing_3' => 'Opt-out - checkbox is shown and selected',
@@ -515,8 +506,8 @@ $lang = array(
     'auto_wrap' => 'Auto Line Wrap',
     'duplicate_post' => 'Warning: the previous page was submitted twice. The second submission had been ignored.',
     'view_documentation' => 'View Documentation',
-    'app_title' => 'Free Open-Source Online Invoicing',
-    'app_description' => 'Invoice Ninja is a free, open-source solution for invoicing and billing customers. With Invoice Ninja, you can easily build and send beautiful invoices from any device that has access to the web. Your clients can print your invoices, download them as pdf files, and even pay you online from within the system.',
+    'app_title' => 'Free Online Invoicing',
+    'app_description' => 'Invoice Ninja is a free, open-code solution for invoicing and billing customers. With Invoice Ninja, you can easily build and send beautiful invoices from any device that has access to the web. Your clients can print your invoices, download them as pdf files, and even pay you online from within the system.',
     'rows' => 'rows',
     'www' => 'www',
     'logo' => 'Logo',
@@ -653,7 +644,6 @@ $lang = array(
     'recurring_invoice' => 'Recurring Invoice',
     'new_recurring_quote' => 'New Recurring Quote',
     'recurring_quote' => 'Recurring Quote',
-    'recurring_too_soon' => 'It\'s too soon to create the next recurring invoice, it\'s scheduled for :date',
     'created_by_invoice' => 'Created by :invoice',
     'primary_user' => 'Primary User',
     'help' => 'Help',
@@ -674,9 +664,6 @@ $lang = array(
     'status_unpaid' => 'Unpaid',
     'status_all' => 'All',
     'show_line_item_tax' => 'Display <b>line item taxes inline</b>',
-    'iframe_url' => 'Website',
-    'iframe_url_help1' => 'Copy the following code to a page on your site.',
-    'iframe_url_help2' => 'You can test the feature by clicking \'View as recipient\' for an invoice.',
     'auto_bill' => 'Auto Bill',
     'military_time' => '24 Hour Time',
     'last_sent' => 'Last Sent',
@@ -1019,8 +1006,6 @@ $lang = array(
     'trial_call_to_action' => 'Start Free Trial',
     'trial_success' => 'Successfully enabled two week free pro plan trial',
     'overdue' => 'Overdue',
-
-
     'white_label_text' => 'Purchase a ONE YEAR white label license for $:price to remove the Invoice Ninja branding from the invoice and client portal.',
     'user_email_footer' => 'To adjust your email notification settings please visit :link',
     'reset_password_footer' => 'If you did not request this password reset please email our support: :email',
@@ -1029,9 +1014,6 @@ $lang = array(
     'old_browser' => 'Please use a :link',
     'newer_browser' => 'newer browser',
     'white_label_custom_css' => ':link for $:price to enable custom styling and help support our project.',
-    'bank_accounts_help' => 'Connect a bank account to automatically import expenses and create vendors. Supports American Express and :link.',
-    'us_banks' => '400+ US banks',
-
     'pro_plan_remove_logo' => ':link to remove the Invoice Ninja logo by joining the Pro Plan',
     'pro_plan_remove_logo_link' => 'Click here',
     'invitation_status_sent' => 'Sent',
@@ -1044,7 +1026,6 @@ $lang = array(
     'email_error_user_unregistered' => 'Please register your account to send emails',
     'email_error_user_unconfirmed' => 'Please confirm your account to send emails',
     'email_error_invalid_contact_email' => 'Invalid contact email',
-
     'navigation' => 'Navigation',
     'list_invoices' => 'List Invoices',
     'list_clients' => 'List Clients',
@@ -1056,8 +1037,6 @@ $lang = array(
     'list_credits' => 'List Credits',
     'tax_name' => 'Tax Name',
     'report_settings' => 'Report Settings',
-    'search_hotkey' => 'shortcut is /',
-
     'new_user' => 'New User',
     'new_product' => 'New Product',
     'new_tax_rate' => 'New Tax Rate',
@@ -1307,8 +1286,6 @@ $lang = array(
     'braintree_paypal_help_link_text' => 'link PayPal to your BrainTree account',
     'token_billing_braintree_paypal' => 'Save payment details',
     'add_paypal_account' => 'Add PayPal Account',
-
-
     'no_payment_method_specified' => 'No payment method specified',
     'chart_type' => 'Chart Type',
     'format' => 'Format',
@@ -1377,9 +1354,7 @@ $lang = array(
 
     'bank_account' => 'Bank Account',
     'payment_processed_through_wepay' => 'ACH payments will be processed using WePay.',
-    'wepay_payment_tos_agree' => 'I agree to the WePay :terms and :privacy_policy.',
     'privacy_policy' => 'Privacy Policy',
-    'wepay_payment_tos_agree_required' => 'You must agree to the WePay Terms of Service and Privacy Policy.',
     'ach_email_prompt' => 'Please enter your email address:',
     'verification_pending' => 'Verification Pending',
 
@@ -1820,19 +1795,12 @@ $lang = array(
     'bot_emailed_notify_paid' => 'I\'ll email you when it\'s paid.',
     'add_product_to_invoice' => 'Add 1 :product',
     'not_authorized' => 'You are not authorized',
-    'bot_get_code' => 'Thanks! I\'ve sent a you an email with your security code.',
-    'bot_welcome' => 'That\'s it, your account is verified.<br/>',
     'email_not_found' => 'I wasn\'t able to find an available account for :email',
     'invalid_code' => 'The code is not correct',
-    'security_code_email_subject' => 'Security code for Invoice Ninja Bot',
-    'security_code_email_line1' => 'This is your Invoice Ninja Bot security code.',
-    'security_code_email_line2' => 'Note: it will expire in 10 minutes.',
     'list_products' => 'List Products',
 
     'include_item_taxes_inline' => 'Include <b>line item taxes in line total</b>',
     'created_quotes' => 'Successfully created :count quotes(s)',
-    'limited_gateways' => 'Note: we support one credit card gateway per company.',
-
     'warning' => 'Warning',
     'self-update' => 'Update',
     'update_invoiceninja_title' => 'Update Invoice Ninja',
@@ -2082,7 +2050,6 @@ $lang = array(
 
     // New Client Portal styling
     'invoice_from' => 'Invoices From:',
-    'email_alias_message' => 'We require each company to have a unique email address.<br/>Consider using an alias. ie, email+label@example.com',
     'full_name' => 'Full Name',
     'month_year' => 'MONTH/YEAR',
     'valid_thru' => 'Valid\nthru',
@@ -2151,7 +2118,6 @@ $lang = array(
     'fees_disabled_for_gateway' => 'Fees are disabled for this gateway.',
     'logout_and_delete' => 'Log Out/Delete Account',
     'tax_rate_type_help' => 'Inclusive tax rates adjust the line item cost when selected.<br/>Only exclusive tax rates can be used as a default.',
-    'invoice_footer_help' => 'Use $pageNumber and $pageCount to display the page information.',
     'credit_note' => 'Credit Note',
     'credit_issued_to' => 'Credit issued to',
     'credit_to' => 'Credit to',
@@ -2175,11 +2141,6 @@ $lang = array(
     'import_complete' => 'Your import has successfully completed.',
     'confirm_account_to_import' => 'Please confirm your account to import data.',
     'import_started' => 'Your import has started, we\'ll send you an email once it completes.',
-    'listening' => 'Listening...',
-    'microphone_help' => 'Say "new invoice for [client]" or "show me [client]\'s archived payments"',
-    'voice_commands' => 'Voice Commands',
-    'sample_commands' => 'Sample commands',
-    'voice_commands_feedback' => 'We\'re actively working to improve this feature, if there\'s a command you\'d like us to support please email us at :email.',
     'payment_type_Venmo' => 'Venmo',
     'payment_type_Money Order' => 'Money Order',
     'archived_products' => 'Successfully archived :count products',
@@ -2220,7 +2181,6 @@ $lang = array(
     'empty' => 'Empty',
     'load_design' => 'Load Design',
     'accepted_card_logos' => 'Accepted Card Logos',
-    'phantomjs_local_and_cloud' => 'Using local PhantomJS, falling back to phantomjscloud.com',
     'google_analytics' => 'Google Analytics',
     'analytics_key' => 'Analytics Key',
     'analytics_key_help' => 'Track payments using :link',
@@ -2269,7 +2229,6 @@ $lang = array(
     'product_notes' => 'Product Notes',
     'app_version' => 'App Version',
     'ofx_version' => 'OFX Version',
-    'error_app_key_set_to_default' => 'Error: APP_KEY is set to a default value, to update it backup your database and then run <code>php artisan ninja:update-key</code>',
     'charge_late_fee' => 'Charge Late Fee',
     'late_fee_amount' => 'Late Fee Amount',
     'late_fee_percent' => 'Late Fee Percent',
@@ -2410,7 +2369,6 @@ $lang = array(
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
 
-    'use_english_version' => 'Make sure to use the English version of the files.<br/>We use the column headers to match the fields.',
     'tax1' => 'First Tax',
     'tax2' => 'Second Tax',
     'fee_help' => 'Gateway fees are the costs charged for access to the financial networks that handle the processing of online payments.',
@@ -2750,7 +2708,6 @@ $lang = array(
     'email_address_changed_message' => 'The email address for your account has been changed from :old_email to :new_email.',
     'test' => 'Test',
     'beta' => 'Beta',
-    'gmp_required' => 'Exporting to ZIP requires the GMP extension',
     'email_history' => 'Email History',
     'loading' => 'Loading',
     'no_messages_found' => 'No messages found',
@@ -3213,7 +3170,6 @@ $lang = array(
     'welcome_to_the_new_version' => 'Welcome to the new version of Invoice Ninja',
     'next_step_data_download' => 'At the next step, we\'ll let you download your data for the migration.',
     'download_data' => 'Press button below to download the data.',
-    'migration_import' => 'Awesome! Now you are ready to import your migration. Go to your new installation to import your data',
     'continue' => 'Continue',
     'company1' => 'Custom Company 1',
     'company2' => 'Custom Company 2',

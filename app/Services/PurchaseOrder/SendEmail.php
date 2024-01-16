@@ -24,7 +24,6 @@ use Illuminate\Support\Facades\App;
 
 class SendEmail extends AbstractService
 {
-
     public function __construct(protected PurchaseOrder $purchase_order, protected ?string $reminder_template = null, protected ?VendorContact $contact = null)
     {
     }
@@ -47,10 +46,10 @@ class SendEmail extends AbstractService
             $invitation->purchase_order->service()->markSent()->save();
 
             $template = 'purchase_order';
-            
+
             $email_builder = (new PurchaseOrderEmailEngine($invitation, $template, null))->build();
 
-            $nmo = new NinjaMailerObject;
+            $nmo = new NinjaMailerObject();
             $nmo->mailable = new VendorTemplateEmail($email_builder, $invitation->contact, $invitation);
             $nmo->company = $this->purchase_order->company;
             $nmo->settings = $this->purchase_order->company->settings;

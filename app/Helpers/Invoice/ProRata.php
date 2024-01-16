@@ -28,7 +28,7 @@ class ProRata
      * @param int $frequency
      * @return float
      */
-    public function refund(float $amount, Carbon $from_date, Carbon $to_date, int $frequency) :float
+    public function refund(float $amount, Carbon $from_date, Carbon $to_date, int $frequency): float
     {
         $days = $from_date->copy()->diffInDays($to_date);
         $days_in_frequency = $this->getDaysInFrequency($frequency);
@@ -46,7 +46,7 @@ class ProRata
      * @param int $frequency
      * @return float
      */
-    public function charge(float $amount, Carbon $from_date, Carbon $to_date, int $frequency) :float
+    public function charge(float $amount, Carbon $from_date, Carbon $to_date, int $frequency): float
     {
         $days = $from_date->copy()->diffInDays($to_date);
         $days_in_frequency = $this->getDaysInFrequency($frequency);
@@ -63,7 +63,7 @@ class ProRata
      * @return array
      * @throws Exception
      */
-    public function refundItems(Invoice $invoice, $is_credit = false) :array
+    public function refundItems(Invoice $invoice, $is_credit = false): array
     {
         if (! $invoice) {
             return [];

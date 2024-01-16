@@ -41,7 +41,7 @@ class ACSS
         $this->stripe = $stripe;
         $this->stripe->init();
     }
-    
+
     /**
      * Generate mandate for future ACSS billing
      *
@@ -77,7 +77,7 @@ class ACSS
 
         return render('gateways.stripe.acss.authorize', array_merge($data));
     }
-    
+
     /**
      * Authorizes the mandate for future billing
      *
@@ -89,7 +89,7 @@ class ACSS
         $setup_intent = json_decode($request->input('gateway_response'));
 
         if (isset($setup_intent->type)) {
-            
+
             $error = "There was a problem setting up this payment method for future use";
 
             if(in_array($setup_intent->type, ["validation_error", "invalid_request_error"])) {
@@ -116,13 +116,14 @@ class ACSS
             /** @var array $data */
             $data = Cache::pull($request->post_auth_response);
 
-            if(!$data)
+            if(!$data) {
                 throw new PaymentFailed("There was a problem storing this payment method", 500);
+            }
 
             $hash = PaymentHash::with('fee_invoice')->where('hash', $data['payment_hash'])->first();
             $data['tokens'] = [$client_gateway_token];
 
-            $this->stripe->setPaymentHash($hash);  
+            $this->stripe->setPaymentHash($hash);
             $this->stripe->setClient($hash->fee_invoice->client);
             $this->stripe->setPaymentMethod(GatewayType::ACSS);
 
@@ -132,7 +133,7 @@ class ACSS
         return redirect()->route('client.payment_methods.show', $client_gateway_token->hashed_id);
 
     }
-        
+
     /**
      * Generates a token Payment Intent
      *
@@ -152,17 +153,17 @@ class ACSS
                 'payment_hash' => $this->stripe->payment_hash->hash,
                 'gateway_type_id' => GatewayType::ACSS,
             ],
-            'payment_method' => $token->token,    
-            'mandate' => $token->meta?->mandate,   
-            'confirm' => true,            
+            'payment_method' => $token->token,
+            'mandate' => $token->meta?->mandate,
+            'confirm' => true,
         ], $this->stripe->stripe_connect_auth);
 
         return $intent;
     }
-    
+
     /**
      * Payment view for ACSS
-     * 
+     *
      * Determines if any payment tokens are available and if not, generates a mandate
      *
      * @param  array $data
@@ -170,18 +171,18 @@ class ACSS
      */
     public function paymentView(array $data)
     {
-      
+
         if(count($data['tokens']) == 0) {
             $hash = Str::random(32);
             Cache::put($hash, $data, 3600);
-            $data['post_auth_response'] = $hash; 
+            $data['post_auth_response'] = $hash;
 
             return $this->generateMandate($data);
         }
 
         return $this->continuePayment($data);
     }
-    
+
     /**
      * Generate a payment Mandate for ACSS
      *
@@ -195,7 +196,7 @@ class ACSS
         $data['company_gateway'] = $this->stripe->company_gateway;
         $data['customer'] = $this->stripe->findOrCreateCustomer()->id;
         $data['country'] = $this->stripe->client->country->iso_3166_2;
-        
+
         $intent = \Stripe\SetupIntent::create([
             'usage' => 'off_session',
             'payment_method_types' => ['acss_debit'],
@@ -218,7 +219,7 @@ class ACSS
         return render('gateways.stripe.acss.authorize', array_merge($data));
 
     }
-    
+
     /**
      * Continues the payment flow after a Mandate has been successfully generated
      *
@@ -227,7 +228,7 @@ class ACSS
     private function continuePayment(array $data)
     {
 
-         $this->stripe->init();
+        $this->stripe->init();
 
         $data['gateway'] = $this->stripe;
         $data['return_url'] = $this->buildReturnUrl();
@@ -241,7 +242,7 @@ class ACSS
 
         return render('gateways.stripe.acss.pay', $data);
     }
-    
+
     /**
      * ?redundant
      *
@@ -255,7 +256,7 @@ class ACSS
             'payment_method_id' => GatewayType::ACSS,
         ]);
     }
-    
+
     /**
      * PaymentResponseRequest
      *
@@ -281,7 +282,7 @@ class ACSS
 
         return $this->processUnsuccessfulPayment();
     }
-    
+
     /**
      * Performs token billing using a ACSS payment method
      *
@@ -302,15 +303,14 @@ class ACSS
 
         if ($intent->status && $intent->status == 'processing') {
             $this->processSuccessfulPayment($intent->id);
-        }
-        else {
+        } else {
             $e = new \Exception("There was a problem processing this payment method", 500);
             $this->stripe->processInternallyFailedPayment($this->stripe, $e);
         }
 
 
     }
-    
+
     /**
      * Creates a payment for the transaction
      *
@@ -367,7 +367,7 @@ class ACSS
 
         throw new PaymentFailed('Failed to process the payment.', 500);
     }
-    
+
     /**
      * Stores the payment token
      *
@@ -381,7 +381,7 @@ class ACSS
         try {
             $method = $this->stripe->getStripePaymentMethod($payment_method);
 
-            $payment_meta = new \stdClass;
+            $payment_meta = new \stdClass();
             $payment_meta->brand = (string) $method->acss_debit->bank_name;
             $payment_meta->last4 = (string) $method->acss_debit->last4;
             $payment_meta->state = $status;

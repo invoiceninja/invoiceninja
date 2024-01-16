@@ -41,7 +41,7 @@ class UpdatedUserActivity implements ShouldQueue
     {
         MultiDB::setDb($event->company->db);
 
-        $fields = new stdClass;
+        $fields = new stdClass();
         $user_id = isset($event->event_vars['user_id']) ? $event->event_vars['user_id'] : $event->creating_user->id;
 
         $fields->user_id = $user_id;

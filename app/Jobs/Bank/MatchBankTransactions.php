@@ -39,7 +39,12 @@ use Illuminate\Support\Facades\Cache;
 
 class MatchBankTransactions implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, GeneratesCounter, MakesHash;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use GeneratesCounter;
+    use MakesHash;
 
     private int $company_id;
 

@@ -61,7 +61,7 @@ class ChartController extends BaseController
         /** @var \App\Models\User auth()->user() */
         $user = auth()->user();
         $cs = new ChartService($user->company(), $user, $user->isAdmin());
-        
+
         return response()->json($cs->chart_summary($request->input('start_date'), $request->input('end_date')), 200);
     }
 

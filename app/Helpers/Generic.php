@@ -31,7 +31,7 @@ function nlog($output, $context = []): void
     }
 
     // $trace = debug_backtrace();
-    
+
     if (Ninja::isHosted()) {
         try {
             info($output);

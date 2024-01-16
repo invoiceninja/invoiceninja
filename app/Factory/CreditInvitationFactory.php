@@ -16,9 +16,9 @@ use Illuminate\Support\Str;
 
 class CreditInvitationFactory
 {
-    public static function create(int $company_id, int $user_id) :CreditInvitation
+    public static function create(int $company_id, int $user_id): CreditInvitation
     {
-        $ci = new CreditInvitation;
+        $ci = new CreditInvitation();
         $ci->company_id = $company_id;
         $ci->user_id = $user_id;
         $ci->client_contact_id = null;

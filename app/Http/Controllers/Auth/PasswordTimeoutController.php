@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\Cache;
 
 class PasswordTimeoutController extends Controller
 {
-
     public function __invoke()
     {
         $cached = Cache::get(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in');

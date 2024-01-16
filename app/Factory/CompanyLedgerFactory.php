@@ -15,9 +15,9 @@ use App\Models\CompanyLedger;
 
 class CompanyLedgerFactory
 {
-    public static function create(int $company_id, int $user_id) :CompanyLedger
+    public static function create(int $company_id, int $user_id): CompanyLedger
     {
-        $company_ledger = new CompanyLedger;
+        $company_ledger = new CompanyLedger();
         $company_ledger->company_id = $company_id;
         $company_ledger->user_id = $user_id;
         $company_ledger->adjustment = 0;

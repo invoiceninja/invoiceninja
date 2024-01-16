@@ -42,7 +42,7 @@ class BulkExpenseRequest extends Request
             'action' => 'in:archive,restore,delete,bulk_categorize',
         ];
 
-        
+
     }
 
     public function prepareForValidation()

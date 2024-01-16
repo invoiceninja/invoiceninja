@@ -16,9 +16,9 @@ use Illuminate\Support\Str;
 
 class RecurringInvoiceInvitationFactory
 {
-    public static function create(int $company_id, int $user_id) :RecurringInvoiceInvitation
+    public static function create(int $company_id, int $user_id): RecurringInvoiceInvitation
     {
-        $ii = new RecurringInvoiceInvitation;
+        $ii = new RecurringInvoiceInvitation();
         $ii->company_id = $company_id;
         $ii->user_id = $user_id;
         $ii->client_contact_id = null;

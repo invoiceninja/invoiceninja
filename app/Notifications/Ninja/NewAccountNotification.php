@@ -73,9 +73,9 @@ class NewAccountNotification extends Notification
         $content = "New Trial Started\n";
         $content .= "{$this->client->name}\n";
         $content .= "Contacts: {$this->client->contacts()->pluck('email')}\n";
-        
 
-        return (new SlackMessage)
+
+        return (new SlackMessage())
                 ->success()
                 ->from(ctrans('texts.notification_bot'))
                 ->image('https://app.invoiceninja.com/favicon.png')

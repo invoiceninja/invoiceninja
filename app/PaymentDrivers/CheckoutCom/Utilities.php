@@ -86,7 +86,7 @@ trait Utilities
 
         nlog("checkout failure");
         nlog($_payment);
-        
+
         if (is_array($_payment) && array_key_exists('status', $_payment)) {
             $error_message = $_payment['status'];
         } else {
@@ -133,7 +133,7 @@ trait Utilities
     private function storeLocalPaymentMethod($response)
     {
         try {
-            $payment_meta = new stdClass;
+            $payment_meta = new stdClass();
             $payment_meta->exp_month = (string) $response['source']['expiry_month'];
             $payment_meta->exp_year = (string) $response['source']['expiry_year'];
             $payment_meta->brand = (string) $response['source']['scheme'];

@@ -32,7 +32,7 @@ class UserPresenter extends EntityPresenter
 
         return $first_name.' '.$last_name;
     }
-    
+
     /**
      * Returns a full name (with fallback) of the user
      *
@@ -61,7 +61,7 @@ class UserPresenter extends EntityPresenter
             return '';
         }
     }
-    
+
     /**
      * Returns the first name of the user
      *
@@ -76,7 +76,7 @@ class UserPresenter extends EntityPresenter
         return $this->entity->first_name ?? 'First Name';
 
     }
-    
+
     /**
      * Returns the last name of the user
      *

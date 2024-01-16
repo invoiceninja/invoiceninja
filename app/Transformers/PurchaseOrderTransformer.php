@@ -62,7 +62,7 @@ class PurchaseOrderTransformer extends EntityTransformer
 
         return $this->includeCollection($purchase_order->documents, $transformer, Document::class);
     }
-    
+
     public function includeExpense(PurchaseOrder $purchase_order)
     {
         $transformer = new ExpenseTransformer($this->serializer);

@@ -21,7 +21,10 @@ use Illuminate\Support\Facades\Storage;
 
 class UploadAvatar implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     protected $file;
 
@@ -33,7 +36,7 @@ class UploadAvatar implements ShouldQueue
         $this->directory = $directory;
     }
 
-    public function handle() : ?string
+    public function handle(): ?string
     {
         $tmp_file = sha1(time()).'.png';
 

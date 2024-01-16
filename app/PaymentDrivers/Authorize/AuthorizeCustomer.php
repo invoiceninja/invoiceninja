@@ -99,7 +99,7 @@ class AuthorizeCustomer
                 $client = $client_gateway_token->client;
             } elseif ($client_contact = ClientContact::where('company_id', $company->id)->where('email', $profile['email'])->first()) {
                 $client = $client_contact->client;
-            // nlog("found client through contact");
+                // nlog("found client through contact");
             } else {
                 // nlog("creating client");
 
@@ -141,7 +141,7 @@ class AuthorizeCustomer
 
                     //                    $expiry = $payment_profile->getPayment()->getCreditCard()->getExpirationDate();
 
-                    $payment_meta = new \stdClass;
+                    $payment_meta = new \stdClass();
                     $payment_meta->exp_month = 'xx';
                     $payment_meta->exp_year = 'xx';
                     $payment_meta->brand = (string) $payment_profile->getPayment()->getCreditCard()->getCardType();

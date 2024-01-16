@@ -26,17 +26,17 @@ abstract class QueryFilters
     /**
      * active status.
      */
-    const STATUS_ACTIVE = 'active';
+    public const STATUS_ACTIVE = 'active';
 
     /**
      * archived status.
      */
-    const STATUS_ARCHIVED = 'archived';
+    public const STATUS_ARCHIVED = 'archived';
 
     /**
      * deleted status.
      */
-    const STATUS_DELETED = 'deleted';
+    public const STATUS_DELETED = 'deleted';
 
     /**
      * The request object.
@@ -116,11 +116,11 @@ abstract class QueryFilters
      * @param  string $value
      * @return \stdClass
      */
-    public function split($value) : \stdClass
+    public function split($value): \stdClass
     {
         $exploded_array = explode(':', $value);
 
-        $parts = new \stdClass;
+        $parts = new \stdClass();
 
         $parts->value = $exploded_array[0];
         $parts->operator = $this->operatorConvertor($exploded_array[1]);
@@ -167,7 +167,7 @@ abstract class QueryFilters
      * @param string $operator
      * @return string
      */
-    private function operatorConvertor(string $operator) : string
+    private function operatorConvertor(string $operator): string
     {
         switch ($operator) {
             case 'lt':

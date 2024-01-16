@@ -15,9 +15,9 @@ use App\Models\Scheduler;
 
 class SchedulerFactory
 {
-    public static function create($company_id, $user_id) :Scheduler
+    public static function create($company_id, $user_id): Scheduler
     {
-        $scheduler = new Scheduler;
+        $scheduler = new Scheduler();
 
         $scheduler->name = '';
         $scheduler->company_id = $company_id;

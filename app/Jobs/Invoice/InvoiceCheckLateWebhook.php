@@ -24,7 +24,10 @@ use Illuminate\Queue\SerializesModels;
 
 class InvoiceCheckLateWebhook implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * Create a new job instance.
@@ -41,7 +44,7 @@ class InvoiceCheckLateWebhook implements ShouldQueue
     public function handle()
     {
         nlog("sending overdue webhooks for invoices");
-        
+
         if (! config('ninja.db.multi_db_enabled')) {
             $company_ids = Webhook::where('event_id', Webhook::EVENT_LATE_INVOICE)
                                   ->where('is_deleted', 0)

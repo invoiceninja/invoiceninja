@@ -74,7 +74,7 @@ class MolliePaymentDriver extends BaseDriver
         GatewayType::IDEAL => IDEAL::class,
     ];
 
-    const SYSTEM_LOG_TYPE = SystemLog::TYPE_MOLLIE;
+    public const SYSTEM_LOG_TYPE = SystemLog::TYPE_MOLLIE;
 
     public function init(): self
     {

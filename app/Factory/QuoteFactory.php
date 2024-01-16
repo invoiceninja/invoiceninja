@@ -15,7 +15,7 @@ use App\Models\Quote;
 
 class QuoteFactory
 {
-    public static function create(int $company_id, int $user_id) :Quote
+    public static function create(int $company_id, int $user_id): Quote
     {
         $quote = new Quote();
         $quote->status_id = Quote::STATUS_DRAFT;

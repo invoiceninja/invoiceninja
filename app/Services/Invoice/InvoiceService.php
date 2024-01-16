@@ -289,7 +289,7 @@ class InvoiceService
 
         return $this;
     }
-    
+
     /**
      * Reset the reminders if only the
      * partial has been paid.
@@ -302,7 +302,7 @@ class InvoiceService
      */
     public function checkReminderStatus(): self
     {
-        
+
         if($this->invoice->partial == 0) {
             $this->invoice->partial_due_date = null;
         }
@@ -637,7 +637,7 @@ class InvoiceService
      * Saves the invoice.
      * @return Invoice object
      */
-    public function save() :?Invoice
+    public function save(): ?Invoice
     {
         $this->invoice->saveQuietly();
 

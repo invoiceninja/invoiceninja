@@ -23,7 +23,7 @@ class ProductRepository extends BaseRepository
      * @param Product $product
      * @return Product|null
      */
-    public function save(array $data, Product $product) : ?Product
+    public function save(array $data, Product $product): ?Product
     {
         $product->fill($data);
         $product->save();

@@ -424,7 +424,7 @@ class RecurringInvoiceController extends BaseController
 
         $recurring_invoices = RecurringInvoice::withTrashed()->find($request->ids);
 
-                
+
         if($request->action == 'set_payment_link' && $request->has('subscription_id')) {
 
             $recurring_invoices->each(function ($invoice) use ($user, $request) {
@@ -507,7 +507,7 @@ class RecurringInvoiceController extends BaseController
                 if (! $bulk) {
                     $this->itemResponse($recurring_invoice);
                 }
-                
+
                 break;
             default:
                 // code...
@@ -587,7 +587,7 @@ class RecurringInvoiceController extends BaseController
         }
 
         $invoice = $invitation->recurring_invoice;
-        
+
         \Illuminate\Support\Facades\App::setLocale($invitation->contact->preferredLocale());
 
         $file_name = $invoice->numberFormatter().'.pdf';

@@ -22,7 +22,11 @@ use Illuminate\Queue\SerializesModels;
 
 class VerifyPhone implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use MakesHash;
 
 
     /**
@@ -39,7 +43,7 @@ class VerifyPhone implements ShouldQueue
      *
      * @return void
      */
-    public function handle() : void
+    public function handle(): void
     {
         MultiDB::checkUserEmailExists($this->user->email);
 

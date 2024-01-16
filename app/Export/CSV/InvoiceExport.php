@@ -85,7 +85,7 @@ class InvoiceExport extends BaseExport
                     $row = $this->buildRow($resource);
                     return $this->processMetaData($row, $resource);
                 })->toArray();
-        
+
         return array_merge(['columns' => $header], $report);
     }
 
@@ -107,7 +107,7 @@ class InvoiceExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Invoice $invoice) :array
+    private function buildRow(Invoice $invoice): array
     {
         $transformed_invoice = $this->invoice_transformer->transform($invoice);
 
@@ -127,14 +127,14 @@ class InvoiceExport extends BaseExport
             }
 
         }
-        
+
         // return $entity;
         return $this->decorateAdvancedFields($invoice, $entity);
     }
 
-    private function decorateAdvancedFields(Invoice $invoice, array $entity) :array
+    private function decorateAdvancedFields(Invoice $invoice, array $entity): array
     {
-        
+
         // if (in_array('invoice.country_id', $this->input['report_keys'])) {
         //     $entity['invoice.country_id'] = $invoice->client->country ? ctrans("texts.country_{$invoice->client->country->name}") : '';
         // }
@@ -160,11 +160,11 @@ class InvoiceExport extends BaseExport
         }
 
         if (in_array('invoice.assigned_user_id', $this->input['report_keys'])) {
-            $entity['invoice.assigned_user_id'] = $invoice->assigned_user ? $invoice->assigned_user->present()->name(): '';
+            $entity['invoice.assigned_user_id'] = $invoice->assigned_user ? $invoice->assigned_user->present()->name() : '';
         }
-       
+
         if (in_array('invoice.user_id', $this->input['report_keys'])) {
-            $entity['invoice.user_id'] = $invoice->user ? $invoice->user->present()->name(): '';
+            $entity['invoice.user_id'] = $invoice->user ? $invoice->user->present()->name() : '';
         }
 
 

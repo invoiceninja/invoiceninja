@@ -33,6 +33,6 @@ class SendEmail
         }
 
         EmailPayment::dispatch($this->payment, $this->payment->company, $this->contact);
-        
+
     }
 }

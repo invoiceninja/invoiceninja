@@ -17,7 +17,6 @@ use App\Models\User;
 
 class CompanyService
 {
-
     public function __construct(public Company $company)
     {
     }
@@ -71,7 +70,7 @@ class CompanyService
         } catch(\Exception $e) {
             nlog($e->getMessage());
         }
-        
+
     }
 
 }

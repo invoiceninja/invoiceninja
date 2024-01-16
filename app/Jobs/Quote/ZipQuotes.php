@@ -28,7 +28,10 @@ use Illuminate\Support\Facades\Storage;
 
 class ZipQuotes implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $settings;
 
@@ -46,7 +49,7 @@ class ZipQuotes implements ShouldQueue
     public function handle()
     {
         MultiDB::setDb($this->company->db);
-        
+
         $this->settings = $this->company->settings;
 
         // create new zip object
@@ -66,7 +69,7 @@ class ZipQuotes implements ShouldQueue
 
             Storage::put($path.$file_name, $zipFile->outputAsString());
 
-            $nmo = new NinjaMailerObject;
+            $nmo = new NinjaMailerObject();
             $nmo->mailable = new DownloadQuotes(Storage::url($path.$file_name), $this->company);
             $nmo->to_user = $this->user;
             $nmo->settings = $this->settings;

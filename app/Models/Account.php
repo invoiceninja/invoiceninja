@@ -102,7 +102,7 @@ class Account extends BaseModel
 
     private $free_plan_email_quota = 20;
 
-    private $paid_plan_email_quota = 500;
+    private $paid_plan_email_quota = 400;
 
     /**
      * @var string
@@ -138,39 +138,39 @@ class Account extends BaseModel
         'discount_expires' => 'date',
     ];
 
-    const PLAN_FREE = 'free';
-    const PLAN_PRO = 'pro';
-    const PLAN_ENTERPRISE = 'enterprise';
-    const PLAN_WHITE_LABEL = 'white_label';
-    const PLAN_TERM_MONTHLY = 'month';
-    const PLAN_TERM_YEARLY = 'year';
+    public const PLAN_FREE = 'free';
+    public const PLAN_PRO = 'pro';
+    public const PLAN_ENTERPRISE = 'enterprise';
+    public const PLAN_WHITE_LABEL = 'white_label';
+    public const PLAN_TERM_MONTHLY = 'month';
+    public const PLAN_TERM_YEARLY = 'year';
 
-    const FEATURE_TASKS = 'tasks';
-    const FEATURE_EXPENSES = 'expenses';
-    const FEATURE_QUOTES = 'quotes';
-    const FEATURE_PURCHASE_ORDERS = 'purchase_orders';
-    const FEATURE_CUSTOMIZE_INVOICE_DESIGN = 'custom_designs';
-    const FEATURE_DIFFERENT_DESIGNS = 'different_designs';
-    const FEATURE_EMAIL_TEMPLATES_REMINDERS = 'template_reminders';
-    const FEATURE_INVOICE_SETTINGS = 'invoice_settings';
-    const FEATURE_CUSTOM_EMAILS = 'custom_emails';
-    const FEATURE_PDF_ATTACHMENT = 'pdf_attachments';
-    const FEATURE_MORE_INVOICE_DESIGNS = 'more_invoice_designs';
-    const FEATURE_REPORTS = 'reports';
-    const FEATURE_BUY_NOW_BUTTONS = 'buy_now_buttons';
-    const FEATURE_API = 'api';
-    const FEATURE_CLIENT_PORTAL_PASSWORD = 'client_portal_password';
-    const FEATURE_CUSTOM_URL = 'custom_url';
-    const FEATURE_MORE_CLIENTS = 'more_clients';
-    const FEATURE_WHITE_LABEL = 'white_label';
-    const FEATURE_REMOVE_CREATED_BY = 'remove_created_by';
-    const FEATURE_USERS = 'users'; // Grandfathered for old Pro users
-    const FEATURE_DOCUMENTS = 'documents';
-    const FEATURE_USER_PERMISSIONS = 'permissions';
-    const FEATURE_SUBSCRIPTIONS = 'subscriptions';
+    public const FEATURE_TASKS = 'tasks';
+    public const FEATURE_EXPENSES = 'expenses';
+    public const FEATURE_QUOTES = 'quotes';
+    public const FEATURE_PURCHASE_ORDERS = 'purchase_orders';
+    public const FEATURE_CUSTOMIZE_INVOICE_DESIGN = 'custom_designs';
+    public const FEATURE_DIFFERENT_DESIGNS = 'different_designs';
+    public const FEATURE_EMAIL_TEMPLATES_REMINDERS = 'template_reminders';
+    public const FEATURE_INVOICE_SETTINGS = 'invoice_settings';
+    public const FEATURE_CUSTOM_EMAILS = 'custom_emails';
+    public const FEATURE_PDF_ATTACHMENT = 'pdf_attachments';
+    public const FEATURE_MORE_INVOICE_DESIGNS = 'more_invoice_designs';
+    public const FEATURE_REPORTS = 'reports';
+    public const FEATURE_BUY_NOW_BUTTONS = 'buy_now_buttons';
+    public const FEATURE_API = 'api';
+    public const FEATURE_CLIENT_PORTAL_PASSWORD = 'client_portal_password';
+    public const FEATURE_CUSTOM_URL = 'custom_url';
+    public const FEATURE_MORE_CLIENTS = 'more_clients';
+    public const FEATURE_WHITE_LABEL = 'white_label';
+    public const FEATURE_REMOVE_CREATED_BY = 'remove_created_by';
+    public const FEATURE_USERS = 'users'; // Grandfathered for old Pro users
+    public const FEATURE_DOCUMENTS = 'documents';
+    public const FEATURE_USER_PERMISSIONS = 'permissions';
+    public const FEATURE_SUBSCRIPTIONS = 'subscriptions';
 
-    const RESULT_FAILURE = 'failure';
-    const RESULT_SUCCESS = 'success';
+    public const RESULT_FAILURE = 'failure';
+    public const RESULT_SUCCESS = 'success';
 
     public function getEntityType()
     {
@@ -256,21 +256,21 @@ class Account extends BaseModel
             case self::FEATURE_CUSTOM_URL:
                 return $self_host || !empty($plan_details);
 
-            // Pro; No trial allowed, unless they're trialing enterprise with an active pro plan
+                // Pro; No trial allowed, unless they're trialing enterprise with an active pro plan
             case self::FEATURE_MORE_CLIENTS:
                 return $self_host || !empty($plan_details) && (!$plan_details['trial'] || !empty($this->getPlanDetails(false, false)));
 
-            // White Label
+                // White Label
             case self::FEATURE_WHITE_LABEL:
                 if (!$self_host && $plan_details && !$plan_details['expires']) {
                     return false;
                 }
-            // Fallthrough
-            // no break
+                // Fallthrough
+                // no break
             case self::FEATURE_REMOVE_CREATED_BY:
                 return !empty($plan_details); // A plan is required even for self-hosted users
 
-            // Enterprise; No Trial allowed; grandfathered for old pro users
+                // Enterprise; No Trial allowed; grandfathered for old pro users
             case self::FEATURE_USERS: // Grandfathered for old Pro users
                 if ($plan_details && $plan_details['trial']) {
                     // Do they have a non-trial plan?
@@ -279,7 +279,7 @@ class Account extends BaseModel
 
                 return $self_host || !empty($plan_details) && ($plan_details['plan'] == self::PLAN_ENTERPRISE);
 
-            // Enterprise; No Trial allowed
+                // Enterprise; No Trial allowed
             case self::FEATURE_DOCUMENTS:
             case self::FEATURE_USER_PERMISSIONS:
                 return $self_host || !empty($plan_details) && $plan_details['plan'] == self::PLAN_ENTERPRISE && !$plan_details['trial'];
@@ -500,10 +500,10 @@ class Account extends BaseModel
             $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 50;
         } else {
             $limit = $this->free_plan_email_quota;
-            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 3;
+            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 2;
         }
 
-        return min($limit, 5000);
+        return min($limit, 1000);
     }
 
     public function emailsSent()
@@ -528,7 +528,7 @@ class Account extends BaseModel
                     $t = app('translator');
                     $t->replace(Ninja::transformTranslations($this->companies()->first()->settings));
 
-                    $nmo = new NinjaMailerObject;
+                    $nmo = new NinjaMailerObject();
                     $nmo->mailable = new EmailQuotaExceeded($this->companies()->first());
                     $nmo->company = $this->companies()->first();
                     $nmo->settings = $this->companies()->first()->settings;
@@ -567,7 +567,7 @@ class Account extends BaseModel
                 $t = app('translator');
                 $t->replace(Ninja::transformTranslations($this->companies()->first()->settings));
 
-                $nmo = new NinjaMailerObject;
+                $nmo = new NinjaMailerObject();
                 $nmo->mailable = new GmailTokenInvalid($this->companies()->first());
                 $nmo->company = $this->companies()->first();
                 $nmo->settings = $this->companies()->first()->settings;

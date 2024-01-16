@@ -28,7 +28,7 @@ class StoreCompanyRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User auth()->user */
         $user = auth()->user();

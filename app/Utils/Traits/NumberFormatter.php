@@ -36,7 +36,7 @@ trait NumberFormatter
      * @param      string $value  The value
      * @return     float   Consumable float value
      */
-    private function parseFloat($value) : float
+    private function parseFloat($value): float
     {
         // check for comma as decimal separator
         if (preg_match('/,[\d]{1,2}$/', $value)) {

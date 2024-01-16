@@ -32,7 +32,7 @@ class ProcessBankRules extends AbstractService
     protected $categories;
 
     protected $invoices;
-    
+
     /**
      * @param \App\Models\BankTransaction $bank_transaction
      */
@@ -170,7 +170,7 @@ class ProcessBankRules extends AbstractService
         }
     }
 
-    private function matchNumberOperator($bt_value, $rule_value, $operator) :bool
+    private function matchNumberOperator($bt_value, $rule_value, $operator): bool
     {
         return match ($operator) {
             '>' => floatval($bt_value) > floatval($rule_value),
@@ -182,7 +182,7 @@ class ProcessBankRules extends AbstractService
         };
     }
 
-    private function matchStringOperator($bt_value, $rule_value, $operator) :bool
+    private function matchStringOperator($bt_value, $rule_value, $operator): bool
     {
         $bt_value = strtolower(str_replace(" ", "", $bt_value));
         $rule_value = strtolower(str_replace(" ", "", $rule_value));

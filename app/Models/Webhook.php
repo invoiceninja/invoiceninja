@@ -48,131 +48,131 @@ class Webhook extends BaseModel
     use SoftDeletes;
     use Filterable;
 
-    const EVENT_CREATE_CLIENT = 1; //tested
+    public const EVENT_CREATE_CLIENT = 1; //tested
 
-    const EVENT_CREATE_INVOICE = 2; //tested
+    public const EVENT_CREATE_INVOICE = 2; //tested
 
-    const EVENT_CREATE_QUOTE = 3; //tested
+    public const EVENT_CREATE_QUOTE = 3; //tested
 
-    const EVENT_CREATE_PAYMENT = 4; //tested
+    public const EVENT_CREATE_PAYMENT = 4; //tested
 
-    const EVENT_CREATE_VENDOR = 5; //tested
+    public const EVENT_CREATE_VENDOR = 5; //tested
 
-    const EVENT_UPDATE_QUOTE = 6; //tested
+    public const EVENT_UPDATE_QUOTE = 6; //tested
 
-    const EVENT_DELETE_QUOTE = 7; //tested
+    public const EVENT_DELETE_QUOTE = 7; //tested
 
-    const EVENT_UPDATE_INVOICE = 8; //tested
+    public const EVENT_UPDATE_INVOICE = 8; //tested
 
-    const EVENT_DELETE_INVOICE = 9; //tested
+    public const EVENT_DELETE_INVOICE = 9; //tested
 
-    const EVENT_UPDATE_CLIENT = 10; //tested
+    public const EVENT_UPDATE_CLIENT = 10; //tested
 
-    const EVENT_DELETE_CLIENT = 11; //tested
+    public const EVENT_DELETE_CLIENT = 11; //tested
 
-    const EVENT_DELETE_PAYMENT = 12; //tested
+    public const EVENT_DELETE_PAYMENT = 12; //tested
 
-    const EVENT_UPDATE_VENDOR = 13; //tested
+    public const EVENT_UPDATE_VENDOR = 13; //tested
 
-    const EVENT_DELETE_VENDOR = 14; //tested
+    public const EVENT_DELETE_VENDOR = 14; //tested
 
-    const EVENT_CREATE_EXPENSE = 15; //tested
+    public const EVENT_CREATE_EXPENSE = 15; //tested
 
-    const EVENT_UPDATE_EXPENSE = 16; //tested
+    public const EVENT_UPDATE_EXPENSE = 16; //tested
 
-    const EVENT_DELETE_EXPENSE = 17; //tested
+    public const EVENT_DELETE_EXPENSE = 17; //tested
 
-    const EVENT_CREATE_TASK = 18; //tested
+    public const EVENT_CREATE_TASK = 18; //tested
 
-    const EVENT_UPDATE_TASK = 19; //tested
+    public const EVENT_UPDATE_TASK = 19; //tested
 
-    const EVENT_DELETE_TASK = 20; //tested
+    public const EVENT_DELETE_TASK = 20; //tested
 
-    const EVENT_APPROVE_QUOTE = 21; //tested
+    public const EVENT_APPROVE_QUOTE = 21; //tested
 
-    const EVENT_LATE_INVOICE = 22;
+    public const EVENT_LATE_INVOICE = 22;
 
-    const EVENT_EXPIRED_QUOTE = 23;
+    public const EVENT_EXPIRED_QUOTE = 23;
 
-    const EVENT_REMIND_INVOICE = 24;
+    public const EVENT_REMIND_INVOICE = 24;
 
-    const EVENT_PROJECT_CREATE = 25; //tested
+    public const EVENT_PROJECT_CREATE = 25; //tested
 
-    const EVENT_PROJECT_UPDATE = 26; //tested
+    public const EVENT_PROJECT_UPDATE = 26; //tested
 
-    const EVENT_CREATE_CREDIT = 27; //tested
+    public const EVENT_CREATE_CREDIT = 27; //tested
 
-    const EVENT_UPDATE_CREDIT = 28; //tested
+    public const EVENT_UPDATE_CREDIT = 28; //tested
 
-    const EVENT_DELETE_CREDIT = 29; //tested
+    public const EVENT_DELETE_CREDIT = 29; //tested
 
-    const EVENT_PROJECT_DELETE = 30; //tested
+    public const EVENT_PROJECT_DELETE = 30; //tested
 
-    const EVENT_UPDATE_PAYMENT = 31; //tested
+    public const EVENT_UPDATE_PAYMENT = 31; //tested
 
-    const EVENT_ARCHIVE_PAYMENT = 32; //tested
+    public const EVENT_ARCHIVE_PAYMENT = 32; //tested
 
-    const EVENT_ARCHIVE_INVOICE = 33; //tested
+    public const EVENT_ARCHIVE_INVOICE = 33; //tested
 
-    const EVENT_ARCHIVE_QUOTE = 34; //tested
+    public const EVENT_ARCHIVE_QUOTE = 34; //tested
 
-    const EVENT_ARCHIVE_CREDIT = 35; //tested
+    public const EVENT_ARCHIVE_CREDIT = 35; //tested
 
-    const EVENT_ARCHIVE_TASK = 36; //tested
+    public const EVENT_ARCHIVE_TASK = 36; //tested
 
-    const EVENT_ARCHIVE_CLIENT = 37; //tested
+    public const EVENT_ARCHIVE_CLIENT = 37; //tested
 
-    const EVENT_ARCHIVE_PROJECT = 38; //tested
+    public const EVENT_ARCHIVE_PROJECT = 38; //tested
 
-    const EVENT_ARCHIVE_EXPENSE = 39;  //tested
+    public const EVENT_ARCHIVE_EXPENSE = 39;  //tested
 
-    const EVENT_RESTORE_PAYMENT = 40; //tested
+    public const EVENT_RESTORE_PAYMENT = 40; //tested
 
-    const EVENT_RESTORE_INVOICE = 41; //tested
+    public const EVENT_RESTORE_INVOICE = 41; //tested
 
-    const EVENT_RESTORE_QUOTE = 42; ///tested
+    public const EVENT_RESTORE_QUOTE = 42; ///tested
 
-    const EVENT_RESTORE_CREDIT = 43; //tested
+    public const EVENT_RESTORE_CREDIT = 43; //tested
 
-    const EVENT_RESTORE_TASK = 44; //tested
+    public const EVENT_RESTORE_TASK = 44; //tested
 
-    const EVENT_RESTORE_CLIENT = 45; //tested
+    public const EVENT_RESTORE_CLIENT = 45; //tested
 
-    const EVENT_RESTORE_PROJECT = 46; //tested
+    public const EVENT_RESTORE_PROJECT = 46; //tested
 
-    const EVENT_RESTORE_EXPENSE = 47; //tested
+    public const EVENT_RESTORE_EXPENSE = 47; //tested
 
-    const EVENT_ARCHIVE_VENDOR = 48; //tested
+    public const EVENT_ARCHIVE_VENDOR = 48; //tested
 
-    const EVENT_RESTORE_VENDOR = 49; //tested
+    public const EVENT_RESTORE_VENDOR = 49; //tested
 
-    const EVENT_CREATE_PRODUCT = 50; //tested
+    public const EVENT_CREATE_PRODUCT = 50; //tested
 
-    const EVENT_UPDATE_PRODUCT = 51; //tested
+    public const EVENT_UPDATE_PRODUCT = 51; //tested
 
-    const EVENT_DELETE_PRODUCT = 52; //tested
+    public const EVENT_DELETE_PRODUCT = 52; //tested
 
-    const EVENT_RESTORE_PRODUCT = 53; //tested
+    public const EVENT_RESTORE_PRODUCT = 53; //tested
 
-    const EVENT_ARCHIVE_PRODUCT = 54; //tested
+    public const EVENT_ARCHIVE_PRODUCT = 54; //tested
 
-    const EVENT_CREATE_PURCHASE_ORDER = 55; //tested
+    public const EVENT_CREATE_PURCHASE_ORDER = 55; //tested
 
-    const EVENT_UPDATE_PURCHASE_ORDER = 56; //tested
+    public const EVENT_UPDATE_PURCHASE_ORDER = 56; //tested
 
-    const EVENT_DELETE_PURCHASE_ORDER = 57; //tested
+    public const EVENT_DELETE_PURCHASE_ORDER = 57; //tested
 
-    const EVENT_RESTORE_PURCHASE_ORDER = 58; //tested
+    public const EVENT_RESTORE_PURCHASE_ORDER = 58; //tested
 
-    const EVENT_ARCHIVE_PURCHASE_ORDER = 59; //tested
+    public const EVENT_ARCHIVE_PURCHASE_ORDER = 59; //tested
 
-    const EVENT_SENT_INVOICE = 60;
+    public const EVENT_SENT_INVOICE = 60;
 
-    const EVENT_SENT_QUOTE = 61;
+    public const EVENT_SENT_QUOTE = 61;
 
-    const EVENT_SENT_CREDIT = 62;
+    public const EVENT_SENT_CREDIT = 62;
 
-    const EVENT_SENT_PURCHASE_ORDER = 63;
+    public const EVENT_SENT_PURCHASE_ORDER = 63;
 
     public static $valid_events = [
         self::EVENT_CREATE_PURCHASE_ORDER,

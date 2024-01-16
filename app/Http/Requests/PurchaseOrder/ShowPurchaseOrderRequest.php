@@ -20,7 +20,7 @@ class ShowPurchaseOrderRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         return auth()->user()->can('view', $this->purchase_order);
     }

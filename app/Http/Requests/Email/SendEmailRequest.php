@@ -47,7 +47,7 @@ class SendEmailRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         return $this->checkUserAbleToSend();
     }
@@ -91,7 +91,7 @@ class SendEmailRequest extends Request
         if (array_key_exists('entity_id', $input)) {
             $input['entity_id'] = $this->decodePrimaryKey($input['entity_id']);
         }
-        
+
         $this->entity_plural = Str::plural($input['entity']) ?? '';
 
         if (isset($input['entity'])) {
@@ -122,12 +122,12 @@ class SendEmailRequest extends Request
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
-        
+
         if (Ninja::isHosted() && !$user->account->account_sms_verified) {
             $this->error_message = ctrans('texts.authorization_sms_failure');
             return false;
         }
-        
+
         if (Ninja::isHosted() && $user->account->emailQuotaExceeded()) {
             $this->error_message = ctrans('texts.email_quota_exceeded_subject');
             return false;

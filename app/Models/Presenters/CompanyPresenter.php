@@ -21,8 +21,6 @@ use Illuminate\Support\Str;
  */
 class CompanyPresenter extends EntityPresenter
 {
-
-
     /**
      * @return string
      */
@@ -77,10 +75,10 @@ class CompanyPresenter extends EntityPresenter
             return $this->logoDocker($settings);
         }
 
-        $context_options =[
-            "ssl"=>[
-               "verify_peer"=>false,
-               "verify_peer_name"=>false,
+        $context_options = [
+            "ssl" => [
+               "verify_peer" => false,
+               "verify_peer_name" => false,
             ],
         ];
 
@@ -97,8 +95,9 @@ class CompanyPresenter extends EntityPresenter
     public function email()
     {
         /** @var \App\Models\Company $this */
-        if(str_contains($this->settings->email, "@"))
+        if(str_contains($this->settings->email, "@")) {
             return $this->settings->email;
+        }
 
         return $this->owner()->email;
 
@@ -198,7 +197,7 @@ class CompanyPresenter extends EntityPresenter
     public function website(): string
     {
         $website = $this->entity->getSetting('website');
-        
+
         if (empty($website)) {
             return $website;
         }

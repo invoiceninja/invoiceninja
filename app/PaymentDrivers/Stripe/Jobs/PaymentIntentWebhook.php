@@ -31,7 +31,11 @@ use Illuminate\Queue\SerializesModels;
 
 class PaymentIntentWebhook implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Utilities;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use Utilities;
 
     public $tries = 1; //number of retries
 
@@ -74,7 +78,7 @@ class PaymentIntentWebhook implements ShouldQueue
             if ($payment) {
                 $payment->status_id = Payment::STATUS_COMPLETED;
                 $payment->save();
-    
+
                 $this->payment_completed = true;
             }
         }
@@ -240,7 +244,7 @@ class PaymentIntentWebhook implements ShouldQueue
                 return;
             }
 
-            $payment_meta = new \stdClass;
+            $payment_meta = new \stdClass();
             $payment_meta->brand = (string) \sprintf('%s (%s)', $method->us_bank_account['bank_name'], ctrans('texts.ach'));
             $payment_meta->last4 = (string) $method->us_bank_account['last4'];
             $payment_meta->type = GatewayType::BANK_TRANSFER;

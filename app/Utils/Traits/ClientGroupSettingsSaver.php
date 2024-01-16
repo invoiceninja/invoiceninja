@@ -156,7 +156,7 @@ trait ClientGroupSettingsSaver
      * @param  array $settings The settings request() array
      * @return stdClass          stdClass object
      */
-    private function checkSettingType($settings) : stdClass
+    private function checkSettingType($settings): stdClass
     {
         $settings = (object) $settings;
         $casts = CompanySettings::$casts;
@@ -216,7 +216,7 @@ trait ClientGroupSettingsSaver
      * @param  string $value The object property
      * @return bool        TRUE if the property is the expected type
      */
-    private function checkAttribute($key, $value) :bool
+    private function checkAttribute($key, $value): bool
     {
         switch ($key) {
             case 'int':

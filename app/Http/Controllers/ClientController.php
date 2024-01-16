@@ -237,7 +237,7 @@ class ClientController extends BaseController
 
             return response()->json(['message' => $hash_or_response], 200);
         }
-                         
+
         $clients->each(function ($client) use ($action, $user) {
             if ($user->can('edit', $client)) {
                 $this->client_repo->{$action}($client);
@@ -323,7 +323,7 @@ class ClientController extends BaseController
 
         return $this->itemResponse($merged_client);
     }
-    
+
     /**
      * Updates the client's tax data
      *
@@ -336,7 +336,7 @@ class ClientController extends BaseController
         if($client->company->account->isPaid()) {
             (new UpdateTaxData($client, $client->company))->handle();
         }
-        
+
         return $this->itemResponse($client->fresh());
     }
 
@@ -383,10 +383,10 @@ class ClientController extends BaseController
         $postmark = new PostmarkClient(config('services.postmark.token'));
 
         try {
-            
+
             /** @var \Postmark\Models\DynamicResponseModel $response */
             $response = $postmark->activateBounce((int)$bounce_id);
-        
+
             if($response && $response?->Message == 'OK' && !$response->Bounce->Inactive && $response->Bounce->Email) {
 
                 $email =  $response->Bounce->Email;

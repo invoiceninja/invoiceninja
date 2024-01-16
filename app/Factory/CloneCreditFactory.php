@@ -16,7 +16,7 @@ use App\Models\Credit;
 
 class CloneCreditFactory
 {
-    public static function create(Credit $credit, $user_id) : ?Credit
+    public static function create(Credit $credit, $user_id): ?Credit
     {
         $clone_credit = $credit->replicate();
         $clone_credit->status_id = credit::STATUS_DRAFT;

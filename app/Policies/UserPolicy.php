@@ -25,7 +25,7 @@ class UserPolicy extends EntityPolicy
      * @param  User $user
      * @return bool
      */
-    public function create(User $user) : bool
+    public function create(User $user): bool
     {
         return $user->isAdmin() || $user->hasPermission('create_user') || $user->hasPermission('create_all');
     }
@@ -36,7 +36,7 @@ class UserPolicy extends EntityPolicy
     *
     * We use the CompanyUser table as a proxy
     */
-    public function edit(User $user, $user_entity) : bool
+    public function edit(User $user, $user_entity): bool
     {
         $company_user = CompanyUser::whereUserId($user->id)->AuthCompany()->first();
 

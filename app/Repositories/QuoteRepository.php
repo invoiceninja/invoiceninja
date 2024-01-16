@@ -19,12 +19,12 @@ use App\Models\QuoteInvitation;
  */
 class QuoteRepository extends BaseRepository
 {
-    public function save($data, Quote $quote) : ?Quote
+    public function save($data, Quote $quote): ?Quote
     {
         return $this->alternativeSave($data, $quote);
     }
 
-    public function getInvitationByKey($key) :?QuoteInvitation
+    public function getInvitationByKey($key): ?QuoteInvitation
     {
         return QuoteInvitation::query()->where('key', $key)->first();
     }

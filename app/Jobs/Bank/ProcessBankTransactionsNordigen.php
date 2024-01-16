@@ -26,7 +26,10 @@ use Illuminate\Queue\SerializesModels;
 
 class ProcessBankTransactionsNordigen implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     private BankIntegration $bank_integration;
 
@@ -54,11 +57,13 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->bank_integration->integration_type != BankIntegration::INTEGRATION_TYPE_NORDIGEN)
+        if ($this->bank_integration->integration_type != BankIntegration::INTEGRATION_TYPE_NORDIGEN) {
             throw new \Exception("Invalid BankIntegration Type");
+        }
 
-        if (!(config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key')))
+        if (!(config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key'))) {
             throw new \Exception("Missing credentials for bank_integration service nordigen");
+        }
 
         $this->nordigen = new Nordigen();
 
@@ -82,8 +87,9 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
 
             throw $e;
         }
-        if (!$this->nordigen_account)
+        if (!$this->nordigen_account) {
             return;
+        }
 
         // UPDATE TRANSACTIONS
         try {
@@ -114,7 +120,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
             $this->stop_loop = false;
             nlog("Nordigen: account inactive: " . $this->bank_integration->nordigen_account_id);
             // @turbo124 @todo send email for expired account
-            
+
             $this->nordigen->disabledAccountEmail($this->bank_integration);
 
             return;
@@ -158,8 +164,9 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
 
         foreach ($transactions as $transaction) {
 
-            if (BankTransaction::where('nordigen_transaction_id', $transaction['nordigen_transaction_id'])->where('company_id', $this->company->id)->where('bank_integration_id', $this->bank_integration->id)->where('is_deleted', 0)->withTrashed()->exists())
+            if (BankTransaction::where('nordigen_transaction_id', $transaction['nordigen_transaction_id'])->where('company_id', $this->company->id)->where('bank_integration_id', $this->bank_integration->id)->where('is_deleted', 0)->withTrashed()->exists()) {
                 continue;
+            }
 
             //this should be much faster to insert than using ::create()
             \DB::table('bank_transactions')->insert(

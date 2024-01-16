@@ -323,7 +323,7 @@ class TemplateEngine
                 'applied' => 10,
                 'refunded' => 5,
             ]);
-            
+
             $this->entity_obj = $payment;
 
             /** @var \App\Models\Invoice $invoice */
@@ -377,7 +377,7 @@ class TemplateEngine
                 'company_id' => $user->company()->id,
                 'client_id' => $client->id,
             ]);
-            
+
             $this->entity_obj = $quote;
 
             $invitation = QuoteInvitation::factory()->create([
@@ -403,14 +403,14 @@ class TemplateEngine
                 'is_primary' => 1,
                 'send_email' => true,
             ]);
-            
+
             /** @var \App\Models\PurchaseOrder $purchase_order **/
             $purchase_order = PurchaseOrder::factory()->create([
                 'user_id' => $user->id,
                 'company_id' => $user->company()->id,
                 'vendor_id' => $vendor->id,
             ]);
-            
+
             $this->entity_obj = $purchase_order;
 
             /** @var \App\Models\PurchaseOrderInvitation $invitation **/

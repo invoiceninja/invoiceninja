@@ -20,7 +20,6 @@ use Illuminate\Mail\Mailables\Headers;
 
 class StripeConnectFailed extends Mailable
 {
-
     /**
      * Create a new message instance.
      *
@@ -51,7 +50,7 @@ class StripeConnectFailed extends Mailable
      */
     public function content()
     {
-        
+
         return new Content(
             view: 'email.admin.stripe_connect_failed',
             text: 'email.admin.stripe_connect_failed_text',
@@ -97,7 +96,7 @@ class StripeConnectFailed extends Mailable
     {
         return [];
     }
- 
+
     /**
      * Get the message headers.
      *

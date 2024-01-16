@@ -17,7 +17,7 @@ use Illuminate\Support\Str;
 class MagicLink
 {
     //return a magic login link URL
-    public static function create($email, $company_id, $url = null) :string
+    public static function create($email, $company_id, $url = null): string
     {
         $magic_key = Str::random(64);
         $timeout = 600; //seconds

@@ -87,7 +87,7 @@ class ClientContactRequestCancellation extends Notification
         $client_name = $this->client_contact->client->present()->name();
         $recurring_invoice_number = $this->recurring_invoice->number;
 
-        return (new SlackMessage)
+        return (new SlackMessage())
                 ->success()
                 ->to('#devv2')
                 ->from('System')

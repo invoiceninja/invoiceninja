@@ -19,7 +19,6 @@ use stdClass;
 
 class InventoryNotificationObject
 {
-    
     public function __construct(protected Product $product, public string $notification_level, protected bool $use_react_url)
     {
     }
@@ -34,7 +33,7 @@ class InventoryNotificationObject
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->product->company->settings));
 
-        $mail_obj = new stdClass;
+        $mail_obj = new stdClass();
         $mail_obj->amount = $this->getAmount();
         $mail_obj->subject = $this->getSubject();
         $mail_obj->data = $this->getData();

@@ -144,10 +144,10 @@ class DirectDebit implements MethodInterface
     {
 
         try {
-            
+
             $billing_request = $this->go_cardless->gateway->billingRequests()->get($request->billing_request);
 
-            $payment_meta = new \stdClass;
+            $payment_meta = new \stdClass();
             $payment_meta->brand = $billing_request->resources->customer_bank_account->bank_name;
             $payment_meta->type = $this->resolveScheme($billing_request->mandate_request->scheme);
             $payment_meta->state = 'pending';
@@ -162,7 +162,7 @@ class DirectDebit implements MethodInterface
             $payment_method = $this->go_cardless->storeGatewayToken($data, ['gateway_customer_reference' => $billing_request->resources->customer->id]);
 
             $mandate = $this->go_cardless->gateway->mandates()->get($billing_request->mandate_request->links->mandate);
-            
+
             nlog($mandate);
 
             return redirect()->route('client.payment_methods.show', $payment_method->hashed_id);

@@ -28,7 +28,7 @@ class UpdateQuoteRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -54,7 +54,7 @@ class UpdateQuoteRequest extends Request
             $rules['file'] = $this->file_validation;
         }
 
-        
+
         $rules['number'] = ['bail', 'sometimes', 'nullable', Rule::unique('quotes')->where('company_id', $user->company()->id)->ignore($this->quote->id)];
 
         $rules['client_id'] = ['bail', 'sometimes', Rule::in([$this->quote->client_id])];

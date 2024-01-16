@@ -16,7 +16,7 @@ use App\Models\RecurringInvoice;
 
 class RecurringExpenseFactory
 {
-    public static function create(int $company_id, int $user_id) :RecurringExpense
+    public static function create(int $company_id, int $user_id): RecurringExpense
     {
         $recurring_expense = new RecurringExpense();
         $recurring_expense->status_id = RecurringInvoice::STATUS_DRAFT;

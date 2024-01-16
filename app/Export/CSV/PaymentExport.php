@@ -38,7 +38,7 @@ class PaymentExport extends BaseExport
         $this->entity_transformer = new PaymentTransformer();
         $this->decorator = new Decorator();
     }
- 
+
     private function init(): Builder
     {
 
@@ -80,7 +80,7 @@ class PaymentExport extends BaseExport
                     $row = $this->buildRow($resource);
                     return $this->processMetaData($row, $resource);
                 })->toArray();
-                
+
         return array_merge(['columns' => $header], $report);
 
     }
@@ -102,14 +102,14 @@ class PaymentExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Payment $payment) :array
+    private function buildRow(Payment $payment): array
     {
         $transformed_entity = $this->entity_transformer->transform($payment);
 
         $entity = [];
 
         foreach (array_values($this->input['report_keys']) as $key) {
-    
+
             $parts = explode('.', $key);
 
             if (is_array($parts) && $parts[0] == 'payment' && array_key_exists($parts[1], $transformed_entity)) {
@@ -129,7 +129,7 @@ class PaymentExport extends BaseExport
         return $this->decorateAdvancedFields($payment, $entity);
     }
 
-    private function decorateAdvancedFields(Payment $payment, array $entity) :array
+    private function decorateAdvancedFields(Payment $payment, array $entity): array
     {
         // if (in_array('status_id', $this->input['report_keys'])) {
         //     $entity['status'] = $payment->stringStatus($payment->status_id);

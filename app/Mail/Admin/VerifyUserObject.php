@@ -54,7 +54,7 @@ class VerifyUserObject
             'signature' => $this->company->settings->email_signature,
         ];
 
-        $mail_obj = new \stdClass;
+        $mail_obj = new \stdClass();
         $mail_obj->subject = ctrans('texts.confirmation_subject');
         $mail_obj->data = $data;
         $mail_obj->markdown = 'email.admin.generic';

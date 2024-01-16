@@ -109,6 +109,7 @@ use Illuminate\Support\Carbon;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $invitations
  * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @mixin \Eloquent
  */
 class PurchaseOrder extends BaseModel
@@ -189,11 +190,11 @@ class PurchaseOrder extends BaseModel
 
     ];
 
-    const STATUS_DRAFT = 1;
-    const STATUS_SENT = 2;
-    const STATUS_ACCEPTED = 3;
-    const STATUS_RECEIVED = 4;
-    const STATUS_CANCELLED = 5;
+    public const STATUS_DRAFT = 1;
+    public const STATUS_SENT = 2;
+    public const STATUS_ACCEPTED = 3;
+    public const STATUS_RECEIVED = 4;
+    public const STATUS_CANCELLED = 5;
 
     public static function stringStatus(int $status)
     {
@@ -208,7 +209,7 @@ class PurchaseOrder extends BaseModel
                 return ctrans('texts.cancelled');
             default:
                 return ctrans('texts.sent');
-                
+
         }
     }
 
@@ -308,7 +309,7 @@ class PurchaseOrder extends BaseModel
     }
 
     /** @return PurchaseOrderService  */
-    public function service() :PurchaseOrderService
+    public function service(): PurchaseOrderService
     {
         return new PurchaseOrderService($this);
     }

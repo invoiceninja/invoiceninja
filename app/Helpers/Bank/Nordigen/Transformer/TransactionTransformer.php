@@ -76,7 +76,6 @@ class TransactionTransformer implements BankRevenueInterface
     foreach ($transactionResponse["transactions"]["booked"] as $transaction) {
       $data[] = $this->transformTransaction($transaction);
     }
-
     return $data;
   }
 
@@ -145,5 +144,3 @@ class TransactionTransformer implements BankRevenueInterface
   }
 
 }
-
-

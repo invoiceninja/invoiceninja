@@ -78,7 +78,7 @@ class BankTransactionRuleTransformer extends EntityTransformer
         }
 
         $transformer = new ClientTransformer($this->serializer);
-        
+
         return $this->includeItem($bank_transaction_rule->client, $transformer, Client::class);
     }
 

@@ -117,7 +117,7 @@ class RecurringInvoiceFilters extends QueryFilters
     {
 
         $sort_col = explode('|', $sort);
-        
+
         if (!is_array($sort_col) || count($sort_col) != 2) {
             return $this->builder;
         }
@@ -129,7 +129,7 @@ class RecurringInvoiceFilters extends QueryFilters
                     ->whereColumn('clients.id', 'recurring_invoices.client_id'), $dir);
         }
 
-        if($sort_col[0] == 'number'){
+        if($sort_col[0] == 'number') {
             return $this->builder->orderByRaw("ABS(number) {$dir}");
         }
 

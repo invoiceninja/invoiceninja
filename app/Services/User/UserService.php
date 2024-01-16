@@ -25,11 +25,11 @@ class UserService
     {
     }
 
-    public function invite(Company $company, bool $is_react=true)
+    public function invite(Company $company, bool $is_react = true)
     {
 
         try {
-            $nmo = new NinjaMailerObject;
+            $nmo = new NinjaMailerObject();
             $nmo->mailable = new NinjaMailer((new VerifyUserObject($this->user, $company, $is_react))->build());
             $nmo->company = $company;
             $nmo->to_user = $this->user;

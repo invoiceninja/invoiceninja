@@ -49,12 +49,12 @@ class TaskObserver
         if ($task->getOriginal('deleted_at') && !$task->deleted_at) {
             $event = Webhook::EVENT_RESTORE_TASK;
         }
-        
+
         if ($task->is_deleted) {
             $event = Webhook::EVENT_DELETE_TASK;
         }
-        
-        
+
+
         $subscriptions = Webhook::where('company_id', $task->company_id)
                                     ->where('event_id', $event)
                                     ->exists();
@@ -75,7 +75,7 @@ class TaskObserver
         if ($task->is_deleted) {
             return;
         }
-        
+
         $subscriptions = Webhook::where('company_id', $task->company_id)
                         ->where('event_id', Webhook::EVENT_ARCHIVE_TASK)
                         ->exists();

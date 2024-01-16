@@ -39,8 +39,9 @@ class Nordigen
     {
         $this->test_mode = config('ninja.nordigen.test_mode');
 
-        if (!(config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key')))
+        if (!(config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key'))) {
             throw new \Exception('missing nordigen credentials');
+        }
 
         $this->client = new \Nordigen\NordigenPHP\API\NordigenClient(config('ninja.nordigen.secret_id'), config('ninja.nordigen.secret_key'));
 
@@ -50,8 +51,9 @@ class Nordigen
     // metadata-section for frontend
     public function getInstitutions()
     {
-        if ($this->test_mode)
+        if ($this->test_mode) {
             return [$this->client->institution->getInstitution($this->sandbox_institutionId)];
+        }
 
         return $this->client->institution->getInstitutions();
     }
@@ -59,8 +61,9 @@ class Nordigen
     // requisition-section
     public function createRequisition(string $redirect, string $initutionId, string $reference, string $userLanguage)
     {
-        if ($this->test_mode && $initutionId != $this->sandbox_institutionId)
+        if ($this->test_mode && $initutionId != $this->sandbox_institutionId) {
             throw new \Exception('invalid institutionId while in test-mode');
+        }
 
         return $this->client->requisition->createRequisition($redirect, $initutionId, null, $reference, $userLanguage);
     }
@@ -70,8 +73,9 @@ class Nordigen
         try {
             return $this->client->requisition->getRequisition($requisitionId);
         } catch (\Exception $e) {
-            if (strpos($e->getMessage(), "Invalid Requisition ID") !== false)
+            if (strpos($e->getMessage(), "Invalid Requisition ID") !== false) {
                 return false;
+            }
 
             throw $e;
         }
@@ -90,15 +94,16 @@ class Nordigen
 
             $it = new AccountTransformer();
             return $it->transform($out);
-            
+
         } catch (\Exception $e) {
-            if (strpos($e->getMessage(), "Invalid Account ID") !== false)
+            if (strpos($e->getMessage(), "Invalid Account ID") !== false) {
                 return false;
+            }
 
             throw $e;
         }
     }
-    
+
     /**
      * isAccountActive
      *
@@ -117,14 +122,15 @@ class Nordigen
 
             return true;
         } catch (\Exception $e) {
-            if (strpos($e->getMessage(), "Invalid Account ID") !== false)
+            if (strpos($e->getMessage(), "Invalid Account ID") !== false) {
                 return false;
+            }
 
             throw $e;
         }
     }
 
-    
+
     /**
      * getTransactions
      *

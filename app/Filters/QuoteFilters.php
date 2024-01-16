@@ -81,19 +81,19 @@ class QuoteFilters extends QueryFilters
                     ->orWhere('due_date', '>=', now()->toDateString());
                 });
             }
-    
+
             $quote_filters = [];
 
             if (in_array('draft', $status_parameters)) {
                 $quote_filters[] = Quote::STATUS_DRAFT;
             }
 
-            
+
             if (in_array('approved', $status_parameters)) {
                 $quote_filters[] = Quote::STATUS_APPROVED;
             }
 
-            if (count($quote_filters) >0) {
+            if (count($quote_filters) > 0) {
                 $query->orWhereIn('status_id', $quote_filters);
             }
 

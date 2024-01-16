@@ -38,7 +38,7 @@ class EntityViewedNotification extends Notification
     protected $contact;
 
     public $is_system;
-    
+
     public function __construct($invitation, $entity_name, $is_system = false, $settings = null)
     {
         $this->entity_name = $entity_name;
@@ -90,7 +90,7 @@ class EntityViewedNotification extends Notification
         $logo = $this->company->present()->logo();
         $amount = Number::formatMoney($this->entity->amount, $this->entity->client);
 
-        return (new SlackMessage)
+        return (new SlackMessage())
             ->from(ctrans('texts.notification_bot'))
             ->success()
             ->image('https://app.invoiceninja.com/favicon-v2.png')

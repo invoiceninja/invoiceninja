@@ -142,9 +142,9 @@ class PreviewPurchaseOrderController extends BaseController
 
             //if phantom js...... inject here..
             if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-                return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+                return (new Phantom())->convertHtmlToPdf($maker->getCompiledHTML(true));
             }
-            
+
             /** @var \App\Models\User $user */
             $user = auth()->user();
 
@@ -191,7 +191,7 @@ class PreviewPurchaseOrderController extends BaseController
             $invitation->setRelation($request->entity, $entity_obj);
 
         }
-        
+
         $ps = new PdfService($invitation, 'purchase_order', [
             'client' => $entity_obj->client ?? false,
             'vendor' => $vendor ?? false,
@@ -213,7 +213,7 @@ class PreviewPurchaseOrderController extends BaseController
             'Content-Disposition' => 'inline',
             'Content-Type' => 'application/pdf',
             'Cache-Control:' => 'no-cache',
-            'Server-Timing' => microtime(true)-$start
+            'Server-Timing' => microtime(true) - $start
         ]);
 
 
@@ -254,7 +254,7 @@ class PreviewPurchaseOrderController extends BaseController
             if (!$request->has('entity_id')) {
                 $entity_obj->service()->fillDefaults()->save();
             }
-                
+
             App::forgetInstance('translator');
             $t = app('translator');
             App::setLocale($entity_obj->company->locale());
@@ -321,9 +321,9 @@ class PreviewPurchaseOrderController extends BaseController
 
         //if phantom js...... inject here..
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-            return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+            return (new Phantom())->convertHtmlToPdf($maker->getCompiledHTML(true));
         }
-            
+
         if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
             $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
 
@@ -407,7 +407,7 @@ class PreviewPurchaseOrderController extends BaseController
         }
 
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-            return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+            return (new Phantom())->convertHtmlToPdf($maker->getCompiledHTML(true));
         }
 
         /** @var \App\Models\User $user */
@@ -424,7 +424,7 @@ class PreviewPurchaseOrderController extends BaseController
 
             return $pdf;
         }
-            
+
         $file_path = (new PreviewPdf($maker->getCompiledHTML(true), $user->company()))->handle();
 
         $response = Response::make($file_path, 200);
@@ -520,7 +520,7 @@ class PreviewPurchaseOrderController extends BaseController
         }
 
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-            return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+            return (new Phantom())->convertHtmlToPdf($maker->getCompiledHTML(true));
         }
 
         if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
@@ -534,7 +534,7 @@ class PreviewPurchaseOrderController extends BaseController
 
             return $pdf;
         }
-            
+
         $file_path = (new PreviewPdf($maker->getCompiledHTML(true), $user->company()))->handle();
 
         $response = Response::make($file_path, 200);

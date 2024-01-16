@@ -31,7 +31,7 @@ class PreviewInvoiceRequest extends Request
     use CleanLineItems;
 
     private string $entity_plural = '';
-    
+
     private ?Client $client = null;
 
     /**
@@ -39,7 +39,7 @@ class PreviewInvoiceRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -163,11 +163,11 @@ class PreviewInvoiceRequest extends Request
         $entity->setRelation('company', $client->company);
         $entity->setRelation('user', $client->user);
         $entity->fill($this->all());
-        
+
         return $entity;
     }
 
-    private function convertEntityPlural(string $entity) :self
+    private function convertEntityPlural(string $entity): self
     {
         switch ($entity) {
             case 'invoice':

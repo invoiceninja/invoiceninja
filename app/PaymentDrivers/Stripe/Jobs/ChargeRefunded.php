@@ -26,7 +26,11 @@ use Illuminate\Queue\SerializesModels;
 
 class ChargeRefunded implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Utilities;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use Utilities;
 
     public $tries = 1; //number of retries
 
@@ -57,7 +61,7 @@ class ChargeRefunded implements ShouldQueue
         $source = $this->stripe_request['object'];
         $charge_id = $source['id'];
         $amount_refunded = $source['amount_refunded'] ?? 0;
-            
+
         $payment_hash_key = $source['metadata']['payment_hash'] ?? null;
 
         $company_gateway = CompanyGateway::query()->find($this->company_gateway_id);
@@ -117,7 +121,7 @@ class ChargeRefunded implements ShouldQueue
                 //too many edges cases at this point, return early
                 return;
             }
-            
+
             $invoices = $invoice_collection->toArray();
 
             $data = [
@@ -130,7 +134,7 @@ class ChargeRefunded implements ShouldQueue
             ];
 
             nlog($data);
-            
+
             $payment->refund($data);
 
             $payment->private_notes .= 'Refunded via Stripe';

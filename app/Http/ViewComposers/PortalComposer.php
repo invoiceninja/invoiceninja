@@ -59,7 +59,7 @@ class PortalComposer
      * @param  View  $view
      * @return void
      */
-    public function compose(View $view) :void
+    public function compose(View $view): void
     {
         $view->with($this->portalData());
 
@@ -73,7 +73,7 @@ class PortalComposer
     /**
      * @return array
      */
-    private function portalData() :array
+    private function portalData(): array
     {
         if (! auth()->guard('contact')->user()) {
             return [];
@@ -96,7 +96,7 @@ class PortalComposer
         return $data;
     }
 
-    private function sidebarMenu() :array
+    private function sidebarMenu(): array
     {
         $enabled_modules = auth()->guard('contact')->user()->company->enabled_modules;
         $data = [];
@@ -141,7 +141,7 @@ class PortalComposer
         if (auth()->guard('contact')->user()->client->getSetting('client_initiated_payments')) {
             $data[] = ['title' => ctrans('texts.pre_payment'), 'url' => 'client.pre_payments.index', 'icon' => 'dollar-sign'];
         }
-        
+
         return $data;
     }
 }

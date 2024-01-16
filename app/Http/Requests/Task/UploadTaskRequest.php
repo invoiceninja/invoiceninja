@@ -20,7 +20,7 @@ class UploadTaskRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -45,7 +45,7 @@ class UploadTaskRequest extends Request
         }
 
         $rules['is_public'] = 'sometimes|boolean';
-        
+
         return $rules;
     }
 
