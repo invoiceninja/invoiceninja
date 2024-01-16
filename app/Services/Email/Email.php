@@ -473,6 +473,9 @@ class Email implements ShouldQueue
             case 'default':
                 $this->mailer = config('mail.default');
                 break;
+            case 'mailgun':
+                $this->mailer = 'mailgun';
+                break;
             case 'gmail':
                 $this->mailer = 'gmail';
                 $this->setGmailMailer();
