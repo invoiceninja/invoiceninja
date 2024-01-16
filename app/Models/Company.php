@@ -431,7 +431,7 @@ class Company extends BaseModel
 
     public function bank_integrations(): HasMany
     {
-        return $this->hasMany(BankIntegration::class);
+        return $this->hasMany(BankIntegration::class)->withTrashed();
     }
 
     public function bank_transactions(): HasMany

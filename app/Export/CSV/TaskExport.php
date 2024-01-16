@@ -119,7 +119,7 @@ class TaskExport extends BaseExport
 
                     $this->storage_array = [];
                 });
-        // nlog($this->storage_item_array);
+
         return array_merge(['columns' => $header], $this->storage_item_array);
     }
 
@@ -139,18 +139,10 @@ class TaskExport extends BaseExport
             } elseif (in_array($key, ['task.start_date', 'task.end_date', 'task.duration'])) {
                 $entity[$key] = '';
             } else {
-                // nlog($key);
                 $entity[$key] = $this->decorator->transform($key, $task);
-                // $entity[$key] = $this->resolveKey($key, $task, $this->entity_transformer);
             }
 
-            // $entity['task.start_date'] = '';
-            // $entity['task.end_date'] = '';
-            // $entity['task.duration'] = '';
-
         }
-
-
 
         if (is_null($task->time_log) || (is_array(json_decode($task->time_log, 1)) && count(json_decode($task->time_log, 1)) == 0)) {
             $this->storage_array[] = $entity;
@@ -200,9 +192,9 @@ class TaskExport extends BaseExport
 
             $this->storage_array[] = $entity;
 
-            unset($entity['task.start_date']);
-            unset($entity['task.end_date']);
-            unset($entity['task.duration']);
+            $entity['task.start_date'] = '';
+            $entity['task.end_date'] = '';
+            $entity['task.duration'] = '';
         }
 
     }
