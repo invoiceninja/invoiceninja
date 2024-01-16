@@ -24,6 +24,10 @@ return [
         'endpoint' => env('MAILGUN_ENDPOINT', 'api.mailgun.net'),
         'webhook_signing_key' => env('MAILGUN_WEBHOOK_SIGNING_KEY', ''),
         'scheme' => 'https',
+        'from' => [
+            'address' => env('MAILGUN_FROM_ADDRESS', ''),
+            'name' => env('MAILGUN_FROM_NAME', ''),
+        ],
     ],
 
     'postmark' => [
