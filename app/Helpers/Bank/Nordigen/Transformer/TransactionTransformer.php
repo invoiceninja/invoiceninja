@@ -104,7 +104,7 @@ class TransactionTransformer implements BankRevenueInterface
         if (array_key_exists('currencyExchange', $transaction))
             foreach ($transaction["currencyExchange"] as $exchangeRate) {
                 $targetAmount = round($amount * (float) $exchangeRate["exchangeRate"], 2);
-                $description += '\nexchangeRate: ' . $amount . " " . $exchangeRate["sourceCurrency"] . " = " . $targetAmount . " " . $exchangeRate["targetCurrency"] . " (" . $exchangeRate["quotationDate"] . ")";
+                $description .= '\nexchangeRate: ' . $amount . " " . $exchangeRate["sourceCurrency"] . " = " . $targetAmount . " " . $exchangeRate["targetCurrency"] . " (" . $exchangeRate["quotationDate"] . ")";
             }
 
         // participant data
