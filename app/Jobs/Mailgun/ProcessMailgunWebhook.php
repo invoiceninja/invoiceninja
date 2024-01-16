@@ -116,11 +116,11 @@ class ProcessMailgunWebhook implements ShouldQueue
         switch ($this->request['event-data']['event']) {
             case 'delivered':
                 return $this->processDelivery();
-            case 'Bounce':
+            case 'failed':
                 return $this->processBounce();
             case 'complained':
                 return $this->processSpamComplaint();
-            case 'Open':
+            case 'opened':
                 return $this->processOpen();
             default:
                 # code...
@@ -177,14 +177,28 @@ class ProcessMailgunWebhook implements ShouldQueue
         $this->invitation->opened_date = now();
         $this->invitation->save();
 
-        SystemLogger::dispatch(
-            $this->request,
-            SystemLog::CATEGORY_MAIL,
-            SystemLog::EVENT_MAIL_OPENED,
-            SystemLog::TYPE_WEBHOOK_RESPONSE,
-            $this->invitation->contact->client,
-            $this->invitation->company
-        );
+        $sl = $this->getSystemLog($this->request['MessageID']);
+
+        /** Prevents Gmail tracking from firing inappropriately */
+        if($this->request['signature']['timestamp'] < $sl->log['signature']['timestamp'] + 3)
+            return;
+
+        $event = [
+            'bounce_id' => '',
+            'recipient' => $this->request['event-data']['recipient'] ?? '',
+            'status' => $this->request['event-data']['event'] ?? '',
+            'delivery_message' => collect($this->request['event-data']['client-info'])->implode(" ") ?? '',
+            'server' => collect($this->request['event-data']['geolocation'])->implode(" - ") ??  '',
+            'server_ip' => $this->request['event-data']['ip'] ?? '',
+            'date' => \Carbon\Carbon::parse($this->request['event-data']['timestamp'])->format('Y-m-d H:i:s') ?? '',
+        ];
+
+        if($sl) {
+            $data = $sl->log;
+            $data['history']['events'][] = $event;
+            $this->updateSystemLog($sl, $data);
+        }
+
     }
 
 /*
@@ -344,13 +358,29 @@ class ProcessMailgunWebhook implements ShouldQueue
 
         $bounce = new EmailBounce(
             $this->request['event-data']['tags'][0],
-            $this->request['From'],
-            $this->request['MessageID']
+            $this->request['event-data']['envelope']['sender'],
+            $this->message_id
         );
 
         LightLogs::create($bounce)->queue();
 
-        SystemLogger::dispatch($this->request, SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_BOUNCED, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client, $this->invitation->company);
+        $sl = $this->getSystemLog($this->message_id);
+
+        $event = [
+            'bounce_id' => $this->request['event-data']['id'],
+            'recipient' => $this->request['event-data']['recipient'] ?? '',
+            'status' => $this->request['event-data']['event'] ?? '',
+            'delivery_message' => $this->request['event-data']['delivery-status']['description'] ?? $this->request['event-data']['delivery-status']['message'] ?? '',
+            'server' => $this->request['event-data']['delivery-status']['mx-host'] ??  '',
+            'server_ip' => $this->request['event-data']['envelope']['sending-ip'] ?? '',
+            'date' => \Carbon\Carbon::parse($this->request['event-data']['timestamp'])->format('Y-m-d H:i:s') ?? '',
+        ];
+
+        if($sl) {
+            $data = $sl->log;
+            $data['history']['events'][] = $event;
+            $this->updateSystemLog($sl, $data);
+        }
 
     }
 
@@ -402,17 +432,30 @@ class ProcessMailgunWebhook implements ShouldQueue
 
         $spam = new EmailSpam(
             $this->request['event-data']['tags'][0],
-            $this->request['From'],
-            $this->request['MessageID']
+            $this->request['event-data']['message']['headers']['from'],
+            $this->message_id
         );
 
         LightLogs::create($spam)->queue();
 
-        SystemLogger::dispatch($this->request, SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_SPAM_COMPLAINT, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client, $this->invitation->company);
+        $sl = $this->getSystemLog($this->message_id);
 
-        if (config('ninja.notification.slack')) {
-            $this->invitation->company->notification(new EmailSpamNotification($this->invitation->company->account))->ninja();
+        $event = [
+            'bounce_id' => '',
+            'recipient' => $this->request['event-data']['recipient'] ?? '',
+            'status' => $this->request['event-data']['event'] ?? '',
+            'delivery_message' => 'Spam Complaint',
+            'server' => '',
+            'server_ip' => $this->request['event-data']['envelope']['sending-ip'] ?? '',
+            'date' => \Carbon\Carbon::parse($this->request['event-data']['timestamp'])->format('Y-m-d H:i:s') ?? '',
+        ];
+
+        if($sl) {
+            $data = $sl->log;
+            $data['history']['events'][] = $event;
+            $this->updateSystemLog($sl, $data);
         }
+
     }
 
     private function discoverInvitation($message_id)
@@ -470,7 +513,7 @@ class ProcessMailgunWebhook implements ShouldQueue
         $recipients = $this->request['event-data']['recipient'] ?? '';
 
         return [
-            'bounce_id' => $this->request['event-data']['id'] ?? '',
+            'bounce_id' => '',
             'recipient' => $recipients,
             'status' => $this->request['event-data']['event'] ?? '',
             'delivery_message' => $this->request['event-details']['delivery-status']['description'] ?? $this->request['event-details']['delivery-status']['message'] ?? '',
