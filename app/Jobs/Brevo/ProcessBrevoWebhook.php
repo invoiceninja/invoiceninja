@@ -15,12 +15,14 @@ use App\DataMapper\Analytics\Mail\EmailBounce;
 use App\DataMapper\Analytics\Mail\EmailSpam;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
+use App\Models\Company;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
 use App\Models\PurchaseOrderInvitation;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
 use App\Models\SystemLog;
+use App\Notifications\Ninja\EmailBounceNotification;
 use App\Notifications\Ninja\EmailSpamNotification;
 use Brevo\Client\Configuration;
 use Brevo\Client\Model\GetTransacEmailContentEvents;
@@ -84,16 +86,21 @@ class ProcessBrevoWebhook implements ShouldQueue
     public function handle()
     {
         MultiDB::findAndSetDbByCompanyKey($this->request['tags'][0]);
+        $company = Company::where('company_key', $this->request['tags'][0])->first();
 
         $this->invitation = $this->discoverInvitation($this->request['message-id']);
+
+        if ($company && $this->request['event'] == 'spam' && config('ninja.notification.slack')) {
+            $company->notification(new EmailSpamNotification($company))->ninja();
+        }
 
         if (!$this->invitation) {
             return;
         }
 
-        // if (array_key_exists('Details', $this->request)) {
-        //     $this->invitation->email_error = $this->request['Details'];
-        // } // no details, when error occured
+        if (array_key_exists('reason', $this->request)) {
+            $this->invitation->email_error = $this->request['reason'];
+        }
 
         switch ($this->request['event']) {
             case 'delivered':
@@ -102,6 +109,11 @@ class ProcessBrevoWebhook implements ShouldQueue
             case 'hard_bounce':
             case 'invalid_email':
             case 'blocked':
+
+                if ($this->request['subject'] == ctrans('texts.confirmation_subject')) {
+                    $company->notification(new EmailBounceNotification($this->request['email']))->ninja();
+                }
+
                 return $this->processBounce();
             case 'spam':
                 return $this->processSpamComplaint();
