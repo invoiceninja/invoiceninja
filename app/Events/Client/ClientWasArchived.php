@@ -23,7 +23,9 @@ use Illuminate\Queue\SerializesModels;
  */
 class ClientWasArchived
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     /**
      * @var Client

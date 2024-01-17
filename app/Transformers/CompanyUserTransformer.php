@@ -38,7 +38,7 @@ class CompanyUserTransformer extends EntityTransformer
 
     public function transform(CompanyUser $company_user)
     {
-        $blank_obj = new \stdClass;
+        $blank_obj = new \stdClass();
 
         return [
             'permissions' => $company_user->permissions ?: '',

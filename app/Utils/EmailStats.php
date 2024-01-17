@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Cache;
  */
 class EmailStats
 {
-    const EMAIL = 'email_';
+    public const EMAIL = 'email_';
 
     /**
      * Increments the counter for emails sent

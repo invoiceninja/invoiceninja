@@ -102,11 +102,11 @@ class ClientObserver
         if ($client->getOriginal('deleted_at') && !$client->deleted_at) {
             $event = Webhook::EVENT_RESTORE_CLIENT;
         }
-        
+
         if ($client->is_deleted) {
             $event = Webhook::EVENT_DELETE_CLIENT;
         }
-    
+
         $subscriptions = Webhook::where('company_id', $client->company_id)
                                     ->where('event_id', $event)
                                     ->exists();
@@ -127,7 +127,7 @@ class ClientObserver
         if ($client->is_deleted) {
             return;
         }
-        
+
         $subscriptions = Webhook::where('company_id', $client->company_id)
                                     ->where('event_id', Webhook::EVENT_ARCHIVE_CLIENT)
                                     ->exists();

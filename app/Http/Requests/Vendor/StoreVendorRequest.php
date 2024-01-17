@@ -24,7 +24,7 @@ class StoreVendorRequest extends Request
      * Determine if the user is authorized to make this request.
      *
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -57,7 +57,7 @@ class StoreVendorRequest extends Request
         if (isset($this->number)) {
             $rules['number'] = Rule::unique('vendors')->where('company_id', $user->company()->id);
         }
-        
+
         $rules['currency_id'] = 'bail|required|exists:currencies,id';
 
         if ($this->file('documents') && is_array($this->file('documents'))) {

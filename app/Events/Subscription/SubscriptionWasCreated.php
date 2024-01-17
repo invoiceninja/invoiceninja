@@ -10,7 +10,9 @@ use Illuminate\Queue\SerializesModels;
 
 class SubscriptionWasCreated
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     /**
      * @var Subscription

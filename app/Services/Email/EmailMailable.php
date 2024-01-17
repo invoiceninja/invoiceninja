@@ -104,7 +104,7 @@ class EmailMailable extends Mailable
 
         return $attachments->merge($documents)->toArray();
     }
- 
+
     /**
      * Get the message headers.
      *

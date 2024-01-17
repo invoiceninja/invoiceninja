@@ -49,11 +49,11 @@ class PaymentAppliedValidAmount implements Rule
         return $this->message;
     }
 
-    private function calculateAmounts() :bool
+    private function calculateAmounts(): bool
     {
         $payment = Payment::withTrashed()->whereId($this->decodePrimaryKey(request()->segment(4)))->company()->first();
         $inv_collection = Invoice::withTrashed()->whereIn('id', array_column($this->input['invoices'], 'invoice_id'))->get();
-        
+
         if (! $payment) {
             return false;
         }
@@ -91,7 +91,7 @@ class PaymentAppliedValidAmount implements Rule
                 }
             }
 
-            if(count($this->input['invoices']) >=1 && $payment->status_id == Payment::STATUS_PENDING) {
+            if(count($this->input['invoices']) >= 1 && $payment->status_id == Payment::STATUS_PENDING) {
                 $this->message = 'Cannot apply a payment until the status is completed.';
                 return false;
             }

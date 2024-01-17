@@ -104,7 +104,7 @@ class TaskDecorator extends Decorator implements DecoratorInterface
     {
         return $task->status()->exists() ? $task->status->name : '';
     }
-    
+
     public function project_id(Task $task)
     {
         return $task->project()->exists() ? $task->project->name : '';

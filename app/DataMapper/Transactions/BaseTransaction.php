@@ -51,7 +51,7 @@ class BaseTransaction implements TransactionInterface
         'credit_status',
     ];
 
-    public function transform(array $data) :array
+    public function transform(array $data): array
     {
         // $invoice = $data['invoice'];
         // $payment = $data['payment'];
@@ -66,7 +66,7 @@ class BaseTransaction implements TransactionInterface
             $data['client'],
             $data['credit'],
             ['metadata' => $data['metadata']],
-            ['event_id' => $this->event_id, 'timestamp' =>time()],
+            ['event_id' => $this->event_id, 'timestamp' => time()],
         );
         // return [
         //     'event_id' => $this->event_id,

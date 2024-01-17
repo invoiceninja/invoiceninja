@@ -13,7 +13,6 @@ namespace App\Export\Decorators;
 
 class Decorator implements DecoratorInterface
 {
-
     public function __construct()
     {
     }

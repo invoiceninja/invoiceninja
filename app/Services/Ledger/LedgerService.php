@@ -53,7 +53,7 @@ class LedgerService
         // $hash = sha1($hash);
         // $hash = sha1("{$this->entity->amount}.{$this->entity->balance}");
         // $hash = "{$adjustment}.{$this->entity->amount}.{$this->entity->balance}";
-        
+
         // $exists = CompanyLedger::query()
         //                          ->where('client_id', $this->entity->client_id)
         //                          ->where('company_id', $this->entity->company_id)

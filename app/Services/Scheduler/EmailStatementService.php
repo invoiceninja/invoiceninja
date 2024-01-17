@@ -22,7 +22,7 @@ class EmailStatementService
 {
     use MakesHash;
     use MakesDates;
-    
+
     private Client $client;
 
     public function __construct(public Scheduler $scheduler)
@@ -41,7 +41,7 @@ class EmailStatementService
         } else {
             $query->where('balance', '>', 0);
         }
-     
+
         $query->cursor()
             ->each(function ($_client) {
                 $this->client = $_client;
@@ -54,7 +54,7 @@ class EmailStatementService
 
         //calculate next run dates;
         $this->scheduler->calculateNextRun();
-        
+
     }
 
     /**

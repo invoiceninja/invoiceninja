@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $user_id
  * @property int $bank_integration_id
  * @property int $transaction_id
+ * @property string $nordigen_transaction_id
  * @property string $amount
  * @property string|null $currency_code
  * @property int|null $currency_id
@@ -34,6 +35,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $date
  * @property int $bank_account_id
  * @property string|null $description
+ * @property string|null $participant
+ * @property string|null $participant_name
  * @property string $invoice_ids
  * @property int|null $expense_id
  * @property int|null $vendor_id
@@ -68,12 +71,12 @@ class BankTransaction extends BaseModel
     use SoftDeletes;
     use MakesHash;
     use Filterable;
-    
-    const STATUS_UNMATCHED = 1;
 
-    const STATUS_MATCHED = 2;
+    public const STATUS_UNMATCHED = 1;
 
-    const STATUS_CONVERTED = 3;
+    public const STATUS_MATCHED = 2;
+
+    public const STATUS_CONVERTED = 3;
 
     protected $fillable = [
         'currency_id',
@@ -84,10 +87,12 @@ class BankTransaction extends BaseModel
         'base_type',
         'expense_id',
         'vendor_id',
-        'amount'
+        'amount',
+        'participant',
+        'participant_name'
     ];
 
-    
+
     public function getInvoiceIds()
     {
         $collection = collect();
@@ -162,7 +167,7 @@ class BankTransaction extends BaseModel
     //     return $this->belongsTo(Expense::class)->withTrashed();
     // }
 
-    public function service() :BankService
+    public function service(): BankService
     {
         return new BankService($this);
     }

@@ -43,7 +43,7 @@ class PaytracePaymentDriver extends BaseDriver
         GatewayType::CREDIT_CARD => CreditCard::class, //maps GatewayType => Implementation class
     ];
 
-    const SYSTEM_LOG_TYPE = SystemLog::TYPE_PAYTRACE; //define a constant for your gateway ie TYPE_YOUR_CUSTOM_GATEWAY - set the const in the SystemLog model
+    public const SYSTEM_LOG_TYPE = SystemLog::TYPE_PAYTRACE; //define a constant for your gateway ie TYPE_YOUR_CUSTOM_GATEWAY - set the const in the SystemLog model
 
     public function init()
     {
@@ -187,7 +187,7 @@ class PaytracePaymentDriver extends BaseDriver
         $api_endpoint = $this->company_gateway->getConfigField('testMode') ? 'https://api.sandbox.paytrace.com' : 'https://api.paytrace.com';
 
         $url = "{$api_endpoint}/oauth/token";
-        
+
         $data = [
             'grant_type' => 'password',
             'username' => $this->company_gateway->getConfigField('username'),
@@ -229,7 +229,7 @@ class PaytracePaymentDriver extends BaseDriver
 
     public function gatewayRequest($uri, $data, $headers = false)
     {
-        
+
         $api_endpoint = $this->company_gateway->getConfigField('testMode') ? 'https://api.sandbox.paytrace.com' : 'https://api.paytrace.com';
 
         $base_url = "{$api_endpoint}{$uri}";

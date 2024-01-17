@@ -19,7 +19,7 @@ use Carbon\Carbon;
 
 class RecurringInvoiceToInvoiceFactory
 {
-    public static function create(RecurringInvoice $recurring_invoice, Client $client) :Invoice
+    public static function create(RecurringInvoice $recurring_invoice, Client $client): Invoice
     {
         $invoice = new Invoice();
         $invoice->status_id = Invoice::STATUS_DRAFT;
@@ -27,7 +27,7 @@ class RecurringInvoiceToInvoiceFactory
         $invoice->is_amount_discount = $recurring_invoice->is_amount_discount;
         $invoice->po_number = $recurring_invoice->po_number;
         $invoice->footer = $recurring_invoice->footer ? self::tranformObject($recurring_invoice->footer, $client) : null;
-        $invoice->terms = $recurring_invoice->terms ? self::tranformObject($recurring_invoice->terms, $client) :  null;
+        $invoice->terms = $recurring_invoice->terms ? self::tranformObject($recurring_invoice->terms, $client) : null;
         $invoice->public_notes = $recurring_invoice->public_notes ? self::tranformObject($recurring_invoice->public_notes, $client) : null;
         $invoice->private_notes = $recurring_invoice->private_notes;
         $invoice->is_deleted = $recurring_invoice->is_deleted;

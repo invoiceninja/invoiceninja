@@ -75,7 +75,7 @@ class AccountSummary extends Data
 
     #[MapInputName('CONTAINER')]
     public ?string $account_type = '';
-        
+
     #[MapInputName('accountName')]
     public ?string $account_name = '';
 
@@ -95,13 +95,13 @@ class AccountSummary extends Data
     public ?string $provider_name = '';
 
     public ?string $nickname = '';
-        
+
     public ?float $current_balance = 0;
     public ?string $account_currency = '';
 
-    public static function prepareForPipeline(Collection $properties) : Collection
+    public static function prepareForPipeline(Collection $properties): Collection
     {
-            
+
         $properties->put('current_balance', $properties['currentBalance']['amount'] ?? 0);
         $properties->put('account_currency', $properties['currentBalance']['currency'] ?? 0);
 

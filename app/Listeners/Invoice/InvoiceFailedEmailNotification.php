@@ -39,7 +39,7 @@ class InvoiceFailedEmailNotification
         $first_notification_sent = true;
 
         $invoice = $event->invitation->invoice;
-        
+
         foreach ($event->invitation->company->company_users as $company_user) {
             $user = $company_user->user;
 
@@ -48,7 +48,7 @@ class InvoiceFailedEmailNotification
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
-                $nmo = new NinjaMailerObject;
+                $nmo = new NinjaMailerObject();
                 $nmo->mailable = new NinjaMailer((new EntityFailedSendObject($event->invitation->withoutRelations(), 'invoice', $event->template, $event->message, $company_user->portalType()))->build());
                 $nmo->company = $invoice->company->withoutRelations();
                 $nmo->settings = $invoice->company->settings;

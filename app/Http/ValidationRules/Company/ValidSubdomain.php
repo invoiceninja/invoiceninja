@@ -19,7 +19,6 @@ use Illuminate\Contracts\Validation\Rule;
  */
 class ValidSubdomain implements Rule
 {
-
     public function __construct()
     {
     }

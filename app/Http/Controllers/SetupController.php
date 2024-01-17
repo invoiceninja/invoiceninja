@@ -122,7 +122,7 @@ class SetupController extends Controller
             unset($env_values['DB_USERNAME']);
             unset($env_values['DB_PASSWORD']);
         } else {
-            
+
             config(['database.connections.mysql.host' => $request->input('db_host')]);
             config(['database.connections.mysql.port' => $request->input('db_port')]);
             config(['database.connections.mysql.database' => $request->input('db_database')]);
@@ -182,7 +182,7 @@ class SetupController extends Controller
      */
     public function checkDB(CheckDatabaseRequest $request)
     {
-        
+
         try {
             $status = SystemHealth::dbCheck($request);
 

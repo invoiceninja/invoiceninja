@@ -15,9 +15,9 @@ use App\Models\TaxRate;
 
 class TaxRateFactory
 {
-    public static function create($company_id, $user_id) :TaxRate
+    public static function create($company_id, $user_id): TaxRate
     {
-        $tax_rate = new TaxRate;
+        $tax_rate = new TaxRate();
 
         $tax_rate->name = '';
         $tax_rate->rate = '';

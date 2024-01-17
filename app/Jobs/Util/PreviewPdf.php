@@ -22,7 +22,12 @@ use Illuminate\Queue\SerializesModels;
 
 class PreviewPdf implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, PdfMaker, PageNumbering;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use PdfMaker;
+    use PageNumbering;
 
     /**
      * Create a new job instance.

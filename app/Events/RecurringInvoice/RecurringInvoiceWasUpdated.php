@@ -22,7 +22,9 @@ use Illuminate\Queue\SerializesModels;
  */
 class RecurringInvoiceWasUpdated
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     public function __construct(public RecurringInvoice $recurring_invoice, public Company $company, public array $event_vars)
     {

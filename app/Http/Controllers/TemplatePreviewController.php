@@ -37,11 +37,11 @@ class TemplatePreviewController extends BaseController
         if(!$report) {
             return response()->json(['message' => 'Still working.....'], 409);
         }
-        
+
         Cache::forget($hash);
 
         return response()->streamDownload(function () use ($hash) {
-            
+
             echo Storage::get($this->path_prefix.$hash.$this->path_suffix);
             Storage::delete($this->path_prefix.$hash.$this->path_suffix);
 

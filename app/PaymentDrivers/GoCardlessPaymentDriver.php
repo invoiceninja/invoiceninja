@@ -53,7 +53,7 @@ class GoCardlessPaymentDriver extends BaseDriver
         GatewayType::INSTANT_BANK_PAY => \App\PaymentDrivers\GoCardless\InstantBankPay::class,
     ];
 
-    const SYSTEM_LOG_TYPE = SystemLog::TYPE_GOCARDLESS;
+    public const SYSTEM_LOG_TYPE = SystemLog::TYPE_GOCARDLESS;
 
     public function setPaymentMethod($payment_method_id)
     {
@@ -106,7 +106,7 @@ class GoCardlessPaymentDriver extends BaseDriver
         } catch(\GoCardlessPro\Core\Exception\AuthenticationException $e) {
 
             throw new \Exception('GoCardless: Invalid Access Token', 403);
-            
+
         }
 
         return $this;
@@ -405,7 +405,7 @@ class GoCardlessPaymentDriver extends BaseDriver
             $mandate = $this->gateway->mandates()->get($token);
 
             if(!in_array($mandate->status, ['pending_submission', 'submitted', 'active','pending_customer_approval'])) {
-             
+
                 // if ($mandate->status !== 'active') {
                 throw new \Exception(ctrans('texts.gocardless_mandate_not_ready'));
             }
@@ -431,7 +431,7 @@ class GoCardlessPaymentDriver extends BaseDriver
                 $this->updatePaymentMethods($customer, $existing_customer_token->client);
             } elseif ($customer->email && $this->company_gateway->company->client_contacts()->where('email', $customer->email)->exists()) {
                 nlog("Customer exists: {$customer->email} just updating payment methods");
-    
+
                 $this->company_gateway->company->client_contacts()->where('email', $customer->email)->each(function ($contact) use ($customer) {
                     $this->updatePaymentMethods($customer, $contact->client);
                 });
@@ -454,7 +454,7 @@ class GoCardlessPaymentDriver extends BaseDriver
                 continue;
             }
 
-            $payment_meta = new \stdClass;
+            $payment_meta = new \stdClass();
 
             if ($mandate->scheme == 'bacs') {
                 $payment_meta->brand = ctrans('texts.payment_type_direct_debit');
@@ -465,7 +465,7 @@ class GoCardlessPaymentDriver extends BaseDriver
             } else {
                 continue;
             }
-            
+
             $payment_meta->state = 'authorized';
 
             $data = [
@@ -530,7 +530,7 @@ class GoCardlessPaymentDriver extends BaseDriver
         $contact->email = $customer->email ?: '';
         $contact->client_id = $client->id;
         $contact->saveQuietly();
-        
+
         if (! isset($client->number) || empty($client->number)) {
             $x = 1;
 

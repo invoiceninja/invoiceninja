@@ -39,7 +39,7 @@ class QuoteDecorator extends Decorator implements DecoratorInterface
     {
         return $quote->stringStatus($quote->status_id);
     }
-    
+
     public function uses_inclusive_taxes(Quote $quote)
     {
         return $quote->uses_inclusive_taxes ? ctrans('texts.yes') : ctrans('texts.no');

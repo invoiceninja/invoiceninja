@@ -24,7 +24,7 @@ class MarkSent
     {
     }
 
-    public function run()
+    public function run($first_event = false)
     {
         /* Return immediately if status is not draft */
         if ($this->quote->status_id != Quote::STATUS_DRAFT) {
@@ -47,8 +47,13 @@ class MarkSent
 
         event(new QuoteWasMarkedSent($this->quote, $this->quote->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
-        $this->quote->sendEvent(Webhook::EVENT_SENT_QUOTE, "client");
+        if($first_event) {
+
+            event('eloquent.updated: App\Models\Quote', $this->quote);
+            $this->quote->sendEvent(Webhook::EVENT_SENT_QUOTE, "client");
+        }
 
         return $this->quote;
+
     }
 }

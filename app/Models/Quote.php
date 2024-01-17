@@ -106,7 +106,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $invitations
- *
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @mixin \Eloquent
  * @mixin \Illuminate\Database\Eloquent\Builder
  */
@@ -175,15 +175,15 @@ class Quote extends BaseModel
         'is_amount_discount' => 'bool',
     ];
 
-    const STATUS_DRAFT = 1;
+    public const STATUS_DRAFT = 1;
 
-    const STATUS_SENT = 2;
+    public const STATUS_SENT = 2;
 
-    const STATUS_APPROVED = 3;
+    public const STATUS_APPROVED = 3;
 
-    const STATUS_CONVERTED = 4;
+    public const STATUS_CONVERTED = 4;
 
-    const STATUS_EXPIRED = -1;
+    public const STATUS_EXPIRED = -1;
 
     public function getEntityType()
     {
@@ -385,7 +385,7 @@ class Quote extends BaseModel
     {
         return ctrans('texts.quote');
     }
-    
+
     /**
      * calculateTemplate
      *

@@ -73,8 +73,20 @@ class UpdatePaymentMethods
             $this->addOrUpdateCard($method, $customer->id, $client, GatewayType::SOFORT);
         }
 
+        $sepa_methods = PaymentMethod::all(
+            [
+                    'customer' => $customer->id,
+                    'type' => 'sepa_debit',
+                ],
+            $this->stripe->stripe_connect_auth
+        );
+
+        foreach ($sepa_methods as $method) {
+            $this->addOrUpdateCard($method, $customer->id, $client, GatewayType::SEPA);
+        }
+
         $this->importBankAccounts($customer, $client);
-        
+
         $this->importPMBankAccounts($customer, $client);
     }
 
@@ -109,7 +121,7 @@ class UpdatePaymentMethods
 
             $bank_account = $method['us_bank_account'];
 
-            $payment_meta = new \stdClass;
+            $payment_meta = new \stdClass();
             $payment_meta->brand = (string) \sprintf('%s (%s)', $bank_account->bank_name, ctrans('texts.ach'));
             $payment_meta->last4 = (string) $bank_account->last4;
             $payment_meta->type = GatewayType::BANK_TRANSFER;
@@ -152,7 +164,7 @@ class UpdatePaymentMethods
                 continue;
             }
 
-            $payment_meta = new \stdClass;
+            $payment_meta = new \stdClass();
             $payment_meta->brand = (string) \sprintf('%s (%s)', $method->bank_name, ctrans('texts.ach'));
             $payment_meta->last4 = (string) $method->last4;
             $payment_meta->type = GatewayType::BANK_TRANSFER;
@@ -189,7 +201,7 @@ class UpdatePaymentMethods
         }
 
         /* Ignore Expired cards */
-        if ($method->card->exp_year <= date('Y') && $method->card->exp_month < date('m')) {
+        if ($method->card && $method->card->exp_year <= date('Y') && $method->card->exp_month < date('m')) {
             return;
         }
 
@@ -217,8 +229,8 @@ class UpdatePaymentMethods
                  * @property string $brand
                  * @property string $last4
                 */
-            
-                $payment_meta = new \stdClass;
+
+                $payment_meta = new \stdClass();
                 $payment_meta->exp_month = (string) $method->card->exp_month;
                 $payment_meta->exp_year = (string) $method->card->exp_year;
                 $payment_meta->brand = (string) $method->card->brand;
@@ -229,8 +241,17 @@ class UpdatePaymentMethods
             case GatewayType::ALIPAY:
             case GatewayType::SOFORT:
 
-                return new \stdClass;
+                return new \stdClass();
 
+            case GatewayType::SEPA:
+
+                $payment_meta = new \stdClass();
+                $payment_meta->brand = (string) \sprintf('%s (%s)', $method->sepa_debit->bank_code, ctrans('texts.sepa'));
+                $payment_meta->last4 = (string) $method->sepa_debit->last4;
+                $payment_meta->state = 'authorized';
+                $payment_meta->type = GatewayType::SEPA;
+
+                return $payment_meta;
             default:
 
                 break;

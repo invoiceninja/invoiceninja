@@ -43,6 +43,6 @@ class ValidateSignature
             return $next($request);
         }
 
-        throw new InvalidSignatureException;
+        throw new InvalidSignatureException();
     }
 }

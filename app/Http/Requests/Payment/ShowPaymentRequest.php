@@ -20,7 +20,7 @@ class ShowPaymentRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         return auth()->user()->can('view', $this->payment);
     }

@@ -11,8 +11,11 @@ use Illuminate\Queue\SerializesModels;
 
 class InjectSignature implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-   
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+
     /**
      * Create a new job instance.
      *
@@ -42,14 +45,14 @@ class InjectSignature implements ShouldQueue
             }
 
         } else {
-            
+
             $invitation = $this->entity->invitations()->where('client_contact_id', $this->contact_id)->first();
 
             if(!$invitation) {
                 $invitation = $this->entity->invitations->first();
             }
         }
-        
+
         if (! $invitation) {
             return;
         }

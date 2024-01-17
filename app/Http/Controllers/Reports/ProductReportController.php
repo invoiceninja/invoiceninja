@@ -64,7 +64,7 @@ class ProductReportController extends BaseController
      */
     public function __invoke(GenericReportRequest $request)
     {
-        
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
 

@@ -38,7 +38,7 @@ class CompanyRecurringCron
      *
      * @return void
      */
-    public function handle() : void
+    public function handle(): void
     {
         //multiDB environment, need to
         foreach (MultiDB::$dbs as $db) {

@@ -163,7 +163,7 @@ class DocumentController extends BaseController
     {
         $this->document_repo->delete($document);
 
-        return response()->json(['message'=> ctrans('texts.success')]);
+        return response()->json(['message' => ctrans('texts.success')]);
     }
 
     public function bulk()

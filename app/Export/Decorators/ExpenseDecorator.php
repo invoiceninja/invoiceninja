@@ -86,7 +86,7 @@ class ExpenseDecorator implements DecoratorInterface
     {
         return strip_tags($expense->public_notes ?? '');
     }
-    
+
     public function vendor_id(Expense $expense)
     {
         return $expense->vendor ? $expense->vendor->name : '';

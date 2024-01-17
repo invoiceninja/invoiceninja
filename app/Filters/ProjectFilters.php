@@ -34,13 +34,13 @@ class ProjectFilters extends QueryFilters
         return  $this->builder->where(function ($query) use ($filter) {
             $query->where('name', 'like', '%'.$filter.'%')
                   ->orWhereHas('client', function ($q) use ($filter) {
-                        $q->where('name', 'like', '%'.$filter.'%');
-                    })
+                      $q->where('name', 'like', '%'.$filter.'%');
+                  })
                   ->orWhere('public_notes', 'like', '%'.$filter.'%')
                   ->orWhere('private_notes', 'like', '%'.$filter.'%');
         });
     }
-    
+
     public function number(string $number = ''): Builder
     {
         if (strlen($number) == 0) {
@@ -69,9 +69,11 @@ class ProjectFilters extends QueryFilters
             return $this->builder;
         }
 
-        if (is_array($sort_col)) {
+        if (is_array($sort_col) && in_array($sort_col[1], ['asc','desc'])) {
             return $this->builder->orderBy($sort_col[0], $sort_col[1]);
         }
+
+        return $this->builder;
     }
 
     /**

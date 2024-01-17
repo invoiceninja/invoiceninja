@@ -7,7 +7,7 @@
 </style>
 @endpush
 @section('body')
-    <form action="{{ route('client.pre_payments.process') }}" method="post" id="payment-form" onkeypress="return event.keyCode != 13;">
+    <form action="{{ route('client.pre_payments.process') }}" method="post" id="payment-form" x-ref="paymentform">
     @csrf
     <input type="hidden" name="company_gateway_id" id="company_gateway_id">
     <input type="hidden" name="payment_method_id" id="payment_method_id">
@@ -94,7 +94,12 @@
                     @endif
 
                     <div class="px-4 py-3 bg-gray-50 text-right sm:px-6" x-data="{ buttonDisabled: false }">
-                        <button class="button button-primary bg-primary"x-on:click="buttonDisabled = true" x-bind:disabled="buttonDisabled">{{ ctrans('texts.pay_now') }}</button>
+                        <button type="button" 
+                        class="button button-primary bg-primary" 
+                        x-on:click="buttonDisabled = true" 
+                        x-bind:disabled="buttonDisabled"
+                        @click="$refs.paymentform.submit()"
+                        >{{ ctrans('texts.pay_now') }}</button>
                     </div>
                 </div>
 

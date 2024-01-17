@@ -34,7 +34,8 @@ use Illuminate\View\View;
 
 class InvoiceController extends Controller
 {
-    use MakesHash, MakesDates;
+    use MakesHash;
+    use MakesDates;
 
     /**
      * Display list of invoices.
@@ -91,7 +92,7 @@ class InvoiceController extends Controller
         }
 
         $invitation = false;
-        
+
         match($data['entity_type'] ?? false) {
             'invoice' => $invitation = InvoiceInvitation::withTrashed()->find($data['invitation_id']),
             'quote' => $invitation = QuoteInvitation::withTrashed()->find($data['invitation_id']),
@@ -105,7 +106,7 @@ class InvoiceController extends Controller
         }
 
         $file = (new \App\Jobs\Entity\CreateRawPdf($invitation))->handle();
-        
+
         $headers = ['Content-Type' => 'application/pdf'];
         return response()->make($file, 200, $headers);
 
@@ -266,7 +267,7 @@ class InvoiceController extends Controller
         try {
 
             foreach ($invoices as $invoice) {
-                            
+
                 if ($invoice->client->getSetting('enable_e_invoice')) {
                     $xml = $invoice->service()->getEInvoice();
                     $zipFile->addFromString($invoice->getFileName("xml"), $xml);

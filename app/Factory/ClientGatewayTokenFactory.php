@@ -15,9 +15,9 @@ use App\Models\ClientGatewayToken;
 
 class ClientGatewayTokenFactory
 {
-    public static function create(int $company_id) :ClientGatewayToken
+    public static function create(int $company_id): ClientGatewayToken
     {
-        $client_gateway_token = new ClientGatewayToken;
+        $client_gateway_token = new ClientGatewayToken();
         $client_gateway_token->company_id = $company_id;
         $client_gateway_token->is_default = false;
         $client_gateway_token->meta = '';

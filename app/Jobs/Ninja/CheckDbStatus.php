@@ -20,7 +20,10 @@ use Turbo124\Beacon\Jobs\Database\MySQL\DbStatus;
 
 class CheckDbStatus implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * Create a new job instance.

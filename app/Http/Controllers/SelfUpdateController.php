@@ -64,7 +64,7 @@ class SelfUpdateController extends BaseController
 
         $file_headers = @get_headers($this->getDownloadUrl());
 
-        if (stripos($file_headers[0], "404 Not Found") >0  || (stripos($file_headers[0], "302 Found") > 0 && stripos($file_headers[7], "404 Not Found") > 0)) {
+        if (stripos($file_headers[0], "404 Not Found") > 0  || (stripos($file_headers[0], "302 Found") > 0 && stripos($file_headers[7], "404 Not Found") > 0)) {
             return response()->json(['message' => 'Download not yet available. Please try again shortly.'], 410);
         }
 
@@ -169,7 +169,7 @@ class SelfUpdateController extends BaseController
         }
 
         $directoryIterator = null;
-        
+
         return true;
     }
 

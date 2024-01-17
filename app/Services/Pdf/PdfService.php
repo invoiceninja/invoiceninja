@@ -29,7 +29,8 @@ use horstoeko\zugferd\ZugferdDocumentPdfBuilder;
 
 class PdfService
 {
-    use PdfMaker, PageNumbering;
+    use PdfMaker;
+    use PageNumbering;
 
     public InvoiceInvitation | QuoteInvitation | CreditInvitation | RecurringInvoiceInvitation | PurchaseOrderInvitation $invitation;
 
@@ -51,10 +52,10 @@ class PdfService
 
     public float $execution_time;
 
-    const DELIVERY_NOTE = 'delivery_note';
-    const STATEMENT = 'statement';
-    const PURCHASE_ORDER = 'purchase_order';
-    const PRODUCT = 'product';
+    public const DELIVERY_NOTE = 'delivery_note';
+    public const STATEMENT = 'statement';
+    public const PURCHASE_ORDER = 'purchase_order';
+    public const PRODUCT = 'product';
 
     public function __construct($invitation, $document_type = 'product', $options = [])
     {
@@ -106,7 +107,7 @@ class PdfService
         }
 
         $this->execution_time = microtime(true) - $this->start_time;
-        
+
         return $pdf;
     }
 
@@ -129,7 +130,7 @@ class PdfService
 
         return $html;
     }
-        
+
     /**
      * Initialize all the services to build the PDF
      *
@@ -161,7 +162,7 @@ class PdfService
     public function resolvePdfEngine(string $html): mixed
     {
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-            $pdf = (new Phantom)->convertHtmlToPdf($html);
+            $pdf = (new Phantom())->convertHtmlToPdf($html);
         } elseif (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
             $pdf = (new NinjaPdf())->build($html);
         } else {
@@ -204,7 +205,7 @@ class PdfService
         }
 
     }
-    
+
     /**
      * Embed the .xml file into the PDF
      *
@@ -218,7 +219,7 @@ class PdfService
             $e_rechnung = (new CreateEInvoice($this->config->entity, true))->handle();
             $pdfBuilder = new ZugferdDocumentPdfBuilder($e_rechnung, $pdf);
             $pdfBuilder->generateDocument();
-            
+
             return $pdfBuilder->downloadString(basename($this->config->entity->getFileName()));
 
         } catch (\Exception $e) {

@@ -47,7 +47,7 @@ class QuoteService
         return $project;
     }
 
-    public function convert() :self
+    public function convert(): self
     {
         if ($this->quote->invoice_id) {
             throw new QuoteConversion();
@@ -72,7 +72,7 @@ class QuoteService
         return (new GetQuotePdf($this->quote, $contact))->run();
     }
 
-    public function sendEmail($contact = null) :self
+    public function sendEmail($contact = null): self
     {
         $send_email = new SendEmail($this->quote, null, $contact);
 
@@ -85,7 +85,7 @@ class QuoteService
      * Applies the invoice number.
      * @return $this InvoiceService object
      */
-    public function applyNumber() :self
+    public function applyNumber(): self
     {
         $apply_number = new ApplyNumber($this->quote->client);
 
@@ -94,21 +94,21 @@ class QuoteService
         return $this;
     }
 
-    public function markSent() :self
+    public function markSent(): self
     {
         $this->quote = (new MarkSent($this->quote->client, $this->quote))->run();
 
         return $this;
     }
 
-    public function setStatus($status) :self
+    public function setStatus($status): self
     {
         $this->quote->status_id = $status;
 
         return $this;
     }
 
-    public function approve($contact = null) :self
+    public function approve($contact = null): self
     {
         $this->setStatus(Quote::STATUS_APPROVED)->save();
 
@@ -133,7 +133,7 @@ class QuoteService
 
 
 
-    public function approveWithNoCoversion($contact = null) :self
+    public function approveWithNoCoversion($contact = null): self
     {
         $this->setStatus(Quote::STATUS_APPROVED)->save();
 
@@ -155,7 +155,7 @@ class QuoteService
         return $this->invoice;
     }
 
-    public function isConvertable() :bool
+    public function isConvertable(): bool
     {
         if ($this->quote->invoice_id) {
             return false;
@@ -231,7 +231,7 @@ class QuoteService
      * Saves the quote.
      * @return Quote|null
      */
-    public function save() : ?Quote
+    public function save(): ?Quote
     {
         $this->quote->saveQuietly();
 

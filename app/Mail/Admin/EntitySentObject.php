@@ -62,7 +62,7 @@ class EntitySentObject
         $this->setTemplate();
 
         if ($this->template == 'purchase_order') {
-            $mail_obj = new stdClass;
+            $mail_obj = new stdClass();
             $mail_obj->amount = Number::formatMoney($this->entity->amount, $this->entity->vendor);
             $mail_obj->subject = ctrans(
                 $this->template_subject,
@@ -91,7 +91,7 @@ class EntitySentObject
             $mail_obj->markdown = 'email.admin.generic';
             $mail_obj->tag = $this->company->company_key;
         } else {
-            $mail_obj = new stdClass;
+            $mail_obj = new stdClass();
             $mail_obj->amount = $this->getAmount();
             $mail_obj->subject = $this->getSubject();
             $mail_obj->data = $this->getData();

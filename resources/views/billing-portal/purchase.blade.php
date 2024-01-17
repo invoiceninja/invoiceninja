@@ -12,6 +12,12 @@
             document.getElementById('payment_method_id').value = paymentMethodId;
         }
 
-        Livewire.on('beforePaymentEventsCompleted', () => document.getElementById('payment-method-form').submit());
+
+document.addEventListener('livewire:init', () => {
+
+    Livewire.on('beforePaymentEventsCompleted', () => document.getElementById('payment-method-form').submit());
+
+});
+
     </script>
 @endpush

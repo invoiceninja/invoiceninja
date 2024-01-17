@@ -35,9 +35,9 @@ class ReportExportController extends BaseController
         if(!$report) {
             return response()->json(['message' => 'Still working.....'], 409);
         }
-        
+
         if($report) {
-            
+
             Cache::forget($hash);
 
             $headers = [

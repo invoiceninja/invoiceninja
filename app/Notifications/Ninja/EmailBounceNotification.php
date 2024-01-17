@@ -21,11 +21,9 @@ class EmailBounceNotification extends Notification
      *
      * @return void
      */
-    protected $account;
 
-    public function __construct($account)
+    public function __construct(private string $email_address)
     {
-        $this->account = $account;
     }
 
     /**
@@ -64,13 +62,9 @@ class EmailBounceNotification extends Notification
 
     public function toSlack($notifiable)
     {
-        $content = "Email bounce notification for Account {$this->account->key} \n";
+        $content = "Email bounce notification for {$this->email_address} \n";
 
-        $owner = $this->account->companies()->first()->owner();
-
-        $content .= "Owner {$owner->present()->name() } | {$owner->email}";
-
-        return (new SlackMessage)
+        return (new SlackMessage())
                 ->success()
                 ->from(ctrans('texts.notification_bot'))
                 ->image('https://app.invoiceninja.com/favicon.png')

@@ -63,7 +63,7 @@ class DeletePayment
             $bt->status_id = 1;
             $bt->save();
         });
-        
+
         return $this;
     }
 
@@ -73,7 +73,7 @@ class DeletePayment
         // $this->payment->paymentables()->update(['deleted_at' => now()]);
 
         $this->payment->paymentables()
-                ->each(function ($pp){
+                ->each(function ($pp) {
                     $pp->forceDelete();
                 });
 
@@ -84,7 +84,7 @@ class DeletePayment
     private function adjustInvoices()
     {
         $this->_paid_to_date_deleted = 0;
-        
+
         if ($this->payment->invoices()->exists()) {
             $this->payment->invoices()->each(function ($paymentable_invoice) {
                 $net_deletable = $paymentable_invoice->pivot->amount - $paymentable_invoice->pivot->refunded;
@@ -110,7 +110,7 @@ class DeletePayment
                     $this->payment
                          ->client
                          ->service()
-                         ->updateBalanceAndPaidToDate($net_deletable, $net_deletable*-1)
+                         ->updateBalanceAndPaidToDate($net_deletable, $net_deletable * -1)
                          ->save();
 
                     if ($paymentable_invoice->balance == $paymentable_invoice->amount) {
@@ -139,7 +139,7 @@ class DeletePayment
             ->updatePaidToDate(min(0, ($this->payment->amount - $this->payment->refunded - $this->_paid_to_date_deleted) * -1))
             ->save();
         }
-    
+
         return $this;
     }
 

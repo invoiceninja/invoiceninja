@@ -18,17 +18,16 @@ use Illuminate\Support\Facades\Storage;
 
 class ProtectedDownloadController extends BaseController
 {
-
     public function index(Request $request, string $hash)
     {
         /** @var string $hashed_path */
         $hashed_path = Cache::pull($hash);
-        
+
         if (!$hashed_path) {
             throw new SystemError('File no longer available', 404);
             abort(404, 'File no longer available');
         }
-        
+
         return response()->streamDownload(function () use ($hashed_path) {
             echo Storage::get($hashed_path);
         }, basename($hashed_path), []);

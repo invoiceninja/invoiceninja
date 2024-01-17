@@ -28,7 +28,7 @@ trait Inviteable
      *
      * @return     string  The status.
      */
-    public function getStatus() :string
+    public function getStatus(): string
     {
         $status = '';
 
@@ -86,7 +86,7 @@ trait Inviteable
         return $domain.'/client/unsubscribe/'.$entity_type.'/'.$this->key;
     }
 
-    public function getLink() :string
+    public function getLink(): string
     {
         $entity_type = Str::snake(class_basename($this->entityType()));
 
@@ -113,7 +113,7 @@ trait Inviteable
         }
     }
 
-    public function getPortalLink() :string
+    public function getPortalLink(): string
     {
         if (Ninja::isHosted()) {
             $domain = $this->company->domain();
@@ -138,7 +138,7 @@ trait Inviteable
         }
     }
 
-    public function getAdminLink($use_react_link = false) :string
+    public function getAdminLink($use_react_link = false): string
     {
         return $use_react_link ? $this->getReactLink() : $this->getLink().'?silent=true';
     }

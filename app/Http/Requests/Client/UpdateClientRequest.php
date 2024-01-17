@@ -29,7 +29,7 @@ class UpdateClientRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -124,7 +124,7 @@ class UpdateClientRequest extends Request
         if (array_key_exists('name', $input)) {
             $input['name'] = strip_tags($input['name']);
         }
-        
+
         $this->replace($input);
     }
 

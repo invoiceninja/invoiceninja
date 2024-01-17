@@ -52,7 +52,7 @@ class CreateUser
      *
      * @return User|null
      */
-    public function handle() : ?User
+    public function handle(): ?User
     {
         $user = new User();
         $user->account_id = $this->account->id;

@@ -56,7 +56,7 @@ class ReactBuilder extends Command
             $this->error('React files not found');
             return;
         }
-        
+
         foreach (new \RecursiveIteratorIterator($directoryIterator) as $file) {
             if ($file->getExtension() == 'js') {
                 if (str_contains($file->getFileName(), 'index-')) {

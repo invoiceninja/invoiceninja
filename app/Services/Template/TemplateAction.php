@@ -41,7 +41,11 @@ use Illuminate\Support\Facades\Storage;
 
 class TemplateAction implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use MakesHash;
 
     public $tries = 1;
 
@@ -86,7 +90,7 @@ class TemplateAction implements ShouldQueue
         $template = Design::withTrashed()->find($this->decodePrimaryKey($this->template));
 
         $template_service = new \App\Services\Template\TemplateService($template);
-        
+
         match($this->entity) {
             Invoice::class => $resource->with('payments', 'client'),
             Quote::class => $resource->with('client'),
@@ -115,7 +119,7 @@ class TemplateAction implements ShouldQueue
         $ts = $template_service
                     ->setCompany($this->company)
                     ->build($data);
-        
+
         // nlog($ts->getHtml());
 
         if($this->send_email) {
@@ -134,7 +138,7 @@ class TemplateAction implements ShouldQueue
         $user = $this->user_id ? User::find($this->user_id) : $this->company->owner();
 
         $template_name = " [{$template->name}]";
-        $email_object = new EmailObject;
+        $email_object = new EmailObject();
         $email_object->to = [new Address($user->email, $user->present()->name())];
         $email_object->attachments = [['file' => base64_encode($pdf), 'name' => ctrans('texts.template') . ".pdf"]];
         $email_object->company_key = $this->company->company_key;

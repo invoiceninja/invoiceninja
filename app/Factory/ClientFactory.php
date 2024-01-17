@@ -17,9 +17,9 @@ use Illuminate\Support\Str;
 
 class ClientFactory
 {
-    public static function create(int $company_id, int $user_id) :Client
+    public static function create(int $company_id, int $user_id): Client
     {
-        $client = new Client;
+        $client = new Client();
         $client->company_id = $company_id;
         $client->user_id = $user_id;
         $client->name = '';
@@ -33,7 +33,7 @@ class ClientFactory
         $client->client_hash = Str::random(40);
         $client->settings = ClientSettings::defaults();
         $client->classification = '';
-        
+
         return $client;
     }
 }

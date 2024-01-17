@@ -29,7 +29,7 @@ class BankTransactionRuleFilters extends QueryFilters
         if (strlen($name) == 0) {
             return $this->builder;
         }
-        
+
         return $this->builder->where('name', 'like', '%'.$name.'%');
     }
 
@@ -64,8 +64,10 @@ class BankTransactionRuleFilters extends QueryFilters
         if (!is_array($sort_col) || count($sort_col) != 2) {
             return $this->builder;
         }
-        
-        return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+
+        $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
+
+        return $this->builder->orderBy($sort_col[0], $dir);
     }
 
     /**

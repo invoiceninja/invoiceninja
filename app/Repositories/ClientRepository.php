@@ -52,7 +52,7 @@ class ClientRepository extends BaseRepository
      *
      * @throws \Laracasts\Presenter\Exceptions\PresenterException
      */
-    public function save(array $data, Client $client) : ?Client
+    public function save(array $data, Client $client): ?Client
     {
         $contact_data = $data;
         unset($data['contacts']);

@@ -40,7 +40,7 @@ class PayFastPaymentDriver extends BaseDriver
         GatewayType::CREDIT_CARD => CreditCard::class,
     ];
 
-    const SYSTEM_LOG_TYPE = SystemLog::TYPE_PAYFAST;
+    public const SYSTEM_LOG_TYPE = SystemLog::TYPE_PAYFAST;
 
     //developer resources
     //https://sandbox.payfast.co.za/
@@ -53,7 +53,7 @@ class PayFastPaymentDriver extends BaseDriver
         if ($this->client->currency()->code == 'ZAR') {
             $types[] = GatewayType::CREDIT_CARD;
         }
-        
+
         return $types;
     }
 

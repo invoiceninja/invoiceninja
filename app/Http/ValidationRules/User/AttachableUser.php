@@ -48,7 +48,7 @@ class AttachableUser implements Rule
      * @param $user_id
      * @return bool
      */
-    private function checkUserIsAttachable($email) : bool
+    private function checkUserIsAttachable($email): bool
     {
         if (empty($email)) {
             return false;

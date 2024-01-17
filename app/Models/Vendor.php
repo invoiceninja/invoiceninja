@@ -205,7 +205,7 @@ class Vendor extends BaseModel
         return ctrans('texts.vendor');
     }
 
-    public function setCompanyDefaults($data, $entity_name) :array
+    public function setCompanyDefaults($data, $entity_name): array
     {
         $defaults = [];
 
@@ -245,7 +245,7 @@ class Vendor extends BaseModel
         return '';
     }
 
-    public function getMergedSettings() :object
+    public function getMergedSettings(): object
     {
         return $this->company->settings;
     }
@@ -277,7 +277,7 @@ class Vendor extends BaseModel
         return $this->company->date_format();
     }
 
-    public function backup_path() :string
+    public function backup_path(): string
     {
         return $this->company->company_key.'/'.$this->vendor_hash.'/backups';
     }

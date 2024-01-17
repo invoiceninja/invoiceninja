@@ -20,7 +20,7 @@ class UploadQuoteRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -31,7 +31,7 @@ class UploadQuoteRequest extends Request
     public function rules()
     {
         $rules = [];
-        
+
         if ($this->file('documents') && is_array($this->file('documents'))) {
             $rules['documents.*'] = $this->file_validation;
         } elseif ($this->file('documents')) {
@@ -58,6 +58,6 @@ class UploadQuoteRequest extends Request
         }
 
         $this->replace($input);
-      
+
     }
 }

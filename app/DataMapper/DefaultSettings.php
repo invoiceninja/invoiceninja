@@ -27,7 +27,7 @@ class DefaultSettings extends BaseSettings
     /**
      * @return stdClass
      */
-    public static function userSettings() : stdClass
+    public static function userSettings(): stdClass
     {
         return (object) [
             //    class_basename(User::class) => self::userSettingsObject(),

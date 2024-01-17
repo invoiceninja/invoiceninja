@@ -22,7 +22,9 @@ use Illuminate\Queue\SerializesModels;
  */
 class ContactLoggedIn
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     public $client_contact;
 

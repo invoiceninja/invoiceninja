@@ -133,7 +133,7 @@ class ReminderJob implements ShouldQueue
             if($invoice->isLocked()) {
                 return $this->addFeeToNewInvoice($invoice, $reminder_template, $fees);
             }
-            
+
             $invoice = $this->setLateFee($invoice, $fees[0], $fees[1]);
 
             //20-04-2022 fixes for endless reminders - generic template naming was wrong
@@ -141,7 +141,7 @@ class ReminderJob implements ShouldQueue
             if ($reminder_template == 'endless_reminder') {
                 $enabled_reminder = 'enable_reminder_endless';
             }
-            
+
             if (in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'endless_reminder']) &&
         $invoice->client->getSetting($enabled_reminder) &&
         $invoice->client->getSetting('send_reminders') &&
@@ -187,7 +187,7 @@ class ReminderJob implements ShouldQueue
         $invoice->client_id = $over_due_invoice->client_id;
         $invoice->date = now()->format('Y-m-d');
         $invoice->due_date = now()->format('Y-m-d');
-                
+
         $invoice_item = new InvoiceItem();
         $invoice_item->type_id = '5';
         $invoice_item->product_key = trans('texts.fee');
@@ -207,7 +207,7 @@ class ReminderJob implements ShouldQueue
                 ->applyNumber()
                 ->markSent()
                 ->save();
-        
+
         $enabled_reminder = 'enable_'.$reminder_template;
         if ($reminder_template == 'endless_reminder') {
             $enabled_reminder = 'enable_reminder_endless';

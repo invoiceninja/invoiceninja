@@ -148,7 +148,7 @@ class SEPA
         try {
             $method = $this->stripe->getStripePaymentMethod($intent->payment_method);
 
-            $payment_meta = new \stdClass;
+            $payment_meta = new \stdClass();
             $payment_meta->brand = (string) \sprintf('%s (%s)', $method->sepa_debit->bank_code, ctrans('texts.sepa'));
             $payment_meta->last4 = (string) $method->sepa_debit->last4;
             $payment_meta->state = 'authorized';

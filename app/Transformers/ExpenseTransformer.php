@@ -28,7 +28,7 @@ class ExpenseTransformer extends EntityTransformer
 {
     use MakesHash;
     use SoftDeletes;
-    
+
     protected array $defaultIncludes = [
         'documents',
     ];

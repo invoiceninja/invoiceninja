@@ -56,6 +56,7 @@ class Locale
                         'bg',
                         'he',
                         'km_KH',
+                        'lo_LA',
                         'hu',
                         'fr_CH',
                     ];

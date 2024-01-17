@@ -29,7 +29,11 @@ use Illuminate\Queue\SerializesModels;
 
 class CheckoutSetupWebhook implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Utilities;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use Utilities;
 
     public $tries = 1;
 
@@ -38,7 +42,7 @@ class CheckoutSetupWebhook implements ShouldQueue
     private string $authentication_webhook_name = 'Invoice_Ninja_3DS_Workflow';
 
     public CheckoutComPaymentDriver $checkout;
-    
+
     public function __construct(private string $company_key, private int $company_gateway_id)
     {
     }
@@ -84,7 +88,7 @@ class CheckoutSetupWebhook implements ShouldQueue
         $actionRequest = new WebhookWorkflowActionRequest();
         $actionRequest->url = $this->checkout->company_gateway->webhookUrl();
         $actionRequest->signature = $signature;
-        
+
         $eventWorkflowConditionRequest = new EventWorkflowConditionRequest();
         $eventWorkflowConditionRequest->events = [
             "gateway" => ["payment_approved"],
@@ -99,7 +103,7 @@ class CheckoutSetupWebhook implements ShouldQueue
 
         try {
             $response = $this->checkout->gateway->getWorkflowsClient()->createWorkflow($request);
-            
+
         } catch (CheckoutApiException $e) {
             // API error
             $error_details = $e->error_details;

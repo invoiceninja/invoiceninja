@@ -91,8 +91,8 @@ class AccountTransformer extends EntityTransformer
             'trial_days_left' => Ninja::isHosted() ? (int) $account->getTrialDays() : 0,
             'account_sms_verified' => (bool) $account->account_sms_verified,
             'has_iap_plan' => (bool)$account->inapp_transaction_id,
-            'tax_api_enabled' => (bool) config('services.tax.zip_tax.key') ? true : false
-
+            'tax_api_enabled' => (bool) config('services.tax.zip_tax.key') ? true : false,
+            'nordigen_enabled' => (bool) (config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key')) ? true : false
         ];
     }
 

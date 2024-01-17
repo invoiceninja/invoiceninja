@@ -20,7 +20,7 @@ class UploadRecurringInvoiceRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -43,7 +43,7 @@ class UploadRecurringInvoiceRequest extends Request
         } elseif ($this->file('file')) {
             $rules['file'] = $this->file_validation;
         }
-        
+
         $rules['is_public'] = 'sometimes|boolean';
 
         return $rules;
@@ -58,6 +58,6 @@ class UploadRecurringInvoiceRequest extends Request
         }
 
         $this->replace($input);
-      
+
     }
 }

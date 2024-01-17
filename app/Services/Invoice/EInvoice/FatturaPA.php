@@ -69,7 +69,7 @@ class FatturaPA extends AbstractService
     {
         return $this->addHeader()->getXml();
     }
-    
+
     public function addHeader()
     {
         $this->xml->addChild('FatturaElettronicaHeader');

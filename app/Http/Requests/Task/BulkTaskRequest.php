@@ -15,7 +15,6 @@ use App\Http\Requests\Request;
 
 class BulkTaskRequest extends Request
 {
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -33,7 +32,7 @@ class BulkTaskRequest extends Request
      */
     public function rules()
     {
-        
+
         return [
             'action' => 'required|string',
             'ids' => 'required|array',

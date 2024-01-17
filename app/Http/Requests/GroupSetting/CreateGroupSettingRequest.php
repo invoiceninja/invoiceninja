@@ -21,7 +21,7 @@ class CreateGroupSettingRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         return auth()->user()->can('create', GroupSetting::class);
     }

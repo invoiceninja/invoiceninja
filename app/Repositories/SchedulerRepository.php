@@ -31,7 +31,7 @@ class SchedulerRepository extends BaseRepository
         $scheduler->save();
 
         $scheduler->adjustOffset();
-        
+
         return $scheduler->fresh();
     }
 }

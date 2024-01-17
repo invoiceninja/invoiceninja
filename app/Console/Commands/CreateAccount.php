@@ -29,7 +29,8 @@ use Illuminate\Support\Str;
 
 class CreateAccount extends Command
 {
-    use MakesHash, GeneratesCounter;
+    use MakesHash;
+    use GeneratesCounter;
 
     /**
      * @var string
@@ -75,10 +76,10 @@ class CreateAccount extends Command
             'portal_mode' => 'domain',
             'settings' => $settings,
         ]);
-        
+
         $company->client_registration_fields = ClientRegistrationFields::generate();
         $company->save();
-        
+
         $account->default_company_id = $company->id;
         $account->set_react_as_default_ap = true;
         $account->save();
@@ -97,7 +98,7 @@ class CreateAccount extends Command
             'phone'             => '',
         ]);
 
-        $company_token = new CompanyToken;
+        $company_token = new CompanyToken();
         $company_token->user_id = $user->id;
         $company_token->company_id = $company->id;
         $company_token->account_id = $account->id;

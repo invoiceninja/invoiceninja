@@ -101,7 +101,7 @@ class InvitationController extends Controller
             $client_contact->email = Str::random(15) . "@example.com";
             $client_contact->save();
         }
-        
+
         if (request()->has('client_hash') && request()->input('client_hash') == $invitation->contact->client->client_hash) {
             request()->session()->invalidate();
             auth()->guard('contact')->loginUsingId($client_contact->id, true);
@@ -251,7 +251,7 @@ class InvitationController extends Controller
     {
         /** @var \App\Models\ClientContact $contact **/
         $contact = ClientContact::withTrashed()->where('contact_key', $contact_key)->firstOrFail();
-        
+
         /** @var \App\Models\Payment $payment **/
         $payment = Payment::find($this->decodePrimaryKey($payment_id));
 
@@ -274,9 +274,9 @@ class InvitationController extends Controller
         if ($invitation->contact->trashed()) {
             $invitation->contact->restore();
         }
-        
+
         auth()->guard('contact')->loginUsingId($invitation->contact->id, true);
-        
+
         $invoice = $invitation->invoice;
 
         if ($invoice->partial > 0) {
@@ -287,7 +287,7 @@ class InvitationController extends Controller
 
         $gateways = $invitation->contact->client->service()->getPaymentMethods($amount);
 
-        if (is_array($gateways) && count($gateways) >=1) {
+        if (is_array($gateways) && count($gateways) >= 1) {
             $data = [
                 'company_gateway_id' => $gateways[0]['company_gateway_id'],
                 'payment_method_id' => $gateways[0]['gateway_type_id'],

@@ -97,11 +97,7 @@ class BaseModel extends Model
 
     public function dateMutator($value)
     {
-        if (! empty($value)) {
-            return (new Carbon($value))->format('Y-m-d');
-        }
-
-        return $value;
+        return (new Carbon($value))->format('Y-m-d');
     }
 
     // public function __call($method, $params)
@@ -238,7 +234,7 @@ class BaseModel extends Model
 
     public function getDeliveryNoteName($extension = 'pdf')
     {
-        
+
         $number =  ctrans("texts.delivery_note"). "_" . $this->numberFormatter().'.'.$extension;
 
         $formatted_number =  mb_ereg_replace("([^\w\s\d\-_~,;\[\]\(\).])", '', $number);
@@ -291,7 +287,7 @@ class BaseModel extends Model
         $subscriptions = Webhook::where('company_id', $this->company_id)
                                  ->where('event_id', $event_id)
                                  ->exists();
-                            
+
         if ($subscriptions) {
             WebhookHandler::dispatch($event_id, $this->withoutRelations(), $this->company, $additional_data);
         }
@@ -316,7 +312,7 @@ class BaseModel extends Model
         if (! $invitation) {
             throw new \Exception('Hard fail, could not create an invitation.');
         }
-        
+
         return "data:application/pdf;base64,".base64_encode((new CreateRawPdf($invitation))->handle());
 
     }

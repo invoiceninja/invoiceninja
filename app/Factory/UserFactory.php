@@ -15,9 +15,9 @@ use App\Models\User;
 
 class UserFactory
 {
-    public static function create(int $account_id) :User
+    public static function create(int $account_id): User
     {
-        $user = new User;
+        $user = new User();
 
         $user->account_id = $account_id;
         $user->first_name = '';

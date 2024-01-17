@@ -35,6 +35,6 @@ class GetPurchaseOrderPdf extends AbstractService
         }
 
         return (new CreateRawPdf($invitation))->handle();
-        
+
     }
 }

@@ -19,7 +19,8 @@ use Illuminate\Support\Facades\App;
 
 class DownloadReport extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
     protected Company $company;
 

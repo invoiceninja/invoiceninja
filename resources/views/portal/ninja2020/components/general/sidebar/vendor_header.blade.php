@@ -7,8 +7,7 @@
     <div class="flex-1 px-3 md:px-8 flex justify-between items-center">
         <span class="text-xl text-gray-900" data-ref="meta-title">@yield('meta_title')</span>
         <div class="flex items-center md:ml-6 md:mr-2">
-            
-            <div @click.away="open = false" class="ml-3 relative" x-data="{ open: false }">
+            <div @click.outside="open = false" class="ml-3 relative" x-data="{ open: false }">
                 <div>
                     <button data-ref="client-profile-dropdown" @click="open = !open"
                             class="max-w-xs flex items-center text-sm rounded-full focus:outline-none focus:ring">

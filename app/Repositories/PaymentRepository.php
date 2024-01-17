@@ -83,7 +83,7 @@ class PaymentRepository extends BaseRepository
                     if ($data['amount'] == '') {
                         $data['amount'] = array_sum(array_column($data['invoices'], 'amount'));
                     }
-                    
+
                     $client->service()->updatePaidToDate($data['amount'])->save();
                     $client->saveQuietly();
                 } else {
@@ -107,7 +107,13 @@ class PaymentRepository extends BaseRepository
         }
 
         /*Fill the payment*/
-        $payment->fill($data);
+        $fill_data = $data;
+
+        if($this->import_mode && isset($fill_data['invoices'])) {
+            unset($fill_data['invoices']);
+        }
+
+        $payment->fill($fill_data);
         $payment->is_manual = true;
         $payment->status_id = Payment::STATUS_COMPLETED;
 
@@ -176,7 +182,7 @@ class PaymentRepository extends BaseRepository
 
                 /** @var \App\Models\Credit $credit **/
                 $credit = $credits->firstWhere('id', $paid_credit['credit_id']);
-                
+
                 if ($credit) {
 
                     $paymentable = new Paymentable();
@@ -236,7 +242,7 @@ class PaymentRepository extends BaseRepository
 
             return $payment;
         }
-        
+
         $payment->currency_id = $company_currency;
 
         return $payment;

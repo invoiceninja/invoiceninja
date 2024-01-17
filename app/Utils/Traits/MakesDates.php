@@ -57,7 +57,7 @@ trait MakesDates
      * @param  string $format The date display format
      * @return string         The formatted date
      */
-    public function formatDate($date, string $format) :string
+    public function formatDate($date, string $format): string
     {
         if (! isset($date)) {
             return '';
@@ -76,7 +76,7 @@ trait MakesDates
      * @param  string $format The date display format
      * @return string         The formatted date
      */
-    public function formatDatetime($date, string $format) :string
+    public function formatDatetime($date, string $format): string
     {
         return Carbon::createFromTimestamp($date)->format($format.' g:i a');
     }
@@ -87,7 +87,7 @@ trait MakesDates
      * @param  string $format The date display format
      * @return string         The formatted date
      */
-    public function formatDateTimestamp($timestamp, string $format) :string
+    public function formatDateTimestamp($timestamp, string $format): string
     {
         return Carbon::createFromTimestamp($timestamp)->format($format);
     }
@@ -130,7 +130,7 @@ trait MakesDates
             if(now()->lt($fin_year_start)) {
                 $fin_year_start->subYearNoOverflow();
             }
-            
+
         }
 
         //override for financial years
@@ -143,7 +143,7 @@ trait MakesDates
             if(now()->subYear()->lt($fin_year_start)) {
                 $fin_year_start->subYearNoOverflow();
             }
-                    
+
         }
 
 

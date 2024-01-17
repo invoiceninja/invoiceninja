@@ -9,7 +9,6 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-
 namespace App\Mail;
 
 use App\Exceptions\ClientHostedMigrationException;
@@ -48,7 +47,7 @@ class MigrationFailed extends Mailable
     public function build()
     {
         App::setLocale($this->company->getLocale());
-        
+
         $special_message = '';
 
         if ($this->exception instanceof ClientHostedMigrationException) {

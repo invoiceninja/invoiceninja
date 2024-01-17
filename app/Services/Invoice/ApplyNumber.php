@@ -66,7 +66,7 @@ class ApplyNumber extends AbstractService
 
     private function trySaving()
     {
-        $x=1;
+        $x = 1;
 
         do {
             try {
@@ -77,7 +77,7 @@ class ApplyNumber extends AbstractService
             } catch(QueryException $e) {
                 $x++;
 
-                if ($x>50) {
+                if ($x > 50) {
                     $this->completed = false;
                 }
             }

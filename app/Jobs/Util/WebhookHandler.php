@@ -23,7 +23,10 @@ use Illuminate\Queue\SerializesModels;
 
 class WebhookHandler implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
 
     public $tries = 1; //number of retries

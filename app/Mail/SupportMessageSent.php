@@ -76,7 +76,7 @@ class SupportMessageSent extends Mailable
         if ($account->plan_expires && Carbon::parse($account->plan_expires)->lt(now())) {
             $plan_status = 'Plan Expired :: ';
         }
-  
+
         if (Ninja::isHosted()) {
             $subject = "{$priority}Hosted-{$db}-{$is_large}{$platform}{$migrated}{$trial} :: {$plan} :: {$plan_status} ".date('M jS, g:ia');
         } else {
