@@ -15,7 +15,6 @@ use App\Models\Payment;
 
 class PaymentDecorator extends Decorator implements DecoratorInterface
 {
-
     private $entity_key = 'payment';
 
     public function transform(string $key, $entity): mixed
@@ -42,8 +41,7 @@ class PaymentDecorator extends Decorator implements DecoratorInterface
 
         if($payment && method_exists($this, $key)) {
             return $this->{$key}($payment);
-        }
-        elseif($payment && $payment->{$key}){
+        } elseif($payment && $payment->{$key}) {
             return $payment->{$key};
         }
 

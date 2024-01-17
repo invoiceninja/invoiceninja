@@ -21,7 +21,7 @@ class CreateInvoiceRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         return auth()->user()->can('create', Invoice::class);
     }

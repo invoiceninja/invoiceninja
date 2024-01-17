@@ -2,7 +2,7 @@
     <div class="flex items-center justify-between">
         <div class="flex items-center">
             <span class="mr-2 text-sm hidden md:block">{{ ctrans('texts.per_page') }}</span>
-            <select wire:model="per_page" class="form-select py-1 text-sm">
+            <select wire:model.live="per_page" class="form-select py-1 text-sm">
                 <option>5</option>
                 <option selected>10</option>
                 <option>15</option>
@@ -28,6 +28,11 @@
                         @if($client->getBACSGateway())
                             <a data-cy="add-bacs-link" href="{{ route('client.payment_methods.create', ['method' => App\Models\GatewayType::BACS]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150">
                                 {{ ctrans('texts.bacs') }}
+                            </a>
+                        @endif
+                        @if($client->getACSSGateway())
+                            <a data-cy="add-bacs-link" href="{{ route('client.payment_methods.create', ['method' => App\Models\GatewayType::ACSS]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150">
+                                {{ ctrans('texts.acss') }}
                             </a>
                         @endif
                     </div>

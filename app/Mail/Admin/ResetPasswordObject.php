@@ -18,7 +18,6 @@ use Illuminate\Support\Facades\App;
 
 class ResetPasswordObject
 {
-
     public function __construct(private string $token, protected User $user, protected Company $company, protected bool $is_react)
     {
     }
@@ -43,7 +42,7 @@ class ResetPasswordObject
             'logo' => $this->company->present()->logo(),
         ];
 
-        $mail_obj = new \stdClass;
+        $mail_obj = new \stdClass();
         $mail_obj->subject = ctrans('texts.your_password_reset_link');
         $mail_obj->data = $data;
         $mail_obj->markdown = 'email.admin.generic';

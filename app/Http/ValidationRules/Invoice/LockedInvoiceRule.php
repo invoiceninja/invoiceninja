@@ -47,7 +47,7 @@ class LockedInvoiceRule implements Rule
     /**
      * @return bool
      */
-    private function checkIfInvoiceLocked() : bool
+    private function checkIfInvoiceLocked(): bool
     {
         $lock_invoices = $this->invoice->client->getSetting('lock_invoices');
 

@@ -22,7 +22,6 @@ use League\Csv\Writer;
 
 class DocumentExport extends BaseExport
 {
-
     private $entity_transformer;
 
     public string $date_key = 'created_at';
@@ -58,7 +57,7 @@ class DocumentExport extends BaseExport
                     $row = $this->buildRow($document);
                     return $this->processMetaData($row, $document);
                 })->toArray();
-        
+
         return array_merge(['columns' => $header], $report);
     }
 
@@ -101,7 +100,7 @@ class DocumentExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Document $document) :array
+    private function buildRow(Document $document): array
     {
         $transformed_entity = $this->entity_transformer->transform($document);
 
@@ -120,7 +119,7 @@ class DocumentExport extends BaseExport
         return $this->decorateAdvancedFields($document, $entity);
     }
 
-    private function decorateAdvancedFields(Document $document, array $entity) :array
+    private function decorateAdvancedFields(Document $document, array $entity): array
     {
         if (in_array('record_type', $this->input['report_keys'])) {
             $entity['record_type'] = class_basename($document->documentable);

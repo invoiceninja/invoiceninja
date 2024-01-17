@@ -13,7 +13,7 @@ namespace App\Utils;
 
 class TempFile
 {
-    public static function path($url) :string
+    public static function path($url): string
     {
         $temp_path = @tempnam(sys_get_temp_dir().'/'.sha1(time()), basename($url));
         copy($url, $temp_path);
@@ -22,7 +22,7 @@ class TempFile
     }
 
     /* Downloads a file to temp storage and returns the path - used for mailers */
-    public static function filePath($data, $filename) :string
+    public static function filePath($data, $filename): string
     {
         $dir_hash = sys_get_temp_dir().'/'.sha1(microtime());
 

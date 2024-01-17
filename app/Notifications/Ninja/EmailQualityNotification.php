@@ -75,7 +75,7 @@ class EmailQualityNotification extends Notification
         $content .= "Owner {$owner->present()->name() } | {$owner->email} \n";
         $content .= "Spam trigger: {$this->spam_string}";
 
-        return (new SlackMessage)
+        return (new SlackMessage())
                 ->success()
                 ->from(ctrans('texts.notification_bot'))
                 ->image('https://app.invoiceninja.com/favicon.png')

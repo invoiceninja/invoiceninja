@@ -26,7 +26,6 @@ use League\Csv\Writer;
 
 class TaskExport extends BaseExport
 {
-
     private $entity_transformer;
 
     public string $date_key = 'created_at';
@@ -111,9 +110,9 @@ class TaskExport extends BaseExport
 
         $query->cursor()
                 ->each(function ($resource) {
-        
+
                     $this->buildRow($resource);
-        
+
                     foreach($this->storage_array as $row) {
                         $this->storage_item_array[] = $this->processMetaData($row, $resource);
                     }
@@ -158,7 +157,7 @@ class TaskExport extends BaseExport
         } else {
             $this->iterateLogs($task, $entity);
         }
-        
+
     }
 
     private function iterateLogs(Task $task, array $entity)
@@ -196,11 +195,11 @@ class TaskExport extends BaseExport
             if (in_array('task.duration', $this->input['report_keys']) || in_array('duration', $this->input['report_keys'])) {
                 $entity['task.duration'] = $task->calcDuration();
             }
-            
+
             $entity = $this->decorateAdvancedFields($task, $entity);
-            
+
             $this->storage_array[] = $entity;
-            
+
             unset($entity['task.start_date']);
             unset($entity['task.end_date']);
             unset($entity['task.duration']);
@@ -208,7 +207,7 @@ class TaskExport extends BaseExport
 
     }
 
-    private function decorateAdvancedFields(Task $task, array $entity) :array
+    private function decorateAdvancedFields(Task $task, array $entity): array
     {
         if (in_array('task.status_id', $this->input['report_keys'])) {
             $entity['task.status_id'] = $task->status()->exists() ? $task->status->name : '';
@@ -217,7 +216,7 @@ class TaskExport extends BaseExport
         if (in_array('task.project_id', $this->input['report_keys'])) {
             $entity['task.project_id'] = $task->project()->exists() ? $task->project->name : '';
         }
-        
+
         if (in_array('task.user_id', $this->input['report_keys'])) {
             $entity['task.user_id'] = $task->user ? $task->user->present()->name() : '';
         }

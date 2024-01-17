@@ -62,7 +62,7 @@ class GroupSetting extends StaticModel
     use MakesHash;
     use SoftDeletes;
     use Filterable;
-    
+
     protected $casts = [
         'settings' => 'object',
         'updated_at' => 'timestamp',

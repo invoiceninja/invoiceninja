@@ -118,7 +118,7 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
             ->setTextBody($text_body);
 
         if ($this->vendor->getSetting('pdf_email_attachment') !== false && $this->purchase_order->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
-            
+
             $pdf = (new CreateRawPdf($this->invitation))->handle();
 
             $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->purchase_order->numberFormatter().'.pdf']]);

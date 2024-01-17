@@ -24,7 +24,7 @@ class UpdateProjectRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
 
         /** @var \App\Models\User $user */

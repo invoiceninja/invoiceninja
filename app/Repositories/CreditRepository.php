@@ -34,12 +34,12 @@ class CreditRepository extends BaseRepository
      * @return     Credit|Credit|null  Credit Object
      * @throws \ReflectionException
      */
-    public function save(array $data, Credit $credit) : ?Credit
+    public function save(array $data, Credit $credit): ?Credit
     {
         return $this->alternativeSave($data, $credit);
     }
 
-    public function getInvitationByKey($key) :?CreditInvitation
+    public function getInvitationByKey($key): ?CreditInvitation
     {
         return CreditInvitation::query()->where('key', $key)->first();
     }

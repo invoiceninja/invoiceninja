@@ -15,7 +15,7 @@ use App\Models\ExpenseCategory;
 
 class ExpenseCategoryFactory
 {
-    public static function create(int $company_id, int $user_id) :ExpenseCategory
+    public static function create(int $company_id, int $user_id): ExpenseCategory
     {
         $expense = new ExpenseCategory();
         $expense->user_id = $user_id;

@@ -70,7 +70,7 @@ class GmailCredentialNotification extends Notification
 
         $content .= "Owner {$owner->present()->name() } | {$owner->email}";
 
-        return (new SlackMessage)
+        return (new SlackMessage())
                 ->success()
                 ->from(ctrans('texts.notification_bot'))
                 ->image('https://app.invoiceninja.com/favicon.png')

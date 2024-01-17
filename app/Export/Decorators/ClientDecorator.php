@@ -29,8 +29,7 @@ class ClientDecorator extends Decorator implements DecoratorInterface
 
         if($client && method_exists($this, $key)) {
             return $this->{$key}($client);
-        }
-        elseif($client && $client->{$key}) {
+        } elseif($client && $client->{$key}) {
             return $client->{$key};
         }
 
@@ -41,7 +40,7 @@ class ClientDecorator extends Decorator implements DecoratorInterface
     {
         return $client->present()->name();
     }
-    
+
     public function user(Client $client)
     {
         return $client->user->present()->name();

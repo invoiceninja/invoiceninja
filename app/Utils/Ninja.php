@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Http;
  */
 class Ninja
 {
-    const TEST_USERNAME = 'user@example.com';
+    public const TEST_USERNAME = 'user@example.com';
 
     public static function isSelfHost()
     {
@@ -132,11 +132,11 @@ class Ninja
             'ip' => $ip,
             'token' => request()->header('X-API-TOKEN'),
             'is_system' => app()->runningInConsole(),
-            'user_id' => ($ip == '127.0.0.1') ? null : $user_id,
+            'user_id' => (app()->runningInConsole() && $ip == '127.0.0.1') ? null : $user_id,
         ];
     }
 
-    public static function transformTranslations($settings) :array
+    public static function transformTranslations($settings): array
     {
         $translations = [];
 
@@ -211,7 +211,7 @@ class Ninja
      * but can't guarantee that it is a base64 encoded string
      *
      */
-    public static function isBase64Encoded(string $s) : bool
+    public static function isBase64Encoded(string $s): bool
     {
         // Check if there are valid base64 characters
         if (! preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $s)) {

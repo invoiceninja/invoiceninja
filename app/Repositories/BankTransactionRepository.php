@@ -20,7 +20,6 @@ use App\Models\Expense;
  */
 class BankTransactionRepository extends BaseRepository
 {
-    
     public function save($data, BankTransaction $bank_transaction)
     {
         if (array_key_exists('bank_integration_id', $data)) {
@@ -58,18 +57,18 @@ class BankTransactionRepository extends BaseRepository
         $e = Expense::query()->whereIn('id', $this->transformKeys(explode(",", $bt->expense_id)))
         ->cursor()
         ->each(function ($expense) {
-            
+
             $expense->transaction_id = null;
             $expense->saveQuietly();
 
         });
-        
+
         $bt->expense_id = null;
         $bt->vendor_id = null;
         $bt->status_id = 1;
         $bt->invoice_ids = null;
         $bt->ninja_category_id = null;
         $bt->push();
-    
+
     }
 }

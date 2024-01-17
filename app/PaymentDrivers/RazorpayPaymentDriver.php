@@ -37,7 +37,7 @@ class RazorpayPaymentDriver extends BaseDriver
         GatewayType::HOSTED_PAGE => Hosted::class,
     ];
 
-    const SYSTEM_LOG_TYPE = SystemLog::TYPE_RAZORPAY;
+    public const SYSTEM_LOG_TYPE = SystemLog::TYPE_RAZORPAY;
 
     public function init(): self
     {

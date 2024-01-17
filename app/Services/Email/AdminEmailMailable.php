@@ -87,7 +87,7 @@ class AdminEmailMailable extends Mailable
 
         return $attachments->toArray();
     }
- 
+
     /**
      * Get the message headers.
      *

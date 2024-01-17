@@ -27,7 +27,10 @@ use Illuminate\Support\Facades\DB;
 
 class CheckCompanyData implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $company;
 

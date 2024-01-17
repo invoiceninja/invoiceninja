@@ -37,9 +37,9 @@ use League\Fractal\Serializer\ArraySerializer;
 class BaseExport
 {
     use MakesHash;
-    
+
     public Company $company;
-    
+
     public array $input;
 
     public string $date_key = '';
@@ -382,7 +382,7 @@ class BaseExport
         "custom_value4" => "payment.custom_value4",
         "user" => "payment.user_id",
         "assigned_user" => "payment.assigned_user_id",
-        
+
   ];
 
     protected array $expense_report_keys = [
@@ -457,7 +457,7 @@ class BaseExport
         return $query;
     }
 
-    protected function resolveKey($key, $entity, $transformer) :string
+    protected function resolveKey($key, $entity, $transformer): string
     {
         $parts = explode(".", $key);
 
@@ -481,7 +481,7 @@ class BaseExport
             'task' => $value = $this->resolveTaskKey($parts[1], $entity, $transformer),
             default => $value = '',
         };
-        
+
         return $value;
     }
 
@@ -513,7 +513,7 @@ class BaseExport
 
     private function resolveExpenseKey($column, $entity, $transformer)
     {
-     
+
         if($column == 'user' && $entity?->expense?->user) {
             return $entity->expense->user->present()->name() ?? ' ';
         }
@@ -582,9 +582,9 @@ class BaseExport
         if($column == 'name') {
             return $entity->vendor->present()->name() ?: '';
         }
-        
+
         if($column == 'user_id') {
-            return $entity->vendor->user->present()->name()  ?: '';
+            return $entity->vendor->user->present()->name() ?: '';
         }
 
         if($column == 'country_id') {
@@ -626,7 +626,7 @@ class BaseExport
         if(in_array($column, ['client.name', 'name'])) {
             return $transformed_client['display_name'];
         }
-        
+
         if(in_array($column, ['client.user_id', 'user_id'])) {
             return $entity->client->user ? $entity->client->user->present()->name() : '';
         }
@@ -638,11 +638,11 @@ class BaseExport
         if(in_array($column, ['client.country_id', 'country_id'])) {
             return $entity->client->country ? ctrans("texts.country_{$entity->client->country->name}") : '';
         }
-        
+
         if(in_array($column, ['client.shipping_country_id', 'shipping_country_id'])) {
             return $entity->client->shipping_country ? ctrans("texts.country_{$entity->client->shipping_country->name}") : '';
         }
-        
+
         if(in_array($column, ['client.size_id', 'size_id'])) {
             return $entity->client->size?->name ?? '';
         }
@@ -654,11 +654,11 @@ class BaseExport
         if (in_array($column, ['client.currency_id', 'currency_id'])) {
             return $entity->client->currency() ? $entity->client->currency()->code : $entity->company->currency()->code;
         }
-        
+
         if(in_array($column, ['payment_terms', 'client.payment_terms'])) {
             return $entity->client->getSetting('payment_terms');
         }
-        
+
 
         if(array_key_exists($column, $transformed_client)) {
             return $transformed_client[$column];
@@ -679,7 +679,7 @@ class BaseExport
         if($column == 'status') {
             return $entity->stringStatus($entity->status_id);
         }
-    
+
         return '';
     }
 
@@ -712,7 +712,7 @@ class BaseExport
             if(!isset($transformed_invoices['App\\Models\\Invoice'])) {
                 return '';
             }
-           
+
             $transformed_invoices = $transformed_invoices['App\\Models\\Invoice'];
 
             if(count($transformed_invoices) == 1 && array_key_exists($column, $transformed_invoices[0])) {
@@ -739,13 +739,13 @@ class BaseExport
             $transformed_invoice = $manager->createData($transformed_invoice)->toArray();
 
         }
-        
+
         if($transformed_invoice && array_key_exists($column, $transformed_invoice)) {
             return $transformed_invoice[$column];
         } elseif ($transformed_invoice && array_key_exists(str_replace("invoice.", "", $column), $transformed_invoice)) {
             return $transformed_invoice[$column];
         }
-    
+
         return '';
     }
 
@@ -816,7 +816,7 @@ class BaseExport
     {
 
         if(isset($this->input['product_key'])) {
-        
+
             $products = explode(",", $this->input['product_key']);
 
             $query->where(function ($q) use ($products) {
@@ -826,7 +826,7 @@ class BaseExport
             });
 
         }
-        
+
         return $query;
     }
 
@@ -834,7 +834,7 @@ class BaseExport
     {
 
         $status_parameters = explode(',', $status);
-        
+
 
         if(in_array('all', $status_parameters)) {
             return $query;
@@ -864,7 +864,7 @@ class BaseExport
             if (count($invoice_filters) > 0) {
                 $nested->whereIn('status_id', $invoice_filters);
             }
-                                
+
             if (in_array('overdue', $status_parameters)) {
                 $nested->orWhereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                 ->where('due_date', '<', Carbon::now())
@@ -872,14 +872,14 @@ class BaseExport
             }
 
             if(in_array('viewed', $status_parameters)) {
-                
+
                 $nested->whereHas('invitations', function ($q) {
                     $q->whereNotNull('viewed_date')->whereNotNull('deleted_at');
                 });
 
             }
-                
-            
+
+
         });
 
         return $query;
@@ -971,7 +971,7 @@ class BaseExport
                 return $query->whereBetween($this->date_key, [now()->startOfYear(), now()])->orderBy($this->date_key, 'ASC');
         }
     }
-    
+
     /**
      * Returns the merged array of
      * the entity with the matching
@@ -985,17 +985,17 @@ class BaseExport
         return array_merge($this->{$entity_report_keys}, $this->item_report_keys);
     }
 
-    public function buildHeader() :array
+    public function buildHeader(): array
     {
         $helper = new Helpers();
 
         $header = [];
         // nlog("header");
         foreach ($this->input['report_keys'] as $value) {
-            
+
             $key = array_search($value, $this->entity_keys);
             $original_key = $key;
-        
+
             // nlog("{$key} => {$value}");
             $prefix = '';
 
@@ -1023,7 +1023,7 @@ class BaseExport
                 $prefix = ctrans('texts.quote')." ";
                 $key = array_search($value, $this->quote_report_keys);
             }
-            
+
             if(!$key) {
                 $prefix = ctrans('texts.credit')." ";
                 $key = array_search($value, $this->credit_report_keys);
@@ -1037,7 +1037,7 @@ class BaseExport
             if(!$key) {
                 $prefix = ctrans('texts.expense')." ";
                 $key = array_search($value, $this->expense_report_keys);
-                
+
                 if(!$key && $value == 'expense.category') {
                     $key = 'category';
                 }
@@ -1105,7 +1105,7 @@ class BaseExport
                     $entity = "contact".substr($parts[1], -1);
                     $custom_field_string = strlen($helper->makeCustomField($this->company->custom_fields, $entity)) > 1 ? $helper->makeCustomField($this->company->custom_fields, $entity) : ctrans("texts.{$parts[1]}");
                     $header[] = ctrans("texts.{$parts[0]}") . " " . $custom_field_string;
-                    
+
                 } elseif(count($parts) == 2 && in_array(substr($original_key, 0, -1), ['credit','quote','invoice','purchase_order','recurring_invoice','task'])) {
                     $custom_field_string = strlen($helper->makeCustomField($this->company->custom_fields, "product".substr($original_key, -1))) > 1 ? $helper->makeCustomField($this->company->custom_fields, "product".substr($original_key, -1)) : ctrans("texts.{$parts[1]}");
                     $header[] = ctrans("texts.{$parts[0]}") . " " . $custom_field_string;
@@ -1119,7 +1119,7 @@ class BaseExport
         }
 
         // nlog($header);
-        
+
         return $header;
     }
 
@@ -1144,15 +1144,15 @@ class BaseExport
             Vendor::class => $entity = 'vendor',
             default => $entity = 'invoice',
         };
-        
+
         $clean_row = [];
-        
+
         foreach (array_values($this->input['report_keys']) as $key => $value) {
-        
+
             $report_keys = explode(".", $value);
-            
+
             $column_key = $value;
-            
+
             if($value == 'product_image') {
                 $column_key = 'image';
                 $value = 'image';
@@ -1195,9 +1195,9 @@ class BaseExport
         $clean_row = [];
 
         foreach (array_values($this->input['report_keys']) as $key => $value) {
-        
+
             $report_keys = explode(".", $value);
-            
+
             $column_key = $value;
 
             if($value == 'type_id' || $value == 'item.type_id') {
@@ -1207,7 +1207,7 @@ class BaseExport
             if($value == 'tax_id' || $value == 'item.tax_id') {
                 $column_key = 'tax_category';
             }
-                
+
             $clean_row[$key]['entity'] = $report_keys[0];
             $clean_row[$key]['id'] = $report_keys[1] ?? $report_keys[0];
             $clean_row[$key]['hashed_id'] = $report_keys[0] == $entity ? null : $resource->{$report_keys[0]}->hashed_id ?? null;

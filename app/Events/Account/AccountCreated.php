@@ -22,7 +22,9 @@ use Illuminate\Queue\SerializesModels;
  */
 class AccountCreated
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     public $user;
 

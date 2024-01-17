@@ -135,7 +135,7 @@ class HandleRestore extends AbstractService
             $payment_adjustment -= $payment->paymentables
                         ->where('paymentable_type', '=', 'App\Models\Credit')
                         ->sum('amount');
- 
+
             $payment->amount += $payment_adjustment;
             $payment->applied += $payment_adjustment;
             $payment->is_deleted = false;
@@ -143,7 +143,7 @@ class HandleRestore extends AbstractService
             $payment->saveQuietly();
 
         });
-        
+
         return $this;
     }
 

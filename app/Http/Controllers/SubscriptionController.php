@@ -16,6 +16,7 @@ use App\Events\Subscription\SubscriptionWasCreated;
 use App\Events\Subscription\SubscriptionWasUpdated;
 use App\Factory\SubscriptionFactory;
 use App\Filters\SubscriptionFilters;
+use App\Http\Requests\Subscription\BulkSubscriptionRequest;
 use App\Http\Requests\Subscription\CreateSubscriptionRequest;
 use App\Http\Requests\Subscription\DestroySubscriptionRequest;
 use App\Http\Requests\Subscription\EditSubscriptionRequest;
@@ -466,22 +467,31 @@ class SubscriptionController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkSubscriptionRequest $request)
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $action = request()->input('action');
+        $subscriptions = Subscription::withTrashed()->find($request->ids);
 
-        $ids = request()->input('ids');
-        $subscriptions = Subscription::withTrashed()->find($this->transformKeys($ids));
+        if(in_array($request->action, ['assign_invoice'])) {
 
-        $subscriptions->each(function ($subscription, $key) use ($action, $user) {
+            $subscriptions->each(function ($subscription, $key) use ($request, $user) {
+                if ($user->can('edit', $subscription)) {
+                    $this->subscription_repo->{$request->action}($subscription, $request);
+                }
+            });
+
+            return $this->listResponse(Subscription::withTrashed()->whereIn('id', $request->ids));
+
+        }
+
+        $subscriptions->each(function ($subscription, $key) use ($request, $user) {
             if ($user->can('edit', $subscription)) {
-                $this->subscription_repo->{$action}($subscription);
+                $this->subscription_repo->{$request->action}($subscription);
             }
         });
 
-        return $this->listResponse(Subscription::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(Subscription::withTrashed()->whereIn('id', $request->ids));
     }
 }

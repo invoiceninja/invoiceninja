@@ -21,7 +21,6 @@ use stdClass;
 
 class PurchaseOrderAcceptedObject
 {
-
     public function __construct(public PurchaseOrder $purchase_order, public Company $company, protected bool $use_react_url)
     {
     }
@@ -42,7 +41,7 @@ class PurchaseOrderAcceptedObject
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
-        $mail_obj = new stdClass;
+        $mail_obj = new stdClass();
         $mail_obj->amount = $this->getAmount();
         $mail_obj->subject = $this->getSubject();
         $mail_obj->data = $this->getData();

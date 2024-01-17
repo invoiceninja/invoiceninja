@@ -30,7 +30,7 @@ class RecurringExpenseRepository extends BaseRepository
      *
      * @return     \App\Models\RecurringExpense|null  recurring_expense Object
      */
-    public function save(array $data, RecurringExpense $recurring_expense) : ?RecurringExpense
+    public function save(array $data, RecurringExpense $recurring_expense): ?RecurringExpense
     {
         $recurring_expense->fill($data);
         $recurring_expense->number = empty($recurring_expense->number) ? $this->getNextRecurringExpenseNumber($recurring_expense) : $recurring_expense->number;

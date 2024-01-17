@@ -12,12 +12,11 @@
 
 namespace App\Services\PdfMaker;
 
-use \setasign\Fpdi\Fpdi;
+use setasign\Fpdi\Fpdi;
 use setasign\Fpdi\PdfParser\StreamReader;
 
 class PdfMerge
 {
-        
     /**
      * __construct
      *

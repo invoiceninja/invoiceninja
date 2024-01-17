@@ -102,45 +102,45 @@ class Payment extends BaseModel
     use Refundable;
     use Inviteable;
 
-    const STATUS_PENDING = 1;
+    public const STATUS_PENDING = 1;
 
-    const STATUS_CANCELLED = 2;
+    public const STATUS_CANCELLED = 2;
 
-    const STATUS_FAILED = 3;
+    public const STATUS_FAILED = 3;
 
-    const STATUS_COMPLETED = 4;
+    public const STATUS_COMPLETED = 4;
 
-    const STATUS_PARTIALLY_REFUNDED = 5;
+    public const STATUS_PARTIALLY_REFUNDED = 5;
 
-    const STATUS_REFUNDED = 6;
+    public const STATUS_REFUNDED = 6;
 
-    const TYPE_CREDIT_CARD = 1;
+    public const TYPE_CREDIT_CARD = 1;
 
-    const TYPE_BANK_TRANSFER = 2;
+    public const TYPE_BANK_TRANSFER = 2;
 
-    const TYPE_PAYPAL = 3;
+    public const TYPE_PAYPAL = 3;
 
-    const TYPE_CRYPTO = 4;
+    public const TYPE_CRYPTO = 4;
 
-    const TYPE_DWOLLA = 5;
+    public const TYPE_DWOLLA = 5;
 
-    const TYPE_CUSTOM1 = 6;
+    public const TYPE_CUSTOM1 = 6;
 
-    const TYPE_ALIPAY = 7;
+    public const TYPE_ALIPAY = 7;
 
-    const TYPE_SOFORT = 8;
+    public const TYPE_SOFORT = 8;
 
-    const TYPE_SEPA = 9;
+    public const TYPE_SEPA = 9;
 
-    const TYPE_GOCARDLESS = 10;
+    public const TYPE_GOCARDLESS = 10;
 
-    const TYPE_APPLE_PAY = 11;
+    public const TYPE_APPLE_PAY = 11;
 
-    const TYPE_CUSTOM2 = 12;
+    public const TYPE_CUSTOM2 = 12;
 
-    const TYPE_CUSTOM3 = 13;
+    public const TYPE_CUSTOM3 = 13;
 
-    const TYPE_TOKEN = 'token';
+    public const TYPE_TOKEN = 'token';
 
     protected $fillable = [
         'assigned_user_id',
@@ -382,7 +382,7 @@ class Payment extends BaseModel
      * @param array $data
      * @return self
      */
-    public function refund(array $data) :self
+    public function refund(array $data): self
     {
         return $this->service()->refundPayment($data);
     }
@@ -390,7 +390,7 @@ class Payment extends BaseModel
     /**
      * @return float
      */
-    public function getCompletedAmount() :float
+    public function getCompletedAmount(): float
     {
         return $this->amount - $this->refunded;
     }
@@ -455,7 +455,7 @@ class Payment extends BaseModel
         event(new PaymentWasVoided($this, $this->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
     }
 
-    public function getLink() :string
+    public function getLink(): string
     {
 
         if (Ninja::isHosted()) {
@@ -496,7 +496,7 @@ class Payment extends BaseModel
     {
         $tmp_meta = $this->refund_meta ?? [];
         $tmp_meta[] = $data;
-        
+
         $this->refund_meta = $tmp_meta;
     }
 }

@@ -39,7 +39,7 @@ class VendorDecorator extends Decorator implements DecoratorInterface
     {
         return $vendor->country ? $vendor->country->name : '';
     }
-    
+
     public function name(Vendor $vendor)
     {
         return $vendor->present()->name();

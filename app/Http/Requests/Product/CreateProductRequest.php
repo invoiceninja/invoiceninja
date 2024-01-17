@@ -21,12 +21,12 @@ class CreateProductRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         return auth()->user()->can('create', Product::class);
     }
 
-    public function rules() : array
+    public function rules(): array
     {
         return [
         ];

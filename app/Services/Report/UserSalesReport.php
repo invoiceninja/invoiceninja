@@ -29,7 +29,7 @@ class UserSalesReport extends BaseExport
     //Amount
     //Amount with Tax
     public Writer $csv;
-    
+
     public string $date_key = 'created_at';
 
     public array $report_keys = [
@@ -105,7 +105,7 @@ class UserSalesReport extends BaseExport
 
     }
 
-    public function buildHeader() :array
+    public function buildHeader(): array
     {
         $header = [];
 

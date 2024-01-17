@@ -54,7 +54,7 @@ class PaymentHash extends Model
     {
         return $this->data->invoices;
     }
-    
+
     /**
      * @return float|null
      */

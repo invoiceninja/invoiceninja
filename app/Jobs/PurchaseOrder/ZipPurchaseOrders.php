@@ -29,7 +29,10 @@ use Illuminate\Support\Facades\Storage;
 
 class ZipPurchaseOrders implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $settings;
 
@@ -63,7 +66,7 @@ class ZipPurchaseOrders implements ShouldQueue
 
         try {
             foreach ($invitations as $invitation) {
-                
+
                 $file = (new CreateRawPdf($invitation))->handle();
 
                 $zipFile->addFromString($invitation->purchase_order->numberFormatter().".pdf", $file);
@@ -71,7 +74,7 @@ class ZipPurchaseOrders implements ShouldQueue
 
             Storage::put($path.$file_name, $zipFile->outputAsString());
 
-            $nmo = new NinjaMailerObject;
+            $nmo = new NinjaMailerObject();
             $nmo->mailable = new DownloadPurchaseOrders(Storage::url($path.$file_name), $this->company);
             $nmo->to_user = $this->user;
             $nmo->settings = $this->settings;

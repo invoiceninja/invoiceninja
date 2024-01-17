@@ -53,7 +53,7 @@ class SendTestEmails extends Command
 
         $to_user = User::first();
 
-        $nmo = new NinjaMailerObject;
+        $nmo = new NinjaMailerObject();
         $nmo->mailable = new TestMailServer('Email Server Works!', config('mail.from.address'));
         $nmo->company = $to_user->account->companies()->first();
         $nmo->settings = $to_user->account->companies()->first()->settings;

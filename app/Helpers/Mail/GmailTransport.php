@@ -41,7 +41,7 @@ class GmailTransport extends AbstractTransport
         $client->setClientId(config('ninja.auth.google.client_id'));
         $client->setClientSecret(config('ninja.auth.google.client_secret'));
         $client->setAccessToken($token);
-        
+
         $service = new Gmail($client);
 
         $body = new Message();
@@ -53,7 +53,7 @@ class GmailTransport extends AbstractTransport
         if ($bccs) {
             $bcc_list = 'Bcc: ';
 
-            
+
             /** @phpstan-ignore-next-line **/
             foreach ($bccs->getAddresses() as $address) {
                 $bcc_list .= $address->getAddress() .',';
@@ -74,7 +74,7 @@ class GmailTransport extends AbstractTransport
             }
         }
     }
- 
+
     private function base64_encode($data)
     {
         return rtrim(strtr(base64_encode($data), ['+' => '-', '/' => '_']), '=');

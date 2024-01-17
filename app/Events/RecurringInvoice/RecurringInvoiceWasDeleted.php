@@ -21,7 +21,7 @@ use Illuminate\Queue\SerializesModels;
 class RecurringInvoiceWasDeleted
 {
     use SerializesModels;
-    
+
     public function __construct(public RecurringInvoice $recurring_invoice, public Company $company, public array $event_vars)
     {
     }

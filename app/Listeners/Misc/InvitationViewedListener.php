@@ -48,7 +48,7 @@ class InvitationViewedListener implements ShouldQueue
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($event->company->settings));
         App::setLocale($event->company->getLocale());
-        
+
         $entity_name = lcfirst(class_basename($event->entity));
         $invitation = $event->invitation;
 
@@ -69,7 +69,7 @@ class InvitationViewedListener implements ShouldQueue
                 unset($methods[$key]);
 
 
-                $nmo = new NinjaMailerObject;
+                $nmo = new NinjaMailerObject();
                 $nmo->mailable = new NinjaMailer((new EntityViewedObject($invitation, $entity_name, $company_user->portalType()))->build());
                 $nmo->company = $invitation->company;
                 $nmo->settings = $invitation->company->settings;

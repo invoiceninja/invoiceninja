@@ -25,11 +25,11 @@ class StoreRecurringExpenseRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
-        
+
         return $user->can('create', RecurringExpense::class);
     }
 
@@ -55,7 +55,7 @@ class StoreRecurringExpenseRequest extends Request
         $rules['tax_amount2'] = 'numeric';
         $rules['tax_amount3'] = 'numeric';
         $rules['currency_id'] = 'bail|required|integer|exists:currencies,id';
-        
+
         if ($this->file('documents') && is_array($this->file('documents'))) {
             $rules['documents.*'] = $this->file_validation;
         } elseif ($this->file('documents')) {

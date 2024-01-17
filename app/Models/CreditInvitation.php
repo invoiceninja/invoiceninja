@@ -109,7 +109,7 @@ class CreditInvitation extends BaseModel
     {
         return $this->belongsTo(Credit::class)->withTrashed();
     }
-    
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

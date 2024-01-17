@@ -44,7 +44,7 @@ class InvoiceItem
     public $line_total = 0;
 
     public $gross_line_total = 0;
-    
+
     public $tax_amount = 0;
 
     public $date = '';

@@ -23,7 +23,7 @@ class UpdateBankTransactionRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         return auth()->user()->can('edit', $this->bank_transaction);
     }
@@ -39,7 +39,7 @@ class UpdateBankTransactionRequest extends Request
         if (isset($this->currency_id)) {
             $rules['currency_id'] = 'sometimes|exists:currencies,id';
         }
-        
+
         if (isset($this->vendor_id)) {
             $rules['vendor_id'] = 'bail|required|exists:vendors,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
         }

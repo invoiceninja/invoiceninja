@@ -23,7 +23,10 @@ use Illuminate\Queue\SerializesModels;
 
 class CompanySizeCheck implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * Create a new job instance.
@@ -53,11 +56,19 @@ class CompanySizeCheck implements ShouldQueue
 
             nlog("updating all client credit balances");
 
-            Client::where('updated_at', '>', now()->subDay())
+            Client::query()
+                  ->where('updated_at', '>', now()->subDay())
                   ->cursor()
                   ->each(function ($client) {
-                      $client->credit_balance = $client->service()->getCreditBalance();
-                      $client->save();
+
+                      $old_credit_balance = $client->credit_balance;
+                      $new_credit_balance = $client->service()->getCreditBalance();
+
+                      if(floatval($old_credit_balance) !== floatval($new_credit_balance)) {
+                          $client->credit_balance = $client->service()->getCreditBalance();
+                          $client->saveQuietly();
+                      }
+
                   });
 
             /* Ensures lower permissioned users return the correct dataset and refresh responses */
@@ -87,11 +98,20 @@ class CompanySizeCheck implements ShouldQueue
 
                 nlog("updating all client credit balances");
 
-                Client::where('updated_at', '>', now()->subDay())
+                Client::query()->where('updated_at', '>', now()->subDay())
                       ->cursor()
                       ->each(function ($client) {
-                          $client->credit_balance = $client->service()->getCreditBalance();
-                          $client->save();
+
+
+                          $old_credit_balance = $client->credit_balance;
+                          $new_credit_balance = $client->service()->getCreditBalance();
+
+                          if(floatval($old_credit_balance) !== floatval($new_credit_balance)) {
+                              $client->credit_balance = $client->service()->getCreditBalance();
+                              $client->saveQuietly();
+                          }
+
+
                       });
 
                 Account::where('plan', 'enterprise')

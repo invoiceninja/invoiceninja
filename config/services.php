@@ -101,4 +101,8 @@ return [
             'key' => env('ZIP_TAX_KEY', false),
         ],
     ],
+    'chorus' => [
+        'client_id' => env('CHORUS_CLIENT_ID', false),
+        'secret' => env('CHORUS_SECRET', false),
+    ]
 ];

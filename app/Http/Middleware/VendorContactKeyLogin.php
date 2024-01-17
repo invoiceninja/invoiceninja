@@ -56,7 +56,7 @@ class VendorContactKeyLogin
                 $vendor_contact->save();
 
                 auth()->guard('vendor')->loginUsingId($vendor_contact->id, true);
-                
+
                 if ($request->query('redirect') && ! empty($request->query('redirect'))) {
                     return redirect()->to($request->query('redirect'));
                 }

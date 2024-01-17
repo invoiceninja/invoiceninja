@@ -19,7 +19,6 @@ use Illuminate\Support\Facades\App;
 
 class MigrationCompleted extends Mailable
 {
-
     public ?Company $company;
     /**
      * Create a new message instance.

@@ -21,7 +21,10 @@ use Illuminate\Queue\SerializesModels;
 
 class UpdateOrCreateProduct implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $products;
 
@@ -107,22 +110,22 @@ class UpdateOrCreateProduct implements ShouldQueue
                 $product->quantity = isset($item->quantity) ? $item->quantity : 0;
             }
 
-            if (isset($item->custom_value1) && strlen($item->custom_value1) >=1) {
+            if (isset($item->custom_value1) && strlen($item->custom_value1) >= 1) {
                 $product->custom_value1 = $item->custom_value1;
             }
 
-            if (isset($item->custom_value2) && strlen($item->custom_value1) >=1) {
+            if (isset($item->custom_value2) && strlen($item->custom_value1) >= 1) {
                 $product->custom_value2 = $item->custom_value2;
             }
-            
-            if (isset($item->custom_value3) && strlen($item->custom_value1) >=1) {
+
+            if (isset($item->custom_value3) && strlen($item->custom_value1) >= 1) {
                 $product->custom_value3 = $item->custom_value3;
             }
-            
-            if (isset($item->custom_value4) && strlen($item->custom_value1) >=1) {
+
+            if (isset($item->custom_value4) && strlen($item->custom_value1) >= 1) {
                 $product->custom_value4 = $item->custom_value4;
             }
-                       
+
             $product->user_id = $this->invoice->user_id;
             $product->company_id = $this->invoice->company_id;
             $product->project_id = $this->invoice->project_id;

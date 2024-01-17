@@ -188,7 +188,7 @@ class ACH
         $intent = false;
 
         if (count($data['tokens']) == 1) {
-        
+
             $token = $data['tokens'][0];
 
             $meta = $token->meta;
@@ -569,7 +569,7 @@ class ACH
         $state = property_exists($method, 'state') ? $method->state : 'unauthorized';
 
         try {
-            $payment_meta = new \stdClass;
+            $payment_meta = new \stdClass();
             $payment_meta->brand = (string) \sprintf('%s (%s)', $method->bank_name, ctrans('texts.ach'));
             $payment_meta->last4 = (string) $method->last4;
             $payment_meta->type = GatewayType::BANK_TRANSFER;

@@ -16,7 +16,7 @@ use App\Models\Design;
 
 class DesignFactory
 {
-    public static function create(int $company_id, int $user_id) :Design
+    public static function create(int $company_id, int $user_id): Design
     {
         $design = new Design();
         $design->user_id = $user_id;

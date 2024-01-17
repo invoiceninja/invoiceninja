@@ -91,7 +91,7 @@ class CreditCard
 
         $profile = $this->getCustomerProfile($response->customer_id);
 
-        $payment_meta = new \stdClass;
+        $payment_meta = new \stdClass();
         $payment_meta->exp_month = $profile->credit_card->expiration_month;
         $payment_meta->exp_year = $profile->credit_card->expiration_year;
         $payment_meta->brand = 'CC';

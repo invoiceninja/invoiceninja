@@ -23,7 +23,9 @@ use Illuminate\Queue\SerializesModels;
  */
 class DesignWasArchived
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     public function __construct(public Design $design, public Company $company, public array $event_vars)
     {

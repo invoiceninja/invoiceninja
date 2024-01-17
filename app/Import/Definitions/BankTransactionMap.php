@@ -28,6 +28,8 @@ class BankTransactionMap
             9 => 'transaction.base_type',
             10 => 'transaction.payment_type_Credit',
             11 => 'transaction.payment_type_Debit',
+            12 => 'transaction.participant',
+            13 => 'transaction.participant_name',
         ];
     }
 
@@ -46,6 +48,8 @@ class BankTransactionMap
             9 => 'texts.type',
             10 => 'transaction.credit',
             11 => 'transaction.debit',
+            12 => 'transaction.participant',
+            13 => 'transaction.participant_name',
         ];
     }
 }

@@ -22,7 +22,10 @@ use Illuminate\Queue\SerializesModels;
 
 class StripeUpdatePaymentMethods implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $company;
 
@@ -53,7 +56,7 @@ class StripeUpdatePaymentMethods implements ShouldQueue
                             ->get();
 
         $cgs->each(function ($company_gateway) {
-            $company_gateway->driver(new Client)->updateAllPaymentMethods();
+            $company_gateway->driver(new Client())->updateAllPaymentMethods();
         });
     }
 

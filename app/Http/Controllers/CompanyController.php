@@ -165,7 +165,7 @@ class CompanyController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $company_factory = new \App\Factory\CompanyFactory;
+        $company_factory = new \App\Factory\CompanyFactory();
 
         $company = $company_factory->create($user->company()->account->id);
 
@@ -432,9 +432,9 @@ class CompanyController extends BaseController
 
             $settings = $company->settings;
             $settings->enable_e_invoice = true;
-            
+
             $company->save();
-            
+
         }
 
         $this->uploadLogo($request->file('company_logo'), $company, $company);
@@ -530,7 +530,7 @@ class CompanyController extends BaseController
 
             $other_company = $company->account->companies->where('id', '!=', $company->id)->first();
 
-            $nmo = new NinjaMailerObject;
+            $nmo = new NinjaMailerObject();
             $nmo->mailable = new CompanyDeleted($company->present()->name, auth()->user(), $company->account, $company->settings);
             $nmo->company = $other_company;
             $nmo->settings = $other_company->settings;
@@ -547,7 +547,7 @@ class CompanyController extends BaseController
 
             //If we are deleting the default companies, we'll need to make a new company the default.
             if ($account->default_company_id == $company_id) {
-                
+
                 /** @var \App\Models\Company $new_default_company **/
                 $new_default_company = Company::whereAccountId($account->id)->first();
                 $account->default_company_id = $new_default_company->id;
@@ -682,7 +682,7 @@ class CompanyController extends BaseController
 
     public function updateOriginTaxData(DefaultCompanyRequest $request, Company $company)
     {
-        
+
         if($company->settings->country_id == "840" && !$company?->account->isFreeHostedClient()) {
             try {
                 (new CompanyTaxRate($company))->handle();
@@ -704,7 +704,7 @@ class CompanyController extends BaseController
         $company = $user->company();
         $logo = strlen($company->settings->company_logo) > 5 ? $company->settings->company_logo : 'https://pdf.invoicing.co/favicon-v2.png';
         $headers = ['Content-Disposition' => 'inline'];
-     
+
         return response()->streamDownload(function () use ($logo) {
             echo @file_get_contents($logo);
         }, 'logo.png', $headers);

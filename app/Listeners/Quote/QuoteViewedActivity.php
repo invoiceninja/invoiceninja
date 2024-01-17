@@ -45,7 +45,7 @@ class QuoteViewedActivity implements ShouldQueue
 
         $event->invitation->quote->service()->markSent()->save();
 
-        $fields = new stdClass;
+        $fields = new stdClass();
 
         $fields->user_id = $event->invitation->quote->user_id;
         $fields->company_id = $event->invitation->company_id;

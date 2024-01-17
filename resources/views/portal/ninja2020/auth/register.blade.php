@@ -19,7 +19,7 @@
             <h1 class="text-center text-3xl mt-8">{{ ctrans('texts.register') }}</h1>
             <p class="block text-center text-gray-600">{{ ctrans('texts.register_label') }}</p>
 
-            <form id="register-form" action="{{ route('client.register', request()->route('company_key')) }}" method="POST" x-data="{more: false, busy: false, isSubmitted: false}" x-on:submit="isSubmitted = true">
+            <form id="register-form" action="{{ route('client.register', request()->route('company_key')) }}" method="POST" x-data="{more: false, busy: false, isSubmitted: false}" x-on:submit="busy = true; isSubmitted = true">
                 @if($register_company)
                 <input type="hidden" name="company_key" value="{{ $register_company->company_key }}">
                 @endif
@@ -32,8 +32,8 @@
                         @if($field['visible'])
                             <div class="col-span-12 md:col-span-6">
                                 <section class="flex items-center">
-                                    <label 
-                                        for="{{ $field['key'] }}" 
+                                    <label
+                                        for="{{ $field['key'] }}"
                                         class="input-label">
                                         @if(in_array($field['key'], ['custom_value1','custom_value2','custom_value3','custom_value4']))
                                         {{ (new App\Utils\Helpers())->makeCustomField($register_company->custom_fields, str_replace("custom_value","client", $field['key']))}}
@@ -41,29 +41,29 @@
                                         {{ ctrans("texts.{$field['key']}") }}
                                         @endif
                                     </label>
-                                    
+
                                     @if($field['required'])
                                         <section class="text-red-400 ml-1 text-sm">*</section>
                                     @endif
                                 </section>
 
                                 @if($field['key'] === 'email')
-                                    <input 
-                                        id="{{ $field['key'] }}" 
-                                        class="input w-full" 
+                                    <input
+                                        id="{{ $field['key'] }}"
+                                        class="input w-full"
                                         type="email"
                                         name="{{ $field['key'] }}"
                                         value="{{ old($field['key']) }}"
                                          />
                                 @elseif($field['key'] === 'password')
-                                    <input 
-                                        id="{{ $field['key'] }}" 
-                                        class="input w-full" 
+                                    <input
+                                        id="{{ $field['key'] }}"
+                                        class="input w-full"
                                         type="password"
                                         name="{{ $field['key'] }}"
                                          />
                                 @elseif($field['key'] === 'currency_id')
-                                    <select 
+                                    <select
                                         id="currency_id"
                                         class="input w-full form-select bg-white"
                                         name="currency_id">
@@ -75,7 +75,7 @@
                                         @endforeach
                                     </select>
                                 @elseif($field['key'] === 'country_id')
-                                    <select 
+                                    <select
                                         id="shipping_country"
                                         class="input w-full form-select bg-white"
                                         name="country_id">
@@ -89,9 +89,9 @@
                                         @endforeach
                                     </select>
                                 @else
-                                    <input 
-                                        id="{{ $field['key'] }}" 
-                                        class="input w-full" 
+                                    <input
+                                        id="{{ $field['key'] }}"
+                                        class="input w-full"
                                         name="{{ $field['key'] }}"
                                         value="{{ old($field['key']) }}"
                                          />
@@ -104,24 +104,24 @@
                                 @enderror
                             </div>
 
-                            @if($field['key'] === 'password') 
+                            @if($field['key'] === 'password')
                                 <div class="col-span-12 md:col-span-6">
                                     <section class="flex items-center">
-                                        <label 
-                                            for="password_confirmation" 
+                                        <label
+                                            for="password_confirmation"
                                             class="input-label">
                                             {{ ctrans('texts.password_confirmation') }}
                                         </label>
-                                        
+
                                         @if($field['required'])
                                             <section class="text-red-400 ml-1 text-sm">*</section>
                                         @endif
                                     </section>
 
-                                    <input 
-                                        id="password_confirmation" 
-                                        type="password" 
-                                        class="input w-full" 
+                                    <input
+                                        id="password_confirmation"
+                                        type="password"
+                                        class="input w-full"
                                         name="password_confirmation"
                                          />
                                 </div>
@@ -132,7 +132,7 @@
                 </div>
 
                 <div class="flex justify-between items-center mt-8">
-                   
+
                     <a href="{{route('client.login')}}" class="button button-info bg-green-600 text-white">{{ ctrans('texts.login_label') }}</a>
 
                     <span class="inline-flex items-center" x-data="{ terms_of_service: false, privacy_policy: false }">
@@ -151,8 +151,8 @@
                             @enderror
                         </span>
                     </span>
-                    
-                    <button class="button button-primary bg-blue-600" :disabled={{ $submitsForm == 'true' ? 'isSubmitted' : 'busy'}} x-on:click="busy = true">
+
+                    <button class="button button-primary bg-blue-600" :disabled={{ $submitsForm == 'true' ? 'isSubmitted' : 'busy'}}>
                         {{ ctrans('texts.register')}}
                     </button>
 

@@ -50,6 +50,8 @@ class Charge
     {
         if ($cgt->gateway_type_id == GatewayType::BANK_TRANSFER) {
             return (new ACH($this->stripe))->tokenBilling($cgt, $payment_hash);
+        } elseif($cgt->gateway_type_id == GatewayType::ACSS) {
+            return (new ACSS($this->stripe))->tokenBilling($cgt, $payment_hash);
         }
 
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
@@ -99,12 +101,9 @@ class Charge
             ];
 
             switch ($e) {
+                /** @var \Stripe\Exception\CardException $e */
                 case $e instanceof CardException:
-                    $data['status'] = $e->getHttpStatus();
-                    $data['error_type'] = $e->getError()->type;
-                    $data['error_code'] = $e->getError()->code;
-                    $data['param'] = $e->getError()->param;
-                    $data['message'] = $e->getError()->message;
+                    $data['message'] = $e->getError()->message ?? $e->getMessage();
                     break;
                 case $e instanceof RateLimitException:
                     $data['message'] = 'Too many requests made to the API too quickly';

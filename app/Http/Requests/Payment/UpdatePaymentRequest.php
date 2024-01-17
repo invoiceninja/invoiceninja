@@ -28,7 +28,7 @@ class UpdatePaymentRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -62,7 +62,7 @@ class UpdatePaymentRequest extends Request
         } elseif ($this->file('file')) {
             $rules['file'] = $this->file_validation;
         }
-        
+
         return $rules;
     }
 

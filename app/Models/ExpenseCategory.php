@@ -56,7 +56,7 @@ class ExpenseCategory extends BaseModel
 {
     use SoftDeletes;
     use Filterable;
-    
+
     protected $fillable = [
         'name',
         'color',

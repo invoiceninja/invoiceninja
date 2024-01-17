@@ -31,7 +31,7 @@ class PreviewPurchaseOrderRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -58,7 +58,11 @@ class PreviewPurchaseOrderRequest extends Request
         $input['amount'] = 0;
         $input['balance'] = 0;
         $input['number'] = isset($input['number']) ? $input['number'] : ctrans('texts.live_preview').' #'.rand(0, 1000); //30-06-2023
-        
+
+        if($input['entity_id'] ?? false) {
+            $input['entity_id'] = $this->decodePrimaryKey($input['entity_id'], true);
+        }
+
         $this->replace($input);
     }
 
@@ -80,7 +84,7 @@ class PreviewPurchaseOrderRequest extends Request
 
         return $this->stubInvitation();
 
-        
+
     }
 
     public function getVendor(): ?Vendor
@@ -117,16 +121,16 @@ class PreviewPurchaseOrderRequest extends Request
     private function stubEntity(Vendor $vendor)
     {
         $entity = PurchaseOrder::factory()->make(['vendor_id' => $vendor->id,'user_id' => $vendor->user_id, 'company_id' => $vendor->company_id]);
-     
+
         $entity->setRelation('vendor', $vendor);
         $entity->setRelation('company', $vendor->company);
         $entity->setRelation('user', $vendor->user);
         $entity->fill($this->all());
-        
+
         return $entity;
     }
 
-    private function convertEntityPlural(string $entity) :self
+    private function convertEntityPlural(string $entity): self
     {
 
         $this->entity_plural = 'purchase_orders';

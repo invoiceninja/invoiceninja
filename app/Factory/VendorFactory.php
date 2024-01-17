@@ -16,9 +16,9 @@ use Illuminate\Support\Str;
 
 class VendorFactory
 {
-    public static function create(int $company_id, int $user_id) :Vendor
+    public static function create(int $company_id, int $user_id): Vendor
     {
-        $vendor = new Vendor;
+        $vendor = new Vendor();
         $vendor->company_id = $company_id;
         $vendor->user_id = $user_id;
         $vendor->name = '';

@@ -58,7 +58,7 @@ class EmailController extends BaseController
             'body' => $body,
         ];
 
-        $mo = new EmailObject;
+        $mo = new EmailObject();
         $mo->subject = strlen($subject) > 3 ? $subject : null;
         $mo->body = strlen($body) > 3 ? $body : null;
         $mo->entity_id = $request->input('entity_id');
@@ -71,7 +71,7 @@ class EmailController extends BaseController
         $user = auth()->user();
 
         if ($request->cc_email && (Ninja::isSelfHost() || $user->account->isPaidHostedClient())) {
- 
+
             foreach($request->cc_email as $email) {
                 $mo->cc[] = new Address($email);
             }
@@ -85,7 +85,7 @@ class EmailController extends BaseController
                 $mo->invitation_id = $invitation->id;
                 $mo->client_id = $invitation->contact->client_id ?? null;
                 $mo->vendor_id = $invitation->contact->vendor_id ?? null;
-                
+
                 Email::dispatch($mo, $invitation->company);
             }
         });
@@ -146,7 +146,7 @@ class EmailController extends BaseController
         $this->entity_transformer = PurchaseOrderTransformer::class;
 
         $data['template'] = $template;
-        
+
         PurchaseOrderEmail::dispatch($entity_obj, $entity_obj->company, $data);
         $entity_obj->sendEvent(Webhook::EVENT_SENT_PURCHASE_ORDER, "vendor");
 
@@ -156,7 +156,7 @@ class EmailController extends BaseController
     private function resolveClass(string $entity): string
     {
         $class = '';
-        
+
         match ($entity) {
             'invoice' => $class = Invoice::class,
             'App\Models\Invoice' => $class = Invoice::class,

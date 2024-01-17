@@ -19,7 +19,6 @@ use Illuminate\Contracts\Validation\Rule;
  */
 class CanStoreClientsRule implements Rule
 {
-
     /**
      * @var \App\Models\Company $company
      */

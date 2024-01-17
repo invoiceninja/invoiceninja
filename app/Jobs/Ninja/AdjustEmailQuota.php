@@ -26,7 +26,10 @@ use Turbo124\Beacon\Facades\LightLogs;
 
 class AdjustEmailQuota implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * Create a new job instance.

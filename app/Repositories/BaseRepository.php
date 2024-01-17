@@ -41,7 +41,7 @@ class BaseRepository
      */
     private function getEventClass($entity, $type)
     {
-        return 'App\Events\\'.ucfirst(class_basename($entity)).'\\'.ucfirst(class_basename($entity)).'Was'.$type;
+        return 'App\Events\\' . ucfirst(class_basename($entity)) . '\\' . ucfirst(class_basename($entity)) . 'Was' . $type;
     }
 
     /**
@@ -67,7 +67,7 @@ class BaseRepository
      */
     public function restore($entity)
     {
-        if (! $entity->trashed()) {
+        if (!$entity->trashed()) {
             return;
         }
 
@@ -104,7 +104,7 @@ class BaseRepository
 
         $className = $this->getEventClass($entity, 'Deleted');
 
-        if (class_exists($className) && ! ($entity instanceof Company)) {
+        if (class_exists($className) && !($entity instanceof Company)) {
             event(new $className($entity, $entity->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         }
     }
@@ -112,7 +112,7 @@ class BaseRepository
     /* Returns an invoice if defined as a key in the $resource array*/
     public function getInvitation($invitation, $resource)
     {
-        if (is_array($invitation) && ! array_key_exists('key', $invitation)) {
+        if (is_array($invitation) && !array_key_exists('key', $invitation)) {
             return false;
         }
 
@@ -163,7 +163,7 @@ class BaseRepository
 
         $state['starting_amount'] = $model->balance;
 
-        if (! $model->id) {
+        if (!$model->id) {
             $company_defaults = $client->setCompanyDefaults($data, lcfirst($resource));
             $data['exchange_rate'] = $company_defaults['exchange_rate'];
             $model->uses_inclusive_taxes = $client->getSetting('inclusive_taxes');
@@ -199,7 +199,7 @@ class BaseRepository
                 });
             }
         }
-        
+
         $model->saveQuietly();
 
         /* Model now persisted, now lets do some child tasks */
@@ -233,7 +233,7 @@ class BaseRepository
 
             foreach ($data['invitations'] as $invitation) {
                 //if no invitations are present - create one.
-                if (! $this->getInvitation($invitation, $resource)) {
+                if (!$this->getInvitation($invitation, $resource)) {
                     if (isset($invitation['id'])) {
                         unset($invitation['id']);
                     }
@@ -245,9 +245,9 @@ class BaseRepository
                         $invitation_class = sprintf('App\\Models\\%sInvitation', $resource);
 
                         $new_invitation = $invitation_class::withTrashed()
-                                            ->where('client_contact_id', $contact->id)
-                                            ->where($lcfirst_resource_id, $model->id)
-                                            ->first();
+                            ->where('client_contact_id', $contact->id)
+                            ->where($lcfirst_resource_id, $model->id)
+                            ->first();
 
                         if ($new_invitation && $new_invitation->trashed()) {
                             $new_invitation->restore();
@@ -279,7 +279,7 @@ class BaseRepository
         $model = $model->service()->applyNumber()->save();
 
         /* Handle attempts where the deposit is greater than the amount/balance of the invoice */
-        if ((int)$model->balance != 0 && $model->partial > $model->amount && $model->amount > 0) {
+        if ((int) $model->balance != 0 && $model->partial > $model->amount && $model->amount > 0) {
             $model->partial = min($model->amount, $model->balance);
         }
 
@@ -293,14 +293,14 @@ class BaseRepository
             if ($model->status_id != Invoice::STATUS_DRAFT) {
                 $model->service()->updateStatus()->save();
                 $model->client->service()->calculateBalance($model);
-                
+
                 // $diff = $state['finished_amount'] - $state['starting_amount'];
                 // nlog("{$diff} - {$state['finished_amount']} - {$state['starting_amount']}");
                 // if(floatval($state['finished_amount']) != floatval($state['starting_amount']))
                 //     $model->ledger()->updateInvoiceBalance(($state['finished_amount'] - $state['starting_amount']), "Update adjustment for invoice {$model->number}");
             }
 
-            if (! $model->design_id) {
+            if (!$model->design_id) {
                 $model->design_id = intval($this->decodePrimaryKey($client->getSetting('invoice_design_id')));
             }
 
@@ -316,7 +316,7 @@ class BaseRepository
             }
 
             /** If the client does not have tax_data - then populate this now */
-            if($client->country_id == 840 && !$client->tax_data && $model->company->calculate_taxes && !$model->company->account->isFreeHostedClient()) {
+            if ($client->country_id == 840 && !$client->tax_data && $model->company->calculate_taxes && !$model->company->account->isFreeHostedClient()) {
                 UpdateTaxData::dispatch($client, $client->company);
             }
 
@@ -325,7 +325,7 @@ class BaseRepository
         if ($model instanceof Credit) {
             $model = $model->calc()->getCredit();
 
-            if (! $model->design_id) {
+            if (!$model->design_id) {
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('credit_design_id'));
             }
 
@@ -345,7 +345,7 @@ class BaseRepository
         }
 
         if ($model instanceof Quote) {
-            if (! $model->design_id) {
+            if (!$model->design_id) {
                 $model->design_id = intval($this->decodePrimaryKey($client->getSetting('quote_design_id')));
             }
 
@@ -359,12 +359,13 @@ class BaseRepository
         }
 
         if ($model instanceof RecurringInvoice) {
-            if (! $model->design_id) {
+            if (!$model->design_id) {
                 $model->design_id = intval($this->decodePrimaryKey($client->getSetting('invoice_design_id')));
             }
 
             $model = $model->calc()->getRecurringInvoice();
 
+            $model->status_id = $model->calculateStatus();
 
             if ($this->new_model) {
                 event('eloquent.created: App\Models\RecurringInvoice', $model);

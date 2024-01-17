@@ -159,7 +159,7 @@ trait DesignHelpers
         if ($type == 'task') {
             $type_id = 2;
         }
-        
+
         /** 17-05-2023 need to explicity define product_quote here */
         if ($type == 'product_quote') {
             $type_id = 1;
@@ -393,7 +393,7 @@ trait DesignHelpers
 
         $value = $this->client->company->getSetting($fields[$field]);
 
-        return (new \App\Utils\Helpers)->formatCustomFieldValue(
+        return (new \App\Utils\Helpers())->formatCustomFieldValue(
             $this->client->company->custom_fields,
             $field,
             $value,

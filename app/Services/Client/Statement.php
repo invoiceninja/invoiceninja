@@ -52,7 +52,7 @@ class Statement
     {
     }
 
-    public function run() :?string
+    public function run(): ?string
     {
 
         $this
@@ -73,7 +73,7 @@ class Statement
 
             return $this->templateStatement($variables);
         }
-        
+
         if ($this->getDesign()->is_custom) {
             $this->options['custom_partials'] = \json_decode(\json_encode($this->getDesign()->design), true);
 
@@ -126,7 +126,7 @@ class Statement
         $pdf = $this->convertToPdf($html);
 
         $this->setVariables($variables);
-        
+
         $maker = null;
         $state = null;
 
@@ -157,12 +157,12 @@ class Statement
                             ->where('id', $this->decodePrimaryKey($statement_design_id))
                             ->where('company_id', $this->client->company_id)
                             ->first();
-        
+
         $ts = $template->service();
         $ts->addGlobal(['show_credits' => $this->options['show_credits_table']]);
         $ts->addGlobal(['show_aging' => $this->options['show_aging_table']]);
         $ts->addGlobal(['show_payments' => $this->options['show_payments_table']]);
-        
+
         $ts->build([
             'variables' => collect([$variables]),
             'invoices' => $this->getInvoices()->get(),
@@ -172,7 +172,7 @@ class Statement
         ]);
 
         $html = $ts->getHtml();
-        
+
         return $this->convertToPdf($html);
     }
 
@@ -182,7 +182,7 @@ class Statement
 
         try {
             if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-                $pdf = (new Phantom)->convertHtmlToPdf($html);
+                $pdf = (new Phantom())->convertHtmlToPdf($html);
             } elseif (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
                 $pdf = (new NinjaPdf())->build($html);
             } else {
@@ -253,7 +253,7 @@ class Statement
 
             //$product = Product::first();
 
-            $product = new \stdClass;
+            $product = new \stdClass();
 
             $item->cost = (float) 10;
             $item->product_key = 'test';
@@ -321,7 +321,7 @@ class Statement
             ->orderBy('date', 'ASC');
     }
 
-    private function invoiceStatuses() :array
+    private function invoiceStatuses(): array
     {
         $status = 'all';
 
@@ -332,16 +332,16 @@ class Statement
         switch ($status) {
             case 'all':
                 return [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID];
-                
+
             case 'paid':
                 return [Invoice::STATUS_PAID];
-                
+
             case 'unpaid':
                 return [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL];
-                
+
             default:
                 return [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID];
-                
+
         }
     }
 
@@ -441,7 +441,7 @@ class Statement
         } else {
             $query->whereBetween('due_date', [$to, $from]);
         }
-            
+
         $amount = $query->sum('balance');
 
         return Number::formatMoney($amount, $this->client);

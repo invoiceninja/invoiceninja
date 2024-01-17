@@ -88,7 +88,7 @@ class EntitySentNotification extends Notification
         $logo = $this->invitation->company->present()->logo();
         $amount = Number::formatMoney($this->entity->amount, $this->entity->client);
 
-        return (new SlackMessage)
+        return (new SlackMessage())
                     ->from(ctrans('texts.notification_bot'))
                     ->success()
                     ->image('https://app.invoiceninja.com/favicon-v2.png')

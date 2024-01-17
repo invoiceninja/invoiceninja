@@ -79,7 +79,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                 })->map(function ($fee, $key) {
                     return (int)$key;
                 })->toArray();
-        
+
     }
 
     private function getPaymentMethod($gateway_type_id): int
@@ -96,7 +96,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         return $method;
     }
 
-    private function getFundingOptions():string
+    private function getFundingOptions(): string
     {
 
         $enums = [
@@ -122,7 +122,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
             if($value->is_enabled) {
 
-                $funding_options .=$enums[$key].',';
+                $funding_options .= $enums[$key].',';
 
             }
 
@@ -166,7 +166,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         return $this;
 
     }
-    
+
     /**
      * Payment method setter
      *
@@ -199,7 +199,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
         return $this;
     }
-    
+
     /**
      * Checks whether payments are enabled on the account
      *
@@ -225,11 +225,11 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
             throw new PaymentFailed('Unable to accept payments at this time, please contact PayPal for more information.', 401);
         }
-        
+
         return $this;
-        
+
     }
-    
+
     /**
      * Presents the Payment View to the client
      *
@@ -252,11 +252,11 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         $data['merchantId'] = $this->company_gateway->getConfigField('merchantId');
         $data['currency'] = $this->client->currency()->code;
         // nlog($data['merchantId']);
-        
+
         return render('gateways.paypal.ppcp.pay', $data);
 
     }
-    
+
     /**
      * Processes the payment response
      *
@@ -302,7 +302,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
             if(isset($response['headers']) ?? false) {
                 unset($response['headers']);
             }
-            
+
             SystemLogger::dispatch(
                 ['response' => $response],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
@@ -313,11 +313,11 @@ class PayPalPPCPPaymentDriver extends BaseDriver
             );
 
             $message = $response['body']['details'][0]['description'] ?? 'Payment failed. Please try again.';
-            
+
             throw new PaymentFailed($message, 400);
         }
     }
-    
+
     public function getOrder(string $order_id)
     {
         $this->init();
@@ -340,11 +340,11 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         if($r->successful()) {
             return $r->json()['client_token'];
         }
-        
+
         throw new PaymentFailed('Unable to gain client token from Paypal. Check your configuration', 401);
 
     }
-    
+
     /**
      * Builds the payment request.
      *
@@ -354,7 +354,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
     {
         /** we only need to support paypal as payment source until as we are only using hosted payment buttons */
         return $this->injectPayPalPaymentSource();
-        
+
     }
 
     private function injectPayPalPaymentSource(): array
@@ -369,14 +369,14 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                 ],
                 "email_address" => $this->client->present()->email(),
                 "address" => $this->getBillingAddress(),
-                "experience_context"=> [
+                "experience_context" => [
                     "user_action" => "PAY_NOW"
                 ],
             ],
         ];
 
     }
-    
+
     /**
      * Creates the PayPal Order object
      *
@@ -395,7 +395,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         })->implode("\n");
 
         $order = [
-                
+
                 "intent" => "CAPTURE",
                 "payment_source" => $this->paymentSource(),
                 "purchase_units" => [
@@ -412,7 +412,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                     $this->getShippingAddress(),
                     "amount" => [
                         "value" => (string)$data['amount_with_fee'],
-                        "currency_code"=> $this->client->currency()->code,
+                        "currency_code" => $this->client->currency()->code,
                         "breakdown" => [
                             "item_total" => [
                                 "currency_code" => $this->client->currency()->code,
@@ -420,7 +420,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                             ]
                         ]
                     ],
-                    "items"=> [
+                    "items" => [
                         [
                             "name" => ctrans('texts.invoice_number').'# '.$invoice->number,
                             "description" => substr($description, 0, 127),
@@ -435,7 +435,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                 ]
             ];
 
-            
+
         if($shipping = $this->getShippingAddress()) {
             $order['purchase_units'][0] = $shipping;
         }
@@ -480,7 +480,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         : null;
 
     }
-    
+
     /**
      * Generates the gateway request
      *
@@ -493,7 +493,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
     public function gatewayRequest(string $uri, string $verb, array $data, ?array $headers = [])
     {
         $this->init();
-        
+
         $r = Http::withToken($this->access_token)
                 ->withHeaders($this->getHeaders($headers))
                 ->{$verb}("{$this->api_endpoint_url}{$uri}", $data);
@@ -517,7 +517,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         throw new PaymentFailed("Gateway failure - {$r->body()}", 401);
 
     }
-    
+
     /**
      * Generates the request headers
      *
@@ -537,7 +537,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
     public function processWebhookRequest(Request $request)
     {
-        
+
         // nlog(json_encode($request->all()));
         $this->init();
 

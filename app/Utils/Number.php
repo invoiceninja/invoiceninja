@@ -25,7 +25,7 @@ class Number
      *
      * @return float
      */
-    public static function roundValue(float $value, int $precision = 2) : float
+    public static function roundValue(float $value, int $precision = 2): float
     {
         return round($value, $precision, PHP_ROUND_HALF_UP);
     }
@@ -38,7 +38,7 @@ class Number
      *
      * @return string           The formatted value
      */
-    public static function formatValue($value, $currency) :string
+    public static function formatValue($value, $currency): string
     {
         $value = floatval($value);
 
@@ -56,7 +56,7 @@ class Number
      *
      * @return string           The formatted value
      */
-    public static function formatValueNoTrailingZeroes($value, $entity) :string
+    public static function formatValueNoTrailingZeroes($value, $entity): string
     {
         $value = floatval($value);
 
@@ -133,7 +133,7 @@ class Number
      * @param $entity
      * @return string           The formatted value
      */
-    public static function formatMoney($value, $entity) :string
+    public static function formatMoney($value, $entity): string
     {
         $value = floatval($value);
 
@@ -198,10 +198,10 @@ class Number
      * @param mixed $entity
      * @return string           The formatted value
      */
-    public static function formatMoneyNoRounding($value, $entity) :string
+    public static function formatMoneyNoRounding($value, $entity): string
     {
         $currency = $entity->currency();
-        
+
         $_value = $value;
 
         $thousand = $currency->thousand_separator;
@@ -239,7 +239,7 @@ class Number
         } elseif ($v < 1) {
             $precision = strlen($v) - strrpos($v, '.') - 1;
         }
-        
+
         if (is_array($parts) && $parts[0] != 0) {
             $precision = 2;
         }

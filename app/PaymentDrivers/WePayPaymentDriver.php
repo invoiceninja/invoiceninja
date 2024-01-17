@@ -49,7 +49,7 @@ class WePayPaymentDriver extends BaseDriver
         GatewayType::BANK_TRANSFER => ACH::class,
     ];
 
-    const SYSTEM_LOG_TYPE = SystemLog::TYPE_WEPAY;
+    public const SYSTEM_LOG_TYPE = SystemLog::TYPE_WEPAY;
 
     public function init()
     {
@@ -176,7 +176,7 @@ class WePayPaymentDriver extends BaseDriver
         $accountId = $this->company_gateway->getConfigField('accountId');
         $objectId = false;
         $objectType = '';
-        
+
         foreach (array_keys($input) as $key) {
             if ('_id' == substr($key, -3)) {
                 $objectType = substr($key, 0, -3);
@@ -350,7 +350,7 @@ class WePayPaymentDriver extends BaseDriver
         if ($this->company_gateway->require_custom_value1) {
             $fields[] = ['name' => 'client_custom_value1', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client1'), 'type' => 'text', 'validation' => 'required'];
         }
-        
+
         if ($this->company_gateway->require_custom_value2) {
             $fields[] = ['name' => 'client_custom_value2', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client2'), 'type' => 'text', 'validation' => 'required'];
         }

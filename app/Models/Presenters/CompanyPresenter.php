@@ -21,8 +21,6 @@ use Illuminate\Support\Str;
  */
 class CompanyPresenter extends EntityPresenter
 {
-
-
     /**
      * @return string
      */
@@ -77,10 +75,10 @@ class CompanyPresenter extends EntityPresenter
             return $this->logoDocker($settings);
         }
 
-        $context_options =[
-            "ssl"=>[
-               "verify_peer"=>false,
-               "verify_peer_name"=>false,
+        $context_options = [
+            "ssl" => [
+               "verify_peer" => false,
+               "verify_peer_name" => false,
             ],
         ];
 
@@ -92,6 +90,17 @@ class CompanyPresenter extends EntityPresenter
             return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
             //return "data:image/png;base64, ". base64_encode(@file_get_contents(asset('images/new_logo.png'), false, stream_context_create($context_options)));
         }
+    }
+
+    public function email()
+    {
+        /** @var \App\Models\Company $this */
+        if(str_contains($this->settings->email, "@")) {
+            return $this->settings->email;
+        }
+
+        return $this->owner()->email;
+
     }
 
     public function address($settings = null)
@@ -188,7 +197,7 @@ class CompanyPresenter extends EntityPresenter
     public function website(): string
     {
         $website = $this->entity->getSetting('website');
-        
+
         if (empty($website)) {
             return $website;
         }

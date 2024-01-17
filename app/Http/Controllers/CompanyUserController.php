@@ -161,7 +161,7 @@ class CompanyUserController extends BaseController
 
         $company_user->react_settings = $request->react_settings;
         $company_user->save();
-        
+
         return $this->itemResponse($user->fresh());
     }
 

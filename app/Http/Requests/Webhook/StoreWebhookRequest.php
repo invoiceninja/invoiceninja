@@ -21,7 +21,7 @@ class StoreWebhookRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         return auth()->user()->isAdmin() && auth()->user()->account->hasFeature(Account::FEATURE_API);
     }

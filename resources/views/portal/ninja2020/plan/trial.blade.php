@@ -1612,7 +1612,7 @@ Ensure the default browser behavior of the `hidden` attribute.
                               30 day money back guarantee!
                             </p>
                             <h3 class="text-[35px] font-bold leading-[1.35em] mb-[36px] text-black">
-                                $10<span class="font-normal text-base ml-[10px] text-gray">Per month</span>
+                                $12<span class="font-normal text-base ml-[10px] text-gray">Per month</span>
                             </h3>
                             <button
                                     type="button"
@@ -1653,7 +1653,7 @@ Ensure the default browser behavior of the `hidden` attribute.
                               30 day money back guarantee!
                             </p>
                             <h3 class="text-[35px] font-bold leading-[1.35em] mb-[36px] text-black" id="m_plan_price">
-                                $14<span class="font-normal text-base ml-[10px] text-gray">Per month</span>
+                                $16<span class="font-normal text-base ml-[10px] text-gray">Per month</span>
                             </h3>
                             <form
                                     id="plan-form"
@@ -1672,6 +1672,7 @@ Ensure the default browser behavior of the `hidden` attribute.
                                     <option value="MVyb8mdvAZ">3-5 Users</option>
                                     <option value="WpmbkR5azJ">6-10 Users</option>
                                     <option value="k8mepY2aMy">11-20 Users</option>
+                                    <option value="MVyb8VlevA">20-30 Users</option>
                                     </select>
                                 </div>
                             </form>
@@ -1686,7 +1687,7 @@ Ensure the default browser behavior of the `hidden` attribute.
                         <div class="flex flex-col border-t-[1px] border-light-grey pt-[29px] mx-[22px] md: mx-[40px]">
                             <h5 class="text-base font-bold leading-[1.36em] text-primary-dark mb-4 uppercase ">All Free Features + Pro +</h5>
                             <ul class="list-checkmark relative z-10">
-                              <li class="mb-[20px]">Create Additional Account Users (up to 20!) & Set Access Permissions per User</li>
+                              <li class="mb-[20px]">Create Additional Account Users (up to 30!) & Set Access Permissions per User</li>
                               <li class="mb-[20px]">Attach Files to Emails & Client-Portal (pdf, jpg, ppt, xls, doc & more)</li>
                               <li>Fully Branded Client Portal: "Billing.YourCompany.com"</li>
                           </ul>
@@ -1705,7 +1706,7 @@ Ensure the default browser behavior of the `hidden` attribute.
                               Pay annually for 10 months + 2 free!
                             </p>
                             <h3 class="text-[35px] font-bold leading-[1.35em] mb-[36px] text-black">
-                                $100<span class="font-normal text-base ml-[10px] text-gray">Per year</span>
+                                $120<span class="font-normal text-base ml-[10px] text-gray">Per year</span>
                             </h3>
                             <button
                                     type="button"
@@ -1746,7 +1747,7 @@ Ensure the default browser behavior of the `hidden` attribute.
                               Pay annually for 10 months + 2 free!
                             </p>
                             <h3 class="text-[35px] font-bold leading-[1.35em] mb-[36px] text-black" id="y_plan_price">
-                                $140<span class="font-normal text-base ml-[10px] text-gray">Per Year</span>
+                                $160<span class="font-normal text-base ml-[10px] text-gray">Per Year</span>
                             </h3>
                             <form
                                     id="plan-form"
@@ -1764,6 +1765,7 @@ Ensure the default browser behavior of the `hidden` attribute.
                                     <option value="kQBeX6mbyK">3-5 Users</option>
                                     <option value="GELe32Qd69">6-10 Users</option>
                                     <option value="MVyb86oevA">11-20 Users</option>
+                                    <option value="VWPe9WPbLy">20-30 Users</option>
                                     </select>
                                 </div>
                             </form>
@@ -1944,15 +1946,17 @@ document.getElementById('handleProYearlyClick').addEventListener('click', functi
 });
 const price_map = new Map();
 //monthly
-price_map.set('7LDdwRb1YK', '$14 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
-price_map.set('MVyb8mdvAZ', '$26 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
+price_map.set('7LDdwRb1YK', '$16 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
+price_map.set('MVyb8mdvAZ', '$28 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
 price_map.set('WpmbkR5azJ', '$36 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
-price_map.set('k8mepY2aMy', '$44 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
+price_map.set('k8mepY2aMy', '$48 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
+price_map.set('MVyb8VlevA', '$64 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
 //yearly
-price_map.set('LYqaQWldnj', '$140 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
-price_map.set('kQBeX6mbyK', '$260 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
+price_map.set('LYqaQWldnj', '$160 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
+price_map.set('kQBeX6mbyK', '$280 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
 price_map.set('GELe32Qd69', '$360 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
-price_map.set('MVyb86oevA', '$440 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
+price_map.set('MVyb86oevA', '$480 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
+price_map.set('VWPe9WPbLy', '$640 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
 
 </script>
 

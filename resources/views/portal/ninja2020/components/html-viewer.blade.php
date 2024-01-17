@@ -77,6 +77,8 @@ span {
                     <td>
                         <div class="product-information">
                             <div class="item-details">
+                                 
+                                <p class="overflow-ellipsis overflow-hidden px-1 mb-2">{!! $product['notes'] !!}</p>
                                 <p class="mt-2">
                                     @if($show_quantity)
                                     {{ $product['quantity'] }} x
@@ -85,8 +87,8 @@ span {
                                     @if($show_cost)
                                     {{ $product['cost'] }}
                                     @endif
-                                </p> 
-                                <p class="overflow-ellipsis overflow-hidden px-1 mb-2">{!! $product['notes'] !!}</p>
+                                </p>
+                                
                             </div>
                         </div>
                     </td>
@@ -214,16 +216,20 @@ span {
             }
         });
 
-        Livewire.hook('message.processed', (message, component) => {
+        document.addEventListener('livewire:init', () => {
 
-            Array.from(document.getElementsByClassName("entity-field")).forEach(function(item) {
-                if(item.innerText.length == 0){
-                    item.parentNode.remove();
-                }
+            Livewire.hook('message.processed', (message, component) => {
+
+                Array.from(document.getElementsByClassName("entity-field")).forEach(function(item) {
+                    if(item.innerText.length == 0){
+                        item.parentNode.remove();
+                    }
+                });
+
             });
 
-        })
-        
+        });
+
         var timeout = false; 
         
         /* Watch for resize of window and ensure we unset props with no values */
