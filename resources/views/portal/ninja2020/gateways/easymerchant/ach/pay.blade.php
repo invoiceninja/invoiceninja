@@ -71,16 +71,16 @@
             @endcomponent
 
             @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.account_holder_name')])
-                <input class="input w-full" name="account_name" id="account-holder-name" type="text" placeholder="{{ ctrans('texts.name') }}" required value="{{ auth()->guard('contact')->user()->client->present()->name() }}">
+                <input class="input w-full" name="account_name" id="account-holder-name" autocomplete="off" type="text" placeholder="{{ ctrans('texts.name') }}" required value="{{ auth()->guard('contact')->user()->client->present()->name() }}">
             @endcomponent
 
 
             @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.routing_number')])
-                <input class="input w-full" name="routing_number" id="routing-number" type="text" required>
+                <input class="input w-full" name="routing_number" id="routing-number" autocomplete="off" type="text" required>
             @endcomponent
 
             @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.account_number')])
-                <input class="input w-full" name="account_number" id="account-number" type="text" required>
+                <input class="input w-full" name="account_number" id="account-number" autocomplete="off" type="text" required>
             @endcomponent
 
         </div>
@@ -128,21 +128,30 @@
     $(document).ready(function(){
     $('#pay-now').click(function(){
         $('#error_message').text('')
-        var switch_account = document.getElementById('toggle-account');
-        var routing_number = document.getElementById('routing-number').value;
-        var account_number = document.getElementById('account-number').value;
+        var routing_number = $('#routing-number').val();
+        var account_number = $('#account-number').val();
+        var account_name = $('#account-holder-name').val();
         var account = document.querySelector('input[name="payment-type"]:checked').value;
-        var terms = document.querySelector('input[name="accept-terms"]:checked').value;
+        var terms = document.querySelector('input[name="accept-terms"]:checked');
+
+        if(!terms){
+            $('#error_message').text("Please accept the terms to proceed.!").css({'color':'red', "font-weight":"bold"})
+            return false;
+        }
 
         if(account == 'new_account'){
 
             var errors = [];
+            if(!account_name){
+                errors.push('Accountholder name');
+            }
             if(!routing_number){
                 errors.push('Routing number');
             }
             if(!account_number){
                 errors.push('Account number');
             }
+
 
             if(errors.length > 0){
                 var message = ' (s) are required.!';

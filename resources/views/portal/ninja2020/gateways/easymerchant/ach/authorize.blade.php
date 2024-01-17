@@ -42,16 +42,16 @@
     @endcomponent
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.account_holder_name')])
-        <input class="input w-full" name="account_name" id="account_name" type="text" placeholder="{{ ctrans('texts.name') }}" required value="{{ auth()->guard('contact')->user()->client->present()->name() }}">
+        <input class="input w-full" name="account_name" id="account_name" type="text" autocomplete="off" placeholder="{{ ctrans('texts.name') }}" required value="{{ auth()->guard('contact')->user()->client->present()->name() }}">
     @endcomponent
 
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.routing_number')])
-        <input class="input w-full" name="routing_number" id="routing_number" type="text" required>
+        <input class="input w-full" name="routing_number" id="routing_number" autocomplete="off" type="text" required>
     @endcomponent
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.account_number')])
-        <input class="input w-full" name="account_number" id="account_number" type="text" required>
+        <input class="input w-full" name="account_number" id="account_number" autocomplete="off" type="text" required>
     @endcomponent
     
     <!-- @component('portal.ninja2020.components.general.card-element', ['title' => 'Save Account'])
@@ -95,6 +95,7 @@
         $('#error_message').text('')
         var account_number = document.querySelector('input[name="account_number"]').value;
         var routing_number = document.querySelector('input[name="routing_number"]').value;
+        var account_name = document.querySelector('input[name="account_name"]').value;
         var customer = "{{ $customer }}";
         var params = {
             customerId: customer,
@@ -105,6 +106,9 @@
         }
 
         var errors = [];
+        if(!account_name){
+            errors.push('Accountholder name');
+        }
         if(!account_number){
             errors.push('Account number');
         }

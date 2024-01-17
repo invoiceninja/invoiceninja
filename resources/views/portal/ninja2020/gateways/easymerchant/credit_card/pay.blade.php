@@ -137,6 +137,9 @@ $(document).ready(function(){
             if(!expiration_month){
                 errors.push('Expiry Month');
             }
+            if(!cvv){
+                errors.push('CVV');
+            }
             if(errors.length > 0){
                 var message = ' (s) are required.!';
                 if(errors.length == 1){
@@ -144,6 +147,11 @@ $(document).ready(function(){
                 }
                 $('#error_message').text(errors.toString() + message).css({'color':'red', "font-weight":"bold"})
                 return false;
+            }
+
+            if(card_number.length <= 15){
+                $('#error_message').text("Card number must be 16 characters in length.").css({'color':'red', "font-weight":"bold"})
+                return false;   
             }
 
             // var last4 = card_number.substr(-4);

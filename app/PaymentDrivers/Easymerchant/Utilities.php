@@ -282,8 +282,10 @@ trait Utilities
         $customer_input['username'] = strtolower($this->easymerchant->client->present()->first_name()).Str::random(10);
         $customer_input['payment_intent'] = '1';
         $customer_url = $url.'/customers';
-        if(strlen($customer_input['address']) < 8){
-            $customer_input['address'] = $customer_input['address'].' test address'; 
+        if(strlen($customer_input['address']) == 0){
+            $customer_input['address'] = 'ninja test address'; 
+        }else if(strlen($customer_input['address']) <= 8){
+            $customer_input['address'] = $customer_input['address'].', ninja test address'; 
         }
 
         try{

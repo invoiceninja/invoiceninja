@@ -80,6 +80,11 @@
             customer: "{{ $customer }}"
         }
 
+        if(params.card_number.length <= 15){
+            $('#error_message').text("Card number must be 16 characters in length.").css({'color':'red', "font-weight":"bold"})
+            return false;   
+        }
+
         $.ajax({
             headers: {
                 "X-Publishable-Key": "{{ $publish_key }}",
