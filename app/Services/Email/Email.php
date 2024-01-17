@@ -99,6 +99,8 @@ class Email implements ShouldQueue
     {
         MultiDB::setDb($this->company->db);
 
+        info('here 1');
+
         $this->setOverride()
              ->initModels()
              ->setDefaults()
@@ -241,6 +243,8 @@ class Email implements ShouldQueue
     {
         $this->mailable = new EmailMailable($this->email_object);
 
+        info('here 2');
+
         return $this;
     }
 
@@ -263,6 +267,10 @@ class Email implements ShouldQueue
         if ($this->client_mailgun_secret) {
             $mailer->mailgun_config($this->client_mailgun_secret, $this->client_mailgun_domain, $this->client_mailgun_endpoint);
         }
+
+        info("here 4");
+        info($this->mailable->view);
+        info(print_r($this->mailable));
 
         /* Attempt the send! */
         try {

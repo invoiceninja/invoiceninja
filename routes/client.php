@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ClientPortal\EmailPreferencesController;
 use App\Http\Controllers\Auth\ContactForgotPasswordController;
 use App\Http\Controllers\Auth\ContactLoginController;
 use App\Http\Controllers\Auth\ContactRegisterController;
@@ -159,3 +160,7 @@ Route::fallback(function () {
     abort(404);
 
 })->middleware('throttle:404');
+
+
+Route::get('client/email_preferences/{clientContact}', [EmailPreferencesController::class, 'index'])->name('client.email_preferences');
+Route::put('client/email_preferences/{clientContact}', [EmailPreferencesController::class, 'update']);

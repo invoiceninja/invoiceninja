@@ -44,6 +44,11 @@
         </p>
     @endif
 @endisset
+
+<h1>Hello world</h1>
+<p>@isset($portal_url) {{ $portal_url }} @endisset</p>
+<p>After portal</p>
+
 @if(isset($unsubscribe_link))
 <p><a href="{{$unsubscribe_link}}">{{ ctrans('texts.unsubscribe') }}</a></p>
 @endif
