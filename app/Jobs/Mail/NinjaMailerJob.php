@@ -110,6 +110,7 @@ class NinjaMailerJob implements ShouldQueue
             $this->nmo->mailable->replyTo($this->company->owner()->email, $this->company->owner()->present()->name());
         }
 
+
         /* Run time we set the email tag */
         $this->nmo->mailable->tag($this->company->company_key);
 
@@ -137,9 +138,16 @@ class NinjaMailerJob implements ShouldQueue
                 $mailer->mailgun_config($this->client_mailgun_secret, $this->client_mailgun_domain, $this->nmo->settings->mailgun_endpoint);
             }
 
+            $mailable = $this->nmo->mailable;
+            
+            /** May need to re-build it here */
+            if(Ninja::isHosted() && method_exists($mailable, 'build')) {
+                $mailable->build();
+            }
+
             $mailer
                 ->to($this->nmo->to_user->email)
-                ->send($this->nmo->mailable);
+                ->send($mailable);
 
             /* Count the amount of emails sent across all the users accounts */
             Cache::increment("email_quota".$this->company->account->key);
@@ -575,7 +583,6 @@ class NinjaMailerJob implements ShouldQueue
             if (class_exists(\Modules\Admin\Jobs\Account\EmailQuality::class)) {
                 (new \Modules\Admin\Jobs\Account\EmailQuality($this->nmo, $this->company))->run();
             }
-
             return true;
         }
 
