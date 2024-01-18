@@ -13,6 +13,10 @@
 namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\Mail\NinjaMailer;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
+use App\Mail\Admin\ClientUnsubscribedObject;
 use App\Models\ClientContact;
 use Illuminate\Http\Request;
 
@@ -38,6 +42,16 @@ class EmailPreferencesController extends Controller
 
         $clientContact->is_locked = $request->has('recieve_emails') ? false : true;
         $clientContact->save();
+
+        if ($clientContact->is_locked) {
+            $nmo = new NinjaMailerObject();
+            $nmo->mailable = new NinjaMailer((new ClientUnsubscribedObject($clientContact, $clientContact->company))->build());
+            $nmo->company = $clientContact->company;
+            $nmo->to_user = $clientContact->company->owner();
+            $nmo->settings = $clientContact->company->settings;
+
+            (new NinjaMailerJob($nmo))->handle();
+        }
 
         return back()->with('message', ctrans('texts.updated_settings'));
     }
