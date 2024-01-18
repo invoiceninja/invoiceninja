@@ -272,13 +272,6 @@ $lang = array(
     'erase_data' => 'ບັນຊີຂອງທ່ານບໍ່ໄດ້ລົງທະບຽນ, ນີ້ຈະລຶບຂໍ້ມູນຂອງທ່ານຢ່າງຖາວອນ.',
     'password' => 'ລະຫັດຜ່ານ',
     'pro_plan_product' => 'ແຜນ Pro',
-    'pro_plan_success' => 'ຂໍຂອບໃຈທີ່ເລືອກແຜນ Pro ຂອງ Invoice Ninja!<p/>&nbsp
-	                           <b>ຂັ້ນຕອນຕໍ່ໄປ</b><p/>ໃບແຈ້ງໜີ້ທີ່ຕ້ອງຈ່າຍໄດ້ຖືກສົ່ງໄປໃຫ້ອີເມວແລ້ວ
-	                           ທີ່ຢູ່ທີ່ກ່ຽວຂ້ອງກັບບັນຊີຂອງທ່ານ. ເພື່ອປົດລັອກທັງໝົດທີ່ໜ້າອັດສະຈັນ
-	                           ຄຸນສົມບັດ Pro, ກະລຸນາປະຕິບັດຕາມຄໍາແນະນໍາໃນໃບແຈ້ງຫນີ້ເພື່ອຈ່າຍເງິນ
-	                           ສໍາລັບປີຂອງໃບແຈ້ງໜີ້ລະດັບ Pro.<p/>
-	                           ບໍ່ສາມາດຊອກຫາໃບແຈ້ງໜີ້ໄດ້ບໍ? ຕ້ອງການຄວາມຊ່ວຍເຫຼືອເພີ່ມເຕີມບໍ? ພວກເຮົາຍິນດີທີ່ຈະຊ່ວຍ
-	                           -- ສົ່ງອີເມວຫາພວກເຮົາທີ່ contact@invoiceninja.com',
     'unsaved_changes' => 'ທ່ານມີການປ່ຽນແປງທີ່ບໍ່ໄດ້ບັນທຶກໄວ້',
     'custom_fields' => 'ຊ່ອງຂໍ້ມູນແບບກຳນົດເອງ',
     'company_fields' => 'ສາຂາບໍລິສັດ',
@@ -395,7 +388,6 @@ $lang = array(
     'bought_designs' => 'ສຳເລັດການເພີ່ມການອອກແບບໃບແຈ້ງໜີ້ເພີ່ມເຕີມ',
     'sent' => 'ສົ່ງແລ້ວ',
     'vat_number' => 'ເລກອາກອນມູນຄ່າເພີ່ມ',
-    'timesheets' => 'ຕາຕະລາງເວລາ',
     'payment_title' => 'ໃສ່ທີ່ຢູ່ໃບບິນ ແລະຂໍ້ມູນບັດເຄຣດິດຂອງທ່ານ',
     'payment_cvv' => '*ນີ້ແມ່ນຕົວເລກ 3-4 ຕົວເລກຢູ່ດ້ານຫຼັງບັດຂອງທ່ານ',
     'payment_footer1' => '*ທີ່ຢູ່ໃບບິນຕ້ອງກົງກັບທີ່ຢູ່ທີ່ກ່ຽວຂ້ອງກັບບັດເຄຣດິດ.',
@@ -437,7 +429,6 @@ $lang = array(
     'reset_all' => 'ຣີເຊັດທັງໝົດ',
     'approve' => 'ອະນຸມັດ',
     'token_billing_type_id' => 'ການເອີ້ນເກັບເງິນໂທເຄັນ',
-    'token_billing_help' => 'ເກັບລາຍລະອຽດການຈ່າຍເງິນດ້ວຍ WePay, Stripe, Braintree ຫຼື GoCardless.',
     'token_billing_1' => 'ພິການ',
     'token_billing_2' => 'ເລືອກເຂົ້າ - checkbox ແມ່ນສະແດງແຕ່ບໍ່ໄດ້ເລືອກ',
     'token_billing_3' => 'ເລືອກອອກ - ກ່ອງໝາຍຖືກສະແດງ ແລະເລືອກ',
@@ -515,8 +506,8 @@ $lang = array(
     'auto_wrap' => 'ຫໍ່ເສັ້ນອັດຕະໂນມັດ',
     'duplicate_post' => 'ຄຳເຕືອນ: ໜ້າກ່ອນໜ້ານີ້ຖືກສົ່ງສອງຄັ້ງ. ການຍື່ນສະເຫນີທີສອງໄດ້ຖືກລະເລີຍ.',
     'view_documentation' => 'ເບິ່ງເອກະສານ',
-    'app_title' => 'ການອອກໃບແຈ້ງໜີ້ອອນໄລນ໌ຟຣີ',
-    'app_description' => 'Invoice Ninja ເປັນການແກ້ໄຂຟຣີ, ເປີດແຫຼ່ງສໍາລັບການອອກໃບແຈ້ງໜີ້ ແລະໃບບິນລູກຄ້າ. ດ້ວຍ Invoice Ninja, ທ່ານສາມາດສ້າງ ແລະສົ່ງໃບແຈ້ງໜີ້ທີ່ສວຍງາມໄດ້ຢ່າງງ່າຍດາຍຈາກທຸກອຸປະກອນທີ່ເຂົ້າເຖິງເວັບ. ລູກຄ້າຂອງທ່ານສາມາດພິມໃບແຈ້ງຫນີ້, ດາວໂຫລດໃຫ້ເຂົາເຈົ້າເປັນ',
+    'app_title' => 'Free Online Invoicing',
+    'app_description' => 'Invoice Ninja is a free, open-code solution for invoicing and billing customers. With Invoice Ninja, you can easily build and send beautiful invoices from any device that has access to the web. Your clients can print your invoices, download them as pdf files, and even pay you online from within the system.',
     'rows' => 'ແຖວ',
     'www' => 'www',
     'logo' => 'ໂລໂກ້',
@@ -653,7 +644,6 @@ $lang = array(
     'recurring_invoice' => 'ໃບແຈ້ງໜີ້ທີ່ເກີດຂຶ້ນຊ້ຳ',
     'new_recurring_quote' => 'ຄຳອ້າງອີງໃໝ່',
     'recurring_quote' => 'ຄຳອ້າງອີງທີ່ເກີດຂຶ້ນຊ້ຳ',
-    'recurring_too_soon' => 'ມັນໄວເກີນໄປທີ່ຈະສ້າງໃບແຈ້ງໜີ້ທີ່ເກີດຂື້ນເທື່ອຕໍ່ໄປ, ມັນກຳນົດເວລາເປັນ : ວັນທີ',
     'created_by_invoice' => 'ສ້າງໂດຍ: ໃບເກັບເງິນ',
     'primary_user' => 'ຜູ້ໃຊ້ຫຼັກ',
     'help' => 'ຊ່ວຍ',
@@ -674,9 +664,6 @@ $lang = array(
     'status_unpaid' => 'ບໍ່ໄດ້ຈ່າຍ',
     'status_all' => 'ທັງໝົດ',
     'show_line_item_tax' => 'ສະແດງ <b>ພາສີລາຍການແຖວໃນແຖວ</b>',
-    'iframe_url' => 'ເວັບໄຊທ໌',
-    'iframe_url_help1' => 'ສຳເນົາລະຫັດຕໍ່ໄປນີ້ໃສ່ໜ້າໜຶ່ງໃນເວັບໄຊຂອງເຈົ້າ.',
-    'iframe_url_help2' => 'ທ່ານສາມາດທົດສອບຄຸນສົມບັດໂດຍການຄລິກ \'ເບິ່ງເປັນຜູ້ຮັບ\' ສໍາລັບໃບແຈ້ງໜີ້.',
     'auto_bill' => 'ໃບບິນອັດຕະໂນມັດ',
     'military_time' => 'ເວລາ 24 ຊົ່ວໂມງ',
     'last_sent' => 'ສົ່ງຄັ້ງສຸດທ້າຍ',
@@ -1019,8 +1006,6 @@ $lang = array(
     'trial_call_to_action' => 'ເລີ່ມທົດລອງໃຊ້ຟຣີ',
     'trial_success' => 'ເປີດທົດລອງໃຊ້ໂປຣແກມຟຣີສອງອາທິດສຳເລັດແລ້ວ',
     'overdue' => 'ເກີນກຳນົດ',
-
-
     'white_label_text' => 'ຊື້ໃບອະນຸຍາດປ້າຍສີຂາວ ONE YEAR ສໍາລັບ $: ລາຄາເພື່ອເອົາຍີ່ຫໍ້ Invoice Ninja ອອກຈາກໃບແຈ້ງຫນີ້ແລະປະຕູລູກຄ້າ.',
     'user_email_footer' => 'ເພື່ອປັບການຕັ້ງຄ່າການແຈ້ງເຕືອນອີເມວຂອງທ່ານ ກະລຸນາເຂົ້າໄປທີ່ :link',
     'reset_password_footer' => 'ຖ້າທ່ານບໍ່ໄດ້ຮ້ອງຂໍການປ່ຽນລະຫັດຜ່ານນີ້, ກະລຸນາສົ່ງອີເມວຫາພວກເຮົາ: :email',
@@ -1029,9 +1014,6 @@ $lang = array(
     'old_browser' => 'ກະລຸນາໃຊ້ :link',
     'newer_browser' => 'ຕົວທ່ອງເວັບທີ່ໃໝ່ກວ່າ',
     'white_label_custom_css' => ':link ສໍາລັບ $:price ເພື່ອເປີດໃຊ້ຮູບແບບທີ່ກໍາຫນົດເອງແລະຊ່ວຍສະຫນັບສະຫນູນໂຄງການຂອງພວກເຮົາ.',
-    'bank_accounts_help' => 'ເຊື່ອມຕໍ່ບັນຊີທະນາຄານເພື່ອນໍາເຂົ້າຄ່າໃຊ້ຈ່າຍອັດຕະໂນມັດແລະສ້າງຜູ້ຂາຍ. ຮອງຮັບ American Express ແລະ :link.',
-    'us_banks' => '400+ ທະນາຄານສະຫະລັດ',
-
     'pro_plan_remove_logo' => ':ລິ້ງເພື່ອລຶບໂລໂກ້ Invoice Ninja ໂດຍການເຂົ້າຮ່ວມໂຄງການ Pro',
     'pro_plan_remove_logo_link' => 'ຄລິກທີ່ນີ້',
     'invitation_status_sent' => 'ສົ່ງແລ້ວ',
@@ -1044,7 +1026,6 @@ $lang = array(
     'email_error_user_unregistered' => 'ກະລຸນາລົງທະບຽນບັນຊີຂອງທ່ານເພື່ອສົ່ງອີເມວ',
     'email_error_user_unconfirmed' => 'ກະລຸນາຢືນຢັນບັນຊີຂອງທ່ານເພື່ອສົ່ງອີເມວ',
     'email_error_invalid_contact_email' => 'ອີເມລ໌ຕິດຕໍ່ບໍ່ຖືກຕ້ອງ',
-
     'navigation' => 'ການນໍາທາງ',
     'list_invoices' => 'ບັນຊີລາຍການ',
     'list_clients' => 'ລາຍຊື່ລູກຄ້າ',
@@ -1056,8 +1037,6 @@ $lang = array(
     'list_credits' => 'ລາຍການສິນເຊື່ອ',
     'tax_name' => 'ຊື່ພາສີ',
     'report_settings' => 'ລາຍງານການຕັ້ງຄ່າ',
-    'search_hotkey' => 'ທາງລັດແມ່ນ /',
-
     'new_user' => 'ຜູ້ໃຊ້ໃໝ່',
     'new_product' => 'ສິນຄ້າໃໝ່',
     'new_tax_rate' => 'ອັດຕາພາສີໃໝ່',
@@ -1307,8 +1286,6 @@ $lang = array(
     'braintree_paypal_help_link_text' => 'ເຊື່ອມຕໍ່ PayPal ກັບບັນຊີ BrainTree ຂອງທ່ານ',
     'token_billing_braintree_paypal' => 'ບັນທຶກລາຍລະອຽດການຈ່າຍເງິນ',
     'add_paypal_account' => 'ເພີ່ມບັນຊີ PayPal',
-
-
     'no_payment_method_specified' => 'ບໍ່ໄດ້ລະບຸວິທີຈ່າຍເງິນ',
     'chart_type' => 'ປະເພດຕາຕະລາງ',
     'format' => 'ຮູບແບບ',
@@ -1377,9 +1354,7 @@ $lang = array(
 
     'bank_account' => 'ບັນຊີທະນາຄານ',
     'payment_processed_through_wepay' => 'ການຈ່າຍເງິນ ACH ຈະຖືກປະມວນຜົນໂດຍໃຊ້ WePay.',
-    'wepay_payment_tos_agree' => 'ຂ້ອຍເຫັນດີນຳ WePay : ເງື່ອນໄຂ ແລະ : ນະໂຍບາຍຄວາມເປັນສ່ວນຕົວ.',
     'privacy_policy' => 'ນະໂຍບາຍຄວາມເປັນສ່ວນຕົວ',
-    'wepay_payment_tos_agree_required' => 'ທ່ານຕ້ອງຕົກລົງເຫັນດີກັບເງື່ອນໄຂການໃຫ້ບໍລິການ ແລະນະໂຍບາຍຄວາມເປັນສ່ວນຕົວຂອງ WePay.',
     'ach_email_prompt' => 'ກະລຸນາໃສ່ທີ່ຢູ່ອີເມວຂອງເຈົ້າ:',
     'verification_pending' => 'ລໍຖ້າການຢັ້ງຢືນ',
 
@@ -1820,19 +1795,12 @@ $lang = array(
     'bot_emailed_notify_paid' => 'ຂ້ອຍຈະສົ່ງອີເມວຫາເຈົ້າເມື່ອຈ່າຍເງິນແລ້ວ.',
     'add_product_to_invoice' => 'ເພີ່ມ 1: ຜະລິດຕະພັນ',
     'not_authorized' => 'ເຈົ້າບໍ່ໄດ້ຮັບອະນຸຍາດ',
-    'bot_get_code' => 'ຂອບໃຈ! ຂ້ອຍໄດ້ສົ່ງອີເມວຫາເຈົ້າພ້ອມກັບລະຫັດຄວາມປອດໄພຂອງເຈົ້າ.',
-    'bot_welcome' => 'ນັ້ນແລ້ວ, ບັນຊີຂອງທ່ານໄດ້ຮັບການຢັ້ງຢືນແລ້ວ.<br/>',
     'email_not_found' => 'ຂ້ອຍບໍ່ສາມາດຊອກຫາບັນຊີທີ່ມີຢູ່ສໍາລັບ :email',
     'invalid_code' => 'ລະຫັດບໍ່ຖືກຕ້ອງ',
-    'security_code_email_subject' => 'ລະຫັດຄວາມປອດໄພສໍາລັບ Invoice Ninja Bot',
-    'security_code_email_line1' => 'ນີ້ແມ່ນລະຫັດຄວາມປອດໄພຂອງ Invoice Ninja Bot ຂອງທ່ານ.',
-    'security_code_email_line2' => 'ໝາຍເຫດ: ມັນຈະໝົດອາຍຸໃນ 10 ນາທີ.',
     'list_products' => 'ລາຍການຜະລິດຕະພັນ',
 
     'include_item_taxes_inline' => 'ລວມ <b>ພາສີລາຍການໃນແຖວທັງໝົດ</b>',
     'created_quotes' => 'ສ້າງສຳເລັດແລ້ວ : count quotes(s)',
-    'limited_gateways' => 'ຫມາຍເຫດ: ພວກເຮົາສະຫນັບສະຫນູນຫນຶ່ງປະຕູບັດເຄຣດິດຕໍ່ບໍລິສັດ.',
-
     'warning' => 'ຄຳເຕືອນ',
     'self-update' => 'ອັບເດດ',
     'update_invoiceninja_title' => 'ອັບເດດໃບແຈ້ງໜີ້ Ninja',
@@ -2082,7 +2050,6 @@ $lang = array(
 
     // New Client Portal styling
     'invoice_from' => 'ໃບເກັບເງິນຈາກ:',
-    'email_alias_message' => 'ພວກເຮົາຕ້ອງການໃຫ້ແຕ່ລະບໍລິສັດມີທີ່ຢູ່ອີເມວທີ່ເປັນເອກະລັກ.<br/>ພິຈາລະນາໃຊ້ນາມແຝງ. ie, email+label@example.com',
     'full_name' => 'ຊື່ເຕັມ',
     'month_year' => 'ເດືອນ/ປີ',
     'valid_thru' => 'ຖືກຕ້ອງ\nຜ່ານ',
@@ -2151,7 +2118,6 @@ $lang = array(
     'fees_disabled_for_gateway' => 'ຄ່າທຳນຽມຖືກປິດການນຳໃຊ້ສຳລັບປະຕູນີ້.',
     'logout_and_delete' => 'ອອກຈາກລະບົບ/ລຶບບັນຊີ',
     'tax_rate_type_help' => 'ອັດຕາພາສີລວມປັບລາຄາລາຍການລາຍການເມື່ອເລືອກ.<br/>ອັດຕາພາສີສະເພາະເທົ່ານັ້ນທີ່ສາມາດນຳໃຊ້ເປັນຄ່າເລີ່ມຕົ້ນໄດ້.',
-    'invoice_footer_help' => 'ໃຊ້ $pageNumber ແລະ $pageCount ເພື່ອສະແດງຂໍ້ມູນໜ້າ.',
     'credit_note' => 'ບັນທຶກສິນເຊື່ອ',
     'credit_issued_to' => 'ສິນເຊື່ອອອກໃຫ້',
     'credit_to' => 'ສິນເຊື່ອໃຫ້',
@@ -2175,11 +2141,6 @@ $lang = array(
     'import_complete' => 'ການນຳເຂົ້າຂອງເຈົ້າສຳເລັດແລ້ວ.',
     'confirm_account_to_import' => 'ກະລຸນາຢືນຢັນບັນຊີຂອງທ່ານເພື່ອນໍາເຂົ້າຂໍ້ມູນ.',
     'import_started' => 'ການນໍາເຂົ້າຂອງທ່ານໄດ້ເລີ່ມຕົ້ນ, ພວກເຮົາຈະສົ່ງອີເມວໃຫ້ທ່ານເມື່ອມັນສໍາເລັດ.',
-    'listening' => 'ຟັງ...',
-    'microphone_help' => 'ເວົ້າວ່າ "ໃບແຈ້ງໜີ້ໃໝ່ສຳລັບ [ລູກຄ້າ]" ຫຼື "ສະແດງການຊຳລະທີ່ເກັບໄວ້ຂອງ [ລູກຄ້າ]" ໃຫ້ຂ້ອຍເບິ່ງ"',
-    'voice_commands' => 'ຄຳສັ່ງສຽງ',
-    'sample_commands' => 'ຄໍາສັ່ງຕົວຢ່າງ',
-    'voice_commands_feedback' => 'ພວກເຮົາກຳລັງເຮັດວຽກຢ່າງຫ້າວຫັນເພື່ອປັບປຸງຄຸນສົມບັດນີ້, ຖ້າມີຄຳສັ່ງທີ່ທ່ານຕ້ອງການໃຫ້ພວກເຮົາສະໜັບສະໜູນ ກະລຸນາສົ່ງອີເມວຫາພວກເຮົາທີ່: ອີເມວ.',
     'payment_type_Venmo' => 'ເວນໂມ',
     'payment_type_Money Order' => 'ຄໍາສັ່ງເງິນ',
     'archived_products' => 'ເກັບສຳເລັດແລ້ວ: ນັບສິນຄ້າ',
@@ -2220,7 +2181,6 @@ $lang = array(
     'empty' => 'ຫວ່າງ',
     'load_design' => 'ອອກແບບການໂຫຼດ',
     'accepted_card_logos' => 'ໂລໂກ້ບັດທີ່ຍອມຮັບ',
-    'phantomjs_local_and_cloud' => 'ໃຊ້ PhantomJS ທ້ອງຖິ່ນ, ກັບຄືນສູ່ phantomjscloud.com',
     'google_analytics' => 'Google Analytics',
     'analytics_key' => 'ກະແຈການວິເຄາະ',
     'analytics_key_help' => 'ຕິດຕາມການຈ່າຍເງິນໂດຍໃຊ້ :link',
@@ -2269,7 +2229,6 @@ $lang = array(
     'product_notes' => 'ຫມາຍເຫດຜະລິດຕະພັນ',
     'app_version' => 'ເວີຊັນແອັບ',
     'ofx_version' => 'ລຸ້ນ OFX',
-    'error_app_key_set_to_default' => 'ຜິດພາດ: APP_KEY ຖືກຕັ້ງເປັນຄ່າເລີ່ມຕົ້ນ, ເພື່ອອັບເດດມັນສໍາຮອງຖານຂໍ້ມູນຂອງເຈົ້າແລ້ວແລ່ນ <code>php artisan ninja:update-key</code>',
     'charge_late_fee' => 'ຄິດຄ່າທໍານຽມຊ້າ',
     'late_fee_amount' => 'ຈໍານວນຄ່າທໍານຽມຊ້າ',
     'late_fee_percent' => 'ເປີເຊັນຄ່າທໍານຽມຊ້າ',
@@ -2410,7 +2369,6 @@ $lang = array(
     'review_app_help' => 'ພວກ​ເຮົາ​ຫວັງ​ວ່າ​ທ່ານ​ຈະ​ມີ​ຄວາມ​ສຸກ​ກັບ​ການ​ນໍາ​ໃຊ້ app ໄດ້.<br/>ຖ້າ​ຫາກ​ວ່າ​ທ່ານ \'ພິ​ຈາ​ລະ​ນາ :link ພວກ​ເຮົາ​ຈະ​ຂໍ​ຂອບ​ໃຈ​ເປັນ​ຢ່າງ​ຍິ່ງ​!',
     'writing_a_review' => 'ຂຽນບົດວິຈານ',
 
-    'use_english_version' => 'ໃຫ້ແນ່ໃຈວ່າໃຊ້ໄຟລ໌ສະບັບພາສາອັງກິດ.<br/>ພວກເຮົາໃຊ້ສ່ວນຫົວຄໍລໍາເພື່ອໃຫ້ກົງກັບຊ່ອງຂໍ້ມູນ.',
     'tax1' => 'ພາສີທຳອິດ',
     'tax2' => 'ພາສີທີສອງ',
     'fee_help' => 'ຄ່າທຳນຽມທາງປະຕູແມ່ນຄ່າທຳນຽມສຳລັບການເຂົ້າເຖິງເຄືອຂ່າຍການເງິນທີ່ຈັດການການດຳເນີນການຈ່າຍເງິນອອນໄລນ໌.',
@@ -2750,7 +2708,6 @@ $lang = array(
     'email_address_changed_message' => 'ທີ່ຢູ່ອີເມວສຳລັບບັນຊີຂອງທ່ານໄດ້ຖືກປ່ຽນຈາກ :old_email ເປັນ :new_email.',
     'test' => 'ທົດສອບ',
     'beta' => 'ເບຕ້າ',
-    'gmp_required' => 'ການສົ່ງອອກໄປຍັງ ZIP ຕ້ອງການການຂະຫຍາຍ GMP',
     'email_history' => 'ປະຫວັດອີເມວ',
     'loading' => 'ກຳລັງໂຫລດ',
     'no_messages_found' => 'ບໍ່ພົບຂໍ້ຄວາມ',
@@ -3213,7 +3170,6 @@ $lang = array(
     'welcome_to_the_new_version' => 'ຍິນດີຕ້ອນຮັບສູ່ລຸ້ນໃໝ່ຂອງ Invoice Ninja',
     'next_step_data_download' => 'ໃນຂັ້ນຕອນຕໍ່ໄປ, ພວກເຮົາຈະໃຫ້ທ່ານດາວໂຫຼດຂໍ້ມູນຂອງທ່ານເພື່ອເຄື່ອນຍ້າຍ.',
     'download_data' => 'ກົດປຸ່ມຂ້າງລຸ່ມນີ້ເພື່ອດາວໂຫລດຂໍ້ມູນ.',
-    'migration_import' => 'ສຸດຍອດ! ໃນປັດຈຸບັນທ່ານພ້ອມທີ່ຈະນໍາເຂົ້າການເຄື່ອນຍ້າຍຂອງທ່ານ. ໄປທີ່ການຕິດຕັ້ງໃຫມ່ຂອງທ່ານເພື່ອນໍາເຂົ້າຂໍ້ມູນຂອງທ່ານ',
     'continue' => 'ສືບຕໍ່',
     'company1' => 'ບໍລິສັດກຳນົດເອງ 1',
     'company2' => 'ບໍລິສັດກຳນົດເອງ 2',
@@ -5255,6 +5211,8 @@ $lang = array(
     'select_provider' => 'ເລືອກຜູ້ໃຫ້ບໍລິການ',
     'nordigen_requisition_subject' => 'Requisition expired, please reauthenticate.',
     'nordigen_requisition_body' => 'Access to bank account feeds has expired as set in End User Agreement. <br><br>Please log into Invoice Ninja and re-authenticate with your banks to continue receiving transactions.',
+    'participant' => 'Participant',
+    'participant_name' => 'Participant name',
 );
 
 return $lang;
