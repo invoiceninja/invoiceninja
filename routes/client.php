@@ -161,6 +161,6 @@ Route::fallback(function () {
 
 })->middleware('throttle:404');
 
-
-Route::get('client/email_preferences/{clientContact}', [EmailPreferencesController::class, 'index'])->name('client.email_preferences');
-Route::put('client/email_preferences/{clientContact}', [EmailPreferencesController::class, 'update']);
+// Fix me: Move into invite_db middleware group.
+Route::get('client/email_preferences/{clientContact}/{invitation_key}', [EmailPreferencesController::class, 'index'])->name('client.email_preferences');
+Route::put('client/email_preferences/{clientContact}/{invitation_key}', [EmailPreferencesController::class, 'update']);
