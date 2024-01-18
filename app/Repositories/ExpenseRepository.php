@@ -48,7 +48,7 @@ class ExpenseRepository extends BaseRepository
 
         if(isset($data['payment_date']) && $data['payment_date'] == $expense->payment_date) {
             //do nothing
-        } elseif(isset($data['payment_date']) && strlen($data['payment_date']) > 1 && $user->company()->notify_vendor_when_paid && ($data['vendor_id'] || $expense->vendor_id)) {
+        } elseif(isset($data['payment_date']) && strlen($data['payment_date']) > 1 && $user->company()->notify_vendor_when_paid && (isset($data['vendor_id']) || $expense->vendor_id)) {
             nlog("ping");
             $this->notify_vendor = true;
         }

@@ -408,7 +408,7 @@ class InvoiceController extends BaseController
         }
 
         if ($invoice->isLocked()) {
-            return response()->json(['message' => ctrans('texts.locked_invoice')], 403);
+            return response()->json(['message' => ctrans('texts.locked_invoice')], 422);
         }
 
         $old_invoice = $invoice->line_items;

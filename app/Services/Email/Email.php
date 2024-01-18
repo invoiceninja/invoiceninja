@@ -463,6 +463,21 @@ class Email implements ShouldQueue
         return false;
     }
 
+    private function setHostedMailgunMailer()
+    {
+        
+        if (property_exists($this->email_object->settings, 'email_from_name') && strlen($this->email_object->settings->email_from_name) > 1) {
+            $email_from_name = $this->email_object->settings->email_from_name;
+        } else {
+            $email_from_name = $this->company->present()->name();
+        }
+
+        $this->mailable
+         ->from(config('services.mailgun.from.address'), $email_from_name);
+
+    }
+
+    
     /**
      * Sets the mail driver to use and applies any specific configuration
      * the the mailable
@@ -472,6 +487,11 @@ class Email implements ShouldQueue
         switch ($this->email_object->settings->email_sending_method) {
             case 'default':
                 $this->mailer = config('mail.default');
+                // $this->setHostedMailgunMailer(); //should only be activated if hosted platform needs to fall back to mailgun
+                break;
+            case 'mailgun':
+                $this->mailer = 'mailgun';
+                $this->setHostedMailgunMailer();
                 break;
             case 'gmail':
                 $this->mailer = 'gmail';

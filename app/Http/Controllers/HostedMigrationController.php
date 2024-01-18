@@ -32,19 +32,19 @@ class HostedMigrationController extends Controller
         if(!$c || $c->is_disabled)
             return response()->json(['message' => 'ok'], 200);
 
-        if(\App\Models\Invoice::query()->where('company_id', $c->id)->where('created_at', '>', now()->subMonths(2))->first())
-            return response()->json(['message' => 'New data exists, are you sure? Please log in here https://app.invoicing.co and delete the company if you really need to migrate again.'], 400);
+        // if(\App\Models\Invoice::query()->where('company_id', $c->id)->where('created_at', '>', now()->subMonths(2))->first())
+        //     return response()->json(['message' => 'New data exists, are you sure? Please log in here https://app.invoicing.co and delete the company if you really need to migrate again.'], 400);
     
-        if(\App\Models\Client::query()->where('company_id', $c->id)->where('created_at', '>', now()->subMonths(2))->first()) 
-            return response()->json(['message' => 'New data exists, are you sure? Please log in here https://app.invoicing.co and delete the company if you really need to migrate again.'], 400);
+        // if(\App\Models\Client::query()->where('company_id', $c->id)->where('created_at', '>', now()->subMonths(2))->first()) 
+        //     return response()->json(['message' => 'New data exists, are you sure? Please log in here https://app.invoicing.co and delete the company if you really need to migrate again.'], 400);
         
-        if(\App\Models\Quote::query()->where('company_id', $c->id)->where('created_at', '>', now()->subMonths(2))) 
-            return response()->json(['message' => 'New data exists, are you sure? Please log in here https://app.invoicing.co and delete the company if you really need to migrate again.'], 400);
+        // if(\App\Models\Quote::query()->where('company_id', $c->id)->where('created_at', '>', now()->subMonths(2))) 
+        //     return response()->json(['message' => 'New data exists, are you sure? Please log in here https://app.invoicing.co and delete the company if you really need to migrate again.'], 400);
 
-        if(\App\Models\RecurringInvoice::query()->where('company_id', $c->id)->where('created_at', '>', now()->subMonths(2))) 
-            return response()->json(['message' => 'New data exists, are you sure? Please log in here https://app.invoicing.co and delete the company if you really need to migrate again.'], 400);
+        // if(\App\Models\RecurringInvoice::query()->where('company_id', $c->id)->where('created_at', '>', now()->subMonths(2))) 
+        //     return response()->json(['message' => 'New data exists, are you sure? Please log in here https://app.invoicing.co and delete the company if you really need to migrate again.'], 400);
 
-        return response()->json(['message' => 'ok'], 200);
+        return response()->json(['message' => 'You have already activated this company on v5!!!!!! This migration may be a BAD idea. Contact us contact@invoiceninja.com to confirm this action.'], 400);
 
     }
 

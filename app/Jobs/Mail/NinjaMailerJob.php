@@ -258,6 +258,11 @@ class NinjaMailerJob implements ShouldQueue
         switch ($this->nmo->settings->email_sending_method) {
             case 'default':
                 $this->mailer = config('mail.default');
+                // $this->setHostedMailgunMailer(); //should only be activated if hosted platform needs to fall back to mailgun
+                break;
+            case 'mailgun':
+                $this->mailer = 'mailgun';
+                $this->setHostedMailgunMailer();
                 break;
             case 'gmail':
                 $this->mailer = 'gmail';
@@ -363,6 +368,21 @@ class NinjaMailerJob implements ShouldQueue
         }
 
         return $user;
+    }
+
+    private function setHostedMailgunMailer()
+    {
+        
+        if (property_exists($this->nmo->settings, 'email_from_name') && strlen($this->nmo->settings->email_from_name) > 1) {
+            $email_from_name = $this->nmo->settings->email_from_name;
+        } else {
+            $email_from_name = $this->company->present()->name();
+        }
+
+        $this->nmo
+         ->mailable
+         ->from(config('services.mailgun.from.address'), $email_from_name);
+
     }
 
     /**
