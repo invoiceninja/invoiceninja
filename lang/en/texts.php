@@ -5213,6 +5213,8 @@ $lang = array(
     'nordigen_requisition_body' => 'Access to bank account feeds has expired as set in End User Agreement. <br><br>Please log into Invoice Ninja and re-authenticate with your banks to continue receiving transactions.',
     'participant' => 'Participant',
     'participant_name' => 'Participant name',
+    'client_unsubscribed' => 'Client changed e-mail preferences',
+    'client_unsubscribed_help' => 'Client :client changed preferences and unsubscribed from e-mails.',
 );
 
 return $lang;
