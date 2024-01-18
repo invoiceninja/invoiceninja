@@ -765,8 +765,6 @@ class HtmlEngine
             $data[$key] = $value['value'];
         }
 
-        info("here 3");
-
         return $data;
     }
 
