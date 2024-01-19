@@ -5216,6 +5216,9 @@ $lang = array(
     'client_unsubscribed' => 'Client changed e-mail preferences',
     'client_unsubscribed_help' => 'Client :client changed preferences and unsubscribed from e-mails.',
     'resubscribe' => 'Resubscribe',
+    'subscribe' => 'Subscribe',
+    'subscribe_help' => 'You are currently subscribed and will continue to receive email communications.',
+    'unsubscribe_help' => 'You are currently not subscribed, and therefore, will not receive emails at this time.',
 );
 
 return $lang;
