@@ -9,27 +9,33 @@ ctrans('texts.preferences')) @section('body')
                 alt="{{ $company->present()->name() }}"
             />
             <h1 class="text-center text-2xl mt-10">
-                {{ ctrans('texts.email_settings') }}
+                {{ ctrans('texts.email_preferences') }}
             </h1>
 
-            <form class="my-4" method="post">
-                @csrf @method('put')
-
-                <label for="receive_emails">
-                    <input type="checkbox" name="receive_emails"
-                    id="receive_emails"
-                    {{ $receive_emails ? 'checked' : '' }} />
-
-                    <span>
-                        {{ ctrans('texts.resubscribe') }}
-                    </span>
-                </label>
-
-                <div class="block my-4">
-                    <button class="button button-secondary button-block">
-                        {{ ctrans('texts.save') }}
+            <form class="my-4 flex flex-col items-center text-center" method="post">
+                @csrf @method('put') 
+                
+                @if($receive_emails)
+                    <p>{{ ctrans('texts.subscribe_help') }}</p>
+                    
+                    <button
+                        name="action"
+                        value="unsubscribe"
+                        class="button button-secondary mt-4"
+                    >
+                        {{ ctrans('texts.unsubscribe') }}
                     </button>
-                </div>
+                @else
+                    <p>{{ ctrans('texts.unsubscribe_help') }}</p>
+
+                    <button
+                        name="action"
+                        value="subscribe"
+                        class="button button-secondary mt-4"
+                    >
+                        {{ ctrans('texts.subscribe') }}
+                    </button>
+                @endif
             </form>
         </div>
     </div>
