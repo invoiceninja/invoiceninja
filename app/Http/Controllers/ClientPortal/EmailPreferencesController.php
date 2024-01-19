@@ -36,11 +36,10 @@ class EmailPreferencesController extends Controller
 
     public function update(string $entity, string $invitation_key, Request $request): \Illuminate\Http\RedirectResponse
     {
-     
         $class = "\\App\\Models\\" . ucfirst(Str::camel($entity)) . 'Invitation';
         $invitation = $class::withTrashed()->where('key', $invitation_key)->firstOrFail();
 
-        $invitation->contact->is_locked = $request->has('receive_emails') ? false : true;
+        $invitation->contact->is_locked = $request->action === 'unsubscribe' ? true : false;
         $invitation->contact->push();
 
         if ($invitation->contact->is_locked) {
