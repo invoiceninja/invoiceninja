@@ -117,7 +117,7 @@ class ACH
         $api_url = $postData['api_url'].'/paymentintent/add';
 
         try {
-            $params = ['currency' => $data['currency'], 'amount' => $data['amount'],'payment_type' => 'Ach'];
+            $params = ['currency' => $data['currency'], 'amount' => $data['amount'],'payment_type' => 'ach'];
 
             $response = Http::withHeaders($postData['headers'])->post($api_url, $params);
 
@@ -144,7 +144,7 @@ class ACH
 
             return render('gateways.easymerchant.ach.pay', $data);
         }else {
-            throw new PaymentFailed($e->getMessage(), $e->getCode());
+            throw new PaymentFailed($result['message'], 500);
         }
     }
 
