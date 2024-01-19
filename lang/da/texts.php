@@ -272,13 +272,6 @@ $lang = array(
     'erase_data' => 'Din konto er ikke registreret, dette vil slette dine data.',
     'password' => 'Kodeord',
     'pro_plan_product' => 'Pro Plan',
-    'pro_plan_success' => 'Tak fordi du valgte Invoice Ninja\'s Pro plan!<p/>&nbsp;<br/>
-                  <b>De næste skridt</b><p/>En betalbar faktura er sendt til den e-mail adresse
-                  som er tilknyttet din konto. For at låse op for alle de utrolige
-                  Pro-funktioner, skal du følge instruktionerne på fakturaen til at
-                  betale for et år med fakturering på Pro-niveau.<p/>
-                  Kan du ikke finde fakturaen? Har behov for mere hjælp? Vi hjælper dig gerne hvis der skulle være noget galt
-                  -- kontakt os på contact@invoiceninja.com',
     'unsaved_changes' => 'Du har ændringer som ikke er gemt',
     'custom_fields' => 'Brugerdefineret felt',
     'company_fields' => 'Selskabets felt',
@@ -395,7 +388,6 @@ $lang = array(
     'bought_designs' => 'Yderligere fakturadesigns tilføjet',
     'sent' => 'Sendt',
     'vat_number' => 'CVR/SE-nummer',
-    'timesheets' => 'Timesedler',
     'payment_title' => 'Indtast din fakturaadresse og kreditkortinformation',
     'payment_cvv' => 'Dette er det 3-4 cifrede nummer på bagsiden af dit kort',
     'payment_footer1' => '*Fakturaadressen skal matche den der er tilknyttet kortet.',
@@ -437,7 +429,6 @@ $lang = array(
     'reset_all' => 'Nulstil alle',
     'approve' => 'Godkend',
     'token_billing_type_id' => 'Tokensk Fakturering',
-    'token_billing_help' => 'Gem betalingsoplysninger med WePay, Stripe, Braintree eller GoCardless.',
     'token_billing_1' => 'Slukket',
     'token_billing_2' => 'Tilvalg - checkboks er vist men ikke valgt',
     'token_billing_3' => 'Fravalg - checkboks er vist og valgt',
@@ -515,8 +506,8 @@ $lang = array(
     'auto_wrap' => 'Automatisk linie ombrydning',
     'duplicate_post' => 'Advarsel: den foregående side blev sendt to gange. Den anden afsendelse er blevet ignoreret.',
     'view_documentation' => 'Vis dokumentation',
-    'app_title' => 'Fri, open-source onlinefakturaer',
-    'app_description' => 'Invoice Ninja er en fri, open-source løsning til fakturaer og fakturering. Med Invoice Ninja kan du let bygge og sende flotte fakturaer fra enhver enhed, der har adgang til internettet. Dine kunder kan udskrive dine fakturaer, hente dem som pdf-filer, og endda betale dig online via systemet.',
+    'app_title' => 'Free Online Invoicing',
+    'app_description' => 'Invoice Ninja is a free, open-code solution for invoicing and billing customers. With Invoice Ninja, you can easily build and send beautiful invoices from any device that has access to the web. Your clients can print your invoices, download them as pdf files, and even pay you online from within the system.',
     'rows' => 'rækker',
     'www' => 'www',
     'logo' => 'Logo',
@@ -653,7 +644,6 @@ $lang = array(
     'recurring_invoice' => 'Gentaget faktura',
     'new_recurring_quote' => 'Nyt gentaget tilbud',
     'recurring_quote' => 'Gentaget tilbud',
-    'recurring_too_soon' => 'Det er for tidligt at generere den næste faktura, it\'s scheduled for :date',
     'created_by_invoice' => 'Oprettet fra :invoice',
     'primary_user' => 'Primær bruger',
     'help' => 'Hjælp',
@@ -674,9 +664,6 @@ $lang = array(
     'status_unpaid' => 'Ubetalt',
     'status_all' => 'Alle',
     'show_line_item_tax' => 'Display <b>line item taxes</b> inline',
-    'iframe_url' => 'Website',
-    'iframe_url_help1' => 'Copy the following code to a page on your site.',
-    'iframe_url_help2' => 'You can test the feature by clicking \'View as recipient\' for an invoice.',
     'auto_bill' => 'Auto Bill',
     'military_time' => '24 Hour Time',
     'last_sent' => 'Last Sent',
@@ -1019,8 +1006,6 @@ $lang = array(
     'trial_call_to_action' => 'Start Free Trial',
     'trial_success' => 'Successfully enabled two week free pro plan trial',
     'overdue' => 'Overdue',
-
-
     'white_label_text' => 'Køb et ET-ÅRIGT hvidmærket licens til $:price for at fjerne Invoice Ninja-brandingen fra fakturaen og klientportalen.',
     'user_email_footer' => 'For at justere varslings indstillingene besøg venligst :link',
     'reset_password_footer' => 'Hvis du ikke bad om at få nulstillet din adgangskode kontakt venligst kundeservice: :email',
@@ -1029,9 +1014,6 @@ $lang = array(
     'old_browser' => 'Benyt venligst et :link',
     'newer_browser' => 'nyere browser',
     'white_label_custom_css' => ':link for $:price to enable custom styling and help support our project.',
-    'bank_accounts_help' => 'Tilknyt en bankkonto for automatisk import af udgifter og oprettelse af sælgere. Understøtter American Express og :link.',
-    'us_banks' => '400+ amerikanske banker',
-
     'pro_plan_remove_logo' => ':link for at fjerne Invoice Ninja-logoet, opgrader til en Pro Plan',
     'pro_plan_remove_logo_link' => 'Klik her',
     'invitation_status_sent' => 'Sendt',
@@ -1044,7 +1026,6 @@ $lang = array(
     'email_error_user_unregistered' => 'Please register your account to send emails',
     'email_error_user_unconfirmed' => 'Please confirm your account to send emails',
     'email_error_invalid_contact_email' => 'Invalid contact email',
-
     'navigation' => 'Navigation',
     'list_invoices' => 'List Invoices',
     'list_clients' => 'List Clients',
@@ -1056,8 +1037,6 @@ $lang = array(
     'list_credits' => 'List Credits',
     'tax_name' => 'Tax Name',
     'report_settings' => 'Report Settings',
-    'search_hotkey' => 'shortcut is /',
-
     'new_user' => 'New User',
     'new_product' => 'New Product',
     'new_tax_rate' => 'New Tax Rate',
@@ -1306,8 +1285,6 @@ $lang = array(
     'braintree_paypal_help_link_text' => 'link PayPal til din BrainTree-konto',
     'token_billing_braintree_paypal' => 'Gem betalingsoplysninger',
     'add_paypal_account' => 'Tilføj PayPal-konto',
-
-
     'no_payment_method_specified' => 'Der er ikke angivet nogen betalingsmetode',
     'chart_type' => 'Diagramtype',
     'format' => 'Format',
@@ -1376,9 +1353,7 @@ $lang = array(
 
     'bank_account' => 'Bankkonto',
     'payment_processed_through_wepay' => 'ACH-betalinger behandles med WePay.',
-    'wepay_payment_tos_agree' => 'Jeg accepterer WePay :vilkår og :privacy_policy.',
     'privacy_policy' => 'Privatlivspolitik',
-    'wepay_payment_tos_agree_required' => 'Du skal acceptere WePays Servicevilkår og Privatlivspolitik.',
     'ach_email_prompt' => 'Indtast venligst din e-mail adresse:',
     'verification_pending' => 'Afventer bekræftelse',
 
@@ -1819,19 +1794,12 @@ $lang = array(
     'bot_emailed_notify_paid' => 'Jeg sender dig en e-mail, når den er betalt',
     'add_product_to_invoice' => 'Tilføj 1 :product',
     'not_authorized' => 'Du er ikke autoriseret',
-    'bot_get_code' => 'Tak! Jeg har sendt dig en e-mail med din sikkerhedskode.',
-    'bot_welcome' => 'Det er det, din konto er verificeret.<br/>',
     'email_not_found' => 'Jeg kunne ikke finde en tilgængelig konto til :e-mail',
     'invalid_code' => 'Koden er ikke korrekt',
-    'security_code_email_subject' => 'Sikkerhedskode til Invoice Ninja Bot',
-    'security_code_email_line1' => 'Dette er din Invoice Ninja Bot sikkerhedskode.',
-    'security_code_email_line2' => 'Bemærk: den udløber om 10 minutter.',
     'list_products' => 'Liste over produkter',
 
     'include_item_taxes_inline' => 'Inkluder<b>linjepost skatter i linjen i alt</b>',
     'created_quotes' => 'Oprettelse vellykket :tæl tilbud',
-    'limited_gateways' => 'Bemærk: vi understøtter én kreditkortgateway per virksomhed.',
-
     'warning' => 'Advarsel',
     'self-update' => 'Opdatér',
     'update_invoiceninja_title' => 'Opdatér Invoice Ninja',
@@ -2081,7 +2049,6 @@ $lang = array(
 
     // New Client Portal styling
     'invoice_from' => 'Fakturaer fra:',
-    'email_alias_message' => 'Vi kræver, at hver virksomhed har en unik e-mail .<br/> Overvej at bruge et alias. dvs. e-mail +label@example.com',
     'full_name' => 'Fulde navn',
     'month_year' => 'MÅNED ÅR',
     'valid_thru' => 'Gyldig\ntil',
@@ -2150,7 +2117,6 @@ $lang = array(
     'fees_disabled_for_gateway' => 'Gebyrer er deaktiveret for denne Gateway .',
     'logout_and_delete' => 'Log ud/ Slet konto',
     'tax_rate_type_help' => 'Inklusiv momssatser justerer linjepostens pris, når den er valgt.<br/> Kun eksklusive skattesatser kan bruges som standard.',
-    'invoice_footer_help' => 'Brug $pageNumber og $pageCount til at vise sideoplysningerne.',
     'credit_note' => 'Kreditnota',
     'credit_issued_to' => 'Kredit udstedt til',
     'credit_to' => 'Kredit til',
@@ -2174,11 +2140,6 @@ $lang = array(
     'import_complete' => 'Din import blev gennemført med succes.',
     'confirm_account_to_import' => 'Bekræft venligst din konto for at importere data.',
     'import_started' => 'Din import er påbegyndt, vi sender dig en e-mail når den er gennemført.',
-    'listening' => 'Lytter...',
-    'microphone_help' => 'Sig &quot;ny Faktura for [ Klient ]&quot; eller &quot;vis mig [ Klient ]s arkiveret Betalinger &quot;',
-    'voice_commands' => 'Talekommandoer',
-    'sample_commands' => 'Eksempel på kommandoer',
-    'voice_commands_feedback' => 'Vi arbejder aktivt på at forbedre denne funktion. Hvis der er en kommando, du gerne vil have os til at understøtte, så send os e-mail på :email .',
     'payment_type_Venmo' => 'Venmo',
     'payment_type_Money Order' => 'Postanvisning',
     'archived_products' => 'Succesfuldt arkiveret :count produkter',
@@ -2219,7 +2180,6 @@ $lang = array(
     'empty' => 'Tom',
     'load_design' => 'Indlæs design',
     'accepted_card_logos' => 'Accepterede kortlogoer',
-    'phantomjs_local_and_cloud' => 'Ved at bruge lokale PhantomJS, falder tilbage til phantomjscloud.com',
     'google_analytics' => 'Google Analytics',
     'analytics_key' => 'Analytics nøgle',
     'analytics_key_help' => 'Spor Betalinger ved hjælp af :link',
@@ -2268,7 +2228,6 @@ $lang = array(
     'product_notes' => 'Produktnoter',
     'app_version' => 'App version',
     'ofx_version' => 'OFX version',
-    'error_app_key_set_to_default' => 'Fejl: APP_KEY er indstillet til en standardværdi, for at opdatere den sikkerhedskopiere din database og derefter køre <code>php artisan ninja:update-key</code>',
     'charge_late_fee' => 'Opkræve forsinkelsesgebyr',
     'late_fee_amount' => 'Sengebyr Beløb',
     'late_fee_percent' => 'Forsinket gebyr i procent',
@@ -2409,7 +2368,6 @@ $lang = array(
     'review_app_help' => 'Vi håber, du nyder at bruge appen.<br/> Hvis du ville overveje :link ville vi sætte stor pris på det!',
     'writing_a_review' => 'skrive en anmeldelse',
 
-    'use_english_version' => 'Sørg for at bruge den engelske version af filerne.<br/> Vi bruger kolonneoverskrifterne til at matche felterne.',
     'tax1' => 'Første skat',
     'tax2' => 'Anden skat',
     'fee_help' => 'Gateway gebyrer er de omkostninger, der opkræves for adgang til de finansielle netværk, der varetager behandlingen af online Betalinger .',
@@ -2749,7 +2707,6 @@ $lang = array(
     'email_address_changed_message' => 'e-mail for din konto er blevet ændret fra :old_email til :new_email .',
     'test' => 'Prøve',
     'beta' => 'Beta',
-    'gmp_required' => 'Eksport til ZIP kræver GMP-udvidelsen',
     'email_history' => 'e-mail historie',
     'loading' => 'Indlæser',
     'no_messages_found' => 'Ingen beskeder fundet',
@@ -3212,7 +3169,6 @@ $lang = array(
     'welcome_to_the_new_version' => 'Velkommen til den nye version af Faktura Ninja',
     'next_step_data_download' => 'På næste trin lader vi dig downloade dine data til migreringen.',
     'download_data' => 'Tryk på knappen nedenfor for at downloade dataene.',
-    'migration_import' => 'Fantastisk! Nu er du klar til at importere din migrering. Gå til din nye installation for at importere dine data',
     'continue' => 'Blive ved',
     'company1' => 'Speciel 1',
     'company2' => 'Speciel 2',
@@ -5247,6 +5203,15 @@ $lang = array(
     'nordigen_handler_error_contents_requisition_no_accounts' => 'The service has not returned any valid accounts. Considder restarting the flow.',
     'nordigen_handler_restart' => 'Restart flow.',
     'nordigen_handler_return' => 'Return to application.',
+    'lang_Lao' => 'Lao',
+    'currency_lao_kip' => 'Lao kip',
+    'yodlee_regions' => 'Regions: USA, UK, Australia & India',
+    'nordigen_regions' => 'Regions: Europe & UK',
+    'select_provider' => 'Select Provider',
+    'nordigen_requisition_subject' => 'Requisition expired, please reauthenticate.',
+    'nordigen_requisition_body' => 'Access to bank account feeds has expired as set in End User Agreement. <br><br>Please log into Invoice Ninja and re-authenticate with your banks to continue receiving transactions.',
+    'participant' => 'Participant',
+    'participant_name' => 'Participant name',
 );
 
 return $lang;
