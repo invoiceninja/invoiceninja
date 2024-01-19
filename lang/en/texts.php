@@ -5215,6 +5215,7 @@ $lang = array(
     'participant_name' => 'Participant name',
     'client_unsubscribed' => 'Client changed e-mail preferences',
     'client_unsubscribed_help' => 'Client :client changed preferences and unsubscribed from e-mails.',
+    'resubscribe' => 'Resubscribe',
 );
 
 return $lang;

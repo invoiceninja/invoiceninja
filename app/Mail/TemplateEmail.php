@@ -139,7 +139,7 @@ class TemplateEmail extends Mailable
                 'whitelabel' => $this->client->user->account->isPaid() ? true : false,
                 'logo' => $this->company->present()->logo($settings),
                 'links' => $this->build_email->getAttachmentLinks(),
-                'email_preferences' => URL::signedRoute('client.email_preferences', ['invitation_key' => $this->invitation->key, 'clientContact' => $this->contact->hashed_id]),
+                'email_preferences' => URL::signedRoute('client.email_preferences', ['entity' => $this->invitation->getEntityString(), 'invitation_key' => $this->invitation->key]),
             ]);
 
         foreach ($this->build_email->getAttachments() as $file) {

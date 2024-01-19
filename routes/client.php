@@ -133,6 +133,9 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'clie
     Route::get('{entity}/{invitation_key}/download', [App\Http\Controllers\ClientPortal\InvitationController::class, 'routerForDownload'])->middleware('token_auth');
     Route::get('pay/{invitation_key}', [App\Http\Controllers\ClientPortal\InvitationController::class, 'payInvoice'])->name('pay.invoice');
 
+    Route::get('email_preferences/{entity}/{invitation_key}', [EmailPreferencesController::class, 'index'])->name('email_preferences')->middleware('signed');
+    Route::put('email_preferences/{entity}/{invitation_key}', [EmailPreferencesController::class, 'update']);
+
     Route::get('unsubscribe/{entity}/{invitation_key}', [App\Http\Controllers\ClientPortal\InvitationController::class, 'unsubscribe'])->name('unsubscribe');
 });
 
@@ -162,5 +165,3 @@ Route::fallback(function () {
 })->middleware('throttle:404');
 
 // Fix me: Move into invite_db middleware group.
-Route::get('client/email_preferences/{clientContact}/{invitation_key}', [EmailPreferencesController::class, 'index'])->name('client.email_preferences');
-Route::put('client/email_preferences/{clientContact}/{invitation_key}', [EmailPreferencesController::class, 'update']);

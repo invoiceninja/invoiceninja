@@ -4,9 +4,9 @@ ctrans('texts.preferences')) @section('body')
     <div class="m-auto md:w-1/3 lg:w-1/5">
         <div class="flex flex-col items-center">
             <img
-                src="{{ $logo }}"
+                src="{{ $company->present()->logo() }}"
                 class="border-gray-100 h-18 pb-4"
-                alt="Invoice Ninja logo"
+                alt="{{ $company->present()->name() }}"
             />
             <h1 class="text-center text-2xl mt-10">
                 {{ ctrans('texts.email_settings') }}
@@ -15,13 +15,13 @@ ctrans('texts.preferences')) @section('body')
             <form class="my-4" method="post">
                 @csrf @method('put')
 
-                <label for="recieve_emails">
-                    <input type="checkbox" name="recieve_emails"
-                    id="recieve_emails"
-                    {{ $recieve_emails ? 'checked' : '' }} />
+                <label for="receive_emails">
+                    <input type="checkbox" name="receive_emails"
+                    id="receive_emails"
+                    {{ $receive_emails ? 'checked' : '' }} />
 
                     <span>
-                        {{ ctrans('texts.recieve_emails') }}
+                        {{ ctrans('texts.resubscribe') }}
                     </span>
                 </label>
 

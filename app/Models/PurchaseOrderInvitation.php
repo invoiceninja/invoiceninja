@@ -97,6 +97,11 @@ class PurchaseOrderInvitation extends BaseModel
         return self::class;
     }
 
+    public function getEntityString(): string
+    {
+        return 'purchase_order';
+    }
+
     public function entityType()
     {
         return PurchaseOrder::class;

@@ -240,7 +240,7 @@
                              style="padding-top: 10px;padding-bottom: 10px; background-color: #242424; border: 1px solid #c2c2c2; border-top-color: #242424; border-bottom-color: #242424;">
                                 <a href="{{ $email_preferences }}">
                                     <p style="text-align: center; color: #ffffff; font-size: 10px; font-family: Verdana, Geneva, Tahoma, sans-serif;">
-                                        {{ ctrans('texts.email_preferences') }}
+                                        {{ ctrans('texts.unsubscribe') }}
                                     </p>
                                 </a>
                         </div>

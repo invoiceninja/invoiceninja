@@ -19,38 +19,38 @@ use App\Jobs\Mail\NinjaMailerObject;
 use App\Mail\Admin\ClientUnsubscribedObject;
 use App\Models\ClientContact;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class EmailPreferencesController extends Controller
 {
-    public function index(ClientContact $clientContact, Request $request): \Illuminate\View\View
+    public function index(string $entity, string $invitation_key, Request $request): \Illuminate\View\View
     {
-        if (!$request->hasValidSignature()) {
-            abort(404);
-        }
+        $class = "\\App\\Models\\".ucfirst(Str::camel($entity)).'Invitation';
+        $invitation = $class::where('key', $invitation_key)->firstOrFail();
 
-        $data['recieve_emails'] = $clientContact->is_locked ? false : true;
-        $data['logo'] = $clientContact->company->present()->logo();
+        $data['receive_emails'] = $invitation->contact->is_locked ? false : true;
+        $data['company'] = $invitation->company;
 
         return $this->render('generic.email_preferences', $data);
     }
 
-    public function update(ClientContact $clientContact, Request $request): \Illuminate\Http\RedirectResponse
+    public function update(string $entity, string $invitation_key, Request $request): \Illuminate\Http\RedirectResponse
     {
-        if (!$request->hasValidSignature()) {
-            abort(404);
-        }
+     
+        $class = "\\App\\Models\\" . ucfirst(Str::camel($entity)) . 'Invitation';
+        $invitation = $class::withTrashed()->where('key', $invitation_key)->firstOrFail();
 
-        $clientContact->is_locked = $request->has('recieve_emails') ? false : true;
-        $clientContact->save();
+        $invitation->contact->is_locked = $request->has('receive_emails') ? false : true;
+        $invitation->contact->push();
 
-        if ($clientContact->is_locked) {
+        if ($invitation->contact->is_locked) {
             $nmo = new NinjaMailerObject();
-            $nmo->mailable = new NinjaMailer((new ClientUnsubscribedObject($clientContact, $clientContact->company))->build());
-            $nmo->company = $clientContact->company;
-            $nmo->to_user = $clientContact->company->owner();
-            $nmo->settings = $clientContact->company->settings;
+            $nmo->mailable = new NinjaMailer((new ClientUnsubscribedObject($invitation->contact, $invitation->contact->company))->build());
+            $nmo->company = $invitation->contact->company;
+            $nmo->to_user = $invitation->contact->company->owner();
+            $nmo->settings = $invitation->contact->company->settings;
 
-            (new NinjaMailerJob($nmo))->handle();
+            NinjaMailerJob::dispatch($nmo);
         }
 
         return back()->with('message', ctrans('texts.updated_settings'));

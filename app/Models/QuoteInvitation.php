@@ -78,6 +78,11 @@ class QuoteInvitation extends BaseModel
         return self::class;
     }
 
+    public function getEntityString(): string
+    {
+        return 'quote';
+    }
+
     public function entityType()
     {
         return Quote::class;
