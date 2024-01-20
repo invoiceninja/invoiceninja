@@ -27,7 +27,9 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 
 class UpdateUserLastLogin implements ShouldQueue
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     /**
      * Create the event listener.
@@ -52,7 +54,7 @@ class UpdateUserLastLogin implements ShouldQueue
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($event->company->settings));
         App::setLocale($event->company->locale());
-        
+
         $user = $event->user;
         $user->last_login = now();
         $user->save();
@@ -61,9 +63,9 @@ class UpdateUserLastLogin implements ShouldQueue
         $ip = array_key_exists('ip', $event->event_vars) ? $event->event_vars['ip'] : 'IP address not resolved';
         $key = "user_logged_in_{$user->id}{$event->company->db}";
 
-        
+
         if ($user->ip != $ip && is_null(Cache::get($key)) && $user->user_logged_in_notification) {
-            $nmo = new NinjaMailerObject;
+            $nmo = new NinjaMailerObject();
             $nmo->mailable = new UserLoggedIn($user, $user->account->companies->first(), $ip);
             $nmo->company = $user->account->companies->first();
             $nmo->settings = $user->account->companies->first()->settings;
@@ -73,7 +75,7 @@ class UpdateUserLastLogin implements ShouldQueue
             $user->ip = $ip;
             $user->save();
         }
-        
+
         Cache::put($key, true, 60 * 24);
         $arr = json_encode(['ip' => $ip]);
         $arr = ctrans('texts.new_login_detected'). " {$ip}";

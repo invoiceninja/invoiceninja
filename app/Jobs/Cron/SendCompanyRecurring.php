@@ -37,7 +37,7 @@ class SendCompanyRecurring
      *
      * @return void
      */
-    public function handle() : void
+    public function handle(): void
     {
         MultiDB::setDB($this->db);
 

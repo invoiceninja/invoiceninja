@@ -50,9 +50,9 @@ class PaymentCreatedActivity implements ShouldQueue
             $invoice_id = $payment->invoices()->first()->id;
         }
 
-        $user_id = array_key_exists('user_id', $event->event_vars) ? $event->event_vars['user_id'] : $event->payment->user_id;
+        $user_id = isset($event->event_vars['user_id']) ? $event->event_vars['user_id'] : $event->payment->user_id;
 
-        $fields = new stdClass;
+        $fields = new stdClass();
 
         $fields->payment_id = $payment->id;
         $fields->invoice_id = $invoice_id;
@@ -60,6 +60,7 @@ class PaymentCreatedActivity implements ShouldQueue
         $fields->user_id = $user_id;
         $fields->company_id = $payment->company_id;
         $fields->activity_type_id = Activity::CREATE_PAYMENT;
+        $fields->client_contact_id = $payment->client_contact_id ?? null;
 
         $this->activity_repo->save($fields, $payment, $event->event_vars);
 

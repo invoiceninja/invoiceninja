@@ -27,7 +27,7 @@ class BulkActionPaymentRequest extends Request
 
     public function rules()
     {
-       
+
         return [
             'action' => 'required|string',
             'ids' => 'required|array',

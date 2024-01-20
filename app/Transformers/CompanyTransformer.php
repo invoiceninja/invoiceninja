@@ -116,7 +116,7 @@ class CompanyTransformer extends EntityTransformer
      */
     public function transform(Company $company)
     {
-        $std = new stdClass;
+        $std = new stdClass();
 
         return [
             'id' => (string) $this->encodePrimaryKey($company->id),
@@ -198,7 +198,7 @@ class CompanyTransformer extends EntityTransformer
             'notify_vendor_when_paid' => (bool) $company->notify_vendor_when_paid,
             'invoice_task_hours' => (bool) $company->invoice_task_hours,
             'calculate_taxes' => (bool) $company->calculate_taxes,
-            'tax_data' => $company->tax_data ?: new \stdClass,
+            'tax_data' => $company->tax_data ?: new \stdClass(),
             'has_e_invoice_certificate' => $company->e_invoice_certificate ? true : false,
             'has_e_invoice_certificate_passphrase' => $company->e_invoice_certificate_passphrase ? true : false,
             'invoice_task_project_header' => (bool) $company->invoice_task_project_header,

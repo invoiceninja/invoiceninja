@@ -23,7 +23,6 @@ use League\Csv\Writer;
 
 class ExpenseExport extends BaseExport
 {
-
     private $expense_transformer;
 
     private Decorator $decorator;
@@ -56,7 +55,7 @@ class ExpenseExport extends BaseExport
                     $row = $this->buildRow($resource);
                     return $this->processMetaData($row, $resource);
                 })->toArray();
-        
+
         return array_merge(['columns' => $header], $report);
     }
 
@@ -103,11 +102,11 @@ class ExpenseExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Expense $expense) :array
+    private function buildRow(Expense $expense): array
     {
         $transformed_expense = $this->expense_transformer->transform($expense);
         $transformed_expense['currency_id'] =  $expense->currency ? $expense->currency->code : $expense->company->currency()->code;
-        
+
         $entity = [];
 
         foreach (array_values($this->input['report_keys']) as $key) {
@@ -130,7 +129,7 @@ class ExpenseExport extends BaseExport
         return $this->decorateAdvancedFields($expense, $entity);
     }
 
-    private function decorateAdvancedFields(Expense $expense, array $entity) :array
+    private function decorateAdvancedFields(Expense $expense, array $entity): array
     {
         // if (in_array('expense.currency_id', $this->input['report_keys'])) {
         //     $entity['expense.currency_id'] = $expense->currency ? $expense->currency->code : '';

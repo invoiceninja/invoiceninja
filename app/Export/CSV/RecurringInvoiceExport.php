@@ -23,7 +23,6 @@ use League\Csv\Writer;
 
 class RecurringInvoiceExport extends BaseExport
 {
-
     private $invoice_transformer;
 
     public string $date_key = 'date';
@@ -101,12 +100,12 @@ class RecurringInvoiceExport extends BaseExport
                     $row = $this->buildRow($resource);
                     return $this->processMetaData($row, $resource);
                 })->toArray();
-        
+
         return array_merge(['columns' => $header], $report);
     }
 
 
-    private function buildRow(RecurringInvoice $invoice) :array
+    private function buildRow(RecurringInvoice $invoice): array
     {
         $transformed_invoice = $this->invoice_transformer->transform($invoice);
 
@@ -118,10 +117,9 @@ class RecurringInvoiceExport extends BaseExport
 
             if (is_array($parts) && $parts[0] == 'recurring_invoice' && array_key_exists($parts[1], $transformed_invoice)) {
                 $entity[$key] = $transformed_invoice[$parts[1]];
-            } elseif($parts[0] == 'item'){
+            } elseif($parts[0] == 'item') {
                 $entity[$key] = '';
-            } 
-            else {
+            } else {
                 // nlog($key);
                 $entity[$key] = $this->decorator->transform($key, $invoice);
                 // $entity[$key] = '';
@@ -134,7 +132,7 @@ class RecurringInvoiceExport extends BaseExport
         return $this->decorateAdvancedFields($invoice, $entity);
     }
 
-    private function decorateAdvancedFields(RecurringInvoice $invoice, array $entity) :array
+    private function decorateAdvancedFields(RecurringInvoice $invoice, array $entity): array
     {
         // if (in_array('country_id', $this->input['report_keys'])) {
         //     $entity['country'] = $invoice->client->country ? ctrans("texts.country_{$invoice->client->country->name}") : '';

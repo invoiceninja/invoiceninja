@@ -22,7 +22,10 @@ use Illuminate\Queue\SerializesModels;
 
 class InvoiceWorkflowSettings implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $client;
 

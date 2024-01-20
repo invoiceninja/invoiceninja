@@ -28,7 +28,7 @@ class UpdateRecurringQuoteRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         return auth()->user()->can('edit', $this->recurring_quote);
     }
@@ -48,7 +48,7 @@ class UpdateRecurringQuoteRequest extends Request
         } elseif ($this->file('file')) {
             $rules['file'] = $this->file_validation;
         }
-        
+
         if ($this->number) {
             $rules['number'] = Rule::unique('recurring_quotes')->where('company_id', auth()->user()->company()->id)->ignore($this->recurring_quote->id);
         }
@@ -85,7 +85,7 @@ class UpdateRecurringQuoteRequest extends Request
      *
      * @return bool
      */
-    private function setAutoBillFlag($auto_bill) :bool
+    private function setAutoBillFlag($auto_bill): bool
     {
         if ($auto_bill == 'always') {
             return true;

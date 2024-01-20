@@ -47,7 +47,7 @@ class CreditFilters extends QueryFilters
         if (in_array('draft', $status_parameters)) {
             $credit_filters[] = Credit::STATUS_DRAFT;
         }
-        
+
         if (in_array('sent', $status_parameters)) {
             $credit_filters[] = Credit::STATUS_SENT;
         }
@@ -60,7 +60,7 @@ class CreditFilters extends QueryFilters
             $credit_filters[] = Credit::STATUS_APPLIED;
         }
 
-        if (count($credit_filters) >=1) {
+        if (count($credit_filters) >= 1) {
             $this->builder->whereIn('status_id', $credit_filters);
         }
 
@@ -106,7 +106,7 @@ class CreditFilters extends QueryFilters
         if (strlen($value) == 0) {
             return $this->builder;
         }
-        
+
         return $this->builder->where(function ($query) {
             $query->whereIn('status_id', [Credit::STATUS_SENT, Credit::STATUS_PARTIAL])
                   ->where('balance', '>', 0)

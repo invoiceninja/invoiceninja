@@ -20,7 +20,7 @@ class EditTaskRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         return auth()->user()->can('edit', $this->task);
     }

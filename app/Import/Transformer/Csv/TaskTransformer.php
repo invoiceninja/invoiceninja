@@ -34,7 +34,7 @@ class TaskTransformer extends BaseTransformer
         } else {
             $task_data = reset($task_items_data);
         }
-        
+
         $clientId = $this->getClient(
             $this->getString($task_data, 'client.name'),
             $this->getString($task_data, 'client.email')
@@ -79,7 +79,7 @@ class TaskTransformer extends BaseTransformer
         $end_date = false;
 
         $notes = $item['task.notes'] ?? '';
-        
+
         if(isset($item['task.is_billable']) && is_string($item['task.is_billable']) && in_array($item['task.is_billable'], ['yes', 'true', '1'])) {
             $is_billable = true;
         } elseif(isset($item['task.is_billable']) && is_bool($item['task.is_billable'])) {
@@ -114,13 +114,13 @@ class TaskTransformer extends BaseTransformer
 
             $stub_start_date = \Carbon\Carbon::parse($stub_start_date);
             $this->stubbed_timestamp = $stub_start_date->timestamp;
-            
+
             return $stub_start_date->timestamp;
         } catch (\Exception $e) {
             nlog($e->getMessage());
             return $this->stubbed_timestamp;
         }
-        
+
     }
 
     private function resolveEndDate($item)
@@ -145,7 +145,7 @@ class TaskTransformer extends BaseTransformer
 
             return $this->stubbed_timestamp;
         }
-        
+
     }
 
     private function getTaskStatusId($item): ?int

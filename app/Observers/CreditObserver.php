@@ -50,7 +50,7 @@ class CreditObserver
         if ($credit->getOriginal('deleted_at') && !$credit->deleted_at) {
             $event = Webhook::EVENT_RESTORE_CREDIT;
         }
-        
+
         if ($credit->is_deleted) {
             $event = Webhook::EVENT_DELETE_CREDIT;
         }
@@ -75,7 +75,7 @@ class CreditObserver
         if ($credit->is_deleted) {
             return;
         }
-        
+
         $subscriptions = Webhook::where('company_id', $credit->company_id)
                                     ->where('event_id', Webhook::EVENT_ARCHIVE_CREDIT)
                                     ->exists();

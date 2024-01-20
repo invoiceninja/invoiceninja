@@ -41,9 +41,9 @@ class CreatedSubscriptionActivity implements ShouldQueue
     {
         MultiDB::setDb($event->company->db);
 
-        $fields = new stdClass;
+        $fields = new stdClass();
 
-        $user_id = array_key_exists('user_id', $event->event_vars) ? $event->event_vars['user_id'] : $event->subscription->user_id;
+        $user_id = isset($event->event_vars['user_id']) ? $event->event_vars['user_id'] : $event->subscription->user_id;
 
         $fields->subscription_id = $event->subscription->id;
         $fields->user_id = $user_id;

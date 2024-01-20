@@ -46,7 +46,7 @@ class ContactHashLoginController extends Controller
     {
         return redirect($this->setRedirectPath());
     }
-    
+
     /**
      * Generic error page for client portal.
      *

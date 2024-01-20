@@ -23,7 +23,7 @@ class CsvImportCompleted extends Mailable
 
     /** @var Company */
     public $company;
-    
+
     /**
      * @var array $data Array containing the necessary params.
      *

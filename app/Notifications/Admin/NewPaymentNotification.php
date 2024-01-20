@@ -87,7 +87,7 @@ class NewPaymentNotification extends Notification
 
         $invoice_texts = substr($invoice_texts, 0, -1);
 
-        return (new SlackMessage)
+        return (new SlackMessage())
                 ->success()
                 //->to("#devv2")
                 ->from('System')

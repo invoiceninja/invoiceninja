@@ -53,7 +53,7 @@ class DocumentController extends Controller
     }
 
 
-    private function sidebarMenu() :array
+    private function sidebarMenu(): array
     {
         $enabled_modules = auth()->guard('vendor')->user()->company->enabled_modules;
         $data = [];

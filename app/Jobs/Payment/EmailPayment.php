@@ -29,7 +29,10 @@ use Illuminate\Queue\SerializesModels;
 
 class EmailPayment implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $email_builder;
 
@@ -67,7 +70,7 @@ class EmailPayment implements ShouldQueue
             if (!$this->contact) {
                 $this->contact = $this->payment->client->contacts()->first();
             }
-                
+
             $this->contact->load('client');
 
             $email_builder = (new PaymentEmailEngine($this->payment, $this->contact))->build();
@@ -79,7 +82,7 @@ class EmailPayment implements ShouldQueue
 
             $invitation = null;
 
-            $nmo = new NinjaMailerObject;
+            $nmo = new NinjaMailerObject();
 
             if ($this->payment->invoices && $this->payment->invoices->count() >= 1) {
 
@@ -113,7 +116,7 @@ class EmailPayment implements ShouldQueue
 
         $invoice->invitations->each(function ($invite) use ($email_builder) {
 
-            $nmo = new NinjaMailerObject;
+            $nmo = new NinjaMailerObject();
             $nmo->mailable = new TemplateEmail($email_builder, $invite->contact, $invite);
             $nmo->to_user = $invite->contact;
             $nmo->settings = $this->settings;
@@ -124,6 +127,6 @@ class EmailPayment implements ShouldQueue
             event(new PaymentWasEmailed($this->payment, $this->payment->company, $invite->contact, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         });
-        
+
     }
 }

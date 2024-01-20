@@ -16,9 +16,9 @@ use App\Models\RecurringQuote;
 
 class QuoteToRecurringQuoteFactory
 {
-    public static function create(Quote $quote) :RecurringQuote
+    public static function create(Quote $quote): RecurringQuote
     {
-        $recurring_quote = new RecurringQuote;
+        $recurring_quote = new RecurringQuote();
 
         $recurring_quote->status_id = RecurringQuote::STATUS_DRAFT;
         $recurring_quote->discount = $quote->discount;

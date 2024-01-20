@@ -37,9 +37,6 @@
                     ga('send', 'event', category, action, this.src);
                 }
             </script>
-            <script>
-                Vue.config.devtools = true;
-            </script>
         @else
             <script>
                 function gtag() {
@@ -65,7 +62,6 @@
 
         <!-- Scripts -->
         @vite('resources/js/app.js')
-        <script src="{{ asset('vendor/alpinejs@2.8.2/alpine.js') }}" defer></script>
 
         <!-- Fonts -->
         {{-- <link rel="dns-prefetch" href="https://fonts.gstatic.com"> --}}
@@ -124,7 +120,7 @@
             @yield('body')
         @endcomponent
 
-        @livewireScripts
+        @livewireScriptConfig 
 
         <script src="{{ asset('vendor/cookieconsent@3/cookieconsent.min.js') }}" data-cfasync="false"></script>
         <script>

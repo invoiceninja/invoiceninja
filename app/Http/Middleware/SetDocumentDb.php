@@ -29,7 +29,7 @@ class SetDocumentDb
     {
         $error = [
             'message' => 'Document not set or not found',
-            'errors' => new stdClass,
+            'errors' => new stdClass(),
         ];
 
         if (config('ninja.db.multi_db_enabled')) {

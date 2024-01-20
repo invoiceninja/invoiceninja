@@ -27,7 +27,7 @@ class ARSummaryReport extends BaseExport
     use MakesDates;
 
     public Writer $csv;
-    
+
     public string $date_key = 'created_at';
 
     public Client $client;
@@ -70,7 +70,7 @@ class ARSummaryReport extends BaseExport
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
         $this->csv = Writer::createFromString();
-        
+
         $this->csv->insertOne([]);
         $this->csv->insertOne([]);
         $this->csv->insertOne([]);
@@ -90,9 +90,9 @@ class ARSummaryReport extends BaseExport
             ->orderBy('balance', 'desc')
             ->cursor()
             ->each(function ($client) {
-                        
+
                 $this->csv->insertOne($this->buildRow($client));
-                        
+
             });
 
         return $this->csv->toString();
@@ -114,7 +114,7 @@ class ARSummaryReport extends BaseExport
             $this->getAgingAmount('120+'),
             Number::formatMoney($this->total, $this->client),
         ];
-        
+
         $this->total = 0;
 
         return $row;
@@ -210,7 +210,7 @@ class ARSummaryReport extends BaseExport
         }
     }
 
-    public function buildHeader() :array
+    public function buildHeader(): array
     {
         $header = [];
 

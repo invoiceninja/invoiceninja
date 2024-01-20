@@ -38,7 +38,15 @@ use Illuminate\Support\Facades\Storage;
 /** @deprecated 26-10-2023 5.7.30x */
 class CreatePurchaseOrderPdf implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter, MakesInvoiceHtml, PdfMaker, MakesHash, PageNumbering;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use NumberFormatter;
+    use MakesInvoiceHtml;
+    use PdfMaker;
+    use MakesHash;
+    use PageNumbering;
 
     public $entity;
 
@@ -67,7 +75,7 @@ class CreatePurchaseOrderPdf implements ShouldQueue
     {
         $this->invitation = $invitation;
         $this->company = $invitation->company;
-        
+
         $this->entity = $invitation->purchase_order;
         $this->entity_string = 'purchase_order';
 
@@ -75,7 +83,7 @@ class CreatePurchaseOrderPdf implements ShouldQueue
 
         $this->vendor = $invitation->contact->vendor;
         $this->vendor->load('company');
-        
+
         $this->disk = $disk ?? config('filesystems.default');
     }
 
@@ -89,7 +97,7 @@ class CreatePurchaseOrderPdf implements ShouldQueue
         ]);
 
         nlog("returning purchase order");
-        
+
         return $ps->boot()->getPdf();
 
 
@@ -102,7 +110,7 @@ class CreatePurchaseOrderPdf implements ShouldQueue
                 throw new FilePermissionsFailure($e->getMessage());
             }
         }
-        
+
         return $this->file_path;
     }
 
@@ -122,11 +130,11 @@ class CreatePurchaseOrderPdf implements ShouldQueue
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-            return (new Phantom)->generate($this->invitation, true);
+            return (new Phantom())->generate($this->invitation, true);
         }
 
         $entity_design_id = '';
-        
+
         $this->path = $this->vendor->purchase_order_filepath($this->invitation);
         $entity_design_id = 'purchase_order_design_id';
 
@@ -195,7 +203,7 @@ class CreatePurchaseOrderPdf implements ShouldQueue
                 }
             } else {
                 $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
-                
+
                 $numbered_pdf = $this->pageNumbering($pdf, $this->company);
 
                 if ($numbered_pdf) {
@@ -212,7 +220,7 @@ class CreatePurchaseOrderPdf implements ShouldQueue
 
         $maker = null;
         $state = null;
-        
+
         return $pdf;
     }
 

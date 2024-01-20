@@ -23,7 +23,7 @@ class ProductSalesReportRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         return auth()->user()->isAdmin();
     }
@@ -61,7 +61,7 @@ class ProductSalesReportRequest extends Request
             $input['end_date'] = null;
         }
 
-        if (array_key_exists('client_id', $input) && strlen($input['client_id']) >=1) {
+        if (array_key_exists('client_id', $input) && strlen($input['client_id']) >= 1) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
         }
 

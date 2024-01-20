@@ -23,6 +23,6 @@ trait ChecksEntityStatus
 
     public function disallowUpdate()
     {
-        return response()->json(['message'=>'Record is deleted and cannot be edited. Restore the record to enable editing'], 400);
+        return response()->json(['message' => 'Record is deleted and cannot be edited. Restore the record to enable editing'], 400);
     }
 }

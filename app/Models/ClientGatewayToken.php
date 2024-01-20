@@ -37,6 +37,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\GatewayType|null $gateway_type
  * @property-read mixed $hashed_id
  * @property-read \App\Models\User $user
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @mixin \Eloquent
  */
 class ClientGatewayToken extends BaseModel

@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $user_id
  * @property int $bank_integration_id
  * @property int $transaction_id
+ * @property string $nordigen_transaction_id
  * @property string $amount
  * @property string|null $currency_code
  * @property int|null $currency_id
@@ -71,11 +72,11 @@ class BankTransaction extends BaseModel
     use MakesHash;
     use Filterable;
 
-    const STATUS_UNMATCHED = 1;
+    public const STATUS_UNMATCHED = 1;
 
-    const STATUS_MATCHED = 2;
+    public const STATUS_MATCHED = 2;
 
-    const STATUS_CONVERTED = 3;
+    public const STATUS_CONVERTED = 3;
 
     protected $fillable = [
         'currency_id',

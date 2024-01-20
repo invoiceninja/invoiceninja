@@ -40,7 +40,7 @@ class CreateAccount
 
     protected $client_ip;
 
-    
+
 
     public function __construct(array $sp660339, $client_ip)
     {
@@ -109,7 +109,7 @@ class CreateAccount
 
         $spafe62e = isset($this->request['token_name']) ? $this->request['token_name'] : request()->server('HTTP_USER_AGENT');
         $sp2d97e8 = (new CreateCompanyToken($sp035a66, $spaa9f78, $spafe62e))->handle();
-        
+
         if ($spaa9f78) {
             event(new AccountCreated($spaa9f78, $sp035a66, Ninja::eventVars()));
         }
@@ -121,7 +121,7 @@ class CreateAccount
             $t = app('translator');
             $t->replace(Ninja::transformTranslations($sp035a66->settings));
 
-            $nmo = new NinjaMailerObject;
+            $nmo = new NinjaMailerObject();
             $nmo->mailable = new \Modules\Admin\Mail\Welcome($sp035a66->owner());
             $nmo->company = $sp035a66;
             $nmo->settings = $sp035a66->settings;
@@ -161,7 +161,7 @@ class CreateAccount
         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
             // split on @ and return last value of array (the domain)
             $domain = explode('@', $email);
-         
+
             $domain_name = end($domain);
 
             return $domain_name;

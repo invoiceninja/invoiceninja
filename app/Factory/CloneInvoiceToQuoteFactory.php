@@ -16,7 +16,7 @@ use App\Models\Quote;
 
 class CloneInvoiceToQuoteFactory
 {
-    public static function create(Invoice $invoice, $user_id) : ?Quote
+    public static function create(Invoice $invoice, $user_id): ?Quote
     {
         $quote = new Quote();
         $quote->discount = $invoice->discount;

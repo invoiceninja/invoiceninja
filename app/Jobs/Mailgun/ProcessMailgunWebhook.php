@@ -11,27 +11,26 @@
 
 namespace App\Jobs\Mailgun;
 
-use App\DataMapper\Analytics\Mail\EmailBounce;
-use App\DataMapper\Analytics\Mail\EmailSpam;
-use App\Jobs\Util\SystemLogger;
+use App\Utils\Ninja;
+use App\Models\Company;
+use App\Models\SystemLog;
 use App\Libraries\MultiDB;
+use Illuminate\Bus\Queueable;
+use App\Jobs\Util\SystemLogger;
+use App\Models\QuoteInvitation;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
+use Illuminate\Queue\SerializesModels;
+use Turbo124\Beacon\Facades\LightLogs;
 use App\Models\PurchaseOrderInvitation;
-use App\Models\QuoteInvitation;
+use Illuminate\Queue\InteractsWithQueue;
 use App\Models\RecurringInvoiceInvitation;
-use App\Models\SystemLog;
-use App\Notifications\Ninja\EmailSpamNotification;
-use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Mailgun\Mailgun;
-use Postmark\PostmarkClient;
-use Turbo124\Beacon\Facades\LightLogs;
-
-// TODO
+use App\DataMapper\Analytics\Mail\EmailSpam;
+use App\DataMapper\Analytics\Mail\EmailBounce;
+use App\Notifications\Ninja\EmailSpamNotification;
+use App\Notifications\Ninja\EmailBounceNotification;
 
 class ProcessMailgunWebhook implements ShouldQueue
 {
@@ -43,7 +42,9 @@ class ProcessMailgunWebhook implements ShouldQueue
 
     private $entity;
 
-    private array $default_response = [
+    private string $message_id = '';
+
+    private array $default_response =  [
         'recipients' => '',
         'subject' => 'Message not found.',
         'entity' => '',
@@ -62,11 +63,11 @@ class ProcessMailgunWebhook implements ShouldQueue
     private function getSystemLog(string $message_id): ?SystemLog
     {
         return SystemLog::query()
-            ->where('company_id', $this->invitation->company_id)
-            ->where('type_id', SystemLog::TYPE_WEBHOOK_RESPONSE)
-            ->whereJsonContains('log', ['id' => $message_id])
-            ->orderBy('id', 'desc')
-            ->first();
+                ->where('company_id', $this->invitation->company_id)
+                ->where('type_id', SystemLog::TYPE_WEBHOOK_RESPONSE)
+                ->whereJsonContains('log', ['MessageID' => $this->message_id])
+                ->orderBy('id', 'desc')
+                ->first();
 
     }
 
@@ -76,6 +77,8 @@ class ProcessMailgunWebhook implements ShouldQueue
         $system_log->save();
     }
 
+
+
     /**
      * Execute the job.
      *
@@ -84,24 +87,36 @@ class ProcessMailgunWebhook implements ShouldQueue
      */
     public function handle()
     {
-        MultiDB::findAndSetDbByCompanyKey($this->request['Tag']);
+        nlog($this->request);
 
-        $this->invitation = $this->discoverInvitation($this->request['message']['headers']['message-id']);
+        if(!$this->request['event-data']['tags'][0])
+            return;
+
+        MultiDB::findAndSetDbByCompanyKey($this->request['event-data']['tags'][0]);
+        $company = Company::where('company_key', $this->request['event-data']['tags'][0])->first();
+
+        if ($company && $this->request['event-data']['event'] == 'complained' && config('ninja.notification.slack')) {
+            $company->notification(new EmailSpamNotification($company))->ninja();
+        }
+
+        $this->message_id = $this->request['event-data']['message']['headers']['message-id'];
+
+        $this->request['MessageID'] = $this->message_id;
+
+        $this->invitation = $this->discoverInvitation($this->message_id);
 
         if (!$this->invitation) {
             return;
         }
 
-        if (array_key_exists('Details', $this->request)) {
-            $this->invitation->email_error = $this->request['Details'];
+        if (isset($this->request['event-details']['delivery-status']['message'])) {
+            $this->invitation->email_error = $this->request['event-details']['delivery-status']['message'];
         }
 
-        switch ($this->request['event'] ?? $this->request['severity']) {
+        switch ($this->request['event-data']['event']) {
             case 'delivered':
                 return $this->processDelivery();
             case 'failed':
-            case 'permanent':
-            case 'temporary':
                 return $this->processBounce();
             case 'complained':
                 return $this->processSpamComplaint();
@@ -113,263 +128,334 @@ class ProcessMailgunWebhook implements ShouldQueue
         }
     }
 
-    // {
-    //   "event": "opened",
-    //   "id": "-laxIqj9QWubsjY_3pTq_g",
-    //   "timestamp": 1377047343.042277,
-    //   "log-level": "info",
-    //   "recipient": "recipient@example.com",
-    //   "geolocation": {
-    //     "country": "US",
-    //     "region": "Texas",
-    //     "city": "Austin"
-    //   },
-    //   "tags": [],
-    //   "campaigns": [],
-    //   "user-variables": {},
-    //   "ip": "111.111.111.111",
-    //   "client-info": {
-    //     "client-type": "mobile browser",
-    //     "client-os": "iOS",
-    //     "device-type": "mobile",
-    //     "client-name": "Mobile Safari",
-    //     "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 6_1 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Mobile/10B143",
-    //     "bot": ""
-    //   },
-    //   "message": {
-    //     "headers": {
-    //       "message-id": "20130821005614.19826.35976@samples.mailgun.org"
-    //     }
-    //   },
-    // }
-
+/*
+{
+  "signature": {
+    "token": "7f388cf8096aa0bca1477aee9d91e156c61f8fa8282c7f1c0c",
+    "timestamp": "1705376308",
+    "signature": "a22b7c3dd4861e27a1664cef3611a1954c0665cfcaca9b8f35ee216243a4ce3f"
+  },
+  "event-data": {
+    "id": "Ase7i2zsRYeDXztHGENqRA",
+    "timestamp": 1521243339.873676,
+    "log-level": "info",
+    "event": "opened",
+    "message": {
+      "headers": {
+        "message-id": "20130503182626.18666.16540@mail.invoicing.co"
+      }
+    },
+    "recipient": "alice@example.com",
+    "recipient-domain": "example.com",
+    "ip": "50.56.129.169",
+    "geolocation": {
+      "country": "US",
+      "region": "CA",
+      "city": "San Francisco"
+    },
+    "client-info": {
+      "client-os": "Linux",
+      "device-type": "desktop",
+      "client-name": "Chrome",
+      "client-type": "browser",
+      "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.43 Safari/537.31"
+    },
+    "campaigns": [],
+    "tags": [
+      "my_tag_1",
+      "my_tag_2"
+    ],
+    "user-variables": {
+      "my_var_1": "Mailgun Variable #1",
+      "my-var-2": "awesome"
+    }
+  }
+}
+*/
     private function processOpen()
     {
         $this->invitation->opened_date = now();
         $this->invitation->save();
 
-        $data = array_merge($this->request, ['history' => $this->fetchMessage()]);
+        $sl = $this->getSystemLog($this->request['MessageID']);
 
-        $sl = $this->getSystemLog($this->request['message']['headers']['message-id']);
-
-        if ($sl) {
-            $this->updateSystemLog($sl, $data);
+        /** Prevents Gmail tracking from firing inappropriately */
+        if($this->request['signature']['timestamp'] < $sl->log['signature']['timestamp'] + 3)
             return;
+
+        $event = [
+            'bounce_id' => '',
+            'recipient' => $this->request['event-data']['recipient'] ?? '',
+            'status' => $this->request['event-data']['event'] ?? '',
+            'delivery_message' => collect($this->request['event-data']['client-info'])->implode(" ") ?? '',
+            'server' => collect($this->request['event-data']['geolocation'])->implode(" - ") ??  '',
+            'server_ip' => $this->request['event-data']['ip'] ?? '',
+            'date' => \Carbon\Carbon::parse($this->request['event-data']['timestamp'])->format('Y-m-d H:i:s') ?? '',
+        ];
+
+        if($sl) {
+            $data = $sl->log;
+            $data['history']['events'][] = $event;
+            $this->updateSystemLog($sl, $data);
         }
 
-        (new SystemLogger(
-            $data,
-            SystemLog::CATEGORY_MAIL,
-            SystemLog::EVENT_MAIL_OPENED,
-            SystemLog::TYPE_WEBHOOK_RESPONSE,
-            $this->invitation->contact->client,
-            $this->invitation->company
-        ))->handle();
     }
 
-    // {
-    //   "event": "delivered",
-    //   "id": "hK7mQVt1QtqRiOfQXta4sw",
-    //   "timestamp": 1529692199.626182,
-    //   "log-level": "info",
-    //   "envelope": {
-    //     "transport": "smtp",
-    //     "sender": "sender@example.org",
-    //     "sending-ip": "123.123.123.123",
-    //     "targets": "john@example.com"
-    //   },
-    //   "flags": {
-    //     "is-routed": false,
-    //     "is-authenticated": false,
-    //     "is-system-test": false,
-    //     "is-test-mode": false
-    //   },
-    //   "delivery-status": {
-    //     "tls": true,
-    //     "mx-host": "aspmx.l.example.com",
-    //     "code": 250,
-    //     "description": "",
-    //     "session-seconds": 0.4367079734802246,
-    //     "utf8": true,
-    //     "attempt-no": 1,
-    //     "message": "OK",
-    //     "certificate-verified": true
-    //   },
-    //   "message": {
-    //     "headers": {
-    //       "to": "team@example.org",
-    //       "message-id": "20180622182958.1.48906CB188F1A454@exmple.org",
-    //       "from": "sender@exmple.org",
-    //       "subject": "Test Subject"
-    //     },
-    //     "attachments": [],
-    //     "size": 586
-    //   },
-    //     "storage": {
-    //             "url": "https://storage-us-west1.api.mailgun.net/v3/domains/...",
-    //             "region": "us-west1",
-    //             "key": "AwABB...",
-    //             "env": "production"
-    //   },
-    //   "recipient": "john@example.com",
-    //   "recipient-domain": "example.com",
-    //   "campaigns": [],
-    //   "tags": [],
-    //   "user-variables": {}
-    // }
+/*
+{
+  "signature": {
+    "token": "70b91a64ed0f1bdf90fb9c6ea7e3c31d5792a3d0945ffc20fe",
+    "timestamp": "1705376276",
+    "signature": "ba96f841fc236e1bf5840b02fad512d0bd15b0731b5e6b154764c7a05f7ee999"
+  },
+  "event-data": {
+    "id": "CPgfbmQMTCKtHW6uIWtuVe",
+    "timestamp": 1521472262.908181,
+    "log-level": "info",
+    "event": "delivered",
+    "delivery-status": {
+      "tls": true,
+      "mx-host": "smtp-in.example.com",
+      "code": 250,
+      "description": "",
+      "session-seconds": 0.4331989288330078,
+      "utf8": true,
+      "attempt-no": 1,
+      "message": "OK",
+      "certificate-verified": true
+    },
+    "flags": {
+      "is-routed": false,
+      "is-authenticated": true,
+      "is-system-test": false,
+      "is-test-mode": false
+    },
+    "envelope": {
+      "transport": "smtp",
+      "sender": "bob@mail.invoicing.co",
+      "sending-ip": "209.61.154.250",
+      "targets": "alice@example.com"
+    },
+    "message": {
+      "headers": {
+        "to": "Alice <alice@example.com>",
+        "message-id": "20130503182626.18666.16540@mail.invoicing.co",
+        "from": "Bob <bob@mail.invoicing.co>",
+        "subject": "Test delivered webhook"
+      },
+      "attachments": [],
+      "size": 111
+    },
+    "recipient": "alice@example.com",
+    "recipient-domain": "example.com",
+    "storage": {
+      "url": "https://se.api.mailgun.net/v3/domains/mail.invoicing.co/messages/message_key",
+      "key": "message_key"
+    },
+    "campaigns": [],
+    "tags": [
+      "my_tag_1",
+      "my_tag_2"
+    ],
+    "user-variables": {
+      "my_var_1": "Mailgun Variable #1",
+      "my-var-2": "awesome"
+    }
+  }
+}
+*/
     private function processDelivery()
     {
         $this->invitation->email_status = 'delivered';
         $this->invitation->save();
 
-        $data = array_merge($this->request, ['history' => $this->fetchMessage()]);
+        $sl = $this->getSystemLog($this->request['MessageID']);
 
-        $sl = $this->getSystemLog($this->request['message']['headers']['message-id']);
-
-        if ($sl) {
+        if($sl) {
+            $data = $sl->log;
+            $data['history']['events'][] = $this->getEvent();
             $this->updateSystemLog($sl, $data);
             return;
         }
 
-        (new SystemLogger(
+        $data = array_merge($this->request, ['history' => $this->fetchMessage()]);
+
+        SystemLogger::dispatch(
             $data,
             SystemLog::CATEGORY_MAIL,
             SystemLog::EVENT_MAIL_DELIVERY,
             SystemLog::TYPE_WEBHOOK_RESPONSE,
             $this->invitation->contact->client,
             $this->invitation->company
-        ))->handle();
+        );
     }
 
-    // {
-    //   "event": "failed", || "temporary" || "permanent"
-    //   "id": "pl271FzxTTmGRW8Uj3dUWw",
-    //   "timestamp": 1529701969.818328,
-    //   "log-level": "error",
-    //   "severity": "permanent",
-    //   "reason": "suppress-bounce",
-    //   "envelope": {
-    //     "sender": "john@example.org",
-    //     "transport": "smtp",
-    //     "targets": "joan@example.com"
-    //   },
-    //   "flags": {
-    //     "is-routed": false,
-    //     "is-authenticated": true,
-    //     "is-system-test": false,
-    //     "is-test-mode": false
-    //   },
-    //   "delivery-status": {
-    //     "attempt-no": 1,
-    //     "message": "",
-    //     "code": 605,
-    //     "description": "Not delivering to previously bounced address",
-    //     "session-seconds": 0.0
-    //   },
-    //   "message": {
-    //     "headers": {
-    //       "to": "joan@example.com",
-    //       "message-id": "20180622211249.1.2A6098970A380E12@example.org",
-    //       "from": "john@example.org",
-    //       "subject": "Test Subject"
-    //     },
-    //     "attachments": [],
-    //     "size": 867
-    //   },
-    //   "storage": {
-    //     "url": "https://se.api.mailgun.net/v3/domains/example.org/messages/eyJwI...",
-    //     "key": "eyJwI..."
-    //   },
-    //   "recipient": "slava@mailgun.com",
-    //   "recipient-domain": "mailgun.com",
-    //   "campaigns": [],
-    //   "tags": [],
-    //   "user-variables": {}
-    // }
+    /*
+    {
+  "signature": {
+    "token": "7494a9089874cda8c478ba7608d15158229d5b8de41ddfdae8",
+    "timestamp": "1705376357",
+    "signature": "a8ba107ac919626526b76e46e43ba40e629833fafab8728d402f28476bad0c7b"
+  },
+  "event-data": {
+    "id": "G9Bn5sl1TC6nu79C8C0bwg",
+    "timestamp": 1521233195.375624,
+    "log-level": "error",
+    "event": "failed",
+    "severity": "permanent",
+    "reason": "suppress-bounce",
+    "delivery-status": {
+      "attempt-no": 1,
+      "message": "",
+      "code": 605,
+      "enhanced-code": "",
+      "description": "Not delivering to previously bounced address",
+      "session-seconds": 0
+    },
+    "flags": {
+      "is-routed": false,
+      "is-authenticated": true,
+      "is-system-test": false,
+      "is-test-mode": false
+    },
+    "envelope": {
+      "sender": "bob@mail.invoicing.co",
+      "transport": "smtp",
+      "targets": "alice@example.com"
+    },
+    "message": {
+      "headers": {
+        "to": "Alice <alice@example.com>",
+        "message-id": "20130503192659.13651.20287@mail.invoicing.co",
+        "from": "Bob <bob@mail.invoicing.co>",
+        "subject": "Test permanent_fail webhook"
+      },
+      "attachments": [],
+      "size": 111
+    },
+    "recipient": "alice@example.com",
+    "recipient-domain": "example.com",
+    "storage": {
+      "url": "https://se.api.mailgun.net/v3/domains/mail.invoicing.co/messages/message_key",
+      "key": "message_key"
+    },
+    "campaigns": [],
+    "tags": [
+      "my_tag_1",
+      "my_tag_2"
+    ],
+    "user-variables": {
+      "my_var_1": "Mailgun Variable #1",
+      "my-var-2": "awesome"
+    }
+  }
+}
+*/
     private function processBounce()
     {
         $this->invitation->email_status = 'bounced';
         $this->invitation->save();
 
         $bounce = new EmailBounce(
-            $this->request['tags']->implode(','),
-            $this->request['message']['headers']['from'],
-            $this->request['message']['headers']['message-id']
+            $this->request['event-data']['tags'][0],
+            $this->request['event-data']['envelope']['sender'],
+            $this->message_id
         );
 
-        LightLogs::create($bounce)->send();
+        LightLogs::create($bounce)->queue();
 
-        $data = array_merge($this->request, ['history' => $this->fetchMessage()]);
+        $sl = $this->getSystemLog($this->message_id);
 
-        $sl = $this->getSystemLog($this->request['message']['headers']['message-id']);
+        $event = [
+            'bounce_id' => $this->request['event-data']['id'],
+            'recipient' => $this->request['event-data']['recipient'] ?? '',
+            'status' => $this->request['event-data']['event'] ?? '',
+            'delivery_message' => $this->request['event-data']['delivery-status']['description'] ?? $this->request['event-data']['delivery-status']['message'] ?? '',
+            'server' => $this->request['event-data']['delivery-status']['mx-host'] ??  '',
+            'server_ip' => $this->request['event-data']['envelope']['sending-ip'] ?? '',
+            'date' => \Carbon\Carbon::parse($this->request['event-data']['timestamp'])->format('Y-m-d H:i:s') ?? '',
+        ];
 
-        if ($sl) {
+        if($sl) {
+            $data = $sl->log;
+            $data['history']['events'][] = $event;
             $this->updateSystemLog($sl, $data);
-            return;
         }
 
-        (new SystemLogger($data, SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_BOUNCED, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client, $this->invitation->company))->handle();
-
-        // if(config('ninja.notification.slack'))
-        // $this->invitation->company->notification(new EmailBounceNotification($this->invitation->company->account))->ninja();
     }
 
-    // {
-    //   "event": "opened",
-    //   "id": "-laxIqj9QWubsjY_3pTq_g",
-    //   "timestamp": 1377047343.042277,
-    //   "log-level": "info",
-    //   "recipient": "recipient@example.com",
-    //   "geolocation": {
-    //     "country": "US",
-    //     "region": "Texas",
-    //     "city": "Austin"
-    //   },
-    //   "tags": [],
-    //   "campaigns": [],
-    //   "user-variables": {},
-    //   "ip": "111.111.111.111",
-    //   "client-info": {
-    //     "client-type": "mobile browser",
-    //     "client-os": "iOS",
-    //     "device-type": "mobile",
-    //     "client-name": "Mobile Safari",
-    //     "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 6_1 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Mobile/10B143",
-    //     "bot": ""
-    //   },
-    //   "message": {
-    //     "headers": {
-    //       "message-id": "20130821005614.19826.35976@samples.mailgun.org"
-    //     }
-    //   },
-    // }
+/*
+{
+  "signature": {
+    "token": "d7be371deef49c8b187119df295e3eb17fd1974d513a4be2cb",
+    "timestamp": "1705376380",
+    "signature": "52f31c75b492d67be906423279e0effe563e28790ee65ba23a1b30006df649df"
+  },
+  "event-data": {
+    "id": "-Agny091SquKnsrW2NEKUA",
+    "timestamp": 1521233123.501324,
+    "log-level": "warn",
+    "event": "complained",
+    "envelope": {
+      "sending-ip": "173.193.210.33"
+    },
+    "flags": {
+      "is-test-mode": false
+    },
+    "message": {
+      "headers": {
+        "to": "Alice <alice@example.com>",
+        "message-id": "20110215055645.25246.63817@mail.invoicing.co",
+        "from": "Bob <bob@mail.invoicing.co>",
+        "subject": "Test complained webhook"
+      },
+      "attachments": [],
+      "size": 111
+    },
+    "recipient": "alice@example.com",
+    "campaigns": [],
+    "tags": [
+      "my_tag_1",
+      "my_tag_2"
+    ],
+    "user-variables": {
+      "my_var_1": "Mailgun Variable #1",
+      "my-var-2": "awesome"
+    }
+  }
+}
+*/
     private function processSpamComplaint()
     {
         $this->invitation->email_status = 'spam';
         $this->invitation->save();
 
         $spam = new EmailSpam(
-            $this->request['tags'],
-            $this->request['From'],
-            $this->request['message']['headers']['message-id']
+            $this->request['event-data']['tags'][0],
+            $this->request['event-data']['message']['headers']['from'],
+            $this->message_id
         );
 
-        LightLogs::create($spam)->send();
+        LightLogs::create($spam)->queue();
 
-        $data = array_merge($this->request, ['history' => $this->fetchMessage()]);
+        $sl = $this->getSystemLog($this->message_id);
 
-        $sl = $this->getSystemLog($this->request['message']['headers']['message-id']);
+        $event = [
+            'bounce_id' => '',
+            'recipient' => $this->request['event-data']['recipient'] ?? '',
+            'status' => $this->request['event-data']['event'] ?? '',
+            'delivery_message' => 'Spam Complaint',
+            'server' => '',
+            'server_ip' => $this->request['event-data']['envelope']['sending-ip'] ?? '',
+            'date' => \Carbon\Carbon::parse($this->request['event-data']['timestamp'])->format('Y-m-d H:i:s') ?? '',
+        ];
 
-        if ($sl) {
+        if($sl) {
+            $data = $sl->log;
+            $data['history']['events'][] = $event;
             $this->updateSystemLog($sl, $data);
-            return;
         }
 
-        (new SystemLogger($data, SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_SPAM_COMPLAINT, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client, $this->invitation->company))->handle();
-
-        if (config('ninja.notification.slack')) {
-            $this->invitation->company->notification(new EmailSpamNotification($this->invitation->company->account))->ninja();
-        }
     }
 
     private function discoverInvitation($message_id)
@@ -396,69 +482,23 @@ class ProcessMailgunWebhook implements ShouldQueue
         }
     }
 
-    public function getRawMessage(string $message_id)
-    {
-
-        $postmark = new PostmarkClient(config('services.postmark.token'));
-        $messageDetail = $postmark->getOutboundMessageDetails($message_id);
-        return $messageDetail;
-
-    }
-
-
-    // TODO: unknown
-    public function getBounceId(string $message_id): ?int
-    {
-
-        $messageDetail = $this->getRawMessage($message_id);
-
-
-        $event = collect($messageDetail->messageevents)->first(function ($event) {
-
-            return $event?->Details?->BounceID ?? false;
-
-        });
-
-        return $event?->Details?->BounceID ?? null;
-
-    }
-
     private function fetchMessage(): array
     {
-        if (strlen($this->request['message']['headers']['message-id']) < 1) {
+        if(strlen($this->message_id) < 2) {
             return $this->default_response;
         }
 
         try {
 
-            $mailgun = new Mailgun(config('services.mailgun.token'), config('services.mailgun.endpoint'));
-            $messageDetail = $mailgun->messages()->show($this->request['message']['headers']['message-id']);
-
-            $recipients = collect($messageDetail->getRecipients())->flatten()->implode(',');
-            $subject = $messageDetail->getSubject() ?? '';
-
-            $events = collect($mailgun->events()->get(config('services.mailgun.domain'), [
-                "message-id" => $this->request['message']['headers']['message-id'],
-            ])->getItems())->map(function ($event) {
-
-                return [
-                    'bounce_id' => array_key_exists("id", $event) ? $event["id"] : '', // TODO: unknown
-                    'recipient' => array_key_exists("recipient", $event) ? $event["recipient"] : '',
-                    'status' => array_key_exists("delivery-status", $event) && array_key_exists("code", $event["delivery-status"]) ? $event["delivery-status"]["code"] : '',
-                    'delivery_message' => array_key_exists("delivery-status", $event) && array_key_exists("message", $event["delivery-status"]) ? $event["delivery-status"]["message"] : (array_key_exists("delivery-status", $event) && array_key_exists("description", $event["delivery-status"]) ? $event["delivery-status"]["description"] : ''),
-                    'server' => array_key_exists("delivery-status", $event) && array_key_exists("mx-host", $event["delivery-status"]) ? $event["delivery-status"]["mx-host"] : '',
-                    'server_ip' => array_key_exists("ip", $event) ? $event["ip"] : '',
-                    'date' => \Carbon\Carbon::parse($event["timestamp"])->format('Y-m-d H:i:s') ?? '',
-                ];
-
-            })->toArray();
+            $recipients = $this->request['event-data']['recipient'] ?? '';
+            $subject = $this->request['event-data']['message']['headers']['subject'] ?? '';
 
             return [
                 'recipients' => $recipients,
                 'subject' => $subject,
                 'entity' => $this->entity ?? '',
                 'entity_id' => $this->invitation->{$this->entity}->hashed_id ?? '',
-                'events' => $events,
+                'events' => [$this->getEvent()],
             ];
 
         } catch (\Exception $e) {
@@ -467,4 +507,21 @@ class ProcessMailgunWebhook implements ShouldQueue
 
         }
     }
+
+    private function getEvent(): array
+    {
+        $recipients = $this->request['event-data']['recipient'] ?? '';
+
+        return [
+            'bounce_id' => '',
+            'recipient' => $recipients,
+            'status' => $this->request['event-data']['event'] ?? '',
+            'delivery_message' => $this->request['event-details']['delivery-status']['description'] ?? $this->request['event-details']['delivery-status']['message'] ?? '',
+            'server' => $this->request['event-data']['recipient-domain'] ??  '',
+            'server_ip' => $this->request['event-data']['envelope']['sending-ip'] ?? '',
+            'date' => \Carbon\Carbon::parse($this->request['event-data']['timestamp'])->format('Y-m-d H:i:s') ?? '',
+        ];
+
+    }
+
 }

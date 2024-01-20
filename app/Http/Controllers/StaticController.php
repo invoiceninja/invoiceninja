@@ -55,9 +55,9 @@ class StaticController extends BaseController
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
-        
+
         $response = Statics::company($user->getLocale() ?? $user->company()->getLocale());
 
-        return response()->json($response, 200, ['Content-type'=> 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
+        return response()->json($response, 200, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
     }
 }

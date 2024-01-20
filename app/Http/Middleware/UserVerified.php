@@ -42,7 +42,7 @@ class UserVerified
 
         $error = [
             'message' => 'Email confirmation required.',
-            'errors' => new \stdClass,
+            'errors' => new \stdClass(),
         ];
 
         if ($this->user && ! $this->user->isVerified()) {

@@ -446,7 +446,7 @@ class Company extends BaseModel
 
     public function bank_integrations(): HasMany
     {
-        return $this->hasMany(BankIntegration::class);
+        return $this->hasMany(BankIntegration::class)->withTrashed();
     }
 
     public function bank_transactions(): HasMany
@@ -911,11 +911,11 @@ class Company extends BaseModel
 
     private function createRBit($type, $source, $properties)
     {
-        $data = new \stdClass;
+        $data = new \stdClass();
         $data->receive_time = time();
         $data->type = $type;
         $data->source = $source;
-        $data->properties = new \stdClass;
+        $data->properties = new \stdClass();
 
         foreach ($properties as $key => $val) {
             $data->properties->$key = $val;

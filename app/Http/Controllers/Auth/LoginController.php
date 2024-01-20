@@ -138,7 +138,7 @@ class LoginController extends BaseController
                 $account->save();
                 $user = $user->fresh();
             }
-            
+
             /** @var \App\Models\CompanyUser $cu */
             $cu = $this->hydrateCompanyUser();
 

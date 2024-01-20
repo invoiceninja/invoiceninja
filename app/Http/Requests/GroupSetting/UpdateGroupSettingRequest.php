@@ -23,7 +23,7 @@ class UpdateGroupSettingRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -33,7 +33,7 @@ class UpdateGroupSettingRequest extends Request
 
     public function rules()
     {
-        
+
         return [
             'settings' => [new ValidClientGroupSettingsRule()],
         ];
@@ -80,7 +80,7 @@ class UpdateGroupSettingRequest extends Request
                 unset($settings->{$key});
             }
         }
-        
+
         return (array)$settings;
     }
 }

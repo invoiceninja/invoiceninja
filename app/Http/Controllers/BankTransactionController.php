@@ -30,7 +30,7 @@ use App\Utils\Traits\MakesHash;
 class BankTransactionController extends BaseController
 {
     use MakesHash;
-    
+
     protected $entity_type = BankTransaction::class;
 
     protected $entity_transformer = BankTransactionTransformer::class;
@@ -102,7 +102,7 @@ class BankTransactionController extends BaseController
         $action = $request->input('action');
 
         $ids = request()->input('ids');
-            
+
         $bank_transactions = BankTransaction::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
         if ($action == 'convert_matched') { //catch this action
@@ -112,7 +112,7 @@ class BankTransactionController extends BaseController
                 $this->bank_transaction_repo->{$action}($bank_transaction);
             });
         }
-        
+
         /* Need to understand which permission are required for the given bulk action ie. view / edit */
 
         return $this->listResponse(BankTransaction::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());

@@ -29,7 +29,7 @@ class ClientBalanceReport extends BaseExport
     //Amount
     //Amount with Tax
     public Writer $csv;
-    
+
     public string $date_key = 'created_at';
 
     public array $report_keys = [
@@ -64,7 +64,7 @@ class ClientBalanceReport extends BaseExport
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
         $this->csv = Writer::createFromString();
-        
+
         $this->csv->insertOne([]);
         $this->csv->insertOne([]);
         $this->csv->insertOne([]);
@@ -84,9 +84,9 @@ class ClientBalanceReport extends BaseExport
             ->orderBy('balance', 'desc')
             ->cursor()
             ->each(function ($client) {
-                
+
                 $this->csv->insertOne($this->buildRow($client));
-                
+
             });
 
         return $this->csv->toString();
@@ -108,7 +108,7 @@ class ClientBalanceReport extends BaseExport
     {
         $query = Invoice::query()->where('client_id', $client->id)
                                 ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL]);
-    
+
         $query = $this->addDateRange($query);
 
         return [

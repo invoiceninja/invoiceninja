@@ -29,7 +29,7 @@ class CompanyFactory
      */
     public function create(int $account_id): Company
     {
-        $company = new Company;
+        $company = new Company();
         $company->account_id = $account_id;
         $company->company_key = $this->createHash();
         $company->settings = CompanySettings::defaults();

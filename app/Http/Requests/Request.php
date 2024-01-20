@@ -86,7 +86,7 @@ class Request extends FormRequest
         if (array_key_exists('group_settings_id', $input) && is_string($input['group_settings_id'])) {
             $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
         }
-        
+
         if (array_key_exists('group_id', $input) && is_string($input['group_id'])) {
             $input['group_id'] = $this->decodePrimaryKey($input['group_id']);
         }
@@ -215,7 +215,7 @@ class Request extends FormRequest
     {
         return filter_var($bool, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
     }
-    
+
     public function checkTimeLog(array $log): bool
     {
         if (count($log) == 0) {
@@ -240,7 +240,7 @@ class Request extends FormRequest
             /*Flag which helps us know if there is a NEXT timelog*/
             $next = false;
             /* If there are more than 1 time log in the array, ensure the last timestamp is not zero*/
-            if (count($new_array) >1 && $array[1] == 0) {
+            if (count($new_array) > 1 && $array[1] == 0) {
                 return false;
             }
 
@@ -249,10 +249,10 @@ class Request extends FormRequest
             if ($array[0] > $array[1] && $array[1] != 0) {
                 return false;
             }
-            
+
             /* Find the next time log value - if it exists */
-            if (array_key_exists($key+1, $new_array)) {
-                $next = $new_array[$key+1];
+            if (array_key_exists($key + 1, $new_array)) {
+                $next = $new_array[$key + 1];
             }
 
             /* check the next time log and ensure the start time is GREATER than the end time of the previous record */
@@ -262,7 +262,7 @@ class Request extends FormRequest
 
             /* Get the last row of the timelog*/
             $last_row = end($new_array);
-            
+
             /*If the last value is NOT zero, ensure start time is not GREATER than the endtime */
             if ($last_row[1] != 0 && $last_row[0] > $last_row[1]) {
                 return false;

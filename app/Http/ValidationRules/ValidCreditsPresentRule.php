@@ -47,7 +47,7 @@ class ValidCreditsPresentRule implements Rule
         return ctrans('texts.insufficient_credit_balance');
     }
 
-    private function validCreditsPresent() :bool
+    private function validCreditsPresent(): bool
     {
         //todo need to ensure the clients credits are here not random ones!
 

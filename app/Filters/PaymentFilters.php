@@ -108,7 +108,7 @@ class PaymentFilters extends QueryFilters
                 $payment_filters[] = Payment::STATUS_REFUNDED;
             }
 
-            if (count($payment_filters) >0) {
+            if (count($payment_filters) > 0) {
                 $query->whereIn('status_id', $payment_filters);
             }
 
@@ -128,7 +128,7 @@ class PaymentFilters extends QueryFilters
      */
     public function match_transactions($value = 'true'): Builder
     {
-        
+
         if ($value == 'true') {
             return $this->builder
                         ->where('is_deleted', 0)

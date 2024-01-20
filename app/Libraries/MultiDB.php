@@ -42,7 +42,7 @@ use Illuminate\Support\Facades\DB;
  */
 class MultiDB
 {
-    const DB_PREFIX = 'db-ninja-';
+    public const DB_PREFIX = 'db-ninja-';
 
     public static $dbs = ['db-ninja-01', 'db-ninja-02'];
 

@@ -18,7 +18,6 @@ use Illuminate\Support\Facades\App;
 
 class AccountCreatedObject
 {
-    
     public function __construct(public User $user, public Company $company)
     {
     }
@@ -43,7 +42,7 @@ class AccountCreatedObject
             'logo' => $this->company->present()->logo(),
         ];
 
-        $mail_obj = new \stdClass;
+        $mail_obj = new \stdClass();
         $mail_obj->subject = ctrans('texts.new_signup');
         $mail_obj->data = $data;
         $mail_obj->markdown = 'email.admin.generic';

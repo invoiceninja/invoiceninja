@@ -97,7 +97,7 @@ class InstantBankPay implements MethodInterface
         $this->go_cardless->setPaymentHash(
             $request->getPaymentHash()
         );
-        
+
         $this->go_cardless->init();
 
         try {

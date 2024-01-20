@@ -31,7 +31,10 @@ use App\Notifications\Ninja\PayPalUnlinkedTransaction;
 
 class PayPalWebhook implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $tries = 1; //number of retries
 
@@ -53,8 +56,9 @@ class PayPalWebhook implements ShouldQueue
         // $this->endpoint = $this->test_endpoint;
 
         //this can cause problems verifying the webhook, so unset it if it exists
-        if(isset($this->webhook_request['q']))
+        if(isset($this->webhook_request['q'])) {
             unset($this->webhook_request['q']);
+        }
 
         if($this->verifyWebhook()) {
             nlog('verified');
@@ -68,128 +72,128 @@ class PayPalWebhook implements ShouldQueue
 
         nlog(" NOT VERIFIED ");
     }
-  /*
-  'id' => 'WH-COC11055RA711503B-4YM959094A144403T',
-  'create_time' => '2018-04-16T21:21:49.000Z',
-  'event_type' => 'CHECKOUT.ORDER.COMPLETED',
-  'resource_type' => 'checkout-order',
-  'resource_version' => '2.0',
-  'summary' => 'Checkout Order Completed',
-  'resource' => 
-  array (
-    'id' => '5O190127TN364715T',
-    'status' => 'COMPLETED',
-    'intent' => 'CAPTURE',
-    'gross_amount' => 
+    /*
+    'id' => 'WH-COC11055RA711503B-4YM959094A144403T',
+    'create_time' => '2018-04-16T21:21:49.000Z',
+    'event_type' => 'CHECKOUT.ORDER.COMPLETED',
+    'resource_type' => 'checkout-order',
+    'resource_version' => '2.0',
+    'summary' => 'Checkout Order Completed',
+    'resource' =>
     array (
-      'currency_code' => 'USD',
-      'value' => '100.00',
-    ),
-    'payer' => 
-    array (
-      'name' => 
+      'id' => '5O190127TN364715T',
+      'status' => 'COMPLETED',
+      'intent' => 'CAPTURE',
+      'gross_amount' =>
       array (
-        'given_name' => 'John',
-        'surname' => 'Doe',
+        'currency_code' => 'USD',
+        'value' => '100.00',
       ),
-      'email_address' => 'buyer@example.com',
-      'payer_id' => 'QYR5Z8XDVJNXQ',
-    ),
-    'purchase_units' => 
-    array (
-      0 => 
+      'payer' =>
       array (
-        'reference_id' => 'd9f80740-38f0-11e8-b467-0ed5f89f718b',
-        'amount' => 
+        'name' =>
         array (
-          'currency_code' => 'USD',
-          'value' => '100.00',
+          'given_name' => 'John',
+          'surname' => 'Doe',
         ),
-        'payee' => 
+        'email_address' => 'buyer@example.com',
+        'payer_id' => 'QYR5Z8XDVJNXQ',
+      ),
+      'purchase_units' =>
+      array (
+        0 =>
         array (
-          'email_address' => 'seller@example.com',
-        ),
-        'shipping' => 
-        array (
-          'method' => 'United States Postal Service',
-          'address' => 
+          'reference_id' => 'd9f80740-38f0-11e8-b467-0ed5f89f718b',
+          'amount' =>
           array (
-            'address_line_1' => '2211 N First Street',
-            'address_line_2' => 'Building 17',
-            'admin_area_2' => 'San Jose',
-            'admin_area_1' => 'CA',
-            'postal_code' => '95131',
-            'country_code' => 'US',
+            'currency_code' => 'USD',
+            'value' => '100.00',
           ),
-        ),
-        'payments' => 
-        array (
-          'captures' => 
+          'payee' =>
           array (
-            0 => 
+            'email_address' => 'seller@example.com',
+          ),
+          'shipping' =>
+          array (
+            'method' => 'United States Postal Service',
+            'address' =>
             array (
-              'id' => '3C679366HH908993F',
-              'status' => 'COMPLETED',
-              'amount' => 
+              'address_line_1' => '2211 N First Street',
+              'address_line_2' => 'Building 17',
+              'admin_area_2' => 'San Jose',
+              'admin_area_1' => 'CA',
+              'postal_code' => '95131',
+              'country_code' => 'US',
+            ),
+          ),
+          'payments' =>
+          array (
+            'captures' =>
+            array (
+              0 =>
               array (
-                'currency_code' => 'USD',
-                'value' => '100.00',
-              ),
-              'seller_protection' => 
-              array (
-                'status' => 'ELIGIBLE',
-                'dispute_categories' => 
-                array (
-                  0 => 'ITEM_NOT_RECEIVED',
-                  1 => 'UNAUTHORIZED_TRANSACTION',
-                ),
-              ),
-              'final_capture' => true,
-              'seller_receivable_breakdown' => 
-              array (
-                'gross_amount' => 
+                'id' => '3C679366HH908993F',
+                'status' => 'COMPLETED',
+                'amount' =>
                 array (
                   'currency_code' => 'USD',
                   'value' => '100.00',
                 ),
-                'paypal_fee' => 
+                'seller_protection' =>
                 array (
-                  'currency_code' => 'USD',
-                  'value' => '3.00',
+                  'status' => 'ELIGIBLE',
+                  'dispute_categories' =>
+                  array (
+                    0 => 'ITEM_NOT_RECEIVED',
+                    1 => 'UNAUTHORIZED_TRANSACTION',
+                  ),
                 ),
-                'net_amount' => 
+                'final_capture' => true,
+                'seller_receivable_breakdown' =>
                 array (
-                  'currency_code' => 'USD',
-                  'value' => '97.00',
+                  'gross_amount' =>
+                  array (
+                    'currency_code' => 'USD',
+                    'value' => '100.00',
+                  ),
+                  'paypal_fee' =>
+                  array (
+                    'currency_code' => 'USD',
+                    'value' => '3.00',
+                  ),
+                  'net_amount' =>
+                  array (
+                    'currency_code' => 'USD',
+                    'value' => '97.00',
+                  ),
                 ),
-              ),
-              'create_time' => '2018-04-01T21:20:49Z',
-              'update_time' => '2018-04-01T21:20:49Z',
-              'links' => 
-              array (
-                0 => 
+                'create_time' => '2018-04-01T21:20:49Z',
+                'update_time' => '2018-04-01T21:20:49Z',
+                'links' =>
                 array (
-                  'href' => 'https://api.paypal.com/v2/payments/captures/3C679366HH908993F',
-                  'rel' => 'self',
-                  'method' => 'GET',
-                ),
-                1 => 
-                array (
-                  'href' => 'https://api.paypal.com/v2/payments/captures/3C679366HH908993F/refund',
-                  'rel' => 'refund',
-                  'method' => 'POST',
+                  0 =>
+                  array (
+                    'href' => 'https://api.paypal.com/v2/payments/captures/3C679366HH908993F',
+                    'rel' => 'self',
+                    'method' => 'GET',
+                  ),
+                  1 =>
+                  array (
+                    'href' => 'https://api.paypal.com/v2/payments/captures/3C679366HH908993F/refund',
+                    'rel' => 'refund',
+                    'method' => 'POST',
+                  ),
                 ),
               ),
             ),
           ),
         ),
       ),
-    ),
-    'create_time' => '2018-04-01T21:18:49Z',
-    'update_time' => '2018-04-01T21:20:49Z',
-    'links' => 
-    */
-    private function checkoutOrderCompleted() 
+      'create_time' => '2018-04-01T21:18:49Z',
+      'update_time' => '2018-04-01T21:20:49Z',
+      'links' =>
+      */
+    private function checkoutOrderCompleted()
     {
         $order = $this->webhook_request['resource'];
         $transaction_reference = $order['purchase_units'][0]['payments']['captures'][0]['id'];
@@ -204,12 +208,13 @@ class PayPalWebhook implements ShouldQueue
         }
 
         nlog("payment completed check");
-        if($payment_hash->payment && $payment_hash->payment->status_id == Payment::STATUS_COMPLETED) // Payment made, all good!
+        if($payment_hash->payment && $payment_hash->payment->status_id == Payment::STATUS_COMPLETED) { // Payment made, all good!
             return;
+        }
 
         nlog("invoice paid check");
-        if($payment_hash->fee_invoice && $payment_hash->fee_invoice->status_id == Invoice::STATUS_PAID){ // Payment made, all good!
-            
+        if($payment_hash->fee_invoice && $payment_hash->fee_invoice->status_id == Invoice::STATUS_PAID) { // Payment made, all good!
+
             nlog("payment status check");
             if($payment_hash->payment && $payment_hash->payment->status_id != Payment::STATUS_COMPLETED) { // Make sure the payment is marked as completed
                 $payment_hash->payment->status_id = Payment::STATUS_COMPLETED;
@@ -219,11 +224,12 @@ class PayPalWebhook implements ShouldQueue
         }
 
         nlog("create payment check");
-        if($payment_hash->fee_invoice && in_array($payment_hash->fee_invoice->status_id,  [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])) {
-            
+        if($payment_hash->fee_invoice && in_array($payment_hash->fee_invoice->status_id, [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])) {
+
             $payment = Payment::where('transaction_reference', $transaction_reference)->first();
 
-            if(!$payment) { nlog("make payment here!");
+            if(!$payment) {
+                nlog("make payment here!");
                 $payment = $this->createPayment($payment_hash, [
                     'amount' => $amount,
                     'transaction_reference' => $transaction_reference,
@@ -265,7 +271,7 @@ class PayPalWebhook implements ShouldQueue
         if(isset($order['payment_source'])) {
             $source = array_key_first($order['payment_source']);
         }
-        
+
         $data = [
             'payment_type' => $this->getPaymentType($source),
             'amount' => $data['amount'],
@@ -292,11 +298,12 @@ class PayPalWebhook implements ShouldQueue
             ->where('company_id', $company->id)
             ->where('gateway_key', $this->gateway_key)
             ->cursor()
-            ->first(function ($cg) use ($merchant_id){
+            ->first(function ($cg) use ($merchant_id) {
                 $config = $cg->getConfig();
 
-                if($config->merchantId == $merchant_id)
+                if($config->merchantId == $merchant_id) {
                     return $cg;
+                }
 
             });
 
@@ -305,7 +312,8 @@ class PayPalWebhook implements ShouldQueue
 
     //--------------------------------------------------------------------------------------//
     private function verifyWebhook(): bool
-    {nlog($this->headers);
+    {
+        nlog($this->headers);
         $request = [
             'auth_algo' => $this->headers['paypal-auth-algo'][0],
             'cert_url' => $this->headers['paypal-cert-url'][0],

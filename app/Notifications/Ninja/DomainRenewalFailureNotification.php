@@ -68,7 +68,7 @@ class DomainRenewalFailureNotification extends Notification
         $content = "Domain Certificate _renewal_ failure:\n";
         $content .= "{$this->domain}\n";
 
-        return (new SlackMessage)
+        return (new SlackMessage())
                 ->success()
                 ->from(ctrans('texts.notification_bot'))
                 ->image('https://app.invoiceninja.com/favicon.png')

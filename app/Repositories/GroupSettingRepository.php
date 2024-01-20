@@ -16,13 +16,13 @@ use App\Models\GroupSetting;
 
 class GroupSettingRepository extends BaseRepository
 {
-    public function save($data, GroupSetting $group_setting) :?GroupSetting
+    public function save($data, GroupSetting $group_setting): ?GroupSetting
     {
 
         if(isset($data['settings']['translations'])) {
             unset($data['settings']['translations']);
         }
-                
+
         if(isset($data['settings']['pdf_variables'])) {
             unset($data['settings']['pdf_variables']);
         }
@@ -37,7 +37,7 @@ class GroupSettingRepository extends BaseRepository
         }
 
         if (! array_key_exists('settings', $data) || count((array) $data['settings']) == 0) {
-            $settings = new \stdClass;
+            $settings = new \stdClass();
             $settings->entity = Client::class;
             $group_setting->settings = $settings;
         }

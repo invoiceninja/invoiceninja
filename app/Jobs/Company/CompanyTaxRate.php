@@ -25,7 +25,10 @@ use Illuminate\Queue\SerializesModels;
 
 class CompanyTaxRate implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $tries = 1;
 
@@ -40,12 +43,12 @@ class CompanyTaxRate implements ShouldQueue
 
     public function handle()
     {
-        
+
         MultiDB::setDB($this->company->db);
 
         $tp = new TaxProvider($this->company);
         $tp->updateCompanyTaxData();
-        
+
         if(!$tp->updatedTaxStatus() && $this->company->settings->country_id == '840') {
 
             $calculated_state = false;
@@ -70,7 +73,7 @@ class CompanyTaxRate implements ShouldQueue
                 }
 
             }
-                        
+
             $data = [
                 'seller_subregion' => $this->company->origin_tax_data?->seller_subregion ?: '',
                 'geoPostalCode' => $this->company->settings->postal_code ?? '',

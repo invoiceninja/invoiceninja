@@ -173,7 +173,7 @@ class PayPal
     private function storePaymentMethod($method, string $customer_reference)
     {
         try {
-            $payment_meta = new \stdClass;
+            $payment_meta = new \stdClass();
             $payment_meta->email = (string) $method->email;
             $payment_meta->type = GatewayType::PAYPAL;
 

@@ -71,7 +71,7 @@ class VendorContactController extends Controller
         return back()->withSuccess(ctrans('texts.profile_updated_successfully'));
     }
 
-    private function sidebarMenu() :array
+    private function sidebarMenu(): array
     {
         $enabled_modules = auth()->guard('vendor')->user()->company->enabled_modules;
         $data = [];

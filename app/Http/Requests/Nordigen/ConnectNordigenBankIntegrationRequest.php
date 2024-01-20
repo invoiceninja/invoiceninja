@@ -48,7 +48,7 @@ class ConnectNordigenBankIntegrationRequest extends Request
         $input["redirect"] = isset($context["is_react"]) && $context['is_react'] ? config('ninja.react_url') . "/#/settings/bank_accounts" : config('ninja.app_url');
 
         $this->replace($input);
-       
+
     }
     public function getTokenContent()
     {

@@ -44,7 +44,7 @@ class EntityPolicy
      * @param  $entity
      * @return bool
      */
-    public function edit(User $user, $entity) : bool
+    public function edit(User $user, $entity): bool
     {
         return ($user->isAdmin() && $entity->company_id == $user->companyId())
             || ($user->hasPermission('edit_'.\Illuminate\Support\Str::snake(class_basename($entity))) && $entity->company_id == $user->companyId())
@@ -61,7 +61,7 @@ class EntityPolicy
      * @param  $entity
      * @return bool
      */
-    public function view(User $user, $entity) : bool
+    public function view(User $user, $entity): bool
     {
         return ($user->isAdmin() && $entity->company_id == $user->companyId())
             || ($user->hasPermission('view_'.\Illuminate\Support\Str::snake(class_basename($entity))) && $entity->company_id == $user->companyId())

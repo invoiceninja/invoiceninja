@@ -49,12 +49,12 @@ class VendorObserver
         if ($vendor->getOriginal('deleted_at') && !$vendor->deleted_at) {
             $event = Webhook::EVENT_RESTORE_VENDOR;
         }
-        
+
         if ($vendor->is_deleted) {
             $event = Webhook::EVENT_DELETE_VENDOR;
         }
-        
-        
+
+
         $subscriptions = Webhook::where('company_id', $vendor->company_id)
                                     ->where('event_id', $event)
                                     ->exists();
@@ -75,7 +75,7 @@ class VendorObserver
         if ($vendor->is_deleted) {
             return;
         }
-        
+
         $subscriptions = Webhook::where('company_id', $vendor->company_id)
                                     ->where('event_id', Webhook::EVENT_ARCHIVE_VENDOR)
                                     ->exists();

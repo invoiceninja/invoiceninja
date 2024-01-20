@@ -68,7 +68,7 @@ class DomainRenewedNotification extends Notification
         $content = "Domain Certificate Renewed:\n";
         $content .= "{$this->domain}\n";
 
-        return (new SlackMessage)
+        return (new SlackMessage())
                 ->success()
                 ->from(ctrans('texts.notification_bot'))
                 ->image('https://app.invoiceninja.com/favicon.png')

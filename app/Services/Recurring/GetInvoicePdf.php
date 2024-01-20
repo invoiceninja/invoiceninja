@@ -17,7 +17,6 @@ use App\Services\AbstractService;
 
 class GetInvoicePdf extends AbstractService
 {
-    
     public function __construct(public $entity, public ?ClientContact $contact = null)
     {
     }

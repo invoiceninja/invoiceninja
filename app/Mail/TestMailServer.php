@@ -15,7 +15,6 @@ use Illuminate\Mail\Mailable;
 
 class TestMailServer extends Mailable
 {
-
     public $support_messages;
 
     public $from_email;
@@ -33,11 +32,11 @@ class TestMailServer extends Mailable
      */
     public function build()
     {
-        $settings = new \stdClass;
+        $settings = new \stdClass();
         $settings->primary_color = '#4caf50';
         $settings->email_style = 'dark';
         $settings->email_alignment = 'left';
-        
+
         return $this->from(config('mail.from.address'), config('mail.from.name'))
             ->subject(ctrans('texts.email'))
             ->markdown('email.support.message', [

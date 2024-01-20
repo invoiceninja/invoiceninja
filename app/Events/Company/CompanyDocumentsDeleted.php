@@ -19,7 +19,9 @@ use Illuminate\Queue\SerializesModels;
 
 class CompanyDocumentsDeleted
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     /**
      * @var Company

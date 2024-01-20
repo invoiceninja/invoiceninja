@@ -34,7 +34,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
 
     private float $fee = 0;
 
-    const SYSTEM_LOG_TYPE = SystemLog::TYPE_PAYPAL;
+    public const SYSTEM_LOG_TYPE = SystemLog::TYPE_PAYPAL;
 
     public function gatewayTypes()
     {

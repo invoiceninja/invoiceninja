@@ -28,7 +28,7 @@ class MarkSent
         $this->credit = $credit;
     }
 
-    public function run()
+    public function run($fire_event = false)
     {
         /* Return immediately if status is not draft */
         if ($this->credit->status_id != Credit::STATUS_DRAFT) {
@@ -52,8 +52,14 @@ class MarkSent
 
         event(new CreditWasMarkedSent($this->credit, $this->credit->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
-        $this->credit->sendEvent(Webhook::EVENT_SENT_CREDIT);
+        if($fire_event) {
+
+            event('eloquent.updated: App\Models\Credit', $this->credit);
+            $this->credit->sendEvent(Webhook::EVENT_SENT_CREDIT);
+
+        }
 
         return $this->credit;
+
     }
 }

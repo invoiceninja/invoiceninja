@@ -18,8 +18,9 @@ use Illuminate\Queue\SerializesModels;
 
 class LogRequestSending
 {
-
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     /**
      * Create the event listener.

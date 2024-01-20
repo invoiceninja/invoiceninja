@@ -19,7 +19,7 @@ use App\DataMapper\InvoiceItem;
  */
 trait CleanLineItems
 {
-    public function cleanItems($items) :array
+    public function cleanItems($items): array
     {
         if (! isset($items) || ! is_array($items)) {
             return [];
@@ -65,15 +65,15 @@ trait CleanLineItems
             if (! array_key_exists('tax_id', $item)) {
                 $item['tax_id'] = '1';
             } elseif(array_key_exists('tax_id', $item) && $item['tax_id'] == '') {
-                
+
                 if($item['type_id'] == '2') {
                     $item['tax_id'] = '2';
                 } else {
                     $item['tax_id'] = '1';
                 }
-                
+
             }
-            
+
         }
 
         if (array_key_exists('id', $item) || array_key_exists('_id', $item)) {

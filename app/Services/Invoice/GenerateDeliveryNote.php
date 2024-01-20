@@ -27,7 +27,8 @@ use Illuminate\Support\Facades\Storage;
 
 class GenerateDeliveryNote
 {
-    use MakesHash, PdfMaker;
+    use MakesHash;
+    use PdfMaker;
 
     /**
      * @var mixed
@@ -65,7 +66,7 @@ class GenerateDeliveryNote
         $file_path = sprintf('%sdelivery_note.pdf', $this->invoice->client->invoice_filepath($invitation));
 
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-            return (new Phantom)->generate($this->invoice->invitations->first());
+            return (new Phantom())->generate($this->invoice->invitations->first());
         }
 
         $design = Design::withTrashed()->find($design_id);
@@ -115,7 +116,7 @@ class GenerateDeliveryNote
 
         $maker = null;
         $state = null;
-        
+
         // return $file_path;
     }
 }

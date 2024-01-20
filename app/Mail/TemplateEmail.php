@@ -154,7 +154,7 @@ class TemplateEmail extends Mailable
             if ($ubl_string) {
                 $this->attachData($ubl_string, $this->invitation->invoice->getFileName('xml'));
             }
-            
+
         }
         if ($this->invitation && $this->invitation->invoice && $this->invitation->invoice->client->getSetting('enable_e_invoice') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
             $xml_string = $this->invitation->invoice->service()->getEInvoice($this->invitation->contact);
@@ -162,7 +162,7 @@ class TemplateEmail extends Mailable
             if($xml_string) {
                 $this->attachData($xml_string, $this->invitation->invoice->getEFileName("xml"));
             }
-        
+
         }
 
         return $this;

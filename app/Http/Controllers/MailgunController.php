@@ -105,14 +105,17 @@ class MailgunController extends BaseController
      *       ),
      *     )
      */
-    public function inboundWebhook(Request $request)
+    public function webhook(Request $request)
     {
-        if ($request->header('X-API-SECURITY') && $request->header('X-API-SECURITY') == config('services.mailgun.token')) {
-            ProcessMailgunInboundWebhook::dispatch($request->all())->delay(10);
 
+        $input = $request->all();
+
+        if (\abs(\time() - $request['signature']['timestamp']) > 15)
             return response()->json(['message' => 'Success'], 200);
-        }
 
-        return response()->json(['message' => 'Unauthorized'], 403);
+        if(\hash_equals(\hash_hmac('sha256', $input['signature']['timestamp'] . $input['signature']['token'], config('services.mailgun.webhook_signing_key')), $input['signature']['signature']))
+            ProcessMailgunWebhook::dispatch($request->all())->delay(10);
+
+        return response()->json(['message' => 'Success.'], 200);
     }
 }

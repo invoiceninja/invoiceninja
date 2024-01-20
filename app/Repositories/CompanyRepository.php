@@ -30,13 +30,13 @@ class CompanyRepository extends BaseRepository
      * @param Company $company
      * @return Company|null  Company Object
      */
-    public function save(array $data, Company $company) : ?Company
+    public function save(array $data, Company $company): ?Company
     {
-        
+
         if (isset($data['custom_fields']) && is_array($data['custom_fields'])) {
             $data['custom_fields'] = $this->parseCustomFields($data['custom_fields']);
         }
-        
+
         $company->fill($data);
 
         /** Only required to handle v4 migration workloads */
@@ -52,14 +52,14 @@ class CompanyRepository extends BaseRepository
 
         return $company;
     }
-    
+
     /**
      * parseCustomFields
      *
      * @param  array $fields
      * @return array
      */
-    private function parseCustomFields($fields) :array
+    private function parseCustomFields($fields): array
     {
         foreach ($fields as &$value) {
             $value = (string) $value;

@@ -31,7 +31,7 @@ class EntityViewedObject
     public $settings;
 
     protected $use_react_url;
-    
+
     public function __construct($invitation, $entity_type, $use_react_url)
     {
         $this->invitation = $invitation;
@@ -56,7 +56,7 @@ class EntityViewedObject
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
-        $mail_obj = new stdClass;
+        $mail_obj = new stdClass();
         $mail_obj->amount = $this->getAmount();
         $mail_obj->subject = $this->getSubject();
         $mail_obj->data = $this->getData();

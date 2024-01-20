@@ -16,9 +16,9 @@ use Illuminate\Support\Carbon;
 
 class PaymentFactory
 {
-    public static function create(int $company_id, int $user_id, int $client_id = 0) :Payment
+    public static function create(int $company_id, int $user_id, int $client_id = 0): Payment
     {
-        $payment = new Payment;
+        $payment = new Payment();
 
         $payment->company_id = $company_id;
         $payment->user_id = $user_id;

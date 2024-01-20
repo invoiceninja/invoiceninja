@@ -46,7 +46,7 @@ class BraintreePaymentDriver extends BaseDriver
         GatewayType::BANK_TRANSFER => ACH::class,
     ];
 
-    const SYSTEM_LOG_TYPE = SystemLog::TYPE_BRAINTREE;
+    public const SYSTEM_LOG_TYPE = SystemLog::TYPE_BRAINTREE;
 
     public function init(): self
     {

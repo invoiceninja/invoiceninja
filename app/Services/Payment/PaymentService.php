@@ -28,7 +28,7 @@ class PaymentService
         $this->payment = $payment;
     }
 
-    public function manualPayment($invoice) :?Payment
+    public function manualPayment($invoice): ?Payment
     {
         /* Create Payment */
         $payment = PaymentFactory::create($invoice->company_id, $invoice->user_id);
@@ -82,17 +82,17 @@ class PaymentService
         return $this;
     }
 
-    public function refundPayment(array $data) :?Payment
+    public function refundPayment(array $data): ?Payment
     {
         return ((new RefundPayment($this->payment, $data)))->run();
     }
 
-    public function deletePayment($update_client_paid_to_date = true) :?Payment
+    public function deletePayment($update_client_paid_to_date = true): ?Payment
     {
         return (new DeletePayment($this->payment, $update_client_paid_to_date))->run();
     }
 
-    public function updateInvoicePayment(PaymentHash $payment_hash) :?Payment
+    public function updateInvoicePayment(PaymentHash $payment_hash): ?Payment
     {
         return ((new UpdateInvoicePayment($this->payment, $payment_hash)))->run();
     }
@@ -166,7 +166,7 @@ class PaymentService
                 break;
             }
         }
-        
+
 
         return $this;
     }

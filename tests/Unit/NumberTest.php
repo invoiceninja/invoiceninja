@@ -20,6 +20,34 @@ use Tests\TestCase;
  */
 class NumberTest extends TestCase
 {
+
+    public function testConvertDecimalCommaFloats()
+    {
+        $value = '22,00';
+
+        $res = Number::parseFloat($value);
+
+        $this->assertEquals(22.0, $res);
+        
+        $value = '22.00';
+
+        $res = Number::parseFloat($value);
+
+        $this->assertEquals(22.0, $res);
+
+        $value = '1,000.00';
+
+        $res = Number::parseFloat($value);
+
+        $this->assertEquals(1000.0, $res);
+
+        $value = '1.000,00';
+
+        $res = Number::parseFloat($value);
+
+        $this->assertEquals(1000.0, $res);
+
+    }
     public function testFloatPrecision()
     {
         $value = 1.1;

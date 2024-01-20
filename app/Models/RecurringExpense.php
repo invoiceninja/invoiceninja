@@ -250,12 +250,12 @@ class RecurringExpense extends BaseModel
     /**
      * Service entry points.
      */
-    public function service() :RecurringService
+    public function service(): RecurringService
     {
         return new RecurringService($this);
     }
 
-    public function nextSendDate() :?Carbon
+    public function nextSendDate(): ?Carbon
     {
         if (! $this->next_send_date) {
             return null;
@@ -291,7 +291,7 @@ class RecurringExpense extends BaseModel
         }
     }
 
-    public function nextSendDateClient() :?Carbon
+    public function nextSendDateClient(): ?Carbon
     {
         if (! $this->next_send_date) {
             return null;
@@ -327,7 +327,7 @@ class RecurringExpense extends BaseModel
         }
     }
 
-    public function remainingCycles() : int
+    public function remainingCycles(): int
     {
         if ($this->remaining_cycles == 0) {
             return 0;

@@ -76,7 +76,6 @@ class TransactionTransformer implements BankRevenueInterface
         foreach ($transactionResponse["transactions"]["booked"] as $transaction) {
             $data[] = $this->transformTransaction($transaction);
         }
-
         return $data;
     }
 
@@ -85,6 +84,8 @@ class TransactionTransformer implements BankRevenueInterface
 
         if (!array_key_exists('transactionId', $transaction) || !array_key_exists('transactionAmount', $transaction))
             throw new \Exception('invalid dataset');
+
+        $amount = (float) $transaction["transactionAmount"]["amount"];
 
         // description could be in varios places
         $description = '';
@@ -99,7 +100,14 @@ class TransactionTransformer implements BankRevenueInterface
         else
             Log::warning("Missing description for the following transaction: " . json_encode($transaction));
 
-        // participant
+        // enrich description with currencyExchange informations
+        if (array_key_exists('currencyExchange', $transaction))
+            foreach ($transaction["currencyExchange"] as $exchangeRate) {
+                $targetAmount = round($amount * (float) $exchangeRate["exchangeRate"], 2);
+                $description .= '\nexchangeRate: ' . $amount . " " . $exchangeRate["sourceCurrency"] . " = " . $targetAmount . " " . $exchangeRate["targetCurrency"] . " (" . $exchangeRate["quotationDate"] . ")";
+            }
+
+        // participant data
         $participant = array_key_exists('debtorAccount', $transaction) && array_key_exists('iban', $transaction["debtorAccount"]) ?
             $transaction['debtorAccount']['iban'] :
             (array_key_exists('creditorAccount', $transaction) && array_key_exists('iban', $transaction["creditorAccount"]) ?
@@ -111,7 +119,7 @@ class TransactionTransformer implements BankRevenueInterface
 
         return [
             'transaction_id' => $transaction["transactionId"],
-            'amount' => abs((int) $transaction["transactionAmount"]["amount"]),
+            'amount' => $amount,
             'currency_id' => $this->convertCurrency($transaction["transactionAmount"]["currency"]),
             'category_id' => null,
             'category_type' => array_key_exists('additionalInformation', $transaction) ? $transaction["additionalInformation"] : '',
@@ -145,5 +153,3 @@ class TransactionTransformer implements BankRevenueInterface
     }
 
 }
-
-

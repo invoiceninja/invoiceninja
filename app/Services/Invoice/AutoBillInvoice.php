@@ -28,7 +28,6 @@ use Illuminate\Support\Str;
 
 class AutoBillInvoice extends AbstractService
 {
-
     private Client $client;
 
     private array $used_credit = [];
@@ -193,7 +192,7 @@ class AutoBillInvoice extends AbstractService
             ->service()
             ->setCalculatedStatus()
             ->save();
-            
+
         $current_credit = false;
 
         foreach ($this->used_credit as $credit) {
