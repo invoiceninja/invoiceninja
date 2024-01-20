@@ -20,7 +20,7 @@
  * @param null $locale
  * @return string
  */
-function ctrans(string $string, $replace = [], $locale = null) : string
+function ctrans(string $string, $replace = [], $locale = null): string
 {
     return trans($string, $replace, $locale);
 }

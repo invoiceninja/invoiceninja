@@ -64,7 +64,7 @@ class ClientSettings extends BaseSettings
      *
      * @return stdClass
      */
-    public static function defaults() : stdClass
+    public static function defaults(): stdClass
     {
         $data = (object) [
             'entity' => (string) Client::class,

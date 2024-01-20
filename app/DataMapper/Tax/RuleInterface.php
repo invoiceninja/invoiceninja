@@ -20,7 +20,7 @@ interface RuleInterface
     public function taxByType($type);
 
     public function taxExempt($item);
-    
+
     public function taxDigital($item);
 
     public function taxService($item);

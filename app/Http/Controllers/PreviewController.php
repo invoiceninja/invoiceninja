@@ -47,7 +47,7 @@ class PreviewController extends BaseController
     {
         parent::__construct();
     }
-    
+
     public function live(PreviewInvoiceRequest $request): mixed
     {
 
@@ -71,7 +71,6 @@ class PreviewController extends BaseController
 
         $ps = new PdfService($invitation, 'product', [
             'client' => $client ?? false,
-            // 'vendor' => $vendor ?? false,
             "{$entity_prop}s" => [$entity_obj],
         ]);
 
@@ -90,7 +89,7 @@ class PreviewController extends BaseController
             'Content-Disposition' => 'inline',
             'Content-Type' => 'application/pdf',
             'Cache-Control:' => 'no-cache',
-            'Server-Timing' => microtime(true)-$start
+            'Server-Timing' => microtime(true) - $start
         ]);
 
     }
@@ -121,8 +120,8 @@ class PreviewController extends BaseController
 
         $response = Response::make($pdf, 200);
         $response->header('Content-Type', 'application/pdf');
-        $response->header('Server-Timing', microtime(true)-$start);
-        
+        $response->header('Server-Timing', microtime(true) - $start);
+
         return $response;
     }
 
@@ -195,14 +194,14 @@ class PreviewController extends BaseController
             $maker
                 ->design($design)
                 ->build();
-            
+
             if (request()->query('html') == 'true') {
                 return $maker->getCompiledHTML();
             }
 
             //if phantom js...... inject here..
             if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-                return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+                return (new Phantom())->convertHtmlToPdf($maker->getCompiledHTML(true));
             }
 
             /** @var \App\Models\User $user */
@@ -365,7 +364,7 @@ class PreviewController extends BaseController
         }
 
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-            return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+            return (new Phantom())->convertHtmlToPdf($maker->getCompiledHTML(true));
         }
 
         /** @var \App\Models\User $user */
@@ -485,7 +484,7 @@ class PreviewController extends BaseController
         }
 
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-            return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+            return (new Phantom())->convertHtmlToPdf($maker->getCompiledHTML(true));
         }
 
         if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {

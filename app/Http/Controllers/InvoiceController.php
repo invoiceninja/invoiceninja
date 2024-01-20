@@ -215,7 +215,7 @@ class InvoiceController extends BaseController
      */
     public function store(StoreInvoiceRequest $request)
     {
-        
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
@@ -408,7 +408,7 @@ class InvoiceController extends BaseController
         }
 
         if ($invoice->isLocked()) {
-            return response()->json(['message' => ctrans('texts.locked_invoice')], 403);
+            return response()->json(['message' => ctrans('texts.locked_invoice')], 422);
         }
 
         $old_invoice = $invoice->line_items;
@@ -482,7 +482,7 @@ class InvoiceController extends BaseController
 
     public function bulk(BulkInvoiceRequest $request)
     {
-        
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
@@ -497,7 +497,7 @@ class InvoiceController extends BaseController
             return response(['message' => ctrans('texts.email_quota_exceeded_subject')], 400);
         }
 
-        if(in_array($request->action, ['auto_bill','mark_paid']) && $user->cannot('create', \App\Models\Payment::class)) {
+        if(in_array($request->action, ['auto_bill', 'mark_paid']) && $user->cannot('create', \App\Models\Payment::class)) {
             return response(['message' => ctrans('texts.not_authorized'), 'errors' => ['ids' => [ctrans('texts.not_authorized')]]], 422);
         }
 
@@ -514,8 +514,6 @@ class InvoiceController extends BaseController
         if ($action == 'bulk_download' && $invoices->count() > 1) {
             $invoices->each(function ($invoice) use ($user) {
                 if ($user->cannot('view', $invoice)) {
-                    nlog('access denied');
-
                     return response()->json(['message' => ctrans('text.access_denied')]);
                 }
             });
@@ -525,10 +523,10 @@ class InvoiceController extends BaseController
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
 
-        if ($action == 'download' && $invoices->count() >=1 && $user->can('view', $invoices->first())) {
-            
+        if ($action == 'download' && $invoices->count() >= 1 && $user->can('view', $invoices->first())) {
+
             $filename = $invoices->first()->getFileName();
-            
+
             return response()->streamDownload(function () use ($invoices) {
                 echo $invoices->first()->service()->getInvoicePdf();
             }, $filename, ['Content-Type' => 'application/pdf']);
@@ -546,8 +544,8 @@ class InvoiceController extends BaseController
 
         if($action == 'template' && $user->can('view', $invoices->first())) {
 
-            $hash_or_response = $request->boolean('send_email') ? 'email sent' :  \Illuminate\Support\Str::uuid();
-            
+            $hash_or_response = $request->boolean('send_email') ? 'email sent' : \Illuminate\Support\Str::uuid();
+
             TemplateAction::dispatch(
                 $ids,
                 $request->template_id,
@@ -558,8 +556,19 @@ class InvoiceController extends BaseController
                 $hash_or_response,
                 $request->boolean('send_email')
             );
-            
+
             return response()->json(['message' => $hash_or_response], 200);
+        }
+
+        if($action == 'set_payment_link' && $request->has('subscription_id')) {
+
+            $invoices->each(function ($invoice) use ($user, $request) {
+                if($user->can('edit', $invoice)) {
+                    $invoice->service()->setPaymentLink($request->subscription_id)->save();
+                }
+            });
+
+            return $this->listResponse(Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
         }
 
         /*
@@ -573,7 +582,7 @@ class InvoiceController extends BaseController
 
         /* Need to understand which permission are required for the given bulk action ie. view / edit */
 
-        return $this->listResponse(Invoice::query()->withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
+        return $this->listResponse(Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
     }
 
     /**
@@ -744,7 +753,7 @@ class InvoiceController extends BaseController
                     return response()->json(['message' => 'email sent'], 200);
                 }
                 break;
-            
+
             default:
                 return response()->json(['message' => ctrans('texts.action_unavailable', ['action' => $action])], 400);
         }
@@ -933,7 +942,7 @@ class InvoiceController extends BaseController
      */
     public function deliveryNote(ShowInvoiceRequest $request, Invoice $invoice)
     {
-        
+
         return response()->streamDownload(function () use ($invoice) {
             echo $invoice->service()->getInvoiceDeliveryNote($invoice, $invoice->invitations->first()->contact);
         }, $invoice->getDeliveryNoteName(), ['Content-Type' => 'application/pdf']);

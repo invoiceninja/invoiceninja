@@ -118,15 +118,19 @@ class ConnectedAccountController extends BaseController
                 'email' => $email,
                 'oauth_user_id' => $user->getId(),
                 'oauth_provider_id' => 'microsoft',
-                'email_verified_at' =>now()
+                'email_verified_at' => now()
             ];
 
-            auth()->user()->update($connected_account);
-            auth()->user()->email_verified_at = now();
-            auth()->user()->save();
             
+            /** @var \App\Models\User $user */
+            $user = auth()->user();
+
+            $user->update($connected_account);
+            $user->email_verified_at = now();
+            $user->save();
+
             $this->setLoginCache(auth()->user());
-            
+
             return $this->itemResponse(auth()->user());
         }
 
@@ -162,7 +166,7 @@ class ConnectedAccountController extends BaseController
                 'email' => $email,
                 'oauth_user_id' => $google->harvestSubField($user),
                 'oauth_provider_id' => 'google',
-                'email_verified_at' =>now(),
+                'email_verified_at' => now(),
             ];
 
             auth()->user()->update($connected_account);

@@ -18,6 +18,7 @@ use App\Events\Payment\PaymentWasEmailedAndFailed;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\Google\Google;
 use App\Libraries\MultiDB;
+use App\Mail\Engine\PaymentEmailEngine;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
@@ -45,26 +46,40 @@ use Turbo124\Beacon\Facades\LightLogs;
 
 class Email implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use MakesHash;
 
+    /** number of retry attempts to send the emails */
     public $tries = 4;
 
+    /** skip when we cannot resolve the model */
     public $deleteWhenMissingModels = true;
 
+    /** force send the email */
     public bool $override;
 
+    /** PostMark api key */
     protected ?string $client_postmark_secret = null;
 
+    /** MailGun api key */
     protected ?string $client_mailgun_secret = null;
 
+    /** MailGun domain */
     protected ?string $client_mailgun_domain = null;
 
+    /** MailGun endpoint */
     protected ?string $client_mailgun_endpoint = null;
 
+    /** Brevo endpoint */
     protected ?string $client_brevo_secret = null;
 
+    /** Default mailer */
     private string $mailer = 'default';
 
+    /** The mailable */
     public Mailable $mailable;
 
     public function __construct(public EmailObject $email_object, public Company $company)
@@ -81,6 +96,9 @@ class Email implements ShouldQueue
         return [rand(10, 20), rand(30, 45), rand(60, 79), rand(160, 400)];
     }
 
+    /**
+     * Send email job.
+     */
     public function handle()
     {
         MultiDB::setDb($this->company->db);
@@ -93,12 +111,15 @@ class Email implements ShouldQueue
         /** Ensure quota's on hosted platform are respected. :) */
         $this->setMailDriver();
 
+        /** Fail early if pre flight checks fail. */
         if ($this->preFlightChecksFail()) {
             return;
         }
 
+        /** Send the email */
         $this->email();
 
+        /** Perform cleanups */
         $this->tearDown();
     }
 
@@ -145,8 +166,6 @@ class Email implements ShouldQueue
 
         $this->email_object->client_id ? $this->email_object->settings = $this->email_object->client->getMergedSettings() : $this->email_object->settings = $this->company->settings;
 
-        // $this->email_object->client_id ? nlog("client settings") : nlog("company settings ");
-
         $this->email_object->whitelabel = $this->company->account->isPaid() ? true : false;
 
         $this->email_object->logo = $this->email_object->settings->company_logo;
@@ -162,7 +181,7 @@ class Email implements ShouldQueue
 
     /**
      * Generates the correct set of variables
-     * @todo handle payment engine here also
+     *
      * @return self
      */
     private function resolveVariables(): self
@@ -174,6 +193,7 @@ class Email implements ShouldQueue
             "Quote" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),
             "Credit" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),
             "PurchaseOrder" => $this->email_object->variables = (new VendorHtmlEngine($this->email_object->invitation))->makeValues(),
+            "Payment" => $this->email_object->variables = (new PaymentEmailEngine($this->email_object->entity, $this->email_object->contact))->makePaymentVariables(),
             default => $this->email_object->variables = []
         };
 
@@ -186,7 +206,7 @@ class Email implements ShouldQueue
     }
 
     /**
-     * tearDown
+     * Tear Down
      *
      * @return self
      */
@@ -204,7 +224,8 @@ class Email implements ShouldQueue
     }
 
     /**
-     * Builds the email defaults
+     * Builds the email defaults,
+     * sets any missing props.
      *
      * @return self
      */
@@ -234,7 +255,6 @@ class Email implements ShouldQueue
      */
     public function email()
     {
-        // $this->setMailDriver();
 
         /* Init the mailer*/
         $mailer = Mail::mailer($this->mailer);
@@ -307,7 +327,7 @@ class Email implements ShouldQueue
             }
 
             /**
-             * Post mark buries the proper message in a a guzzle response
+             * Post mark buries the proper message in a guzzle response
              * this merges a text string with a json object
              * need to harvest the ->Message property using the following
              */
@@ -337,8 +357,8 @@ class Email implements ShouldQueue
             }
 
             $this->tearDown();
-            /* Releasing immediately does not add in the backoff */
 
+            /* Releasing immediately does not add in the backoff */
             sleep(rand(0, 3));
 
             $this->release($this->backoff()[$this->attempts() - 1]);
@@ -428,7 +448,7 @@ class Email implements ShouldQueue
     private function hasInValidEmails(): bool
     {
         foreach ($this->email_object->to as $address_object) {
-            if (strpos($address_object->address, '@example.com') !== false) {
+            if (stripos($address_object->address, '@example.') !== false) {
                 return true;
             }
 
@@ -449,9 +469,23 @@ class Email implements ShouldQueue
             }
         }
 
-
         return false;
     }
+
+    private function setHostedMailgunMailer()
+    {
+
+        if (property_exists($this->email_object->settings, 'email_from_name') && strlen($this->email_object->settings->email_from_name) > 1) {
+            $email_from_name = $this->email_object->settings->email_from_name;
+        } else {
+            $email_from_name = $this->company->present()->name();
+        }
+
+        $this->mailable
+            ->from(config('services.mailgun.from.address'), $email_from_name);
+
+    }
+
 
     /**
      * Sets the mail driver to use and applies any specific configuration
@@ -462,6 +496,11 @@ class Email implements ShouldQueue
         switch ($this->email_object->settings->email_sending_method) {
             case 'default':
                 $this->mailer = config('mail.default');
+                // $this->setHostedMailgunMailer(); //should only be activated if hosted platform needs to fall back to mailgun
+                break;
+            case 'mailgun':
+                $this->mailer = 'mailgun';
+                $this->setHostedMailgunMailer();
                 break;
             case 'gmail':
                 $this->mailer = 'gmail';
@@ -744,14 +783,16 @@ class Email implements ShouldQueue
      */
     private function logMailError($errors, $recipient_object): void
     {
-        (new SystemLogger(
-            $errors,
-            SystemLog::CATEGORY_MAIL,
-            SystemLog::EVENT_MAIL_SEND,
-            SystemLog::TYPE_FAILURE,
-            $recipient_object,
-            $this->company
-        ))->handle();
+        (
+            new SystemLogger(
+                $errors,
+                SystemLog::CATEGORY_MAIL,
+                SystemLog::EVENT_MAIL_SEND,
+                SystemLog::TYPE_FAILURE,
+                $recipient_object,
+                $this->company
+            )
+        )->handle();
 
         $job_failure = new EmailFailure($this->company->company_key);
         $job_failure->string_metric5 = 'failed_email';

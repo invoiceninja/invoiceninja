@@ -26,16 +26,16 @@ use Illuminate\Support\Facades\Validator;
 class CreditCard
 {
     use MakesHash;
-    
+
     public $forte;
 
-    private $forte_base_uri="";
-    private $forte_api_access_id="";
-    private $forte_secure_key="";
-    private $forte_auth_organization_id="";
-    private $forte_organization_id="";
-    private $forte_location_id="";
-    
+    private $forte_base_uri = "";
+    private $forte_api_access_id = "";
+    private $forte_secure_key = "";
+    private $forte_auth_organization_id = "";
+    private $forte_organization_id = "";
+    private $forte_location_id = "";
+
     public function __construct(FortePaymentDriver $forte)
     {
         $this->forte = $forte;
@@ -59,7 +59,7 @@ class CreditCard
 
     public function authorizeResponse($request)
     {
-        $payment_meta = new \stdClass;
+        $payment_meta = new \stdClass();
         $payment_meta->exp_month = (string) $request->expire_month;
         $payment_meta->exp_year = (string) $request->expire_year;
         $payment_meta->brand = (string) $request->card_type;
@@ -108,7 +108,7 @@ class CreditCard
                 }
             }
         }
-        
+
         try {
             $curl = curl_init();
 
@@ -121,7 +121,7 @@ class CreditCard
                 CURLOPT_FOLLOWLOCATION => true,
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_POSTFIELDS =>'{
+                CURLOPT_POSTFIELDS => '{
                      "action":"sale", 
                      "authorization_amount":'.$amount_with_fee.',
                      "service_fee_amount":'.$fee_total.',
@@ -145,7 +145,7 @@ class CreditCard
 
             curl_close($curl);
 
-            $response=json_decode($response);
+            $response = json_decode($response);
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -156,7 +156,7 @@ class CreditCard
             'data' => $payment_hash->data,
         ];
 
-        if ($httpcode>299) {
+        if ($httpcode > 299) {
             SystemLogger::dispatch(
                 $message,
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
@@ -186,7 +186,7 @@ class CreditCard
             'transaction_reference' => $response->transaction_id,
             'gateway_type_id' => GatewayType::CREDIT_CARD,
         ];
-        $payment=$this->forte->createPayment($data, Payment::STATUS_COMPLETED);
+        $payment = $this->forte->createPayment($data, Payment::STATUS_COMPLETED);
         return redirect('client/invoices')->withSuccess('Invoice paid.');
     }
 }

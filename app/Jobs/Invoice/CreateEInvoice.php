@@ -9,7 +9,6 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-
 namespace App\Jobs\Invoice;
 
 use App\Models\Invoice;
@@ -26,7 +25,10 @@ use Illuminate\Support\Facades\App;
 
 class CreateEInvoice implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $deleteWhenMissingModels = true;
 
@@ -73,7 +75,7 @@ class CreateEInvoice implements ShouldQueue
             case "Facturae_3.2.2":
                 return (new FacturaEInvoice($this->invoice, str_replace("Facturae_", "", $e_invoice_type)))->run();
             default:
-                
+
                 $zugferd = (new ZugferdEInvoice($this->invoice))->run();
 
                 return $this->returnObject ? $zugferd : $zugferd->getXml();

@@ -24,7 +24,7 @@ class Yodlee
     private string $api_endpoint = 'https://production.api.yodlee.com/ysl';
 
     private string $dev_api_endpoint = 'https://sandbox.api.yodlee.com/ysl';
-    
+
     private string $test_api_endpoint = 'https://development.api.yodlee.com/ysl';
 
     public string $dev_fast_track_url = 'https://fl4.sandbox.yodlee.com/authenticate/restserver/fastlink';
@@ -61,7 +61,7 @@ class Yodlee
         if (config('ninja.yodlee.dev_mode')) {
             return $this->dev_fast_track_url;
         }
-        
+
         return $this->test_mode ? $this->test_fast_track_url : $this->production_track_url;
     }
 
@@ -218,7 +218,7 @@ class Yodlee
     public function getTransactions($params = [])
     {
         $token = $this->getAccessToken();
- 
+
         $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->getEndpoint(). "/transactions", $params);
 
         if ($response->successful()) {
@@ -234,7 +234,7 @@ class Yodlee
     public function getTransactionCount($params = [])
     {
         $token = $this->getAccessToken();
- 
+
         $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->getEndpoint(). "/transactions/count", $params);
 
         if ($response->successful()) {

@@ -75,7 +75,7 @@ class DocumentFilters extends QueryFilters
         if ($value == 'true') {
             return $this->builder->where('documentable_type', Company::class);
         }
-    
+
         return $this->builder;
     }
 

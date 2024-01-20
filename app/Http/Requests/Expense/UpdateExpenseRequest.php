@@ -27,7 +27,7 @@ class UpdateExpenseRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         return auth()->user()->can('edit', $this->expense);
     }
@@ -36,7 +36,7 @@ class UpdateExpenseRequest extends Request
     {
         /* Ensure we have a client name, and that all emails are unique*/
         $rules = [];
-     
+
         if (isset($this->number)) {
             $rules['number'] = Rule::unique('expenses')->where('company_id', auth()->user()->company()->id)->ignore($this->expense->id);
         }

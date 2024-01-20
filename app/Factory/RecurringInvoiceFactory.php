@@ -15,7 +15,7 @@ use App\Models\RecurringInvoice;
 
 class RecurringInvoiceFactory
 {
-    public static function create(int $company_id, int $user_id) :RecurringInvoice
+    public static function create(int $company_id, int $user_id): RecurringInvoice
     {
         $invoice = new RecurringInvoice();
         $invoice->status_id = RecurringInvoice::STATUS_DRAFT;
@@ -57,6 +57,6 @@ class RecurringInvoiceFactory
         $invoice->auto_bill = 'off';
 
         return $invoice;
-        
+
     }
 }

@@ -21,7 +21,7 @@ use App\DataMapper\Tax\ZipTax\Response;
 class TaxData
 {
     public int $updated_at;
-    
+
     public function __construct(public Response $origin)
     {
         foreach($origin as $key => $value) {

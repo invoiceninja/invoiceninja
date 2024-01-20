@@ -23,7 +23,10 @@ use Illuminate\Support\Facades\Auth;
 //@rebuild it
 class TaskScheduler implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $deleteWhenMissingModels = true;
 
@@ -78,7 +81,7 @@ class TaskScheduler implements ShouldQueue
     private function doJob(Scheduler $scheduler)
     {
         nlog("Doing job {$scheduler->name}");
-    
+
         try {
             $scheduler->service()->runTask();
         } catch(\Exception $e) {

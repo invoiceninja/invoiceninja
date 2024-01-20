@@ -27,7 +27,7 @@ class Helpers
     {
         if (! $client) {
             $elements['signature'] = '';
-            $elements['settings'] = new stdClass;
+            $elements['settings'] = new stdClass();
             $elements['whitelabel'] = true;
             $elements['company'] = '';
 

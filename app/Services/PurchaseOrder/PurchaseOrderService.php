@@ -43,7 +43,7 @@ class PurchaseOrderService
         if (! $this->purchase_order->design_id) {
             $this->purchase_order->design_id = $this->decodePrimaryKey($settings->purchase_order_design_id);
         }
-        
+
         if (!isset($this->purchase_order->footer) || empty($this->purchase_order->footer)) {
             $this->purchase_order->footer = $settings->purchase_order_footer;
         }
@@ -55,7 +55,7 @@ class PurchaseOrderService
         if (!isset($this->purchase_order->public_notes)  || empty($this->purchase_order->public_notes)) {
             $this->purchase_order->public_notes = $this->purchase_order->vendor->public_notes;
         }
-        
+
         if ($settings->counter_number_applied == 'when_saved') {
             $this->applyNumber()->save();
         }
@@ -110,7 +110,7 @@ class PurchaseOrderService
     public function expense()
     {
         $this->markSent();
-        
+
         if ($this->purchase_order->expense()->exists()) {
             return $this;
         }

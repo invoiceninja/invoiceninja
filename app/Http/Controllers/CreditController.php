@@ -152,7 +152,7 @@ class CreditController extends BaseController
     {
         /** @var \App\Models\User $user **/
         $user = auth()->user();
-        
+
         $credit = CreditFactory::create($user->company()->id, $user->id);
         $credit->date = now()->addSeconds($user->company()->utc_offset())->format('Y-m-d');
 
@@ -616,7 +616,7 @@ class CreditController extends BaseController
 
                 return response()->streamDownload(function () use ($file) {
                     echo $file;
-                }, $credit->numberFormatter().'.pdf', ['Content-Type' => 'application/pdf']);
+                }, $credit->numberFormatter() . '.pdf', ['Content-Type' => 'application/pdf']);
                 break;
             case 'archive':
                 $this->credit_repository->archive($credit);
@@ -649,7 +649,7 @@ class CreditController extends BaseController
                 // $credit->sendEvent(Webhook::EVENT_SENT_CREDIT, "client");
 
                 if (! $bulk) {
-                    return response()->json(['message'=>'email sent'], 200);
+                    return response()->json(['message' => 'email sent'], 200);
                 }
                 break;
 
@@ -713,7 +713,7 @@ class CreditController extends BaseController
         $credit = $invitation->credit;
 
         App::setLocale($invitation->contact->preferredLocale());
-        
+
         $file = $credit->service()->getCreditPdf($invitation);
 
         $headers = ['Content-Type' => 'application/pdf'];
@@ -724,7 +724,7 @@ class CreditController extends BaseController
 
         return response()->streamDownload(function () use ($file) {
             echo $file;
-        }, $credit->numberFormatter().'.pdf', $headers);
+        }, $credit->numberFormatter() . '.pdf', $headers);
 
     }
 

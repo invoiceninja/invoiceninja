@@ -29,7 +29,10 @@ use Illuminate\Queue\SerializesModels;
 
 class ProcessBankTransactionsYodlee implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     private string $bank_integration_account_id;
 
@@ -62,8 +65,9 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->bank_integration->integration_type != BankIntegration::INTEGRATION_TYPE_YODLEE)
+        if ($this->bank_integration->integration_type != BankIntegration::INTEGRATION_TYPE_YODLEE) {
             throw new \Exception("Invalid BankIntegration Type");
+        }
 
         set_time_limit(0);
 
@@ -162,7 +166,7 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
         $now = now();
 
         foreach ($transactions as $transaction) {
-            if (BankTransaction::query()->where('transaction_id', $transaction['transaction_id'])->where('company_id', $this->company->id)->where('bank_integration_id', $this->bank_integration->id)->withTrashed()->exists()) { 
+            if (BankTransaction::query()->where('transaction_id', $transaction['transaction_id'])->where('company_id', $this->company->id)->where('bank_integration_id', $this->bank_integration->id)->withTrashed()->exists()) {
                 continue;
             }
 

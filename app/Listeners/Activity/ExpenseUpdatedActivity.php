@@ -45,7 +45,7 @@ class ExpenseUpdatedActivity implements ShouldQueue
 
         $user_id = isset($event->event_vars['user_id']) ? $event->event_vars['user_id'] : $event->expense->user_id;
 
-        $fields = new stdClass;
+        $fields = new stdClass();
 
         $fields->expense_id = $expense->id;
         $fields->user_id = $user_id;

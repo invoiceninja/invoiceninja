@@ -26,7 +26,6 @@ use League\Csv\Writer;
 
 class TaskExport extends BaseExport
 {
-
     private $entity_transformer;
 
     public string $date_key = 'created_at';
@@ -111,16 +110,16 @@ class TaskExport extends BaseExport
 
         $query->cursor()
                 ->each(function ($resource) {
-        
+
                     $this->buildRow($resource);
-        
+
                     foreach($this->storage_array as $row) {
                         $this->storage_item_array[] = $this->processMetaData($row, $resource);
                     }
 
                     $this->storage_array = [];
                 });
-        // nlog($this->storage_item_array);
+
         return array_merge(['columns' => $header], $this->storage_item_array);
     }
 
@@ -140,25 +139,17 @@ class TaskExport extends BaseExport
             } elseif (in_array($key, ['task.start_date', 'task.end_date', 'task.duration'])) {
                 $entity[$key] = '';
             } else {
-                // nlog($key);
                 $entity[$key] = $this->decorator->transform($key, $task);
-                // $entity[$key] = $this->resolveKey($key, $task, $this->entity_transformer);
             }
 
-            // $entity['task.start_date'] = '';
-            // $entity['task.end_date'] = '';
-            // $entity['task.duration'] = '';
-
         }
-
-
 
         if (is_null($task->time_log) || (is_array(json_decode($task->time_log, 1)) && count(json_decode($task->time_log, 1)) == 0)) {
             $this->storage_array[] = $entity;
         } else {
             $this->iterateLogs($task, $entity);
         }
-        
+
     }
 
     private function iterateLogs(Task $task, array $entity)
@@ -196,19 +187,19 @@ class TaskExport extends BaseExport
             if (in_array('task.duration', $this->input['report_keys']) || in_array('duration', $this->input['report_keys'])) {
                 $entity['task.duration'] = $task->calcDuration();
             }
-            
+
             $entity = $this->decorateAdvancedFields($task, $entity);
-            
+
             $this->storage_array[] = $entity;
-            
-            unset($entity['task.start_date']);
-            unset($entity['task.end_date']);
-            unset($entity['task.duration']);
+
+            $entity['task.start_date'] = '';
+            $entity['task.end_date'] = '';
+            $entity['task.duration'] = '';
         }
 
     }
 
-    private function decorateAdvancedFields(Task $task, array $entity) :array
+    private function decorateAdvancedFields(Task $task, array $entity): array
     {
         if (in_array('task.status_id', $this->input['report_keys'])) {
             $entity['task.status_id'] = $task->status()->exists() ? $task->status->name : '';
@@ -217,7 +208,7 @@ class TaskExport extends BaseExport
         if (in_array('task.project_id', $this->input['report_keys'])) {
             $entity['task.project_id'] = $task->project()->exists() ? $task->project->name : '';
         }
-        
+
         if (in_array('task.user_id', $this->input['report_keys'])) {
             $entity['task.user_id'] = $task->user ? $task->user->present()->name() : '';
         }

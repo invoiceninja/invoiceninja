@@ -16,7 +16,7 @@ use App\Models\Quote;
 
 class CloneCreditToQuoteFactory
 {
-    public static function create(Credit $credit, $user_id) : ?Quote
+    public static function create(Credit $credit, $user_id): ?Quote
     {
         $quote = new Quote();
         $quote->client_id = $credit->client_id;

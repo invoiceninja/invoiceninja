@@ -67,9 +67,9 @@ class PayPalUnlinkedTransaction extends Notification
         $content = "PayPal Order Not Found\n";
         $content .= "{$this->order_id}\n";
         $content .= "Transaction ref: {$this->transaction_reference}\n";
-        
 
-        return (new SlackMessage)
+
+        return (new SlackMessage())
                 ->success()
                 ->from(ctrans('texts.notification_bot'))
                 ->image('https://app.invoiceninja.com/favicon.png')

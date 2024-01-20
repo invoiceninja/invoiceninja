@@ -26,7 +26,7 @@ class PurchaseOrderCreatedListener implements ShouldQueue
     use UserNotifies;
 
     public $delay = 7;
-    
+
     public function __construct()
     {
     }
@@ -64,7 +64,7 @@ class PurchaseOrderCreatedListener implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
-                $nmo = new NinjaMailerObject;
+                $nmo = new NinjaMailerObject();
                 $nmo->mailable = new NinjaMailer((new EntityCreatedObject($purchase_order, 'purchase_order', $company_user->portalType()))->build());
                 $nmo->company = $purchase_order->company;
                 $nmo->settings = $purchase_order->company->settings;

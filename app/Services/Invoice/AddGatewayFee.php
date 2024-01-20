@@ -20,7 +20,6 @@ use Illuminate\Support\Facades\App;
 
 class AddGatewayFee extends AbstractService
 {
-    
     public function __construct(private CompanyGateway $company_gateway, private int $gateway_type_id, public Invoice $invoice, private float $amount)
     {
     }
@@ -67,7 +66,7 @@ class AddGatewayFee extends AbstractService
         $t->replace(Ninja::transformTranslations($this->invoice->company->settings));
         App::setLocale($this->invoice->client->locale());
 
-        $invoice_item = new InvoiceItem;
+        $invoice_item = new InvoiceItem();
         $invoice_item->type_id = '3';
         $invoice_item->product_key = ctrans('texts.surcharge');
         $invoice_item->notes = ctrans('texts.online_payment_surcharge');
@@ -120,7 +119,7 @@ class AddGatewayFee extends AbstractService
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->invoice->company->settings));
 
-        $invoice_item = new InvoiceItem;
+        $invoice_item = new InvoiceItem();
         $invoice_item->type_id = '3';
         $invoice_item->product_key = ctrans('texts.discount');
         $invoice_item->notes = ctrans('texts.online_payment_discount');

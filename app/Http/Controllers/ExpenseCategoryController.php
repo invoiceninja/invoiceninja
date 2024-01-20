@@ -128,7 +128,11 @@ class ExpenseCategoryController extends BaseController
      */
     public function create(CreateExpenseCategoryRequest $request)
     {
-        $expense_category = ExpenseCategoryFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $expense_category = ExpenseCategoryFactory::create($user->company()->id, auth()->user()->id);
 
         return $this->itemResponse($expense_category);
     }

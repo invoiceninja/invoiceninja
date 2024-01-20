@@ -31,7 +31,8 @@ use Illuminate\View\View;
 
 class PurchaseOrderController extends Controller
 {
-    use MakesHash, MakesDates;
+    use MakesHash;
+    use MakesDates;
 
     public const MODULE_RECURRING_INVOICES = 1;
 
@@ -124,9 +125,9 @@ class PurchaseOrderController extends Controller
 
     }
 
-    
 
-    private function sidebarMenu() :array
+
+    private function sidebarMenu(): array
     {
         $enabled_modules = auth()->guard('vendor')->user()->company->enabled_modules;
         $data = [];
@@ -172,7 +173,7 @@ class PurchaseOrderController extends Controller
         $purchase_orders->whereIn('status_id', [PurchaseOrder::STATUS_DRAFT, PurchaseOrder::STATUS_SENT])
                         ->cursor()
                         ->each(function ($purchase_order) {
-            
+
                             $purchase_order->service()
                                         ->markSent()
                                         ->applyNumber()
@@ -227,7 +228,7 @@ class PurchaseOrderController extends Controller
         $zipFile = new \PhpZip\ZipFile();
         try {
             foreach ($invitations as $invitation) {
-            
+
                 $file = (new CreateRawPdf($invitation))->handle();
                 $zipFile->addFromString($invitation->purchase_order->numberFormatter().".pdf", $file);
             }

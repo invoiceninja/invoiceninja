@@ -13,21 +13,21 @@ namespace App\Services\Pdf;
 
 class PdfDesigner
 {
-    const BOLD = 'bold';
-    const BUSINESS = 'business';
-    const CLEAN = 'clean';
-    const CREATIVE = 'creative';
-    const ELEGANT = 'elegant';
-    const HIPSTER = 'hipster';
-    const MODERN = 'modern';
-    const PLAIN = 'plain';
-    const PLAYFUL = 'playful';
-    const CUSTOM = 'custom';
-    const CALM = 'calm';
-    
-    const DELIVERY_NOTE = 'delivery_note';
-    const STATEMENT = 'statement';
-    const PURCHASE_ORDER = 'purchase_order';
+    public const BOLD = 'bold';
+    public const BUSINESS = 'business';
+    public const CLEAN = 'clean';
+    public const CREATIVE = 'creative';
+    public const ELEGANT = 'elegant';
+    public const HIPSTER = 'hipster';
+    public const MODERN = 'modern';
+    public const PLAIN = 'plain';
+    public const PLAYFUL = 'playful';
+    public const CUSTOM = 'custom';
+    public const CALM = 'calm';
+
+    public const DELIVERY_NOTE = 'delivery_note';
+    public const STATEMENT = 'statement';
+    public const PURCHASE_ORDER = 'purchase_order';
 
     public string $template;
 
@@ -35,7 +35,7 @@ class PdfDesigner
     {
     }
 
-    public function build() :self
+    public function build(): self
     {
         /*If the design is custom*/
         if ($this->service->config->design->is_custom) {
@@ -66,7 +66,7 @@ class PdfDesigner
      * @param  array $partials
      * @return string
      */
-    private function composeFromPartials(array $partials) :string
+    private function composeFromPartials(array $partials): string
     {
         $html = '';
 

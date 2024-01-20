@@ -33,7 +33,10 @@ use App\DataMapper\Analytics\SendRecurringFailure;
 
 class SendRecurring implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
     use GeneratesCounter;
     use MakesHash;
 
@@ -56,7 +59,7 @@ class SendRecurring implements ShouldQueue
      *
      * @return void
      */
-    public function handle() : void
+    public function handle(): void
     {
         // Generate Standard Invoice
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice, $this->recurring_invoice->client);
@@ -170,7 +173,7 @@ class SendRecurring implements ShouldQueue
      * @param  Invoice $invoice
      * @return Invoice $invoice
      */
-    private function createRecurringInvitations($invoice) :Invoice
+    private function createRecurringInvitations($invoice): Invoice
     {
         if ($this->recurring_invoice->invitations->count() == 0) {
             $this->recurring_invoice->service()->createInvitations()->save();

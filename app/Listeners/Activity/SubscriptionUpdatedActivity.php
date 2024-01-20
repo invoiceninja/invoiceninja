@@ -43,7 +43,7 @@ class SubscriptionUpdatedActivity implements ShouldQueue
 
         $subscription = $event->subscription;
 
-        $fields = new stdClass;
+        $fields = new stdClass();
 
         $user_id = isset($event->event_vars['user_id']) ? $event->event_vars['user_id'] : $event->subscription->user_id;
 

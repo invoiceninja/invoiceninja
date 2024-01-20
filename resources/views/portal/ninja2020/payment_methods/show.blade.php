@@ -147,8 +147,14 @@
 
 @section('footer')
     <script>
-        Livewire.on('UpdateDefaultMethod::method-updated', event => {
-            document.querySelector('span[data-ref=success-label]').classList.remove('hidden');
+
+        document.addEventListener('livewire:init', () => {
+
+            Livewire.on('UpdateDefaultMethod::method-updated', event => {
+                document.querySelector('span[data-ref=success-label]').classList.remove('hidden');
+            });
+
         });
-    </script>
+
+        </script>
 @endsection

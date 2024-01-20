@@ -66,7 +66,7 @@ class CreditCard
                 'surname' => $this->braintree->client->present()->last_name() ?: '',
                 'phoneNumber' => $this->braintree->client->present()->phone(),
                 'streetAddress' => $this->braintree->client->address1 ?: '',
-                'extendedAddress' =>$this->braintree->client->address2 ?: '',
+                'extendedAddress' => $this->braintree->client->address2 ?: '',
                 'locality' => $this->braintree->client->city ?: '',
                 'postalCode' => $this->braintree->client->postal_code ?: '',
                 'countryCodeAlpha2' => $this->braintree->client->country ? $this->braintree->client->country->iso_3166_2 : 'US',
@@ -80,7 +80,7 @@ class CreditCard
         $data['client_token'] = $this->braintree->gateway->clientToken()->generate();
         $data['threeds'] = $this->threeDParameters($data);
         $data['threeds_enable'] = $this->braintree->company_gateway->getConfigField('threeds') ? "true" : "false";
-        
+
         if ($this->braintree->company_gateway->getConfigField('merchantAccountId')) {
             /** https://developer.paypal.com/braintree/docs/reference/request/client-token/generate#merchant_account_id */
             $data['client_token'] = $this->braintree->gateway->clientToken()->generate([
@@ -126,7 +126,7 @@ class CreditCard
             ],
             'billing' => [
                 'streetAddress' => $this->braintree->client->address1 ?: '',
-                'extendedAddress' =>$this->braintree->client->address2 ?: '',
+                'extendedAddress' => $this->braintree->client->address2 ?: '',
                 'locality' => $this->braintree->client->city ?: '',
                 'postalCode' => $this->braintree->client->postal_code ?: '',
                 'countryCodeAlpha2' => $this->braintree->client->country ? $this->braintree->client->country->iso_3166_2 : 'US',
@@ -185,7 +185,7 @@ class CreditCard
             ],
             'billingAddress' => [
                 'streetAddress' => $this->braintree->client->address1 ?: '',
-                'extendedAddress' =>$this->braintree->client->address2 ?: '',
+                'extendedAddress' => $this->braintree->client->address2 ?: '',
                 'locality' => $this->braintree->client->city ?: '',
                 'postalCode' => $this->braintree->client->postal_code ?: '',
                 'countryCodeAlpha2' => $this->braintree->client->country ? $this->braintree->client->country->iso_3166_2 : 'US',
@@ -260,7 +260,7 @@ class CreditCard
     private function storePaymentMethod($method, $customer_reference)
     {
         try {
-            $payment_meta = new \stdClass;
+            $payment_meta = new \stdClass();
             $payment_meta->exp_month = (string) $method->expirationMonth;
             $payment_meta->exp_year = (string) $method->expirationYear;
             $payment_meta->brand = (string) $method->cardType;

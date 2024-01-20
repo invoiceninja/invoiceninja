@@ -39,7 +39,11 @@ use Turbo124\Beacon\Facades\LightLogs;
 
 class AdminEmail implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use MakesHash;
 
     public $tries = 4;
 
@@ -603,14 +607,16 @@ class AdminEmail implements ShouldQueue
      */
     private function logMailError($errors, $recipient_object): void
     {
-        (new SystemLogger(
-            $errors,
-            SystemLog::CATEGORY_MAIL,
-            SystemLog::EVENT_MAIL_SEND,
-            SystemLog::TYPE_FAILURE,
-            $recipient_object,
-            $this->company
-        ))->handle();
+        (
+            new SystemLogger(
+                $errors,
+                SystemLog::CATEGORY_MAIL,
+                SystemLog::EVENT_MAIL_SEND,
+                SystemLog::TYPE_FAILURE,
+                $recipient_object,
+                $this->company
+            )
+        )->handle();
 
         $job_failure = new EmailFailure($this->company->company_key);
         $job_failure->string_metric5 = 'failed_email';

@@ -13,5 +13,5 @@ namespace App\DataMapper\Transactions;
 
 interface TransactionInterface
 {
-    public function transform(array $data) :array;
+    public function transform(array $data): array;
 }

@@ -108,7 +108,7 @@ class RecurringExpensesCron
         if($expense->company->mark_expenses_paid) {
             $expense->payment_date = now()->format('Y-m-d');
         }
-            
+
         $expense->number = $this->getNextExpenseNumber($expense);
         $expense->saveQuietly();
 

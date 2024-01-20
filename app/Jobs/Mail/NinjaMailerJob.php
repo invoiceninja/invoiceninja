@@ -41,7 +41,11 @@ use Turbo124\Beacon\Facades\LightLogs;
 
 class NinjaMailerJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use MakesHash;
 
     public $tries = 4; //number of retries
 
@@ -107,6 +111,7 @@ class NinjaMailerJob implements ShouldQueue
             $this->nmo->mailable->replyTo($this->company->owner()->email, $this->company->owner()->present()->name());
         }
 
+
         /* Run time we set the email tag */
         $this->nmo->mailable->tag($this->company->company_key);
 
@@ -138,9 +143,16 @@ class NinjaMailerJob implements ShouldQueue
                 $mailer->brevo_config($this->client_brevo_secret);
             }
 
+            $mailable = $this->nmo->mailable;
+
+            /** May need to re-build it here */
+            if (Ninja::isHosted() && method_exists($mailable, 'build')) {
+                $mailable->build();
+            }
+
             $mailer
                 ->to($this->nmo->to_user->email)
-                ->send($this->nmo->mailable);
+                ->send($mailable);
 
             /* Count the amount of emails sent across all the users accounts */
             Cache::increment("email_quota" . $this->company->account->key);
@@ -259,6 +271,11 @@ class NinjaMailerJob implements ShouldQueue
         switch ($this->nmo->settings->email_sending_method) {
             case 'default':
                 $this->mailer = config('mail.default');
+                // $this->setHostedMailgunMailer(); //should only be activated if hosted platform needs to fall back to mailgun
+                break;
+            case 'mailgun':
+                $this->mailer = 'mailgun';
+                $this->setHostedMailgunMailer();
                 break;
             case 'gmail':
                 $this->mailer = 'gmail';
@@ -370,6 +387,21 @@ class NinjaMailerJob implements ShouldQueue
         }
 
         return $user;
+    }
+
+    private function setHostedMailgunMailer()
+    {
+
+        if (property_exists($this->nmo->settings, 'email_from_name') && strlen($this->nmo->settings->email_from_name) > 1) {
+            $email_from_name = $this->nmo->settings->email_from_name;
+        } else {
+            $email_from_name = $this->company->present()->name();
+        }
+
+        $this->nmo
+            ->mailable
+            ->from(config('services.mailgun.from.address'), $email_from_name);
+
     }
 
     /**
@@ -585,7 +617,6 @@ class NinjaMailerJob implements ShouldQueue
             if (class_exists(\Modules\Admin\Jobs\Account\EmailQuality::class)) {
                 (new \Modules\Admin\Jobs\Account\EmailQuality($this->nmo, $this->company))->run();
             }
-
             return true;
         }
 
@@ -606,14 +637,16 @@ class NinjaMailerJob implements ShouldQueue
      */
     private function logMailError($errors, $recipient_object): void
     {
-        (new SystemLogger(
-            $errors,
-            SystemLog::CATEGORY_MAIL,
-            SystemLog::EVENT_MAIL_SEND,
-            SystemLog::TYPE_FAILURE,
-            $recipient_object,
-            $this->nmo->company
-        ))->handle();
+        (
+            new SystemLogger(
+                $errors,
+                SystemLog::CATEGORY_MAIL,
+                SystemLog::EVENT_MAIL_SEND,
+                SystemLog::TYPE_FAILURE,
+                $recipient_object,
+                $this->nmo->company
+            )
+        )->handle();
 
         $job_failure = new EmailFailure($this->nmo->company->company_key);
         $job_failure->string_metric5 = 'failed_email';

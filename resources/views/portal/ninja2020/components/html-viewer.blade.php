@@ -216,16 +216,20 @@ span {
             }
         });
 
-        Livewire.hook('message.processed', (message, component) => {
+        document.addEventListener('livewire:init', () => {
 
-            Array.from(document.getElementsByClassName("entity-field")).forEach(function(item) {
-                if(item.innerText.length == 0){
-                    item.parentNode.remove();
-                }
+            Livewire.hook('message.processed', (message, component) => {
+
+                Array.from(document.getElementsByClassName("entity-field")).forEach(function(item) {
+                    if(item.innerText.length == 0){
+                        item.parentNode.remove();
+                    }
+                });
+
             });
 
-        })
-        
+        });
+
         var timeout = false; 
         
         /* Watch for resize of window and ensure we unset props with no values */

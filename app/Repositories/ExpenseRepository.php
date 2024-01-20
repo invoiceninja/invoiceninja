@@ -48,7 +48,7 @@ class ExpenseRepository extends BaseRepository
 
         if(isset($data['payment_date']) && $data['payment_date'] == $expense->payment_date) {
             //do nothing
-        } elseif(isset($data['payment_date']) && strlen($data['payment_date']) > 1 && $user->company()->notify_vendor_when_paid && ($data['vendor_id'] || $expense->vendor_id)) {
+        } elseif(isset($data['payment_date']) && strlen($data['payment_date']) > 1 && $user->company()->notify_vendor_when_paid && (isset($data['vendor_id']) || $expense->vendor_id)) {
             nlog("ping");
             $this->notify_vendor = true;
         }
@@ -121,15 +121,15 @@ class ExpenseRepository extends BaseRepository
     }
 
 
-    public function delete($expense) :Expense
+    public function delete($expense): Expense
     {
-        
+
         if ($expense->transaction()->exists()) {
-            
+
             $exp_ids = collect(explode(',', $expense->transaction->expense_id))->filter(function ($id) use ($expense) {
                 return $id != $expense->hashed_id;
             })->implode(',');
-                    
+
             $expense->transaction_id = null;
             $expense->saveQuietly();
 
@@ -176,7 +176,7 @@ class ExpenseRepository extends BaseRepository
 
         return $expense;
     }
-    
+
     /**
      * Categorize Expenses in bulk
      *
@@ -190,7 +190,7 @@ class ExpenseRepository extends BaseRepository
 
         $expenses->when($ec)
                  ->each(function ($expense) use ($ec) {
-                                                
+
                      $expense->category_id = $ec->id;
                      $expense->save();
 

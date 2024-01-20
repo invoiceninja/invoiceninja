@@ -29,7 +29,7 @@ class UpdateRecurringInvoiceRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User auth()->user() */
         $user = auth()->user();
@@ -57,7 +57,7 @@ class UpdateRecurringInvoiceRequest extends Request
         }
 
         $rules['number'] = ['bail', 'sometimes', Rule::unique('recurring_invoices')->where('company_id', $user->company()->id)->ignore($this->recurring_invoice->id)];
-        
+
 
         $rules['client_id'] = ['bail', 'sometimes', Rule::in([$this->recurring_invoice->client_id])];
 

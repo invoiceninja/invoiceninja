@@ -23,7 +23,7 @@ use App\Repositories\InvoiceRepository;
 class Invoicely extends BaseImport
 {
     public array $entity_count = [];
-    
+
     public function import(string $entity)
     {
         if (

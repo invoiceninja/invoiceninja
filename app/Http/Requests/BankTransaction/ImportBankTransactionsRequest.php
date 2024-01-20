@@ -20,7 +20,7 @@ class ImportBankTransactionsRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         return auth()->user()->isAdmin();
     }
@@ -42,7 +42,7 @@ class ImportBankTransactionsRequest extends Request
     public function prepareForValidation()
     {
         $inputs = $this->all();
-        
+
         foreach ($inputs['transactions'] as $key => $input) {
             if (array_key_exists('id', $inputs['transactions'][$key])) {
                 $inputs['transactions'][$key]['id'] = $this->decodePrimaryKey($input['id']);

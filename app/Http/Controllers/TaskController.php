@@ -276,7 +276,7 @@ class TaskController extends BaseController
         $old_task = json_decode(json_encode($task));
 
         $task = $this->task_repo->save($request->all(), $task);
-        
+
         $task = $this->task_repo->triggeredActions($request, $task);
 
         if ($task->status_order != $old_task->status_order) {
@@ -507,7 +507,7 @@ class TaskController extends BaseController
         $action = $request->input('action');
 
         $ids = $request->input('ids');
-        
+
         $tasks = Task::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
         if($action == 'template' && $user->can('view', $tasks->first())) {
@@ -651,7 +651,7 @@ class TaskController extends BaseController
     {
         $task_statuses = $request->input('status_ids');
         $tasks = $request->input('task_ids');
-        
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
 

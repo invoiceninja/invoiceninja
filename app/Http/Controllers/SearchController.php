@@ -31,7 +31,7 @@ class SearchController extends Controller
 
         $this->clientMap($user);
         $this->invoiceMap($user);
-        
+
         return response()->json([
             'clients' => $this->clients,
             'client_contacts' => $this->client_contacts,
@@ -71,7 +71,7 @@ class SearchController extends Controller
                 ];
             });
         }
-                         
+
 
     }
 
@@ -91,7 +91,7 @@ class SearchController extends Controller
                      ->orderBy('id', 'desc')
                     ->take(3000)
                     ->get();
-                    
+
         foreach($invoices as $invoice) {
             $this->invoices[] = [
                 'name' => $invoice->client->present()->name() . ' - ' . $invoice->number,
@@ -100,7 +100,7 @@ class SearchController extends Controller
                 'path' => "/invoices/{$invoice->hashed_id}/edit"
             ];
         }
-                    
+
     }
 
     private function settingsMap()

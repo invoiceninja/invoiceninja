@@ -80,7 +80,7 @@ trait MakesReminders
 
     }
 
-    private function checkEndlessReminder($last_sent_date, $endless_reminder_frequency_id) :bool
+    private function checkEndlessReminder($last_sent_date, $endless_reminder_frequency_id): bool
     {
         if (Carbon::now()->startOfDay()->eq($this->addTimeInterval($last_sent_date, $endless_reminder_frequency_id))) {
             return true;
@@ -89,7 +89,7 @@ trait MakesReminders
         return false;
     }
 
-    private function addTimeInterval($date, $endless_reminder_frequency_id) :?Carbon
+    private function addTimeInterval($date, $endless_reminder_frequency_id): ?Carbon
     {
         if (! $date) {
             return null;

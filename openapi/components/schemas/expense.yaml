@@ -36,7 +36,7 @@
           description: 'The currency id of the related invoice'
           type: string
           example: '1'
-        expense_currency_id:
+        currency_id:
           description: 'The currency id of the expense'
           type: string
           example: '2'

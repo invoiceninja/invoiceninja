@@ -125,7 +125,7 @@ class PaymentEmailEngine extends BaseEmailEngine
                     'nohash',
                     false
                 ))->handle();
-                                                
+
                 $file_name = ctrans('texts.payment_receipt', ['number' => $this->payment->number ]) . '.pdf';
                 $file_name = str_replace(' ', '_', $file_name);
                 $this->setAttachments([['file' => base64_encode($pdf), 'name' => $file_name]]);
@@ -310,7 +310,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$viewButton'] = &$data['$view_link'];
         $data['$viewLink'] = &$data['$view_link'];
         $data['$paymentLink'] = &$data['$view_link'];
-        $data['$portalButton'] = ['value' =>  $this->buildViewButton($this->payment->getPortalLink(), ctrans('texts.login')), 'label' =>''];
+        $data['$portalButton'] = ['value' =>  $this->buildViewButton($this->payment->getPortalLink(), ctrans('texts.login')), 'label' => ''];
         $data['$portal_url'] = &$data['$portalButton'];
 
         $data['$view_url'] = ['value' => $this->payment->getLink(), 'label' => ctrans('texts.view_payment')];
@@ -413,7 +413,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         if(strlen($invoice_list) < 4) {
             $invoice_list = Number::formatMoney($this->payment->amount, $this->client) ?: '&nbsp;';
         }
-            
+
 
         return $invoice_list;
 
@@ -444,7 +444,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         return $invoice_list;
     }
 
-    public function makeValues() :array
+    public function makeValues(): array
     {
         $data = [];
 
@@ -456,7 +456,7 @@ class PaymentEmailEngine extends BaseEmailEngine
 
         return $data;
     }
-    
+
     /**
      * generateLabelsAndValues
      *

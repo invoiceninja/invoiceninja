@@ -63,7 +63,7 @@ class PurchaseOrderFilters extends QueryFilters
                 $po_status[] = PurchaseOrder::STATUS_CANCELLED;
             }
 
-            if (count($po_status) >=1) {
+            if (count($po_status) >= 1) {
                 $query->whereIn('status_id', $po_status);
             }
         });

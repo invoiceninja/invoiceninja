@@ -36,7 +36,7 @@ class PaymentAmountsBalanceRule implements Rule
         return ctrans('texts.amounts_do_not_balance');
     }
 
-    private function calculateAmounts() :bool
+    private function calculateAmounts(): bool
     {
         /*
          * Sometimes the request may not contain the amount or it may be zero,

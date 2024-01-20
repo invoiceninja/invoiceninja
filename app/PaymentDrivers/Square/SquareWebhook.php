@@ -30,7 +30,11 @@ use Illuminate\Queue\SerializesModels;
 
 class SquareWebhook implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Utilities;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use Utilities;
 
     public $tries = 1;
 
@@ -49,7 +53,7 @@ class SquareWebhook implements ShouldQueue
         'BUY_NOW_PAY_LATER' => PaymentType::CREDIT_CARD_OTHER,
         'SQUARE_ACCOUNT' => PaymentType::CREDIT_CARD_OTHER,
         'CASH' => PaymentType::CASH,
-        'EXTERNAL' =>PaymentType::CREDIT_CARD_OTHER
+        'EXTERNAL' => PaymentType::CREDIT_CARD_OTHER
     ];
 
     public function __construct(public array $webhook_array, public string $company_key, public int $company_gateway_id)
@@ -111,7 +115,7 @@ class SquareWebhook implements ShouldQueue
             $payment->status_id = Payment::STATUS_COMPLETED;
             $payment->save();
         }
-            
+
     }
 
     private function retrieveOrCreatePayment(?string $payment_reference, int $payment_status): ?\App\Models\Payment
@@ -151,7 +155,7 @@ class SquareWebhook implements ShouldQueue
             ];
 
             $payment = $this->driver->createPayment($data, $payment_status);
-            
+
             nlog("Creating payment");
 
             SystemLogger::dispatch(

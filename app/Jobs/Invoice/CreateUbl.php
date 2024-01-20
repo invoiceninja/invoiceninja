@@ -34,11 +34,14 @@ use Illuminate\Queue\SerializesModels;
 
 class CreateUbl implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
-    const INVOICE_TYPE_STANDARD = 380;
+    public const INVOICE_TYPE_STANDARD = 380;
 
-    const INVOICE_TYPE_CREDIT = 381;
+    public const INVOICE_TYPE_CREDIT = 381;
 
     public $invoice;
 

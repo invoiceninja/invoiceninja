@@ -62,7 +62,7 @@ class StoreSchedulerRequest extends Request
         if (array_key_exists('next_run', $input) && is_string($input['next_run'])) {
             $input['next_run_client'] = $input['next_run'];
         }
-     
+
         if($input['template'] == 'email_record') {
             $input['frequency_id'] = 0;
         }
@@ -70,7 +70,7 @@ class StoreSchedulerRequest extends Request
         if(isset($input['parameters']) && !isset($input['parameters']['clients'])) {
             $input['parameters']['clients'] = [];
         }
-        
+
         if(isset($input['parameters']['status'])) {
 
             $input['parameters']['status'] = collect(explode(",", $input['parameters']['status']))

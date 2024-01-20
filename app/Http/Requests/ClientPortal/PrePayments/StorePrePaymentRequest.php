@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\ClientPortal\PrePayments;
 
+use App\Utils\Number;
 use App\Http\ViewComposers\PortalComposer;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -35,6 +36,7 @@ class StorePrePaymentRequest extends FormRequest
     {
         $input = $this->all();
 
+        $input['amount'] = Number::parseFloat($input['amount'], auth()->guard('contact')->user()->client->currency()->precision ?? 2);
 
         $this->replace($input);
 

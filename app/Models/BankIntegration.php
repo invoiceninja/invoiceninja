@@ -76,9 +76,9 @@ class BankIntegration extends BaseModel
         'auto_sync',
     ];
 
-    const INTEGRATION_TYPE_YODLEE = 'YODLEE';
+    public const INTEGRATION_TYPE_YODLEE = 'YODLEE';
 
-    const INTEGRATION_TYPE_NORDIGEN = 'NORDIGEN';
+    public const INTEGRATION_TYPE_NORDIGEN = 'NORDIGEN';
 
     public function getEntityType()
     {

@@ -206,7 +206,7 @@ class InvoiceEmailEngine extends BaseEmailEngine
                 }
             }
         }
-        
+
         $this->invitation = null;
         $contact = null;
         $variables = null;

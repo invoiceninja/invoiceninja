@@ -20,7 +20,10 @@ use Illuminate\Support\Facades\Storage;
 
 class DiskCleanup implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public function __construct()
     {

@@ -23,7 +23,6 @@ use App\Transformers\PurchaseOrderTransformer;
 
 class PurchaseOrderExport extends BaseExport
 {
-
     private $purchase_order_transformer;
 
     public string $date_key = 'date';
@@ -128,7 +127,7 @@ class PurchaseOrderExport extends BaseExport
                     $row = $this->buildRow($resource);
                     return $this->processMetaData($row, $resource);
                 })->toArray();
-        
+
         return array_merge(['columns' => $header], $report);
     }
 
@@ -151,7 +150,7 @@ class PurchaseOrderExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(PurchaseOrder $purchase_order) :array
+    private function buildRow(PurchaseOrder $purchase_order): array
     {
         $transformed_purchase_order = $this->purchase_order_transformer->transform($purchase_order);
 
@@ -171,13 +170,13 @@ class PurchaseOrderExport extends BaseExport
                 // $entity[$key] = $this->resolveKey($key, $purchase_order, $this->purchase_order_transformer);
             }
 
-            
+
         }
         // return $entity;
         return $this->decorateAdvancedFields($purchase_order, $entity);
     }
 
-    private function decorateAdvancedFields(PurchaseOrder $purchase_order, array $entity) :array
+    private function decorateAdvancedFields(PurchaseOrder $purchase_order, array $entity): array
     {
         if (in_array('country_id', $this->input['report_keys'])) {
             $entity['country'] = $purchase_order->vendor->country ? ctrans("texts.country_{$purchase_order->vendor->country->name}") : '';

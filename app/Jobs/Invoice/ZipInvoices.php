@@ -27,7 +27,10 @@ use Illuminate\Support\Facades\Storage;
 
 class ZipInvoices implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $tries = 1;
 
@@ -62,7 +65,7 @@ class ZipInvoices implements ShouldQueue
 
 
             foreach ($this->invoices as $invoice) {
-                
+
                 if ($invoice->client->getSetting('enable_e_invoice')) {
                     $xml = $invoice->service()->getEInvoice();
                     $zipFile->addFromString($invoice->getFileName("xml"), $xml);
@@ -75,7 +78,7 @@ class ZipInvoices implements ShouldQueue
 
             Storage::put($path.$file_name, $zipFile->outputAsString());
 
-            $nmo = new NinjaMailerObject;
+            $nmo = new NinjaMailerObject();
             $nmo->mailable = new DownloadInvoices(Storage::url($path.$file_name), $this->company);
             $nmo->to_user = $this->user;
             $nmo->settings = $settings;

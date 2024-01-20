@@ -26,7 +26,7 @@ class StoreTaskRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -57,7 +57,7 @@ class StoreTaskRequest extends Request
         $rules['hash'] = 'bail|sometimes|string|nullable';
 
         $rules['time_log'] = ['bail',function ($attribute, $values, $fail) {
-            
+
             if(is_string($values)) {
                 $values = json_decode($values, true);
             }
@@ -77,7 +77,7 @@ class StoreTaskRequest extends Request
                 return $fail('Please correct overlapping values');
             }
         }];
-        
+
         if ($this->file('documents') && is_array($this->file('documents'))) {
             $rules['documents.*'] = $this->file_validation;
         } elseif ($this->file('documents')) {
@@ -98,7 +98,7 @@ class StoreTaskRequest extends Request
     {
 
         $input = $this->decodePrimaryKeys($this->all());
-        
+
         if (array_key_exists('status_id', $input) && is_string($input['status_id'])) {
             $input['status_id'] = $this->decodePrimaryKey($input['status_id']);
         }

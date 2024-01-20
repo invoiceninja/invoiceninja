@@ -34,13 +34,13 @@ class ProjectFilters extends QueryFilters
         return  $this->builder->where(function ($query) use ($filter) {
             $query->where('name', 'like', '%'.$filter.'%')
                   ->orWhereHas('client', function ($q) use ($filter) {
-                        $q->where('name', 'like', '%'.$filter.'%');
-                    })
+                      $q->where('name', 'like', '%'.$filter.'%');
+                  })
                   ->orWhere('public_notes', 'like', '%'.$filter.'%')
                   ->orWhere('private_notes', 'like', '%'.$filter.'%');
         });
     }
-    
+
     public function number(string $number = ''): Builder
     {
         if (strlen($number) == 0) {

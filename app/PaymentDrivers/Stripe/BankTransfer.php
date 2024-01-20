@@ -69,10 +69,10 @@ class BankTransfer
         $data['return_url'] = $this->buildReturnUrl();
         $data['gateway'] = $this->stripe;
         $data['client_secret'] = $intent ? $intent->client_secret : false;
-        
+
         return render('gateways.stripe.bank_transfer.pay', $data);
     }
-    
+
     /**
      * Resolve the bank type based on the currency
      *
@@ -84,10 +84,10 @@ class BankTransfer
             'GBP' =>  ['type' => 'gb_bank_transfer'],
             'EUR' => ['type' => 'eu_bank_transfer', 'eu_bank_transfer' => ['country' => $this->stripe->client->country->iso_3166_2]],
             'JPY' => ['type' => 'jp_bank_transfer'],
-            'MXN' => ['type' =>'mx_bank_transfer'],
+            'MXN' => ['type' => 'mx_bank_transfer'],
         };
     }
-    
+
     /**
      * Return URL
      *
@@ -102,7 +102,7 @@ class BankTransfer
         ]);
     }
 
-    
+
     /**
      * paymentResponse
      *
@@ -134,7 +134,7 @@ class BankTransfer
                     'eur' => $data['bank_details'] = $this->formatDataforEur($pi),
                     'jpy' => $data['bank_details'] = $this->formatDataforJp($pi),
                 };
-                
+
                 $payment = $this->processSuccesfulRedirect($pi);
 
                 return render('gateways.stripe.bank_transfer.bank_details_container', $data);
@@ -143,7 +143,7 @@ class BankTransfer
             return $this->processUnsuccesfulRedirect();
         }
     }
-    
+
     /**
      * formatDataForUk
      *
@@ -164,7 +164,7 @@ class BankTransfer
 
         ];
     }
-    
+
     /**
      * formatDataforMx
      *
@@ -186,7 +186,7 @@ class BankTransfer
         ];
     }
 
-    
+
     /**
      * formatDataforEur
      *
@@ -219,11 +219,11 @@ class BankTransfer
                     'amount' => Number::formatMoney($this->stripe->convertFromStripeAmount($pi->next_action->display_bank_transfer_instructions->amount_remaining, $this->stripe->client->currency()->precision, $this->stripe->client->currency()), $this->stripe->client),
                     'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->account_holder_name,
                     'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->account_number,
-                    'account_type' =>$pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->account_type,
-                    'bank_code' =>$pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->bank_code,
-                    'bank_name' =>$pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->bank_name,
-                    'branch_code' =>$pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->branch_code,
-                    'branch_name' =>$pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->branch_name,
+                    'account_type' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->account_type,
+                    'bank_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->bank_code,
+                    'bank_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->bank_name,
+                    'branch_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->branch_code,
+                    'branch_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->branch_name,
                     'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
                     'description' => $pi->description,
                     'gateway'   => $this->stripe->company_gateway,
@@ -232,7 +232,7 @@ class BankTransfer
                 ];
     }
 
-    
+
     /**
      * processSuccesfulRedirect
      *
@@ -252,7 +252,7 @@ class BankTransfer
 
         ];
 
-        $payment = $this->stripe->createPayment($data, $payment_intent->status == 'succeeded' ?  Payment::STATUS_COMPLETED : Payment::STATUS_PENDING);
+        $payment = $this->stripe->createPayment($data, $payment_intent->status == 'succeeded' ? Payment::STATUS_COMPLETED : Payment::STATUS_PENDING);
 
         SystemLogger::dispatch(
             ['response' => $this->stripe->payment_hash->data, 'data' => $data],
@@ -265,7 +265,7 @@ class BankTransfer
 
         return  $payment;
     }
-            
+
     /**
      * processUnsuccesfulRedirect
      *

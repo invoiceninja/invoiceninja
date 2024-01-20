@@ -43,9 +43,9 @@ class ACH implements MethodInterface
             $data['gateway'] = $this->braintree;
             $data['client_token'] = $this->braintree->gateway->clientToken()->generate();
         } catch(\Exception $e) {
-            
+
             throw new PaymentFailed("Unable to generate client token, check your Braintree credentials. Error: " . $e->getMessage(), 500);
-            
+
         }
 
         return render('gateways.braintree.ach.authorize', $data);
@@ -72,7 +72,7 @@ class ACH implements MethodInterface
             $account = $result->paymentMethod;
 
             try {
-                $payment_meta = new \stdClass;
+                $payment_meta = new \stdClass();
                 $payment_meta->brand = (string) $account->bankName;
                 $payment_meta->last4 = (string) $account->last4;
                 $payment_meta->type = GatewayType::BANK_TRANSFER;

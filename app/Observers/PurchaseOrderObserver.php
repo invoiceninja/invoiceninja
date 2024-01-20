@@ -49,12 +49,12 @@ class PurchaseOrderObserver
         if ($purchase_order->getOriginal('deleted_at') && !$purchase_order->deleted_at) {
             $event = Webhook::EVENT_RESTORE_PURCHASE_ORDER;
         }
-        
+
         if ($purchase_order->is_deleted) {
             $event = Webhook::EVENT_DELETE_PURCHASE_ORDER;
         }
-        
-        
+
+
         $subscriptions = Webhook::where('company_id', $purchase_order->company_id)
                                     ->where('event_id', $event)
                                     ->exists();
@@ -75,7 +75,7 @@ class PurchaseOrderObserver
         if ($purchase_order->is_deleted) {
             return;
         }
-        
+
         $subscriptions = Webhook::where('company_id', $purchase_order->company_id)
                                     ->where('event_id', Webhook::EVENT_ARCHIVE_PURCHASE_ORDER)
                                     ->exists();

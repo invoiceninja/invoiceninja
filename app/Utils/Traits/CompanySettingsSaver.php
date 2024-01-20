@@ -27,7 +27,6 @@ use stdClass;
  */
 trait CompanySettingsSaver
 {
-
     private array $string_ids = [
         'payment_refund_design_id',
         'payment_receipt_design_id',
@@ -89,18 +88,18 @@ trait CompanySettingsSaver
 
         if($entity?->calculate_taxes && $company_settings->country_id == "840" && array_key_exists('settings', $entity->getDirty()) && !$entity?->account->isFreeHostedClient()) {
             $old_settings = $entity->getOriginal()['settings'];
-                                
+
             /** Monitor changes of the Postal code */
             if($old_settings->postal_code != $company_settings->postal_code) {
                 CompanyTaxRate::dispatch($entity);
             }
-            
-            
+
+
         } elseif($entity?->calculate_taxes && $company_settings->country_id == "840" && array_key_exists('calculate_taxes', $entity->getDirty()) && $entity->getOriginal('calculate_taxes') == 0 && !$entity?->account->isFreeHostedClient()) {
             CompanyTaxRate::dispatch($entity);
         }
-        
-        
+
+
         $entity->save();
     }
 
@@ -178,7 +177,7 @@ trait CompanySettingsSaver
      * @param  array $settings The settings request() array
      * @return stdClass       stdClass object
      */
-    private function checkSettingType($settings) : stdClass
+    private function checkSettingType($settings): stdClass
     {
         $settings = (object) $settings;
 
@@ -207,7 +206,7 @@ trait CompanySettingsSaver
                 $value = 'integer';
 
                 if(in_array($key, $this->string_ids)) {
-                    $value ='string';
+                    $value = 'string';
                 }
 
                 // if ($key == 'gmail_sending_user_id') {
@@ -266,7 +265,7 @@ trait CompanySettingsSaver
      * @param  string $value The object property
      * @return bool        TRUE if the property is the expected type
      */
-    private function checkAttribute($key, $value) :bool
+    private function checkAttribute($key, $value): bool
     {
         switch ($key) {
             case 'int':

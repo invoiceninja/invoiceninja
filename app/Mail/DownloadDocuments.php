@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\App;
 
 class DownloadDocuments extends Mailable
 {
-
     public function __construct(public string $file_path, public Company $company)
     {
     }

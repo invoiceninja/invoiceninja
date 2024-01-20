@@ -30,7 +30,7 @@ class SetInviteDb
     {
         $error = [
             'message' => 'I could not find the database for this object.',
-            'errors' => new stdClass,
+            'errors' => new stdClass(),
         ];
         /*
          * Use the host name to set the active DB

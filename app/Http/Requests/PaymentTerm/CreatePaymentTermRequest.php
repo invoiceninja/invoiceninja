@@ -20,7 +20,7 @@ class CreatePaymentTermRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         return auth()->user()->isAdmin();
     }

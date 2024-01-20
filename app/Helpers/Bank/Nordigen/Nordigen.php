@@ -19,8 +19,13 @@
 
 namespace App\Helpers\Bank\Nordigen;
 
+use App\Services\Email\Email;
+use App\Models\BankIntegration;
+use App\Services\Email\EmailObject;
+use Illuminate\Support\Facades\App;
 use App\Helpers\Bank\Nordigen\Transformer\AccountTransformer;
 use App\Helpers\Bank\Nordigen\Transformer\TransactionTransformer;
+use Illuminate\Mail\Mailables\Address;
 
 class Nordigen
 {
@@ -34,8 +39,9 @@ class Nordigen
     {
         $this->test_mode = config('ninja.nordigen.test_mode');
 
-        if (!(config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key')))
+        if (!(config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key'))) {
             throw new \Exception('missing nordigen credentials');
+        }
 
         $this->client = new \Nordigen\NordigenPHP\API\NordigenClient(config('ninja.nordigen.secret_id'), config('ninja.nordigen.secret_key'));
 
@@ -45,8 +51,9 @@ class Nordigen
     // metadata-section for frontend
     public function getInstitutions()
     {
-        if ($this->test_mode)
+        if ($this->test_mode) {
             return [$this->client->institution->getInstitution($this->sandbox_institutionId)];
+        }
 
         return $this->client->institution->getInstitutions();
     }
@@ -54,8 +61,9 @@ class Nordigen
     // requisition-section
     public function createRequisition(string $redirect, string $initutionId, string $reference, string $userLanguage)
     {
-        if ($this->test_mode && $initutionId != $this->sandbox_institutionId)
+        if ($this->test_mode && $initutionId != $this->sandbox_institutionId) {
             throw new \Exception('invalid institutionId while in test-mode');
+        }
 
         return $this->client->requisition->createRequisition($redirect, $initutionId, null, $reference, $userLanguage);
     }
@@ -65,8 +73,9 @@ class Nordigen
         try {
             return $this->client->requisition->getRequisition($requisitionId);
         } catch (\Exception $e) {
-            if (strpos($e->getMessage(), "Invalid Requisition ID") !== false)
+            if (strpos($e->getMessage(), "Invalid Requisition ID") !== false) {
                 return false;
+            }
 
             throw $e;
         }
@@ -85,15 +94,16 @@ class Nordigen
 
             $it = new AccountTransformer();
             return $it->transform($out);
-            
+
         } catch (\Exception $e) {
-            if (strpos($e->getMessage(), "Invalid Account ID") !== false)
+            if (strpos($e->getMessage(), "Invalid Account ID") !== false) {
                 return false;
+            }
 
             throw $e;
         }
     }
-    
+
     /**
      * isAccountActive
      *
@@ -112,14 +122,15 @@ class Nordigen
 
             return true;
         } catch (\Exception $e) {
-            if (strpos($e->getMessage(), "Invalid Account ID") !== false)
+            if (strpos($e->getMessage(), "Invalid Account ID") !== false) {
                 return false;
+            }
 
             throw $e;
         }
     }
 
-    
+
     /**
      * getTransactions
      *
@@ -134,4 +145,25 @@ class Nordigen
         $it = new TransactionTransformer();
         return $it->transform($transactionResponse);
     }
+
+    public function disabledAccountEmail(BankIntegration $bank_integration): void
+    {
+
+        App::setLocale($bank_integration->company->getLocale());
+
+        $mo = new EmailObject();
+        $mo->subject = ctrans('texts.nordigen_requisition_subject');
+        $mo->body = ctrans('texts.nordigen_requisition_body');
+        $mo->text_body = ctrans('texts.nordigen_requisition_body');
+        $mo->company_key = $bank_integration->company->company_key;
+        $mo->html_template = 'email.template.generic';
+        $mo->to = [new Address($bank_integration->company->owner()->email, $bank_integration->company->owner()->present()->name())];
+        $mo->email_template_body = 'nordigen_requisition_body';
+        $mo->email_template_subject = 'nordigen_requisition_subject';
+
+        Email::dispatch($mo, $bank_integration->company);
+
+
+    }
+
 }

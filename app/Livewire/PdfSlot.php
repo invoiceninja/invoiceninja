@@ -273,7 +273,7 @@ class PdfSlot extends Component
                 'line_total' => Number::formatMoney($item->line_total, $this->entity->client ?: $this->entity->vendor),
             ];
         });
-        
+
         return $product_items;
     }
 
@@ -294,7 +294,7 @@ class PdfSlot extends Component
 
     }
 
-    private function resolveEntityType() :string
+    private function resolveEntityType(): string
     {
         if ($this->invitation instanceof InvoiceInvitation) {
             return 'invoice';
@@ -310,7 +310,7 @@ class PdfSlot extends Component
             return 'purchase_order';
         }
 
-        
+
         return '';
     }
 }

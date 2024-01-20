@@ -28,7 +28,7 @@ use App\Models\Quote;
  */
 trait UserNotifies
 {
-    public function findUserNotificationTypes($invitation, $company_user, $entity_name, $required_permissions) :array
+    public function findUserNotificationTypes($invitation, $company_user, $entity_name, $required_permissions): array
     {
         $notifiable_methods = [];
         $notifications = $company_user->notifications;
@@ -43,7 +43,7 @@ trait UserNotifies
 
         //if a user owns this record or is assigned to it, they are attached the permission for notification.
         if ($invitation->{$entity_name}->user_id == $company_user->user_id || $invitation->{$entity_name}->assigned_user_id == $company_user->user_id) {
-            
+
         } else {
             $required_permissions = $this->removeSpecialUserPermissionForEntity($invitation->{$entity_name}, $required_permissions);
         }
@@ -55,7 +55,7 @@ trait UserNotifies
         return $notifiable_methods;
     }
 
-    public function findUserEntityNotificationType($entity, $company_user, array $required_permissions) :array
+    public function findUserEntityNotificationType($entity, $company_user, array $required_permissions): array
     {
         $notifiable_methods = [];
         $notifications = $company_user->notifications;
@@ -81,7 +81,7 @@ trait UserNotifies
         return $notifiable_methods;
     }
 
-    private function addSpecialUserPermissionForEntity($entity, array $required_permissions) :array
+    private function addSpecialUserPermissionForEntity($entity, array $required_permissions): array
     {
         return array_merge($required_permissions, ['all_notifications', 'all_user_notifications']);
     }
@@ -109,7 +109,7 @@ trait UserNotifies
         }
     }
 
-    public function findCompanyUserNotificationType($company_user, $required_permissions) :array
+    public function findCompanyUserNotificationType($company_user, $required_permissions): array
     {
         if ($company_user->company->is_disabled ||
             $company_user->trashed() ||

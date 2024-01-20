@@ -185,7 +185,7 @@ class CreditCard
                 return $this->processUnsuccessfulPayment($e);
             }
 
-            $payment_meta = new \stdClass;
+            $payment_meta = new \stdClass();
             $payment_meta->exp_month = (string) $mandates[0]->details->cardExpiryDate;
             $payment_meta->exp_year = (string) '';
             $payment_meta->brand = (string) $mandates[0]->details->cardLabel;

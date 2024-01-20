@@ -25,7 +25,11 @@ use Illuminate\Queue\SerializesModels;
 
 class PaymentIntentFailureWebhook implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Utilities;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use Utilities;
 
     public $tries = 1; //number of retries
 

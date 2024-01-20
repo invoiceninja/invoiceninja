@@ -99,8 +99,8 @@ class StripeConnectController extends BaseController
 
         if (! $company_gateway) {
             $company_gateway = CompanyGatewayFactory::create($company->id, $company->owner()->id);
-            $fees_and_limits = new \stdClass;
-            $fees_and_limits->{GatewayType::CREDIT_CARD} = new FeesAndLimits;
+            $fees_and_limits = new \stdClass();
+            $fees_and_limits->{GatewayType::CREDIT_CARD} = new FeesAndLimits();
             $company_gateway->gateway_key = 'd14dd26a47cecc30fdd65700bfb67b34';
             $company_gateway->fees_and_limits = $fees_and_limits;
             $company_gateway->setConfig([]);
@@ -126,7 +126,7 @@ class StripeConnectController extends BaseController
         try {
             $stripe = $company_gateway->driver()->init();
             $a = \Stripe\Account::retrieve($response->stripe_user_id, $stripe->stripe_connect_auth);
-            
+
             if($a->business_name ?? false) {
                 $company_gateway->label = substr("Stripe - {$a->business_name}", 0, 250);
                 $company_gateway->save();

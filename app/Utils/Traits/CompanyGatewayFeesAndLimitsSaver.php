@@ -53,7 +53,7 @@ trait CompanyGatewayFeesAndLimitsSaver
      * @param  string $value The object property
      * @return bool        TRUE if the property is the expected type
      */
-    private function checkAttribute($key, $value) :bool
+    private function checkAttribute($key, $value): bool
     {
         switch ($key) {
             case 'int':
@@ -87,7 +87,7 @@ trait CompanyGatewayFeesAndLimitsSaver
         $new_arr = [];
 
         foreach ($fees_and_limits as $key => $value) {
-            $fal = new FeesAndLimits;
+            $fal = new FeesAndLimits();
             // $fal->{$key} = $value;
 
             foreach ($value as $k => $v) {

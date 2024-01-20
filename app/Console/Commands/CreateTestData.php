@@ -47,7 +47,8 @@ use Illuminate\Support\Str;
 
 class CreateTestData extends Command
 {
-    use MakesHash, GeneratesCounter;
+    use MakesHash;
+    use GeneratesCounter;
 
     /**
      * @var string
@@ -62,7 +63,7 @@ class CreateTestData extends Command
     protected $invoice_repo;
 
     protected $count;
-    
+
     /**
      * Execute the console command.
      *
@@ -115,7 +116,7 @@ class CreateTestData extends Command
             ]);
         }
 
-        $company_token = new CompanyToken;
+        $company_token = new CompanyToken();
         $company_token->user_id = $user->id;
         $company_token->company_id = $company->id;
         $company_token->account_id = $account->id;
@@ -210,7 +211,7 @@ class CreateTestData extends Command
             ]);
         }
 
-        $company_token = new CompanyToken;
+        $company_token = new CompanyToken();
         $company_token->user_id = $user->id;
         $company_token->company_id = $company->id;
         $company_token->account_id = $account->id;
@@ -307,7 +308,7 @@ class CreateTestData extends Command
             ]);
         }
 
-        $company_token = new CompanyToken;
+        $company_token = new CompanyToken();
         $company_token->user_id = $user->id;
         $company_token->company_id = $company->id;
         $company_token->account_id = $account->id;

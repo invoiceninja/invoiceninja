@@ -16,9 +16,9 @@ use Illuminate\Support\Str;
 
 class QuoteInvitationFactory
 {
-    public static function create(int $company_id, int $user_id) :QuoteInvitation
+    public static function create(int $company_id, int $user_id): QuoteInvitation
     {
-        $qi = new QuoteInvitation;
+        $qi = new QuoteInvitation();
         $qi->company_id = $company_id;
         $qi->user_id = $user_id;
         $qi->client_contact_id = null;
