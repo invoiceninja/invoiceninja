@@ -50,7 +50,7 @@ class SearchController extends Controller
                      ->when(!$user->hasPermission('view_all') || !$user->hasPermission('view_client'), function ($query) use ($user) {
                          $query->where('user_id', $user->id);
                      })
-                     ->orderBy('id', 'desc')
+                     ->orderBy('updated_at', 'desc')
                      ->take(1000)
                      ->get();
 
