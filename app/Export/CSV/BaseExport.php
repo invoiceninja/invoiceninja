@@ -387,6 +387,8 @@ class BaseExport
 
     protected array $expense_report_keys = [
         'amount' => 'expense.amount',
+        'tax_amount' => 'expense.tax_amount',
+        'net_amount' => 'expense.net_amount',
         'category' => 'expense.category_id',
         // 'client' => 'expense.client_id',
         'custom_value1' => 'expense.custom_value1',
