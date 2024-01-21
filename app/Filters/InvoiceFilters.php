@@ -291,7 +291,7 @@ class InvoiceFilters extends QueryFilters
             $start_date = Carbon::parse($parts[0]);
             $end_date = Carbon::parse($parts[1]);
 
-            return $this->builder->whereBetween('date', [$start_date, $end_date]);
+            return $this->builder->whereBetween('due_date', [$start_date, $end_date]);
         } catch(\Exception $e) {
             return $this->builder;
         }
