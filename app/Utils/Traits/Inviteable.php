@@ -60,6 +60,14 @@ trait Inviteable
 
     public function getPaymentQrCode()
     {
+        return htmlentities(
+            sprintf('<div>%s</div>', $this->getPaymentQrCodeRaw())
+        );
+    }
+
+    public function getPaymentQrCodeRaw()
+    {
+
         $renderer = new ImageRenderer(
             new RendererStyle(150, margin: 0),
             new SvgImageBackEnd()
@@ -68,9 +76,8 @@ trait Inviteable
 
         $qr = $writer->writeString($this->getPaymentLink(), 'utf-8');
 
-        return htmlentities(
-            sprintf('<div>%s</div>', $qr)
-        );
+            return $qr;
+
     }
 
     public function getUnsubscribeLink()
