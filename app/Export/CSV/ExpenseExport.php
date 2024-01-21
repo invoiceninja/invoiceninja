@@ -78,7 +78,7 @@ class ExpenseExport extends BaseExport
             'expense.net_amount'
         ];
 
-        $this->input['report_keys'] = array_merge($this->input['report_keys'], $tax_keys);
+        $this->input['report_keys'] = array_unique(array_merge($this->input['report_keys'], $tax_keys));
 
         $query = Expense::query()
                         ->with('client')

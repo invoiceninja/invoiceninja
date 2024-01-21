@@ -139,7 +139,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
 
     Route::post('bank_integrations/bulk', [BankIntegrationController::class, 'bulk'])->name('bank_integrations.bulk');
 
-    Route::resource('bank_transactions', BankTransactionController::class); // name = (clients. index / create / show / update / destroy / edit
+    Route::resource('bank_transactions', BankTransactionController::class); // name = (bank_transactions. index / create / show / update / destroy / edit
     Route::post('bank_transactions/bulk', [BankTransactionController::class, 'bulk'])->name('bank_transactions.bulk');
     Route::post('bank_transactions/match', [BankTransactionController::class, 'match'])->name('bank_transactions.match');
 

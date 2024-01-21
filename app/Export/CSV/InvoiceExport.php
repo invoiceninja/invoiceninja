@@ -167,7 +167,7 @@ class InvoiceExport extends BaseExport
             $entity['invoice.user_id'] = $invoice->user ? $invoice->user->present()->name() : '';
         }
 
-
+nlog($entity);
         return $entity;
     }
 }
