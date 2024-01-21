@@ -185,7 +185,7 @@ class InvoiceTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->get('/api/v1/invoices?date_range=date,1971-01-01,1971-01-03', )
+        ])->get('/api/v1/invoices?date_range=1971-01-01,1971-01-03', )
         ->assertStatus(200);
         
         $arr = $response->json();
