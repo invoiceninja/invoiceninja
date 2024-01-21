@@ -20,7 +20,8 @@ class ClientUnsubscribedObject
 {
     public function __construct(
         public ClientContact $contact,
-        public Company $company
+        public Company $company,
+        private bool $use_react_link = false
     ) {
     }
 
@@ -36,12 +37,13 @@ class ClientUnsubscribedObject
 
         $data = [
             'title' => ctrans('texts.client_unsubscribed'),
-            'message' => ctrans('texts.client_unsubscribed_help', ['client' => $this->contact->present()->name()]),
-            'url' => $this->contact->client->portalUrl(false),
+            'content' => ctrans('texts.client_unsubscribed_help', ['client' => $this->contact->present()->name()]),
+            'url' => $this->contact->getAdminLink($this->use_react_link),
             'button' => ctrans('texts.view_client'),
             'signature' => $this->company->settings->email_signature,
             'settings' => $this->company->settings,
             'logo' => $this->company->present()->logo(),
+            'text_body' => "\n\n".ctrans('texts.client_unsubscribed_help', ['client' => $this->contact->present()->name()])."\n\n",
         ];
 
         $mail_obj = new \stdClass();
@@ -49,6 +51,7 @@ class ClientUnsubscribedObject
         $mail_obj->data = $data;
         $mail_obj->markdown = 'email.admin.generic';
         $mail_obj->tag = $this->company->company_key;
+        $mail_obj->text_view = 'email.template.text';
 
         return $mail_obj;
     }

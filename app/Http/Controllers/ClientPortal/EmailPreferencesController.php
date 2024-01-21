@@ -12,14 +12,15 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Models\ClientContact;
 use App\Jobs\Mail\NinjaMailer;
 use App\Jobs\Mail\NinjaMailerJob;
+use App\Http\Controllers\Controller;
 use App\Jobs\Mail\NinjaMailerObject;
+use Illuminate\Support\Facades\Cache;
 use App\Mail\Admin\ClientUnsubscribedObject;
-use App\Models\ClientContact;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class EmailPreferencesController extends Controller
 {
@@ -42,14 +43,16 @@ class EmailPreferencesController extends Controller
         $invitation->contact->is_locked = $request->action === 'unsubscribe' ? true : false;
         $invitation->contact->push();
 
-        if ($invitation->contact->is_locked) {
+        if ($invitation->contact->is_locked && !Cache::has("unsubscribe_notitfication_suppression:{$invitation_key}")) {
             $nmo = new NinjaMailerObject();
-            $nmo->mailable = new NinjaMailer((new ClientUnsubscribedObject($invitation->contact, $invitation->contact->company))->build());
+            $nmo->mailable = new NinjaMailer((new ClientUnsubscribedObject($invitation->contact, $invitation->contact->company, $invitation->contact->company->owner()->company_users()->first()->portalType() ?? true))->build());
             $nmo->company = $invitation->contact->company;
             $nmo->to_user = $invitation->contact->company->owner();
             $nmo->settings = $invitation->contact->company->settings;
 
             NinjaMailerJob::dispatch($nmo);
+
+            Cache::put("unsubscribe_notitfication_suppression:{$invitation_key}", true, 3600);
         }
 
         return back()->with('message', ctrans('texts.updated_settings'));
