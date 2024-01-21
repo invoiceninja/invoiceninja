@@ -2207,6 +2207,8 @@ class ReportCsvGenerationTest extends TestCase
         $response = $this->poll($hash);
         $csv = $response->body();
 
+        nlog($csv);
+        
         $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Expense Amount'));
         $this->assertEquals('Public', $this->getFirstValueByColumn($csv, 'Expense Public Notes'));
         $this->assertEquals('Private', $this->getFirstValueByColumn($csv, 'Expense Private Notes'));
