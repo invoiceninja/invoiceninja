@@ -319,12 +319,21 @@ class BaseRule implements RuleInterface
                 Product::PRODUCT_TYPE_EXEMPT => $this->taxExempt($item),
                 Product::PRODUCT_TYPE_REDUCED_TAX => $this->taxReduced($item),
                 Product::PRODUCT_TYPE_OVERRIDE_TAX => $this->override($item),
+                Product::PRODUCT_TYPE_ZERO_RATED => $this->zeroRated($item),
                 default => $this->defaultForeign(),
             };
 
         }
         return $this;
 
+    }
+
+    public function zeroRated($item): self
+    {
+        $this->tax_rate1 = 0;
+        $this->tax_name1 = ctrans('texts.zero_rated');
+
+        return $this;
     }
 
     public function taxByType(mixed $type): self
