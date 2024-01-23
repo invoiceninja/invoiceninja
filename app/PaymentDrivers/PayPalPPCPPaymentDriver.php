@@ -437,7 +437,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
 
         if($shipping = $this->getShippingAddress()) {
-            $order['purchase_units'][0] = $shipping;
+            $order['purchase_units'][0]["shipping"] = $shipping;
         }
 
         $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
@@ -465,8 +465,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
     {
         return $this->company_gateway->require_shipping_address ?
         [
-            "shipping" =>  [
-                "address" =>
+            "address" =>
                 [
                     "address_line_1" => $this->client->shipping_address1,
                     "address_line_2" => $this->client->shipping_address2,
@@ -475,8 +474,8 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                     "postal_code" => $this->client->shipping_postal_code,
                     "country_code" => $this->client->present()->shipping_country_code(),
                 ],
-            ]
         ]
+        
         : null;
 
     }

@@ -63,7 +63,7 @@ class NinjaMailerJob implements ShouldQueue
     protected $client_mailgun_domain = false;
 
 
-    public function __construct(public NinjaMailerObject $nmo, public bool $override = false)
+    public function __construct(public ?NinjaMailerObject $nmo, public bool $override = false)
     {
     }
 
