@@ -44,7 +44,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $po_number
  * @property string|null $date
  * @property string|null $last_sent_date
- * @property string|null $due_date
+ * @property string|null|Carbon $due_date
  * @property string|null $next_send_date
  * @property bool $is_deleted
  * @property object|null $line_items
@@ -164,7 +164,7 @@ class Quote extends BaseModel
 
     protected $casts = [
         // 'date' => 'date:Y-m-d',
-        // 'due_date' => 'date:Y-m-d',
+        'due_date' => 'date:Y-m-d',
         // 'partial_due_date' => 'date:Y-m-d',
         'line_items' => 'object',
         'backup' => 'object',
@@ -195,10 +195,10 @@ class Quote extends BaseModel
         return $this->dateMutator($value);
     }
 
-    public function getDueDateAttribute($value)
-    {
-        return $this->dateMutator($value);
-    }
+    // public function getDueDateAttribute($value)
+    // {
+    //     return $this->dateMutator($value);
+    // }
 
     public function getPartialDueDateAttribute($value)
     {
