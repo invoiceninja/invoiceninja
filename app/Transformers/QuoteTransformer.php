@@ -111,7 +111,7 @@ class QuoteTransformer extends EntityTransformer
             'reminder2_sent' => $quote->reminder2_sent ?: '',
             'reminder3_sent' => $quote->reminder3_sent ?: '',
             'reminder_last_sent' => $quote->reminder_last_sent ?: '',
-            'due_date' => $quote->due_date ? $quote->due_date->format('Y-m-d') : '',
+            'due_date' => $quote->due_date ?: '',
             'terms' => $quote->terms ?: '',
             'public_notes' => $quote->public_notes ?: '',
             'private_notes' => $quote->private_notes ?: '',
