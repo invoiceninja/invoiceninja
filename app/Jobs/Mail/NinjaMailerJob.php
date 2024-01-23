@@ -51,10 +51,6 @@ class NinjaMailerJob implements ShouldQueue
 
     public $deleteWhenMissingModels = true;
 
-    public $nmo;
-
-    public $override;
-
     /** @var null|\App\Models\Company $company  **/
     public ?Company $company;
 
@@ -67,11 +63,8 @@ class NinjaMailerJob implements ShouldQueue
     protected $client_mailgun_domain = false;
 
 
-    public function __construct(NinjaMailerObject $nmo, bool $override = false)
+    public function __construct(public NinjaMailerObject $nmo, public bool $override = false)
     {
-        $this->nmo = $nmo;
-
-        $this->override = $override;
     }
 
     public function backoff()
@@ -106,7 +99,10 @@ class NinjaMailerJob implements ShouldQueue
             }
 
             $this->nmo->mailable->replyTo($this->nmo->settings->reply_to_email, $reply_to_name);
-        } else {
+        }elseif(isset($this->nmo->invitation->user)){
+            $this->nmo->mailable->replyTo($this->nmo->invitation->user->email, $this->nmo->invitation->user->present()->name());
+        } 
+        else {
             $this->nmo->mailable->replyTo($this->company->owner()->email, $this->company->owner()->present()->name());
         }
 
