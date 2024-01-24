@@ -918,7 +918,18 @@ class CheckData extends Command
                 $p->saveQuietly();
 
                 
-            $this->logMessage("Fixing currency for # {$p->id}");
+                $this->logMessage("Fixing currency for # {$p->id}");
+
+            });
+            
+            Company::whereNull("subdomain")
+            ->cursor()
+            ->when(Ninja::isHosted())
+            ->each(function ($c) {
+                $c->subdomain = MultiDB::randomSubdomainGenerator();
+                $c->save();
+
+                $this->logMessage("Fixing subdomain for # {$c->id}");
 
             });
 
