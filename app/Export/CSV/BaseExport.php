@@ -832,6 +832,42 @@ class BaseExport
         return $query;
     }
 
+    protected function addClientFilter($query, $clients): Builder
+    {   
+        $transformed_clients = $this->transformKeys(explode(',', $clients));
+        
+        $query->whereIn('client_id', $transformed_clients);
+        
+        return $query;
+    }
+
+    protected function addVendorFilter($query, $vendors): Builder
+    {   
+        $transformed_vendors = $this->transformKeys(explode(',', $vendors));
+        
+        $query->whereIn('vendor_id', $transformed_vendors);
+        
+        return $query;
+    }
+
+    protected function addProjectFilter($query, $projects): Builder
+    {   
+        $transformed_projects = $this->transformKeys(explode(',', $projects));
+        
+        $query->whereIn('project_id', $transformed_projects);
+        
+        return $query;
+    }
+
+    protected function addCategoryFilter($query, $expense_categories): Builder
+    {   
+        $transformed_expense_categories = $this->transformKeys(explode(',', $expense_categories));
+        
+        $query->whereIn('category_id', $transformed_expense_categories);
+        
+        return $query;
+    }
+
     protected function addInvoiceStatusFilter($query, $status): Builder
     {
 
