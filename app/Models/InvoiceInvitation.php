@@ -97,6 +97,11 @@ class InvoiceInvitation extends BaseModel
         return self::class;
     }
 
+    public function getEntityString(): string
+    {
+        return 'invoice';
+    }
+    
     public function entityType()
     {
         return Invoice::class;

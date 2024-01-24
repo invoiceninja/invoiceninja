@@ -97,6 +97,11 @@ class CreditInvitation extends BaseModel
         return self::class;
     }
 
+    public function getEntityString(): string
+    {
+        return 'credit';
+    }
+
     public function entityType()
     {
         return Credit::class;

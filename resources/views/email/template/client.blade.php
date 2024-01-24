@@ -163,7 +163,7 @@
 
                                 {{ $slot ?? '' }}
                                 {!! $body ?? '' !!}
-
+                                
                                 <div>
                                     <a href="#"
                                         style="display: inline-block;background-color: {{ $primary_color }}; color: #ffffff; text-transform: uppercase;letter-spacing: 2px; text-decoration: none; font-size: 13px; font-weight: 600;">
@@ -232,6 +232,21 @@
                         </div>
                     </td>
                 </tr>
+
+                @isset($email_preferences)
+                <tr>
+                    <td bgcolor="#242424"  cellpadding="20">
+                        <div class="dark-bg-base"
+                             style="padding-top: 10px;padding-bottom: 10px; background-color: #242424; border: 1px solid #c2c2c2; border-top-color: #242424; border-bottom-color: #242424;">
+                                <a href="{{ $email_preferences }}">
+                                    <p style="text-align: center; color: #ffffff; font-size: 10px; font-family: Verdana, Geneva, Tahoma, sans-serif;">
+                                        {{ ctrans('texts.unsubscribe') }}
+                                    </p>
+                                </a>
+                        </div>
+                    </td>
+                </tr>
+                @endisset
             </table>
         </td>
     </tr>

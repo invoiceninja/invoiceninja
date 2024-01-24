@@ -77,6 +77,9 @@ class EmailMailable extends Mailable
                 'company' => $this->email_object->company,
                 'greeting' => '',
                 'links' => array_merge($this->email_object->links, $links->toArray()),
+                'email_preferences' => $this->email_object->invitation 
+                    ? URL::signedRoute('client.email_preferences', ['entity' => $this->email_object->invitation->getEntityString(), 'invitation_key' => $this->email_object->invitation->key]) 
+                    : false,
             ]
         );
     }
