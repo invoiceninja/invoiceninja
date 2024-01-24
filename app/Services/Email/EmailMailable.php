@@ -11,13 +11,14 @@
 
 namespace App\Services\Email;
 
+use App\Utils\Ninja;
 use App\Models\Document;
-use Illuminate\Mail\Attachment;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Mail\Mailables\Headers;
+use Illuminate\Mail\Attachment;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Headers;
+use Illuminate\Mail\Mailables\Envelope;
 
 class EmailMailable extends Mailable
 {
@@ -77,7 +78,7 @@ class EmailMailable extends Mailable
                 'company' => $this->email_object->company,
                 'greeting' => '',
                 'links' => array_merge($this->email_object->links, $links->toArray()),
-                'email_preferences' => $this->email_object->invitation 
+                'email_preferences' => (Ninja::isHosted() && in_array($this->email_object->settings->email_sending_method, ['default', 'mailgun']) && $this->email_object->invitation) 
                     ? URL::signedRoute('client.email_preferences', ['entity' => $this->email_object->invitation->getEntityString(), 'invitation_key' => $this->email_object->invitation->key]) 
                     : false,
             ]
