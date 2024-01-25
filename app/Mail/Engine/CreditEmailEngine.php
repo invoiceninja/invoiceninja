@@ -11,13 +11,15 @@
 
 namespace App\Mail\Engine;
 
-use App\Jobs\Entity\CreateRawPdf;
-use App\Models\Account;
-use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
 use App\Utils\Number;
+use App\Models\Account;
+use App\Utils\HtmlEngine;
+use Illuminate\Support\Str;
+use App\Jobs\Entity\CreateRawPdf;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Cache;
 
 class CreditEmailEngine extends BaseEmailEngine
 {
@@ -125,7 +127,11 @@ class CreditEmailEngine extends BaseEmailEngine
             // Storage::url
             $this->credit->documents()->where('is_public', true)->cursor()->each(function ($document) {
                 if ($document->size > $this->max_attachment_size) {
-                    $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
+
+                    $hash = Str::random(64);
+                    Cache::put($hash, ['db' => $this->credit->company->db, 'doc_hash' => $document->hash], now()->addDays(7));
+
+                    $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.hashed_download', ['hash' => $hash]) ."'>". $document->name ."</a>"]);
                 } else {
                     $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null, 'file' => base64_encode($document->getFile())]]);
                 }
@@ -133,7 +139,11 @@ class CreditEmailEngine extends BaseEmailEngine
 
             $this->credit->company->documents()->where('is_public', true)->cursor()->each(function ($document) {
                 if ($document->size > $this->max_attachment_size) {
-                    $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
+
+                    $hash = Str::random(64);
+                    Cache::put($hash, ['db' => $this->credit->company->db, 'doc_hash' => $document->hash], now()->addDays(7));
+
+                    $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.hashed_download', ['hash' => $hash]) ."'>". $document->name ."</a>"]);
                 } else {
                     $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null, 'file' => base64_encode($document->getFile())]]);
                 }
