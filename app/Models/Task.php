@@ -316,8 +316,8 @@ class Task extends BaseModel
                 $logged['end_date'] = ctrans('texts.running');
             }
 
-            $logged['description'] = $log[2];
-            $logged['billable'] = $log[3];
+            $logged['description'] =  $log[2] ?? '';
+            $logged['billable'] = $log[3] ?? false;
             $logged['duration_raw'] = $duration;
             $logged['duration'] = gmdate("H:i:s", $duration);
 
