@@ -1359,7 +1359,7 @@ paths:
     get:
       tags:
         - client_gateway_tokens
-      summary: "List of client tokens"
+      summary: "List of client payment tokens"
       description: "Lists client_gateway_tokens, search and filters allow fine grained lists to be generated.\n\n    Query parameters can be added to performed more fine grained filtering of the client_gateway_tokens, these are handled by the ClientGatewayTokenFilters class which defines the methods available"
       operationId: getClientGatewayTokens
       parameters:
@@ -1400,8 +1400,8 @@ paths:
     post:
       tags:
         - client_gateway_tokens
-      summary: "Adds a client"
-      description: "Adds an client to a company"
+      summary: "Adds a client payment token"
+      description: "Adds a client payment token to a company"
       operationId: storeClientGatewayToken
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -1409,7 +1409,7 @@ paths:
         - $ref: "#/components/parameters/include"
       responses:
         200:
-          description: "Returns the saved client object"
+          description: "Returns the saved client payment token object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -1433,8 +1433,8 @@ paths:
     get:
       tags:
         - client_gateway_tokens
-      summary: "Shows a client"
-      description: "Displays a client by id"
+      summary: "Shows a client payment token"
+      description: "Displays a client payment token by id"
       operationId: showClientGatewayToken
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -1450,7 +1450,7 @@ paths:
           example: D2J234DFA
       responses:
         200:
-          description: "Returns the cl.ient object"
+          description: "Returns the client payment token object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -1473,8 +1473,8 @@ paths:
     put:
       tags:
         - client_gateway_tokens
-      summary: "Updates a client"
-      description: "Handles the updating of a client by id"
+      summary: "Updates a client payment token"
+      description: "Handles the updating of a client payment token by id"
       operationId: updateClientGatewayToken
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -1490,7 +1490,7 @@ paths:
           example: D2J234DFA
       responses:
         200:
-          description: "Returns the client object"
+          description: "Returns the client payment token object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -1514,7 +1514,7 @@ paths:
       tags:
         - client_gateway_tokens
       summary: "Deletes a client"
-      description: "Handles the deletion of a client by id"
+      description: "Handles the deletion of a client payment token by id"
       operationId: deleteClientGatewayToken
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -1550,7 +1550,7 @@ paths:
     get:
       tags:
         - client_gateway_tokens
-      summary: "Shows a client for editting"
+      summary: "Shows a client payment token for editting"
       description: "Displays a client by id"
       operationId: editClientGatewayToken
       parameters:
@@ -1567,7 +1567,7 @@ paths:
           example: D2J234DFA
       responses:
         200:
-          description: "Returns the client object"
+          description: "Returns the client payment token object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -1591,7 +1591,7 @@ paths:
     get:
       tags:
         - client_gateway_tokens
-      summary: "Gets a new blank client object"
+      summary: "Gets a new blank client payment token object"
       description: "Returns a blank object with default values"
       operationId: getClientGatewayTokensCreate
       parameters:
@@ -1600,7 +1600,7 @@ paths:
         - $ref: "#/components/parameters/include"
       responses:
         200:
-          description: "A blank client object"
+          description: "A blank client payment token object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"

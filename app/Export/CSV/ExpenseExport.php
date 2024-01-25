@@ -88,6 +88,22 @@ class ExpenseExport extends BaseExport
 
         $query = $this->addDateRange($query);
 
+        if(isset($this->input['clients'])) {
+            $query = $this->addClientFilter($query, $this->input['clients']);
+        }
+
+        if(isset($this->input['vendors'])) {
+            $query = $this->addVendorFilter($query, $this->input['vendors']);
+        }
+
+        if(isset($this->input['projects'])) {
+            $query = $this->addProjectFilter($query, $this->input['projects']);
+        }
+
+        if(isset($this->input['categories'])) {
+            $query = $this->addCategoryFilter($query, $this->input['categories']);
+        }
+
         return $query;
 
     }

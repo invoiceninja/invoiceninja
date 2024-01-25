@@ -70,7 +70,7 @@ class ClientRepository extends BaseRepository
             $client->settings = $client->saveSettings($data['settings'], $client);
         }
 
-        if (! $client->country_id) {
+        if (! $client->country_id || $client->country_id == 0) {
             /** @var \App\Models\Company $company **/
             $company = Company::find($client->company_id);
             $client->country_id = $company->settings->country_id;
