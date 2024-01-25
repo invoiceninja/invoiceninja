@@ -314,9 +314,9 @@ class Payment extends BaseModel
         return $this->createClientDate($this->date, $this->client->timezone()->name)->format($date_format->format);
     }
 
-    public static function badgeForStatus(int $status): string
+    public function badgeForStatus(): string
     {
-        switch ($status) {
+        switch ($this->status_id) {
             case self::STATUS_PENDING:
                 return '<h6><span class="badge badge-secondary">'.ctrans('texts.payment_status_1').'</span></h6>';
             case self::STATUS_CANCELLED:
@@ -324,6 +324,10 @@ class Payment extends BaseModel
             case self::STATUS_FAILED:
                 return '<h6><span class="badge badge-danger">'.ctrans('texts.payment_status_3').'</span></h6>';
             case self::STATUS_COMPLETED:
+
+                if($this->amount > $this->applied)
+                    return '<h6><span class="badge badge-info">' . ctrans('texts.partially_unapplied') . '</span></h6>';
+
                 return '<h6><span class="badge badge-info">'.ctrans('texts.payment_status_4').'</span></h6>';
             case self::STATUS_PARTIALLY_REFUNDED:
                 return '<h6><span class="badge badge-success">'.ctrans('texts.payment_status_5').'</span></h6>';
