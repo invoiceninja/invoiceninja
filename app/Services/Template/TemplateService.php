@@ -651,7 +651,7 @@ class TemplateService
 
         return [
             'status' => $payment->stringStatus($payment->status_id),
-            'badge' => $payment->badgeForStatus($payment->status_id),
+            'badge' => $payment->badgeForStatus(),
             'amount' => Number::formatMoney($payment->amount, $payment->client),
             'applied' => Number::formatMoney($payment->applied, $payment->client),
             'balance' => Number::formatMoney(($payment->amount - $payment->refunded - $payment->applied), $payment->client),
