@@ -13,9 +13,11 @@ namespace App\Services\Email;
 
 use App\Utils\Ninja;
 use App\Models\Document;
+use Illuminate\Support\Str;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Attachment;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Headers;
 use Illuminate\Mail\Mailables\Envelope;
@@ -62,7 +64,11 @@ class EmailMailable extends Mailable
                 ->where('size', '>', $this->max_attachment_size)
                 ->cursor()
                 ->map(function ($document) {
-                    return "<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>";
+
+                    $hash = Str::random(64);
+                    Cache::put($hash, ['db' => $this->email_object->company->db, 'doc_hash' => $document->hash], now()->addDays(7));
+
+                    return "<a class='doc_links' href='" . URL::signedRoute('documents.hashed_download', ['hash' => $hash]) ."'>". $document->name ."</a>";
                 });
 
         return new Content(

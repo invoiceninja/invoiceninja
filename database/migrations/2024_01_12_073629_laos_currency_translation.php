@@ -21,7 +21,6 @@ return new class extends Migration
             Language::create(['id' => 41, 'name' => 'Lao', 'locale' => 'lo_LA']);
         }
 
-
         $cur = \App\Models\Currency::find(121);
 
         if(!$cur) {
@@ -35,8 +34,6 @@ return new class extends Migration
             $cur->precision = 2;
             $cur->save();
         }
-
-
 
     }
 

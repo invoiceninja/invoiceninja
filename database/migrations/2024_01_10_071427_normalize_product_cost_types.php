@@ -28,14 +28,17 @@ return new class extends Migration
 
                 $line_items = $invoice->line_items;
 
-                foreach ($line_items as $key => $item) {
+                if(is_array($line_items))
+                {
+                    foreach ($line_items as $key => $item) {
 
-                    if(property_exists($item, 'product_cost')) {
-                        $line_items[$key]->product_cost = (float) $line_items[$key]->product_cost;
+                        if(property_exists($item, 'product_cost')) {
+                            $line_items[$key]->product_cost = (float) $line_items[$key]->product_cost;
+                        }
+
                     }
-
                 }
-
+                
                 $invoice->line_items = $line_items;
                 $invoice->saveQuietly();
 

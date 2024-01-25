@@ -69,6 +69,7 @@ class UpdateRecurringInvoiceRequest extends Request
         $rules['tax_name2'] = 'bail|sometimes|string|nullable';
         $rules['tax_name3'] = 'bail|sometimes|string|nullable';
         $rules['exchange_rate'] = 'bail|sometimes|numeric';
+        $rules['next_send_date'] = 'bail|required|date|after:yesterday';
 
         return $rules;
     }

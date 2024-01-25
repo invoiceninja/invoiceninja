@@ -75,6 +75,7 @@ class StoreRecurringInvoiceRequest extends Request
         $rules['tax_name3'] = 'bail|sometimes|string|nullable';
         $rules['due_date_days'] = 'bail|sometimes|string';
         $rules['exchange_rate'] = 'bail|sometimes|numeric';
+        $rules['next_send_date'] = 'bail|required|date|after:yesterday';
 
         return $rules;
     }

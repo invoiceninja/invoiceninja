@@ -61,6 +61,22 @@ class RecurringInvoiceTest extends TestCase
         $this->makeTestData();
     }
 
+    public function testDateValidations()
+    {
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'frequency_id' => 5,
+            'next_send_date' => '0001-01-01',
+        ];
+        
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/recurring_invoices', $data)
+          ->assertStatus(422);
+
+    }    
+
     public function testLinkingSubscription()
     {
         $s = Subscription::factory()
