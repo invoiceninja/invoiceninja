@@ -519,9 +519,6 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                 ->withHeaders($this->getHeaders($headers))
                 ->{$verb}("{$this->api_endpoint_url}{$uri}", $data);
 
-        // nlog($r);
-        // nlog($r->json());
-
         if($r->successful()) {
             return $r;
         }
