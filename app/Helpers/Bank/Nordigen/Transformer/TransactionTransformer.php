@@ -87,8 +87,10 @@ class TransactionTransformer implements BankRevenueInterface
             $transactionId = $transaction["transactionId"];
         else if (array_key_exists('internalTransactionId', $transaction))
             $transactionId = $transaction["internalTransactionId"];
-        else
+        else {
+            nlog(`Invalid Input for nordigen transaction transformer: ` . $transaction);
             throw new \Exception('invalid dataset: missing transactionId - Please report this error to the developer');
+        }
 
         $amount = (float) $transaction["transactionAmount"]["amount"];
 
