@@ -353,6 +353,7 @@ class BillingPortalPurchase extends Component
         $this->payment_method_id = $gateway_type_id;
 
         $this->handleBeforePaymentEvents();
+
     }
 
     /**

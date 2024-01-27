@@ -143,7 +143,7 @@
                         @if($steps['started_payment'] == false)
                             @foreach($this->methods as $method)
                                 <button
-                                    wire:click="handleMethodSelectingEvent('{{ $method['company_gateway_id'] }}', '{{ $method['gateway_type_id'] }}')"
+                                    wire:click="handleMethodSelectingEvent('{{ $method['company_gateway_id'] }}', '{{ $method['gateway_type_id'] }}'); $wire.$refresh(); "
                                     class="px-3 py-2 border rounded mr-4 hover:border-blue-600">
                                     {{ $method['label'] }}
                                 </button>
