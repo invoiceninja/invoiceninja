@@ -7,14 +7,8 @@
 
 @push('footer')
     <script>
-        function updateGatewayFields(companyGatewayId, paymentMethodId) {
-            console.log(companyGatewayId, paymentMethodId);
-        
-            document.getElementById('company_gateway_id').value = companyGatewayId;
-            document.getElementById('payment_method_id').value = paymentMethodId;
-        }
 
-        document.addEventListener('livewire:init', () => {
+document.addEventListener('livewire:init', () => {
 
             Livewire.on('beforePaymentEventsCompleted', () => {
                 setTimeout(() => {

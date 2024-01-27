@@ -44,9 +44,6 @@ use Checkout\Payments\Request\Source\RequestIdSource;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 
-//use Checkout\Customers\Four\CustomerRequest as FourCustomerRequest;
-//use Checkout\Payments\Four\Request\Source\RequestIdSource as SourceRequestIdSource;
-
 class CheckoutComPaymentDriver extends BaseDriver
 {
     use SystemLogTrait;
@@ -332,10 +329,14 @@ class CheckoutComPaymentDriver extends BaseDriver
         }
     }
 
-    public function updateCustomer()
+    public function updateCustomer($customer_id = null)
     {
+
+        if(!$customer_id)
+            return;
+
         try {
-        
+            
             $request = new CustomerRequest();
 
             $phone = new Phone();
@@ -344,11 +345,13 @@ class CheckoutComPaymentDriver extends BaseDriver
             $request->name = $this->client->present()->name();
             $request->phone = $phone;
 
-            $response = $this->gateway->getCustomersClient()->update("customer_id", $request);
+            $response = $this->gateway->getCustomersClient()->update($customer_id, $request);
+
+
         } catch (CheckoutApiException $e) {
-
+            nlog($e->getMessage());
         } catch (CheckoutAuthorizationException $e) {
-
+            nlog($e->getMessage());
         }
 
     }
@@ -385,10 +388,6 @@ class CheckoutComPaymentDriver extends BaseDriver
 
         $this->init();
         
-        if($this->company_gateway->update_details) {
-            $this->updateCustomer();
-        }
-
         $paymentRequest = $this->bootTokenRequest($cgt->token);
         $paymentRequest->amount = $this->convertToCheckoutAmount($amount, $this->client->getCurrencyCode());
         $paymentRequest->reference = '#'.$invoice->number.' - '.now();

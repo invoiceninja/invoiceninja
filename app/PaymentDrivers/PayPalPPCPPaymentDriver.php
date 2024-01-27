@@ -445,7 +445,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                     "items" => [
                         [
                             "name" => ctrans('texts.invoice_number').'# '.$invoice->number,
-                            "description" => substr($description, 0, 127),
+                            "description" => mb_substr($description, 0, 127),
                             "quantity" => "1",
                             "unit_amount" => [
                                 "currency_code" => $this->client->currency()->code,
@@ -518,9 +518,6 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         $r = Http::withToken($this->access_token)
                 ->withHeaders($this->getHeaders($headers))
                 ->{$verb}("{$this->api_endpoint_url}{$uri}", $data);
-
-        // nlog($r);
-        // nlog($r->json());
 
         if($r->successful()) {
             return $r;

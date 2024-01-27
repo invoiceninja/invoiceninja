@@ -11,23 +11,23 @@
 
 namespace App\PaymentDrivers;
 
-use App\Factory\ClientContactFactory;
-use App\Factory\ClientFactory;
-use App\Http\Requests\Payments\PaymentWebhookRequest;
-use App\Jobs\Mail\PaymentFailedMailer;
-use App\Jobs\Util\SystemLogger;
 use App\Models\Client;
-use App\Models\ClientGatewayToken;
 use App\Models\Country;
-use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\SystemLog;
+use App\Models\GatewayType;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use App\Models\SystemLog;
-use App\Utils\Traits\GeneratesCounter;
+use App\Factory\ClientFactory;
+use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
+use App\Models\ClientGatewayToken;
+use App\Factory\ClientContactFactory;
+use App\Jobs\Mail\PaymentFailedMailer;
+use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Database\QueryException;
+use App\Http\Requests\Payments\PaymentWebhookRequest;
 
 class GoCardlessPaymentDriver extends BaseDriver
 {
@@ -79,8 +79,7 @@ class GoCardlessPaymentDriver extends BaseDriver
         if (
             $this->client
             && isset($this->client->country)
-            // && in_array($this->client->country->iso_3166_3, ['GBR'])
-            && in_array($this->client->currency()->code, ['EUR', 'GBP','DKK','SEK','AUD','NZD'])
+            && in_array($this->client->currency()->code, ['EUR', 'GBP','DKK','SEK','AUD','NZD','CAD'])
         ) {
             $types[] = GatewayType::DIRECT_DEBIT;
         }
@@ -92,7 +91,7 @@ class GoCardlessPaymentDriver extends BaseDriver
         if ($this->client->currency()->code === 'GBP') {
             $types[] = GatewayType::INSTANT_BANK_PAY;
         }
-
+                
         return $types;
     }
 

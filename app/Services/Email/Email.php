@@ -484,6 +484,14 @@ class Email implements ShouldQueue
      */
     private function setMailDriver(): self
     {
+
+        /** Force free/trials onto specific mail driver */
+        if(Ninja::isHosted() && !$this->company->account->isPaid()) {
+            $this->mailer = 'mailgun';
+            $this->setHostedMailgunMailer();
+            return $this;
+        }
+
         switch ($this->email_object->settings->email_sending_method) {
             case 'default':
                 $this->mailer = config('mail.default');

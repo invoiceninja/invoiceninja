@@ -44,6 +44,7 @@ class InstantPayment
 
     public function run()
     {
+        nlog($this->request->all());
         $is_credit_payment = false;
 
         $tokens = [];

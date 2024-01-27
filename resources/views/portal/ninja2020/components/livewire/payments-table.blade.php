@@ -66,7 +66,7 @@
                             {{ \Illuminate\Support\Str::limit($payment->transaction_reference, 35) }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
-                            {!! \App\Models\Payment::badgeForStatus($payment->status_id) !!}
+                            {!! $payment->badgeForStatus() !!}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap flex items-center justify-end text-sm leading-5 font-medium">
                             <a href="{{ route('client.payments.show', $payment->hashed_id) }}" class="text-blue-600 hover:text-indigo-900 focus:outline-none focus:underline">
