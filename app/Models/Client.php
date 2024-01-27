@@ -688,6 +688,11 @@ class Client extends BaseModel implements HasLocalePreference
             return GatewayType::SEPA;
         }
 
+        //Special handler for GoCardless
+        if($this->currency()->code == 'CAD' && ($this->getBankTransferGateway()->gateway_key == 'b9886f9257f0c6ee7c302f1c74475f6c') ?? false) {
+            return GatewayType::DIRECT_DEBIT;
+        }
+
         if (in_array($this->currency()->code, ['EUR', 'GBP','DKK','SEK','AUD','NZD','USD'])) {
             return GatewayType::DIRECT_DEBIT;
         }
