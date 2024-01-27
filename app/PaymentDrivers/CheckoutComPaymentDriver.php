@@ -329,9 +329,11 @@ class CheckoutComPaymentDriver extends BaseDriver
         }
     }
 
-    public function updateCustomer()
+    public function updateCustomer($customer_id = null)
     {
-        nlog("merp");
+
+        if(!$customer_id)
+            return;
 
         try {
             
@@ -343,7 +345,9 @@ class CheckoutComPaymentDriver extends BaseDriver
             $request->name = $this->client->present()->name();
             $request->phone = $phone;
 
-            $response = $this->gateway->getCustomersClient()->update("customer_id", $request);
+            $response = $this->gateway->getCustomersClient()->update($customer_id, $request);
+
+
         } catch (CheckoutApiException $e) {
             nlog($e->getMessage());
         } catch (CheckoutAuthorizationException $e) {
@@ -384,10 +388,6 @@ class CheckoutComPaymentDriver extends BaseDriver
 
         $this->init();
         
-        if($this->company_gateway->update_details) {
-            $this->updateCustomer();
-        }
-
         $paymentRequest = $this->bootTokenRequest($cgt->token);
         $paymentRequest->amount = $this->convertToCheckoutAmount($amount, $this->client->getCurrencyCode());
         $paymentRequest->reference = '#'.$invoice->number.' - '.now();
