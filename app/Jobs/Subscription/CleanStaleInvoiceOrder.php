@@ -59,7 +59,7 @@ class CleanStaleInvoiceOrder implements ShouldQueue
             Invoice::query()
                    ->withTrashed()
                    ->where('status_id', Invoice::STATUS_SENT)
-                   ->whereBetween('created_at', [now()->subHours(1), now()->subMinutes(10)])
+                   ->whereBetween('created_at', [now()->subHours(1), now()->subMinutes(30)])
                    ->where('balance', '>', 0)
                    ->cursor()
                    ->each(function ($invoice) {

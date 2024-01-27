@@ -44,9 +44,6 @@ use Checkout\Payments\Request\Source\RequestIdSource;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 
-//use Checkout\Customers\Four\CustomerRequest as FourCustomerRequest;
-//use Checkout\Payments\Four\Request\Source\RequestIdSource as SourceRequestIdSource;
-
 class CheckoutComPaymentDriver extends BaseDriver
 {
     use SystemLogTrait;
@@ -334,8 +331,10 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     public function updateCustomer()
     {
+        nlog("merp");
+
         try {
-        
+            
             $request = new CustomerRequest();
 
             $phone = new Phone();
@@ -346,9 +345,9 @@ class CheckoutComPaymentDriver extends BaseDriver
 
             $response = $this->gateway->getCustomersClient()->update("customer_id", $request);
         } catch (CheckoutApiException $e) {
-
+            nlog($e->getMessage());
         } catch (CheckoutAuthorizationException $e) {
-
+            nlog($e->getMessage());
         }
 
     }

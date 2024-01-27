@@ -445,7 +445,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                     "items" => [
                         [
                             "name" => ctrans('texts.invoice_number').'# '.$invoice->number,
-                            "description" => substr($description, 0, 127),
+                            "description" => mb_substr($description, 0, 127),
                             "quantity" => "1",
                             "unit_amount" => [
                                 "currency_code" => $this->client->currency()->code,

@@ -259,15 +259,23 @@ class NinjaMailerJob implements ShouldQueue
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->nmo->settings));
 
+        /** Force free/trials onto specific mail driver */
+        if(Ninja::isHosted() && !$this->company->account->isPaid())
+        {
+            $this->mailer = 'mailgun';
+            $this->setHostedMailgunMailer();
+            return $this;
+        }
+
         switch ($this->nmo->settings->email_sending_method) {
             case 'default':
                 $this->mailer = config('mail.default');
                 // $this->setHostedMailgunMailer(); //should only be activated if hosted platform needs to fall back to mailgun
-                break;
+                return $this;
             case 'mailgun':
                 $this->mailer = 'mailgun';
                 $this->setHostedMailgunMailer();
-                break;
+                return $this;
             case 'gmail':
                 $this->mailer = 'gmail';
                 $this->setGmailMailer();
