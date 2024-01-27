@@ -82,8 +82,14 @@ class TransactionTransformer implements BankRevenueInterface
     public function transformTransaction($transaction)
     {
 
-        if (!array_key_exists('transactionId', $transaction) || !array_key_exists('transactionAmount', $transaction))
+        if ((!array_key_exists('transactionId', $transaction) && !array_key_exists('internalTransactionId', $transaction)) || !array_key_exists('transactionAmount', $transaction))
             throw new \Exception('invalid dataset');
+
+        $transactionId = '';
+        if (array_key_exists('transactionId', $transaction))
+            $transactionId = $transaction["transactionId"];
+        else if (array_key_exists('internalTransactionId', $transaction))
+            $transactionId = $transaction["internalTransactionId"];
 
         $amount = (float) $transaction["transactionAmount"]["amount"];
 
@@ -119,7 +125,7 @@ class TransactionTransformer implements BankRevenueInterface
 
         return [
             'transaction_id' => 0,
-            'nordigen_transaction_id' => $transaction["transactionId"],
+            'nordigen_transaction_id' => $transactionId,
             'amount' => $amount,
             'currency_id' => $this->convertCurrency($transaction["transactionAmount"]["currency"]),
             'category_id' => null,
