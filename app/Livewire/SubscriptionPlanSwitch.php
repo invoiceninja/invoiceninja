@@ -155,7 +155,6 @@ class SubscriptionPlanSwitch extends Component
 
         $this->dispatch('redirectRoute', ['route' => $response]);
 
-        // return redirect($response);
     }
 
     public function render()

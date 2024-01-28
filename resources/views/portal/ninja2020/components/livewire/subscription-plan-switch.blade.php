@@ -42,7 +42,7 @@
                 @if(!$state['payment_initialised'])
                     @foreach($this->methods as $method)
                         <button
-                            wire:click="handleMethodSelectingEvent('{{ $method['company_gateway_id'] }}', '{{ $method['gateway_type_id'] }}')"
+                            wire:click="handleMethodSelectingEvent('{{ $method['company_gateway_id'] }}', '{{ $method['gateway_type_id'] }}'); $wire.$refresh();"
                             class="px-3 py-2 border bg-white rounded mr-4 hover:border-blue-600">
                             {{ $method['label'] }}
                         </button>
@@ -80,11 +80,17 @@
     </div>
 </div>
 
-<script defer>
-window.addEventListener('redirectRoute', event => {
+<script>
 
-    window.location.href = event.detail.route;
+    document.addEventListener('livewire:init', () => {
 
-})
+        Livewire.on('redirectRoute', (event) => {
+            window.location.href = event[0].route;
+        });
+
+
+    });
+
 </script>
+
 </div>
