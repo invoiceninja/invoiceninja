@@ -57,6 +57,8 @@ class PdfSlot extends Component
 
     private $entity_calc;
 
+    public $html_entity_option = true;
+
     public function mount()
     {
         MultiDB::setDb($this->db);
@@ -128,7 +130,8 @@ class PdfSlot extends Component
         $this->entity_calc = $this->entity->calc();
 
         $this->settings = $this->entity->client ? $this->entity->client->getMergedSettings() : $this->entity->company->settings;
-
+        $this->html_entity_option = $this->entity->client ? $this->entity->client->getSetting('show_pdfhtml_on_mobile') : $this->entity->company->getSetting('show_pdfhtml_on_mobile');
+        
         $this->show_cost = in_array('$product.unit_cost', $this->settings->pdf_variables->product_columns);
         $this->show_line_total = in_array('$product.line_total', $this->settings->pdf_variables->product_columns);
         $this->show_quantity = in_array('$product.quantity', $this->settings->pdf_variables->product_columns);

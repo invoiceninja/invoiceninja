@@ -21,7 +21,11 @@
     </button>
     @endif
   </div>
+  @if($html_entity_option)
   <div class="hidden lg:block">
+  @else
+  <div>
+  @endif
     <div wire:init="getPdf()">
         <div class="flex mt-4 place-items-center" id="loader" wire:ignore>
             <span class="loader m-auto" wire:ignore></span>
@@ -61,17 +65,18 @@
           </style>
         </div>
         @if($pdf)
-        <!-- <iframe id="pdf-iframe" src="{!! $pdf !!}" class="h-screen w-full border-0 mt-4"></iframe> -->
         <iframe id="pdf-iframe" src="/{{ $route_entity }}/showBlob/{{ $pdf }}" class="h-screen w-full border-0 mt-4"></iframe>
         @endif
     </div>
   </div>
 
+  @if($html_entity_option)
   <div class="block lg:hidden">
     @include('portal.ninja2020.components.html-viewer')
   </div>
-</div>
+  @endif
 
+</div>
 
 <script type="text/javascript">
 
