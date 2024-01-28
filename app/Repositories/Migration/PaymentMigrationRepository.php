@@ -100,8 +100,8 @@ class PaymentMigrationRepository extends BaseRepository
         $payment->deleted_at = $data['deleted_at'] ?: null;
 
 
-        if ($payment->currency_id == 0) {
-            $payment->currency_id = $payment->company->settings->currency_id;
+        if (!$payment->currency_id || $payment->currency_id == 0 || $payment->currency_id == '') {
+            $payment->currency_id = $payment->client->settings->currency_id ?? $payment->company->settings->currency_id;
         }
 
         /*Ensure payment number generated*/

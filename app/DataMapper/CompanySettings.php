@@ -493,7 +493,10 @@ class CompanySettings extends BaseSettings
 
     public $payment_email_all_contacts = false;
 
+    public $show_pdfhtml_on_mobile = true;
+    
     public static $casts = [
+        'show_pdfhtml_on_mobile'             => 'bool',
         'payment_email_all_contacts'         => 'bool',
         'statement_design_id'                => 'string',
         'delivery_note_design_id'            => 'string',
