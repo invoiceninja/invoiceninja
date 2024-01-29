@@ -25,7 +25,6 @@ return new class extends Migration
             ->cursor()
             ->each(function (Invoice $invoice) {
 
-
                 $line_items = $invoice->line_items;
 
                 if(is_array($line_items))

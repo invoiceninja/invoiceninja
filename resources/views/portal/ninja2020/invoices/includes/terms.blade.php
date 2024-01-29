@@ -4,7 +4,7 @@
     </div>
 
     <div x-show="open" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="bg-white rounded-lg px-4 pt-5 pb-4 overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full sm:p-6">
-        <div class="sm:flex sm:items-start">
+        <div class="">
             <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                 <h3 class="text-xl leading-6 font-medium text-gray-900">
                     {{ ctrans('texts.terms') }}
@@ -13,7 +13,9 @@
                     @foreach($entities as $entity)
                         <div class="mb-4">
                             <p class="text-sm leading-6 font-medium text-gray-500">{{ $entity_type }} {{ $entity->number }}:</p>
-                            @if($entity->terms)
+                            @if($variables && $entity->terms)
+                                <h5 data-ref="entity-terms"{!! $entity->parseHtmlVariables('terms', $variables) !!}</h5>
+                            @elseif($entity->terms)
                                 <h5 data-ref="entity-terms" class="text-sm leading-5 text-gray-900">{!! $entity->terms !!}</h5>
                             @else
                                 <i class="text-sm leading-5 text-gray-500">{{ ctrans('texts.not_specified') }}</i>

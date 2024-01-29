@@ -87,7 +87,7 @@
 
 @section('footer')
     @include('portal.ninja2020.quotes.includes.user-input')
-    @include('portal.ninja2020.invoices.includes.terms', ['entities' => $quotes, 'entity_type' => ctrans('texts.quote')])
+    @include('portal.ninja2020.invoices.includes.terms', ['entities' => $quotes, 'variables' => $variables, 'entity_type' => ctrans('texts.quote')])
     @include('portal.ninja2020.invoices.includes.signature')
 @endsection
 
