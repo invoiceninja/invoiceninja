@@ -51,7 +51,7 @@
 @endsection
 
 @section('footer')
-    @include('portal.ninja2020.invoices.includes.terms', ['entities' => [$purchase_order], 'entity_type' => ctrans('texts.purchase_order')])
+    @include('portal.ninja2020.invoices.includes.terms', ['entities' => [$purchase_order], 'variables' => $variables, 'entity_type' => ctrans('texts.purchase_order')])
     @include('portal.ninja2020.invoices.includes.signature')
 @endsection
 

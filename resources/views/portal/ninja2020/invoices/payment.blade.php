@@ -150,7 +150,7 @@
     </div>
 </form>
 
-@include('portal.ninja2020.invoices.includes.terms', ['entities' => $invoices, 'entity_type' => ctrans('texts.invoice')])
+@include('portal.ninja2020.invoices.includes.terms', ['entities' => $invoices, 'variables' => $variables, 'entity_type' => ctrans('texts.invoice')])
 @include('portal.ninja2020.invoices.includes.signature')
 
 @endsection
