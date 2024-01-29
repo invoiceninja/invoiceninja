@@ -11,27 +11,29 @@
 
 namespace App\Export\CSV;
 
+use App\Models\Task;
+use App\Models\User;
+use App\Models\Quote;
 use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Company;
 use App\Models\Credit;
-use App\Models\Document;
+use App\Models\Vendor;
+use App\Utils\Helpers;
+use App\Models\Company;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Product;
-use App\Models\PurchaseOrder;
-use App\Models\Quote;
-use App\Models\RecurringInvoice;
-use App\Models\Task;
-use App\Models\Vendor;
-use App\Transformers\PaymentTransformer;
-use App\Transformers\TaskTransformer;
-use App\Utils\Helpers;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Carbon;
+use App\Models\Document;
 use League\Fractal\Manager;
+use App\Models\ClientContact;
+use App\Models\PurchaseOrder;
+use Illuminate\Support\Carbon;
+use App\Utils\Traits\MakesHash;
+use App\Models\RecurringInvoice;
+use App\Jobs\Document\ZipDocuments;
+use App\Transformers\TaskTransformer;
+use App\Transformers\PaymentTransformer;
+use Illuminate\Database\Eloquent\Builder;
 use League\Fractal\Serializer\ArraySerializer;
 
 class BaseExport
@@ -1256,6 +1258,34 @@ class BaseExport
         }
 
         return $clean_row;
+    }
+
+    public function queueDocuments(Builder $query)
+    {
+
+        if($query->getModel() instanceof Document)
+            $documents = $query->pluck('id')->toArray();
+        else{
+            $documents = $query->cursor()
+                               ->map(function ($entity){
+                                      return $entity->documents()->pluck('id')->toArray();
+                               })->flatten()
+                               ->toArray();
+        }
+
+        nlog($documents);
+        if(count($documents) > 0) {
+
+            $user = $this->company->owner();
+
+            if(auth()->user() && auth()->user()->account_id == $this->company->account_id)
+                $user = auth()->user();
+
+            if($this->input['user_id'])
+                $user = User::where('id', $this->input['user_id'])->where('account_id', $this->company->account_id)->first();
+
+            ZipDocuments::dispatch($documents, $this->company, $user);
+        }
     }
 
 }

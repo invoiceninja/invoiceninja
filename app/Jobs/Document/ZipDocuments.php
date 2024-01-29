@@ -49,9 +49,9 @@ class ZipDocuments implements ShouldQueue
     public $tries = 1;
 
     /**
-     * @param $invoices
+     * @param array $document_ids
      * @param Company $company
-     * @param $email
+     * @param User $user
      * @deprecated confirm to be deleted
      * Create a new job instance.
      */

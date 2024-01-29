@@ -76,6 +76,10 @@ class InvoiceItemExport extends BaseExport
         $query = $this->addDateRange($query);
 
         $query = $this->applyFilters($query);
+        
+        if($this->input['document_email_attachment'] ?? false) {
+            $this->queueDocuments($query);
+        }
 
         return $query;
 
@@ -90,7 +94,6 @@ class InvoiceItemExport extends BaseExport
         $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
-
 
         $query->cursor()
             ->each(function ($resource) {
