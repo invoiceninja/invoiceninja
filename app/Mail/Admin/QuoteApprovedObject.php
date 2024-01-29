@@ -47,6 +47,7 @@ class QuoteApprovedObject
         $mail_obj->data = $this->getData();
         $mail_obj->markdown = 'email.admin.generic';
         $mail_obj->tag = $this->company->company_key;
+        $mail_obj->text_view = 'email.template.text';
 
         return $mail_obj;
     }
@@ -71,23 +72,25 @@ class QuoteApprovedObject
     private function getData()
     {
         $settings = $this->quote->client->getMergedSettings();
-
-        $data = [
-            'title' => $this->getSubject(),
-            'message' => ctrans(
+        $content = ctrans(
                 'texts.notification_quote_approved',
                 [
                     'amount' => $this->getAmount(),
                     'client' => $this->quote->client->present()->name(),
                     'invoice' => $this->quote->number,
                 ]
-            ),
+                );
+
+        $data = [
+            'title' => $this->getSubject(),
+            'content' => $content,
             'url' => $this->quote->invitations->first()->getAdminLink($this->use_react_url),
             'button' => ctrans('texts.view_quote'),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),
             'settings' => $settings,
             'whitelabel' => $this->company->account->isPaid() ? true : false,
+            'text_body' => $content,
         ];
 
         return $data;

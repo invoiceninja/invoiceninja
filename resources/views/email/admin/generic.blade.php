@@ -14,7 +14,7 @@
 
         <div style="margin-top: 10px; margin-bottom: 30px;">
             @isset($content)
-                {{ $content }}
+                {!! nl2br($content, true) !!}
             @endisset
 
             @isset($slot)

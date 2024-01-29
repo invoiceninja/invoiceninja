@@ -52,6 +52,7 @@ class PaymentFailureObject
         $mail_obj->data = $this->getData();
         $mail_obj->markdown = 'email.admin.generic';
         $mail_obj->tag = $this->company->company_key;
+        $mail_obj->text_view = 'email.template.text';
 
         return $mail_obj;
     }
@@ -73,7 +74,15 @@ class PaymentFailureObject
     private function getData()
     {
         $signature = $this->client->getSetting('email_signature');
-
+        $content = ctrans(
+                'texts.notification_invoice_payment_failed',
+                [
+                    'client' => $this->client->present()->name(),
+                    'invoice' => $this->getDescription(),
+                    'amount' => Number::formatMoney($this->amount, $this->client),
+                ]
+                );
+                
         $data = [
             'title' => ctrans(
                 'texts.payment_failed_subject',
@@ -81,14 +90,7 @@ class PaymentFailureObject
                     'client' => $this->client->present()->name(),
                 ]
             ),
-            'content' => ctrans(
-                'texts.notification_invoice_payment_failed',
-                [
-                    'client' => $this->client->present()->name(),
-                    'invoice' => $this->getDescription(),
-                    'amount' => Number::formatMoney($this->amount, $this->client),
-                ]
-            ),
+            'content' => $content,
             'signature' => $signature,
             'logo' => $this->company->present()->logo(),
             'settings' => $this->client->getMergedSettings(),
@@ -96,11 +98,8 @@ class PaymentFailureObject
             'url' => $this->client->portalUrl($this->use_react_url),
             'button' => $this->use_react_url ? ctrans('texts.view_client') : ctrans('texts.login'),
             'additional_info' => $this->error,
+            'text_body' => $content,
         ];
-
-        if (strlen($this->error > 1)) {
-            $data['content'] .= "\n\n".$this->error;
-        }
 
         return $data;
     }
