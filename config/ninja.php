@@ -5,7 +5,7 @@ return [
     'web_url' => 'https://www.invoiceninja.com',
     'admin_token' => env('NINJA_ADMIN_TOKEN', ''),
     'license_url' => 'https://app.invoiceninja.com',
-    'react_url' => env('REACT_URL', 'https://app.invoicing.co'),
+    'react_url' => env('REACT_URL', env('APP_URL', '')),
     'production' => env('NINJA_PROD', false),
     'license' => env('NINJA_LICENSE', ''),
     'version_url' => 'https://pdf.invoicing.co/api/version',
