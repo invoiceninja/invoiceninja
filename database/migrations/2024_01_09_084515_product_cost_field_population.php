@@ -23,9 +23,10 @@ return new class extends Migration
         Invoice::withTrashed()
             ->where('is_deleted', false)
             ->cursor()
-            ->each(function (Invoice $invoice) {
+            ->each(function (Invoice $invoice) {    
                 
-                
+                $hit = false;
+
                 $line_items = $invoice->line_items;
 
                 if(is_array($line_items))
@@ -35,14 +36,18 @@ return new class extends Migration
 
                         if($product = Product::where('company_id', $invoice->company_id)->where('product_key', $item->product_key)->where('cost', '>', 0)->first())
                         {
-                            if((property_exists($item, 'product_cost') && $item->product_cost == 0) || !property_exists($item, 'product_cost'))
+                            if((property_exists($item, 'product_cost') && $item->product_cost == 0) || !property_exists($item, 'product_cost')){
+                                $hit = true;
                                 $line_items[$key]->product_cost = (float)$product->cost;
+                            }
                         }
                         
                     }
-
-                    $invoice->line_items = $line_items;
-                    $invoice->saveQuietly();
+                    
+                    if($hit){
+                        $invoice->line_items = $line_items;
+                        $invoice->saveQuietly();
+                    }
                 }
             });
     }

@@ -62,8 +62,12 @@ class InvoiceExport extends BaseExport
 
         $query = $this->addDateRange($query);
 
-        if(isset($this->input['status'])) {
+        if($this->input['status'] ?? false) {
             $query = $this->addInvoiceStatusFilter($query, $this->input['status']);
+        }
+
+        if($this->input['document_email_attachment'] ?? false) {
+            $this->queueDocuments($query);
         }
 
         return $query;
@@ -120,15 +124,11 @@ class InvoiceExport extends BaseExport
             if (is_array($parts) && $parts[0] == 'invoice' && array_key_exists($parts[1], $transformed_invoice)) {
                 $entity[$key] = $transformed_invoice[$parts[1]];
             } else {
-                // nlog($key);
                 $entity[$key] = $this->decorator->transform($key, $invoice);
-                // $entity[$key] = '';
-                // $entity[$key] = $this->resolveKey($key, $invoice, $this->invoice_transformer);
             }
 
         }
 
-        // return $entity;
         return $this->decorateAdvancedFields($invoice, $entity);
     }
 
@@ -167,7 +167,6 @@ class InvoiceExport extends BaseExport
             $entity['invoice.user_id'] = $invoice->user ? $invoice->user->present()->name() : '';
         }
 
-nlog($entity);
         return $entity;
     }
 }

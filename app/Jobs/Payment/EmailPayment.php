@@ -68,7 +68,7 @@ class EmailPayment implements ShouldQueue
             $this->payment->load('invoices');
 
             if (!$this->contact) {
-                $this->contact = $this->payment->client->contacts()->first();
+                $this->contact = $this->payment->client->contacts()->orderBy('is_primary', 'desc')->first();
             }
 
             $this->contact->load('client');
