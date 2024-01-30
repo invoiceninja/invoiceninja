@@ -59,7 +59,7 @@ class SearchController extends Controller
                 'name' => $client->present()->name(),
                 'type' => '/client',
                 'id' => $client->hashed_id,
-                'path' => "/clients/{$client->hashed_id}/edit"
+                'path' => "/clients/{$client->hashed_id}"
             ];
 
             $client->contacts->each(function ($contact) {
