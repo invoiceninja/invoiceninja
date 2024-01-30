@@ -21,11 +21,8 @@ class PaymentService
 {
     use MakesHash;
 
-    private $payment;
-
-    public function __construct($payment)
+    public function __construct(public Payment $payment)
     {
-        $this->payment = $payment;
     }
 
     public function manualPayment($invoice): ?Payment
