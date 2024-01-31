@@ -4,8 +4,6 @@
     <meta name="contact-email" content="{{ $contact->email }}">
     <meta name="client-postal-code" content="{{ $contact->client->postal_code }}">
 
-    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-
     <script src="{{ asset('build/public/js/card-js.min.js/card-js.min.js') }}"></script>
     <link href="{{ asset('build/public/css/card-js.min.css/card-js.min.css') }}" rel="stylesheet" type="text/css">
 @endsection
@@ -51,12 +49,13 @@
 @section('gateway_footer')
 
 @endsection
-<script type="text/javascript" src="https://code.jquery.com/jquery-1.7.1.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script type="text/javascript">
 
     $(document).ready(function(){
 
     $('#pay-now').click(function(){
+        $('#pay-now').attr('disabled', true);
         $('#error_message').text('')
         var switch_card = document.getElementById('toggle-card');
         var card_number = document.getElementById('card_number').value;
@@ -81,6 +80,7 @@
         }
 
         if(params.card_number.length <= 15){
+            $('#pay-now').attr('disabled', false);
             $('#error_message').text("Card number must be 16 characters in length.").css({'color':'red', "font-weight":"bold"})
             return false;   
         }
@@ -99,6 +99,7 @@
                     $('#payment_intent').val(data.card_id)
                     $('#card_number').val(last4)
                 }else{
+                    $('#pay-now').attr('disabled', false);
                     $('#error_message').text(data.message).css({'color':'red', "font-weight":"bold"})
                     return false;
                 }

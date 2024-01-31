@@ -160,8 +160,7 @@ class ACH
             'payment_method' => $request->payment_method_id,
             'gateway_type_id' => $request->company_gateway_id,
             'amount' => $this->formatAmount($request->amount),
-            'currency' => 'usd',
-            // 'customer' => $request->customer,
+            'currency' => 'usd'
         ];
 
         $state = array_merge($state, $request->all());

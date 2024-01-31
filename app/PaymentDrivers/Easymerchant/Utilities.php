@@ -315,7 +315,7 @@ trait Utilities
     }
 
     public function updateCustomer($customer='', $gateway='card')
-    {//cus_65794bcab8ff25064
+    {
         $existing = ClientGatewayToken::query()
             ->where('company_gateway_id', $this->easymerchant->company_gateway->id)
             ->where('client_id', $this->easymerchant->client->id)

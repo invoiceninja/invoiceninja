@@ -46,7 +46,7 @@ class CreditCard
         $postData = $this->getHeaders();
         $data['gateway'] = $this->easymerchant;
 
-        $customer = $this->checkCustomerExists();//'cus_659cf3e921b375064';
+        $customer = $this->checkCustomerExists();
         $data['customer'] = $customer ? : NULL;
         $data['url'] = $postData['api_url'].'/card';
         $data['payment_method_id'] = GatewayType::CREDIT_CARD;

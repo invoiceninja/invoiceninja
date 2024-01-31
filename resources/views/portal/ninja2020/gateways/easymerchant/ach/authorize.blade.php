@@ -2,11 +2,6 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => 'ACH', 'card_title' => 'ACH'])
 
 @section('gateway_content')
-<!--     @if(session()->has('ach_error'))
-        <div class="alert alert-failure mb-4">
-            <p>{{ session('ach_error') }}</p>
-        </div>
-    @endif -->
 
     <form action="{{ route('client.payment_methods.store', ['method' => App\Models\GatewayType::BANK_TRANSFER]) }}" method="post" id="server_response">
         @csrf
@@ -21,8 +16,6 @@
         <input type="hidden" name="type" id="type" value="{{ $type ?? 'ach'}}">
         <input type="hidden" name="customer" id="customer" value="{{ $customer }}">
         <input type="hidden" name="payment_intent" id="payment_intent" value="">
-
-    <!-- </form> -->
 
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
@@ -53,12 +46,6 @@
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.account_number')])
         <input class="input w-full" name="account_number" id="account_number" autocomplete="off" type="text" required>
     @endcomponent
-    
-    <!-- @component('portal.ninja2020.components.general.card-element', ['title' => 'Save Account'])
-        <input class="form-radio mr-2" type="radio" value="1" name="save_account">Yes
-        <input class="form-radio mr-2" type="radio" value="0" name="save_account" checked>No
-    </span>
-    @endcomponent -->
 
     @component('portal.ninja2020.components.general.card-element-single')
         <input type="checkbox" class="form-checkbox mr-1" id="accept-terms" required>
@@ -86,12 +73,13 @@
 
 @endsection
 
-<script type="text/javascript" src="https://code.jquery.com/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script type="text/javascript">
 
     $(document).ready(function(){
 
     $('#pay-now').click(function(){
+        $('#pay-now').attr('disabled', true);
         $('#error_message').text('')
         var account_number = document.querySelector('input[name="account_number"]').value;
         var routing_number = document.querySelector('input[name="routing_number"]').value;
@@ -122,6 +110,7 @@
                 message = ' is required.!';
             }
             $('#error_message').text(errors.toString() + message).css({'color':'red', "font-weight":"bold"})
+            $('#pay-now').attr('disabled', false);
             return false;
         }
 
@@ -135,13 +124,12 @@
             dataType : 'json',
             success : function(data){
 
-                // var data = JSON.parse(result);
-
                 if(data.status){
                     $('#payment_intent').val(data.account_id)
                     $('#account_number').val(account_number.slice(-5))
                 }else{
                     $('#error_message').text(data.message).css({'color':'red', "font-weight":"bold"})
+                    $('#pay-now').attr('disabled', false);
                     return false;
                 }
 

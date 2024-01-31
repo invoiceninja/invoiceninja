@@ -4,7 +4,6 @@ ctrans('texts.credit_card')])
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 @section('gateway_head')
 
-    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="{{ asset('build/public/js/card-js.min.js/card-js.min.js') }}"></script>
     <link href="{{ asset('build/public/css/card-js.min.css/card-js.min.css') }}" rel="stylesheet" type="text/css">
 @endsection
@@ -23,9 +22,6 @@ ctrans('texts.credit_card')])
         <input type="hidden" name="type" id="type" value="{{ $type ?? 'card'}}">
         <input type="hidden" name="payment_intent" id="payment_intent" value="{{$payment_intent}}">
     
-
-    <!-- <div class="alert alert-failure mb-4" hidden id="errors"></div> -->
-
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.payment_type')])
         {{ ctrans('texts.credit_card') }}
     @endcomponent
@@ -53,21 +49,8 @@ ctrans('texts.credit_card')])
         
     <div class="bg-white px-4 py-5 flex" id="toggle-card"> 
 
-       <!--  <button
-            type="button"
-            id="test"
-            class="button button-primary bg-primary">
-            <span>{{ "New card" }}</span>
-        </button> -->
         @include('portal.ninja2020.gateways.easymerchant.includes.credit_card', ["is_required" => ''])
         
-        <!-- @component('portal.ninja2020.components.general.card-element', ['title' => "Save Card"])
-        <label class="mr-4">
-            <input class="form-radio cursor-pointer ml-1" type="radio" value="1" name="save_card">Yes
-            <input class="form-radio cursor-pointer ml-1" type="radio" value="0" name="save_card" checked>No
-        </label>
-        
-        @endcomponent -->
     </div>
     </form>
         <span id="error_message" style="margin-left: 3rem;font-size: 12px;"></span>
@@ -79,17 +62,12 @@ ctrans('texts.credit_card')])
             <span id='clickk'>{{ ctrans('texts.pay_now') }}</span>
         </button>
     </div>
-    <!-- </form> -->
 @endsection
 
 @section('gateway_footer')
-    <!-- <script src="https://js.stripe.com/v3/"></script> -->
-    <!-- @vite('resources/js/clients/payments/stripe-credit-card.js') -->
 
 @endsection
-<script type="text/javascript" src="https://code.jquery.com/jquery-1.7.1.min.js"></script>
-<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.7/jquery.validate.min.js"></script>
-
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script type="text/javascript">
 function toggleCard() {
       var switch_card = document.getElementById('toggle-card');
@@ -113,6 +91,7 @@ function toggleCard() {
 $(document).ready(function(){
     toggleCard();
     $('#pay-now').click(function(){
+        $('#pay-now').attr('disabled', true);
         $('#error_message').text('')
         var switch_card = document.getElementById('toggle-card');
         var card_number = document.getElementById('card_number').value;
@@ -145,18 +124,16 @@ $(document).ready(function(){
                 if(errors.length == 1){
                     message = ' is required.!';
                 }
+                $('#pay-now').attr('disabled', false);
                 $('#error_message').text(errors.toString() + message).css({'color':'red', "font-weight":"bold"})
                 return false;
             }
 
             if(card_number.length <= 15){
                 $('#error_message').text("Card number must be 16 characters in length.").css({'color':'red', "font-weight":"bold"})
+                $('#pay-now').attr('disabled', false);
                 return false;   
             }
-
-            // var last4 = card_number.substr(-4);
-            //             $('#card_number').val(last4)
-            // $('#server-response').submit();
 
             $.ajax({
                 headers: {
@@ -179,6 +156,7 @@ $(document).ready(function(){
                     if(data.status){
                         $('#card_number').val(last4)
                     }else{
+                        $('#pay-now').attr('disabled', false);
                         $('#error_message').text(data.message).css({'color':'red', "font-weight":"bold"})
                         return false;
                     }

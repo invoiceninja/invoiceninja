@@ -1,7 +1,6 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => 'ACH', 'card_title' => 'ACH'])
 
 @section('gateway_head')
-        <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
         <meta name="client_secret" content="{{ $client_secret }}">
         <meta name="viewport" content="width=device-width, minimum-scale=1" />
 
@@ -103,10 +102,7 @@
 @push('footer')
 
 @endpush
-
-<script type="text/javascript" src="https://code.jquery.com/jquery-1.7.1.min.js"></script>
-<!-- <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.7/jquery.validate.min.js"></script> -->
-
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script type="text/javascript">
 
     function toggleAccount() {
@@ -127,6 +123,7 @@
 
     $(document).ready(function(){
     $('#pay-now').click(function(){
+        $('#pay-now').attr('disabled', true);
         $('#error_message').text('')
         var routing_number = $('#routing-number').val();
         var account_number = $('#account-number').val();
@@ -136,6 +133,7 @@
 
         if(!terms){
             $('#error_message').text("Please accept the terms to proceed.!").css({'color':'red', "font-weight":"bold"})
+            $('#pay-now').attr('disabled', false);
             return false;
         }
 
@@ -159,14 +157,10 @@
                     message = ' is required.!';
                 }
                 $('#error_message').text(errors.toString() + message).css({'color':'red', "font-weight":"bold"})
+                $('#pay-now').attr('disabled', false);
                 return false;
             }
 
-        // var data = JSON.parse('{"status": true, "message": "Payment Intent created successfully.!", "last_4": "1116", "payment_intent": "pi_65965f8a7a687"}');
-        //     $('#payment_intent').val(data.payment_intent)
-        //     $('#account-number').val(data.last_4)
-
-        //         $('#server-response').submit();
             $.ajax({
                 headers: {
                     "X-Publishable-Key": "{{ $publish_key }}",
@@ -184,13 +178,12 @@
                 dataType : 'json',
                 success : function(data){
 
-                    // var data = JSON.parse(result);
-
                     if(data.status){
                         $('#payment_intent').val(data.payment_intent)
                         $('#account-number').val(data.last_4)
                     }else{
                         $('#error_message').text(data.message).css({'color':'red', "font-weight":"bold"})
+                        $('#pay-now').attr('disabled', false);
                         return false;
                     }
 
