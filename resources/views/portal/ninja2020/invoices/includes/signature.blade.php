@@ -27,7 +27,7 @@
         </div>
         <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse" >
             <div class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto" x-data>
-                <button type="button" id="next-step" class="button button-primary bg-primary" @click="document.getElementById('displaySignatureModal').style.display = 'none';">
+                <button type="button" id="signature-next-step" class="button button-primary bg-primary" @click="document.getElementById('displaySignatureModal').style.display = 'none';">
                     {{ ctrans('texts.next_step') }}
                 </button>
             </div>
@@ -40,12 +40,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    const signaturePad = new SignaturePad(
-            document.getElementById("signature-pad"),
-            {
-                penColor: "rgb(0, 0, 0)"
-            }
-        );
-</script>
