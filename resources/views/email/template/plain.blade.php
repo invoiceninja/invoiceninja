@@ -45,13 +45,6 @@
     @endif
 @endisset
 
-@if(isset($email_preferences))
-    <p>
-        <a href="{{ $email_preferences}} ">{{ ctrans('texts.email_preferences') }}</a>
-    </p>
-@endif
-
-
-@if(isset($unsubscribe_link))
+@isset($email_preferences)
 <p><a href="{{$unsubscribe_link}}">{{ ctrans('texts.unsubscribe') }}</a></p>
-@endif
+@endisset

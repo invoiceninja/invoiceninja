@@ -20,6 +20,6 @@
         {{ ctrans('texts.email_preferences') }}
     </a>
 </p>
-@endif
+@endisset
 
 @endcomponent
