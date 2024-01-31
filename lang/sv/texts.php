@@ -693,9 +693,9 @@ $lang = array(
     'disable' => 'inaktivera',
     'invoice_quote_number' => 'Faktura och Offert Nummer',
     'invoice_charges' => 'Tilläggsavgifter till faktura',
-    'notification_invoice_bounced' => 'Det finns ingen möjlighet att leverera :invoice till :contact.',
+    'notification_invoice_bounced' => 'We were unable to deliver Invoice :invoice to :contact. <br><br> :error',
     'notification_invoice_bounced_subject' => 'Ej möjligt att leverera faktura :invoice',
-    'notification_quote_bounced' => 'Ej möjligt att leverera Quote :invoice till :contact.',
+    'notification_quote_bounced' => 'We were unable to deliver Quote :invoice to :contact. <br><br> :error',
     'notification_quote_bounced_subject' => 'Ej möjligt att leverera Quote :invoice',
     'custom_invoice_link' => 'Modiferad Faktura Länk',
     'total_invoiced' => 'Totalt fakturerat',
@@ -3018,7 +3018,7 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'hosted_login' => 'Hosted inloggning',
     'selfhost_login' => 'Självhostad inloggning',
     'google_login' => 'Google inloggning',
-    'thanks_for_patience' => 'Tack för ditt tålamod medan vi arbetar med att implementera dessa funktioner. Vi hoppas få dem färdiga under de närmaste månaderna. Till dess fortsätter vi att stödja',
+    'thanks_for_patience' => 'Thank for your patience while we work to implement these features.<br><br>We hope to have them completed in the next few months.<br><br>Until then we\'ll continue to support the',
     'legacy_mobile_app' => 'äldre mobilapp',
     'today' => 'Idag',
     'current' => 'Nuvarande',
@@ -5221,6 +5221,15 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'nordigen_requisition_body' => 'Access to bank account feeds has expired as set in End User Agreement. <br><br>Please log into Invoice Ninja and re-authenticate with your banks to continue receiving transactions.',
     'participant' => 'Participant',
     'participant_name' => 'Participant name',
+    'client_unsubscribed' => 'Client unsubscribed from emails.',
+    'client_unsubscribed_help' => 'Client :client has unsubscribed from your e-mails. The client needs to consent to receive future emails from you.',
+    'resubscribe' => 'Resubscribe',
+    'subscribe' => 'Subscribe',
+    'subscribe_help' => 'You are currently subscribed and will continue to receive email communications.',
+    'unsubscribe_help' => 'You are currently not subscribed, and therefore, will not receive emails at this time.',
+    'notification_purchase_order_bounced' => 'We were unable to deliver Purchase Order :invoice to :contact. <br><br> :error',
+    'notification_purchase_order_bounced_subject' => 'Unable to deliver Purchase Order :invoice',
+    
 );
 
 return $lang;

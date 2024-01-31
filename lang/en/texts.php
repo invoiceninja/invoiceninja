@@ -5221,7 +5221,21 @@ $lang = array(
     'unsubscribe_help' => 'You are currently not subscribed, and therefore, will not receive emails at this time.',
     'notification_purchase_order_bounced' => 'We were unable to deliver Purchase Order :invoice to :contact. <br><br> :error',
     'notification_purchase_order_bounced_subject' => 'Unable to deliver Purchase Order :invoice',
-    
+    'show_pdfhtml_on_mobile' => 'Display HTML version of entity when viewing on mobile',
+    'show_pdfhtml_on_mobile_help' => 'For improved visualization, displays a HTML version of the invoice/quote when viewing on mobile.',
+    'please_select_an_invoice_or_credit' => 'Please select an invoice or credit',
+    'mobile_version' => 'Mobile Version',
+    'venmo' => 'Venmo',
+    'my_bank' => 'MyBank',
+    'pay_later' => 'Pay Later',
+    'local_domain' => 'Local Domain',
+    'verify_peer' => 'Verify Peer',
+    'nordigen_help' => 'Note: connecting an account requires a GoCardless/Nordigen API key',
+    'ar_detailed' => 'Accounts Receivable Detailed',
+    'ar_summary' => 'Accounts Receivable Summary',
+    'client_sales' => 'Client Sales',
+    'user_sales' => 'User Sales',
+    'iframe_url' => 'iFrame URL',
 );
 
 return $lang;

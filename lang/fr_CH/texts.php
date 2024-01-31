@@ -693,9 +693,9 @@ $lang = array(
     'disable' => 'Désactiver',
     'invoice_quote_number' => 'Numéro des offres & factures',
     'invoice_charges' => 'Suppléments de facture',
-    'notification_invoice_bounced' => 'Impossible d\'envoyer la facture :invoice à :contact.',
+    'notification_invoice_bounced' => 'We were unable to deliver Invoice :invoice to :contact. <br><br> :error',
     'notification_invoice_bounced_subject' => 'Impossible d\'envoyer la facture :invoice',
-    'notification_quote_bounced' => 'Impossible d\'envoyer l\'offre :invoice à :contact.',
+    'notification_quote_bounced' => 'We were unable to deliver Quote :invoice to :contact. <br><br> :error',
     'notification_quote_bounced_subject' => 'Impossible d\'envoyer l\'offre :invoice',
     'custom_invoice_link' => 'Lien de facture personnalisé',
     'total_invoiced' => 'Total facturé',
@@ -3007,7 +3007,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'hosted_login' => 'Connexion hébergée',
     'selfhost_login' => 'Connexion autohébergée',
     'google_login' => 'Connexion Google',
-    'thanks_for_patience' => 'Merci de votre patience pendant que nous travaillons à l\'implémentation de ces fonctionnalités.\n\nNous espérons compléter cette implémentation dans les prochains mois.\n\nPendant ce temps, nous continuerons de supporter ',
+    'thanks_for_patience' => 'Thank for your patience while we work to implement these features.<br><br>We hope to have them completed in the next few months.<br><br>Until then we\'ll continue to support the',
     'legacy_mobile_app' => 'Ancienne App mobile',
     'today' => 'Aujourd\'hui',
     'current' => 'En cours',
@@ -5210,6 +5210,15 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'nordigen_requisition_body' => 'Access to bank account feeds has expired as set in End User Agreement. <br><br>Please log into Invoice Ninja and re-authenticate with your banks to continue receiving transactions.',
     'participant' => 'Participant',
     'participant_name' => 'Participant name',
+    'client_unsubscribed' => 'Client unsubscribed from emails.',
+    'client_unsubscribed_help' => 'Client :client has unsubscribed from your e-mails. The client needs to consent to receive future emails from you.',
+    'resubscribe' => 'Resubscribe',
+    'subscribe' => 'Subscribe',
+    'subscribe_help' => 'You are currently subscribed and will continue to receive email communications.',
+    'unsubscribe_help' => 'You are currently not subscribed, and therefore, will not receive emails at this time.',
+    'notification_purchase_order_bounced' => 'We were unable to deliver Purchase Order :invoice to :contact. <br><br> :error',
+    'notification_purchase_order_bounced_subject' => 'Unable to deliver Purchase Order :invoice',
+    
 );
 
 return $lang;
