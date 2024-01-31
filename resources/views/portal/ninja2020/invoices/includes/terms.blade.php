@@ -29,7 +29,7 @@
             <div class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto" x-data>
                 <button
                     type="button"
-                    id="next-step"
+                    id="accept-terms-button"
                     onclick="setTimeout(() => this.disabled = true, 0); setTimeout(() => this.disabled = false, 5000); return true;"
                     class="button button-primary bg-primary">
                     {{ ctrans('texts.i_agree') }}
