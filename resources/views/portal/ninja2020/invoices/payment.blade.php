@@ -4,6 +4,7 @@
 @push('head')
 <meta name="show-invoice-terms" content="{{ $settings->show_accept_invoice_terms ? true : false }}">
 <meta name="require-invoice-signature" content="{{ $client->user->account->hasFeature(\App\Models\Account::FEATURE_INVOICE_SETTINGS) && $settings->require_invoice_signature }}">
+<meta name="show-required-fields-form" content="{{ auth()->guard('contact')->user()->showRff() }}" />
 <script src="{{ asset('vendor/signature_pad@2.3.2/signature_pad.min.js') }}"></script>
 @endpush
 
@@ -17,6 +18,9 @@
     <input type="hidden" name="is_recurring" value="{{ isset($is_recurring) ? $is_recurring : false }}">
     <input type="hidden" name="frequency_id" value="{{ isset($frequency_id) ? $frequency_id : false }}">
     <input type="hidden" name="remaining_cycles" value="{{ isset($remaining_cycles) ? $remaining_cycles : false }}">
+    <input type="hidden" name="contact_first_name" value="{{ auth()->guard('contact')->user()->first_name }}">
+    <input type="hidden" name="contact_last_name" value="{{ auth()->guard('contact')->user()->last_name }}">
+    <input type="hidden" name="contact_email" value="{{ auth()->guard('contact')->user()->email }}">
 
     <div class="container mx-auto">
         <div class="grid grid-cols-6 gap-4">
@@ -150,6 +154,7 @@
     </div>
 </form>
 
+@include('portal.ninja2020.invoices.includes.required-fields')
 @include('portal.ninja2020.invoices.includes.terms', ['entities' => $invoices, 'variables' => $variables, 'entity_type' => ctrans('texts.invoice')])
 @include('portal.ninja2020.invoices.includes.signature')
 
