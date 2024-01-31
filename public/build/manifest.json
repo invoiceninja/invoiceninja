@@ -23,7 +23,7 @@
     "src": "resources/js/clients/invoices/action-selectors.js"
   },
   "resources/js/clients/invoices/payment.js": {
-    "file": "assets/payment-0ace5bfa.js",
+    "file": "assets/payment-1e2ec1a7.js",
     "isEntry": true,
     "src": "resources/js/clients/invoices/payment.js"
   },
