@@ -693,9 +693,9 @@ $lang = array(
     'disable' => '停用',
     'invoice_quote_number' => '發票與報價單編號',
     'invoice_charges' => '發票的額外費用',
-    'notification_invoice_bounced' => '我們無法遞送發票 :invoice 給 :contact。',
+    'notification_invoice_bounced' => 'We were unable to deliver Invoice :invoice to :contact. <br><br> :error',
     'notification_invoice_bounced_subject' => '無法傳送發票 :invoice',
-    'notification_quote_bounced' => '我們無法遞送報價單 :invoice 給 :contact.',
+    'notification_quote_bounced' => 'We were unable to deliver Quote :invoice to :contact. <br><br> :error',
     'notification_quote_bounced_subject' => '無法遞送報價單 :invoice',
     'custom_invoice_link' => '自訂發票連結',
     'total_invoiced' => '開立發票總額',
@@ -3010,7 +3010,7 @@ $lang = array(
     'hosted_login' => '託管登入',
     'selfhost_login' => 'Selfhost 登入',
     'google_login' => 'Google 登入',
-    'thanks_for_patience' => '感謝您的耐心，而我們努力實現這些功能。\n\n希望在接下來的幾個月裡完成它們。\n\n直到那時我們將繼續支援',
+    'thanks_for_patience' => 'Thank for your patience while we work to implement these features.<br><br>We hope to have them completed in the next few months.<br><br>Until then we\'ll continue to support the',
     'legacy_mobile_app' => '舊版行動 App',
     'today' => '今天',
     'current' => '目前',
@@ -5213,6 +5213,15 @@ $lang = array(
     'nordigen_requisition_body' => 'Access to bank account feeds has expired as set in End User Agreement. <br><br>Please log into Invoice Ninja and re-authenticate with your banks to continue receiving transactions.',
     'participant' => 'Participant',
     'participant_name' => 'Participant name',
+    'client_unsubscribed' => 'Client unsubscribed from emails.',
+    'client_unsubscribed_help' => 'Client :client has unsubscribed from your e-mails. The client needs to consent to receive future emails from you.',
+    'resubscribe' => 'Resubscribe',
+    'subscribe' => 'Subscribe',
+    'subscribe_help' => 'You are currently subscribed and will continue to receive email communications.',
+    'unsubscribe_help' => 'You are currently not subscribed, and therefore, will not receive emails at this time.',
+    'notification_purchase_order_bounced' => 'We were unable to deliver Purchase Order :invoice to :contact. <br><br> :error',
+    'notification_purchase_order_bounced_subject' => 'Unable to deliver Purchase Order :invoice',
+    
 );
 
 return $lang;

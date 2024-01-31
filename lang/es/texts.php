@@ -693,9 +693,9 @@ $lang = array(
     'disable' => 'Deshabilitado',
     'invoice_quote_number' => 'Números de Cotización y Factura',
     'invoice_charges' => 'Cargos de Factura',
-    'notification_invoice_bounced' => 'No nos fue posible entregar la Factura :invoice a :contact.',
+    'notification_invoice_bounced' => 'We were unable to deliver Invoice :invoice to :contact. <br><br> :error',
     'notification_invoice_bounced_subject' => 'No fue posible entregar la Factura :invoice',
-    'notification_quote_bounced' => 'No nos fue posible entregar la Cotización :invoice a :contact.',
+    'notification_quote_bounced' => 'We were unable to deliver Quote :invoice to :contact. <br><br> :error',
     'notification_quote_bounced_subject' => 'No nos fue posible entregar la Cotización :invoice',
     'custom_invoice_link' => 'Link Personalizado de Factura',
     'total_invoiced' => 'Total Facturado',
@@ -3009,7 +3009,7 @@ $lang = array(
     'hosted_login' => 'Inicio de sesión alojado',
     'selfhost_login' => 'Iniciar sesión',
     'google_login' => 'Inicio de sesión de Google',
-    'thanks_for_patience' => 'Gracias por su paciencia mientras trabajamos para implementar estas funciones.\n\nEsperamos tenerlas completas en los próximos meses.\n\nHasta entonces, continuaremos brindando soporte a la',
+    'thanks_for_patience' => 'Thank for your patience while we work to implement these features.<br><br>We hope to have them completed in the next few months.<br><br>Until then we\'ll continue to support the',
     'legacy_mobile_app' => 'aplicación móvil heredada',
     'today' => 'Hoy',
     'current' => 'Actual',
@@ -5212,6 +5212,15 @@ $lang = array(
     'nordigen_requisition_body' => 'El acceso a los feeds de cuentas bancarias ha caducado según lo establecido en el Acuerdo de usuario final.<br><br> Inicie sesión en Invoice Ninja y vuelva a autenticarse con sus bancos para continuar recibiendo transacciones.',
     'participant' => 'Participant',
     'participant_name' => 'Participant name',
+    'client_unsubscribed' => 'Client unsubscribed from emails.',
+    'client_unsubscribed_help' => 'Client :client has unsubscribed from your e-mails. The client needs to consent to receive future emails from you.',
+    'resubscribe' => 'Resubscribe',
+    'subscribe' => 'Subscribe',
+    'subscribe_help' => 'You are currently subscribed and will continue to receive email communications.',
+    'unsubscribe_help' => 'You are currently not subscribed, and therefore, will not receive emails at this time.',
+    'notification_purchase_order_bounced' => 'We were unable to deliver Purchase Order :invoice to :contact. <br><br> :error',
+    'notification_purchase_order_bounced_subject' => 'Unable to deliver Purchase Order :invoice',
+    
 );
 
 return $lang;

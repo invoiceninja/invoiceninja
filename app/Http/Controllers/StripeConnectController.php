@@ -84,6 +84,9 @@ class StripeConnectController extends BaseController
                 'grant_type' => 'authorization_code',
                 'code' => $request->input('code'),
             ]);
+
+            nlog($response);
+            
         } catch (\Exception $e) {
             return view('auth.connect.access_denied');
         }

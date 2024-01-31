@@ -26,7 +26,7 @@ class StoreDocumentRequest extends Request
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        return $user->can('create', Document::class);
+        return $user->can('create', Document::class) || ($user->hasIntersectPermissions(['edit_all', 'create_all']));
     }
 
     public function rules()
