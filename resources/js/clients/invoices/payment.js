@@ -20,6 +20,7 @@ class Payment {
         if (this.shouldDisplayRff) {
             this.steps.set("rff", {
                 element: document.getElementById('displayRequiredFieldsModal'),
+                nextButton: document.getElementById('rff-next-step'),
                 callback: () => {
                     const fields = {
                         firstName: document.querySelector('input[name="rff_first_name"]'),
@@ -45,6 +46,7 @@ class Payment {
         if (this.shouldDisplaySignature) {
             this.steps.set("signature", {
                 element: document.getElementById('displaySignatureModal'),
+                nextButton: document.getElementById('signature-next-step'),
                 boot: () => this.signaturePad = new SignaturePad(
                     document.getElementById("signature-pad"),
                     {
@@ -58,6 +60,7 @@ class Payment {
         if (this.shouldDisplayTerms) {
             this.steps.set("terms", {
                 element: document.getElementById('displayTermsModal'),
+                nextButton: document.getElementById('accept-terms-button'),
             });
         }
     }
@@ -81,7 +84,9 @@ class Payment {
             next.boot();
         }
 
-        next.element.querySelector('#next-step').addEventListener('click', () => {
+        console.log(next);
+
+        next.nextButton.addEventListener('click', () => {
             next.element.setAttribute("style", "display: none;");
 
             this.steps = new Map(Array.from(this.steps.entries()).slice(1));
