@@ -80,7 +80,7 @@
             >
                 <button
                     type="button"
-                    id="next-step"
+                    id="rff-next-step"
                     class="button button-primary bg-primary"
                 >
                     {{ ctrans('texts.next_step') }}
