@@ -39,7 +39,11 @@ use Turbo124\Beacon\Facades\LightLogs;
 
 class AdminEmail implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use MakesHash;
 
     public $tries = 4;
 
@@ -62,7 +66,7 @@ class AdminEmail implements ShouldQueue
     public function __construct(public EmailObject $email_object, public Company $company)
     {
     }
-    
+
     /**
      * The backoff time between retries.
      *
@@ -87,7 +91,7 @@ class AdminEmail implements ShouldQueue
         $this->email();
 
     }
-    
+
     /**
      * Sets the override flag
      *
@@ -99,7 +103,7 @@ class AdminEmail implements ShouldQueue
 
         return $this;
     }
-    
+
     /**
      * Populates the mailable
      *
@@ -108,10 +112,10 @@ class AdminEmail implements ShouldQueue
     public function buildMailable(): self
     {
         $this->mailable = new AdminEmailMailable($this->email_object);
-        
+
         return $this;
     }
-    
+
     /**
      * Attempts to send the email
      *
@@ -136,7 +140,7 @@ class AdminEmail implements ShouldQueue
         /* Attempt the send! */
         try {
             nlog("Using mailer => ". $this->mailer. " ". now()->toDateTimeString());
-            
+
             $mailer->send($this->mailable);
 
             Cache::increment("email_quota".$this->company->account->key);
@@ -178,12 +182,12 @@ class AdminEmail implements ShouldQueue
             if ($e instanceof ClientException) { //postmark specific failure
                 $response = $e->getResponse();
                 $message_body = json_decode($response->getBody()->getContents());
-                
+
                 if ($message_body && property_exists($message_body, 'Message')) {
                     $message = $message_body->Message;
                     nlog($message);
                 }
-       
+
                 $this->fail();
                 $this->cleanUpMailers();
                 return;
@@ -202,7 +206,7 @@ class AdminEmail implements ShouldQueue
 
             sleep(rand(0, 3));
 
-            $this->release($this->backoff()[$this->attempts()-1]);
+            $this->release($this->backoff()[$this->attempts() - 1]);
 
             $message = null;
         }
@@ -280,7 +284,7 @@ class AdminEmail implements ShouldQueue
 
         return false;
     }
-    
+
     /**
      * hasInValidEmails
      *
@@ -402,7 +406,7 @@ class AdminEmail implements ShouldQueue
         /* Always ensure the user is set on the correct account */
         if ($user->account_id != $this->company->account_id) {
             $this->email_object->settings->email_sending_method = 'default';
-        
+
             return $this->setMailDriver();
         }
     }
@@ -468,7 +472,7 @@ class AdminEmail implements ShouldQueue
 
         $sending_email = (isset($this->email_object->settings->custom_sending_email) && stripos($this->email_object->settings->custom_sending_email, "@")) ? $this->email_object->settings->custom_sending_email : $user->email;
         $sending_user = (isset($this->email_object->settings->email_from_name) && strlen($this->email_object->settings->email_from_name) > 2) ? $this->email_object->settings->email_from_name : $user->name();
-            
+
         $this->mailable
          ->from($sending_email, $sending_user);
     }
@@ -480,9 +484,9 @@ class AdminEmail implements ShouldQueue
     private function setOfficeMailer()
     {
         $user = $this->resolveSendingUser();
-        
+
         $this->checkValidSendingUser($user);
-        
+
         nlog("Sending via {$user->name()}");
 
         $token = $this->refreshOfficeToken($user);
@@ -511,7 +515,7 @@ class AdminEmail implements ShouldQueue
         $user = $this->resolveSendingUser();
 
         $this->checkValidSendingUser($user);
-        
+
         nlog("Sending via {$user->name()}");
 
         $google = (new Google())->init();
@@ -567,7 +571,7 @@ class AdminEmail implements ShouldQueue
      * @param  null | \App\Models\Client $recipient_object
      * @return void
      */
-    private function logMailError($errors, $recipient_object) :void
+    private function logMailError($errors, $recipient_object): void
     {
         (new SystemLogger(
             $errors,
@@ -611,7 +615,7 @@ class AdminEmail implements ShouldQueue
                     'refresh_token' => $user->oauth_user_refresh_token
                 ],
             ])->getBody()->getContents());
-            
+
             if ($token) {
                 $user->oauth_user_refresh_token = property_exists($token, 'refresh_token') ? $token->refresh_token : $user->oauth_user_refresh_token;
                 $user->oauth_user_token = $token->access_token;

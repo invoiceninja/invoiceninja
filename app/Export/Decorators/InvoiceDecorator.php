@@ -29,7 +29,7 @@ class InvoiceDecorator extends Decorator implements DecoratorInterface
 
         if($invoice && method_exists($this, $key)) {
             return $this->{$key}($invoice);
-        }elseif($invoice && $invoice->{$key}){
+        } elseif($invoice && $invoice->{$key}) {
             return $invoice->{$key};
         }
 
@@ -73,22 +73,22 @@ class InvoiceDecorator extends Decorator implements DecoratorInterface
     {
         return $invoice->is_amount_discount ? ctrans('texts.yes') : ctrans('texts.no');
     }
-    
+
     public function partial_due_date(Invoice $invoice)
     {
         return $invoice->partial_due_date ?? '';
     }
-    
-    
+
+
     public function assigned_user_id(Invoice $invoice)
     {
-        return $invoice->assigned_user ? $invoice->assigned_user->present()->name(): '';
+        return $invoice->assigned_user ? $invoice->assigned_user->present()->name() : '';
     }
     public function user_id(Invoice $invoice)
     {
-        return $invoice->user ? $invoice->user->present()->name(): '';
+        return $invoice->user ? $invoice->user->present()->name() : '';
     }
-    
+
     public function recurring_id(Invoice $invoice)
     {
         return $invoice->recurring_invoice ? $invoice->recurring_invoice->number : '';

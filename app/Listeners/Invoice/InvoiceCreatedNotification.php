@@ -48,11 +48,11 @@ class InvoiceCreatedNotification implements ShouldQueue
         foreach ($event->company->company_users as $company_user) {
             /* The User */
             $user = $company_user->user;
-            
+
             if (! $user) {
                 continue;
             }
-            
+
             /* This is only here to handle the alternate message channels - ie Slack */
             // $notification = new EntitySentNotification($event->invitation, 'invoice');
 
@@ -63,7 +63,7 @@ class InvoiceCreatedNotification implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
-                $nmo = new NinjaMailerObject;
+                $nmo = new NinjaMailerObject();
                 $nmo->mailable = new NinjaMailer((new EntityCreatedObject($invoice, 'invoice', $company_user->portalType()))->build());
                 $nmo->company = $invoice->company;
                 $nmo->settings = $invoice->company->settings;
@@ -72,7 +72,7 @@ class InvoiceCreatedNotification implements ShouldQueue
                 (new NinjaMailerJob($nmo))->handle();
 
                 $nmo = null;
-                
+
                 /* This prevents more than one notification being sent */
                 $first_notification_sent = false;
             }

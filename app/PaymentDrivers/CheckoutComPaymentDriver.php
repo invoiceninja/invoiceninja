@@ -44,12 +44,10 @@ use Checkout\Payments\Request\Source\RequestIdSource;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 
-//use Checkout\Customers\Four\CustomerRequest as FourCustomerRequest;
-//use Checkout\Payments\Four\Request\Source\RequestIdSource as SourceRequestIdSource;
-
 class CheckoutComPaymentDriver extends BaseDriver
 {
-    use SystemLogTrait, Utilities;
+    use SystemLogTrait;
+    use Utilities;
 
     /* The company gateway instance*/
     public $company_gateway;
@@ -79,7 +77,7 @@ class CheckoutComPaymentDriver extends BaseDriver
         GatewayType::CREDIT_CARD => CreditCard::class,
     ];
 
-    const SYSTEM_LOG_TYPE = SystemLog::TYPE_CHECKOUT;
+    public const SYSTEM_LOG_TYPE = SystemLog::TYPE_CHECKOUT;
 
     /**
      * Returns the default gateway type.
@@ -118,7 +116,7 @@ class CheckoutComPaymentDriver extends BaseDriver
     {
 
         if (str_contains($this->company_gateway->getConfigField('secretApiKey'), '-')) {
-        
+
             $this->is_four_api = true; //was four api, now known as previous.
 
             /** @phpstan-ignore-next-line **/
@@ -130,7 +128,7 @@ class CheckoutComPaymentDriver extends BaseDriver
                     ->secretKey($this->company_gateway->getConfigField('secretApiKey'));
 
             $this->gateway = $builder->build();
-                
+
         } else {
 
             /** @phpstan-ignore-next-line **/
@@ -156,7 +154,7 @@ class CheckoutComPaymentDriver extends BaseDriver
     {
         return 'gateways.checkout.credit_card.pay';
     }
-    
+
     /**
      * Authorize View
      *
@@ -167,7 +165,7 @@ class CheckoutComPaymentDriver extends BaseDriver
     {
         return $this->payment_method->authorizeView($data);
     }
-    
+
     /**
      * Authorize Response
      *
@@ -200,7 +198,7 @@ class CheckoutComPaymentDriver extends BaseDriver
     {
         return $this->payment_method->paymentResponse($request);
     }
-    
+
     /**
      * Store PaymentMethod
      *
@@ -215,6 +213,9 @@ class CheckoutComPaymentDriver extends BaseDriver
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
         $this->init();
+        
+        if($this->company_gateway->update_details)
+            $this->updateCustomer();
 
         $request = new RefundRequest();
         $request->reference = "{$payment->transaction_reference} ".now();
@@ -295,15 +296,12 @@ class CheckoutComPaymentDriver extends BaseDriver
         } catch (\Exception $e) {
 
             $request = new CustomerRequest();
-                    
+
             $phone = new Phone();
             $phone->number = substr(str_pad($this->client->present()->phone(), 6, "0", STR_PAD_RIGHT), 0, 24);
             $request->email = $this->client->present()->email();
             $request->name = $this->client->present()->name();
             $request->phone = $phone;
-
-            // if($this->company_gateway->update_details)
-            //     $this->updateCustomer();
 
             try {
                 $response = $this->gateway->getCustomersClient()->create($request);
@@ -330,24 +328,30 @@ class CheckoutComPaymentDriver extends BaseDriver
             return $response;
         }
     }
-    
-    public function updateCustomer()
+
+    public function updateCustomer($customer_id = null)
     {
-        $phone = new Phone();
-        $phone->number = substr(str_pad($this->client->present()->phone(), 6, "0", STR_PAD_RIGHT), 0, 24);
 
-        $request = new CustomerRequest();
-
-        $request->email = $this->client->present()->email();
-        $request->name = $this->client->present()->name();
-        $request->phone = $phone;
+        if(!$customer_id)
+            return;
 
         try {
-            $response = $this->gateway->getCustomersClient()->update("customer_id", $request);
+            
+            $request = new CustomerRequest();
+
+            $phone = new Phone();
+            $phone->number = substr(str_pad($this->client->present()->phone(), 6, "0", STR_PAD_RIGHT), 0, 24);
+            $request->email = $this->client->present()->email();
+            $request->name = $this->client->present()->name();
+            $request->phone = $phone;
+
+            $response = $this->gateway->getCustomersClient()->update($customer_id, $request);
+
+
         } catch (CheckoutApiException $e) {
-
+            nlog($e->getMessage());
         } catch (CheckoutAuthorizationException $e) {
-
+            nlog($e->getMessage());
         }
 
     }
@@ -383,7 +387,7 @@ class CheckoutComPaymentDriver extends BaseDriver
         $this->payment_hash = $payment_hash;
 
         $this->init();
-
+        
         $paymentRequest = $this->bootTokenRequest($cgt->token);
         $paymentRequest->amount = $this->convertToCheckoutAmount($amount, $this->client->getCurrencyCode());
         $paymentRequest->reference = '#'.$invoice->number.' - '.now();
@@ -454,7 +458,7 @@ class CheckoutComPaymentDriver extends BaseDriver
             } else {
                 $error_details = $e->getMessage();
             }
-  
+
             $data = [
                 'status' => $e->error_details,
                 'error_type' => '',

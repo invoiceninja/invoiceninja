@@ -217,7 +217,7 @@ class SystemHealth
         if (!function_exists('exec')) {
             return "Unable to check CLI version";
         }
-        
+
         try {
             exec('php -v', $foo, $exitCode);
 

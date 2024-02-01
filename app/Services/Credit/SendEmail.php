@@ -11,10 +11,11 @@
 
 namespace App\Services\Credit;
 
-use App\Events\Credit\CreditWasEmailed;
-use App\Jobs\Entity\EmailEntity;
-use App\Models\ClientContact;
 use App\Utils\Ninja;
+use App\Models\Webhook;
+use App\Models\ClientContact;
+use App\Jobs\Entity\EmailEntity;
+use App\Events\Credit\CreditWasEmailed;
 
 class SendEmail
 {
@@ -52,6 +53,8 @@ class SendEmail
 
         if ($this->credit->invitations->count() >= 1) {
             event(new CreditWasEmailed($this->credit->invitations->first(), $this->credit->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), 'credit'));
+            $this->credit->sendEvent(Webhook::EVENT_SENT_CREDIT, "client");
+
         }
 
     }

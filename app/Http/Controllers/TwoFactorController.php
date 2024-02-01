@@ -59,7 +59,9 @@ class TwoFactorController extends BaseController
     {
         $google2fa = new Google2FA();
 
+        /** @var \App\Models\User $user */
         $user = auth()->user();
+
         $secret = $request->input('secret');
         $oneTimePassword = $request->input('one_time_password');
 
@@ -82,7 +84,10 @@ class TwoFactorController extends BaseController
 
     public function disableTwoFactor()
     {
+        
+        /** @var \App\Models\User $user */
         $user = auth()->user();
+
         $user->google_2fa_secret = null;
         $user->save();
 

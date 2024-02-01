@@ -52,21 +52,21 @@ class ZugferdEInvoice extends AbstractService
             ->setDocumentSupplyChainEvent(date_create($this->invoice->date ?? now()->format('Y-m-d')))
             ->setDocumentSeller($company->getSetting('name'))
             ->setDocumentSellerAddress($company->getSetting("address1"), $company->getSetting("address2"), "", $company->getSetting("postal_code"), $company->getSetting("city"), $company->country()->iso_3166_2, $company->getSetting("state"))
-            ->setDocumentSellerContact($this->invoice->user->first_name." ".$this->invoice->user->last_name, "", $this->invoice->user->phone, "", $this->invoice->user->email)
-            ->setDocumentBuyer($client->name, $client->number)
+            ->setDocumentSellerContact($this->invoice->user->present()->getFullName(), "", $this->invoice->user->present()->phone(), "", $this->invoice->user->email)
+            ->setDocumentBuyer($client->present()->name(), $client->number)
             ->setDocumentBuyerAddress($client->address1, "", "", $client->postal_code, $client->city, $client->country->iso_3166_2, $client->state)
-            ->setDocumentBuyerContact($client->primary_contact()->first()->first_name . " " . $client->primary_contact()->first()->last_name, "", $client->primary_contact()->first()->phone, "", $client->primary_contact()->first()->email)
+            ->setDocumentBuyerContact($client->present()->primary_contact_name(), "", $client->present()->phone(), "", $client->present()->email())
             ->addDocumentPaymentTerm(ctrans("texts.xinvoice_payable", ['payeddue' => date_create($this->invoice->date ?? now()->format('Y-m-d'))->diff(date_create($this->invoice->due_date ?? now()->format('Y-m-d')))->format("%d"), 'paydate' => $this->invoice->due_date]));
 
         if (!empty($this->invoice->public_notes)) {
-            $this->xrechnung->addDocumentNote($this->invoice->public_notes);
+            $this->xrechnung->addDocumentNote($this->invoice->public_notes ?? '');
         }
         if (empty($this->invoice->number)) {
-            $this->xrechnung->setDocumentInformation("DRAFT", "380", date_create($this->invoice->date ?? now()->format('Y-m-d')), $this->invoice->client->getCurrencyCode());
+            $this->xrechnung->setDocumentInformation("DRAFT", "380", date_create($this->invoice->date ?? now()->format('Y-m-d')), $client->getCurrencyCode());
         } else {
-            $this->xrechnung->setDocumentInformation($this->invoice->number, "380", date_create($this->invoice->date ?? now()->format('Y-m-d')), $this->invoice->client->getCurrencyCode());
+            $this->xrechnung->setDocumentInformation($this->invoice->number, "380", date_create($this->invoice->date ?? now()->format('Y-m-d')), $client->getCurrencyCode());
         }
-        if (!empty($this->invoice->po_number)) {
+        if (isset($this->invoice->po_number)) {
             $this->xrechnung->setDocumentBuyerOrderReferencedDocument($this->invoice->po_number);
         }
 
@@ -75,7 +75,7 @@ class ZugferdEInvoice extends AbstractService
         } else {
             $this->xrechnung->setDocumentBuyerReference($client->routing_id);
         }
-        if (!empty($client->shipping_address1) && $client->shipping_country) {
+        if (isset($client->shipping_address1) && $client->shipping_country) {
             $this->xrechnung->setDocumentShipToAddress($client->shipping_address1, $client->shipping_address2, "", $client->shipping_postal_code, $client->shipping_city, $client->shipping_country->iso_3166_2, $client->shipping_state);
         }
 
@@ -159,17 +159,17 @@ class ZugferdEInvoice extends AbstractService
             }
         }
 
-        $this->xrechnung->setDocumentSummation($this->invoice->amount, $this->invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), 0.0, $this->invoice->amount-$this->invoice->balance);
+        $this->xrechnung->setDocumentSummation($this->invoice->amount, $this->invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), 0.0, $this->invoice->amount - $this->invoice->balance);
 
         foreach ($this->tax_map as $item) {
-            $this->xrechnung->addDocumentTax($item["tax_type"], "VAT", $item["net_amount"], $item["tax_rate"]*$item["net_amount"], $item["tax_rate"]*100);
+            $this->xrechnung->addDocumentTax($item["tax_type"], "VAT", $item["net_amount"], $item["tax_rate"] * $item["net_amount"], $item["tax_rate"] * 100);
         }
 
         // The validity can be checked using https://portal3.gefeg.com/invoice/validation or https://e-rechnung.bayern.de/app/#/upload
         return $this;
-        
+
     }
-    
+
     /**
      * Returns the XML document
      * in string format

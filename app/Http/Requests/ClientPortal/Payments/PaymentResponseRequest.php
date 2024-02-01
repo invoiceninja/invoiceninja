@@ -55,6 +55,14 @@ class PaymentResponseRequest extends FormRequest
                 'pay_with_token' => ($this->pay_with_token === 'true' || $this->pay_with_token === true) ? true : false,
             ]);
         }
+
+        if($this->has('payment_method_id')) {
+
+            $this->merge([
+                'payment_method_id' => preg_replace('~\D~', '', $this->payment_method_id),
+            ]);
+
+        }
     }
 
     public function shouldUseToken(): bool

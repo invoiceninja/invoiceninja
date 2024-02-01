@@ -18,7 +18,9 @@ use Illuminate\Queue\SerializesModels;
 
 class CreditWasEmailedAndFailed
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     public $credit;
 

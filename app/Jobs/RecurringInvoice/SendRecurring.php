@@ -11,28 +11,32 @@
 
 namespace App\Jobs\RecurringInvoice;
 
-use App\DataMapper\Analytics\SendRecurringFailure;
-use App\Events\Invoice\InvoiceWasCreated;
-use App\Factory\InvoiceInvitationFactory;
-use App\Factory\RecurringInvoiceToInvoiceFactory;
-use App\Jobs\Cron\AutoBill;
-use App\Jobs\Entity\EmailEntity;
-use App\Models\Invoice;
-use App\Models\RecurringInvoice;
-use App\Utils\Ninja;
-use App\Utils\Traits\GeneratesCounter;
-use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
+use App\Utils\Ninja;
+use App\Models\Invoice;
+use App\Models\Webhook;
+use App\Jobs\Cron\AutoBill;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Utils\Traits\MakesHash;
+use App\Jobs\Entity\EmailEntity;
+use App\Models\RecurringInvoice;
+use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Queue\SerializesModels;
 use Turbo124\Beacon\Facades\LightLogs;
+use Illuminate\Queue\InteractsWithQueue;
+use App\Events\Invoice\InvoiceWasCreated;
+use App\Factory\InvoiceInvitationFactory;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use App\Factory\RecurringInvoiceToInvoiceFactory;
+use App\DataMapper\Analytics\SendRecurringFailure;
 
 class SendRecurring implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
     use GeneratesCounter;
     use MakesHash;
 
@@ -55,7 +59,7 @@ class SendRecurring implements ShouldQueue
      *
      * @return void
      */
-    public function handle() : void
+    public function handle(): void
     {
         // Generate Standard Invoice
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice, $this->recurring_invoice->client);
@@ -117,6 +121,7 @@ class SendRecurring implements ShouldQueue
             //04-08-2023 edge case to support where online payment notifications are not enabled
             if(!$invoice->client->getSetting('client_online_payment_notification')) {
                 $this->sendRecurringEmails($invoice);
+                $invoice->sendEvent(Webhook::EVENT_SENT_INVOICE, "client");
             }
         } elseif ($invoice->auto_bill_enabled && $invoice->client->getSetting('auto_bill_date') == 'on_due_date' && $invoice->client->getSetting('auto_email_invoice') && ($invoice->due_date && Carbon::parse($invoice->due_date)->startOfDay()->lte(now()->startOfDay()))) {
             nlog("attempting to autobill {$invoice->number}");
@@ -125,10 +130,12 @@ class SendRecurring implements ShouldQueue
             //04-08-2023 edge case to support where online payment notifications are not enabled
             if(!$invoice->client->getSetting('client_online_payment_notification')) {
                 $this->sendRecurringEmails($invoice);
+                $invoice->sendEvent(Webhook::EVENT_SENT_INVOICE, "client");
             }
 
         } elseif ($invoice->client->getSetting('auto_email_invoice')) {
             $this->sendRecurringEmails($invoice);
+            $invoice->sendEvent(Webhook::EVENT_SENT_INVOICE, "client");
         }
 
     }
@@ -166,7 +173,7 @@ class SendRecurring implements ShouldQueue
      * @param  Invoice $invoice
      * @return Invoice $invoice
      */
-    private function createRecurringInvitations($invoice) :Invoice
+    private function createRecurringInvitations($invoice): Invoice
     {
         if ($this->recurring_invoice->invitations->count() == 0) {
             $this->recurring_invoice->service()->createInvitations()->save();

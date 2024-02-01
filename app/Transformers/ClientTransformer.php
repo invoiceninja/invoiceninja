@@ -102,7 +102,7 @@ class ClientTransformer extends EntityTransformer
         if (!$client->group_settings) {
             return null;
         }
-        
+
         $transformer = new GroupSettingTransformer($this->serializer);
 
         return $this->includeItem($client->group_settings, $transformer, GroupSetting::class);
@@ -150,7 +150,7 @@ class ClientTransformer extends EntityTransformer
             'shipping_state' => $client->shipping_state ?: '',
             'shipping_postal_code' => $client->shipping_postal_code ?: '',
             'shipping_country_id' => (string) $client->shipping_country_id ?: '',
-            'settings' => $client->settings ?: new stdClass,
+            'settings' => $client->settings ?: new stdClass(),
             'is_deleted' => (bool) $client->is_deleted,
             'vat_number' => $client->vat_number ?: '',
             'id_number' => $client->id_number ?: '',
@@ -162,7 +162,7 @@ class ClientTransformer extends EntityTransformer
             'has_valid_vat_number' => (bool) $client->has_valid_vat_number,
             'is_tax_exempt' => (bool) $client->is_tax_exempt,
             'routing_id' => (string) $client->routing_id,
-            'tax_info' => $client->tax_data ?: new \stdClass,
+            'tax_info' => $client->tax_data ?: new \stdClass(),
             'classification' => $client->classification ?: '',
         ];
     }

@@ -64,7 +64,7 @@ class Document extends BaseModel
     use SoftDeletes;
     use Filterable;
 
-    const DOCUMENT_PREVIEW_SIZE = 300; // pixels
+    public const DOCUMENT_PREVIEW_SIZE = 300; // pixels
 
     /**
      * @var array<string>
@@ -223,9 +223,9 @@ class Document extends BaseModel
             $img->setImageCompressionQuality(50);
 
             return $img->getImageBlob();
-            
+
         } catch(\Exception $e) {
-        
+
             nlog($e->getMessage());
             return $catch_image;
         }

@@ -54,7 +54,7 @@ class ProductExport extends BaseExport
                     $row = $this->buildRow($resource);
                     return $this->processMetaData($row, $resource);
                 })->toArray();
-        
+
         return array_merge(['columns' => $header], $report);
     }
 
@@ -77,6 +77,10 @@ class ProductExport extends BaseExport
                         ->where('is_deleted', 0);
 
         $query = $this->addDateRange($query);
+        
+        if($this->input['document_email_attachment'] ?? false) {
+            $this->queueDocuments($query);
+        }
 
         return $query;
 
@@ -84,7 +88,7 @@ class ProductExport extends BaseExport
 
     public function run()
     {
-        
+
         $query = $this->init();
 
         //load the CSV document from a string
@@ -101,7 +105,7 @@ class ProductExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Product $product) :array
+    private function buildRow(Product $product): array
     {
         $transformed_entity = $this->entity_transformer->transform($product);
 
@@ -124,7 +128,7 @@ class ProductExport extends BaseExport
         // return $this->decorateAdvancedFields($product, $entity);
     }
 
-    private function decorateAdvancedFields(Product $product, array $entity) :array
+    private function decorateAdvancedFields(Product $product, array $entity): array
     {
         if (in_array('vendor_id', $this->input['report_keys'])) {
             $entity['vendor'] = $product->vendor()->exists() ? $product->vendor->name : '';

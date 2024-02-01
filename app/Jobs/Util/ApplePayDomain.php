@@ -22,7 +22,10 @@ use Illuminate\Queue\SerializesModels;
 
 class ApplePayDomain implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     private CompanyGateway $company_gateway;
 

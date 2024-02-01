@@ -21,9 +21,12 @@ class StoreProductRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
-        return auth()->user()->can('create', Product::class);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('create', Product::class);
     }
 
     public function rules()
@@ -54,7 +57,7 @@ class StoreProductRequest extends Request
     {
         $input = $this->all();
 
-        if (! isset($input['quantity']) || $input['quantity'] < 1) {
+        if (! isset($input['quantity'])) {
             $input['quantity'] = 1;
         }
 

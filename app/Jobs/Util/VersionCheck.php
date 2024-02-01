@@ -28,7 +28,10 @@ use Illuminate\Support\Str;
 
 class VersionCheck implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public function __construct()
     {
@@ -82,7 +85,7 @@ class VersionCheck implements ShouldQueue
                                 $c->saveQuietly();
 
                             });
-            
+
             ClientContact::query()
                             ->whereNull('contact_key')
                             ->update([
@@ -101,7 +104,7 @@ class VersionCheck implements ShouldQueue
 
                             });
 
-            
+
             Vendor::doesntHave('contacts')
                             ->cursor()
                             ->each(function ($vendor) {

@@ -52,7 +52,7 @@ class ClientRepository extends BaseRepository
      *
      * @throws \Laracasts\Presenter\Exceptions\PresenterException
      */
-    public function save(array $data, Client $client) : ?Client
+    public function save(array $data, Client $client): ?Client
     {
         $contact_data = $data;
         unset($data['contacts']);
@@ -70,7 +70,7 @@ class ClientRepository extends BaseRepository
             $client->settings = $client->saveSettings($data['settings'], $client);
         }
 
-        if (! $client->country_id) {
+        if (! $client->country_id || $client->country_id == 0) {
             /** @var \App\Models\Company $company **/
             $company = Company::find($client->company_id);
             $client->country_id = $company->settings->country_id;

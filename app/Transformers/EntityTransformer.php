@@ -17,9 +17,9 @@ class EntityTransformer extends TransformerAbstract
 {
     protected $serializer;
 
-    const API_SERIALIZER_ARRAY = 'array';
+    public const API_SERIALIZER_ARRAY = 'array';
 
-    const API_SERIALIZER_JSON = 'json';
+    public const API_SERIALIZER_JSON = 'json';
 
     public function __construct($serializer = null)
     {

@@ -20,7 +20,7 @@ class UploadRecurringQuoteRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         return auth()->user()->can('edit', $this->recurring_quote);
     }
@@ -40,7 +40,7 @@ class UploadRecurringQuoteRequest extends Request
         } elseif ($this->file('file')) {
             $rules['file'] = $this->file_validation;
         }
-        
+
         return $rules;
     }
 }

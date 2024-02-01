@@ -19,7 +19,7 @@ use Illuminate\Support\Str;
  */
 class DesignRepository extends BaseRepository
 {
-    public function delete($design) :Design
+    public function delete($design): Design
     {
         $design->name = $design->name.'_deleted_'.Str::random(5);
 
@@ -46,7 +46,7 @@ class DesignRepository extends BaseRepository
         if ($settings->purchase_order_design_id == $design->hashed_id) {
             $settings->purchase_order_design_id = 'Wpmbk5ezJn';
         }
-        
+
         $company->settings = $settings;
         $company->save();
 

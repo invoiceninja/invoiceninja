@@ -23,7 +23,6 @@ use League\Csv\Writer;
 
 class PurchaseOrderItemExport extends BaseExport
 {
-
     private $purchase_order_transformer;
 
     public string $date_key = 'date';
@@ -68,6 +67,10 @@ class PurchaseOrderItemExport extends BaseExport
 
         $query = $this->addDateRange($query);
 
+        if($this->input['document_email_attachment'] ?? false) {
+            $this->queueDocuments($query);
+        }
+
         return $query;
 
     }
@@ -85,15 +88,15 @@ class PurchaseOrderItemExport extends BaseExport
         $query->cursor()
               ->each(function ($resource) {
                   $this->iterateItems($resource);
-                
+
                   foreach($this->storage_array as $row) {
                       $this->storage_item_array[] = $this->processItemMetaData($row, $resource);
                   }
 
                   $this->storage_array = [];
-                
+
               });
-        
+
         return array_merge(['columns' => $header], $this->storage_item_array);
     }
 
@@ -113,7 +116,7 @@ class PurchaseOrderItemExport extends BaseExport
             });
 
         $this->csv->insertAll($this->storage_array);
-        
+
         return $this->csv->toString();
 
     }
@@ -128,11 +131,11 @@ class PurchaseOrderItemExport extends BaseExport
             $item_array = [];
 
             foreach (array_values(array_intersect($this->input['report_keys'], $this->item_report_keys)) as $key) { //items iterator produces item array
-                
+
                 if (str_contains($key, "item.")) {
 
                     $tmp_key = str_replace("item.", "", $key);
-                    
+
                     if($tmp_key == 'type_id') {
                         $tmp_key = 'type';
                     }
@@ -157,7 +160,7 @@ class PurchaseOrderItemExport extends BaseExport
         }
     }
 
-    private function buildRow(PurchaseOrder $purchase_order) :array
+    private function buildRow(PurchaseOrder $purchase_order): array
     {
         $transformed_purchase_order = $this->purchase_order_transformer->transform($purchase_order);
 
@@ -185,7 +188,7 @@ class PurchaseOrderItemExport extends BaseExport
         return $this->decorateAdvancedFields($purchase_order, $entity);
     }
 
-    private function decorateAdvancedFields(PurchaseOrder $purchase_order, array $entity) :array
+    private function decorateAdvancedFields(PurchaseOrder $purchase_order, array $entity): array
     {
         if (in_array('currency_id', $this->input['report_keys'])) {
             $entity['currency'] = $purchase_order->vendor->currency() ? $purchase_order->vendor->currency()->code : $purchase_order->company->currency()->code;
@@ -205,6 +208,16 @@ class PurchaseOrderItemExport extends BaseExport
             $entity['vendor_number'] = $purchase_order->vendor->number;
             $entity['status'] = $purchase_order->stringStatus($purchase_order->status_id);
         }
+
+        if (in_array('purchase_order.user_id', $this->input['report_keys'])) {
+            $entity['purchase_order.user_id'] = $purchase_order->user ? $purchase_order->user->present()->name() : '';
+        }
+
+        if (in_array('purchase_order.assigned_user_id', $this->input['report_keys'])) {
+            $entity['purchase_order.assigned_user_id'] = $purchase_order->assigned_user ? $purchase_order->assigned_user->present()->name() : '';
+        }
+
+
 
         return $entity;
     }

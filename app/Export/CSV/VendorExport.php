@@ -24,7 +24,6 @@ use League\Csv\Writer;
 
 class VendorExport extends BaseExport
 {
-
     private $vendor_transformer;
 
     private $contact_transformer;
@@ -59,13 +58,17 @@ class VendorExport extends BaseExport
         if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = array_values($this->vendor_report_keys);
         }
-        
+
         $query = Vendor::query()->with('contacts')
                         ->withTrashed()
                         ->where('company_id', $this->company->id)
                         ->where('is_deleted', 0);
 
         $query = $this->addDateRange($query);
+
+        if($this->input['document_email_attachment'] ?? false) {
+            $this->queueDocuments($query);
+        }
 
         return $query;
 
@@ -86,13 +89,13 @@ class VendorExport extends BaseExport
                     $row = $this->buildRow($resource);
                     return $this->processMetaData($row, $resource);
                 })->toArray();
-        
+
         return array_merge(['columns' => $header], $report);
     }
 
     public function run()
     {
-    
+
         $query = $this->init();
 
         //insert the header
@@ -106,7 +109,7 @@ class VendorExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Vendor $vendor) :array
+    private function buildRow(Vendor $vendor): array
     {
         $transformed_contact = false;
 
@@ -126,18 +129,17 @@ class VendorExport extends BaseExport
             } elseif (is_array($parts) && $parts[0] == 'vendor_contact' && isset($transformed_contact[$parts[1]])) {
                 $entity[$key] = $transformed_contact[$parts[1]];
             } else {
-                // nlog($key);
+
                 $entity[$key] = $this->decorator->transform($key, $vendor);
 
-                // $entity[$key] = $this->resolveKey($key, $vendor, $this->vendor_transformer);
             }
         }
 
-        return $entity;
-        // return $this->decorateAdvancedFields($vendor, $entity);
+        // return $entity;
+        return $this->decorateAdvancedFields($vendor, $entity);
     }
 
-    private function decorateAdvancedFields(Vendor $vendor, array $entity) :array
+    private function decorateAdvancedFields(Vendor $vendor, array $entity): array
     {
         if (in_array('vendor.country_id', $this->input['report_keys'])) {
             $entity['country'] = $vendor->country ? ctrans("texts.country_{$vendor->country->name}") : '';
@@ -150,6 +152,15 @@ class VendorExport extends BaseExport
         if (in_array('vendor.classification', $this->input['report_keys']) && isset($vendor->classification)) {
             $entity['vendor.classification'] = ctrans("texts.{$vendor->classification}") ?? '';
         }
+
+        if (in_array('vendor.user_id', $this->input['report_keys'])) {
+            $entity['vendor.user_id'] = $vendor->user ? $vendor->user->present()->name() : '';
+        }
+
+        if (in_array('vendor.assigned_user_id', $this->input['report_keys'])) {
+            $entity['vendor.assigned_user_id'] = $vendor->assigned_user ? $vendor->assigned_user->present()->name() : '';
+        }
+
 
         // $entity['status'] = $this->calculateStatus($vendor);
 

@@ -1,1 +1,0 @@
-<div id="map{!! $location->id !!}" style="height:400px; width:100%;"></div>

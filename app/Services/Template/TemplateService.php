@@ -115,7 +115,7 @@ class TemplateService
             if(!is_array($array)) {
                 return 0;
             }
-            
+
             return array_sum(array_column($array, $column));
         });
 
@@ -163,7 +163,7 @@ class TemplateService
         foreach($this->global_vars as $key => $value) {
             $this->twig->addGlobal($key, $value);
         }
-        
+
         $this->global_vars = [];
 
         return $this;
@@ -193,7 +193,7 @@ class TemplateService
     public function addGlobal(array $var): self
     {
         $this->global_vars = array_merge($this->global_vars, $var);
-        
+
         return $this;
     }
 
@@ -441,7 +441,7 @@ class TemplateService
 
             // nlog($key);
             // nlog($processed);
-            
+
             return $processed;
 
         })->toArray();
@@ -651,7 +651,7 @@ class TemplateService
 
         return [
             'status' => $payment->stringStatus($payment->status_id),
-            'badge' => $payment->badgeForStatus($payment->status_id),
+            'badge' => $payment->badgeForStatus(),
             'amount' => Number::formatMoney($payment->amount, $payment->client),
             'applied' => Number::formatMoney($payment->applied, $payment->client),
             'balance' => Number::formatMoney(($payment->amount - $payment->refunded - $payment->applied), $payment->client),
@@ -683,7 +683,7 @@ class TemplateService
             'paymentables' => $pivot,
             'refund_activity' => $this->getPaymentRefundActivity($payment),
         ];
-        
+
         return $data;
 
     }
@@ -743,7 +743,7 @@ class TemplateService
      */
     public function processQuotes($quotes): array
     {
-        
+
         return collect($quotes)->map(function ($quote) {
 
             return [
@@ -757,7 +757,7 @@ class TemplateService
                             'credit_balance' => $quote->client->credit_balance,
                             'vat_number' => $quote->client->vat_number ?? '',
                         ],
-                'status_id' =>$quote->status_id,
+                'status_id' => $quote->status_id,
                 'status' => Quote::stringStatus($quote->status_id),
                 'number' => $quote->number ?: '',
                 'discount' => (float) $quote->discount,
@@ -975,7 +975,7 @@ class TemplateService
 
     private function transformProject(Project $project, bool $nested = false): array
     {
-        
+
         return [
             'name' => $project->name ?: '',
             'number' => $project->number ?: '',
@@ -993,7 +993,7 @@ class TemplateService
             'custom_value4' => (string) $project->custom_value4 ?: '',
             'color' => (string) $project->color ?: '',
             'current_hours' => (int) $project->current_hours ?: 0,
-            'tasks' => ($project->tasks && !$nested)  ? $this->processTasks($project->tasks, true) : [],
+            'tasks' => ($project->tasks && !$nested) ? $this->processTasks($project->tasks, true) : [],
             'client' => $project->client ? [
                     'name' => $project->client->present()->name(),
                     'balance' => $project->client->balance,
@@ -1058,7 +1058,7 @@ class TemplateService
                 'is_amount_discount' => (bool)($purchase_order->is_amount_discount ?: false),
                 'footer' => $purchase_order->footer ?: '',
                 'partial' => (float)($purchase_order->partial ?: 0.0),
-                'partial_due_date' => $purchase_order->partial_due_date ? $this->translateDate($purchase_order->partial_due_date, $purchase_order->vendor->date_format(), $purchase_order->vendor->locale()): '',
+                'partial_due_date' => $purchase_order->partial_due_date ? $this->translateDate($purchase_order->partial_due_date, $purchase_order->vendor->date_format(), $purchase_order->vendor->locale()) : '',
                 'custom_value1' => (string)$purchase_order->custom_value1 ?: '',
                 'custom_value2' => (string)$purchase_order->custom_value2 ?: '',
                 'custom_value3' => (string)$purchase_order->custom_value3 ?: '',
@@ -1073,7 +1073,7 @@ class TemplateService
                 'custom_surcharge_tax2' => (bool)$purchase_order->custom_surcharge_tax2,
                 'custom_surcharge_tax3' => (bool)$purchase_order->custom_surcharge_tax3,
                 'custom_surcharge_tax4' => (bool)$purchase_order->custom_surcharge_tax4,
-                'line_items' => $purchase_order->line_items ? $this->padLineItems($purchase_order->line_items, $purchase_order->vendor): (array)[],
+                'line_items' => $purchase_order->line_items ? $this->padLineItems($purchase_order->line_items, $purchase_order->vendor) : (array)[],
                 'exchange_rate' => (float)$purchase_order->exchange_rate,
                 'currency_id' => $purchase_order->currency_id ? (string) $purchase_order->currency_id : '',
             ];
@@ -1367,7 +1367,7 @@ class TemplateService
             $var = str_replace("custom", "custom_value", $_variable);
 
             $hidden_prop = ($data_ref == 'entity_details-') ? $this->entityVariableCheck($variable) : false;
-            
+
             if (in_array($_variable, $_customs) && !empty($this->entity->{$var})) {
                 $elements[] = ['element' => 'tr', 'elements' => [
                     ['element' => 'th', 'content' => $variable . '_label', 'properties' => ['data-ref' => $data_ref . substr($variable, 1) . '_label']],
@@ -1532,7 +1532,7 @@ class TemplateService
             }
 
         }
-        
+
         return $this;
     }
 

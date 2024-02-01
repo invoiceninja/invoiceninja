@@ -16,9 +16,9 @@ use Illuminate\Support\Str;
 
 class InvoiceInvitationFactory
 {
-    public static function create(int $company_id, int $user_id) :InvoiceInvitation
+    public static function create(int $company_id, int $user_id): InvoiceInvitation
     {
-        $ii = new InvoiceInvitation;
+        $ii = new InvoiceInvitation();
         $ii->company_id = $company_id;
         $ii->user_id = $user_id;
         $ii->client_contact_id = null;

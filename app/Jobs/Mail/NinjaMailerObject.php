@@ -16,6 +16,8 @@ namespace App\Jobs\Mail;
  */
 class NinjaMailerObject
 {
+    
+    /* @var Illuminate\Mail\Mailable */
     public $mailable;
 
     /* @var Company $company */
@@ -32,7 +34,7 @@ class NinjaMailerObject
     /* Variable for cascading notifications */
     public $entity_string = false;
 
-    /* @var bool | App\Models\InvoiceInvitation | App\Models\QuoteInvitation | App\Models\CreditInvitation | App\Models\RecurringInvoiceInvitation | App\Models\PurchaseOrderInvitation $invitation*/
+    /* @var App\Models\InvoiceInvitation | App\Models\QuoteInvitation | App\Models\CreditInvitation | App\Models\RecurringInvoiceInvitation | App\Models\PurchaseOrderInvitation | \bool $invitation*/
     public $invitation = false;
 
     public $template = false;

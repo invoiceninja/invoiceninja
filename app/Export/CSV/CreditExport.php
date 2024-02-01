@@ -24,7 +24,6 @@ use League\Csv\Writer;
 
 class CreditExport extends BaseExport
 {
-
     private CreditTransformer $credit_transformer;
 
     private Decorator $decorator;
@@ -56,7 +55,7 @@ class CreditExport extends BaseExport
                     $row = $this->buildRow($credit);
                     return $this->processMetaData($row, $credit);
                 })->toArray();
-        
+
         return array_merge(['columns' => $header], $report);
     }
 
@@ -64,9 +63,9 @@ class CreditExport extends BaseExport
     {
         $clean_row = [];
         foreach (array_values($this->input['report_keys']) as $key => $value) {
-        
+
             $report_keys = explode(".", $value);
-            
+
             $column_key = $value;
             $clean_row[$key]['entity'] = $report_keys[0];
             $clean_row[$key]['id'] = $report_keys[1] ?? $report_keys[0];
@@ -107,6 +106,10 @@ class CreditExport extends BaseExport
                         ->where('is_deleted', 0);
 
         $query = $this->addDateRange($query);
+        
+        if($this->input['document_email_attachment'] ?? false) {
+            $this->queueDocuments($query);
+        }
 
         return $query;
     }
@@ -128,18 +131,18 @@ class CreditExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Credit $credit) :array
+    private function buildRow(Credit $credit): array
     {
         $transformed_credit = $this->credit_transformer->transform($credit);
 
         $entity = [];
 
         foreach (array_values($this->input['report_keys']) as $key) {
-            
+
             $keyval = $key;
             $credit_key = str_replace("credit.", "", $key);
             $searched_credit_key = array_search(str_replace("credit.", "", $key), $this->credit_report_keys) ?? $key;
-                
+
             if (isset($transformed_credit[$credit_key])) {
                 $entity[$keyval] = $transformed_credit[$credit_key];
             } elseif (isset($transformed_credit[$keyval])) {
@@ -159,38 +162,38 @@ class CreditExport extends BaseExport
         return $this->decorateAdvancedFields($credit, $entity);
     }
 
-    private function decorateAdvancedFields(Credit $credit, array $entity) :array
+    private function decorateAdvancedFields(Credit $credit, array $entity): array
     {
-        if (in_array('country_id', $this->input['report_keys'])) {
-            $entity['country'] = $credit->client->country ? ctrans("texts.country_{$credit->client->country->name}") : '';
-        }
-        
-        if (in_array('currency_id', $this->input['report_keys'])) {
-            $entity['currency_id'] = $credit->client->currency() ? $credit->client->currency()->code : $credit->company->currency()->code;
-        }
+        // if (in_array('country_id', $this->input['report_keys'])) {
+        //     $entity['country'] = $credit->client->country ? ctrans("texts.country_{$credit->client->country->name}") : '';
+        // }
 
-        if (in_array('invoice_id', $this->input['report_keys'])) {
-            $entity['invoice'] = $credit->invoice ? $credit->invoice->number : '';
-        }
+        // if (in_array('currency_id', $this->input['report_keys'])) {
+        //     $entity['currency_id'] = $credit->client->currency() ? $credit->client->currency()->code : $credit->company->currency()->code;
+        // }
 
-        if (in_array('client_id', $this->input['report_keys'])) {
-            $entity['client'] = $credit->client->present()->name();
-        }
+        // if (in_array('invoice_id', $this->input['report_keys'])) {
+        //     $entity['invoice'] = $credit->invoice ? $credit->invoice->number : '';
+        // }
 
-        if (in_array('status_id', $this->input['report_keys'])) {
-            $entity['status'] = $credit->stringStatus($credit->status_id);
-        }
+        // if (in_array('client_id', $this->input['report_keys'])) {
+        //     $entity['client'] = $credit->client->present()->name();
+        // }
 
-        if(in_array('credit.status', $this->input['report_keys'])) {
-            $entity['credit.status'] = $credit->stringStatus($credit->status_id);
-        }
+        // if (in_array('status_id', $this->input['report_keys'])) {
+        //     $entity['status'] = $credit->stringStatus($credit->status_id);
+        // }
+
+        // if(in_array('credit.status', $this->input['report_keys'])) {
+        //     $entity['credit.status'] = $credit->stringStatus($credit->status_id);
+        // }
 
         if (in_array('credit.assigned_user_id', $this->input['report_keys'])) {
-            $entity['credit.assigned_user_id'] = $credit->assigned_user ? $credit->assigned_user->present()->name(): '';
+            $entity['credit.assigned_user_id'] = $credit->assigned_user ? $credit->assigned_user->present()->name() : '';
         }
-                            
+
         if (in_array('credit.user_id', $this->input['report_keys'])) {
-            $entity['credit.user_id'] = $credit->user ? $credit->user->present()->name(): '';
+            $entity['credit.user_id'] = $credit->user ? $credit->user->present()->name() : '';
         }
 
         return $entity;

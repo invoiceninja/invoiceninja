@@ -168,6 +168,7 @@ class QuoteController extends BaseController
         $user = auth()->user();
 
         $quote = QuoteFactory::create($user->company()->id, $user->id);
+        $quote->date = now()->addSeconds($user->company()->utc_offset())->format('Y-m-d');
 
         return $this->itemResponse($quote);
     }
@@ -215,7 +216,7 @@ class QuoteController extends BaseController
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
-        
+
         $quote = $this->quote_repo->save($request->all(), QuoteFactory::create($user->company()->id, $user->id));
 
         $quote = $quote->service()
@@ -398,8 +399,7 @@ class QuoteController extends BaseController
 
         $quote->service()
               ->triggeredActions($request);
-        //   ->deletePdf();
-
+        
         event(new QuoteWasUpdated($quote, $quote->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($quote);
@@ -538,7 +538,7 @@ class QuoteController extends BaseController
         if ($action == 'bulk_download' && $quotes->count() >= 1) {
             $quotes->each(function ($quote) use ($user) {
                 if ($user->cannot('view', $quote)) {
-                    return response()->json(['message'=> ctrans('texts.access_denied')]);
+                    return response()->json(['message' => ctrans('texts.access_denied')]);
                 }
             });
 
@@ -776,7 +776,7 @@ class QuoteController extends BaseController
 
                 $quote->service()->sendEmail();
 
-                return response()->json(['message'=> ctrans('texts.sent_message')], 200);
+                return response()->json(['message' => ctrans('texts.sent_message')], 200);
 
             case 'mark_sent':
                 $quote->service()->markSent()->save();
@@ -838,14 +838,14 @@ class QuoteController extends BaseController
     public function downloadPdf($invitation_key)
     {
         $invitation = $this->quote_repo->getInvitationByKey($invitation_key);
-        
+
         if (! $invitation) {
             return response()->json(['message' => 'no record found'], 400);
         }
 
         $contact = $invitation->contact;
         $quote = $invitation->quote;
-        
+
         App::setLocale($invitation->contact->preferredLocale());
 
         $headers = ['Content-Type' => 'application/pdf'];

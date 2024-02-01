@@ -21,8 +21,11 @@ class CreateBankTransactionRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
-        return auth()->user()->can('create', BankTransaction::class);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('create', BankTransaction::class);
     }
 }

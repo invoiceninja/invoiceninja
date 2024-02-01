@@ -1947,6 +1947,7 @@ $lang = [
     'require_quote_signature_help' => 'Require client to provide their signature.',
     'i_agree' => 'I Agree To The Terms',
     'sign_here' => 'Please sign here:',
+    'sign_here_ux_tip' => 'Use the mouse or your touchpad to trace your signature in the panel below:',
     'authorization' => 'Authorisation',
     'signed' => 'Signed',
 

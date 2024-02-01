@@ -11,24 +11,28 @@
 
 namespace App\Services\Client;
 
+use App\Utils\Number;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\Email\Email;
-use App\Services\Email\EmailObject;
-use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
-use Illuminate\Mail\Mailables\Address;
 use Illuminate\Support\Facades\DB;
+use App\Services\Email\EmailObject;
+use App\Utils\Traits\GeneratesCounter;
+use Illuminate\Mail\Mailables\Address;
+use Illuminate\Database\QueryException;
 
 class ClientService
 {
-    use MakesDates;
+    use MakesDates, GeneratesCounter;
 
     private string $client_start_date;
 
     private string $client_end_date;
+
+    private bool $completed = true;
 
     public function __construct(private Client $client)
     {
@@ -53,7 +57,7 @@ class ClientService
         } catch (\Throwable $throwable) {
             nlog("DB ERROR " . $throwable->getMessage());
         }
-        
+
         if($invoice && floatval($this->client->balance)  != floatval($pre_client_balance)) {
             $diff = $this->client->balance - $pre_client_balance;
             $invoice->ledger()->insertInvoiceBalance($diff, $this->client->balance, "Update Adjustment Invoice # {$invoice->number} => {$diff}");
@@ -61,7 +65,7 @@ class ClientService
 
         return $this;
     }
-    
+
     /**
      * Seeing too many race conditions under heavy load here.
      *
@@ -115,7 +119,7 @@ class ClientService
                 DB::connection(config('database.default'))->rollBack();
             }
         }
-   
+
         return $this;
     }
 
@@ -145,6 +149,31 @@ class ClientService
         return $this;
     }
 
+    public function applyNumber(): self
+    {
+        $x = 1;
+
+        if(isset($this->client->number))
+            return $this;
+        
+        do {
+            try {
+                $this->client->number = $this->getNextClientNumber($this->client);
+                $this->client->saveQuietly();
+
+                $this->completed = false;
+            } catch (QueryException $e) {
+                $x++;
+
+                if ($x > 10) {
+                    $this->completed = false;
+                }
+            }
+        } while ($this->completed);
+
+        return $this;
+    }
+
     public function updatePaymentBalance()
     {
         $amount = Payment::query()->where('client_id', $this->client->id)
@@ -169,7 +198,7 @@ class ClientService
         return $this;
     }
 
-    public function getCreditBalance() :float
+    public function getCreditBalance(): float
     {
         $credits = Credit::withTrashed()->where('client_id', $this->client->id)
                       ->where('is_deleted', false)
@@ -241,7 +270,7 @@ class ClientService
     {
         $this->client_start_date = $this->translateDate($options['start_date'], $this->client->date_format(), $this->client->locale());
         $this->client_end_date = $this->translateDate($options['end_date'], $this->client->date_format(), $this->client->locale());
-        
+
         $email_object = $this->buildStatementMailableData($pdf);
         Email::dispatch($email_object, $this->client->company);
     }
@@ -252,11 +281,11 @@ class ClientService
      * @param  mixed $pdf       The PDF to send
      * @return EmailObject      The EmailObject to send
      */
-    public function buildStatementMailableData($pdf) :EmailObject
+    public function buildStatementMailableData($pdf): EmailObject
     {
         $email = $this->client->present()->email();
 
-        $email_object = new EmailObject;
+        $email_object = new EmailObject();
         $email_object->to = [new Address($email, $this->client->present()->name())];
 
         $cc_contacts = $this->client
@@ -266,9 +295,9 @@ class ClientService
                             ->get();
 
         foreach ($cc_contacts as $contact) {
-        
+
             $email_object->cc[] = new Address($contact->email, $contact->present()->name());
-        
+
         }
 
         $invoice = $this->client->invoices()->whereHas('invitations')->first();
@@ -294,7 +323,7 @@ class ClientService
      *
      * @return Client The Client Model
      */
-    public function save() :Client
+    public function save(): Client
     {
         $this->client->saveQuietly();
 

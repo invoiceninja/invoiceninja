@@ -116,27 +116,27 @@ class ProfitLoss
         return $this;
     }
 
-    public function getIncome() :float
+    public function getIncome(): float
     {
         return round($this->income, 2);
     }
 
-    public function getIncomeMap() :array
+    public function getIncomeMap(): array
     {
         return $this->income_map;
     }
 
-    public function getIncomeTaxes() :float
+    public function getIncomeTaxes(): float
     {
         return round($this->income_taxes, 2);
     }
 
-    public function getExpenses() :array
+    public function getExpenses(): array
     {
         return $this->expenses;
     }
 
-    public function getExpenseBreakDown() :array
+    public function getExpenseBreakDown(): array
     {
         ksort($this->expense_break_down);
 
@@ -181,7 +181,7 @@ class ProfitLoss
         return $this;
     }
 
-    private function getForeignIncome() :array
+    private function getForeignIncome(): array
     {
         return $this->foreign_income;
     }
@@ -270,7 +270,7 @@ class ProfitLoss
                         ->cursor()
                         ->each(function ($payment) {
 
-                            $map = new \stdClass;
+                            $map = new \stdClass();
                             $amount_payment_paid = 0;
                             $amount_credit_paid = 0;
                             $amount_payment_paid_converted = 0;
@@ -284,22 +284,23 @@ class ProfitLoss
                                 if ($pivot->paymentable_type == 'invoices') {
                                     $invoice = Invoice::query()->withTrashed()->find($pivot->paymentable_id);
 
-                                    $amount_payment_paid += $pivot->amount - $pivot->refunded;
-                                    $amount_payment_paid_converted += $amount_payment_paid / ($payment->exchange_rate ?: 1);
-                                    
+                                    $pivot_diff = $pivot->amount - $pivot->refunded;
+                                    $amount_payment_paid += $pivot_diff;
+                                    $amount_payment_paid_converted += $pivot_diff / ($payment->exchange_rate ?: 1);
+
                                     if ($invoice->amount > 0) {
-                                        $tax_amount += ($amount_payment_paid / $invoice->amount) * $invoice->total_taxes;
-                                        $tax_amount_converted += (($amount_payment_paid / $invoice->amount) * $invoice->total_taxes) / $payment->exchange_rate;
+                                        $tax_amount += ($pivot_diff / $invoice->amount) * $invoice->total_taxes;
+                                        $tax_amount_converted += (($pivot_diff / $invoice->amount) * $invoice->total_taxes) / $payment->exchange_rate;
                                     }
 
                                 }
 
                                 if ($pivot->paymentable_type == 'credits') {
                                     $amount_credit_paid += $pivot->amount - $pivot->refunded;
-                                    $amount_credit_paid_converted += $amount_payment_paid / ($payment->exchange_rate ?: 1);
+                                    $amount_credit_paid_converted += $pivot_diff / ($payment->exchange_rate ?: 1);
 
-                                    $tax_amount_credit += ($amount_payment_paid / $invoice->amount) * $invoice->total_taxes;
-                                    $tax_amount_credit_converted += (($amount_payment_paid / $invoice->amount) * $invoice->total_taxes) / $payment->exchange_rate;
+                                    $tax_amount_credit += ($pivot_diff / $invoice->amount) * $invoice->total_taxes;
+                                    $tax_amount_credit_converted += (($pivot_diff / $invoice->amount) * $invoice->total_taxes) / $payment->exchange_rate;
                                 }
                             }
 
@@ -375,7 +376,7 @@ class ProfitLoss
         $csv->insertOne([ctrans('texts.total_taxes'), Number::formatMoney(array_sum(array_column($this->expense_break_down, 'tax')), $this->company)]);
 
         $csv->insertOne(['--------------------']);
-        $csv->insertOne([ctrans('texts.total_profit'), Number::formatMoney($this->income - $this->income_taxes - array_sum(array_column($this->expense_break_down, 'total'))- array_sum(array_column($this->expense_break_down, 'tax')), $this->company)]);
+        $csv->insertOne([ctrans('texts.total_profit'), Number::formatMoney($this->income - $this->income_taxes - array_sum(array_column($this->expense_break_down, 'total')) - array_sum(array_column($this->expense_break_down, 'tax')), $this->company)]);
 
         //net profit
 
@@ -428,7 +429,7 @@ class ProfitLoss
         $this->expenses = [];
 
         foreach ($expenses as $expense) {
-            $map = new \stdClass;
+            $map = new \stdClass();
 
             $amount = $expense->amount;
 

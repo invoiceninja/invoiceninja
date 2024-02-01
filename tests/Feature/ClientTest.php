@@ -11,25 +11,27 @@
 
 namespace Tests\Feature;
 
+use Tests\TestCase;
+use App\Models\User;
+use App\Models\Client;
+use App\Models\Credit;
+use App\Models\Account;
+use App\Models\Company;
+use App\Models\Currency;
+use Tests\MockAccountData;
+use Illuminate\Support\Str;
+use App\Models\CompanyToken;
+use App\Models\ClientContact;
+use App\Utils\Traits\MakesHash;
+use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Factory\InvoiceItemFactory;
-use App\Models\Account;
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Company;
-use App\Models\CompanyToken;
-use App\Models\Credit;
-use App\Models\User;
-use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Tests\MockAccountData;
-use Tests\TestCase;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * @test
@@ -43,6 +45,8 @@ class ClientTest extends TestCase
 
     public $faker;
 
+    public $client_id;
+    
     protected function setUp() :void
     {
         parent::setUp();
@@ -64,6 +68,62 @@ class ClientTest extends TestCase
 
         $this->makeTestData();
     }
+
+    public function testClientExchangeRateCalculation()
+    {
+        $settings = ClientSettings::defaults();
+        $settings->currency_id = 12;
+
+        $c = Client::factory()
+                ->create([
+                    'company_id' => $this->company->id,
+                    'user_id' => $this->user->id,
+                    'settings' => $settings
+                ]);
+
+        $settings = $this->company->settings;
+        $settings->currency_id = '3';
+
+        $this->company->saveSettings($settings, $this->company);
+
+        $client_exchange_rate = round($c->setExchangeRate(),2);
+
+        $aud_currency = Currency::find(12);
+        $eur_currency = Currency::find(3);
+
+        $synthetic_exchange = $aud_currency->exchange_rate / $eur_currency->exchange_rate;
+
+        $this->assertEquals($client_exchange_rate, round($synthetic_exchange,2));
+
+    }
+
+    public function testStoreClientFixes2()
+    {
+        $data = [
+            "contacts" => [
+                [
+                "email" => "tenda@gmail.com",
+                "first_name" => "Tenda",
+                "last_name" => "Bavuma",
+                ],
+            ],
+            "name" => "Tenda Bavuma",
+            ];
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/clients', $data);
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+
+        $this->assertTrue($arr['data']['contacts'][0]['is_primary']);
+        $this->assertTrue($arr['data']['contacts'][0]['send_email']);
+
+    }
+
 
     public function testStoreClientFixes()
     {

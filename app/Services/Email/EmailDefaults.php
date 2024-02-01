@@ -177,8 +177,8 @@ class EmailDefaults
         $breaks = ["<br />","<br>","<br/>"];
         $this->email->email_object->text_body = str_ireplace($breaks, "\r\n", $this->email->email_object->body);
         $this->email->email_object->text_body = strip_tags($this->email->email_object->text_body);
-        $this->email->email_object->text_body = str_replace('$view_button', '$view_url', $this->email->email_object->text_body);
-        
+        $this->email->email_object->text_body = str_replace(['$view_button','$viewButton'], '$view_url', $this->email->email_object->text_body);
+
         if ($this->template == 'email.template.custom') {
             $this->email->email_object->body = (str_replace('$body', $this->email->email_object->body, str_replace(["\r","\n"], "", $this->email->email_object->settings->email_style_custom)));
         }
@@ -208,9 +208,22 @@ class EmailDefaults
      */
     private function setReplyTo(): self
     {
-        $reply_to_email = str_contains($this->email->email_object->settings->reply_to_email, "@") ? $this->email->email_object->settings->reply_to_email : $this->email->company->owner()->email;
+        $reply_to_email = $this->email->company->owner()->email;
+        $reply_to_name = $this->email->company->owner()->present()->name();
 
-        $reply_to_name = strlen($this->email->email_object->settings->reply_to_name) > 3 ? $this->email->email_object->settings->reply_to_name : $this->email->company->owner()->present()->name();
+        if(str_contains($this->email->email_object->settings->reply_to_email, "@")){
+            $reply_to_email = $this->email->email_object->settings->reply_to_email; 
+        }
+        elseif(isset($this->email->email_object->invitation->user)) {
+            $reply_to_email = $this->email->email_object->invitation->user->email;
+        }
+        
+        if(strlen($this->email->email_object->settings->reply_to_name) > 3) {
+             $reply_to_name =$this->email->email_object->settings->reply_to_name;
+        }
+        elseif(isset($this->email->email_object->invitation->user)) {
+            $reply_to_name = $this->email->email_object->invitation->user->present()->name();
+        }
 
         $this->email->email_object->reply_to = array_merge($this->email->email_object->reply_to, [new Address($reply_to_email, $reply_to_name)]);
 
@@ -225,7 +238,7 @@ class EmailDefaults
     {
 
         $this->email->email_object->body = strtr($this->email->email_object->body, $this->email->email_object->variables);
-        
+
         $this->email->email_object->text_body = strtr($this->email->email_object->text_body, $this->email->email_object->variables);
 
         $this->email->email_object->subject = strtr($this->email->email_object->subject, $this->email->email_object->variables);
@@ -288,7 +301,7 @@ class EmailDefaults
         $documents = [];
 
         /* Return early if the user cannot attach documents */
-        if (!$this->email->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
+        if (!$this->email->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT) || $this->email->email_object->email_template_subject == 'email_subject_statement') {
             return $this;
         }
 

@@ -25,13 +25,12 @@ use Illuminate\Database\Eloquent\Builder;
 
 class ContactExport extends BaseExport
 {
-
     private ClientTransformer $client_transformer;
 
     private ClientContactTransformer $contact_transformer;
 
     private Decorator $decorator;
-    
+
     public Writer $csv;
 
     public string $date_key = 'created_at';
@@ -69,7 +68,7 @@ class ContactExport extends BaseExport
 
     public function run()
     {
-        
+
         $query = $this->init();
 
         //load the CSV document from a string
@@ -101,12 +100,12 @@ class ContactExport extends BaseExport
                     $row = $this->buildRow($contact);
                     return $this->processMetaData($row, $contact);
                 })->toArray();
-        
+
         return array_merge(['columns' => $header], $report);
     }
 
 
-    private function buildRow(ClientContact $contact) :array
+    private function buildRow(ClientContact $contact): array
     {
         $transformed_contact = false;
 
@@ -129,11 +128,11 @@ class ContactExport extends BaseExport
 
             }
         }
-        return $entity;
-        // return $this->decorateAdvancedFields($contact->client, $entity);
+        // return $entity;
+        return $this->decorateAdvancedFields($contact->client, $entity);
     }
 
-    private function decorateAdvancedFields(Client $client, array $entity) :array
+    private function decorateAdvancedFields(Client $client, array $entity): array
     {
         if (in_array('client.country_id', $this->input['report_keys'])) {
             $entity['country'] = $client->country ? ctrans("texts.country_{$client->country->name}") : '';
@@ -150,6 +149,15 @@ class ContactExport extends BaseExport
         if (in_array('client.industry_id', $this->input['report_keys'])) {
             $entity['industry_id'] = $client->industry ? ctrans("texts.industry_{$client->industry->name}") : '';
         }
+
+        if (in_array('client.user_id', $this->input['report_keys'])) {
+            $entity['client.user_id'] = $client->user ? $client->user->present()->name() : '';
+        }
+
+        if (in_array('client.assigned_user_id', $this->input['report_keys'])) {
+            $entity['client.assigned_user_id'] = $client->assigned_user ? $client->assigned_user->present()->name() : '';
+        }
+
 
         return $entity;
     }

@@ -74,7 +74,7 @@ class CreditCard implements MethodInterface
 
     private function buildClientObject()
     {
-        $client = new \stdClass;
+        $client = new \stdClass();
 
         $country = $this->square_driver->client->country ? $this->square_driver->client->country->iso_3166_2 : $this->square_driver->client->company->country()->iso_3166_2;
 
@@ -121,7 +121,7 @@ class CreditCard implements MethodInterface
         $body->setLocationId($this->square_driver->company_gateway->getConfigField('locationId'));
         $body->setReferenceId($this->square_driver->payment_hash->hash);
         $body->setNote($description);
-        
+
         if ($request->shouldUseToken()) {
             $body->setCustomerId($cgt->gateway_customer_reference);
         } elseif ($request->has('verificationToken') && $request->input('verificationToken')) {
@@ -195,12 +195,12 @@ class CreditCard implements MethodInterface
 
     private function createCard($source_id)
     {
-        
+
         $square_card = new \Square\Models\Card();
         $square_card->setCustomerId($this->findOrCreateClient());
 
         $body = new \Square\Models\CreateCardRequest(uniqid("st", true), $source_id, $square_card);
-        
+
         $api_response = $this->square_driver
                              ->init()
                              ->square
@@ -212,7 +212,7 @@ class CreditCard implements MethodInterface
         if ($api_response->isSuccess()) {
 
             try {
-                $payment_meta = new \stdClass;
+                $payment_meta = new \stdClass();
                 $payment_meta->exp_month = (string) $body->card->exp_month;
                 $payment_meta->exp_year = (string) $body->card->exp_year;
                 $payment_meta->brand = (string) $body->card->card_brand;

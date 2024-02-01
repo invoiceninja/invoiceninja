@@ -28,7 +28,7 @@ class StoreInvoiceRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -54,7 +54,7 @@ class StoreInvoiceRequest extends Request
         } elseif ($this->file('file')) {
             $rules['file'] = $this->file_validation;
         }
-        
+
         $rules['client_id'] = 'bail|required|exists:clients,id,company_id,'.$user->company()->id.',is_deleted,0';
 
         $rules['invitations.*.client_contact_id'] = 'distinct';
@@ -87,6 +87,10 @@ class StoreInvoiceRequest extends Request
 
         if (isset($input['line_items']) && is_array($input['line_items'])) {
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+        }
+
+        if(isset($input['partial']) && $input['partial'] == 0 && isset($input['partial_due_date'])) {
+            $input['partial_due_date'] = '';
         }
 
         $input['amount'] = 0;

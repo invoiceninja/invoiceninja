@@ -24,7 +24,7 @@ use josemmo\Facturae\FacturaePayment;
 class FacturaEInvoice extends AbstractService
 {
     private Facturae $fac;
-    
+
     private $calc;
 
     private $centre_codes = [
@@ -182,7 +182,7 @@ class FacturaEInvoice extends AbstractService
         // }
 
         return $this->fac->export();
-        
+
     }
 
     /** Check if this is a public administration body */
@@ -213,7 +213,7 @@ class FacturaEInvoice extends AbstractService
     {
         $po = $this->invoice->po_number ?? '';
         $transaction_reference = (isset($this->invoice->custom_value1) && strlen($this->invoice->custom_value1) > 2) ? substr($this->invoice->custom_value1, 0, 20) : null;
-        $contract_reference = (isset($this->invoice->custom_value2) && strlen($this->invoice->custom_value2) > 2) ? $this->invoice->custom_value2: null;
+        $contract_reference = (isset($this->invoice->custom_value2) && strlen($this->invoice->custom_value2) > 2) ? $this->invoice->custom_value2 : null;
 
         $this->fac->setReferences($po, $transaction_reference, $contract_reference);
 
@@ -263,7 +263,7 @@ class FacturaEInvoice extends AbstractService
                 "dueDate" => \Carbon\Carbon::parse($payment->date)->format('Y-m-d'),
                 "amount"  => $payment->pivot->amount,
             ];
-        
+
             $data = array_merge($this->resolvePaymentMethod($payment), $payment_data);
 
             $this->fac->addPayment(new FacturaePayment($data));
@@ -362,7 +362,7 @@ class FacturaEInvoice extends AbstractService
 
         return $data;
 
-        
+
     }
 
     private function buildItems(): self
@@ -382,11 +382,11 @@ class FacturaEInvoice extends AbstractService
                 // 'specialTaxableEventReason' => '',
                 // 'specialTaxableEventReasonDescription' => '',
             ]));
-            
+
         }
 
         return $this;
-    
+
     }
 
     private function buildRatesForItem(\stdClass $item): array
@@ -394,25 +394,25 @@ class FacturaEInvoice extends AbstractService
         $data = [];
 
         if (strlen($item->tax_name1) > 1) {
-        
+
             $data[$this->resolveTaxCode($item->tax_name1)] = $item->tax_rate1;
-        
+
         }
 
         if (strlen($item->tax_name2) > 1) {
-                
+
 
             $data[$this->resolveTaxCode($item->tax_name2)] = $item->tax_rate2;
-                
+
         }
 
         if (strlen($item->tax_name3) > 1) {
-                
+
 
             $data[$this->resolveTaxCode($item->tax_name3)] = $item->tax_rate3;
-                
+
         }
-        
+
         if(count($data) == 0) {
             $data[Facturae::TAX_IVA] = 0;
         }
@@ -494,7 +494,7 @@ class FacturaEInvoice extends AbstractService
         ]);
 
         $this->fac->setSeller($seller);
-        
+
         return $this;
     }
 
@@ -530,7 +530,7 @@ class FacturaEInvoice extends AbstractService
         ]);
 
         $this->fac->setSeller($seller);
-                
+
         return $this;
 
 
@@ -567,7 +567,7 @@ class FacturaEInvoice extends AbstractService
 
         $buyer = new FacturaeParty($buyer_array);
 
-        
+
         $this->fac->setBuyer($buyer);
 
         return $this;

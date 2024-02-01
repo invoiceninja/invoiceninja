@@ -35,7 +35,7 @@ class RouteServiceProvider extends ServiceProvider
     public function boot()
     {
         parent::boot();
-        
+
         if (Ninja::isHosted() && !config('ninja.testvars.travis')) {
             app('router')->aliasMiddleware('throttle', ThrottleRequestsWithPredis::class);
         } else {

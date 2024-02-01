@@ -11,7 +11,7 @@
 
 namespace App\Utils;
 
-use \Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Cache;
 use App\Models\PaymentTerm;
 use Illuminate\Support\Str;
 

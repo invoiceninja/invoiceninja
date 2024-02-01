@@ -23,7 +23,6 @@ use League\Csv\Writer;
 
 class QuoteExport extends BaseExport
 {
-
     private $quote_transformer;
 
     public string $date_key = 'date';
@@ -70,6 +69,10 @@ class QuoteExport extends BaseExport
 
         $query = $this->addDateRange($query);
 
+        if($this->input['document_email_attachment'] ?? false) {
+            $this->queueDocuments($query);
+        }
+
         return $query;
 
     }
@@ -89,7 +92,7 @@ class QuoteExport extends BaseExport
                     $row = $this->buildRow($resource);
                     return $this->processMetaData($row, $resource);
                 })->toArray();
-                
+
         return array_merge(['columns' => $header], $report);
 
 
@@ -113,7 +116,7 @@ class QuoteExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Quote $quote) :array
+    private function buildRow(Quote $quote): array
     {
         $transformed_invoice = $this->quote_transformer->transform($quote);
 
@@ -133,11 +136,11 @@ class QuoteExport extends BaseExport
             }
 
         }
-        return $entity;
-        // return $this->decorateAdvancedFields($quote, $entity);
+        // return $entity;
+        return $this->decorateAdvancedFields($quote, $entity);
     }
 
-    private function decorateAdvancedFields(Quote $quote, array $entity) :array
+    private function decorateAdvancedFields(Quote $quote, array $entity): array
     {
         if (in_array('quote.currency_id', $this->input['report_keys'])) {
             $entity['quote.currency'] = $quote->client->currency()->code;
@@ -156,11 +159,11 @@ class QuoteExport extends BaseExport
         }
 
         if (in_array('quote.assigned_user_id', $this->input['report_keys'])) {
-            $entity['quote.assigned_user_id'] = $quote->assigned_user ? $quote->assigned_user->present()->name(): '';
+            $entity['quote.assigned_user_id'] = $quote->assigned_user ? $quote->assigned_user->present()->name() : '';
         }
-            
+
         if (in_array('quote.user_id', $this->input['report_keys'])) {
-            $entity['quote.user_id'] = $quote->user ? $quote->user->present()->name(): '';
+            $entity['quote.user_id'] = $quote->user ? $quote->user->present()->name() : '';
         }
 
 

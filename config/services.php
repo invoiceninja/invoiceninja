@@ -22,7 +22,12 @@ return [
         'domain' => env('MAILGUN_DOMAIN', ''),
         'secret' => env('MAILGUN_SECRET', ''),
         'endpoint' => env('MAILGUN_ENDPOINT', 'api.mailgun.net'),
+        'webhook_signing_key' => env('MAILGUN_WEBHOOK_SIGNING_KEY', ''),
         'scheme' => 'https',
+        'from' => [
+            'address' => env('MAILGUN_FROM_ADDRESS', ''),
+            'name' => env('MAILGUN_FROM_NAME', ''),
+        ],
     ],
 
     'postmark' => [
@@ -101,4 +106,8 @@ return [
             'key' => env('ZIP_TAX_KEY', false),
         ],
     ],
+    'chorus' => [
+        'client_id' => env('CHORUS_CLIENT_ID', false),
+        'secret' => env('CHORUS_SECRET', false),
+    ]
 ];

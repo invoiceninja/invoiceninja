@@ -47,7 +47,7 @@ class UniqueRecurringQuoteNumberRule implements Rule
     /**
      * @return bool
      */
-    private function checkIfQuoteNumberUnique() : bool
+    private function checkIfQuoteNumberUnique(): bool
     {
         if (empty($this->input['number'])) {
             return true;

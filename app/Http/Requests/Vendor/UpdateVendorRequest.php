@@ -26,11 +26,11 @@ class UpdateVendorRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
-        
+
         return $user->can('edit', $this->vendor);
     }
 
@@ -38,13 +38,13 @@ class UpdateVendorRequest extends Request
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
-        
+
         $rules['country_id'] = 'integer';
 
         if ($this->number) {
             $rules['number'] = Rule::unique('vendors')->where('company_id', $user->company()->id)->ignore($this->vendor->id);
         }
-        
+
         $rules['contacts'] = 'bail|array';
         $rules['contacts.*.email'] = 'bail|nullable|distinct|sometimes|email';
         $rules['contacts.*.password'] = [
@@ -58,7 +58,7 @@ class UpdateVendorRequest extends Request
             'regex:/[0-9]/',      // must contain at least one digit
             //'regex:/[@$!%*#?&.]/', // must contain a special character
         ];
-        
+
         $rules['currency_id'] = 'bail|sometimes|exists:currencies,id';
 
         if ($this->file('documents') && is_array($this->file('documents'))) {

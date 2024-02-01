@@ -29,7 +29,11 @@ use Illuminate\Queue\SerializesModels;
 
 class VendorExpenseNotify implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesDates;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use MakesDates;
 
     public $tries = 1;
 
@@ -54,8 +58,8 @@ class VendorExpenseNotify implements ShouldQueue
 
     private function notify(VendorContact $contact)
     {
-        
-        $mo = new EmailObject;
+
+        $mo = new EmailObject();
         $mo->contact = $contact;
         $mo->vendor_contact_id = $contact->id;
         $mo->user_id = $this->expense->user_id;

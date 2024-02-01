@@ -155,6 +155,7 @@ class PaymentController extends BaseController
         $user = auth()->user();
 
         $payment = PaymentFactory::create($user->company()->id, $user->id);
+        $payment->date = now()->addSeconds($user->company()->utc_offset())->format('Y-m-d');
 
         return $this->itemResponse($payment);
     }
@@ -519,7 +520,7 @@ class PaymentController extends BaseController
         if($action == 'template' && $user->can('view', $payments->first())) {
 
             $hash_or_response = request()->boolean('send_email') ? 'email sent' : \Illuminate\Support\Str::uuid();
-            nlog($payments->pluck('hashed_id')->toArray());
+           
             TemplateAction::dispatch(
                 $payments->pluck('hashed_id')->toArray(),
                 $request->template_id,

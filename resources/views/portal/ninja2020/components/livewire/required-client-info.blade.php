@@ -1,4 +1,4 @@
-<div class="container mx-auto grid grid-cols-12 mb-4" data-ref="required-fields-container">
+<div wire:ignore.self class="container mx-auto grid grid-cols-12 mb-4" data-ref="required-fields-container">
     <div class="col-span-12 lg:col-span-6 lg:col-start-4 overflow-hidden bg-white shadow rounded-lg">
         <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
             <h3 class="text-lg font-medium leading-6 text-gray-900">
@@ -10,12 +10,12 @@
             </p>
         </div>
 
-        <form id="required-client-info-form" wire:submit.prevent="handleSubmit(Object.fromEntries(new FormData(document.getElementById('required-client-info-form'))))">
+        <form id="required-client-info-form" x-on:submit.prevent="$wire.handleSubmit(Object.fromEntries(new FormData(document.getElementById('required-client-info-form'))))">
             @foreach($fields as $field)
                 @if(!array_key_exists('filled', $field))
                     @component('portal.ninja2020.components.general.card-element', ['title' => $field['label']])
                         @if($field['name'] == 'client_country_id' || $field['name'] == 'client_shipping_country_id')
-                            <select id="client_country" class="input w-full form-select bg-white" name="{{ $field['name'] }}" wire:model.defer="{{ str_replace(["client_","_line_","contact_"], ["client.","","contact."], $field['name']) }}">
+                            <select id="client_country" class="input w-full form-select bg-white" name="{{ $field['name'] }}" wire:model="{{ str_replace(["client_","_line_","contact_"], ["client.","","contact."], $field['name']) }}">
                                 <option value="none"></option>
 
                                 @foreach($countries as $country)
@@ -25,7 +25,7 @@
                                 @endforeach
                             </select>
                         @else
-                            <input class="input w-full" type="{{ $field['type'] ?? 'text' }}" name="{{ $field['name'] }}" wire:model.defer="{{ str_replace(["client_","_line_","contact_"], ["client.","","contact."], $field['name']) }}">
+                            <input class="input w-full" type="{{ $field['type'] ?? 'text' }}" name="{{ $field['name'] }}" wire:model="{{ str_replace(["client_","_line_","contact_"], ["client.","","contact."], $field['name']) }}">
                         @endif
 
                         @if(session()->has('validation_errors') && array_key_exists($field['name'], session('validation_errors')))
@@ -48,16 +48,16 @@
             @if($show_terms)
 
                 @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.terms_of_service') ])
-                <div x-data="{ open: false }"> 
+                <div x-data="{ open: false }">
                 <input
                     wire:click="toggleTermsAccepted()"
                     id="terms"
                     name="terms_accepted"
                     type="checkbox"
                     class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                  /> 
+                  />
                 <a href="#" class="group relative inline-block ml-4 text-blue-500 hover:text-red-500 duration-300 no-underline" @click="open = true">{{ ctrans('texts.agree_to_terms', ['terms' => ctrans('texts.terms')]) }}</a>
-                
+
 
 
 <div x-show="open" class="fixed bottom-0 inset-x-0 px-4 pb-4 sm:inset-0 sm:flex sm:items-center sm:justify-center z-50"
@@ -102,7 +102,7 @@
 
 
 
-                </div>                    
+                </div>
 
                 @endcomponent
 

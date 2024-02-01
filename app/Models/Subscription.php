@@ -72,7 +72,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Subscription extends BaseModel
 {
-    use HasFactory, SoftDeletes, Filterable;
+    use HasFactory;
+    use SoftDeletes;
+    use Filterable;
 
     protected $hidden = [
         'id',

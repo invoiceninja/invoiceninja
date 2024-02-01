@@ -83,7 +83,7 @@ class BaseDriver extends AbstractPaymentDriver
      * @var Helpers`
      */
     public $helpers;
-    
+
     /* Array of payment methods */
     public static $methods = [];
 
@@ -161,7 +161,7 @@ class BaseDriver extends AbstractPaymentDriver
         if ($this->company_gateway->require_custom_value1) {
             $fields[] = ['name' => 'client_custom_value1', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client1'), 'type' => 'text', 'validation' => 'required'];
         }
-        
+
         if ($this->company_gateway->require_custom_value2) {
             $fields[] = ['name' => 'client_custom_value2', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client2'), 'type' => 'text', 'validation' => 'required'];
         }
@@ -267,7 +267,7 @@ class BaseDriver extends AbstractPaymentDriver
     public function setClient(Client $client)
     {
         $this->client = $client;
-        
+
         return $this;
     }
     /************************** Helper methods *************************************/
@@ -393,7 +393,7 @@ class BaseDriver extends AbstractPaymentDriver
      *
      * @return void                            Success/Failure
      */
-    public function confirmGatewayFee() :void
+    public function confirmGatewayFee(): void
     {
         /*Payment invoices*/
         $payment_invoices = $this->payment_hash->invoices();
@@ -527,7 +527,7 @@ class BaseDriver extends AbstractPaymentDriver
     public function clientPaymentFailureMailer($error)
     {
         if ($this->payment_hash && is_array($this->payment_hash->invoices())) {
-            $nmo = new NinjaMailerObject;
+            $nmo = new NinjaMailerObject();
             $nmo->mailable = new NinjaMailer((new ClientPaymentFailureObject($this->client, $error, $this->client->company, $this->payment_hash))->build());
             $nmo->company = $this->client->company;
             $nmo->settings = $this->client->company->settings;
@@ -568,20 +568,18 @@ class BaseDriver extends AbstractPaymentDriver
         $error = array_key_exists('error', $response) ? $response['error'] : 'Undefined Error';
         $error_code = array_key_exists('error_code', $response) ? $response['error_code'] : 'Undefined Error Code';
 
-        $this->unWindGatewayFees($this->payment_hash);
+        if($this->payment_hash) {
+            $this->unWindGatewayFees($this->payment_hash);
+        }
 
         $this->sendFailureMail($error);
 
-        $nmo = new NinjaMailerObject;
+        $nmo = new NinjaMailerObject();
         $nmo->mailable = new NinjaMailer((new ClientPaymentFailureObject($this->client, $error, $this->client->company, $this->payment_hash))->build());
         $nmo->company = $this->client->company;
         $nmo->settings = $this->client->company->settings;
 
         $invoices = Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
-
-        // $invoices->each(function ($invoice) {
-        //     $invoice->service()->deletePdf();
-        // });
 
         $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
             if (! $invitation->contact->trashed()) {
@@ -674,7 +672,7 @@ class BaseDriver extends AbstractPaymentDriver
                 $this->required_fields[] = 'phone';
             }
         }
-        
+
 
         if ($this->company_gateway->require_postal_code) {
             // In case "require_postal_code" is true, we don't need billing address.
@@ -736,7 +734,7 @@ class BaseDriver extends AbstractPaymentDriver
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->client->getMergedSettings()));
         App::setLocale($this->client->company->locale());
-        
+
         if (! $this->payment_hash || !$this->client) {
             return 'Descriptor';
         }
@@ -748,7 +746,7 @@ class BaseDriver extends AbstractPaymentDriver
         }
 
         $invoices_string = str_replace(["*","<",">","'",'"'], "-", $invoices_string);
-        
+
         // 2023-11-02 - improve the statement descriptor for string
 
         $company_name = $this->client->company->present()->name();
@@ -798,7 +796,7 @@ class BaseDriver extends AbstractPaymentDriver
 
         return sprintf('%s: %s', ctrans('texts.invoices'), \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray()));
     }
-    
+
     /**
      * Stub for disconnecting from the gateway.
      *

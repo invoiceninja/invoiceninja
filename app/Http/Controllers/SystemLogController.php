@@ -60,7 +60,10 @@ class SystemLogController extends BaseController
     {
         $system_logs = SystemLog::filter($filters);
 
-        if (auth()->user()->isAdmin()) {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if ($user->isAdmin()) {
             return $this->listResponse($system_logs);
         }
 
@@ -76,7 +79,7 @@ class SystemLogController extends BaseController
     {
         $error = [
             'message' => 'Cannot create system log',
-            'errors' => new stdClass,
+            'errors' => new stdClass(),
         ];
 
         return response()->json($error, 400);
@@ -92,7 +95,7 @@ class SystemLogController extends BaseController
     {
         $error = [
             'message' => 'Cannot store system log',
-            'errors' => new stdClass,
+            'errors' => new stdClass(),
         ];
 
         return response()->json($error, 400);
@@ -162,7 +165,7 @@ class SystemLogController extends BaseController
     {
         $error = [
             'message' => 'Cannot edit system log',
-            'errors' => new stdClass,
+            'errors' => new stdClass(),
         ];
 
         return response()->json($error, 400);
@@ -179,7 +182,7 @@ class SystemLogController extends BaseController
     {
         $error = [
             'message' => 'Cannot update system log',
-            'errors' => new stdClass,
+            'errors' => new stdClass(),
         ];
 
         return response()->json($error, 400);
@@ -195,7 +198,7 @@ class SystemLogController extends BaseController
     {
         $error = [
             'message' => 'Cannot destroy system log',
-            'errors' => new stdClass,
+            'errors' => new stdClass(),
         ];
 
         return response()->json($error, 400);

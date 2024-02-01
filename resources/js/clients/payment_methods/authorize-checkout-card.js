@@ -10,7 +10,9 @@
 
 class CheckoutCreditCardAuthorization {
     constructor() {
-        this.button = document.querySelector('#pay-button');
+        // this.button = document.querySelector('#pay-button');
+        this.button = document.getElementById('pay-button');
+
     }
 
     init() {

@@ -28,7 +28,7 @@ class MaxCompanies extends Mailable
 
     public $title;
 
-    public $message;
+    // public $message;
 
     public $whitelabel;
 
@@ -54,7 +54,7 @@ class MaxCompanies extends Mailable
         $this->settings = $this->company->settings;
         $this->logo = $this->company->present()->logo();
         $this->title = ctrans('texts.max_companies');
-        $this->message = ctrans('texts.max_companies_desc');
+        // $this->message = ctrans('texts.max_companies_desc');
         $this->whitelabel = $this->company->account->isPaid();
 
         return $this->from(config('mail.from.address'), config('mail.from.name'))

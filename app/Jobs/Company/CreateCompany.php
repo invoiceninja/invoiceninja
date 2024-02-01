@@ -48,7 +48,7 @@ class CreateCompany
      *
      * @return Company|null
      */
-    public function handle() : ?Company
+    public function handle(): ?Company
     {
         $settings = CompanySettings::defaults();
 
@@ -65,8 +65,8 @@ class CreateCompany
         $company->settings = $settings;
         $company->db = config('database.default');
         $company->enabled_modules = config('ninja.enabled_modules');
-        $company->subdomain = isset($this->request['subdomain']) ? $this->request['subdomain'] : '';
-        $company->custom_fields = new \stdClass;
+        $company->subdomain = isset($this->request['subdomain']) ? $this->request['subdomain'] : MultiDB::randomSubdomainGenerator();
+        $company->custom_fields = new \stdClass();
         $company->default_password_timeout = 1800000;
         $company->client_registration_fields = ClientRegistrationFields::generate();
         $company->markdown_email_enabled = true;
@@ -89,7 +89,7 @@ class CreateCompany
 
         return $company;
     }
-    
+
     /**
      * Resolve Country
      *
@@ -98,13 +98,13 @@ class CreateCompany
     private function resolveCountry(): string
     {
         try {
-            
+
             $ip = request()->ip();
 
             if(request()->hasHeader('cf-ipcountry')) {
 
                 $c = Country::query()->where('iso_3166_2', request()->header('cf-ipcountry'))->first();
-                
+
                 if($c) {
                     return (string)$c->id;
                 }
@@ -134,7 +134,7 @@ class CreateCompany
     {
         try {
 
-            $custom_fields = new \stdClass;
+            $custom_fields = new \stdClass();
             $custom_fields->contact1 = "Rol|CONTABLE,FISCAL,GESTOR,RECEPTOR,TRAMITADOR,PAGADOR,PROPONENTE,B2B_FISCAL,B2B_PAYER,B2B_BUYER,B2B_COLLECTOR,B2B_SELLER,B2B_PAYMENT_RECEIVER,B2B_COLLECTION_RECEIVER,B2B_ISSUER";
             $custom_fields->contact2 = "Code|single_line_text";
             $custom_fields->contact3 = "Nombre|single_line_text";
@@ -173,7 +173,7 @@ class CreateCompany
             $company->enabled_item_tax_rates = 1;
             $company->enabled_tax_rates = 1;
 
-            $translations = new \stdClass;
+            $translations = new \stdClass();
             $translations->invoice = "Tax Invoice";
 
             $settings = $company->settings;
@@ -182,7 +182,7 @@ class CreateCompany
             $settings->translations = $translations;
 
             $company->settings = $settings;
-                    
+
             $company->save();
 
             return $company;
@@ -206,7 +206,7 @@ class CreateCompany
             $company->enabled_item_tax_rates = 1;
             $company->enabled_tax_rates = 1;
 
-            $translations = new \stdClass;
+            $translations = new \stdClass();
             $translations->invoice = "Tax Invoice";
 
             $settings = $company->settings;
@@ -215,7 +215,7 @@ class CreateCompany
             $settings->translations = $translations;
 
             $company->settings = $settings;
-            
+
             $company->save();
 
             return $company;

@@ -23,7 +23,7 @@ class ShowChartRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /**@var \App\Models\User auth()->user */
         $user = auth()->user();
@@ -42,7 +42,7 @@ class ShowChartRequest extends Request
 
     public function prepareForValidation()
     {
-        
+
         /**@var \App\Models\User auth()->user */
         $user = auth()->user();
 

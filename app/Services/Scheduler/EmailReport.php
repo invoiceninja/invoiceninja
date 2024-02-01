@@ -57,9 +57,9 @@ class EmailReport
 
     public function run()
     {
-        
+
         $start_end_dates = $this->calculateStartAndEndDates($this->scheduler->parameters);
-        
+
         $data = [];
 
         $data = [
@@ -70,10 +70,10 @@ class EmailReport
             'report_keys' => []
         ];
 
-        if (count($this->scheduler->parameters['clients']) >= 1) {
+        if (isset($this->scheduler->parameters['clients']) && count($this->scheduler->parameters['clients']) >= 1) {
             $data['clients'] = $this->transformKeys($this->scheduler->parameters['clients']);
         }
-        
+
         $export = false;
 
         match($this->scheduler->parameters['report_name']) {
@@ -84,23 +84,23 @@ class EmailReport
             'client_balance' => $export = (new ClientBalanceReport($this->scheduler->company, $data)),
             'client_sales' => $export = (new ClientSalesReport($this->scheduler->company, $data)),
             'user_sales' => $export = (new UserSalesReport($this->scheduler->company, $data)),
-            'clients' => $export = (new ClientExport($this->scheduler->company, $data)),
-            'client_contacts' => $export = (new ContactExport($this->scheduler->company, $data)),
-            'credits' => $export = (new CreditExport($this->scheduler->company, $data)),
-            'documents' => $export = (new DocumentExport($this->scheduler->company, $data)),
-            'expenses' => $export = (new ExpenseExport($this->scheduler->company, $data)),
-            'invoices' => $export = (new InvoiceExport($this->scheduler->company, $data)),
-            'invoice_items' => $export = (new InvoiceItemExport($this->scheduler->company, $data)),
-            'quotes' => $export = (new QuoteExport($this->scheduler->company, $data)),
-            'quote_items' => $export = (new QuoteItemExport($this->scheduler->company, $data)),
-            'recurring_invoices' => $export = (new RecurringInvoiceExport($this->scheduler->company, $data)),
-            'payments' => $export = (new PaymentExport($this->scheduler->company, $data)),
-            'products' => $export = (new ProductExport($this->scheduler->company, $data)),
-            'tasks' => $export = (new TaskExport($this->scheduler->company, $data)),
             'profitloss' => $export = (new ProfitLoss($this->scheduler->company, $data)),
+            'client' => $export = (new ClientExport($this->scheduler->company, $data)),
+            'client_contact' => $export = (new ContactExport($this->scheduler->company, $data)),
+            'credit' => $export = (new CreditExport($this->scheduler->company, $data)),
+            'document' => $export = (new DocumentExport($this->scheduler->company, $data)),
+            'expense' => $export = (new ExpenseExport($this->scheduler->company, $data)),
+            'invoice' => $export = (new InvoiceExport($this->scheduler->company, $data)),
+            'invoice_item' => $export = (new InvoiceItemExport($this->scheduler->company, $data)),
+            'quote' => $export = (new QuoteExport($this->scheduler->company, $data)),
+            'quote_item' => $export = (new QuoteItemExport($this->scheduler->company, $data)),
+            'recurring_invoice' => $export = (new RecurringInvoiceExport($this->scheduler->company, $data)),
+            'payment' => $export = (new PaymentExport($this->scheduler->company, $data)),
+            'product' => $export = (new ProductExport($this->scheduler->company, $data)),
+            'task' => $export = (new TaskExport($this->scheduler->company, $data)),
             default => $export = false,
         };
-        
+
         if(!$export) {
             $this->cancelSchedule();
             return;
@@ -110,7 +110,7 @@ class EmailReport
 
         //todo - potentially we send this to more than one user.
 
-        $nmo = new NinjaMailerObject;
+        $nmo = new NinjaMailerObject();
         $nmo->mailable = new DownloadReport($this->scheduler->company, $csv, $this->file_name);
         $nmo->company = $this->scheduler->company;
         $nmo->settings = $this->scheduler->company->settings;
@@ -120,14 +120,14 @@ class EmailReport
 
         //calculate next run dates;
         $this->scheduler->calculateNextRun();
-        
+
     }
 
     private function cancelSchedule()
     {
         $this->scheduler->forceDelete();
     }
-    
-   
+
+
 
 }

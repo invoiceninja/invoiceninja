@@ -23,7 +23,10 @@ use Illuminate\Support\Facades\Cache;
 
 class UpdateExchangeRates implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public function __construct()
     {
@@ -34,7 +37,7 @@ class UpdateExchangeRates implements ShouldQueue
      *
      * @return void
      */
-    public function handle() :void
+    public function handle(): void
     {
         info('updating currencies');
 
@@ -47,7 +50,7 @@ class UpdateExchangeRates implements ShouldQueue
         if (config('ninja.db.multi_db_enabled')) {
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
-        
+
                 $client = new Client();
                 $response = $client->get($cc_endpoint);
 

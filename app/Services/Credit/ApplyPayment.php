@@ -40,7 +40,7 @@ class ApplyPayment
         $this->payment = $payment->fresh();
     }
 
-    public function run() :Credit
+    public function run(): Credit
     {
         //$available_credit_balance = $this->credit->balance;
         $applicable_amount = min($this->amount, $this->credit->balance);
@@ -86,7 +86,7 @@ class ApplyPayment
 
     private function applyPaymentToCredit()
     {
-        $credit_item = new InvoiceItem;
+        $credit_item = new InvoiceItem();
         $credit_item->type_id = '1';
         $credit_item->product_key = ctrans('texts.credit');
         $credit_item->notes = ctrans('texts.credit_payment', ['invoice_number' => $this->invoice->number]);

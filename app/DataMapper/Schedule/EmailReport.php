@@ -66,7 +66,7 @@ class EmailReport
      * @var string
      */
     public string $end_date = '';
-    
+
     /******************************* Parameters **********************************/
 
     /** @var string $report_name */

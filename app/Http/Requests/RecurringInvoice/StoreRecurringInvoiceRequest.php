@@ -29,7 +29,7 @@ class StoreRecurringInvoiceRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
 
         /** @var \App\Models\User auth()->user() */
@@ -66,7 +66,7 @@ class StoreRecurringInvoiceRequest extends Request
         $rules['project_id'] = ['bail', 'sometimes', new ValidProjectForClient($this->all())];
 
         $rules['number'] = new UniqueRecurringInvoiceNumberRule($this->all());
-        
+
         $rules['tax_rate1'] = 'bail|sometimes|numeric';
         $rules['tax_rate2'] = 'bail|sometimes|numeric';
         $rules['tax_rate3'] = 'bail|sometimes|numeric';
@@ -75,6 +75,7 @@ class StoreRecurringInvoiceRequest extends Request
         $rules['tax_name3'] = 'bail|sometimes|string|nullable';
         $rules['due_date_days'] = 'bail|sometimes|string';
         $rules['exchange_rate'] = 'bail|sometimes|numeric';
+        $rules['next_send_date'] = 'bail|required|date|after:yesterday';
 
         return $rules;
     }

@@ -47,7 +47,7 @@ class UniqueInvoiceNumberRule implements Rule
     /**
      * @return bool
      */
-    private function checkIfInvoiceNumberUnique() : bool
+    private function checkIfInvoiceNumberUnique(): bool
     {
         if (empty($this->input['number'])) {
             return true;

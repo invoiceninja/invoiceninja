@@ -91,6 +91,12 @@ class RecurringInvoiceInvitation extends BaseModel
         return self::class;
     }
 
+
+    public function getEntityString(): string
+    {
+        return 'recurring_invoice';
+    }
+
     public function entityType()
     {
         return RecurringInvoice::class;

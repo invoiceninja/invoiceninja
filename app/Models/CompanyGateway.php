@@ -69,7 +69,7 @@ class CompanyGateway extends BaseModel
 {
     use SoftDeletes;
     use Filterable;
-    
+
     public const GATEWAY_CREDIT = 10000000;
 
     protected $casts = [
@@ -148,7 +148,7 @@ class CompanyGateway extends BaseModel
         '944c20175bbe6b9972c05bcfe294c2c7' => 313,
         'kivcvjexxvdiyqtj3mju5d6yhpeht2xs' => 314,
         '65faab2ab6e3223dbe848b1686490baz' => 320,
-        'b9886f9257f0c6ee7c302f1c74475f6c' => 321,
+        'b9886f9257f0c6ee7c302f1c74475f6c' => 321, //GoCardless
         'hxd6gwg3ekb9tb3v9lptgx1mqyg69zu9' => 322,
         '80af24a6a691230bbec33e930ab40666' => 323,
     ];
@@ -209,7 +209,7 @@ class CompanyGateway extends BaseModel
         if (class_exists($class)) {
             return $class;
         }
-        
+
         return false;
 
         // throw new \Exception("Payment Driver does not exist");
@@ -222,7 +222,7 @@ class CompanyGateway extends BaseModel
     {
         $this->config = encrypt(json_encode($config));
     }
-    
+
     /**
      * setConfigField
      *
@@ -329,7 +329,7 @@ class CompanyGateway extends BaseModel
      *
      * @return bool whether the gateway is in testmode or not.
      */
-    public function isTestMode() :bool
+    public function isTestMode(): bool
     {
         $config = $this->getConfig();
 
@@ -349,7 +349,7 @@ class CompanyGateway extends BaseModel
      * Only works for STRIPE and PAYMILL.
      * @return string The Publishable key
      */
-    public function getPublishableKey() :string
+    public function getPublishableKey(): string
     {
         return $this->getConfigField('publishableKey');
     }
@@ -375,7 +375,7 @@ class CompanyGateway extends BaseModel
      * @param int $gateway_type_id
      * @return string           The fee amount formatted in the client currency
      */
-    public function calcGatewayFeeLabel($amount, Client $client, $gateway_type_id = GatewayType::CREDIT_CARD) :string
+    public function calcGatewayFeeLabel($amount, Client $client, $gateway_type_id = GatewayType::CREDIT_CARD): string
     {
         $label = ' ';
 
@@ -384,11 +384,11 @@ class CompanyGateway extends BaseModel
         if ($fee > 0) {
             $fees_and_limits = $this->fees_and_limits->{$gateway_type_id};
 
-            if (strlen($fees_and_limits->fee_percent) >=1) {
+            if (strlen($fees_and_limits->fee_percent) >= 1) {
                 $label .= $fees_and_limits->fee_percent . '%';
             }
 
-            if (strlen($fees_and_limits->fee_amount) >=1 && $fees_and_limits->fee_amount > 0) {
+            if (strlen($fees_and_limits->fee_amount) >= 1 && $fees_and_limits->fee_amount > 0) {
                 if (strlen($label) > 1) {
                     $label .= ' + ' . Number::formatMoney($fees_and_limits->fee_amount, $client);
                 } else {
@@ -422,9 +422,9 @@ class CompanyGateway extends BaseModel
             }
 
             if ($fees_and_limits->fee_percent) {
-                $divisor = 1 - ($fees_and_limits->fee_percent/100);
+                $divisor = 1 - ($fees_and_limits->fee_percent / 100);
 
-                $gross_amount = round($adjusted_fee/$divisor, 2);
+                $gross_amount = round($adjusted_fee / $divisor, 2);
                 $fee = $gross_amount - $amount;
             }
         } else {
@@ -441,7 +441,7 @@ class CompanyGateway extends BaseModel
                 //elseif ($fees_and_limits->adjust_fee_percent) {
                 //   $fee += round(($amount / (1 - $fees_and_limits->fee_percent / 100) - $amount), 2);
                 //} else {
-                        
+
                 //}
             }
         }

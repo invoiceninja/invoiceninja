@@ -70,7 +70,7 @@ class ResetPasswordController extends Controller
             $account = Account::first();
         }
 
-        
+
         return $this->render('auth.passwords.reset', ['root' => 'themes', 'token' => $token, 'account' => $account, 'email' => $request->email]);
     }
 

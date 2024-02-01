@@ -38,7 +38,7 @@ class TokenAuth
 
             $error = [
                 'message' => 'User inactive',
-                'errors' => new stdClass,
+                'errors' => new stdClass(),
             ];
             //user who once existed, but has been soft deleted
             if (! $user) {
@@ -48,7 +48,7 @@ class TokenAuth
             if (Ninja::isHosted() && $company_token->is_system == 0 && ! $user->account->isPaid()) {
                 $error = [
                     'message' => 'Feature not available with free / unpaid account.',
-                    'errors' => new stdClass,
+                    'errors' => new stdClass(),
                 ];
 
                 return response()->json($error, 403);
@@ -80,7 +80,7 @@ class TokenAuth
             if ($company_token->cu->is_locked) {
                 $error = [
                     'message' => 'User access locked',
-                    'errors' => new stdClass,
+                    'errors' => new stdClass(),
                 ];
 
                 return response()->json($error, 403);
@@ -92,7 +92,7 @@ class TokenAuth
         } else {
             $error = [
                 'message' => 'Invalid token',
-                'errors' => new stdClass,
+                'errors' => new stdClass(),
             ];
 
             return response()->json($error, 403);

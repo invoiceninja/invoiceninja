@@ -49,7 +49,27 @@ class InvoiceTest extends TestCase
         $this->invoice_calc = new InvoiceSum($this->invoice);
     }
 
+    public function testPartialDueDateCast()
+    {
+        $i = Invoice::factory()
+        ->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id
+        ]);
 
+        $this->assertNull($i->partial_due_date);
+
+        $i = Invoice::factory()
+        ->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'partial_due_date' => '2023-10-10',
+        ]);
+
+        $this->assertEquals('2023-10-10', $i->partial_due_date->format('Y-m-d'));
+    }
    
     public function testMarkPaidWithPartial()
     {
@@ -66,7 +86,9 @@ class InvoiceTest extends TestCase
 
         $invoice_calc = new InvoiceSum($this->invoice);
 
-        $invoice = $invoice_calc->build()->getInvoice()->service()->markSent()->save();
+        /** @var \App\Models\Invoice $ii */
+        $ii = $invoice_calc->build()->getInvoice();
+        $invoice = $ii->service()->markSent()->save();
 
         $this->assertEquals(5, $invoice->partial);
         $this->assertNotNull($invoice->partial_due_date);

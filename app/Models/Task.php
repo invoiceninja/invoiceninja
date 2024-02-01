@@ -123,7 +123,7 @@ class Task extends BaseModel
         'hash',
         'meta',
     ];
-    
+
     protected $casts = [
         'meta' => 'object',
         'updated_at' => 'timestamp',
@@ -184,7 +184,7 @@ class Task extends BaseModel
         }
 
         return '';
-    
+
     }
 
     public function invoice()
@@ -267,7 +267,7 @@ class Task extends BaseModel
 
     public function processLogs()
     {
-        
+
         return
         collect(json_decode($this->time_log, true))->map(function ($log) {
 
@@ -290,14 +290,14 @@ class Task extends BaseModel
 
     public function processLogsExpandedNotation()
     {
-        
+
         return
         collect(json_decode($this->time_log, true))->map(function ($log) {
 
             $parent_entity = $this->client ?? $this->company;
             $logged = [];
-            
-            if($log[0] && $log[1] !=0) {
+
+            if($log[0] && $log[1] != 0) {
                 $duration = $log[1] - $log[0];
             } else {
                 $duration = 0;
@@ -316,8 +316,8 @@ class Task extends BaseModel
                 $logged['end_date'] = ctrans('texts.running');
             }
 
-            $logged['description'] = $log[2];
-            $logged['billable'] = $log[3];
+            $logged['description'] =  $log[2] ?? '';
+            $logged['billable'] = $log[3] ?? false;
             $logged['duration_raw'] = $duration;
             $logged['duration'] = gmdate("H:i:s", $duration);
 

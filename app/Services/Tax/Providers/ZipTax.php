@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Http;
 
 class ZipTax implements TaxProviderInterface
 {
-
     private string $endpoint = 'https://api.zip-tax.com/request/v40';
 
     private string $api_key = '';
@@ -46,7 +45,7 @@ class ZipTax implements TaxProviderInterface
 
         return null;
     }
-    
+
     public function setApiCredentials($api_key): self
     {
         $this->api_key = $api_key;
@@ -77,8 +76,8 @@ class ZipTax implements TaxProviderInterface
         if(isset($response['rCode']) && class_exists(\Modules\Admin\Events\TaxProviderException::class)) {
             event(new \Modules\Admin\Events\TaxProviderException($response['rCode']));
         }
-        
+
         return null;
-        
+
     }
 }

@@ -28,9 +28,12 @@ class UpdatePurchaseOrderRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
-        return auth()->user()->can('edit', $this->purchase_order);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('edit', $this->purchase_order);
     }
 
     /**
@@ -40,11 +43,13 @@ class UpdatePurchaseOrderRequest extends Request
      */
     public function rules()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $rules = [];
 
-        if ($this->number) {
-            $rules['number'] = Rule::unique('purchase_orders')->where('company_id', auth()->user()->company()->id)->ignore($this->purchase_order->id);
-        }
+        $rules['number'] = ['bail', 'sometimes', 'nullable', Rule::unique('purchase_orders')->where('company_id', $user->company()->id)->ignore($this->purchase_order->id)];
+        $rules['vendor_id'] = ['bail', 'sometimes', Rule::in([$this->purchase_order->vendor_id])];
 
         $rules['line_items'] = 'array';
         $rules['discount'] = 'sometimes|numeric';

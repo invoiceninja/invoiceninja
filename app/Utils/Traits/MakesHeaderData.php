@@ -21,7 +21,7 @@ trait MakesHeaderData
     /**
      * @return array
      */
-    public function headerData() : array
+    public function headerData(): array
     {
         //companies
         $companies = auth()->user()->companies;

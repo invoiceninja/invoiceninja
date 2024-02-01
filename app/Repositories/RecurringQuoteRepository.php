@@ -20,7 +20,7 @@ use Illuminate\Http\Request;
  */
 class RecurringQuoteRepository extends BaseRepository
 {
-    public function save(Request $request, RecurringQuote $quote) : ?RecurringQuote
+    public function save(Request $request, RecurringQuote $quote): ?RecurringQuote
     {
         $quote->fill($request->input());
 

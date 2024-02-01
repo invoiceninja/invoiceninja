@@ -19,7 +19,7 @@ trait UserSessionAttributes
     /**
      * @param $value
      */
-    public function setCurrentCompanyId($value) : void
+    public function setCurrentCompanyId($value): void
     {
         session(['current_company_id' => $value]);
     }
@@ -27,7 +27,7 @@ trait UserSessionAttributes
     /**
      * @return int
      */
-    public function getCurrentCompanyId() : int
+    public function getCurrentCompanyId(): int
     {
         return session('current_company_id');
     }

@@ -22,6 +22,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
+use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
@@ -34,7 +35,8 @@ use Illuminate\View\View;
 
 class InvoiceController extends Controller
 {
-    use MakesHash, MakesDates;
+    use MakesHash;
+    use MakesDates;
 
     /**
      * Display list of invoices.
@@ -67,11 +69,14 @@ class InvoiceController extends Controller
             event(new InvoiceWasViewed($invitation, $invoice->company, Ninja::eventVars()));
         }
 
+        $variables = ($invitation && auth()->guard('contact')->user()->client->getSetting('show_accept_invoice_terms')) ? (new HtmlEngine($invitation))->generateLabelsAndValues() : false;
+        
         $data = [
             'invoice' => $invoice,
             'invitation' => $invitation ?: $invoice->invitations->first(),
             'key' => $invitation ? $invitation->key : false,
             'hash' => $hash,
+            'variables' => $variables,
         ];
 
         if ($request->query('mode') === 'fullscreen') {
@@ -91,7 +96,7 @@ class InvoiceController extends Controller
         }
 
         $invitation = false;
-        
+
         match($data['entity_type'] ?? false) {
             'invoice' => $invitation = InvoiceInvitation::withTrashed()->find($data['invitation_id']),
             'quote' => $invitation = QuoteInvitation::withTrashed()->find($data['invitation_id']),
@@ -105,7 +110,7 @@ class InvoiceController extends Controller
         }
 
         $file = (new \App\Jobs\Entity\CreateRawPdf($invitation))->handle();
-        
+
         $headers = ['Content-Type' => 'application/pdf'];
         return response()->make($file, 200, $headers);
 
@@ -216,13 +221,21 @@ class InvoiceController extends Controller
 
         //if there is only one payment method -> lets return straight to the payment page
 
+        $settings = auth()->guard('contact')->user()->client->getMergedSettings();
+        $variables = false;
+
+        if(($invitation = $invoices->first()->invitations()->first() ?? false) && $settings->show_accept_invoice_terms)
+            $variables = (new HtmlEngine($invitation))->generateLabelsAndValues();
+
         $data = [
-            'settings' => auth()->guard('contact')->user()->client->getMergedSettings(),
+            'settings' => $settings,
             'invoices' => $invoices,
             'formatted_total' => $formatted_total,
             'payment_methods' => $payment_methods,
             'hashed_ids' => $invoices->pluck('hashed_id'),
             'total' =>  $total,
+            'variables' => $variables,
+
         ];
 
         return $this->render('invoices.payment', $data);
@@ -266,7 +279,7 @@ class InvoiceController extends Controller
         try {
 
             foreach ($invoices as $invoice) {
-                            
+
                 if ($invoice->client->getSetting('enable_e_invoice')) {
                     $xml = $invoice->service()->getEInvoice();
                     $zipFile->addFromString($invoice->getFileName("xml"), $xml);

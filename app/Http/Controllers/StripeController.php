@@ -67,7 +67,7 @@ class StripeController extends BaseController
                                 ->whereIn('gateway_key', $this->stripe_keys)
                                 ->first();
 
-            return $company_gateway->driver(new Client)->verifyConnect();
+            return $company_gateway->driver(new Client())->verifyConnect();
         }
 
         return response()->json(['message' => 'Unauthorized'], 403);

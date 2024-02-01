@@ -30,7 +30,10 @@ use Illuminate\Support\Facades\App;
 
 class EmailRefundPayment implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $email_builder;
 
@@ -81,8 +84,8 @@ class EmailRefundPayment implements ShouldQueue
 
             $invitation = null;
 
-            $nmo = new NinjaMailerObject;
-           
+            $nmo = new NinjaMailerObject();
+
             if ($this->payment->invoices && $this->payment->invoices->count() >= 1) {
 
                 if($this->contact) {

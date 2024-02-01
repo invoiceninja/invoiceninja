@@ -30,7 +30,7 @@ class UpdateInvoiceRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -57,14 +57,12 @@ class UpdateInvoiceRequest extends Request
             $rules['file'] = $this->file_validation;
         }
 
-        $rules['id'] = new LockedInvoiceRule($this->invoice);
+        // $rules['id'] = new LockedInvoiceRule($this->invoice);
 
-        if ($this->number) {
-            $rules['number'] = Rule::unique('invoices')->where('company_id', $user->company()->id)->ignore($this->invoice->id);
-        }
+        $rules['number'] = ['bail', 'sometimes', 'nullable', Rule::unique('invoices')->where('company_id', $user->company()->id)->ignore($this->invoice->id)];
 
         $rules['is_amount_discount'] = ['boolean'];
-
+        $rules['client_id'] = ['bail', 'sometimes', Rule::in([$this->invoice->client_id])];
         $rules['line_items'] = 'array';
         $rules['discount'] = 'sometimes|numeric';
         $rules['project_id'] = ['bail', 'sometimes', new ValidProjectForClient($this->all())];
@@ -77,7 +75,7 @@ class UpdateInvoiceRequest extends Request
         $rules['status_id'] = 'bail|sometimes|not_in:5'; //do not allow cancelled invoices to be modfified.
         $rules['exchange_rate'] = 'bail|sometimes|numeric';
         $rules['partial'] = 'bail|sometimes|nullable|numeric';
-        $rules['partial_due_date'] = ['bail', 'sometimes', 'exclude_if:partial,0', Rule::requiredIf(fn () => $this->partial > 0), 'date'];
+        $rules['partial_due_date'] = ['bail', 'sometimes', 'exclude_if:partial,0', Rule::requiredIf(fn () => $this->partial > 0), 'date', 'before:due_date'];
 
         return $rules;
     }
@@ -89,6 +87,10 @@ class UpdateInvoiceRequest extends Request
         $input = $this->decodePrimaryKeys($input);
 
         $input['id'] = $this->invoice->id;
+
+        if(isset($input['partial']) && $input['partial'] == 0 && isset($input['partial_due_date'])) {
+            $input['partial_due_date'] = '';
+        }
 
         if (isset($input['line_items']) && is_array($input['line_items'])) {
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];

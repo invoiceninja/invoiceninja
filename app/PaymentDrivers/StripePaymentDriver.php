@@ -63,7 +63,8 @@ use Stripe\StripeClient;
 
 class StripePaymentDriver extends BaseDriver
 {
-    use MakesHash, Utilities;
+    use MakesHash;
+    use Utilities;
 
     public $refundable = true;
 
@@ -102,7 +103,7 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::DIRECT_DEBIT => BankTransfer::class,
     ];
 
-    const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
+    public const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
 
     /**
      * Initializes the Stripe API.
@@ -140,7 +141,7 @@ class StripePaymentDriver extends BaseDriver
         return $this;
     }
 
-    
+
     /**
      * Returns the gateway types.
      */
@@ -368,7 +369,7 @@ class StripePaymentDriver extends BaseDriver
         if ($this->company_gateway->require_custom_value1) {
             $fields[] = ['name' => 'client_custom_value1', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client1'), 'type' => 'text', 'validation' => 'required'];
         }
-        
+
 
         if ($this->company_gateway->require_custom_value2) {
             $fields[] = ['name' => 'client_custom_value2', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client2'), 'type' => 'text', 'validation' => 'required'];
@@ -469,6 +470,16 @@ class StripePaymentDriver extends BaseDriver
         return SetupIntent::create($params, array_merge($meta, ['idempotency_key' => uniqid("st", true)]));
     }
 
+    public function getSetupIntentId(string $id): SetupIntent
+    {
+        $this->init();
+
+        return SetupIntent::retrieve(
+            $id,
+            $this->stripe_connect_auth
+        );
+    }
+
     /**
      * Returns the Stripe publishable key.
      * @return null|string The stripe publishable key
@@ -478,7 +489,7 @@ class StripePaymentDriver extends BaseDriver
         return $this->company_gateway->getPublishableKey();
     }
 
-    public function getCustomer($customer_id) :?Customer
+    public function getCustomer($customer_id): ?Customer
     {
         $customer = Customer::retrieve($customer_id, $this->stripe_connect_auth);
 
@@ -787,7 +798,7 @@ class StripePaymentDriver extends BaseDriver
                 if($clientgateway) {
                     $clientgateway->delete();
                 }
-                
+
                 return response()->json([], 200);
             } elseif ($request->data['object']['status'] == "pending") {
                 return response()->json([], 200);

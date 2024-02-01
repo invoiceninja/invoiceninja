@@ -93,7 +93,7 @@ class PdfBuilder
      * @return self
      *
      */
-    private function getTemplate() :self
+    private function getTemplate(): self
     {
         $document = new DOMDocument();
 
@@ -111,7 +111,7 @@ class PdfBuilder
 
         $replacements = [];
         $contents = $this->document->getElementsByTagName('ninja');
-                
+
         $template_service = new TemplateService();
         $template_service->setCompany($this->service->company);
         $data = $template_service->processData($this->service->options)->getData();
@@ -119,7 +119,7 @@ class PdfBuilder
         $twig = $template_service->twig;
 
         foreach ($contents as $content) {
-                    
+
             $template = $content->ownerDocument->saveHTML($content);
 
             $template = $twig->createTemplate(html_entity_decode($template));
@@ -165,7 +165,7 @@ class PdfBuilder
         return $this;
     }
 
-    private function mergeSections(array $section) :self
+    private function mergeSections(array $section): self
     {
         $this->sections = array_merge($this->sections, $section);
 
@@ -270,7 +270,7 @@ class PdfBuilder
             ['element' => 'p', 'content' => '$outstanding_label: ' . $this->service->config->formatMoney($outstanding)],
         ];
     }
-    
+
     /**
      * Parent method for building payments table within statement.
      *
@@ -354,7 +354,7 @@ class PdfBuilder
                 $element['elements'][] = ['element' => 'td', 'content' => $this->service->config->formatMoney($payment->pivot->amount) ?: '&nbsp;'];
 
                 $tbody[] = $element;
-                
+
                 $this->payment_amount_total += $payment->pivot->amount;
             }
         }
@@ -380,7 +380,7 @@ class PdfBuilder
         if (\array_key_exists('show_payments_table', $this->service->options) && $this->service->options['show_payments_table'] === false) {
             return [];
         }
-        
+
         $payment = $this->service->options['payments']->first();
 
         return [
@@ -580,7 +580,7 @@ class PdfBuilder
 
         $_type = Str::startsWith($type, '$') ? ltrim($type, '$') : $type;
         $table_type = "{$_type}_columns";
-        
+
         if ($_type == 'product' && $this->service->config->entity instanceof Quote && !$this->service->config->settings?->sync_invoice_quote_columns) {
             $table_type = "product_quote_columns";
         }
@@ -652,7 +652,7 @@ class PdfBuilder
         }
 
         $document = null;
-        
+
         return $elements;
     }
 
@@ -664,12 +664,12 @@ class PdfBuilder
      *
      * @return array
      */
-    public function transformLineItems($items, $table_type = '$product') :array
+    public function transformLineItems($items, $table_type = '$product'): array
     {
         $data = [];
 
         $locale_info = localeconv();
-        
+
         foreach ($items as $key => $item) {
             /** @var \App\DataMapper\InvoiceItem $item */
 
@@ -767,7 +767,7 @@ class PdfBuilder
         }
 
         //nlog(microtime(true) - $start);
-        
+
         return $data;
     }
 
@@ -791,7 +791,7 @@ class PdfBuilder
         ];
 
         $table_type = "{$type}_columns";
-        
+
         $column_type = $type;
 
         if ($type == 'product' && $this->service->config->entity instanceof Quote && !$this->service->config->settings?->sync_invoice_quote_columns) {
@@ -863,7 +863,7 @@ class PdfBuilder
         // This sprintf() will help us convert "task" or "product" into "$task" or "$product" without
         // evaluating the variable.
 
-        if (in_array(sprintf('%s%s.tax', '$', $type), (array) $this->service->config->pdf_variables["{$type}_columns"])) {
+        if (in_array(sprintf('%s%s.tax', '$', $type), (array) $this->service->config->pdf_variables["{$column_type}_columns"])) {
             $line_items = collect($this->service->config->entity->line_items)->filter(function ($item) use ($type_id) {
                 return $item->type_id == $type_id; // = != == bad comparison operator fix 2023-11-12
             });
@@ -986,7 +986,7 @@ class PdfBuilder
      * @return self
      *
      */
-    private function buildSections() :self
+    private function buildSections(): self
     {
         return match ($this->service->document_type) {
             PdfService::PRODUCT => $this->getProductSections(),
@@ -1006,8 +1006,8 @@ class PdfBuilder
     {
         return [
             ['element' => 'div', 'properties' => ['style' => 'display: flex; flex-direction: column;'], 'elements' => [
-                ['element' => 'div', 'properties' => ['style' => 'margin-top: 1.5rem; display: block; align-items: flex-start; page-break-inside: avoid; visible !important;'], 'elements' => [
-                    ['element' => 'img', 'properties' => ['src' => '$invoiceninja.whitelabel', 'style' => 'height: 2.5rem;', 'hidden' => $this->service->company->account->isPaid() ? 'true' : 'false', 'id' => 'invoiceninja-whitelabel-logo']],
+                ['element' => 'div', 'properties' => ['style' => 'display: block; align-items: flex-start; page-break-inside: avoid; visible !important;'], 'elements' => [
+                    ['element' => 'img', 'properties' => ['src' => '$invoiceninja.whitelabel', 'style' => 'height: 2.5rem; margin-top: 1.5rem;', 'hidden' => $this->service->company->account->isPaid() ? 'true' : 'false', 'id' => 'invoiceninja-whitelabel-logo']],
                 ]],
             ]],
         ];
@@ -1061,14 +1061,14 @@ class PdfBuilder
      * @return array
      *
      */
-    public function getTableTotals() :array
+    public function getTableTotals(): array
     {
-        
+
         //need to see where we don't pass all these particular variables. try and refactor thisout
         // $_variables = array_key_exists('variables', $this->service->options)
         //     ? $this->service->options['variables']
         //     : ['values' => ['$entity.public_notes' => $this->service->config->entity->public_notes, '$entity.terms' => $this->service->config->entity->terms, '$entity_footer' => $this->service->config->entity->footer], 'labels' => []];
-        
+
         $_variables = $this->service->html_variables;
 
         $variables = $this->service->config->pdf_variables['total_columns'];
@@ -1081,8 +1081,8 @@ class PdfBuilder
                     ['element' => 'span', 'content' => strtr(str_replace("labels", "", $_variables['values']['$entity.terms']), $_variables['labels']), 'properties' => ['data-ref' => 'total_table-terms', 'style' => 'text-align: left;']],
                 ]],
                 ['element' => 'img', 'properties' => ['style' => 'max-width: 50%; height: auto;', 'src' => '$contact.signature', 'id' => 'contact-signature']],
-                ['element' => 'div', 'properties' => ['style' => 'margin-top: 1.5rem; display: flex; align-items: flex-start; page-break-inside: auto;'], 'elements' => [
-                    ['element' => 'img', 'properties' => ['src' => '$invoiceninja.whitelabel', 'style' => 'height: 2.5rem;', 'hidden' => $this->service->company->account->isPaid() ? 'true' : 'false', 'id' => 'invoiceninja-whitelabel-logo']],
+                ['element' => 'div', 'properties' => ['style' => 'display: flex; align-items: flex-start; page-break-inside: auto;'], 'elements' => [
+                    ['element' => 'img', 'properties' => ['src' => '$invoiceninja.whitelabel', 'style' => 'height: 2.5rem; margin-top: 1.5rem;', 'hidden' => $this->service->company->account->isPaid() ? 'true' : 'false', 'id' => 'invoiceninja-whitelabel-logo']],
                 ]],
             ]],
             ['element' => 'div', 'properties' => ['class' => 'totals-table-right-side', 'dir' => '$dir'], 'elements' => []],
@@ -1283,7 +1283,7 @@ class PdfBuilder
     public function statementDetails(): array
     {
         $s_date = $this->translateDate(now(), $this->service->config->date_format, $this->service->config->locale);
-        
+
         return [
             ['element' => 'tr', 'properties' => ['data-ref' => 'statement-label'], 'elements' => [
                 ['element' => 'th', 'properties' => [], 'content' => ""],
@@ -1322,7 +1322,7 @@ class PdfBuilder
     public function quoteDetails(): array
     {
         $variables = $this->service->config->pdf_variables['quote_details'];
-        
+
         if ($this->service->config->entity->partial > 0) {
             $variables[] = '$quote.balance_due';
         }
@@ -1340,7 +1340,7 @@ class PdfBuilder
     public function creditDetails(): array
     {
         $variables = $this->service->config->pdf_variables['credit_details'];
-    
+
         return $this->genericDetailsBuilder($variables);
     }
 
@@ -1612,7 +1612,7 @@ class PdfBuilder
     // Dom Traversal
     ///////////////////////////////////////
 
-    public function updateElementProperties() :self
+    public function updateElementProperties(): self
     {
         foreach ($this->sections as $element) {
             if (isset($element['tag'])) {
@@ -1656,7 +1656,7 @@ class PdfBuilder
         return $element;
     }
 
-    public function createElementContent($element, $children) :self
+    public function createElementContent($element, $children): self
     {
         foreach ($children as $child) {
             $contains_html = false;
@@ -1677,7 +1677,7 @@ class PdfBuilder
             }
 
             if ($contains_html) {
-                
+
                 // If the element contains the HTML, we gonna display it as is. Backend is going to
                 // encode it for us, preventing any errors on the processing stage.
                 // Later, we decode this using Javascript so it looks like it's normal HTML being injected.
@@ -1742,7 +1742,7 @@ class PdfBuilder
         return $element;
     }
 
-    public function getEmptyElements() :self
+    public function getEmptyElements(): self
     {
         foreach ($this->sections as $element) {
             if (isset($element['elements'])) {

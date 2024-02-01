@@ -15,9 +15,9 @@ use App\Models\BankIntegration;
 
 class BankIntegrationFactory
 {
-    public static function create(int $company_id, int $user_id, int $account_id) :BankIntegration
+    public static function create(int $company_id, int $user_id, int $account_id): BankIntegration
     {
-        $bank_integration = new BankIntegration;
+        $bank_integration = new BankIntegration();
         $bank_integration->account_id = $account_id;
         $bank_integration->user_id = $user_id;
         $bank_integration->company_id = $company_id;
@@ -31,7 +31,7 @@ class BankIntegrationFactory
         $bank_integration->balance = 0;
         $bank_integration->currency = '';
         $bank_integration->auto_sync = 1;
-        
+
         return $bank_integration;
     }
 }

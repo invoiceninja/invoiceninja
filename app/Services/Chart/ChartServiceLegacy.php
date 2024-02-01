@@ -31,7 +31,7 @@ class ChartServiceLegacy
      * Returns an array of currencies that have
      * transacted with a company
      */
-    public function getCurrencyCodes() :array
+    public function getCurrencyCodes(): array
     {
         /* Get all the distinct client currencies */
         $currencies = Client::withTrashed()
@@ -67,7 +67,7 @@ class ChartServiceLegacy
     }
 
     /* Chart Data */
-    public function chart_summary($start_date, $end_date) :array
+    public function chart_summary($start_date, $end_date): array
     {
         $currencies = $this->getCurrencyCodes();
 
@@ -86,7 +86,7 @@ class ChartServiceLegacy
 
     /* Totals */
 
-    public function totals($start_date, $end_date) :array
+    public function totals($start_date, $end_date): array
     {
         $data = [];
 
@@ -97,15 +97,15 @@ class ChartServiceLegacy
             $outstanding = $this->getOutstanding($start_date, $end_date);
             $expenses = $this->getExpenses($start_date, $end_date);
 
-            $data[$key]['revenue'] = count($revenue) > 0 ? $revenue[array_search($key, array_column($revenue, 'currency_id'))] : new \stdClass;
-            $data[$key]['outstanding'] = count($outstanding) > 0 ? $outstanding[array_search($key, array_column($outstanding, 'currency_id'))] : new \stdClass;
-            $data[$key]['expenses'] = count($expenses) > 0 ? $expenses[array_search($key, array_column($expenses, 'currency_id'))] : new \stdClass;
+            $data[$key]['revenue'] = count($revenue) > 0 ? $revenue[array_search($key, array_column($revenue, 'currency_id'))] : new \stdClass();
+            $data[$key]['outstanding'] = count($outstanding) > 0 ? $outstanding[array_search($key, array_column($outstanding, 'currency_id'))] : new \stdClass();
+            $data[$key]['expenses'] = count($expenses) > 0 ? $expenses[array_search($key, array_column($expenses, 'currency_id'))] : new \stdClass();
         }
 
         return $data;
     }
 
-    public function getRevenue($start_date, $end_date) :array
+    public function getRevenue($start_date, $end_date): array
     {
         $revenue = $this->getRevenueQuery($start_date, $end_date);
         $revenue = $this->addCurrencyCodes($revenue);
@@ -113,7 +113,7 @@ class ChartServiceLegacy
         return $revenue;
     }
 
-    public function getOutstanding($start_date, $end_date) :array
+    public function getOutstanding($start_date, $end_date): array
     {
         $outstanding = $this->getOutstandingQuery($start_date, $end_date);
         $outstanding = $this->addCurrencyCodes($outstanding);
@@ -121,7 +121,7 @@ class ChartServiceLegacy
         return $outstanding;
     }
 
-    public function getExpenses($start_date, $end_date) :array
+    public function getExpenses($start_date, $end_date): array
     {
         $expenses = $this->getExpenseQuery($start_date, $end_date);
         $expenses = $this->addCurrencyCodes($expenses);
@@ -133,7 +133,7 @@ class ChartServiceLegacy
 
     /* Helpers */
 
-    private function addCurrencyCodes($data_set) :array
+    private function addCurrencyCodes($data_set): array
     {
         $currencies = Cache::get('currencies');
 
@@ -145,7 +145,7 @@ class ChartServiceLegacy
         return $data_set;
     }
 
-    private function getCode($currencies, $currency_id) :string
+    private function getCode($currencies, $currency_id): string
     {
         $currency_id = str_replace('"', '', $currency_id);
 

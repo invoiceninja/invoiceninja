@@ -7,11 +7,16 @@
 
 @push('footer')
     <script>
-        function updateGatewayFields(companyGatewayId, paymentMethodId) {
-            document.getElementById('company_gateway_id').value = companyGatewayId;
-            document.getElementById('payment_method_id').value = paymentMethodId;
-        }
 
-        Livewire.on('beforePaymentEventsCompleted', () => document.getElementById('payment-method-form').submit());
+document.addEventListener('livewire:init', () => {
+
+            Livewire.on('beforePaymentEventsCompleted', () => {
+                setTimeout(() => {
+                    document.getElementById('payment-method-form').submit()
+                }, 2500);
+            });
+
+        });
+        
     </script>
 @endpush

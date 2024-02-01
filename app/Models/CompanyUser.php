@@ -194,7 +194,7 @@ class CompanyUser extends Pivot
 
         return $query;
     }
-    
+
     /**
      * Determines if the notifications should be React or Flutter links
      *

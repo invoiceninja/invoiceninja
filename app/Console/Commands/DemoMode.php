@@ -54,7 +54,9 @@ use Illuminate\Support\Str;
 
 class DemoMode extends Command
 {
-    use MakesHash, GeneratesCounter, AppSetup;
+    use MakesHash;
+    use GeneratesCounter;
+    use AppSetup;
 
     protected $signature = 'ninja:demo-mode';
 
@@ -91,7 +93,7 @@ class DemoMode extends Command
         Artisan::call('db:seed --force');
 
         $this->buildCache(true);
-        
+
         $this->info('Seeding Random Data');
         $this->createSmallAccount();
 
@@ -151,7 +153,7 @@ class DemoMode extends Command
         (new CreateCompanyPaymentTerms($company, $user))->handle();
         (new CreateCompanyTaskStatuses($company, $user))->handle();
 
-        $company_token = new CompanyToken;
+        $company_token = new CompanyToken();
         $company_token->user_id = $user->id;
         $company_token->company_id = $company->id;
         $company_token->account_id = $account->id;
@@ -182,7 +184,7 @@ class DemoMode extends Command
                 'email_verified_at' => now(),
             ]);
 
-            $company_token = new CompanyToken;
+            $company_token = new CompanyToken();
             $company_token->user_id = $u2->id;
             $company_token->company_id = $company->id;
             $company_token->account_id = $account->id;

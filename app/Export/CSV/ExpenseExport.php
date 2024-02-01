@@ -56,7 +56,7 @@ class ExpenseExport extends BaseExport
                     $row = $this->buildRow($resource);
                     return $this->processMetaData($row, $resource);
                 })->toArray();
-        
+
         return array_merge(['columns' => $header], $report);
     }
 
@@ -73,6 +73,13 @@ class ExpenseExport extends BaseExport
             $this->input['report_keys'] = array_values($this->expense_report_keys);
         }
 
+        $tax_keys = [
+            'expense.tax_amount',
+            'expense.net_amount'
+        ];
+
+        $this->input['report_keys'] = array_unique(array_merge($this->input['report_keys'], $tax_keys));
+
         $query = Expense::query()
                         ->with('client')
                         ->withTrashed()
@@ -80,6 +87,26 @@ class ExpenseExport extends BaseExport
                         ->where('is_deleted', 0);
 
         $query = $this->addDateRange($query);
+
+        if(isset($this->input['clients'])) {
+            $query = $this->addClientFilter($query, $this->input['clients']);
+        }
+
+        if(isset($this->input['vendors'])) {
+            $query = $this->addVendorFilter($query, $this->input['vendors']);
+        }
+
+        if(isset($this->input['projects'])) {
+            $query = $this->addProjectFilter($query, $this->input['projects']);
+        }
+
+        if(isset($this->input['categories'])) {
+            $query = $this->addCategoryFilter($query, $this->input['categories']);
+        }
+        
+        if($this->input['document_email_attachment'] ?? false) {
+            $this->queueDocuments($query);
+        }
 
         return $query;
 
@@ -103,11 +130,11 @@ class ExpenseExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Expense $expense) :array
+    private function buildRow(Expense $expense): array
     {
         $transformed_expense = $this->expense_transformer->transform($expense);
         $transformed_expense['currency_id'] =  $expense->currency ? $expense->currency->code : $expense->company->currency()->code;
-        
+
         $entity = [];
 
         foreach (array_values($this->input['report_keys']) as $key) {
@@ -118,43 +145,39 @@ class ExpenseExport extends BaseExport
             } elseif (array_key_exists($key, $transformed_expense)) {
                 $entity[$key] = $transformed_expense[$key];
             } else {
-                // nlog($key);
                 $entity[$key] = $this->decorator->transform($key, $expense);
-                // $entity[$key] = '';
-                // $entity[$key] = $this->resolveKey($key, $expense, $this->expense_transformer);
             }
 
         }
 
-        return $entity;
-        // return $this->decorateAdvancedFields($expense, $entity);
+        return $this->decorateAdvancedFields($expense, $entity);
     }
 
-    private function decorateAdvancedFields(Expense $expense, array $entity) :array
+    private function decorateAdvancedFields(Expense $expense, array $entity): array
     {
-        if (in_array('expense.currency_id', $this->input['report_keys'])) {
-            $entity['expense.currency_id'] = $expense->currency ? $expense->currency->code : '';
-        }
+        // if (in_array('expense.currency_id', $this->input['report_keys'])) {
+        //     $entity['expense.currency_id'] = $expense->currency ? $expense->currency->code : '';
+        // }
 
-        if (in_array('expense.client_id', $this->input['report_keys'])) {
-            $entity['expense.client'] = $expense->client ? $expense->client->present()->name() : '';
-        }
+        // if (in_array('expense.client_id', $this->input['report_keys'])) {
+        //     $entity['expense.client'] = $expense->client ? $expense->client->present()->name() : '';
+        // }
 
-        if (in_array('expense.invoice_id', $this->input['report_keys'])) {
-            $entity['expense.invoice_id'] = $expense->invoice ? $expense->invoice->number : '';
-        }
+        // if (in_array('expense.invoice_id', $this->input['report_keys'])) {
+        //     $entity['expense.invoice_id'] = $expense->invoice ? $expense->invoice->number : '';
+        // }
 
-        if (in_array('expense.category', $this->input['report_keys'])) {
-            $entity['expense.category'] = $expense->category ? $expense->category->name : '';
-        }
+        // if (in_array('expense.category', $this->input['report_keys'])) {
+        //     $entity['expense.category'] = $expense->category ? $expense->category->name : '';
+        // }
 
-        if (in_array('expense.vendor_id', $this->input['report_keys'])) {
-            $entity['expense.vendor'] = $expense->vendor ? $expense->vendor->name : '';
-        }
+        // if (in_array('expense.vendor_id', $this->input['report_keys'])) {
+        //     $entity['expense.vendor'] = $expense->vendor ? $expense->vendor->name : '';
+        // }
 
-        if (in_array('expense.payment_type_id', $this->input['report_keys'])) {
-            $entity['expense.payment_type_id'] = $expense->payment_type ? $expense->payment_type->name : '';
-        }
+        // if (in_array('expense.payment_type_id', $this->input['report_keys'])) {
+        //     $entity['expense.payment_type_id'] = $expense->payment_type ? $expense->payment_type->name : '';
+        // }
 
         if (in_array('expense.project_id', $this->input['report_keys'])) {
             $entity['expense.project_id'] = $expense->project ? $expense->project->name : '';
@@ -172,6 +195,38 @@ class ExpenseExport extends BaseExport
             $entity['expense.category_id'] = $expense->category ? $expense->category->name : '';
         }
 
+        return $this->calcTaxes($entity, $expense);
+    }
+
+    private function calcTaxes($entity, $expense): array
+    {
+        $precision = $expense->currency->precision ?? 2;
+
+        $entity['expense.net_amount'] = round($expense->amount, $precision);
+
+        if($expense->calculate_tax_by_amount) {
+            $total_tax_amount = round($expense->tax_amount1 + $expense->tax_amount2 + $expense->tax_amount3, $precision);
+        }
+        else {
+            
+            if($expense->uses_inclusive_taxes){
+                $total_tax_amount = ($this->calcInclusiveLineTax($expense->tax_rate1 ?? 0, $expense->amount,$precision)) + ($this->calcInclusiveLineTax($expense->tax_rate2 ?? 0, $expense->amount,$precision)) + ($this->calcInclusiveLineTax($expense->tax_rate3 ?? 0, $expense->amount,$precision));
+                $entity['expense.net_amount'] = round(($expense->amount - round($total_tax_amount, $precision)), $precision);
+            }
+            else{
+                $total_tax_amount = ($expense->amount * (($expense->tax_rate1 ?? 0)/100)) + ($expense->amount * (($expense->tax_rate2 ?? 0)/100)) + ($expense->amount * (($expense->tax_rate3 ?? 0)/100));
+                $entity['expense.net_amount'] = round(($expense->amount + round($total_tax_amount, $precision)), $precision);
+            }
+        }
+
+        $entity['expense.tax_amount'] = round($total_tax_amount, $precision);
+        
         return $entity;
+        
+    }
+
+    private function calcInclusiveLineTax($tax_rate, $amount, $precision): float
+    {
+        return round($amount - ($amount / (1 + ($tax_rate / 100))), $precision);
     }
 }

@@ -23,7 +23,6 @@ use Turbo124\Beacon\Facades\LightLogs;
  */
 class QueryLogging
 {
-
     /**
      * Handle an incoming request.
      *
@@ -39,7 +38,7 @@ class QueryLogging
         if (! Ninja::isHosted() || ! config('beacon.enabled')) {
             return $next($request);
         }
-        
+
         DB::enableQueryLog();
         return $next($request);
 

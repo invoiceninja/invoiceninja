@@ -15,7 +15,7 @@ use App\Models\Expense;
 
 class ExpenseFactory
 {
-    public static function create(int $company_id, int $user_id) :Expense
+    public static function create(int $company_id, int $user_id): Expense
     {
         $expense = new Expense();
         $expense->user_id = $user_id;

@@ -16,9 +16,9 @@ use App\Models\RecurringInvoice;
 
 class InvoiceToRecurringInvoiceFactory
 {
-    public static function create(Invoice $invoice) :RecurringInvoice
+    public static function create(Invoice $invoice): RecurringInvoice
     {
-        $recurring_invoice = new RecurringInvoice;
+        $recurring_invoice = new RecurringInvoice();
 
         $recurring_invoice->status_id = RecurringInvoice::STATUS_DRAFT;
         $recurring_invoice->discount = $invoice->discount;

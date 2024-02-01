@@ -20,7 +20,10 @@ use Illuminate\Support\Facades\Storage;
 
 class UnlinkFile implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public function __construct(protected string $disk = '', protected ?string $file_path = '')
     {
@@ -37,7 +40,7 @@ class UnlinkFile implements ShouldQueue
         if (config('queue.default') == 'sync') {
             return;
         }
-        
+
 
         if (!$this->file_path) {
             return;
@@ -46,7 +49,7 @@ class UnlinkFile implements ShouldQueue
         try {
             Storage::disk($this->disk)->delete($this->file_path);
         } catch (\Exception $e) {
-          
+
         }
     }
 }

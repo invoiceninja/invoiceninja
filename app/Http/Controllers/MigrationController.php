@@ -305,7 +305,7 @@ class MigrationController extends BaseController
                 $fresh_company = false;
 
                 // Look for possible existing company (based on company keys).
-                $existing_company = Company::whereRaw('BINARY `company_key` = ?', [$company['company_key']])->first();
+                $existing_company = Company::query()->whereRaw('BINARY `company_key` = ?', [$company['company_key']])->first();
 
                 App::forgetInstance('translator');
                 $t = app('translator');
@@ -313,7 +313,7 @@ class MigrationController extends BaseController
                 App::setLocale($user->account->companies()->first()->getLocale());
 
                 if (! $existing_company && $company_count >= 10) {
-                    $nmo = new NinjaMailerObject;
+                    $nmo = new NinjaMailerObject();
                     $nmo->mailable = new MaxCompanies($user->account->companies()->first());
                     $nmo->company = $user->account->companies()->first();
                     $nmo->settings = $user->account->companies()->first()->settings;
@@ -325,7 +325,7 @@ class MigrationController extends BaseController
 
                     return;
                 } elseif ($existing_company && $company_count > 10) {
-                    $nmo = new NinjaMailerObject;
+                    $nmo = new NinjaMailerObject();
                     $nmo->mailable = new MaxCompanies($user->account->companies()->first());
                     $nmo->company = $user->account->companies()->first();
                     $nmo->settings = $user->account->companies()->first()->settings;
@@ -347,7 +347,7 @@ class MigrationController extends BaseController
                 if ($checks['existing_company'] == true && $checks['force'] == false) {
                     nlog('Migrating: Existing company without force. (CASE_01)');
 
-                    $nmo = new NinjaMailerObject;
+                    $nmo = new NinjaMailerObject();
                     $nmo->mailable = new ExistingMigration($existing_company);
                     $nmo->company = $user->account->companies()->first();
                     $nmo->settings = $user->account->companies()->first();
@@ -386,6 +386,7 @@ class MigrationController extends BaseController
                     $fresh_company_token->is_system = true;
                     $fresh_company_token->save();
 
+                    /** @var \App\Models\User $user */
                     $user->companies()->attach($fresh_company->id, [
                         'account_id' => $account->id,
                         'is_owner' => 1,
@@ -417,6 +418,7 @@ class MigrationController extends BaseController
 
                     $fresh_company_token->save();
 
+                    /** @var \App\Models\User $user */
                     $user->companies()->attach($fresh_company->id, [
                         'account_id' => $account->id,
                         'is_owner' => 1,
@@ -456,7 +458,7 @@ class MigrationController extends BaseController
                 'method' => config('queue.default'),
                 'started_at' => now(),
             ], 200);
-        
+
         }
 
     }

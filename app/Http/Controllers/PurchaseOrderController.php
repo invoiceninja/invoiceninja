@@ -144,6 +144,7 @@ class PurchaseOrderController extends BaseController
         $user = auth()->user();
 
         $purchase_order = PurchaseOrderFactory::create($user->company()->id, $user->id);
+        $purchase_order->date = now()->addSeconds($user->company()->utc_offset())->format('Y-m-d');
 
         return $this->itemResponse($purchase_order);
     }
@@ -196,7 +197,7 @@ class PurchaseOrderController extends BaseController
             ->fillDefaults()
             ->triggeredActions($request)
             ->save();
-            
+
         event(new PurchaseOrderWasCreated($purchase_order, $purchase_order->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($purchase_order->fresh());
@@ -668,7 +669,7 @@ class PurchaseOrderController extends BaseController
                     return $this->itemResponse($purchase_order);
                 }
                 break;
-            
+
             case 'email':
                 //check query parameter for email_type and set the template else use calculateTemplate
                 PurchaseOrderEmail::dispatch($purchase_order, $purchase_order->company);
@@ -698,7 +699,7 @@ class PurchaseOrderController extends BaseController
                 if ($purchase_order->expense()->exists()) {
                     return response()->json(['message' => ctrans('texts.purchase_order_already_expensed')], 400);
                 }
-                    
+
                 $expense = $purchase_order->service()->expense();
 
                 return $this->itemResponse($purchase_order);
@@ -709,7 +710,7 @@ class PurchaseOrderController extends BaseController
                     $purchase_order->status_id = PurchaseOrder::STATUS_CANCELLED;
                     $purchase_order->save();
                 }
-                
+
                 if (! $bulk) {
                     return $this->itemResponse($purchase_order);
                 }
@@ -776,7 +777,7 @@ class PurchaseOrderController extends BaseController
         if (!$this->checkFeature(Account::FEATURE_DOCUMENTS)) {
             return $this->featureFailure();
         }
-        
+
         if ($request->has('documents')) {
             $this->saveDocuments($request->file('documents'), $purchase_order, $request->input('is_public', true));
         }

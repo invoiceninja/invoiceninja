@@ -41,16 +41,16 @@ class CreatedExpenseActivity implements ShouldQueue
     {
         MultiDB::setDb($event->company->db);
 
-        $fields = new stdClass;
+        $fields = new stdClass();
 
-        $user_id = array_key_exists('user_id', $event->event_vars) ? $event->event_vars['user_id'] : $event->expense->user_id;
+        $user_id = isset($event->event_vars['user_id']) ? $event->event_vars['user_id'] : $event->expense->user_id;
 
         $fields->expense_id = $event->expense->id;
         $fields->user_id = $user_id;
         $fields->company_id = $event->expense->company_id;
         $fields->activity_type_id = Activity::CREATE_EXPENSE;
         $fields->recurring_expense_id = $event->expense->recurring_expense_id ?? null;
-        
+
         $this->activity_repo->save($fields, $event->expense, $event->event_vars);
     }
 }

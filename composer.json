@@ -68,10 +68,11 @@
         "league/flysystem-aws-s3-v3": "^3.0",
         "league/fractal": "^0.20.0",
         "league/omnipay": "^3.1",
-        "livewire/livewire": "^2.10",
+        "livewire/livewire": "^3.0",
         "microsoft/microsoft-graph": "^1.69",
         "mollie/mollie-api-php": "^2.36",
         "nelexa/zip": "^4.0",
+        "nordigen/nordigen-php": "^1.1",
         "nwidart/laravel-modules": "^10.0",
         "omnipay/paypal": "^3.0",
         "payfast/payfast-php-sdk": "^1.1",
@@ -85,7 +86,7 @@
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.3",
         "shopify/shopify-api": "^4.3",
-        "socialiteproviders/apple": "^5.2",
+        "socialiteproviders/apple": "dev-master",
         "socialiteproviders/microsoft": "^4.1",
         "spatie/laravel-data": "^3.5",
         "sprain/swiss-qr-bill": "^4.3",
@@ -113,7 +114,7 @@
         "laracasts/cypress": "^3.0",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^7.0",
-        "nunomaduro/larastan": "^2.0",
+        "larastan/larastan": "^2",
         "phpstan/phpstan": "^1.9",
         "phpunit/phpunit": "^10.0",
         "spatie/laravel-ignition": "^2.0",
@@ -171,6 +172,12 @@
             "php-http/discovery": true
         }
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/turbo124/apple"
+        }
+    ],
     "minimum-stability": "dev",
     "prefer-stable": true
 }

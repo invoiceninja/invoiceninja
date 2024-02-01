@@ -11,13 +11,14 @@
 
 namespace App\Services\Invoice;
 
-use App\Events\Invoice\InvoiceWasEmailed;
-use App\Jobs\Entity\EmailEntity;
-use App\Models\Invoice;
-use App\Services\AbstractService;
 use App\Utils\Ninja;
-use App\Utils\Traits\GeneratesCounter;
+use App\Models\Invoice;
+use App\Models\Webhook;
 use Illuminate\Http\Request;
+use App\Jobs\Entity\EmailEntity;
+use App\Services\AbstractService;
+use App\Utils\Traits\GeneratesCounter;
+use App\Events\Invoice\InvoiceWasEmailed;
 
 class TriggeredActions extends AbstractService
 {
@@ -35,7 +36,7 @@ class TriggeredActions extends AbstractService
             try {
                 $this->invoice->service()->autoBill();
             } catch(\Exception $e) {
-                
+
             } //update notification sends automatically for this.
         }
 
@@ -45,12 +46,12 @@ class TriggeredActions extends AbstractService
 
         if ($this->request->has('mark_sent') && $this->request->input('mark_sent') == 'true' && $this->invoice->status_id == Invoice::STATUS_DRAFT) {
             $this->invoice = $this->invoice->service()->markSent()->save(); //update notification NOT sent
-            $this->updated = false;
+            $this->updated = true;
         }
-        
+
         if ($this->request->has('amount_paid') && is_numeric($this->request->input('amount_paid'))) {
             $this->invoice = $this->invoice->service()->applyPaymentAmount($this->request->input('amount_paid'), $this->request->input('reference'))->save();
-            $this->updated = false;
+            // $this->updated = false;
         }
 
         if ($this->request->has('send_email') && $this->request->input('send_email') == 'true') {
@@ -81,7 +82,9 @@ class TriggeredActions extends AbstractService
         }
 
         if ($this->updated) {
-            event('eloquent.updated: App\Models\Invoice', $this->invoice);
+            // event('eloquent.updated: App\Models\Invoice', $this->invoice);
+            $this->invoice->sendEvent(Webhook::EVENT_SENT_INVOICE, "client");
+
         }
 
 
@@ -98,6 +101,7 @@ class TriggeredActions extends AbstractService
 
         if ($this->invoice->invitations->count() > 0) {
             event(new InvoiceWasEmailed($this->invoice->invitations->first(), $this->invoice->company, Ninja::eventVars(), 'invoice'));
+            $this->invoice->sendEvent(Webhook::EVENT_SENT_INVOICE, "client");
         }
     }
 }

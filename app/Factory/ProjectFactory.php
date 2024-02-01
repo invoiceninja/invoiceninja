@@ -15,9 +15,9 @@ use App\Models\Project;
 
 class ProjectFactory
 {
-    public static function create(int $company_id, int $user_id) :Project
+    public static function create(int $company_id, int $user_id): Project
     {
-        $project = new Project;
+        $project = new Project();
         $project->company_id = $company_id;
         $project->user_id = $user_id;
         $project->public_notes = '';

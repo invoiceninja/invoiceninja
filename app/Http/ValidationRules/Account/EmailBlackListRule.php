@@ -11,32 +11,26 @@
 
 namespace App\Http\ValidationRules\Account;
 
-use Illuminate\Contracts\Validation\Rule;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
 
 /**
  * Class EmailBlackListRule.
  */
-class EmailBlackListRule implements Rule
+class EmailBlackListRule implements ValidationRule
 {
     public array $blacklist = [
-
+        'noddy@invoiceninja.com',
     ];
 
-    /**
-     * @param string $attribute
-     * @param mixed $value
-     * @return bool
-     */
-    public function passes($attribute, $value)
+
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        return ! in_array($value, $this->blacklist);
+
+        if (in_array($value, $this->blacklist)) {
+            $fail('This email address is blacklisted, if you think this is in error, please email contact@invoiceninja.com');
+        }
+
     }
 
-    /**
-     * @return string
-     */
-    public function message()
-    {
-        return 'This email address is blacklisted, if you think this is in error, please email contact@invoiceninja.com';
-    }
 }

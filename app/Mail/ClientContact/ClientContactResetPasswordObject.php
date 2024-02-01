@@ -56,7 +56,7 @@ class ClientContactResetPasswordObject
             $email_from_name = $this->company->present()->name();
         }
 
-        $mail_obj = new \stdClass;
+        $mail_obj = new \stdClass();
         $mail_obj->subject = ctrans('texts.your_password_reset_link');
         $mail_obj->data = $data;
         $mail_obj->markdown = 'email.client.generic';

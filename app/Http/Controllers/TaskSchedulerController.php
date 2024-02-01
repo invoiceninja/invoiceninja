@@ -45,14 +45,20 @@ class TaskSchedulerController extends BaseController
 
     public function create(CreateSchedulerRequest $request)
     {
-        $scheduler = SchedulerFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $scheduler = SchedulerFactory::create($user->company()->id, auth()->user()->id);
 
         return $this->itemResponse($scheduler);
     }
 
     public function store(StoreSchedulerRequest $request)
     {
-        $scheduler = $this->scheduler_repository->save($request->all(), SchedulerFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $scheduler = $this->scheduler_repository->save($request->all(), SchedulerFactory::create($user->company()->id, auth()->user()->id));
 
         return $this->itemResponse($scheduler);
     }
@@ -79,6 +85,10 @@ class TaskSchedulerController extends BaseController
 
     public function bulk()
     {
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $action = request()->input('action');
 
         if (!in_array($action, ['archive', 'restore', 'delete'])) {
@@ -89,8 +99,8 @@ class TaskSchedulerController extends BaseController
 
         $task_schedulers = Scheduler::withTrashed()->find($this->transformKeys($ids));
 
-        $task_schedulers->each(function ($task_scheduler, $key) use ($action) {
-            if (auth()->user()->can('edit', $task_scheduler)) {
+        $task_schedulers->each(function ($task_scheduler, $key) use ($action, $user) {
+            if ($user->can('edit', $task_scheduler)) {
                 $this->scheduler_repository->{$action}($task_scheduler);
             }
         });

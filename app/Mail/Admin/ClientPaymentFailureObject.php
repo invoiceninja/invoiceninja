@@ -69,7 +69,7 @@ class ClientPaymentFailureObject
 
         $this->invoices = Invoice::withTrashed()->whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->get();
 
-        $mail_obj = new stdClass;
+        $mail_obj = new stdClass();
         $mail_obj->amount = $this->getAmount();
         $mail_obj->subject = $this->getSubject();
         $mail_obj->data = $this->getData();
@@ -126,11 +126,6 @@ class ClientPaymentFailureObject
             'text_body' => ctrans('texts.client_payment_failure_body', ['invoice' => implode(',', $this->invoices->pluck('number')->toArray()), 'amount' => $this->getAmount()]),
             'additional_info' => $this->error ?? '',
         ];
-
-        if (strlen($this->error > 1)) {
-            // $data['content'] .= "\n\n{$this->error}";
-            $data['text_body'] .= "\n\n".$this->error;
-        }
 
         return $data;
     }

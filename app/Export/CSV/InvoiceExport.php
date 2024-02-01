@@ -62,8 +62,12 @@ class InvoiceExport extends BaseExport
 
         $query = $this->addDateRange($query);
 
-        if(isset($this->input['status'])) {
+        if($this->input['status'] ?? false) {
             $query = $this->addInvoiceStatusFilter($query, $this->input['status']);
+        }
+
+        if($this->input['document_email_attachment'] ?? false) {
+            $this->queueDocuments($query);
         }
 
         return $query;
@@ -85,7 +89,7 @@ class InvoiceExport extends BaseExport
                     $row = $this->buildRow($resource);
                     return $this->processMetaData($row, $resource);
                 })->toArray();
-        
+
         return array_merge(['columns' => $header], $report);
     }
 
@@ -107,7 +111,7 @@ class InvoiceExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Invoice $invoice) :array
+    private function buildRow(Invoice $invoice): array
     {
         $transformed_invoice = $this->invoice_transformer->transform($invoice);
 
@@ -120,53 +124,48 @@ class InvoiceExport extends BaseExport
             if (is_array($parts) && $parts[0] == 'invoice' && array_key_exists($parts[1], $transformed_invoice)) {
                 $entity[$key] = $transformed_invoice[$parts[1]];
             } else {
-                // nlog($key);
                 $entity[$key] = $this->decorator->transform($key, $invoice);
-                // $entity[$key] = '';
-                // $entity[$key] = $this->resolveKey($key, $invoice, $this->invoice_transformer);
             }
 
         }
-        
-        return $entity;
-        // return $this->decorateAdvancedFields($invoice, $entity);
+
+        return $this->decorateAdvancedFields($invoice, $entity);
     }
 
-    private function decorateAdvancedFields(Invoice $invoice, array $entity) :array
+    private function decorateAdvancedFields(Invoice $invoice, array $entity): array
     {
-        
-        if (in_array('invoice.country_id', $this->input['report_keys'])) {
-            $entity['invoice.country_id'] = $invoice->client->country ? ctrans("texts.country_{$invoice->client->country->name}") : '';
-        }
 
-        if (in_array('invoice.currency_id', $this->input['report_keys'])) {
-            $entity['invoice.currency_id'] = $invoice->client->currency() ? $invoice->client->currency()->code : $invoice->company->currency()->code;
-        }
+        // if (in_array('invoice.country_id', $this->input['report_keys'])) {
+        //     $entity['invoice.country_id'] = $invoice->client->country ? ctrans("texts.country_{$invoice->client->country->name}") : '';
+        // }
 
-        if (in_array('invoice.client_id', $this->input['report_keys'])) {
-            $entity['invoice.client_id'] = $invoice->client->present()->name();
-        }
+        // if (in_array('invoice.currency_id', $this->input['report_keys'])) {
+        //     $entity['invoice.currency_id'] = $invoice->client->currency() ? $invoice->client->currency()->code : $invoice->company->currency()->code;
+        // }
 
-        if (in_array('invoice.status', $this->input['report_keys'])) {
-            $entity['invoice.status'] = $invoice->stringStatus($invoice->status_id);
-        }
+        // if (in_array('invoice.client_id', $this->input['report_keys'])) {
+        //     $entity['invoice.client_id'] = $invoice->client->present()->name();
+        // }
 
-        if (in_array('invoice.recurring_id', $this->input['report_keys'])) {
-            $entity['invoice.recurring_id'] = $invoice->recurring_invoice->number ?? '';
-        }
+        // if (in_array('invoice.status', $this->input['report_keys'])) {
+        //     $entity['invoice.status'] = $invoice->stringStatus($invoice->status_id);
+        // }
+
+        // if (in_array('invoice.recurring_id', $this->input['report_keys'])) {
+        //     $entity['invoice.recurring_id'] = $invoice->recurring_invoice->number ?? '';
+        // }
 
         if (in_array('invoice.auto_bill_enabled', $this->input['report_keys'])) {
             $entity['invoice.auto_bill_enabled'] = $invoice->auto_bill_enabled ? ctrans('texts.yes') : ctrans('texts.no');
         }
 
         if (in_array('invoice.assigned_user_id', $this->input['report_keys'])) {
-            $entity['invoice.assigned_user_id'] = $invoice->assigned_user ? $invoice->assigned_user->present()->name(): '';
-        }
-       
-        if (in_array('invoice.user_id', $this->input['report_keys'])) {
-            $entity['invoice.user_id'] = $invoice->user ? $invoice->user->present()->name(): '';
+            $entity['invoice.assigned_user_id'] = $invoice->assigned_user ? $invoice->assigned_user->present()->name() : '';
         }
 
+        if (in_array('invoice.user_id', $this->input['report_keys'])) {
+            $entity['invoice.user_id'] = $invoice->user ? $invoice->user->present()->name() : '';
+        }
 
         return $entity;
     }

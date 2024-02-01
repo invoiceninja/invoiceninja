@@ -169,14 +169,14 @@ class InvoiceItemSum
 
     private function shouldCalculateTax(): self
     {
-        
+
         if (!$this->invoice->company?->calculate_taxes || $this->invoice->company->account->isFreeHostedClient()) {
             $this->calc_tax = false;
             return $this;
         }
-        
+
         if (in_array($this->client->company->country()->iso_3166_2, $this->tax_jurisdictions)) { //only calculate for supported tax jurisdictions
-            
+
             $class = "App\DataMapper\Tax\\".$this->client->company->country()->iso_3166_2."\\Rule";
 
             $this->rule = new $class();
@@ -188,12 +188,12 @@ class InvoiceItemSum
             $this->rule
                  ->setEntity($this->invoice)
                  ->init();
-                 
+
             $this->calc_tax = $this->rule->shouldCalcTax();
 
             return $this;
         }
-        
+
         return $this;
     }
 
@@ -238,7 +238,7 @@ class InvoiceItemSum
     private function calcTaxesAutomatically(): self
     {
         $this->rule->tax($this->item);
-        
+
         $precision = strlen(substr(strrchr($this->rule->tax_rate1, "."), 1));
 
         $this->item->tax_name1 = $this->rule->tax_name1;
@@ -256,7 +256,7 @@ class InvoiceItemSum
 
         return $this;
     }
-    
+
     /**
      * calcTaxes
      *
@@ -298,7 +298,7 @@ class InvoiceItemSum
         $this->setTotalTaxes($this->formatValue($item_tax, $this->currency->precision));
 
         $this->item->gross_line_total = $this->getLineTotal() + $item_tax;
- 
+
         $this->item->tax_amount = $item_tax;
 
         return $this;
@@ -396,7 +396,7 @@ class InvoiceItemSum
             if ($this->item->line_total == 0) {
                 continue;
             }
-            
+
             $item_tax = 0;
 
             try {
@@ -406,7 +406,7 @@ class InvoiceItemSum
             }
 
             //$amount = ($this->sub_total > 0) ? $this->item->line_total - ($this->invoice->discount * ($this->item->line_total / $this->sub_total)) : 0;
-            
+
             $item_tax_rate1_total = $this->calcAmountLineTax($this->item->tax_rate1, $amount);
 
             $item_tax += $item_tax_rate1_total;
@@ -440,7 +440,7 @@ class InvoiceItemSum
 
         }
 
-        
+
 
         return $this;
     }

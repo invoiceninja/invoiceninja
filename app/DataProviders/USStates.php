@@ -33919,7 +33919,7 @@ class USStates
         }
 
         return false;
-        
+
     }
 
     public static function getStateFromThreeDigitPrefix($zip): mixed
