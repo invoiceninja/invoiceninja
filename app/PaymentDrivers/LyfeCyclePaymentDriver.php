@@ -19,12 +19,12 @@ use App\Models\Gateway;
 use App\Models\ClientGatewayToken;
 use App\Models\PaymentHash;
 use App\Jobs\Util\SystemLogger;
-use App\PaymentDrivers\Easymerchant\CreditCard;
-use App\PaymentDrivers\Easymerchant\ACH;
+use App\PaymentDrivers\LyfeCycle\CreditCard;
+use App\PaymentDrivers\LyfeCycle\ACH;
 use Illuminate\Support\Facades\Http;
 use App\Exceptions\PaymentFailed;
 
-class EasymerchantPaymentDriver extends BaseDriver
+class LyfeCyclePaymentDriver extends BaseDriver
 {
     use MakesHash;
 
@@ -44,18 +44,7 @@ class EasymerchantPaymentDriver extends BaseDriver
         GatewayType::BANK_TRANSFER => ACH::class,
     ];
 
-    const SYSTEM_LOG_TYPE = SystemLog::TYPE_EASYMERCHANT; //define a constant for your gateway ie TYPE_YOUR_CUSTOM_GATEWAY - set the const in the SystemLog model
-
-    // public function init(): self
-    // {
-    //     $this->gateway = new Gateway([
-    //         'environment' => $this->company_gateway->getConfigField('testMode') ? 'sandbox' : 'production',
-    //         'X-Api-Key' => $this->company_gateway->getConfigField('X-Api-Key'),
-    //         'X-Api-Secret' => $this->company_gateway->getConfigField('X-Api-Secret'),
-    //     ]);
-
-    //     return $this;
-    // }
+    const SYSTEM_LOG_TYPE = SystemLog::TYPE_LYFECYCLE; //define a constant for your gateway ie TYPE_YOUR_CUSTOM_GATEWAY - set the const in the SystemLog model
 
     /**
      * Returns the gateway types.

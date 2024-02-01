@@ -10,7 +10,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\PaymentDrivers\Easymerchant;
+namespace App\PaymentDrivers\LyfeCycle;
 
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\Request;
@@ -21,9 +21,9 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\EasymerchantPaymentDriver;
+use App\PaymentDrivers\LyfeCyclePaymentDriver;
 use App\Utils\Traits\MakesHash;
-use App\PaymentDrivers\Easymerchant\Utilities;
+use App\PaymentDrivers\LyfeCycle\Utilities;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Exception;
@@ -32,10 +32,10 @@ class ACH
 {
     use MakesHash, Utilities;
 
-    /** @var EasymerchantPaymentDriver */
+    /** @var LyfeCyclePaymentDriver */
     public $easymerchant;
 
-    public function __construct(EasymerchantPaymentDriver $easymerchant)
+    public function __construct(LyfeCyclePaymentDriver $easymerchant)
     {
         $this->easymerchant = $easymerchant;
     }
@@ -219,7 +219,7 @@ class ACH
             $message,
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_FAILURE,
-            SystemLog::TYPE_EASYMERCHANT,
+            SystemLog::TYPE_LYFECYCLE,
             $this->easymerchant->client,
             $this->easymerchant->client->company,
         );
@@ -244,7 +244,7 @@ class ACH
             ['response' => $response, 'data' => $data],
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_SUCCESS,
-            SystemLog::TYPE_EASYMERCHANT,
+            SystemLog::TYPE_LYFECYCLE,
             $this->easymerchant->client,
             $this->easymerchant->client->company,
         );

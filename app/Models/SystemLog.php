@@ -170,7 +170,7 @@ class SystemLog extends Model
 
     const TYPE_GENERIC = 900;
     
-    const TYPE_EASYMERCHANT = 901;
+    const TYPE_LYFECYCLE = 901;
 
     protected $fillable = [
         'client_id',
@@ -305,7 +305,7 @@ class SystemLog extends Model
                 return "Payfast";
             case self::TYPE_FORTE:
                 return "Forte";
-            case self::TYPE_EASYMERCHANT:
+            case self::TYPE_LYFECYCLE:
                 return 'LyfeCycle Payments';
             default:
                 return 'undefined';

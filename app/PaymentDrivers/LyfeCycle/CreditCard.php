@@ -10,7 +10,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\PaymentDrivers\Easymerchant;
+namespace App\PaymentDrivers\LyfeCycle;
 
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
@@ -21,8 +21,8 @@ use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\Models\ClientGatewayToken;
-use App\PaymentDrivers\EasymerchantPaymentDriver;
-use App\PaymentDrivers\Easymerchant\Utilities;
+use App\PaymentDrivers\LyfeCyclePaymentDriver;
+use App\PaymentDrivers\LyfeCycle\Utilities;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
@@ -30,11 +30,11 @@ class CreditCard
 {
     use Utilities;
     /**
-     * @var EasymerchantPaymentDriver
+     * @var LyfeCyclePaymentDriver
      */
     private $easymerchant;
 
-    public function __construct(EasymerchantPaymentDriver $easymerchant)
+    public function __construct(LyfeCyclePaymentDriver $easymerchant)
     {
         $this->easymerchant = $easymerchant;
 
@@ -207,7 +207,7 @@ class CreditCard
             return $this->processUnsuccessfulPayment($error, $responseCode);
         }
 
-        $this->easymerchant->logSuccessfulGatewayResponse(['response' => $request['message'], 'data' => $this->easymerchant->payment_hash], SystemLog::TYPE_EASYMERCHANT);
+        $this->easymerchant->logSuccessfulGatewayResponse(['response' => $request['message'], 'data' => $this->easymerchant->payment_hash], SystemLog::TYPE_LYFECYCLE);
         //save card functionality
         if($request->has('save_card') && $request->save_card){
             $store_data = [
@@ -242,7 +242,7 @@ class CreditCard
             ['response' => $response, 'data' => $data],
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_SUCCESS,
-            SystemLog::TYPE_EASYMERCHANT,
+            SystemLog::TYPE_LYFECYCLE,
             $this->easymerchant->client,
             $this->easymerchant->client->company,
         );
@@ -266,7 +266,7 @@ class CreditCard
             $message,
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_FAILURE,
-            SystemLog::TYPE_EASYMERCHANT,
+            SystemLog::TYPE_LYFECYCLE,
             $this->easymerchant->client,
             $this->easymerchant->client->company,
         );

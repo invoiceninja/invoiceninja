@@ -10,7 +10,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\PaymentDrivers\Easymerchant;
+namespace App\PaymentDrivers\LyfeCycle;
 
 use App\Models\GatewayType;
 use App\Models\ClientGatewayToken;
@@ -22,7 +22,7 @@ trait Utilities
 
     public function getParent()
     {
-        return static::class == \App\PaymentDrivers\EasymerchantPaymentDriver::class ? $this : $this->easymerchant;
+        return static::class == \App\PaymentDrivers\LyfeCyclePaymentDriver::class ? $this : $this->easymerchant;
     }
 
     private function getHeaders()
