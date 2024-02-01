@@ -85,7 +85,9 @@ class ClientContactRepository extends BaseRepository
             if (array_key_exists('password', $contact) && strlen($contact['password']) > 1 && strlen($update_contact->email) > 3) { //updating on a blank contact email will cause large table scanning
                 $update_contact->password = Hash::make($contact['password']);
 
-                $client->company->client_contacts()->where('email', $update_contact->email)->cursor()
+                $client->company
+                        ->client_contacts()
+                        ->where('email', $update_contact->email)->cursor()
                                 ->each(function ($saveable_contact) use ($update_contact){
                                         $saveable_contact->password = $update_contact->password;
                                         $saveable_contact->save();
