@@ -934,6 +934,21 @@ class CheckData extends Command
             });
 
 
+            Invoice::withTrashed()
+            ->where("partial", 0)
+            ->whereNotNull("partial_due_date")
+            ->cursor()
+            ->each(function ($i) {
+                $i->partial_due_date = null;
+                $i->saveQuietly();
+
+                
+                $this->logMessage("Fixing partial due date for # {$i->id}");
+
+            });
+
+
+
 
         }
     }
