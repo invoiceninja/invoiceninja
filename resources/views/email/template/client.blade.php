@@ -233,7 +233,7 @@
                     </td>
                 </tr>
 
-                @isset($email_preferences)
+                @if(isset($email_preferences) && $email_preferences)
                 <tr>
                     <td bgcolor="#242424"  cellpadding="20">
                         <div class="dark-bg-base"
@@ -246,7 +246,7 @@
                         </div>
                     </td>
                 </tr>
-                @endisset
+                @endif
             </table>
         </td>
     </tr>

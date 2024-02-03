@@ -31,6 +31,7 @@ class PaymentEmailEngine extends BaseEmailEngine
 
     public $client;
 
+    /** @var \App\Models\Payment $payment */
     public $payment;
 
     public $template_data;
@@ -91,6 +92,7 @@ class PaymentEmailEngine extends BaseEmailEngine
             ->setVariables($this->makeValues())
             ->setSubject($subject_template)
             ->setBody($body_template)
+            ->setTextBody($body_template)
             ->setFooter('')
             ->setViewLink('')
             ->setViewText('');

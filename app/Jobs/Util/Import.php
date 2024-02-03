@@ -1091,15 +1091,15 @@ class Import implements ShouldQueue
     {
         Invoice::unguard();
 
-        $rules = [
-            '*.client_id' => ['required'],
-        ];
+        // $rules = [
+        //     '*.client_id' => ['required'],
+        // ];
 
-        $validator = Validator::make($data, $rules);
+        // // $validator = Validator::make($data, $rules);
 
-        if ($validator->fails()) {
-            throw new MigrationValidatorFailed(json_encode($validator->errors()));
-        }
+        // if ($validator->fails()) {
+        //     throw new MigrationValidatorFailed(json_encode($validator->errors()));
+        // }
 
         $invoice_repository = new InvoiceMigrationRepository();
 
@@ -1144,6 +1144,8 @@ class Import implements ShouldQueue
             );
 
             $key = "invoices_{$resource['id']}";
+
+            nlog($invoice->id);
 
             $this->ids['invoices'][$key] = [
                 'old' => $resource['id'],
@@ -2056,7 +2058,7 @@ class Import implements ShouldQueue
 
     public function failed($exception = null)
     {
-        info('the job failed');
+        nlog('the job failed');
 
         config(['queue.failed.driver' => null]);
 
@@ -2067,11 +2069,11 @@ class Import implements ShouldQueue
         LightLogs::create($job_failure)
                  ->queue();
 
-        info(print_r($exception->getMessage(), 1));
+        nlog(print_r($exception->getMessage(), 1));
 
-        if (Ninja::isHosted()) {
+        // if (Ninja::isHosted()) {
             app('sentry')->captureException($exception);
-        }
+        // }
     }
 
 

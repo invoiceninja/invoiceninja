@@ -73,7 +73,8 @@ class EntityCreatedObject
             );
 
             $mail_obj->markdown = 'email.admin.generic';
-            
+            $mail_obj->text_view = 'email.template.text';
+
             $content = ctrans(
                                     $this->template_body,
                                     [
@@ -92,7 +93,7 @@ class EntityCreatedObject
                                 'logo' => $this->company->present()->logo(),
                                 'settings' => $this->company->settings,
                                 'whitelabel' => $this->company->account->isPaid() ? true : false,
-                                'text_body' => $content,
+                                'text_body' => str_replace(['$view_button','$viewButton','$viewLink','$view_url'], '$view_url', $content),
                             ];
         } else {
             $this->entity->load('client.country', 'client.company');
@@ -179,7 +180,7 @@ class EntityCreatedObject
             'logo' => $this->company->present()->logo(),
             'settings' => $settings,
             'whitelabel' => $this->company->account->isPaid() ? true : false,
-            'text_body' => $content,
+            'text_body' => str_replace(['$view_button','$viewButton','$view_link','$view_button'], '$view_url', $content),
         ];
     }
 }
