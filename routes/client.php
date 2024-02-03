@@ -141,14 +141,11 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'clie
     Route::get('unsubscribe/{entity}/{invitation_key}', [App\Http\Controllers\ClientPortal\InvitationController::class, 'unsubscribe'])->name('unsubscribe');
 });
 
-
 Route::get('route/{hash}', function ($hash) {
     
     return redirect(decrypt($hash));
 
 });
-
-
 
 Route::get('phantom/{entity}/{invitation_key}', [Phantom::class, 'displayInvitation'])->middleware(['invite_db', 'phantom_secret'])->name('phantom_view');
 Route::get('blade/', [Phantom::class, 'blade'])->name('blade');
