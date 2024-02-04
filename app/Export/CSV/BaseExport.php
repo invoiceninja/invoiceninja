@@ -1309,7 +1309,7 @@ class BaseExport
             if(auth()->user() && auth()->user()->account_id == $this->company->account_id)
                 $user = auth()->user();
 
-            if($this->input['user_id'])
+            if($this->input['user_id'] ?? false)
                 $user = User::where('id', $this->input['user_id'])->where('account_id', $this->company->account_id)->first();
 
             ZipDocuments::dispatch($documents, $this->company, $user);
