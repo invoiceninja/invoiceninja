@@ -451,7 +451,7 @@ class BaseExport
     {
         if (isset($this->input['client_id']) && $this->input['client_id'] != 'all') {
             $client = Client::withTrashed()->find($this->input['client_id']);
-            $this->client_description = $client->present()->name;
+            $this->client_description = $client->present()->name ?? '';
             return $query->where('client_id', $this->input['client_id']);
         } elseif(isset($this->input['clients']) && count($this->input['clients']) > 0) {
 
