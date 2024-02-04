@@ -59,21 +59,13 @@ class EmailReport
     {
 
         $start_end_dates = $this->calculateStartAndEndDates($this->scheduler->parameters);
+        $data = $this->scheduler->parameters;
 
-        $data = [];
-
-        $data = [
-            'start_date' => $start_end_dates[0],
-            'end_date' => $start_end_dates[1],
-            'date_range' => 'custom',
-            'client_id' => null,
-            'report_keys' => []
-        ];
-
-        if (isset($this->scheduler->parameters['clients']) && count($this->scheduler->parameters['clients']) >= 1) {
-            $data['clients'] = $this->transformKeys($this->scheduler->parameters['clients']);
-        }
-
+        $data['start_date'] = $start_end_dates[0];
+        $data['end_date'] = $start_end_dates[1];
+        $data['date_range'] = $data['date_range'] ?? 'all';
+        $data['report_keys'] = $data['report_keys'] ?? [];
+        
         $export = false;
 
         match($this->scheduler->parameters['report_name']) {

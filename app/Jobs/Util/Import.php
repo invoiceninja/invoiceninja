@@ -1144,6 +1144,8 @@ class Import implements ShouldQueue
             );
 
             $key = "invoices_{$resource['id']}";
+            
+            nlog($invoice->id);
 
             $this->ids['invoices'][$key] = [
                 'old' => $resource['id'],
@@ -1406,7 +1408,8 @@ class Import implements ShouldQueue
                 $payment->save();
             }
 
-
+            nlog($payment->id);
+            
             $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
 
             $this->ids['payments'] = [
