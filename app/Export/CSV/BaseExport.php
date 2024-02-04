@@ -450,9 +450,18 @@ class BaseExport
     protected function filterByClients($query)
     {
         if (isset($this->input['client_id']) && $this->input['client_id'] != 'all') {
+
+            if(!is_int($this->input['client_id'])) 
+                $this->input['client_id'] = $this->decodePrimaryKey($this->input['client_id']);
+
             $client = Client::withTrashed()->find($this->input['client_id']);
-            $this->client_description = $client->present()->name ?? '';
+
+            if(!$client)
+                return $query;
+
+            $this->client_description = $client->present()->name;
             return $query->where('client_id', $this->input['client_id']);
+            
         } elseif(isset($this->input['clients']) && count($this->input['clients']) > 0) {
 
             $this->client_description = 'Multiple Clients';
