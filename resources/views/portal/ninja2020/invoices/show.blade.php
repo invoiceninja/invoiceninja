@@ -10,6 +10,16 @@
 
 @endpush
 
+@section('header')
+    @if($errors->any())
+        <div class="alert alert-failure mb-4">
+            @foreach($errors->all() as $error)
+            <p>{{ $error }}</p>
+            @endforeach
+        </div>
+    @endif
+@endsection
+
 @section('body')
 
     @if($invoice->isPayable() && $client->getSetting('custom_message_unpaid_invoice'))
