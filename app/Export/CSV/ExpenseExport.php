@@ -104,6 +104,7 @@ class ExpenseExport extends BaseExport
             $query = $this->addCategoryFilter($query, $this->input['categories']);
         }
         
+        nlog($this->input);
         if($this->input['document_email_attachment'] ?? false) {
             $this->queueDocuments($query);
         }
@@ -122,6 +123,8 @@ class ExpenseExport extends BaseExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
+        nlog("expense counter = ");
+        nlog($query->count());
         $query->cursor()
                 ->each(function ($expense) {
                     $this->csv->insertOne($this->buildRow($expense));

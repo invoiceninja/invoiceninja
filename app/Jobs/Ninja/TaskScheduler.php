@@ -56,7 +56,15 @@ class TaskScheduler implements ShouldQueue
                 ->where('next_run', '<=', now())
                 ->cursor()
                 ->each(function ($scheduler) {
-                    $this->doJob($scheduler);
+                
+                    nlog("Doing job {$scheduler->name}");
+
+                    try {
+                        $scheduler->service()->runTask();
+                    } catch(\Exception $e) {
+                        nlog($e->getMessage());
+                    }
+
                 });
 
 
@@ -73,19 +81,19 @@ class TaskScheduler implements ShouldQueue
                 ->where('next_run', '<=', now())
                 ->cursor()
                 ->each(function ($scheduler) {
-                    $this->doJob($scheduler);
+                    
+                    nlog("Doing job {$scheduler->name}");
+
+                    try {
+                        /** @var \App\Models\Scheduler $scheduler */
+                        $scheduler->service()->runTask();
+                    } catch(\Exception $e) {
+                        nlog($e->getMessage());
+                    }
+
+
                 });
         }
     }
 
-    private function doJob(Scheduler $scheduler)
-    {
-        nlog("Doing job {$scheduler->name}");
-
-        try {
-            $scheduler->service()->runTask();
-        } catch(\Exception $e) {
-            nlog($e->getMessage());
-        }
-    }
 }

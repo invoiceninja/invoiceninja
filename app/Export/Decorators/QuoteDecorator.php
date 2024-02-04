@@ -27,7 +27,7 @@ class QuoteDecorator extends Decorator implements DecoratorInterface
 
         if($quote && method_exists($this, $key)) {
             return $this->{$key}($quote);
-        } elseif($quote->{$key}) {
+        } elseif($quote->{$key} ?? false) {
             return $quote->{$key} ?? '';
         }
 
