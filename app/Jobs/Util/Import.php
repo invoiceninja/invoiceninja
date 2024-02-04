@@ -1145,8 +1145,6 @@ class Import implements ShouldQueue
 
             $key = "invoices_{$resource['id']}";
 
-            nlog($invoice->id);
-
             $this->ids['invoices'][$key] = [
                 'old' => $resource['id'],
                 'new' => $invoice->id,
@@ -1352,11 +1350,11 @@ class Import implements ShouldQueue
             '*.client_id' => ['required'],
         ];
 
-        $validator = Validator::make($data, $rules);
+        // $validator = Validator::make($data, $rules);
 
-        if ($validator->fails()) {
-            throw new MigrationValidatorFailed(json_encode($validator->errors()));
-        }
+        // if ($validator->fails()) {
+        //     throw new MigrationValidatorFailed(json_encode($validator->errors()));
+        // }
 
         $payment_repository = new PaymentMigrationRepository(new CreditRepository());
 
@@ -1527,16 +1525,17 @@ class Import implements ShouldQueue
                     }
                 }
 
-                if (!$entity) {
-                    continue;
-                }
+                
                     // throw new Exception("Resource invoice/quote document not available.");
             }
-
 
             if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && array_key_exists('expenses', $this->ids)) {
                 $expense_id = $this->transformId('expenses', $resource['expense_id']);
                 $entity = Expense::query()->where('id', $expense_id)->withTrashed()->first();
+            }
+
+            if (!$entity) {
+                continue;
             }
 
             $file_url = $resource['url'];
