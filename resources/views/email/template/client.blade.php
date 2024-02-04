@@ -233,20 +233,20 @@
                     </td>
                 </tr>
 
-                @isset($email_preferences)
+                @if(isset($email_preferences) && $email_preferences)
                 <tr>
                     <td bgcolor="#242424"  cellpadding="20">
                         <div class="dark-bg-base"
                              style="padding-top: 10px;padding-bottom: 10px; background-color: #242424; border: 1px solid #c2c2c2; border-top-color: #242424; border-bottom-color: #242424;">
                                 <a href="{{ $email_preferences }}">
                                     <p style="text-align: center; color: #ffffff; font-size: 10px; font-family: Verdana, Geneva, Tahoma, sans-serif;">
-                                        {{ ctrans('texts.unsubscribe') }}
+                                        {{ ctrans('texts.email_preferences') }}
                                     </p>
                                 </a>
                         </div>
                     </td>
                 </tr>
-                @endisset
+                @endif
             </table>
         </td>
     </tr>

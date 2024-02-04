@@ -78,7 +78,6 @@ class AppServiceProvider extends ServiceProvider
                 ->middleware('client');
         });
 
-
         /* Ensure we don't have stale state in jobs */
         Queue::before(function (JobProcessing $event) {
             App::forgetInstance('truthsource');
@@ -106,7 +105,6 @@ class AppServiceProvider extends ServiceProvider
 
             return $this;
         });
-
 
         Mailer::macro('mailgun_config', function (string $secret, string $domain, string $endpoint = 'api.mailgun.net') {
             // @phpstan-ignore /** @phpstan-ignore-next-line **/

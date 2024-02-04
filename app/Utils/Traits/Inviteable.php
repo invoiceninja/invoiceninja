@@ -49,7 +49,9 @@ trait Inviteable
 
     public function getPaymentLink()
     {
+
         if (Ninja::isHosted()) {
+            /**@var \App\Models\Company $company */
             $domain = $this->company->domain();
         } else {
             $domain = config('ninja.app_url');
@@ -105,7 +107,11 @@ trait Inviteable
 
         switch ($this->company->portal_mode) {
             case 'subdomain':
-                return $domain.'/client/'.$entity_type.'/'.$this->key;
+
+                if(Ninja::isHosted())
+                    return 'https://router.invoiceninja.com/route/'.encrypt($domain.'/client/'.$entity_type.'/'.$this->key);
+                else
+                    return $domain.'/client/'.$entity_type.'/'.$this->key;
                 break;
             case 'iframe':
                 return $domain.'/client/'.$entity_type.'/'.$this->key;

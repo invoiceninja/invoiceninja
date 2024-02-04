@@ -1091,15 +1091,15 @@ class Import implements ShouldQueue
     {
         Invoice::unguard();
 
-        $rules = [
-            '*.client_id' => ['required'],
-        ];
+        // $rules = [
+        //     '*.client_id' => ['required'],
+        // ];
 
-        $validator = Validator::make($data, $rules);
+        // // $validator = Validator::make($data, $rules);
 
-        if ($validator->fails()) {
-            throw new MigrationValidatorFailed(json_encode($validator->errors()));
-        }
+        // if ($validator->fails()) {
+        //     throw new MigrationValidatorFailed(json_encode($validator->errors()));
+        // }
 
         $invoice_repository = new InvoiceMigrationRepository();
 
@@ -1350,11 +1350,11 @@ class Import implements ShouldQueue
             '*.client_id' => ['required'],
         ];
 
-        $validator = Validator::make($data, $rules);
+        // $validator = Validator::make($data, $rules);
 
-        if ($validator->fails()) {
-            throw new MigrationValidatorFailed(json_encode($validator->errors()));
-        }
+        // if ($validator->fails()) {
+        //     throw new MigrationValidatorFailed(json_encode($validator->errors()));
+        // }
 
         $payment_repository = new PaymentMigrationRepository(new CreditRepository());
 
@@ -1525,16 +1525,17 @@ class Import implements ShouldQueue
                     }
                 }
 
-                if (!$entity) {
-                    continue;
-                }
+                
                     // throw new Exception("Resource invoice/quote document not available.");
             }
-
 
             if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && array_key_exists('expenses', $this->ids)) {
                 $expense_id = $this->transformId('expenses', $resource['expense_id']);
                 $entity = Expense::query()->where('id', $expense_id)->withTrashed()->first();
+            }
+
+            if (!$entity) {
+                continue;
             }
 
             $file_url = $resource['url'];
@@ -2056,7 +2057,7 @@ class Import implements ShouldQueue
 
     public function failed($exception = null)
     {
-        info('the job failed');
+        nlog('the job failed');
 
         config(['queue.failed.driver' => null]);
 
@@ -2067,11 +2068,11 @@ class Import implements ShouldQueue
         LightLogs::create($job_failure)
                  ->queue();
 
-        info(print_r($exception->getMessage(), 1));
+        nlog(print_r($exception->getMessage(), 1));
 
-        if (Ninja::isHosted()) {
+        // if (Ninja::isHosted()) {
             app('sentry')->captureException($exception);
-        }
+        // }
     }
 
 
