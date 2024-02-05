@@ -368,7 +368,7 @@ class RoEInvoice extends AbstractService
 
     public function generateXml(): string
     {
-        $ubl_invoice = $this->handle(); // Call the existing handle method to get the UBLInvoice
+        $ubl_invoice = $this->run(); // Call the existing handle method to get the UBLInvoice
         $generator = new Generator();
         return $generator->invoice($ubl_invoice, $this->invoice->client->getCurrencyCode());
     }

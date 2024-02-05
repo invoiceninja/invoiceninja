@@ -67,9 +67,8 @@ class CompanyExport implements ShouldQueue
     public function handle()
     {
         MultiDB::setDb($this->company->db);
-
-        // $this->company = Company::query()->where('company_key', $this->company->company_key)->first();
-
+        nlog("starting export");
+        
         set_time_limit(0);
 
         $this->export_data['app_version'] = config('ninja.app_version');

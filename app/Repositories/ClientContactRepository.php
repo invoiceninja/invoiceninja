@@ -86,8 +86,8 @@ class ClientContactRepository extends BaseRepository
                 $update_contact->password = Hash::make($contact['password']);
 
                         ClientContact::withTrashed()
-                                    ->where('company_id', $client->id)
-                                    ->where('client_id', $client->company_id)
+                                    ->where('company_id', $client->company_id)
+                                    ->where('client_id', $client->id)
                                     ->where('email', $update_contact->email)->cursor()
                                             ->each(function ($saveable_contact) use ($update_contact){
                                                     $saveable_contact->password = $update_contact->password;
