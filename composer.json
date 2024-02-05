@@ -43,7 +43,7 @@
         "beganovich/snappdf": "^4",
         "braintree/braintree_php": "^6.0",
         "checkout/checkout-sdk-php": "^3.0",
-        "cleverit/ubl_invoice": "^1.3",
+        "invoiceninja/ubl_invoice": "^2",
         "doctrine/dbal": "^3.0",
         "eway/eway-rapid-php": "^1.3",
         "fakerphp/faker": "^1.14",
