@@ -278,7 +278,6 @@ class CompanyImport implements ShouldQueue
             throw new \Exception('No import data found, has the cache expired?');
         }
 
-        // $this->backup_file = json_decode(file_get_contents($this->file_location));
         $tmp_file = $this->unzipFile();
 
         $this->file_path = $tmp_file;
@@ -341,15 +340,37 @@ class CompanyImport implements ShouldQueue
     {
         $path = TempFile::filePath(Storage::disk(config('filesystems.default'))->get($this->file_location), basename($this->file_location));
 
+        nlog($path);
         $zip = new ZipArchive();
-        $archive = $zip->open($path);
+        $res = $zip->open($path, ZipArchive::OVERWRITE);
 
-        $file_path = sys_get_temp_dir().'/'.sha1(microtime());
 
-        $zip->extractTo($file_path);
-        $zip->close();
-        $file_location = "{$file_path}/backup.json";
 
+if ($res === true) {
+    echo 'ok';
+    $zip->extractTo('test');
+    $zip->close();
+
+
+        // $file_path = sys_get_temp_dir().'/'.sha1(microtime());
+
+        // nlog($file_path);
+
+// $result = $zip->extractTo($file_path);
+
+$result = $zip->extractTo(".");
+
+        nlog($result);
+
+        $$zip->close();
+
+} else {
+    echo 'failed, code:' . $res;
+}
+
+
+        $file_location = "backup.json";
+        $file_path = $file_location;
         if (! file_exists($file_path)) {
             throw new NonExistingMigrationFile('Backup file does not exist, or is corrupted.');
         }

@@ -220,7 +220,7 @@ class Document extends BaseModel
             $img = new \Imagick();
             $img->readImageBlob($file);
             $img->setImageCompression(true);
-            $img->setImageCompressionQuality(50);
+            $img->setImageCompressionQuality(40);
 
             return $img->getImageBlob();
 

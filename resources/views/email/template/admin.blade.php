@@ -1,6 +1,7 @@
 @php
     $primary_color = isset($settings) ? $settings->primary_color : '#4caf50';
     $email_alignment = isset($settings) && $settings?->email_alignment ? $settings->email_alignment : 'center';
+    $email_preferences = isset($url) && str_contains($url ?? '', '/#/') ? config('ninja.react_url').'/#/settings/user_details/notifications' : config('ninja.app_url');
 @endphp
 
 <!DOCTYPE html
@@ -249,6 +250,13 @@
                             <p style="text-align: center; color: #ffffff; font-size: 10px;
                             font-family: Verdana, Geneva, Tahoma, sans-serif;">© {{ date('Y') }} Invoice Ninja, All Rights Reserved
                             </p>
+
+                            <a href="{{ $email_preferences }}">
+                                <p style="text-align: center; color: #ffffff; font-size: 10px; font-family: Verdana, Geneva, Tahoma, sans-serif;">
+                                    {{ ctrans('texts.email_preferences') }}
+                                </p>
+                            </a>
+                            
                         </div>
                     </td>
                 </tr>

@@ -34,6 +34,10 @@ return [
         'token' => env('POSTMARK_SECRET', ''),
     ],
 
+    'postmark-outlook' => [
+        'token' => env('POSTMARK_OUTLOOK_SECRET','')
+    ],
+    
     'microsoft' => [
         'client_id' => env('MICROSOFT_CLIENT_ID'),
         'client_secret' => env('MICROSOFT_CLIENT_SECRET'),
