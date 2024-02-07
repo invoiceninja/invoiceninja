@@ -74,16 +74,10 @@ class CompanyExport implements ShouldQueue
 
 $this->writer = new File($this->file_name);
 
-$info = $this->writer->collection('');
-
-
-
         set_time_limit(0);
 
-        $this->export_data['app_version'] = config('ninja.app_version');
-        $this->export_data['storage_url'] = Storage::url('');
-        
-$info->addItems($this->export_data);
+$this->writer->value('app_version', config('ninja.app_version'));
+$this->writer->value('storage_url', Storage::url(''));
         
         $this->export_data['activities'] = $this->company->all_activities->map(function ($activity) {
             $activity = $this->transformArrayOfKeys($activity, [
@@ -689,7 +683,9 @@ $this->writer->end();
             nlog("cannot open {$zip_path}");
         }
 
-        $zip->addFile($this->file_name, 'backup.json');
+        $zip->addFile($this->file_name);
+        $zip->renameName($this->file_name, 'backup.json');
+
         // $zip->addFromString("backup.json", json_encode($this->export_data));
         $zip->close();
 

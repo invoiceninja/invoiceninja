@@ -272,8 +272,6 @@ class CompanyImport implements ShouldQueue
         nlog("Company ID = {$this->company->id}");
         nlog("file_location ID = {$this->file_location}");
 
-        // $this->backup_file = Cache::get($this->hash);
-
         if (empty($this->file_location)) {
             throw new \Exception('No import data found, has the cache expired?');
         }
@@ -314,6 +312,7 @@ class CompanyImport implements ShouldQueue
         }
 
         unlink($tmp_file);
+        unlink($this->file_location);
     }
 
     //
@@ -339,43 +338,33 @@ class CompanyImport implements ShouldQueue
     private function unzipFile()
     {
         $path = TempFile::filePath(Storage::disk(config('filesystems.default'))->get($this->file_location), basename($this->file_location));
-
-        nlog($path);
+        
         $zip = new ZipArchive();
-        $res = $zip->open($path, ZipArchive::OVERWRITE);
+        $res = $zip->open($path);
+        $file_path = sys_get_temp_dir().'/'.sha1(microtime());
 
+        if ($res === true) {
+            echo "ok";
+            $extraction_res = $zip->extractTo($file_path);
 
+            nlog($extraction_res);
 
-if ($res === true) {
-    echo 'ok';
-    $zip->extractTo('test');
-    $zip->close();
+            $closer = $zip->close();
+            nlog($closer);
 
+        } else {
+            echo "failed, code: " . $res;
+        }
 
-        // $file_path = sys_get_temp_dir().'/'.sha1(microtime());
+        $file_path = "{$file_path}/backup.json";
+        
+        nlog($file_path);
 
-        // nlog($file_path);
-
-// $result = $zip->extractTo($file_path);
-
-$result = $zip->extractTo(".");
-
-        nlog($result);
-
-        $$zip->close();
-
-} else {
-    echo 'failed, code:' . $res;
-}
-
-
-        $file_location = "backup.json";
-        $file_path = $file_location;
         if (! file_exists($file_path)) {
             throw new NonExistingMigrationFile('Backup file does not exist, or is corrupted.');
         }
 
-        return $file_location;
+        return $file_path;
     }
 
 
