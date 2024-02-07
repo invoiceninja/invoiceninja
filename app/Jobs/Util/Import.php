@@ -1952,6 +1952,10 @@ class Import implements ShouldQueue
                 $modified['vendor_id'] = $this->transformId('vendors', $resource['vendor_id']);
             }
 
+            $modified['tax_amount1'] = 0;
+            $modified['tax_amount2'] = 0;
+            $modified['tax_amount3'] = 0;
+
             /** @var \App\Models\Expense $expense **/
             $expense = Expense::create($modified);
 
