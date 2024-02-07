@@ -31,6 +31,7 @@ use App\Http\Controllers\CompanyLedgerController;
 use App\Http\Controllers\CompanyUserController;
 use App\Http\Controllers\ConnectedAccountController;
 use App\Http\Controllers\CreditController;
+use App\Http\Controllers\CustomizePriceController;
 use App\Http\Controllers\DesignController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EmailController;
@@ -269,6 +270,8 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::resource('products', ProductController::class); // name = (products. index / create / show / update / destroy / edit
     Route::post('products/bulk', [ProductController::class, 'bulk'])->name('products.bulk');
     Route::put('products/{product}/upload', [ProductController::class, 'upload']);
+
+    Route::post('customize_price', [CustomizePriceController::class, 'create']);
 
     Route::resource('projects', ProjectController::class); // name = (projects. index / create / show / update / destroy / edit
     Route::post('projects/bulk', [ProjectController::class, 'bulk'])->name('projects.bulk');
