@@ -163,14 +163,14 @@ $x = $this->writer->collection('clients');
 $x->addItems($this->export_data['clients']);
 $this->export_data = null;
 
-        $this->export_data['company'] = $this->company->toArray();
-        $this->export_data['company']['company_key'] = $this->createHash();
+        // $this->export_data['company'] = $this->company->toArray();
+        // $this->export_data['company']['company_key'] = $this->createHash();
 
-
-        
-$x = $this->writer->collection('company');
-$x->addItems($this->export_data['company']);
-$this->export_data = null;
+$this->writer->value('company', $this->company->toJson(), encode: false);
+     
+// $x = $this->writer->collection('company');
+// $x->addItems($this->export_data['company']);
+// $this->export_data = null;
 
 
         $this->export_data['company_gateways'] = $this->company->company_gateways()->withTrashed()->cursor()->map(function ($company_gateway) {
