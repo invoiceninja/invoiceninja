@@ -63,7 +63,6 @@ class TaskTransformer extends BaseTransformer
 
         $time_log = collect($task_items_data)
                             ->map(function ($item) {
-
                                 return $this->parseLog($item);
 
                             })->toJson();
@@ -80,10 +79,10 @@ class TaskTransformer extends BaseTransformer
 
         $notes = $item['task.notes'] ?? '';
 
-        if(isset($item['task.is_billable']) && is_string($item['task.is_billable']) && in_array($item['task.is_billable'], ['yes', 'true', '1'])) {
+        if(isset($item['task.billable']) && is_string($item['task.billable']) && in_array($item['task.billable'], ['yes', 'true', '1', 'TRUE', 'YES'])) {
             $is_billable = true;
-        } elseif(isset($item['task.is_billable']) && is_bool($item['task.is_billable'])) {
-            $is_billable = $item['task.is_billable'];
+        } elseif(isset($item['task.billable']) && is_bool($item['task.billable'])) {
+            $is_billable = $item['task.billable'];
         } else {
             $is_billable = false;
         }

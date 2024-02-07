@@ -45,6 +45,7 @@ class QuoteCreatedNotification implements ShouldQueue
 
 
         /* We loop through each user and determine whether they need to be notified */
+        /** @var \App\Models\CompanyUser $company_user */
         foreach ($event->company->company_users as $company_user) {
             /* The User */
             $user = $company_user->user;

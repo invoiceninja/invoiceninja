@@ -1,4 +1,4 @@
-@component('email.template.admin', ['design' => 'light', 'settings' => $settings, 'logo' => $logo])
+@component('email.template.admin', ['design' => 'light', 'settings' => $settings, 'logo' => $logo, 'url' => $url])
     <div class="center">
         @isset($greeting)
             <p>{{ $greeting }}</p>

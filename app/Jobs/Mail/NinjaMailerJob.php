@@ -260,11 +260,36 @@ class NinjaMailerJob implements ShouldQueue
         $t->replace(Ninja::transformTranslations($this->nmo->settings));
 
         /** Force free/trials onto specific mail driver */
-        if(Ninja::isHosted() && !$this->company->account->isPaid())
-        {
-            $this->mailer = 'mailgun';
-            $this->setHostedMailgunMailer();
-            return $this;
+        // if(Ninja::isHosted() && !$this->company->account->isPaid())
+        // {
+        //     $this->mailer = 'mailgun';
+        //     $this->setHostedMailgunMailer();
+        //     return $this;
+        // }
+
+        if(Ninja::isHosted() && $this->company->account->isPaid() && $this->nmo->settings->email_sending_method == 'default') {
+            //check if outlook.
+            
+            try{
+                $email = $this->nmo->to_user->email;
+                $domain = explode("@", $email)[1] ?? "";
+                $dns = dns_get_record($domain, DNS_MX);
+                $server = $dns[0]["target"];
+                if(stripos($server, "outlook.com") !== false){                  
+                    
+                    $this->mailer = 'postmark';
+                    $this->client_postmark_secret = config('services.postmark-outlook.token');
+
+                    $this->nmo
+                     ->mailable
+                     ->from('maildelivery@invoice.services', 'Invoice Ninja');
+
+                    return $this;
+                }
+            }
+            catch(\Exception $e){
+                nlog($e->getMessage());
+            }
         }
 
         switch ($this->nmo->settings->email_sending_method) {

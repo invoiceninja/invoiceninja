@@ -112,6 +112,7 @@
         "fakerphp/faker": "^1.14",
         "filp/whoops": "^2.7",
         "friendsofphp/php-cs-fixer": "^3.14",
+        "hyvor/php-json-exporter": "^0.0.3",
         "laracasts/cypress": "^3.0",
         "larastan/larastan": "^2",
         "mockery/mockery": "^1.4.4",
@@ -119,7 +120,6 @@
         "phpstan/phpstan": "^1.9",
         "phpunit/phpunit": "^10.0",
         "spatie/laravel-ignition": "^2.0",
-        "spatie/laravel-open-telemetry": "^0.0.9",
         "spaze/phpstan-stripe": "^3.0"
     },
     "autoload": {

@@ -486,10 +486,34 @@ class Email implements ShouldQueue
     {
 
         /** Force free/trials onto specific mail driver */
-        if(Ninja::isHosted() && !$this->company->account->isPaid()) {
-            $this->mailer = 'mailgun';
-            $this->setHostedMailgunMailer();
-            return $this;
+        // if(Ninja::isHosted() && !$this->company->account->isPaid()) {
+        //     $this->mailer = 'mailgun';
+        //     $this->setHostedMailgunMailer();
+        //     return $this;
+        // }
+
+        if(Ninja::isHosted() && $this->company->account->isPaid() && $this->email_object->settings->email_sending_method == 'default') {
+
+            try {
+                
+                $address_object = reset($this->email_object->to);
+                $email = $address_object->address ?? '';
+                $domain = explode("@", $email)[1] ?? "";
+                $dns = dns_get_record($domain, DNS_MX);
+                $server = $dns[0]["target"];
+                if(stripos($server, "outlook.com") !== false) {
+
+
+                    $this->mailer = 'postmark';
+                    $this->client_postmark_secret = config('services.postmark-outlook.token');
+                    $this->mailable
+                         ->from('maildelivery@invoice.services', 'Invoice Ninja');
+
+                    return $this;
+                }
+            } catch(\Exception $e) {
+                nlog($e->getMessage());
+            }
         }
 
         switch ($this->email_object->settings->email_sending_method) {
