@@ -1,0 +1,30 @@
+includes:
+    - ./vendor/larastan/larastan/extension.neon
+    - ./vendor/spaze/phpstan-stripe/extension.neon
+    - phpstan-baseline.neon
+parameters:
+    level: 2
+    paths:
+        - app
+    excludePaths:
+        - 'vendor/*'
+        - 'resources/*/*.php'
+        - 'app/Jobs/Ninja/*'
+        - 'app/Models/Presenters/*'
+        - 'app/Console/Commands/*'
+        - 'app/DataMapper/Analytics/*'
+        - 'app/PaymentDrivers/Authorize/*'
+        - 'app/PaymentDrivers/AuthorizePaymentDriver.php'
+        - 'app/Utils/Traits/*'
+    universalObjectCratesClasses:
+        - App\DataMapper\Tax\RuleInterface
+        - App\DataMapper\FeesAndLimits
+        - \Postmark\Models\DynamicResponseModel
+        - \Stripe\Collection
+    reportUnmatchedIgnoredErrors: false
+    ignoreErrors:
+        - '#Array has 2 duplicate keys with value#'
+        - '#Call to an undefined method#'
+        - '#makeHidden#'
+        - '#Socialite#'
+        - '#Access to protected property#'
