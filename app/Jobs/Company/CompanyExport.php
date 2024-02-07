@@ -111,12 +111,15 @@ $this->export_data = null;
 
         $this->export_data['users'] = $this->company->users()->withTrashed()->cursor()->map(function ($user) {
             $user->account_id = $this->encodePrimaryKey($user->account_id);
+            return $user;
         })->all();
+
 
 
 $x = $this->writer->collection('users');
 $x->addItems($this->export_data['users']);
 $this->export_data = null;
+
 
         $this->export_data['client_contacts'] = $this->company->client_contacts->map(function ($client_contact) {
             $client_contact = $this->transformArrayOfKeys($client_contact, ['company_id', 'user_id', 'client_id']);
@@ -663,20 +666,9 @@ $this->writer->end();
 
     private function zipAndSend()
     {
-        // $file_name = date('Y-m-d').'_'.str_replace([" ", "/"], ["_",""], $this->company->present()->name() . '_' . $this->company->company_key .'.zip');
 
         $zip_path = \Illuminate\Support\Str::ascii(str_replace(".json", ".zip", $this->file_name));
-        // $path = 'backups';
 
-        // Storage::makeDirectory(storage_path('backups/'));
-
-        // try {
-        //     mkdir(storage_path('backups/'));
-        // } catch(\Exception $e) {
-        //     nlog("could not create directory");
-        // }
-
-        // $zip_path = storage_path('backups/'.\Illuminate\Support\Str::ascii($file_name));
         $zip = new \ZipArchive();
 
         if ($zip->open($zip_path, \ZipArchive::CREATE) !== true) {
@@ -686,13 +678,16 @@ $this->writer->end();
         $zip->addFile($this->file_name);
         $zip->renameName($this->file_name, 'backup.json');
 
-        // $zip->addFromString("backup.json", json_encode($this->export_data));
         $zip->close();
 
         Storage::disk(config('filesystems.default'))->put('backups/'.str_replace(".json", ".zip",$this->file_name), file_get_contents($zip_path));
 
         if(file_exists($zip_path)) {
             unlink($zip_path);
+        }
+
+        if(file_exists($this->file_name)){
+            unlink($this->file_name);
         }
 
         if(Ninja::isSelfHost()) {
@@ -708,8 +703,6 @@ $this->writer->end();
         App::forgetInstance('translator');
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
-
-        // $company_reference = Company::find($this->company->id);
 
         $nmo = new NinjaMailerObject();
         $nmo->mailable = new DownloadBackup($url, $this->company->withoutRelations());
