@@ -275,7 +275,6 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::get('customize_price/{client_id}', [CustomizePriceController::class, 'get']);
     Route::delete('customize_price', [CustomizePriceController::class, 'delete']);
 
-
     Route::resource('projects', ProjectController::class); // name = (projects. index / create / show / update / destroy / edit
     Route::post('projects/bulk', [ProjectController::class, 'bulk'])->name('projects.bulk');
     Route::put('projects/{project}/upload', [ProjectController::class, 'upload'])->name('projects.upload');
