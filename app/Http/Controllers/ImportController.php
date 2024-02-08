@@ -260,7 +260,7 @@ class ImportController extends Controller
             }
 
         }
-        return $bestDelimiter;
+        return $bestDelimiter ?? ',';
 
     }
 }

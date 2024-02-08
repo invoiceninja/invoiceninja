@@ -312,7 +312,7 @@ class CompanyImport implements ShouldQueue
         }
 
         unlink($tmp_file);
-        unlink($this->file_location);
+        unlink(Storage::path($this->file_location));
     }
 
     //
