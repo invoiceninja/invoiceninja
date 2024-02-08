@@ -21,26 +21,33 @@ class UpgradePrice extends AbstractService
 {    
     protected \App\Services\Subscription\SubscriptionStatus $status;
 
+    public float $upgrade_price = 0;
+
+    public float $refund = 0;
+
+    public float $outstanding_credit = 0;
+
     public function __construct(protected RecurringInvoice $recurring_invoice, public Subscription $subscription)
     {
     }
 
-    public function run(): float
+    public function run(): self
     {
 
         $this->status = $this->recurring_invoice
                        ->subscription
                        ->status($this->recurring_invoice);
 
-        if($this->status->is_trial || !$this->status->is_in_good_standing)
-            return $this->subscription->price; 
-
         if($this->status->is_in_good_standing)
-            return $this->calculateUpgrade();
+            $this->calculateUpgrade();
+        else
+            $this->upgrade_price = $this->subscription->price;
+
+        return $this;
         
     }
 
-    private function calculateUpgrade(): float
+    private function calculateUpgrade(): self
     {
         $ratio = $this->status->getProRataRatio();
 
@@ -51,13 +58,14 @@ class UpgradePrice extends AbstractService
                              ->orderBy('id', 'desc')
                              ->first();
         
-        $refund = $this->getRefundableAmount($last_invoice, $ratio);
-        $outstanding_credit = $this->getCredits();
+        $this->refund = $this->getRefundableAmount($last_invoice, $ratio);
+        $this->outstanding_credit = $this->getCredits();
         
-        nlog("{$this->subscription->price} - {$refund} - {$outstanding_credit}");
+        nlog("{$this->subscription->price} - {$this->refund} - {$this->outstanding_credit}");
 
-        return $this->subscription->price - $refund - $outstanding_credit;
+        $this->upgrade_price = $this->subscription->price - $this->refund - $this->outstanding_credit;
 
+        return $this;
     }
 
     private function getRefundableAmount(?Invoice $invoice, float $ratio): float

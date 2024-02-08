@@ -104,7 +104,7 @@ class PaymentLinkTest extends TestCase
 
         $days = $recurring_invoice->subscription->service()->getDaysInFrequency();
 
-        $ratio = (14 / $days);
+        $ratio = 1 - (14 / $days);
 
         $this->assertEquals($ratio, $status->getProRataRatio());
 
@@ -113,32 +113,7 @@ class PaymentLinkTest extends TestCase
         $refund = round($invoice->paid_to_date*$ratio,2);
 
         $this->assertEquals(($target->price - $refund), $price);
-        
-        
-        // $this->assertEquals($target->price-$refund, $upgrade_price);
 
-        // $sub_calculator = new SubscriptionCalculator($target->fresh(), $invoice->fresh());
-
-        // $this->assertFalse($sub_calculator->isPaidUp());
-
-        // $invoice = $invoice->service()->markPaid()->save();
-
-        // $this->assertTrue($sub_calculator->isPaidUp());
-
-        // $this->assertEquals(10, $invoice->amount);
-        // $this->assertEquals(0, $invoice->balance);
-
-        // $pro_rata = new ProRata();
-
-        // $refund = $pro_rata->refund($invoice->amount, Carbon::parse('2021-01-01'), Carbon::parse('2021-01-06'), $subscription->frequency_id);
-
-        // // $this->assertEquals(1.61, $refund);
-
-        // $pro_rata = new ProRata();
-
-        // $upgrade = $pro_rata->charge($target->price, Carbon::parse('2021-01-01'), Carbon::parse('2021-01-06'), $subscription->frequency_id);
-
-        // $this->assertEquals(3.23, $upgrade);
     }
 
     // public function testProrataDiscountRatioPercentage()

@@ -29,7 +29,10 @@ class SubscriptionStatus extends AbstractService
     
     /** @var bool $is_in_good_standing */
     public bool $is_in_good_standing = false;
-
+    
+    /** @var Invoice $refundable_invoice */
+    public Invoice $refundable_invoice;
+    
     public function run(): self
     {
         $this->checkTrial()
@@ -38,15 +41,48 @@ class SubscriptionStatus extends AbstractService
 
         return $this;
     }
-    
-    public function getProRataRatio():float
+        
+    /**
+     * GetProRataRefund
+     *
+     * @return float
+     */
+    public function getProRataRefund(): float
     {
-        //calculate how much used.
 
         $subscription_interval_end_date = Carbon::parse($this->recurring_invoice->next_send_date_client);
         $subscription_interval_start_date = $subscription_interval_end_date->copy()->subDays($this->recurring_invoice->subscription->service()->getDaysInFrequency())->subDay();
 
-        $primary_invoice =Invoice::query()
+        $primary_invoice =  Invoice::query()
+                                    ->where('company_id', $this->recurring_invoice->company_id)
+                                    ->where('client_id', $this->recurring_invoice->client_id)
+                                    ->where('recurring_id', $this->recurring_invoice->id)
+                                    ->whereIn('status_id', [Invoice::STATUS_PAID])
+                                    ->whereBetween('date', [$subscription_interval_start_date, $subscription_interval_end_date])
+                                    ->where('is_deleted', 0)
+                                    ->where('is_proforma', 0)
+                                    ->orderBy('id', 'desc')
+                                    ->first();
+
+        $this->refundable_invoice = $primary_invoice;
+        
+        return $primary_invoice ? max(0, round(($primary_invoice->paid_to_date * $this->getProRataRatio()),2)) : 0;
+
+    }
+    
+    /**
+     * GetProRataRatio
+     *
+     * The ratio of days used / days in interval
+     * @return float
+     */
+    public function getProRataRatio():float
+    {
+
+        $subscription_interval_end_date = Carbon::parse($this->recurring_invoice->next_send_date_client);
+        $subscription_interval_start_date = $subscription_interval_end_date->copy()->subDays($this->recurring_invoice->subscription->service()->getDaysInFrequency())->subDay();
+
+        $primary_invoice = Invoice::query()
                                 ->where('company_id', $this->recurring_invoice->company_id)
                                 ->where('client_id', $this->recurring_invoice->client_id)
                                 ->where('recurring_id', $this->recurring_invoice->id)
@@ -64,13 +100,15 @@ class SubscriptionStatus extends AbstractService
 
         $days_of_subscription_used = $subscription_start_date->copy()->diffInDays(now());
 
-        return $days_of_subscription_used / $this->recurring_invoice->subscription->service()->getDaysInFrequency();
+        return 1 - ($days_of_subscription_used / $this->recurring_invoice->subscription->service()->getDaysInFrequency());
 
     }
 
     /**
-     * checkInGoodStanding
-     *
+     * CheckInGoodStanding
+     * 
+     * Are there any outstanding invoices?
+     * 
      * @return self
      */
     private function checkInGoodStanding(): self
@@ -91,8 +129,12 @@ class SubscriptionStatus extends AbstractService
     }
     
     /**
-     * checkTrial
+     * CheckTrial
      *
+     * Check if this subscription is in its trial window.
+     * 
+     * Trials do not have an invoice yet - only a pending recurring invoice.
+     * 
      * @return self
      */
     private function checkTrial(): self
@@ -101,14 +143,16 @@ class SubscriptionStatus extends AbstractService
         if(!$this->subscription->trial_enabled)
             return $this->setIsTrial(false);
 
-        $primary_invoice = $this->recurring_invoice
-                            ->invoices()
+        $primary_invoice = Invoice::query()
+                            ->where('company_id', $this->recurring_invoice->company_id)
+                            ->where('client_id', $this->recurring_invoice->client_id)
+                            ->where('recurring_id', $this->recurring_invoice->id)
                             ->where('is_deleted', 0)
                             ->where('is_proforma', 0)
                             ->orderBy('id', 'asc')
-                            ->first();
+                            ->doesntExist();
 
-        if($primary_invoice && Carbon::parse($primary_invoice->date)->addSeconds($this->subscription->trial_duration)->lte(now()->startOfDay()->addSeconds($primary_invoice->client->timezone_offset()))) {
+        if($primary_invoice && Carbon::parse($this->recurring_invoice->next_send_date_client)->gte(now()->startOfDay()->addSeconds($this->recurring_invoice->client->timezone_offset()))) {
                 return $this->setIsTrial(true);
         }
 

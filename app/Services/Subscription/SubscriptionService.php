@@ -763,7 +763,7 @@ class SubscriptionService
     /**
      * When changing plans, we need to generate a pro rata invoice
      *
-     * @param  array $data
+     * @param  array $data{recurring_invoice: RecurringInvoice, subscription: Subscription, target: Subscription}
      * @return Invoice
      */
     public function createChangePlanInvoice($data)
@@ -1087,12 +1087,12 @@ class SubscriptionService
         $recurring_invoice->line_items = $subscription_repo->generateBundleLineItems($bundle, true, false);
         $recurring_invoice->subscription_id = $this->subscription->id;
         $recurring_invoice->frequency_id = $this->subscription->frequency_id ?: RecurringInvoice::FREQUENCY_MONTHLY;
-        $recurring_invoice->date = now();
+        $recurring_invoice->date = now()->addSeconds($client->timezone_offset());
         $recurring_invoice->remaining_cycles = -1;
         $recurring_invoice->auto_bill = $client->getSetting('auto_bill');
         $recurring_invoice->auto_bill_enabled =  $this->setAutoBillFlag($recurring_invoice->auto_bill);
         $recurring_invoice->due_date_days = 'terms';
-        $recurring_invoice->next_send_date = now()->format('Y-m-d');
+        $recurring_invoice->next_send_date = now()->addSeconds($client->timezone_offset())->format('Y-m-d');
         $recurring_invoice->next_send_date_client = now()->format('Y-m-d');
         $recurring_invoice->next_send_date =  $recurring_invoice->nextSendDate();
         $recurring_invoice->next_send_date_client = $recurring_invoice->nextSendDateClient();
