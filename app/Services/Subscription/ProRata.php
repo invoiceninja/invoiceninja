@@ -121,7 +121,7 @@ class ProRata extends AbstractService
      */
     private function checkRefundPeriod(): self
     {
-        if(!$this->subscription->refund_period || $this->subscription->refund_period === 0)
+        if(!$this->recurring_invoice->subscription->refund_period || $this->recurring_invoice->subscription->refund_period === 0)
             return $this->setRefundable(false);
     
         $primary_invoice = $this->recurring_invoice
@@ -133,7 +133,7 @@ class ProRata extends AbstractService
 
         if($primary_invoice &&
         $primary_invoice->status_id == Invoice::STATUS_PAID &&
-        Carbon::parse($primary_invoice->date)->addSeconds($this->subscription->refund_period)->lte(now()->startOfDay()->addSeconds($primary_invoice->client->timezone_offset()))
+        Carbon::parse($primary_invoice->date)->addSeconds($this->recurring_invoice->subscription->refund_period)->lte(now()->startOfDay()->addSeconds($primary_invoice->client->timezone_offset()))
         ){
             return $this->setRefundable(true);
         }
@@ -213,7 +213,7 @@ class ProRata extends AbstractService
     private function isInTrialPeriod(): self
     {
 
-        if(!$this->subscription->trial_enabled) 
+        if(!$this->recurring_invoice->subscription->trial_enabled) 
             return $this->setIsTrial(false);
             
         $primary_invoice = $this->recurring_invoice
@@ -223,7 +223,7 @@ class ProRata extends AbstractService
                             ->orderBy('id', 'asc')
                             ->first();
     
-        if($primary_invoice && Carbon::parse($primary_invoice->date)->addSeconds($this->subscription->trial_duration)->lte(now()->startOfDay()->addSeconds($primary_invoice->client->timezone_offset())))
+        if($primary_invoice && Carbon::parse($primary_invoice->date)->addSeconds($this->recurring_invoice->subscription->trial_duration)->lte(now()->startOfDay()->addSeconds($primary_invoice->client->timezone_offset())))
             return $this->setIsTrial(true);
 
         $this->setIsTrial(false);
