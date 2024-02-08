@@ -43,8 +43,15 @@ class SubscriptionStatus extends AbstractService
     {
         //calculate how much used.
 
-        $primary_invoice = $this->recurring_invoice
-                                ->invoices()
+        $subscription_interval_end_date = Carbon::parse($this->recurring_invoice->next_send_date_client);
+        $subscription_interval_start_date = $subscription_interval_end_date->copy()->subDays($this->recurring_invoice->subscription->service()->getDaysInFrequency())->subDay();
+
+        $primary_invoice =Invoice::query()
+                                ->where('company_id', $this->recurring_invoice->company_id)
+                                ->where('client_id', $this->recurring_invoice->client_id)
+                                ->where('recurring_id', $this->recurring_invoice->id)
+                                ->whereIn('status_id', [Invoice::STATUS_PAID])
+                                ->whereBetween('date', [$subscription_interval_start_date, $subscription_interval_end_date])
                                 ->where('is_deleted', 0)
                                 ->where('is_proforma', 0)
                                 ->orderBy('id', 'desc')
@@ -54,12 +61,10 @@ class SubscriptionStatus extends AbstractService
             return 0;
         
         $subscription_start_date = Carbon::parse($primary_invoice->date)->startOfDay();
-        $subscription_interval_end_date = Carbon::parse($this->recurring_invoice->next_send_date_client);
 
-        $seconds_of_subscription_used = $subscription_start_date->diffInDays(now());
-        $total_seconds_in_subscription_interval = $subscription_start_date->diffInDays($subscription_interval_end_date);
+        $days_of_subscription_used = $subscription_start_date->copy()->diffInDays(now());
 
-        return $seconds_of_subscription_used / $total_seconds_in_subscription_interval;
+        return $days_of_subscription_used / $this->recurring_invoice->subscription->service()->getDaysInFrequency();
 
     }
 
@@ -71,11 +76,13 @@ class SubscriptionStatus extends AbstractService
     private function checkInGoodStanding(): self
     {
 
-        $this->is_in_good_standing = $this->recurring_invoice
-                                     ->invoices()
+        $this->is_in_good_standing = Invoice::query()
+                                     ->where('company_id', $this->recurring_invoice->company_id)
+                                     ->where('client_id', $this->recurring_invoice->client_id)
+                                     ->where('recurring_id', $this->recurring_invoice->id)
                                      ->where('is_deleted', 0)
-                                     ->where('is_proform', 0)
-                                     ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PAID])
+                                     ->where('is_proforma', 0)
+                                     ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                      ->where('balance', '>', 0)
                                      ->doesntExist();
 
@@ -92,7 +99,7 @@ class SubscriptionStatus extends AbstractService
     {
 
         if(!$this->subscription->trial_enabled)
-            $this->setIsTrial(false);
+            return $this->setIsTrial(false);
 
         $primary_invoice = $this->recurring_invoice
                             ->invoices()

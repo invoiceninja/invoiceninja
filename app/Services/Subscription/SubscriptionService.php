@@ -1352,7 +1352,7 @@ class SubscriptionService
      *
      * @return int Number of days
      */
-    private function getDaysInFrequency(): int
+    public function getDaysInFrequency(): int
     {
         switch ($this->subscription->frequency_id) {
             case RecurringInvoice::FREQUENCY_DAILY:

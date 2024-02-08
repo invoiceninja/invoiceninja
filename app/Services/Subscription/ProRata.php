@@ -58,29 +58,6 @@ class ProRata extends AbstractService
         return $this;
     }
                 
-    /**
-     * Calculates the number of seconds
-     * of the current interval that has been used.
-     *
-     * @return self
-     */
-    private function checkProRataDuration(): self
-    {
-        
-        $primary_invoice = $this->recurring_invoice
-                                ->invoices()
-                                ->where('is_deleted', 0)
-                                ->where('is_proforma', 0)
-                                ->orderBy('id', 'desc')
-                                ->first();
-
-        $duration = Carbon::parse($primary_invoice->date)->startOfDay()->diffInSeconds(now());
-
-        $this->setProRataDuration(max(0, $duration));
-
-        return $this;
-    }
-
     private function calculateProRataRatio(): self
     {
         if($this->pro_rata_duration < $this->subscription_interval_duration)
@@ -92,9 +69,7 @@ class ProRata extends AbstractService
 
     private function calculateSubscriptionIntervalDuration(): self
     {
-        if($this->getIsTrial())
-            return $this->setSubscriptionIntervalDuration(0);
-
+       
         $primary_invoice = $this->recurring_invoice
                                 ->invoices()
                                 ->where('is_deleted', 0)
@@ -113,52 +88,6 @@ class ProRata extends AbstractService
         return $this;
     }
 
-    /**
-     * Determines if this subscription
-     * is eligible for a refund.
-     *
-     * @return self
-     */
-    private function checkRefundPeriod(): self
-    {
-        if(!$this->recurring_invoice->subscription->refund_period || $this->recurring_invoice->subscription->refund_period === 0)
-            return $this->setRefundable(false);
-    
-        $primary_invoice = $this->recurring_invoice
-                                ->invoices()
-                                ->where('is_deleted', 0)
-                                ->where('is_proforma', 0)
-                                ->orderBy('id', 'desc')
-                                ->first();
-
-        if($primary_invoice &&
-        $primary_invoice->status_id == Invoice::STATUS_PAID &&
-        Carbon::parse($primary_invoice->date)->addSeconds($this->recurring_invoice->subscription->refund_period)->lte(now()->startOfDay()->addSeconds($primary_invoice->client->timezone_offset()))
-        ){
-            return $this->setRefundable(true);
-        }
-
-        return $this->setRefundable(false);
-
-    }
-
-    /**
-     * Gathers any unpaid invoices for this subscription.
-     *
-     * @return self
-     */
-    private function checkUnpaidInvoices(): self
-    {
-        $this->unpaid_invoices = $this->recurring_invoice
-                                ->invoices()
-                                ->where('is_deleted', 0)
-                                ->where('is_proforma', 0)
-                                ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
-                                ->where('balance', '>', 0)
-                                ->get();
-
-        return $this;
-    }
     
     private function setProRataRatio(int $ratio): self
     {
@@ -192,117 +121,6 @@ class ProRata extends AbstractService
         return $this;
     }
     
-    /**
-     * setRefundable
-     *
-     * @param  bool $refundable
-     * @return self
-     */
-    private function setRefundable(bool $refundable): self
-    {
-        $this->refundable = $refundable;
-
-        return $this;
-    }
-
-    /**
-     * Determines if this users is in their trial period
-     *
-     * @return self
-     */
-    private function isInTrialPeriod(): self
-    {
-
-        if(!$this->recurring_invoice->subscription->trial_enabled) 
-            return $this->setIsTrial(false);
-            
-        $primary_invoice = $this->recurring_invoice
-                            ->invoices()
-                            ->where('is_deleted', 0)
-                            ->where('is_proforma', 0)
-                            ->orderBy('id', 'asc')
-                            ->first();
-    
-        if($primary_invoice && Carbon::parse($primary_invoice->date)->addSeconds($this->recurring_invoice->subscription->trial_duration)->lte(now()->startOfDay()->addSeconds($primary_invoice->client->timezone_offset())))
-            return $this->setIsTrial(true);
-
-        $this->setIsTrial(false);
-
-        return $this;
-    }
-
-    /**
-     * Sets the is_trial flag
-     *
-     * @param  bool $is_trial
-     * @return self
-     */
-    private function setIsTrial(bool $is_trial): self
-    {
-        $this->is_trial = $is_trial;
-
-        return $this;
-    }
- 
         
-    /**
-     * Getter for unpaid invoices
-     *
-     * @return \Illuminate\Database\Eloquent\Collection | null
-     */
-    public function getUnpaidInvoices(): ?\Illuminate\Database\Eloquent\Collection
-    {
-        return $this->unpaid_invoices;
-    }
 
-    /**
-     * Gets the is_trial flag
-     *
-     * @return bool
-     */
-    public function getIsTrial(): bool
-    {
-        return $this->is_trial;
-    }
-    
-    /**
-     * Getter for refundable flag
-     *
-     * @return bool
-     */
-    public function getRefundable(): bool
-    {
-        return $this->refundable;
-    }
-    
-    /**
-     * The number of seconds used in the current duration
-     *
-     * @return int
-     */
-    public function getProRataDuration(): int
-    {
-        return $this->pro_rata_duration;
-    }
-    
-    /**
-     * The total number of seconds in this subscription interval
-     *
-     * @return int
-     */
-    public function getSubscriptionIntervalDuration(): int
-    {
-        return $this->subscription_interval_duration;
-    }
-
-        
-    /**
-     * Returns the pro rata ratio to be applied to any credit.
-     *
-     * @return int
-     */
-    public function getProRataRatio(): int
-    {
-        return $this->pro_rata_ratio;
-    }
 }

@@ -123,6 +123,8 @@ class Subscription extends BaseModel
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
+        'trial_enabled' => 'boolean',
+        'allow_plan_changes' => 'boolean',
     ];
 
     protected $with = [
