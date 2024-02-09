@@ -33,6 +33,9 @@
                 <input type="hidden" name="action" value="payment">
                 <input type="hidden" name="company_gateway_id" value="{{ $state['company_gateway_id'] }}"/>
                 <input type="hidden" name="payment_method_id" value="{{ $state['payment_method_id'] }}"/>
+                <input type="hidden" name="contact_first_name" value="{{ $contact->first_name }}">
+                <input type="hidden" name="contact_last_name" value="{{ $contact->last_name }}">
+                <input type="hidden" name="contact_email" value="{{ $contact->email }}">
             </form>
 
     <!-- Payment methods -->
