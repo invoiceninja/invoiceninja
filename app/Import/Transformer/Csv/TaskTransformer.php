@@ -116,9 +116,20 @@ class TaskTransformer extends BaseTransformer
 
             return $stub_start_date->timestamp;
         } catch (\Exception $e) {
+            nlog("fall back failed too" . $e->getMessage());
+            // return $this->stubbed_timestamp;
+        }
+
+
+        try {
+
+            $stub_start_date = \Carbon\Carbon::createFromFormat($this->company->date_format(), $stub_start_date);
+            $this->stubbed_timestamp = $stub_start_date->timestamp;
+        } catch (\Exception $e) {
             nlog($e->getMessage());
             return $this->stubbed_timestamp;
         }
+
 
     }
 
@@ -142,8 +153,22 @@ class TaskTransformer extends BaseTransformer
         } catch (\Exception $e) {
             nlog($e->getMessage());
 
+            // return $this->stubbed_timestamp;
+        }
+
+
+
+        try {
+
+            $stub_end_date = \Carbon\Carbon::createFromFormat($this->company->date_format(), $stub_end_date);
+            $this->stubbed_timestamp = $stub_end_date->timestamp;
+        } catch (\Exception $e) {
+            nlog("fall back failed too" . $e->getMessage());
             return $this->stubbed_timestamp;
         }
+
+
+
 
     }
 
