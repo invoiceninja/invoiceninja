@@ -11,7 +11,6 @@
 
 namespace App\Console\Commands;
 
-use DirectoryIterator;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
