@@ -24,12 +24,17 @@ class Purchase extends Component
 
     public string $db;
 
+    public array $request_data;
+
+    public ?string $campaign;
+
+    // 
+
     public int $step = 0;
 
     public array $steps = [
         Setup::class,
         Authentication::class,
-        RFF::class,
         Example::class,
     ];
 
@@ -67,6 +72,8 @@ class Purchase extends Component
 
         $this->context = [
             'quantity' => 1,
+            'request_data' => $this->request_data,
+            'campaign' => $this->campaign,
         ];
     }
 
