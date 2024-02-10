@@ -323,13 +323,22 @@ class AutoBillInvoice extends AbstractService
     public function getGateway($amount)
     {
         //get all client gateway tokens and set the is_default one to the first record
-        $gateway_tokens = $this->client
-                               ->gateway_tokens()
-                               ->whereHas('gateway', function ($query) {
-                                   $query->where('is_deleted', 0)
-                                          ->where('deleted_at', null);
-                               })->orderBy('is_default', 'DESC')
-                               ->get();
+        $gateway_tokens = \App\Models\ClientGatewayToken::query()
+                                ->where('client_id', $this->client->id)
+                                ->where('is_deleted', 0)
+                                ->whereHas('gateway', function ($query) {
+                                    $query->where('is_deleted', 0)
+                                            ->where('deleted_at', null);
+                                })->orderBy('is_default', 'DESC')
+                                ->get(); 
+
+        // $gateway_tokens = $this->client
+        //                        ->gateway_tokens()
+        //                        ->whereHas('gateway', function ($query) {
+        //                            $query->where('is_deleted', 0)
+        //                                   ->where('deleted_at', null);
+        //                        })->orderBy('is_default', 'DESC')
+        //                        ->get();
 
         $filtered_gateways = $gateway_tokens->filter(function ($gateway_token) use ($amount) {
             $company_gateway = $gateway_token->gateway;
