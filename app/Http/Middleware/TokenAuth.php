@@ -74,6 +74,7 @@ class TokenAuth
              */
             app('queue')->createPayloadUsing(function () use ($company_token) {
                 return ['db' => $company_token->company->db];
+                // return ['db' => $company_token->company->db, 'is_premium' => $company_token->account->isPremium()];
             });
 
             //user who once existed, but has been soft deleted

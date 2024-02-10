@@ -141,7 +141,7 @@ class TaskRepository extends BaseRepository
     {
 
         if(isset($time_log[0][0])) {
-            return \Carbon\Carbon::createFromTimestamp($time_log[0][0])->addSeconds($task->company->utc_offset());
+            return \Carbon\Carbon::createFromTimestamp($time_log[0][0]);
         }
 
         return null;

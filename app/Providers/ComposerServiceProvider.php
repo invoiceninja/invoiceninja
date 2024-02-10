@@ -24,6 +24,18 @@ class ComposerServiceProvider extends ServiceProvider
     public function boot()
     {
         view()->composer('portal.*', PortalComposer::class);
+
+        // view()->composer(
+        //     ['email.admin.generic', 'email.client.generic'],
+        //     function ($view) {
+        //         $view->with(
+        //             'template',
+        //             Ninja::isHosted()
+        //         );
+        //     }
+        // );
+
+
     }
 
     /**

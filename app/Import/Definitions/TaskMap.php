@@ -31,9 +31,9 @@ class TaskMap
             12 => 'task.duration',
             13 => 'task.status',
             14 => 'task.custom_value1',
-            15 => 'task.custom_value1',
-            16 => 'task.custom_value1',
-            17 => 'task.custom_value1',
+            15 => 'task.custom_value2',
+            16 => 'task.custom_value3',
+            17 => 'task.custom_value4',
             18 => 'task.notes',
         ];
     }
