@@ -14147,7 +14147,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#components/schemas/AuthorizationError'
+            $ref: '#/components/schemas/AuthorizationError'
     422:
       description: 'Validation error'
       content:
@@ -14165,13 +14165,13 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#components/schemas/InvalidInputError'
+            $ref: '#/components/schemas/InvalidInputError'
     401:      
       description: 'Authentication error'
       content:
         application/json:
           schema:
-            $ref: '#components/schemas/AuthenticationError'
+            $ref: '#/components/schemas/AuthenticationError'
   parameters:
     X-API-SECRET:
       name: X-API-SECRET
