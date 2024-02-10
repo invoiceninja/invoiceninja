@@ -125,12 +125,12 @@
                     items:
                       $ref: '#/components/schemas/Client'
                     example:
-                      $ref: '#/components/examples/Client'
+                      $ref: '#/components/schemas/Client'
                   meta:
                     type: object
                     $ref: '#/components/schemas/Meta'
                     example:
-                      $ref: '#/components/examples/Meta'
+                      $ref: '#/components/schemas/Meta'
         401:
           $ref: '#/components/responses/401'
         403:
