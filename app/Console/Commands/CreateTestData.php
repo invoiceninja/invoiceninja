@@ -89,7 +89,7 @@ class CreateTestData extends Command
         $this->warmCache();
 
         $this->createSmallAccount();
-        $this->createMediumAccount();
+        // $this->createMediumAccount();
         // $this->createLargeAccount();
     }
 
