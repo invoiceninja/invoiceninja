@@ -77,7 +77,7 @@ span {
                     <td>
                         <div class="product-information">
                             <div class="item-details">
-                                 
+
                                 <p class="overflow-ellipsis overflow-hidden px-1 mb-2">{!! $product['notes'] !!}</p>
                                 <p class="mt-2">
                                     @if($show_quantity)
@@ -170,7 +170,7 @@ span {
         </button>
         
         <div id="notes" class="py-10 border-b-2 border-fuschia-600"  x-show="show_notes">     
-            {!! html_entity_decode($entity->public_notes) !!}
+            {!! html_entity_decode(e($entity->public_notes)) !!}
         </div>
 
     </div>

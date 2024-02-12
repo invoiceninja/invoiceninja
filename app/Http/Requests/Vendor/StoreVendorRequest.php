@@ -89,6 +89,10 @@ class StoreVendorRequest extends Request
             $input['currency_id'] = $user->company()->settings->currency_id;
         }
 
+        if (isset($input['name'])) {
+            $input['name'] = strip_tags($input['name']);
+        }
+
         $input = $this->decodePrimaryKeys($input);
 
         $this->replace($input);
