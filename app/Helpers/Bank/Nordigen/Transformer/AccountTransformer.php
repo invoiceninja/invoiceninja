@@ -104,7 +104,7 @@ class AccountTransformer implements AccountTransformerInterface
         return [
             'id' => $nordigen_account->metadata["id"],
             'account_type' => "bank",
-            'account_name' => $nordigen_account->data["iban"],
+            'account_name' => isset($nordigen_account->data["iban"]) ? $nordigen_account->data["iban"] : '',
             'account_status' => $nordigen_account->metadata["status"],
             'account_number' => '**** ' . substr($nordigen_account->data["iban"], -7),
             'provider_account_id' => $nordigen_account->metadata["id"],
