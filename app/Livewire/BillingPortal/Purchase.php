@@ -13,6 +13,7 @@
 namespace App\Livewire\BillingPortal;
 
 use App\Libraries\MultiDB;
+use App\Livewire\BillingPortal\Cart\Cart;
 use App\Models\Subscription;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
@@ -26,6 +27,8 @@ class Purchase extends Component
 
     public array $request_data;
 
+    public string $hash;
+
     public ?string $campaign;
 
     // 
@@ -34,6 +37,7 @@ class Purchase extends Component
 
     public array $steps = [
         Setup::class,
+        Cart::class,
         Authentication::class,
         Example::class,
     ];
@@ -41,9 +45,14 @@ class Purchase extends Component
     public array $context = [];
 
     #[On('purchase.context')]
-    public function handleContext(string $property, $value): void
+    public function handleContext(string $property, $value): self
     {
         $this->context[$property] = $value;
+
+        // The following may not be needed, as we can pass arround $context.
+        // cache()->set($this->hash, $this->context);
+
+        return $this;
     }
 
     #[On('purchase.next')]
@@ -70,11 +79,11 @@ class Purchase extends Component
     {
         MultiDB::setDb($this->db);
 
-        $this->context = [
-            'quantity' => 1,
-            'request_data' => $this->request_data,
-            'campaign' => $this->campaign,
-        ];
+        $this
+            ->handleContext('hash', $this->hash)
+            ->handleContext('quantity', 1)
+            ->handleContext('request_data', $this->request_data)
+            ->handleContext('campaign', $this->campaign);
     }
 
     public function render()
