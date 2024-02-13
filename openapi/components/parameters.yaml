@@ -139,7 +139,7 @@
       description: The number of records to return for each request, default is 20
       required: false
       schema:
-        type: int
+        type: integer
         example: 20
     page_meta:
       name: page
@@ -147,7 +147,7 @@
       description: The page number to return for this request (when performing pagination), default is 1
       required: false
       schema:
-        type: int
+        type: integer
         example: 1
     include:
       name: include

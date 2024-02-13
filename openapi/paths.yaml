@@ -91,8 +91,6 @@ paths:
       summary: "Attempts authentication"
       description: "Returns a CompanyUser object on success"
       operationId: postLogin
-      security:
-        - []
       parameters:
         - $ref: "#/components/parameters/X-API-SECRET"
         - $ref: "#/components/parameters/X-API-TOKEN"

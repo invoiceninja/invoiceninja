@@ -198,6 +198,18 @@ class Request extends FormRequest
             }
         }
 
+        if(isset($input['public_notes']))
+            $input['public_notes'] = str_replace("</sc","<-", $input['public_notes']);
+
+        if(isset($input['footer'])) 
+            $input['footer'] = str_replace("</sc", "<-", $input['footer']);
+        
+        if(isset($input['terms'])) 
+            $input['terms'] = str_replace("</sc", "<-", $input['terms']);
+        
+        if(isset($input['private_notes'])) 
+            $input['private_notes'] = str_replace("</sc", "<-", $input['private_notes']);
+        
         return $input;
     }
 

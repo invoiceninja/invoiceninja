@@ -277,7 +277,6 @@ class PaymentLinkService
     /**
      * @param Invoice $invoice
      * @return true
-     * @throws BindingResolutionException
      */
     public function planPaid(Invoice $invoice)
     {
