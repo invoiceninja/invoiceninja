@@ -16,11 +16,11 @@
         </div>
     </div>
 
-    <div class="col-span-12 xl:col-span-6 flex flex-col items-center">
+    <div class="col-span-12 xl:col-span-6">
         <div class="sticky top-0">
             <div class="w-full p-10 lg:mt-24 md:max-w-xl">
-                <div class="my-6 space-y-10">
-                    <livewire:billing-portal.summary :subscription="$subscription" :context="$context" />
+                <div class="my-6 space-y-10 xl:ml-5">
+                    @livewire('billing-portal.summary', ['subscription' => $subscription, 'context' => $context])
                 </div>
             </div>
         </div>
