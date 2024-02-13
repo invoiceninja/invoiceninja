@@ -52,9 +52,10 @@ class EncryptNinja extends Command
      */
     public function handle()
     {
-        if($this->option('encrypt'))
+        if($this->option('encrypt')) {
             return $this->encryptFiles();
-            
+        }
+
         if($this->option('decrypt')) {
             return $this->decryptFiles();
         }

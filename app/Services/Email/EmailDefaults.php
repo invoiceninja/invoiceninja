@@ -211,17 +211,15 @@ class EmailDefaults
         $reply_to_email = $this->email->company->owner()->email;
         $reply_to_name = $this->email->company->owner()->present()->name();
 
-        if(str_contains($this->email->email_object->settings->reply_to_email, "@")){
-            $reply_to_email = $this->email->email_object->settings->reply_to_email; 
-        }
-        elseif(isset($this->email->email_object->invitation->user)) {
+        if(str_contains($this->email->email_object->settings->reply_to_email, "@")) {
+            $reply_to_email = $this->email->email_object->settings->reply_to_email;
+        } elseif(isset($this->email->email_object->invitation->user)) {
             $reply_to_email = $this->email->email_object->invitation->user->email;
         }
-        
+
         if(strlen($this->email->email_object->settings->reply_to_name) > 3) {
-             $reply_to_name =$this->email->email_object->settings->reply_to_name;
-        }
-        elseif(isset($this->email->email_object->invitation->user)) {
+            $reply_to_name = $this->email->email_object->settings->reply_to_name;
+        } elseif(isset($this->email->email_object->invitation->user)) {
             $reply_to_name = $this->email->email_object->invitation->user->present()->name();
         }
 

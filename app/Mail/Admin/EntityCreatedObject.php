@@ -76,13 +76,13 @@ class EntityCreatedObject
             $mail_obj->text_view = 'email.template.text';
 
             $content = ctrans(
-                                    $this->template_body,
-                                    [
+                $this->template_body,
+                [
                                         'amount' => $mail_obj->amount,
                                         'vendor' => $this->entity->vendor->present()->name(),
                                         'purchase_order' => $this->entity->number,
                                     ]
-                                    );
+            );
 
             $mail_obj->data = [
                                 'title' => $mail_obj->subject,

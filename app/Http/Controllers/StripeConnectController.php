@@ -86,7 +86,7 @@ class StripeConnectController extends BaseController
             ]);
 
             nlog($response);
-            
+
         } catch (\Exception $e) {
             return view('auth.connect.access_denied');
         }

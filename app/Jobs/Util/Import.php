@@ -1144,7 +1144,7 @@ class Import implements ShouldQueue
             );
 
             $key = "invoices_{$resource['id']}";
-            
+
             nlog($invoice->id);
 
             $this->ids['invoices'][$key] = [
@@ -1409,7 +1409,7 @@ class Import implements ShouldQueue
             }
 
             nlog($payment->id);
-            
+
             $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
 
             $this->ids['payments'] = [
@@ -1528,8 +1528,8 @@ class Import implements ShouldQueue
                     }
                 }
 
-                
-                    // throw new Exception("Resource invoice/quote document not available.");
+
+                // throw new Exception("Resource invoice/quote document not available.");
             }
 
             if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && array_key_exists('expenses', $this->ids)) {
@@ -2078,7 +2078,7 @@ class Import implements ShouldQueue
         nlog(print_r($exception->getMessage(), 1));
 
         // if (Ninja::isHosted()) {
-            app('sentry')->captureException($exception);
+        app('sentry')->captureException($exception);
         // }
     }
 

@@ -101,7 +101,7 @@ class InvoiceInvitation extends BaseModel
     {
         return 'invoice';
     }
-    
+
     public function entityType()
     {
         return Invoice::class;

@@ -73,13 +73,13 @@ class QuoteApprovedObject
     {
         $settings = $this->quote->client->getMergedSettings();
         $content = ctrans(
-                'texts.notification_quote_approved',
-                [
+            'texts.notification_quote_approved',
+            [
                     'amount' => $this->getAmount(),
                     'client' => $this->quote->client->present()->name(),
                     'invoice' => $this->quote->number,
                 ]
-                );
+        );
 
         $data = [
             'title' => $this->getSubject(),

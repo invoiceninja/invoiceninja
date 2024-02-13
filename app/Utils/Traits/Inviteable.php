@@ -78,7 +78,7 @@ trait Inviteable
 
         $qr = $writer->writeString($this->getPaymentLink(), 'utf-8');
 
-            return $qr;
+        return $qr;
 
     }
 
@@ -111,7 +111,7 @@ trait Inviteable
                 // if(Ninja::isHosted())
                 //     return 'https://router.invoiceninja.com/route/'.encrypt($domain.'/client/'.$entity_type.'/'.$this->key);
                 // else
-                    return $domain.'/client/'.$entity_type.'/'.$this->key;
+                return $domain.'/client/'.$entity_type.'/'.$this->key;
                 break;
             case 'iframe':
                 return $domain.'/client/'.$entity_type.'/'.$this->key;

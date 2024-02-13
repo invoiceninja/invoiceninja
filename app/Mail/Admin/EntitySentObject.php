@@ -98,7 +98,7 @@ class EntitySentObject
             $mail_obj->markdown = 'email.admin.generic';
             $mail_obj->tag = $this->company->company_key;
         }
-        
+
         $mail_obj->text_view = 'email.template.text';
 
         return $mail_obj;
@@ -186,7 +186,7 @@ class EntitySentObject
     {
         $settings = $this->entity->client->getMergedSettings();
         $content = $this->getMessage();
-        
+
         return [
             'title' => $this->getSubject(),
             'content' => $content,

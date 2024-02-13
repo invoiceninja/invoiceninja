@@ -231,7 +231,7 @@ class CreditCard implements MethodInterface
 
         try {
             $response = $this->checkout->gateway->getPaymentsClient()->requestPayment($paymentRequest);
-            
+
             if($this->checkout->company_gateway->update_details && isset($response['customer'])) {
                 $this->checkout->updateCustomer($response['customer']['id'] ?? '');
             }

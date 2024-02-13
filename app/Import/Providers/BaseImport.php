@@ -152,7 +152,7 @@ class BaseImport
             }
 
         }
-        
+
         return $bestDelimiter ?? ',';
     }
 

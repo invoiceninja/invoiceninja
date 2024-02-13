@@ -19,7 +19,6 @@ use Illuminate\Support\Facades\App;
 
 class UserLoggedIn extends Mailable
 {
-
     /**
      * Create a new message instance.
      *

@@ -26,7 +26,7 @@ class UpdateExpenseCategoryRequest extends Request
      */
     public function authorize(): bool
     {
-        
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
@@ -35,7 +35,7 @@ class UpdateExpenseCategoryRequest extends Request
 
     public function rules()
     {
-        
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
 

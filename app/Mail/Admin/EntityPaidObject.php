@@ -85,8 +85,8 @@ class EntityPaidObject
 
         $invoice_texts = substr($invoice_texts, 0, -1);
         $content = ctrans(
-                'texts.notification_payment_paid',
-                ['amount' => $amount,
+            'texts.notification_payment_paid',
+            ['amount' => $amount,
                     'client' => $this->payment->client->present()->name(),
                     'invoice' => $invoice_texts,
                 ]

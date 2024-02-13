@@ -465,7 +465,7 @@ class Email implements ShouldQueue
 
     private function setHostedMailgunMailer()
     {
-        
+
         if (property_exists($this->email_object->settings, 'email_from_name') && strlen($this->email_object->settings->email_from_name) > 1) {
             $email_from_name = $this->email_object->settings->email_from_name;
         } else {
@@ -477,7 +477,7 @@ class Email implements ShouldQueue
 
     }
 
-    
+
     /**
      * Sets the mail driver to use and applies any specific configuration
      * the the mailable
@@ -495,7 +495,7 @@ class Email implements ShouldQueue
         if(Ninja::isHosted() && $this->company->account->isPaid() && $this->email_object->settings->email_sending_method == 'default') {
 
             try {
-                
+
                 $address_object = reset($this->email_object->to);
                 $email = $address_object->address ?? '';
                 $domain = explode("@", $email)[1] ?? "";

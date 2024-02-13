@@ -84,8 +84,8 @@ class EmailMailable extends Mailable
                 'company' => $this->email_object->company,
                 'greeting' => '',
                 'links' => array_merge($this->email_object->links, $links->toArray()),
-                'email_preferences' => (Ninja::isHosted() && in_array($this->email_object->settings->email_sending_method, ['default', 'mailgun']) && $this->email_object->invitation) 
-                    ? URL::signedRoute('client.email_preferences', ['entity' => $this->email_object->invitation->getEntityString(), 'invitation_key' => $this->email_object->invitation->key]) 
+                'email_preferences' => (Ninja::isHosted() && in_array($this->email_object->settings->email_sending_method, ['default', 'mailgun']) && $this->email_object->invitation)
+                    ? URL::signedRoute('client.email_preferences', ['entity' => $this->email_object->invitation->getEntityString(), 'invitation_key' => $this->email_object->invitation->key])
                     : false,
             ]
         );

@@ -60,12 +60,12 @@ class InventoryNotificationObject
     private function getData()
     {
         $content = ctrans(
-                'texts.inventory_notification_body',
-                ['amount' => $this->getAmount(),
+            'texts.inventory_notification_body',
+            ['amount' => $this->getAmount(),
                     'product' => $this->product->product_key.': '.$this->product->notes,
                 ]
         );
-        
+
         $data = [
             'title' => $this->getSubject(),
             'content' => $content,

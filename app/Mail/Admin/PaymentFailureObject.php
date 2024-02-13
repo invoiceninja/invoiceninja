@@ -75,14 +75,14 @@ class PaymentFailureObject
     {
         $signature = $this->client->getSetting('email_signature');
         $content = ctrans(
-                'texts.notification_invoice_payment_failed',
-                [
+            'texts.notification_invoice_payment_failed',
+            [
                     'client' => $this->client->present()->name(),
                     'invoice' => $this->getDescription(),
                     'amount' => Number::formatMoney($this->amount, $this->client),
                 ]
-                );
-                
+        );
+
         $data = [
             'title' => ctrans(
                 'texts.payment_failed_subject',

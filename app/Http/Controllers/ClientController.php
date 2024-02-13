@@ -412,19 +412,19 @@ class ClientController extends BaseController
 
     }
 
-    public function documents(ClientDocumentsRequest $request, Client $client) 
+    public function documents(ClientDocumentsRequest $request, Client $client)
     {
-     
+
         $this->entity_type = Document::class;
 
         $this->entity_transformer = DocumentTransformer::class;
-        
+
         $documents = Document::query()
             ->company()
-            ->whereHasMorph('documentable', [Invoice::class, Quote::class, Credit::class, Expense::class, Payment::class, Task::class], function ($query) use($client) {
+            ->whereHasMorph('documentable', [Invoice::class, Quote::class, Credit::class, Expense::class, Payment::class, Task::class], function ($query) use ($client) {
                 $query->where('client_id', $client->id);
             })
-            ->orWhereHasMorph('documentable', [Client::class], function ($query) use ($client){
+            ->orWhereHasMorph('documentable', [Client::class], function ($query) use ($client) {
                 $query->where('id', $client->id);
             });
 

@@ -132,15 +132,15 @@ class EntityFailedSendObject
         $html_variables = (new HtmlEngine($this->invitation))->makeValues();
         $signature = str_replace(array_keys($html_variables), array_values($html_variables), $signature);
         $content = ctrans(
-                $this->template_body,
-                [
+            $this->template_body,
+            [
                     'amount' => $this->getAmount(),
                     'client' => $this->contact->present()->name(),
                     'invoice' => $this->entity->number,
                     'error' => $this->message_content ?? '',
                     'contact' => $this->contact->present()->name(),
                 ]
-                );
+        );
 
         $data = [
             "title" => $this->getSubject(),

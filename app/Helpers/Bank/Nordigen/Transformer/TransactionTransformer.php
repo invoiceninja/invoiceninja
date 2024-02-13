@@ -70,8 +70,9 @@ class TransactionTransformer implements BankRevenueInterface
     {
         $data = [];
 
-        if (!array_key_exists('transactions', $transactionResponse) || !array_key_exists('booked', $transactionResponse["transactions"]))
+        if (!array_key_exists('transactions', $transactionResponse) || !array_key_exists('booked', $transactionResponse["transactions"])) {
             throw new \Exception('invalid dataset');
+        }
 
         foreach ($transactionResponse["transactions"]["booked"] as $transaction) {
             $data[] = $this->transformTransaction($transaction);
@@ -83,11 +84,11 @@ class TransactionTransformer implements BankRevenueInterface
     {
         // depending on institution, the result can be different, so we load the first available unique id
         $transactionId = '';
-        if (array_key_exists('transactionId', $transaction))
+        if (array_key_exists('transactionId', $transaction)) {
             $transactionId = $transaction["transactionId"];
-        else if (array_key_exists('internalTransactionId', $transaction))
+        } elseif (array_key_exists('internalTransactionId', $transaction)) {
             $transactionId = $transaction["internalTransactionId"];
-        else {
+        } else {
             nlog(`Invalid Input for nordigen transaction transformer: ` . $transaction);
             throw new \Exception('invalid dataset: missing transactionId - Please report this error to the developer');
         }
@@ -96,23 +97,25 @@ class TransactionTransformer implements BankRevenueInterface
 
         // description could be in varios places
         $description = '';
-        if (array_key_exists('remittanceInformationStructured', $transaction))
+        if (array_key_exists('remittanceInformationStructured', $transaction)) {
             $description = $transaction["remittanceInformationStructured"];
-        else if (array_key_exists('remittanceInformationStructuredArray', $transaction))
+        } elseif (array_key_exists('remittanceInformationStructuredArray', $transaction)) {
             $description = implode('\n', $transaction["remittanceInformationStructuredArray"]);
-        else if (array_key_exists('remittanceInformationUnstructured', $transaction))
+        } elseif (array_key_exists('remittanceInformationUnstructured', $transaction)) {
             $description = $transaction["remittanceInformationUnstructured"];
-        else if (array_key_exists('remittanceInformationUnstructuredArray', $transaction))
+        } elseif (array_key_exists('remittanceInformationUnstructuredArray', $transaction)) {
             $description = implode('\n', $transaction["remittanceInformationUnstructuredArray"]);
-        else
+        } else {
             Log::warning("Missing description for the following transaction: " . json_encode($transaction));
+        }
 
         // enrich description with currencyExchange informations
-        if (array_key_exists('currencyExchange', $transaction))
+        if (array_key_exists('currencyExchange', $transaction)) {
             foreach ($transaction["currencyExchange"] as $exchangeRate) {
                 $targetAmount = round($amount * (float) $exchangeRate["exchangeRate"], 2);
                 $description .= '\nexchangeRate: ' . $amount . " " . $exchangeRate["sourceCurrency"] . " = " . $targetAmount . " " . $exchangeRate["targetCurrency"] . " (" . $exchangeRate["quotationDate"] . ")";
             }
+        }
 
         // participant data
         $participant = array_key_exists('debtorAccount', $transaction) && array_key_exists('iban', $transaction["debtorAccount"]) ?
@@ -153,8 +156,9 @@ class TransactionTransformer implements BankRevenueInterface
             return $item->code == $code;
         })->first();
 
-        if ($currency)
+        if ($currency) {
             return $currency->id;
+        }
 
         return 1;
 

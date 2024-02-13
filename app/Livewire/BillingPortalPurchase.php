@@ -326,7 +326,7 @@ class BillingPortalPurchase extends Component
         $this->contact = $contact;
 
         if ($contact->showRff()) {
-            return $this->rff(); 
+            return $this->rff();
         }
 
         Auth::guard('contact')->loginUsingId($contact->id, true);

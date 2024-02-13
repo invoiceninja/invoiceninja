@@ -213,9 +213,10 @@ class CheckoutComPaymentDriver extends BaseDriver
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
         $this->init();
-        
-        if($this->company_gateway->update_details)
+
+        if($this->company_gateway->update_details) {
             $this->updateCustomer();
+        }
 
         $request = new RefundRequest();
         $request->reference = "{$payment->transaction_reference} ".now();
@@ -332,11 +333,12 @@ class CheckoutComPaymentDriver extends BaseDriver
     public function updateCustomer($customer_id = null)
     {
 
-        if(!$customer_id)
+        if(!$customer_id) {
             return;
+        }
 
         try {
-            
+
             $request = new CustomerRequest();
 
             $phone = new Phone();
@@ -387,7 +389,7 @@ class CheckoutComPaymentDriver extends BaseDriver
         $this->payment_hash = $payment_hash;
 
         $this->init();
-        
+
         $paymentRequest = $this->bootTokenRequest($cgt->token);
         $paymentRequest->amount = $this->convertToCheckoutAmount($amount, $this->client->getCurrencyCode());
         $paymentRequest->reference = '#'.$invoice->number.' - '.now();

@@ -58,4 +58,3 @@ class EmailPreferencesController extends Controller
         return back()->with('message', ctrans('texts.updated_settings'));
     }
 }
-

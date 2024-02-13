@@ -34,7 +34,6 @@ use CleverIt\UBL\Invoice\Price;
 
 class RoEInvoice extends AbstractService
 {
-
     public function __construct(public Invoice $invoice)
     {
     }

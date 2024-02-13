@@ -330,7 +330,7 @@ class AutoBillInvoice extends AbstractService
                                     $query->where('is_deleted', 0)
                                             ->where('deleted_at', null);
                                 })->orderBy('is_default', 'DESC')
-                                ->get(); 
+                                ->get();
 
         // $gateway_tokens = $this->client
         //                        ->gateway_tokens()
