@@ -13,7 +13,7 @@ namespace App\Http\Requests\Client;
 
 use App\Http\Requests\Request;
 
-class PurgeClientRequest extends Request
+class ClientDocumentsRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,6 +25,6 @@ class PurgeClientRequest extends Request
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        return $user->isAdmin();
+        return $user->can('view', $this->client);
     }
 }

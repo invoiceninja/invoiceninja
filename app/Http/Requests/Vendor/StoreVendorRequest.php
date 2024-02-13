@@ -73,7 +73,7 @@ class StoreVendorRequest extends Request
         }
 
         $rules['language_id'] = 'bail|nullable|sometimes|exists:languages,id';
-        $rules['classification'] = 'bail|sometimes|nullable|in:individual,company,partnership,trust,charity,government,other';
+        $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,company,partnership,trust,charity,government,other';
 
         return $rules;
     }
@@ -87,6 +87,10 @@ class StoreVendorRequest extends Request
 
         if (!array_key_exists('currency_id', $input) || empty($input['currency_id'])) {
             $input['currency_id'] = $user->company()->settings->currency_id;
+        }
+
+        if (isset($input['name'])) {
+            $input['name'] = strip_tags($input['name']);
         }
 
         $input = $this->decodePrimaryKeys($input);

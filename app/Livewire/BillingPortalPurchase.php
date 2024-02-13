@@ -106,6 +106,7 @@ class BillingPortalPurchase extends Component
     public $steps = [
         'passed_email' => false,
         'existing_user' => false,
+        'check_rff' => false,
         'fetched_payment_methods' => false,
         'fetched_client' => false,
         'show_start_trial' => false,
@@ -180,6 +181,12 @@ class BillingPortalPurchase extends Component
      * @var string|null
      */
     public $campaign;
+
+    public ?string $contact_first_name;
+
+    public ?string $contact_last_name;
+
+    public ?string $contact_email;
 
     public function mount()
     {
@@ -316,9 +323,13 @@ class BillingPortalPurchase extends Component
      */
     protected function getPaymentMethods(ClientContact $contact): self
     {
-        Auth::guard('contact')->loginUsingId($contact->id, true);
-
         $this->contact = $contact;
+
+        if ($contact->showRff()) {
+            return $this->rff(); 
+        }
+
+        Auth::guard('contact')->loginUsingId($contact->id, true);
 
         if ($this->subscription->trial_enabled) {
             $this->heading_text = ctrans('texts.plan_trial');
@@ -338,6 +349,33 @@ class BillingPortalPurchase extends Component
         $this->heading_text = ctrans('texts.payment_methods');
 
         return $this;
+    }
+
+    protected function rff()
+    {
+        $this->contact_first_name = $this->contact->first_name;
+        $this->contact_last_name = $this->contact->last_name;
+        $this->contact_email = $this->contact->email;
+
+        $this->steps['check_rff'] = true;
+
+        return $this;
+    }
+
+    public function handleRff()
+    {
+        $validated = $this->validate([
+            'contact_first_name' => ['required'],
+            'contact_last_name' => ['required'],
+            'contact_email' => ['required', 'email'],
+        ]);
+
+        $this->contact->first_name = $validated['contact_first_name'];
+        $this->contact->last_name = $validated['contact_last_name'];
+        $this->contact->email = $validated['contact_email'];
+        $this->contact->save();
+
+        return $this->getPaymentMethods($this->contact);
     }
 
     /**

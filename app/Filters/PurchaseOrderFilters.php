@@ -130,6 +130,10 @@ class PurchaseOrderFilters extends QueryFilters
                     ->whereColumn('vendors.id', 'purchase_orders.vendor_id'), $dir);
         }
 
+        if($sort_col[0] == 'number') {
+            return $this->builder->orderByRaw('ABS(number) ' . $dir);
+        }
+
         return $this->builder->orderBy($sort_col[0], $dir);
     }
 

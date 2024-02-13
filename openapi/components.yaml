@@ -12,7 +12,6 @@ components:
       description: 'The total number of requests in a given time window.'
       schema:
         type: integer
-  components:
   securitySchemes:
     ApiKeyAuth:        
       type: apiKey

@@ -294,6 +294,11 @@ class Account extends BaseModel
         return Ninja::isNinja() ? ($this->isPaidHostedClient() && !$this->isTrial()) : $this->hasFeature(self::FEATURE_WHITE_LABEL);
     }
 
+    public function isPremium(): bool
+    {
+        return Ninja::isHosted() && $this->isPaidHostedClient() && !$this->isTrial() && Carbon::createFromTimestamp($this->created_at)->diffInMonths() > 2;
+    }
+
     public function isPaidHostedClient(): bool
     {
         if (!Ninja::isNinja()) {

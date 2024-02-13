@@ -78,8 +78,9 @@ class OpenApiYaml extends Command
 
         Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/components.yaml'));
 
-        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/components/responses.yaml'));
         Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/components/examples.yaml'));
+        
+        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/components/responses.yaml'));
 
         $directory = new DirectoryIterator($path . '/components/responses/');
 
