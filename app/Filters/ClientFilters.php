@@ -165,6 +165,11 @@ class ClientFilters extends QueryFilters
 
         $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
 
+        if($sort_col[0] == 'number')
+        {
+            return $this->builder->orderByRaw('ABS(number) ' . $dir);
+        }
+
         return $this->builder->orderBy($sort_col[0], $dir);
     }
 
