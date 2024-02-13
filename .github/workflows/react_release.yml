@@ -2,7 +2,7 @@ on:
   release:
     types: [released]
 
-name: Upload Release Asset
+name: React Release
 
 jobs:
   build:
@@ -73,4 +73,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: |
-            /home/runner/work/invoiceninja/invoiceninja.tar
+            /home/runner/work/invoiceninja/react-invoiceninja.tar
