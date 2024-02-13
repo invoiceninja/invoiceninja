@@ -107,10 +107,10 @@ class EmailDefaults
 
         match ($this->email->email_object->settings->email_style) {
             'plain' => $this->template = 'email.template.plain',
-            'light' => $this->template = 'email.template.client',
-            'dark' => $this->template = 'email.template.client',
+            'light' => $this->template = $this->email->email_object->company->account->isPremium() ? 'email.template.client_premium' : 'email.template.client',
+            'dark' => $this->template = $this->email->email_object->company->account->isPremium() ? 'email.template.client_premium' :'email.template.client',
             'custom' => $this->template = 'email.template.custom',
-            default => $this->template = 'email.template.client',
+            default => $this->template = $this->email->email_object->company->account->isPremium() ? 'email.template.client_premium' :'email.template.client',
         };
 
         $this->email->email_object->html_template = $this->template;

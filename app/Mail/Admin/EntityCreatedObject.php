@@ -94,7 +94,8 @@ class EntityCreatedObject
                                 'settings' => $this->company->settings,
                                 'whitelabel' => $this->company->account->isPaid() ? true : false,
                                 'text_body' => str_replace(['$view_button','$viewButton','$viewLink','$view_url'], '$view_url', $content),
-                            ];
+                                'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
+                ];
         } else {
             $this->entity->load('client.country', 'client.company');
             $this->client = $this->entity->client;
@@ -181,6 +182,7 @@ class EntityCreatedObject
             'settings' => $settings,
             'whitelabel' => $this->company->account->isPaid() ? true : false,
             'text_body' => str_replace(['$view_button','$viewButton','$view_link','$view_button'], '$view_url', $content),
+            'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
         ];
     }
 }

@@ -99,6 +99,7 @@ class PaymentFailureObject
             'button' => $this->use_react_url ? ctrans('texts.view_client') : ctrans('texts.login'),
             'additional_info' => $this->error,
             'text_body' => $content,
+            'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
         ];
 
         return $data;

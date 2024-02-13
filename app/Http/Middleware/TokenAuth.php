@@ -67,7 +67,7 @@ class TokenAuth
             $truth->setUser($company_token->user);
             $truth->setCompany($company_token->company);
             $truth->setCompanyToken($company_token);
-
+            $truth->setPremiumHosted($company_token->account->isPremium());
             /*
             | This method binds the db to the jobs created using this
             | session

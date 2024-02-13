@@ -152,6 +152,7 @@ class EntityFailedSendObject
             "settings" => $settings,
             "whitelabel" => $this->company->account->isPaid() ? true : false,
             "text_body" => str_replace("<br>", "\n", $content),
+            'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
         ];
 
         return $data;

@@ -116,6 +116,7 @@ class EntityViewedObject
             'settings' => $settings,
             'whitelabel' => $this->company->account->isPaid() ? true : false,
             'text_body' => $content,
+            'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
         ];
 
         return $data;

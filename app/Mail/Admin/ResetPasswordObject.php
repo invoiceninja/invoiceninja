@@ -41,6 +41,7 @@ class ResetPasswordObject
             'settings' => $this->company->settings,
             'logo' => $this->company->present()->logo(),
             'text_body' => ctrans('texts.reset_password'),
+            'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
         ];
 
         $mail_obj = new \stdClass();
