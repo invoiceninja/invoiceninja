@@ -1,15 +1,33 @@
 <div class="space-y-4">
     <h1 class="text-2xl">{{ ctrans('texts.order') }}</h1>
 
+    @isset($this->context['bundle'])
     <div class="space-y-2">
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Optio
-            voluptatem itaque sequi et omnis quaerat voluptatibus ex ad adipisci
-            expedita veniam nostrum nobis, doloribus error officiis repudiandae,
-            sed natus asperiores.
-        </p>
-
-        <p>Summary goes here.</p>
+        @foreach($this->items() as $item)
+        <div class="flex justify-between text-sm">
+            <span>{{  $item['quantity'] }}x {{ $item['product_key'] }}</span>
+            <span>{{ $item['total'] }}</span>
+        </div>
+        @endforeach
     </div>
+
+    <div class="space-y-2 mt-4 border-t pt-2">
+        <div class="flex justify-between text-sm">
+            <span class="uppercase">{{ ctrans('texts.one_time_purchases') }}</span>
+            <span>{{ $this->oneTimePurchasesTotal() }}</span>
+        </div>
+
+        <div class="flex justify-between text-sm">
+            <span class="uppercase">{{ ctrans('texts.recurring_purchases') }}</span>
+            <span>{{ $this->recurringPurchasesTotal() }}</span>
+        </div>
+
+        <div
+            class="flex justify-between text-sm uppercase border-t pt-2"
+        >
+            <span>{{ ctrans('texts.total') }}</span>
+            <span class="font-semibold">{{ $this->total() }}</span>
+        </div>
+    </div>
+    @endif
 </div>
