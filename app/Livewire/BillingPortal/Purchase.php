@@ -39,6 +39,7 @@ class Purchase extends Component
         Setup::class,
         Cart::class,
         Authentication::class,
+        RFF::class,
         Example::class,
     ];
 
