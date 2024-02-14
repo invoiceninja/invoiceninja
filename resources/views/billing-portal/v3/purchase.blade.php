@@ -1,6 +1,8 @@
 <div class="grid grid-cols-12 bg-gray-50">
+    
     <div
-        class="col-span-12 xl:col-span-6 bg-white flex flex-col items-center lg:h-screen"
+    
+    class="col-span-12 xl:col-span-6 bg-white flex flex-col items-center lg:h-screen"
     >
         <div class="w-full p-10 lg:mt-24 md:max-w-xl">
             <img
@@ -11,7 +13,7 @@
 
 
             <div class="my-10" id="container">
-                @livewire($this->component, ['context' => $context, 'subscription' => $this->subscription], key($this->component))
+                @livewire($this->component, ['context' => $context, 'subscription' => $this->subscription], key($id))
             </div>
         </div>
     </div>
