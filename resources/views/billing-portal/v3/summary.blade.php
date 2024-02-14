@@ -4,10 +4,12 @@
     @isset($this->context['bundle'])
     <div class="space-y-2">
         @foreach($this->items() as $item)
-        <div class="flex justify-between text-sm">
-            <span>{{  $item['quantity'] }}x {{ $item['product_key'] }}</span>
-            <span>{{ $item['total'] }}</span>
-        </div>
+            @if($item['quantity'] > 0)
+                <div class="flex justify-between text-sm">
+                    <span>{{  $item['quantity'] }}x {{ $item['product_key'] }}</span>
+                    <span>{{ $item['total'] }}</span>
+                </div>
+            @endif
         @endforeach
     </div>
 
