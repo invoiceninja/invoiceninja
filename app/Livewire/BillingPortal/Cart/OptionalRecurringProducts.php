@@ -19,6 +19,13 @@ class OptionalRecurringProducts extends Component
 {
     public Subscription $subscription;
 
+    public array $context;
+
+    public function quantity($id, $value): void
+    {
+        $this->dispatch('purchase.context', property: "bundle.optional_recurring_products.{$id}.quantity", value: $value);
+    }
+
     public function render(): \Illuminate\View\View
     {
         return view('billing-portal.v3.cart.optional-recurring-products');
