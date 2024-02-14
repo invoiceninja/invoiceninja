@@ -107,7 +107,7 @@ class VersionCheck implements ShouldQueue
 
             Vendor::doesntHave('contacts')
                             ->cursor()
-                            ->each(function ($vendor) {
+                            ->each(function (Vendor $vendor) {
 
                                 $new_contact = VendorContactFactory::create($vendor->company_id, $vendor->user_id);
                                 $new_contact->vendor_id = $vendor->id;

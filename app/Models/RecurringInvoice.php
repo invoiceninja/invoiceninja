@@ -297,7 +297,7 @@ class RecurringInvoice extends BaseModel
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Company>
      */
-    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function company()
     {
         return $this->belongsTo(Company::class);
     }
