@@ -365,7 +365,7 @@ class BaseRepository
 
             $model = $model->calc()->getRecurringInvoice();
 
-            $model->status_id = $model->calculateStatus();
+            $model->status_id = $model->calculateStatus($this->new_model);
 
             if ($this->new_model) {
                 event('eloquent.created: App\Models\RecurringInvoice', $model);
