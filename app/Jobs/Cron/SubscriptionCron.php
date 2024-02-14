@@ -52,7 +52,7 @@ class SubscriptionCron
                               ->whereNotNull('subscription_id')
                               ->cursor();
 
-            $invoices->each(function ($invoice) {
+            $invoices->each(function (Invoice $invoice) {
                 $subscription = $invoice->subscription;
 
                 $body = [
@@ -80,7 +80,7 @@ class SubscriptionCron
                                   ->whereNotNull('subscription_id')
                                   ->cursor();
 
-                $invoices->each(function ($invoice) {
+                $invoices->each(function (Invoice $invoice) {
                     $subscription = $invoice->subscription;
 
                     $body = [

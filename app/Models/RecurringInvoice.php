@@ -122,7 +122,6 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $invitations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @property bool $is_proforma
  * @mixin \Eloquent
  */
@@ -295,6 +294,9 @@ class RecurringInvoice extends BaseModel
         return $this->hasManyThrough(Backup::class, Activity::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Company>
+     */
     public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);

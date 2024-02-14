@@ -76,7 +76,7 @@ class InventoryNotificationObject
             'settings' => $this->product->company->settings,
             'whitelabel' => $this->product->company->account->isPaid() ? true : false,
             'text_body' => $content,
-            'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
+            'template' => $this->product->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
         ];
 
         return $data;

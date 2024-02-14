@@ -94,7 +94,7 @@ class VersionCheck implements ShouldQueue
 
             Client::doesntHave('contacts')
                             ->cursor()
-                            ->each(function ($client) {
+                            ->each(function (Client $client) {
 
                                 $new_contact = ClientContactFactory::create($client->company_id, $client->user_id);
                                 $new_contact->client_id = $client->id;
