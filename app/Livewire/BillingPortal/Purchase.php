@@ -18,6 +18,7 @@ use App\Models\Subscription;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Illuminate\Support\Str;
 
 class Purchase extends Component
 {
@@ -43,15 +44,19 @@ class Purchase extends Component
         Example::class,
     ];
 
+    public string $id;
+
     public array $context = [];
 
     #[On('purchase.context')]
     public function handleContext(string $property, $value): self
     {
-        $this->context[$property] = $value;
+        data_set($this->context, $property, $value);
 
         // The following may not be needed, as we can pass arround $context.
         // cache()->set($this->hash, $this->context);
+
+        $this->id = Str::uuid();
 
         return $this;
     }
@@ -62,12 +67,16 @@ class Purchase extends Component
         if ($this->step < count($this->steps) - 1) {
             $this->step++;
         }
+
+        $this->id = Str::uuid();
     }
 
     #[On('purchase.forward')]
     public function handleForward(string $component): void
     {
         $this->step = array_search($component, $this->steps);
+
+        $this->id = Str::uuid();
     }
 
     #[Computed()]
@@ -78,6 +87,8 @@ class Purchase extends Component
 
     public function mount()
     {
+        $this->id = Str::uuid();
+
         MultiDB::setDb($this->db);
 
         $this
