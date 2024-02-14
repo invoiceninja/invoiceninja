@@ -9,6 +9,8 @@
         :context="$context"
     />
 
+    <p class="text-xl mt-10 mb-4">{{ ctrans('texts.optional_products') }}</p>
+
     <livewire:billing-portal.cart.optional-recurring-products
         :subscription="$subscription"
         :context="$context"
