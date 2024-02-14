@@ -17,7 +17,14 @@ use Livewire\Component;
 
 class RecurringProducts extends Component
 {
+    public array $context;
+
     public Subscription $subscription;
+
+    public function quantity($id, $value): void
+    {
+        $this->dispatch('purchase.context', property: "bundle.recurring_products.{$id}.quantity", value: $value);
+    }
 
     public function render(): \Illuminate\View\View
     {
