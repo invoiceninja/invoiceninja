@@ -112,8 +112,8 @@ class TransactionTransformer implements BankRevenueInterface
         // enrich description with currencyExchange informations
         if (array_key_exists('currencyExchange', $transaction)) {
             foreach ($transaction["currencyExchange"] as $exchangeRate) {
-                $targetAmount = round($amount * (float) $exchangeRate["exchangeRate"], 2);
-                $description .= '\nexchangeRate: ' . $amount . " " . $exchangeRate["sourceCurrency"] . " = " . $targetAmount . " " . $exchangeRate["targetCurrency"] . " (" . $exchangeRate["quotationDate"] . ")";
+                $targetAmount = round($amount * (float) ($exchangeRate["exchangeRate"] ?? 1) , 2);
+                $description .= '\nexchangeRate: ' . $amount . " " . ($exchangeRate["sourceCurrency"] ?? '?') . " = " . $targetAmount . " " . ($exchangeRate["targetCurrency"] ?? '?') . " (" . ($exchangeRate["quotationDate"] ?? '?') . ")";
             }
         }
 
