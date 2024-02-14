@@ -15,6 +15,7 @@ namespace App\Livewire\BillingPortal;
 use App\Models\RecurringInvoice;
 use App\Models\Subscription;
 use App\Utils\Number;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -27,7 +28,7 @@ class Summary extends Component
     #[On('purchase.context')]
     public function handleContext(string $property, $value): self
     {
-        $this->context[$property] = $value;
+        data_set($this->context, $property, $value);
 
         // The following may not be needed, as we can pass arround $context.
         // cache()->set($this->hash, $this->context);
@@ -48,6 +49,7 @@ class Summary extends Component
             $bundle['recurring_products'][$product->hashed_id] = [
                 'product' => $product,
                 'quantity' => 1,
+                'notes' => $product->markdownNotes(),
             ];
         }
 
@@ -55,6 +57,20 @@ class Summary extends Component
             $bundle['one_time_products'][$product->hashed_id] = [
                 'product' => $product,
                 'quantity' => 1,
+            ];
+        }
+
+        foreach ($this->subscription->service()->optional_recurring_products() as $key => $product) {
+            $bundle['optional_recurring_products'][$product->hashed_id] = [
+                'product' => $product,
+                'quantity' => 0,
+            ];
+        }
+
+        foreach ($this->subscription->service()->optional_products() as $key => $product) {
+            $bundle['optional_one_time_products'][$product->hashed_id] = [
+                'product' => $product,
+                'quantity' => 0,
             ];
         }
 
@@ -68,11 +84,11 @@ class Summary extends Component
         }
 
         $one_time = collect($this->context['bundle']['one_time_products'])->sum(function ($item) {
-            return $item['product']['cost'];
+            return $item['product']['cost'] * $item['quantity'];
         });
 
         $one_time_optional = collect($this->context['bundle']['optional_one_time_products'])->sum(function ($item) {
-            return $item['product']['cost'];
+            return $item['product']['cost'] * $item['quantity'];
         });
 
         if ($raw) {
@@ -90,11 +106,11 @@ class Summary extends Component
         }
 
         $recurring = collect($this->context['bundle']['recurring_products'])->sum(function ($item) {
-            return $item['product']['cost'];
+            return $item['product']['cost'] * $item['quantity'];
         });
 
         $recurring_optional = collect($this->context['bundle']['optional_recurring_products'])->sum(function ($item) {
-            return $item['product']['cost'];
+            return $item['product']['cost'] * $item['quantity'];
         });
 
         if ($raw) {
@@ -108,6 +124,7 @@ class Summary extends Component
         );
     }
 
+    #[Computed()]
     public function total()
     {
         return Number::formatMoney(
