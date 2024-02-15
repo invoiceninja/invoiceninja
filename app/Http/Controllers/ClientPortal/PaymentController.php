@@ -12,24 +12,25 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
-use App\Factory\PaymentFactory;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Models\CompanyGateway;
-use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Utils\HtmlEngine;
+use Illuminate\View\View;
+use App\Models\GatewayType;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
+use Illuminate\Http\Request;
+use App\Models\CompanyGateway;
+use App\Factory\PaymentFactory;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesDates;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Contracts\View\Factory;
 use App\PaymentDrivers\Stripe\BankTransfer;
 use App\Services\ClientPortal\InstantPayment;
 use App\Services\Subscription\SubscriptionService;
-use App\Utils\Traits\MakesDates;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\View\View;
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 
 /**
  * Class PaymentController.
@@ -125,10 +126,16 @@ class PaymentController extends Controller
 
         // 09-07-2022 catch duplicate responses for invoices that already paid here.
         if ($invoice && $invoice->status_id == Invoice::STATUS_PAID) {
+
+            $invitation = $invoice->invitations->first();
+
+            $variables = ($invitation && auth()->guard('contact')->user()->client->getSetting('show_accept_invoice_terms')) ? (new HtmlEngine($invitation))->generateLabelsAndValues() : false;
+
             $data = [
                 'invoice' => $invoice,
                 'key' => false,
-                'invitation' => $invoice->invitations->first()
+                'invitation' => $invitation,
+                'variables' => $variables,
             ];
 
             if ($request->query('mode') === 'fullscreen') {
