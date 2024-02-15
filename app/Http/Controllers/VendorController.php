@@ -499,7 +499,7 @@ class VendorController extends BaseController
 
         $ids = request()->input('ids');
         $vendors = Vendor::withTrashed()->find($this->transformKeys($ids));
-        
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
 

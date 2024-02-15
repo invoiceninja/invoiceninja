@@ -94,6 +94,7 @@ class UserEmailChanged implements ShouldQueue
             'logo' => $this->company->present()->logo(),
             'settings' => $this->settings,
             'whitelabel' => $this->company->account->isPaid() ? true : false,
+            'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
         ];
     }
 }

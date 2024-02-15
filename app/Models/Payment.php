@@ -325,8 +325,9 @@ class Payment extends BaseModel
                 return '<h6><span class="badge badge-danger">'.ctrans('texts.payment_status_3').'</span></h6>';
             case self::STATUS_COMPLETED:
 
-                if($this->amount > $this->applied)
+                if($this->amount > $this->applied) {
                     return '<h6><span class="badge badge-info">' . ctrans('texts.partially_unapplied') . '</span></h6>';
+                }
 
                 return '<h6><span class="badge badge-info">'.ctrans('texts.payment_status_4').'</span></h6>';
             case self::STATUS_PARTIALLY_REFUNDED:

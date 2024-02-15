@@ -39,11 +39,11 @@ class CanAddUserRule implements Rule
             return true;
         }
 
-        /* 
-        Check that we have sufficient quota to allow this to happen 
+        /*
+        Check that we have sufficient quota to allow this to happen
 
         @ 31-01-2024 - changed query to use email instead of user_id
-        
+
         $count = CompanyUser::query()
                           ->where('company_user.account_id', $user->account_id)
                           ->join('users', 'users.id', '=', 'company_user.user_id')
@@ -69,7 +69,7 @@ class CanAddUserRule implements Rule
      */
     public function message()
     {
-        
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
 

@@ -215,7 +215,7 @@ class QuoteController extends Controller
                 ->withSuccess('Quote(s) approved successfully.');
         }
 
-        
+
         $variables = false;
 
         if($invitation = $quotes->first()->invitations()->first() ?? false) {

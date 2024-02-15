@@ -316,7 +316,7 @@ class BaseModel extends Model
         return "data:application/pdf;base64,".base64_encode((new CreateRawPdf($invitation))->handle());
 
     }
-    
+
     /**
      * Takes a entity prop as first argument
      * along with an array of variables and performs
@@ -328,9 +328,10 @@ class BaseModel extends Model
      */
     public function parseHtmlVariables(string $field, array $variables): string
     {
-        if(!$this->{$field})
+        if(!$this->{$field}) {
             return '';
-        
+        }
+
         $section = strtr($this->{$field}, $variables['labels']);
 
         return strtr($section, $variables['values']);

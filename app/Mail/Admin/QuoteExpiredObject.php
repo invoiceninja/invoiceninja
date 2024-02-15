@@ -73,13 +73,13 @@ class QuoteExpiredObject
     {
         $settings = $this->quote->client->getMergedSettings();
         $content = ctrans(
-                'texts.notification_quote_expired',
-                [
+            'texts.notification_quote_expired',
+            [
                     'amount' => $this->getAmount(),
                     'client' => $this->quote->client->present()->name(),
                     'invoice' => $this->quote->number,
                 ]
-                );
+        );
 
         $data = [
             'title' => $this->getSubject(),
@@ -91,6 +91,8 @@ class QuoteExpiredObject
             'settings' => $settings,
             'whitelabel' => $this->company->account->isPaid() ? true : false,
             'text_body' => $content,
+            'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
+
         ];
 
         return $data;

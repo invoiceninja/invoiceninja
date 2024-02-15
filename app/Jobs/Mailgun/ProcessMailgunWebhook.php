@@ -34,7 +34,10 @@ use App\Notifications\Ninja\EmailBounceNotification;
 
 class ProcessMailgunWebhook implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $tries = 1;
 
@@ -89,8 +92,9 @@ class ProcessMailgunWebhook implements ShouldQueue
     {
         nlog($this->request);
 
-        if(!$this->request['event-data']['tags'][0])
+        if(!$this->request['event-data']['tags'][0]) {
             return;
+        }
 
         MultiDB::findAndSetDbByCompanyKey($this->request['event-data']['tags'][0]);
         $company = Company::where('company_key', $this->request['event-data']['tags'][0])->first();
@@ -112,7 +116,7 @@ class ProcessMailgunWebhook implements ShouldQueue
         if (isset($this->request['event-details']['delivery-status']['message'])) {
             $this->invitation->email_error = $this->request['event-details']['delivery-status']['message'];
         }
-        
+
         switch ($this->request['event-data']['event']) {
             case 'delivered':
                 return $this->processDelivery();
@@ -128,50 +132,50 @@ class ProcessMailgunWebhook implements ShouldQueue
         }
     }
 
-/*
-{
-  "signature": {
-    "token": "7f388cf8096aa0bca1477aee9d91e156c61f8fa8282c7f1c0c",
-    "timestamp": "1705376308",
-    "signature": "a22b7c3dd4861e27a1664cef3611a1954c0665cfcaca9b8f35ee216243a4ce3f"
-  },
-  "event-data": {
-    "id": "Ase7i2zsRYeDXztHGENqRA",
-    "timestamp": 1521243339.873676,
-    "log-level": "info",
-    "event": "opened",
-    "message": {
-      "headers": {
-        "message-id": "20130503182626.18666.16540@mail.invoicing.co"
+    /*
+    {
+      "signature": {
+        "token": "7f388cf8096aa0bca1477aee9d91e156c61f8fa8282c7f1c0c",
+        "timestamp": "1705376308",
+        "signature": "a22b7c3dd4861e27a1664cef3611a1954c0665cfcaca9b8f35ee216243a4ce3f"
+      },
+      "event-data": {
+        "id": "Ase7i2zsRYeDXztHGENqRA",
+        "timestamp": 1521243339.873676,
+        "log-level": "info",
+        "event": "opened",
+        "message": {
+          "headers": {
+            "message-id": "20130503182626.18666.16540@mail.invoicing.co"
+          }
+        },
+        "recipient": "alice@example.com",
+        "recipient-domain": "example.com",
+        "ip": "50.56.129.169",
+        "geolocation": {
+          "country": "US",
+          "region": "CA",
+          "city": "San Francisco"
+        },
+        "client-info": {
+          "client-os": "Linux",
+          "device-type": "desktop",
+          "client-name": "Chrome",
+          "client-type": "browser",
+          "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.43 Safari/537.31"
+        },
+        "campaigns": [],
+        "tags": [
+          "my_tag_1",
+          "my_tag_2"
+        ],
+        "user-variables": {
+          "my_var_1": "Mailgun Variable #1",
+          "my-var-2": "awesome"
+        }
       }
-    },
-    "recipient": "alice@example.com",
-    "recipient-domain": "example.com",
-    "ip": "50.56.129.169",
-    "geolocation": {
-      "country": "US",
-      "region": "CA",
-      "city": "San Francisco"
-    },
-    "client-info": {
-      "client-os": "Linux",
-      "device-type": "desktop",
-      "client-name": "Chrome",
-      "client-type": "browser",
-      "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.43 Safari/537.31"
-    },
-    "campaigns": [],
-    "tags": [
-      "my_tag_1",
-      "my_tag_2"
-    ],
-    "user-variables": {
-      "my_var_1": "Mailgun Variable #1",
-      "my-var-2": "awesome"
     }
-  }
-}
-*/
+    */
     private function processOpen()
     {
         $this->invitation->opened_date = now();
@@ -180,8 +184,9 @@ class ProcessMailgunWebhook implements ShouldQueue
         $sl = $this->getSystemLog($this->request['MessageID']);
 
         /** Prevents Gmail tracking from firing inappropriately */
-        if($this->request['signature']['timestamp'] < $sl->log['signature']['timestamp'] + 3)
+        if($this->request['signature']['timestamp'] < $sl->log['signature']['timestamp'] + 3) {
             return;
+        }
 
         $event = [
             'bounce_id' => '',
@@ -201,74 +206,74 @@ class ProcessMailgunWebhook implements ShouldQueue
 
     }
 
-/*
-{
-  "signature": {
-    "token": "70b91a64ed0f1bdf90fb9c6ea7e3c31d5792a3d0945ffc20fe",
-    "timestamp": "1705376276",
-    "signature": "ba96f841fc236e1bf5840b02fad512d0bd15b0731b5e6b154764c7a05f7ee999"
-  },
-  "event-data": {
-    "id": "CPgfbmQMTCKtHW6uIWtuVe",
-    "timestamp": 1521472262.908181,
-    "log-level": "info",
-    "event": "delivered",
-    "delivery-status": {
-      "tls": true,
-      "mx-host": "smtp-in.example.com",
-      "code": 250,
-      "description": "",
-      "session-seconds": 0.4331989288330078,
-      "utf8": true,
-      "attempt-no": 1,
-      "message": "OK",
-      "certificate-verified": true
-    },
-    "flags": {
-      "is-routed": false,
-      "is-authenticated": true,
-      "is-system-test": false,
-      "is-test-mode": false
-    },
-    "envelope": {
-      "transport": "smtp",
-      "sender": "bob@mail.invoicing.co",
-      "sending-ip": "209.61.154.250",
-      "targets": "alice@example.com"
-    },
-    "message": {
-      "headers": {
-        "to": "Alice <alice@example.com>",
-        "message-id": "20130503182626.18666.16540@mail.invoicing.co",
-        "from": "Bob <bob@mail.invoicing.co>",
-        "subject": "Test delivered webhook"
+    /*
+    {
+      "signature": {
+        "token": "70b91a64ed0f1bdf90fb9c6ea7e3c31d5792a3d0945ffc20fe",
+        "timestamp": "1705376276",
+        "signature": "ba96f841fc236e1bf5840b02fad512d0bd15b0731b5e6b154764c7a05f7ee999"
       },
-      "attachments": [],
-      "size": 111
-    },
-    "recipient": "alice@example.com",
-    "recipient-domain": "example.com",
-    "storage": {
-      "url": "https://se.api.mailgun.net/v3/domains/mail.invoicing.co/messages/message_key",
-      "key": "message_key"
-    },
-    "campaigns": [],
-    "tags": [
-      "my_tag_1",
-      "my_tag_2"
-    ],
-    "user-variables": {
-      "my_var_1": "Mailgun Variable #1",
-      "my-var-2": "awesome"
+      "event-data": {
+        "id": "CPgfbmQMTCKtHW6uIWtuVe",
+        "timestamp": 1521472262.908181,
+        "log-level": "info",
+        "event": "delivered",
+        "delivery-status": {
+          "tls": true,
+          "mx-host": "smtp-in.example.com",
+          "code": 250,
+          "description": "",
+          "session-seconds": 0.4331989288330078,
+          "utf8": true,
+          "attempt-no": 1,
+          "message": "OK",
+          "certificate-verified": true
+        },
+        "flags": {
+          "is-routed": false,
+          "is-authenticated": true,
+          "is-system-test": false,
+          "is-test-mode": false
+        },
+        "envelope": {
+          "transport": "smtp",
+          "sender": "bob@mail.invoicing.co",
+          "sending-ip": "209.61.154.250",
+          "targets": "alice@example.com"
+        },
+        "message": {
+          "headers": {
+            "to": "Alice <alice@example.com>",
+            "message-id": "20130503182626.18666.16540@mail.invoicing.co",
+            "from": "Bob <bob@mail.invoicing.co>",
+            "subject": "Test delivered webhook"
+          },
+          "attachments": [],
+          "size": 111
+        },
+        "recipient": "alice@example.com",
+        "recipient-domain": "example.com",
+        "storage": {
+          "url": "https://se.api.mailgun.net/v3/domains/mail.invoicing.co/messages/message_key",
+          "key": "message_key"
+        },
+        "campaigns": [],
+        "tags": [
+          "my_tag_1",
+          "my_tag_2"
+        ],
+        "user-variables": {
+          "my_var_1": "Mailgun Variable #1",
+          "my-var-2": "awesome"
+        }
+      }
     }
-  }
-}
-*/
+    */
     private function processDelivery()
     {
         $this->invitation->email_status = 'delivered';
         $this->invitation->save();
-        
+
         $sl = $this->getSystemLog($this->request['MessageID']);
 
         if($sl) {
@@ -384,47 +389,47 @@ class ProcessMailgunWebhook implements ShouldQueue
 
     }
 
-/*
-{
-  "signature": {
-    "token": "d7be371deef49c8b187119df295e3eb17fd1974d513a4be2cb",
-    "timestamp": "1705376380",
-    "signature": "52f31c75b492d67be906423279e0effe563e28790ee65ba23a1b30006df649df"
-  },
-  "event-data": {
-    "id": "-Agny091SquKnsrW2NEKUA",
-    "timestamp": 1521233123.501324,
-    "log-level": "warn",
-    "event": "complained",
-    "envelope": {
-      "sending-ip": "173.193.210.33"
-    },
-    "flags": {
-      "is-test-mode": false
-    },
-    "message": {
-      "headers": {
-        "to": "Alice <alice@example.com>",
-        "message-id": "20110215055645.25246.63817@mail.invoicing.co",
-        "from": "Bob <bob@mail.invoicing.co>",
-        "subject": "Test complained webhook"
+    /*
+    {
+      "signature": {
+        "token": "d7be371deef49c8b187119df295e3eb17fd1974d513a4be2cb",
+        "timestamp": "1705376380",
+        "signature": "52f31c75b492d67be906423279e0effe563e28790ee65ba23a1b30006df649df"
       },
-      "attachments": [],
-      "size": 111
-    },
-    "recipient": "alice@example.com",
-    "campaigns": [],
-    "tags": [
-      "my_tag_1",
-      "my_tag_2"
-    ],
-    "user-variables": {
-      "my_var_1": "Mailgun Variable #1",
-      "my-var-2": "awesome"
+      "event-data": {
+        "id": "-Agny091SquKnsrW2NEKUA",
+        "timestamp": 1521233123.501324,
+        "log-level": "warn",
+        "event": "complained",
+        "envelope": {
+          "sending-ip": "173.193.210.33"
+        },
+        "flags": {
+          "is-test-mode": false
+        },
+        "message": {
+          "headers": {
+            "to": "Alice <alice@example.com>",
+            "message-id": "20110215055645.25246.63817@mail.invoicing.co",
+            "from": "Bob <bob@mail.invoicing.co>",
+            "subject": "Test complained webhook"
+          },
+          "attachments": [],
+          "size": 111
+        },
+        "recipient": "alice@example.com",
+        "campaigns": [],
+        "tags": [
+          "my_tag_1",
+          "my_tag_2"
+        ],
+        "user-variables": {
+          "my_var_1": "Mailgun Variable #1",
+          "my-var-2": "awesome"
+        }
+      }
     }
-  }
-}
-*/
+    */
     private function processSpamComplaint()
     {
         $this->invitation->email_status = 'spam';

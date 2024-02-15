@@ -42,7 +42,7 @@ class PayPalRestPaymentDriver extends BaseDriver
     private string $paypal_payment_method = '';
 
     private ?int $gateway_type_id = null;
-    
+
     protected mixed $access_token = null;
 
     protected ?Carbon $token_expiry = null;
@@ -451,7 +451,7 @@ class PayPalRestPaymentDriver extends BaseDriver
                     "country_code" => $this->client->present()->shipping_country_code(),
                 ],
         ]
-        
+
         : null;
 
     }

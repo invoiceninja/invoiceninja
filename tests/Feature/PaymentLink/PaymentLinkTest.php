@@ -9,7 +9,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace Tests\Feature;
+namespace Tests\Feature\PaymentLink;
 
 use Tests\TestCase;
 use App\Models\Invoice;

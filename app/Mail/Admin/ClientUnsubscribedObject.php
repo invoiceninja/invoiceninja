@@ -44,6 +44,7 @@ class ClientUnsubscribedObject
             'settings' => $this->company->settings,
             'logo' => $this->company->present()->logo(),
             'text_body' => "\n\n".ctrans('texts.client_unsubscribed_help', ['client' => $this->contact->present()->name()])."\n\n",
+            'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
         ];
 
         $mail_obj = new \stdClass();

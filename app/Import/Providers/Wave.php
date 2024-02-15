@@ -117,10 +117,8 @@ class Wave extends BaseImport implements ImportInterface
 
         $this->transformer = new InvoiceTransformer($this->company);
 
-        foreach($data as $key => $invoice)
-        {
-            if(!isset($invoice['Invoice Number']) || empty($invoice['Invoice Number']))
-            {
+        foreach($data as $key => $invoice) {
+            if(!isset($invoice['Invoice Number']) || empty($invoice['Invoice Number'])) {
                 unset($data[$key]);
             }
         }

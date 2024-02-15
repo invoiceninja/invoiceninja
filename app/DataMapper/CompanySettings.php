@@ -494,7 +494,7 @@ class CompanySettings extends BaseSettings
     public $payment_email_all_contacts = false;
 
     public $show_pdfhtml_on_mobile = true;
-    
+
     public static $casts = [
         'show_pdfhtml_on_mobile'             => 'bool',
         'payment_email_all_contacts'         => 'bool',
@@ -878,7 +878,7 @@ class CompanySettings extends BaseSettings
     {
         $notification = new stdClass();
         $notification->email = [];
-        $notification->email = ['invoice_sent_all'];
+        $notification->email = ['invoice_sent_all','payment_success_all','payment_manual_all'];
 
         return $notification;
     }

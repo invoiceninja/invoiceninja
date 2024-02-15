@@ -451,17 +451,19 @@ class BaseExport
     {
         if (isset($this->input['client_id']) && $this->input['client_id'] != 'all') {
 
-            if(!is_int($this->input['client_id'])) 
+            if(!is_int($this->input['client_id'])) {
                 $this->input['client_id'] = $this->decodePrimaryKey($this->input['client_id']);
+            }
 
             $client = Client::withTrashed()->find($this->input['client_id']);
 
-            if(!$client)
+            if(!$client) {
                 return $query;
+            }
 
             $this->client_description = $client->present()->name;
             return $query->where('client_id', $this->input['client_id']);
-            
+
         } elseif(isset($this->input['clients']) && count($this->input['clients']) > 0) {
 
             $this->client_description = 'Multiple Clients';
@@ -844,64 +846,69 @@ class BaseExport
     }
 
     protected function addClientFilter($query, $clients): Builder
-    {   
-        if(is_string($clients))
-           $clients =  explode(',', $clients);
+    {
+        if(is_string($clients)) {
+            $clients =  explode(',', $clients);
+        }
 
         $transformed_clients = $this->transformKeys($clients);
 
         nlog($clients);
         nlog($transformed_clients);
 
-        if(count($transformed_clients) > 0)
+        if(count($transformed_clients) > 0) {
             $query->whereIn('client_id', $transformed_clients);
-        
+        }
+
         return $query;
     }
 
     protected function addVendorFilter($query, $vendors): Builder
-    {   
-        
+    {
+
         if(is_string($vendors)) {
             $vendors =  explode(',', $vendors);
         }
-        
+
         $transformed_vendors = $this->transformKeys($vendors);
 
-        if(count($transformed_vendors) > 0)
+        if(count($transformed_vendors) > 0) {
             $query->whereIn('vendor_id', $transformed_vendors);
-        
+        }
+
         return $query;
     }
 
     protected function addProjectFilter($query, $projects): Builder
-    {   
-        
+    {
+
         if(is_string($projects)) {
             $projects =  explode(',', $projects);
         }
 
         $transformed_projects = $this->transformKeys($projects);
-        
-        if(count($transformed_projects) > 0)
+
+        if(count($transformed_projects) > 0) {
             $query->whereIn('project_id', $transformed_projects);
-        
+        }
+
         return $query;
     }
 
     protected function addCategoryFilter($query, $expense_categories): Builder
-    {   
-        
+    {
+
         if(is_string($expense_categories)) {
             $expense_categories =  explode(',', $expense_categories);
         }
 
         $transformed_expense_categories = $this->transformKeys($expense_categories);
-        
 
-        if(count($transformed_expense_categories) > 0)
+
+        if(count($transformed_expense_categories) > 0) {
             $query->whereIn('category_id', $transformed_expense_categories);
-        
+        }
+
         return $query;
     }
 
@@ -1299,12 +1306,12 @@ class BaseExport
     public function queueDocuments(Builder $query)
     {
         nlog("queue docs pls");
-        if($query->getModel() instanceof Document)
+        if($query->getModel() instanceof Document) {
             $documents = $query->pluck('id')->toArray();
-        else{
+        } else {
             $documents = $query->cursor()
-                               ->map(function ($entity){
-                                      return $entity->documents()->pluck('id')->toArray();
+                               ->map(function ($entity) {
+                                   return $entity->documents()->pluck('id')->toArray();
                                })->flatten()
                                ->toArray();
         }
@@ -1315,11 +1322,13 @@ class BaseExport
 
             $user = $this->company->owner();
 
-            if(auth()->user() && auth()->user()->account_id == $this->company->account_id)
+            if(auth()->user() && auth()->user()->account_id == $this->company->account_id) {
                 $user = auth()->user();
+            }
 
-            if($this->input['user_id'] ?? false)
+            if($this->input['user_id'] ?? false) {
                 $user = User::where('id', $this->input['user_id'])->where('account_id', $this->company->account_id)->first();
+            }
 
             ZipDocuments::dispatch($documents, $this->company, $user);
         }

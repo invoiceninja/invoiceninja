@@ -105,8 +105,8 @@ class Handler extends ExceptionHandler
         if (Ninja::isHosted()) {
 
             // if($exception instanceof ThrottleRequestsException && class_exists(\Modules\Admin\Events\ThrottledExceptionRaised::class)) {
-                // $uri = urldecode(request()->getRequestUri());
-                // event(new \Modules\Admin\Events\ThrottledExceptionRaised(auth()->user()?->account?->key, $uri, request()->ip()));
+            // $uri = urldecode(request()->getRequestUri());
+            // event(new \Modules\Admin\Events\ThrottledExceptionRaised(auth()->user()?->account?->key, $uri, request()->ip()));
             // }
 
             Integration::configureScope(function (Scope $scope): void {

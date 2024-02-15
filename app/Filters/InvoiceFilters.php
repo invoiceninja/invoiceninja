@@ -318,13 +318,12 @@ class InvoiceFilters extends QueryFilters
 
         if ($sort_col[0] == 'client_id') {
 
-            return $this->builder->orderBy(\App\Models\Client::select       ('name')
+            return $this->builder->orderBy(\App\Models\Client::select('name')
                              ->whereColumn('clients.id', 'invoices.client_id'), $dir);
 
         }
 
-        if($sort_col[0] == 'number')
-        {
+        if($sort_col[0] == 'number') {
             return $this->builder->orderByRaw('ABS(number) ' . $dir);
         }
 

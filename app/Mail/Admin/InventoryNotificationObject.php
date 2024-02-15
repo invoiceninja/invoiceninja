@@ -60,12 +60,12 @@ class InventoryNotificationObject
     private function getData()
     {
         $content = ctrans(
-                'texts.inventory_notification_body',
-                ['amount' => $this->getAmount(),
+            'texts.inventory_notification_body',
+            ['amount' => $this->getAmount(),
                     'product' => $this->product->product_key.': '.$this->product->notes,
                 ]
         );
-        
+
         $data = [
             'title' => $this->getSubject(),
             'content' => $content,
@@ -76,6 +76,7 @@ class InventoryNotificationObject
             'settings' => $this->product->company->settings,
             'whitelabel' => $this->product->company->account->isPaid() ? true : false,
             'text_body' => $content,
+            'template' => $this->product->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
         ];
 
         return $data;

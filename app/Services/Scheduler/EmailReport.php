@@ -65,7 +65,7 @@ class EmailReport
         $data['end_date'] = $start_end_dates[1];
         $data['date_range'] = $data['date_range'] ?? 'all';
         $data['report_keys'] = $data['report_keys'] ?? [];
-        
+
         $export = false;
 
         match($this->scheduler->parameters['report_name']) {

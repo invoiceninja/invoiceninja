@@ -891,7 +891,7 @@ class CheckData extends Command
                 $this->logMessage("Fixing country for # {$client->id}");
             });
 
-            Client::query()->whereNull("settings->currency_id")->cursor()->each(function ($client){
+            Client::query()->whereNull("settings->currency_id")->cursor()->each(function ($client) {
                 $settings = $client->settings;
                 $settings->currency_id = (string)$client->company->settings->currency_id;
                 $client->settings = $settings;
@@ -901,7 +901,7 @@ class CheckData extends Command
 
             });
 
-            Payment::withTrashed()->where('exchange_rate', 0)->cursor()->each(function ($payment){
+            Payment::withTrashed()->where('exchange_rate', 0)->cursor()->each(function ($payment) {
                 $payment->exchange_rate = 1;
                 $payment->saveQuietly();
 
@@ -917,11 +917,11 @@ class CheckData extends Command
                 $p->currency_id = $p->client->settings->currency_id;
                 $p->saveQuietly();
 
-                
+
                 $this->logMessage("Fixing currency for # {$p->id}");
 
             });
-            
+
             Company::whereNull("subdomain")
             ->cursor()
             ->when(Ninja::isHosted())
@@ -942,7 +942,7 @@ class CheckData extends Command
                 $i->partial_due_date = null;
                 $i->saveQuietly();
 
-                
+
                 $this->logMessage("Fixing partial due date for # {$i->id}");
 
             });

@@ -134,9 +134,9 @@ class InvoiceEmailEngine extends BaseEmailEngine
             $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->invoice->numberFormatter().'.pdf']]);
         }
 
-// $hash = Str::uuid();
-// $url = \Illuminate\Support\Facades\URL::temporarySignedRoute('protected_download', now()->addHour(), ['hash' => $hash]);
-// Cache::put($hash, $url, now()->addHour());
+        // $hash = Str::uuid();
+        // $url = \Illuminate\Support\Facades\URL::temporarySignedRoute('protected_download', now()->addHour(), ['hash' => $hash]);
+        // Cache::put($hash, $url, now()->addHour());
 
         //attach third party documents
         if ($this->client->getSetting('document_email_attachment') !== false && $this->invoice->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
@@ -155,7 +155,7 @@ class InvoiceEmailEngine extends BaseEmailEngine
             // Storage::url
             $this->invoice->documents()->where('is_public', true)->cursor()->each(function ($document) {
                 if ($document->size > $this->max_attachment_size) {
-                    
+
                     $hash = Str::random(64);
                     Cache::put($hash, ['db' => $this->invoice->company->db, 'doc_hash' => $document->hash], now()->addDays(7));
 
@@ -193,9 +193,9 @@ class InvoiceEmailEngine extends BaseEmailEngine
                                        ->each(function ($expense) {
                                            $expense->documents()->where('is_public', true)->cursor()->each(function ($document) {
                                                if ($document->size > $this->max_attachment_size) {
-                                                
-                                                    $hash = Str::random(64);
-                                                    Cache::put($hash, ['db' => $this->invoice->company->db, 'doc_hash' => $document->hash], now()->addDays(7));
+
+                                                   $hash = Str::random(64);
+                                                   Cache::put($hash, ['db' => $this->invoice->company->db, 'doc_hash' => $document->hash], now()->addDays(7));
 
                                                    $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.hashed_download', ['hash' => $hash]) ."'>". $document->name ."</a>"]);
                                                } else {
@@ -217,9 +217,9 @@ class InvoiceEmailEngine extends BaseEmailEngine
                                        ->each(function ($task) {
                                            $task->documents()->where('is_public', true)->cursor()->each(function ($document) {
                                                if ($document->size > $this->max_attachment_size) {
-                                                
-                                                    $hash = Str::random(64);
-                                                    Cache::put($hash, ['db' => $this->invoice->company->db, 'doc_hash' => $document->hash], now()->addDays(7));
+
+                                                   $hash = Str::random(64);
+                                                   Cache::put($hash, ['db' => $this->invoice->company->db, 'doc_hash' => $document->hash], now()->addDays(7));
 
                                                    $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.hashed_download', ['hash' => $hash]) ."'>". $document->name ."</a>"]);
                                                } else {

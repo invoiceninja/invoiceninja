@@ -121,7 +121,7 @@ class ConnectedAccountController extends BaseController
                 'email_verified_at' => now()
             ];
 
-            
+
             /** @var \App\Models\User $user */
             $user = auth()->user();
 

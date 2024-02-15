@@ -73,13 +73,13 @@ class QuoteApprovedObject
     {
         $settings = $this->quote->client->getMergedSettings();
         $content = ctrans(
-                'texts.notification_quote_approved',
-                [
+            'texts.notification_quote_approved',
+            [
                     'amount' => $this->getAmount(),
                     'client' => $this->quote->client->present()->name(),
                     'invoice' => $this->quote->number,
                 ]
-                );
+        );
 
         $data = [
             'title' => $this->getSubject(),
@@ -91,6 +91,7 @@ class QuoteApprovedObject
             'settings' => $settings,
             'whitelabel' => $this->company->account->isPaid() ? true : false,
             'text_body' => $content,
+            'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
         ];
 
         return $data;
