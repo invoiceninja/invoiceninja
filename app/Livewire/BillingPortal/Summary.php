@@ -33,6 +33,8 @@ class Summary extends Component
         // The following may not be needed, as we can pass arround $context.
         // cache()->set($this->hash, $this->context);
 
+        // $this->dispatch('purchase.context', property: 'products', value: $products);
+
         return $this;
     }
 
@@ -146,6 +148,7 @@ class Summary extends Component
             $products[] = [
                 'product_key' => $item['product']['product_key'],
                 'quantity' => $item['quantity'],
+                'total_raw' => $item['product']['cost'] * $item['quantity'],
                 'total' => Number::formatMoney($item['product']['cost'] * $item['quantity'], $this->subscription->company) . ' / ' . RecurringInvoice::frequencyForKey($this->subscription->frequency_id),
             ];
         }
@@ -154,6 +157,7 @@ class Summary extends Component
             $products[] = [
                 'product_key' => $item['product']['product_key'],
                 'quantity' => $item['quantity'],
+                'total_raw' => $item['product']['cost'] * $item['quantity'],
                 'total' => Number::formatMoney($item['product']['cost'] * $item['quantity'], $this->subscription->company) . ' / ' . RecurringInvoice::frequencyForKey($this->subscription->frequency_id),
             ];
         }
@@ -162,6 +166,7 @@ class Summary extends Component
             $products[] = [
                 'product_key' => $item['product']['product_key'],
                 'quantity' => $item['quantity'],
+                'total_raw' => $item['product']['cost'] * $item['quantity'],
                 'total' => Number::formatMoney($item['product']['cost'] * $item['quantity'], $this->subscription->company),
             ];
         }
@@ -170,6 +175,7 @@ class Summary extends Component
             $products[] = [
                 'product_key' => $item['product']['product_key'],
                 'quantity' => $item['quantity'],
+                'total_raw' => $item['product']['cost'] * $item['quantity'],
                 'total' => Number::formatMoney($item['product']['cost'] * $item['quantity'], $this->subscription->company),
             ];
         }
