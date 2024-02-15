@@ -1,0 +1,46 @@
+<?php
+
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
+
+namespace App\Livewire\BillingPortal\Payments;
+
+use App\Models\Subscription;
+use Livewire\Component;
+
+class Methods extends Component
+{
+    public Subscription $subscription;
+
+    public array $context;
+
+    public array $methods;
+
+    public function mount(): void
+    {
+        $total = collect($this->context['products'])->sum('total_raw');
+
+        $methods = auth()->guard('contact')->user()->client->service()->getPaymentMethods(
+            $total,
+        );
+
+        $this->methods = $methods;
+    }
+
+    public function handleSelect(string $company_gateway_id, string $gateway_type_id)
+    {
+        //
+    }
+
+    public function render()
+    {
+        return view('billing-portal.v3.payments.methods');
+    }
+}
