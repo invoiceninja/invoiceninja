@@ -147,7 +147,7 @@ class PaymentType extends StaticModel
             'laser' => self::LASER,
             'maestro' => self::MAESTRO,
             'solo' => self::SOLO,
-            'switch' => self::SWITCH,
+            'switch' => self::SWITCH
         ];
 
         $cardName = strtolower(str_replace([' ', '-', '_'], '', $cardName));

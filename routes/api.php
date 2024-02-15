@@ -115,6 +115,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\WebCronController;
 use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\ACHWebhookController;
 use App\PaymentDrivers\PayPalPPCPPaymentDriver;
 use Illuminate\Support\Facades\Route;
 
@@ -439,3 +440,7 @@ Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::cla
 Route::post('api/v1/ppcp/webhook', [PayPalPPCPPaymentDriver::class, 'processWebhookRequest'])->middleware('throttle:1000,1');
 
 Route::fallback([BaseController::class, 'notFound'])->middleware('throttle:404');
+
+Route::post('api/v1/payment_ach_webhook', ACHWebhookController::class)
+    ->middleware('throttle:1000,1')
+    ->name('payment_ach_webhook');
