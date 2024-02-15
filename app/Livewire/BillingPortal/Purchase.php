@@ -14,6 +14,7 @@ namespace App\Livewire\BillingPortal;
 
 use App\Libraries\MultiDB;
 use App\Livewire\BillingPortal\Cart\Cart;
+use App\Livewire\BillingPortal\Payments\Methods;
 use App\Models\Subscription;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
@@ -41,7 +42,7 @@ class Purchase extends Component
         Cart::class,
         Authentication::class,
         RFF::class,
-        Example::class,
+        Methods::class,
     ];
 
     public string $id;
