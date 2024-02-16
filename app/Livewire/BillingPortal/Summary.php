@@ -25,19 +25,6 @@ class Summary extends Component
 
     public array $context;
 
-    #[On('purchase.context')]
-    public function handleContext(string $property, $value): self
-    {
-        data_set($this->context, $property, $value);
-
-        // The following may not be needed, as we can pass arround $context.
-        // cache()->set($this->hash, $this->context);
-
-        // $this->dispatch('purchase.context', property: 'products', value: $products);
-
-        return $this;
-    }
-
     public function mount()
     {
         $bundle = $this->context['bundle'] ?? [
@@ -59,6 +46,7 @@ class Summary extends Component
             $bundle['one_time_products'][$product->hashed_id] = [
                 'product' => $product,
                 'quantity' => 1,
+                'notes' => $product->markdownNotes(),
             ];
         }
 
@@ -66,6 +54,7 @@ class Summary extends Component
             $bundle['optional_recurring_products'][$product->hashed_id] = [
                 'product' => $product,
                 'quantity' => 0,
+                'notes' => $product->markdownNotes(),
             ];
         }
 
@@ -73,6 +62,7 @@ class Summary extends Component
             $bundle['optional_one_time_products'][$product->hashed_id] = [
                 'product' => $product,
                 'quantity' => 0,
+                'notes' => $product->markdownNotes(),
             ];
         }
 
@@ -179,6 +169,8 @@ class Summary extends Component
                 'total' => Number::formatMoney($item['product']['cost'] * $item['quantity'], $this->subscription->company),
             ];
         }
+
+        $this->dispatch('purchase.context', property: 'products', value: $products);
 
         return $products;
     }
