@@ -84,6 +84,8 @@ class UpdateClientRequest extends Request
             //'regex:/[@$!%*#?&.]/', // must contain a special character
         ];
 
+        $rules['documents'] = 'bail|sometimes|array';
+
         return $rules;
     }
 

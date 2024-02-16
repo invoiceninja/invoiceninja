@@ -94,6 +94,7 @@ class StoreClientRequest extends Request
         $rules['number'] = ['bail', 'nullable', Rule::unique('clients')->where('company_id', $user->company()->id)];
         $rules['id_number'] = ['bail', 'nullable', Rule::unique('clients')->where('company_id', $user->company()->id)];
         $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,company,partnership,trust,charity,government,other';
+        $rules['documents'] = 'bail|sometimes|array';
 
         return $rules;
     }
