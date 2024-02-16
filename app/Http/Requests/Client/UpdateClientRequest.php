@@ -53,6 +53,8 @@ class UpdateClientRequest extends Request
             $rules['file.*'] = $this->file_validation;
         } elseif ($this->file('file')) {
             $rules['file'] = $this->file_validation;
+        } else {
+            $rules['documents'] = 'bail|sometimes|array';
         }
 
         $rules['company_logo'] = 'mimes:jpeg,jpg,png,gif|max:10000';
@@ -83,8 +85,6 @@ class UpdateClientRequest extends Request
             'regex:/[0-9]/',      // must contain at least one digit
             //'regex:/[@$!%*#?&.]/', // must contain a special character
         ];
-
-        $rules['documents'] = 'bail|sometimes|array';
 
         return $rules;
     }
