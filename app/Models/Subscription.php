@@ -12,6 +12,7 @@
 namespace App\Models;
 
 use App\Services\Subscription\PaymentLinkService;
+use App\Services\Subscription\SubscriptionCalculator;
 use App\Services\Subscription\SubscriptionService;
 use App\Services\Subscription\SubscriptionStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -144,6 +145,11 @@ class Subscription extends BaseModel
     public function status(RecurringInvoice $recurring_invoice): SubscriptionStatus
     {
         return (new SubscriptionStatus($this, $recurring_invoice))->run();
+    }
+
+    public function calc(): SubscriptionCalculator
+    {
+        return new SubscriptionCalculator($this);
     }
 
     public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo

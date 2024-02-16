@@ -12,8 +12,9 @@
 
 namespace App\Livewire\BillingPortal\Payments;
 
-use App\Models\Subscription;
 use Livewire\Component;
+use App\Models\Subscription;
+use Illuminate\Support\Facades\Cache;
 
 class Methods extends Component
 {
@@ -36,7 +37,32 @@ class Methods extends Component
 
     public function handleSelect(string $company_gateway_id, string $gateway_type_id)
     {
-        dd($this->context['bundle']);
+        
+        $this->dispatch('purchase.context', property: 'client_id', value: auth()->guard('contact')->user()->client->hashed_id);
+        
+        nlog($this->context);
+
+        $invoice = $this->subscription
+                        ->calc()
+                        ->buildPurchaseInvoice($this->context)
+                        ->service()
+                        ->fillDefaults()
+                        ->adjustInventory()
+                        ->save();
+        
+
+
+        Cache::put($this->hash, [
+            'subscription_id' => $this->subscription->hashed_id,
+            'email' => auth()->guard('contact')->user()->email,
+            'client_id' => auth()->guard('contact')->user()->client->hashed_id,
+            'invoice_id' => $invoice->hashed_id,
+            'context' => 'purchase',
+            'campaign' => $this->context['campaign'],
+            'bundle' => $this->context['bundle'],
+        ], now()->addMinutes(60));
+
+
     }
 
     public function render()
