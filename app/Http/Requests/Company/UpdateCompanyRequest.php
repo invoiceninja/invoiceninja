@@ -58,8 +58,8 @@ class UpdateCompanyRequest extends Request
         $rules['e_invoice_certificate_passphrase'] = 'sometimes|nullable';
         $rules['e_invoice_certificate'] = 'sometimes|nullable|file|mimes:p12,pfx,pem,cer,crt,der,txt,p7b,spc,bin';
 
-        $rules['smtp_host'] = 'sometimes|string';
-        $rules['smtp_port'] = 'sometimes|string';
+        $rules['smtp_host'] = 'sometimes|string|nullable';
+        $rules['smtp_port'] = 'sometimes|string|nullable';
         $rules['smtp_encryption'] = 'sometimes|string|nullable';
         $rules['smtp_local_domain'] = 'sometimes|string|nullable';
         // $rules['smtp_verify_peer'] = 'sometimes|string';
