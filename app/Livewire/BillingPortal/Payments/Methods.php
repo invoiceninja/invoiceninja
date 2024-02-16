@@ -36,7 +36,7 @@ class Methods extends Component
 
     public function handleSelect(string $company_gateway_id, string $gateway_type_id)
     {
-        //
+        dd($this->context['bundle']);
     }
 
     public function render()
