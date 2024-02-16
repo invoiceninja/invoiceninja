@@ -52,12 +52,16 @@ class Purchase extends Component
     #[On('purchase.context')]
     public function handleContext(string $property, $value): self
     {
+        $clone = $this->context;
+
         data_set($this->context, $property, $value);
 
         // The following may not be needed, as we can pass arround $context.
         // cache()->set($this->hash, $this->context);
 
-        $this->id = Str::uuid();
+        if ($clone !== $this->context) {
+            $this->id = Str::uuid();
+        }
 
         return $this;
     }
@@ -84,6 +88,18 @@ class Purchase extends Component
     public function component(): string
     {
         return $this->steps[$this->step];
+    }
+
+    #[Computed()]
+    public function componentUniqueId(): string
+    {
+        return "purchase-{$this->id}";
+    }
+
+    #[Computed()]
+    public function summaryUniqueId(): string
+    {
+        return "summary-{$this->id}";
     }
 
     public function mount()
