@@ -47,6 +47,7 @@ use App\Utils\Traits\SubscriptionHooker;
 use Carbon\Carbon;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Str;
+use Illuminate\Mail\Mailables\Address;
 
 class SubscriptionService
 {
@@ -208,7 +209,7 @@ class SubscriptionService
         $invitation = $invoice->invitations()->first();
 
         $email_object = new EmailObject();
-        $email_object->to = [$contact->email];
+        $email_object->to = [new Address($contact->email, $contact->present()->name())];
         $email_object->subject = ctrans('texts.white_label_link') . " " .ctrans('texts.payment_subject');
         $email_object->body = ctrans('texts.white_label_body', ['license_key' => $license_key]);
         $email_object->client_id = $invoice->client_id;
