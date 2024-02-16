@@ -12,17 +12,18 @@
 
 namespace App\Livewire\BillingPortal;
 
-use App\DataMapper\ClientSettings;
-use App\Factory\ClientFactory;
-use App\Jobs\Mail\NinjaMailerJob;
-use App\Jobs\Mail\NinjaMailerObject;
-use App\Mail\Subscription\OtpCode;
-use App\Models\ClientContact;
-use App\Models\Subscription;
-use App\Repositories\ClientContactRepository;
-use App\Repositories\ClientRepository;
 use Livewire\Component;
 use Illuminate\Support\Str;
+use App\Models\Subscription;
+use App\Models\ClientContact;
+use App\Factory\ClientFactory;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\DataMapper\ClientSettings;
+use App\Mail\Subscription\OtpCode;
+use App\Jobs\Mail\NinjaMailerObject;
+use Illuminate\Support\Facades\Cache;
+use App\Repositories\ClientRepository;
+use App\Repositories\ClientContactRepository;
 
 class Authentication extends Component
 {
@@ -101,7 +102,7 @@ class Authentication extends Component
         $code = rand(100000, 999999);
         $email_hash = "subscriptions:otp:{$this->email}";
 
-        cache()->put($email_hash, $code, 120);
+        Cache::put($email_hash, $code, 600);
 
         $cc = new ClientContact();
         $cc->email = $this->email;
@@ -127,9 +128,9 @@ class Authentication extends Component
             'otp' => 'required|numeric|digits:6',
         ]);
 
-        $code = cache()->get("subscriptions:otp:{$this->email}");
+        $code = Cache::get("subscriptions:otp:{$this->email}");
 
-        if ($this->otp !== $code) {
+        if ($this->otp != $code) { //loose comparison prevents edge cases
             $errors = $this->getErrorBag();
             $errors->add('otp', ctrans('texts.invalid_code'));
 
