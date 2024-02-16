@@ -1,5 +1,4 @@
 <div class="grid grid-cols-12 bg-gray-50">
-    
     <div
     
     class="col-span-12 xl:col-span-6 bg-white flex flex-col items-center lg:h-screen"
@@ -11,9 +10,8 @@
                 alt="{{ $subscription->company->present()->name }}"
             />
 
-
             <div class="my-10" id="container">
-                @livewire($this->component, ['context' => $context, 'subscription' => $this->subscription], key($id))
+                @livewire($this->component, ['context' => $context, 'subscription' => $this->subscription], key($this->componentUniqueId()))
             </div>
         </div>
     </div>
@@ -22,7 +20,7 @@
         <div class="sticky top-0">
             <div class="w-full p-10 lg:mt-24 md:max-w-xl">
                 <div class="my-6 space-y-10 xl:ml-5">
-                    @livewire('billing-portal.summary', ['subscription' => $subscription, 'context' => $context])
+                    @livewire('billing-portal.summary', ['subscription' => $subscription, 'context' => $context], key($this->summaryUniqueId()))
                 </div>
             </div>
         </div>
