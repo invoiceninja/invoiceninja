@@ -60,8 +60,8 @@ class UpdateCompanyRequest extends Request
 
         $rules['smtp_host'] = 'sometimes|string';
         $rules['smtp_port'] = 'sometimes|string';
-        $rules['smtp_encryption'] = 'sometimes|string';
-        $rules['smtp_local_domain'] = 'sometimes|string';
+        $rules['smtp_encryption'] = 'sometimes|string|nullable';
+        $rules['smtp_local_domain'] = 'sometimes|string|nullable';
         // $rules['smtp_verify_peer'] = 'sometimes|string';
 
         

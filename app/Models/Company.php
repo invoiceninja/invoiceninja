@@ -112,13 +112,13 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int $notify_vendor_when_paid
  * @property int $invoice_task_hours
  * @property int $deleted_at
- * @property string smtp_username
- * @property string smtp_password
- * @property string smtp_host
- * @property string smtp_port
- * @property string smtp_encryption
- * @property string smtp_local_domain
- * @property boolean smtp_verify_peer
+ * @property string $smtp_username
+ * @property string $smtp_password
+ * @property string $smtp_host
+ * @property string $smtp_port
+ * @property string $smtp_encryption
+ * @property string $smtp_local_domain
+ * @property boolean $smtp_verify_peer
  * @property-read \App\Models\Account $account
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
  * @property-read int|null $activities_count
