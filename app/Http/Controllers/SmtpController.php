@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Smtp\CheckSmtpRequest;
 use App\Mail\TestMailServer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -23,7 +24,7 @@ class SmtpController extends BaseController
         parent::__construct();
     }
 
-    public function check(Request $request)
+    public function check(CheckSmtpRequest $request)
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
