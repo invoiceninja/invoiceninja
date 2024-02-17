@@ -141,16 +141,16 @@
         },
         {
             "name": "amphp/byte-stream",
-            "version": "v2.1.0",
+            "version": "v2.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/byte-stream.git",
-                "reference": "0a4b0e80dad92c75e6131f8ad253919211540338"
+                "reference": "daa00f2efdbd71565bf64ffefa89e37542addf93"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/byte-stream/zipball/0a4b0e80dad92c75e6131f8ad253919211540338",
-                "reference": "0a4b0e80dad92c75e6131f8ad253919211540338",
+                "url": "https://api.github.com/repos/amphp/byte-stream/zipball/daa00f2efdbd71565bf64ffefa89e37542addf93",
+                "reference": "daa00f2efdbd71565bf64ffefa89e37542addf93",
                 "shasum": ""
             },
             "require": {
@@ -166,7 +166,7 @@
                 "amphp/php-cs-fixer-config": "^2",
                 "amphp/phpunit-util": "^3",
                 "phpunit/phpunit": "^9",
-                "psalm/phar": "^5.4"
+                "psalm/phar": "5.22.1"
             },
             "type": "library",
             "autoload": {
@@ -204,7 +204,7 @@
             ],
             "support": {
                 "issues": "https://github.com/amphp/byte-stream/issues",
-                "source": "https://github.com/amphp/byte-stream/tree/v2.1.0"
+                "source": "https://github.com/amphp/byte-stream/tree/v2.1.1"
             },
             "funding": [
                 {
@@ -212,7 +212,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-11-19T14:34:16+00:00"
+            "time": "2024-02-17T04:49:38+00:00"
         },
         {
             "name": "amphp/cache",
@@ -581,16 +581,16 @@
         },
         {
             "name": "amphp/process",
-            "version": "v2.0.1",
+            "version": "v2.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/process.git",
-                "reference": "a65d3bc1f36ef12d44df42a68f0f0643183f1052"
+                "reference": "a79dc87100be857db2c4bbfd5369585a6d1e658c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/process/zipball/a65d3bc1f36ef12d44df42a68f0f0643183f1052",
-                "reference": "a65d3bc1f36ef12d44df42a68f0f0643183f1052",
+                "url": "https://api.github.com/repos/amphp/process/zipball/a79dc87100be857db2c4bbfd5369585a6d1e658c",
+                "reference": "a79dc87100be857db2c4bbfd5369585a6d1e658c",
                 "shasum": ""
             },
             "require": {
@@ -637,7 +637,7 @@
             "homepage": "https://amphp.org/process",
             "support": {
                 "issues": "https://github.com/amphp/process/issues",
-                "source": "https://github.com/amphp/process/tree/v2.0.1"
+                "source": "https://github.com/amphp/process/tree/v2.0.2"
             },
             "funding": [
                 {
@@ -645,7 +645,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-01-15T16:00:57+00:00"
+            "time": "2024-02-13T20:38:21+00:00"
         },
         {
             "name": "amphp/serialization",
@@ -1343,16 +1343,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.299.0",
+            "version": "3.299.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "76d1165568d949b430a87eaa42f6dbc4b6705b6f"
+                "reference": "a0f87b8e8bfb9afd0ffd702fcda556b465eee457"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/76d1165568d949b430a87eaa42f6dbc4b6705b6f",
-                "reference": "76d1165568d949b430a87eaa42f6dbc4b6705b6f",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/a0f87b8e8bfb9afd0ffd702fcda556b465eee457",
+                "reference": "a0f87b8e8bfb9afd0ffd702fcda556b465eee457",
                 "shasum": ""
             },
             "require": {
@@ -1432,9 +1432,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.299.0"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.299.1"
             },
-            "time": "2024-02-15T19:08:34+00:00"
+            "time": "2024-02-16T19:08:34+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -4650,16 +4650,16 @@
         },
         {
             "name": "imdhemy/laravel-purchases",
-            "version": "1.9.1",
+            "version": "1.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/imdhemy/laravel-in-app-purchases.git",
-                "reference": "b74e09b78fb3e0f1b1630dbcfd23d9f6fe251b90"
+                "reference": "014c189795704bea88260a4054b02d80b9bbc3ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/imdhemy/laravel-in-app-purchases/zipball/b74e09b78fb3e0f1b1630dbcfd23d9f6fe251b90",
-                "reference": "b74e09b78fb3e0f1b1630dbcfd23d9f6fe251b90",
+                "url": "https://api.github.com/repos/imdhemy/laravel-in-app-purchases/zipball/014c189795704bea88260a4054b02d80b9bbc3ac",
+                "reference": "014c189795704bea88260a4054b02d80b9bbc3ac",
                 "shasum": ""
             },
             "require": {
@@ -4715,7 +4715,7 @@
             ],
             "support": {
                 "issues": "https://github.com/imdhemy/laravel-in-app-purchases/issues",
-                "source": "https://github.com/imdhemy/laravel-in-app-purchases/tree/1.9.1"
+                "source": "https://github.com/imdhemy/laravel-in-app-purchases/tree/1.10.0"
             },
             "funding": [
                 {
@@ -4723,7 +4723,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-12-15T10:35:56+00:00"
+            "time": "2024-02-17T05:58:30+00:00"
         },
         {
             "name": "intervention/image",
@@ -4873,7 +4873,7 @@
         },
         {
             "name": "invoiceninja/ubl_invoice",
-            "version": "v2.0.1",
+            "version": "v2.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/invoiceninja/UBL_invoice.git",
@@ -4931,7 +4931,7 @@
                 "xml invoice"
             ],
             "support": {
-                "source": "https://github.com/invoiceninja/UBL_invoice/tree/v2.0.1"
+                "source": "https://github.com/invoiceninja/UBL_invoice/tree/v2.0.2"
             },
             "time": "2024-02-05T02:16:14+00:00"
         },
@@ -5754,16 +5754,16 @@
         },
         {
             "name": "laravel/socialite",
-            "version": "v5.12.0",
+            "version": "v5.12.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/socialite.git",
-                "reference": "ffeeb2cdf723b4c88b25479968e2d3a61a83dbe5"
+                "reference": "7dae1b072573809f32ab6dcf4aebb57c8b3e8acf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/socialite/zipball/ffeeb2cdf723b4c88b25479968e2d3a61a83dbe5",
-                "reference": "ffeeb2cdf723b4c88b25479968e2d3a61a83dbe5",
+                "url": "https://api.github.com/repos/laravel/socialite/zipball/7dae1b072573809f32ab6dcf4aebb57c8b3e8acf",
+                "reference": "7dae1b072573809f32ab6dcf4aebb57c8b3e8acf",
                 "shasum": ""
             },
             "require": {
@@ -5820,7 +5820,7 @@
                 "issues": "https://github.com/laravel/socialite/issues",
                 "source": "https://github.com/laravel/socialite"
             },
-            "time": "2024-02-11T18:29:55+00:00"
+            "time": "2024-02-16T08:58:20+00:00"
         },
         {
             "name": "laravel/tinker",
@@ -11845,38 +11845,38 @@
         },
         {
             "name": "spatie/php-structure-discoverer",
-            "version": "2.0.1",
+            "version": "2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/php-structure-discoverer.git",
-                "reference": "d2e4e6cba962ce2a058ea415a123dd84b37765ac"
+                "reference": "f5b3c935dda89d6c382b27e3caf348fa80bcfa88"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/php-structure-discoverer/zipball/d2e4e6cba962ce2a058ea415a123dd84b37765ac",
-                "reference": "d2e4e6cba962ce2a058ea415a123dd84b37765ac",
+                "url": "https://api.github.com/repos/spatie/php-structure-discoverer/zipball/f5b3c935dda89d6c382b27e3caf348fa80bcfa88",
+                "reference": "f5b3c935dda89d6c382b27e3caf348fa80bcfa88",
                 "shasum": ""
             },
             "require": {
                 "amphp/amp": "^v3.0",
                 "amphp/parallel": "^2.2",
-                "illuminate/collections": "^9.30|^10.0",
+                "illuminate/collections": "^10.0|^11.0",
                 "php": "^8.1",
                 "spatie/laravel-package-tools": "^1.4.3",
                 "symfony/finder": "^6.0|^7.0"
             },
             "require-dev": {
-                "illuminate/console": "^9.30|^10.0",
+                "illuminate/console": "^10.0|^11.0",
                 "laravel/pint": "^1.0",
-                "nunomaduro/collision": "^6.0",
+                "nunomaduro/collision": "^7.0|^8.0",
                 "nunomaduro/larastan": "^2.0.1",
-                "orchestra/testbench": "^7.0|^8.0",
-                "pestphp/pest": "^1.21",
-                "pestphp/pest-plugin-laravel": "^1.1",
+                "orchestra/testbench": "^7.0|^8.0|^9.0",
+                "pestphp/pest": "^2.0",
+                "pestphp/pest-plugin-laravel": "^2.0",
                 "phpstan/extension-installer": "^1.1",
                 "phpstan/phpstan-deprecation-rules": "^1.0",
                 "phpstan/phpstan-phpunit": "^1.0",
-                "phpunit/phpunit": "^9.5",
+                "phpunit/phpunit": "^9.5|^10.0",
                 "spatie/laravel-ray": "^1.26"
             },
             "type": "library",
@@ -11913,7 +11913,7 @@
             ],
             "support": {
                 "issues": "https://github.com/spatie/php-structure-discoverer/issues",
-                "source": "https://github.com/spatie/php-structure-discoverer/tree/2.0.1"
+                "source": "https://github.com/spatie/php-structure-discoverer/tree/2.1.0"
             },
             "funding": [
                 {
@@ -11921,7 +11921,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-01-08T21:01:26+00:00"
+            "time": "2024-02-16T12:42:24+00:00"
         },
         {
             "name": "sprain/swiss-qr-bill",
