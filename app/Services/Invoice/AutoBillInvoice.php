@@ -31,6 +31,8 @@ class AutoBillInvoice extends AbstractService
     private Client $client;
 
     private array $used_credit = [];
+    
+    private array $used_unapplied = [];
 
     /*Specific variable for partial payments */
     private bool $is_partial_amount = false;
@@ -64,6 +66,10 @@ class AutoBillInvoice extends AbstractService
         //if the credits cover the payments, we stop here, build the payment with credits and exit early
         if ($this->client->getSetting('use_credits_payment') != 'off') {
             $this->applyCreditPayment();
+        }
+
+        if($this->client->getSetting('use_unapplied_payment') != 'off') {
+            $this->applyUnappliedPayment();
         }
 
         //If this returns true, it means a partial invoice amount was paid as a credit and there is no further balance payable
@@ -162,6 +168,11 @@ class AutoBillInvoice extends AbstractService
         }
     }
 
+    private function finalizePaymentUsingUnapplied()
+    {
+
+    }
+
     /**
      * If the credits on file cover the invoice amount
      * the we create a matching payment using credits only
@@ -243,6 +254,80 @@ class AutoBillInvoice extends AbstractService
                     ->setCalculatedStatus()
                     ->save();
     }
+    
+    /**
+     * If the client has unapplied payments on file
+     * we will use these prior to charging a 
+     * payment method on file.
+     *
+     * This needs to be wrapped in a transaction.
+     *
+     * @return self
+     */
+    private function applyUnappliedPayment(): self
+    {
+        $unapplied_payments = Payment::query()->where('client_id', $this->client->id)
+                                  ->where('status_id', Payment::STATUS_COMPLETED)
+                                  ->where('is_deleted', false)
+                                  ->where('amount', '>', 'applied')
+                                  ->where('amount', '>', 0)
+                                  ->orderBy('created_at')
+                                  ->get();
+        
+        $available_unapplied_balance = $unapplied_payments->sum('amount') - $unapplied_payments->sum('applied');
+        
+        nlog("available unapplied balance = {$available_unapplied_balance}");
+        
+        if ((int) $available_unapplied_balance == 0) {
+            return $this;
+        }
+
+        if ($this->invoice->partial > 0) {
+            $this->is_partial_amount = true;
+        }
+
+        $this->used_unapplied = [];
+
+        foreach ($unapplied_payments as $key => $payment) {
+            $payment_balance = $payment->amount - $payment->applied;
+            if ($this->is_partial_amount) {
+                //more than needed
+                if ($payment_balance > $this->invoice->partial) {
+                    $this->used_unapplied[$key]['payment_id'] = $payment->id;
+                    $this->used_unapplied[$key]['amount'] = $this->invoice->partial;
+                    $this->invoice->balance -= $this->invoice->partial;
+                    $this->invoice->paid_to_date += $this->invoice->partial;
+                    $this->invoice->partial = 0;
+                    break;
+                } else {
+                    $this->used_unapplied[$key]['payment_id'] = $payment->id;
+                    $this->used_unapplied[$key]['amount'] = $payment_balance;
+                    $this->invoice->partial -= $payment_balance;
+                    $this->invoice->balance -= $payment_balance;
+                    $this->invoice->paid_to_date += $payment_balance;
+                }
+            } else {
+                //more  than needed
+                if ($payment_balance > $this->invoice->balance) {
+                    $this->used_unapplied[$key]['payment_id'] = $payment->id;
+                    $this->used_unapplied[$key]['amount'] = $this->invoice->balance;
+                    $this->invoice->paid_to_date += $this->invoice->balance;
+                    $this->invoice->balance = 0;
+
+                    break;
+                } else {
+                    $this->used_unapplied[$key]['payment_id'] = $payment->id;
+                    $this->used_unapplied[$key]['amount'] = $payment_balance;
+                    $this->invoice->balance -= $payment_balance;
+                    $this->invoice->paid_to_date += $payment_balance;
+                }
+            }
+        }
+
+        $this->finalizePaymentUsingUnapplied();
+
+        return $this;
+    }
 
     /**
      * Applies credits to a payment prior to push
@@ -260,7 +345,7 @@ class AutoBillInvoice extends AbstractService
 
         $available_credit_balance = $available_credits->sum('balance');
 
-        info("available credit balance = {$available_credit_balance}");
+        nlog("available credit balance = {$available_credit_balance}");
 
         if ((int) $available_credit_balance == 0) {
             return $this;
