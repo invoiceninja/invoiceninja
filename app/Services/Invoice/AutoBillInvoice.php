@@ -279,7 +279,6 @@ class AutoBillInvoice extends AbstractService
             $this->is_partial_amount = true;
         }
 
-
         $payment_repo = new PaymentRepository(new CreditRepository());
         
         foreach ($unapplied_payments as $key => $payment) {
@@ -296,7 +295,7 @@ class AutoBillInvoice extends AbstractService
                     $payment_repo->save($payload, $payment);
                 }
             } else {
-                //more  than needed
+                //more than needed
                 if ($payment_balance > $this->invoice->balance) {
                     
                     $payload = ['client_id' => $this->invoice->client_id, 'invoices' => [['invoice_id' => $this->invoice->id,'amount' => $this->invoice->balance]]];
@@ -312,6 +311,10 @@ class AutoBillInvoice extends AbstractService
             }
 
             $this->invoice = $this->invoice->fresh();
+
+            if((int)$this->invoice->balance == 0) {
+                return $this;
+            }
         }
 
         return $this;
