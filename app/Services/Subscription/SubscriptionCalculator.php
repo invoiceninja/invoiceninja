@@ -35,7 +35,6 @@ class SubscriptionCalculator
     {
 
         $invoice_repo = new InvoiceRepository();
-        $subscription_repo = new SubscriptionRepository();
 
         $invoice = InvoiceFactory::create($this->subscription->company_id, $this->subscription->user_id);
         $invoice->subscription_id = $this->subscription->id;
@@ -55,8 +54,7 @@ class SubscriptionCalculator
     
     /**
      * Build Line Items
-     *
-     * @param  array $context
+     * @param array $context
      * @return array
      */
     private function buildItems(array $context): array

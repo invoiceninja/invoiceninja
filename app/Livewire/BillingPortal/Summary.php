@@ -133,7 +133,8 @@ class Summary extends Component
         if (isset($this->context['bundle']) === false) {
             return [];
         }
-
+        $products = [];
+        
         foreach ($this->context['bundle']['recurring_products'] as $key => $item) {
             $products[] = [
                 'product_key' => $item['product']['product_key'],

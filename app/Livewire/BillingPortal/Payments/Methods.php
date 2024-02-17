@@ -37,8 +37,10 @@ class Methods extends Component
 
     public function handleSelect(string $company_gateway_id, string $gateway_type_id)
     {
-        
-        $this->dispatch('purchase.context', property: 'client_id', value: auth()->guard('contact')->user()->client->hashed_id);
+        /** @var \App\Models\ClientContact $contact */
+        $contact = auth()->guard('contact')->user();
+
+        $this->dispatch('purchase.context', property: 'client_id', value: $contact->client->hashed_id);
         
         nlog($this->context);
 
@@ -50,12 +52,10 @@ class Methods extends Component
                         ->adjustInventory()
                         ->save();
         
-
-
-        Cache::put($this->hash, [
+        Cache::put($this->context['hash'], [
             'subscription_id' => $this->subscription->hashed_id,
-            'email' => auth()->guard('contact')->user()->email,
-            'client_id' => auth()->guard('contact')->user()->client->hashed_id,
+            'email' => $contact->email,
+            'client_id' => $contact->client->hashed_id,
             'invoice_id' => $invoice->hashed_id,
             'context' => 'purchase',
             'campaign' => $this->context['campaign'],
