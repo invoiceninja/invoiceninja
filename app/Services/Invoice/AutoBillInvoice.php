@@ -288,24 +288,24 @@ class AutoBillInvoice extends AbstractService
             if ($this->is_partial_amount) {
                 //more than needed
                 if ($payment_balance > $this->invoice->partial) {
-                    $payload = ['invoices' => [['invoice_id' => $this->invoice->id,'amount' => $this->invoice->partial]]];
+                    $payload = ['client_id' => $this->invoice->client_id, 'invoices' => [['invoice_id' => $this->invoice->id,'amount' => $this->invoice->partial]]];
                     $payment_repo->save($payload, $payment);
                     break;
                 } else {
-                    $payload = ['invoices' => [['invoice_id' => $this->invoice->id,'amount' => $payment_balance]]];
+                    $payload = ['client_id' => $this->invoice->client_id, 'invoices' => [['invoice_id' => $this->invoice->id,'amount' => $payment_balance]]];
                     $payment_repo->save($payload, $payment);
                 }
             } else {
                 //more  than needed
                 if ($payment_balance > $this->invoice->balance) {
                     
-                    $payload = ['invoices' => [['invoice_id' => $this->invoice->id,'amount' => $this->invoice->balance]]];
+                    $payload = ['client_id' => $this->invoice->client_id, 'invoices' => [['invoice_id' => $this->invoice->id,'amount' => $this->invoice->balance]]];
                     $payment_repo->save($payload, $payment);
 
                     break;
                 } else {
                     
-                    $payload = ['invoices' => [['invoice_id' => $this->invoice->id,'amount' => $payment_balance]]];
+                    $payload = ['client_id' => $this->invoice->client_id, 'invoices' => [['invoice_id' => $this->invoice->id,'amount' => $payment_balance]]];
                     $payment_repo->save($payload, $payment);
 
                 }
