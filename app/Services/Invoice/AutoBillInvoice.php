@@ -22,6 +22,8 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
+use App\Repositories\CreditRepository;
+use App\Repositories\PaymentRepository;
 use App\Services\AbstractService;
 use App\Utils\Ninja;
 use Illuminate\Support\Str;
@@ -32,8 +34,6 @@ class AutoBillInvoice extends AbstractService
 
     private array $used_credit = [];
     
-    private array $used_unapplied = [];
-
     /*Specific variable for partial payments */
     private bool $is_partial_amount = false;
 
@@ -168,11 +168,6 @@ class AutoBillInvoice extends AbstractService
         }
     }
 
-    private function finalizePaymentUsingUnapplied()
-    {
-
-    }
-
     /**
      * If the credits on file cover the invoice amount
      * the we create a matching payment using credits only
@@ -228,8 +223,6 @@ class AutoBillInvoice extends AbstractService
              ->client
              ->service()
              ->updateBalanceAndPaidToDate($amount * -1, $amount)
-              // ->updateBalance($amount * -1)
-              // ->updatePaidToDate($amount)
              ->adjustCreditBalance($amount * -1)
              ->save();
 
@@ -286,45 +279,40 @@ class AutoBillInvoice extends AbstractService
             $this->is_partial_amount = true;
         }
 
-        $this->used_unapplied = [];
 
+        $payment_repo = new PaymentRepository(new CreditRepository());
+        
         foreach ($unapplied_payments as $key => $payment) {
             $payment_balance = $payment->amount - $payment->applied;
+
             if ($this->is_partial_amount) {
                 //more than needed
                 if ($payment_balance > $this->invoice->partial) {
-                    $this->used_unapplied[$key]['payment_id'] = $payment->id;
-                    $this->used_unapplied[$key]['amount'] = $this->invoice->partial;
-                    $this->invoice->balance -= $this->invoice->partial;
-                    $this->invoice->paid_to_date += $this->invoice->partial;
-                    $this->invoice->partial = 0;
+                    $payload = ['invoices' => [['invoice_id' => $this->invoice->id,'amount' => $this->invoice->partial]]];
+                    $payment_repo->save($payload, $payment);
                     break;
                 } else {
-                    $this->used_unapplied[$key]['payment_id'] = $payment->id;
-                    $this->used_unapplied[$key]['amount'] = $payment_balance;
-                    $this->invoice->partial -= $payment_balance;
-                    $this->invoice->balance -= $payment_balance;
-                    $this->invoice->paid_to_date += $payment_balance;
+                    $payload = ['invoices' => [['invoice_id' => $this->invoice->id,'amount' => $payment_balance]]];
+                    $payment_repo->save($payload, $payment);
                 }
             } else {
                 //more  than needed
                 if ($payment_balance > $this->invoice->balance) {
-                    $this->used_unapplied[$key]['payment_id'] = $payment->id;
-                    $this->used_unapplied[$key]['amount'] = $this->invoice->balance;
-                    $this->invoice->paid_to_date += $this->invoice->balance;
-                    $this->invoice->balance = 0;
+                    
+                    $payload = ['invoices' => [['invoice_id' => $this->invoice->id,'amount' => $this->invoice->balance]]];
+                    $payment_repo->save($payload, $payment);
 
                     break;
                 } else {
-                    $this->used_unapplied[$key]['payment_id'] = $payment->id;
-                    $this->used_unapplied[$key]['amount'] = $payment_balance;
-                    $this->invoice->balance -= $payment_balance;
-                    $this->invoice->paid_to_date += $payment_balance;
+                    
+                    $payload = ['invoices' => [['invoice_id' => $this->invoice->id,'amount' => $payment_balance]]];
+                    $payment_repo->save($payload, $payment);
+
                 }
             }
-        }
 
-        $this->finalizePaymentUsingUnapplied();
+            $this->invoice = $this->invoice->fresh();
+        }
 
         return $this;
     }
