@@ -59,6 +59,78 @@ class ClientApiTest extends TestCase
         Model::reguard();
     }
 
+    public function testDocumentValidation()
+    {
+        $data = [
+            'name' => 'name of client',
+            'documents' => [],
+        ];
+
+        $response = $this->withHeaders([
+          'X-API-TOKEN' => $this->token,
+      ])->postJson("/api/v1/clients",$data)
+      ->assertStatus(200);
+
+    }
+
+    public function testDocumentValidationFails()
+    {
+        $data = [
+            'name' => 'name of client',
+            'documents' => 'wut',
+        ];
+
+        $response = $this->withHeaders([
+          'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/clients", $data)
+        ->assertStatus(422);
+
+        $data = [
+            'name' => 'name of client',
+            'documents' => null,
+        ];
+
+        $response = $this->withHeaders([
+        'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/clients", $data)
+        ->assertStatus(422);
+
+    }
+
+    public function testDocumentValidationPutFails()
+    {
+        $data = [
+            'name' => 'name of client',
+            'documents' => 'wut',
+        ];
+
+        $response = $this->withHeaders([
+          'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/clients/{$this->client->hashed_id}", $data)
+        ->assertStatus(422);
+
+        $data = [
+            'name' => 'name of client',
+            'documents' => null,
+        ];
+
+        $response = $this->withHeaders([
+        'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/clients/{$this->client->hashed_id}", $data)
+        ->assertStatus(422);
+        
+        $data = [
+                'name' => 'name of client',
+                'documents' => [],
+            ];
+
+        $response = $this->withHeaders([
+        'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/clients/{$this->client->hashed_id}", $data)
+        ->assertStatus(200);
+
+    }
+
     public function testClientDocumentQuery()
     {
         

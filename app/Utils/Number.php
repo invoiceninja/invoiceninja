@@ -95,6 +95,14 @@ class Number
      */
     public static function parseFloat($value)
     {
+        if(!$value)
+            return 0;
+
+        $multiplier = false;
+
+        if(substr($value, 0,1) == '-')
+            $multiplier = -1;
+
         // convert "," to "."
         $s = str_replace(',', '.', $value);
 
@@ -108,7 +116,9 @@ class Number
         // remove all separators from first part and keep the end
         $s = str_replace('.', '', substr($s, 0, -3)).substr($s, -3);
 
-        // return float
+        if($multiplier)
+            $s = floatval($s)*-1;
+
         return (float) $s;
     }
 

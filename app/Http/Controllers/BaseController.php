@@ -140,6 +140,7 @@ class BaseController extends Controller
           'company.quotes.invitations.company',
           'company.quotes.documents',
           'company.tasks.documents',
+        //   'company.tasks.project',
           'company.subscriptions',
           'company.tax_rates',
           'company.tokens_hashed',
@@ -458,7 +459,7 @@ class BaseController extends Controller
                     }
                 },
                 'company.tasks' => function ($query) use ($updated_at, $user) {
-                    $query->where('updated_at', '>=', $updated_at)->with('documents');
+                    $query->where('updated_at', '>=', $updated_at)->with('project','documents');
 
                     if (! $user->hasPermission('view_task')) {
                         $query->whereNested(function ($query) use ($user) {
@@ -796,7 +797,7 @@ class BaseController extends Controller
                     }
                 },
                 'company.tasks' => function ($query) use ($created_at, $user) {
-                    $query->where('created_at', '>=', $created_at)->with('documents');
+                    $query->where('created_at', '>=', $created_at)->with('project.documents','documents');
 
                     if (! $user->hasPermission('view_task')) {
                         $query->whereNested(function ($query) use ($user) {

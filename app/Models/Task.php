@@ -131,6 +131,10 @@ class Task extends BaseModel
         'deleted_at' => 'timestamp',
     ];
 
+    protected $with = [
+        // 'project',
+    ];
+
     protected $touches = [];
 
     public function getEntityType()

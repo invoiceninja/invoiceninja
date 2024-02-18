@@ -101,7 +101,8 @@
         "twilio/sdk": "^6.40",
         "webpatser/laravel-countries": "dev-master#75992ad",
         "wepay/php-sdk": "^0.3",
-        "wildbit/postmark-php": "^4.0"
+        "wildbit/postmark-php": "^4.0",
+        "hyvor/php-json-exporter": "^0.0.3"
     },
     "require-dev": {
         "php": "^8.1|^8.2",
@@ -112,7 +113,6 @@
         "fakerphp/faker": "^1.14",
         "filp/whoops": "^2.7",
         "friendsofphp/php-cs-fixer": "^3.14",
-        "hyvor/php-json-exporter": "^0.0.3",
         "laracasts/cypress": "^3.0",
         "larastan/larastan": "^2",
         "mockery/mockery": "^1.4.4",

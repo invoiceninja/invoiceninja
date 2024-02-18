@@ -52,6 +52,7 @@ class StoreExpenseRequest extends Request
         $rules['category_id'] = 'bail|nullable|sometimes|exists:expense_categories,id,company_id,'.$user->company()->id.',is_deleted,0';
         $rules['payment_date'] = 'bail|nullable|sometimes|date:Y-m-d';
         $rules['date'] = 'bail|sometimes|date:Y-m-d';
+        $rules['documents'] = 'bail|sometimes|array';
 
         return $this->globalRules($rules);
     }

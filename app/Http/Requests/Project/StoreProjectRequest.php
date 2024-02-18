@@ -53,6 +53,8 @@ class StoreProjectRequest extends Request
             $rules['documents.*'] = $this->file_validation;
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->file_validation;
+        }else {
+            $rules['documents'] = 'bail|sometimes|array';
         }
 
         if ($this->file('file') && is_array($this->file('file'))) {
