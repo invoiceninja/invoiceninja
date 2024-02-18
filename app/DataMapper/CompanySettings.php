@@ -495,7 +495,10 @@ class CompanySettings extends BaseSettings
 
     public $show_pdfhtml_on_mobile = true;
 
+    public $use_unapplied_payment = 'off'; //always, option, off //@implemented
+
     public static $casts = [
+        'use_unapplied_payment'              => 'string',
         'show_pdfhtml_on_mobile'             => 'bool',
         'payment_email_all_contacts'         => 'bool',
         'statement_design_id'                => 'string',

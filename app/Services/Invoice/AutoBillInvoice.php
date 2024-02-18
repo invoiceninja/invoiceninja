@@ -22,6 +22,8 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
+use App\Repositories\CreditRepository;
+use App\Repositories\PaymentRepository;
 use App\Services\AbstractService;
 use App\Utils\Ninja;
 use Illuminate\Support\Str;
@@ -31,7 +33,7 @@ class AutoBillInvoice extends AbstractService
     private Client $client;
 
     private array $used_credit = [];
-
+    
     /*Specific variable for partial payments */
     private bool $is_partial_amount = false;
 
@@ -64,6 +66,12 @@ class AutoBillInvoice extends AbstractService
         //if the credits cover the payments, we stop here, build the payment with credits and exit early
         if ($this->client->getSetting('use_credits_payment') != 'off') {
             $this->applyCreditPayment();
+        }
+
+        nlog($this->client->getSetting('use_unapplied_payment'));
+        if($this->client->getSetting('use_unapplied_payment') != 'off') {
+            nlog("meeeeeeerp");
+            $this->applyUnappliedPayment();
         }
 
         //If this returns true, it means a partial invoice amount was paid as a credit and there is no further balance payable
@@ -176,9 +184,6 @@ class AutoBillInvoice extends AbstractService
 
         $payment->amount = 0;
         $payment->applied = 0;
-
-        // $payment->amount = $amount;
-        // $payment->applied = $amount;
         $payment->client_id = $this->invoice->client_id;
         $payment->currency_id = $this->invoice->client->getSetting('currency_id');
         $payment->date = now()->addSeconds($this->invoice->company->utc_offset())->format('Y-m-d');
@@ -217,8 +222,6 @@ class AutoBillInvoice extends AbstractService
              ->client
              ->service()
              ->updateBalanceAndPaidToDate($amount * -1, $amount)
-              // ->updateBalance($amount * -1)
-              // ->updatePaidToDate($amount)
              ->adjustCreditBalance($amount * -1)
              ->save();
 
@@ -243,6 +246,79 @@ class AutoBillInvoice extends AbstractService
                     ->setCalculatedStatus()
                     ->save();
     }
+    
+    /**
+     * If the client has unapplied payments on file
+     * we will use these prior to charging a 
+     * payment method on file.
+     *
+     * This needs to be wrapped in a transaction.
+     *
+     * @return self
+     */
+    private function applyUnappliedPayment(): self
+    {
+        $unapplied_payments = Payment::query()
+                                  ->where('client_id', $this->client->id)
+                                  ->where('status_id', Payment::STATUS_COMPLETED)
+                                  ->where('is_deleted', false)
+                                  ->where('amount', '>', 'applied')
+                                  ->where('amount', '>', 0)
+                                  ->orderBy('created_at')
+                                  ->get();
+        
+        $available_unapplied_balance = $unapplied_payments->sum('amount') - $unapplied_payments->sum('applied');
+        
+        nlog("available unapplied balance = {$available_unapplied_balance}");
+        
+        if ((int) $available_unapplied_balance == 0) {
+            return $this;
+        }
+
+        if ($this->invoice->partial > 0) {
+            $this->is_partial_amount = true;
+        }
+
+        $payment_repo = new PaymentRepository(new CreditRepository());
+        
+        foreach ($unapplied_payments as $key => $payment) {
+            $payment_balance = $payment->amount - $payment->applied;
+
+            if ($this->is_partial_amount) {
+                //more than needed
+                if ($payment_balance > $this->invoice->partial) {
+                    $payload = ['client_id' => $this->invoice->client_id, 'invoices' => [['invoice_id' => $this->invoice->id,'amount' => $this->invoice->partial]]];
+                    $payment_repo->save($payload, $payment);
+                    break;
+                } else {
+                    $payload = ['client_id' => $this->invoice->client_id, 'invoices' => [['invoice_id' => $this->invoice->id,'amount' => $payment_balance]]];
+                    $payment_repo->save($payload, $payment);
+                }
+            } else {
+                //more than needed
+                if ($payment_balance > $this->invoice->balance) {
+                    
+                    $payload = ['client_id' => $this->invoice->client_id, 'invoices' => [['invoice_id' => $this->invoice->id,'amount' => $this->invoice->balance]]];
+                    $payment_repo->save($payload, $payment);
+
+                    break;
+                } else {
+                    
+                    $payload = ['client_id' => $this->invoice->client_id, 'invoices' => [['invoice_id' => $this->invoice->id,'amount' => $payment_balance]]];
+                    $payment_repo->save($payload, $payment);
+
+                }
+            }
+
+            $this->invoice = $this->invoice->fresh();
+
+            if((int)$this->invoice->balance == 0) {
+                return $this;
+            }
+        }
+
+        return $this;
+    }
 
     /**
      * Applies credits to a payment prior to push
@@ -260,7 +336,7 @@ class AutoBillInvoice extends AbstractService
 
         $available_credit_balance = $available_credits->sum('balance');
 
-        info("available credit balance = {$available_credit_balance}");
+        nlog("available credit balance = {$available_credit_balance}");
 
         if ((int) $available_credit_balance == 0) {
             return $this;
@@ -331,14 +407,6 @@ class AutoBillInvoice extends AbstractService
                                             ->where('deleted_at', null);
                                 })->orderBy('is_default', 'DESC')
                                 ->get();
-
-        // $gateway_tokens = $this->client
-        //                        ->gateway_tokens()
-        //                        ->whereHas('gateway', function ($query) {
-        //                            $query->where('is_deleted', 0)
-        //                                   ->where('deleted_at', null);
-        //                        })->orderBy('is_default', 'DESC')
-        //                        ->get();
 
         $filtered_gateways = $gateway_tokens->filter(function ($gateway_token) use ($amount) {
             $company_gateway = $gateway_token->gateway;
