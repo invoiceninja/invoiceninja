@@ -797,7 +797,7 @@ class BaseController extends Controller
                     }
                 },
                 'company.tasks' => function ($query) use ($created_at, $user) {
-                    $query->where('created_at', '>=', $created_at)->with('documents');
+                    $query->where('created_at', '>=', $created_at)->with('project.documents','documents');
 
                     if (! $user->hasPermission('view_task')) {
                         $query->whereNested(function ($query) use ($user) {
