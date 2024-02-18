@@ -12,8 +12,9 @@
 namespace App\Filters;
 
 use App\Models\Payment;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * PaymentFilters.
@@ -163,7 +164,7 @@ class PaymentFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
-        if (!is_array($sort_col) || count($sort_col) != 2) {
+        if (!is_array($sort_col) || count($sort_col) != 2 || !in_array($sort_col, Schema::getColumnListing('payments'))) {
             return $this->builder;
         }
 
