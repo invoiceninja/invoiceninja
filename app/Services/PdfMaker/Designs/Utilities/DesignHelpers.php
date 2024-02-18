@@ -401,6 +401,10 @@ trait DesignHelpers
         );
     }
 
+    /**
+     * @todo - this is being called directl, - not through the calling class!!!!
+     * @design_flaw
+     */
     public static function parseMarkdownToHtml(string $markdown): ?string
     {
         // Use setting to determinate if parsing should be done.

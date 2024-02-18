@@ -47,6 +47,7 @@ class PurchaseOrderAcceptedObject
         $mail_obj->data = $this->getData();
         $mail_obj->markdown = 'email.admin.generic';
         $mail_obj->tag = $this->company->company_key;
+        $mail_obj->text_view = 'email.template.text';
 
         return $mail_obj;
     }
@@ -72,22 +73,26 @@ class PurchaseOrderAcceptedObject
     {
         $settings = $this->company->settings;
 
-        $data = [
-            'title' => $this->getSubject(),
-            'message' => ctrans(
-                'texts.notification_purchase_order_accepted',
-                [
+        $content = ctrans(
+            'texts.notification_purchase_order_accepted',
+            [
                     'amount' => $this->getAmount(),
                     'vendor' => $this->purchase_order->vendor->present()->name(),
                     'purchase_order' => $this->purchase_order->number,
                 ]
-            ),
+        );
+
+        $data = [
+            'title' => $this->getSubject(),
+            'content' => $content,
             'url' => $this->purchase_order->invitations->first()->getAdminLink($this->use_react_url),
             'button' => ctrans('texts.view_purchase_order'),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),
             'settings' => $settings,
             'whitelabel' => $this->company->account->isPaid() ? true : false,
+            'text_body' => $content,
+            'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
         ];
 
         return $data;

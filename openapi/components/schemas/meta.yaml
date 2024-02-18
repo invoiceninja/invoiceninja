@@ -31,6 +31,6 @@
           example: 1
           readOnly: true
         links:
-          type: array
+          type: object
           description: 'The pagination links'
           readOnly: true

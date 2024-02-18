@@ -69,8 +69,11 @@ class UpdateOrCreateProduct implements ShouldQueue
          * we do NOT update the product details this short block we
          * check for the presence of a task_id and/or expense_id
          */
-        $expense_count = count(array_column((array) $this->products, 'expense_id'));
-        $task_count = count(array_column((array) $this->products, 'task_id'));
+        // $expense_count = count(array_column((array) $this->products, 'expense_id'));
+        // $task_count = count(array_column((array) $this->products, 'task_id'));
+
+        $task_count = implode("", array_column((array) $this->products, 'task_id'));
+        $expense_count = implode("", array_column((array) $this->products, 'expense_id'));
 
         if ($task_count >= 1 || $expense_count >= 1) {
             return;

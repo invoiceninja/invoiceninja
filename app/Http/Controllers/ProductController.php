@@ -181,7 +181,7 @@ class ProductController extends BaseController
      */
     public function store(StoreProductRequest $request)
     {
-        
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
 

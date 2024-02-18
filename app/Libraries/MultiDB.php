@@ -557,9 +557,9 @@ class MultiDB
         $current_db = config('database.default');
 
         do {
-            $length = 8;
+            $length = 10;
             $string = '';
-            $vowels = ['a', 'e', 'i', 'o', 'u'];
+            $vowels = ['a', 'e', 'i', 'o', 'u', 'y'];
             $consonants = [
                 'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm',
                 'n', 'p', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z',
@@ -568,7 +568,7 @@ class MultiDB
             $max = $length / 2;
             for ($i = 1; $i <= $max; $i++) {
                 $string .= $consonants[rand(0, 19)];
-                $string .= $vowels[rand(0, 4)];
+                $string .= $vowels[rand(0, 5)];
             }
         } while (! self::checkDomainAvailable($string));
 

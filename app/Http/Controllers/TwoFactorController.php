@@ -84,7 +84,7 @@ class TwoFactorController extends BaseController
 
     public function disableTwoFactor()
     {
-        
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
 

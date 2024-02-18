@@ -890,6 +890,66 @@ class CheckData extends Command
 
                 $this->logMessage("Fixing country for # {$client->id}");
             });
+
+            Client::query()->whereNull("settings->currency_id")->cursor()->each(function ($client) {
+                $settings = $client->settings;
+                $settings->currency_id = (string)$client->company->settings->currency_id;
+                $client->settings = $settings;
+                $client->saveQuietly();
+
+                $this->logMessage("Fixing currency_id for # {$client->id}");
+
+            });
+
+            Payment::withTrashed()->where('exchange_rate', 0)->cursor()->each(function ($payment) {
+                $payment->exchange_rate = 1;
+                $payment->saveQuietly();
+
+                $this->logMessage("Fixing exchange rate for # {$payment->id}");
+            });
+
+            Payment::withTrashed()
+            ->whereHas("client", function ($query) {
+                $query->whereColumn("settings->currency_id", "!=", "payments.currency_id");
+            })
+            ->cursor()
+            ->each(function ($p) {
+                $p->currency_id = $p->client->settings->currency_id;
+                $p->saveQuietly();
+
+
+                $this->logMessage("Fixing currency for # {$p->id}");
+
+            });
+
+            Company::whereNull("subdomain")
+            ->cursor()
+            ->when(Ninja::isHosted())
+            ->each(function ($c) {
+                $c->subdomain = MultiDB::randomSubdomainGenerator();
+                $c->save();
+
+                $this->logMessage("Fixing subdomain for # {$c->id}");
+
+            });
+
+
+            Invoice::withTrashed()
+            ->where("partial", 0)
+            ->whereNotNull("partial_due_date")
+            ->cursor()
+            ->each(function ($i) {
+                $i->partial_due_date = null;
+                $i->saveQuietly();
+
+
+                $this->logMessage("Fixing partial due date for # {$i->id}");
+
+            });
+
+
+
+
         }
     }
 

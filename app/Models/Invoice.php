@@ -80,7 +80,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property float $amount
  * @property float $balance
  * @property float|null $partial
- * @property string|null $partial_due_date
+ * @property string|null|\Carbon\Carbon $partial_due_date
  * @property string|null $last_viewed
  * @property int|null $created_at
  * @property int|null $updated_at
@@ -401,7 +401,7 @@ class Invoice extends BaseModel
     public function getStatusAttribute()
     {
         $due_date = $this->due_date ? Carbon::parse($this->due_date) : false;
-        $partial_due_date = $this->partial_due_Date ? Carbon::parse($this->partial_due_date) : false;
+        $partial_due_date = $this->partial_due_date ? Carbon::parse($this->partial_due_date) : false;
 
         if ($this->status_id == self::STATUS_SENT && $due_date && $due_date->gt(now())) {
             return self::STATUS_UNPAID;

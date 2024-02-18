@@ -11,17 +11,19 @@
 
 namespace App\Mail\Engine;
 
-use App\DataMapper\EmailTemplateDefaults;
-use App\Jobs\Entity\CreateRawPdf;
-use App\Models\Account;
-use App\Models\Payment;
-use App\Services\Template\TemplateAction;
-use App\Utils\Helpers;
 use App\Utils\Ninja;
 use App\Utils\Number;
+use App\Utils\Helpers;
+use App\Models\Account;
+use App\Models\Payment;
+use Illuminate\Support\Str;
 use App\Utils\Traits\MakesDates;
+use App\Jobs\Entity\CreateRawPdf;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Cache;
+use App\DataMapper\EmailTemplateDefaults;
+use App\Services\Template\TemplateAction;
 
 class PaymentEmailEngine extends BaseEmailEngine
 {
@@ -29,6 +31,7 @@ class PaymentEmailEngine extends BaseEmailEngine
 
     public $client;
 
+    /** @var \App\Models\Payment $payment */
     public $payment;
 
     public $template_data;
@@ -89,6 +92,7 @@ class PaymentEmailEngine extends BaseEmailEngine
             ->setVariables($this->makeValues())
             ->setSubject($subject_template)
             ->setBody($body_template)
+            ->setTextBody($body_template)
             ->setFooter('')
             ->setViewLink('')
             ->setViewText('');
@@ -145,22 +149,16 @@ class PaymentEmailEngine extends BaseEmailEngine
                 if ($this->client->getSetting('document_email_attachment') !== false) {
                     $invoice->documents()->where('is_public', true)->cursor()->each(function ($document) {
                         if ($document->size > $this->max_attachment_size) {
-                            $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
+
+                            $hash = Str::random(64);
+                            Cache::put($hash, ['db' => $this->payment->company->db, 'doc_hash' => $document->hash], now()->addDays(7));
+
+                            $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.hashed_download', ['hash' => $hash]) ."'>". $document->name ."</a>"]);
                         } else {
                             $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null, ]]);
                         }
                     });
                 }
-
-                // if($this->client->getSetting('enable_e_invoice'))
-                // {
-
-                //     $e_invoice_filepath = $invoice->service()->getEInvoice($this->contact);
-
-                //     if($e_invoice_filepath && strlen($e_invoice_filepath) > 1)
-                //         $this->setAttachments([['file' => base64_encode($e_invoice_filepath), 'name' => $invoice->getFileName("xml")]]);
-
-                // }
 
             });
         }
@@ -210,7 +208,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$payment.date'] = ['value' => $this->translateDate($this->payment->date, $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.payment_date')];
         $data['$transaction_reference'] = ['value' => $this->payment->transaction_reference, 'label' => ctrans('texts.transaction_reference')];
         $data['$reference'] = ['value' => '', 'label' => ctrans('texts.reference')];
-        $data['$public_notes'] = ['value' => $this->payment->public_notes, 'label' => ctrans('texts.notes')];
+        $data['$public_notes'] = ['value' => '', 'label' => ctrans('texts.notes')];
 
         $data['$payment1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'payment1', $this->payment->custom_value1, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'payment1')];
         $data['$payment2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'payment2', $this->payment->custom_value2, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'payment2')];

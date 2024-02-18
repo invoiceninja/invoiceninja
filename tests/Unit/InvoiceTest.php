@@ -55,7 +55,7 @@ class InvoiceTest extends TestCase
         ->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
-            'client_id' => $this->user->id
+            'client_id' => $this->client->id
         ]);
 
         $this->assertNull($i->partial_due_date);
@@ -64,7 +64,7 @@ class InvoiceTest extends TestCase
         ->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
-            'client_id' => $this->user->id,
+            'client_id' => $this->client->id,
             'partial_due_date' => '2023-10-10',
         ]);
 

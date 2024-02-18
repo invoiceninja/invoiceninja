@@ -64,7 +64,7 @@ class CompanyLedgerController extends BaseController
      */
     public function index(ShowCompanyLedgerRequest $request)
     {
-        
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
 

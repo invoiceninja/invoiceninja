@@ -46,12 +46,14 @@ class VerifyUserObject
 
         $data = [
             'title' => ctrans('texts.confirmation_subject'),
-            'message' => ctrans('texts.confirmation_message'),
+            'content' => ctrans('texts.confirmation_message'),
             'url' => url("/user/confirm/{$this->user->confirmation_code}".$react_redirect),
             'button' => ctrans('texts.button_confirmation_message'),
             'settings' => $this->company->settings,
             'logo' => $this->company->present()->logo(),
             'signature' => $this->company->settings->email_signature,
+            'text_body' => ctrans('texts.confirmation_message'),
+            'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
         ];
 
         $mail_obj = new \stdClass();

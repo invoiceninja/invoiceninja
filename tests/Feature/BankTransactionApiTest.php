@@ -31,6 +31,8 @@ class BankTransactionApiTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
+    public $faker;
+
     protected function setUp() :void
     {
         parent::setUp();
@@ -42,6 +44,18 @@ class BankTransactionApiTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
+    }
+
+    public function testBankTransactionCreate()
+    {
+        nlog("creeeeate");
+        
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/bank_transactions/create');
+
+        $response->assertStatus(200);
     }
 
 

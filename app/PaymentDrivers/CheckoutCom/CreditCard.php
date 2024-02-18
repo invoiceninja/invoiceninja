@@ -173,10 +173,6 @@ class CreditCard implements MethodInterface
         if ($request->has('token') && ! is_null($request->token) && ! empty($request->token)) {
             return $this->attemptPaymentUsingToken($request);
         }
-        
-        if($this->checkout->company_gateway->update_details) {
-            $this->checkout->updateCustomer();
-        }
 
         return $this->attemptPaymentUsingCreditCard($request);
     }
@@ -236,7 +232,12 @@ class CreditCard implements MethodInterface
         try {
             $response = $this->checkout->gateway->getPaymentsClient()->requestPayment($paymentRequest);
 
+            if($this->checkout->company_gateway->update_details && isset($response['customer'])) {
+                $this->checkout->updateCustomer($response['customer']['id'] ?? '');
+            }
+
             if ($response['status'] == 'Authorized') {
+
                 return $this->processSuccessfulPayment($response);
             }
 

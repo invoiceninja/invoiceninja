@@ -27,7 +27,7 @@ class RecurringInvoiceDecorator extends Decorator implements DecoratorInterface
 
         if($recurring_invoice && method_exists($this, $key)) {
             return $this->{$key}($recurring_invoice);
-        } elseif($recurring_invoice->{$key}) {
+        } elseif($recurring_invoice->{$key} ?? false) {
             return $recurring_invoice->{$key} ?? '';
         }
 

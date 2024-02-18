@@ -31,8 +31,6 @@ class EntityPolicy
      */
     public function before($user, $ability)
     {
-        //if($user->isAdmin())
-        //	return true;
     }
 
     /**

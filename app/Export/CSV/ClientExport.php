@@ -131,6 +131,10 @@ class ClientExport extends BaseExport
 
         $query = $this->addDateRange($query);
 
+        if($this->input['document_email_attachment'] ?? false) {
+            $this->queueDocuments($query);
+        }
+
         return $query;
 
     }
@@ -220,22 +224,6 @@ class ClientExport extends BaseExport
         if (in_array('client.assigned_user', $this->input['report_keys'])) {
             $entity['client.assigned_user'] = $client->assigned_user ? $client->user->present()->name() : '';
         }
-
-        // if (in_array('client.country_id', $this->input['report_keys'])) {
-        //     $entity['client.country_id'] = $client->country ? ctrans("texts.country_{$client->country->name}") : '';
-        // }
-
-        // if (in_array('client.shipping_country_id', $this->input['report_keys'])) {
-        //     $entity['client.shipping_country_id'] = $client->shipping_country ? ctrans("texts.country_{$client->shipping_country->name}") : '';
-        // }
-
-        // if (in_array('client.currency_id', $this->input['report_keys'])) {
-        //     $entity['client.currency_id'] = $client->currency() ? $client->currency()->code : $client->company->currency()->code;
-        // }
-
-        // if (in_array('client.industry_id', $this->input['report_keys'])) {
-        //     $entity['industry_id'] = $client->industry ? ctrans("texts.industry_{$client->industry->name}") : '';
-        // }
 
         if (in_array('client.classification', $this->input['report_keys']) && isset($client->classification)) {
             $entity['client.classification'] = ctrans("texts.{$client->classification}") ?? '';

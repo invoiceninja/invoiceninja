@@ -44,7 +44,7 @@ class SubscriptionPlanSwitch extends Component
     /**
      * @var ClientContact
      */
-    public $contact;
+    public ClientContact $contact;
 
     /**
      * @var array
@@ -66,6 +66,7 @@ class SubscriptionPlanSwitch extends Component
         'invoice' => null,
         'company_gateway_id' => null,
         'payment_method_id' => null,
+        'show_rff' => false,
     ];
 
     /**
@@ -74,6 +75,12 @@ class SubscriptionPlanSwitch extends Component
     public $hash;
 
     public $company;
+
+    public ?string $first_name;
+
+    public ?string $last_name;
+
+    public ?string $email;
 
     public function mount()
     {
@@ -84,6 +91,31 @@ class SubscriptionPlanSwitch extends Component
         $this->methods = $this->contact->client->service()->getPaymentMethods($this->amount);
 
         $this->hash = Str::uuid()->toString();
+
+        $this->state['show_rff'] = auth()->guard('contact')->user()->showRff();
+
+        $this->first_name = $this->contact->first_name;
+
+        $this->last_name = $this->contact->last_name;
+
+        $this->email = $this->contact->email;
+    }
+
+    public function handleRff()
+    {
+        $this->validate([
+            'first_name' => ['required'],
+            'last_name' => ['required'],
+            'email' => ['required', 'email'],
+        ]);
+
+        $this->contact->update([
+            'first_name' => $this->first_name,
+            'last_name' => $this->last_name,
+            'email' => $this->email,
+        ]);
+
+        $this->state['show_rff'] = false;
     }
 
     public function handleBeforePaymentEvents(): void
@@ -155,7 +187,6 @@ class SubscriptionPlanSwitch extends Component
 
         $this->dispatch('redirectRoute', ['route' => $response]);
 
-        // return redirect($response);
     }
 
     public function render()

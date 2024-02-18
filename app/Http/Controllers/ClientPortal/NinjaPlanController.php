@@ -154,6 +154,7 @@ class NinjaPlanController extends Controller
             $account->is_trial = true;
             $account->hosted_company_count = 10;
             $account->trial_started = now();
+            $account->trial_plan = 'pro';
             $account->save();
         }
 

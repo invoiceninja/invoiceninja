@@ -50,6 +50,15 @@ class CompanyTest extends TestCase
         $this->makeTestData();
     }
 
+    public function testEnsureStrReplace()
+    {
+        $x = '**********';
+
+        $new_string = str_replace("*", "", $x);
+
+        $this->assertEquals(0, strlen($new_string));
+    }
+
     public function testCompanyTaxInit()
     {
         TaxRate::query()->delete();

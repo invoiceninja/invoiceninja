@@ -172,6 +172,8 @@ class ExpenseFilters extends QueryFilters
             return $this->builder;
         }
 
+        $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
+
         if ($sort_col[0] == 'client_id' && in_array($sort_col[1], ['asc', 'desc'])) {
             return $this->builder
                     ->orderByRaw('ISNULL(client_id), client_id '. $sort_col[1])
@@ -192,6 +194,10 @@ class ExpenseFilters extends QueryFilters
                     ->orderByRaw('ISNULL(category_id), category_id '. $sort_col[1])
                     ->orderBy(\App\Models\ExpenseCategory::select('name')
                     ->whereColumn('expense_categories.id', 'expenses.category_id'), $sort_col[1]);
+        }
+
+        if($sort_col[0] == 'number') {
+            return $this->builder->orderByRaw('ABS(number) ' . $dir);
         }
 
         if (is_array($sort_col) && in_array($sort_col[1], ['asc', 'desc']) && in_array($sort_col[0], ['public_notes', 'date', 'id_number', 'custom_value1', 'custom_value2', 'custom_value3', 'custom_value4'])) {

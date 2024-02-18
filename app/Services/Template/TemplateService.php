@@ -651,7 +651,7 @@ class TemplateService
 
         return [
             'status' => $payment->stringStatus($payment->status_id),
-            'badge' => $payment->badgeForStatus($payment->status_id),
+            'badge' => $payment->badgeForStatus(),
             'amount' => Number::formatMoney($payment->amount, $payment->client),
             'applied' => Number::formatMoney($payment->applied, $payment->client),
             'balance' => Number::formatMoney(($payment->amount - $payment->refunded - $payment->applied), $payment->client),
@@ -711,7 +711,10 @@ class TemplateService
     private function getPaymentRefundActivity(Payment $payment): array
     {
 
-        return collect($payment->refund_meta ?? [])
+        if(!is_array($payment->refund_meta))
+            return [];
+        
+        return collect($payment->refund_meta)
         ->map(function ($refund) use ($payment) {
 
             $date = \Carbon\Carbon::parse($refund['date'])->addSeconds($payment->client->timezone_offset());

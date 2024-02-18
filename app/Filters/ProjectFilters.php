@@ -60,20 +60,23 @@ class ProjectFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
-        if ($sort_col[0] == 'client_id') {
-            return $this->builder->orderBy(\App\Models\Client::select('name')
-                    ->whereColumn('clients.id', 'projects.client_id'), $sort_col[1]);
-        }
-
         if (!is_array($sort_col) || count($sort_col) != 2) {
             return $this->builder;
         }
 
-        if (is_array($sort_col) && in_array($sort_col[1], ['asc','desc'])) {
-            return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+        $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
+
+        if ($sort_col[0] == 'client_id') {
+            return $this->builder->orderBy(\App\Models\Client::select('name')
+                    ->whereColumn('clients.id', 'projects.client_id'), $dir);
         }
 
-        return $this->builder;
+        if($sort_col[0] == 'number') {
+            return $this->builder->orderByRaw('ABS(number) ' . $dir);
+        }
+
+        return $this->builder->orderBy($sort_col[0], $dir);
+
     }
 
     /**

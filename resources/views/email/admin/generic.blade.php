@@ -1,4 +1,4 @@
-@component('email.template.admin', ['design' => 'light', 'settings' => $settings, 'logo' => $logo])
+@component('email.template.admin', ['design' => 'light', 'settings' => $settings, 'logo' => $logo, 'url' => $url])
     <div class="center">
         @isset($greeting)
             <p>{{ $greeting }}</p>
@@ -14,7 +14,7 @@
 
         <div style="margin-top: 10px; margin-bottom: 30px;">
             @isset($content)
-                {{ $content }}
+                {!! nl2br($content, true) !!}
             @endisset
 
             @isset($slot)

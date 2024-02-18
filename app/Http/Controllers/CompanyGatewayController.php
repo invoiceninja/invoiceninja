@@ -149,7 +149,7 @@ class CompanyGatewayController extends BaseController
      */
     public function create(CreateCompanyGatewayRequest $request)
     {
-        
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
 

@@ -51,10 +51,6 @@ class NinjaMailerJob implements ShouldQueue
 
     public $deleteWhenMissingModels = true;
 
-    public $nmo;
-
-    public $override;
-
     /** @var null|\App\Models\Company $company  **/
     public ?Company $company;
 
@@ -68,11 +64,8 @@ class NinjaMailerJob implements ShouldQueue
 
     protected $client_brevo_secret = false;
 
-    public function __construct(NinjaMailerObject $nmo, bool $override = false)
+    public function __construct(public ?NinjaMailerObject $nmo, public bool $override = false)
     {
-        $this->nmo = $nmo;
-
-        $this->override = $override;
     }
 
     public function backoff()
@@ -107,6 +100,8 @@ class NinjaMailerJob implements ShouldQueue
             }
 
             $this->nmo->mailable->replyTo($this->nmo->settings->reply_to_email, $reply_to_name);
+        } elseif(isset($this->nmo->invitation->user)) {
+            $this->nmo->mailable->replyTo($this->nmo->invitation->user->email, $this->nmo->invitation->user->present()->name());
         } else {
             $this->nmo->mailable->replyTo($this->company->owner()->email, $this->company->owner()->present()->name());
         }
@@ -268,15 +263,47 @@ class NinjaMailerJob implements ShouldQueue
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->nmo->settings));
 
+        /** Force free/trials onto specific mail driver */
+        // if(Ninja::isHosted() && !$this->company->account->isPaid())
+        // {
+        //     $this->mailer = 'mailgun';
+        //     $this->setHostedMailgunMailer();
+        //     return $this;
+        // }
+
+        if(Ninja::isHosted() && $this->company->account->isPaid() && $this->nmo->settings->email_sending_method == 'default') {
+            //check if outlook.
+
+            try {
+                $email = $this->nmo->to_user->email;
+                $domain = explode("@", $email)[1] ?? "";
+                $dns = dns_get_record($domain, DNS_MX);
+                $server = $dns[0]["target"];
+                if(stripos($server, "outlook.com") !== false) {
+
+                    $this->mailer = 'postmark';
+                    $this->client_postmark_secret = config('services.postmark-outlook.token');
+
+                    $this->nmo
+                     ->mailable
+                     ->from('maildelivery@invoice.services', 'Invoice Ninja');
+
+                    return $this;
+                }
+            } catch(\Exception $e) {
+                nlog($e->getMessage());
+            }
+        }
+
         switch ($this->nmo->settings->email_sending_method) {
             case 'default':
                 $this->mailer = config('mail.default');
                 // $this->setHostedMailgunMailer(); //should only be activated if hosted platform needs to fall back to mailgun
-                break;
+                return $this;
             case 'mailgun':
                 $this->mailer = 'mailgun';
                 $this->setHostedMailgunMailer();
-                break;
+                return $this;
             case 'gmail':
                 $this->mailer = 'gmail';
                 $this->setGmailMailer();

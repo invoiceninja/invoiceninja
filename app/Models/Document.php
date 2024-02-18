@@ -176,7 +176,11 @@ class Document extends BaseModel
 
     public function generateRoute($absolute = false)
     {
+        try{
         return route('api.documents.show', ['document' => $this->hashed_id]).'/download';
+        }catch(\Exception $e){
+            return '';
+        }
     }
 
     public function deleteFile()
@@ -220,7 +224,7 @@ class Document extends BaseModel
             $img = new \Imagick();
             $img->readImageBlob($file);
             $img->setImageCompression(true);
-            $img->setImageCompressionQuality(50);
+            $img->setImageCompressionQuality(40);
 
             return $img->getImageBlob();
 

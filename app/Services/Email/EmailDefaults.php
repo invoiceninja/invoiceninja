@@ -107,10 +107,10 @@ class EmailDefaults
 
         match ($this->email->email_object->settings->email_style) {
             'plain' => $this->template = 'email.template.plain',
-            'light' => $this->template = 'email.template.client',
-            'dark' => $this->template = 'email.template.client',
+            'light' => $this->template = $this->email->email_object->company->account->isPremium() ? 'email.template.client_premium' : 'email.template.client',
+            'dark' => $this->template = $this->email->email_object->company->account->isPremium() ? 'email.template.client_premium' :'email.template.client',
             'custom' => $this->template = 'email.template.custom',
-            default => $this->template = 'email.template.client',
+            default => $this->template = $this->email->email_object->company->account->isPremium() ? 'email.template.client_premium' :'email.template.client',
         };
 
         $this->email->email_object->html_template = $this->template;
@@ -177,7 +177,7 @@ class EmailDefaults
         $breaks = ["<br />","<br>","<br/>"];
         $this->email->email_object->text_body = str_ireplace($breaks, "\r\n", $this->email->email_object->body);
         $this->email->email_object->text_body = strip_tags($this->email->email_object->text_body);
-        $this->email->email_object->text_body = str_replace('$view_button', '$view_url', $this->email->email_object->text_body);
+        $this->email->email_object->text_body = str_replace(['$view_button','$viewButton'], '$view_url', $this->email->email_object->text_body);
 
         if ($this->template == 'email.template.custom') {
             $this->email->email_object->body = (str_replace('$body', $this->email->email_object->body, str_replace(["\r","\n"], "", $this->email->email_object->settings->email_style_custom)));
@@ -208,9 +208,20 @@ class EmailDefaults
      */
     private function setReplyTo(): self
     {
-        $reply_to_email = str_contains($this->email->email_object->settings->reply_to_email, "@") ? $this->email->email_object->settings->reply_to_email : $this->email->company->owner()->email;
+        $reply_to_email = $this->email->company->owner()->email;
+        $reply_to_name = $this->email->company->owner()->present()->name();
 
-        $reply_to_name = strlen($this->email->email_object->settings->reply_to_name) > 3 ? $this->email->email_object->settings->reply_to_name : $this->email->company->owner()->present()->name();
+        if(str_contains($this->email->email_object->settings->reply_to_email, "@")) {
+            $reply_to_email = $this->email->email_object->settings->reply_to_email;
+        } elseif(isset($this->email->email_object->invitation->user)) {
+            $reply_to_email = $this->email->email_object->invitation->user->email;
+        }
+
+        if(strlen($this->email->email_object->settings->reply_to_name) > 3) {
+            $reply_to_name = $this->email->email_object->settings->reply_to_name;
+        } elseif(isset($this->email->email_object->invitation->user)) {
+            $reply_to_name = $this->email->email_object->invitation->user->present()->name();
+        }
 
         $this->email->email_object->reply_to = array_merge($this->email->email_object->reply_to, [new Address($reply_to_email, $reply_to_name)]);
 

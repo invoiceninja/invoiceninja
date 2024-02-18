@@ -204,6 +204,13 @@ class CompanyTransformer extends EntityTransformer
             'invoice_task_project_header' => (bool) $company->invoice_task_project_header,
             'invoice_task_item_description' => (bool) $company->invoice_task_item_description,
             'origin_tax_data' => $company->origin_tax_data ?: new \stdClass(),
+            'smtp_host' => (string)$company->smtp_host ?? '',
+            'smtp_port' => (int)$company->smtp_port ?? 25,
+            'smtp_encryption' => (string)$company->smtp_encryption ?? 'tls',
+            'smtp_username' => $company->smtp_username ? '********' : '',
+            'smtp_password' => $company->smtp_password ? '********' : '',
+            'smtp_local_domain' => (string)$company->smtp_local_domain ?? '',
+            'smtp_verify_peer' => (bool)$company->smtp_verify_peer,
         ];
     }
 

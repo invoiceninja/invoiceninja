@@ -495,7 +495,13 @@ class CompanySettings extends BaseSettings
 
     public $payment_email_all_contacts = false;
 
+    public $show_pdfhtml_on_mobile = true;
+
+    public $use_unapplied_payment = 'off'; //always, option, off //@implemented
+
     public static $casts = [
+        'use_unapplied_payment' => 'string',
+        'show_pdfhtml_on_mobile' => 'bool',
         'payment_email_all_contacts' => 'bool',
         'statement_design_id' => 'string',
         'delivery_note_design_id' => 'string',
@@ -878,7 +884,7 @@ class CompanySettings extends BaseSettings
     {
         $notification = new stdClass();
         $notification->email = [];
-        $notification->email = ['invoice_sent_all'];
+        $notification->email = ['invoice_sent_all', 'payment_success_all', 'payment_manual_all'];
 
         return $notification;
     }

@@ -693,9 +693,9 @@ $lang = array(
     'disable' => 'Dezactiveaza',
     'invoice_quote_number' => 'Numere Facturi și Proforme',
     'invoice_charges' => 'Taxe Suplimentare',
-    'notification_invoice_bounced' => 'Nu am putut trimite Factura :invoice către :contact.',
+    'notification_invoice_bounced' => 'We were unable to deliver Invoice :invoice to :contact. <br><br> :error',
     'notification_invoice_bounced_subject' => 'Nu se poate trimite Factura :invoice',
-    'notification_quote_bounced' => 'Nu am putut trimite Proforma :invoice către :contact.',
+    'notification_quote_bounced' => 'We were unable to deliver Quote :invoice to :contact. <br><br> :error',
     'notification_quote_bounced_subject' => 'Nu se poate trimite Proforma :invoice',
     'custom_invoice_link' => 'Link Factura Personalizat',
     'total_invoiced' => 'Total Facturat',
@@ -3011,7 +3011,7 @@ Odată ce sumele au ajuns la dumneavoastră, reveniți la pagina cu metode de pl
     'hosted_login' => 'Autentificare găzduită',
     'selfhost_login' => 'Autentificare auto-găzduită',
     'google_login' => 'Autentificare Google',
-    'thanks_for_patience' => 'Vă mulțumim pentru cooperare. Lucrăm constant pentru aceste opțiuni.\n\nSperăm să fie gata în următoarele luni.\n\nPână atunci, vom continua să suportăm',
+    'thanks_for_patience' => 'Thank for your patience while we work to implement these features.<br><br>We hope to have them completed in the next few months.<br><br>Until then we\'ll continue to support the',
     'legacy_mobile_app' => 'aplicație mobilă anterioară',
     'today' => 'Astăzi',
     'current' => 'Curent',
@@ -5214,6 +5214,15 @@ Odată ce sumele au ajuns la dumneavoastră, reveniți la pagina cu metode de pl
     'nordigen_requisition_body' => 'Access to bank account feeds has expired as set in End User Agreement. <br><br>Please log into Invoice Ninja and re-authenticate with your banks to continue receiving transactions.',
     'participant' => 'Participant',
     'participant_name' => 'Participant name',
+    'client_unsubscribed' => 'Client unsubscribed from emails.',
+    'client_unsubscribed_help' => 'Client :client has unsubscribed from your e-mails. The client needs to consent to receive future emails from you.',
+    'resubscribe' => 'Resubscribe',
+    'subscribe' => 'Subscribe',
+    'subscribe_help' => 'You are currently subscribed and will continue to receive email communications.',
+    'unsubscribe_help' => 'You are currently not subscribed, and therefore, will not receive emails at this time.',
+    'notification_purchase_order_bounced' => 'We were unable to deliver Purchase Order :invoice to :contact. <br><br> :error',
+    'notification_purchase_order_bounced_subject' => 'Unable to deliver Purchase Order :invoice',
+    
 );
 
 return $lang;

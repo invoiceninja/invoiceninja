@@ -11,24 +11,29 @@
 
 namespace App\Services\Client;
 
+use App\Utils\Number;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\Email\Email;
-use App\Services\Email\EmailObject;
-use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
-use Illuminate\Mail\Mailables\Address;
 use Illuminate\Support\Facades\DB;
+use App\Services\Email\EmailObject;
+use App\Utils\Traits\GeneratesCounter;
+use Illuminate\Mail\Mailables\Address;
+use Illuminate\Database\QueryException;
 
 class ClientService
 {
     use MakesDates;
+    use GeneratesCounter;
 
     private string $client_start_date;
 
     private string $client_end_date;
+
+    private bool $completed = true;
 
     public function __construct(private Client $client)
     {
@@ -141,6 +146,32 @@ class ClientService
                 DB::connection(config('database.default'))->rollBack();
             }
         }
+
+        return $this;
+    }
+
+    public function applyNumber(): self
+    {
+        $x = 1;
+
+        if(isset($this->client->number)) {
+            return $this;
+        }
+
+        do {
+            try {
+                $this->client->number = $this->getNextClientNumber($this->client);
+                $this->client->saveQuietly();
+
+                $this->completed = false;
+            } catch (QueryException $e) {
+                $x++;
+
+                if ($x > 10) {
+                    $this->completed = false;
+                }
+            }
+        } while ($this->completed);
 
         return $this;
     }
