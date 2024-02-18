@@ -75,11 +75,11 @@ trait CleanLineItems
             }
 
             if(isset($item['notes'])) {
-                $item['notes'] = str_replace("</", "<-", $item['notes']);
+                $item['notes'] = str_replace("</sc", "<-", $item['notes']);
             }
 
             if(isset($item['product_key'])) {
-                $item['product_key'] = str_replace("</", "<-", $item['product_key']);
+                $item['product_key'] = str_replace("</sc", "<-", $item['product_key']);
             }
 
         }
