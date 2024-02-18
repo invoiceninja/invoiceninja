@@ -68,7 +68,9 @@ class AutoBillInvoice extends AbstractService
             $this->applyCreditPayment();
         }
 
+        nlog($this->client->getSetting('use_unapplied_payment'));
         if($this->client->getSetting('use_unapplied_payment') != 'off') {
+            nlog("meeeeeeerp");
             $this->applyUnappliedPayment();
         }
 
@@ -182,9 +184,6 @@ class AutoBillInvoice extends AbstractService
 
         $payment->amount = 0;
         $payment->applied = 0;
-
-        // $payment->amount = $amount;
-        // $payment->applied = $amount;
         $payment->client_id = $this->invoice->client_id;
         $payment->currency_id = $this->invoice->client->getSetting('currency_id');
         $payment->date = now()->addSeconds($this->invoice->company->utc_offset())->format('Y-m-d');
@@ -259,7 +258,8 @@ class AutoBillInvoice extends AbstractService
      */
     private function applyUnappliedPayment(): self
     {
-        $unapplied_payments = Payment::query()->where('client_id', $this->client->id)
+        $unapplied_payments = Payment::query()
+                                  ->where('client_id', $this->client->id)
                                   ->where('status_id', Payment::STATUS_COMPLETED)
                                   ->where('is_deleted', false)
                                   ->where('amount', '>', 'applied')
@@ -407,14 +407,6 @@ class AutoBillInvoice extends AbstractService
                                             ->where('deleted_at', null);
                                 })->orderBy('is_default', 'DESC')
                                 ->get();
-
-        // $gateway_tokens = $this->client
-        //                        ->gateway_tokens()
-        //                        ->whereHas('gateway', function ($query) {
-        //                            $query->where('is_deleted', 0)
-        //                                   ->where('deleted_at', null);
-        //                        })->orderBy('is_default', 'DESC')
-        //                        ->get();
 
         $filtered_gateways = $gateway_tokens->filter(function ($gateway_token) use ($amount) {
             $company_gateway = $gateway_token->gateway;
