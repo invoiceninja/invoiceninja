@@ -77,8 +77,6 @@ class AutoBillInvoice extends AbstractService
             return;
         }
 
-        nlog($this->invoice->toArray());
-
         $amount = 0;
         $invoice_total = 0;
 
@@ -236,9 +234,7 @@ class AutoBillInvoice extends AbstractService
 
         //if we have paid the invoice in full using credits, then we need to fire the event
         if($this->invoice->balance == 0) {
-
             event(new InvoiceWasPaid($this->invoice, $payment, $payment->company, Ninja::eventVars()));
-
         }
 
         return $this->invoice
@@ -267,8 +263,6 @@ class AutoBillInvoice extends AbstractService
                                   ->orderBy('created_at')
                                   ->get();
         
-        nlog($unapplied_payments->pluck("id"));
-        
         $available_unapplied_balance = $unapplied_payments->sum('amount') - $unapplied_payments->sum('applied');
         
         nlog("available unapplied balance = {$available_unapplied_balance}");
@@ -291,7 +285,10 @@ class AutoBillInvoice extends AbstractService
                 if ($payment_balance > $this->invoice->partial) {
                     $payload = ['client_id' => $this->invoice->client_id, 'invoices' => [['invoice_id' => $this->invoice->id,'amount' => $this->invoice->partial]]];
                     $payment_repo->save($payload, $payment);
-                    break;
+                
+                    $this->invoice = $this->invoice->fresh();
+
+                    return $this;
                 } else {
                     $payload = ['client_id' => $this->invoice->client_id, 'invoices' => [['invoice_id' => $this->invoice->id,'amount' => $payment_balance]]];
                     $payment_repo->save($payload, $payment);
@@ -303,7 +300,10 @@ class AutoBillInvoice extends AbstractService
                     $payload = ['client_id' => $this->invoice->client_id, 'invoices' => [['invoice_id' => $this->invoice->id,'amount' => $this->invoice->balance]]];
                     $payment_repo->save($payload, $payment);
 
-                    break;
+                    $this->invoice = $this->invoice->fresh();
+
+                    return $this;
+                    
                 } else {
                     
                     $payload = ['client_id' => $this->invoice->client_id, 'invoices' => [['invoice_id' => $this->invoice->id,'amount' => $payment_balance]]];
@@ -312,9 +312,8 @@ class AutoBillInvoice extends AbstractService
                 }
             }
 
-            $this->invoice = $this->invoice->fresh();
-
             if((int)$this->invoice->balance == 0) {
+                event(new InvoiceWasPaid($this->invoice, $payment, $payment->company, Ninja::eventVars()));
                 return $this;
             }
         }
