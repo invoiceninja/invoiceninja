@@ -52,6 +52,8 @@ class ProcessBrevoWebhook implements ShouldQueue
         'events' => [],
     ];
 
+    private ?Company $company = null;
+
     /**
      * Create a new job instance.
      *
@@ -86,12 +88,12 @@ class ProcessBrevoWebhook implements ShouldQueue
     public function handle()
     {
         MultiDB::findAndSetDbByCompanyKey($this->request['tags'][0]);
-        $company = Company::where('company_key', $this->request['tags'][0])->first();
+        $this->company = Company::where('company_key', $this->request['tags'][0])->first();
 
         $this->invitation = $this->discoverInvitation($this->request['message-id']);
 
-        if ($company && $this->request['event'] == 'spam' && config('ninja.notification.slack')) {
-            $company->notification(new EmailSpamNotification($company))->ninja();
+        if ($this->company && $this->request['event'] == 'spam' && config('ninja.notification.slack')) {
+            $this->company->notification(new EmailSpamNotification($this->company))->ninja();
         }
 
         if (!$this->invitation) {
@@ -111,7 +113,7 @@ class ProcessBrevoWebhook implements ShouldQueue
             case 'blocked':
 
                 if ($this->request['subject'] == ctrans('texts.confirmation_subject')) {
-                    $company->notification(new EmailBounceNotification($this->request['email']))->ninja();
+                    $this->company->notification(new EmailBounceNotification($this->request['email']))->ninja();
                 }
 
                 return $this->processBounce();
@@ -419,8 +421,10 @@ class ProcessBrevoWebhook implements ShouldQueue
     public function getRawMessage(string $message_id)
     {
 
-        $Brevo = new TransactionalEmailsApi(null, Configuration::getDefaultConfiguration()->setApiKey('api-key', config('services.brevo.key')));
-        $messageDetail = $Brevo->getTransacEmailContent($message_id);
+        $brevo_secret = $this->company->settings->brevo_secret ?? config('services.brevo.key');
+
+        $brevo = new TransactionalEmailsApi(null, Configuration::getDefaultConfiguration()->setApiKey('api-key', $brevo_secret));
+        $messageDetail = $brevo->getTransacEmailContent($message_id);
         return $messageDetail;
 
     }
@@ -430,7 +434,6 @@ class ProcessBrevoWebhook implements ShouldQueue
     {
 
         $messageDetail = $this->getRawMessage($message_id);
-
 
         $event = collect($messageDetail->getEvents())->first(function ($event) {
 
