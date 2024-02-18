@@ -68,16 +68,16 @@ class AutoBillInvoice extends AbstractService
             $this->applyCreditPayment();
         }
 
-        nlog($this->client->getSetting('use_unapplied_payment'));
         if($this->client->getSetting('use_unapplied_payment') != 'off') {
-            nlog("meeeeeeerp");
             $this->applyUnappliedPayment();
         }
 
         //If this returns true, it means a partial invoice amount was paid as a credit and there is no further balance payable
-        if ($this->is_partial_amount && $this->invoice->partial == 0) {
+        if (($this->is_partial_amount && $this->invoice->partial == 0) || (int)$this->invoice->balance == 0) {
             return;
         }
+
+        nlog($this->invoice->toArray());
 
         $amount = 0;
         $invoice_total = 0;
@@ -262,10 +262,12 @@ class AutoBillInvoice extends AbstractService
                                   ->where('client_id', $this->client->id)
                                   ->where('status_id', Payment::STATUS_COMPLETED)
                                   ->where('is_deleted', false)
-                                  ->where('amount', '>', 'applied')
+                                  ->whereColumn('amount', '>', 'applied')
                                   ->where('amount', '>', 0)
                                   ->orderBy('created_at')
                                   ->get();
+        
+        nlog($unapplied_payments->pluck("id"));
         
         $available_unapplied_balance = $unapplied_payments->sum('amount') - $unapplied_payments->sum('applied');
         
