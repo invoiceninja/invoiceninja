@@ -191,7 +191,7 @@ class TransactionTransformer implements BankRevenueInterface
             $date_format_default = $date_format->format;
         }
 
-        return Carbon::createFromFormat("DD-MM-YYYY", $input)->setTimezone($timezone_name)->format($date_format_default) ?? $input;
+        return Carbon::createFromFormat("d-m-Y", $input)->setTimezone($timezone_name)->format($date_format_default) ?? $input;
     }
 
 }
