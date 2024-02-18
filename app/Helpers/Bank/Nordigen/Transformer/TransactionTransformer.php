@@ -12,7 +12,6 @@
 namespace App\Helpers\Bank\Nordigen\Transformer;
 
 use App\Helpers\Bank\BankRevenueInterface;
-use App\Models\BankIntegration;
 use App\Utils\Traits\AppSetup;
 use Illuminate\Support\Facades\Cache;
 use Log;
