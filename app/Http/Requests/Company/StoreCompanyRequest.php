@@ -57,7 +57,7 @@ class StoreCompanyRequest extends Request
         }
 
         $rules['smtp_host'] = 'sometimes|string|nullable';
-        $rules['smtp_port'] = 'sometimes|string|nullable';
+        $rules['smtp_port'] = 'sometimes|integer|nullable';
         $rules['smtp_encryption'] = 'sometimes|string';
         $rules['smtp_local_domain'] = 'sometimes|string|nullable';        
         $rules['smtp_encryption'] = 'sometimes|string|nullable';
@@ -94,6 +94,10 @@ class StoreCompanyRequest extends Request
 
         if(isset($input['smtp_password']) && strlen(str_replace("*", "", $input['smtp_password'])) < 2) {
             unset($input['smtp_password']);
+        }
+
+        if(isset($input['smtp_port'])) {
+            $input['smtp_port'] = (int) $input['smtp_port'];
         }
 
         if(isset($input['smtp_verify_peer']) && is_string($input['smtp_verify_peer']))
