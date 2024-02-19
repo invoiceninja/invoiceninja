@@ -70,11 +70,10 @@ class SubscriptionCalculator
         });
 
         return collect($items)->map(function ($item){
-
             $line_item = new InvoiceItem();
             $line_item->product_key = $item['product']['product_key'];
             $line_item->quantity = (float) $item['quantity'];
-            $line_item->cost = (float) ['product']['price'];
+            $line_item->cost = (float) $item['product']['price'];
             $line_item->notes = $item['product']['notes'];
 
             return $line_item;
