@@ -25,4 +25,18 @@
             </div>
         </div>
     </div>
+
+    <form 
+        action="{{ route('client.payments.process', ['hash' => $hash, 'sidebar' => 'hidden']) }}"
+        method="post"
+        id="payment-method-form">
+        @csrf
+
+        <input type="hidden" name="action" value="payment">
+        <input type="hidden" name="invoices[]" value="{{ $context['form']['invoice_hashed_id'] ?? '' }}">
+        <input type="hidden" name="payable_invoices[0][amount]" value="{{ $context['form']['payable_amount'] ?? '' }}">
+        <input type="hidden" name="payable_invoices[0][invoice_id]" value="{{ $context['form']['invoice_hashed_id'] ?? '' }}">
+        <input type="hidden" name="company_gateway_id" value="{{ $context['form']['company_gateway_id'] ?? '' }}"/>
+        <input type="hidden" name="payment_method_id" value="{{ $context['form']['payment_method_id'] ?? '' }}"/>
+  </form>
 </div>
