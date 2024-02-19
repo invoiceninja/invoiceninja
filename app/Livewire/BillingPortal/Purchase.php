@@ -43,6 +43,7 @@ class Purchase extends Component
         Authentication::class,
         RFF::class,
         Methods::class,
+        Submit::class,
     ];
 
     public string $id;
