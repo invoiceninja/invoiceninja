@@ -12,7 +12,10 @@
 namespace App\Helpers\Bank\Nordigen\Transformer;
 
 use App\Helpers\Bank\BankRevenueInterface;
-use App\Models\BankIntegration;
+use App\Models\Company;
+use App\Models\DateFormat;
+use App\Models\Timezone;
+use Carbon\Carbon;
 use App\Utils\Traits\AppSetup;
 use Illuminate\Support\Facades\Cache;
 use Log;
@@ -66,6 +69,13 @@ class TransactionTransformer implements BankRevenueInterface
 {
     use AppSetup;
 
+    private Company $company;
+
+    function __construct(Company $company)
+    {
+        $this->company = $company;
+    }
+
     public function transform($transactionResponse)
     {
         $data = [];
@@ -112,8 +122,8 @@ class TransactionTransformer implements BankRevenueInterface
         // enrich description with currencyExchange informations
         if (isset($transaction['currencyExchange'])) {
             foreach ($transaction["currencyExchange"] as $exchangeRate) {
-                $targetAmount = round($amount * (float) ($exchangeRate["exchangeRate"] ?? 1) , 2);
-                $description .= '\nexchangeRate: ' . $amount . " " . ($exchangeRate["sourceCurrency"] ?? '?') . " = " . $targetAmount . " " . ($exchangeRate["targetCurrency"] ?? '?') . " (" . ($exchangeRate["quotationDate"] ?? '?') . ")";
+                $targetAmount = round($amount * (float) ($exchangeRate["exchangeRate"] ?? 1), 2);
+                $description .= '\n' . ctrans('texts.exchange_rate') . ' : ' . $amount . " " . ($exchangeRate["sourceCurrency"] ?? '?') . " = " . $targetAmount . " " . ($exchangeRate["targetCurrency"] ?? '?') . " (" . (isset($exchangeRate["quotationDate"]) ? $this->formatDate($exchangeRate["quotationDate"]) : '?') . ")";
             }
         }
 
@@ -162,6 +172,26 @@ class TransactionTransformer implements BankRevenueInterface
 
         return 1;
 
+    }
+
+    private function formatDate(string $input)
+    {
+        $timezone = Timezone::find($this->company->settings->timezone_id);
+        $timezone_name = 'US/Eastern';
+
+        if ($timezone) {
+            $timezone_name = $timezone->name;
+        }
+
+        $date_format_default = 'Y-m-d';
+
+        $date_format = DateFormat::find($this->company->settings->date_format_id);
+
+        if ($date_format) {
+            $date_format_default = $date_format->format;
+        }
+
+        return Carbon::createFromFormat("d-m-Y", $input)->setTimezone($timezone_name)->format($date_format_default) ?? $input;
     }
 
 }
