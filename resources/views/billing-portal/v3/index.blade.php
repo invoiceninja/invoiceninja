@@ -4,3 +4,15 @@
 @section('body')
     @livewire('billing-portal.purchase', ['subscription' => $subscription, 'db' => $subscription->company->db, 'hash' => $hash, 'request_data' => $request_data, 'campaign' => request()->query('campaign') ?? null])
 @stop
+
+@push('footer')
+    <script>
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('purchase.submit', () => {
+                setTimeout(() => {
+                    document.getElementById('payment-method-form').submit()
+                }, 2000);
+            });
+        });
+    </script>
+@endpush
