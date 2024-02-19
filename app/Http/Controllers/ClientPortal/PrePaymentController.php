@@ -88,6 +88,8 @@ class PrePaymentController extends Controller
 
         $total = $invoice->balance;
 
+        $invitation = $invoice->invitations->first();
+
         //format totals
         $formatted_total = Number::formatMoney($invoice->amount, auth()->guard('contact')->user()->client);
 
@@ -113,6 +115,8 @@ class PrePaymentController extends Controller
             'frequency_id' => $request->frequency_id,
             'remaining_cycles' => $request->remaining_cycles,
             'is_recurring' => $request->is_recurring == 'on' ? true : false,
+            'variables' => $variables = ($invitation && auth()->guard('contact')->user()->client->getSetting('show_accept_invoice_terms')) ? (new HtmlEngine($invitation))->generateLabelsAndValues() : false,
+
         ];
 
         return $this->render('invoices.payment', $data);
