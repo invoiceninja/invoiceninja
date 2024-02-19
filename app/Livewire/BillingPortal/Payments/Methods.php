@@ -46,21 +46,21 @@ class Methods extends Component
     {
         /** @var \App\Models\ClientContact $contact */
         $contact = auth()->guard('contact')->user();
-        
+
         $this->dispatch('purchase.context', property: 'client_id', value: $contact->client->hashed_id);
-        
+
         $this->context['client_id'] = $contact->client->hashed_id;
 
         nlog($this->context);
 
         $invoice = $this->subscription
-                        ->calc()
-                        ->buildPurchaseInvoice($this->context)
-                        ->service()
-                        ->fillDefaults()
-                        ->adjustInventory()
-                        ->save();
-        
+            ->calc()
+            ->buildPurchaseInvoice($this->context)
+            ->service()
+            ->fillDefaults()
+            ->adjustInventory()
+            ->save();
+
         Cache::put($this->context['hash'], [
             'subscription_id' => $this->subscription->hashed_id,
             'email' => $contact->email,
@@ -71,7 +71,16 @@ class Methods extends Component
             'bundle' => $this->context['bundle'],
         ], now()->addMinutes(60));
 
+        $payable_amount = $invoice->partial > 0
+            ? \App\Utils\Number::formatValue($invoice->partial, $invoice->client->currency())
+            : \App\Utils\Number::formatValue($invoice->balance, $invoice->client->currency());
 
+        $this->dispatch('purchase.context', property: 'form.company_gateway_id', value: $company_gateway_id);
+        $this->dispatch('purchase.context', property: 'form.payment_method_id', value: $gateway_type_id);
+        $this->dispatch('purchase.context', property: 'form.invoice_hashed_id', value: $invoice->hashed_id);
+        $this->dispatch('purchase.context', property: 'form.payable_amount', value: $payable_amount);
+
+        $this->dispatch('purchase.next');
     }
 
     public function render()
