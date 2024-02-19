@@ -46,9 +46,11 @@ class Methods extends Component
     {
         /** @var \App\Models\ClientContact $contact */
         $contact = auth()->guard('contact')->user();
-
+        
         $this->dispatch('purchase.context', property: 'client_id', value: $contact->client->hashed_id);
         
+        $this->context['client_id'] = $contact->client->hashed_id;
+
         nlog($this->context);
 
         $invoice = $this->subscription
