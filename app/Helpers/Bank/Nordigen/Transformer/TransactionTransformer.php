@@ -123,7 +123,7 @@ class TransactionTransformer implements BankRevenueInterface
         if (isset($transaction['currencyExchange'])) {
             foreach ($transaction["currencyExchange"] as $exchangeRate) {
                 $targetAmount = round($amount * (float) ($exchangeRate["exchangeRate"] ?? 1), 2);
-                $description .= '\n' + ctrans('texts.exchange_rate') + ': ' . $amount . " " . ($exchangeRate["sourceCurrency"] ?? '?') . " = " . $targetAmount . " " . ($exchangeRate["targetCurrency"] ?? '?') . " (" . ($exchangeRate["quotationDate"] ? $this->formatDate($exchangeRate["quotationDate"]) : '?') . ")";
+                $description .= '\n' . ctrans('texts.exchange_rate') . ' : ' . $amount . " " . ($exchangeRate["sourceCurrency"] ?? '?') . " = " . $targetAmount . " " . ($exchangeRate["targetCurrency"] ?? '?') . " (" . (isset($exchangeRate["quotationDate"]) ? $this->formatDate($exchangeRate["quotationDate"]) : '?') . ")";
             }
         }
 
