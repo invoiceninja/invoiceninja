@@ -30,8 +30,6 @@ class SmtpController extends BaseController
         $user = auth()->user();
         $company = $user->company();
 
-
-
         config([
             'mail.mailers.smtp' => [
                 'transport' => 'smtp',
