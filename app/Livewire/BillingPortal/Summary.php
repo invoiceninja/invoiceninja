@@ -37,7 +37,7 @@ class Summary extends Component
         foreach ($this->subscription->service()->recurring_products() as $key => $product) {
             $bundle['recurring_products'][$product->hashed_id] = [
                 'product' => $product,
-                'quantity' => 1,
+                'quantity' => $bundle['recurring_products'][$product->hashed_id]['quantity'] ?? 1,
                 'notes' => $product->markdownNotes(),
             ];
         }
@@ -45,7 +45,7 @@ class Summary extends Component
         foreach ($this->subscription->service()->products() as $key => $product) {
             $bundle['one_time_products'][$product->hashed_id] = [
                 'product' => $product,
-                'quantity' => 1,
+                'quantity' => $bundle['one_time_products'][$product->hashed_id]['quantity'] ?? 1,
                 'notes' => $product->markdownNotes(),
             ];
         }
@@ -53,7 +53,7 @@ class Summary extends Component
         foreach ($this->subscription->service()->optional_recurring_products() as $key => $product) {
             $bundle['optional_recurring_products'][$product->hashed_id] = [
                 'product' => $product,
-                'quantity' => 0,
+                'quantity' => $bundle['optional_recurring_products'][$product->hashed_id]['quantity'] ?? 0,
                 'notes' => $product->markdownNotes(),
             ];
         }
@@ -61,7 +61,7 @@ class Summary extends Component
         foreach ($this->subscription->service()->optional_products() as $key => $product) {
             $bundle['optional_one_time_products'][$product->hashed_id] = [
                 'product' => $product,
-                'quantity' => 0,
+                'quantity' => $bundle['optional_one_time_products'][$product->hashed_id]['quantity'] ?? 0,
                 'notes' => $product->markdownNotes(),
             ];
         }
@@ -133,6 +133,7 @@ class Summary extends Component
         if (isset($this->context['bundle']) === false) {
             return [];
         }
+
         $products = [];
         
         foreach ($this->context['bundle']['recurring_products'] as $key => $item) {
