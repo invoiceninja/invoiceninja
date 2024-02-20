@@ -7,7 +7,8 @@ module.exports = {
         './resources/views/email/components/**/*.blade.php',
         './resources/views/themes/ninja2020/**/*.blade.php',
         './resources/views/auth/**/*.blade.php',
-        './resources/views/setup/**/*.blade.php'
+        './resources/views/setup/**/*.blade.php',
+        './resources/views/billing-portal/**/*.blade.php',
     ],
     theme: {
         extend: {
