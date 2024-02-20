@@ -12,16 +12,17 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
+use App\Utils\Number;
+use App\Utils\HtmlEngine;
+use Illuminate\View\View;
 use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\ClientPortal\PrePayments\StorePrePaymentRequest;
-use App\Repositories\InvoiceRepository;
-use App\Utils\Number;
-use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesDates;
+use App\Http\Controllers\Controller;
 use Illuminate\Contracts\View\Factory;
-use Illuminate\View\View;
+use App\Repositories\InvoiceRepository;
+use App\Http\Requests\ClientPortal\PrePayments\StorePrePaymentRequest;
 
 /**
  * Class PrePaymentController.
