@@ -4,6 +4,14 @@
     class="col-span-12 xl:col-span-6 bg-white flex flex-col items-center lg:h-screen"
     >
         <div class="w-full p-10 lg:mt-24 md:max-w-xl">
+            @if($errors->any())
+                @foreach($errors as $error)
+                    <div class="alert alert-danger">
+                        {{ $error }}
+                    </div>
+                @endforeach
+            @endif
+
             <img
                 class="h-8"
                 src="{{ $subscription->company->present()->logo }}"
@@ -38,5 +46,8 @@
         <input type="hidden" name="payable_invoices[0][invoice_id]" value="{{ $context['form']['invoice_hashed_id'] ?? '' }}">
         <input type="hidden" name="company_gateway_id" value="{{ $context['form']['company_gateway_id'] ?? '' }}"/>
         <input type="hidden" name="payment_method_id" value="{{ $context['form']['payment_method_id'] ?? '' }}"/>
+        <input type="hidden" name="contact_first_name" value="{{ $context['contact']['first_name'] ?? '' }}">
+        <input type="hidden" name="contact_last_name" value="{{ $context['contact']['last_name'] ?? '' }}">
+        <input type="hidden" name="contact_email" value="{{ $context['contact']['email'] ?? '' }}">
   </form>
 </div>
