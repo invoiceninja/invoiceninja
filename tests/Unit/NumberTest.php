@@ -46,9 +46,9 @@ class NumberTest extends TestCase
         $res = Number::parseFloat($value);
 
         $this->assertEquals(-2200.0, $res);
+        
         $this->assertEquals(-2200, $res);
         
-
     }
 
     public function testConvertDecimalCommaFloats()
