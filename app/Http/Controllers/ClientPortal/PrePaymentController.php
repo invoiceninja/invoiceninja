@@ -12,16 +12,17 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
+use App\Utils\Number;
+use App\Utils\HtmlEngine;
+use Illuminate\View\View;
 use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\ClientPortal\PrePayments\StorePrePaymentRequest;
-use App\Repositories\InvoiceRepository;
-use App\Utils\Number;
-use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesDates;
+use App\Http\Controllers\Controller;
 use Illuminate\Contracts\View\Factory;
-use Illuminate\View\View;
+use App\Repositories\InvoiceRepository;
+use App\Http\Requests\ClientPortal\PrePayments\StorePrePaymentRequest;
 
 /**
  * Class PrePaymentController.
@@ -102,6 +103,13 @@ class PrePaymentController extends Controller
             return $invoice;
         });
 
+        
+        $variables = false;
+
+        if(($invitation = $invoices->first()->invitations()->first() ?? false) && $invoice->client->getSetting('show_accept_invoice_terms')) {
+            $variables = (new HtmlEngine($invitation))->generateLabelsAndValues();
+        }
+
         $data = [
             'settings' => auth()->guard('contact')->user()->client->getMergedSettings(),
             'invoices' => $invoices,
@@ -113,6 +121,7 @@ class PrePaymentController extends Controller
             'frequency_id' => $request->frequency_id,
             'remaining_cycles' => $request->remaining_cycles,
             'is_recurring' => $request->is_recurring == 'on' ? true : false,
+            'variables' => $variables,
         ];
 
         return $this->render('invoices.payment', $data);

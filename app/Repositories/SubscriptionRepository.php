@@ -126,7 +126,7 @@ class SubscriptionRepository extends BaseRepository
         $line_items = [];
 
         $line_items = collect($bundle)->filter(function ($item) {
-            return $item->is_recurring;
+            return $item->is_recurring ?? false;
         })->map(function ($item) {
             $line_item = new InvoiceItem();
             $line_item->product_key = $item->product_key;
