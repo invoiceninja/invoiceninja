@@ -286,21 +286,21 @@ class ProfitLoss
 
                                     $pivot_diff = $pivot->amount - $pivot->refunded;
                                     $amount_payment_paid += $pivot_diff;
-                                    $amount_payment_paid_converted += $pivot_diff / ($payment->exchange_rate ?: 1);
+                                    $amount_payment_paid_converted += $pivot_diff * ($payment->exchange_rate ?: 1);
 
                                     if ($invoice->amount > 0) {
                                         $tax_amount += ($pivot_diff / $invoice->amount) * $invoice->total_taxes;
-                                        $tax_amount_converted += (($pivot_diff / $invoice->amount) * $invoice->total_taxes) / $payment->exchange_rate;
+                                        $tax_amount_converted += (($pivot_diff / $invoice->amount) * $invoice->total_taxes) / $invoice->exchange_rate;
                                     }
 
                                 }
 
                                 if ($pivot->paymentable_type == 'credits') {
                                     $amount_credit_paid += $pivot->amount - $pivot->refunded;
-                                    $amount_credit_paid_converted += $pivot_diff / ($payment->exchange_rate ?: 1);
+                                    $amount_credit_paid_converted += $pivot_diff * ($payment->exchange_rate ?: 1);
 
                                     $tax_amount_credit += ($pivot_diff / $invoice->amount) * $invoice->total_taxes;
-                                    $tax_amount_credit_converted += (($pivot_diff / $invoice->amount) * $invoice->total_taxes) / $payment->exchange_rate;
+                                    $tax_amount_credit_converted += (($pivot_diff / $invoice->amount) * $invoice->total_taxes) / $invoice->exchange_rate;
                                 }
                             }
 
@@ -316,6 +316,7 @@ class ProfitLoss
 
                             $this->invoice_payment_map[] = $map;
                         });
+nlog($this->invoice_payment_map);
 
         return $this;
     }
@@ -421,6 +422,11 @@ class ProfitLoss
     private function expenseData()
     {
         $expenses = Expense::query()->where('company_id', $this->company->id)
+                           ->where(function ($query){
+                                $query->whereNull('client_id')->orWhereHas('client', function ($q){
+                                    $q->where('is_deleted', 0);
+                                });
+                           })
                            ->where('is_deleted', 0)
                            ->withTrashed()
                            ->whereBetween('date', [$this->start_date, $this->end_date])
@@ -435,7 +441,7 @@ class ProfitLoss
 
             $map->total = $expense->amount;
             $map->converted_total = $converted_total = $this->getConvertedTotal($expense->amount, $expense->exchange_rate);
-            $map->tax = $tax = $this->getTax($expense);
+            $map->tax = $tax = $this->getConvertedTotal($this->getTax($expense), $expense->exchange_rate);
             $map->net_converted_total = $expense->uses_inclusive_taxes ? ($converted_total - $tax) : $converted_total;
             $map->category_id = $expense->category_id;
             $map->category_name = $expense->category ? $expense->category->name : 'No Category Defined';
@@ -480,10 +486,6 @@ class ProfitLoss
         //is amount tax
 
         if ($expense->calculate_tax_by_amount) {
-            nlog($expense->tax_amount1);
-            nlog($expense->tax_amount2);
-            nlog($expense->tax_amount3);
-
             return $expense->tax_amount1 + $expense->tax_amount2 + $expense->tax_amount3;
         }
 
