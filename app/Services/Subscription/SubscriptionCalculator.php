@@ -69,6 +69,9 @@ class SubscriptionCalculator
             return $product['quantity'] >= 1;
         });
 
+        nlog("items");
+        nlog($items);
+
         return collect($items)->map(function ($item){
             $line_item = new InvoiceItem();
             $line_item->product_key = $item['product']['product_key'];
@@ -78,7 +81,7 @@ class SubscriptionCalculator
 
             return $line_item;
 
-        })->toArray();
+        })->flatten()->toArray();
 
     }
 
