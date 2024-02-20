@@ -29,7 +29,6 @@ class Methods extends Component
     {
         if (auth()->guard('contact')->guest()) {
             $this->dispatch('purchase.forward', component: Authentication::class);
-
             return;
         }
 
@@ -51,12 +50,11 @@ class Methods extends Component
 
         $this->context['client_id'] = $contact->client->hashed_id;
 
-        nlog($this->context);
-
         $invoice = $this->subscription
             ->calc()
             ->buildPurchaseInvoice($this->context)
             ->service()
+            ->markSent()
             ->fillDefaults()
             ->adjustInventory()
             ->save();
@@ -74,6 +72,8 @@ class Methods extends Component
         $payable_amount = $invoice->partial > 0
             ? \App\Utils\Number::formatValue($invoice->partial, $invoice->client->currency())
             : \App\Utils\Number::formatValue($invoice->balance, $invoice->client->currency());
+
+            nlog($invoice->toArray());
 
         $this->dispatch('purchase.context', property: 'form.company_gateway_id', value: $company_gateway_id);
         $this->dispatch('purchase.context', property: 'form.payment_method_id', value: $gateway_type_id);

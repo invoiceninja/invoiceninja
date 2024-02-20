@@ -13,14 +13,12 @@ namespace App\Services\Subscription;
 
 use App\Models\Invoice;
 use App\Models\Subscription;
-use App\Models\ClientContact;
 use Illuminate\Support\Carbon;
 use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
 use App\Utils\Traits\MakesHash;
 use App\Helpers\Invoice\ProRata;
 use App\Repositories\InvoiceRepository;
-use App\Repositories\SubscriptionRepository;
 
 /**
  * SubscriptionCalculator.
@@ -30,7 +28,13 @@ class SubscriptionCalculator
     use MakesHash;
 
     public function __construct(public Subscription $subscription){}
-
+    
+    /**
+     * BuildPurchaseInvoice
+     *
+     * @param  array $context
+     * @return Invoice
+     */
     public function buildPurchaseInvoice(array $context): Invoice
     {
 
@@ -54,7 +58,9 @@ class SubscriptionCalculator
     
     /**
      * Build Line Items
+     * 
      * @param array $context
+     * 
      * @return array
      */
     private function buildItems(array $context): array
@@ -68,9 +74,6 @@ class SubscriptionCalculator
         $items = array_filter(array_merge($recurring, $one_time), function ($product) {
             return $product['quantity'] >= 1;
         });
-
-        nlog("items");
-        nlog($items);
 
         return collect($items)->map(function ($item){
             $line_item = new InvoiceItem();
