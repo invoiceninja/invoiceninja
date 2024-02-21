@@ -43,15 +43,24 @@ class Submit extends Component
         //     'contact_last_name' => $this->context['contact']['last_name'],
         //     'contact_email' => $this->context['contact']['email'],
         // ]);
-        
+
         // return redirect((new InstantPayment($request))->run());
 
-        $this->dispatch('purchase.submit');
+        $this->dispatch(
+            'purchase.submit',
+            invoice_hashed_id: $this->context['form']['invoice_hashed_id'],
+            payable_amount: $this->context['form']['payable_amount'],
+            company_gateway_id: $this->context['form']['company_gateway_id'],
+            payment_method_id: $this->context['form']['payment_method_id'],
+            contact_first_name: $this->context['contact']['first_name'],
+            contact_last_name: $this->context['contact']['last_name'],
+            contact_email: $this->context['contact']['email'],
+        );
     }
 
     public function render()
     {
-        
+
         return <<<'HTML'
             <svg class="animate-spin h-8 w-8 text-primary" xmlns="http://www.w3.org/2000/svg"
                     fill="none" viewBox="0 0 24 24">
