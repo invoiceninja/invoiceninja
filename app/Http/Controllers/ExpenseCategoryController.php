@@ -128,7 +128,7 @@ class ExpenseCategoryController extends BaseController
      */
     public function create(CreateExpenseCategoryRequest $request)
     {
-        
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
 

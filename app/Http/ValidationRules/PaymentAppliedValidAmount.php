@@ -88,10 +88,9 @@ class PaymentAppliedValidAmount implements Rule
                 nlog($inv->amount);
                 nlog($invoice['amount']);
 
-                if($inv->status_id == Invoice::STATUS_DRAFT && $inv->amount >= $invoice['amount']){
+                if($inv->status_id == Invoice::STATUS_DRAFT && $inv->amount >= $invoice['amount']) {
 
-                }
-                elseif ($inv->balance < $invoice['amount']) {
+                } elseif ($inv->balance < $invoice['amount']) {
                     $this->message = 'Amount cannot be greater than invoice balance';
 
                     return false;

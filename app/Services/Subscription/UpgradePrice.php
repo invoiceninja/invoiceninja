@@ -18,7 +18,7 @@ use App\Models\RecurringInvoice;
 use App\Services\AbstractService;
 
 class UpgradePrice extends AbstractService
-{    
+{
     protected \App\Services\Subscription\SubscriptionStatus $status;
 
     public float $upgrade_price = 0;
@@ -38,13 +38,14 @@ class UpgradePrice extends AbstractService
                        ->subscription
                        ->status($this->recurring_invoice);
 
-        if($this->status->is_in_good_standing)
+        if($this->status->is_in_good_standing) {
             $this->calculateUpgrade();
-        else
+        } else {
             $this->upgrade_price = $this->subscription->price;
+        }
 
         return $this;
-        
+
     }
 
     private function calculateUpgrade(): self
@@ -57,10 +58,10 @@ class UpgradePrice extends AbstractService
                              ->where('is_proforma', 0)
                              ->orderBy('id', 'desc')
                              ->first();
-        
+
         $this->refund = $this->getRefundableAmount($last_invoice, $ratio);
         $this->outstanding_credit = $this->getCredits();
-        
+
         nlog("{$this->subscription->price} - {$this->refund} - {$this->outstanding_credit}");
 
         $this->upgrade_price = $this->subscription->price - $this->refund - $this->outstanding_credit;
@@ -70,10 +71,11 @@ class UpgradePrice extends AbstractService
 
     private function getRefundableAmount(?Invoice $invoice, float $ratio): float
     {
-        if (!$invoice || !$invoice->date || $invoice->status_id != Invoice::STATUS_PAID || $ratio == 0) 
+        if (!$invoice || !$invoice->date || $invoice->status_id != Invoice::STATUS_PAID || $ratio == 0) {
             return 0;
+        }
 
-        return max(0, round(($invoice->paid_to_date*$ratio),2));
+        return max(0, round(($invoice->paid_to_date * $ratio), 2));
     }
 
     private function getCredits(): float
@@ -82,8 +84,8 @@ class UpgradePrice extends AbstractService
 
         $use_credit_setting = $this->recurring_invoice->client->getSetting('use_credits_payment');
 
-        if($use_credit_setting){
-            
+        if($use_credit_setting) {
+
             $outstanding_credits = Credit::query()
                                ->where('client_id', $this->recurring_invoice->client_id)
                                ->whereIn('status_id', [Credit::STATUS_SENT,Credit::STATUS_PARTIAL])
@@ -95,5 +97,5 @@ class UpgradePrice extends AbstractService
 
         return $outstanding_credits;
     }
-    
+
 }

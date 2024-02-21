@@ -49,6 +49,9 @@ class StoreClientRequest extends Request
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->file_validation;
         }
+        else {
+            $rules['documents'] = 'bail|sometimes|array';
+        }
 
         if ($this->file('file') && is_array($this->file('file'))) {
             $rules['file.*'] = $this->file_validation;

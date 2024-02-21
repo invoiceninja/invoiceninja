@@ -233,7 +233,6 @@ class Import implements ShouldQueue
             ['name' => ctrans('texts.ready_to_do'), 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now(), 'status_order' => 2],
             ['name' => ctrans('texts.in_progress'), 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now(), 'status_order' => 3],
             ['name' => ctrans('texts.done'), 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now(), 'status_order' => 4],
-
         ];
 
         TaskStatus::insert($task_statuses);
@@ -421,7 +420,7 @@ class Import implements ShouldQueue
 
         if (Ninja::isHosted()) {
 
-            $data['subdomain'] = str_replace("_", "", $data['subdomain']);
+            $data['subdomain'] = str_replace("_", "", ($data['subdomain'] ?? ''));
 
             if (!MultiDB::checkDomainAvailable($data['subdomain'])) {
                 $data['subdomain'] = MultiDB::randomSubdomainGenerator();
@@ -1144,7 +1143,7 @@ class Import implements ShouldQueue
             );
 
             $key = "invoices_{$resource['id']}";
-            
+
             nlog($invoice->id);
 
             $this->ids['invoices'][$key] = [
@@ -1409,7 +1408,7 @@ class Import implements ShouldQueue
             }
 
             nlog($payment->id);
-            
+
             $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
 
             $this->ids['payments'] = [
@@ -1528,8 +1527,8 @@ class Import implements ShouldQueue
                     }
                 }
 
-                
-                    // throw new Exception("Resource invoice/quote document not available.");
+
+                // throw new Exception("Resource invoice/quote document not available.");
             }
 
             if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && array_key_exists('expenses', $this->ids)) {
@@ -2078,7 +2077,7 @@ class Import implements ShouldQueue
         nlog(print_r($exception->getMessage(), 1));
 
         // if (Ninja::isHosted()) {
-            app('sentry')->captureException($exception);
+        app('sentry')->captureException($exception);
         // }
     }
 

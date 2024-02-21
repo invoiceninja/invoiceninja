@@ -20,8 +20,7 @@ use App\Factory\RecurringInvoiceFactory;
 use App\Repositories\SubscriptionRepository;
 
 class InvoiceToRecurring extends AbstractService
-{    
-
+{
     protected \App\Services\Subscription\SubscriptionStatus $status;
 
     public function __construct(protected int $client_id, public Subscription $subscription, public array $bundle = [])

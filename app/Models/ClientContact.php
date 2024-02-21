@@ -254,7 +254,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
     {
         return $this->hasMany(CreditInvitation::class);
     }
- 
+
     public function sendPasswordResetNotification($token)
     {
         $this->token = $token;

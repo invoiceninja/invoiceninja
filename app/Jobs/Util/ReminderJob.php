@@ -38,7 +38,7 @@ class ReminderJob implements ShouldQueue
     use SerializesModels;
     use MakesReminders;
     use MakesDates;
-    
+
     public $tries = 1;
 
     public function __construct()

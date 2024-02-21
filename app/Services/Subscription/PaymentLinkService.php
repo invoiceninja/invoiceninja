@@ -31,25 +31,25 @@ use App\Services\Subscription\ChangePlanInvoice;
 class PaymentLinkService
 {
     use MakesHash;
-    
+
     public const WHITE_LABEL = 4316;
 
     public function __construct(public Subscription $subscription)
     {
     }
-    
+
     /**
      * CompletePurchase
      *
-     * Perform the initial purchase of a one time 
+     * Perform the initial purchase of a one time
      * or recurring product
-     * 
+     *
      * @param  PaymentHash $payment_hash
      * @return  \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse|null
      */
     public function completePurchase(PaymentHash $payment_hash): \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse|null
     {
-        
+
         if (!property_exists($payment_hash->data, 'billing_context')) {
             throw new \Exception("Illegal entrypoint into method, payload must contain billing context");
         }
@@ -134,7 +134,7 @@ class PaymentLinkService
      */
     public function isEligible(ClientContact $contact): array
     {
-                
+
         $context = [
                     'context' => 'is_eligible',
                     'subscription' => $this->subscription->hashed_id,
@@ -187,7 +187,7 @@ class PaymentLinkService
         }
 
         $recurring_invoice = (new InvoiceToRecurring($client_contact->client_id, $this->subscription, $bundle))->run();
-            
+
         $recurring_invoice->next_send_date = now()->addSeconds($this->subscription->trial_duration);
         $recurring_invoice->next_send_date_client = now()->addSeconds($this->subscription->trial_duration);
         $recurring_invoice->backup = 'is_trial';
@@ -221,21 +221,21 @@ class PaymentLinkService
         return $this->handleRedirect('/client/recurring_invoices/' . $recurring_invoice->hashed_id);
 
     }
-    
+
     /**
      * calculateUpdatePriceV2
      *
      * Need to change the naming of the method
-     * 
+     *
      * @param  RecurringInvoice $recurring_invoice - The Current Recurring Invoice for the subscription.
      * @param  Subscription $target - The new target subscription to move to
      * @return float - the upgrade price
      */
     public function calculateUpgradePriceV2(RecurringInvoice $recurring_invoice, Subscription $target): ?float
     {
-       return (new UpgradePrice($recurring_invoice, $target))->run()->upgrade_price;
+        return (new UpgradePrice($recurring_invoice, $target))->run()->upgrade_price;
     }
-        
+
     /**
      * When changing plans, we need to generate a pro rata invoice
      *
@@ -244,11 +244,11 @@ class PaymentLinkService
      */
     public function createChangePlanInvoice($data): Invoice | Credit
     {
-            $recurring_invoice = $data['recurring_invoice'];
-            $old_subscription = $data['subscription'];
-            $target_subscription = $data['target'];
-            $hash = $data['hash'];
-    
+        $recurring_invoice = $data['recurring_invoice'];
+        $old_subscription = $data['subscription'];
+        $target_subscription = $data['target'];
+        $hash = $data['hash'];
+
         return (new ChangePlanInvoice($recurring_invoice, $target_subscription, $hash))->run();
     }
 
@@ -319,7 +319,7 @@ class PaymentLinkService
         $old_recurring_invoice->service()->stop()->save();
 
         $recurring_invoice = (new InvoiceToRecurring($old_recurring_invoice->client_id, $this->subscription, []))->run();
-        
+
         $recurring_invoice->service()
                         ->start()
                         ->save();
@@ -361,7 +361,7 @@ class PaymentLinkService
     /**
      * Handles redirecting the user
      */
-    private function handleRedirect($default_redirect): \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse 
+    private function handleRedirect($default_redirect): \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
     {
         if (array_key_exists('return_url', $this->subscription->webhook_configuration) && strlen($this->subscription->webhook_configuration['return_url']) >= 1) {
             return method_exists(redirect(), "send") ? redirect($this->subscription->webhook_configuration['return_url'])->send() : redirect($this->subscription->webhook_configuration['return_url']);

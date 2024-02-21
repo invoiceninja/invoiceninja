@@ -76,7 +76,7 @@ class InvoiceItemExport extends BaseExport
         $query = $this->addDateRange($query);
 
         $query = $this->applyFilters($query);
-        
+
         if($this->input['document_email_attachment'] ?? false) {
             $this->queueDocuments($query);
         }

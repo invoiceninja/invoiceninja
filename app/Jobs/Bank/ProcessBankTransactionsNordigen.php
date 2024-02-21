@@ -138,7 +138,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
     private function processTransactions()
     {
         //Get transaction count object
-        $transactions = $this->nordigen->getTransactions($this->bank_integration->nordigen_account_id, $this->from_date);
+        $transactions = $this->nordigen->getTransactions($this->company, $this->bank_integration->nordigen_account_id, $this->from_date);
 
         //if no transactions, update the from_date and move on
         if (count($transactions) == 0) {

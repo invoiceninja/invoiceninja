@@ -32,7 +32,7 @@ class StoreExpenseCategoryRequest extends Request
 
     public function rules()
     {
-        
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
 

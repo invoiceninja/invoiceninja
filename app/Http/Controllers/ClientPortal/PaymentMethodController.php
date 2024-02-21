@@ -147,7 +147,7 @@ class PaymentMethodController extends Controller
             $payment_method->is_deleted = true;
             $payment_method->delete();
             $payment_method->save();
-            
+
         } catch (Exception $e) {
             nlog($e->getMessage());
 

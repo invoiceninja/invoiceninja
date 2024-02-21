@@ -62,7 +62,7 @@ class ActivityController extends BaseController
             $system = ctrans('texts.system');
 
             $data = $activities->cursor()->map(function ($activity) {
-                
+
                 /** @var \App\Models\Activity $activity */
                 return $activity->activity_string();
 

@@ -68,6 +68,7 @@ class AdminEmailMailable extends Mailable
                 'logo' => $this->email_object->company->present()->logo(),
                 'settings' => $this->email_object->settings,
                 'whitelabel' => $this->email_object->company->account->isPaid() ? true : false,
+                'template' => $this->email_object->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
             ]
         );
     }

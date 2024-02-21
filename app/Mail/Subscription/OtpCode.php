@@ -60,6 +60,7 @@ class OtpCode extends Mailable
                 'whitelabel' => $this->company->account->isPaid(),
                 'url' => 'xx',
                 'button' => false,
+                'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
             ]);
     }
 }

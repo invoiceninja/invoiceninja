@@ -78,7 +78,6 @@ use Illuminate\Support\Carbon;
  * @property-read \App\Models\User $user
  * @property-read \App\Models\Vendor|null $vendor
  * @property-read \App\Models\ExpenseCategory|null $category
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Database\Factories\RecurringExpenseFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense filter(\App\Filters\QueryFilters $filters)
@@ -222,7 +221,7 @@ class RecurringExpense extends BaseModel
         return $this->belongsTo(User::class, 'assigned_user_id', 'id');
     }
 
-    public function company()
+    public function company():\Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
     }

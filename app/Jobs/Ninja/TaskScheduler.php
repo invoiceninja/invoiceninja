@@ -56,7 +56,7 @@ class TaskScheduler implements ShouldQueue
                 ->where('next_run', '<=', now())
                 ->cursor()
                 ->each(function ($scheduler) {
-                
+
                     nlog("Doing job {$scheduler->name}");
 
                     try {
@@ -81,7 +81,7 @@ class TaskScheduler implements ShouldQueue
                 ->where('next_run', '<=', now())
                 ->cursor()
                 ->each(function ($scheduler) {
-                    
+
                     nlog("Doing job {$scheduler->name}");
 
                     try {

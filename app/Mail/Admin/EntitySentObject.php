@@ -87,6 +87,8 @@ class EntitySentObject
                 'logo' => $this->company->present()->logo(),
                 'settings' => $this->company->settings,
                 'whitelabel' => $this->company->account->isPaid() ? true : false,
+                'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
+
             ];
             $mail_obj->markdown = 'email.admin.generic';
             $mail_obj->tag = $this->company->company_key;
@@ -98,7 +100,7 @@ class EntitySentObject
             $mail_obj->markdown = 'email.admin.generic';
             $mail_obj->tag = $this->company->company_key;
         }
-        
+
         $mail_obj->text_view = 'email.template.text';
 
         return $mail_obj;
@@ -186,7 +188,7 @@ class EntitySentObject
     {
         $settings = $this->entity->client->getMergedSettings();
         $content = $this->getMessage();
-        
+
         return [
             'title' => $this->getSubject(),
             'content' => $content,
@@ -197,6 +199,8 @@ class EntitySentObject
             'settings' => $settings,
             'whitelabel' => $this->company->account->isPaid() ? true : false,
             'text_body' => $content,
+            'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
+            
         ];
     }
 }

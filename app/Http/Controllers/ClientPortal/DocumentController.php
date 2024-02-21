@@ -73,12 +73,13 @@ class DocumentController extends Controller
     {
 
         $hash = Cache::pull($hash);
-        
-        if(!$hash)
+
+        if(!$hash) {
             abort(404);
+        }
 
         MultiDB::setDb($hash['db']);
-        
+
         /** @var \App\Models\Document $document **/
         $document = Document::where('hash', $hash['doc_hash'])->firstOrFail();
 

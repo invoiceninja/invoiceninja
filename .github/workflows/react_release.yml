@@ -1,0 +1,76 @@
+on:
+  release:
+    types: [released]
+
+name: React Release
+
+jobs:
+  build:
+    name: Upload Release Asset
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.1
+          extensions: mysql, mysqlnd, sqlite3, bcmath, gd, curl, zip, openssl, mbstring, xml
+
+      - name: Checkout code
+        uses: actions/checkout@v1
+        with:
+          ref: v5-develop
+      
+      - name: Copy .env file
+        run: |
+          cp .env.example .env
+
+      - name: Install composer dependencies
+        run: |
+          composer config -g github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
+          composer install --no-dev
+      
+      - name: Prepare Laravel Application
+        run: |
+          cp .env.example .env
+          php artisan key:generate --force
+          php artisan optimize
+          php artisan storage:link --force
+          sudo php artisan cache:clear
+          sudo find ./vendor/bin/ -type f -exec chmod +x {} \;
+          sudo find ./ -type d -exec chmod 755 {} \;
+          sudo rm -f public/main.*
+          sudo rm -f public/flutter*
+
+      - name: Prepare React FrontEnd
+        run: |
+          git clone https://${{secrets.commit_secret}}@github.com/invoiceninja/ui.git
+          cd ui
+          git checkout develop
+          npm i
+          npm run build
+          cp -r dist/* ../public/
+
+      - name: Prepare JS/CSS assets
+        run: |
+          npm i
+          npm run production
+
+      - name: Cleanup Builds
+        run: |
+          sudo rm -rf bootstrap/cache/*
+          sudo rm -rf node_modules
+          sudo rm -rf .git
+          sudo rm .env
+
+      - name: Build project
+        run: |
+          shopt -s dotglob
+          tar --exclude='public/storage' --exclude='.htaccess' --exclude='invoiceninja.zip' -zcvf /home/runner/work/invoiceninja/react-invoiceninja.tar *
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: |
+            /home/runner/work/invoiceninja/react-invoiceninja.tar

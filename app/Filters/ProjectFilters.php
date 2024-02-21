@@ -59,7 +59,7 @@ class ProjectFilters extends QueryFilters
     public function sort(string $sort = ''): Builder
     {
         $sort_col = explode('|', $sort);
-        
+
         if (!is_array($sort_col) || count($sort_col) != 2) {
             return $this->builder;
         }

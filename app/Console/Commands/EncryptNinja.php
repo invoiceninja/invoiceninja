@@ -52,9 +52,10 @@ class EncryptNinja extends Command
      */
     public function handle()
     {
-        if($this->option('encrypt'))
+        if($this->option('encrypt')) {
             return $this->encryptFiles();
-            
+        }
+
         if($this->option('decrypt')) {
             return $this->decryptFiles();
         }
@@ -67,7 +68,7 @@ class EncryptNinja extends Command
             $contents = Storage::disk('base')->get($file);
             $encrypted = encrypt($contents);
             Storage::disk('base')->put($file.".enc", $encrypted);
-            Storage::disk('base')->delete($file);
+            // Storage::disk('base')->delete($file);
         }
     }
 
