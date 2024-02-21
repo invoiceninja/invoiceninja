@@ -27,6 +27,16 @@ class Cart extends Component
         $this->dispatch('purchase.next');
     }
 
+    public function showOptionalProductsLabel()
+    {
+        $optional = [
+            ...$this->context['bundle']['optional_recurring_products'] ?? [], 
+            ...$this->context['bundle']['optional_one_time_products'] ?? [],
+        ];
+
+        return count($optional) > 0;
+    }
+
     public function render()
     {
         return view('billing-portal.v3.cart.cart');
