@@ -46,13 +46,13 @@
         @csrf
 
         <input type="hidden" name="action" value="payment">
-        <input type="hidden" name="invoices[]" value="{{ $context['form']['invoice_hashed_id'] ?? '' }}">
-        <input type="hidden" name="payable_invoices[0][amount]" value="{{ $context['form']['payable_amount'] ?? '' }}">
-        <input type="hidden" name="payable_invoices[0][invoice_id]" value="{{ $context['form']['invoice_hashed_id'] ?? '' }}">
-        <input type="hidden" name="company_gateway_id" value="{{ $context['form']['company_gateway_id'] ?? '' }}"/>
-        <input type="hidden" name="payment_method_id" value="{{ $context['form']['payment_method_id'] ?? '' }}"/>
-        <input type="hidden" name="contact_first_name" value="{{ $context['contact']['first_name'] ?? '' }}">
-        <input type="hidden" name="contact_last_name" value="{{ $context['contact']['last_name'] ?? '' }}">
-        <input type="hidden" name="contact_email" value="{{ $context['contact']['email'] ?? '' }}">
+        <input type="hidden" name="invoices[]" />
+        <input type="hidden" name="payable_invoices[0][amount]" />
+        <input type="hidden" name="payable_invoices[0][invoice_id]" />
+        <input type="hidden" name="company_gateway_id" />
+        <input type="hidden" name="payment_method_id" />
+        <input type="hidden" name="contact_first_name" />
+        <input type="hidden" name="contact_last_name" />
+        <input type="hidden" name="contact_email" />
   </form>
 </div>
