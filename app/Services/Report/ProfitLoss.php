@@ -316,7 +316,6 @@ class ProfitLoss
 
                             $this->invoice_payment_map[] = $map;
                         });
-nlog($this->invoice_payment_map);
 
         return $this;
     }
@@ -341,6 +340,10 @@ nlog($this->invoice_payment_map);
      */
     public function getCsv()
     {
+        nlog($this->income);
+        nlog($this->income_taxes);
+        nlog(array_sum(array_column($this->expense_break_down, 'total')));
+
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
         App::setLocale($this->company->locale());
@@ -357,7 +360,7 @@ nlog($this->invoice_payment_map);
 
         $csv->insertOne(['--------------------']);
 
-        $csv->insertOne([ctrans('texts.total_revenue'), Number::formatMoney($this->income, $this->company)]);
+        $csv->insertOne([ctrans('texts.total_revenue'). "[".ctrans('texts.tax')." " .ctrans('texts.exclusive'). "]", Number::formatMoney($this->income, $this->company)]);
 
         //total taxes
 
@@ -372,12 +375,12 @@ nlog($this->invoice_payment_map);
         //total expense taxes
 
         $csv->insertOne(['--------------------']);
-        $csv->insertOne([ctrans('texts.total_expenses'), Number::formatMoney(array_sum(array_column($this->expense_break_down, 'total')), $this->company)]);
+        $csv->insertOne([ctrans('texts.total_expenses'). "[".ctrans('texts.tax')." " .ctrans('texts.exclusive'). "]", Number::formatMoney(array_sum(array_column($this->expense_break_down, 'total')), $this->company)]);
 
         $csv->insertOne([ctrans('texts.total_taxes'), Number::formatMoney(array_sum(array_column($this->expense_break_down, 'tax')), $this->company)]);
 
         $csv->insertOne(['--------------------']);
-        $csv->insertOne([ctrans('texts.total_profit'), Number::formatMoney($this->income - $this->income_taxes - array_sum(array_column($this->expense_break_down, 'total')) - array_sum(array_column($this->expense_break_down, 'tax')), $this->company)]);
+        $csv->insertOne([ctrans('texts.total_profit'), Number::formatMoney($this->income - array_sum(array_column($this->expense_break_down, 'total')), $this->company)]);
 
         //net profit
 
@@ -385,9 +388,23 @@ nlog($this->invoice_payment_map);
         $csv->insertOne(['']);
         $csv->insertOne(['']);
 
+        
+        $csv->insertOne(['--------------------']);
+        $csv->insertOne([ctrans('texts.revenue')]);
+        $csv->insertOne(['--------------------']);
+
         $csv->insertOne([ctrans('texts.currency'), ctrans('texts.amount'), ctrans('texts.total_taxes')]);
         foreach ($this->foreign_income as $foreign_income) {
             $csv->insertOne([$foreign_income['currency'], ($foreign_income['amount'] - $foreign_income['total_taxes']), $foreign_income['total_taxes']]);
+        }
+
+        $csv->insertOne(['']);
+        $csv->insertOne(['']);
+        $csv->insertOne(['--------------------']);
+        $csv->insertOne([ctrans('texts.expenses')]);
+        $csv->insertOne(['--------------------']);
+        foreach($this->expenses as $expense){
+            $csv->insertOne([$expense->currency, ($expense->total - $expense->foreign_tax_amount), $expense->foreign_tax_amount]);
         }
 
         return  $csv->toString();
@@ -434,19 +451,21 @@ nlog($this->invoice_payment_map);
 
         $this->expenses = [];
 
+        $company_currency_code = $this->company->currency()->code;
+
         foreach ($expenses as $expense) {
             $map = new \stdClass();
 
-            $amount = $expense->amount;
-
+            $expense_tax_total = $this->getTax($expense);
             $map->total = $expense->amount;
-            $map->converted_total = $converted_total = $this->getConvertedTotal($expense->amount, $expense->exchange_rate);
-            $map->tax = $tax = $this->getConvertedTotal($this->getTax($expense), $expense->exchange_rate);
-            $map->net_converted_total = $expense->uses_inclusive_taxes ? ($converted_total - $tax) : $converted_total;
+            $map->converted_total = $converted_total = $this->getConvertedTotal($expense->amount, $expense->exchange_rate); //converted to company currency
+            $map->tax = $tax = $this->getConvertedTotal($expense_tax_total, $expense->exchange_rate); //tax component
+            $map->net_converted_total = $expense->uses_inclusive_taxes ? ($converted_total - $tax) : $converted_total; //excludes all taxes
             $map->category_id = $expense->category_id;
             $map->category_name = $expense->category ? $expense->category->name : 'No Category Defined';
             $map->currency_id = $expense->currency_id ?: $expense->company->settings->currency_id;
-
+            $map->currency = $expense->currency ? $expense->currency->code : $company_currency_code;
+            $map->foreign_tax_amount = $expense_tax_total;
             $this->expenses[] = $map;
         }
 
