@@ -9,7 +9,9 @@
         :context="$context"
     />
 
-    <p class="text-xl mt-10 mb-4">{{ ctrans('texts.optional_products') }}</p>
+    @if($this->showOptionalProductsLabel())
+        <p class="text-xl mt-10 mb-4">{{ ctrans('texts.optional_products') }}</p>
+    @endif
 
     <livewire:billing-portal.cart.optional-recurring-products
         :subscription="$subscription"
