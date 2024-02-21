@@ -8,7 +8,16 @@
 @push('footer')
     <script>
         document.addEventListener('livewire:init', () => {
-            Livewire.on('purchase.submit', () => {
+            Livewire.on('purchase.submit', (event) => {
+                document.querySelector('input[name="invoices[]"]').value = event.invoice_hashed_id;
+                document.querySelector('input[name="payable_invoices[0][amount]"').value = event.payable_amount;
+                document.querySelector('input[name="payable_invoices[0][invoice_id]"').value = event.invoice_hashed_id;
+                document.querySelector('input[name=company_gateway_id]').value = event.company_gateway_id;
+                document.querySelector('input[name=payment_method_id]').value = event.payment_method_id;
+                document.querySelector('input[name=contact_first_name]').value = event.contact_first_name;
+                document.querySelector('input[name=contact_last_name]').value = event.contact_last_name;
+                document.querySelector('input[name=contact_email]').value = event.contact_email;
+
                 setTimeout(() => {
                     document.getElementById('payment-method-form').submit()
                 }, 2000);
