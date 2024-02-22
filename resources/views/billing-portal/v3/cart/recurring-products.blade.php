@@ -30,7 +30,7 @@
                 <div class="flex flex-col-reverse space-y-3">
                     <div class="flex">
                         @if($subscription->per_seat_enabled)
-                            @if($subscription->use_inventory_management && $product['in_stock_quantity'] == 0)
+                            @if($subscription->use_inventory_management && $product['in_stock_quantity'] < 1)
                                 <p class="text-sm font-light text-red-500 text-right mr-2 mt-2">{{ ctrans('texts.out_of_stock') }}</p>
                             @else
                                 <p class="text-sm font-light text-gray-700 text-right mr-2 mt-2">{{ ctrans('texts.qty') }}</p>
@@ -40,7 +40,7 @@
                                 id="{{ $product['hashed_id'] }}" 
                                 class="rounded-md border-gray-300 shadow-sm sm:text-sm" 
                                 wire:change="quantity($event.target.id, $event.target.value)" 
-                                @if($subscription->use_inventory_management && $product['in_stock_quantity'] == 0) disabled @endif
+                                {{ $subscription->use_inventory_management && $product['in_stock_quantity'] < 1 ? 'disabled' : '' }}
                                 >
                                 <option {{ $entry['quantity'] == '1' ? 'selected' : '' }}  value="1">1</option>
         
@@ -49,7 +49,7 @@
                                         <option {{ $entry['quantity'] == $i ? 'selected' : '' }}  value="{{ $i }}">{{ $i }}</option>
                                     @endfor
                                 @else
-                                    @for ($i = 2; $i <= ($subscription->use_inventory_management ? min($product['in_stock_quantity'], max(100,$product['max_quantity'])) : max(100,$product['max_quantity'])); $i++)
+                                    @for ($i = 2; $i <= ($subscription->use_inventory_management ? min($product['in_stock_quantity'], min(100,$product['max_quantity'])) : min(100,$product['max_quantity'])); $i++)
                                         <option {{ $entry['quantity'] == $i ? 'selected' : '' }}  value="{{ $i }}">{{ $i }}</option>
                                     @endfor
                                 @endif
@@ -60,7 +60,7 @@
             </div>
 
             <article class="prose my-3 text-sm">
-                {!! $product['notes'] !!}
+                {!! \App\Models\Product::markdownHelp($product['notes']) !!}
             </article>
         </div>
         @endforeach 

@@ -5237,6 +5237,7 @@ $lang = array(
     'user_sales' => 'User Sales',
     'iframe_url' => 'iFrame URL',
     'user_unsubscribed' => 'User unsubscribed from emails :link',
+    'out_of_stock' => 'Out of stock',
 );
 
 return $lang;
