@@ -69,10 +69,9 @@ class CompanyExport implements ShouldQueue
     {
         MultiDB::setDb($this->company->db);
 
-
         $this->file_name = date('Y-m-d') . '_' . str_replace([" ", "/"], ["_",""], $this->company->present()->name() . '_' . $this->company->company_key . '.json');
 
-        $this->writer = new File($this->file_name);
+        $this->writer = new File(sys_get_temp_dir().'/'.$this->file_name);
 
         set_time_limit(0);
 
@@ -113,8 +112,6 @@ class CompanyExport implements ShouldQueue
             $user->account_id = $this->encodePrimaryKey($user->account_id);
             return $user;
         })->all();
-
-
 
         $x = $this->writer->collection('users');
         $x->addItems($this->export_data['users']);
@@ -667,7 +664,7 @@ class CompanyExport implements ShouldQueue
     private function zipAndSend()
     {
 
-        $zip_path = \Illuminate\Support\Str::ascii(str_replace(".json", ".zip", $this->file_name));
+        $zip_path = sys_get_temp_dir().'/'.\Illuminate\Support\Str::ascii(str_replace(".json", ".zip", $this->file_name));
 
         $zip = new \ZipArchive();
 
@@ -675,8 +672,8 @@ class CompanyExport implements ShouldQueue
             nlog("cannot open {$zip_path}");
         }
 
-        $zip->addFile($this->file_name);
-        $zip->renameName($this->file_name, 'backup.json');
+        $zip->addFile(sys_get_temp_dir().'/'.$this->file_name, 'backup.json');
+        // $zip->renameName($this->file_name, 'backup.json');
 
         $zip->close();
 
@@ -686,8 +683,8 @@ class CompanyExport implements ShouldQueue
             unlink($zip_path);
         }
 
-        if(file_exists($this->file_name)) {
-            unlink($this->file_name);
+        if(file_exists(sys_get_temp_dir().'/'.$this->file_name)) {
+            unlink(sys_get_temp_dir().'/'.$this->file_name);
         }
 
         if(Ninja::isSelfHost()) {
@@ -717,8 +714,8 @@ class CompanyExport implements ShouldQueue
         if (Ninja::isHosted()) {
             sleep(3);
 
-            if(file_exists($zip_path)) {
-                unlink($zip_path);
+            if(file_exists(sys_get_temp_dir().'/'.$zip_path)) {
+                unlink(sys_get_temp_dir().'/'.$zip_path);
             }
         }
     }

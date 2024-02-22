@@ -98,28 +98,49 @@ class Number
         if(!$value)
             return 0;
 
-        $multiplier = false;
+        //remove everything except for numbers, decimals, commas and hyphens 
+        $value = preg_replace('/[^0-9.,-]+/', '', $value);
 
-        if(substr($value, 0,1) == '-')
-            $multiplier = -1;
+        $decimal = strpos($value, '.');
+        $comma = strpos($value, ',');
+        
+        if(!$comma) //no comma must be a decimal number already
+            return (float) $value;
 
-        // convert "," to "."
-        $s = str_replace(',', '.', $value);
-
-        // remove everything except numbers and dot "."
-        $s = preg_replace("/[^0-9\.]/", '', $s);
-
-        if ($s < 1) {
-            return (float) $s;
+        if($decimal < $comma){ //decimal before a comma = euro
+            $value = str_replace(['.',','], ['','.'], $value);
+            // $value = str_replace(',', '.', $value);
+            return (float) $value;
         }
 
-        // remove all separators from first part and keep the end
-        $s = str_replace('.', '', substr($s, 0, -3)).substr($s, -3);
+        //comma first = traditional thousan separator
+        $value = str_replace(',', '', $value);
+        
+        return (float)$value;
+    
+        
+        // if(!$value)
+        //     return 0;
 
-        if($multiplier)
-            $s = floatval($s)*-1;
+        // $multiplier = false;
 
-        return (float) $s;
+        // if(substr($value, 0,1) == '-')
+        //     $multiplier = -1;
+
+        // $s = str_replace(',', '.', $value);
+
+        // $s = preg_replace("/[^0-9\.]/", '', $s);
+
+        // if ($s < 1) {
+        //     return (float) $s;
+        // }
+
+        // $s = str_replace('.', '', substr($s, 0, -3)).substr($s, -3);
+
+        // if($multiplier)
+        //     $s = floatval($s)*-1;
+
+        // return (float) $s;
     }
 
     public static function parseStringFloat($value)

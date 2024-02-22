@@ -259,9 +259,9 @@ class InvoiceSumInclusive
         /* If amount != balance then some money has been paid on the invoice, need to subtract this difference from the total to set the new balance */
         if ($this->invoice->status_id != Invoice::STATUS_DRAFT) {
             if ($this->invoice->amount != $this->invoice->balance) {
-                $paid_to_date = $this->invoice->amount - $this->invoice->balance;
+                // $paid_to_date = $this->invoice->amount - $this->invoice->balance;
 
-                $this->invoice->balance = $this->formatValue($this->getTotal(), $this->precision) - $paid_to_date;
+                $this->invoice->balance = $this->formatValue($this->getTotal(), $this->precision) - $this->invoice->paid_to_date;
             } else {
                 $this->invoice->balance = $this->formatValue($this->getTotal(), $this->precision);
             }
