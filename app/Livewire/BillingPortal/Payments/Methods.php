@@ -73,8 +73,6 @@ class Methods extends Component
             ? \App\Utils\Number::formatValue($invoice->partial, $invoice->client->currency())
             : \App\Utils\Number::formatValue($invoice->balance, $invoice->client->currency());
 
-            nlog($invoice->toArray());
-
         $this->dispatch('purchase.context', property: 'form.company_gateway_id', value: $company_gateway_id);
         $this->dispatch('purchase.context', property: 'form.payment_method_id', value: $gateway_type_id);
         $this->dispatch('purchase.context', property: 'form.invoice_hashed_id', value: $invoice->hashed_id);

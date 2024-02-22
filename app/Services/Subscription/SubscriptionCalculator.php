@@ -71,21 +71,40 @@ class SubscriptionCalculator
         $recurring = array_merge(isset($bundle['recurring_products']) ? $bundle['recurring_products'] : [], isset($bundle['optional_recurring_products']) ? $bundle['optional_recurring_products'] : []);
         $one_time = array_merge(isset($bundle['one_time_products']) ? $bundle['one_time_products'] : [], isset($bundle['optional_one_time_products']) ? $bundle['optional_one_time_products'] : []);
 
-        $items = array_filter(array_merge($recurring, $one_time), function ($product) {
-            return $product['quantity'] >= 1;
-        });
+        $items = [];
 
-        return collect($items)->map(function ($item){
+        foreach($recurring as $item) {
+            
+            if($item['quantity'] < 1)
+                continue;
+
             $line_item = new InvoiceItem();
             $line_item->product_key = $item['product']['product_key'];
             $line_item->quantity = (float) $item['quantity'];
             $line_item->cost = (float) $item['product']['price'];
             $line_item->notes = $item['product']['notes'];
 
-            return $line_item;
+            $items[] = $line_item;
 
-        })->flatten()->toArray();
+        }
 
+        foreach($one_time as $item) {
+
+            if($item['quantity'] < 1) {
+                continue;
+            }
+
+            $line_item = new InvoiceItem();
+            $line_item->product_key = $item['product']['product_key'];
+            $line_item->quantity = (float) $item['quantity'];
+            $line_item->cost = (float) $item['product']['price'];
+            $line_item->notes = $item['product']['notes'];
+
+            $items[] = $line_item;
+
+        }
+
+        return $items;
     }
 
 

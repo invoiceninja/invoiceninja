@@ -161,6 +161,7 @@ class Purchase extends Component
     #[On('purchase.next')]
     public function handleNext(): void
     {
+
         if ($this->step < count($this->steps) - 1) {
             $this->step++;
         }

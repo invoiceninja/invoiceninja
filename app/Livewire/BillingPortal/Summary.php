@@ -40,6 +40,7 @@ class Summary extends Component
                 'quantity' => $bundle['recurring_products'][$product->hashed_id]['quantity'] ?? 1,
                 'notes' => $product->markdownNotes(),
             ];
+            $bundle['recurring_products'][$product->hashed_id]['product']['is_recurring'] = true;
         }
 
         foreach ($this->subscription->service()->products() as $key => $product) {
@@ -48,6 +49,7 @@ class Summary extends Component
                 'quantity' => $bundle['one_time_products'][$product->hashed_id]['quantity'] ?? 1,
                 'notes' => $product->markdownNotes(),
             ];
+            $bundle['one_time_products'][$product->hashed_id]['product']['is_recurring'] = false;
         }
 
         foreach ($this->subscription->service()->optional_recurring_products() as $key => $product) {
@@ -56,6 +58,7 @@ class Summary extends Component
                 'quantity' => $bundle['optional_recurring_products'][$product->hashed_id]['quantity'] ?? 0,
                 'notes' => $product->markdownNotes(),
             ];
+            $bundle['optional_recurring_products'][$product->hashed_id]['product']['is_recurring'] = true;
         }
 
         foreach ($this->subscription->service()->optional_products() as $key => $product) {
@@ -64,6 +67,7 @@ class Summary extends Component
                 'quantity' => $bundle['optional_one_time_products'][$product->hashed_id]['quantity'] ?? 0,
                 'notes' => $product->markdownNotes(),
             ];
+            $bundle['optional_one_time_products'][$product->hashed_id]['product']['is_recurring'] = false;
         }
 
         $this->dispatch('purchase.context', property: 'bundle', value: $bundle);
@@ -76,11 +80,11 @@ class Summary extends Component
         }
 
         $one_time = collect($this->context['bundle']['one_time_products'])->sum(function ($item) {
-            return $item['product']['cost'] * $item['quantity'];
+            return $item['product']['price'] * $item['quantity'];
         });
 
         $one_time_optional = collect($this->context['bundle']['optional_one_time_products'])->sum(function ($item) {
-            return $item['product']['cost'] * $item['quantity'];
+            return $item['product']['price'] * $item['quantity'];
         });
 
         if ($raw) {
@@ -98,11 +102,11 @@ class Summary extends Component
         }
 
         $recurring = collect($this->context['bundle']['recurring_products'])->sum(function ($item) {
-            return $item['product']['cost'] * $item['quantity'];
+            return $item['product']['price'] * $item['quantity'];
         });
 
         $recurring_optional = collect($this->context['bundle']['optional_recurring_products'])->sum(function ($item) {
-            return $item['product']['cost'] * $item['quantity'];
+            return $item['product']['price'] * $item['quantity'];
         });
 
         if ($raw) {
@@ -140,8 +144,8 @@ class Summary extends Component
             $products[] = [
                 'product_key' => $item['product']['product_key'],
                 'quantity' => $item['quantity'],
-                'total_raw' => $item['product']['cost'] * $item['quantity'],
-                'total' => Number::formatMoney($item['product']['cost'] * $item['quantity'], $this->subscription->company) . ' / ' . RecurringInvoice::frequencyForKey($this->subscription->frequency_id),
+                'total_raw' => $item['product']['price'] * $item['quantity'],
+                'total' => Number::formatMoney($item['product']['price'] * $item['quantity'], $this->subscription->company) . ' / ' . RecurringInvoice::frequencyForKey($this->subscription->frequency_id),
             ];
         }
 
@@ -149,8 +153,8 @@ class Summary extends Component
             $products[] = [
                 'product_key' => $item['product']['product_key'],
                 'quantity' => $item['quantity'],
-                'total_raw' => $item['product']['cost'] * $item['quantity'],
-                'total' => Number::formatMoney($item['product']['cost'] * $item['quantity'], $this->subscription->company) . ' / ' . RecurringInvoice::frequencyForKey($this->subscription->frequency_id),
+                'total_raw' => $item['product']['price'] * $item['quantity'],
+                'total' => Number::formatMoney($item['product']['price'] * $item['quantity'], $this->subscription->company) . ' / ' . RecurringInvoice::frequencyForKey($this->subscription->frequency_id),
             ];
         }
 
@@ -158,8 +162,8 @@ class Summary extends Component
             $products[] = [
                 'product_key' => $item['product']['product_key'],
                 'quantity' => $item['quantity'],
-                'total_raw' => $item['product']['cost'] * $item['quantity'],
-                'total' => Number::formatMoney($item['product']['cost'] * $item['quantity'], $this->subscription->company),
+                'total_raw' => $item['product']['price'] * $item['quantity'],
+                'total' => Number::formatMoney($item['product']['price'] * $item['quantity'], $this->subscription->company),
             ];
         }
 
@@ -167,8 +171,8 @@ class Summary extends Component
             $products[] = [
                 'product_key' => $item['product']['product_key'],
                 'quantity' => $item['quantity'],
-                'total_raw' => $item['product']['cost'] * $item['quantity'],
-                'total' => Number::formatMoney($item['product']['cost'] * $item['quantity'], $this->subscription->company),
+                'total_raw' => $item['product']['price'] * $item['quantity'],
+                'total' => Number::formatMoney($item['product']['price'] * $item['quantity'], $this->subscription->company),
             ];
         }
 

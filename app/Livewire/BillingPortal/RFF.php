@@ -30,30 +30,34 @@ class RFF extends Component
         $validated = $this->validate([
             'contact_first_name' => ['required'],
             'contact_last_name' => ['required'],
-            'contact_email' => ['required', 'email'],
+            // 'contact_email' => ['sometimes', 'email'],
         ]);
 
+        $this->contact = auth()->guard('contact')->user();
         $this->contact->first_name = $validated['contact_first_name'];
         $this->contact->last_name = $validated['contact_last_name'];
-        $this->contact->email = $validated['contact_email'];
         $this->contact->save();
+
+        $this->contact_first_name = $this->contact->first_name;
+        $this->contact_last_name = $this->contact->last_name;
+        $this->contact_email = $this->contact->email;
+
+        $this->dispatch('purchase.context', property: 'contact.first_name', value: $this->contact->first_name);
+        $this->dispatch('purchase.context', property: 'contact.last_name', value: $this->contact->last_name);
 
         $this->dispatch('purchase.next');
     }
 
     public function mount()
     {
-        if (auth()->guard('contact')->user()->showRff() === false) {
+        /** @var \App\Models\ClientContact $contact */
+        $contact = auth()->guard('contact')->user();
+
+        if ($contact->showRff() === false) {
             $this->dispatch('purchase.next');
         }
-
-        $this->contact = auth()->guard('contact')->user();
-
-        $this->contact_first_name = $this->contact->first_name;
-        $this->contact_last_name = $this->contact->last_name;
-        $this->contact_email = $this->contact->email;
     }
-
+    
     public function render()
     {
         return view('billing-portal.v3.rff');
