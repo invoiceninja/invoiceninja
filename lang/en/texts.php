@@ -5237,6 +5237,9 @@ $lang = array(
     'user_sales' => 'User Sales',
     'iframe_url' => 'iFrame URL',
     'user_unsubscribed' => 'User unsubscribed from emails :link',
+    'use_available_payments' => 'Use Available Payments',
+    'test_email_sent' => 'Successfully sent email',
+    'gateway_type' => 'Gateway Type',
 );
 
 return $lang;
