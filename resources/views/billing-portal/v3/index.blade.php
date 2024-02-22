@@ -25,18 +25,15 @@
 
             const target = document.getElementById('container');
 
-            const observer = new MutationObserver((mutationsList) => {
-                for (const mutation of mutationsList) {
-                    if (mutation.type === 'childList' || mutation.type === 'subtree') {
-                        setTimeout(() => {
-                            document.getElementById('spinner').classList.add('hidden');
-                            document.getElementById('container').classList.remove('hidden');
-                        }, 1500);
-                    }
-                }
-            });
+            Livewire.on('purchase.next', (event) => {
+                document.getElementById('spinner').classList.remove('hidden');
+                document.getElementById('container').classList.add('hidden');
 
-            observer.observe(target, { childList: true, subtree: true })
+                setTimeout(() => {
+                    document.getElementById('spinner').classList.add('hidden');
+                    document.getElementById('container').classList.remove('hidden');
+                }, 1500);
+            })
         });
     </script>
 @endpush
