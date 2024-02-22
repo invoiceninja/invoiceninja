@@ -40,7 +40,7 @@
     </div>
 
     <form 
-        action="{{ route('client.payments.process', ['hash' => $hash, 'sidebar' => 'hidden']) }}"
+        action="{{ route('client.payments.process', ['hash' => $hash, 'sidebar' => 'hidden', 'source' => 'subscriptions']) }}"
         method="post"
         id="payment-method-form">
         @csrf
