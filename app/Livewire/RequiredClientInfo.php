@@ -143,6 +143,8 @@ class RequiredClientInfo extends Component
 
     public $company_gateway_id;
 
+    public bool $form_only = false;
+
     public function mount()
     {
         MultiDB::setDb($this->company->db);
@@ -162,6 +164,15 @@ class RequiredClientInfo extends Component
         count($this->fields) > 0 || $this->show_terms
             ? $this->checkFields()
             : $this->show_form = false;
+
+        if (request()->query('source') === 'subscriptions') {
+            $this->show_form = false;
+            
+            $this->dispatch(
+                'passed-required-fields-check',
+                client_postal_code: $this->contact->client->postal_code
+            );
+        }
     }
 
     public function toggleTermsAccepted()

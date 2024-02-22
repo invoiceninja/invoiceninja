@@ -1,14 +1,16 @@
-<div wire:ignore.self class="container mx-auto grid grid-cols-12 mb-4" data-ref="required-fields-container">
-    <div class="col-span-12 lg:col-span-6 lg:col-start-4 overflow-hidden bg-white shadow rounded-lg">
-        <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
-            <h3 class="text-lg font-medium leading-6 text-gray-900">
-                {{ ctrans('texts.required_payment_information') }}
-            </h3>
+<div wire:ignore.self class="@unless($form_only) container mx-auto grid grid-cols-12 @endunless mb-4" data-ref="required-fields-container">
+    <div class="col-span-12 lg:col-span-6 lg:col-start-4 overflow-hidden @unless($form_only) bg-white shadow rounded-lg @endunless">
+        @unless($form_only)
+            <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900">
+                    {{ ctrans('texts.required_payment_information') }}
+                </h3>
 
-            <p class="max-w-2xl mt-1 text-sm leading-5 text-gray-500">
-                {{ ctrans('texts.required_payment_information_more') }}
-            </p>
-        </div>
+                <p class="max-w-2xl mt-1 text-sm leading-5 text-gray-500">
+                    {{ ctrans('texts.required_payment_information_more') }}
+                </p>
+            </div>
+        @endunless  
 
         <form id="required-client-info-form" x-on:submit.prevent="$wire.handleSubmit(Object.fromEntries(new FormData(document.getElementById('required-client-info-form'))))">
             @foreach($fields as $field)
