@@ -18,9 +18,7 @@
                 document.querySelector('input[name=contact_last_name]').value = event.contact_last_name;
                 document.querySelector('input[name=contact_email]').value = event.contact_email;
 
-                setTimeout(() => {
-                    document.getElementById('payment-method-form').submit()
-                }, 2000);
+                document.getElementById('payment-method-form').submit()
             });
 
             const target = document.getElementById('container');
@@ -34,6 +32,18 @@
                     document.getElementById('container').classList.remove('hidden');
                 }, 1500);
             })
+
+            Livewire.on('update-shipping-data', (event) => {
+                console.log(event);
+                    
+                for (field in event) {
+                    let element = document.querySelector(`input[name=${field}]`);
+
+                    if (element) {
+                        element.value = event[field];
+                    }
+                }
+            });
         });
     </script>
 @endpush
