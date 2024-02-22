@@ -34,8 +34,6 @@
             })
 
             Livewire.on('update-shipping-data', (event) => {
-                console.log(event);
-                    
                 for (field in event) {
                     let element = document.querySelector(`input[name=${field}]`);
 
