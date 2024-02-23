@@ -37,8 +37,9 @@ class InvoiceFailedEmailNotification
     {
         MultiDB::setDb($event->company->db);
 
-        if(Cache::has("invoice_failed_email_notification_{$event->invitation->key}"))
+        if(Cache::has("invoice_failed_email_notification_{$event->invitation->key}")) {
             return;
+        }
 
         $invoice = $event->invitation->invoice;
 

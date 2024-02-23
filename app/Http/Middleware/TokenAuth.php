@@ -67,13 +67,14 @@ class TokenAuth
             $truth->setUser($company_token->user);
             $truth->setCompany($company_token->company);
             $truth->setCompanyToken($company_token);
-
+            $truth->setPremiumHosted($company_token->account->isPremium());
             /*
             | This method binds the db to the jobs created using this
             | session
              */
             app('queue')->createPayloadUsing(function () use ($company_token) {
                 return ['db' => $company_token->company->db];
+                // return ['db' => $company_token->company->db, 'is_premium' => $company_token->account->isPremium()];
             });
 
             //user who once existed, but has been soft deleted

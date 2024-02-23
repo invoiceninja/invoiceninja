@@ -152,7 +152,8 @@ class BaseImport
             }
 
         }
-        return $bestDelimiter;
+
+        return $bestDelimiter ?? ',';
     }
 
     public function mapCSVHeaderToKeys($csvData)

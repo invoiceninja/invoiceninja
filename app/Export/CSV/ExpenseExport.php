@@ -23,7 +23,6 @@ use League\Csv\Writer;
 
 class ExpenseExport extends BaseExport
 {
-
     private $expense_transformer;
 
     private Decorator $decorator;
@@ -103,7 +102,7 @@ class ExpenseExport extends BaseExport
         if(isset($this->input['categories'])) {
             $query = $this->addCategoryFilter($query, $this->input['categories']);
         }
-        
+
         if($this->input['document_email_attachment'] ?? false) {
             $this->queueDocuments($query);
         }
@@ -206,23 +205,21 @@ class ExpenseExport extends BaseExport
 
         if($expense->calculate_tax_by_amount) {
             $total_tax_amount = round($expense->tax_amount1 + $expense->tax_amount2 + $expense->tax_amount3, $precision);
-        }
-        else {
-            
-            if($expense->uses_inclusive_taxes){
-                $total_tax_amount = ($this->calcInclusiveLineTax($expense->tax_rate1 ?? 0, $expense->amount,$precision)) + ($this->calcInclusiveLineTax($expense->tax_rate2 ?? 0, $expense->amount,$precision)) + ($this->calcInclusiveLineTax($expense->tax_rate3 ?? 0, $expense->amount,$precision));
+        } else {
+
+            if($expense->uses_inclusive_taxes) {
+                $total_tax_amount = ($this->calcInclusiveLineTax($expense->tax_rate1 ?? 0, $expense->amount, $precision)) + ($this->calcInclusiveLineTax($expense->tax_rate2 ?? 0, $expense->amount, $precision)) + ($this->calcInclusiveLineTax($expense->tax_rate3 ?? 0, $expense->amount, $precision));
                 $entity['expense.net_amount'] = round(($expense->amount - round($total_tax_amount, $precision)), $precision);
-            }
-            else{
-                $total_tax_amount = ($expense->amount * (($expense->tax_rate1 ?? 0)/100)) + ($expense->amount * (($expense->tax_rate2 ?? 0)/100)) + ($expense->amount * (($expense->tax_rate3 ?? 0)/100));
+            } else {
+                $total_tax_amount = ($expense->amount * (($expense->tax_rate1 ?? 0) / 100)) + ($expense->amount * (($expense->tax_rate2 ?? 0) / 100)) + ($expense->amount * (($expense->tax_rate3 ?? 0) / 100));
                 $entity['expense.net_amount'] = round(($expense->amount + round($total_tax_amount, $precision)), $precision);
             }
         }
 
         $entity['expense.tax_amount'] = round($total_tax_amount, $precision);
-        
+
         return $entity;
-        
+
     }
 
     private function calcInclusiveLineTax($tax_rate, $amount, $precision): float

@@ -3,4 +3,4 @@
       content:
         application/json:
           schema:
-            $ref: '#components/schemas/AuthorizationError'
+            $ref: '#/components/schemas/AuthorizationError'

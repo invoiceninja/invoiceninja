@@ -27,7 +27,7 @@ class CreditDecorator implements DecoratorInterface
 
         if($credit && method_exists($this, $key)) {
             return $this->{$key}($credit);
-        } elseif($credit && $credit->{$key}) {
+        } elseif($credit && ($credit->{$key} ?? false)) {
             return $credit->{$key};
         }
 

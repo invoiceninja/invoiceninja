@@ -53,6 +53,7 @@ class VerifyUserObject
             'logo' => $this->company->present()->logo(),
             'signature' => $this->company->settings->email_signature,
             'text_body' => ctrans('texts.confirmation_message'),
+            'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
         ];
 
         $mail_obj = new \stdClass();

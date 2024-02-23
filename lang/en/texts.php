@@ -3868,7 +3868,7 @@ $lang = array(
     'cancellation_pending' => 'Cancellation pending, we\'ll be in touch!',
     'list_of_payments' => 'List of payments',
     'payment_details' => 'Details of the payment',
-    'list_of_payment_invoices' => 'List of invoices affected by the payment',
+    'list_of_payment_invoices' => 'Associate invoices',
     'list_of_payment_methods' => 'List of payment methods',
     'payment_method_details' => 'Details of payment method',
     'permanently_remove_payment_method' => 'Permanently remove this payment method.',
@@ -4925,7 +4925,7 @@ $lang = array(
     'no_assigned_tasks' => 'No billable tasks for this project',
     'authorization_failure' => 'Insufficient permissions to perform this action',
     'authorization_sms_failure' => 'Please verify your account to send emails.',
-    'white_label_body' => 'Thank you for purchasing a white label license. <br><br> Your license key is: <br><br> :license_key',
+    'white_label_body' => 'Thank you for purchasing a white label license. <br><br> Your license key is: <br><br> :license_key <br><br> You can manage your license here: https://invoiceninja.invoicing.co/client/login',
     'payment_type_Klarna' => 'Klarna',
     'payment_type_Interac E Transfer' => 'Interac E Transfer',
     'xinvoice_payable' => 'Payable within :payeddue days net until :paydate',
@@ -5120,7 +5120,7 @@ $lang = array(
     'set_private' => 'Set private',
     'individual' => 'Individual',
     'business' => 'Business',
-    'partnership' => 'partnership',
+    'partnership' => 'Partnership',
     'trust' => 'Trust',
     'charity' => 'Charity',
     'government' => 'Government',
@@ -5237,6 +5237,9 @@ $lang = array(
     'user_sales' => 'User Sales',
     'iframe_url' => 'iFrame URL',
     'user_unsubscribed' => 'User unsubscribed from emails :link',
+    'use_available_payments' => 'Use Available Payments',
+    'test_email_sent' => 'Successfully sent email',
+    'gateway_type' => 'Gateway Type',
 );
 
 return $lang;

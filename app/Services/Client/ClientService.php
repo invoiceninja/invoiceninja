@@ -26,7 +26,8 @@ use Illuminate\Database\QueryException;
 
 class ClientService
 {
-    use MakesDates, GeneratesCounter;
+    use MakesDates;
+    use GeneratesCounter;
 
     private string $client_start_date;
 
@@ -153,9 +154,10 @@ class ClientService
     {
         $x = 1;
 
-        if(isset($this->client->number))
+        if(isset($this->client->number)) {
             return $this;
-        
+        }
+
         do {
             try {
                 $this->client->number = $this->getNextClientNumber($this->client);

@@ -75,8 +75,8 @@ class TaxSummaryReport extends BaseExport
 
         $query = Invoice::query()
             ->withTrashed()
-            ->whereIn('status_id', [2,3,4])
             ->where('company_id', $this->company->id)
+            ->whereIn('status_id', [2,3,4])
             ->where('is_deleted', 0)
             ->orderBy('balance', 'desc');
 

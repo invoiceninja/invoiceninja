@@ -36,7 +36,6 @@ tags:
     description: |
       Endpoint definitions for interacting with vendors.
   - name: Purchase Orders
-    summary: Purchase Orders
     description: |
       Endpoint definitions for interacting with purchase orders.
   - name: expenses

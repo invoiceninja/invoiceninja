@@ -75,7 +75,7 @@ class TemplateEmail extends Mailable
         $template_name = 'email.template.'.$this->build_email->getTemplate();
 
         if ($this->build_email->getTemplate() == 'light' || $this->build_email->getTemplate() == 'dark') {
-            $template_name = 'email.template.client';
+            $template_name = $this->company->account->isPremium() ? 'email.template.client_premium' : 'email.template.client';
         }
 
         if ($this->build_email->getTemplate() == 'custom') {
@@ -139,7 +139,7 @@ class TemplateEmail extends Mailable
                 'whitelabel' => $this->client->user->account->isPaid() ? true : false,
                 'logo' => $this->company->present()->logo($settings),
                 'links' => $this->build_email->getAttachmentLinks(),
-                'email_preferences' => (Ninja::isHosted() && in_array($settings->email_sending_method, ['default', 'mailgun'])) ? URL::signedRoute('client.email_preferences', ['entity' => $this->invitation->getEntityString(), 'invitation_key' => $this->invitation->key]) : false,
+                'email_preferences' => (Ninja::isHosted() && in_array($settings->email_sending_method, ['default', 'mailgun'])) ? $this->company->domain() . URL::signedRoute('client.email_preferences', ['entity' => $this->invitation->getEntityString(), 'invitation_key' => $this->invitation->key], absolute: false) : false,
             ]);
 
         foreach ($this->build_email->getAttachments() as $file) {

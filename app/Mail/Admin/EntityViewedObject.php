@@ -98,13 +98,13 @@ class EntityViewedObject
         }
 
         $content = ctrans(
-                "texts.notification_{$this->entity_type}_viewed",
-                [
+            "texts.notification_{$this->entity_type}_viewed",
+            [
                     'amount' => $this->getAmount(),
                     'client' => $this->contact->present()->name(),
                     'invoice' => $this->entity->number,
                 ]
-                );
+        );
 
         $data = [
             'title' => $this->getSubject(),
@@ -116,6 +116,7 @@ class EntityViewedObject
             'settings' => $settings,
             'whitelabel' => $this->company->account->isPaid() ? true : false,
             'text_body' => $content,
+            'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
         ];
 
         return $data;

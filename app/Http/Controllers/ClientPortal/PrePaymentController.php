@@ -12,16 +12,17 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
+use App\Utils\Number;
+use App\Utils\HtmlEngine;
+use Illuminate\View\View;
 use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\ClientPortal\PrePayments\StorePrePaymentRequest;
-use App\Repositories\InvoiceRepository;
-use App\Utils\Number;
-use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesDates;
+use App\Http\Controllers\Controller;
 use Illuminate\Contracts\View\Factory;
-use Illuminate\View\View;
+use App\Repositories\InvoiceRepository;
+use App\Http\Requests\ClientPortal\PrePayments\StorePrePaymentRequest;
 
 /**
  * Class PrePaymentController.
@@ -88,6 +89,8 @@ class PrePaymentController extends Controller
 
         $total = $invoice->balance;
 
+        $invitation = $invoice->invitations->first();
+
         //format totals
         $formatted_total = Number::formatMoney($invoice->amount, auth()->guard('contact')->user()->client);
 
@@ -113,6 +116,8 @@ class PrePaymentController extends Controller
             'frequency_id' => $request->frequency_id,
             'remaining_cycles' => $request->remaining_cycles,
             'is_recurring' => $request->is_recurring == 'on' ? true : false,
+            'variables' => $variables = ($invitation && auth()->guard('contact')->user()->client->getSetting('show_accept_invoice_terms')) ? (new HtmlEngine($invitation))->generateLabelsAndValues() : false,
+
         ];
 
         return $this->render('invoices.payment', $data);

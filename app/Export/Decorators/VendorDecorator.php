@@ -27,7 +27,7 @@ class VendorDecorator extends Decorator implements DecoratorInterface
 
         if($vendor && method_exists($this, $key)) {
             return $this->{$key}($vendor);
-        } elseif($vendor->{$key}) {
+        } elseif($vendor->{$key} ?? false) {
             return $vendor->{$key} ?? '';
         }
 

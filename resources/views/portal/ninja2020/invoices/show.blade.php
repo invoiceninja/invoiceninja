@@ -4,10 +4,21 @@
 @push('head')
     <meta name="show-invoice-terms" content="{{ $settings->show_accept_invoice_terms ? true : false }}">
     <meta name="require-invoice-signature" content="{{ $client->user->account->hasFeature(\App\Models\Account::FEATURE_INVOICE_SETTINGS) && $settings->require_invoice_signature }}">
+    <meta name="show-required-fields-form" content="{{ auth()->guard('contact')->user()->showRff() }}" />
     @include('portal.ninja2020.components.no-cache')
     <script src="{{ asset('vendor/signature_pad@2.3.2/signature_pad.min.js') }}"></script>
 
 @endpush
+
+@section('header')
+    @if($errors->any())
+        <div class="alert alert-failure mb-4">
+            @foreach($errors->all() as $error)
+            <p>{{ $error }}</p>
+            @endforeach
+        </div>
+    @endif
+@endsection
 
 @section('body')
 
@@ -33,6 +44,9 @@
             <input type="hidden" name="hash" value="{{ $hash }}">
             <input type="hidden" name="payable_invoices[0][amount]" value="{{ $invoice->partial > 0 ?  \App\Utils\Number::formatValue($invoice->partial, $invoice->client->currency()) : \App\Utils\Number::formatValue($invoice->balance, $invoice->client->currency()) }}">
             <input type="hidden" name="payable_invoices[0][invoice_id]" value="{{ $invoice->hashed_id }}">
+            <input type="hidden" name="contact_first_name" value="{{ auth()->guard('contact')->user()->first_name }}">
+            <input type="hidden" name="contact_last_name" value="{{ auth()->guard('contact')->user()->last_name }}">
+            <input type="hidden" name="contact_email" value="{{ auth()->guard('contact')->user()->email }}">
 
             <div class="bg-white shadow sm:rounded-lg mb-4" translate>
                 <div class="px-4 py-5 sm:p-6">
@@ -100,6 +114,7 @@
 @endsection
 
 @section('footer')
+    @include('portal.ninja2020.invoices.includes.required-fields')
     @include('portal.ninja2020.invoices.includes.signature')
     @include('portal.ninja2020.invoices.includes.terms', ['entities' => [$invoice], 'variables' => $variables, 'entity_type' => ctrans('texts.invoice')])
 @endsection

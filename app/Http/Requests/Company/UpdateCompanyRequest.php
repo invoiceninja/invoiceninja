@@ -57,8 +57,14 @@ class UpdateCompanyRequest extends Request
         $rules['matomo_id'] = 'nullable|integer';
         $rules['e_invoice_certificate_passphrase'] = 'sometimes|nullable';
         $rules['e_invoice_certificate'] = 'sometimes|nullable|file|mimes:p12,pfx,pem,cer,crt,der,txt,p7b,spc,bin';
-        // $rules['client_registration_fields'] = 'array';
 
+        $rules['smtp_host'] = 'sometimes|string|nullable';
+        $rules['smtp_port'] = 'sometimes|integer|nullable';
+        $rules['smtp_encryption'] = 'sometimes|string|nullable';
+        $rules['smtp_local_domain'] = 'sometimes|string|nullable';
+        // $rules['smtp_verify_peer'] = 'sometimes|string';
+
+        
         if (isset($input['portal_mode']) && ($input['portal_mode'] == 'domain' || $input['portal_mode'] == 'iframe')) {
             $rules['portal_domain'] = 'bail|nullable|sometimes|url';
         }
@@ -74,21 +80,37 @@ class UpdateCompanyRequest extends Request
     {
         $input = $this->all();
 
-        if (array_key_exists('portal_domain', $input) && strlen($input['portal_domain']) > 1) {
+        if (isset($input['portal_domain']) && strlen($input['portal_domain']) > 1) {
             $input['portal_domain'] = $this->addScheme($input['portal_domain']);
             $input['portal_domain'] = rtrim(strtolower($input['portal_domain']), "/");
         }
 
-        if (array_key_exists('settings', $input)) {
+        if (isset($input['settings'])) {
             $input['settings'] = (array)$this->filterSaveableSettings($input['settings']);
         }
 
-        if(array_key_exists('subdomain', $input) && $this->company->subdomain == $input['subdomain']) {
+        if(isset($input['subdomain']) && $this->company->subdomain == $input['subdomain']) {
             unset($input['subdomain']);
         }
 
-        if(array_key_exists('e_invoice_certificate_passphrase', $input) && empty($input['e_invoice_certificate_passphrase'])) {
+        if(isset($input['e_invoice_certificate_passphrase']) && empty($input['e_invoice_certificate_passphrase'])) {
             unset($input['e_invoice_certificate_passphrase']);
+        }
+
+        if(isset($input['smtp_username']) && strlen(str_replace("*","", $input['smtp_username'])) < 2) {
+            unset($input['smtp_username']);
+        }
+
+        if(isset($input['smtp_password']) && strlen(str_replace("*", "", $input['smtp_password'])) < 2) {
+            unset($input['smtp_password']);
+        }
+        
+        if(isset($input['smtp_port'])) {
+            $input['smtp_port'] = (int)$input['smtp_port'];
+        }
+
+        if(isset($input['smtp_verify_peer']) && is_string($input['smtp_verify_peer'])) {
+            $input['smtp_verify_peer'] == 'true' ? true : false;
         }
 
         $this->replace($input);

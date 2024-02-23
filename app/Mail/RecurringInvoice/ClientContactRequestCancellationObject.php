@@ -48,6 +48,7 @@ class ClientContactRequestCancellationObject
             'signature' => $this->company->settings->email_signature,
             'settings' => $this->company->settings,
             'logo' => $this->company->present()->logo(),
+            'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
         ];
 
         $mail_obj = new \stdClass();

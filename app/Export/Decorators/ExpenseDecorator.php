@@ -27,12 +27,17 @@ class ExpenseDecorator implements DecoratorInterface
 
         if($expense && method_exists($this, $key)) {
             return $this->{$key}($expense);
-        } elseif($expense && $expense->{$key}) {
+        } elseif($expense && ($expense->{$key} ?? false)) {
             return $expense->{$key};
         }
 
         return '';
 
+    }
+
+    public function category(Expense $expense)
+    {
+        return $this->category_id($expense);
     }
 
     public function category_id(Expense $expense)

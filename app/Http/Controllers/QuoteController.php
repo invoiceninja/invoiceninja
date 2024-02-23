@@ -399,7 +399,7 @@ class QuoteController extends BaseController
 
         $quote->service()
               ->triggeredActions($request);
-        
+
         event(new QuoteWasUpdated($quote, $quote->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($quote);

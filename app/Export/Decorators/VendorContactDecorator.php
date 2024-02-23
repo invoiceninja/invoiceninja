@@ -27,7 +27,7 @@ class VendorContactDecorator implements DecoratorInterface
 
         if($contact && method_exists($this, $key)) {
             return $this->{$key}($contact);
-        } elseif($contact && $contact->{$key}) {
+        } elseif($contact && ($contact->{$key} ?? false)) {
             return $contact->{$key} ?? '';
         }
 

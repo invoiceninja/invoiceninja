@@ -85,8 +85,8 @@ class EntityPaidObject
 
         $invoice_texts = substr($invoice_texts, 0, -1);
         $content = ctrans(
-                'texts.notification_payment_paid',
-                ['amount' => $amount,
+            'texts.notification_payment_paid',
+            ['amount' => $amount,
                     'client' => $this->payment->client->present()->name(),
                     'invoice' => $invoice_texts,
                 ]
@@ -105,6 +105,7 @@ class EntityPaidObject
             'settings' => $settings,
             'whitelabel' => $this->company->account->isPaid() ? true : false,
             'text_body' => $content,
+            'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
         ];
 
         return $data;

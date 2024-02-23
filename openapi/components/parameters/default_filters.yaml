@@ -45,7 +45,7 @@
         Filters the entity list by entities that have been deleted.
       required: false
       schema:
-        type: booleans
+        type: boolean
       example: ?is_deleted=true
     vendor_id:
       name: vendor_id

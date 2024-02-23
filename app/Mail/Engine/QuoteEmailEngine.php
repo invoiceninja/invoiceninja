@@ -125,7 +125,7 @@ class QuoteEmailEngine extends BaseEmailEngine
             // Storage::url
             $this->quote->documents()->where('is_public', true)->cursor()->each(function ($document) {
                 if ($document->size > $this->max_attachment_size) {
-                    
+
                     $hash = Str::random(64);
                     Cache::put($hash, ['db' => $this->quote->company->db, 'doc_hash' => $document->hash], now()->addDays(7));
 
@@ -137,7 +137,7 @@ class QuoteEmailEngine extends BaseEmailEngine
 
             $this->quote->company->documents()->where('is_public', true)->cursor()->each(function ($document) {
                 if ($document->size > $this->max_attachment_size) {
-                    
+
                     $hash = Str::random(64);
                     Cache::put($hash, ['db' => $this->quote->company->db, 'doc_hash' => $document->hash], now()->addDays(7));
 

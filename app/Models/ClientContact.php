@@ -254,7 +254,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
     {
         return $this->hasMany(CreditInvitation::class);
     }
- 
+
     public function sendPasswordResetNotification($token)
     {
         $this->token = $token;
@@ -351,5 +351,12 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         return config('ninja.react_url')."/#/clients/{$this->client->hashed_id}";
     }
 
+    public function showRff(): bool
+    {
+        if (\strlen($this->first_name) === 0 || \strlen($this->last_name) === 0 || \strlen($this->email) === 0) {
+            return true;
+        }
 
+        return false;
+    }
 }

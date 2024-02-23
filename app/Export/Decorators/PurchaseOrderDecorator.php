@@ -27,7 +27,7 @@ class PurchaseOrderDecorator extends Decorator implements DecoratorInterface
 
         if($purchase_order && method_exists($this, $key)) {
             return $this->{$key}($purchase_order);
-        } elseif($purchase_order->{$key}) {
+        } elseif($purchase_order->{$key} ?? false) {
             return $purchase_order->{$key} ?? '';
         }
 
