@@ -58,7 +58,7 @@ class EmailPayment implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->company->is_disabled || (!$this->contact->email ?? false)) {
+        if ($this->company->is_disabled || (!$this->contact?->email ?? false)) {
             nlog("company disabled - or - contact email not found");
             return;
         }
@@ -106,7 +106,7 @@ class EmailPayment implements ShouldQueue
         (new NinjaMailerJob($nmo))->handle();
 
         event(new PaymentWasEmailed($this->payment, $this->payment->company, $this->contact, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-    
+
     }
 
     private function emailAllContacts($email_builder): void

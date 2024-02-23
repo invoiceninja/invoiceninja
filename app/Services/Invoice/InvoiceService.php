@@ -90,7 +90,7 @@ class InvoiceService
         if ($company_currency != $client_currency) {
             $exchange_rate = new CurrencyApi();
 
-            $this->invoice->exchange_rate = $exchange_rate->exchangeRate($client_currency, $company_currency, now());
+            $this->invoice->exchange_rate = 1/$exchange_rate->exchangeRate($client_currency, $company_currency, now());
         }
 
         return $this;

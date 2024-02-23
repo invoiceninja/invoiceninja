@@ -242,9 +242,9 @@ class InvoiceSum
 
         if ($this->invoice->status_id != Invoice::STATUS_DRAFT) {
             if ($this->invoice->amount != $this->invoice->balance) {
-                $paid_to_date = $this->invoice->amount - $this->invoice->balance;
+                // $paid_to_date = $this->invoice->amount - $this->invoice->balance;
 
-                $this->invoice->balance = Number::roundValue($this->getTotal(), $this->precision) - $paid_to_date;
+                $this->invoice->balance = Number::roundValue($this->getTotal(), $this->precision) - $this->invoice->paid_to_date; //21-02-2024 cannot use the calculated $paid_to_date here as it could send the balance backward.
             } else {
                 $this->invoice->balance = Number::roundValue($this->getTotal(), $this->precision);
             }

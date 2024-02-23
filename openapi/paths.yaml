@@ -2,8 +2,8 @@ paths:
   /api/v1/activities:
     get:
       tags:
-        - actvities
-      summary: "Returns a list of actvities"
+        - activities
+      summary: "Returns a list of activities"
       description: "Lists all activities related to this company"
       operationId: getActivities
       parameters:
@@ -44,10 +44,10 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  "/api/v1/actvities/download_entity/{activity_id}":
+  "/api/v1/activities/download_entity/{activity_id}":
     get:
       tags:
-        - actvities
+        - activities
       summary: "Returns a PDF for the given activity"
       description: "Returns a PDF for the given activity"
       operationId: getActivityHistoricalEntityPdf
@@ -91,8 +91,6 @@ paths:
       summary: "Attempts authentication"
       description: "Returns a CompanyUser object on success"
       operationId: postLogin
-      security:
-        - []
       parameters:
         - $ref: "#/components/parameters/X-API-SECRET"
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -137,7 +135,7 @@ paths:
         422:
           $ref: "#/components/responses/422"
         5XX:
-          $ref: "#/components/responses/5XX"
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   /api/v1/refresh:
@@ -149,7 +147,7 @@ paths:
         Refreshes the dataset.  
 
         This endpoint can be used if you only need to access the most recent data from a certain point in time.
-        operationId: refresh
+      operationId: refresh
       parameters:
         - name: updated_at
           in: query

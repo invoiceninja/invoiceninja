@@ -70,7 +70,7 @@ class InvoiceController extends Controller
         }
 
         $variables = ($invitation && auth()->guard('contact')->user()->client->getSetting('show_accept_invoice_terms')) ? (new HtmlEngine($invitation))->generateLabelsAndValues() : false;
-        
+
         $data = [
             'invoice' => $invoice,
             'invitation' => $invitation ?: $invoice->invitations->first(),
@@ -224,8 +224,9 @@ class InvoiceController extends Controller
         $settings = auth()->guard('contact')->user()->client->getMergedSettings();
         $variables = false;
 
-        if(($invitation = $invoices->first()->invitations()->first() ?? false) && $settings->show_accept_invoice_terms)
+        if(($invitation = $invoices->first()->invitations()->first() ?? false) && $settings->show_accept_invoice_terms) {
             $variables = (new HtmlEngine($invitation))->generateLabelsAndValues();
+        }
 
         $data = [
             'settings' => $settings,
@@ -235,7 +236,6 @@ class InvoiceController extends Controller
             'hashed_ids' => $invoices->pluck('hashed_id'),
             'total' =>  $total,
             'variables' => $variables,
-
         ];
 
         return $this->render('invoices.payment', $data);

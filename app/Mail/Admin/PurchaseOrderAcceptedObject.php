@@ -74,14 +74,14 @@ class PurchaseOrderAcceptedObject
         $settings = $this->company->settings;
 
         $content = ctrans(
-                'texts.notification_purchase_order_accepted',
-                [
+            'texts.notification_purchase_order_accepted',
+            [
                     'amount' => $this->getAmount(),
                     'vendor' => $this->purchase_order->vendor->present()->name(),
                     'purchase_order' => $this->purchase_order->number,
                 ]
         );
-        
+
         $data = [
             'title' => $this->getSubject(),
             'content' => $content,
@@ -92,6 +92,7 @@ class PurchaseOrderAcceptedObject
             'settings' => $settings,
             'whitelabel' => $this->company->account->isPaid() ? true : false,
             'text_body' => $content,
+            'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
         ];
 
         return $data;

@@ -73,15 +73,16 @@ class EntityCreatedObject
             );
 
             $mail_obj->markdown = 'email.admin.generic';
-            
+            $mail_obj->text_view = 'email.template.text';
+
             $content = ctrans(
-                                    $this->template_body,
-                                    [
+                $this->template_body,
+                [
                                         'amount' => $mail_obj->amount,
                                         'vendor' => $this->entity->vendor->present()->name(),
                                         'purchase_order' => $this->entity->number,
                                     ]
-                                    );
+            );
 
             $mail_obj->data = [
                                 'title' => $mail_obj->subject,
@@ -92,8 +93,9 @@ class EntityCreatedObject
                                 'logo' => $this->company->present()->logo(),
                                 'settings' => $this->company->settings,
                                 'whitelabel' => $this->company->account->isPaid() ? true : false,
-                                'text_body' => $content,
-                            ];
+                                'text_body' => str_replace(['$view_button','$viewButton','$viewLink','$view_url'], '$view_url', $content),
+                                'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
+                ];
         } else {
             $this->entity->load('client.country', 'client.company');
             $this->client = $this->entity->client;
@@ -179,7 +181,8 @@ class EntityCreatedObject
             'logo' => $this->company->present()->logo(),
             'settings' => $settings,
             'whitelabel' => $this->company->account->isPaid() ? true : false,
-            'text_body' => $content,
+            'text_body' => str_replace(['$view_button','$viewButton','$view_link','$view_button'], '$view_url', $content),
+            'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
         ];
     }
 }

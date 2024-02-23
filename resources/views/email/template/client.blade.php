@@ -3,7 +3,6 @@
     $email_alignment = isset($settings->email_alignment) ? $settings->email_alignment : 'center';
 @endphp
 
-
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
@@ -233,20 +232,20 @@
                     </td>
                 </tr>
 
-                @isset($email_preferences)
+                @if(isset($email_preferences) && $email_preferences)
                 <tr>
                     <td bgcolor="#242424"  cellpadding="20">
                         <div class="dark-bg-base"
                              style="padding-top: 10px;padding-bottom: 10px; background-color: #242424; border: 1px solid #c2c2c2; border-top-color: #242424; border-bottom-color: #242424;">
                                 <a href="{{ $email_preferences }}">
                                     <p style="text-align: center; color: #ffffff; font-size: 10px; font-family: Verdana, Geneva, Tahoma, sans-serif;">
-                                        {{ ctrans('texts.unsubscribe') }}
+                                        {{ ctrans('texts.email_preferences') }}
                                     </p>
                                 </a>
                         </div>
                     </td>
                 </tr>
-                @endisset
+                @endif
             </table>
         </td>
     </tr>

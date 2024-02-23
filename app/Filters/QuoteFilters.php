@@ -155,6 +155,10 @@ class QuoteFilters extends QueryFilters
 
         }
 
+        if($sort_col[0] == 'number') {
+            return $this->builder->orderByRaw('ABS(number) ' . $dir);
+        }
+
         if ($sort_col[0] == 'valid_until') {
             $sort_col[0] = 'due_date';
         }

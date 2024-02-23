@@ -18,7 +18,9 @@ use Illuminate\Database\QueryException;
 
 class SendEmail
 {
-    public function __construct(public Payment $payment, public ?ClientContact $contact) {}
+    public function __construct(public Payment $payment, public ?ClientContact $contact)
+    {
+    }
 
     /**
      * Builds the correct template to send.

@@ -146,6 +146,11 @@ class CreditFilters extends QueryFilters
                     ->whereColumn('clients.id', 'credits.client_id'), $dir);
         }
 
+
+        if($sort_col[0] == 'number') {
+            return $this->builder->orderByRaw('ABS(number) ' . $dir);
+        }
+
         return $this->builder->orderBy($sort_col[0], $dir);
     }
 

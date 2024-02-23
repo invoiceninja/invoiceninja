@@ -99,10 +99,9 @@ class NinjaMailerJob implements ShouldQueue
             }
 
             $this->nmo->mailable->replyTo($this->nmo->settings->reply_to_email, $reply_to_name);
-        }elseif(isset($this->nmo->invitation->user)){
+        } elseif(isset($this->nmo->invitation->user)) {
             $this->nmo->mailable->replyTo($this->nmo->invitation->user->email, $this->nmo->invitation->user->present()->name());
-        } 
-        else {
+        } else {
             $this->nmo->mailable->replyTo($this->company->owner()->email, $this->company->owner()->present()->name());
         }
 
@@ -135,7 +134,7 @@ class NinjaMailerJob implements ShouldQueue
             }
 
             $mailable = $this->nmo->mailable;
-            
+
             /** May need to re-build it here */
             if(Ninja::isHosted() && method_exists($mailable, 'build')) {
                 $mailable->build();
@@ -260,11 +259,35 @@ class NinjaMailerJob implements ShouldQueue
         $t->replace(Ninja::transformTranslations($this->nmo->settings));
 
         /** Force free/trials onto specific mail driver */
-        if(Ninja::isHosted() && !$this->company->account->isPaid())
-        {
-            $this->mailer = 'mailgun';
-            $this->setHostedMailgunMailer();
-            return $this;
+        // if(Ninja::isHosted() && !$this->company->account->isPaid())
+        // {
+        //     $this->mailer = 'mailgun';
+        //     $this->setHostedMailgunMailer();
+        //     return $this;
+        // }
+
+        if(Ninja::isHosted() && $this->company->account->isPaid() && $this->nmo->settings->email_sending_method == 'default') {
+            //check if outlook.
+
+            try {
+                $email = $this->nmo->to_user->email;
+                $domain = explode("@", $email)[1] ?? "";
+                $dns = dns_get_record($domain, DNS_MX);
+                $server = $dns[0]["target"];
+                if(stripos($server, "outlook.com") !== false) {
+
+                    $this->mailer = 'postmark';
+                    $this->client_postmark_secret = config('services.postmark-outlook.token');
+
+                    $this->nmo
+                     ->mailable
+                     ->from('maildelivery@invoice.services', 'Invoice Ninja');
+
+                    return $this;
+                }
+            } catch(\Exception $e) {
+                nlog($e->getMessage());
+            }
         }
 
         switch ($this->nmo->settings->email_sending_method) {
@@ -384,7 +407,7 @@ class NinjaMailerJob implements ShouldQueue
 
     private function setHostedMailgunMailer()
     {
-        
+
         if (property_exists($this->nmo->settings, 'email_from_name') && strlen($this->nmo->settings->email_from_name) > 1) {
             $email_from_name = $this->nmo->settings->email_from_name;
         } else {

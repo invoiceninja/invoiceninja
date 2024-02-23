@@ -73,7 +73,7 @@ class AccountEmailQuotaTest extends TestCase
         $company->track_inventory = true;
         $company->settings = $settings;
         $company->save();
-
+        /** @vart \App\Models\Account $account */
         $account->default_company_id = $company->id;
         $account->save();
 

@@ -272,10 +272,9 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         //capture
         $orderID = $response['orderID'];
 
-        if($this->company_gateway->require_shipping_address)
-        {
+        if($this->company_gateway->require_shipping_address) {
 
-            $shipping_data = 
+            $shipping_data =
             [[
                 "op" => "replace",
                 "path" => "/purchase_units/@reference_id=='default'/shipping/address",
@@ -288,7 +287,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                     "country_code" => $this->client->present()->shipping_country_code(),
                 ],
             ]];
-        
+
             $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}", 'patch', $shipping_data);
 
         }
@@ -497,7 +496,7 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                     "country_code" => $this->client->present()->shipping_country_code(),
                 ],
         ]
-        
+
         : null;
 
     }

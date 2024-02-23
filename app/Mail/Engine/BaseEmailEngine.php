@@ -123,6 +123,15 @@ class BaseEmailEngine implements EngineInterface
 
     public function setTextBody($text)
     {
+
+        if (! empty($this->variables)) {
+
+            $text = str_replace(['$paymentLink', '$viewButton', '$view_button', '$viewLink', '$view_link'], '$view_url', $text);
+            $text = str_replace(array_keys($this->variables), array_values($this->variables), $text);
+            $text = str_replace(array_keys($this->variables), array_values($this->variables), $text);
+
+        }
+
         $this->text_body = $text;
 
         return $this;
@@ -189,22 +198,4 @@ class BaseEmailEngine implements EngineInterface
         return $this->text_body;
     }
 
-    private function replaceEntities($content)
-    {
-        $find = [
-            '<p>',
-            '</p>',
-            '<div class="center">',
-            '<\div>',
-        ];
-
-        $replace = [
-            '',
-            '\n\n',
-            '',
-            '\n\n',
-        ];
-
-        return str_replace($find, $replace, $content);
-    }
 }

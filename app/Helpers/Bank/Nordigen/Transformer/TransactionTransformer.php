@@ -12,7 +12,10 @@
 namespace App\Helpers\Bank\Nordigen\Transformer;
 
 use App\Helpers\Bank\BankRevenueInterface;
-use App\Models\BankIntegration;
+use App\Models\Company;
+use App\Models\DateFormat;
+use App\Models\Timezone;
+use Carbon\Carbon;
 use App\Utils\Traits\AppSetup;
 use Illuminate\Support\Facades\Cache;
 use Log;
@@ -66,12 +69,20 @@ class TransactionTransformer implements BankRevenueInterface
 {
     use AppSetup;
 
+    private Company $company;
+
+    function __construct(Company $company)
+    {
+        $this->company = $company;
+    }
+
     public function transform($transactionResponse)
     {
         $data = [];
 
-        if (!array_key_exists('transactions', $transactionResponse) || !array_key_exists('booked', $transactionResponse["transactions"]))
+        if (!array_key_exists('transactions', $transactionResponse) || !array_key_exists('booked', $transactionResponse["transactions"])) {
             throw new \Exception('invalid dataset');
+        }
 
         foreach ($transactionResponse["transactions"]["booked"] as $transaction) {
             $data[] = $this->transformTransaction($transaction);
@@ -83,11 +94,11 @@ class TransactionTransformer implements BankRevenueInterface
     {
         // depending on institution, the result can be different, so we load the first available unique id
         $transactionId = '';
-        if (array_key_exists('transactionId', $transaction))
+        if (array_key_exists('transactionId', $transaction)) {
             $transactionId = $transaction["transactionId"];
-        else if (array_key_exists('internalTransactionId', $transaction))
+        } elseif (array_key_exists('internalTransactionId', $transaction)) {
             $transactionId = $transaction["internalTransactionId"];
-        else {
+        } else {
             nlog(`Invalid Input for nordigen transaction transformer: ` . $transaction);
             throw new \Exception('invalid dataset: missing transactionId - Please report this error to the developer');
         }
@@ -96,23 +107,25 @@ class TransactionTransformer implements BankRevenueInterface
 
         // description could be in varios places
         $description = '';
-        if (array_key_exists('remittanceInformationStructured', $transaction))
+        if (array_key_exists('remittanceInformationStructured', $transaction)) {
             $description = $transaction["remittanceInformationStructured"];
-        else if (array_key_exists('remittanceInformationStructuredArray', $transaction))
+        } elseif (array_key_exists('remittanceInformationStructuredArray', $transaction)) {
             $description = implode('\n', $transaction["remittanceInformationStructuredArray"]);
-        else if (array_key_exists('remittanceInformationUnstructured', $transaction))
+        } elseif (array_key_exists('remittanceInformationUnstructured', $transaction)) {
             $description = $transaction["remittanceInformationUnstructured"];
-        else if (array_key_exists('remittanceInformationUnstructuredArray', $transaction))
+        } elseif (array_key_exists('remittanceInformationUnstructuredArray', $transaction)) {
             $description = implode('\n', $transaction["remittanceInformationUnstructuredArray"]);
-        else
+        } else {
             Log::warning("Missing description for the following transaction: " . json_encode($transaction));
+        }
 
         // enrich description with currencyExchange informations
-        if (array_key_exists('currencyExchange', $transaction))
+        if (isset($transaction['currencyExchange'])) {
             foreach ($transaction["currencyExchange"] as $exchangeRate) {
-                $targetAmount = round($amount * (float) $exchangeRate["exchangeRate"], 2);
-                $description .= '\nexchangeRate: ' . $amount . " " . $exchangeRate["sourceCurrency"] . " = " . $targetAmount . " " . $exchangeRate["targetCurrency"] . " (" . $exchangeRate["quotationDate"] . ")";
+                $targetAmount = round($amount * (float) ($exchangeRate["exchangeRate"] ?? 1), 2);
+                $description .= '\n' . ctrans('texts.exchange_rate') . ' : ' . $amount . " " . ($exchangeRate["sourceCurrency"] ?? '?') . " = " . $targetAmount . " " . ($exchangeRate["targetCurrency"] ?? '?') . " (" . (isset($exchangeRate["quotationDate"]) ? $this->formatDate($exchangeRate["quotationDate"]) : '?') . ")";
             }
+        }
 
         // participant data
         $participant = array_key_exists('debtorAccount', $transaction) && array_key_exists('iban', $transaction["debtorAccount"]) ?
@@ -153,11 +166,32 @@ class TransactionTransformer implements BankRevenueInterface
             return $item->code == $code;
         })->first();
 
-        if ($currency)
+        if ($currency) {
             return $currency->id;
+        }
 
         return 1;
 
+    }
+
+    private function formatDate(string $input)
+    {
+        $timezone = Timezone::find($this->company->settings->timezone_id);
+        $timezone_name = 'US/Eastern';
+
+        if ($timezone) {
+            $timezone_name = $timezone->name;
+        }
+
+        $date_format_default = 'Y-m-d';
+
+        $date_format = DateFormat::find($this->company->settings->date_format_id);
+
+        if ($date_format) {
+            $date_format_default = $date_format->format;
+        }
+
+        return Carbon::createFromFormat("d-m-Y", $input)->setTimezone($timezone_name)->format($date_format_default) ?? $input;
     }
 
 }

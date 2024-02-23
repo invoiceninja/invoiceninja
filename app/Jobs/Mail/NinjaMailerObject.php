@@ -16,7 +16,6 @@ namespace App\Jobs\Mail;
  */
 class NinjaMailerObject
 {
-    
     /* @var Illuminate\Mail\Mailable */
     public $mailable;
 

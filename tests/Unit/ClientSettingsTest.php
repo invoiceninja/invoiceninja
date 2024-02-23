@@ -265,7 +265,7 @@ class ClientSettingsTest extends TestCase
             ])->post('/api/v1/clients/', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
+            // nlog($message);
         }
 
         $response->assertStatus(302);

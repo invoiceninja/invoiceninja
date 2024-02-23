@@ -202,6 +202,7 @@ class CompanyUser extends Pivot
      */
     public function portalType(): bool
     {
+        nlog(isset($this->react_settings->react_notification_link) && $this->react_settings->react_notification_link);
         return isset($this->react_settings->react_notification_link) && $this->react_settings->react_notification_link;
     }
 

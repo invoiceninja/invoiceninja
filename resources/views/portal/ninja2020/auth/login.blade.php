@@ -21,7 +21,7 @@
                 @if($account && !$account->isPaid())
                     <div>
                         <img src="{{ asset('images/invoiceninja-black-logo-2.png') }}"
-                             class="border-b border-gray-100 h-18 pb-4" alt="Invoice Ninja logo">
+                             class="border-b border-gray-100 h-18 pb-4" alt="Invoice Ninja logo" id="company_logo">
                     </div>
                 @elseif(isset($company) && !is_null($company))
                     <div>

@@ -21,6 +21,15 @@ class TruthSource
 
     public $company_token;
 
+    public $premium_hosted;
+
+    public function setPremiumHosted($premium_hosted)
+    {
+        $this->premium_hosted = $premium_hosted;
+
+        return $this;
+    }
+
     public function setCompanyUser($company_user)
     {
         $this->company_user = $company_user;
@@ -49,6 +58,11 @@ class TruthSource
         return $this;
     }
 
+    public function getPremiumHosted()
+    {
+        return $this->premium_hosted;
+    }
+    
     public function getCompany()
     {
         return $this->company;

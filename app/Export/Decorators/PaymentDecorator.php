@@ -41,7 +41,7 @@ class PaymentDecorator extends Decorator implements DecoratorInterface
 
         if($payment && method_exists($this, $key)) {
             return $this->{$key}($payment);
-        } elseif($payment && $payment->{$key}) {
+        } elseif($payment && ($payment->{$key} ?? false)) {
             return $payment->{$key};
         }
 

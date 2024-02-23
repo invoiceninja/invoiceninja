@@ -31,6 +31,7 @@ class PaymentEmailEngine extends BaseEmailEngine
 
     public $client;
 
+    /** @var \App\Models\Payment $payment */
     public $payment;
 
     public $template_data;
@@ -91,6 +92,7 @@ class PaymentEmailEngine extends BaseEmailEngine
             ->setVariables($this->makeValues())
             ->setSubject($subject_template)
             ->setBody($body_template)
+            ->setTextBody($body_template)
             ->setFooter('')
             ->setViewLink('')
             ->setViewText('');
@@ -206,7 +208,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$payment.date'] = ['value' => $this->translateDate($this->payment->date, $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.payment_date')];
         $data['$transaction_reference'] = ['value' => $this->payment->transaction_reference, 'label' => ctrans('texts.transaction_reference')];
         $data['$reference'] = ['value' => '', 'label' => ctrans('texts.reference')];
-        $data['$public_notes'] = ['value' => $this->payment->public_notes, 'label' => ctrans('texts.notes')];
+        $data['$public_notes'] = ['value' => '', 'label' => ctrans('texts.notes')];
 
         $data['$payment1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'payment1', $this->payment->custom_value1, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'payment1')];
         $data['$payment2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'payment2', $this->payment->custom_value2, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'payment2')];

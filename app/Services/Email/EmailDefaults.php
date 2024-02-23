@@ -107,10 +107,10 @@ class EmailDefaults
 
         match ($this->email->email_object->settings->email_style) {
             'plain' => $this->template = 'email.template.plain',
-            'light' => $this->template = 'email.template.client',
-            'dark' => $this->template = 'email.template.client',
+            'light' => $this->template = $this->email->email_object->company->account->isPremium() ? 'email.template.client_premium' : 'email.template.client',
+            'dark' => $this->template = $this->email->email_object->company->account->isPremium() ? 'email.template.client_premium' :'email.template.client',
             'custom' => $this->template = 'email.template.custom',
-            default => $this->template = 'email.template.client',
+            default => $this->template = $this->email->email_object->company->account->isPremium() ? 'email.template.client_premium' :'email.template.client',
         };
 
         $this->email->email_object->html_template = $this->template;
@@ -211,17 +211,15 @@ class EmailDefaults
         $reply_to_email = $this->email->company->owner()->email;
         $reply_to_name = $this->email->company->owner()->present()->name();
 
-        if(str_contains($this->email->email_object->settings->reply_to_email, "@")){
-            $reply_to_email = $this->email->email_object->settings->reply_to_email; 
-        }
-        elseif(isset($this->email->email_object->invitation->user)) {
+        if(str_contains($this->email->email_object->settings->reply_to_email, "@")) {
+            $reply_to_email = $this->email->email_object->settings->reply_to_email;
+        } elseif(isset($this->email->email_object->invitation->user)) {
             $reply_to_email = $this->email->email_object->invitation->user->email;
         }
-        
+
         if(strlen($this->email->email_object->settings->reply_to_name) > 3) {
-             $reply_to_name =$this->email->email_object->settings->reply_to_name;
-        }
-        elseif(isset($this->email->email_object->invitation->user)) {
+            $reply_to_name = $this->email->email_object->settings->reply_to_name;
+        } elseif(isset($this->email->email_object->invitation->user)) {
             $reply_to_name = $this->email->email_object->invitation->user->present()->name();
         }
 
