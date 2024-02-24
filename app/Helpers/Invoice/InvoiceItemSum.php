@@ -177,10 +177,12 @@ class InvoiceItemSum
 
         if (in_array($this->client->company->country()->iso_3166_2, $this->tax_jurisdictions)) { //only calculate for supported tax jurisdictions
 
+
+            /** @var \App\DataMapper\Tax\BaseRule $class */
             $class = "App\DataMapper\Tax\\".$this->client->company->country()->iso_3166_2."\\Rule";
 
             $this->rule = new $class();
-
+            
             if($this->rule->regionWithNoTaxCoverage($this->client->country->iso_3166_2)) {
                 return $this;
             }
@@ -275,7 +277,7 @@ class InvoiceItemSum
 
         $item_tax += $item_tax_rate1_total;
 
-        if (strlen($this->item->tax_name1) > 1) {
+        if (strlen($this->item->tax_name1) > 2) {
             $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total);
         }
 
@@ -283,7 +285,7 @@ class InvoiceItemSum
 
         $item_tax += $item_tax_rate2_total;
 
-        if (strlen($this->item->tax_name2) > 1) {
+        if (strlen($this->item->tax_name2) > 2) {
             $this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total);
         }
 
@@ -291,7 +293,7 @@ class InvoiceItemSum
 
         $item_tax += $item_tax_rate3_total;
 
-        if (strlen($this->item->tax_name3) > 1) {
+        if (strlen($this->item->tax_name3) > 2) {
             $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
         }
 
