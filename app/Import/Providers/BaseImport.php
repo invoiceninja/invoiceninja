@@ -153,6 +153,7 @@ class BaseImport
 
         }
 
+        /** @phpstan-ignore-next-line **/
         return $bestDelimiter ?? ',';
     }
 
