@@ -340,7 +340,8 @@ class InvoiceSumInclusive
 
             $this->total_taxes += $total_line_tax;
         }
-
+nlog($this->tax_map);
+nlog($this->total_taxes);
         return $this;
     }
 
