@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('smtp_username')->nullable();
             $table->text('smtp_password')->nullable();
             $table->string('smtp_local_domain')->nullable();
-            $table->boolean('smtp_verify_peer')->default(0);
+            $table->boolean('smtp_verify_peer')->default(true);
         });
 
     }
