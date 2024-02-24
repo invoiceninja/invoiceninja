@@ -131,20 +131,20 @@ class InvoiceSumInclusive
             $amount = $this->formatValue(($this->sub_total - ($this->sub_total * ($this->invoice->discount / 100))), 2);
         }
 
-        if ($this->invoice->tax_rate1 > 0) {
+        if (is_string($this->invoice->tax_name1) && strlen($this->invoice->tax_name1) > 2) {
             $tax = $this->calcInclusiveLineTax($this->invoice->tax_rate1, $amount);
             $this->total_taxes += $tax;
 
             $this->total_tax_map[] = ['name' => $this->invoice->tax_name1.' '.floatval($this->invoice->tax_rate1).'%', 'total' => $tax];
         }
 
-        if ($this->invoice->tax_rate2 > 0) {
+        if (is_string($this->invoice->tax_name2) && strlen($this->invoice->tax_name2) > 2) {
             $tax = $this->calcInclusiveLineTax($this->invoice->tax_rate2, $amount);
             $this->total_taxes += $tax;
             $this->total_tax_map[] = ['name' => $this->invoice->tax_name2.' '.floatval($this->invoice->tax_rate2).'%', 'total' => $tax];
         }
 
-        if ($this->invoice->tax_rate3 > 0) {
+        if (is_string($this->invoice->tax_name3) && strlen($this->invoice->tax_name3) > 2) {
             $tax = $this->calcInclusiveLineTax($this->invoice->tax_rate3, $amount);
             $this->total_taxes += $tax;
             $this->total_tax_map[] = ['name' => $this->invoice->tax_name3.' '.floatval($this->invoice->tax_rate3).'%', 'total' => $tax];
