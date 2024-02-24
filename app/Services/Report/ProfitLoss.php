@@ -25,6 +25,8 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 use League\Csv\Writer;
 
+use function Sentry\continueTrace;
+
 class ProfitLoss
 {
     private bool $is_income_billed = true;
@@ -280,9 +282,14 @@ class ProfitLoss
                             $tax_amount_credit = 0;
                             $tax_amount_credit_converted = $tax_amount_credit_converted = 0;
 
+                            $invoice = false;
+
                             foreach ($payment->paymentables as $pivot) {
                                 if ($pivot->paymentable_type == 'invoices') {
                                     $invoice = Invoice::query()->withTrashed()->find($pivot->paymentable_id);
+
+                                    if(!$invoice)
+                                        continue;
 
                                     $pivot_diff = $pivot->amount - $pivot->refunded;
                                     $amount_payment_paid += $pivot_diff;
@@ -294,6 +301,10 @@ class ProfitLoss
                                     }
 
                                 }
+                                
+                                    if(!$invoice) {
+                                        continue;
+                                    }
 
                                 if ($pivot->paymentable_type == 'credits') {
                                     $amount_credit_paid += $pivot->amount - $pivot->refunded;
