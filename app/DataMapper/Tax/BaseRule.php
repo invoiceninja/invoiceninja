@@ -264,7 +264,7 @@ class BaseRule implements RuleInterface
             return USStates::getState(strlen($this->client->postal_code) > 1 ? $this->client->postal_code : $this->client->shipping_postal_code);
 
         } catch (\Exception $e) {
-            return $this->client->company->country()->iso_3166_2 == 'US' ? $this->client->company->tax_data->seller_subregion : 'CA';
+            return 'CA';
         }
     }
 
