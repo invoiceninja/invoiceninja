@@ -316,8 +316,8 @@ class PreviewPurchaseOrderController extends BaseController
             return;
         }
 
-            /** @var \App\Models\User $user */
-            $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
         //if phantom js...... inject here..
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {

@@ -119,6 +119,13 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $expense_mailbox_whitelist_domains
  * @property string|null $expense_mailbox_whitelist_emails
  * @property int $deleted_at
+ * @property string $smtp_username
+ * @property string $smtp_password
+ * @property string $smtp_host
+ * @property string $smtp_port
+ * @property string $smtp_encryption
+ * @property string $smtp_local_domain
+ * @property boolean $smtp_verify_peer
  * @property-read \App\Models\Account $account
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
  * @property-read int|null $activities_count
@@ -366,13 +373,20 @@ class Company extends BaseModel
         'expense_mailbox_allow_unknown',
         'expense_mailbox_whitelist_domains',
         'expense_mailbox_whitelist_emails',
-        'expense_mailbox_whitelist'
+        'expense_mailbox_whitelist',
+        'smtp_host',
+        'smtp_port',
+        'smtp_encryption',
+        'smtp_local_domain',
+        'smtp_verify_peer',
     ];
 
     protected $hidden = [
         'id',
         'db',
         'ip',
+        'smtp_username',
+        'smtp_password',
     ];
 
     protected $casts = [
@@ -387,6 +401,8 @@ class Company extends BaseModel
         'tax_data' => 'object',
         'origin_tax_data' => 'object',
         'e_invoice_certificate_passphrase' => EncryptedCast::class,
+        'smtp_username' => 'encrypted',
+        'smtp_password' => 'encrypted',
     ];
 
     protected $with = [];

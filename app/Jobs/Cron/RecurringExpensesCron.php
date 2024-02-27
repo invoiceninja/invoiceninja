@@ -51,7 +51,7 @@ class RecurringExpensesCron
         Auth::logout();
 
         if (! config('ninja.db.multi_db_enabled')) {
-            $recurring_expenses = RecurringExpense::where('next_send_date', '<=', now()->toDateTimeString())
+            $recurring_expenses = RecurringExpense::query()->where('next_send_date', '<=', now()->toDateTimeString())
                                                         ->whereNotNull('next_send_date')
                                                         ->whereNull('deleted_at')
                                                         ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
@@ -76,7 +76,7 @@ class RecurringExpensesCron
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
 
-                $recurring_expenses = RecurringExpense::where('next_send_date', '<=', now()->toDateTimeString())
+                $recurring_expenses = RecurringExpense::query()->where('next_send_date', '<=', now()->toDateTimeString())
                                                             ->whereNotNull('next_send_date')
                                                             ->whereNull('deleted_at')
                                                             ->where('status_id', RecurringInvoice::STATUS_ACTIVE)

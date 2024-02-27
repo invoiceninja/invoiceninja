@@ -1239,7 +1239,7 @@ class PdfBuilder
     public function productTable(): array
     {
         $product_items = collect($this->service->config->entity->line_items)->filter(function ($item) {
-            return $item->type_id == 1 || $item->type_id == 6 || $item->type_id == 5;
+            return $item->type_id == 1 || $item->type_id == 6 || $item->type_id == 5 || $item->type_id == 4;
         });
 
         if (count($product_items) == 0) {

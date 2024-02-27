@@ -27,7 +27,7 @@ class ProductDecorator implements DecoratorInterface
 
         if($product && method_exists($this, $key)) {
             return $this->{$key}($product);
-        } elseif($product->{$key}) {
+        } elseif($product->{$key} ?? false) {
             return $product->{$key} ?? '';
         }
 

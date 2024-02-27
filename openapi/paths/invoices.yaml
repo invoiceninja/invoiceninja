@@ -437,7 +437,6 @@
               type: object
               properties:
                 action:
-                  required: true
                   type: string
                   description: |
                     The action to be performed, options include:  
@@ -470,7 +469,6 @@
                     - `send_email`  
                       Emails an array of invoices. Requires additional properties to be sent. `email_type`  
                 ids:
-                  required: true
                   type: array
                   items:
                     description: "Array of hashed IDs to be bulk 'actioned - ['D2J234DFA','D2J234DFA','D2J234DFA']"

@@ -176,7 +176,10 @@ class HtmlEngine
         $data['$credit.datetime'] = &$data['$entity.datetime'];
         $data['$payment_button'] = ['value' => $this->buildViewButton($this->invitation->getPaymentLink(), ctrans('texts.pay_now')), 'label' => ctrans('texts.pay_now')];
         $data['$payment_link'] = ['value' => $this->invitation->getPaymentLink(), 'label' => ctrans('texts.pay_now')];
+
         $data['$payment_qrcode'] = ['value' => $this->invitation->getPaymentQrCode(), 'label' => ctrans('texts.pay_now')];
+        $data['$payment_qrcode_raw'] = ['value' => $this->invitation->getPaymentQrCodeRaw(), 'label' => ctrans('texts.pay_now')];
+
         $data['$exchange_rate'] = ['value' => $this->entity->exchange_rate ?: ' ', 'label' => ctrans('texts.exchange_rate')];
         $data['$triangular_tax'] = ['value' => ctrans('texts.triangular_tax'), 'label' => ''];
         $data['$tax_info'] = ['value' => $this->taxLabel(), 'label' => ''];
@@ -381,7 +384,7 @@ class HtmlEngine
 
         $data['$total'] = ['value' => Number::formatMoney($this->entity_calc->getTotal(), $this->client) ?: ' ', 'label' => ctrans('texts.total')];
         $data['$amount'] = &$data['$total'];
-        $data['$amount_due'] = ['value' => &$data['$total']['value'], 'label' => ctrans('texts.amount_due')];
+        $data['$amount_due'] = ['value' => &$data['$balance_due']['value'], 'label' => ctrans('texts.amount_due')];
         $data['$quote.total'] = &$data['$total'];
         $data['$invoice.total'] = ['value' => Number::formatMoney($this->entity_calc->getTotal(), $this->client) ?: ' ', 'label' => ctrans('texts.invoice_total')];
         $data['$invoice_total_raw'] = ['value' => $this->entity_calc->getTotal(), 'label' => ctrans('texts.invoice_total')];
@@ -741,6 +744,11 @@ class HtmlEngine
 
         if((int)$this->client->country_id !== (int)$this->company->settings->country_id) {
             $tax_label .= ctrans('texts.intracommunity_tax_info') . "<br>";
+
+            if($this->entity_calc->getTotalTaxes() > 0) {
+                $tax_label = '';
+            }
+
         }
 
         return $tax_label;

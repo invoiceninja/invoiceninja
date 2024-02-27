@@ -353,7 +353,7 @@ class ClientGatewayTokenController extends BaseController
      */
     public function store(StoreClientGatewayTokenRequest $request)
     {
-        
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
 

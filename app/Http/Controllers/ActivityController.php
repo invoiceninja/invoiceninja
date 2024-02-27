@@ -44,6 +44,7 @@ class ActivityController extends BaseController
     {
         $default_activities = $request->has('rows') ? $request->input('rows') : 75;
 
+        /* @var App\Models\Activity[] $activities */
         $activities = Activity::with('user')
                                 ->orderBy('created_at', 'DESC')
                                 ->company()
@@ -62,6 +63,7 @@ class ActivityController extends BaseController
 
             $data = $activities->cursor()->map(function ($activity) {
 
+                /** @var \App\Models\Activity $activity */
                 return $activity->activity_string();
 
             });
@@ -94,6 +96,7 @@ class ActivityController extends BaseController
 
         $data = $activities->cursor()->map(function ($activity) {
 
+            /** @var \App\Models\Activity $activity */
             return $activity->activity_string();
 
         });

@@ -14,4 +14,12 @@
 </p>
 @endif
 
+@isset($email_preferences)
+<p>
+    <a href="{{ $email_preferences }}">
+        {{ ctrans('texts.email_preferences') }}
+    </a>
+</p>
+@endisset
+
 @endcomponent

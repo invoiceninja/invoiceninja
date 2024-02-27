@@ -70,6 +70,10 @@ class QuoteItemExport extends BaseExport
 
         $query = $this->addDateRange($query);
 
+        if($this->input['document_email_attachment'] ?? false) {
+            $this->queueDocuments($query);
+        }
+
         return $query;
 
     }

@@ -102,9 +102,9 @@ class SystemHealth
                 return true; //fresh installs, there may be no DB connection, nor migrations could have run yet.
             }
 
-                $currency_count = $cs->unique('id')->filter(function ($value) {
-                    return !is_null($value->id);
-                })->count();
+            $currency_count = $cs->unique('id')->filter(function ($value) {
+                return !is_null($value->id);
+            })->count();
 
 
             if ($currency_count > 1) {

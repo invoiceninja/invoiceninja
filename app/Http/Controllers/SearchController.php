@@ -50,7 +50,7 @@ class SearchController extends Controller
                      ->when(!$user->hasPermission('view_all') || !$user->hasPermission('view_client'), function ($query) use ($user) {
                          $query->where('user_id', $user->id);
                      })
-                     ->orderBy('id', 'desc')
+                     ->orderBy('updated_at', 'desc')
                      ->take(1000)
                      ->get();
 
@@ -59,7 +59,7 @@ class SearchController extends Controller
                 'name' => $client->present()->name(),
                 'type' => '/client',
                 'id' => $client->hashed_id,
-                'path' => "/clients/{$client->hashed_id}/edit"
+                'path' => "/clients/{$client->hashed_id}"
             ];
 
             $client->contacts->each(function ($contact) {

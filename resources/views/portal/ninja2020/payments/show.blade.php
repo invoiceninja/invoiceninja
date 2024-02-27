@@ -21,7 +21,7 @@
                                 {{ ctrans('texts.status') }}
                             </dt>
                             <div class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                {!! \App\Models\Payment::badgeForStatus($payment->status_id) !!}
+                                {!! $payment->badgeForStatus() !!}
                             </div>
                         </div>
                     @endif

@@ -138,7 +138,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
     private function processTransactions()
     {
         //Get transaction count object
-        $transactions = $this->nordigen->getTransactions($this->bank_integration->nordigen_account_id, $this->from_date);
+        $transactions = $this->nordigen->getTransactions($this->company, $this->bank_integration->nordigen_account_id, $this->from_date);
 
         //if no transactions, update the from_date and move on
         if (count($transactions) == 0) {
@@ -171,7 +171,6 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
             //this should be much faster to insert than using ::create()
             \DB::table('bank_transactions')->insert(
                 array_merge($transaction, [
-                    'transaction_id' => 0,
                     'company_id' => $this->company->id,
                     'user_id' => $user_id,
                     'bank_integration_id' => $this->bank_integration->id,

@@ -34,12 +34,14 @@ class ResetPasswordObject
 
         $data = [
             'title' => ctrans('texts.your_password_reset_link'),
-            'message' => ctrans('texts.reset_password'),
+            'content' => ctrans('texts.reset_password'),
             'url' => route('password.reset', ['token' => $this->token, 'email' => $this->user->email, 'react' => $this->is_react ? 'true' : 'false']),
             'button' => ctrans('texts.reset'),
             'signature' => $this->company->settings->email_signature,
             'settings' => $this->company->settings,
             'logo' => $this->company->present()->logo(),
+            'text_body' => ctrans('texts.reset_password'),
+            'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
         ];
 
         $mail_obj = new \stdClass();
@@ -47,6 +49,7 @@ class ResetPasswordObject
         $mail_obj->data = $data;
         $mail_obj->markdown = 'email.admin.generic';
         $mail_obj->tag = $this->company->company_key;
+        $mail_obj->text_view = 'email.template.text';
 
         return $mail_obj;
     }

@@ -101,7 +101,7 @@
           type: number
           format: float
           example: '10.00'
-          readOnly:
+          readOnly: true
         line_items:
           type: array
           description: 'An array of objects which define the line items of the invoice'

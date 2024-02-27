@@ -49,6 +49,8 @@ class StoreRecurringInvoiceRequest extends Request
             $rules['documents.*'] = $this->file_validation;
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->file_validation;
+        }else {
+            $rules['documents'] = 'bail|sometimes|array';
         }
 
         if ($this->file('file') && is_array($this->file('file'))) {
@@ -75,6 +77,7 @@ class StoreRecurringInvoiceRequest extends Request
         $rules['tax_name3'] = 'bail|sometimes|string|nullable';
         $rules['due_date_days'] = 'bail|sometimes|string';
         $rules['exchange_rate'] = 'bail|sometimes|numeric';
+        $rules['next_send_date'] = 'bail|required|date|after:yesterday';
 
         return $rules;
     }

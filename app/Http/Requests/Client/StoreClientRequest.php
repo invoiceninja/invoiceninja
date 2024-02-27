@@ -49,6 +49,9 @@ class StoreClientRequest extends Request
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->file_validation;
         }
+        else {
+            $rules['documents'] = 'bail|sometimes|array';
+        }
 
         if ($this->file('file') && is_array($this->file('file'))) {
             $rules['file.*'] = $this->file_validation;
@@ -93,7 +96,7 @@ class StoreClientRequest extends Request
 
         $rules['number'] = ['bail', 'nullable', Rule::unique('clients')->where('company_id', $user->company()->id)];
         $rules['id_number'] = ['bail', 'nullable', Rule::unique('clients')->where('company_id', $user->company()->id)];
-        $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,partnership,trust,charity,government,other';
+        $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,company,partnership,trust,charity,government,other';
 
         return $rules;
     }

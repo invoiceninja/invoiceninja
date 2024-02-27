@@ -7,11 +7,9 @@
         settings:
           description: 'Settings that are used for the frontend applications to store user preferences / metadata'
           type: object
-          example: 'json object'
         react_settings:
           description: 'Dedicated settings object for the react web application'
-          type: object'
-          example: 'json object'
+          type: object
         is_owner:
           description: 'Determines whether the user owns this company'
           type: boolean

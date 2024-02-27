@@ -29,7 +29,7 @@ class InvoiceDecorator extends Decorator implements DecoratorInterface
 
         if($invoice && method_exists($this, $key)) {
             return $this->{$key}($invoice);
-        } elseif($invoice && $invoice->{$key}) {
+        } elseif($invoice && ($invoice->{$key} ?? false)) {
             return $invoice->{$key};
         }
 

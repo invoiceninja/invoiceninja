@@ -98,6 +98,11 @@
 
         @livewireStyles
 
+        @if((bool) \App\Utils\Ninja::isSelfHost() && isset($company))
+            <style>
+                {!! $company->settings->portal_custom_css !!}
+            </style>
+        @endif
         <link rel="stylesheet" type="text/css" href="{{ asset('vendor/cookieconsent@3/cookieconsent.min.css') }}" defer>
     </head>
 

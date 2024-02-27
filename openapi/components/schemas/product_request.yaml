@@ -10,99 +10,99 @@
           type: string
           description: 'The hashed ID of the user assigned to this product.'
           example: pR0j3
-          required: false
+
         project_id:
           type: string
           description: 'The hashed ID of the project that this product is associated with.'
           example: pR0j3
-          required: false
+
         vendor_id:
           type: string
           description: 'The hashed ID of the vendor that this product is associated with.'
           example: pR0j3
-          required: false
+
         custom_value1:
           type: string
           description: 'Custom value field 1.'
           example: 'Custom value 1'
-          required: false
+
         custom_value2:
           type: string
           description: 'Custom value field 2.'
           example: 'Custom value 2'
-          required: false
+
         custom_value3:
           type: string
           description: 'Custom value field 3.'
           example: 'Custom value 3'
-          required: false
+
         custom_value4:
           type: string
           description: 'Custom value field 4.'
           example: 'Custom value 4'
-          required: false
+
         product_key:
           type: string
           description: 'The product key.'
           example: '1234'
-          required: false
+
         notes:
           type: string
           description: 'Notes about the product.'
           example: 'These are some notes about the product.'
-          required: false
+
         cost:
           type: number
           format: double
           description: 'The cost of the product.'
           example: 10.0
-          required: false
+
         price:
           type: number
           format: double
           description: 'The price of the product.'
           example: 20.0
-          required: false
+
         quantity:
           type: number
           format: double
           description: 'The quantity of the product.'
           example: 5.0
-          required: false
+
           default: 1
         tax_name1:
           type: string
           description: 'The name of tax 1.'
           example: 'Tax 1'
-          required: false
+
         tax_rate1:
           type: number
           format: double
           description: 'The rate of tax 1.'
           example: 10.0
-          required: false
+
         tax_name2:
           type: string
           description: 'The name of tax 2.'
           example: 'Tax 2'
-          required: false
+
         tax_rate2:
           type: number
           format: double
           description: 'The rate of tax 2.'
           example: 5.0
-          required: false
+
         tax_name3:
           type: string
           description: 'The name of tax 3.'
           example: 'Tax 3'
-          required: false
+
         tax_rate3:
           type: number
           format: double
           description: 'The rate of tax 3.'
           example: 0.0
-          required: false
+
         in_stock_quantity:
           type: integer
           format: int32
@@ -114,32 +114,32 @@
                 The query parameter ?update_in_stock_quantity=true **MUST** be passed if you wish to update this value manually.
 
           default: 0
-          required: false
+
         stock_notification:
           type: boolean
           description: Indicates whether stock notifications are enabled for this product
           default: true
-          required: false
+
         stock_notification_threshold:
           type: integer
           format: int32
           description: The minimum quantity threshold for which stock notifications will be triggered
           default: 0
-          required: false
+
         max_quantity:
           type: integer
           format: int32
           description: The maximum quantity that can be ordered for this product
-          required: false
+
         product_image:
           type: string
           description: The URL of the product image
           format: uri-reference
-          required: false
+
         tax_id:
           type: string
           default: '1'
-          required: false
+
           description: |
                 The tax category id for this product.'
 

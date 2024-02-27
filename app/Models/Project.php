@@ -75,6 +75,10 @@ class Project extends BaseModel
         'number',
     ];
 
+    protected $with = [
+        'documents',
+    ];
+
     public function getEntityType()
     {
         return self::class;

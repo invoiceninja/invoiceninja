@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ClientPortal\EmailPreferencesController;
 use App\Http\Controllers\Auth\ContactForgotPasswordController;
 use App\Http\Controllers\Auth\ContactLoginController;
 use App\Http\Controllers\Auth\ContactRegisterController;
@@ -36,7 +37,9 @@ Route::get('tmp_pdf/{hash}', [App\Http\Controllers\ClientPortal\TempRouteControl
 
 Route::get('client/key_login/{contact_key}', [App\Http\Controllers\ClientPortal\ContactHashLoginController::class, 'login'])->name('client.contact_login')->middleware(['domain_db','contact_key_login']);
 Route::get('client/magic_link/{magic_link}', [App\Http\Controllers\ClientPortal\ContactHashLoginController::class, 'magicLink'])->name('client.contact_magic_link')->middleware(['domain_db','contact_key_login']);
+
 Route::get('documents/{document_hash}', [App\Http\Controllers\ClientPortal\DocumentController::class, 'publicDownload'])->name('documents.public_download')->middleware(['api_db','token_auth']);
+Route::get('documents/{hash}/hashed', [App\Http\Controllers\ClientPortal\DocumentController::class, 'hashDownload'])->name('documents.hashed_download');
 Route::get('error', [App\Http\Controllers\ClientPortal\ContactHashLoginController::class, 'errorPage'])->name('client.error');
 Route::get('client/payment/{contact_key}/{payment_id}', [App\Http\Controllers\ClientPortal\InvitationController::class, 'paymentRouter'])->middleware(['domain_db','contact_key_login']);
 Route::get('client/ninja/{contact_key}/{company_key}', [App\Http\Controllers\ClientPortal\NinjaPlanController::class, 'index'])->name('client.ninja_contact_login')->middleware(['domain_db']);
@@ -132,7 +135,16 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'clie
     Route::get('{entity}/{invitation_key}/download', [App\Http\Controllers\ClientPortal\InvitationController::class, 'routerForDownload'])->middleware('token_auth');
     Route::get('pay/{invitation_key}', [App\Http\Controllers\ClientPortal\InvitationController::class, 'payInvoice'])->name('pay.invoice');
 
+    Route::get('email_preferences/{entity}/{invitation_key}', [EmailPreferencesController::class, 'index'])->name('email_preferences')->middleware('signed');
+    Route::put('email_preferences/{entity}/{invitation_key}', [EmailPreferencesController::class, 'update']);
+
     Route::get('unsubscribe/{entity}/{invitation_key}', [App\Http\Controllers\ClientPortal\InvitationController::class, 'unsubscribe'])->name('unsubscribe');
+});
+
+Route::get('route/{hash}', function ($hash) {
+    
+    return redirect(decrypt($hash));
+
 });
 
 Route::get('phantom/{entity}/{invitation_key}', [Phantom::class, 'displayInvitation'])->middleware(['invite_db', 'phantom_secret'])->name('phantom_view');
@@ -159,3 +171,5 @@ Route::fallback(function () {
     abort(404);
 
 })->middleware('throttle:404');
+
+// Fix me: Move into invite_db middleware group.

@@ -294,6 +294,12 @@ class Account extends BaseModel
         return Ninja::isNinja() ? ($this->isPaidHostedClient() && !$this->isTrial()) : $this->hasFeature(self::FEATURE_WHITE_LABEL);
     }
 
+    public function isPremium(): bool
+    {
+        // return true;
+        return Ninja::isHosted() && $this->isPaidHostedClient() && !$this->isTrial() && Carbon::createFromTimestamp($this->created_at)->diffInMonths() > 2;
+    }
+
     public function isPaidHostedClient(): bool
     {
         if (!Ninja::isNinja()) {
@@ -363,9 +369,10 @@ class Account extends BaseModel
             return false;
         }
 
-        $plan_details = $this->getPlanDetails();
-
-        return $plan_details && $plan_details['trial'];
+        //@27-01-2024 - updates for logic around trials
+        return !$this->plan_paid && $this->trial_started && Carbon::parse($this->trial_started)->addDays(14)->gte(now()->subHours(12));
+        // $plan_details = $this->getPlanDetails();
+        // return $plan_details && $plan_details['trial'];
     }
 
     public function startTrial($plan): void

@@ -52,7 +52,7 @@ class ClientStatement extends Mailable
     public function content()
     {
         return new Content(
-            view: 'email.template.client',
+            view: $this->data['company']->account->isPremium() ? 'email.template.client_premium' : 'email.template.client',
             text: 'email.template.text',
             with: [
                 'text_body' => $this->data['body'],

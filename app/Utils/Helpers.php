@@ -100,7 +100,7 @@ class Helpers
                 break;
 
             case 'switch':
-                return trim($value) == 'yes' ? ctrans('texts.yes') : ctrans('texts.no');
+                return trim($value ?? '') == 'yes' ? ctrans('texts.yes') : ctrans('texts.no');
                 break;
 
             default:

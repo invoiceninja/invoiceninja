@@ -20,6 +20,36 @@ use Tests\TestCase;
  */
 class NumberTest extends TestCase
 {
+    public function testNegativeFloatParse()
+    {
+
+        $value = '-22,00';
+
+        $res = Number::parseFloat($value);
+
+        $this->assertEquals(-22.0, $res);
+
+        $value = '-22.00';
+
+        $res = Number::parseFloat($value);
+
+        $this->assertEquals(-22.0, $res);
+
+        $value = '-2200,00';
+
+        $res = Number::parseFloat($value);
+
+        $this->assertEquals(-2200.0, $res);
+
+        $value = '-2.200,00';
+
+        $res = Number::parseFloat($value);
+
+        $this->assertEquals(-2200.0, $res);
+        
+        $this->assertEquals(-2200, $res);
+        
+    }
 
     public function testConvertDecimalCommaFloats()
     {
@@ -122,5 +152,23 @@ class NumberTest extends TestCase
         $converted_amount = Number::parseFloat($amount);
 
         $this->assertEquals(7.99, $converted_amount);
+    }
+
+    public function testMultiCommaNumber()
+    {
+        $amount = '100,100.00';
+
+        $converted_amount = Number::parseFloat($amount);
+
+        $this->assertEquals(100100, $converted_amount);
+    }
+
+    public function testMultiDecimalNumber()
+    {
+        $amount = '100.1000.000,00';
+
+        $converted_amount = Number::parseFloat($amount);
+
+        $this->assertEquals(1001000000, $converted_amount);
     }
 }

@@ -204,7 +204,7 @@ class Credit extends BaseModel
 
     public function getDueDateAttribute($value)
     {
-        return $this->dateMutator($value);
+        return $value ? $this->dateMutator($value) : null;
     }
 
     public function getPartialDueDateAttribute($value)
