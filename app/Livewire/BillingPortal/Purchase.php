@@ -41,12 +41,30 @@ class Purchase extends Component
     public string $id;
 
     public static array $dependencies = [
-        Login::class => [],
-        RegisterOrLogin::class => [],
-        Register::class => [],
-        Cart::class => [],
-        Methods::class => [Login::class, RegisterOrLogin::class, Register::class, RFF::class],
-        RFF::class => [Login::class, RegisterOrLogin::class, Register::class],
+        Login::class => [
+            'id' => 'auth.login',
+            'dependencies' => [],
+        ],
+        RegisterOrLogin::class => [
+            'id' => 'auth.login-or-register',
+            'dependencies' => [],
+        ],
+        Register::class => [
+            'id' => 'auth.register',
+            'dependencies' => [],
+        ],
+        Cart::class => [
+            'id' => 'cart',
+            'dependencies' => [],
+        ],
+        Methods::class => [
+            'id' => 'methods',
+            'dependencies' => [Login::class, RegisterOrLogin::class, Register::class, RFF::class],
+        ],
+        RFF::class => [
+            'id' => 'rff',
+            'dependencies' => [Login::class, RegisterOrLogin::class, Register::class],
+        ],
     ];
 
 
