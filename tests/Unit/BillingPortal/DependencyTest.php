@@ -104,7 +104,7 @@ class DependencyTest extends TestCase
         $errors = [];
 
         foreach ($steps as $step) {
-            $dependent = $dependencies[$step] ?? [];
+            $dependent = $dependencies[$step]['dependencies'] ?? [];
 
             foreach ($dependent as $dependency) {
                 if (in_array($dependency, $steps) && $step_order[$dependency] > $step_order[$step]) {
