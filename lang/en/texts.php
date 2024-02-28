@@ -5240,6 +5240,7 @@ $lang = array(
     'use_available_payments' => 'Use Available Payments',
     'test_email_sent' => 'Successfully sent email',
     'gateway_type' => 'Gateway Type',
+    'save_template_body' => 'Would you like to save this import mapping as a template for future use?',
 );
 
 return $lang;
