@@ -96,14 +96,14 @@ class DependencyTest extends TestCase
     private function checkDependencies(array $steps): array
     {
         $dependencies = Purchase::$dependencies;
-        $stepOrder = array_flip($steps);
+        $step_order = array_flip($steps);
         $errors = [];
 
         foreach ($steps as $step) {
-            $dependentClasses = $dependencies[$step] ?? [];
+            $dependent = $dependencies[$step] ?? [];
 
-            foreach ($dependentClasses as $dependency) {
-                if (in_array($dependency, $steps) && $stepOrder[$dependency] > $stepOrder[$step]) {
+            foreach ($dependent as $dependency) {
+                if (in_array($dependency, $steps) && $step_order[$dependency] > $step_order[$step]) {
                     $errors[] = "Dependency error: $step depends on $dependency";
                 }
             }
