@@ -41,7 +41,7 @@ class Purchase extends Component
         RegisterOrLogin::class => [],
         Register::class => [],
         Cart::class => [],
-        Methods::class => [Login::class, RegisterOrLogin::class, Register::class],
+        Methods::class => [Login::class, RegisterOrLogin::class, Register::class, RFF::class],
         RFF::class => [Login::class, RegisterOrLogin::class, Register::class],
     ];
 
