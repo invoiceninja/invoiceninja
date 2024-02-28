@@ -947,7 +947,35 @@ class CheckData extends Command
 
             });
 
+            Company::whereDoesntHave('company_users', function ($query){
+            $query->where('is_owner', 1);
+            })
+            ->cursor()
+            ->when(Ninja::isHosted())
+            ->each(function ($c){
 
+                $this->logMessage("Orphan Account # {$c->account_id}");
+
+            });
+
+            CompanyUser::whereDoesntHave('tokens')
+            ->cursor()
+            ->when(Ninja::isHosted())
+            ->each(function ($cu){
+                
+                $this->logMessage("Missing tokens for Company User # {$cu->id}");
+
+            });
+
+
+            CompanyUser::whereDoesntHave('user')
+            ->cursor()
+            ->when(Ninja::isHosted())
+            ->each(function ($cu) {
+
+                $this->logMessage("Missing user for Company User # {$cu->id}");
+
+            });
 
 
         }
