@@ -13,6 +13,7 @@
 namespace App\Livewire\BillingPortal;
 
 use App\Libraries\MultiDB;
+use App\Livewire\BillingPortal\Authentication\RegisterOrLogin;
 use App\Livewire\BillingPortal\Cart\Cart;
 use App\Livewire\BillingPortal\Payments\Methods;
 use App\Models\Subscription;
@@ -35,12 +36,21 @@ class Purchase extends Component
 
     // 
 
+    public static array $dependencies = [
+        Login::class => [],
+        RegisterOrLogin::class => [],
+        Register::class => [],
+        Cart::class => [],
+        Methods::class => [Login::class, RegisterOrLogin::class, Register::class],
+        RFF::class => [Login::class, RegisterOrLogin::class, Register::class],
+    ];
+
     public int $step = 0;
 
-    public array $steps = [
+    public static array $steps = [
         Setup::class,
+        RegisterOrLogin::class,
         Cart::class,
-        Authentication::class,
         Methods::class,
         RFF::class,
         Submit::class,
