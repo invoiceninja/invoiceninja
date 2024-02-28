@@ -120,6 +120,6 @@ class DependencyTest extends TestCase
             return Purchase::$steps;
         }
 
-        return [Setup::class, ...$dependencies, Submit::class];
+        return [Setup::class, ...$dependencies, Submit::class]; // Note: Re-index if you're doing any index-based checking/comparision.
     }
 }
