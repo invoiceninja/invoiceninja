@@ -14,6 +14,7 @@ namespace Tests\Unit\BillingPortal;
 
 use App\Livewire\BillingPortal\Authentication\RegisterOrLogin;
 use App\Livewire\BillingPortal\Cart\Cart;
+use App\Livewire\BillingPortal\Payments\Methods;
 use App\Livewire\BillingPortal\Purchase;
 use App\Livewire\BillingPortal\RFF;
 use App\Livewire\BillingPortal\Setup;
@@ -58,23 +59,26 @@ class DependencyTest extends TestCase
     {
         $results = $this->sort([
             RFF::class,
+            Methods::class,
             RegisterOrLogin::class,
             Cart::class,
         ]);
-
+        
         $this->assertEquals(Purchase::$steps, $results);
-
+        
         $results = $this->sort([
             RegisterOrLogin::class,
-            Cart::class,
             RFF::class,
+            Methods::class,
+            Cart::class,
         ]);
-
+        
         $this->assertEquals([
             Setup::class,
             RegisterOrLogin::class,
-            Cart::class,
             RFF::class,
+            Methods::class,
+            Cart::class,
             Submit::class,
         ], $results);
 
