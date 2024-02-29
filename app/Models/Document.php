@@ -223,6 +223,8 @@ class Document extends BaseModel
             'App\Models\Payment' => $link = "/payments/{$entity_id}/edit",
             'App\Models\Task' => $link = "/tasks/{$entity_id}/edit",
             'App\Models\Client' => $link = "/clients/{$entity_id}",
+            'App\Models\RecurringExpense' => $link = "/recurring_expenses/{$entity_id}/edit",
+            'App\Models\RecurringInvoice' => $link = "/recurring_invoices/{$entity_id}/edit",
             default => $link = '',
         };
 
