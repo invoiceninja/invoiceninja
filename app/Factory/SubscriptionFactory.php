@@ -20,6 +20,9 @@ class SubscriptionFactory
         $billing_subscription = new Subscription();
         $billing_subscription->company_id = $company_id;
         $billing_subscription->user_id = $user_id;
+        $billing_subscription->steps = collect(\App\Livewire\BillingPortal\Purchase::$dependencies)
+            ->pluck('id')
+            ->implode(',');
 
         return $billing_subscription;
     }

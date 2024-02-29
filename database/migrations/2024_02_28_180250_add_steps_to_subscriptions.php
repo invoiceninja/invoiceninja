@@ -19,11 +19,21 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('subscriptions', function (Blueprint $table) {
-            $steps = collect(Purchase::$dependencies)
-                ->pluck('id')
-                ->implode(',');
+            $table->string('text')->nullable();
+        });
 
-            $table->string('steps')->default($steps);
+        $steps = collect(Purchase::$dependencies)
+            ->pluck('id')
+            ->implode(',');
+
+       \App\Models\Subscription::query()
+        ->withTrashed()
+        ->cursor()
+        ->each(function ($subscription) use ($steps){
+            
+            $subscription->steps = $steps;
+            $subscription->save();
+
         });
     }
 };
