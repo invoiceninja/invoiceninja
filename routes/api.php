@@ -10,6 +10,7 @@
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+use App\Http\Controllers\SubscriptionStepsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\PingController;
@@ -401,7 +402,9 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('stripe/verify', [StripeController::class, 'verify'])->middleware('password_protected')->name('stripe.verify');
     Route::post('stripe/disconnect/{company_gateway_id}', [StripeController::class, 'disconnect'])->middleware('password_protected')->name('stripe.disconnect');
 
+    Route::get('subscriptions/steps', [SubscriptionStepsController::class, 'index']);
     Route::resource('subscriptions', SubscriptionController::class);
+
     Route::post('subscriptions/bulk', [SubscriptionController::class, 'bulk'])->name('subscriptions.bulk');
     Route::get('statics', StaticController::class);
     // Route::post('apple_pay/upload_file','ApplyPayController::class, 'upload');
