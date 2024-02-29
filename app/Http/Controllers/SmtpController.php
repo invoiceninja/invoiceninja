@@ -30,16 +30,24 @@ class SmtpController extends BaseController
         $user = auth()->user();
         $company = $user->company();
 
+        $smtp_host = $request->input('smtp_host', $company->smtp_host);
+        $smtp_port = $request->input('smtp_port', $company->smtp_port);
+        $smtp_username = $request->input('smtp_username', $company->smtp_username);
+        $smtp_password = $request->input('smtp_password', $company->smtp_password);
+        $smtp_encryption = $request->input('smtp_encryption', $company->smtp_encryption ?? 'tls');
+        $smtp_local_domain = $request->input('smtp_local_domain', strlen($company->smtp_local_domain) > 2 ? $company->smtp_local_domain : null);
+        $smtp_verify_peer = $request->input('verify_peer', $company->smtp_verify_peer ?? true);
+
         config([
             'mail.mailers.smtp' => [
                 'transport' => 'smtp',
-                'host' => $request->input('smtp_host', $company->smtp_host),
-                'port' => $request->input('smtp_port', $company->smtp_port),
-                'username' => $request->input('smtp_username', $company->smtp_username),
-                'password' => $request->input('smtp_password', $company->smtp_password),
-                'encryption' => $request->input('smtp_encryption', $company->smtp_encryption ?? 'tls'),
-                'local_domain' => $request->input('smtp_local_domain', strlen($company->smtp_local_domain) > 2 ? $company->smtp_local_domain : null),
-                'verify_peer' => $request->input('verify_peer', $company->smtp_verify_peer ?? true),
+                'host' => $smtp_host,
+                'port' => $smtp_port,
+                'username' => $smtp_username,
+                'password' => $smtp_password,
+                'encryption' => $smtp_encryption,
+                'local_domain' => $smtp_local_domain,
+                'verify_peer' => $smtp_verify_peer,
                 'timeout' => 5,
             ],
         ]);
