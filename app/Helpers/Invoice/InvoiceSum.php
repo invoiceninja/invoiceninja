@@ -316,8 +316,10 @@ class InvoiceSum
         $this->tax_map = collect();
 
         $keys = $this->invoice_items->getGroupedTaxes()->pluck('key')->unique();
+nlog($keys);
 
         $values = $this->invoice_items->getGroupedTaxes();
+nlog($values);
 
         foreach ($keys as $key) {
             $tax_name = $values->filter(function ($value, $k) use ($key) {
