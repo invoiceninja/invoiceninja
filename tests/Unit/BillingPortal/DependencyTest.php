@@ -64,7 +64,7 @@ class DependencyTest extends TestCase
             Cart::class,
         ]);
         
-        $this->assertEquals(Purchase::$steps, $results);
+        $this->assertEquals(Purchase::defaultSteps(), $results);
         
         $results = $this->sort([
             RegisterOrLogin::class,
@@ -100,19 +100,23 @@ class DependencyTest extends TestCase
     private function checkDependencies(array $steps): array
     {
         $dependencies = Purchase::$dependencies;
-        $step_order = array_flip($steps);
+        $stepOrder = array_flip($steps);
         $errors = [];
-
+    
         foreach ($steps as $step) {
             $dependent = $dependencies[$step]['dependencies'] ?? [];
-
+    
+            if (!empty($dependent) && !array_intersect($dependent, $steps)) {
+                $errors[] = "Dependency error: [$step] requires at least one of its dependencies [" . implode(', ', $dependent) . "] in the list.";
+            }
+    
             foreach ($dependent as $dependency) {
-                if (in_array($dependency, $steps) && $step_order[$dependency] > $step_order[$step]) {
+                if (in_array($dependency, $steps) && $stepOrder[$dependency] > $stepOrder[$step]) {
                     $errors[] = "Dependency error: $step depends on $dependency";
                 }
             }
         }
-
+    
         return $errors;
     }
 
@@ -121,7 +125,7 @@ class DependencyTest extends TestCase
         $errors = $this->checkDependencies($dependencies);
 
         if (count($errors)) {
-            return Purchase::$steps;
+            return Purchase::defaultSteps();
         }
 
         return [Setup::class, ...$dependencies, Submit::class]; // Note: Re-index if you're doing any index-based checking/comparision.
