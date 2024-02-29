@@ -63,7 +63,8 @@ class StoreSubscriptionRequest extends Request
             'registration_required' => 'bail|sometimes|bool',
             'optional_recurring_product_ids' => 'bail|sometimes|nullable|string',
             'optional_product_ids' => 'bail|sometimes|nullable|string',
-            'use_inventory_management' => 'bail|sometimes|bool'
+            'use_inventory_management' => 'bail|sometimes|bool',
+            'steps' => 'sometimes', // @todo: build custom validation rule to ensure order & deps are right.
         ];
 
         return $this->globalRules($rules);
