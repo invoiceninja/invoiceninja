@@ -93,7 +93,7 @@ class Number
      * @param string $value The formatted number to be converted back to float
      * @return float            The formatted value
      */
-    public static function parseFloat($value)
+    public static function parseFloat2($value)
     {
         if(!$value)
             return 0;
@@ -104,7 +104,7 @@ class Number
         $decimal = strpos($value, '.');
         $comma = strpos($value, ',');
         
-        if(!$comma) //no comma must be a decimal number already
+        if($comma === false) //no comma must be a decimal number already
             return (float) $value;
 
         if($decimal < $comma){ //decimal before a comma = euro
@@ -143,9 +143,9 @@ class Number
         // return (float) $s;
     }
 
-    /*
+    
     //next iteration of float parsing
-    public static function parseFloatv2($value)
+    public static function parseFloat($value)
     {
 
         if(!$value) {
@@ -187,7 +187,8 @@ class Number
         return (float)$value;
 
     }
-    */
+    
+    
     public static function parseStringFloat($value)
     {
         $value = preg_replace('/[^0-9-.]+/', '', $value);

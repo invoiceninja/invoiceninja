@@ -211,6 +211,7 @@ class Document extends BaseModel
     public function link()
     {
         $entity_id = $this->encodePrimaryKey($this->documentable_id);
+        $link = '';
 
         match($this->documentable_type) {
             'App\Models\Vendor' => $link = "vendors/{$entity_id}",
@@ -222,7 +223,7 @@ class Document extends BaseModel
             'App\Models\Payment' => $link = "payments/{$entity_id}/edit",
             'App\Models\Task' => $link = "tasks/{$entity_id}/edit",
             'App\Models\Client' => $link = "clients/{$entity_id}",
-            default => $link = ''
+            default => $link = '',
         };
 
         return $link;
