@@ -13,6 +13,8 @@
 namespace App\Livewire\BillingPortal;
 
 use App\Libraries\MultiDB;
+use App\Livewire\BillingPortal\Authentication\Login;
+use App\Livewire\BillingPortal\Authentication\Register;
 use App\Livewire\BillingPortal\Authentication\RegisterOrLogin;
 use App\Livewire\BillingPortal\Cart\Cart;
 use App\Livewire\BillingPortal\Payments\Methods;
@@ -65,17 +67,13 @@ class Purchase extends Component
             'id' => 'rff',
             'dependencies' => [Login::class, RegisterOrLogin::class, Register::class],
         ],
+        Submit::class => [
+            'id' => 'submit',
+            'dependencies' => [Methods::class],
+        ],
     ];
 
-
-    public static array $steps = [
-        Setup::class,
-        RegisterOrLogin::class,
-        Cart::class,
-        Methods::class,
-        RFF::class,
-        Submit::class,
-    ];
+    public array $steps = [];
 
     public array $context = [];
 
@@ -99,12 +97,10 @@ class Purchase extends Component
     #[On('purchase.next')]
     public function handleNext(): void
     {
-
-        if ($this->step < count($this->steps) - 1) {
+        if (count($this->steps) >= 1 && $this->step < count($this->steps) - 1) {
             $this->step++;
+            $this->id = Str::uuid();
         }
-
-        $this->id = Str::uuid();
     }
 
     #[On('purchase.forward')]
@@ -133,8 +129,33 @@ class Purchase extends Component
         return "summary-{$this->id}";
     }
 
+    public static function defaultSteps() {
+        return [
+            Setup::class,
+            Cart::class,
+            RegisterOrLogin::class,
+            Methods::class,
+            Submit::class,
+        ];
+    }
+
     public function mount()
     {
+        $classes = collect(self::$dependencies)->mapWithKeys(fn($dependency, $class) => [$dependency['id'] => $class])->toArray();
+
+        if ($this->subscription->steps) {
+            $steps = collect(explode(',', $this->subscription->steps))
+                ->map(fn($step) => $classes[$step])
+                ->toArray();
+
+            $this->steps = [
+                Setup::class,
+                ...$steps,
+            ];
+        } else {
+            $this->steps = self::defaultSteps();
+        }
+
         $this->id = Str::uuid();
 
         MultiDB::setDb($this->db);
