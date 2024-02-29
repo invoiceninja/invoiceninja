@@ -116,6 +116,7 @@ class Subscription extends BaseModel
         'optional_product_ids',
         'optional_recurring_product_ids',
         'use_inventory_management',
+        'steps',
     ];
 
     protected $casts = [
