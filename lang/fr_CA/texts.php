@@ -5234,6 +5234,10 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'user_sales' => 'Ventes de l\'utilisateur',
     'iframe_url' => 'URL de l\'iFrame',
     'user_unsubscribed' => 'Utilisateur désabonné des courriels :link',
+    'use_available_payments' => 'Utilisez les paiements disponibles',
+    'test_email_sent' => 'Le courriel a été envoyé',
+    'gateway_type' => 'Type de passerelle',
+    'save_template_body' => 'Souhaitez-vous enregistrer cette correspondance d\'importation en tant que modèle pour une utilisation future ?',
 );
 
 return $lang;

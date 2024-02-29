@@ -5241,6 +5241,7 @@ $lang = array(
     'test_email_sent' => 'Successfully sent email',
     'gateway_type' => 'Gateway Type',
     'save_template_body' => 'Would you like to save this import mapping as a template for future use?',
+    'save_as_template' => 'Save Template Mapping'
 );
 
 return $lang;

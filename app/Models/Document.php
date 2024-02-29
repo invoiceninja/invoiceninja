@@ -214,15 +214,15 @@ class Document extends BaseModel
         $link = '';
 
         match($this->documentable_type) {
-            'App\Models\Vendor' => $link = "vendors/{$entity_id}",
-            'App\Models\Project' => $link = "projects/{$entity_id}",
-            'invoices' => $link = "invoices/{$entity_id}/edit",
-            'App\Models\Quote' => $link = "quotes/{$entity_id}/edit",
-            'App\Models\Credit' => $link = "credits/{$entity_id}/edit",
-            'App\Models\Expense' => $link = "expenses/{$entity_id}/edit",
-            'App\Models\Payment' => $link = "payments/{$entity_id}/edit",
-            'App\Models\Task' => $link = "tasks/{$entity_id}/edit",
-            'App\Models\Client' => $link = "clients/{$entity_id}",
+            'App\Models\Vendor' => $link = "/vendors/{$entity_id}",
+            'App\Models\Project' => $link = "/projects/{$entity_id}",
+            'invoices' => $link = "/invoices/{$entity_id}/edit",
+            'App\Models\Quote' => $link = "/quotes/{$entity_id}/edit",
+            'App\Models\Credit' => $link = "/credits/{$entity_id}/edit",
+            'App\Models\Expense' => $link = "/expenses/{$entity_id}/edit",
+            'App\Models\Payment' => $link = "/payments/{$entity_id}/edit",
+            'App\Models\Task' => $link = "/tasks/{$entity_id}/edit",
+            'App\Models\Client' => $link = "/clients/{$entity_id}",
             default => $link = '',
         };
 
