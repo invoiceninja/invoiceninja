@@ -39,6 +39,7 @@
         </div>
     </div>
 
+
     <form 
         action="{{ route('client.payments.process', ['hash' => $hash, 'sidebar' => 'hidden', 'source' => 'subscriptions']) }}"
         method="post"
@@ -47,12 +48,12 @@
 
         <input type="hidden" name="action" value="payment">
         <input type="hidden" name="invoices[]" />
-        <input type="hidden" name="payable_invoices[0][amount]" />
-        <input type="hidden" name="payable_invoices[0][invoice_id]" />
-        <input type="hidden" name="company_gateway_id" />
-        <input type="hidden" name="payment_method_id" />
-        <input type="hidden" name="contact_first_name" />
-        <input type="hidden" name="contact_last_name" />
-        <input type="hidden" name="contact_email" />
+        <input type="hidden" name="payable_invoices[0][amount]" value="{{ $this->context['form']['payable_amount'] ?? '' }}" />
+        <input type="hidden" name="payable_invoices[0][invoice_id]" value="{{ $this->context['form']['invoice_hashed_id'] ?? '' }}" />
+        <input type="hidden" name="company_gateway_id" value="{{ $this->context['form']['company_gateway_id'] ?? '' }}" />
+        <input type="hidden" name="payment_method_id" value="{{ $this->context['form']['payment_method_id'] ?? '' }}" />
+        <input type="hidden" name="contact_first_name" value="{{ $this->context['contact']['first_name'] ?? '' }}"  />
+        <input type="hidden" name="contact_last_name" value="{{ $this->context['contact']['last_name'] ?? '' }}" />
+        <input type="hidden" name="contact_email" value="{{ $this->context['contact']['email'] ?? '' }}" />
   </form>
 </div>
