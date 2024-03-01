@@ -57,7 +57,11 @@ class DocumentFilters extends QueryFilters
                 \App\Models\Credit::class, 
                 \App\Models\Expense::class, 
                 \App\Models\Payment::class, 
-                \App\Models\Task::class], function ($q2) use ($client_id) {
+                \App\Models\Task::class,
+                \App\Models\RecurringExpense::class,
+                \App\Models\RecurringInvoice::class,
+                \App\Models\Project::class,
+            ], function ($q2) use ($client_id) {
                         $q2->where('client_id', $this->decodePrimaryKey($client_id));
                 })->orWhereHasMorph('documentable', [\App\Models\Client::class], function ($q3) use ($client_id) {
                         $q3->where('id', $this->decodePrimaryKey($client_id));
