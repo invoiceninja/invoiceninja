@@ -5238,6 +5238,17 @@ $lang = array(
     'iframe_url' => 'iFrame URL',
     'user_unsubscribed' => 'User unsubscribed from emails :link',
     'out_of_stock' => 'Out of stock',
+    'step_dependency_fail' => 'Component ":step" requires at least one of it\'s dependencies (":dependencies") in the list.',
+    'step_dependency_order_fail' => 'Component ":step" depends on ":dependency". Make component(s) order is correct.',
+    'auth.login' => 'Login',
+    'auth.login-or-register' => 'Login or Register',
+    'auth.register' => 'Register',
+    'cart' => 'Cart',
+    'methods' => 'Methods',
+    'rff' => 'Required fields form',
+    'add_step' => 'Add step',
+    'steps' => 'Steps',
+    'steps_order_help' =>  'The order of the steps is important. The first step should not depend on any other step. The second step should depend on the first step, and so on.',
 );
 
 return $lang;
