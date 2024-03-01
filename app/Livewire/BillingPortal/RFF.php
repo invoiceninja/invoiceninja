@@ -24,6 +24,7 @@ class RFF extends Component
     #[On('passed-required-fields-check')]
     public function continue(): void
     {
+        $this->dispatch('purchase.context', property: 'contact', value: auth()->guard('contact')->user());
         $this->dispatch('purchase.next');
     }
     
