@@ -12,7 +12,6 @@
 
 namespace App\Livewire\BillingPortal\Payments;
 
-use App\Livewire\BillingPortal\Authentication;
 use Livewire\Component;
 use App\Models\Subscription;
 use Illuminate\Support\Facades\Cache;
@@ -27,11 +26,6 @@ class Methods extends Component
 
     public function mount(): void
     {
-        if (auth()->guard('contact')->guest()) {
-            $this->dispatch('purchase.forward', component: Authentication::class);
-            return;
-        }
-
         $total = collect($this->context['products'])->sum('total_raw');
 
         $methods = auth()->guard('contact')->user()->client->service()->getPaymentMethods(
