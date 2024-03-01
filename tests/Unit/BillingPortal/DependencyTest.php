@@ -19,6 +19,8 @@ use App\Livewire\BillingPortal\Purchase;
 use App\Livewire\BillingPortal\RFF;
 use App\Livewire\BillingPortal\Setup;
 use App\Livewire\BillingPortal\Submit;
+use App\Rules\Subscriptions\Steps;
+use App\Services\Subscription\StepService;
 use Tests\TestCase;
 
 class DependencyTest extends TestCase
@@ -30,7 +32,7 @@ class DependencyTest extends TestCase
 
     public function testDependencyOrder()
     {
-        $results = $this->checkDependencies([
+        $results = StepService::check([
             RFF::class,
             RegisterOrLogin::class,
             Cart::class,
@@ -38,7 +40,7 @@ class DependencyTest extends TestCase
 
         $this->assertCount(1, $results);
 
-        $results = $this->checkDependencies([
+        $results = StepService::check([
             RegisterOrLogin::class,
             Cart::class,
             RFF::class,
@@ -46,7 +48,7 @@ class DependencyTest extends TestCase
 
         $this->assertCount(0, $results);
 
-        $results = $this->checkDependencies([
+        $results = StepService::check([
             RegisterOrLogin::class,
             RFF::class,
             Cart::class,
@@ -63,16 +65,16 @@ class DependencyTest extends TestCase
             RegisterOrLogin::class,
             Cart::class,
         ]);
-        
+
         $this->assertEquals(Purchase::defaultSteps(), $results);
-        
+
         $results = $this->sort([
             RegisterOrLogin::class,
             RFF::class,
             Methods::class,
             Cart::class,
         ]);
-        
+
         $this->assertEquals([
             Setup::class,
             RegisterOrLogin::class,
@@ -95,34 +97,11 @@ class DependencyTest extends TestCase
             Cart::class,
             Submit::class,
         ], $results);
-    }
-
-    private function checkDependencies(array $steps): array
-    {
-        $dependencies = Purchase::$dependencies;
-        $step_order = array_flip($steps);
-        $errors = [];
-    
-        foreach ($steps as $step) {
-            $dependent = $dependencies[$step]['dependencies'] ?? [];
-    
-            if (!empty($dependent) && !array_intersect($dependent, $steps)) {
-                $errors[] = "Dependency error: [$step] requires at least one of its dependencies [" . implode(', ', $dependent) . "] in the list.";
-            }
-    
-            foreach ($dependent as $dependency) {
-                if (in_array($dependency, $steps) && $step_order[$dependency] > $step_order[$step]) {
-                    $errors[] = "Dependency error: $step depends on $dependency";
-                }
-            }
-        }
-    
-        return $errors;
     }
 
     private function sort(array $dependencies): array
     {
-        $errors = $this->checkDependencies($dependencies);
+        $errors = StepService::check($dependencies);
 
         if (count($errors)) {
             return Purchase::defaultSteps();
