@@ -403,6 +403,8 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('stripe/disconnect/{company_gateway_id}', [StripeController::class, 'disconnect'])->middleware('password_protected')->name('stripe.disconnect');
 
     Route::get('subscriptions/steps', [SubscriptionStepsController::class, 'index']);
+    Route::post('subscriptions/steps/check', [SubscriptionStepsController::class, 'check']);
+    
     Route::resource('subscriptions', SubscriptionController::class);
 
     Route::post('subscriptions/bulk', [SubscriptionController::class, 'bulk'])->name('subscriptions.bulk');
