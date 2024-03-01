@@ -61,11 +61,11 @@ class Purchase extends Component
         ],
         Methods::class => [
             'id' => 'methods',
-            'dependencies' => [Login::class, RegisterOrLogin::class, Register::class, RFF::class],
+            'dependencies' => [Login::class, RegisterOrLogin::class, Register::class],
         ],
         RFF::class => [
             'id' => 'rff',
-            'dependencies' => [Login::class, RegisterOrLogin::class, Register::class],
+            'dependencies' => [Login::class, RegisterOrLogin::class, Register::class, Methods::class],
         ],
         Submit::class => [
             'id' => 'submit',
