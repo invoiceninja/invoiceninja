@@ -355,7 +355,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
     public function getRawMessage(string $message_id)
     {
 
-        $postmark_secret = isset($this->company->settings->postmark_secret) && trim($this->company->settings->postmark_secret) != '' ? $this->company->settings->postmark_secret : config('services.postmark.token');
+        $postmark_secret = !empty($this->company->settings->postmark_secret) ? $this->company->settings->postmark_secret : config('services.postmark.token');
 
         $postmark = new PostmarkClient($postmark_secret);
         $messageDetail = $postmark->getOutboundMessageDetails($message_id);
@@ -388,7 +388,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
 
         try {
 
-            $postmark_secret = isset($this->company->settings->postmark_secret) && trim($this->company->settings->postmark_secret) != '' ? $this->company->settings->postmark_secret : config('services.postmark.token');
+            $postmark_secret = !empty($this->company->settings->postmark_secret) ? $this->company->settings->postmark_secret : config('services.postmark.token');
 
             $postmark = new PostmarkClient($postmark_secret);
             $messageDetail = $postmark->getOutboundMessageDetails($this->request['MessageID']);
