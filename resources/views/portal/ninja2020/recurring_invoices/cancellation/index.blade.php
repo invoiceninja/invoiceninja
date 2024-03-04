@@ -56,7 +56,7 @@
                     </div>
             </div>
         </div>
-        <div class="bg-white shadow rounded-sm mb-4 mt-4 border-l-2 border-green-500" translate>
+        <div class="bg-white shadow rounded-sm mb-4 mt-4 border-l-2 border-emerald-500" translate>
             <div class="px-4 py-5 sm:p-6">
                 <div class="sm:flex sm:items-start sm:justify-between">
                     <div>
