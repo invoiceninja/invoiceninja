@@ -49,6 +49,9 @@ use App\Http\Requests\Client\ClientDocumentsRequest;
 use App\Http\Requests\Client\ReactivateClientEmailRequest;
 use App\Models\Expense;
 use App\Models\Payment;
+use App\Models\Project;
+use App\Models\RecurringExpense;
+use App\Models\RecurringInvoice;
 use App\Models\Task;
 use App\Transformers\DocumentTransformer;
 
@@ -421,7 +424,7 @@ class ClientController extends BaseController
 
         $documents = Document::query()
             ->company()
-            ->whereHasMorph('documentable', [Invoice::class, Quote::class, Credit::class, Expense::class, Payment::class, Task::class], function ($query) use ($client) {
+            ->whereHasMorph('documentable', [Invoice::class, Quote::class, Credit::class, Expense::class, Payment::class, Task::class, RecurringInvoice::class, RecurringExpense::class, Project::class], function ($query) use ($client) {
                 $query->where('client_id', $client->id);
             })
             ->orWhereHasMorph('documentable', [Client::class], function ($query) use ($client) {

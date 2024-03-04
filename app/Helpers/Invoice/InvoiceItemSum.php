@@ -177,10 +177,12 @@ class InvoiceItemSum
 
         if (in_array($this->client->company->country()->iso_3166_2, $this->tax_jurisdictions)) { //only calculate for supported tax jurisdictions
 
+
+            /** @var \App\DataMapper\Tax\BaseRule $class */
             $class = "App\DataMapper\Tax\\".$this->client->company->country()->iso_3166_2."\\Rule";
 
             $this->rule = new $class();
-
+            
             if($this->rule->regionWithNoTaxCoverage($this->client->country->iso_3166_2)) {
                 return $this;
             }

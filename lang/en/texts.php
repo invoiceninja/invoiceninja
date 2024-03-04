@@ -5249,6 +5249,11 @@ $lang = array(
     'add_step' => 'Add step',
     'steps' => 'Steps',
     'steps_order_help' =>  'The order of the steps is important. The first step should not depend on any other step. The second step should depend on the first step, and so on.',
+    'use_available_payments' => 'Use Available Payments',
+    'test_email_sent' => 'Successfully sent email',
+    'gateway_type' => 'Gateway Type',
+    'save_template_body' => 'Would you like to save this import mapping as a template for future use?',
+    'save_as_template' => 'Save Template Mapping'
 );
 
 return $lang;

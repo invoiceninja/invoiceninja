@@ -264,14 +264,14 @@ class BaseRule implements RuleInterface
             return USStates::getState(strlen($this->client->postal_code) > 1 ? $this->client->postal_code : $this->client->shipping_postal_code);
 
         } catch (\Exception $e) {
-            return $this->client->company->country()->iso_3166_2 == 'US' ? $this->client->company->tax_data->seller_subregion : 'CA';
+            return 'CA';
         }
     }
 
     public function isTaxableRegion(): bool
     {
         return $this->client->company->tax_data->regions->{$this->client_region}->tax_all_subregions ||
-        (property_exists($this->client->company->tax_data->regions->{$this->client_region}->subregions, $this->client_subregion) && $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->apply_tax);
+        (property_exists($this->client->company->tax_data->regions->{$this->client_region}->subregions, $this->client_subregion) && ($this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->apply_tax ?? false));
     }
 
     public function defaultForeign(): self

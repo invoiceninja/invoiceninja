@@ -52,6 +52,7 @@ class DocumentTransformer extends EntityTransformer
             'created_at' => (int) $document->created_at,
             'is_deleted' => (bool) false,
             'is_public' => (bool) $document->is_public,
+            'link' => (string) $document->link(),
         ];
     }
 }

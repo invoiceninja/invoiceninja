@@ -125,9 +125,9 @@ class ARSummaryReport extends BaseExport
         $amount = Invoice::withTrashed()
             ->where('client_id', $this->client->id)
             ->where('company_id', $this->client->company_id)
+            ->where('is_deleted', 0)
             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
             ->where('balance', '>', 0)
-            ->where('is_deleted', 0)
             ->where(function ($query) {
                 $query->where('due_date', '>', now()->startOfDay())
                     ->orWhereNull('due_date');
