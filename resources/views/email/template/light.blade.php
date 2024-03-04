@@ -9,9 +9,7 @@
 @if($signature)
 <br>
 <br>
-<p>
-    {!! $signature !!}
-</p>
+<p>{!! nl2br($signature) !!}</p>
 @endif
 
 @isset($email_preferences)
