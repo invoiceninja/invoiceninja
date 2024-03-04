@@ -133,7 +133,7 @@
 
                 <div class="flex justify-between items-center mt-8">
 
-                    <a href="{{route('client.login')}}" class="button button-info bg-green-600 text-white">{{ ctrans('texts.login_label') }}</a>
+                    <a href="{{route('client.login')}}" class="button button-info bg-emerald-600 text-white">{{ ctrans('texts.login_label') }}</a>
 
                     <span class="inline-flex items-center" x-data="{ terms_of_service: false, privacy_policy: false }">
                             @if(!empty($register_company->settings->client_portal_terms) || !empty($register_company->settings->client_portal_privacy_policy))
