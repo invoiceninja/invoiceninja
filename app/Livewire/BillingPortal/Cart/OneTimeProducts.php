@@ -21,6 +21,11 @@ class OneTimeProducts extends Component
 
     public array $context;
 
+    public function quantity($id, $value): void
+    {
+        $this->dispatch('purchase.context', property: "bundle.one_time_products.{$id}.quantity", value: $value);
+    }
+
     public function render()
     {
         return view('billing-portal.v3.cart.one-time-products');
