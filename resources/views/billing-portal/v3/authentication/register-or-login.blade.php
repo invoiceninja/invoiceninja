@@ -88,4 +88,29 @@
         </button>
     </form>
     @endif
+
+    @if($state['register_form'])
+    <form wire:submit="register(Object.fromEntries(new FormData($event.target)))" class="space-y-3">
+        @csrf
+
+        @foreach($this->registrationFields() as $field)
+            <div>
+                <span class="input-label">{{ $field['label'] }}</span>
+                <input type="{{ $field['type'] }}" name="{{ $field['key'] }}" value="{{ $field['defaultValue'] }}" class="input w-full" />
+
+                @error($field['key'])
+                <p class="validation validation-fail block w-full" role="alert">
+                    {{ $message }}
+                </p>
+                @enderror
+            </div>
+        @endforeach
+
+        <button 
+            type="submit"
+            class="button button-block bg-primary text-white mt-4">
+                {{ ctrans('texts.next') }}
+        </button>
+    </form>
+    @endif
 </div>

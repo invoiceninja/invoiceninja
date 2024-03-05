@@ -12,6 +12,7 @@
 
 namespace App\Livewire\BillingPortal\Authentication;
 
+use Illuminate\Support\Facades\Validator;
 use Livewire\Component;
 use Illuminate\Support\Str;
 use App\Models\Subscription;
@@ -41,8 +42,11 @@ class RegisterOrLogin extends Component
         'otp' => false, // Use as preference. E-mail/password or OTP.
         'login_form' => false,
         'otp_form' => false,
+        'register_form' => false,
         'initial_completed' => false,
     ];
+
+    public array $registration_fields = [];
 
     public function initial()
     {
@@ -68,13 +72,7 @@ class RegisterOrLogin extends Component
         }
 
         $this->state['login_form'] = false;
-
-        $contact = $this->createClientContact();
-
-        auth()->guard('contact')->loginUsingId($contact->id, true);
-
-        $this->dispatch('purchase.context', property: 'contact', value: $contact);
-        $this->dispatch('purchase.next');
+        $this->state['register_form'] = true;
     }
 
     public function handlePassword()
@@ -150,16 +148,17 @@ class RegisterOrLogin extends Component
             return;
         }
 
-        $contact = $this->createClientContact();
-
-        auth()->guard('contact')->loginUsingId($contact->id, true);
-
-        $this->dispatch('purchase.context', property: 'contact', value: $contact);
-        $this->dispatch('purchase.next');
+        $this->state['otp_form'] = false;
+        $this->state['register_form'] = true;
     }
 
-    private function createClientContact()
+    private function createClientContact(array $data)
     {
+        $fields = [
+            'client' => collect($data)->filter(fn($value, $key) => str_starts_with($key, 'client_'))->mapWithKeys(fn($value, $key) => [str_replace('client_', '', $key) => $value])->toArray(),
+            'contact' => collect($data)->filter(fn($value, $key) => str_starts_with($key, 'contact_'))->mapWithKeys(fn($value, $key) => [str_replace('contact_', '', $key) => $value])->toArray(),
+        ];
+
         $company = $this->subscription->company;
         $user = $this->subscription->user;
         $user->setCompany($company);
@@ -169,10 +168,11 @@ class RegisterOrLogin extends Component
             'name' => '',
             'group_settings_id' => $this->subscription->group_id,
             'contacts' => [
-                ['email' => $this->email],
+                ['email' => $this->email, ...$fields['contact']],
             ],
             'client_hash' => Str::random(40),
             'settings' => ClientSettings::defaults(),
+            ...$fields['client'],
         ];
 
         $client = $client_repo->save($data, ClientFactory::create($company->id, $user->id));
@@ -180,6 +180,56 @@ class RegisterOrLogin extends Component
         $contact = $client->fresh()->contacts()->first();
 
         return $contact;
+    }
+
+    public function register(array $data)
+    {
+        
+        $rules = collect($this->registrationFields() ?? [])->mapWithKeys(function ($field, $value) {
+            return [$field['key'] => $field['required'] ? ['required'] : []];
+        })->toArray();
+        
+        $data = Validator::make($data, $rules)->validate();
+
+        $contact = $this->createClientContact($data);
+
+        auth()->guard('contact')->loginUsingId($contact->id, true);
+
+        $this->dispatch('purchase.context', property: 'contact', value: $contact);
+        $this->dispatch('purchase.next');
+    }
+
+    public function registrationFields()
+    {
+        $contact = ['first_name', 'last_name', 'email'];
+
+        $defaults = [
+            'contact_email' => $this->email,
+        ];
+
+        return collect($this->subscription->company->client_registration_fields)
+            ->filter(fn($field) => $field['visible'] || $field['required'])
+            ->map(function ($field) use ($contact) {
+                return [
+                    'key' => in_array($field['key'], $contact) ? "contact_{$field['key']}" : "client_{$field['key']}",
+                    'label' => ctrans("texts.{$field['key']}"),
+                    'defaultValue' => null,
+                    'required' => $field['required'],
+                    'type' => str_ends_with($field['key'], 'email')
+                        ? 'email' : (str_ends_with($field['key'], 'phone')
+                            ? 'tel' : (str_ends_with($field['key'], 'password')
+                                ? 'password'
+                                : 'text')
+                        ),
+                ];
+            })
+            ->mapWithKeys(fn($field) => [
+                $field['key'] => [
+                    ...$field,
+                    'defaultValue' => $defaults[$field['key']] ?? null,
+                ]
+            ])
+            ->toArray();
     }
 
     public function mount()
