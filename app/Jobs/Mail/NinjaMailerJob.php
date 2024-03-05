@@ -286,6 +286,8 @@ class NinjaMailerJob implements ShouldQueue
                     return $this;
                 }
             } catch(\Exception $e) {
+                
+                nlog("problem switching outlook driver - hosted");
                 nlog($e->getMessage());
             }
         }
