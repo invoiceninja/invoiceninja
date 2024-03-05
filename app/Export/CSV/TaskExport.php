@@ -68,7 +68,7 @@ class TaskExport extends BaseExport
         $query = Task::query()
                         ->withTrashed()
                         ->where('company_id', $this->company->id)
-                        ->where('is_deleted', 0);
+                        ->where('is_deleted', $this->input['include_deleted']);
 
         $query = $this->addDateRange($query);
 
@@ -200,6 +200,34 @@ class TaskExport extends BaseExport
             $entity['task.end_date'] = '';
             $entity['task.duration'] = '';
         }
+
+    }
+    
+    /**
+     * Add Task Status Filter
+     *
+     * @param  Builder $query
+     * @param  string $status
+     * @return Builder
+     */
+    protected function addTaskStatusFilter(Builder $query, string $status): Builder
+    {
+    
+        $status_parameters = explode(',', $status);
+
+        if (in_array('all', $status_parameters) || count($status_parameters) == 0) {
+            return $query;
+        }
+
+        if (in_array('invoiced', $status_parameters)) {
+            $query->whereNotNull('invoice_id');
+        }
+
+        if (in_array('uninvoiced', $status_parameters)) {
+            $query->whereNull('invoice_id');
+        }
+
+        return $query;
 
     }
 

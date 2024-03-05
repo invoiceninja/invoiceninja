@@ -71,11 +71,15 @@ class InvoiceItemExport extends BaseExport
                         ->withTrashed()
                         ->with('client')
                         ->where('company_id', $this->company->id)
-                        ->where('is_deleted', 0);
+                        ->where('is_deleted', $this->input['include_deleted']);
 
         $query = $this->addDateRange($query);
 
-        $query = $this->applyFilters($query);
+        if($this->input['status'] ?? false) {
+            $query = $this->addInvoiceStatusFilter($query, $this->input['status']);
+        }
+
+        $query = $this->applyProductFilters($query);
 
         if($this->input['document_email_attachment'] ?? false) {
             $this->queueDocuments($query);
@@ -232,9 +236,9 @@ class InvoiceItemExport extends BaseExport
         //     $entity['invoice.status'] = $invoice->stringStatus($invoice->status_id);
         // }
 
-        // if (in_array('invoice.recurring_id', $this->input['report_keys'])) {
-        //     $entity['invoice.recurring_id'] = $invoice->recurring_invoice->number ?? '';
-        // }
+        if (in_array('invoice.recurring_id', $this->input['report_keys'])) {
+            $entity['invoice.recurring_id'] = $invoice->recurring_invoice->number ?? '';
+        }
 
         if (in_array('invoice.assigned_user_id', $this->input['report_keys'])) {
             $entity['invoice.assigned_user_id'] = $invoice->assigned_user ? $invoice->assigned_user->present()->name() : '';
