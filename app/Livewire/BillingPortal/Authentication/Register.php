@@ -44,6 +44,8 @@ class Register extends Component
         'initial_completed' => false,
     ];
 
+    public array $registration_fields = [];
+
     public function initial()
     {
         $this->validateOnly('email', ['email' => 'required|bail|email:rfc']);
