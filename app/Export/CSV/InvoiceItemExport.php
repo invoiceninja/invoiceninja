@@ -236,9 +236,9 @@ class InvoiceItemExport extends BaseExport
         //     $entity['invoice.status'] = $invoice->stringStatus($invoice->status_id);
         // }
 
-        // if (in_array('invoice.recurring_id', $this->input['report_keys'])) {
-        //     $entity['invoice.recurring_id'] = $invoice->recurring_invoice->number ?? '';
-        // }
+        if (in_array('invoice.recurring_id', $this->input['report_keys'])) {
+            $entity['invoice.recurring_id'] = $invoice->recurring_invoice->number ?? '';
+        }
 
         if (in_array('invoice.assigned_user_id', $this->input['report_keys'])) {
             $entity['invoice.assigned_user_id'] = $invoice->assigned_user ? $invoice->assigned_user->present()->name() : '';
