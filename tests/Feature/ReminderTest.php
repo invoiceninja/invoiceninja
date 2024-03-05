@@ -157,6 +157,44 @@ class ReminderTest extends TestCase
 
     }
 
+    public function testForUtcEdgeCaseOnTheFirstOfMonth()
+    {
+        
+        $this->travelTo(Carbon::parse('2024-03-01')->startOfDay());
+
+        $this->invoice->status_id = 2;
+        $this->invoice->amount = 10;
+        $this->invoice->balance = 10;
+        $this->invoice->next_send_date = null;
+        $this->invoice->date = '2024-03-01';
+        $this->invoice->last_sent_date = now();
+        $this->invoice->due_date = Carbon::parse('2024-03-01')->addDays(30)->format('Y-m-d');
+        $this->invoice->reminder_last_sent = null;
+        $this->invoice->save();
+
+        $settings = $this->company->settings;
+        $settings->enable_reminder1 = true;
+        $settings->schedule_reminder1 = 'before_due_date';
+        $settings->num_days_reminder1 = 14;
+        $settings->enable_reminder2 = false;
+        $settings->schedule_reminder2 = '';
+        $settings->num_days_reminder2 = 0;
+        $settings->enable_reminder3 = false;
+        $settings->schedule_reminder3 = '';
+        $settings->num_days_reminder3 = 0;
+        $settings->timezone_id = '15';
+        $settings->entity_send_time = 6;
+        $settings->endless_reminder_frequency_id = '';
+        $settings->enable_reminder_endless = false;
+
+        $this->invoice->service()->setReminder($settings)->save();
+
+        $this->invoice = $this->invoice->fresh();
+
+        $this->assertEquals('2024-03-17', \Carbon\Carbon::parse($this->invoice->next_send_date)->startOfDay()->format('Y-m-d'));
+
+    }
+
     public function testReminderInThePast()
     {
        
