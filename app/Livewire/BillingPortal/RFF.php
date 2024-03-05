@@ -30,6 +30,7 @@ class RFF extends Component
     
     public function render()
     {
+    
         $gateway = CompanyGateway::findOrFail($this->context['form']['company_gateway_id']);
         $countries = Cache::get('countries');
         
