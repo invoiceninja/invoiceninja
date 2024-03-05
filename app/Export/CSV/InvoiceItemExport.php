@@ -71,11 +71,15 @@ class InvoiceItemExport extends BaseExport
                         ->withTrashed()
                         ->with('client')
                         ->where('company_id', $this->company->id)
-                        ->where('is_deleted', 0);
+                        ->where('is_deleted', $this->input['include_deleted']);
 
         $query = $this->addDateRange($query);
 
-        $query = $this->applyFilters($query);
+        if($this->input['status'] ?? false) {
+            $query = $this->addInvoiceStatusFilter($query, $this->input['status']);
+        }
+
+        $query = $this->applyProductFilters($query);
 
         if($this->input['document_email_attachment'] ?? false) {
             $this->queueDocuments($query);

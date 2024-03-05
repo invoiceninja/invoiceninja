@@ -104,9 +104,11 @@ class PurchaseOrderExport extends BaseExport
                         ->withTrashed()
                         ->with('vendor')
                         ->where('company_id', $this->company->id)
-                        ->where('is_deleted', 0);
+                        ->where('is_deleted', $this->input['include_deleted']);
 
         $query = $this->addDateRange($query);
+
+        $query = $this->addPurchaseOrderStatusFilter($query, $this->input['status'] ?? '');
 
         if($this->input['document_email_attachment'] ?? false) {
             $this->queueDocuments($query);
