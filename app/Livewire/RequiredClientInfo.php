@@ -147,13 +147,6 @@ class RequiredClientInfo extends Component
 
     public function mount()
     {
-        $this->fields = [
-            ['name' => 'contact_first_name', 'label' => ctrans('texts.first_name'), 'type' => 'text', 'validation' => 'required'],
-            ['name' => 'contact_last_name', 'label' => ctrans('texts.last_name'), 'type' => 'text', 'validation' => 'required'],
-            ['name' => 'contact_email', 'label' => ctrans('texts.email'), 'type' => 'text', 'validation' => 'required,email:rfc'],
-            ...$this->fields
-        ];
-
         MultiDB::setDb($this->company->db);
 
         $this->client = $this->contact->client;
