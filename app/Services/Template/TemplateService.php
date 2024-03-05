@@ -717,7 +717,7 @@ class TemplateService
         return collect($payment->refund_meta)
         ->map(function ($refund) use ($payment) {
 
-            $date = \Carbon\Carbon::parse($refund['date'])->addSeconds($payment->client->timezone_offset());
+            $date = \Carbon\Carbon::parse($refund['date'] ?? $payment->date)->addSeconds($payment->client->timezone_offset());
             $date = $this->translateDate($date, $payment->client->date_format(), $payment->client->locale());
             $entity = ctrans('texts.invoice');
 
