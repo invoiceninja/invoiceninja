@@ -23,8 +23,6 @@ use App\DataMapper\ClientSettings;
 use App\Mail\Subscription\OtpCode;
 use App\Jobs\Mail\NinjaMailerObject;
 use Illuminate\Support\Facades\Cache;
-use App\Repositories\ClientRepository;
-use App\Repositories\ClientContactRepository;
 
 class RegisterOrLogin extends Component
 {
@@ -152,84 +150,22 @@ class RegisterOrLogin extends Component
         $this->state['register_form'] = true;
     }
 
-    private function createClientContact(array $data)
-    {
-        $fields = [
-            'client' => collect($data)->filter(fn($value, $key) => str_starts_with($key, 'client_'))->mapWithKeys(fn($value, $key) => [str_replace('client_', '', $key) => $value])->toArray(),
-            'contact' => collect($data)->filter(fn($value, $key) => str_starts_with($key, 'contact_'))->mapWithKeys(fn($value, $key) => [str_replace('contact_', '', $key) => $value])->toArray(),
-        ];
-
-        $company = $this->subscription->company;
-        $user = $this->subscription->user;
-        $user->setCompany($company);
-
-        $client_repo = new ClientRepository(new ClientContactRepository());
-        $data = [
-            'name' => '',
-            'group_settings_id' => $this->subscription->group_id,
-            'contacts' => [
-                ['email' => $this->email, ...$fields['contact']],
-            ],
-            'client_hash' => Str::random(40),
-            'settings' => ClientSettings::defaults(),
-            ...$fields['client'],
-        ];
-
-        $client = $client_repo->save($data, ClientFactory::create($company->id, $user->id));
-
-        $contact = $client->fresh()->contacts()->first();
-
-        return $contact;
-    }
-
     public function register(array $data)
     {
+        $service = new ClientRegisterService(
+            company: $this->subscription->company,
+        );
         
-        $rules = collect($this->registrationFields() ?? [])->mapWithKeys(function ($field, $value) {
-            return [$field['key'] => $field['required'] ? ['required'] : []];
-        })->toArray();
-        
+        $rules = $service->rules(); 
         $data = Validator::make($data, $rules)->validate();
 
-        $contact = $this->createClientContact($data);
+        $client = $service->createClient($data);
+        $contact = $service->createClientContact($data, $client);
 
         auth()->guard('contact')->loginUsingId($contact->id, true);
 
         $this->dispatch('purchase.context', property: 'contact', value: $contact);
         $this->dispatch('purchase.next');
-    }
-
-    public function registrationFields()
-    {
-        $contact = ['first_name', 'last_name', 'email'];
-
-        $defaults = [
-            'contact_email' => $this->email,
-        ];
-
-        return collect($this->subscription->company->client_registration_fields)
-            ->filter(fn($field) => $field['visible'] || $field['required'])
-            ->map(function ($field) use ($contact) {
-                return [
-                    'key' => in_array($field['key'], $contact) ? "contact_{$field['key']}" : "client_{$field['key']}",
-                    'label' => ctrans("texts.{$field['key']}"),
-                    'defaultValue' => null,
-                    'required' => $field['required'],
-                    'type' => str_ends_with($field['key'], 'email')
-                        ? 'email' : (str_ends_with($field['key'], 'phone')
-                            ? 'tel' : (str_ends_with($field['key'], 'password')
-                                ? 'password'
-                                : 'text')
-                        ),
-                ];
-            })
-            ->mapWithKeys(fn($field) => [
-                $field['key'] => [
-                    ...$field,
-                    'defaultValue' => $defaults[$field['key']] ?? null,
-                ]
-            ])
-            ->toArray();
     }
 
     public function mount()
