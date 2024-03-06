@@ -12,6 +12,7 @@
 
 namespace App\Livewire\BillingPortal\Authentication;
 
+use Illuminate\Support\Facades\Validator;
 use Livewire\Component;
 use Illuminate\Support\Str;
 use App\Models\Subscription;
@@ -42,6 +43,7 @@ class Register extends Component
         'login_form' => false,
         'otp_form' => false,
         'initial_completed' => false,
+        'register_form' => false,
     ];
 
     public array $registration_fields = [];
@@ -105,38 +107,26 @@ class Register extends Component
             return;
         }
 
-        $contact = $this->createClientContact();
+        $this->state['otp_form'] = false;
+        $this->state['register_form'] = true;
+    }
+
+    public function register(array $data)
+    {
+        $service = new ClientRegisterService(
+            company: $this->subscription->company,
+        );
+        
+        $rules = $service->rules(); 
+        $data = Validator::make($data, $rules)->validate();
+
+        $client = $service->createClient($data);
+        $contact = $service->createClientContact($data, $client);
 
         auth()->guard('contact')->loginUsingId($contact->id, true);
 
         $this->dispatch('purchase.context', property: 'contact', value: $contact);
         $this->dispatch('purchase.next');
-
-        return;
-    }
-
-    private function createClientContact()
-    {
-        $company = $this->subscription->company;
-        $user = $this->subscription->user;
-        $user->setCompany($company);
-
-        $client_repo = new ClientRepository(new ClientContactRepository());
-        $data = [
-            'name' => '',
-            'group_settings_id' => $this->subscription->group_id,
-            'contacts' => [
-                ['email' => $this->email],
-            ],
-            'client_hash' => Str::random(40),
-            'settings' => ClientSettings::defaults(),
-        ];
-
-        $client = $client_repo->save($data, ClientFactory::create($company->id, $user->id));
-
-        $contact = $client->fresh()->contacts()->first();
-
-        return $contact;
     }
 
     public function mount()
