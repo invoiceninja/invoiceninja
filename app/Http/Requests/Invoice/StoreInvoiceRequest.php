@@ -113,9 +113,6 @@ class StoreInvoiceRequest extends Request
             $input['exchange_rate'] = 1;
         }
 
-        nlog($input['partial_due_date']);
-        nlog(strlen($input['partial_due_date']));
-
         //handles edge case where we need for force set the due date of the invoice.
         if((isset($input['partial_due_date']) && strlen($input['partial_due_date']) > 1) && (!array_key_exists('due_date', $input) || strlen($input['due_date']) == 0)) {
             $client = \App\Models\Client::withTrashed()->find($input['client_id']);
