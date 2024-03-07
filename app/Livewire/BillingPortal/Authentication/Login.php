@@ -110,7 +110,7 @@ class Login extends Component
     public function handleOtp()
     {
         $this->validate([
-            'otp' => 'required|numeric|digits:6',
+            'otp' => 'required|numeric|digits:6 ',
             'email' => 'required|bail|email:rfc|exists:client_contacts,email',
         ]);
 
@@ -151,6 +151,8 @@ class Login extends Component
         ]);
 
         if ($attempt) {
+            
+            $this->dispatch('purchase.context', property: 'contact', value: auth()->guard('contact')->user());
             $this->dispatch('purchase.next');
         }
 

@@ -1,6 +1,8 @@
 <div class="grid grid-cols-12 bg-gray-50">
     <div
-    
+    @php
+    nlog($context);
+    @endphp
     class="col-span-12 xl:col-span-6 bg-white flex flex-col items-center lg:h-screen"
     >
         <div class="w-full p-10 lg:mt-24 md:max-w-xl">

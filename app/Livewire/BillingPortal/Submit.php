@@ -16,7 +16,6 @@ use Livewire\Component;
 use Livewire\Attributes\Lazy;
 use App\Services\ClientPortal\InstantPayment;
 
-#[Lazy]
 class Submit extends Component
 {
     public array $context;
@@ -45,6 +44,9 @@ class Submit extends Component
         // ]);
 
         // return redirect((new InstantPayment($request))->run());
+            // dd($this->context);
+
+            nlog($this->context);
 
         $this->dispatch(
             'purchase.submit',
