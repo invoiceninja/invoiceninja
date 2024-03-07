@@ -45,7 +45,7 @@ class ClientRegisterService
                 $rules[$field] = array_merge($rules[$field], ['email:rfc,dns', 'max:191', Rule::unique('client_contacts')->where('company_id', $this->company->id)]);
             }
 
-            if ($field === 'current_password') {
+            if ($field === 'current_password' || $field === 'password') {
                 $rules[$field] = array_merge($rules[$field], ['string', 'min:6', 'confirmed']);
             }
         }
