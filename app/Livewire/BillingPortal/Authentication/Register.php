@@ -57,7 +57,7 @@ class Register extends Component
             ->first();
 
         if ($contact) {
-            $this->addError('email', ctrans('texts.email_already_exists'));
+            $this->addError('email', ctrans('texts.checkout_only_for_new_customers'));
 
             return;
         }
@@ -118,6 +118,7 @@ class Register extends Component
         );
         
         $rules = $service->rules(); 
+
         $data = Validator::make($data, $rules)->validate();
 
         $client = $service->createClient($data);
