@@ -355,11 +355,13 @@ class RecurringInvoice extends BaseModel
     public function calculateStatus(bool $new_model = false) //15-02-2024 - $new_model needed
     {
 
-        if($this->remaining_cycles == 0) {
+        if($this->remaining_cycles == 0) 
             return self::STATUS_COMPLETED;
-        } elseif ($new_model && $this->status_id == self::STATUS_ACTIVE && Carbon::parse($this->next_send_date)->isFuture()) 
+        elseif ($new_model && $this->status_id == self::STATUS_ACTIVE && Carbon::parse($this->next_send_date)->isFuture()) 
             return self::STATUS_PENDING;
-        
+        elseif($this->remaining_cycles != 0)
+            return self::STATUS_ACTIVE;
+
         return $this->status_id;
         
     }

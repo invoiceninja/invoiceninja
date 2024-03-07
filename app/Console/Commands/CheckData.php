@@ -884,7 +884,7 @@ class CheckData extends Command
     public function checkClientSettings()
     {
         if ($this->option('fix') == 'true') {
-            Client::query()->whereNull('country_id')->cursor()->each(function ($client) {
+            Client::query()->whereNull('country_id')->orWhere('country_id', 0)->cursor()->each(function ($client) {
                 $client->country_id = $client->company->settings->country_id;
                 $client->saveQuietly();
 
