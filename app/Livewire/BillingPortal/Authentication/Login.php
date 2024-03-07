@@ -41,7 +41,17 @@ class Login extends Component
 
     public function initial()
     {
-        $this->validateOnly('email', ['email' => 'required|bail|email:rfc|exists:client_contacts,email']);
+        $this->validateOnly('email', ['email' => 'required|bail|email:rfc|email']);
+
+        $contact = ClientContact::where('email', $this->email)
+            ->where('company_id', $this->subscription->company_id)
+            ->first();
+
+        if ($contact === null) {
+            $this->addError('email', ctrans('texts.checkout_only_for_existing_customers'));
+
+            return;
+        }
 
         $this->state['initial_completed'] = true;
 
