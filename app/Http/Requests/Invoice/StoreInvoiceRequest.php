@@ -77,6 +77,7 @@ class StoreInvoiceRequest extends Request
         $rules['exchange_rate'] = 'bail|sometimes|numeric';
         $rules['partial'] = 'bail|sometimes|nullable|numeric|gte:0';
         $rules['partial_due_date'] = ['bail', 'sometimes', 'exclude_if:partial,0', Rule::requiredIf(fn () => $this->partial > 0), 'date'];
+        $rules['due_date'] = ['bail', 'sometimes', 'nullable', 'after:partial_due_date', Rule::requiredIf(fn () => strlen($this->partial_due_date) > 1), 'date'];
 
 
         return $rules;
@@ -110,6 +111,15 @@ class StoreInvoiceRequest extends Request
         }
         if (array_key_exists('exchange_rate', $input) && is_null($input['exchange_rate'])) {
             $input['exchange_rate'] = 1;
+        }
+
+        nlog($input['partial_due_date']);
+        nlog(strlen($input['partial_due_date']));
+
+        //handles edge case where we need for force set the due date of the invoice.
+        if((isset($input['partial_due_date']) && strlen($input['partial_due_date']) > 1) && (!array_key_exists('due_date', $input) || strlen($input['due_date']) == 0)) {
+            $client = \App\Models\Client::withTrashed()->find($input['client_id']);
+            $input['due_date'] = \Illuminate\Support\Carbon::parse($input['date'])->addDays($client->getSetting('payment_terms'))->format('Y-m-d');
         }
 
         $this->replace($input);
