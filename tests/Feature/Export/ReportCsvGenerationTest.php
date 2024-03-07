@@ -1592,14 +1592,13 @@ class ReportCsvGenerationTest extends TestCase
                 
         $csv = $response->body();
 
-
-        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Amount'));
-        $this->assertEquals('50', $this->getFirstValueByColumn($csv, 'Balance'));
-        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Discount'));
-        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Number'));
-        $this->assertEquals('Public', $this->getFirstValueByColumn($csv, 'Public Notes'));
-        $this->assertEquals('Private', $this->getFirstValueByColumn($csv, 'Private Notes'));
-        $this->assertEquals('Terms', $this->getFirstValueByColumn($csv, 'Terms'));
+        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Purchase Order Amount'));
+        $this->assertEquals('50', $this->getFirstValueByColumn($csv, 'Purchase Order Balance'));
+        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Purchase Order Discount'));
+        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Purchase Order Number'));
+        $this->assertEquals('Public', $this->getFirstValueByColumn($csv, 'Purchase Order Public Notes'));
+        $this->assertEquals('Private', $this->getFirstValueByColumn($csv, 'Purchase Order Private Notes'));
+        $this->assertEquals('Terms', $this->getFirstValueByColumn($csv, 'Purchase Order Terms'));
     }
 
 
