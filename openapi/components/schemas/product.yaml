@@ -6,11 +6,6 @@
           description: 'The hashed product ID.'
           example: eP01N
           readOnly: true
-        company_id:
-          type: string
-          description: 'The hashed ID of the company that owns this product.'
-          example: eP01N
-          readOnly: true
         user_id:
           type: string
           description: 'The hashed ID of the user that created this product.'

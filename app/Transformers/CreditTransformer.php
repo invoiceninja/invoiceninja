@@ -132,6 +132,8 @@ class CreditTransformer extends EntityTransformer
             'paid_to_date' => (float) $credit->paid_to_date,
             'subscription_id' => $this->encodePrimaryKey($credit->subscription_id),
             'invoice_id' => $credit->invoice_id ? $this->encodePrimaryKey($credit->invoice_id) : '',
+            'tax_info' => $credit->tax_data ?: new \stdClass(),
+
         ];
     }
 }
