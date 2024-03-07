@@ -120,8 +120,8 @@
                                 class="input w-full"
                                 type="email"
                                 name="{{ $field['key'] }}"
-                                value="{{ old($field['key']) }}"
-                                 />
+                                value="{{ old($field['key'], $this->email ?? '') }}"
+                            />
                         @elseif($field['key'] === 'password')
                             <input
                                 id="{{ $field['key'] }}"
