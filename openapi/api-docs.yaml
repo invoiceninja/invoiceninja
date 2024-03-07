@@ -14065,7 +14065,6 @@ components:
     #     id: Opnel5aKBz
     #     user_id: Ua6Rw4pVbS
     #     assigned_user_id: Ua6Rw4pVbS
-    #     company_id: Co7Vn3yLmW
     #     name: "Jim's Housekeeping"
     #     website: https://www.jims-housekeeping.com
     #     private_notes: Client prefers email communication over phone calls
@@ -14484,10 +14483,6 @@ components:
           description: 'The user hashed id'
           type: string
           example: Opnel5aKBz
-        company_id:
-          description: 'The company hashed id'
-          type: string
-          example: Opnel5aKBz
         name:
           description: 'The name of the group'
           type: string
@@ -14765,10 +14760,6 @@ components:
           description: "The unique hashed ID of the assigned user responsible for the credit"
           type: string
           example: 6f7g8h9i0j
-        company_id:
-          description: "The unique hashed ID of the company associated with the credit"
-          type: string
-          example: k1l2m3n4o5
         client_id:
           description: "The unique hashed ID of the client associated with the credit"
           type: string
@@ -15196,11 +15187,6 @@ components:
           description: 'The assigned user hashed id'
           type: string
           example: Opnel5aKBz
-        company_id:
-          description: 'The company hashed id'
-          type: string
-          example: Opnel5aKBz
-          readOnly: true
         client_id:
           description: 'The client hashed id'
           type: string
@@ -15769,11 +15755,7 @@ components:
           description: 'The assigned user hashed id'
           type: string
           example: Opnel5aKBz
-        company_id:
-          description: 'The company hashed id'
-          type: string
-          example: Opnel5aKBz
-          readOnly: true
+
         client_id:
           description: 'The client hashed id'
           type: string
@@ -15999,10 +15981,6 @@ components:
           description: 'The account hashed id'
           type: string
           example: AS3df3A
-        company_id:
-          description: 'The company hashed id'
-          type: string
-          example: AS3df3A
         user_id:
           description: 'The user_id hashed id'
           type: string
@@ -16054,10 +16032,7 @@ components:
           description: 'The associated project_id'
           type: string
           example: 'Opnel5aKBz'  
-        company_id:
-          description: 'The company hashed id'
-          type: string
-          example: 'Opnel5aKBz'
+
         client_id:
           description: 'The client hashed id'
           type: string
@@ -16205,10 +16180,7 @@ components:
           description: 'The bank integration hashed id'
           type: string
           example: AS3df3A
-        company_id:
-          description: 'The company hashed id'
-          type: string
-          example: AS3df3A
+
         user_id:
           description: 'The user hashed id'
           type: string
@@ -16287,10 +16259,7 @@ components:
           description: 'The bank integration hashed id'
           type: string
           example: AS3df3A
-        company_id:
-          description: 'The company hashed id'
-          type: string
-          example: AS3df3A
+
         user_id:
           description: 'The user hashed id'
           type: string
@@ -16342,10 +16311,7 @@ components:
           description: Unique identifier for the product associated with the subscription
           type: string
           example: Pr5Ft7yBmC
-        company_id:
-          description: Unique identifier for the company associated with the subscription
-          type: string
-          example: Co7Vn3yLmW
+
         recurring_invoice_id:
           description: Unique identifier for the recurring invoice associated with the subscription
           type: string
@@ -16577,10 +16543,7 @@ components:
           description: 'The assigned user hashed id'
           type: string
           example: Opnel5aKBz
-        company_id:
-          description: 'The company hashed id'
-          type: string
-          example: Opnel5aKBz
+
         client_id:
           description: 'The client hashed id'
           type: string
@@ -16942,7 +16905,6 @@ components:
       required:
         - id
         - user_id
-        - company_id
         - name
         - task_rate
         - budgeted_hours
@@ -16969,11 +16931,7 @@ components:
           description: 'The unique identifier of the user who has been assigned the client'
           type: string
           example: Ua6Rw4pVbS
-        company_id:
-          description: 'The unique identifier of the company the client belongs to'
-          type: string
-          example: Co7Vn3yLmW
-          readOnly: true
+
         name:
           description: 'The name of the client company or organization'
           type: string
@@ -17161,10 +17119,7 @@ components:
           description: 'The hashed id of the assigned user to this vendor. This is a unique identifier for the user.'
           type: string
           example: Opnel5aKBz
-        company_id:
-          description: 'The hashed id of the company. This is a unique identifier for the company.'
-          type: string
-          example: Opnel5aKBz
+
         contacts:
           type: array
           items:
@@ -17307,11 +17262,7 @@ components:
           type: string
           example: Opnel5aKBz
           readOnly: true
-        company_id:
-          description: 'The hashed id of the company'
-          type: string
-          example: Opnel5aKBz
-          readOnly: true
+
         vendor_id:
           description: 'The hashed id of the vendor'
           type: string
@@ -17406,10 +17357,7 @@ components:
           description: 'The unique hashed identifier for the user assigned to the quote'
           type: string
           example: ''
-        company_id:
-          description: 'The unique hashed identifier for the company associated with the quote'
-          type: string
-          example: ''
+
         client_id:
           description: 'The unique hashed identifier for the client associated with the quote'
           type: string
@@ -17715,10 +17663,7 @@ components:
           description: 'The assigned user of the task'
           type: string
           example: Opnel5aKBz
-        company_id:
-          description: 'The hashed id of the company'
-          type: string
-          example: Opnel5aKBz
+
         client_id:
           description: 'The hashed if of the client'
           type: string
@@ -17829,10 +17774,7 @@ components:
           description: 'The assigned user hashed id'
           type: string
           example: Opnel5aKBz
-        company_id:
-          description: 'The company hashed id'
-          type: string
-          example: Opnel5aKBz
+
         client_id:
           description: 'The client hashed id'
           type: string
@@ -18172,10 +18114,7 @@ components:
           description: 'The client hashed id'
           type: string
           example: Opnel5aKBz
-        company_id:
-          description: 'The company hashed id'
-          type: string
-          example: Opnel5aKBz
+
         user_id:
           description: 'The user hashed id'
           type: string
@@ -18302,10 +18241,7 @@ components:
           description: 'The hashed id of the user assigned to this recurring expense'
           type: string
           example: Opnel5aKBz
-        company_id:
-          description: 'The hashed id of the company'
-          type: string
-          example: Opnel5aKBz
+
         client_id:
           description: 'The hashed id of the client'
           type: string
@@ -18491,10 +18427,7 @@ components:
           description: 'The hashed id of the client gateway token'
           type: string
           example: Opnel5aKBz
-        company_id:
-          description: 'The hashed id of the company'
-          type: string
-          example: '2'
+
         client_id:
           description: 'The hashed_id of the client'
           type: string
@@ -18626,10 +18559,7 @@ components:
           description: 'The hashed id of the company gateway'
           type: string
           example: Opnel5aKBz
-        company_id:
-          description: 'The company hashed id'
-          type: string
-          example: '2'
+
         gateway_key:
           description: 'The gateway key (hash)'
           type: string
@@ -18746,10 +18676,7 @@ components:
           description: 'The unique hashed identifier for the user assigned to the purchase order'
           type: string
           example: ''
-        company_id:
-          description: 'The unique hashed identifier for the company associated with the purchase order'
-          type: string
-          example: ''
+
         vendor_id:
           description: 'The unique hashed identifier for the vendor associated with the purchase order'
           type: string
@@ -19795,11 +19722,7 @@ components:
           description: 'The hashed product ID.'
           example: eP01N
           readOnly: true
-        company_id:
-          type: string
-          description: 'The hashed ID of the company that owns this product.'
-          example: eP01N
-          readOnly: true
+
         user_id:
           type: string
           description: 'The hashed ID of the user that created this product.'
@@ -21022,11 +20945,7 @@ components:
           type: string
           example: Opnel5aKBz
           readOnly: true
-        company_id:
-          description: 'The hashed id of the company'
-          type: string
-          example: Opnel5aKBz
-          readOnly: true
+
         client_id:
           description: 'The hashed id of the client'
           type: string
@@ -21216,10 +21135,7 @@ components:
           description: 'The bank transaction rules hashed id'
           type: string
           example: AS3df3A
-        company_id:
-          description: 'The company hashed id'
-          type: string
-          example: AS3df3A
+
         user_id:
           description: 'The user hashed id'
           type: string
