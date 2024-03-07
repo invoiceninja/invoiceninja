@@ -114,7 +114,7 @@ class StoreInvoiceRequest extends Request
         }
 
         //handles edge case where we need for force set the due date of the invoice.
-        if((isset($input['partial_due_date']) && strlen($input['partial_due_date']) > 1) && (!array_key_exists('due_date', $input) || strlen($input['due_date']) == 0)) {
+        if((isset($input['partial_due_date']) && strlen($input['partial_due_date']) > 1) && (!array_key_exists('due_date', $input) || (empty($input['due_date']) && empty($this->invoice->due_date)))) {
             $client = \App\Models\Client::withTrashed()->find($input['client_id']);
             $input['due_date'] = \Illuminate\Support\Carbon::parse($input['date'])->addDays($client->getSetting('payment_terms'))->format('Y-m-d');
         }

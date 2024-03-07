@@ -359,7 +359,7 @@ class RecurringInvoice extends BaseModel
             return self::STATUS_COMPLETED;
         elseif ($new_model && $this->status_id == self::STATUS_ACTIVE && Carbon::parse($this->next_send_date)->isFuture()) 
             return self::STATUS_PENDING;
-        elseif($this->remaining_cycles != 0)
+        elseif($this->remaining_cycles != 0 && ($this->status_id == self::STATUS_COMPLETED))
             return self::STATUS_ACTIVE;
 
         return $this->status_id;
