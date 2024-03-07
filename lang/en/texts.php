@@ -5253,7 +5253,9 @@ $lang = array(
     'test_email_sent' => 'Successfully sent email',
     'gateway_type' => 'Gateway Type',
     'save_template_body' => 'Would you like to save this import mapping as a template for future use?',
-    'save_as_template' => 'Save Template Mapping'
+    'save_as_template' => 'Save Template Mapping',
+    'checkout_only_for_existing_customers' => 'Checkout is enabled only for existing customers. Please login with existing account to checkout.',
+    'checkout_only_for_new_customers' => 'Checkout is enabled only for new customers. Please register a new account to checkout.',
 );
 
 return $lang;
