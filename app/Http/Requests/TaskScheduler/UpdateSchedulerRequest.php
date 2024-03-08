@@ -16,6 +16,27 @@ use App\Http\ValidationRules\Scheduler\ValidClientIds;
 
 class UpdateSchedulerRequest extends Request
 {
+    public array $client_statuses = [
+                        'all',
+                        'draft',
+                        'paid',
+                        'unpaid',
+                        'overdue',
+                        'pending',
+                        'invoiced',
+                        'logged',
+                        'partial',
+                        'applied',
+                        'active', 
+                        'paused',
+                        'completed',
+                        'approved',
+                        'expired',
+                        'upcoming',
+                        'converted',
+                        'uninvoiced',
+    ];
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -71,10 +92,18 @@ class UpdateSchedulerRequest extends Request
 
         if(isset($input['parameters']['status'])) {
 
+            
+$task_statuses = [];
+
+            if(isset($input['parameters']['report_name']) && $input['parameters']['report_name'] == 'task') {
+                $task_statuses = array_diff(explode(",", $input['parameters']['status']), $this->client_statuses);
+            }
+
             $input['parameters']['status'] = collect(explode(",", $input['parameters']['status']))
                                                     ->filter(function ($status) {
-                                                        return in_array($status, ['all','draft','paid','unpaid','overdue']);
-                                                    })->implode(",") ?? '';
+                                                        return in_array($status, $this->client_statuses);
+                                                    })->merge($task_statuses)
+                                                    ->implode(",") ?? '';
         }
 
         $this->replace($input);

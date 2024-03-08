@@ -149,6 +149,7 @@ class PdfSlot extends Component
         return render('components.livewire.pdf-slot', [
             'invitation' => $this->invitation,
             'entity' => $this->entity,
+            'settings' => $this->settings,
             'data' => $this->invitation->company->settings,
             'entity_type' => $this->entity_type,
             'products' => $this->getProducts(),

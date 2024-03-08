@@ -48,7 +48,7 @@
         @endisset
 
         @isset($signature)
-            <p>{{ nl2br($signature) }}</p>
+            <p>{!! nl2br($signature) !!}</p>
         @endisset
     </div>
 @endcomponent

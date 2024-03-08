@@ -279,13 +279,21 @@ class NinjaMailerJob implements ShouldQueue
                     $this->mailer = 'postmark';
                     $this->client_postmark_secret = config('services.postmark-outlook.token');
 
+                    if (property_exists($this->nmo->settings, 'email_from_name') && strlen($this->nmo->settings->email_from_name) > 1) {
+                        $email_from_name = $this->nmo->settings->email_from_name;
+                    } else {
+                        $email_from_name = $this->company->present()->name();
+                    }
+
                     $this->nmo
                      ->mailable
-                     ->from('maildelivery@invoice.services', 'Invoice Ninja');
+                     ->from(config('services.postmark-outlook.from.address'), $email_from_name);
 
                     return $this;
                 }
             } catch(\Exception $e) {
+                
+                nlog("problem switching outlook driver - hosted");
                 nlog($e->getMessage());
             }
         }

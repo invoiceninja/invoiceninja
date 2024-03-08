@@ -503,15 +503,22 @@ class Email implements ShouldQueue
                 $server = $dns[0]["target"];
                 if(stripos($server, "outlook.com") !== false) {
 
+                    if (property_exists($this->email_object->settings, 'email_from_name') && strlen($this->email_object->settings->email_from_name) > 1) {
+                        $email_from_name = $this->email_object->settings->email_from_name;
+                    } else {
+                        $email_from_name = $this->company->present()->name();
+                    }
 
                     $this->mailer = 'postmark';
                     $this->client_postmark_secret = config('services.postmark-outlook.token');
                     $this->mailable
-                         ->from('maildelivery@invoice.services', 'Invoice Ninja');
+                         ->from(config('services.postmark-outlook.from.address'), $email_from_name);
 
                     return $this;
+                    
                 }
             } catch(\Exception $e) {
+                nlog("problem switching outlook driver - hosted");
                 nlog($e->getMessage());
             }
         }

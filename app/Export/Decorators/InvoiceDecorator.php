@@ -79,7 +79,6 @@ class InvoiceDecorator extends Decorator implements DecoratorInterface
         return $invoice->partial_due_date ?? '';
     }
 
-
     public function assigned_user_id(Invoice $invoice)
     {
         return $invoice->assigned_user ? $invoice->assigned_user->present()->name() : '';

@@ -55,14 +55,12 @@ class Handler extends ExceptionHandler
 
     protected $selfHostDontReport = [
         FilePermissionsFailure::class,
-        PDOException::class,
         MaxAttemptsExceededException::class,
         CommandNotFoundException::class,
         ValidationException::class,
         ModelNotFoundException::class,
         NotFoundHttpException::class,
         UnableToCreateDirectory::class,
-        ConnectException::class,
         RuntimeException::class,
         InvalidArgumentException::class,
         CredentialsException::class,

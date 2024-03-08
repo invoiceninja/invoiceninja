@@ -62,6 +62,10 @@ class InvoiceFilters extends QueryFilters
                 $invoice_filters[] = Invoice::STATUS_PAID;
             }
 
+            if (in_array('cancelled', $status_parameters)) {
+                $invoice_filters[] = Invoice::STATUS_CANCELLED;
+            }
+
             if (in_array('unpaid', $status_parameters)) {
                 $invoice_filters[] = Invoice::STATUS_SENT;
                 $invoice_filters[] = Invoice::STATUS_PARTIAL;
