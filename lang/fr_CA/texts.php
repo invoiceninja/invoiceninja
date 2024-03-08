@@ -5238,6 +5238,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'test_email_sent' => 'Le courriel a été envoyé',
     'gateway_type' => 'Type de passerelle',
     'save_template_body' => 'Souhaitez-vous enregistrer cette correspondance d\'importation en tant que modèle pour une utilisation future ?',
+    'save_as_template' => 'Enregistrer la correspondance de modèle'
 );
 
 return $lang;

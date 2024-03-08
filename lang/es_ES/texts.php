@@ -4921,7 +4921,7 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
     'no_assigned_tasks' => 'No hay tareas facturables para este proyecto',
     'authorization_failure' => 'Permisos insuficientes para realizar esta acción',
     'authorization_sms_failure' => 'Por favor verifique su cuenta para enviar correos electrónicos.',
-    'white_label_body' => 'Thank you for purchasing a white label license. <br><br> Your license key is: <br><br> :license_key <br><br> You can manage your license here: https://invoiceninja.invoicing.co/client/login',
+    'white_label_body' => 'Gracias por adquirir una licencia de marca blanca. <br><br> Su clave de licencia es: <br><br> :license_key <br><br> Puedes gestionar tu licencia aquí: https://invoiceninja.invoicing.co/client/login',
     'payment_type_Klarna' => 'Klarna',
     'payment_type_Interac E Transfer' => 'Interac E Transfer',
     'xinvoice_payable' => 'Pagadero dentro de :payeddue días de pago vencido neto hasta  :paydate',
@@ -5234,6 +5234,11 @@ De lo contrario, este campo deberá dejarse en blanco.',
     'user_sales' => 'Ventas de usuarios',
     'iframe_url' => 'iFrame URL',
     'user_unsubscribed' => 'Usuario dado de baja de los correos electrónicos :link',
+    'use_available_payments' => 'Usar pagos disponibles',
+    'test_email_sent' => 'Correo electrónico enviado correctamente',
+    'gateway_type' => 'Tipo de puerta de enlace',
+    'save_template_body' => '¿Le gustaría guardar este mapeo de importación como plantilla para uso futuro?',
+    'save_as_template' => 'Guardar asignación de plantilla'
 );
 
 return $lang;
