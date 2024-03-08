@@ -95,6 +95,16 @@ class RegisterOrLogin extends Component
 
     public function withOtp()
     {
+        $contact = ClientContact::where('email', $this->email)
+            ->where('company_id', $this->subscription->company_id)
+            ->first();
+
+        if ($contact === null) {
+            $this->state['register_form'] = true;
+
+            return;
+        }
+
         $code = rand(100000, 999999);
         $email_hash = "subscriptions:otp:{$this->email}";
 
