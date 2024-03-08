@@ -12,6 +12,7 @@
 namespace Tests\Unit;
 
 use App\Libraries\Currency\Conversion\CurrencyApi;
+use App\Models\Currency;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
@@ -24,6 +25,21 @@ class CurrencyApiTest extends TestCase
     protected function setUp() :void
     {
         parent::setUp();
+    }
+
+    public function testConversionAudToEur()
+    {
+        $converter = new CurrencyApi();
+
+        $converted_amount = $converter->convert(100, 12, 3);
+
+        $aud_currency = Currency::find(12);
+        $eur_currency = Currency::find(3);
+
+        $converted_synthetic = 100 / ($aud_currency->exchange_rate / $eur_currency->exchange_rate);
+
+        $this->assertEquals(round($converted_synthetic, 2), round($converted_amount, 2));
+        
     }
 
     public function testCurrencyConversionWorking()

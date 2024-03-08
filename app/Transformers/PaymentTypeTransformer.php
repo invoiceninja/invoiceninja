@@ -15,7 +15,6 @@ use App\Models\Payment;
 
 class PaymentTypeTransformer extends EntityTransformer
 {
-
     public function transform(Payment $payment)
     {
         return [

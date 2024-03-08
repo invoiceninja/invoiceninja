@@ -15,7 +15,7 @@ use App\Models\Invoice;
 
 trait ActionsInvoice
 {
-    public function invoiceDeletable($invoice) :bool
+    public function invoiceDeletable($invoice): bool
     {
         if ($invoice->status_id <= Invoice::STATUS_SENT &&
             $invoice->is_deleted == false &&
@@ -27,7 +27,7 @@ trait ActionsInvoice
         return false;
     }
 
-    public function invoiceCancellable($invoice) :bool
+    public function invoiceCancellable($invoice): bool
     {
         if (($invoice->status_id == Invoice::STATUS_SENT ||
              $invoice->status_id == Invoice::STATUS_PARTIAL) &&
@@ -39,7 +39,7 @@ trait ActionsInvoice
         return false;
     }
 
-    public function invoiceReversable($invoice) :bool
+    public function invoiceReversable($invoice): bool
     {
         if (($invoice->status_id == Invoice::STATUS_SENT ||
              $invoice->status_id == Invoice::STATUS_PARTIAL ||

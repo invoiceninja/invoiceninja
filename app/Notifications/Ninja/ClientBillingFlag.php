@@ -65,7 +65,7 @@ class ClientBillingFlag extends Notification
         $content .= "Account: {$this->account_key }\n";
         $content .= "Message: {$this->messasge}\n";
 
-        return (new SlackMessage)
+        return (new SlackMessage())
                 ->success()
                 ->from(ctrans('texts.notification_bot'))
                 ->image('https://app.invoiceninja.com/favicon.png')

@@ -49,12 +49,12 @@ class InvoiceObserver
         if ($invoice->getOriginal('deleted_at') && !$invoice->deleted_at) {
             $event = Webhook::EVENT_RESTORE_INVOICE;
         }
-        
+
         if ($invoice->is_deleted) {
             $event = Webhook::EVENT_DELETE_INVOICE;
         }
-        
-        
+
+
         $subscriptions = Webhook::where('company_id', $invoice->company->id)
                                     ->where('event_id', $event)
                                     ->exists();

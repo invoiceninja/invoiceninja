@@ -22,7 +22,10 @@ use Illuminate\Queue\SerializesModels;
 
 class ProfitAndLoss implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public function __construct(protected Company $company, protected array $payload)
     {
@@ -33,7 +36,7 @@ class ProfitAndLoss implements ShouldQueue
      *
      * @return void
      */
-    public function handle() : void
+    public function handle(): void
     {
         MultiDB::setDb($this->company->db);
 

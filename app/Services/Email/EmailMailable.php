@@ -11,13 +11,16 @@
 
 namespace App\Services\Email;
 
+use App\Utils\Ninja;
 use App\Models\Document;
-use Illuminate\Mail\Attachment;
+use Illuminate\Support\Str;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Mail\Mailables\Headers;
+use Illuminate\Mail\Attachment;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Headers;
+use Illuminate\Mail\Mailables\Envelope;
 
 class EmailMailable extends Mailable
 {
@@ -61,7 +64,11 @@ class EmailMailable extends Mailable
                 ->where('size', '>', $this->max_attachment_size)
                 ->cursor()
                 ->map(function ($document) {
-                    return "<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>";
+
+                    $hash = Str::random(64);
+                    Cache::put($hash, ['db' => $this->email_object->company->db, 'doc_hash' => $document->hash], now()->addDays(7));
+
+                    return "<a class='doc_links' href='" . URL::signedRoute('documents.hashed_download', ['hash' => $hash]) ."'>". $document->name ."</a>";
                 });
 
         return new Content(
@@ -77,6 +84,9 @@ class EmailMailable extends Mailable
                 'company' => $this->email_object->company,
                 'greeting' => '',
                 'links' => array_merge($this->email_object->links, $links->toArray()),
+                'email_preferences' => (Ninja::isHosted() && in_array($this->email_object->settings->email_sending_method, ['default', 'mailgun']) && $this->email_object->invitation)
+                    ? URL::signedRoute('client.email_preferences', ['entity' => $this->email_object->invitation->getEntityString(), 'invitation_key' => $this->email_object->invitation->key])
+                    : false,
             ]
         );
     }
@@ -104,7 +114,7 @@ class EmailMailable extends Mailable
 
         return $attachments->merge($documents)->toArray();
     }
- 
+
     /**
      * Get the message headers.
      *

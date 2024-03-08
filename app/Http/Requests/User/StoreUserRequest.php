@@ -28,7 +28,7 @@ class StoreUserRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -48,7 +48,7 @@ class StoreUserRequest extends Request
         } else {
             $rules['email'] = ['email', new AttachableUser()];
         }
-                
+
         if (Ninja::isHosted()) {
             $rules['id'] = new CanAddUserRule();
 
@@ -99,7 +99,7 @@ class StoreUserRequest extends Request
     }
 
     //@todo make sure the user links back to the account ID for this company!!!!!!
-    public function fetchUser() :User
+    public function fetchUser(): User
     {
         $user = MultiDB::hasUser(['email' => $this->input('email')]);
 

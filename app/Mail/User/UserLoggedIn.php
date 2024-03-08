@@ -12,31 +12,20 @@
 
 namespace App\Mail\User;
 
-use Illuminate\Bus\Queueable;
+use App\Models\User;
+use App\Models\Company;
 use Illuminate\Mail\Mailable;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
 
 class UserLoggedIn extends Mailable
 {
-    // use Queueable, SerializesModels;
-
-    public $company;
-
-    public $user;
-
-    public $ip;
-
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($user, $company, $ip)
+    public function __construct(public User $user, public Company $company, public string $ip)
     {
-        $this->company = $company;
-        $this->user = $user;
-        $this->ip = $ip;
     }
 
     /**
@@ -48,11 +37,13 @@ class UserLoggedIn extends Mailable
     {
         App::setLocale($this->company->getLocale());
 
+        $text = ctrans('texts.new_login_description', ['email' => $this->user->email, 'ip' => $this->ip, 'time' => now()]);
+
         return $this->from(config('mail.from.address'), config('mail.from.name'))
             ->subject(ctrans('texts.new_login_detected'))
             ->text('email.admin.generic_text', [
                 'title' => ctrans('texts.new_login_detected'),
-                'body' => strip_tags(ctrans('texts.new_login_description', ['email' => $this->user->email, 'ip' => $this->ip, 'time' => now()])),
+                'body' => $text,
             ])
             ->view('email.admin.notification')
             ->with([

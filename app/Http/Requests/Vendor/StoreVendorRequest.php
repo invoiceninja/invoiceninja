@@ -24,7 +24,7 @@ class StoreVendorRequest extends Request
      * Determine if the user is authorized to make this request.
      *
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -57,13 +57,15 @@ class StoreVendorRequest extends Request
         if (isset($this->number)) {
             $rules['number'] = Rule::unique('vendors')->where('company_id', $user->company()->id);
         }
-        
+
         $rules['currency_id'] = 'bail|required|exists:currencies,id';
 
         if ($this->file('documents') && is_array($this->file('documents'))) {
             $rules['documents.*'] = $this->file_validation;
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->file_validation;
+        }else {
+            $rules['documents'] = 'bail|sometimes|array';
         }
 
         if ($this->file('file') && is_array($this->file('file'))) {
@@ -73,7 +75,7 @@ class StoreVendorRequest extends Request
         }
 
         $rules['language_id'] = 'bail|nullable|sometimes|exists:languages,id';
-        $rules['classification'] = 'bail|sometimes|nullable|in:individual,company,partnership,trust,charity,government,other';
+        $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,company,partnership,trust,charity,government,other';
 
         return $rules;
     }
@@ -87,6 +89,10 @@ class StoreVendorRequest extends Request
 
         if (!array_key_exists('currency_id', $input) || empty($input['currency_id'])) {
             $input['currency_id'] = $user->company()->settings->currency_id;
+        }
+
+        if (isset($input['name'])) {
+            $input['name'] = strip_tags($input['name']);
         }
 
         $input = $this->decodePrimaryKeys($input);

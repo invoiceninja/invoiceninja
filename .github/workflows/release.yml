@@ -43,7 +43,7 @@ jobs:
         run: |
           git clone https://${{secrets.commit_secret}}@github.com/invoiceninja/ui.git
           cd ui
-          git checkout main
+          git checkout develop
           npm i
           npm run build
           

@@ -11,24 +11,25 @@
 
 namespace App\Jobs\Account;
 
-use App\DataMapper\Analytics\AccountCreated as AnalyticsAccountCreated;
-use App\DataMapper\Analytics\AccountPlatform;
-use App\Events\Account\AccountCreated;
+use App\Utils\Ninja;
+use App\Models\Account;
+use Illuminate\Support\Str;
+use App\Jobs\User\CreateUser;
+use App\DataProviders\Domains;
+use App\Jobs\Util\VersionCheck;
+use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Company\CreateCompany;
+use Illuminate\Support\Facades\App;
+use App\Jobs\Mail\NinjaMailerObject;
+use App\Utils\Traits\User\LoginCache;
+use App\Events\Account\AccountCreated;
+use Turbo124\Beacon\Facades\LightLogs;
+use App\Jobs\Company\CreateCompanyToken;
+use Illuminate\Foundation\Bus\Dispatchable;
+use App\DataMapper\Analytics\AccountPlatform;
 use App\Jobs\Company\CreateCompanyPaymentTerms;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
-use App\Jobs\Company\CreateCompanyToken;
-use App\Jobs\Mail\NinjaMailerJob;
-use App\Jobs\Mail\NinjaMailerObject;
-use App\Jobs\User\CreateUser;
-use App\Jobs\Util\VersionCheck;
-use App\Models\Account;
-use App\Utils\Ninja;
-use App\Utils\Traits\User\LoginCache;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Str;
-use Turbo124\Beacon\Facades\LightLogs;
+use App\DataMapper\Analytics\AccountCreated as AnalyticsAccountCreated;
 
 class CreateAccount
 {
@@ -38,6 +39,8 @@ class CreateAccount
     protected $request;
 
     protected $client_ip;
+
+
 
     public function __construct(array $sp660339, $client_ip)
     {
@@ -77,7 +80,7 @@ class CreateAccount
             $sp794f3f->hosted_company_count = config('ninja.quotas.free.max_companies');
             $sp794f3f->account_sms_verified = true;
 
-            if (in_array($this->getDomain($this->request['email']), ['mailto.plus', 'givmail.com','yopmail.com','gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'aol.com', 'mail.ru','brand-app.biz','proton.me','ema-sofia.eu', 'mail.com', 'fastmail.com'])) {
+            if (in_array($this->getDomain($this->request['email']), Domains::getDomains())) {
                 $sp794f3f->account_sms_verified = false;
             }
 
@@ -106,7 +109,7 @@ class CreateAccount
 
         $spafe62e = isset($this->request['token_name']) ? $this->request['token_name'] : request()->server('HTTP_USER_AGENT');
         $sp2d97e8 = (new CreateCompanyToken($sp035a66, $spaa9f78, $spafe62e))->handle();
-        
+
         if ($spaa9f78) {
             event(new AccountCreated($spaa9f78, $sp035a66, Ninja::eventVars()));
         }
@@ -118,7 +121,7 @@ class CreateAccount
             $t = app('translator');
             $t->replace(Ninja::transformTranslations($sp035a66->settings));
 
-            $nmo = new NinjaMailerObject;
+            $nmo = new NinjaMailerObject();
             $nmo->mailable = new \Modules\Admin\Mail\Welcome($sp035a66->owner());
             $nmo->company = $sp035a66;
             $nmo->settings = $sp035a66->settings;
@@ -158,7 +161,7 @@ class CreateAccount
         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
             // split on @ and return last value of array (the domain)
             $domain = explode('@', $email);
-         
+
             $domain_name = end($domain);
 
             return $domain_name;
@@ -166,4 +169,8 @@ class CreateAccount
 
         return 'gmail.com';
     }
+
+
+
+
 }

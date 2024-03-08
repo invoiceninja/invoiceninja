@@ -11,10 +11,11 @@
 
 namespace App\Listeners\Invoice;
 
+use App\Libraries\MultiDB;
 use App\Jobs\Mail\NinjaMailer;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
-use App\Libraries\MultiDB;
+use Illuminate\Support\Facades\Cache;
 use App\Mail\Admin\EntityFailedSendObject;
 use App\Utils\Traits\Notifications\UserNotifies;
 
@@ -36,10 +37,12 @@ class InvoiceFailedEmailNotification
     {
         MultiDB::setDb($event->company->db);
 
-        $first_notification_sent = true;
+        if(Cache::has("invoice_failed_email_notification_{$event->invitation->key}")) {
+            return;
+        }
 
         $invoice = $event->invitation->invoice;
-        
+
         foreach ($event->invitation->company->company_users as $company_user) {
             $user = $company_user->user;
 
@@ -48,7 +51,7 @@ class InvoiceFailedEmailNotification
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
-                $nmo = new NinjaMailerObject;
+                $nmo = new NinjaMailerObject();
                 $nmo->mailable = new NinjaMailer((new EntityFailedSendObject($event->invitation->withoutRelations(), 'invoice', $event->template, $event->message, $company_user->portalType()))->build());
                 $nmo->company = $invoice->company->withoutRelations();
                 $nmo->settings = $invoice->company->settings;
@@ -58,8 +61,9 @@ class InvoiceFailedEmailNotification
 
                 $nmo = null;
 
-                $first_notification_sent = false;
             }
         }
+
+        Cache::put("invoice_failed_email_notification_{$event->invitation->key}", true, 60 * 60);
     }
 }

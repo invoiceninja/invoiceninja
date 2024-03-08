@@ -97,6 +97,11 @@ class PurchaseOrderInvitation extends BaseModel
         return self::class;
     }
 
+    public function getEntityString(): string
+    {
+        return 'purchase_order';
+    }
+
     public function entityType()
     {
         return PurchaseOrder::class;
@@ -138,7 +143,7 @@ class PurchaseOrderInvitation extends BaseModel
         $this->save();
     }
 
-    public function getPortalLink() :string
+    public function getPortalLink(): string
     {
         if (Ninja::isHosted()) {
             $domain = $this->company->domain();
@@ -159,7 +164,7 @@ class PurchaseOrderInvitation extends BaseModel
         }
     }
 
-    public function getLink() :string
+    public function getLink(): string
     {
         $entity_type = Str::snake(class_basename($this->entityType()));
 
@@ -182,7 +187,7 @@ class PurchaseOrderInvitation extends BaseModel
         }
     }
 
-    public function getAdminLink($use_react_link = false) :string
+    public function getAdminLink($use_react_link = false): string
     {
         return $use_react_link ? $this->getReactLink() : $this->getLink().'?silent=true';
     }

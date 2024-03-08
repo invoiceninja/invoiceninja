@@ -30,7 +30,7 @@ class CreditFilters extends QueryFilters
      * @param string $value The credit status as seen by the client
      * @return Builder
      */
-    public function credit_status(string $value = ''): Builder
+    public function client_status(string $value = ''): Builder
     {
         if (strlen($value) == 0) {
             return $this->builder;
@@ -47,7 +47,7 @@ class CreditFilters extends QueryFilters
         if (in_array('draft', $status_parameters)) {
             $credit_filters[] = Credit::STATUS_DRAFT;
         }
-        
+
         if (in_array('sent', $status_parameters)) {
             $credit_filters[] = Credit::STATUS_SENT;
         }
@@ -60,7 +60,7 @@ class CreditFilters extends QueryFilters
             $credit_filters[] = Credit::STATUS_APPLIED;
         }
 
-        if (count($credit_filters) >=1) {
+        if (count($credit_filters) >= 1) {
             $this->builder->whereIn('status_id', $credit_filters);
         }
 
@@ -106,14 +106,14 @@ class CreditFilters extends QueryFilters
         if (strlen($value) == 0) {
             return $this->builder;
         }
-        
-        return $this->builder->where(function ($query){
-                        $query->whereIn('status_id', [Credit::STATUS_SENT, Credit::STATUS_PARTIAL])
-                              ->where('balance', '>', 0)
-                              ->where(function ($q){
-                                $q->whereNull('due_date')->orWhere('due_date', '>', now());
-                              });
-                            });
+
+        return $this->builder->where(function ($query) {
+            $query->whereIn('status_id', [Credit::STATUS_SENT, Credit::STATUS_PARTIAL])
+                  ->where('balance', '>', 0)
+                  ->where(function ($q) {
+                      $q->whereNull('due_date')->orWhere('due_date', '>', now());
+                  });
+        });
     }
 
     public function number(string $number = ''): Builder
@@ -139,12 +139,19 @@ class CreditFilters extends QueryFilters
             return $this->builder;
         }
 
+        $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
+
         if ($sort_col[0] == 'client_id') {
             return $this->builder->orderBy(\App\Models\Client::select('name')
-                    ->whereColumn('clients.id', 'credits.client_id'), $sort_col[1]);
+                    ->whereColumn('clients.id', 'credits.client_id'), $dir);
         }
 
-        return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+
+        if($sort_col[0] == 'number') {
+            return $this->builder->orderByRaw('ABS(number) ' . $dir);
+        }
+
+        return $this->builder->orderBy($sort_col[0], $dir);
     }
 
     /**

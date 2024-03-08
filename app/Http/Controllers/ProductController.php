@@ -132,7 +132,11 @@ class ProductController extends BaseController
      */
     public function create(CreateProductRequest $request)
     {
-        $product = ProductFactory::create(auth()->user()->company()->id, auth()->user()->id);
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $product = ProductFactory::create($user->company()->id, auth()->user()->id);
 
         return $this->itemResponse($product);
     }
@@ -177,7 +181,11 @@ class ProductController extends BaseController
      */
     public function store(StoreProductRequest $request)
     {
-        $product = $this->product_repo->save($request->all(), ProductFactory::create(auth()->user()->company()->id, auth()->user()->id));
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $product = $this->product_repo->save($request->all(), ProductFactory::create($user->company()->id, auth()->user()->id));
 
         return $this->itemResponse($product);
     }
@@ -468,7 +476,7 @@ class ProductController extends BaseController
         $products = Product::withTrashed()->whereIn('id', $ids);
 
         if($action == 'set_tax_id') {
-            
+
             $tax_id = $request->input('tax_id');
 
             $products->update(['tax_id' => $tax_id]);

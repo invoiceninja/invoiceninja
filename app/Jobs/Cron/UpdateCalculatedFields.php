@@ -34,10 +34,10 @@ class UpdateCalculatedFields
      *
      * @return void
      */
-    public function handle() : void
+    public function handle(): void
     {
         nlog("Updating calculated fields");
-        
+
         Auth::logout();
 
         if (! config('ninja.db.multi_db_enabled')) {
@@ -53,7 +53,7 @@ class UpdateCalculatedFields
                 });
 
 
-            
+
         } else {
             //multiDB environment, need to
             foreach (MultiDB::$dbs as $db) {
@@ -78,10 +78,10 @@ class UpdateCalculatedFields
         $duration = 0;
 
         $project->tasks->each(function ($task) use (&$duration) {
-            
-        if(is_iterable(json_decode($task->time_log) )) {
-        
-            foreach(json_decode($task->time_log) as $log) {
+
+            if(is_iterable(json_decode($task->time_log))) {
+
+                foreach(json_decode($task->time_log) as $log) {
 
                     $start_time = $log[0];
                     $end_time = $log[1] == 0 ? time() : $log[1];
@@ -90,10 +90,10 @@ class UpdateCalculatedFields
 
                 }
             }
-                    
+
         });
 
-        return round(($duration/60/60), 0);
+        return round(($duration / 60 / 60), 0);
 
     }
 }

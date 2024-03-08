@@ -97,6 +97,11 @@ class CreditInvitation extends BaseModel
         return self::class;
     }
 
+    public function getEntityString(): string
+    {
+        return 'credit';
+    }
+
     public function entityType()
     {
         return Credit::class;
@@ -109,7 +114,7 @@ class CreditInvitation extends BaseModel
     {
         return $this->belongsTo(Credit::class)->withTrashed();
     }
-    
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

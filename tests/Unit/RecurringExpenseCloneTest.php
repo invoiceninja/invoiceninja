@@ -11,14 +11,14 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Client;
-use App\Models\Account;
-use App\Models\Company;
-use App\Utils\Traits\AppSetup;
 use App\Factory\RecurringExpenseFactory;
 use App\Factory\RecurringExpenseToExpenseFactory;
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\Company;
+use App\Models\User;
+use App\Utils\Traits\AppSetup;
+use Tests\TestCase;
 
 /**
  * @test

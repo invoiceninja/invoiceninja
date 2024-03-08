@@ -1,4 +1,4 @@
-<div style="display: none;" id="displaySignatureModal" class="fixed bottom-0 inset-x-0 px-4 pb-4 sm:inset-0 sm:flex sm:items-center sm:justify-center" x-data>
+<div style="display: none;" id="displaySignatureModal" class="fixed bottom-0 inset-x-0 px-4 pb-4 sm:inset-0 sm:flex sm:items-center sm:justify-center" x-data="{ open: true }">
     <div x-show="open" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 transition-opacity">
         <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
     </div>
@@ -20,6 +20,10 @@
                     </p>
                 </div>
             </div>
+
+        </div>
+        <div class="flex w-full mx-auto content-center">
+            <p class="text-sm mx-auto content-center">{{ ctrans('texts.sign_here_ux_tip') }}</p>
         </div>
         <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse" >
             <div class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto" x-data>
@@ -32,6 +36,7 @@
                     {{ ctrans('texts.close') }}
                 </button>
             </div>
+
         </div>
     </div>
 </div>

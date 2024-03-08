@@ -1,12 +1,10 @@
 <?php
 
 use App\Models\Company;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -31,9 +29,9 @@ return new class extends Migration
             $table->unsignedBigInteger('shopify_user_id')->index()->nullable();
         });
 
-        Schema::table('companies', function(Illuminate\Database\Schema\Blueprint $table){
-                $table->string('shopify_name')->index()->nullable();
-                $table->string('shopify_access_token')->index()->nullable();
+        Schema::table('companies', function (Illuminate\Database\Schema\Blueprint $table) {
+            $table->string('shopify_name')->index()->nullable();
+            $table->string('shopify_access_token')->index()->nullable();
         });
 
     }

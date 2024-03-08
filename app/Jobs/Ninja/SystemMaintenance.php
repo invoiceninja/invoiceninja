@@ -25,7 +25,10 @@ use Illuminate\Support\Facades\Storage;
 
 class SystemMaintenance implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * Create a new job instance.
@@ -118,13 +121,13 @@ class SystemMaintenance implements ShouldQueue
     }
 
     //double check this is correct.
-    
+
     // private function cleanPdfs()
     // {
     //     $company_keys = Company::query()
     //                             ->pluck('company_key')
     //                             ->toArray();
-        
+
     //     $directories = Storage::disk(config('filesystems.default'))->directories();
 
     //     $del_dirs = ['quotes','invoices','credits','recurring_invoices', 'e_invoice'];

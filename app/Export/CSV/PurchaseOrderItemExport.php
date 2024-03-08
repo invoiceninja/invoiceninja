@@ -11,6 +11,7 @@
 
 namespace App\Export\CSV;
 
+use App\Export\Decorators\Decorator;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\PurchaseOrder;
@@ -22,12 +23,13 @@ use League\Csv\Writer;
 
 class PurchaseOrderItemExport extends BaseExport
 {
-
     private $purchase_order_transformer;
 
     public string $date_key = 'date';
 
     public Writer $csv;
+
+    private Decorator $decorator;
 
     private bool $force_keys = false;
 
@@ -40,6 +42,7 @@ class PurchaseOrderItemExport extends BaseExport
         $this->company = $company;
         $this->input = $input;
         $this->purchase_order_transformer = new PurchaseOrderTransformer();
+        $this->decorator = new Decorator();
     }
 
     private function init(): Builder
@@ -60,9 +63,15 @@ class PurchaseOrderItemExport extends BaseExport
         $query = PurchaseOrder::query()
                         ->withTrashed()
                         ->with('vendor')->where('company_id', $this->company->id)
-                        ->where('is_deleted', 0);
+                        ->where('is_deleted', $this->input['include_deleted']);
 
         $query = $this->addDateRange($query);
+
+        $query = $this->addPurchaseOrderStatusFilter($query, $this->input['status'] ?? '');
+
+        if($this->input['document_email_attachment'] ?? false) {
+            $this->queueDocuments($query);
+        }
 
         return $query;
 
@@ -81,15 +90,15 @@ class PurchaseOrderItemExport extends BaseExport
         $query->cursor()
               ->each(function ($resource) {
                   $this->iterateItems($resource);
-                
+
                   foreach($this->storage_array as $row) {
                       $this->storage_item_array[] = $this->processItemMetaData($row, $resource);
                   }
 
                   $this->storage_array = [];
-                
+
               });
-        
+
         return array_merge(['columns' => $header], $this->storage_item_array);
     }
 
@@ -109,7 +118,7 @@ class PurchaseOrderItemExport extends BaseExport
             });
 
         $this->csv->insertAll($this->storage_array);
-        
+
         return $this->csv->toString();
 
     }
@@ -124,11 +133,11 @@ class PurchaseOrderItemExport extends BaseExport
             $item_array = [];
 
             foreach (array_values(array_intersect($this->input['report_keys'], $this->item_report_keys)) as $key) { //items iterator produces item array
-                
+
                 if (str_contains($key, "item.")) {
 
                     $tmp_key = str_replace("item.", "", $key);
-                    
+
                     if($tmp_key == 'type_id') {
                         $tmp_key = 'type';
                     }
@@ -153,7 +162,7 @@ class PurchaseOrderItemExport extends BaseExport
         }
     }
 
-    private function buildRow(PurchaseOrder $purchase_order) :array
+    private function buildRow(PurchaseOrder $purchase_order): array
     {
         $transformed_purchase_order = $this->purchase_order_transformer->transform($purchase_order);
 
@@ -171,33 +180,58 @@ class PurchaseOrderItemExport extends BaseExport
             } elseif (array_key_exists($key, $transformed_purchase_order)) {
                 $entity[$key] = $transformed_purchase_order[$key];
             } else {
-                $entity[$key] = $this->resolveKey($key, $purchase_order, $this->purchase_order_transformer);
+                // nlog($key);
+                $entity[$key] = $this->decorator->transform($key, $purchase_order);
+                // $entity[$key] = '';
+                // $entity[$key] = $this->resolveKey($key, $purchase_order, $this->purchase_order_transformer);
             }
         }
 
         return $this->decorateAdvancedFields($purchase_order, $entity);
     }
 
-    private function decorateAdvancedFields(PurchaseOrder $purchase_order, array $entity) :array
+    private function decorateAdvancedFields(PurchaseOrder $purchase_order, array $entity): array
     {
-        if (in_array('currency_id', $this->input['report_keys'])) {
-            $entity['currency'] = $purchase_order->vendor->currency() ? $purchase_order->vendor->currency()->code : $purchase_order->company->currency()->code;
+        // if (in_array('currency_id', $this->input['report_keys'])) {
+        //     $entity['currency'] = $purchase_order->vendor->currency() ? $purchase_order->vendor->currency()->code : $purchase_order->company->currency()->code;
+        // }
+
+        // if(array_key_exists('type', $entity)) {
+        //     $entity['type'] = $purchase_order->typeIdString($entity['type']);
+        // }
+
+        // if(array_key_exists('tax_category', $entity)) {
+        //     $entity['tax_category'] = $purchase_order->taxTypeString($entity['tax_category']);
+        // }
+
+        // if($this->force_keys) {
+        //     $entity['vendor'] = $purchase_order->vendor->present()->name();
+        //     $entity['vendor_id_number'] = $purchase_order->vendor->id_number;
+        //     $entity['vendor_number'] = $purchase_order->vendor->number;
+        //     $entity['status'] = $purchase_order->stringStatus($purchase_order->status_id);
+        // }
+
+        if (in_array('purchase_order.currency_id', $this->input['report_keys'])) {
+            $entity['purchase_order.currency_id'] = $purchase_order->vendor->currency() ? $purchase_order->vendor->currency()->code : $purchase_order->company->currency()->code;
         }
 
-        if(array_key_exists('type', $entity)) {
-            $entity['type'] = $purchase_order->typeIdString($entity['type']);
+        if (in_array('purchase_order.vendor_id', $this->input['report_keys'])) {
+            $entity['purchase_order.vendor_id'] = $purchase_order->vendor->present()->name();
         }
 
-        if(array_key_exists('tax_category', $entity)) {
-            $entity['tax_category'] = $purchase_order->taxTypeString($entity['tax_category']);
+        if (in_array('purchase_order.status', $this->input['report_keys'])) {
+            $entity['purchase_order.status'] = $purchase_order->stringStatus($purchase_order->status_id);
         }
 
-        if($this->force_keys) {
-            $entity['vendor'] = $purchase_order->vendor->present()->name();
-            $entity['vendor_id_number'] = $purchase_order->vendor->id_number;
-            $entity['vendor_number'] = $purchase_order->vendor->number;
-            $entity['status'] = $purchase_order->stringStatus($purchase_order->status_id);
+        if (in_array('purchase_order.user_id', $this->input['report_keys'])) {
+            $entity['purchase_order.user_id'] = $purchase_order->user ? $purchase_order->user->present()->name() : '';
         }
+
+        if (in_array('purchase_order.assigned_user_id', $this->input['report_keys'])) {
+            $entity['purchase_order.assigned_user_id'] = $purchase_order->assigned_user ? $purchase_order->assigned_user->present()->name() : '';
+        }
+
+
 
         return $entity;
     }

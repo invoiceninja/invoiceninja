@@ -11,6 +11,7 @@
 
 namespace App\Http\Requests\ExpenseCategory;
 
+use App\Models\Expense;
 use App\Http\Requests\Request;
 use App\Models\ExpenseCategory;
 
@@ -21,16 +22,23 @@ class StoreExpenseCategoryRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
-        return auth()->user()->can('create', ExpenseCategory::class);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('create', ExpenseCategory::class) || $user->can('create', Expense::class);
     }
 
     public function rules()
     {
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $rules = [];
 
-        $rules['name'] = 'required|unique:expense_categories,name,null,null,company_id,'.auth()->user()->companyId();
+        $rules['name'] = 'required|unique:expense_categories,name,null,null,company_id,'.$user->companyId();
 
         return $this->globalRules($rules);
     }

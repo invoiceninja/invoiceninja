@@ -11,7 +11,9 @@
 
 namespace App\Models;
 
+use App\Services\Subscription\PaymentLinkService;
 use App\Services\Subscription\SubscriptionService;
+use App\Services\Subscription\SubscriptionStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -72,7 +74,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Subscription extends BaseModel
 {
-    use HasFactory, SoftDeletes, Filterable;
+    use HasFactory;
+    use SoftDeletes;
+    use Filterable;
 
     protected $hidden = [
         'id',
@@ -119,6 +123,8 @@ class Subscription extends BaseModel
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
+        'trial_enabled' => 'boolean',
+        'allow_plan_changes' => 'boolean',
     ];
 
     protected $with = [
@@ -128,6 +134,16 @@ class Subscription extends BaseModel
     public function service(): SubscriptionService
     {
         return new SubscriptionService($this);
+    }
+
+    public function link_service(): PaymentLinkService
+    {
+        return new PaymentLinkService($this);
+    }
+
+    public function status(RecurringInvoice $recurring_invoice): SubscriptionStatus
+    {
+        return (new SubscriptionStatus($this, $recurring_invoice))->run();
     }
 
     public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo

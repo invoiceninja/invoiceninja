@@ -22,7 +22,10 @@ use Illuminate\Queue\SerializesModels;
 
 class CheckGatewayFee implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $tries = 1;
 
@@ -41,7 +44,7 @@ class CheckGatewayFee implements ShouldQueue
      */
     public function handle()
     {
-        
+
         MultiDB::setDb($this->db);
 
         $i = Invoice::withTrashed()->find($this->invoice_id);

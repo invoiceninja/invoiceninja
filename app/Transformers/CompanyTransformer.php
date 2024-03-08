@@ -116,7 +116,7 @@ class CompanyTransformer extends EntityTransformer
      */
     public function transform(Company $company)
     {
-        $std = new stdClass;
+        $std = new stdClass();
 
         return [
             'id' => (string) $this->encodePrimaryKey($company->id),
@@ -146,7 +146,7 @@ class CompanyTransformer extends EntityTransformer
             'enabled_modules' => (int) $company->enabled_modules,
             'updated_at' => (int) $company->updated_at,
             'archived_at' => (int) $company->deleted_at,
-            'created_at' =>(int) $company->created_at,
+            'created_at' => (int) $company->created_at,
             'slack_webhook_url' => (string) $company->slack_webhook_url,
             'google_analytics_url' => (string) $company->google_analytics_key, //@deprecate 1-2-2021
             'google_analytics_key' => (string) $company->google_analytics_key,
@@ -158,7 +158,7 @@ class CompanyTransformer extends EntityTransformer
             'is_large' => (bool) $this->isLarge($company),
             'is_disabled' => (bool) $company->is_disabled,
             'enable_shop_api' => (bool) $company->enable_shop_api,
-            'mark_expenses_invoiceable'=> (bool) $company->mark_expenses_invoiceable,
+            'mark_expenses_invoiceable' => (bool) $company->mark_expenses_invoiceable,
             'mark_expenses_paid' => (bool) $company->mark_expenses_paid,
             'invoice_expense_documents' => (bool) $company->invoice_expense_documents,
             'invoice_task_timelog' => (bool) $company->invoice_task_timelog,
@@ -168,10 +168,10 @@ class CompanyTransformer extends EntityTransformer
             'use_credits_payment' => 'always', // @deprecate 1-2-2021
             'default_task_is_date_based' => (bool) $company->default_task_is_date_based,
             'enable_product_discount' => (bool) $company->enable_product_discount,
-            'calculate_expense_tax_by_amount' =>(bool) $company->calculate_expense_tax_by_amount,
+            'calculate_expense_tax_by_amount' => (bool) $company->calculate_expense_tax_by_amount,
             'hide_empty_columns_on_pdf' => false, // @deprecate 1-2-2021
             'expense_inclusive_taxes' => (bool) $company->expense_inclusive_taxes,
-            'expense_amount_is_pretax' =>(bool) true, //@deprecate 1-2-2021
+            'expense_amount_is_pretax' => (bool) true, //@deprecate 1-2-2021
             'oauth_password_required' => (bool) $company->oauth_password_required,
             'session_timeout' => (int) $company->session_timeout,
             'default_password_timeout' => (int) $company->default_password_timeout,
@@ -198,12 +198,19 @@ class CompanyTransformer extends EntityTransformer
             'notify_vendor_when_paid' => (bool) $company->notify_vendor_when_paid,
             'invoice_task_hours' => (bool) $company->invoice_task_hours,
             'calculate_taxes' => (bool) $company->calculate_taxes,
-            'tax_data' => $company->tax_data ?: new \stdClass,
+            'tax_data' => $company->tax_data ?: new \stdClass(),
             'has_e_invoice_certificate' => $company->e_invoice_certificate ? true : false,
             'has_e_invoice_certificate_passphrase' => $company->e_invoice_certificate_passphrase ? true : false,
             'invoice_task_project_header' => (bool) $company->invoice_task_project_header,
             'invoice_task_item_description' => (bool) $company->invoice_task_item_description,
-            'origin_tax_data' => $company->origin_tax_data ?: new \stdClass,
+            'origin_tax_data' => $company->origin_tax_data ?: new \stdClass(),
+            'smtp_host' => (string)$company->smtp_host ?? '',
+            'smtp_port' => (int)$company->smtp_port ?? 25,
+            'smtp_encryption' => (string)$company->smtp_encryption ?? 'tls',
+            'smtp_username' => $company->smtp_username ? '********' : '',
+            'smtp_password' => $company->smtp_password ? '********' : '',
+            'smtp_local_domain' => (string)$company->smtp_local_domain ?? '',
+            'smtp_verify_peer' => (bool)$company->smtp_verify_peer,
         ];
     }
 

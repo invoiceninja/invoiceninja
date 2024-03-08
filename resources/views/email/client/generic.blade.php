@@ -13,7 +13,7 @@
         @endisset
 
         <div style="margin-top: 10px; margin-bottom: 30px;">
-            {{ $content }}
+            {!! nl2br(e($content)) !!} 
         </div>
 
         @isset($additional_info)
@@ -48,7 +48,7 @@
         @endisset
 
         @isset($signature)
-            <p>{{ nl2br($signature) }}</p>
+            <p>{!! nl2br($signature) !!}</p>
         @endisset
     </div>
 @endcomponent

@@ -11,6 +11,7 @@
 
 namespace App\Export\CSV;
 
+use App\Export\Decorators\Decorator;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\DateFormat;
@@ -25,7 +26,6 @@ use League\Csv\Writer;
 
 class TaskExport extends BaseExport
 {
-
     private $entity_transformer;
 
     public string $date_key = 'created_at';
@@ -33,6 +33,8 @@ class TaskExport extends BaseExport
     private string $date_format = 'YYYY-MM-DD';
 
     public Writer $csv;
+
+    private Decorator $decorator;
 
     private array $storage_array = [];
 
@@ -43,6 +45,7 @@ class TaskExport extends BaseExport
         $this->company = $company;
         $this->input = $input;
         $this->entity_transformer = new TaskTransformer();
+        $this->decorator = new Decorator();
     }
 
     public function init(): Builder
@@ -65,9 +68,13 @@ class TaskExport extends BaseExport
         $query = Task::query()
                         ->withTrashed()
                         ->where('company_id', $this->company->id)
-                        ->where('is_deleted', 0);
+                        ->where('is_deleted', $this->input['include_deleted']);
 
         $query = $this->addDateRange($query);
+
+        if($this->input['document_email_attachment'] ?? false) {
+            $this->queueDocuments($query);
+        }
 
         return $query;
 
@@ -107,16 +114,16 @@ class TaskExport extends BaseExport
 
         $query->cursor()
                 ->each(function ($resource) {
-        
+
                     $this->buildRow($resource);
-        
+
                     foreach($this->storage_array as $row) {
                         $this->storage_item_array[] = $this->processMetaData($row, $resource);
                     }
 
                     $this->storage_array = [];
                 });
-        // nlog($this->storage_item_array);
+
         return array_merge(['columns' => $header], $this->storage_item_array);
     }
 
@@ -133,22 +140,20 @@ class TaskExport extends BaseExport
                 $entity[$key] = $transformed_entity[$parts[1]];
             } elseif (array_key_exists($key, $transformed_entity)) {
                 $entity[$key] = $transformed_entity[$key];
+            } elseif (in_array($key, ['task.start_date', 'task.end_date', 'task.duration'])) {
+                $entity[$key] = '';
             } else {
-                $entity[$key] = $this->resolveKey($key, $task, $this->entity_transformer);
+                $entity[$key] = $this->decorator->transform($key, $task);
             }
 
         }
-
-        $entity['task.start_date'] = '';
-        $entity['task.end_date'] = '';
-        $entity['task.duration'] = '';
 
         if (is_null($task->time_log) || (is_array(json_decode($task->time_log, 1)) && count(json_decode($task->time_log, 1)) == 0)) {
             $this->storage_array[] = $entity;
         } else {
             $this->iterateLogs($task, $entity);
         }
-        
+
     }
 
     private function iterateLogs(Task $task, array $entity)
@@ -186,19 +191,47 @@ class TaskExport extends BaseExport
             if (in_array('task.duration', $this->input['report_keys']) || in_array('duration', $this->input['report_keys'])) {
                 $entity['task.duration'] = $task->calcDuration();
             }
-            
+
             $entity = $this->decorateAdvancedFields($task, $entity);
-            
+
             $this->storage_array[] = $entity;
-            
-            unset($entity['task.start_date']);
-            unset($entity['task.end_date']);
-            unset($entity['task.duration']);
+
+            $entity['task.start_date'] = '';
+            $entity['task.end_date'] = '';
+            $entity['task.duration'] = '';
         }
 
     }
+    
+    /**
+     * Add Task Status Filter
+     *
+     * @param  Builder $query
+     * @param  string $status
+     * @return Builder
+     */
+    protected function addTaskStatusFilter(Builder $query, string $status): Builder
+    {
+    
+        $status_parameters = explode(',', $status);
 
-    private function decorateAdvancedFields(Task $task, array $entity) :array
+        if (in_array('all', $status_parameters) || count($status_parameters) == 0) {
+            return $query;
+        }
+
+        if (in_array('invoiced', $status_parameters)) {
+            $query->whereNotNull('invoice_id');
+        }
+
+        if (in_array('uninvoiced', $status_parameters)) {
+            $query->whereNull('invoice_id');
+        }
+
+        return $query;
+
+    }
+
+    private function decorateAdvancedFields(Task $task, array $entity): array
     {
         if (in_array('task.status_id', $this->input['report_keys'])) {
             $entity['task.status_id'] = $task->status()->exists() ? $task->status->name : '';
@@ -207,7 +240,16 @@ class TaskExport extends BaseExport
         if (in_array('task.project_id', $this->input['report_keys'])) {
             $entity['task.project_id'] = $task->project()->exists() ? $task->project->name : '';
         }
-        
+
+        if (in_array('task.user_id', $this->input['report_keys'])) {
+            $entity['task.user_id'] = $task->user ? $task->user->present()->name() : '';
+        }
+
+        if (in_array('task.assigned_user_id', $this->input['report_keys'])) {
+            $entity['task.assigned_user_id'] = $task->assigned_user ? $task->assigned_user->present()->name() : '';
+        }
+
+
         return $entity;
     }
 }

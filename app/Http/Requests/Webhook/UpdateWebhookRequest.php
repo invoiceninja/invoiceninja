@@ -25,7 +25,7 @@ class UpdateWebhookRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         return auth()->user()->can('edit', $this->webhook);
     }
@@ -47,7 +47,7 @@ class UpdateWebhookRequest extends Request
         if (!isset($input['rest_method'])) {
             $input['rest_method'] = 'post';
         }
-        
+
         // if(isset($input['headers']) && count($input['headers']) == 0)
         //     $input['headers'] = null;
 

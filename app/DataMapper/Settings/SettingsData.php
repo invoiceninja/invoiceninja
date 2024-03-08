@@ -8,11 +8,11 @@
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace App\DataMapper\Settings;
 
 class SettingsData
 {
-
     public bool $auto_archive_invoice = false; // @implemented
 
     public string $qr_iban = ''; //@implemented
@@ -464,7 +464,7 @@ class SettingsData
     public bool $enable_e_invoice = false;
 
     public string $classification = '';
-    
+
     private mixed $object;
 
     public function cast(mixed $object)
@@ -479,7 +479,7 @@ class SettingsData
                 try {
                     settype($object->{$key}, gettype($this->{$key}));
                 } catch(\Exception | \Error | \Throwable $e) {
-                    
+
                     if(property_exists($this, $key)) {
                         $object->{$key} = $this->{$key};
                     } else {

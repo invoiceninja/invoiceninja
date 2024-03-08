@@ -12,10 +12,6 @@
           description: Unique identifier for the product associated with the subscription
           type: string
           example: Pr5Ft7yBmC
-        company_id:
-          description: Unique identifier for the company associated with the subscription
-          type: string
-          example: Co7Vn3yLmW
         recurring_invoice_id:
           description: Unique identifier for the recurring invoice associated with the subscription
           type: string

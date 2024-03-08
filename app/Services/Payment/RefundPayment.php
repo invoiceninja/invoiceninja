@@ -23,7 +23,6 @@ use stdClass;
 
 class RefundPayment
 {
-
     private float $total_refund = 0;
 
     private float $credits_used = 0;
@@ -33,7 +32,7 @@ class RefundPayment
     private $activity_repository;
 
     private bool $refund_failed = false;
-    
+
     private string $refund_failed_message = '';
 
     public function __construct(public Payment $payment, public array $refund_data)
@@ -73,7 +72,7 @@ class RefundPayment
         if($this->refund_failed) {
             throw new PaymentRefundFailed($this->refund_failed_message);
         }
-        
+
         return $this;
     }
 
@@ -116,7 +115,7 @@ class RefundPayment
                         ];
                     })->toArray();
                 }
-                
+
                 $this->payment->refunded += $net_refund;
 
                 if ($response['success'] == false) {
@@ -142,14 +141,14 @@ class RefundPayment
      */
     private function createActivity($notes)
     {
-        $fields = new stdClass;
+        $fields = new stdClass();
         $activity_repo = new ActivityRepository();
 
         $fields->payment_id = $this->payment->id;
         $fields->user_id = $this->payment->user_id;
         $fields->company_id = $this->payment->company_id;
         $fields->activity_type_id = Activity::REFUNDED_PAYMENT;
-        $fields->client_id = $this->payment->client_id; 
+        $fields->client_id = $this->payment->client_id;
         // $fields->credit_id // TODO
         $fields->notes = $notes;
 
@@ -224,9 +223,9 @@ class RefundPayment
      */
     private function updateCreditables()
     {
-        
+
         if ($this->payment->credits()->exists()) {
-        
+
             $amount_to_refund = $this->total_refund;
 
             //Adjust credits first!!!

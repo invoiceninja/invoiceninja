@@ -36,7 +36,7 @@ class LoginRequest extends Request
     public function rules()
     {
         if (Ninja::isHosted()) {
-            $email_rules = ['required', new BlackListRule, new EmailBlackListRule];
+            $email_rules = ['required', new EmailBlackListRule()];
         } else {
             $email_rules = 'required';
         }

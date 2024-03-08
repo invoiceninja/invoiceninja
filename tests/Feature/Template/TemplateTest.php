@@ -11,30 +11,30 @@
 
 namespace Tests\Feature\Template;
 
-use Tests\TestCase;
-use App\Utils\Ninja;
-use App\Utils\Number;
+use App\Jobs\Entity\CreateRawPdf;
 use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
-use App\Utils\HtmlEngine;
-use Tests\MockAccountData;
-use App\Utils\Traits\MakesDates;
-use App\Jobs\Entity\CreateRawPdf;
-use App\Services\PdfMaker\PdfMaker;
-use Illuminate\Support\Facades\App;
-use App\Services\Template\TemplateMock;
-use App\Services\Template\TemplateService;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
-use Illuminate\Routing\Middleware\ThrottleRequests;
+use App\Services\PdfMaker\PdfMaker;
+use App\Services\Template\TemplateMock;
+use App\Services\Template\TemplateService;
+use App\Utils\HtmlEngine;
+use App\Utils\Ninja;
+use App\Utils\Number;
+use App\Utils\Traits\MakesDates;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\App;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test
- * @covers 
+ * @covers
  */
 class TemplateTest extends TestCase
 {
@@ -74,7 +74,7 @@ class TemplateTest extends TestCase
             
             ';
 
-        private string $nested_body = '
+    private string $nested_body = '
             
                 <ninja>
                     $company.name
@@ -108,7 +108,7 @@ class TemplateTest extends TestCase
             
             ';
 
-        private string $payments_body = '
+    private string $payments_body = '
             CoName: $company.name
             ClName: $client.name
             InNumber: $invoice.number
@@ -262,7 +262,7 @@ class TemplateTest extends TestCase
 
     public function testNegativeDivAttribute()
     {
-       $dom = new \DOMDocument();
+        $dom = new \DOMDocument();
         @$dom->loadHTML(mb_convert_encoding($this->stack, 'HTML-ENTITIES', 'UTF-8'));
 
         $node = $dom->getElementById('company-details');
@@ -324,9 +324,9 @@ class TemplateTest extends TestCase
             'balance' => 100,
         ]);
 
-        $invoices = Invoice::orderBy('id','desc')->where('client_id', $this->client->id)->take(10)->get()->map(function($c){
+        $invoices = Invoice::orderBy('id', 'desc')->where('client_id', $this->client->id)->take(10)->get()->map(function ($c) {
             return $c->service()->markSent()->applyNumber()->save();
-        })->map(function ($i){
+        })->map(function ($i) {
             return ['invoice_id' => $i->hashed_id, 'amount' => rand(0, $i->balance)];
         })->toArray();
 
@@ -339,7 +339,7 @@ class TemplateTest extends TestCase
             'balance' => 50,
         ]);
 
-        $credits = Credit::orderBy('id', 'desc')->where('client_id', $this->client->id)->take(2)->get()->map(function($c){
+        $credits = Credit::orderBy('id', 'desc')->where('client_id', $this->client->id)->take(2)->get()->map(function ($c) {
             return $c->service()->markSent()->applyNumber()->save();
         })->map(function ($i) {
             return ['credit_id' => $i->hashed_id, 'amount' => rand(0, $i->balance)];
@@ -365,10 +365,10 @@ class TemplateTest extends TestCase
 
         $start = microtime(true);
 
-        $p = Payment::with('client','invoices','paymentables','credits')
+        $p = Payment::with('client', 'invoices', 'paymentables', 'credits')
         ->where('id', $this->decodePrimaryKey($arr['data']['id']))
         ->cursor()
-        ->map(function ($payment){
+        ->map(function ($payment) {
 
             $this->transformPayment($payment);
 
@@ -383,15 +383,15 @@ class TemplateTest extends TestCase
         
         \DB::enableQueryLog();
 
-        $invoices = Invoice::with('client','payments.client','payments.paymentables','payments.credits','credits.client')
-        ->orderBy('id','desc')
+        $invoices = Invoice::with('client', 'payments.client', 'payments.paymentables', 'payments.credits', 'credits.client')
+        ->orderBy('id', 'desc')
         ->where('client_id', $this->client->id)
         ->take(10)
         ->get()
-        ->map(function($invoice){
+        ->map(function ($invoice) {
 
             $payments = [];
-            $payments = $invoice->payments->map(function ($payment){
+            $payments = $invoice->payments->map(function ($payment) {
                 // nlog(microtime(true));
                 return $this->transformPayment($payment);
             })->toArray();
@@ -460,7 +460,7 @@ class TemplateTest extends TestCase
     private function transformPayment(Payment $payment): array
     {
 
-      $data = [];
+        $data = [];
                         
         $credits = $payment->credits->map(function ($credit) use ($payment) {
             return [
@@ -543,12 +543,12 @@ class TemplateTest extends TestCase
             'balance' => 100,
         ]);
 
-        $i = Invoice::orderBy('id','desc')
+        $i = Invoice::orderBy('id', 'desc')
                     ->where('client_id', $this->client->id)
                     ->where('status_id', 2)
                     ->cursor()
-                    ->each(function ($i){
-                        $i->service()->applyPaymentAmount(random_int(1,100));
+                    ->each(function ($i) {
+                        $i->service()->applyPaymentAmount(random_int(1, 100));
                     });
 
         $invoices = Invoice::withTrashed()
@@ -561,35 +561,35 @@ class TemplateTest extends TestCase
             ->orderBy('date', 'ASC')
             ->cursor();
 
-            $invoices->each(function ($i){
+        $invoices->each(function ($i) {
 
-                $rand = [1,2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,24,25,32,49,50];
+            $rand = [1,2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,24,25,32,49,50];
 
-                $i->payments()->each(function ($p) use ($rand){
-                    shuffle($rand);
-                    $p->type_id = $rand[0];
-                    $p->save();
+            $i->payments()->each(function ($p) use ($rand) {
+                shuffle($rand);
+                $p->type_id = $rand[0];
+                $p->save();
                     
-                });
             });
+        });
 
-            $design_model = Design::find(2);
+        $design_model = Design::find(2);
 
-            $replicated_design = $design_model->replicate();
-            $replicated_design->company_id = $this->company->id;
-            $replicated_design->user_id = $this->user->id;
-            $design = $replicated_design->design;
-            $design->body .= $this->payments_body;
-            $replicated_design->design = $design;
-            $replicated_design->is_custom = true;
-            $replicated_design->is_template =true;
-            $replicated_design->entities = 'client';
-            $replicated_design->save();
+        $replicated_design = $design_model->replicate();
+        $replicated_design->company_id = $this->company->id;
+        $replicated_design->user_id = $this->user->id;
+        $design = $replicated_design->design;
+        $design->body .= $this->payments_body;
+        $replicated_design->design = $design;
+        $replicated_design->is_custom = true;
+        $replicated_design->is_template =true;
+        $replicated_design->entities = 'client';
+        $replicated_design->save();
 
-            $data['invoices'] = $invoices;
-            $ts = $replicated_design->service()->build($data);
+        $data['invoices'] = $invoices;
+        $ts = $replicated_design->service()->build($data);
         
-            $this->assertNotNull($ts->getHtml());
+        $this->assertNotNull($ts->getHtml());
 
     }
 
@@ -764,15 +764,15 @@ class TemplateTest extends TestCase
         $design->user_id = $this->invoice->user_id;
         $design->company_id = $this->invoice->company_id;
 
-            $design_object = new \stdClass;
-            $design_object->includes = '';
-            $design_object->header = '';
-            $design_object->body = $this->body;
-            $design_object->product = '';
-            $design_object->task = '';
-            $design_object->footer = '';
+        $design_object = new \stdClass;
+        $design_object->includes = '';
+        $design_object->header = '';
+        $design_object->body = $this->body;
+        $design_object->product = '';
+        $design_object->task = '';
+        $design_object->footer = '';
 
-            $design->design = $design_object;
+        $design->design = $design_object;
 
         $design->save();
 

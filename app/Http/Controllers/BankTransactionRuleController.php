@@ -29,7 +29,7 @@ use App\Utils\Traits\MakesHash;
 class BankTransactionRuleController extends BaseController
 {
     use MakesHash;
-    
+
     protected $entity_type = BankTransactionRule::class;
 
     protected $entity_transformer = BankTransactionRuleTransformer::class;
@@ -353,7 +353,7 @@ class BankTransactionRuleController extends BaseController
      */
     public function store(StoreBankTransactionRuleRequest $request)
     {
-        
+
         /** @var \App\Models\User $user **/
         $user = auth()->user();
 
@@ -475,7 +475,7 @@ class BankTransactionRuleController extends BaseController
         $action = $request->input('action');
 
         $ids = $request->input('ids');
-            
+
         $bank_transaction_rules = BankTransactionRule::withTrashed()
                                                      ->whereIn('id', $this->transformKeys($ids))
                                                      ->company()

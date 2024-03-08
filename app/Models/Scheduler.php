@@ -52,7 +52,7 @@ class Scheduler extends BaseModel
 {
     use SoftDeletes;
     use Filterable;
-    
+
     protected $fillable = [
         'name',
         'frequency_id',
@@ -91,7 +91,7 @@ class Scheduler extends BaseModel
     {
         return $this->belongsTo(Company::class);
     }
-    
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -102,7 +102,7 @@ class Scheduler extends BaseModel
      *
      * @return int
      */
-    public function remainingCycles() : int
+    public function remainingCycles(): int
     {
         if ($this->remaining_cycles == 0) {
             return 0;
@@ -112,7 +112,7 @@ class Scheduler extends BaseModel
             return $this->remaining_cycles - 1;
         }
     }
-    
+
     public function calculateNextRun()
     {
         if (! $this->next_run) {

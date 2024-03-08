@@ -203,6 +203,11 @@ class Expense extends BaseModel
         return $this->belongsTo(Currency::class);
     }
 
+    public function invoice_currency(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Currency::class);
+    }
+
     public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ExpenseCategory::class)->withTrashed();

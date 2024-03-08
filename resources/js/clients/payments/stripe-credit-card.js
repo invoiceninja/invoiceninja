@@ -231,4 +231,8 @@ let s = new StripeCreditCard(publishableKey, secret, onlyAuthorization, stripeCo
 
 s.handle();
 
+document.addEventListener('livewire:init', () => {
+
 Livewire.on('passed-required-fields-check', () => s.handle());
+
+});

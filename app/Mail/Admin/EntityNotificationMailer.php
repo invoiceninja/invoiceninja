@@ -13,6 +13,7 @@ namespace App\Mail\Admin;
 
 use Illuminate\Mail\Mailable;
 
+//@deprecated?
 class EntityNotificationMailer extends Mailable
 {
     public $mail_obj;

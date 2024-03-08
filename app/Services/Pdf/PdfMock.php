@@ -47,7 +47,7 @@ class PdfMock
     {
         //need to resolve the pdf type here, ie product / purchase order
         $document_type = $this->request['entity_type'] == 'purchase_order' ? 'purchase_order' : 'product';
-             
+
         $pdf_service = new PdfService($this->mock->invitation, $document_type);
 
         $pdf_config = (new PdfConfiguration($pdf_service));
@@ -64,9 +64,15 @@ class PdfMock
         $pdf_config->setPdfVariables();
         $pdf_config->setCurrency(Currency::find($this->settings->currency_id));
         $pdf_config->setCountry(Country::find($this->settings->country_id ?: 840));
-        $pdf_config->design = Design::withTrashed()->find($this->decodePrimaryKey($pdf_config->entity_design_id));
         $pdf_config->currency_entity = $this->mock->client;
-        
+
+        if(isset($this->request['design_id']) && $design  = Design::withTrashed()->find($this->request['design_id'])) {
+            $pdf_config->design = $design;
+            $pdf_config->entity_design_id = $design->hashed_id;
+        } else {
+            $pdf_config->design = Design::withTrashed()->find($this->decodePrimaryKey($pdf_config->entity_design_id));
+        }
+
         $pdf_service->config = $pdf_config;
 
         if(isset($this->request['design'])) {
@@ -74,7 +80,7 @@ class PdfMock
         } else {
             $pdf_designer = (new PdfDesigner($pdf_service))->build();
         }
-        
+
         $pdf_service->designer = $pdf_designer;
 
         $pdf_service->html_variables = $document_type == 'purchase_order' ? $this->getVendorStubVariables() : $this->getStubVariables();
@@ -90,13 +96,13 @@ class PdfMock
     public function build(): self
     {
         $this->mock = $this->initEntity();
- 
+
         return $this;
     }
 
     public function initEntity(): mixed
     {
-        $settings = new \stdClass;
+        $settings = new \stdClass();
         $settings->entity = Client::class;
         $settings->currency_id = '1';
         $settings->industry_id = '';
@@ -138,20 +144,20 @@ class PdfMock
                 break;
         }
 
-    
+
         $entity->tax_map = $this->getTaxMap();
         $entity->total_tax_map = $this->getTotalTaxMap();
         $entity->invitation->company = $this->company;
 
         return $entity;
     }
-    
+
     /**
      * getMergedSettings
      *
      * @return object
      */
-    public function getMergedSettings() :object
+    public function getMergedSettings(): object
     {
         $settings = $this->company->settings;
 
@@ -162,11 +168,11 @@ class PdfMock
         };
 
         $settings = CompanySettings::setProperties($settings);
-        
+
         return $settings;
     }
 
-    
+
     /**
      * getTaxMap
      *
@@ -176,7 +182,7 @@ class PdfMock
     {
         return collect([['name' => 'GST', 'total' => 10]]);
     }
-    
+
     /**
      * getTotalTaxMap
      *
@@ -186,7 +192,7 @@ class PdfMock
     {
         return [['name' => 'GST', 'total' => 10]];
     }
-    
+
     /**
      * getStubVariables
      *
@@ -198,9 +204,9 @@ class PdfMock
          [
     '$client.shipping_postal_code' => '46420',
     '$client.billing_postal_code' => '11243',
-    '$company.city_state_postal' => 'Beveley Hills, CA, 90210',
-    '$company.postal_city_state' => 'CA',
-    '$company.postal_city' => '90210, CA',
+    '$company.city_state_postal' => "{$this->settings->city}, {$this->settings->state}, {$this->settings->postal_code}",
+    '$company.postal_city_state' => "{$this->settings->postal_code}, {$this->settings->city}, {$this->settings->state}",
+    '$company.postal_city' => "{$this->settings->postal_code}, {$this->settings->state}",
     '$product.gross_line_total' => '100',
     '$client.classification' => 'Individual',
     '$company.classification' => 'Business',
@@ -256,9 +262,9 @@ class PdfMock
     '$company.id_number' => $this->settings->id_number,
     '$invoice.po_number' => 'PO12345',
     '$invoice_total_raw' => 0.0,
-    '$postal_city_state' => '11243 Aufderharchester, North Carolina',
+    '$postal_city_state' => "{$this->settings->postal_code}, {$this->settings->city}, {$this->settings->state}",
     '$client.vat_number' => '975977515',
-    '$city_state_postal' => 'Aufderharchester, North Carolina 11243',
+    '$city_state_postal' => "{$this->settings->city}, {$this->settings->state}, {$this->settings->postal_code}",
     '$contact.full_name' => 'Benedict Eichmann',
     '$contact.last_name' => 'Eichmann',
     '$company.country_2' => 'US',
@@ -269,7 +275,7 @@ class PdfMock
     '$statement_amount' => '',
     '$task.description' => '',
     '$product.discount' => '',
-    '$entity_issued_to' => 'Bob JOnes',
+    '$entity_issued_to' => 'Bob Jones',
     '$assigned_to_user' => '',
     '$product.quantity' => '',
     '$total_tax_labels' => '',
@@ -297,10 +303,10 @@ class PdfMock
     '$invoice.custom2' => 'custom value',
     '$invoice.custom3' => 'custom value',
     '$invoice.custom4' => 'custom value',
-    '$company.custom1' => 'custom value',
-    '$company.custom2' => 'custom value',
-    '$company.custom3' => 'custom value',
-    '$company.custom4' => 'custom value',
+    '$company.custom1' => $this->company->custom_value1,
+    '$company.custom2' => $this->company->custom_value2,
+    '$company.custom3' => $this->company->custom_value3,
+    '$company.custom4' => $this->company->custom_value4,
     '$quote.po_number' => 'PO12345',
     '$company.website' => $this->settings->website,
     '$balance_due_raw' => '0.00',
@@ -311,8 +317,8 @@ class PdfMock
     '$user.first_name' => 'Derrick Monahan DDS',
     '$created_by_user' => 'Derrick Monahan DDS Erna Wunsch',
     '$client.currency' => 'USD',
-    '$company.country' => 'United States',
-    '$company.address' => 'Christiansen Garden<br/>70218 Lori Station Suite 529<br/>New Loy, Delaware 29359<br/>United States<br/>Phone: 1-240-886-2233<br/>Email: immanuel53@example.net<br/>',
+    '$company.country' => $this->company->country()?->name ?? 'USA',
+    '$company.address' => $this->company->present()->address(),
     '$tech_hero_image' => 'http://ninja.test:8000/images/pdf-designs/tech-hero-image.jpg',
     '$task.tax_name1' => '',
     '$task.tax_name2' => '',
@@ -432,6 +438,8 @@ class PdfMock
     '$credit_no' => '0029',
     '$font_size' => $this->settings->font_size,
     '$view_link' => '<a class="button" href="http://ninja.test:8000/client/invoice/UAUY8vIPuno72igmXbbpldwo5BDDKIqs">View Invoice</a>',
+    '$reference' => '',
+    '$po_number' => 'PO12345',
     '$page_size' => $this->settings->page_size,
     '$country_2' => 'AF',
     '$firstName' => 'Benedict',
@@ -442,19 +450,19 @@ class PdfMock
     '$task.tax' => '',
     '$discount' => '$0.00',
     '$subtotal' => '$0.00',
-    '$company1' => 'custom value',
-    '$company2' => 'custom value',
-    '$company3' => 'custom value',
-    '$company4' => 'custom value',
+    '$company1' => $this->company->custom_value1,
+    '$company2' => $this->company->custom_value2,
+    '$company3' => $this->company->custom_value3,
+    '$company4' => $this->company->custom_value4,
     '$due_date' => '2022-01-01',
     '$poNumber' => 'PO-123456',
     '$quote_no' => '0029',
-    '$address2' => '63993 Aiyana View',
-    '$address1' => '8447',
+    '$address2' => $this->settings->address2,
+    '$address1' => $this->settings->address1,
     '$viewLink' => '<a class="button" href="http://ninja.test:8000/client/invoice/UAUY8vIPuno72igmXbbpldwo5BDDKIqs">View Invoice</a>',
     '$autoBill' => 'This invoice will automatically be billed to your credit card on file on the due date.',
     '$view_url' => 'http://ninja.test:8000/client/invoice/UAUY8vIPuno72igmXbbpldwo5BDDKIqs',
-    '$font_url' => 'https://fonts.googleapis.com/css2?family=Roboto&display=swap',
+    '$font_url' => isset($this->settings?->primary_font) ? \App\Utils\Helpers::resolveFont($this->settings->primary_font)['url'] : 'https://fonts.googleapis.com/css2?family=Roboto&display=swap',
     '$details' => '',
     '$balance' => '$40.00',
     '$partial' => '$30.00',
@@ -464,11 +472,12 @@ class PdfMock
     '$client4' => 'custom value',
     '$dueDate' => '2022-01-01',
     '$invoice' => '0029',
+    '$invoices' => '0029',
     '$account' => '434343',
     '$country' => 'United States',
     '$contact' => 'Benedict Eichmann',
     '$app_url' => 'http://ninja.test:8000',
-    '$website' => 'http://www.parisian.org/',
+    '$website' => $this->settings->website,
     '$entity' => '',
     '$thanks' => 'Thanks!',
     '$amount' => '$30.00',
@@ -483,8 +492,8 @@ class PdfMock
     '_rate3' => '',
     '$taxes' => '$40.00',
     '$total' => '$10.00',
-    '$refund' => '', 
-    '$refunded' => '', 
+    '$refund' => '',
+    '$refunded' => '',
     '$phone' => '&nbsp;',
     '$terms' => 'Default company invoice terms',
     '$from' => 'Bob Jones',
@@ -498,9 +507,16 @@ class PdfMock
     '$status_logo' => '<div class="stamp is-paid"> ' . ctrans('texts.paid') .'</div>',
     '$show_shipping_address' => $this->settings->show_shipping_address ? 'flex' : 'none',
     '$show_shipping_address_block' => $this->settings->show_shipping_address ? 'block' : 'none',
-    '$show_shipping_address_visibility' => $this->settings->show_shipping_address ? 'visible' : 'hidden',
+    '$show_shipping_address_visibility' => $this->settings->show_shipping_address ? '1' : '0',
     '$start_date' => '31/01/2023',
     '$end_date' => '31/12/2023',
+    '$history' => '',
+    '$amount_paid' => '',
+    '$receipt' => '',
+    '$ship_to' => '',
+    '$delivery_note' => '',
+    '$quantity' => '',
+    '$order_number' => '',
   ],
   'labels' => $this->mockTranslatedLabels(),
 ];
@@ -751,6 +767,7 @@ class PdfMock
             '$user_iban_label' => ctrans('texts.iban'),
             '$signature_label' => ctrans('texts.signature'),
             '$font_size_label' => ctrans('texts.font_size'),
+            '$reference_label' => ctrans('texts.reference'),
             '$po_number_label' => ctrans('texts.po_number'),
             '$page_size_label' => ctrans('texts.page_size'),
             '$user.name_label' => ctrans('texts.name'),
@@ -821,9 +838,18 @@ class PdfMock
             '$to_label' => ctrans('texts.to'),
             '$start_date_label' => ctrans('texts.start_date'),
             '$end_date_label' => ctrans('texts.end_date'),
+            '$invoice_label' => ctrans('texts.invoice'),
+            '$invoices_label' => ctrans('texts.invoices'),
+            '$history_label' => ctrans('texts.history'),
+            '$amount_paid_label' => ctrans('texts.amount_paid'),
+            '$receipt_label' => ctrans('texts.receipt'),
+            '$ship_to_label' => ctrans('texts.ship_to'),
+            '$delivery_note_label' => ctrans('texts.delivery_note'),
+            '$quantity_label' => ctrans('texts.quantity'),
+            '$order_number_label' => ctrans('texts.order_number'),
         ];
     }
-    
+
     private function getVendorStubVariables()
     {
         return ['values' => [
@@ -1018,6 +1044,7 @@ class PdfMock
           '$amount_raw' => '10256.40',
           '$vat_number' => 'At qui autem iusto et.',
           '$portal_url' => 'http://ninja.test:8000/vendor/',
+          '$reference' => '',
           '$po_number' => null,
           '$statement' => '',
           '$view_link' => '
@@ -1133,6 +1160,12 @@ class PdfMock
           '$dir' => 'ltr',
           '$net' => 'Net',
           '$to' => '',
+          '$amount_paid' => '',
+          '$receipt' => '',
+          '$ship_to' => '',
+          '$delivery_note_label' => '',
+          '$quantity_label' => '',
+          '$order_number_label' => '',
         ],
         'labels' => $this->vendorLabels(),
 ];
@@ -1286,6 +1319,7 @@ class PdfMock
           '$amount_raw_label' => ctrans('texts.amount'),
           '$vat_number_label' => ctrans('texts.vat_number'),
           '$portal_url_label' => ctrans('texts.link'),
+          '$reference_label' => ctrans('texts.reference'),
           '$po_number_label' => ctrans('texts.po_number'),
           '$statement_label' => ctrans('texts.statement'),
           '$view_link_label' => ctrans('texts.link'),
@@ -1355,6 +1389,13 @@ class PdfMock
           '$net_label' => ctrans('texts.net'),
           '$dir_label' => '',
           '$to_label' => ctrans('texts.to'),
+          '$amount_paid_label' => ctrans('texts.amount_paid'),
+          '$receipt_label' => ctrans('texts.receipt'),
+          '$ship_to_label' => ctrans('texts.ship_to'),
+          '$delivery_note_label' => ctrans('texts.delivery_note'),
+          '$quantity_label' => ctrans('texts.quantity'),
+          '$order_number_label' => ctrans('texts.order_number'),
+          '$shipping_label' => ctrans('texts.shipping_address'),
         ];
     }
 }

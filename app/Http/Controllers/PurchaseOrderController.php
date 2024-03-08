@@ -11,34 +11,34 @@
 
 namespace App\Http\Controllers;
 
-use App\Utils\Ninja;
-use App\Models\Client;
-use App\Models\Account;
-use App\Models\PurchaseOrder;
-use Illuminate\Http\Response;
-use App\Utils\Traits\MakesHash;
-use App\Jobs\Entity\CreateRawPdf;
-use App\Services\PdfMaker\PdfMerge;
-use App\Utils\Traits\SavesDocuments;
-use App\Factory\PurchaseOrderFactory;
-use App\Filters\PurchaseOrderFilters;
-use Illuminate\Support\Facades\Storage;
-use App\Services\Template\TemplateAction;
-use App\Jobs\PurchaseOrder\ZipPurchaseOrders;
-use App\Repositories\PurchaseOrderRepository;
-use App\Jobs\PurchaseOrder\PurchaseOrderEmail;
-use App\Transformers\PurchaseOrderTransformer;
 use App\Events\PurchaseOrder\PurchaseOrderWasCreated;
 use App\Events\PurchaseOrder\PurchaseOrderWasUpdated;
+use App\Factory\PurchaseOrderFactory;
+use App\Filters\PurchaseOrderFilters;
+use App\Http\Requests\PurchaseOrder\ActionPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\BulkPurchaseOrderRequest;
+use App\Http\Requests\PurchaseOrder\CreatePurchaseOrderRequest;
+use App\Http\Requests\PurchaseOrder\DestroyPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\EditPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\ShowPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\StorePurchaseOrderRequest;
-use App\Http\Requests\PurchaseOrder\ActionPurchaseOrderRequest;
-use App\Http\Requests\PurchaseOrder\CreatePurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\UpdatePurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\UploadPurchaseOrderRequest;
-use App\Http\Requests\PurchaseOrder\DestroyPurchaseOrderRequest;
+use App\Jobs\Entity\CreateRawPdf;
+use App\Jobs\PurchaseOrder\PurchaseOrderEmail;
+use App\Jobs\PurchaseOrder\ZipPurchaseOrders;
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\PurchaseOrder;
+use App\Repositories\PurchaseOrderRepository;
+use App\Services\PdfMaker\PdfMerge;
+use App\Services\Template\TemplateAction;
+use App\Transformers\PurchaseOrderTransformer;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 
 class PurchaseOrderController extends BaseController
 {
@@ -144,6 +144,7 @@ class PurchaseOrderController extends BaseController
         $user = auth()->user();
 
         $purchase_order = PurchaseOrderFactory::create($user->company()->id, $user->id);
+        $purchase_order->date = now()->addSeconds($user->company()->utc_offset())->format('Y-m-d');
 
         return $this->itemResponse($purchase_order);
     }
@@ -196,7 +197,7 @@ class PurchaseOrderController extends BaseController
             ->fillDefaults()
             ->triggeredActions($request)
             ->save();
-            
+
         event(new PurchaseOrderWasCreated($purchase_order, $purchase_order->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($purchase_order->fresh());
@@ -668,7 +669,7 @@ class PurchaseOrderController extends BaseController
                     return $this->itemResponse($purchase_order);
                 }
                 break;
-            
+
             case 'email':
                 //check query parameter for email_type and set the template else use calculateTemplate
                 PurchaseOrderEmail::dispatch($purchase_order, $purchase_order->company);
@@ -698,7 +699,7 @@ class PurchaseOrderController extends BaseController
                 if ($purchase_order->expense()->exists()) {
                     return response()->json(['message' => ctrans('texts.purchase_order_already_expensed')], 400);
                 }
-                    
+
                 $expense = $purchase_order->service()->expense();
 
                 return $this->itemResponse($purchase_order);
@@ -709,7 +710,7 @@ class PurchaseOrderController extends BaseController
                     $purchase_order->status_id = PurchaseOrder::STATUS_CANCELLED;
                     $purchase_order->save();
                 }
-                
+
                 if (! $bulk) {
                     return $this->itemResponse($purchase_order);
                 }
@@ -776,7 +777,7 @@ class PurchaseOrderController extends BaseController
         if (!$this->checkFeature(Account::FEATURE_DOCUMENTS)) {
             return $this->featureFailure();
         }
-        
+
         if ($request->has('documents')) {
             $this->saveDocuments($request->file('documents'), $purchase_order, $request->input('is_public', true));
         }

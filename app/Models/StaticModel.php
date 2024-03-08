@@ -35,7 +35,7 @@ class StaticModel extends Model
 {
     use MakesHash;
     use Excludable;
-    
+
     protected $casts = [
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',

@@ -22,13 +22,25 @@ return [
         'domain' => env('MAILGUN_DOMAIN', ''),
         'secret' => env('MAILGUN_SECRET', ''),
         'endpoint' => env('MAILGUN_ENDPOINT', 'api.mailgun.net'),
+        'webhook_signing_key' => env('MAILGUN_WEBHOOK_SIGNING_KEY', ''),
         'scheme' => 'https',
+        'from' => [
+            'address' => env('MAILGUN_FROM_ADDRESS', ''),
+            'name' => env('MAILGUN_FROM_NAME', ''),
+        ],
     ],
 
     'postmark' => [
         'token' => env('POSTMARK_SECRET', ''),
     ],
 
+    'postmark-outlook' => [
+        'token' => env('POSTMARK_OUTLOOK_SECRET',''),
+        'from' => [
+            'address' => env('POSTMARK_OUTLOOK_FROM_ADDRESS', '')
+        ],
+    ],
+    
     'microsoft' => [
         'client_id' => env('MICROSOFT_CLIENT_ID'),
         'client_secret' => env('MICROSOFT_CLIENT_SECRET'),
@@ -101,4 +113,8 @@ return [
             'key' => env('ZIP_TAX_KEY', false),
         ],
     ],
+    'chorus' => [
+        'client_id' => env('CHORUS_CLIENT_ID', false),
+        'secret' => env('CHORUS_SECRET', false),
+    ]
 ];

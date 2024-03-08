@@ -18,7 +18,6 @@ use Checkout\CheckoutAuthorizationException;
 
 class Webhook
 {
-
     public function __construct(public CheckoutComPaymentDriver $checkout)
     {
         $this->checkout = $checkout;
@@ -55,7 +54,7 @@ class Webhook
     {
 
         try {
-            
+
             $response = $this->checkout->gateway->getWorkflowsClient()->getWorkflows();
 
             return $response;

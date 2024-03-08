@@ -16,7 +16,6 @@ use App\Models\Account;
 
 class StoreDesignRequest extends Request
 {
-
     private array $valid_entities = [
         'invoice',
         'payment',
@@ -33,13 +32,13 @@ class StoreDesignRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
         return $user->isAdmin() && $user->account->hasFeature(Account::FEATURE_API);
-        
+
     }
 
     public function rules()

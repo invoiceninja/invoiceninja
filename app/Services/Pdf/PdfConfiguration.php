@@ -39,42 +39,43 @@ use Illuminate\Support\Facades\Cache;
 
 class PdfConfiguration
 {
-    use MakesHash, AppSetup;
+    use MakesHash;
+    use AppSetup;
 
     public ?Client $client;
 
     public ?ClientContact $contact;
-    
+
     public Country $country;
-    
+
     public Currency $currency;
 
     public Client | Vendor $currency_entity;
-    
+
     public Design $design;
-    
+
     public Invoice | Credit | Quote | PurchaseOrder | RecurringInvoice $entity;
-    
+
     public string $entity_design_id;
-    
+
     public string $entity_string;
-    
+
     public ?string $path;
-    
+
     public array $pdf_variables;
-    
+
     public object $settings;
-    
+
     public $settings_object;
-    
+
     public ?Vendor $vendor;
-    
+
     public ?VendorContact $vendor_contact;
-    
+
     public string $date_format;
 
     public string $locale;
-    
+
     public Collection $tax_map;
 
     public ?array $total_tax_map;
@@ -87,7 +88,7 @@ class PdfConfiguration
     public function __construct(public PdfService $service)
     {
     }
-    
+
     /**
      * init
      *
@@ -106,7 +107,7 @@ class PdfConfiguration
 
         return $this;
     }
-    
+
     /**
      * setLocale
      *
@@ -126,7 +127,7 @@ class PdfConfiguration
 
         return $this;
     }
-    
+
     /**
      * setCurrency
      *
@@ -140,13 +141,13 @@ class PdfConfiguration
 
         return $this;
     }
-    
+
     /**
      * setPdfVariables
      *
      * @return self
      */
-    public function setPdfVariables() :self
+    public function setPdfVariables(): self
     {
         $default = (array) CompanySettings::getEntityVariableDefaults();
 
@@ -165,7 +166,7 @@ class PdfConfiguration
 
         return $this;
     }
-    
+
     /**
      * setEntityType
      *
@@ -221,7 +222,6 @@ class PdfConfiguration
             $this->vendor = $this->entity->vendor;
             $this->vendor_contact = $this->service->invitation->contact;
             $this->path = $this->vendor->purchase_order_filepath($this->service->invitation);
-            $this->entity_design_id = 'invoice_design_id';
             $this->entity_design_id = 'purchase_order_design_id';
             $this->settings = $this->vendor->company->settings;
             $this->settings_object = $this->vendor;
@@ -238,7 +238,7 @@ class PdfConfiguration
 
         return $this;
     }
-    
+
     public function setTaxMap($map): self
     {
         $this->tax_map = $map;
@@ -274,13 +274,14 @@ class PdfConfiguration
      */
     private function setDesign(): self
     {
+
         $design_id = $this->entity->design_id ?: $this->decodePrimaryKey($this->settings_object->getSetting($this->entity_design_id));
 
         $this->design = Design::withTrashed()->find($design_id) ?? Design::withTrashed()->find(2);
 
         return $this;
     }
-    
+
     /**
      * formatMoney
      *
@@ -329,21 +330,21 @@ class PdfConfiguration
             return number_format($value, $precision, $decimal, $thousand);
         }
     }
-    
-    /** 
+
+    /**
      * Formats a given value based on the clients currency.
      *
      * @param  float  $value    The number to be formatted
      *
      * @return string           The formatted value
      */
-    public function formatValueNoTrailingZeroes($value) :string
+    public function formatValueNoTrailingZeroes($value): string
     {
         $value = floatval($value);
 
         $thousand = $this->currency->thousand_separator;
         $decimal = $this->currency->decimal_separator;
-        
+
         /* Country settings override client settings */
         if (isset($this->country->thousand_separator) && strlen($this->country->thousand_separator) >= 1) {
             $thousand = $this->country->thousand_separator;
@@ -365,9 +366,9 @@ class PdfConfiguration
      * @param float $value The number to be formatted
      * @return string           The formatted value
      */
-    public function formatMoneyNoRounding($value) :string
+    public function formatMoneyNoRounding($value): string
     {
-        
+
         $_value = $value;
 
         $thousand = $this->currency->thousand_separator;
@@ -399,7 +400,7 @@ class PdfConfiguration
         } elseif ($v < 1) {
             $precision = strlen($v) - strrpos($v, '.') - 1;
         }
-        
+
         if (is_array($parts) && $parts[0] != 0) {
             $precision = 2;
         }
@@ -437,7 +438,7 @@ class PdfConfiguration
      *
      * @return string           The formatted value
      */
-    public function formatValue($value) :string
+    public function formatValue($value): string
     {
         $value = floatval($value);
 

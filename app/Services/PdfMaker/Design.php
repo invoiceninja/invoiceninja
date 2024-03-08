@@ -24,7 +24,9 @@ use Illuminate\Support\Str;
 
 class Design extends BaseDesign
 {
-    use MakesInvoiceValues, DesignHelpers, MakesDates;
+    use MakesInvoiceValues;
+    use DesignHelpers;
+    use MakesDates;
 
     /** @var \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder | \App\Models\RecurringInvoice */
     public $entity;
@@ -62,21 +64,21 @@ class Design extends BaseDesign
     /** @var array */
     public $aging = [];
 
-    const BOLD = 'bold';
-    const BUSINESS = 'business';
-    const CLEAN = 'clean';
-    const CREATIVE = 'creative';
-    const ELEGANT = 'elegant';
-    const HIPSTER = 'hipster';
-    const MODERN = 'modern';
-    const PLAIN = 'plain';
-    const PLAYFUL = 'playful';
-    const CUSTOM = 'custom';
-    const CALM = 'calm';
-    
-    const DELIVERY_NOTE = 'delivery_note';
-    const STATEMENT = 'statement';
-    const PURCHASE_ORDER = 'purchase_order';
+    public const BOLD = 'bold';
+    public const BUSINESS = 'business';
+    public const CLEAN = 'clean';
+    public const CREATIVE = 'creative';
+    public const ELEGANT = 'elegant';
+    public const HIPSTER = 'hipster';
+    public const MODERN = 'modern';
+    public const PLAIN = 'plain';
+    public const PLAYFUL = 'playful';
+    public const CUSTOM = 'custom';
+    public const CALM = 'calm';
+
+    public const DELIVERY_NOTE = 'delivery_note';
+    public const STATEMENT = 'statement';
+    public const PURCHASE_ORDER = 'purchase_order';
 
 
     public function __construct(string $design = null, array $options = [])
@@ -188,7 +190,7 @@ class Design extends BaseDesign
     }
 
 
-    public function swissQrCodeElement() :array
+    public function swissQrCodeElement(): array
     {
         if ($this->type == self::DELIVERY_NOTE) {
             return [];
@@ -271,7 +273,7 @@ class Design extends BaseDesign
 
             $variable = str_replace('$client.', '$client.shipping_', $variable);
             return ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => "client_details-shipping-" . substr($variable, 1)]];
-            
+
         })->toArray();
 
         $header = [];
@@ -322,7 +324,7 @@ class Design extends BaseDesign
     public function entityDetails(): array
     {
         if ($this->type === 'statement') {
-            
+
             $variables = $this->context['pdf_variables']['statement_details'] ?? [];
 
             $s_date = $this->translateDate($this->options['start_date'], $this->client->date_format(), $this->client->locale()) . " - " . $this->translateDate($this->options['end_date'], $this->client->date_format(), $this->client->locale());
@@ -347,7 +349,7 @@ class Design extends BaseDesign
 
         if ($this->entity instanceof Quote) {
             $variables = $this->context['pdf_variables']['quote_details'];
-            
+
             if ($this->entity->partial > 0) {
                 $variables[] = '$quote.balance_due';
             }
@@ -439,7 +441,7 @@ class Design extends BaseDesign
     public function productTable(): array
     {
         $product_items = collect($this->entity->line_items)->filter(function ($item) {
-            return $item->type_id == 1 || $item->type_id == 6 || $item->type_id == 5;
+            return $item->type_id == 1 || $item->type_id == 6 || $item->type_id == 5 || $item->type_id == 4;
         });
 
         if (count($product_items) == 0) {
@@ -557,7 +559,7 @@ class Design extends BaseDesign
                 $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($payment->pivot->amount, $this->client) ?: '&nbsp;'];
 
                 $tbody[] = $element;
-                
+
                 $this->payment_amount_total += $payment->pivot->amount;
             }
         }
@@ -625,7 +627,7 @@ class Design extends BaseDesign
         if (\array_key_exists('show_payments_table', $this->options) && $this->options['show_payments_table'] === false) {
             return [];
         }
-        
+
         $payment = $this->payments->first();
 
         return [
@@ -694,8 +696,6 @@ class Design extends BaseDesign
                 $elements[] = ['element' => 'th', 'content' => $aliases[$column] . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($aliases[$column], 1) . '-th', 'hidden' => $this->settings_object->getSetting('hide_empty_columns_on_pdf')]];
             } elseif ($column == '$product.discount' && !$this->company->enable_product_discount) {
                 $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($column, 1) . '-th', 'style' => 'display: none;']];
-            } elseif ($column == '$product.quantity' && !$this->company->enable_product_quantity) {
-                $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($column, 1) . '-th', 'style' => 'display: none;']];
             } elseif ($column == '$product.tax_rate1') {
                 $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-product.tax1-th", 'hidden' => $this->settings_object->getSetting('hide_empty_columns_on_pdf')]];
             } elseif ($column == '$product.tax_rate2') {
@@ -760,7 +760,7 @@ class Design extends BaseDesign
 
         $_type = Str::startsWith($type, '$') ? ltrim($type, '$') : $type;
         $table_type = "{$_type}_columns";
-        
+
         if ($_type == 'product' && $this->entity instanceof Quote && !$this->settings_object->getSetting('sync_invoice_quote_columns')) {
             $table_type = "product_quote_columns";
         }
@@ -801,8 +801,6 @@ class Design extends BaseDesign
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$task.cost'], 'properties' => ['data-ref' => 'task_table-task.cost-td']];
                     } elseif ($cell == '$product.discount' && !$this->company->enable_product_discount) {
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$product.discount'], 'properties' => ['data-ref' => 'product_table-product.discount-td', 'style' => 'display: none;']];
-                    } elseif ($cell == '$product.quantity' && !$this->company->enable_product_quantity) {
-                        $element['elements'][] = ['element' => 'td', 'content' => $row['$product.quantity'], 'properties' => ['data-ref' => 'product_table-product.quantity-td', 'style' => 'display: none;']];
                     } elseif ($cell == '$task.hours') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$task.quantity'], 'properties' => ['data-ref' => 'task_table-task.hours-td']];
                     } elseif ($cell == '$product.tax_rate1') {
@@ -823,7 +821,7 @@ class Design extends BaseDesign
         }
 
         $document = null;
-        
+
         return $elements;
     }
 

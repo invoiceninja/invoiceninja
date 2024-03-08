@@ -25,7 +25,7 @@ class PurchaseOrderRepository extends BaseRepository
     {
     }
 
-    public function save(array $data, PurchaseOrder $purchase_order) : ?PurchaseOrder
+    public function save(array $data, PurchaseOrder $purchase_order): ?PurchaseOrder
     {
         $purchase_order->fill($data);
 
@@ -84,7 +84,7 @@ class PurchaseOrderRepository extends BaseRepository
         return $purchase_order;
     }
 
-    public function getInvitationByKey($key) :?PurchaseOrderInvitation
+    public function getInvitationByKey($key): ?PurchaseOrderInvitation
     {
         return PurchaseOrderInvitation::query()->where('key', $key)->first();
     }

@@ -44,6 +44,16 @@ class InstantPayment
 
     public function run()
     {
+        nlog($this->request->all());
+
+        $cc = auth()->guard('contact')->user();
+
+        $cc->first_name = $this->request->contact_first_name;
+        $cc->last_name = $this->request->contact_last_name;
+        $cc->email = $this->request->contact_email;
+
+        $cc->save();
+
         $is_credit_payment = false;
 
         $tokens = [];
@@ -177,7 +187,7 @@ class InstantPayment
         }
 
         if ($this->request->has('signature') && ! is_null($this->request->signature) && ! empty($this->request->signature)) {
-                
+
             $contact_id = auth()->guard('contact')->user() ? auth()->guard('contact')->user()->id : null;
 
             $invoices->each(function ($invoice) use ($contact_id) {
@@ -241,7 +251,7 @@ class InstantPayment
             }
         }
 
-        $payment_hash = new PaymentHash;
+        $payment_hash = new PaymentHash();
         $payment_hash->hash = Str::random(32);
         $payment_hash->data = $hash_data;
         $payment_hash->fee_total = $fee_totals;

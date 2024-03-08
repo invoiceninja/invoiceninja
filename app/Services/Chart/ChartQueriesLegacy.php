@@ -23,7 +23,7 @@ trait ChartQueriesLegacy
      */
     public function getExpenseQuery($start_date, $end_date)
     {
-        
+
         return DB::select('
             SELECT sum(expenses.amount) as amount,
             IFNULL(expenses.currency_id, :company_currency) as currency_id

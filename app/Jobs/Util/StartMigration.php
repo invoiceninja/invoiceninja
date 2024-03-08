@@ -35,7 +35,10 @@ use ZipArchive;
 
 class StartMigration implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     private $filepath;
 
@@ -80,7 +83,7 @@ class StartMigration implements ShouldQueue
         nlog('Inside Migration Job');
 
         Cache::put("migration-{$this->company->company_key}", "started", 86400);
-        
+
         set_time_limit(0);
 
         MultiDB::setDb($this->company->db);

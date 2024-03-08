@@ -26,7 +26,7 @@ class ClientContactRepository extends BaseRepository
 
     private bool $set_send_email_on_contact = false;
 
-    public function save(array $data, Client $client) : void
+    public function save(array $data, Client $client): void
     {
 
         if (isset($data['contacts']) && (count($data['contacts']) !== count($data['contacts'], COUNT_RECURSIVE))) {
@@ -82,10 +82,17 @@ class ClientContactRepository extends BaseRepository
 
             $update_contact->fill($contact);
 
-            if (array_key_exists('password', $contact) && strlen($contact['password']) > 1) {
+            if (array_key_exists('password', $contact) && strlen($contact['password']) > 1 && strlen($update_contact->email) > 3) { //updating on a blank contact email will cause large table scanning
                 $update_contact->password = Hash::make($contact['password']);
 
-                $client->company->client_contacts()->where('email', $update_contact->email)->update(['password' => $update_contact->password]);
+                ClientContact::withTrashed()
+                            ->where('company_id', $client->company_id)
+                            ->where('client_id', $client->id)
+                            ->where('email', $update_contact->email)->cursor()
+                                    ->each(function ($saveable_contact) use ($update_contact) {
+                                        $saveable_contact->password = $update_contact->password;
+                                        $saveable_contact->save();
+                                    });
             }
 
             if (array_key_exists('email', $contact)) {

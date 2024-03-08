@@ -40,9 +40,13 @@ class PingController extends BaseController
      */
     public function index()
     {
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         return response()->json(
-            ['company_name' => auth()->user()->getCompany()->present()->name(),
-                'user_name' => auth()->user()->present()->name(),
+            ['company_name' => $user->getCompany()->present()->name(),
+                'user_name' => $user->present()->name(),
             ],
             200
         );
@@ -72,7 +76,7 @@ class PingController extends BaseController
     public function health()
     {
         if (Ninja::isNinja()) {
-            return response()->json(['message' => ctrans('texts.route_not_available'), 'errors'=>[]], 403);
+            return response()->json(['message' => ctrans('texts.route_not_available'), 'errors' => []], 403);
         }
 
         return response()->json(SystemHealth::check(), 200);

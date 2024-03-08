@@ -73,10 +73,10 @@ class ClientSettingsTest extends TestCase
 
         $response = false;
 
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/clients/', $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/clients/', $data);
 
         $response->assertStatus(200);
 
@@ -232,10 +232,10 @@ class ClientSettingsTest extends TestCase
         $response = false;
 
         
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/clients/', $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/clients/', $data);
         
 
         $response->assertStatus(422);
@@ -265,7 +265,7 @@ class ClientSettingsTest extends TestCase
             ])->post('/api/v1/clients/', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
+            // nlog($message);
         }
 
         $response->assertStatus(302);

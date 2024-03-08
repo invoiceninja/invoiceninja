@@ -210,7 +210,7 @@ class CreditService
     {
         $this->credit->invitations->each(function ($invitation) {
             // (new UnlinkFile(config('filesystems.default'), $this->credit->client->credit_filepath($invitation).$this->credit->numberFormatter().'.pdf'))->handle();
-            
+
             //30-06-2023
             try {
                 // if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf')) {
@@ -225,8 +225,8 @@ class CreditService
                 nlog($e->getMessage());
             }
 
-        
-        
+
+
         });
 
         return $this;
@@ -266,7 +266,7 @@ class CreditService
      * Saves the credit.
      * @return Credit object
      */
-    public function save() : ?Credit
+    public function save(): ?Credit
     {
         $this->credit->saveQuietly();
 

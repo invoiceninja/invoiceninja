@@ -48,6 +48,17 @@
 
 @push('footer')
     <script>
-        Livewire.on('beforePaymentEventsCompleted', () => document.getElementById('payment-method-form').submit());
+        
+        document.addEventListener('livewire:init', () => {
+
+            Livewire.on('beforePaymentEventsCompleted', () => {
+                setTimeout(() => {
+                    document.getElementById('payment-method-form').submit()
+                }, 2000);
+            });
+
+        });
+
     </script>
+
 @endpush

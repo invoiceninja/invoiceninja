@@ -53,7 +53,7 @@ class InvoiceBalanceSanity implements Rule
     /**
      * @return bool
      */
-    private function checkIfInvoiceBalanceIsSane() : bool
+    private function checkIfInvoiceBalanceIsSane(): bool
     {
         DB::connection(config('database.default'))->beginTransaction();
 

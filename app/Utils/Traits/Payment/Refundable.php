@@ -200,7 +200,7 @@ trait Refundable
 
     private function createActivity(array $data, int $credit_id)
     {
-        $fields = new stdClass;
+        $fields = new stdClass();
         $activity_repo = new ActivityRepository();
 
         $fields->payment_id = $this->id;
@@ -221,7 +221,7 @@ trait Refundable
         }
     }
 
-    private function buildCreditNote(array $data) :?Credit
+    private function buildCreditNote(array $data): ?Credit
     {
         $credit_note = CreditFactory::create($this->company_id, $this->user_id);
         $credit_note->assigned_user_id = isset($this->assigned_user_id) ?: null;

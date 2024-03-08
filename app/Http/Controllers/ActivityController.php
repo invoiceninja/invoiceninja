@@ -27,7 +27,9 @@ use stdClass;
 
 class ActivityController extends BaseController
 {
-    use PdfMaker, PageNumbering, MakesHash;
+    use PdfMaker;
+    use PageNumbering;
+    use MakesHash;
 
     protected $entity_type = Activity::class;
 
@@ -42,11 +44,12 @@ class ActivityController extends BaseController
     {
         $default_activities = $request->has('rows') ? $request->input('rows') : 75;
 
+        /* @var App\Models\Activity[] $activities */
         $activities = Activity::with('user')
                                 ->orderBy('created_at', 'DESC')
                                 ->company()
                                 ->take($default_activities);
-                                
+
         if($request->has('reactv2')) {
 
             /** @var \App\Models\User auth()->user() */
@@ -60,6 +63,7 @@ class ActivityController extends BaseController
 
             $data = $activities->cursor()->map(function ($activity) {
 
+                /** @var \App\Models\Activity $activity */
                 return $activity->activity_string();
 
             });
@@ -92,6 +96,7 @@ class ActivityController extends BaseController
 
         $data = $activities->cursor()->map(function ($activity) {
 
+            /** @var \App\Models\Activity $activity */
             return $activity->activity_string();
 
         });
@@ -119,11 +124,11 @@ class ActivityController extends BaseController
                 $html_backup = file_get_contents(Storage::disk(config('filesystems.default'))->path($backup->filename));
             }
         } else { //failed
-            return response()->json(['message'=> ctrans('texts.no_backup_exists'), 'errors' => new stdClass], 404);
+            return response()->json(['message' => ctrans('texts.no_backup_exists'), 'errors' => new stdClass()], 404);
         }
 
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-            $pdf = (new Phantom)->convertHtmlToPdf($html_backup);
+            $pdf = (new Phantom())->convertHtmlToPdf($html_backup);
 
             $numbered_pdf = $this->pageNumbering($pdf, $activity->company);
 
@@ -149,7 +154,7 @@ class ActivityController extends BaseController
         }
 
         $activity->company->setLocale();
-        
+
         if (isset($activity->invoice_id)) {
             $filename = $activity->invoice->numberFormatter().'.pdf';
         } elseif (isset($activity->quote_id)) {

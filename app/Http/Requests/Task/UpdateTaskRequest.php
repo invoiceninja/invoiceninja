@@ -28,13 +28,13 @@ class UpdateTaskRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         //prevent locked tasks from updating
         if ($this->task->invoice_id && $this->task->company->invoice_task_lock) {
             return false;
         }
-        
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
@@ -59,6 +59,8 @@ class UpdateTaskRequest extends Request
         if (isset($this->project_id)) {
             $rules['project_id'] = 'bail|required|exists:projects,id,company_id,'.$user->company()->id.',is_deleted,0';
         }
+
+        $rules['hash'] = 'bail|sometimes|string|nullable';
 
         $rules['time_log'] = ['bail', function ($attribute, $values, $fail) {
 
@@ -86,6 +88,8 @@ class UpdateTaskRequest extends Request
             $rules['documents.*'] = $this->file_validation;
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->file_validation;
+        }else {
+            $rules['documents'] = 'bail|sometimes|array';
         }
 
         if ($this->file('file') && is_array($this->file('file'))) {
@@ -100,7 +104,7 @@ class UpdateTaskRequest extends Request
     public function prepareForValidation()
     {
         $input = $this->decodePrimaryKeys($this->all());
-        
+
         if (array_key_exists('status_id', $input) && is_string($input['status_id'])) {
             $input['status_id'] = $this->decodePrimaryKey($input['status_id']);
         }

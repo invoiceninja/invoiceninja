@@ -101,7 +101,7 @@ class TaskRepository extends BaseRepository
         } else {
             $time_log = [];
         }
-        
+
         $key_values = array_column($time_log, 0);
         array_multisort($key_values, SORT_ASC, $time_log);
 
@@ -123,7 +123,7 @@ class TaskRepository extends BaseRepository
         }
 
         $task->calculated_start_date = $this->harvestStartDate($time_log, $task);
-        
+
         $task->time_log = json_encode($time_log);
 
 
@@ -139,9 +139,9 @@ class TaskRepository extends BaseRepository
 
     private function harvestStartDate($time_log, $task)
     {
-        
+
         if(isset($time_log[0][0])) {
-            return \Carbon\Carbon::createFromTimestamp($time_log[0][0])->addSeconds($task->company->utc_offset());
+            return \Carbon\Carbon::createFromTimestamp($time_log[0][0]);
         }
 
         return null;
@@ -278,7 +278,7 @@ class TaskRepository extends BaseRepository
 
     private function trySaving(Task $task)
     {
-        $x=1;
+        $x = 1;
 
         do {
             try {
@@ -288,7 +288,7 @@ class TaskRepository extends BaseRepository
             } catch(QueryException $e) {
                 $x++;
 
-                if ($x>50) {
+                if ($x > 50) {
                     $this->completed = false;
                 }
             }

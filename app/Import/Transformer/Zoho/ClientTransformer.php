@@ -35,7 +35,7 @@ class ClientTransformer extends BaseTransformer
             throw new ImportException('Client already exists => '. $data['Company Name']);
         }
 
-        $settings = new \stdClass;
+        $settings = new \stdClass();
         $settings->currency_id = (string) $this->getCurrencyByCode($data, 'Currency');
 
         if (strval($data['Payment Terms'] ?? '') > 0) {

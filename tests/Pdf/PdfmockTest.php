@@ -12,20 +12,18 @@
 
 namespace Tests\Pdf;
 
-use Tests\TestCase;
-use App\Models\Design;
+use App\DataMapper\CompanySettings;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\Country;
-use App\Models\Invoice;
 use App\Models\Currency;
-use Tests\MockAccountData;
-use App\Services\Pdf\PdfMock;
-use Beganovich\Snappdf\Snappdf;
+use App\Models\Design;
+use App\Models\Invoice;
 use App\Services\Pdf\PdfBuilder;
-use App\Services\Pdf\PdfService;
-use App\DataMapper\CompanySettings;
 use App\Services\Pdf\PdfConfiguration;
+use App\Services\Pdf\PdfMock;
+use App\Services\Pdf\PdfService;
+use Tests\TestCase;
 
 /**
  * @test
@@ -40,7 +38,7 @@ class PdfmockTest extends TestCase
 
     }
 
-    public function testPdfInstance ()
+    public function testPdfInstance()
     {
         $data = [
             'settings' => CompanySettings::defaults(),
@@ -52,7 +50,7 @@ class PdfmockTest extends TestCase
         $account = Account::factory()->make();
         $company->setRelation('account', $account);
 
-        $entity = (new \App\Services\Pdf\PdfMock($data,$company))->build()->initEntity();
+        $entity = (new \App\Services\Pdf\PdfMock($data, $company))->build()->initEntity();
 
         $this->assertInstanceOf(Invoice::class, $entity);
         $this->assertNotNull($entity->client);

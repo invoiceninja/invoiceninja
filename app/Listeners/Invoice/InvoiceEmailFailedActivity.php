@@ -47,9 +47,9 @@ class InvoiceEmailFailedActivity implements ShouldQueue
             $event->message = 'Unable to open attachment file for reading';
         }
 
-        $fields = new stdClass;
+        $fields = new stdClass();
 
-        $user_id = array_key_exists('user_id', $event->event_vars) ? $event->event_vars['user_id'] : $event->invitation->invoice->user_id;
+        $user_id = isset($event->event_vars['user_id']) ? $event->event_vars['user_id'] : $event->invitation->invoice->user_id;
 
         $fields->user_id = $user_id;
 
@@ -58,6 +58,7 @@ class InvoiceEmailFailedActivity implements ShouldQueue
         $fields->client_contact_id = $event->invitation->client_contact_id;
         $fields->company_id = $event->invitation->invoice->company_id;
         $fields->activity_type_id = Activity::EMAIL_INVOICE_FAILED;
+        $fields->notes = $event->message ?? '';
 
         $this->activity_repo->save($fields, $event->invitation->invoice, $event->event_vars);
     }

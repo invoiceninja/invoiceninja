@@ -25,7 +25,7 @@ class Number
      *
      * @return float
      */
-    public static function roundValue(float $value, int $precision = 2) : float
+    public static function roundValue(float $value, int $precision = 2): float
     {
         return round($value, $precision, PHP_ROUND_HALF_UP);
     }
@@ -38,7 +38,7 @@ class Number
      *
      * @return string           The formatted value
      */
-    public static function formatValue($value, $currency) :string
+    public static function formatValue($value, $currency): string
     {
         $value = floatval($value);
 
@@ -56,7 +56,7 @@ class Number
      *
      * @return string           The formatted value
      */
-    public static function formatValueNoTrailingZeroes($value, $entity) :string
+    public static function formatValueNoTrailingZeroes($value, $entity): string
     {
         $value = floatval($value);
 
@@ -93,25 +93,102 @@ class Number
      * @param string $value The formatted number to be converted back to float
      * @return float            The formatted value
      */
-    public static function parseFloat($value)
+    public static function parseFloat2($value)
     {
-        // convert "," to "."
-        $s = str_replace(',', '.', $value);
+        if(!$value)
+            return 0;
 
-        // remove everything except numbers and dot "."
-        $s = preg_replace("/[^0-9\.]/", '', $s);
+        //remove everything except for numbers, decimals, commas and hyphens 
+        $value = preg_replace('/[^0-9.,-]+/', '', $value);
 
-        if ($s < 1) {
-            return (float) $s;
+        $decimal = strpos($value, '.');
+        $comma = strpos($value, ',');
+        
+        if($comma === false) //no comma must be a decimal number already
+            return (float) $value;
+
+        if($decimal < $comma){ //decimal before a comma = euro
+            $value = str_replace(['.',','], ['','.'], $value);
+            // $value = str_replace(',', '.', $value);
+            return (float) $value;
         }
 
-        // remove all separators from first part and keep the end
-        $s = str_replace('.', '', substr($s, 0, -3)).substr($s, -3);
+        //comma first = traditional thousan separator
+        $value = str_replace(',', '', $value);
+        
+        return (float)$value;
+    
+        
+        // if(!$value)
+        //     return 0;
 
-        // return float
-        return (float) $s;
+        // $multiplier = false;
+
+        // if(substr($value, 0,1) == '-')
+        //     $multiplier = -1;
+
+        // $s = str_replace(',', '.', $value);
+
+        // $s = preg_replace("/[^0-9\.]/", '', $s);
+
+        // if ($s < 1) {
+        //     return (float) $s;
+        // }
+
+        // $s = str_replace('.', '', substr($s, 0, -3)).substr($s, -3);
+
+        // if($multiplier)
+        //     $s = floatval($s)*-1;
+
+        // return (float) $s;
     }
 
+    
+    //next iteration of float parsing
+    public static function parseFloat($value)
+    {
+
+        if(!$value) {
+            return 0;
+        }
+
+        //remove everything except for numbers, decimals, commas and hyphens
+        $value = preg_replace('/[^0-9.,-]+/', '', $value);
+
+        $decimal = strpos($value, '.');
+        $comma = strpos($value, ',');
+
+        //check the 3rd last character
+        if(!in_array(substr($value, -3, 1), [".", ","])) {
+
+            if($comma && (substr($value, -3, 1) != ".")) {
+                $value .= ".00";
+            } elseif($decimal && (substr($value, -3, 1) != ",")) {
+                $value .= ",00";
+            }
+
+        }
+
+        $decimal = strpos($value, '.');
+        $comma = strpos($value, ',');
+
+        if($comma === false) { //no comma must be a decimal number already
+            return (float) $value;
+        }
+
+        if($decimal < $comma) { //decimal before a comma = euro
+            $value = str_replace(['.',','], ['','.'], $value);
+            return (float) $value;
+        }
+
+        //comma first = traditional thousan separator
+        $value = str_replace(',', '', $value);
+
+        return (float)$value;
+
+    }
+    
+    
     public static function parseStringFloat($value)
     {
         $value = preg_replace('/[^0-9-.]+/', '', $value);
@@ -133,7 +210,7 @@ class Number
      * @param $entity
      * @return string           The formatted value
      */
-    public static function formatMoney($value, $entity) :string
+    public static function formatMoney($value, $entity): string
     {
         $value = floatval($value);
 
@@ -198,10 +275,10 @@ class Number
      * @param mixed $entity
      * @return string           The formatted value
      */
-    public static function formatMoneyNoRounding($value, $entity) :string
+    public static function formatMoneyNoRounding($value, $entity): string
     {
         $currency = $entity->currency();
-        
+
         $_value = $value;
 
         $thousand = $currency->thousand_separator;
@@ -239,7 +316,7 @@ class Number
         } elseif ($v < 1) {
             $precision = strlen($v) - strrpos($v, '.') - 1;
         }
-        
+
         if (is_array($parts) && $parts[0] != 0) {
             $precision = 2;
         }

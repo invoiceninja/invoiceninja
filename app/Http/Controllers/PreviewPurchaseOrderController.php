@@ -11,33 +11,33 @@
 
 namespace App\Http\Controllers;
 
-use App\Utils\Ninja;
-use App\Models\Client;
-use App\Models\Vendor;
-use App\Libraries\MultiDB;
-use App\Jobs\Util\PreviewPdf;
-use App\Models\PurchaseOrder;
-use App\Models\VendorContact;
-use App\Utils\Traits\MakesHash;
-use App\Utils\VendorHtmlEngine;
-use App\Services\Pdf\PdfService;
-use App\Utils\PhantomJS\Phantom;
-use App\Services\PdfMaker\Design;
-use App\Utils\HostedPDF\NinjaPdf;
-use Illuminate\Support\Facades\DB;
-use App\Services\PdfMaker\PdfMaker;
-use Illuminate\Support\Facades\App;
-use App\Factory\PurchaseOrderFactory;
-use App\Utils\Traits\MakesInvoiceHtml;
-use Turbo124\Beacon\Facades\LightLogs;
-use App\Models\PurchaseOrderInvitation;
-use App\Utils\Traits\Pdf\PageNumbering;
-use Illuminate\Support\Facades\Response;
 use App\DataMapper\Analytics\LivePreview;
+use App\Factory\PurchaseOrderFactory;
+use App\Http\Requests\Preview\PreviewPurchaseOrderRequest;
+use App\Jobs\Util\PreviewPdf;
+use App\Libraries\MultiDB;
+use App\Models\Client;
+use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderInvitation;
+use App\Models\Vendor;
+use App\Models\VendorContact;
 use App\Repositories\PurchaseOrderRepository;
+use App\Services\Pdf\PdfService;
+use App\Services\PdfMaker\Design;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
-use App\Http\Requests\Preview\PreviewPurchaseOrderRequest;
+use App\Services\PdfMaker\PdfMaker;
+use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\Ninja;
+use App\Utils\PhantomJS\Phantom;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesInvoiceHtml;
+use App\Utils\Traits\Pdf\PageNumbering;
+use App\Utils\VendorHtmlEngine;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Response;
+use Turbo124\Beacon\Facades\LightLogs;
 
 class PreviewPurchaseOrderController extends BaseController
 {
@@ -142,9 +142,9 @@ class PreviewPurchaseOrderController extends BaseController
 
             //if phantom js...... inject here..
             if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-                return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+                return (new Phantom())->convertHtmlToPdf($maker->getCompiledHTML(true));
             }
-            
+
             /** @var \App\Models\User $user */
             $user = auth()->user();
 
@@ -213,7 +213,7 @@ class PreviewPurchaseOrderController extends BaseController
             'Content-Disposition' => 'inline',
             'Content-Type' => 'application/pdf',
             'Cache-Control:' => 'no-cache',
-            'Server-Timing' => microtime(true)-$start
+            'Server-Timing' => microtime(true) - $start
         ]);
 
 
@@ -254,7 +254,7 @@ class PreviewPurchaseOrderController extends BaseController
             if (!$request->has('entity_id')) {
                 $entity_obj->service()->fillDefaults()->save();
             }
-                
+
             App::forgetInstance('translator');
             $t = app('translator');
             App::setLocale($entity_obj->company->locale());
@@ -316,14 +316,14 @@ class PreviewPurchaseOrderController extends BaseController
             return;
         }
 
-            /** @var \App\Models\User $user */
-            $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
         //if phantom js...... inject here..
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-            return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+            return (new Phantom())->convertHtmlToPdf($maker->getCompiledHTML(true));
         }
-            
+
         if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
             $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
 
@@ -407,7 +407,7 @@ class PreviewPurchaseOrderController extends BaseController
         }
 
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-            return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+            return (new Phantom())->convertHtmlToPdf($maker->getCompiledHTML(true));
         }
 
         /** @var \App\Models\User $user */
@@ -424,7 +424,7 @@ class PreviewPurchaseOrderController extends BaseController
 
             return $pdf;
         }
-            
+
         $file_path = (new PreviewPdf($maker->getCompiledHTML(true), $user->company()))->handle();
 
         $response = Response::make($file_path, 200);
@@ -520,7 +520,7 @@ class PreviewPurchaseOrderController extends BaseController
         }
 
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-            return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+            return (new Phantom())->convertHtmlToPdf($maker->getCompiledHTML(true));
         }
 
         if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
@@ -534,7 +534,7 @@ class PreviewPurchaseOrderController extends BaseController
 
             return $pdf;
         }
-            
+
         $file_path = (new PreviewPdf($maker->getCompiledHTML(true), $user->company()))->handle();
 
         $response = Response::make($file_path, 200);

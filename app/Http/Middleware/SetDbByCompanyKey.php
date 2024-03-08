@@ -29,7 +29,7 @@ class SetDbByCompanyKey
     {
         $error = [
             'message' => 'Invalid Token',
-            'errors' => new stdClass,
+            'errors' => new stdClass(),
         ];
 
         if ($request->header('X-API-COMPANY-KEY') && config('ninja.db.multi_db_enabled')) {

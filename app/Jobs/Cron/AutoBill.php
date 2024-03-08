@@ -11,18 +11,22 @@
 
 namespace App\Jobs\Cron;
 
-use App\Jobs\Entity\EmailEntity;
-use App\Libraries\MultiDB;
 use App\Models\Invoice;
+use App\Models\Webhook;
+use App\Libraries\MultiDB;
 use Illuminate\Bus\Queueable;
+use App\Jobs\Entity\EmailEntity;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 class AutoBill implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $tries = 1;
 
@@ -40,7 +44,7 @@ class AutoBill implements ShouldQueue
      *
      * @return void
      */
-    public function handle() : void
+    public function handle(): void
     {
         set_time_limit(0);
 
@@ -49,10 +53,10 @@ class AutoBill implements ShouldQueue
         }
 
         $invoice = false;
-        
+
         try {
             nlog("autobill {$this->invoice_id}");
-            
+
             $invoice = Invoice::withTrashed()->find($this->invoice_id);
 
             $invoice->service()->autoBill();
@@ -68,7 +72,7 @@ class AutoBill implements ShouldQueue
                             EmailEntity::dispatch($invitation, $invoice->company)->delay(rand(1, 2));
 
                             $invoice->entityEmailEvent($invitation, 'invoice', 'email_template_invoice');
-                                
+
                         } catch (\Exception $e) {
                             nlog($e->getMessage());
                         }
@@ -76,6 +80,8 @@ class AutoBill implements ShouldQueue
                         nlog("Firing email for invoice {$invoice->number}");
                     }
                 });
+
+                $invoice->sendEvent(Webhook::EVENT_SENT_INVOICE, "client");
 
             }
 

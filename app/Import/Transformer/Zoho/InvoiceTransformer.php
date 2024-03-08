@@ -60,7 +60,7 @@ class InvoiceTransformer extends BaseTransformer
         $line_items = [];
         foreach ($line_items_data as $record) {
             $item_notes_key = array_key_exists('Item Description', $record) ? 'Item Description' : 'Item Desc';
-            
+
             $line_items[] = [
                 'product_key'        => $this->getString($record, 'Item Name'),
                 'notes'              => $this->getString($record, $item_notes_key),
@@ -148,7 +148,7 @@ class InvoiceTransformer extends BaseTransformer
         );
 
         $client_repository = null;
-                
+
         return $client->id;
 
     }

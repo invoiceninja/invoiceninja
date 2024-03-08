@@ -124,7 +124,7 @@ class NinjaPlanController extends Controller
         $gateway_driver->attach($stripe_response->payment_method, $customer);
         $method = $gateway_driver->getStripePaymentMethod($stripe_response->payment_method);
 
-        $payment_meta = new \stdClass;
+        $payment_meta = new \stdClass();
         $payment_meta->exp_month = (string) $method->card->exp_month;
         $payment_meta->exp_year = (string) $method->card->exp_year;
         $payment_meta->brand = (string) $method->card->brand;
@@ -151,9 +151,10 @@ class NinjaPlanController extends Controller
             $account->plan_term = 'month';
             $account->plan_started = now();
             $account->plan_expires = now()->addDays(14);
-            $account->is_trial=true;
+            $account->is_trial = true;
             $account->hosted_company_count = 10;
             $account->trial_started = now();
+            $account->trial_plan = 'pro';
             $account->save();
         }
 

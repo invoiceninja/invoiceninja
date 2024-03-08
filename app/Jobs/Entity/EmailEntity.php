@@ -34,7 +34,10 @@ use Illuminate\Support\Str;
 
 class EmailEntity implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $invitation; //The entity invitation
 
@@ -90,7 +93,7 @@ class EmailEntity implements ShouldQueue
      *
      * @return void
      */
-    public function handle() :void
+    public function handle(): void
     {
         /* Don't fire emails if the company is disabled */
         if ($this->company->is_disabled) {
@@ -110,7 +113,7 @@ class EmailEntity implements ShouldQueue
         /* Mark entity sent */
         $this->entity->service()->markSent()->save();
 
-        $nmo = new NinjaMailerObject;
+        $nmo = new NinjaMailerObject();
         $nmo->mailable = new TemplateEmail($this->email_entity_builder, $this->invitation->contact->withoutRelations(), $this->invitation->withoutRelations());
         $nmo->company = $this->company->withoutRelations();
         $nmo->settings = $this->settings;
@@ -134,7 +137,7 @@ class EmailEntity implements ShouldQueue
         $this->email_entity_builder = null;
     }
 
-    private function resolveEntityString() :string
+    private function resolveEntityString(): string
     {
         if ($this->invitation instanceof InvoiceInvitation) {
             return 'invoice';

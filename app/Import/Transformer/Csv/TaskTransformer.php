@@ -11,8 +11,8 @@
 
 namespace App\Import\Transformer\Csv;
 
-use App\Models\TaskStatus;
 use App\Import\Transformer\BaseTransformer;
+use App\Models\TaskStatus;
 
 /**
  * Class TaskTransformer.
@@ -29,11 +29,12 @@ class TaskTransformer extends BaseTransformer
     {
         $this->stubbed_timestamp = time();
 
-        if(count($task_items_data) == count($task_items_data, COUNT_RECURSIVE)) 
+        if(count($task_items_data) == count($task_items_data, COUNT_RECURSIVE)) {
             $task_data = $task_items_data;
-        else 
+        } else {
             $task_data = reset($task_items_data);
-        
+        }
+
         $clientId = $this->getClient(
             $this->getString($task_data, 'client.name'),
             $this->getString($task_data, 'client.email')
@@ -62,7 +63,6 @@ class TaskTransformer extends BaseTransformer
 
         $time_log = collect($task_items_data)
                             ->map(function ($item) {
-
                                 return $this->parseLog($item);
 
                             })->toJson();
@@ -78,13 +78,14 @@ class TaskTransformer extends BaseTransformer
         $end_date = false;
 
         $notes = $item['task.notes'] ?? '';
-        
-        if(isset($item['task.is_billable']) && is_string($item['task.is_billable']) && in_array($item['task.is_billable'], ['yes', 'true', '1']))
+
+        if(isset($item['task.billable']) && is_string($item['task.billable']) && in_array($item['task.billable'], ['yes', 'true', '1', 'TRUE', 'YES'])) {
             $is_billable = true;
-        elseif(isset($item['task.is_billable']) && is_bool($item['task.is_billable']))
-            $is_billable = $item['task.is_billable'];
-        else
+        } elseif(isset($item['task.billable']) && is_bool($item['task.billable'])) {
+            $is_billable = $item['task.billable'];
+        } else {
             $is_billable = false;
+        }
 
         if(isset($item['task.start_date']) &&
         isset($item['task.end_date'])) {
@@ -112,13 +113,24 @@ class TaskTransformer extends BaseTransformer
 
             $stub_start_date = \Carbon\Carbon::parse($stub_start_date);
             $this->stubbed_timestamp = $stub_start_date->timestamp;
-            
+
             return $stub_start_date->timestamp;
+        } catch (\Exception $e) {
+            nlog("fall back failed too" . $e->getMessage());
+            // return $this->stubbed_timestamp;
+        }
+
+
+        try {
+
+            $stub_start_date = \Carbon\Carbon::createFromFormat($this->company->date_format(), $stub_start_date);
+            $this->stubbed_timestamp = $stub_start_date->timestamp;
         } catch (\Exception $e) {
             nlog($e->getMessage());
             return $this->stubbed_timestamp;
         }
-        
+
+
     }
 
     private function resolveEndDate($item)
@@ -141,15 +153,28 @@ class TaskTransformer extends BaseTransformer
         } catch (\Exception $e) {
             nlog($e->getMessage());
 
+            // return $this->stubbed_timestamp;
+        }
+
+
+
+        try {
+
+            $stub_end_date = \Carbon\Carbon::createFromFormat($this->company->date_format(), $stub_end_date);
+            $this->stubbed_timestamp = $stub_end_date->timestamp;
+        } catch (\Exception $e) {
+            nlog("fall back failed too" . $e->getMessage());
             return $this->stubbed_timestamp;
         }
-        
+
+
+
+
     }
 
     private function getTaskStatusId($item): ?int
     {
-        if(isset($item['task.status'])) 
-        {
+        if(isset($item['task.status'])) {
             $name = strtolower(trim($item['task.status']));
 
             $ts = TaskStatus::query()->where('company_id', $this->company->id)
@@ -159,9 +184,10 @@ class TaskTransformer extends BaseTransformer
                 ])
                 ->first();
 
-                if($ts)
-                    return $ts->id;
-        } 
+            if($ts) {
+                return $ts->id;
+            }
+        }
 
         return TaskStatus::where('company_id', $this->company->id)
             ->where('is_deleted', false)

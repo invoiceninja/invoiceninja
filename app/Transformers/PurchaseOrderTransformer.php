@@ -62,7 +62,7 @@ class PurchaseOrderTransformer extends EntityTransformer
 
         return $this->includeCollection($purchase_order->documents, $transformer, Document::class);
     }
-    
+
     public function includeExpense(PurchaseOrder $purchase_order)
     {
         $transformer = new ExpenseTransformer($this->serializer);
@@ -149,6 +149,7 @@ class PurchaseOrderTransformer extends EntityTransformer
             'subscription_id' => $this->encodePrimaryKey($purchase_order->subscription_id),
             'expense_id' => $this->encodePrimaryKey($purchase_order->expense_id),
             'currency_id' => $purchase_order->currency_id ? (string) $purchase_order->currency_id : '',
+            'tax_info' => $purchase_order->tax_data ?: new \stdClass(),
         ];
     }
 }

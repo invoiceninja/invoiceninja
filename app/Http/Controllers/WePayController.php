@@ -40,11 +40,11 @@ class WePayController extends BaseController
 
         $data['user_id'] = $user->id;
         $data['user_company'] = $company;
-        
+
         // $data['company_key'] = $company->company_key;
         // $data['db'] = $company->db;
 
-        $wepay_driver = new WePayPaymentDriver(new CompanyGateway, null, null);
+        $wepay_driver = new WePayPaymentDriver(new CompanyGateway(), null, null);
 
         return $wepay_driver->setup($data);
     }

@@ -21,9 +21,12 @@ class StoreProductRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
-        return auth()->user()->can('create', Product::class);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('create', Product::class);
     }
 
     public function rules()
@@ -32,6 +35,8 @@ class StoreProductRequest extends Request
             $rules['documents.*'] = $this->file_validation;
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->file_validation;
+        }else {
+            $rules['documents'] = 'bail|sometimes|array';
         }
 
         if ($this->file('file') && is_array($this->file('file'))) {
@@ -54,7 +59,7 @@ class StoreProductRequest extends Request
     {
         $input = $this->all();
 
-        if (! isset($input['quantity']) || $input['quantity'] < 1) {
+        if (! isset($input['quantity'])) {
             $input['quantity'] = 1;
         }
 

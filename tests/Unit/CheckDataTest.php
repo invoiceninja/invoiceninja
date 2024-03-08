@@ -11,21 +11,19 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Utils\Ninja;
-use App\Models\Client;
+use App\DataMapper\CompanySettings;
+use App\Factory\CompanyUserFactory;
 use App\Models\Account;
+use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\Company;
+use App\Models\CompanyToken;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Paymentable;
-use Illuminate\Support\Str;
-use App\Models\CompanyToken;
-use App\Models\ClientContact;
-use App\DataMapper\CompanySettings;
-use App\Factory\CompanyUserFactory;
+use App\Models\User;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Tests\TestCase;
 
 /**
  * @test
@@ -141,7 +139,7 @@ class CheckDataTest extends TestCase
 
         });
 
-        Payment::with('paymentables')->cursor()->each(function($payment){
+        Payment::with('paymentables')->cursor()->each(function ($payment) {
             $this->assertNotNull($payment->paymentables()->where('paymentable_type', \App\Models\Credit::class)->get()
             ->sum(\DB::raw('amount')->getValue(\DB::connection()->getQueryGrammar())));
         });
@@ -168,8 +166,8 @@ class CheckDataTest extends TestCase
         ]);
 
         $clients_refactor = \DB::table('clients')
-                    ->leftJoin('client_contacts', function ($join){
-                         $join->on('client_contacts.client_id', '=', 'clients.id');
+                    ->leftJoin('client_contacts', function ($join) {
+                        $join->on('client_contacts.client_id', '=', 'clients.id');
                     })
                     ->get(['clients.id', \DB::raw('count(client_contacts.id) as contact_count')]);
 

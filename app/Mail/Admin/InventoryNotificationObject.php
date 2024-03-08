@@ -19,7 +19,6 @@ use stdClass;
 
 class InventoryNotificationObject
 {
-    
     public function __construct(protected Product $product, public string $notification_level, protected bool $use_react_url)
     {
     }
@@ -34,13 +33,13 @@ class InventoryNotificationObject
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->product->company->settings));
 
-        $mail_obj = new stdClass;
+        $mail_obj = new stdClass();
         $mail_obj->amount = $this->getAmount();
         $mail_obj->subject = $this->getSubject();
         $mail_obj->data = $this->getData();
         $mail_obj->markdown = 'email.admin.generic';
         $mail_obj->tag = $this->product->company->company_key;
-
+        $mail_obj->text_view = 'email.template.text';
         return $mail_obj;
     }
 
@@ -60,20 +59,24 @@ class InventoryNotificationObject
 
     private function getData()
     {
-        $data = [
-            'title' => $this->getSubject(),
-            'content' => ctrans(
-                'texts.inventory_notification_body',
-                ['amount' => $this->getAmount(),
+        $content = ctrans(
+            'texts.inventory_notification_body',
+            ['amount' => $this->getAmount(),
                     'product' => $this->product->product_key.': '.$this->product->notes,
                 ]
-            ),
+        );
+
+        $data = [
+            'title' => $this->getSubject(),
+            'content' => $content,
             'url' => $this->product->portalUrl($this->use_react_url),
             'button' => ctrans('texts.view'),
             'signature' => $this->product->company->settings->email_signature,
             'logo' => $this->product->company->present()->logo(),
             'settings' => $this->product->company->settings,
             'whitelabel' => $this->product->company->account->isPaid() ? true : false,
+            'text_body' => $content,
+            'template' => $this->product->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
         ];
 
         return $data;

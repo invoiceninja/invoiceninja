@@ -36,6 +36,7 @@ class TaskFilters extends QueryFilters
 
         return  $this->builder->where(function ($query) use ($filter) {
             $query->where('description', 'like', '%'.$filter.'%')
+                          ->orWhere('time_log', 'like', '%'.$filter.'%')
                           ->orWhere('custom_value1', 'like', '%'.$filter.'%')
                           ->orWhere('custom_value2', 'like', '%'.$filter.'%')
                           ->orWhere('custom_value3', 'like', '%'.$filter.'%')
@@ -96,7 +97,17 @@ class TaskFilters extends QueryFilters
 
         return $this->builder->where('project_id', $this->decodePrimaryKey($project));
     }
-    
+
+    public function hash(string $hash = ''): Builder
+    {
+        if (strlen($hash) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->where('hash', $hash);
+
+    }
+
     public function number(string $number = ''): Builder
     {
         if (strlen($number) == 0) {
@@ -120,17 +131,23 @@ class TaskFilters extends QueryFilters
             return $this->builder;
         }
 
+        $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
+
         if ($sort_col[0] == 'client_id') {
             return $this->builder->orderBy(\App\Models\Client::select('name')
-                    ->whereColumn('clients.id', 'tasks.client_id'), $sort_col[1]);
+                    ->whereColumn('clients.id', 'tasks.client_id'), $dir);
         }
 
         if ($sort_col[0] == 'user_id') {
             return $this->builder->orderBy(\App\Models\User::select('first_name')
-                    ->whereColumn('users.id', 'tasks.user_id'), $sort_col[1]);
+                    ->whereColumn('users.id', 'tasks.user_id'), $dir);
         }
 
-        return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+        if($sort_col[0] == 'number') {
+            return $this->builder->orderByRaw('ABS(number) ' . $dir);
+        }
+
+        return $this->builder->orderBy($sort_col[0], $dir);
     }
 
     public function task_status(string $value = ''): Builder

@@ -11,22 +11,21 @@
 
 namespace App\Models;
 
-use App\Utils\Ninja;
 use App\Casts\EncryptedCast;
-use App\Models\VendorContact;
-use App\Utils\Traits\AppSetup;
-use App\Utils\Traits\MakesHash;
 use App\DataMapper\CompanySettings;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Cache;
-use Laracasts\Presenter\PresentableTrait;
-use App\Utils\Traits\CompanySettingsSaver;
-use Illuminate\Notifications\Notification;
 use App\Models\Presenters\CompanyPresenter;
 use App\Services\Company\CompanyService;
 use App\Services\Notification\NotificationService;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Utils\Ninja;
+use App\Utils\Traits\AppSetup;
+use App\Utils\Traits\CompanySettingsSaver;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cache;
+use Laracasts\Presenter\PresentableTrait;
 
 /**
  * App\Models\Company
@@ -113,6 +112,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $notify_vendor_when_paid
  * @property int $invoice_task_hours
  * @property int $deleted_at
+ * @property string $smtp_username
+ * @property string $smtp_password
+ * @property string $smtp_host
+ * @property string $smtp_port
+ * @property string $smtp_encryption
+ * @property string $smtp_local_domain
+ * @property boolean $smtp_verify_peer
  * @property-read \App\Models\Account $account
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
  * @property-read int|null $activities_count
@@ -353,12 +359,19 @@ class Company extends BaseModel
         'calculate_taxes',
         'tax_data',
         'e_invoice_certificate_passphrase',
+        'smtp_host',
+        'smtp_port',
+        'smtp_encryption',
+        'smtp_local_domain',
+        'smtp_verify_peer',
     ];
 
     protected $hidden = [
         'id',
         'db',
         'ip',
+        'smtp_username',
+        'smtp_password',
     ];
 
     protected $casts = [
@@ -373,6 +386,8 @@ class Company extends BaseModel
         'tax_data' => 'object',
         'origin_tax_data' => 'object',
         'e_invoice_certificate_passphrase' => EncryptedCast::class,
+        'smtp_username' => 'encrypted',
+        'smtp_password' => 'encrypted',
     ];
 
     protected $with = [];
@@ -405,17 +420,17 @@ class Company extends BaseModel
         return $this->morphMany(Document::class, 'documentable');
     }
 
-    public function schedulers() :HasMany
+    public function schedulers(): HasMany
     {
         return $this->hasMany(Scheduler::class);
     }
 
-    public function task_schedulers() :HasMany
+    public function task_schedulers(): HasMany
     {
         return $this->hasMany(Scheduler::class);
     }
 
-    public function all_documents() :HasMany
+    public function all_documents(): HasMany
     {
         return $this->hasMany(Document::class);
     }
@@ -425,22 +440,22 @@ class Company extends BaseModel
         return self::class;
     }
 
-    public function ledger() :HasMany
+    public function ledger(): HasMany
     {
         return $this->hasMany(CompanyLedger::class);
     }
 
-    public function bank_integrations() :HasMany
+    public function bank_integrations(): HasMany
     {
-        return $this->hasMany(BankIntegration::class);
+        return $this->hasMany(BankIntegration::class)->withTrashed();
     }
 
-    public function bank_transactions() :HasMany
+    public function bank_transactions(): HasMany
     {
         return $this->hasMany(BankTransaction::class);
     }
 
-    public function bank_transaction_rules() :HasMany
+    public function bank_transaction_rules(): HasMany
     {
         return $this->hasMany(BankTransactionRule::class);
     }
@@ -455,7 +470,7 @@ class Company extends BaseModel
         return $this->belongsTo(Account::class);
     }
 
-    public function client_contacts() :HasMany
+    public function client_contacts(): HasMany
     {
         return $this->hasMany(ClientContact::class)->withTrashed();
     }
@@ -468,27 +483,27 @@ class Company extends BaseModel
         return $this->hasManyThrough(User::class, CompanyUser::class, 'company_id', 'id', 'id', 'user_id')->withTrashed();
     }
 
-    public function expense_categories() :HasMany
+    public function expense_categories(): HasMany
     {
         return $this->hasMany(ExpenseCategory::class)->withTrashed();
     }
 
-    public function subscriptions() :HasMany
+    public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class)->withTrashed();
     }
 
-    public function purchase_orders() :HasMany
+    public function purchase_orders(): HasMany
     {
         return $this->hasMany(PurchaseOrder::class)->withTrashed();
     }
 
-    public function task_statuses() :HasMany
+    public function task_statuses(): HasMany
     {
         return $this->hasMany(TaskStatus::class)->withTrashed();
     }
 
-    public function clients() :HasMany
+    public function clients(): HasMany
     {
         return $this->hasMany(Client::class)->withTrashed();
     }
@@ -496,12 +511,12 @@ class Company extends BaseModel
     /**
      * @return HasMany
      */
-    public function tasks() :HasMany
+    public function tasks(): HasMany
     {
         return $this->hasMany(Task::class)->withTrashed();
     }
 
-    public function webhooks() :HasMany
+    public function webhooks(): HasMany
     {
         return $this->hasMany(Webhook::class);
     }
@@ -509,7 +524,7 @@ class Company extends BaseModel
     /**
      * @return HasMany
      */
-    public function projects() :HasMany
+    public function projects(): HasMany
     {
         return $this->hasMany(Project::class)->withTrashed();
     }
@@ -517,7 +532,7 @@ class Company extends BaseModel
     /**
      * @return HasMany
      */
-    public function vendor_contacts() :HasMany
+    public function vendor_contacts(): HasMany
     {
         return $this->hasMany(VendorContact::class)->withTrashed();
     }
@@ -525,17 +540,17 @@ class Company extends BaseModel
     /**
      * @return HasMany
      */
-    public function vendors() :HasMany
+    public function vendors(): HasMany
     {
         return $this->hasMany(Vendor::class)->withTrashed();
     }
 
-    public function all_activities() :\Illuminate\Database\Eloquent\Relations\HasMany
+    public function all_activities(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Activity::class);
     }
 
-    public function activities() :HasMany
+    public function activities(): HasMany
     {
         return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(50);
     }
@@ -700,7 +715,7 @@ class Company extends BaseModel
         return isset($this->settings->language_id) && $this->language() ? $this->language()->locale : config('ninja.i18n.locale');
     }
 
-    public function getLogo() :?string
+    public function getLogo(): ?string
     {
         return $this->settings->company_logo ?: null;
     }
@@ -714,7 +729,7 @@ class Company extends BaseModel
     {
         App::setLocale($this->getLocale());
     }
-    
+
     public function getSetting($setting)
     {
         //todo $this->setting ?? false
@@ -810,7 +825,7 @@ class Company extends BaseModel
     {
         return $this->hasMany(CreditInvitation::class);
     }
-    
+
     public function purchase_order_invitations(): HasMany
     {
         return $this->hasMany(PurchaseOrderInvitation::class);
@@ -897,11 +912,11 @@ class Company extends BaseModel
 
     private function createRBit($type, $source, $properties)
     {
-        $data = new \stdClass;
+        $data = new \stdClass();
         $data->receive_time = time();
         $data->type = $type;
         $data->source = $source;
-        $data->properties = new \stdClass;
+        $data->properties = new \stdClass();
 
         foreach ($properties as $key => $val) {
             $data->properties->$key = $val;

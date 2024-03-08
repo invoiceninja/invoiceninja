@@ -47,15 +47,12 @@ class CreditEmailedNotification implements ShouldQueue
         foreach ($event->invitation->company->company_users as $company_user) {
             $user = $company_user->user;
 
-            // $notification = new EntitySentNotification($event->invitation, 'credit');
-
             $methods = $this->findUserNotificationTypes($event->invitation, $company_user, 'credit', ['all_notifications', 'credit_sent', 'credit_sent_all', 'credit_sent_user']);
 
             if (($key = array_search('mail', $methods)) !== false) {
-                // if (($key = array_search('mail', $methods))) {
                 unset($methods[$key]);
 
-                $nmo = new NinjaMailerObject;
+                $nmo = new NinjaMailerObject();
                 $nmo->mailable = new NinjaMailer((new EntitySentObject($event->invitation, 'credit', $event->template, $company_user->portalType()))->build());
                 $nmo->company = $credit->company;
                 $nmo->settings = $credit->company->settings;

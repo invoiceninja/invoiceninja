@@ -20,7 +20,6 @@ use Tests\TestCase;
 
 class WithTypeHelpersTest extends TestCase
 {
-    use DatabaseMigrations;
     
     public function testIsImageHelper(): void
     {

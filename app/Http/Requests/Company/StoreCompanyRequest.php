@@ -11,13 +11,14 @@
 
 namespace App\Http\Requests\Company;
 
-use App\Http\Requests\Request;
-use App\Http\ValidationRules\Company\ValidCompanyQuantity;
-use App\Http\ValidationRules\Company\ValidSubdomain;
-use App\Http\ValidationRules\ValidSettingsRule;
-use App\Models\Company;
 use App\Utils\Ninja;
+use App\Models\Company;
+use App\Libraries\MultiDB;
+use App\Http\Requests\Request;
 use App\Utils\Traits\MakesHash;
+use App\Http\ValidationRules\ValidSettingsRule;
+use App\Http\ValidationRules\Company\ValidSubdomain;
+use App\Http\ValidationRules\Company\ValidCompanyQuantity;
 
 class StoreCompanyRequest extends Request
 {
@@ -28,7 +29,7 @@ class StoreCompanyRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User auth()->user */
         $user = auth()->user();
@@ -55,6 +56,15 @@ class StoreCompanyRequest extends Request
             }
         }
 
+        $rules['smtp_host'] = 'sometimes|string|nullable';
+        $rules['smtp_port'] = 'sometimes|integer|nullable';
+        $rules['smtp_encryption'] = 'sometimes|string';
+        $rules['smtp_local_domain'] = 'sometimes|string|nullable';        
+        $rules['smtp_encryption'] = 'sometimes|string|nullable';
+        $rules['smtp_local_domain'] = 'sometimes|string|nullable';
+
+        // $rules['smtp_verify_peer'] = 'sometimes|in:true,false';
+
         return $rules;
     }
 
@@ -66,13 +76,32 @@ class StoreCompanyRequest extends Request
             $input['name'] = 'Untitled Company';
         }
 
-        if (array_key_exists('google_analytics_url', $input)) {
+        if (isset($input['google_analytics_url'])) {
             $input['google_analytics_key'] = $input['google_analytics_url'];
         }
 
-        if (array_key_exists('portal_domain', $input)) {
+        if (isset($input['portal_domain'])) {
             $input['portal_domain'] = rtrim(strtolower($input['portal_domain']), "/");
         }
+
+        if(Ninja::isHosted() && !isset($input['subdomain'])) {
+            $input['subdomain'] = MultiDB::randomSubdomainGenerator();
+        }
+
+        if(isset($input['smtp_username']) && strlen(str_replace("*", "", $input['smtp_username'])) < 2) {
+            unset($input['smtp_username']);
+        }
+
+        if(isset($input['smtp_password']) && strlen(str_replace("*", "", $input['smtp_password'])) < 2) {
+            unset($input['smtp_password']);
+        }
+
+        if(isset($input['smtp_port'])) {
+            $input['smtp_port'] = (int) $input['smtp_port'];
+        }
+
+        if(isset($input['smtp_verify_peer']) && is_string($input['smtp_verify_peer']))
+            $input['smtp_verify_peer'] == 'true' ? true : false;
 
         $this->replace($input);
     }

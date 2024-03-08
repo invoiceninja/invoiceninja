@@ -26,8 +26,8 @@ paths:
   /api/v1/activities:
     get:
       tags:
-        - actvities
-      summary: "Returns a list of actvities"
+        - activities
+      summary: "Returns a list of activities"
       description: "Lists all activities related to this company"
       operationId: getActivities
       parameters:
@@ -68,10 +68,10 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  "/api/v1/actvities/download_entity/{activity_id}":
+  "/api/v1/activities/download_entity/{activity_id}":
     get:
       tags:
-        - actvities
+        - activities
       summary: "Returns a PDF for the given activity"
       description: "Returns a PDF for the given activity"
       operationId: getActivityHistoricalEntityPdf
@@ -115,8 +115,6 @@ paths:
       summary: "Attempts authentication"
       description: "Returns a CompanyUser object on success"
       operationId: postLogin
-      security:
-        - []
       parameters:
         - $ref: "#/components/parameters/X-API-SECRET"
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -161,7 +159,7 @@ paths:
         422:
           $ref: "#/components/responses/422"
         5XX:
-          $ref: "#/components/responses/5XX"
+          description: 'Server error'
         default:
           $ref: "#/components/responses/default"
   /api/v1/refresh:
@@ -173,7 +171,7 @@ paths:
         Refreshes the dataset.  
 
         This endpoint can be used if you only need to access the most recent data from a certain point in time.
-        operationId: refresh
+      operationId: refresh
       parameters:
         - name: updated_at
           in: query
@@ -1359,7 +1357,7 @@ paths:
     get:
       tags:
         - client_gateway_tokens
-      summary: "List of client tokens"
+      summary: "List of client payment tokens"
       description: "Lists client_gateway_tokens, search and filters allow fine grained lists to be generated.\n\n    Query parameters can be added to performed more fine grained filtering of the client_gateway_tokens, these are handled by the ClientGatewayTokenFilters class which defines the methods available"
       operationId: getClientGatewayTokens
       parameters:
@@ -1400,8 +1398,8 @@ paths:
     post:
       tags:
         - client_gateway_tokens
-      summary: "Adds a client"
-      description: "Adds an client to a company"
+      summary: "Adds a client payment token"
+      description: "Adds a client payment token to a company"
       operationId: storeClientGatewayToken
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -1409,7 +1407,7 @@ paths:
         - $ref: "#/components/parameters/include"
       responses:
         200:
-          description: "Returns the saved client object"
+          description: "Returns the saved client payment token object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -1433,8 +1431,8 @@ paths:
     get:
       tags:
         - client_gateway_tokens
-      summary: "Shows a client"
-      description: "Displays a client by id"
+      summary: "Shows a client payment token"
+      description: "Displays a client payment token by id"
       operationId: showClientGatewayToken
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -1450,7 +1448,7 @@ paths:
           example: D2J234DFA
       responses:
         200:
-          description: "Returns the cl.ient object"
+          description: "Returns the client payment token object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -1473,8 +1471,8 @@ paths:
     put:
       tags:
         - client_gateway_tokens
-      summary: "Updates a client"
-      description: "Handles the updating of a client by id"
+      summary: "Updates a client payment token"
+      description: "Handles the updating of a client payment token by id"
       operationId: updateClientGatewayToken
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -1490,7 +1488,7 @@ paths:
           example: D2J234DFA
       responses:
         200:
-          description: "Returns the client object"
+          description: "Returns the client payment token object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -1514,7 +1512,7 @@ paths:
       tags:
         - client_gateway_tokens
       summary: "Deletes a client"
-      description: "Handles the deletion of a client by id"
+      description: "Handles the deletion of a client payment token by id"
       operationId: deleteClientGatewayToken
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -1550,7 +1548,7 @@ paths:
     get:
       tags:
         - client_gateway_tokens
-      summary: "Shows a client for editting"
+      summary: "Shows a client payment token for editting"
       description: "Displays a client by id"
       operationId: editClientGatewayToken
       parameters:
@@ -1567,7 +1565,7 @@ paths:
           example: D2J234DFA
       responses:
         200:
-          description: "Returns the client object"
+          description: "Returns the client payment token object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -1591,7 +1589,7 @@ paths:
     get:
       tags:
         - client_gateway_tokens
-      summary: "Gets a new blank client object"
+      summary: "Gets a new blank client payment token object"
       description: "Returns a blank object with default values"
       operationId: getClientGatewayTokensCreate
       parameters:
@@ -1600,7 +1598,7 @@ paths:
         - $ref: "#/components/parameters/include"
       responses:
         200:
-          description: "A blank client object"
+          description: "A blank client payment token object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -9713,12 +9711,12 @@ paths:
                     items:
                       $ref: '#/components/schemas/Client'
                     example:
-                      $ref: '#/components/examples/Client'
+                      $ref: '#/components/schemas/Client'
                   meta:
                     type: object
                     $ref: '#/components/schemas/Meta'
                     example:
-                      $ref: '#/components/examples/Meta'
+                      $ref: '#/components/schemas/Meta'
         401:
           $ref: '#/components/responses/401'
         403:
@@ -11761,7 +11759,6 @@ paths:
               type: object
               properties:
                 action:
-                  required: true
                   type: string
                   description: |
                     The action to be performed, options include:  
@@ -11794,7 +11791,6 @@ paths:
                     - `send_email`  
                       Emails an array of invoices. Requires additional properties to be sent. `email_type`  
                 ids:
-                  required: true
                   type: array
                   items:
                     description: "Array of hashed IDs to be bulk 'actioned - ['D2J234DFA','D2J234DFA','D2J234DFA']"
@@ -14056,85 +14052,86 @@ components:
       description: 'The total number of requests in a given time window.'
       schema:
         type: integer
-  components:
   securitySchemes:
     ApiKeyAuth:        
       type: apiKey
       in: header       
       name: X-API-TOKEN 
+  #examples:
+   # Client:
+   #   $ref: '#/components/schemas/Client'
+
+    # Client:
+    #     id: Opnel5aKBz
+    #     user_id: Ua6Rw4pVbS
+    #     assigned_user_id: Ua6Rw4pVbS
+    #     name: "Jim's Housekeeping"
+    #     website: https://www.jims-housekeeping.com
+    #     private_notes: Client prefers email communication over phone calls
+    #     client_hash: asdfkjhk342hjhbfdvmnfb1
+    #     industry_id: 5
+    #     size_id: 2
+    #     address1: 123 Main St
+    #     address2: Apt 4B
+    #     city: Beverly Hills
+    #     state: California
+    #     postal_code: 90210
+    #     phone: 555-3434-3434
+    #     country_id: 1
+    #     custom_value1: Email
+    #     custom_value2: John Doe
+    #     custom_value3: Yes
+    #     custom_value4: $50,000
+    #     vat_number: VAT123456
+    #     id_number: ID123456
+    #     number: CL-0001
+    #     shipping_address1: 5 Wallaby Way
+    #     shipping_address2: Suite 5
+    #     shipping_city: Perth
+    #     shipping_state: Western Australia
+    #     shipping_postal_code: 6110
+    #     shipping_country_id: 4
+    #     is_deleted: false
+    #     balance: 500.00
+    #     paid_to_date: 2000.00
+    #     credit_balance: 100.00
+    #     last_login: 1628686031
+    #     created_at: 1617629031
+    #     updated_at: 1628445631
+    #     group_settings_id: Opnel5aKBz
+    #     routing_id: Opnel5aKBz3489-dfkiu-2239-sdsd
+    #     is_tax_exempt: false
+    #     has_valid_vat_number: false
+    #     payment_balance: 100
+    #     contacts:
+    #         id: Opnel5aKBz
+    #         first_name: John
+    #         last_name: Doe
+    #         email: jim@gmail.com
+    #         phone: 555-3434-3434
+    #         send_invoice: true
+    #         custom_value1: Email
+    #         custom_value2: John Doe
+    #         custom_value3: Yes
+    #         custom_value4: $50,000
+    #         is_primary: true
+    #         created_at: 1617629031
+    #         updated_at: 1628445631
+    #         deleted_at: 1628445631
+    # Meta:
+    #   value:
+    #     pagination:
+    #       total: 1
+    #       count: 1
+    #       per_page: 20
+    #       current_page: 1
+    #       total_pages: 1
+    #       links:
+    #         - first: https://invoicing.co/api/v1/invoices?page=1
+    #         - last: https://invoicing.co/api/v1/invoices?page=1
+    #         - prev: null
+    #         - next: null
   responses:
-  examples:
-    Client:
-      - id: Opnel5aKBz
-        user_id: Ua6Rw4pVbS
-        assigned_user_id: Ua6Rw4pVbS
-        company_id: Co7Vn3yLmW
-        name: "Jim's Housekeeping"
-        website: https://www.jims-housekeeping.com
-        private_notes: Client prefers email communication over phone calls
-        client_hash: asdfkjhk342hjhbfdvmnfb1
-        industry_id: 5
-        size_id: 2
-        address1: 123 Main St
-        address2: Apt 4B
-        city: Beverly Hills
-        state: California
-        postal_code: 90210
-        phone: 555-3434-3434
-        country_id: 1
-        custom_value1: Email
-        custom_value2: John Doe
-        custom_value3: Yes
-        custom_value4: $50,000
-        vat_number: VAT123456
-        id_number: ID123456
-        number: CL-0001
-        shipping_address1: 5 Wallaby Way
-        shipping_address2: Suite 5
-        shipping_city: Perth
-        shipping_state: Western Australia
-        shipping_postal_code: 6110
-        shipping_country_id: 4
-        is_deleted: false
-        balance: 500.00
-        paid_to_date: 2000.00
-        credit_balance: 100.00
-        last_login: 1628686031
-        created_at: 1617629031
-        updated_at: 1628445631
-        group_settings_id: Opnel5aKBz
-        routing_id: Opnel5aKBz3489-dfkiu-2239-sdsd
-        is_tax_exempt: false
-        has_valid_vat_number: false
-        payment_balance: 100
-        contacts:
-          - id: Opnel5aKBz
-            first_name: John
-            last_name: Doe
-            email: jim@gmail.com
-            phone: 555-3434-3434
-            send_invoice: true
-            custom_value1: Email
-            custom_value2: John Doe
-            custom_value3: Yes
-            custom_value4: $50,000
-            is_primary: true
-            created_at: 1617629031
-            updated_at: 1628445631
-            deleted_at: 1628445631
-    Meta:
-      value:
-        pagination:
-          total: 1
-          count: 1
-          per_page: 20
-          current_page: 1
-          total_pages: 1
-          links:
-            - first: https://invoicing.co/api/v1/invoices?page=1
-            - last: https://invoicing.co/api/v1/invoices?page=1
-            - prev: null
-            - next: null
     429:
       description: 'Rate Limit Exceeded'
       content:
@@ -14147,7 +14144,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#components/schemas/AuthorizationError'
+            $ref: '#/components/schemas/AuthorizationError'
     422:
       description: 'Validation error'
       content:
@@ -14165,13 +14162,13 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#components/schemas/InvalidInputError'
+            $ref: '#/components/schemas/InvalidInputError'
     401:      
       description: 'Authentication error'
       content:
         application/json:
           schema:
-            $ref: '#components/schemas/AuthenticationError'
+            $ref: '#/components/schemas/AuthenticationError'
   parameters:
     X-API-SECRET:
       name: X-API-SECRET
@@ -14313,7 +14310,7 @@ components:
       description: The number of records to return for each request, default is 20
       required: false
       schema:
-        type: int
+        type: integer
         example: 20
     page_meta:
       name: page
@@ -14321,7 +14318,7 @@ components:
       description: The page number to return for this request (when performing pagination), default is 1
       required: false
       schema:
-        type: int
+        type: integer
         example: 1
     include:
       name: include
@@ -14411,7 +14408,7 @@ components:
         Filters the entity list by entities that have been deleted.
       required: false
       schema:
-        type: booleans
+        type: boolean
       example: ?is_deleted=true
     vendor_id:
       name: vendor_id
@@ -14478,10 +14475,6 @@ components:
           example: Opnel5aKBz
         user_id:
           description: 'The user hashed id'
-          type: string
-          example: Opnel5aKBz
-        company_id:
-          description: 'The company hashed id'
           type: string
           example: Opnel5aKBz
         name:
@@ -14755,11 +14748,6 @@ components:
           description: 'The hashed product ID.'
           example: eP01N
           readOnly: true
-        company_id:
-          type: string
-          description: 'The hashed ID of the company that owns this product.'
-          example: eP01N
-          readOnly: true
         user_id:
           type: string
           description: 'The hashed ID of the user that created this product.'
@@ -14948,99 +14936,99 @@ components:
           type: string
           description: 'The hashed ID of the user assigned to this product.'
           example: pR0j3
-          required: false
+
         project_id:
           type: string
           description: 'The hashed ID of the project that this product is associated with.'
           example: pR0j3
-          required: false
+
         vendor_id:
           type: string
           description: 'The hashed ID of the vendor that this product is associated with.'
           example: pR0j3
-          required: false
+
         custom_value1:
           type: string
           description: 'Custom value field 1.'
           example: 'Custom value 1'
-          required: false
+
         custom_value2:
           type: string
           description: 'Custom value field 2.'
           example: 'Custom value 2'
-          required: false
+
         custom_value3:
           type: string
           description: 'Custom value field 3.'
           example: 'Custom value 3'
-          required: false
+
         custom_value4:
           type: string
           description: 'Custom value field 4.'
           example: 'Custom value 4'
-          required: false
+
         product_key:
           type: string
           description: 'The product key.'
           example: '1234'
-          required: false
+
         notes:
           type: string
           description: 'Notes about the product.'
           example: 'These are some notes about the product.'
-          required: false
+
         cost:
           type: number
           format: double
           description: 'The cost of the product.'
           example: 10.0
-          required: false
+
         price:
           type: number
           format: double
           description: 'The price of the product.'
           example: 20.0
-          required: false
+
         quantity:
           type: number
           format: double
           description: 'The quantity of the product.'
           example: 5.0
-          required: false
+
           default: 1
         tax_name1:
           type: string
           description: 'The name of tax 1.'
           example: 'Tax 1'
-          required: false
+
         tax_rate1:
           type: number
           format: double
           description: 'The rate of tax 1.'
           example: 10.0
-          required: false
+
         tax_name2:
           type: string
           description: 'The name of tax 2.'
           example: 'Tax 2'
-          required: false
+
         tax_rate2:
           type: number
           format: double
           description: 'The rate of tax 2.'
           example: 5.0
-          required: false
+
         tax_name3:
           type: string
           description: 'The name of tax 3.'
           example: 'Tax 3'
-          required: false
+
         tax_rate3:
           type: number
           format: double
           description: 'The rate of tax 3.'
           example: 0.0
-          required: false
+
         in_stock_quantity:
           type: integer
           format: int32
@@ -15052,32 +15040,32 @@ components:
                 The query parameter ?update_in_stock_quantity=true **MUST** be passed if you wish to update this value manually.
 
           default: 0
-          required: false
+
         stock_notification:
           type: boolean
           description: Indicates whether stock notifications are enabled for this product
           default: true
-          required: false
+
         stock_notification_threshold:
           type: integer
           format: int32
           description: The minimum quantity threshold for which stock notifications will be triggered
           default: 0
-          required: false
+
         max_quantity:
           type: integer
           format: int32
           description: The maximum quantity that can be ordered for this product
-          required: false
+
         product_image:
           type: string
           description: The URL of the product image
           format: uri-reference
-          required: false
+
         tax_id:
           type: string
           default: '1'
-          required: false
+
           description: |
                 The tax category id for this product.'
 
@@ -15277,10 +15265,6 @@ components:
           description: 'The bank transaction rules hashed id'
           type: string
           example: AS3df3A
-        company_id:
-          description: 'The company hashed id'
-          type: string
-          example: AS3df3A
         user_id:
           description: 'The user hashed id'
           type: string
@@ -15331,10 +15315,6 @@ components:
           example: Opnel5aKBz
         assigned_user_id:
           description: 'The assigned user hashed id'
-          type: string
-          example: Opnel5aKBz
-        company_id:
-          description: 'The company hashed id'
           type: string
           example: Opnel5aKBz
         client_id:
@@ -15551,10 +15531,6 @@ components:
           description: 'The hashed id of the company gateway'
           type: string
           example: Opnel5aKBz
-        company_id:
-          description: 'The company hashed id'
-          type: string
-          example: '2'
         gateway_key:
           description: 'The gateway key (hash)'
           type: string
@@ -16435,10 +16411,6 @@ components:
           description: 'The account hashed id'
           type: string
           example: AS3df3A
-        company_id:
-          description: 'The company hashed id'
-          type: string
-          example: AS3df3A
         user_id:
           description: 'The user_id hashed id'
           type: string
@@ -16478,10 +16450,6 @@ components:
           description: 'The hashed id of the client gateway token'
           type: string
           example: Opnel5aKBz
-        company_id:
-          description: 'The hashed id of the company'
-          type: string
-          example: '2'
         client_id:
           description: 'The hashed_id of the client'
           type: string
@@ -16598,11 +16566,6 @@ components:
           description: 'The unique identifier of the user who has been assigned the client'
           type: string
           example: Ua6Rw4pVbS
-        company_id:
-          description: 'The unique identifier of the company the client belongs to'
-          type: string
-          example: Co7Vn3yLmW
-          readOnly: true
         name:
           description: 'The name of the client company or organization'
           type: string
@@ -16784,11 +16747,9 @@ components:
         settings:
           description: 'Settings that are used for the frontend applications to store user preferences / metadata'
           type: object
-          example: 'json object'
         react_settings:
           description: 'Dedicated settings object for the react web application'
-          type: object'
-          example: 'json object'
+          type: object
         is_owner:
           description: 'Determines whether the user owns this company'
           type: boolean
@@ -16877,11 +16838,6 @@ components:
           description: 'The assigned user hashed id'
           type: string
           example: Opnel5aKBz
-        company_id:
-          description: 'The company hashed id'
-          type: string
-          example: Opnel5aKBz
-          readOnly: true
         client_id:
           description: 'The client hashed id'
           type: string
@@ -16963,7 +16919,7 @@ components:
           type: number
           format: float
           example: '10.00'
-          readOnly:
+          readOnly: true
         line_items:
           type: array
           description: 'An array of objects which define the line items of the invoice'
@@ -17266,10 +17222,6 @@ components:
           description: 'The bank integration hashed id'
           type: string
           example: AS3df3A
-        company_id:
-          description: 'The company hashed id'
-          type: string
-          example: AS3df3A
         user_id:
           description: 'The user hashed id'
           type: string
@@ -17348,7 +17300,7 @@ components:
           example: 1
           readOnly: true
         links:
-          type: array
+          type: object
           description: 'The pagination links'
           readOnly: true
 
@@ -17607,7 +17559,6 @@ components:
       required:
         - id
         - user_id
-        - company_id
         - name
         - task_rate
         - budgeted_hours
@@ -17644,10 +17595,6 @@ components:
       properties:
         id:
           description: 'The bank integration hashed id'
-          type: string
-          example: AS3df3A
-        company_id:
-          description: 'The company hashed id'
           type: string
           example: AS3df3A
         user_id:
@@ -17699,10 +17646,6 @@ components:
           example: ''
         assigned_user_id:
           description: 'The unique hashed identifier for the user assigned to the purchase order'
-          type: string
-          example: ''
-        company_id:
-          description: 'The unique hashed identifier for the company associated with the purchase order'
           type: string
           example: ''
         vendor_id:
@@ -17953,10 +17896,6 @@ components:
           description: 'The assigned user of the task'
           type: string
           example: Opnel5aKBz
-        company_id:
-          description: 'The hashed id of the company'
-          type: string
-          example: Opnel5aKBz
         client_id:
           description: 'The hashed if of the client'
           type: string
@@ -18062,11 +18001,6 @@ components:
           readOnly: true
         user_id:
           description: 'The hashed id of the user who created the contact'
-          type: string
-          example: Opnel5aKBz
-          readOnly: true
-        company_id:
-          description: 'The hashed id of the company'
           type: string
           example: Opnel5aKBz
           readOnly: true
@@ -18244,11 +18178,6 @@ components:
           type: string
           example: Opnel5aKBz
           readOnly: true
-        company_id:
-          description: 'The hashed id of the company'
-          type: string
-          example: Opnel5aKBz
-          readOnly: true
         vendor_id:
           description: 'The hashed id of the vendor'
           type: string
@@ -18343,10 +18272,6 @@ components:
           description: Unique identifier for the product associated with the subscription
           type: string
           example: Pr5Ft7yBmC
-        company_id:
-          description: Unique identifier for the company associated with the subscription
-          type: string
-          example: Co7Vn3yLmW
         recurring_invoice_id:
           description: Unique identifier for the recurring invoice associated with the subscription
           type: string
@@ -18600,7 +18525,7 @@ components:
           type: boolean
           example: true
         default_auto_bill:
-          type: enum
+          type: string
           example: 'always'
           description: |
                 A flag determining whether to auto-bill clients by default
@@ -18796,10 +18721,6 @@ components:
           example: Opnel5aKBz
         assigned_user_id:
           description: 'The assigned user hashed id'
-          type: string
-          example: Opnel5aKBz
-        company_id:
-          description: 'The company hashed id'
           type: string
           example: Opnel5aKBz
         client_id:
@@ -19025,10 +18946,6 @@ components:
           description: 'The unique hashed identifier for the user assigned to the quote'
           type: string
           example: ''
-        company_id:
-          description: 'The unique hashed identifier for the company associated with the quote'
-          type: string
-          example: ''
         client_id:
           description: 'The unique hashed identifier for the client associated with the quote'
           type: string
@@ -19246,11 +19163,6 @@ components:
           description: 'The assigned user hashed id'
           type: string
           example: Opnel5aKBz
-        company_id:
-          description: 'The company hashed id'
-          type: string
-          example: Opnel5aKBz
-          readOnly: true
         client_id:
           description: 'The client hashed id'
           type: string
@@ -19631,10 +19543,6 @@ components:
           example: Opnel5aKBz
         assigned_user_id:
           description: 'The hashed id of the assigned user to this vendor. This is a unique identifier for the user.'
-          type: string
-          example: Opnel5aKBz
-        company_id:
-          description: 'The hashed id of the company. This is a unique identifier for the company.'
           type: string
           example: Opnel5aKBz
         contacts:
@@ -20615,10 +20523,6 @@ components:
           description: 'The hashed id of the user assigned to this recurring expense'
           type: string
           example: Opnel5aKBz
-        company_id:
-          description: 'The hashed id of the company'
-          type: string
-          example: Opnel5aKBz
         client_id:
           description: 'The hashed id of the client'
           type: string
@@ -20883,10 +20787,6 @@ components:
           description: 'The associated project_id'
           type: string
           example: 'Opnel5aKBz'  
-        company_id:
-          description: 'The company hashed id'
-          type: string
-          example: 'Opnel5aKBz'
         client_id:
           description: 'The client hashed id'
           type: string
@@ -20903,7 +20803,7 @@ components:
           description: 'The currency id of the related invoice'
           type: string
           example: '1'
-        expense_currency_id:
+        currency_id:
           description: 'The currency id of the expense'
           type: string
           example: '2'
@@ -21235,6 +21135,8 @@ components:
           type: string
           example: '123456'
           readOnly: true
+        company_user:
+          $ref: '#/components/schemas/CompanyUser'
       type: object
     Account:
       properties:
@@ -21261,10 +21163,6 @@ components:
           description: "The unique hashed ID of the assigned user responsible for the credit"
           type: string
           example: 6f7g8h9i0j
-        company_id:
-          description: "The unique hashed ID of the company associated with the credit"
-          type: string
-          example: k1l2m3n4o5
         client_id:
           description: "The unique hashed ID of the client associated with the credit"
           type: string
@@ -21508,7 +21406,6 @@ tags:
     description: |
       Endpoint definitions for interacting with vendors.
   - name: Purchase Orders
-    summary: Purchase Orders
     description: |
       Endpoint definitions for interacting with purchase orders.
   - name: expenses

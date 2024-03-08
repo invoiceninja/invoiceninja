@@ -63,7 +63,7 @@ class PurchaseOrderFilters extends QueryFilters
                 $po_status[] = PurchaseOrder::STATUS_CANCELLED;
             }
 
-            if (count($po_status) >=1) {
+            if (count($po_status) >= 1) {
                 $query->whereIn('status_id', $po_status);
             }
         });
@@ -123,12 +123,18 @@ class PurchaseOrderFilters extends QueryFilters
             return $this->builder;
         }
 
+        $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
+
         if ($sort_col[0] == 'vendor_id') {
             return $this->builder->orderBy(\App\Models\Vendor::select('name')
-                    ->whereColumn('vendors.id', 'purchase_orders.vendor_id'), $sort_col[1]);
+                    ->whereColumn('vendors.id', 'purchase_orders.vendor_id'), $dir);
         }
 
-        return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+        if($sort_col[0] == 'number') {
+            return $this->builder->orderByRaw('ABS(number) ' . $dir);
+        }
+
+        return $this->builder->orderBy($sort_col[0], $dir);
     }
 
     /**

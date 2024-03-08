@@ -90,7 +90,7 @@ class CreditCard implements MethodInterface
         $gateway_response = \json_decode($request->gateway_response);
 
         $customerRequest = $this->checkout->getCustomer();
-        
+
         $request = $this->bootRequest($gateway_response->token);
         $request->capture = false;
         $request->reference = '$1 payment for authorization.';
@@ -102,7 +102,7 @@ class CreditCard implements MethodInterface
             $response = $this->checkout->gateway->getPaymentsClient()->requestPayment($request);
 
             if ($response['approved'] && $response['status'] === 'Authorized') {
-                $payment_meta = new \stdClass;
+                $payment_meta = new \stdClass();
                 $payment_meta->exp_month = (string) $response['source']['expiry_month'];
                 $payment_meta->exp_year = (string) $response['source']['expiry_year'];
                 $payment_meta->brand = (string) $response['source']['scheme'];
@@ -232,7 +232,12 @@ class CreditCard implements MethodInterface
         try {
             $response = $this->checkout->gateway->getPaymentsClient()->requestPayment($paymentRequest);
 
+            if($this->checkout->company_gateway->update_details && isset($response['customer'])) {
+                $this->checkout->updateCustomer($response['customer']['id'] ?? '');
+            }
+
             if ($response['status'] == 'Authorized') {
+
                 return $this->processSuccessfulPayment($response);
             }
 
@@ -321,7 +326,6 @@ class CreditCard implements MethodInterface
 
             return new PaymentFailed("There was a problem communicating with the API credentials for Checkout", $e->getCode());
 
-            // return $this->checkout->processInternallyFailedPayment($this->checkout, $human_exception);
         }
     }
 }

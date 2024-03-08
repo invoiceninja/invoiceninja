@@ -11,16 +11,16 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Utils\Ninja;
-use Tests\MockAccountData;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Session;
 use App\Events\Vendor\VendorContactLoggedIn;
-use Illuminate\Validation\ValidationException;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\ValidationException;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test
@@ -63,7 +63,7 @@ class VendorApiTest extends TestCase
 
         $this->assertEquals('hewwo', $arr['data']['name']);
         $this->assertEquals(1, count($arr['data']['contacts']));
-    }   
+    }
 
     public function testVendorLoggedInEvents()
     {
@@ -111,7 +111,7 @@ class VendorApiTest extends TestCase
     }
 
     public function testVendorLocaleEnCompanyFallback()
-    { 
+    {
         $settings = $this->company->settings;
         $settings->language_id = '2';
 

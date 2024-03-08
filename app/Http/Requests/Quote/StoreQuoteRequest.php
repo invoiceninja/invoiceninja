@@ -28,7 +28,7 @@ class StoreQuoteRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -49,6 +49,8 @@ class StoreQuoteRequest extends Request
             $rules['documents.*'] = $this->file_validation;
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->file_validation;
+        }else {
+            $rules['documents'] = 'bail|sometimes|array';
         }
 
         if ($this->file('file') && is_array($this->file('file'))) {
@@ -56,14 +58,11 @@ class StoreQuoteRequest extends Request
         } elseif ($this->file('file')) {
             $rules['file'] = $this->file_validation;
         }
-        
+
         $rules['number'] = ['nullable', Rule::unique('quotes')->where('company_id', $user->company()->id)];
         $rules['discount'] = 'sometimes|numeric';
-
         $rules['is_amount_discount'] = ['boolean'];
         $rules['exchange_rate'] = 'bail|sometimes|numeric';
-
-        // $rules['number'] = new UniqueQuoteNumberRule($this->all());
         $rules['line_items'] = 'array';
 
         return $rules;

@@ -12,10 +12,6 @@
           description: 'The unique hashed identifier for the user assigned to the quote'
           type: string
           example: ''
-        company_id:
-          description: 'The unique hashed identifier for the company associated with the quote'
-          type: string
-          example: ''
         client_id:
           description: 'The unique hashed identifier for the client associated with the quote'
           type: string

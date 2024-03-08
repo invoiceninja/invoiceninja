@@ -11,25 +11,29 @@
 
 namespace App\Jobs\Expense;
 
+use App\Libraries\MultiDB;
+use App\Models\Activity;
+use App\Models\Expense;
+use App\Models\VendorContact;
+use App\Repositories\ActivityRepository;
+use App\Services\Email\Email;
+use App\Services\Email\EmailObject;
 use App\Utils\Ninja;
 use App\Utils\Number;
-use App\Models\Expense;
-use App\Models\Activity;
-use App\Libraries\MultiDB;
-use App\Models\VendorContact;
-use App\Services\Email\Email;
-use Illuminate\Bus\Queueable;
-use App\Services\Email\EmailObject;
-use Illuminate\Queue\SerializesModels;
-use App\Repositories\ActivityRepository;
 use App\Utils\Traits\MakesDates;
-use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class VendorExpenseNotify implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesDates;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use MakesDates;
 
     public $tries = 1;
 
@@ -41,17 +45,21 @@ class VendorExpenseNotify implements ShouldQueue
     {
         MultiDB::setDB($this->db);
 
-        $this->expense->vendor->contacts->filter(function(VendorContact $contact){
+        if(!$this->expense->vendor) {
+            return;
+        }
+
+        $this->expense->vendor->contacts->filter(function (VendorContact $contact) {
             return $contact->send_email && $contact->email;
-        })->each(function(VendorContact $contact){
+        })->each(function (VendorContact $contact) {
             $this->notify($contact);
         });
     }
 
     private function notify(VendorContact $contact)
     {
-        
-        $mo = new EmailObject;
+
+        $mo = new EmailObject();
         $mo->contact = $contact;
         $mo->vendor_contact_id = $contact->id;
         $mo->user_id = $this->expense->user_id;

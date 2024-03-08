@@ -41,7 +41,7 @@ class AuthorizePaymentDriver extends BaseDriver
         GatewayType::CREDIT_CARD => AuthorizeCreditCard::class,
     ];
 
-    const SYSTEM_LOG_TYPE = SystemLog::TYPE_AUTHORIZE;
+    public const SYSTEM_LOG_TYPE = SystemLog::TYPE_AUTHORIZE;
 
     public function setPaymentMethod($payment_method_id)
     {
@@ -90,7 +90,7 @@ class AuthorizePaymentDriver extends BaseDriver
         if ($this->company_gateway->require_custom_value1) {
             $fields[] = ['name' => 'client_custom_value1', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client1'), 'type' => 'text', 'validation' => 'required'];
         }
-        
+
 
         if ($this->company_gateway->require_custom_value2) {
             $fields[] = ['name' => 'client_custom_value2', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client2'), 'type' => 'text', 'validation' => 'required'];
@@ -173,7 +173,7 @@ class AuthorizePaymentDriver extends BaseDriver
         return $env = ANetEnvironment::PRODUCTION;
     }
 
-    public function findClientGatewayRecord() :?ClientGatewayToken
+    public function findClientGatewayRecord(): ?ClientGatewayToken
     {
         return ClientGatewayToken::where('client_id', $this->client->id)
                                  ->where('company_gateway_id', $this->company_gateway->id)

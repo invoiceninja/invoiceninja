@@ -12,16 +12,16 @@
 
 namespace Tests\Feature\Bank;
 
-use Tests\TestCase;
-use App\Models\Expense;
-use App\Models\Invoice;
-use Tests\MockAccountData;
-use App\Factory\InvoiceFactory;
-use App\Models\BankTransaction;
-use App\Factory\InvoiceItemFactory;
 use App\Factory\BankIntegrationFactory;
 use App\Factory\BankTransactionFactory;
+use App\Factory\InvoiceFactory;
+use App\Factory\InvoiceItemFactory;
+use App\Models\BankTransaction;
+use App\Models\Expense;
+use App\Models\Invoice;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 class BankTransactionTest extends TestCase
 {

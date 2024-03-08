@@ -45,13 +45,20 @@ class PaymentHtmlEngine
         $this->helpers = new Helpers();
     }
 
+    public function setSettings($settings): self
+    {
+        $this->settings = $settings;
+
+        return $this;
+    }
+
     public function makePaymentVariables()
     {
         App::forgetInstance('translator');
         $t = app('translator');
         App::setLocale($this->contact->preferredLocale());
         $t->replace(Ninja::transformTranslations($this->client->getMergedSettings()));
- 
+
         $data = [];
 
         $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
@@ -166,7 +173,7 @@ class PaymentHtmlEngine
         $data['$viewButton'] = &$data['$view_link'];
         $data['$viewLink'] = &$data['$view_link'];
         $data['$paymentLink'] = &$data['$view_link'];
-        $data['$portalButton'] = ['value' =>  $this->buildViewButton($this->payment->getPortalLink(), ctrans('texts.login')), 'label' =>''];
+        $data['$portalButton'] = ['value' =>  $this->buildViewButton($this->payment->getPortalLink(), ctrans('texts.login')), 'label' => ''];
         $data['$portal_url'] = &$data['$portalButton'];
 
         $data['$view_url'] = ['value' => $this->payment->getLink(), 'label' => ctrans('texts.view_payment')];
@@ -175,22 +182,33 @@ class PaymentHtmlEngine
 
         $data['$invoices'] = ['value' => $this->formatInvoices(), 'label' => ctrans('texts.invoices')];
         $data['$invoice_references'] = ['value' => $this->formatInvoiceReferences(), 'label' => ctrans('texts.invoices')];
-        $data['$invoice'] = ['value' => $this->formatInvoice(), 'label' => ctrans('texts.invoices')];
+        $data['$invoice'] = ['value' => $this->formatInvoice(), 'label' => ctrans('texts.invoice')];
         $data['$invoice.po_number'] = ['value' => $this->formatPoNumber(), 'label' => ctrans('texts.po_number')];
         $data['$poNumber'] = &$data['$invoice.po_number'];
         $data['$payment.status'] = ['value' => $this->payment->stringStatus($this->payment->status_id), 'label' => ctrans('texts.payment_status')];
         $data['$invoices.amount'] = ['value' => $this->formatInvoiceField('amount'), 'label' => ctrans('texts.invoices')];
+        $data['$amount_paid'] = ['value' => '', 'label' => ctrans('texts.amount_paid')];
+
         $data['$invoices.balance'] = ['value' => $this->formatInvoiceField('balance'), 'label' => ctrans('texts.invoices')];
         $data['$invoices.due_date'] = ['value' => $this->formatInvoiceField('due_date'), 'label' => ctrans('texts.invoices')];
         $data['$invoices.po_number'] = ['value' => $this->formatInvoiceField('po_number'), 'label' => ctrans('texts.invoices')];
-
+        $data['$date'] = ['value' => '', 'label' => ctrans('texts.date')];
+        $data['$method'] = ['value' => '', 'label' => ctrans('texts.method')];
+        $data['$transaction_reference'] = ['value' => '', 'label' => ctrans('texts.transaction_reference')];
+        $data['$public_notes'] = ['value' => $this->client->public_notes, 'label' => ctrans('texts.public_notes')];
+        $data['$receipt'] = ['value' => '', 'label' => ctrans('texts.receipt')];
+        $data['$amount_paid'] = ['value' => '', 'label' => ctrans('texts.amount_paid')];
+        $data['$refund'] = ['value' => '', 'label' => ctrans('texts.refund')];
+        $data['$refunded'] = ['value' => '', 'label' => ctrans('texts.refunded')];
+        $data['$reference'] = ['value' => '', 'label' => ctrans('texts.reference')];
+        $data['$total'] = ['value' => '', 'label' => ctrans('texts.total')];
+        $data['$history'] = ['value' => '', 'label' => ctrans('texts.history')];
 
         if ($this->payment->status_id == 4) {
             $data['$status_logo'] = ['value' => '<div class="stamp is-paid"> ' . ctrans('texts.paid') .'</div>', 'label' => ''];
         } else {
             $data['$status_logo'] = ['value' => '', 'label' => ''];
         }
-
 
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);
@@ -270,7 +288,7 @@ class PaymentHtmlEngine
         return $invoice_list;
     }
 
-    public function makeValues() :array
+    public function makeValues(): array
     {
         $data = [];
 
@@ -282,7 +300,7 @@ class PaymentHtmlEngine
 
         return $data;
     }
-    
+
     /**
      * generateLabelsAndValues
      *

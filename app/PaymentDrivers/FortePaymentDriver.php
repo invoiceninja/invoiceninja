@@ -51,7 +51,7 @@ class FortePaymentDriver extends BaseDriver
         return $types;
     }
 
-    const SYSTEM_LOG_TYPE = SystemLog::TYPE_FORTE; //define a constant for your gateway ie TYPE_YOUR_CUSTOM_GATEWAY - set the const in the SystemLog model
+    public const SYSTEM_LOG_TYPE = SystemLog::TYPE_FORTE; //define a constant for your gateway ie TYPE_YOUR_CUSTOM_GATEWAY - set the const in the SystemLog model
 
     public function setPaymentMethod($payment_method_id)
     {
@@ -104,7 +104,7 @@ class FortePaymentDriver extends BaseDriver
                 CURLOPT_FOLLOWLOCATION => true,
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_POSTFIELDS =>'{
+                CURLOPT_POSTFIELDS => '{
                      "action":"reverse", 
                      "authorization_amount":'.$amount.',
                      "original_transaction_id":"'.$payment->transaction_reference.'",
@@ -122,7 +122,7 @@ class FortePaymentDriver extends BaseDriver
 
             curl_close($curl);
 
-            $response=json_decode($response);
+            $response = json_decode($response);
         } catch (\Throwable $th) {
             $message = [
                 'action' => 'error',
@@ -146,7 +146,7 @@ class FortePaymentDriver extends BaseDriver
             'data' => $payment->paymentables,
         ];
 
-        if ($httpcode>299) {
+        if ($httpcode > 299) {
             SystemLogger::dispatch(
                 $message,
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
@@ -155,7 +155,7 @@ class FortePaymentDriver extends BaseDriver
                 $this->client,
                 $this->client->company,
             );
-            
+
             return [
                 'transaction_reference' => $payment->transaction_reference,
                 'transaction_response' => $response,

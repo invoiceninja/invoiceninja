@@ -9,13 +9,13 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-use Tests\TestCase;
-use Tests\MockAccountData;
 use App\Jobs\Entity\CreateRawPdf;
 use App\Jobs\Invoice\CreateEInvoice;
 use horstoeko\zugferd\ZugferdDocumentReader;
-use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test
@@ -45,29 +45,29 @@ class EInvoiceTest extends TestCase
         $this->assertIsString($e_invoice);
     }
 
-     /**
-      * @throws Exception
-      */
-     public function testValidityofXMLFile()
-     {
-         $this->company->e_invoice_type = "EN16931";
-         $this->invoice->client->routing_id = 'DE123456789';
-         $this->invoice->client->save();
+    /**
+     * @throws Exception
+     */
+    public function testValidityofXMLFile()
+    {
+        $this->company->e_invoice_type = "EN16931";
+        $this->invoice->client->routing_id = 'DE123456789';
+        $this->invoice->client->save();
 
-         $e_invoice = (new CreateEInvoice($this->invoice))->handle();
-         $document = ZugferdDocumentReader::readAndGuessFromContent($e_invoice);
-         $document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $documentcurrency, $taxcurrency, $taxname, $documentlangeuage, $rest);
-         $this->assertEquals($this->invoice->number, $documentno);
-     }
+        $e_invoice = (new CreateEInvoice($this->invoice))->handle();
+        $document = ZugferdDocumentReader::readAndGuessFromContent($e_invoice);
+        $document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $documentcurrency, $taxcurrency, $taxname, $documentlangeuage, $rest);
+        $this->assertEquals($this->invoice->number, $documentno);
+    }
 
-     /**
-      * @throws Exception
-      */
-     public function checkEmbededPDFFile()
-     {
-         $pdf = (new CreateRawPdf($this->invoice->invitations()->first()))->handle();
-         $document = ZugferdDocumentReader::readAndGuessFromContent($pdf);
-         $document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $documentcurrency, $taxcurrency, $taxname, $documentlangeuage, $rest);
-         $this->assertEquals($this->invoice->number, $documentno);
-     }
+    /**
+     * @throws Exception
+     */
+    public function checkEmbededPDFFile()
+    {
+        $pdf = (new CreateRawPdf($this->invoice->invitations()->first()))->handle();
+        $document = ZugferdDocumentReader::readAndGuessFromContent($pdf);
+        $document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $documentcurrency, $taxcurrency, $taxname, $documentlangeuage, $rest);
+        $this->assertEquals($this->invoice->number, $documentno);
+    }
 }

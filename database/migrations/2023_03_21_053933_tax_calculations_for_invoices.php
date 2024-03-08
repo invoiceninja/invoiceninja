@@ -1,14 +1,12 @@
 <?php
 
 use App\Models\Company;
-use App\Libraries\MultiDB;
 use App\Models\CompanyUser;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -26,15 +24,15 @@ return new class extends Migration
             $table->boolean('tax_data');
         });
 
-        Schema::table('products', function (Blueprint $table){
+        Schema::table('products', function (Blueprint $table) {
             $table->unsignedInteger('tax_id')->nullable(); // the product tax constant
         });
 
-        Schema::table('clients', function (Blueprint $table){
+        Schema::table('clients', function (Blueprint $table) {
             $table->boolean('tax_data');
         });
 
-        Schema::table('schedulers', function (Blueprint $table){
+        Schema::table('schedulers', function (Blueprint $table) {
             $table->dropUnique('schedulers_company_id_name_unique');
         });
 

@@ -64,7 +64,11 @@ class CompanyLedgerController extends BaseController
      */
     public function index(ShowCompanyLedgerRequest $request)
     {
-        $company_ledger = CompanyLedger::where('company_id', auth()->user()->company()->id)->orderBy('id', 'ASC');
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $company_ledger = CompanyLedger::where('company_id', $user->company()->id)->orderBy('id', 'ASC');
 
         return $this->listResponse($company_ledger);
     }

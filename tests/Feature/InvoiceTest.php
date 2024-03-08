@@ -16,8 +16,10 @@ use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Project;
 use Tests\MockAccountData;
+use App\Models\Subscription;
 use App\Models\ClientContact;
 use App\Utils\Traits\MakesHash;
+use App\Models\RecurringInvoice;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Repositories\InvoiceRepository;
 use Illuminate\Database\Eloquent\Model;
@@ -48,6 +50,48 @@ class InvoiceTest extends TestCase
 
         $this->makeTestData();
     }
+
+    public function testInvoicePaymentLinkMutation()
+    {
+
+
+        $s = Subscription::factory()
+            ->create(['company_id' => $this->company->id, 'user_id' => $this->user->id]);
+
+
+        $s2 = Subscription::factory()
+        ->create(['company_id' => $this->company->id, 'user_id' => $this->user->id]);
+
+
+        $r = Invoice::factory()
+        ->create(['company_id' => $this->company->id, 'user_id' => $this->user->id,'client_id' => $this->client->id]);
+
+        $rr = $r->service()->setPaymentLink($s->hashed_id)->save();
+
+        $this->assertEquals($s->id, $rr->subscription_id);
+
+        $data = [
+            'subscription_id' => $s2->hashed_id,
+            'action' => 'set_payment_link',
+            'ids' => [$r->hashed_id],
+        ];
+
+        $response = $this->withHeaders([
+        'X-API-SECRET' => config('ninja.api_secret'),
+        'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/invoices/bulk', $data)
+            ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $r = $r->fresh();
+
+        $this->assertEquals($s2->id, $r->subscription_id);
+
+
+
+    }
+
 
     public function testPostNewInvoiceWithProjectButNoClient()
     {
@@ -141,7 +185,7 @@ class InvoiceTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->get('/api/v1/invoices?date_range=date,1971-01-01,1971-01-03', )
+        ])->get('/api/v1/invoices?date_range=1971-01-01,1971-01-03', )
         ->assertStatus(200);
         
         $arr = $response->json();

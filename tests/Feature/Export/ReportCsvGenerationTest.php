@@ -11,28 +11,27 @@
 
 namespace Tests\Feature\Export;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Client;
-use App\Models\Credit;
-use League\Csv\Reader;
-use App\Models\Account;
-use App\Models\Company;
-use App\Models\Expense;
-use App\Models\Invoice;
-use App\Models\CompanyToken;
-use App\Models\ClientContact;
-use App\Export\CSV\TaskExport;
-use App\Utils\Traits\MakesHash;
-use App\Export\CSV\VendorExport;
+use App\DataMapper\CompanySettings;
 use App\Export\CSV\PaymentExport;
 use App\Export\CSV\ProductExport;
-use App\DataMapper\CompanySettings;
-use App\DataMapper\InvoiceItem;
+use App\Export\CSV\TaskExport;
+use App\Export\CSV\VendorExport;
 use App\Factory\CompanyUserFactory;
 use App\Factory\InvoiceItemFactory;
-use Illuminate\Support\Facades\Http;
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\Company;
+use App\Models\CompanyToken;
+use App\Models\Credit;
+use App\Models\Expense;
+use App\Models\Invoice;
+use App\Models\User;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\Http;
+use League\Csv\Reader;
+use Tests\TestCase;
 
 /**
  * @test
@@ -59,8 +58,9 @@ class ReportCsvGenerationTest extends TestCase
 
         $this->buildData();
 
-        if (config('ninja.testvars.travis') !== false) 
+        if (config('ninja.testvars.travis') !== false) {
             $this->markTestSkipped('Skip test no company gateways installed');
+        }
 
     }
 
@@ -354,7 +354,7 @@ class ReportCsvGenerationTest extends TestCase
 
         $query = Invoice::query();
 
-        $query->where(function ($q) use($products){
+        $query->where(function ($q) use ($products) {
             foreach($products as $product) {
                 $q->orWhereJsonContains('line_items', ['product_key' => $product]);
             }
@@ -364,8 +364,8 @@ class ReportCsvGenerationTest extends TestCase
 
         $query = Invoice::query();
 
-        $query->where(function ($q){
-                $q->orWhereJsonContains('line_items', ['product_key' => 'bob the builder']);
+        $query->where(function ($q) {
+            $q->orWhereJsonContains('line_items', ['product_key' => 'bob the builder']);
         });
 
         $this->assertEquals(1, $query->count());
@@ -400,46 +400,46 @@ class ReportCsvGenerationTest extends TestCase
         
         $q->forceDelete();
         
-            Invoice::factory()->create(
-                [
-                    'company_id' => $this->company->id,
-                    'user_id' => $this->user->id,
-                    'client_id' => $this->client->id,
-                    'line_items' => $line_items
-                ]
-            );
+        Invoice::factory()->create(
+            [
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+                'client_id' => $this->client->id,
+                'line_items' => $line_items
+            ]
+        );
 
-            $item = InvoiceItemFactory::create();
-            $item->product_key = 'bob the builder';
+        $item = InvoiceItemFactory::create();
+        $item->product_key = 'bob the builder';
 
-            $line_items = [];
+        $line_items = [];
 
-            $line_items[] = $item;
+        $line_items[] = $item;
 
-            $q = Invoice::whereJsonContains('line_items', ['product_key' => 'bob the builder']);
+        $q = Invoice::whereJsonContains('line_items', ['product_key' => 'bob the builder']);
 
-            $this->assertEquals(0, $q->count());
+        $this->assertEquals(0, $q->count());
 
-            Invoice::factory()->create(
-                [
-                    'company_id' => $this->company->id,
-                    'user_id' => $this->user->id,
-                    'client_id' => $this->client->id,
-                    'line_items' => $line_items
-                ]
-            );
+        Invoice::factory()->create(
+            [
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+                'client_id' => $this->client->id,
+                'line_items' => $line_items
+            ]
+        );
 
-            $this->assertEquals(1, $q->count());
+        $this->assertEquals(1, $q->count());
 
-            $q = Invoice::whereJsonContains('line_items', ['product_key' => 'Bob the builder']);
-            $this->assertEquals(0, $q->count());
+        $q = Invoice::whereJsonContains('line_items', ['product_key' => 'Bob the builder']);
+        $this->assertEquals(0, $q->count());
 
-            $q = Invoice::whereJsonContains('line_items', ['product_key' => 'bob']);
-            $this->assertEquals(0, $q->count());
+        $q = Invoice::whereJsonContains('line_items', ['product_key' => 'bob']);
+        $this->assertEquals(0, $q->count());
 
-            $q->forceDelete();
+        $q->forceDelete();
 
-            Invoice::withTrashed()->cursor()->each(function ($i){ $i->forceDelete();});
+        Invoice::withTrashed()->cursor()->each(function ($i) { $i->forceDelete();});
     }
 
     public function testVendorCsvGeneration()
@@ -501,6 +501,7 @@ class ReportCsvGenerationTest extends TestCase
             // 'start_date' => 'bail|required_if:date_range,custom|nullable|date',
             'report_keys' => [],
             'send_email' => false,
+            'include_deleted' => false,
             // 'status' => 'sometimes|string|nullable|in:all,draft,sent,viewed,paid,unpaid,overdue',
         ];
 
@@ -547,6 +548,7 @@ class ReportCsvGenerationTest extends TestCase
             'date_range' => 'all',
             'report_keys' => ["vendor.name", "vendor.city", "vendor.number"],
             'send_email' => false,
+            'include_deleted' => false,
         ];
 
         $response = $this->withHeaders([
@@ -638,6 +640,7 @@ class ReportCsvGenerationTest extends TestCase
                 'task.custom_value4',
             ],
             'send_email' => false,
+            'include_deleted' => false,
         ];
 
         $response = $this->withHeaders([
@@ -655,7 +658,7 @@ class ReportCsvGenerationTest extends TestCase
                 
         $csv = $response->body();
 
-
+// nlog($csv);
         $this->assertEquals(3600, $this->getFirstValueByColumn($csv, 'Task Duration'));
         $this->assertEquals('test1', $this->getFirstValueByColumn($csv, 'Task Description'));
         $this->assertEquals('16/Jul/2023', $this->getFirstValueByColumn($csv, 'Task Start Date'));
@@ -792,6 +795,7 @@ class ReportCsvGenerationTest extends TestCase
             'date_range' => 'all',
             'report_keys' => [],
             'send_email' => false,
+            'include_deleted' => false,
         ];
 
         $response = $this->withHeaders([
@@ -873,6 +877,7 @@ class ReportCsvGenerationTest extends TestCase
                 "client.paid_to_date"
             ],
             'send_email' => false,
+            'include_deleted' => false,
         ];
 
         $response = $this->withHeaders([
@@ -890,6 +895,7 @@ class ReportCsvGenerationTest extends TestCase
         
         $csv = $response->body();
 
+        // nlog($csv);
 
         $this->assertEquals(100, $this->getFirstValueByColumn($csv, 'Payment Amount'));
         $this->assertEquals(now()->addSeconds($this->company->timezone()->utc_offset)->format('Y-m-d'), $this->getFirstValueByColumn($csv, 'Payment Date'));
@@ -1274,7 +1280,7 @@ class ReportCsvGenerationTest extends TestCase
         $response->assertStatus(200);
         $arr = $response->json();
         $hash = $arr['message'];
-        $response = $this->poll($hash);    
+        $response = $this->poll($hash);
         $csv = $response->body();
 
         $this->assertEquals('bob', $this->getFirstValueByColumn($csv, 'Client Name'));
@@ -1586,14 +1592,13 @@ class ReportCsvGenerationTest extends TestCase
                 
         $csv = $response->body();
 
-
-        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Amount'));
-        $this->assertEquals('50', $this->getFirstValueByColumn($csv, 'Balance'));
-        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Discount'));
-        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Number'));
-        $this->assertEquals('Public', $this->getFirstValueByColumn($csv, 'Public Notes'));
-        $this->assertEquals('Private', $this->getFirstValueByColumn($csv, 'Private Notes'));
-        $this->assertEquals('Terms', $this->getFirstValueByColumn($csv, 'Terms'));
+        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Purchase Order Amount'));
+        $this->assertEquals('50', $this->getFirstValueByColumn($csv, 'Purchase Order Balance'));
+        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Purchase Order Discount'));
+        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Purchase Order Number'));
+        $this->assertEquals('Public', $this->getFirstValueByColumn($csv, 'Purchase Order Public Notes'));
+        $this->assertEquals('Private', $this->getFirstValueByColumn($csv, 'Purchase Order Private Notes'));
+        $this->assertEquals('Terms', $this->getFirstValueByColumn($csv, 'Purchase Order Terms'));
     }
 
 
@@ -1764,7 +1769,7 @@ class ReportCsvGenerationTest extends TestCase
 
         $data = [
             'date_range' => 'all',
-            'report_keys' => ["client.name","invoice.number","invoice.amount","payment.date", "payment.amount"],
+            'report_keys' => ["client.name","invoice.number","invoice.amount", "payment.date", "payment.amount"],
             'send_email' => false,
         ];
 
@@ -1783,12 +1788,10 @@ class ReportCsvGenerationTest extends TestCase
                 
         $csv = $response->body();
 
-
         $this->assertEquals('bob', $this->getFirstValueByColumn($csv, 'Client Name'));
         $this->assertEquals('12345', $this->getFirstValueByColumn($csv, 'Invoice Invoice Number'));
         $this->assertEquals(100, $this->getFirstValueByColumn($csv, 'Payment Amount'));
         $this->assertEquals(now()->addSeconds($this->company->timezone()->utc_offset)->format('Y-m-d'), $this->getFirstValueByColumn($csv, 'Payment Date'));
-
 
     }
 

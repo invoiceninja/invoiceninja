@@ -77,7 +77,7 @@ class MarkInvoiceDeleted extends AbstractService
         if ($this->adjustment_amount == $this->total_payments) {
             $this->invoice->payments()->update(['payments.deleted_at' => now(), 'payments.is_deleted' => true]);
         }
-      
+
 
         //adjust payments down by the amount applied to the invoice payment.
         $this->invoice->payments->each(function ($payment) {
@@ -100,7 +100,7 @@ class MarkInvoiceDeleted extends AbstractService
             $payment->applied -= $payment_adjustment;
             $payment->save();
         });
-        
+
 
         return $this;
     }

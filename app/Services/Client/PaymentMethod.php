@@ -84,12 +84,12 @@ class PaymentMethod
             //removing this logic now to prevent any
             // if($this->gateways->count() == 0 && count($transformed_ids) >=1) {
 
-            //     /** 
-            //      * This is a fallback in case a user archives some gateways that have been ordered preferentially. 
+            //     /**
+            //      * This is a fallback in case a user archives some gateways that have been ordered preferentially.
             //      *
-            //      * If the user archives a parent gateway upstream, it may leave a client setting in a state where no payment gateways are available. 
-            //      * 
-            //      * In this case we fall back to all gateways. 
+            //      * If the user archives a parent gateway upstream, it may leave a client setting in a state where no payment gateways are available.
+            //      *
+            //      * In this case we fall back to all gateways.
             //      */
             //     $this->gateways = CompanyGateway::query()
             //                  ->with('gateway')
@@ -230,11 +230,11 @@ class PaymentMethod
                 'gateway_type_id' => GatewayType::CREDIT,
             ];
         }
-        
+
         return $this;
     }
 
-    private function validGatewayForAmount($fees_and_limits_for_payment_type, $amount) :bool
+    private function validGatewayForAmount($fees_and_limits_for_payment_type, $amount): bool
     {
         if (isset($fees_and_limits_for_payment_type)) {
             $fees_and_limits = $fees_and_limits_for_payment_type;

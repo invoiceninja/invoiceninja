@@ -27,7 +27,7 @@ class EntityEmailHistoryRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         //handle authorization in controller
         return true;
@@ -55,7 +55,7 @@ class EntityEmailHistoryRequest extends Request
 
         $this->entity_plural = Str::plural($input['entity']) ?? '';
         $input['entity_id'] = $this->decodePrimaryKey($input['entity_id']);
-        
+
         $this->replace($input);
     }
 

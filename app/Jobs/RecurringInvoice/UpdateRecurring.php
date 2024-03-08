@@ -23,7 +23,10 @@ use Illuminate\Queue\SerializesModels;
 
 class UpdateRecurring implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $tries = 1;
 
@@ -36,12 +39,12 @@ class UpdateRecurring implements ShouldQueue
      *
      * @return void
      */
-    public function handle() : void
+    public function handle(): void
     {
         MultiDB::setDb($this->company->db);
 
         $this->user->setCompany($this->company);
-        
+
         RecurringInvoice::query()->where('company_id', $this->company->id)
             ->whereIn('id', $this->ids)
             ->chunk(100, function ($recurring_invoices) {

@@ -33,6 +33,7 @@ class MultiDBProvider extends ServiceProvider
      */
     public function register()
     {
+
         $this->app['events']->listen(
             JobProcessing::class,
             function ($event) {
