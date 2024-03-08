@@ -39,9 +39,6 @@ class Register extends Component
     public ?int $otp;
 
     public array $state = [
-        'otp' => true, // Use as preference. E-mail/password or OTP.
-        'login_form' => false,
-        'otp_form' => false,
         'initial_completed' => false,
         'register_form' => false,
     ];
@@ -63,51 +60,6 @@ class Register extends Component
         }
 
         $this->state['initial_completed'] = true;
-
-        return $this->withOtp();
-    }
-
-    public function withOtp()
-    {
-        $code = rand(100000, 999999);
-        $email_hash = "subscriptions:otp:{$this->email}";
-
-        Cache::put($email_hash, $code, 600);
-
-        $cc = new ClientContact();
-        $cc->email = $this->email;
-
-        $nmo = new NinjaMailerObject();
-        $nmo->mailable = new OtpCode($this->subscription->company, $this->context['contact'] ?? null, $code);
-        $nmo->company = $this->subscription->company;
-        $nmo->settings = $this->subscription->company->settings;
-        $nmo->to_user = $cc;
-
-        NinjaMailerJob::dispatch($nmo);
-
-        if (app()->environment('local')) {
-            session()->flash('message', "[dev]: Your OTP is: {$code}");
-        }
-
-        $this->state['otp_form'] = true;
-    }
-
-    public function handleOtp()
-    {
-        $this->validate([
-            'otp' => 'required|numeric|digits:6',
-        ]);
-
-        $code = Cache::get("subscriptions:otp:{$this->email}");
-
-        if ($this->otp != $code) { //loose comparison prevents edge cases
-            $errors = $this->getErrorBag();
-            $errors->add('otp', ctrans('texts.invalid_code'));
-
-            return;
-        }
-
-        $this->state['otp_form'] = false;
         $this->state['register_form'] = true;
     }
 
