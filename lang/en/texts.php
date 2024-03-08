@@ -5241,7 +5241,16 @@ $lang = array(
     'test_email_sent' => 'Successfully sent email',
     'gateway_type' => 'Gateway Type',
     'save_template_body' => 'Would you like to save this import mapping as a template for future use?',
-    'save_as_template' => 'Save Template Mapping'
+    'save_as_template' => 'Save Template Mapping',
+    'auto_bill_standard_invoices_help' => 'Auto bill standard invoices on the due date',
+    'auto_bill_on_help' => 'Auto bill on send date OR due date (recurring invoices)',
+    'use_available_credits_help' => 'Apply any credit balances to payments prior to charging a payment method',
+    'use_unapplied_payments' => 'Use unapplied payments',
+    'use_unapplied_payments_help' => 'Apply any payment balances prior to charging a payment method',
+    'payment_terms_help' => 'The number of days after the invoice date that payment is due',
+    'payment_type_help' => 'The default payment type to be used for payments',
+    'quote_valid_until' => 'The number of days that the quote is valid for',
+    'expense_payment_type' => 'The default expense payment type to be used',
 );
 
 return $lang;
