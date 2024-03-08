@@ -856,11 +856,11 @@ class BaseExport
      * Add Client Filter
      *
      * @param  Builder $query
-     * @param  string $clients
+     * @param  mixed $clients
      * 
      * @return Builder
      */
-    protected function addClientFilter(Builder $query, string $clients): Builder
+    protected function addClientFilter(Builder $query, $clients): Builder
     {
         if(is_string($clients)) {
             $clients =  explode(',', $clients);
