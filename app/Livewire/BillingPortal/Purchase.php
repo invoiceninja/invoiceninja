@@ -59,18 +59,6 @@ class Purchase extends Component
             'id' => 'cart',
             'dependencies' => [],
         ],
-        Methods::class => [
-            'id' => 'methods',
-            'dependencies' => [Login::class, RegisterOrLogin::class, Register::class],
-        ],
-        RFF::class => [
-            'id' => 'rff',
-            'dependencies' => [Login::class, RegisterOrLogin::class, Register::class, Methods::class],
-        ],
-        Submit::class => [
-            'id' => 'submit',
-            'dependencies' => [Methods::class],
-        ],
     ];
 
     public array $steps = [];
@@ -129,7 +117,8 @@ class Purchase extends Component
         return "summary-{$this->id}";
     }
 
-    public static function defaultSteps() {
+    public static function defaultSteps()
+    {
         return [
             Setup::class,
             Cart::class,
@@ -152,6 +141,9 @@ class Purchase extends Component
             $this->steps = [
                 Setup::class,
                 ...$steps,
+                Methods::class,
+                RFF::class,
+                Submit::class,
             ];
         } else {
             $this->steps = self::defaultSteps();
