@@ -303,7 +303,10 @@ class ClientGatewayTokenController extends BaseController
      */
     public function create(CreateClientGatewayTokenRequest $request)
     {
-        $client_gateway_token = ClientGatewayTokenFactory::create(auth()->user()->company()->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $client_gateway_token = ClientGatewayTokenFactory::create($user->company()->id);
 
         $client_gateway_token = $this->client_gateway_token_repo->save($request->all(), $client_gateway_token);
 
@@ -350,7 +353,11 @@ class ClientGatewayTokenController extends BaseController
      */
     public function store(StoreClientGatewayTokenRequest $request)
     {
-        $client_gateway_token = ClientGatewayTokenFactory::create(auth()->user()->company()->id);
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $client_gateway_token = ClientGatewayTokenFactory::create($user->company()->id);
 
         $client_gateway_token = $this->client_gateway_token_repo->save($request->all(), $client_gateway_token);
 

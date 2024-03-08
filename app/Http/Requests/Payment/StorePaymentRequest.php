@@ -31,7 +31,7 @@ class StorePaymentRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -97,7 +97,7 @@ class StorePaymentRequest extends Request
         }
 
         if (! isset($input['idempotency_key'])) {
-            $input['idempotency_key'] = substr(sha1(json_encode($input)).time()."{$input['date']}{$input['amount']}{$user->id}",0,64);
+            $input['idempotency_key'] = substr(sha1(json_encode($input)).time()."{$input['date']}{$input['amount']}{$user->id}", 0, 64);
         }
 
         $this->replace($input);
@@ -126,6 +126,8 @@ class StorePaymentRequest extends Request
             $rules['documents.*'] = $this->file_validation;
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->file_validation;
+        }else {
+            $rules['documents'] = 'bail|sometimes|array';
         }
 
         if ($this->file('file') && is_array($this->file('file'))) {
@@ -133,7 +135,7 @@ class StorePaymentRequest extends Request
         } elseif ($this->file('file')) {
             $rules['file'] = $this->file_validation;
         }
-        
+
         return $rules;
     }
 }

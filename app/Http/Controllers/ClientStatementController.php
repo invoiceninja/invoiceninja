@@ -18,7 +18,8 @@ use Illuminate\Support\Facades\Response;
 
 class ClientStatementController extends BaseController
 {
-    use MakesHash, PdfMaker;
+    use MakesHash;
+    use PdfMaker;
 
     /** @var \App\Models\Invoice|\App\Models\Payment */
     protected $entity;

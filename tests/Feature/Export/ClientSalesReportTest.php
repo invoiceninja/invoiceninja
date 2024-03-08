@@ -11,18 +11,17 @@
 
 namespace Tests\Feature\Export;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Client;
-use App\Models\Account;
-use App\Models\Company;
-use App\Models\Invoice;
-use App\Utils\Traits\MakesHash;
 use App\DataMapper\CompanySettings;
 use App\Factory\InvoiceItemFactory;
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\Company;
+use App\Models\Invoice;
+use App\Models\User;
 use App\Services\Report\ClientSalesReport;
-use App\Services\Report\ClientBalanceReport;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Tests\TestCase;
 
 /**
  * @test

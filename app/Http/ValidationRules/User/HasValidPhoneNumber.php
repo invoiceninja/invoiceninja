@@ -48,7 +48,7 @@ class HasValidPhoneNumber implements Rule
         if (is_null($value)) {
             return false;
         }
-        
+
         $twilio = new \Twilio\Rest\Client($sid, $token);
 
         $country = auth()->user()->account?->companies()?->first()?->country();
@@ -58,7 +58,7 @@ class HasValidPhoneNumber implements Rule
         }
 
         $countryCode = $country->iso_3166_2;
-        
+
         try {
             $phone_number = $twilio->lookups->v1->phoneNumbers($value)
                                                 ->fetch(["countryCode" => $countryCode]);
@@ -69,7 +69,7 @@ class HasValidPhoneNumber implements Rule
 
             $user->verified_phone_number = false;
             $user->save();
-            
+
             return true;
         } catch(\Exception $e) {
             return false;

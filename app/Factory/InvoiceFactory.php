@@ -15,7 +15,7 @@ use App\Models\Invoice;
 
 class InvoiceFactory
 {
-    public static function create(int $company_id, int $user_id) :Invoice
+    public static function create(int $company_id, int $user_id): Invoice
     {
         $invoice = new Invoice();
         $invoice->status_id = Invoice::STATUS_DRAFT;
@@ -50,7 +50,7 @@ class InvoiceFactory
         $invoice->company_id = $company_id;
         $invoice->recurring_id = null;
         $invoice->exchange_rate = 1;
-        
+
         return $invoice;
     }
 }

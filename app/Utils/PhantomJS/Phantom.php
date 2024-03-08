@@ -33,7 +33,8 @@ use Illuminate\Support\Str;
 
 class Phantom
 {
-    use MakesHash, PageNumbering;
+    use MakesHash;
+    use PageNumbering;
 
     /**
      * Generate a PDF from the

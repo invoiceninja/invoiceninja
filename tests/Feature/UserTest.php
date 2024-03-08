@@ -11,21 +11,21 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Account;
-use App\Models\Company;
-use Tests\MockAccountData;
-use App\Models\CompanyUser;
-use App\Models\CompanyToken;
 use App\DataMapper\CompanySettings;
 use App\Factory\CompanyUserFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Session;
 use App\Http\Middleware\PasswordProtection;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Routing\Middleware\ThrottleRequests;
+use App\Models\Account;
+use App\Models\Company;
+use App\Models\CompanyToken;
+use App\Models\CompanyUser;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\ValidationException;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test
@@ -284,7 +284,7 @@ class UserTest extends TestCase
 
     public function testDisconnectUserOauthMailer()
     {
-        $user = 
+        $user =
         User::factory()->create([
             'account_id' => $this->account->id,
             'email' => $this->faker->safeEmail(),

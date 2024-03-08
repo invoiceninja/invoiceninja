@@ -67,10 +67,12 @@ class EmailQuotaNotification extends Notification
         $content = "Email quota exceeded by Account {$this->account->key} \n";
 
         $owner = $this->account->companies()->first()->owner();
+        $owner_name = $owner->present()->name() ?? 'No Owner Found';
+        $owner_email = $owner->email ?? 'No Owner Email Found';
 
-        $content .= "Owner {$owner->present()->name() } | {$owner->email}";
+        $content .= "Owner {$owner_name} | {$owner_email}";
 
-        return (new SlackMessage)
+        return (new SlackMessage())
                 ->success()
                 ->from(ctrans('texts.notification_bot'))
                 ->image('https://app.invoiceninja.com/favicon.png')

@@ -11,25 +11,28 @@
 
 namespace App\Jobs\PurchaseOrder;
 
-use App\Models\User;
-use App\Models\Company;
-use App\Libraries\MultiDB;
-use App\Jobs\Util\UnlinkFile;
-use Illuminate\Bus\Queueable;
 use App\Jobs\Entity\CreateRawPdf;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
+use App\Jobs\Util\UnlinkFile;
+use App\Libraries\MultiDB;
 use App\Mail\DownloadPurchaseOrders;
-use Illuminate\Queue\SerializesModels;
+use App\Models\Company;
 use App\Models\PurchaseOrderInvitation;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\User;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
 
 class ZipPurchaseOrders implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $settings;
 
@@ -63,7 +66,7 @@ class ZipPurchaseOrders implements ShouldQueue
 
         try {
             foreach ($invitations as $invitation) {
-                
+
                 $file = (new CreateRawPdf($invitation))->handle();
 
                 $zipFile->addFromString($invitation->purchase_order->numberFormatter().".pdf", $file);
@@ -71,7 +74,7 @@ class ZipPurchaseOrders implements ShouldQueue
 
             Storage::put($path.$file_name, $zipFile->outputAsString());
 
-            $nmo = new NinjaMailerObject;
+            $nmo = new NinjaMailerObject();
             $nmo->mailable = new DownloadPurchaseOrders(Storage::url($path.$file_name), $this->company);
             $nmo->to_user = $this->user;
             $nmo->settings = $this->settings;

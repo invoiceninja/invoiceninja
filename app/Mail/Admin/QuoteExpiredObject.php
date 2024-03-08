@@ -21,7 +21,6 @@ use stdClass;
 
 class QuoteExpiredObject
 {
-
     public function __construct(public Quote $quote, public Company $company, public bool $use_react_url)
     {
     }
@@ -42,12 +41,13 @@ class QuoteExpiredObject
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
-        $mail_obj = new stdClass;
+        $mail_obj = new stdClass();
         $mail_obj->amount = $this->getAmount();
         $mail_obj->subject = $this->getSubject();
         $mail_obj->data = $this->getData();
         $mail_obj->markdown = 'email.admin.generic';
         $mail_obj->tag = $this->company->company_key;
+        $mail_obj->text_view = 'email.template.text';
 
         return $mail_obj;
     }
@@ -72,23 +72,27 @@ class QuoteExpiredObject
     private function getData()
     {
         $settings = $this->quote->client->getMergedSettings();
-
-        $data = [
-            'title' => $this->getSubject(),
-            'message' => ctrans(
-                'texts.notification_quote_expired',
-                [
+        $content = ctrans(
+            'texts.notification_quote_expired',
+            [
                     'amount' => $this->getAmount(),
                     'client' => $this->quote->client->present()->name(),
                     'invoice' => $this->quote->number,
                 ]
-            ),
+        );
+
+        $data = [
+            'title' => $this->getSubject(),
+            'content' => $content,
             'url' => $this->quote->invitations->first()->getAdminLink($this->use_react_url),
             'button' => $this->use_react_url ? ctrans('texts.view_quote') : ctrans('texts.login'),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),
             'settings' => $settings,
             'whitelabel' => $this->company->account->isPaid() ? true : false,
+            'text_body' => $content,
+            'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
+
         ];
 
         return $data;

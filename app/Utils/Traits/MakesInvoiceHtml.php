@@ -22,7 +22,7 @@ use Throwable;
  */
 trait MakesInvoiceHtml
 {
-    private function parseLabelsAndValues($labels, $values, $section) :string
+    private function parseLabelsAndValues($labels, $values, $section): string
     {
         $section = strtr($section, $labels);
         $section = strtr($section, $values);
@@ -38,7 +38,7 @@ trait MakesInvoiceHtml
      * @return string         The return HTML string
      * @throws FatalThrowableError
      */
-    public function renderView($string, $data = []) :string
+    public function renderView($string, $data = []): string
     {
         $data['__env'] = app(Factory::class);
 

@@ -34,6 +34,7 @@ class NinjaMailer extends Mailable
      */
     public function build()
     {
+
         $from_name = config('mail.from.name');
 
         if (property_exists($this->mail_obj, 'from_name')) {

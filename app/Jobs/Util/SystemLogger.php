@@ -23,7 +23,10 @@ use Illuminate\Queue\SerializesModels;
 
 class SystemLogger implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     protected $log;
 
@@ -47,7 +50,7 @@ class SystemLogger implements ShouldQueue
         $this->company = $company;
     }
 
-    public function handle() :void
+    public function handle(): void
     {
         if (! $this->company) {
             nlog('SystemLogger:: No company');

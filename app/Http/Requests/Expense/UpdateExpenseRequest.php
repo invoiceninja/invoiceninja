@@ -27,27 +27,34 @@ class UpdateExpenseRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
-        return auth()->user()->can('edit', $this->expense);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('edit', $this->expense);
     }
 
     public function rules()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         /* Ensure we have a client name, and that all emails are unique*/
         $rules = [];
-     
+
         if (isset($this->number)) {
-            $rules['number'] = Rule::unique('expenses')->where('company_id', auth()->user()->company()->id)->ignore($this->expense->id);
+            $rules['number'] = Rule::unique('expenses')->where('company_id', $user->company()->id)->ignore($this->expense->id);
         }
 
         if ($this->client_id) {
-            $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.auth()->user()->company()->id;
+            $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.$user->company()->id;
         }
 
-        $rules['category_id'] = 'bail|sometimes|nullable|exists:expense_categories,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
-        $rules['transaction_id'] = 'bail|sometimes|nullable|exists:bank_transactions,id,company_id,'.auth()->user()->company()->id;
-        $rules['invoice_id'] = 'bail|sometimes|nullable|exists:invoices,id,company_id,'.auth()->user()->company()->id;
+        $rules['category_id'] = 'bail|sometimes|nullable|exists:expense_categories,id,company_id,'.$user->company()->id.',is_deleted,0';
+        $rules['transaction_id'] = 'bail|sometimes|nullable|exists:bank_transactions,id,company_id,'.$user->company()->id;
+        $rules['invoice_id'] = 'bail|sometimes|nullable|exists:invoices,id,company_id,'.$user->company()->id;
+        $rules['documents'] = 'bail|sometimes|array';
 
 
         return $this->globalRules($rules);
@@ -55,6 +62,10 @@ class UpdateExpenseRequest extends Request
 
     public function prepareForValidation()
     {
+        
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $input = $this->all();
 
         $input = $this->decodePrimaryKeys($input);
@@ -64,7 +75,7 @@ class UpdateExpenseRequest extends Request
         }
 
         if (! array_key_exists('currency_id', $input) || strlen($input['currency_id']) == 0) {
-            $input['currency_id'] = (string) auth()->user()->company()->settings->currency_id;
+            $input['currency_id'] = (string) $user->company()->settings->currency_id;
         }
 
         /* Ensure the project is related */

@@ -56,6 +56,7 @@ class Locale
                         'bg',
                         'he',
                         'km_KH',
+                        'lo_LA',
                         'hu',
                         'fr_CH',
                     ];
@@ -67,9 +68,9 @@ class Locale
      * @return mixed
      */
     public function handle($request, Closure $next)
-    { 
+    {
         /*LOCALE SET */
-        if ($request->has('lang') && in_array($request->input('lang','en'), $this->locales) ) {
+        if ($request->has('lang') && in_array($request->input('lang', 'en'), $this->locales)) {
             $locale = $request->input('lang');
             App::setLocale($locale);
         } elseif (auth()->guard('contact')->user()) {

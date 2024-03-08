@@ -77,6 +77,8 @@ span {
                     <td>
                         <div class="product-information">
                             <div class="item-details">
+
+                                <p class="overflow-ellipsis overflow-hidden px-1 mb-2">{!! $product['notes'] !!}</p>
                                 <p class="mt-2">
                                     @if($show_quantity)
                                     {{ $product['quantity'] }} x
@@ -85,8 +87,8 @@ span {
                                     @if($show_cost)
                                     {{ $product['cost'] }}
                                     @endif
-                                </p> 
-                                <p class="overflow-ellipsis overflow-hidden px-1 mb-2">{!! $product['notes'] !!}</p>
+                                </p>
+                                
                             </div>
                         </div>
                     </td>
@@ -132,6 +134,18 @@ span {
     <div id="totals" class="mb-10 mr-3 ml-3">
         <table width="100%">
             <tbody>
+                @if($discount)
+                <tr>
+                    <td style="text-align:left; padding-right:10px;" class="text-lg">{{ ctrans('texts.discount') }}</td>
+                    <td style="text-align:right; padding-right:10px;" class="text-lg">{{ $discount }}</td>
+                </tr>
+                @endif
+                @if($taxes)
+                <tr>
+                    <td style="text-align:left; padding-right:10px;" class="text-lg">{{ ctrans('texts.tax') }}</td>
+                    <td style="text-align:right; padding-right:10px;" class="text-lg">{{ $taxes }}</td>
+                </tr>
+                @endif
                 <tr>
                     <td style="text-align:left; padding-right:10px;" class="text-lg">{{ ctrans('texts.total') }}</td>
                     <td style="text-align:right; padding-right:10px;" class="text-lg">{{ $amount }}</td>
@@ -156,7 +170,7 @@ span {
         </button>
         
         <div id="notes" class="py-10 border-b-2 border-fuschia-600"  x-show="show_notes">     
-            {!! html_entity_decode($entity->public_notes) !!}
+            {!! html_entity_decode(e($entity->public_notes)) !!}
         </div>
 
     </div>
@@ -202,16 +216,20 @@ span {
             }
         });
 
-        Livewire.hook('message.processed', (message, component) => {
+        document.addEventListener('livewire:init', () => {
 
-            Array.from(document.getElementsByClassName("entity-field")).forEach(function(item) {
-                if(item.innerText.length == 0){
-                    item.parentNode.remove();
-                }
+            Livewire.hook('message.processed', (message, component) => {
+
+                Array.from(document.getElementsByClassName("entity-field")).forEach(function(item) {
+                    if(item.innerText.length == 0){
+                        item.parentNode.remove();
+                    }
+                });
+
             });
 
-        })
-        
+        });
+
         var timeout = false; 
         
         /* Watch for resize of window and ensure we unset props with no values */

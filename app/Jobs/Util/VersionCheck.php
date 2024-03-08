@@ -11,24 +11,27 @@
 
 namespace App\Jobs\Util;
 
-use Carbon\Carbon;
-use App\Utils\Ninja;
-use App\Models\Client;
-use App\Models\Vendor;
-use App\Models\Account;
-use Illuminate\Support\Str;
-use App\Models\ClientContact;
-use Illuminate\Bus\Queueable;
 use App\Factory\ClientContactFactory;
 use App\Factory\VendorContactFactory;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\Vendor;
+use App\Utils\Ninja;
+use Carbon\Carbon;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Str;
 
 class VersionCheck implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public function __construct()
     {
@@ -81,8 +84,8 @@ class VersionCheck implements ShouldQueue
                                 $c->send_email = false;
                                 $c->saveQuietly();
 
-            });
-            
+                            });
+
             ClientContact::query()
                             ->whereNull('contact_key')
                             ->update([
@@ -91,7 +94,7 @@ class VersionCheck implements ShouldQueue
 
             Client::doesntHave('contacts')
                             ->cursor()
-                            ->each(function ($client){
+                            ->each(function (Client $client) {
 
                                 $new_contact = ClientContactFactory::create($client->company_id, $client->user_id);
                                 $new_contact->client_id = $client->id;
@@ -101,17 +104,17 @@ class VersionCheck implements ShouldQueue
 
                             });
 
-            
+
             Vendor::doesntHave('contacts')
                             ->cursor()
-                            ->each(function ($vendor){
+                            ->each(function (Vendor $vendor) {
 
                                 $new_contact = VendorContactFactory::create($vendor->company_id, $vendor->user_id);
                                 $new_contact->vendor_id = $vendor->id;
                                 $new_contact->contact_key = Str::random(40);
                                 $new_contact->is_primary = true;
                                 $new_contact->save();
-            });
+                            });
 
 
         }

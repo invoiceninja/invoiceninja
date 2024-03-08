@@ -148,7 +148,7 @@ class QuoteTransformer extends EntityTransformer
             'paid_to_date' => (float) $quote->paid_to_date,
             'project_id' => $this->encodePrimaryKey($quote->project_id),
             'subscription_id' => $this->encodePrimaryKey($quote->subscription_id),
-
+            'tax_info' => $quote->tax_data ?: new \stdClass(),
         ];
     }
 }

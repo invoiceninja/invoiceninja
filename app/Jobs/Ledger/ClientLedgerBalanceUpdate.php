@@ -24,10 +24,13 @@ use Illuminate\Queue\SerializesModels;
 
 class ClientLedgerBalanceUpdate implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+
     public $tries = 1;
-    
+
     public $deleteWhenMissingModels = true;
 
     private ?CompanyLedger $next_balance_record;
@@ -42,7 +45,7 @@ class ClientLedgerBalanceUpdate implements ShouldQueue
      *
      * @return void
      */
-    public function handle() :void
+    public function handle(): void
     {
         $uuid = \Illuminate\Support\Str::uuid();
 
@@ -89,7 +92,7 @@ class ClientLedgerBalanceUpdate implements ShouldQueue
                             $company_ledger->balance = ($parent_ledger ? $parent_ledger->balance : 0) + $company_ledger->adjustment;
                             $company_ledger->save();
 
-        });
+                        });
 
         // nlog("finished job {$uuid}");
     }

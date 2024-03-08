@@ -311,7 +311,11 @@ class TokenController extends BaseController
      */
     public function create(CreateTokenRequest $request)
     {
-        $token = CompanyTokenFactory::create(auth()->user()->company()->id, auth()->user()->id, auth()->user()->account_id);
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $token = CompanyTokenFactory::create($user->company()->id, auth()->user()->id, auth()->user()->account_id);
 
         return $this->itemResponse($token);
     }
@@ -356,7 +360,11 @@ class TokenController extends BaseController
      */
     public function store(StoreTokenRequest $request)
     {
-        $company_token = CompanyTokenFactory::create(auth()->user()->company()->id, auth()->user()->id, auth()->user()->account_id);
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $company_token = CompanyTokenFactory::create($user->company()->id, auth()->user()->id, auth()->user()->account_id);
 
         $token = $this->token_repo->save($request->all(), $company_token);
 
@@ -476,13 +484,16 @@ class TokenController extends BaseController
     {
         $this->entity_transformer = CompanyTokenHashedTransformer::class;
 
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $action = request()->input('action');
 
         $ids = request()->input('ids');
         $tokens = CompanyToken::withTrashed()->find($this->transformKeys($ids));
 
-        $tokens->each(function ($token, $key) use ($action) {
-            if (auth()->user()->can('edit', $token)) {
+        $tokens->each(function ($token, $key) use ($action, $user) {
+            if ($user->can('edit', $token)) {
                 $this->token_repo->{$action}($token);
             }
         });

@@ -11,21 +11,20 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Client;
-use App\Models\Account;
-use App\Models\Company;
-use Tests\MockAccountData;
-use App\Models\ClientContact;
-use Illuminate\Support\Carbon;
-use App\Utils\Traits\MakesHash;
-use App\Models\RecurringInvoice;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Factory\RecurringInvoiceFactory;
-use App\Factory\InvoiceToRecurringInvoiceFactory;
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\Company;
+use App\Models\RecurringInvoice;
+use App\Models\User;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Carbon;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test
@@ -100,8 +99,8 @@ class RecurringDatesTest extends TestCase
             ]);
 
         $recurring_invoice = RecurringInvoice::factory()->create([
-            'user_id' => $user->id, 
-            'company_id' => $company->id, 
+            'user_id' => $user->id,
+            'company_id' => $company->id,
             'client_id' => $client->id,
             'frequency_id' => RecurringInvoice::FREQUENCY_DAILY,
             'next_send_date' => now()->format('Y-m-d'),
@@ -196,8 +195,8 @@ class RecurringDatesTest extends TestCase
 
 
         $recurring_invoice = RecurringInvoice::factory()->create([
-            'user_id' => $user->id, 
-            'company_id' => $company->id, 
+            'user_id' => $user->id,
+            'company_id' => $company->id,
             'client_id' => $client->id,
             'frequency_id' => RecurringInvoice::FREQUENCY_DAILY,
             'next_send_date' => now()->format('Y-m-d'),
@@ -281,8 +280,8 @@ class RecurringDatesTest extends TestCase
 
 
         $recurring_invoice = RecurringInvoice::factory()->create([
-            'user_id' => $user->id, 
-            'company_id' => $company->id, 
+            'user_id' => $user->id,
+            'company_id' => $company->id,
             'client_id' => $client->id,
             'frequency_id' => RecurringInvoice::FREQUENCY_DAILY,
             'next_send_date' => now()->format('Y-m-d'),
@@ -394,7 +393,7 @@ class RecurringDatesTest extends TestCase
 
     public function testDailyFrequencyCalc2()
     {
-               $account = Account::factory()->create();
+        $account = Account::factory()->create();
 
         $settings = CompanySettings::defaults();
         $settings->entity_send_time = '23';

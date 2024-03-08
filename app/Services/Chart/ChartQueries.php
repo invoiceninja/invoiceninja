@@ -68,7 +68,7 @@ trait ChartQueries
      */
     public function getPaymentQuery($start_date, $end_date)
     {
-        
+
         $user_filter = $this->is_admin ? '' : 'AND payments.user_id = '.$this->user->id;
 
         return DB::select("
@@ -120,7 +120,7 @@ trait ChartQueries
      */
     public function getOutstandingQuery($start_date, $end_date)
     {
-        
+
         $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
 
         return DB::select("

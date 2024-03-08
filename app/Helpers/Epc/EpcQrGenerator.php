@@ -43,7 +43,7 @@ class EpcQrGenerator
     public function getQrCode()
     {
         $qr = '';
-        
+
         try {
             $renderer = new ImageRenderer(
                 new RendererStyle(200),
@@ -68,7 +68,7 @@ class EpcQrGenerator
             nlog("EPC QR failure => ".$e->getMessage());
             return '';
         }
-        
+
     }
 
     public function encodeMessage()

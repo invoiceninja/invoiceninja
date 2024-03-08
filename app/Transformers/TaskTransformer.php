@@ -100,11 +100,10 @@ class TaskTransformer extends EntityTransformer
     {
         $transformer = new ProjectTransformer($this->serializer);
 
-        if (!$task->project) {
-            return null;
-        }
+        if ($task->project) 
+            return $this->includeItem($task->project, $transformer, Project::class);
 
-        return $this->includeItem($task->project, $transformer, Project::class);
+        return null;
     }
 
     public function transform(Task $task)

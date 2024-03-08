@@ -16,7 +16,6 @@ use App\Models\PurchaseOrder;
 
 class PurchaseOrderInventory
 {
-
     public function __construct(private PurchaseOrder $purchase_order)
     {
     }

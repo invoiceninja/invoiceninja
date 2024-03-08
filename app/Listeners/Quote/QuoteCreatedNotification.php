@@ -22,9 +22,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 
 class QuoteCreatedNotification implements ShouldQueue
 {
-    public $delay = 5;
-
     use UserNotifies;
+    public $delay = 5;
 
     public function __construct()
     {
@@ -44,8 +43,9 @@ class QuoteCreatedNotification implements ShouldQueue
 
         $quote = $event->quote;
 
-        
+
         /* We loop through each user and determine whether they need to be notified */
+        /** @var \App\Models\CompanyUser $company_user */
         foreach ($event->company->company_users as $company_user) {
             /* The User */
             $user = $company_user->user;
@@ -55,7 +55,7 @@ class QuoteCreatedNotification implements ShouldQueue
             }
 
             $use_react_link = false;
-            
+
             if(isset($company_user->react_settings->react_notification_link) && $company_user->react_settings->react_notification_link) {
                 $use_react_link = true;
             }
@@ -70,7 +70,7 @@ class QuoteCreatedNotification implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
-                $nmo = new NinjaMailerObject;
+                $nmo = new NinjaMailerObject();
                 $nmo->mailable = new NinjaMailer((new EntityCreatedObject($quote, 'quote', $company_user->portalType()))->build());
                 $nmo->company = $quote->company;
                 $nmo->settings = $quote->company->settings;
@@ -80,7 +80,7 @@ class QuoteCreatedNotification implements ShouldQueue
                 (new NinjaMailerJob($nmo))->handle();
 
                 $nmo = null;
-                
+
                 /* This prevents more than one notification being sent */
                 $first_notification_sent = false;
             }

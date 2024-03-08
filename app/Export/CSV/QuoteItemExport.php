@@ -11,6 +11,7 @@
 
 namespace App\Export\CSV;
 
+use App\Export\Decorators\Decorator;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Quote;
@@ -22,14 +23,16 @@ use League\Csv\Writer;
 
 class QuoteItemExport extends BaseExport
 {
-
     private $quote_transformer;
 
     public string $date_key = 'date';
 
     public Writer $csv;
 
+    private Decorator $decorator;
+
     private array $storage_array = [];
+
     private array $storage_item_array = [];
 
     private array $decorate_keys = [
@@ -42,6 +45,7 @@ class QuoteItemExport extends BaseExport
         $this->company = $company;
         $this->input = $input;
         $this->quote_transformer = new QuoteTransformer();
+        $this->decorator = new Decorator();
     }
 
     public function init(): Builder
@@ -52,7 +56,7 @@ class QuoteItemExport extends BaseExport
         App::setLocale($this->company->locale());
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
-        
+
         if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = array_values($this->mergeItemsKeys('quote_report_keys'));
         }
@@ -62,14 +66,20 @@ class QuoteItemExport extends BaseExport
         $query = Quote::query()
                             ->withTrashed()
                             ->with('client')->where('company_id', $this->company->id)
-                            ->where('is_deleted', 0);
+                        ->where('is_deleted', $this->input['include_deleted']);
 
         $query = $this->addDateRange($query);
+
+        $query = $this->addQuoteStatusFilter($query, $this->input['status'] ?? '');
+
+        if($this->input['document_email_attachment'] ?? false) {
+            $this->queueDocuments($query);
+        }
 
         return $query;
 
     }
-    
+
     public function returnJson()
     {
         $query = $this->init();
@@ -83,15 +93,15 @@ class QuoteItemExport extends BaseExport
         $query->cursor()
             ->each(function ($resource) {
                 $this->iterateItems($resource);
-                                    
+
                 foreach($this->storage_array as $row) {
                     $this->storage_item_array[] = $this->processItemMetaData($row, $resource);
                 }
 
                 $this->storage_array = [];
-                                    
+
             });
-                            
+
         return array_merge(['columns' => $header], $this->storage_item_array);
 
     }
@@ -99,7 +109,7 @@ class QuoteItemExport extends BaseExport
 
     public function run()
     {
-      
+
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
 
@@ -108,14 +118,14 @@ class QuoteItemExport extends BaseExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-       
+
         $query->cursor()
             ->each(function ($quote) {
                 $this->iterateItems($quote);
             });
 
         $this->csv->insertAll($this->storage_array);
-        
+
         return $this->csv->toString();
 
     }
@@ -130,11 +140,11 @@ class QuoteItemExport extends BaseExport
             $item_array = [];
 
             foreach (array_values(array_intersect($this->input['report_keys'], $this->item_report_keys)) as $key) { //items iterator produces item array
-                
+
                 if (str_contains($key, "item.")) {
 
                     $tmp_key = str_replace("item.", "", $key);
-                    
+
                     if($tmp_key == 'type_id') {
                         $tmp_key = 'type';
                     }
@@ -150,7 +160,7 @@ class QuoteItemExport extends BaseExport
                     }
                 }
             }
-            
+
             $transformed_items = array_merge($transformed_quote, $item_array);
             $entity = $this->decorateAdvancedFields($quote, $transformed_items);
             $entity = array_merge(array_flip(array_values($this->input['report_keys'])), $entity);
@@ -159,14 +169,14 @@ class QuoteItemExport extends BaseExport
         }
     }
 
-    private function buildRow(Quote $quote) :array
+    private function buildRow(Quote $quote): array
     {
         $transformed_quote = $this->quote_transformer->transform($quote);
 
         $entity = [];
 
         foreach (array_values($this->input['report_keys']) as $key) {
-           
+
             $parts = explode('.', $key);
 
             if(is_array($parts) && $parts[0] == 'item') {
@@ -178,33 +188,35 @@ class QuoteItemExport extends BaseExport
             } elseif (array_key_exists($key, $transformed_quote)) {
                 $entity[$key] = $transformed_quote[$key];
             } else {
-                $entity[$key] = $this->resolveKey($key, $quote, $this->quote_transformer);
+                // nlog($key);
+                $entity[$key] = $this->decorator->transform($key, $quote);
+                // $entity[$key] = $this->resolveKey($key, $quote, $this->quote_transformer);
             }
         }
 
-
+        // return $entity;
         return $this->decorateAdvancedFields($quote, $entity);
     }
-    private function decorateAdvancedFields(Quote $quote, array $entity) :array
+    private function decorateAdvancedFields(Quote $quote, array $entity): array
     {
-        if (in_array('currency_id', $this->input['report_keys'])) {
-            $entity['currency'] = $quote->client->currency() ? $quote->client->currency()->code : $quote->company->currency()->code;
-        }
+        // if (in_array('currency_id', $this->input['report_keys'])) {
+        //     $entity['currency'] = $quote->client->currency() ? $quote->client->currency()->code : $quote->company->currency()->code;
+        // }
 
-        if (in_array('client_id', $this->input['report_keys'])) {
-            $entity['client'] = $quote->client->present()->name();
-        }
+        // if (in_array('client_id', $this->input['report_keys'])) {
+        //     $entity['client'] = $quote->client->present()->name();
+        // }
 
-        if (in_array('status_id', $this->input['report_keys'])) {
-            $entity['status'] = $quote->stringStatus($quote->status_id);
-        }
-        
+        // if (in_array('status_id', $this->input['report_keys'])) {
+        //     $entity['status'] = $quote->stringStatus($quote->status_id);
+        // }
+
         if (in_array('quote.assigned_user_id', $this->input['report_keys'])) {
-            $entity['quote.assigned_user_id'] = $quote->assigned_user ? $quote->assigned_user->present()->name(): '';
+            $entity['quote.assigned_user_id'] = $quote->assigned_user ? $quote->assigned_user->present()->name() : '';
         }
-                    
+
         if (in_array('quote.user_id', $this->input['report_keys'])) {
-            $entity['quote.user_id'] = $quote->user ? $quote->user->present()->name(): '';
+            $entity['quote.user_id'] = $quote->user ? $quote->user->present()->name() : '';
         }
 
 

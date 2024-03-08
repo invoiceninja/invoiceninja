@@ -887,7 +887,7 @@ class EuTaxTest extends TestCase
 
     }
 
- //tests with valid vat.
+    //tests with valid vat.
     public function testDeToEUWithValidVat()
     {
         $settings = CompanySettings::defaults();

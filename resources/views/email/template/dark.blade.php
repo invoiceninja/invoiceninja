@@ -10,7 +10,15 @@
 <br>
 <br>
 <p>
-    {!! $signature !!}
+{!! nl2br($signature) !!}
+</p>
+@endif
+
+@isset($email_preferences)
+<p>
+    <a href="{{ $email_preferences }}">
+        {{ ctrans('texts.email_preferences') }}
+    </a>
 </p>
 @endif
 

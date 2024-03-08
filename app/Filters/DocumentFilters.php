@@ -12,6 +12,7 @@
 namespace App\Filters;
 
 use App\Models\Company;
+use App\Filters\QueryFilters;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -28,11 +29,13 @@ class DocumentFilters extends QueryFilters
      */
     public function filter(string $filter = ''): Builder
     {
+
         if (strlen($filter) == 0) {
             return $this->builder;
         }
 
-        return $this->builder;
+        return $this->builder->where('name', 'like', '%'.$filter.'%');
+
     }
 
     /**
@@ -46,8 +49,45 @@ class DocumentFilters extends QueryFilters
      */
     public function client_id(string $client_id = ''): Builder
     {
-        return $this->builder;
+        
+        return $this->builder->where(function ($query) use ($client_id) {
+            $query->whereHasMorph('documentable', [
+                \App\Models\Invoice::class, 
+                \App\Models\Quote::class, 
+                \App\Models\Credit::class, 
+                \App\Models\Expense::class, 
+                \App\Models\Payment::class, 
+                \App\Models\Task::class,
+                \App\Models\RecurringExpense::class,
+                \App\Models\RecurringInvoice::class,
+                \App\Models\Project::class,
+            ], function ($q2) use ($client_id) {
+                        $q2->where('client_id', $this->decodePrimaryKey($client_id));
+                })->orWhereHasMorph('documentable', [\App\Models\Client::class], function ($q3) use ($client_id) {
+                        $q3->where('id', $this->decodePrimaryKey($client_id));
+            });
+        });
+
     }
+
+    public function type(string $types = '')
+    {
+        $types = explode(',', $types);
+
+        foreach ($types as $type)
+        {
+            match($type) {
+                'private' => $this->builder->where('is_public', 0),
+                'public' => $this->builder->where('is_public', 1),
+                'pdf' => $this->builder->where('type', 'pdf'),
+                'image' => $this->builder->whereIn('type', ['png','jpeg','jpg','gif','svg']),
+                'other' => $this->builder->whereNotIn('type', ['pdf','png','jpeg','jpg','gif','svg']),
+                default => $this->builder,
+            };
+        }
+
+        return $this->builder;
+    } 
 
     /**
      * Sorts the list based on $sort.
@@ -63,7 +103,9 @@ class DocumentFilters extends QueryFilters
             return $this->builder;
         }
 
-        return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+        $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
+
+        return $this->builder->orderBy($sort_col[0], $dir);
     }
 
 
@@ -72,7 +114,7 @@ class DocumentFilters extends QueryFilters
         if ($value == 'true') {
             return $this->builder->where('documentable_type', Company::class);
         }
-    
+
         return $this->builder;
     }
 

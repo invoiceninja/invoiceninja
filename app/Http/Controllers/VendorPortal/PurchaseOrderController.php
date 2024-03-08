@@ -11,27 +11,28 @@
 
 namespace App\Http\Controllers\VendorPortal;
 
-use App\Utils\Ninja;
-use Illuminate\View\View;
-use App\Models\PurchaseOrder;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesDates;
-use App\Jobs\Entity\CreateRawPdf;
-use App\Http\Controllers\Controller;
-use App\Jobs\Invoice\InjectSignature;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Contracts\View\Factory;
-use App\Models\PurchaseOrderInvitation;
 use App\Events\Misc\InvitationWasViewed;
-use App\Events\PurchaseOrder\PurchaseOrderWasViewed;
 use App\Events\PurchaseOrder\PurchaseOrderWasAccepted;
+use App\Events\PurchaseOrder\PurchaseOrderWasViewed;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\VendorPortal\PurchaseOrders\ProcessPurchaseOrdersInBulkRequest;
 use App\Http\Requests\VendorPortal\PurchaseOrders\ShowPurchaseOrderRequest;
 use App\Http\Requests\VendorPortal\PurchaseOrders\ShowPurchaseOrdersRequest;
-use App\Http\Requests\VendorPortal\PurchaseOrders\ProcessPurchaseOrdersInBulkRequest;
+use App\Jobs\Entity\CreateRawPdf;
+use App\Jobs\Invoice\InjectSignature;
+use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderInvitation;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesDates;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\View\View;
 
 class PurchaseOrderController extends Controller
 {
-    use MakesHash, MakesDates;
+    use MakesHash;
+    use MakesDates;
 
     public const MODULE_RECURRING_INVOICES = 1;
 
@@ -100,7 +101,9 @@ class PurchaseOrderController extends Controller
             'settings' => $purchase_order->company->settings,
             'sidebar' => $this->sidebarMenu(),
             'company' => $purchase_order->company,
-            'invitation' => $invitation
+            'invitation' => $invitation,
+            'variables' => false,
+
         ];
 
         if ($request->query('mode') === 'fullscreen') {
@@ -124,9 +127,9 @@ class PurchaseOrderController extends Controller
 
     }
 
-    
 
-    private function sidebarMenu() :array
+
+    private function sidebarMenu(): array
     {
         $enabled_modules = auth()->guard('vendor')->user()->company->enabled_modules;
         $data = [];
@@ -172,7 +175,7 @@ class PurchaseOrderController extends Controller
         $purchase_orders->whereIn('status_id', [PurchaseOrder::STATUS_DRAFT, PurchaseOrder::STATUS_SENT])
                         ->cursor()
                         ->each(function ($purchase_order) {
-            
+
                             $purchase_order->service()
                                         ->markSent()
                                         ->applyNumber()
@@ -227,7 +230,7 @@ class PurchaseOrderController extends Controller
         $zipFile = new \PhpZip\ZipFile();
         try {
             foreach ($invitations as $invitation) {
-            
+
                 $file = (new CreateRawPdf($invitation))->handle();
                 $zipFile->addFromString($invitation->purchase_order->numberFormatter().".pdf", $file);
             }

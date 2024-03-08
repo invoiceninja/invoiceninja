@@ -190,7 +190,7 @@ class InvoiceItemSumInclusive
     private function calcTaxesAutomatically(): self
     {
         $this->rule->tax($this->item);
-        
+
         $precision = strlen(substr(strrchr($this->rule->tax_rate1, "."), 1));
 
         $this->item->tax_name1 = $this->rule->tax_name1;
@@ -208,7 +208,7 @@ class InvoiceItemSumInclusive
 
         return $this;
     }
-    
+
 
     /**
      * Taxes effect the line totals and item costs. we decrement both on
@@ -227,7 +227,7 @@ class InvoiceItemSumInclusive
 
         /** @var float $item_tax_rate1_total */
         $item_tax_rate1_total = $this->calcInclusiveLineTax($this->item->tax_rate1, $amount);
-        
+
         /** @var float $item_tax */
         $item_tax += $this->formatValue($item_tax_rate1_total, $this->currency->precision);
 
@@ -252,7 +252,7 @@ class InvoiceItemSumInclusive
         }
 
         $this->item->tax_amount = $this->formatValue($item_tax, $this->currency->precision);
-        
+
         $this->setTotalTaxes($this->formatValue($item_tax, $this->currency->precision));
 
         return $this;
@@ -356,7 +356,7 @@ class InvoiceItemSumInclusive
                 $amount = $this->item->line_total - ($this->invoice->discount * ($this->item->line_total / $this->sub_total));
                 // $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / $this->sub_total));
             }
-            
+
             $item_tax = 0;
 
             $item_tax_rate1_total = $this->calcInclusiveLineTax($this->item->tax_rate1, $amount);
@@ -385,7 +385,7 @@ class InvoiceItemSumInclusive
 
             $this->setTotalTaxes($this->getTotalTaxes() + $item_tax);
             $this->item->gross_line_total = $this->getLineTotal();
-            
+
             $this->item->tax_amount = $item_tax;
 
         }
@@ -398,14 +398,14 @@ class InvoiceItemSumInclusive
 
     private function shouldCalculateTax(): self
     {
-        
+
         if (!$this->invoice->company?->calculate_taxes || $this->invoice->company->account->isFreeHostedClient()) {
             $this->calc_tax = false;
             return $this;
         }
-        
+
         if (in_array($this->client->company->country()->iso_3166_2, $this->tax_jurisdictions)) { //only calculate for supported tax jurisdictions
-            
+
             $class = "App\DataMapper\Tax\\".$this->client->company->country()->iso_3166_2."\\Rule";
 
             $this->rule = new $class();
@@ -417,12 +417,12 @@ class InvoiceItemSumInclusive
             $this->rule
                  ->setEntity($this->invoice)
                  ->init();
-                 
+
             $this->calc_tax = $this->rule->shouldCalcTax();
 
             return $this;
         }
-        
+
         return $this;
     }
 

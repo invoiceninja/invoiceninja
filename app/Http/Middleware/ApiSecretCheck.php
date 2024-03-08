@@ -36,7 +36,7 @@ class ApiSecretCheck
         } else {
             $error = [
                 'message' => 'Invalid secret',
-                'errors' => new stdClass,
+                'errors' => new stdClass(),
             ];
 
             return response()

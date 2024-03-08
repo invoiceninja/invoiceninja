@@ -28,9 +28,9 @@ class StoreRecurringQuoteRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
-        
+
         /** @var \App\Models\User auth()->user() */
         $user = auth()->user();
 
@@ -39,12 +39,12 @@ class StoreRecurringQuoteRequest extends Request
 
     public function rules()
     {
-        
+
         /** @var \App\Models\User auth()->user() */
         $user = auth()->user();
 
         $rules = [];
-        
+
         if ($this->file('documents') && is_array($this->file('documents'))) {
             $rules['documents.*'] = $this->file_validation;
         } elseif ($this->file('documents')) {

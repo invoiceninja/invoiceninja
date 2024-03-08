@@ -45,7 +45,7 @@ class EmailReport
 
 
     /**
-     * The date range the statement should include
+     * The date range the report should include
      *
      * @var string
      */
@@ -66,8 +66,46 @@ class EmailReport
      * @var string
      */
     public string $end_date = '';
-    
+
+    /******************************* Parameters **********************************/
+
     /** @var string $report_name */
 
     public string $report_name = '';
+
+    /**
+     * Optional array of report keys for
+     * filter the columns of the report
+     *
+     * @var array $report_keys
+     *
+     * */
+    public array $report_keys = [];
+
+    /** Profit Loss Parameters */
+    public bool $is_income_billed = true;
+
+    public bool $is_expense_billed = true;
+
+    public bool $include_tax = true;
+
+    /**
+     * Comma separated string of statuses for filtering the Invoice report
+     *
+     *  all
+     *  draft
+     *  sent
+     *  paid
+     *  unpaid
+     *  overdue
+     *  viewed
+     *
+     * */
+    public string $status = '';
+
+    /**
+     * Comma separated list of product.product_keys
+     * to filter the report by
+     */
+    public string $product_key = '';
 }

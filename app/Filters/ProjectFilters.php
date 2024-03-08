@@ -33,11 +33,14 @@ class ProjectFilters extends QueryFilters
 
         return  $this->builder->where(function ($query) use ($filter) {
             $query->where('name', 'like', '%'.$filter.'%')
+                  ->orWhereHas('client', function ($q) use ($filter) {
+                      $q->where('name', 'like', '%'.$filter.'%');
+                  })
                   ->orWhere('public_notes', 'like', '%'.$filter.'%')
                   ->orWhere('private_notes', 'like', '%'.$filter.'%');
         });
     }
-    
+
     public function number(string $number = ''): Builder
     {
         if (strlen($number) == 0) {
@@ -61,9 +64,19 @@ class ProjectFilters extends QueryFilters
             return $this->builder;
         }
 
-        if (is_array($sort_col)) {
-            return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+        $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
+
+        if ($sort_col[0] == 'client_id') {
+            return $this->builder->orderBy(\App\Models\Client::select('name')
+                    ->whereColumn('clients.id', 'projects.client_id'), $dir);
         }
+
+        if($sort_col[0] == 'number') {
+            return $this->builder->orderByRaw('ABS(number) ' . $dir);
+        }
+
+        return $this->builder->orderBy($sort_col[0], $dir);
+
     }
 
     /**

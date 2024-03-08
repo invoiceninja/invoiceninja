@@ -16,9 +16,9 @@ use Illuminate\Support\Str;
 
 class CompanyTokenFactory
 {
-    public static function create(int $company_id, int $user_id, int $account_id) :CompanyToken
+    public static function create(int $company_id, int $user_id, int $account_id): CompanyToken
     {
-        $token = new CompanyToken;
+        $token = new CompanyToken();
         $token->user_id = $user_id;
         $token->account_id = $account_id;
         $token->token = Str::random(64);

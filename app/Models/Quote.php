@@ -44,7 +44,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $po_number
  * @property string|null $date
  * @property string|null $last_sent_date
- * @property string|null $due_date
+ * @property string|null|Carbon $due_date
  * @property string|null $next_send_date
  * @property bool $is_deleted
  * @property object|null $line_items
@@ -106,7 +106,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $invitations
- *
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @mixin \Eloquent
  * @mixin \Illuminate\Database\Eloquent\Builder
  */
@@ -164,7 +164,7 @@ class Quote extends BaseModel
 
     protected $casts = [
         // 'date' => 'date:Y-m-d',
-        // 'due_date' => 'date:Y-m-d',
+        'due_date' => 'date:Y-m-d',
         // 'partial_due_date' => 'date:Y-m-d',
         'line_items' => 'object',
         'backup' => 'object',
@@ -175,15 +175,15 @@ class Quote extends BaseModel
         'is_amount_discount' => 'bool',
     ];
 
-    const STATUS_DRAFT = 1;
+    public const STATUS_DRAFT = 1;
 
-    const STATUS_SENT = 2;
+    public const STATUS_SENT = 2;
 
-    const STATUS_APPROVED = 3;
+    public const STATUS_APPROVED = 3;
 
-    const STATUS_CONVERTED = 4;
+    public const STATUS_CONVERTED = 4;
 
-    const STATUS_EXPIRED = -1;
+    public const STATUS_EXPIRED = -1;
 
     public function getEntityType()
     {
@@ -197,7 +197,7 @@ class Quote extends BaseModel
 
     public function getDueDateAttribute($value)
     {
-        return $this->dateMutator($value);
+        return $value ? $this->dateMutator($value) : null;
     }
 
     public function getPartialDueDateAttribute($value)
@@ -385,7 +385,7 @@ class Quote extends BaseModel
     {
         return ctrans('texts.quote');
     }
-    
+
     /**
      * calculateTemplate
      *

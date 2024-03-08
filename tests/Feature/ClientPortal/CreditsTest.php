@@ -14,7 +14,7 @@ namespace Tests\Feature\ClientPortal;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
-use App\Http\Livewire\CreditsTable;
+use App\Livewire\CreditsTable;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -108,7 +108,7 @@ class CreditsTest extends TestCase
             ->assertSee('testing-number-02')
             ->assertSee('testing-number-03');
 
-            $user->forceDelete();
+        $user->forceDelete();
     }
 
     public function testShowingCreditsWithNullDueDate()
@@ -177,7 +177,7 @@ class CreditsTest extends TestCase
             ->assertSee('testing-number-02')
             ->assertSee('testing-number-03');
 
-            $account->delete();
+        $account->delete();
 
     }
 }

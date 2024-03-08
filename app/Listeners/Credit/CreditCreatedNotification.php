@@ -57,7 +57,7 @@ class CreditCreatedNotification implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
-                $nmo = new NinjaMailerObject;
+                $nmo = new NinjaMailerObject();
                 $nmo->mailable = new NinjaMailer((new EntityCreatedObject($credit, 'credit', $company_user->portalType()))->build());
                 $nmo->company = $credit->company;
                 $nmo->settings = $credit->company->settings;

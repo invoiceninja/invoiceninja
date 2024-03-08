@@ -47,7 +47,7 @@ class ConvertableQuoteRule implements Rule
     /**
      * @return bool
      */
-    private function checkQuoteIsConvertable() : bool
+    private function checkQuoteIsConvertable(): bool
     {
         $ids = request()->input('ids');
 

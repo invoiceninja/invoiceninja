@@ -28,7 +28,7 @@ trait Inviteable
      *
      * @return     string  The status.
      */
-    public function getStatus() :string
+    public function getStatus(): string
     {
         $status = '';
 
@@ -49,7 +49,9 @@ trait Inviteable
 
     public function getPaymentLink()
     {
+
         if (Ninja::isHosted()) {
+            /**@var \App\Models\Company $company */
             $domain = $this->company->domain();
         } else {
             $domain = config('ninja.app_url');
@@ -60,6 +62,14 @@ trait Inviteable
 
     public function getPaymentQrCode()
     {
+        return htmlentities(
+            sprintf('<div>%s</div>', $this->getPaymentQrCodeRaw())
+        );
+    }
+
+    public function getPaymentQrCodeRaw()
+    {
+
         $renderer = new ImageRenderer(
             new RendererStyle(150, margin: 0),
             new SvgImageBackEnd()
@@ -68,9 +78,8 @@ trait Inviteable
 
         $qr = $writer->writeString($this->getPaymentLink(), 'utf-8');
 
-        return htmlentities(
-            sprintf('<div>%s</div>', $qr)
-        );
+        return $qr;
+
     }
 
     public function getUnsubscribeLink()
@@ -86,7 +95,7 @@ trait Inviteable
         return $domain.'/client/unsubscribe/'.$entity_type.'/'.$this->key;
     }
 
-    public function getLink() :string
+    public function getLink(): string
     {
         $entity_type = Str::snake(class_basename($this->entityType()));
 
@@ -98,6 +107,10 @@ trait Inviteable
 
         switch ($this->company->portal_mode) {
             case 'subdomain':
+
+                // if(Ninja::isHosted())
+                //     return 'https://router.invoiceninja.com/route/'.encrypt($domain.'/client/'.$entity_type.'/'.$this->key);
+                // else
                 return $domain.'/client/'.$entity_type.'/'.$this->key;
                 break;
             case 'iframe':
@@ -113,7 +126,7 @@ trait Inviteable
         }
     }
 
-    public function getPortalLink() :string
+    public function getPortalLink(): string
     {
         if (Ninja::isHosted()) {
             $domain = $this->company->domain();
@@ -138,7 +151,7 @@ trait Inviteable
         }
     }
 
-    public function getAdminLink($use_react_link = false) :string
+    public function getAdminLink($use_react_link = false): string
     {
         return $use_react_link ? $this->getReactLink() : $this->getLink().'?silent=true';
     }

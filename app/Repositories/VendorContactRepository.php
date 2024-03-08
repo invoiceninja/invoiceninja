@@ -23,7 +23,7 @@ class VendorContactRepository extends BaseRepository
 {
     public $is_primary;
 
-    public function save(array $data, Vendor $vendor) : void
+    public function save(array $data, Vendor $vendor): void
     {
 
         if (isset($data['contacts']) && (count($data['contacts']) !== count($data['contacts'], COUNT_RECURSIVE))) {
@@ -58,7 +58,7 @@ class VendorContactRepository extends BaseRepository
             }
 
             if (! $update_contact) {
-                $update_contact = new VendorContact;
+                $update_contact = new VendorContact();
                 $update_contact->vendor_id = $vendor->id;
                 $update_contact->company_id = $vendor->company_id;
                 $update_contact->user_id = $vendor->user_id;
@@ -88,7 +88,7 @@ class VendorContactRepository extends BaseRepository
 
         //always made sure we have one blank contact to maintain state
         if ($vendor->contacts()->count() == 0) {
-            $new_contact = new VendorContact;
+            $new_contact = new VendorContact();
             $new_contact->vendor_id = $vendor->id;
             $new_contact->company_id = $vendor->company_id;
             $new_contact->user_id = $vendor->user_id;

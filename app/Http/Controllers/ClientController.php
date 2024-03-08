@@ -12,9 +12,13 @@
 namespace App\Http\Controllers;
 
 use App\Utils\Ninja;
+use App\Models\Quote;
 use App\Models\Client;
+use App\Models\Credit;
 use App\Models\Account;
 use App\Models\Company;
+use App\Models\Invoice;
+use App\Models\Document;
 use App\Models\SystemLog;
 use Postmark\PostmarkClient;
 use Illuminate\Http\Response;
@@ -41,7 +45,15 @@ use App\Http\Requests\Client\CreateClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Http\Requests\Client\UploadClientRequest;
 use App\Http\Requests\Client\DestroyClientRequest;
+use App\Http\Requests\Client\ClientDocumentsRequest;
 use App\Http\Requests\Client\ReactivateClientEmailRequest;
+use App\Models\Expense;
+use App\Models\Payment;
+use App\Models\Project;
+use App\Models\RecurringExpense;
+use App\Models\RecurringInvoice;
+use App\Models\Task;
+use App\Transformers\DocumentTransformer;
 
 /**
  * Class ClientController.
@@ -218,7 +230,7 @@ class ClientController extends BaseController
         $clients = Client::withTrashed()
                          ->company()
                          ->whereIn('id', $request->ids)
-                         ->get();                         
+                         ->get();
 
         if($action == 'template' && $user->can('view', $clients->first())) {
 
@@ -237,7 +249,7 @@ class ClientController extends BaseController
 
             return response()->json(['message' => $hash_or_response], 200);
         }
-                         
+
         $clients->each(function ($client) use ($action, $user) {
             if ($user->can('edit', $client)) {
                 $this->client_repo->{$action}($client);
@@ -323,7 +335,7 @@ class ClientController extends BaseController
 
         return $this->itemResponse($merged_client);
     }
-    
+
     /**
      * Updates the client's tax data
      *
@@ -336,7 +348,7 @@ class ClientController extends BaseController
         if($client->company->account->isPaid()) {
             (new UpdateTaxData($client, $client->company))->handle();
         }
-        
+
         return $this->itemResponse($client->fresh());
     }
 
@@ -383,11 +395,11 @@ class ClientController extends BaseController
         $postmark = new PostmarkClient(config('services.postmark.token'));
 
         try {
-            
+
             /** @var \Postmark\Models\DynamicResponseModel $response */
             $response = $postmark->activateBounce((int)$bounce_id);
-        
-            if($response && $response?->Message == 'OK' && !$response->Bounce->Inactive && $response->Bounce->Email){
+
+            if($response && $response?->Message == 'OK' && !$response->Bounce->Inactive && $response->Bounce->Email) {
 
                 $email =  $response->Bounce->Email;
                 //remove email from quarantine. //@TODO
@@ -400,6 +412,26 @@ class ClientController extends BaseController
             return response()->json(['message' => $e->getMessage(), 400]);
 
         }
+
+    }
+
+    public function documents(ClientDocumentsRequest $request, Client $client)
+    {
+
+        $this->entity_type = Document::class;
+
+        $this->entity_transformer = DocumentTransformer::class;
+
+        $documents = Document::query()
+            ->company()
+            ->whereHasMorph('documentable', [Invoice::class, Quote::class, Credit::class, Expense::class, Payment::class, Task::class, RecurringInvoice::class, RecurringExpense::class, Project::class], function ($query) use ($client) {
+                $query->where('client_id', $client->id);
+            })
+            ->orWhereHasMorph('documentable', [Client::class], function ($query) use ($client) {
+                $query->where('id', $client->id);
+            });
+
+        return $this->listResponse($documents);
 
     }
 }

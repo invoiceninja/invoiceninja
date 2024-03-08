@@ -50,11 +50,13 @@ class UserFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
-        if (!is_array($sort_col) || count($sort_col) != 2) {
+        if (!is_array($sort_col) || count($sort_col) != 2 || !in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing('users'))) {
             return $this->builder;
         }
 
-        return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+        $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
+
+        return $this->builder->orderBy($sort_col[0], $dir);
     }
 
     /**
@@ -64,21 +66,44 @@ class UserFilters extends QueryFilters
      */
     public function entityFilter()
     {
-        return $this->builder->whereHas('company_users', function ($q) {
-            $q->where('company_id', '=', auth()->user()->company()->id);
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $this->builder->whereHas('company_users', function ($q) use ($user) {
+            $q->where('company_id', '=', $user->company()->id);
         });
+    }
+
+    /**
+     * Hides owner users from the list.
+     *
+     * @return Builder
+     */
+    public function hideOwnerUsers(): Builder
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $this->builder->whereHas('company_users', function ($q) use ($user) {
+            $q->where('company_id', '=', $user->company()->id)->where('is_owner', false);
+        });
+
     }
 
     /**
      * Filters users that have been removed from the
      * company, but not deleted from the system.
      *
-     * @return void
+     * @return Builder
      */
-    public function hideRemovedUsers()
+    public function hideRemovedUsers(): Builder
     {
-        return $this->builder->whereHas('company_users', function ($q) {
-            $q->where('company_id', '=', auth()->user()->company()->id)->whereNull('deleted_at');
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $this->builder->whereHas('company_users', function ($q) use ($user) {
+            $q->where('company_id', '=', $user->company()->id)->whereNull('deleted_at');
         });
     }
 
@@ -96,12 +121,21 @@ class UserFilters extends QueryFilters
             return $this->builder;
         }
 
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         return $this->builder
             ->orWhere($this->with_property, $value)
             ->orderByRaw("{$this->with_property} = ? DESC", [$value])
-            ->where('account_id', auth()->user()->account_id);
+            ->where('account_id', $user->account_id);
     }
-    
+
+    /**
+     * Returns users with permissions to send emails via OAuth
+     *
+     * @param  string $value
+     * @return Builder
+     */
     public function sending_users(string $value = ''): Builder
     {
         if (strlen($value) == 0 || $value != 'true') {
@@ -110,7 +144,7 @@ class UserFilters extends QueryFilters
 
         return $this->builder->whereNotNull('oauth_user_refresh_token');
     }
-    
+
     /**
      * Exclude a list of user_ids, can pass multiple
      * user IDs by separating them with a comma.

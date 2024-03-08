@@ -11,6 +11,7 @@
 
 namespace App\Export\Decorators;
 
-interface DecoratorInterface {
+interface DecoratorInterface
+{
     public function transform(string $key, mixed $entity): mixed;
 }

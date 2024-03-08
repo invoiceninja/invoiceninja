@@ -15,7 +15,6 @@ use App\Models\Client;
 
 class TaxService
 {
-
     public function __construct(public Client $client)
     {
     }
@@ -54,6 +53,6 @@ class TaxService
 
     public function initTaxProvider()
     {
-        
+
     }
 }

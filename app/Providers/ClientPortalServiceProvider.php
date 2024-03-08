@@ -17,7 +17,7 @@ class ClientPortalServiceProvider extends ServiceProvider
         app()->bind('customMessage', function () {
             return new CustomMessage();
         });
- 
+
     }
 
     /**

@@ -11,16 +11,16 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\Expense;
-use Tests\MockAccountData;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
+use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Session;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test

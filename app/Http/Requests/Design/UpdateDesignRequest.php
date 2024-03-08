@@ -11,8 +11,8 @@
 
 namespace App\Http\Requests\Design;
 
-use App\Models\Account;
 use App\Http\Requests\Request;
+use App\Models\Account;
 use App\Utils\Traits\ChecksEntityStatus;
 
 class UpdateDesignRequest extends Request
@@ -35,7 +35,7 @@ class UpdateDesignRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();

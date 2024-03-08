@@ -31,7 +31,10 @@ use League\Fractal\Resource\Item;
 
 class WebhookSingle implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     private $entity;
 
@@ -46,7 +49,7 @@ class WebhookSingle implements ShouldQueue
     private string $includes;
 
     private Company $company;
-    
+
     /**
      * Create a new job instance.
      *
@@ -75,7 +78,7 @@ class WebhookSingle implements ShouldQueue
         MultiDB::setDb($this->db);
 
         $subscription = Webhook::query()->with('company')->find($this->subscription_id);
-               
+
         if (!$subscription) {
             $this->fail();
             nlog("failed to fire event, could not find webhook ID {$this->subscription_id}");
@@ -97,7 +100,7 @@ class WebhookSingle implements ShouldQueue
 
         $resource = new Item($this->entity, $transformer, $this->entity->getEntityType());
         $data = $manager->createData($resource)->toArray();
-        
+
         $headers = is_array($subscription->headers) ? $subscription->headers : [];
 
         $this->postData($subscription, $data, $headers);
@@ -163,7 +166,7 @@ class WebhookSingle implements ShouldQueue
                 }
 
                 $message = "There was a problem when connecting to {$subscription->target_url} => status code ". $e->getResponse()->getStatusCode();
-                                
+
                 nlog($message);
 
                 (new SystemLogger(
@@ -180,7 +183,7 @@ class WebhookSingle implements ShouldQueue
                     return;
                 }
 
-                $this->release($this->backoff()[$this->attempts()-1]);
+                $this->release($this->backoff()[$this->attempts() - 1]);
             }
 
             if ($e->getResponse()->getStatusCode() >= 500) {
@@ -240,7 +243,7 @@ class WebhookSingle implements ShouldQueue
             //add some entropy to the retry
             sleep(rand(0, 3));
 
-            $this->release($this->backoff()[$this->attempts()-1]);
+            $this->release($this->backoff()[$this->attempts() - 1]);
         }
     }
 

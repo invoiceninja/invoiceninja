@@ -391,9 +391,9 @@ class BaseApiTest extends TestCase
     // public function testGeneratingClassName()
     // {
 
-        // $this->assertEquals('user', Str::snake(User::class));
+    // $this->assertEquals('user', Str::snake(User::class));
 
-        // $this->assertEquals('user',lcfirst(class_basename(Str::snake(User::class))));
+    // $this->assertEquals('user',lcfirst(class_basename(Str::snake(User::class))));
 
 
     // }

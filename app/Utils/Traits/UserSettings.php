@@ -22,7 +22,7 @@ trait UserSettings
      * @param string $entity
      * @return stdClass
      */
-    public function getEntity(string $entity) : stdClass
+    public function getEntity(string $entity): stdClass
     {
         return $this->settings()->{$entity};
     }
@@ -31,7 +31,7 @@ trait UserSettings
      * @param string $entity
      * @return stdClass
      */
-    public function getColumnVisibility(string $entity) : stdClass
+    public function getColumnVisibility(string $entity): stdClass
     {
         return $this->settings()->{class_basename($entity)}->datatable->column_visibility;
     }

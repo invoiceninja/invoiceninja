@@ -11,6 +11,7 @@
 
 namespace App\Export\CSV;
 
+use App\Export\Decorators\Decorator;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Invoice;
@@ -22,12 +23,13 @@ use League\Csv\Writer;
 
 class InvoiceItemExport extends BaseExport
 {
-
     private $invoice_transformer;
 
     public string $date_key = 'date';
 
     public Writer $csv;
+
+    private Decorator $decorator;
 
     private bool $force_keys = false;
 
@@ -46,6 +48,7 @@ class InvoiceItemExport extends BaseExport
         $this->company = $company;
         $this->input = $input;
         $this->invoice_transformer = new InvoiceTransformer();
+        $this->decorator = new Decorator();
     }
 
     public function init(): Builder
@@ -68,11 +71,19 @@ class InvoiceItemExport extends BaseExport
                         ->withTrashed()
                         ->with('client')
                         ->where('company_id', $this->company->id)
-                        ->where('is_deleted', 0);
+                        ->where('is_deleted', $this->input['include_deleted']);
 
         $query = $this->addDateRange($query);
 
-        $query = $this->applyFilters($query);
+        if($this->input['status'] ?? false) {
+            $query = $this->addInvoiceStatusFilter($query, $this->input['status']);
+        }
+
+        $query = $this->applyProductFilters($query);
+
+        if($this->input['document_email_attachment'] ?? false) {
+            $this->queueDocuments($query);
+        }
 
         return $query;
 
@@ -88,28 +99,27 @@ class InvoiceItemExport extends BaseExport
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
 
-
         $query->cursor()
             ->each(function ($resource) {
                 $this->iterateItems($resource);
-                        
+
                 foreach($this->storage_array as $row) {
                     $this->storage_item_array[] = $this->processItemMetaData($row, $resource);
                 }
 
                 $this->storage_array = [];
-                        
+
             });
-                
+
         return array_merge(['columns' => $header], $this->storage_item_array);
-               
+
     }
 
 
     public function run()
     {
         $query = $this->init();
-        
+
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
 
@@ -122,7 +132,7 @@ class InvoiceItemExport extends BaseExport
             });
 
         $this->csv->insertAll($this->storage_array);
-        
+
         return $this->csv->toString();
     }
 
@@ -136,11 +146,11 @@ class InvoiceItemExport extends BaseExport
             $item_array = [];
 
             foreach (array_values(array_intersect($this->input['report_keys'], $this->item_report_keys)) as $key) { //items iterator produces item array
-                
+
                 if (str_contains($key, "item.")) {
 
                     $tmp_key = str_replace("item.", "", $key);
-                    
+
                     if($tmp_key == 'type_id') {
                         $tmp_key = 'type';
                     }
@@ -156,10 +166,10 @@ class InvoiceItemExport extends BaseExport
                     }
                 }
             }
-            
+
             $transformed_items = array_merge($transformed_invoice, $item_array);
             $entity = $this->decorateAdvancedFields($invoice, $transformed_items);
-            
+
             $entity = array_merge(array_flip(array_values($this->input['report_keys'])), $entity);
 
             $this->storage_array[] = $entity;
@@ -167,14 +177,14 @@ class InvoiceItemExport extends BaseExport
         }
     }
 
-    private function buildRow(Invoice $invoice) :array
+    private function buildRow(Invoice $invoice): array
     {
         $transformed_invoice = $this->invoice_transformer->transform($invoice);
 
         $entity = [];
 
         foreach (array_values($this->input['report_keys']) as $key) {
-           
+
             $parts = explode('.', $key);
 
             if(is_array($parts) && $parts[0] == 'item') {
@@ -186,53 +196,56 @@ class InvoiceItemExport extends BaseExport
             } elseif (array_key_exists($key, $transformed_invoice)) {
                 $entity[$key] = $transformed_invoice[$key];
             } else {
-                $entity[$key] = $this->resolveKey($key, $invoice, $this->invoice_transformer);
+                // nlog($key);
+                $entity[$key] = $this->decorator->transform($key, $invoice);
+                // $entity[$key] = '';
+                // $entity[$key] = $this->resolveKey($key, $invoice, $this->invoice_transformer);
             }
         }
-
+        // return $entity;
         return $this->decorateAdvancedFields($invoice, $entity);
     }
 
-    private function decorateAdvancedFields(Invoice $invoice, array $entity) :array
+    private function decorateAdvancedFields(Invoice $invoice, array $entity): array
     {
-        if (in_array('currency_id', $this->input['report_keys'])) {
-            $entity['currency'] = $invoice->client->currency() ? $invoice->client->currency()->code : $invoice->company->currency()->code;
-        }
+        // if (in_array('currency_id', $this->input['report_keys'])) {
+        //     $entity['currency'] = $invoice->client->currency() ? $invoice->client->currency()->code : $invoice->company->currency()->code;
+        // }
 
-        if(array_key_exists('type', $entity)) {
-            $entity['type'] = $invoice->typeIdString($entity['type']);
-        }
+        // if(array_key_exists('type', $entity)) {
+        //     $entity['type'] = $invoice->typeIdString($entity['type']);
+        // }
 
-        if(array_key_exists('tax_category', $entity)) {
-            $entity['tax_category'] = $invoice->taxTypeString($entity['tax_category']);
-        }
+        // if(array_key_exists('tax_category', $entity)) {
+        //     $entity['tax_category'] = $invoice->taxTypeString($entity['tax_category']);
+        // }
 
-        if (in_array('invoice.country_id', $this->input['report_keys'])) {
-            $entity['invoice.country_id'] = $invoice->client->country ? ctrans("texts.country_{$invoice->client->country->name}") : '';
-        }
+        // if (in_array('invoice.country_id', $this->input['report_keys'])) {
+        //     $entity['invoice.country_id'] = $invoice->client->country ? ctrans("texts.country_{$invoice->client->country->name}") : '';
+        // }
 
-        if (in_array('invoice.currency_id', $this->input['report_keys'])) {
-            $entity['invoice.currency_id'] = $invoice->client->currency() ? $invoice->client->currency()->code : $invoice->company->currency()->code;
-        }
+        // if (in_array('invoice.currency_id', $this->input['report_keys'])) {
+        //     $entity['invoice.currency_id'] = $invoice->client->currency() ? $invoice->client->currency()->code : $invoice->company->currency()->code;
+        // }
 
-        if (in_array('invoice.client_id', $this->input['report_keys'])) {
-            $entity['invoice.client_id'] = $invoice->client->present()->name();
-        }
+        // if (in_array('invoice.client_id', $this->input['report_keys'])) {
+        //     $entity['invoice.client_id'] = $invoice->client->present()->name();
+        // }
 
-        if (in_array('invoice.status', $this->input['report_keys'])) {
-            $entity['invoice.status'] = $invoice->stringStatus($invoice->status_id);
-        }
+        // if (in_array('invoice.status', $this->input['report_keys'])) {
+        //     $entity['invoice.status'] = $invoice->stringStatus($invoice->status_id);
+        // }
 
         if (in_array('invoice.recurring_id', $this->input['report_keys'])) {
             $entity['invoice.recurring_id'] = $invoice->recurring_invoice->number ?? '';
         }
 
         if (in_array('invoice.assigned_user_id', $this->input['report_keys'])) {
-            $entity['invoice.assigned_user_id'] = $invoice->assigned_user ? $invoice->assigned_user->present()->name(): '';
+            $entity['invoice.assigned_user_id'] = $invoice->assigned_user ? $invoice->assigned_user->present()->name() : '';
         }
-            
+
         if (in_array('invoice.user_id', $this->input['report_keys'])) {
-            $entity['invoice.user_id'] = $invoice->user ? $invoice->user->present()->name(): '';
+            $entity['invoice.user_id'] = $invoice->user ? $invoice->user->present()->name() : '';
         }
 
         return $entity;

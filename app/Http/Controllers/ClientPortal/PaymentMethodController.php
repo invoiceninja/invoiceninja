@@ -144,7 +144,10 @@ class PaymentMethodController extends Controller
         try {
             event(new MethodDeleted($payment_method, auth()->guard('contact')->user()->company, Ninja::eventVars(auth()->guard('contact')->user()->id)));
 
+            $payment_method->is_deleted = true;
             $payment_method->delete();
+            $payment_method->save();
+
         } catch (Exception $e) {
             nlog($e->getMessage());
 
@@ -168,7 +171,7 @@ class PaymentMethodController extends Controller
             return $client_contact->client->getBACSGateway();
         }
 
-        if (in_array(request()->query('method'), [GatewayType::BANK_TRANSFER, GatewayType::DIRECT_DEBIT, GatewayType::SEPA])) {
+        if (in_array(request()->query('method'), [GatewayType::BANK_TRANSFER, GatewayType::DIRECT_DEBIT, GatewayType::SEPA, GatewayType::ACSS])) {
             return $client_contact->client->getBankTransferGateway();
         }
 

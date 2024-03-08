@@ -51,7 +51,7 @@ trait SubscriptionHooker
             return array_merge($body, json_decode($response->getBody(), true));
         } catch (ClientException $e) {
             $message = $e->getMessage();
-            
+
             $error = json_decode($e->getResponse()->getBody()->getContents());
 
             if (is_null($error)) {

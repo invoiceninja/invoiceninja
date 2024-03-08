@@ -98,7 +98,7 @@ class LicenseController extends BaseController
             if ($data == Account::RESULT_FAILURE) {
                 $error = [
                     'message' => trans('texts.invalid_white_label_license'),
-                    'errors' => new stdClass,
+                    'errors' => new stdClass(),
                 ];
 
                 return response()->json($error, 400);
@@ -108,7 +108,7 @@ class LicenseController extends BaseController
                 if ($date < date_create()) {
                     $error = [
                         'message' => trans('texts.invalid_white_label_license'),
-                        'errors' => new stdClass,
+                        'errors' => new stdClass(),
                     ];
                     $account = auth()->user()->account;
                     $account->plan_term = Account::PLAN_TERM_YEARLY;
@@ -129,7 +129,7 @@ class LicenseController extends BaseController
 
                     $error = [
                         'message' => trans('texts.bought_white_label'),
-                        'errors' => new stdClass,
+                        'errors' => new stdClass(),
                     ];
 
                     return response()->json($error, 200);
@@ -137,7 +137,7 @@ class LicenseController extends BaseController
             } else {
                 $error = [
                     'message' => 'There was an issue connecting to the license server. Please check your network.',
-                    'errors' => new stdClass,
+                    'errors' => new stdClass(),
                 ];
 
                 return response()->json($error, 400);
@@ -146,7 +146,7 @@ class LicenseController extends BaseController
 
         $error = [
             'message' => ctrans('texts.invoice_license_or_environment', ['environment' => config('ninja.environment')]),
-            'errors' => new stdClass,
+            'errors' => new stdClass(),
         ];
 
         return response()->json($error, 400);
@@ -176,14 +176,14 @@ class LicenseController extends BaseController
 
                 $error = [
                     'message' => trans('texts.bought_white_label'),
-                    'errors' => new \stdClass,
+                    'errors' => new \stdClass(),
                 ];
 
                 return response()->json($error, 200);
             } else {
                 $error = [
                     'message' => trans('texts.white_label_license_error'),
-                    'errors' => new stdClass,
+                    'errors' => new stdClass(),
                 ];
 
                 return response()->json($error, 400);
@@ -192,7 +192,7 @@ class LicenseController extends BaseController
 
         $error = [
             'message' => ctrans('texts.invoice_license_or_environment', ['environment' => config('ninja.environment')]),
-            'errors' => new stdClass,
+            'errors' => new stdClass(),
         ];
 
         return response()->json($error, 400);

@@ -86,12 +86,12 @@ class ImportController extends Controller
 
             // Store the csv in cache with an expiry of 10 minutes
             Cache::put($hash.'-'.$entityType, base64_encode($contents), 600);
-            
+
             // Parse CSV
             $csv_array = $this->getCsvData($contents);
 
             $class_map = $this->getEntityMap($entityType);
-            
+
             $hints = $this->setImportHints($entityType, $class_map::importable(), $csv_array[0]);
 
             $data['mappings'][$entityType] = [
@@ -109,7 +109,7 @@ class ImportController extends Controller
         $hints = [];
 
         $translated_keys = collect($available_keys)->map(function ($value, $key) {
-            
+
             $parts = explode(".", $value);
             $index = $parts[0];
             $label = $parts[1] ?? $parts[0];
@@ -120,9 +120,9 @@ class ImportController extends Controller
 
 
         foreach($headers as $key => $value) {
-            
+
             foreach($translated_keys as $tkey => $tvalue) {
-                
+
                 if($this->testMatch($value, $tvalue['label'])) {
                     $hit = $tvalue['key'];
                     $hints[$key] = $hit;
@@ -131,10 +131,10 @@ class ImportController extends Controller
                 } else {
                     $hints[$key] = null;
                 }
-             
+
             }
 
-           
+
         }
 
         //second pass using the index of the translation here
@@ -153,7 +153,7 @@ class ImportController extends Controller
                     $hints[$key] = null;
                 }
             }
-            
+
         }
 
         return $hints;
@@ -166,9 +166,9 @@ class ImportController extends Controller
 
     private function convertEncoding($data)
     {
-        
+
         $enc = mb_detect_encoding($data, mb_list_encodings(), true);
-        
+
         if($enc !== false) {
             $data = mb_convert_encoding($data, "UTF-8", $enc);
         }
@@ -244,19 +244,25 @@ class ImportController extends Controller
      */
     public function detectDelimiter($csvfile): string
     {
-        $delimiters = [',', '.', ';'];
-        $bestDelimiter = ' ';
+
+        $delimiters = [',', '.', ';', '|'];
+        $bestDelimiter = ',';
         $count = 0;
+
+        // 10-01-2024 - A better way to resolve the csv file delimiter.
+        $csvfile = substr($csvfile, 0, strpos($csvfile, "\n"));
 
         foreach ($delimiters as $delimiter) {
 
             if (substr_count(strstr($csvfile, "\n", true), $delimiter) >= $count) {
-                $count = substr_count(strstr($csvfile, "\n", true), $delimiter);
+                $count = substr_count($csvfile, $delimiter);
                 $bestDelimiter = $delimiter;
             }
-        
-        }
 
-        return $bestDelimiter;
+        }
+        
+        /** @phpstan-ignore-next-line **/
+        return $bestDelimiter ?? ',';
+
     }
 }

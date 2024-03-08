@@ -16,7 +16,7 @@ use App\Helpers\Bank\Yodlee\Yodlee;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Yodlee\YodleeAdminRequest;
 use App\Http\Requests\Yodlee\YodleeAuthRequest;
-use App\Jobs\Bank\ProcessBankTransactions;
+use App\Jobs\Bank\ProcessBankTransactionsYodlee;
 use App\Models\BankIntegration;
 use Illuminate\Http\Request;
 
@@ -44,7 +44,7 @@ class YodleeController extends BaseController
 
             $company->push();
         }
-        
+
         $yodlee = new Yodlee($token);
 
         if ($request->has('window_closed') && $request->input("window_closed") == "true") {
@@ -90,6 +90,7 @@ class YodleeController extends BaseController
                 $bank_integration->balance = $account['current_balance'];
                 $bank_integration->currency = $account['account_currency'];
                 $bank_integration->from_date = now()->subYear();
+
                 $bank_integration->auto_sync = true;
 
                 $bank_integration->save();
@@ -97,47 +98,45 @@ class YodleeController extends BaseController
         }
 
 
-        $company->account->bank_integrations->each(function ($bank_integration) use ($company) {
-            ProcessBankTransactions::dispatch($company->account->bank_integration_account_id, $bank_integration);
+        $company->account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_YODLEE)->where('auto_sync', true)->each(function ($bank_integration) use ($company) { // TODO: filter to yodlee only
+            ProcessBankTransactionsYodlee::dispatch($company->account->id, $bank_integration);
         });
     }
 
-
     /**
-        * Process Yodlee Refresh Webhook.
-        *
-        *
-        * @OA\Post(
-        *      path="/api/v1/yodlee/refresh",
-        *      operationId="yodleeRefreshWebhook",
-        *      tags={"yodlee"},
-        *      summary="Processing webhooks from Yodlee",
-        *      description="Notifies the system when a data point can be refreshed",
-        *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-        *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-        *      @OA\Parameter(ref="#/components/parameters/include"),
-        *      @OA\Response(
-        *          response=200,
-        *          description="",
-        *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-        *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-        *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-        *          @OA\JsonContent(ref="#/components/schemas/Credit"),
-        *       ),
-        *       @OA\Response(
-        *          response=422,
-        *          description="Validation error",
-        *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-        *
-        *       ),
-        *       @OA\Response(
-        *           response="default",
-        *           description="Unexpected Error",
-        *           @OA\JsonContent(ref="#/components/schemas/Error"),
-        *       ),
-        *     )
-        */
-
+     * Process Yodlee Refresh Webhook.
+     *
+     *
+     * @OA\Post(
+     *      path="/api/v1/yodlee/refresh",
+     *      operationId="yodleeRefreshWebhook",
+     *      tags={"yodlee"},
+     *      summary="Processing webhooks from Yodlee",
+     *      description="Notifies the system when a data point can be refreshed",
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Credit"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
     /*
     {
       "event":{
@@ -174,12 +173,12 @@ class YodleeController extends BaseController
         // nlog($request->all());
 
         return response()->json(['message' => 'Success'], 200);
-    
+
         //
 
         // return response()->json(['message' => 'Unauthorized'], 403);
     }
-    
+
     /*
     {
        "event":{
@@ -208,12 +207,12 @@ class YodleeController extends BaseController
         nlog($request->all());
 
         return response()->json(['message' => 'Success'], 200);
-    
+
         //
 
         // return response()->json(['message' => 'Unauthorized'], 403);
     }
-    
+
     /*
     {
        "event":{
@@ -244,7 +243,7 @@ class YodleeController extends BaseController
         // nlog($request->all());
 
         return response()->json(['message' => 'Success'], 200);
-    
+
         //
 
         // return response()->json(['message' => 'Unauthorized'], 403);
@@ -278,7 +277,7 @@ class YodleeController extends BaseController
 
 
         return response()->json(['message' => 'Success'], 200);
-    
+
         //
 
         // return response()->json(['message' => 'Unauthorized'], 403);
@@ -290,19 +289,19 @@ class YodleeController extends BaseController
         $user = auth()->user();
 
         $bank_integration = BankIntegration::query()
-                                           ->withTrashed()
-                                           ->where('company_id', $user->company()->id)
-                                           ->where('account_id', $account_number)
-                                           ->exists();
+            ->withTrashed()
+            ->where('company_id', $user->company()->id)
+            ->where('account_id', $account_number)
+            ->exists();
 
-        if(!$bank_integration) {
+        if (!$bank_integration) {
             return response()->json(['message' => 'Account does not exist.'], 400);
         }
 
         $yodlee = new Yodlee($user->account->bank_integration_account_id);
 
         $summary = $yodlee->getAccountSummary($account_number);
-        
+
         $transformed_summary = AccountSummary::from($summary[0]);
 
         return response()->json($transformed_summary, 200);

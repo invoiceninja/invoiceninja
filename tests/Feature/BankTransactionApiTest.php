@@ -11,15 +11,15 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\Expense;
-use Tests\MockAccountData;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
+use App\Models\Expense;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Session;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test
@@ -30,6 +30,8 @@ class BankTransactionApiTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
+
+    public $faker;
 
     protected function setUp() :void
     {
@@ -42,6 +44,18 @@ class BankTransactionApiTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
+    }
+
+    public function testBankTransactionCreate()
+    {
+        nlog("creeeeate");
+        
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/bank_transactions/create');
+
+        $response->assertStatus(200);
     }
 
 

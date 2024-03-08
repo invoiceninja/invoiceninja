@@ -25,7 +25,6 @@ use League\Csv\Writer;
 
 class ActivityExport extends BaseExport
 {
-    
     private $entity_transformer;
 
     public string $date_key = 'created_at';
@@ -57,13 +56,13 @@ class ActivityExport extends BaseExport
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
 
-            
+
         $report = $query->cursor()
             ->map(function ($resource) {
                 $row = $this->buildActivityRow($resource);
                 return $this->processMetaData($row, $resource);
             })->toArray();
-        
+
         return array_merge(['columns' => $header], $report);
     }
 
@@ -92,7 +91,7 @@ class ActivityExport extends BaseExport
         ]),
         $activity->ip,
         ];
-        
+
     }
 
     private function init(): Builder
@@ -104,8 +103,6 @@ class ActivityExport extends BaseExport
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
         $this->date_format = DateFormat::find($this->company->settings->date_format_id)->format;
-
-        // ksort($this->entity_keys);
 
         if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = array_values($this->entity_keys);
@@ -122,7 +119,7 @@ class ActivityExport extends BaseExport
     public function run()
     {
         $query = $this->init();
-        
+
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
 
@@ -140,13 +137,12 @@ class ActivityExport extends BaseExport
 
     private function buildRow(Activity $activity)
     {
-       
-        $this->csv->insertOne($this->buildActivityRow($activity));
 
+        $this->csv->insertOne($this->buildActivityRow($activity));
 
     }
 
-    private function decorateAdvancedFields(Task $task, array $entity) :array
+    private function decorateAdvancedFields(Task $task, array $entity): array
     {
         return $entity;
     }
@@ -156,9 +152,9 @@ class ActivityExport extends BaseExport
     {
 
         $clean_row = [];
-        
+
         foreach (array_values($this->input['report_keys']) as $key => $value) {
-    
+
             $clean_row[$key]['entity'] = 'activity';
             $clean_row[$key]['id'] = $key;
             $clean_row[$key]['hashed_id'] = null;

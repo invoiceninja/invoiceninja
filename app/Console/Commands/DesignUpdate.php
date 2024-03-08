@@ -73,7 +73,7 @@ class DesignUpdate extends Command
             $invoice_design = new \App\Services\PdfMaker\Design(strtolower($design->name));
             $invoice_design->document();
 
-            $design_object = new stdClass;
+            $design_object = new stdClass();
             $design_object->includes = $invoice_design->getSectionHTML('style');
             $design_object->header = $invoice_design->getSectionHTML('header');
             $design_object->body = $invoice_design->getSectionHTML('body');

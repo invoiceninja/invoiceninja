@@ -59,6 +59,220 @@ class ClientApiTest extends TestCase
         Model::reguard();
     }
 
+    public function testDocumentValidation()
+    {
+        $data = [
+            'name' => 'name of client',
+            'documents' => [],
+        ];
+
+        $response = $this->withHeaders([
+          'X-API-TOKEN' => $this->token,
+      ])->postJson("/api/v1/clients",$data)
+      ->assertStatus(200);
+
+    }
+
+    public function testDocumentValidationFails()
+    {
+        $data = [
+            'name' => 'name of client',
+            'documents' => 'wut',
+        ];
+
+        $response = $this->withHeaders([
+          'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/clients", $data)
+        ->assertStatus(422);
+
+        $data = [
+            'name' => 'name of client',
+            'documents' => null,
+        ];
+
+        $response = $this->withHeaders([
+        'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/clients", $data)
+        ->assertStatus(422);
+
+    }
+
+    public function testDocumentValidationPutFails()
+    {
+        $data = [
+            'name' => 'name of client',
+            'documents' => 'wut',
+        ];
+
+        $response = $this->withHeaders([
+          'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/clients/{$this->client->hashed_id}", $data)
+        ->assertStatus(422);
+
+        $data = [
+            'name' => 'name of client',
+            'documents' => null,
+        ];
+
+        $response = $this->withHeaders([
+        'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/clients/{$this->client->hashed_id}", $data)
+        ->assertStatus(422);
+        
+        $data = [
+                'name' => 'name of client',
+                'documents' => [],
+            ];
+
+        $response = $this->withHeaders([
+        'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/clients/{$this->client->hashed_id}", $data)
+        ->assertStatus(200);
+
+    }
+
+    public function testClientDocumentQuery()
+    {
+        
+        $d = \App\Models\Document::factory()->create([
+           'company_id' => $this->company->id,
+           'user_id' => $this->user->id,
+       ]);
+
+       $this->invoice->documents()->save($d);
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/clients/{$this->client->hashed_id}/documents")
+        ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertCount(1, $arr['data']);
+
+        $d = \App\Models\Document::factory()->create([
+        'company_id' => $this->company->id,
+        'user_id' => $this->user->id,
+            ]);
+
+        $this->client->documents()->save($d);
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/clients/{$this->client->hashed_id}/documents")
+        ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertCount(2, $arr['data']);
+
+
+        $d = \App\Models\Document::factory()->create([
+        'company_id' => $this->company->id,
+        'user_id' => $this->user->id,
+            ]);
+
+        $this->client->documents()->save($d);
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/clients/{$this->client->hashed_id}/documents")
+        ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertCount(3, $arr['data']);
+        
+        $d = \App\Models\Document::factory()->create([
+        'company_id' => $this->company->id,
+        'user_id' => $this->user->id,
+            ]);
+
+        $this->quote->documents()->save($d);
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/clients/{$this->client->hashed_id}/documents")
+        ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertCount(4, $arr['data']);
+
+
+
+        $d = \App\Models\Document::factory()->create([
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+                    ]);
+
+        $this->credit->documents()->save($d);
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/clients/{$this->client->hashed_id}/documents")
+        ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertCount(5, $arr['data']);
+
+
+
+        $d = \App\Models\Document::factory()->create([
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+        ]);
+
+        
+        $e = \App\Models\Expense::factory()->create([
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+                'client_id' => $this->client->id,
+                'amount' => 100
+        ]);
+
+
+        $e->documents()->save($d);
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/clients/{$this->client->hashed_id}/documents")
+        ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertCount(6, $arr['data']);
+
+
+$d = \App\Models\Document::factory()->create([
+        'company_id' => $this->company->id,
+        'user_id' => $this->user->id,
+]);
+
+
+$t = \App\Models\Task::factory()->create([
+        'company_id' => $this->company->id,
+        'user_id' => $this->user->id,
+        'client_id' => $this->client->id,
+]);
+
+
+$t->documents()->save($d);
+
+$response = $this->withHeaders([
+    'X-API-TOKEN' => $this->token,
+])->postJson("/api/v1/clients/{$this->client->hashed_id}/documents")
+->assertStatus(200);
+
+$arr = $response->json();
+
+$this->assertCount(7, $arr['data']);
+
+
+
+
+    }
 
     public function testCrossCompanyBulkActionsFail()
     {

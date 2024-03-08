@@ -15,15 +15,15 @@ use App\Models\BankTransactionRule;
 
 class BankTransactionRuleFactory
 {
-    public static function create(int $company_id, int $user_id) :BankTransactionRule
+    public static function create(int $company_id, int $user_id): BankTransactionRule
     {
-        $bank_transaction_rule = new BankTransactionRule;
+        $bank_transaction_rule = new BankTransactionRule();
         $bank_transaction_rule->user_id = $user_id;
         $bank_transaction_rule->company_id = $company_id;
 
         $bank_transaction_rule->name = '';
         $bank_transaction_rule->rules = [];
-        
+
         return $bank_transaction_rule;
     }
 }

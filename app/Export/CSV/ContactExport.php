@@ -11,23 +11,25 @@
 
 namespace App\Export\CSV;
 
-use App\Libraries\MultiDB;
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Company;
-use App\Transformers\ClientContactTransformer;
-use App\Transformers\ClientTransformer;
 use App\Utils\Ninja;
-use Illuminate\Contracts\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\App;
+use App\Models\Client;
 use League\Csv\Writer;
+use App\Models\Company;
+use App\Libraries\MultiDB;
+use App\Models\ClientContact;
+use Illuminate\Support\Facades\App;
+use App\Export\Decorators\Decorator;
+use App\Transformers\ClientTransformer;
+use App\Transformers\ClientContactTransformer;
+use Illuminate\Database\Eloquent\Builder;
 
 class ContactExport extends BaseExport
 {
-
     private ClientTransformer $client_transformer;
 
     private ClientContactTransformer $contact_transformer;
+
+    private Decorator $decorator;
 
     public Writer $csv;
 
@@ -39,6 +41,7 @@ class ContactExport extends BaseExport
         $this->input = $input;
         $this->client_transformer = new ClientTransformer();
         $this->contact_transformer = new ClientContactTransformer();
+        $this->decorator = new Decorator();
     }
 
     private function init(): Builder
@@ -65,7 +68,7 @@ class ContactExport extends BaseExport
 
     public function run()
     {
-        
+
         $query = $this->init();
 
         //load the CSV document from a string
@@ -97,12 +100,12 @@ class ContactExport extends BaseExport
                     $row = $this->buildRow($contact);
                     return $this->processMetaData($row, $contact);
                 })->toArray();
-        
+
         return array_merge(['columns' => $header], $report);
     }
 
 
-    private function buildRow(ClientContact $contact) :array
+    private function buildRow(ClientContact $contact): array
     {
         $transformed_contact = false;
 
@@ -119,14 +122,17 @@ class ContactExport extends BaseExport
             } elseif ($parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {
                 $entity[$key] = $transformed_contact[$parts[1]];
             } else {
-                $entity[$key] = '';
+                // nlog($key);
+                $entity[$key] = $this->decorator->transform($key, $contact);
+                // $entity[$key] = '';
+
             }
         }
-
+        // return $entity;
         return $this->decorateAdvancedFields($contact->client, $entity);
     }
 
-    private function decorateAdvancedFields(Client $client, array $entity) :array
+    private function decorateAdvancedFields(Client $client, array $entity): array
     {
         if (in_array('client.country_id', $this->input['report_keys'])) {
             $entity['country'] = $client->country ? ctrans("texts.country_{$client->country->name}") : '';
@@ -143,6 +149,15 @@ class ContactExport extends BaseExport
         if (in_array('client.industry_id', $this->input['report_keys'])) {
             $entity['industry_id'] = $client->industry ? ctrans("texts.industry_{$client->industry->name}") : '';
         }
+
+        if (in_array('client.user_id', $this->input['report_keys'])) {
+            $entity['client.user_id'] = $client->user ? $client->user->present()->name() : '';
+        }
+
+        if (in_array('client.assigned_user_id', $this->input['report_keys'])) {
+            $entity['client.assigned_user_id'] = $client->assigned_user ? $client->assigned_user->present()->name() : '';
+        }
+
 
         return $entity;
     }

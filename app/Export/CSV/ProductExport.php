@@ -11,14 +11,15 @@
 
 namespace App\Export\CSV;
 
-use App\Libraries\MultiDB;
+use App\Utils\Ninja;
+use League\Csv\Writer;
 use App\Models\Company;
 use App\Models\Product;
-use App\Transformers\ProductTransformer;
-use App\Utils\Ninja;
-use Illuminate\Database\Eloquent\Builder;
+use App\Libraries\MultiDB;
 use Illuminate\Support\Facades\App;
-use League\Csv\Writer;
+use App\Export\Decorators\Decorator;
+use App\Transformers\ProductTransformer;
+use Illuminate\Database\Eloquent\Builder;
 
 class ProductExport extends BaseExport
 {
@@ -28,11 +29,14 @@ class ProductExport extends BaseExport
 
     public Writer $csv;
 
+    private Decorator $decorator;
+
     public function __construct(Company $company, array $input)
     {
         $this->company = $company;
         $this->input = $input;
         $this->entity_transformer = new ProductTransformer();
+        $this->decorator = new Decorator();
     }
 
     public function returnJson()
@@ -50,7 +54,7 @@ class ProductExport extends BaseExport
                     $row = $this->buildRow($resource);
                     return $this->processMetaData($row, $resource);
                 })->toArray();
-        
+
         return array_merge(['columns' => $header], $report);
     }
 
@@ -74,13 +78,17 @@ class ProductExport extends BaseExport
 
         $query = $this->addDateRange($query);
 
+        if($this->input['document_email_attachment'] ?? false) {
+            $this->queueDocuments($query);
+        }
+
         return $query;
 
     }
 
     public function run()
     {
-        
+
         $query = $this->init();
 
         //load the CSV document from a string
@@ -97,7 +105,7 @@ class ProductExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Product $product) :array
+    private function buildRow(Product $product): array
     {
         $transformed_entity = $this->entity_transformer->transform($product);
 
@@ -109,14 +117,18 @@ class ProductExport extends BaseExport
             if (array_key_exists($key, $transformed_entity)) {
                 $entity[$keyval] = $transformed_entity[$key];
             } else {
-                $entity[$keyval] = '';
+                // nlog($key);
+                $entity[$key] = $this->decorator->transform($key, $product);
+                // $entity[$key] = '';
+
             }
         }
 
-        return $this->decorateAdvancedFields($product, $entity);
+        return $entity;
+        // return $this->decorateAdvancedFields($product, $entity);
     }
 
-    private function decorateAdvancedFields(Product $product, array $entity) :array
+    private function decorateAdvancedFields(Product $product, array $entity): array
     {
         if (in_array('vendor_id', $this->input['report_keys'])) {
             $entity['vendor'] = $product->vendor()->exists() ? $product->vendor->name : '';

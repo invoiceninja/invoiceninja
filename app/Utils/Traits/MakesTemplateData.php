@@ -16,7 +16,7 @@ namespace App\Utils\Traits;
  */
 trait MakesTemplateData
 {
-    public function makeFakerLabels() :array
+    public function makeFakerLabels(): array
     {
         $data = [];
 
@@ -36,7 +36,7 @@ trait MakesTemplateData
      * @return array returns an array
      * of keyed labels (appended with _label)
      */
-    public function makeFakerValues() :array
+    public function makeFakerValues(): array
     {
         $data = [];
 
@@ -227,7 +227,7 @@ trait MakesTemplateData
         $data['$vendor.postal_city'] = &$data['$postal_city'];
         $data['$vendor.country'] = &$data['$country'];
         $data['$vendor.email'] = &$data['$email'];
-        
+
         $data['$vendor.billing_address1'] = &$data['$vendor.address1'];
         $data['$vendor.billing_address2'] = &$data['$vendor.address2'];
         $data['$vendor.billing_city'] = &$data['$vendor.city'];

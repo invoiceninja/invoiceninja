@@ -31,7 +31,7 @@ class TaxSummaryReport extends BaseExport
     //Amount with Tax
 
     public Writer $csv;
-    
+
     public string $date_key = 'created_at';
 
     public array $report_keys = [
@@ -55,7 +55,7 @@ class TaxSummaryReport extends BaseExport
 
     public function run()
     {
-        
+
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
         App::setLocale($this->company->locale());
@@ -63,7 +63,7 @@ class TaxSummaryReport extends BaseExport
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
         $this->csv = Writer::createFromString();
-        
+
         $this->csv->insertOne([]);
         $this->csv->insertOne([]);
         $this->csv->insertOne([]);
@@ -75,8 +75,8 @@ class TaxSummaryReport extends BaseExport
 
         $query = Invoice::query()
             ->withTrashed()
-            ->whereIn('status_id', [2,3,4])
             ->where('company_id', $this->company->id)
+            ->whereIn('status_id', [2,3,4])
             ->where('is_deleted', 0)
             ->orderBy('balance', 'desc');
 
@@ -85,8 +85,9 @@ class TaxSummaryReport extends BaseExport
         $this->csv->insertOne([ctrans('texts.tax_summary')]);
         $this->csv->insertOne([ctrans('texts.created_on'),' ',$this->translateDate(now()->format('Y-m-d'), $this->company->date_format(), $this->company->locale())]);
 
-        if($this->input['date_range'] != 'all')
+        if($this->input['date_range'] != 'all') {
             $this->csv->insertOne([ctrans('texts.date_range'),' ',$this->translateDate($this->start_date, $this->company->date_format(), $this->company->locale()),' - ',$this->translateDate($this->end_date, $this->company->date_format(), $this->company->locale())]);
+        }
 
 
 
@@ -96,7 +97,7 @@ class TaxSummaryReport extends BaseExport
 
         foreach($query->cursor() as $invoice) {
             $calc = $invoice->calc();
-            
+
             //Combine the line taxes with invoice taxes here to get a total tax amount
             $taxes = array_merge($calc->getTaxMap()->merge($calc->getTotalTaxMap())->toArray());
 
@@ -116,7 +117,7 @@ class TaxSummaryReport extends BaseExport
                 if(!isset($cash_map[$key])) {
                     $cash_map[$key]['tax_amount'] = 0;
                 }
-                
+
                 if(in_array($invoice->status_id, [Invoice::STATUS_PARTIAL,Invoice::STATUS_PAID])) {
 
                     try {
@@ -152,11 +153,11 @@ class TaxSummaryReport extends BaseExport
 
 
         return $this->csv->toString();
-        
+
     }
 
-    
-    public function buildHeader() :array
+
+    public function buildHeader(): array
     {
         $header = [];
 

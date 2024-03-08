@@ -1,9 +1,47 @@
 <div>
 <div class="grid grid-cols-12 gap-8 mt-8">
     <div class="col-span-12 md:col-span-5 md:col-start-4 px-4 py-5">
-        <!-- Total price -->
+        @if($errors->any())
+        <div class="alert alert-failure mb-4">
+            @foreach($errors->all() as $error)
+            <p>{{ $error }}</p>
+            @endforeach
+        </div>
+        @endif
+        
+        @if($state['show_rff'])
+        <div class="mt-2">
+            @if(strlen(auth()->guard('contact')->user()->first_name) === 0)
+            <div class="col-span-6 sm:col-span-3">
+                <label for="first_name" class="input-label">{{ ctrans('texts.first_name') }}</label>
+                <input id="first_name" class="input w-full" wire:model="first_name" />
+            </div>
+            @endif
 
-        @if($amount > 0)
+            @if(strlen(auth()->guard('contact')->user()->last_name) === 0)
+            <div class="col-span-6 sm:col-span-3 mt-2">
+                <label for="last_name" class="input-label">{{ ctrans('texts.last_name') }}</label>
+                <input id="last_name" class="input w-full" wire:model="last_name" />
+            </div>
+            @endif
+
+            @if(strlen(auth()->guard('contact')->user()->email) === 0)
+            <div class="col-span-6 sm:col-span-3 mt-2">
+                <label for="email" class="input-label">{{ ctrans('texts.email') }}</label>
+                <input id="email" class="input w-full" wire:model="email" />
+            </div>
+            @endif
+
+            <div class="flex justify-center my-4">
+                <button wire:click="handleRff" class="button button-primary bg-primary">
+                    {{ ctrans('texts.next_step') }}
+                </button>
+            </div>
+        </div>
+        @endif
+
+        <!-- Total price -->
+        @if($amount > 0 && $state['show_rff'] == false)
 
         <div class="relative mt-8">
             <div class="absolute inset-0 flex items-center">
@@ -33,6 +71,9 @@
                 <input type="hidden" name="action" value="payment">
                 <input type="hidden" name="company_gateway_id" value="{{ $state['company_gateway_id'] }}"/>
                 <input type="hidden" name="payment_method_id" value="{{ $state['payment_method_id'] }}"/>
+                <input type="hidden" name="contact_first_name" value="{{ $contact->first_name }}">
+                <input type="hidden" name="contact_last_name" value="{{ $contact->last_name }}">
+                <input type="hidden" name="contact_email" value="{{ $contact->email }}">
             </form>
 
     <!-- Payment methods -->
@@ -42,7 +83,7 @@
                 @if(!$state['payment_initialised'])
                     @foreach($this->methods as $method)
                         <button
-                            wire:click="handleMethodSelectingEvent('{{ $method['company_gateway_id'] }}', '{{ $method['gateway_type_id'] }}')"
+                            wire:click="handleMethodSelectingEvent('{{ $method['company_gateway_id'] }}', '{{ $method['gateway_type_id'] }}'); $wire.$refresh();"
                             class="px-3 py-2 border bg-white rounded mr-4 hover:border-blue-600">
                             {{ $method['label'] }}
                         </button>
@@ -62,7 +103,7 @@
                 @endif
             </div>
         </div>
-        @elseif($amount <= 0)
+        @elseif($amount <= 0 && $state['show_rff'] == false)
 
             <div class="relative flex justify-center text-sm leading-5">
                 <h1 class="text-2xl font-bold tracking-wide bg-gray-100 px-6 py-0">
@@ -80,11 +121,17 @@
     </div>
 </div>
 
-<script defer>
-window.addEventListener('redirectRoute', event => {
+<script>
 
-    window.location.href = event.detail.route;
+    document.addEventListener('livewire:init', () => {
 
-})
+        Livewire.on('redirectRoute', (event) => {
+            window.location.href = event[0].route;
+        });
+
+
+    });
+
 </script>
+
 </div>

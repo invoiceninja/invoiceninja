@@ -66,13 +66,13 @@ class VendorTemplateEmail extends Mailable
 
         return $link_string;
     }
-    
+
     public function build()
     {
         $template_name = 'email.template.'.$this->build_email->getTemplate();
 
         if ($this->build_email->getTemplate() == 'light' || $this->build_email->getTemplate() == 'dark') {
-            $template_name = 'email.template.client';
+            $template_name = $this->company->account->isPremium() ? 'email.template.client_premium' : 'email.template.client';
         }
 
         if ($this->build_email->getTemplate() == 'custom') {
@@ -103,7 +103,7 @@ class VendorTemplateEmail extends Mailable
         $this->from(config('mail.from.address'), $email_from_name);
 
         if (strlen($settings->bcc_email) > 1) {
-        
+
             if (Ninja::isHosted()) {
 
                 if($this->company->account->isPaid()) {
@@ -114,7 +114,7 @@ class VendorTemplateEmail extends Mailable
             } else {
                 $this->bcc(explode(',', str_replace(' ', '', $settings->bcc_email)));
             }
-        
+
         }
 
         $this->subject($this->build_email->getSubject())

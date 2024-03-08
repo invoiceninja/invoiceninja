@@ -9,7 +9,6 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-
 namespace App\Http\Requests\VendorPortal\Uploads;
 
 use Illuminate\Foundation\Http\FormRequest;

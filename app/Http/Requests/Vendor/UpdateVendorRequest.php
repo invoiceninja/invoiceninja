@@ -26,11 +26,11 @@ class UpdateVendorRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
-        
+
         return $user->can('edit', $this->vendor);
     }
 
@@ -38,13 +38,13 @@ class UpdateVendorRequest extends Request
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
-        
+
         $rules['country_id'] = 'integer';
 
         if ($this->number) {
             $rules['number'] = Rule::unique('vendors')->where('company_id', $user->company()->id)->ignore($this->vendor->id);
         }
-        
+
         $rules['contacts'] = 'bail|array';
         $rules['contacts.*.email'] = 'bail|nullable|distinct|sometimes|email';
         $rules['contacts.*.password'] = [
@@ -58,13 +58,15 @@ class UpdateVendorRequest extends Request
             'regex:/[0-9]/',      // must contain at least one digit
             //'regex:/[@$!%*#?&.]/', // must contain a special character
         ];
-        
+
         $rules['currency_id'] = 'bail|sometimes|exists:currencies,id';
 
         if ($this->file('documents') && is_array($this->file('documents'))) {
             $rules['documents.*'] = $this->file_validation;
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->file_validation;
+        }else {
+            $rules['documents'] = 'bail|sometimes|array';
         }
 
         if ($this->file('file') && is_array($this->file('file'))) {
@@ -74,7 +76,7 @@ class UpdateVendorRequest extends Request
         }
 
         $rules['language_id'] = 'bail|nullable|sometimes|exists:languages,id';
-        $rules['classification'] = 'bail|sometimes|nullable|in:individual,company,partnership,trust,charity,government,other';
+        $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,company,partnership,trust,charity,government,other';
 
         return $rules;
     }
@@ -92,8 +94,8 @@ class UpdateVendorRequest extends Request
     {
         $input = $this->all();
 
-        if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
-            $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
+        if (isset($input['name'])) {
+            $input['name'] = strip_tags($input['name']);
         }
 
         if (array_key_exists('country_id', $input) && is_null($input['country_id'])) {

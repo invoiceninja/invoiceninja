@@ -11,13 +11,13 @@
 
 namespace App\Factory;
 
-use App\Utils\Ninja;
-use App\Models\Company;
-use App\Libraries\MultiDB;
-use App\Utils\Traits\MakesHash;
-use App\DataMapper\Tax\TaxModel;
-use App\DataMapper\CompanySettings;
 use App\DataMapper\ClientRegistrationFields;
+use App\DataMapper\CompanySettings;
+use App\DataMapper\Tax\TaxModel;
+use App\Libraries\MultiDB;
+use App\Models\Company;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
 
 class CompanyFactory
 {
@@ -27,9 +27,9 @@ class CompanyFactory
      * @param int $account_id
      * @return Company
      */
-    public function create(int $account_id) :Company
+    public function create(int $account_id): Company
     {
-        $company = new Company;
+        $company = new Company();
         $company->account_id = $account_id;
         $company->company_key = $this->createHash();
         $company->settings = CompanySettings::defaults();
@@ -49,6 +49,14 @@ class CompanyFactory
         $company->markdown_enabled = false;
         $company->tax_data = new TaxModel();
         $company->first_month_of_year = 1;
+        $company->smtp_encryption = 'tls';
+        $company->smtp_host = '';
+        $company->smtp_local_domain = '';
+        $company->smtp_password = '';
+        $company->smtp_port = '';
+        $company->smtp_username = '';
+        $company->smtp_verify_peer = true;
+        
         return $company;
     }
 }

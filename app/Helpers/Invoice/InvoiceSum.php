@@ -51,7 +51,7 @@ class InvoiceSum
     private $precision;
 
     public InvoiceItemSum $invoice_items;
-    
+
     /**
      * Constructs the object with Invoice and Settings object.
      *
@@ -67,7 +67,7 @@ class InvoiceSum
             $this->precision = $this->invoice->vendor->currency()->precision;
         }
 
-        $this->tax_map = new Collection;
+        $this->tax_map = new Collection();
     }
 
     public function build()
@@ -122,7 +122,7 @@ class InvoiceSum
 
     private function calculateInvoiceTaxes(): self
     {
-        if (is_string($this->invoice->tax_name1) && strlen($this->invoice->tax_name1) > 1) {
+        if (is_string($this->invoice->tax_name1) && strlen($this->invoice->tax_name1) >= 2) {
             $tax = $this->taxer($this->total, $this->invoice->tax_rate1);
             $tax += $this->getSurchargeTaxTotalForKey($this->invoice->tax_name1, $this->invoice->tax_rate1);
 
@@ -130,7 +130,7 @@ class InvoiceSum
             $this->total_tax_map[] = ['name' => $this->invoice->tax_name1.' '.floatval($this->invoice->tax_rate1).'%', 'total' => $tax];
         }
 
-        if (is_string($this->invoice->tax_name2) && strlen($this->invoice->tax_name2) > 1) {
+        if (is_string($this->invoice->tax_name2) && strlen($this->invoice->tax_name2) >= 2) {
             $tax = $this->taxer($this->total, $this->invoice->tax_rate2);
             $tax += $this->getSurchargeTaxTotalForKey($this->invoice->tax_name2, $this->invoice->tax_rate2);
 
@@ -138,7 +138,7 @@ class InvoiceSum
             $this->total_tax_map[] = ['name' => $this->invoice->tax_name2.' '.floatval($this->invoice->tax_rate2).'%', 'total' => $tax];
         }
 
-        if (is_string($this->invoice->tax_name3) && strlen($this->invoice->tax_name3) > 1) {
+        if (is_string($this->invoice->tax_name3) && strlen($this->invoice->tax_name3) >= 2) {
             $tax = $this->taxer($this->total, $this->invoice->tax_rate3);
             $tax += $this->getSurchargeTaxTotalForKey($this->invoice->tax_name3, $this->invoice->tax_rate3);
 
@@ -242,9 +242,9 @@ class InvoiceSum
 
         if ($this->invoice->status_id != Invoice::STATUS_DRAFT) {
             if ($this->invoice->amount != $this->invoice->balance) {
-                $paid_to_date = $this->invoice->amount - $this->invoice->balance;
+                // $paid_to_date = $this->invoice->amount - $this->invoice->balance;
 
-                $this->invoice->balance = Number::roundValue($this->getTotal(), $this->precision) - $paid_to_date;
+                $this->invoice->balance = Number::roundValue($this->getTotal(), $this->precision) - $this->invoice->paid_to_date; //21-02-2024 cannot use the calculated $paid_to_date here as it could send the balance backward.
             } else {
                 $this->invoice->balance = Number::roundValue($this->getTotal(), $this->precision);
             }

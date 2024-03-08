@@ -117,7 +117,7 @@ class UserController extends BaseController
 
         $user->setCompany($company);
         $user->company_id = $company->id;
-        
+
         return $this->itemResponse($user);
     }
 
@@ -177,7 +177,7 @@ class UserController extends BaseController
             $user->oauth_user_refresh_token = null;
             $user->oauth_user_token = null;
             $user->save();
-            
+
             UserEmailChanged::dispatch($new_user, json_decode($old_user), $logged_in_user->company(), $request->hasHeader('X-React'));
         }
 
@@ -196,7 +196,7 @@ class UserController extends BaseController
      */
     public function destroy(DestroyUserRequest $request, User $user)
     {
-        if ($user->isOwner()) {
+        if ($user->hasOwnerFlag()) {
             return response()->json(['message', 'Cannot detach owner.'], 401);
         }
 

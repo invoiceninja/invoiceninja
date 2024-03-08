@@ -31,7 +31,7 @@ class SearchController extends Controller
 
         $this->clientMap($user);
         $this->invoiceMap($user);
-        
+
         return response()->json([
             'clients' => $this->clients,
             'client_contacts' => $this->client_contacts,
@@ -50,7 +50,7 @@ class SearchController extends Controller
                      ->when(!$user->hasPermission('view_all') || !$user->hasPermission('view_client'), function ($query) use ($user) {
                          $query->where('user_id', $user->id);
                      })
-                     ->orderBy('id', 'desc')
+                     ->orderBy('updated_at', 'desc')
                      ->take(1000)
                      ->get();
 
@@ -59,21 +59,19 @@ class SearchController extends Controller
                 'name' => $client->present()->name(),
                 'type' => '/client',
                 'id' => $client->hashed_id,
-                'path' => "/clients/{$client->hashed_id}/edit"
+                'path' => "/clients/{$client->hashed_id}"
             ];
 
             $client->contacts->each(function ($contact) {
                 $this->client_contacts[] = [
                     'name' => $contact->present()->search_display(),
-                    'type' => '/client_contact',
-                    'id' => $contact->hashed_id,
-                    'path' => "/clients/{$contact->hashed_id}"
+                    'type' => '/client',
+                    'id' => $contact->client->hashed_id,
+                    'path' => "/clients/{$contact->client->hashed_id}"
                 ];
-
-                                                
             });
         }
-                         
+
 
     }
 
@@ -93,7 +91,7 @@ class SearchController extends Controller
                      ->orderBy('id', 'desc')
                     ->take(3000)
                     ->get();
-                    
+
         foreach($invoices as $invoice) {
             $this->invoices[] = [
                 'name' => $invoice->client->present()->name() . ' - ' . $invoice->number,
@@ -102,7 +100,7 @@ class SearchController extends Controller
                 'path' => "/invoices/{$invoice->hashed_id}/edit"
             ];
         }
-                    
+
     }
 
     private function settingsMap()

@@ -2,7 +2,7 @@
     <div class="flex items-center justify-between">
         <div class="flex items-center">
             <span class="mr-2 text-sm hidden md:block">{{ ctrans('texts.per_page') }}</span>
-            <select wire:model="per_page" class="form-select py-1 text-sm">
+            <select wire:model.live="per_page" class="form-select py-1 text-sm">
                 <option>5</option>
                 <option selected>10</option>
                 <option>15</option>
@@ -12,7 +12,7 @@
     </div>
     <div class="-my-2 py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <div class="align-middle inline-block min-w-full overflow-hidden rounded">
-            <table class="min-w-full shadow rounded border border-gray-200 mt-4 credits-table">
+            <table class="min-w-full shadow rounded border border-gray-200 mt-4 credits-table bg-white">
                 <thead>
                 <tr>
                     <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
@@ -38,7 +38,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                @forelse($tasks as $task)
+                @foreach($tasks as $task)
                     <tr class="bg-white group hover:bg-gray-100">
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                             {{ \Illuminate\Support\Str::limit($task->description, 80) }}
@@ -63,13 +63,56 @@
                             {{ \Carbon\CarbonInterval::seconds($task->calcDuration())->cascade()->forHumans() }}
                         </td>
                     </tr>
-                @empty
+                        @if($show_item_description)
+                            <tr><td width="100%" colspan="4">
+                            <table class="min-w-full ml-5">
+                                <thead>
+                                    <tr>
+                                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-gray-500">
+                                            <span>
+                                                {{ ctrans('texts.date') }}
+                                            </span>
+                                        </th>
+                                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-gray-500">
+                                            <span>
+                                                {{ ctrans('texts.duration') }}
+                                            </span>
+                                        </th>
+                                        <th colspan="4" class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-gray-500">
+                                            <span>
+                                                {{ ctrans('texts.description') }}
+                                            </span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                @foreach($task->processLogsExpandedNotation() as $log)
+                                    @if(strlen($log['description']) > 1)
+                                        <tr class="bg-white group border-b border-gray-100">
+                                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 w-1/6">
+                                                {{ $log['start_date']}}
+                                            </td>
+                                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 w-1/6">
+                                                {{ $log['duration']}}
+                                            </td>
+                                            <td colspan="4" class="px-6 py-4 text-sm leading-5 text-gray-500 w-4/6">
+                                                {!! nl2br(e($log['description'])) !!}
+                                            </td>
+                                        </tr>
+                                    @endif
+                                @endforeach
+                                </tbody>
+                            </table>
+                            </td></tr>
+                        @endif
+                @endforeach
+                @if($tasks->count() == 0)
                     <tr class="bg-white group hover:bg-gray-100">
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500" colspan="100%">
                             {{ ctrans('texts.no_results') }}
                         </td>
                     </tr>
-                @endforelse
+                @endif
                 </tbody>
             </table>
         </div>

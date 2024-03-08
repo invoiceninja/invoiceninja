@@ -15,9 +15,9 @@ use App\Models\Task;
 
 class TaskFactory
 {
-    public static function create($company_id, $user_id) :Task
+    public static function create($company_id, $user_id): Task
     {
-        $task = new Task;
+        $task = new Task();
 
         $task->description = '';
         //$task->rate = '';

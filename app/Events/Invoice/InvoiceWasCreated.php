@@ -24,7 +24,9 @@ use Illuminate\Queue\SerializesModels;
  */
 class InvoiceWasCreated implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     /**
      * @var Invoice
@@ -58,7 +60,7 @@ class InvoiceWasCreated implements ShouldBroadcast
     {
         return [];
     }
-    
+
 
     // /**
     //  * Get the data to broadcast.

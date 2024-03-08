@@ -184,13 +184,13 @@ class Credit extends BaseModel
 
     protected $touches = [];
 
-    const STATUS_DRAFT = 1;
+    public const STATUS_DRAFT = 1;
 
-    const STATUS_SENT = 2;
+    public const STATUS_SENT = 2;
 
-    const STATUS_PARTIAL = 3;
+    public const STATUS_PARTIAL = 3;
 
-    const STATUS_APPLIED = 4;
+    public const STATUS_APPLIED = 4;
 
     public function getEntityType()
     {
@@ -204,7 +204,7 @@ class Credit extends BaseModel
 
     public function getDueDateAttribute($value)
     {
-        return $this->dateMutator($value);
+        return $value ? $this->dateMutator($value) : null;
     }
 
     public function getPartialDueDateAttribute($value)

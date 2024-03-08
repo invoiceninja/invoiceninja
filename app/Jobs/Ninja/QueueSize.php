@@ -22,7 +22,10 @@ use Turbo124\Beacon\Facades\LightLogs;
 
 class QueueSize implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * Create a new job instance.
@@ -39,7 +42,7 @@ class QueueSize implements ShouldQueue
      *
      * @return void
      */
-    public function handle() :void
+    public function handle(): void
     {
         LightLogs::create(new QueueSizeAnalytic(Queue::size()))
          ->send();

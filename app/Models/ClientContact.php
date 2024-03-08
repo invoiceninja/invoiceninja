@@ -11,22 +11,23 @@
 
 namespace App\Models;
 
-use App\Jobs\Mail\NinjaMailer;
-use App\Jobs\Mail\NinjaMailerJob;
-use App\Jobs\Mail\NinjaMailerObject;
-use App\Mail\ClientContact\ClientContactResetPasswordObject;
-use App\Models\Presenters\ClientContactPresenter;
 use App\Utils\Ninja;
+use Illuminate\Support\Str;
+use App\Jobs\Mail\NinjaMailer;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Contracts\Translation\HasLocalePreference;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 use Laracasts\Presenter\PresentableTrait;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Presenters\ClientContactPresenter;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Contracts\Translation\HasLocalePreference;
+use App\Mail\ClientContact\ClientContactResetPasswordObject;
 
 /**
  * Class ClientContact
@@ -98,7 +99,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
     use SoftDeletes;
     use HasFactory;
     use AppSetup;
-    
+
     /* Used to authenticate a contact */
     protected $guard = 'contact';
 
@@ -259,7 +260,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         $this->token = $token;
         $this->save();
 
-        $nmo = new NinjaMailerObject;
+        $nmo = new NinjaMailerObject();
         $nmo->mailable = new NinjaMailer((new ClientContactResetPasswordObject($token, $this))->build());
         $nmo->to_user = $this;
         $nmo->company = $this->company;
@@ -338,5 +339,24 @@ class ClientContact extends Authenticatable implements HasLocalePreference
             default:
                 return '';
         }
+    }
+
+    public function getAdminLink($use_react_link = false): string
+    {
+        return $use_react_link ? $this->getReactLink() : config('ninja.app_url');
+    }
+
+    private function getReactLink(): string
+    {
+        return config('ninja.react_url')."/#/clients/{$this->client->hashed_id}";
+    }
+
+    public function showRff(): bool
+    {
+        if (\strlen($this->first_name) === 0 || \strlen($this->last_name) === 0 || \strlen($this->email) === 0) {
+            return true;
+        }
+
+        return false;
     }
 }

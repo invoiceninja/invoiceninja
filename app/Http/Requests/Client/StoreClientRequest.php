@@ -31,7 +31,7 @@ class StoreClientRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var  \App\Models\User $user */
         $user = auth()->user();
@@ -48,6 +48,9 @@ class StoreClientRequest extends Request
             $rules['documents.*'] = $this->file_validation;
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->file_validation;
+        }
+        else {
+            $rules['documents'] = 'bail|sometimes|array';
         }
 
         if ($this->file('file') && is_array($this->file('file'))) {
@@ -93,8 +96,8 @@ class StoreClientRequest extends Request
 
         $rules['number'] = ['bail', 'nullable', Rule::unique('clients')->where('company_id', $user->company()->id)];
         $rules['id_number'] = ['bail', 'nullable', Rule::unique('clients')->where('company_id', $user->company()->id)];
-        $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,partnership,trust,charity,government,other';
-        
+        $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,company,partnership,trust,charity,government,other';
+
         return $rules;
     }
 
@@ -103,7 +106,7 @@ class StoreClientRequest extends Request
         $input = $this->all();
         /** @var \App\Models\User $user */
         $user = auth()->user();
-        
+
         /* Default settings */
         $settings = (array)ClientSettings::defaults();
 
@@ -113,7 +116,7 @@ class StoreClientRequest extends Request
         } elseif (is_object($input['settings'])) {
             $input['settings'] = (array)$input['settings'];
         }
-        
+
         /* Merge default into base settings */
         $input['settings'] = array_merge($input['settings'], $settings);
 

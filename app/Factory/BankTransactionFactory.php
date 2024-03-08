@@ -15,9 +15,9 @@ use App\Models\BankTransaction;
 
 class BankTransactionFactory
 {
-    public static function create(int $company_id, int $user_id) :BankTransaction
+    public static function create(int $company_id, int $user_id): BankTransaction
     {
-        $bank_transaction = new BankTransaction;
+        $bank_transaction = new BankTransaction();
         $bank_transaction->user_id = $user_id;
         $bank_transaction->company_id = $company_id;
 
@@ -28,7 +28,7 @@ class BankTransactionFactory
         $bank_transaction->date = now()->format('Y-m-d');
         $bank_transaction->description = '';
         $bank_transaction->status_id = 1;
-        
+
         return $bank_transaction;
     }
 }

@@ -276,7 +276,7 @@ class CreditCard
     {
         nlog('storing card');
 
-        $payment_meta = new \stdClass;
+        $payment_meta = new \stdClass();
         $payment_meta->exp_month = (string) $response->expiration_month;
         $payment_meta->exp_year = (string) $response->expiration_year;
         $payment_meta->brand = (string) $response->credit_card_name;

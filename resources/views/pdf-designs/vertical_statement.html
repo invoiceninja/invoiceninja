@@ -1,0 +1,281 @@
+<html>
+
+<head>
+    <style>
+        body,
+        html {
+            height: 100%;
+            margin: 0;
+            margin-bottom: 2rem;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-family: $font_name, Helvetica, sans-serif;
+            font-size: $font_sizepx;
+            zoom: 80%;
+        }
+
+        @page {
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        table tr td,
+        table tr,
+        th {
+            font-size: $font_sizepx !important;
+        }
+
+        table {
+            padding-top: 1rem;
+            min-width: 100%;
+            table-layout: fixed;
+            overflow-wrap: break-word;
+            border: 0px solid #000;
+            padding-right: 1rem;
+            break-inside: auto;
+        }
+
+        th {
+            text-align: center;
+            padding: 0.5rem;
+            background-color: #7e7d80;
+            color: #fff;
+            font-size: 26px !important;
+            font-weight: bold;
+        }
+
+        td {
+            text-align: center;
+            border-right: 1px solid #000;
+            border-bottom: 1px solid #000;
+            height: 2rem;
+        }
+
+        [data-ref="table"]>tbody>tr>td:first-child {
+            border-left: 1px solid #000;
+        }
+
+        [data-ref="table"]>tbody>tr>td:last-child {
+            border-right: 1px solid #000;
+        }
+
+        tr {
+            break-inside: avoid;
+        }
+
+        .container {
+            display: flex;
+            height: 100%;
+        }
+
+        .vertical-first {
+            flex: 3%;
+            border-left: 6px solid #000;
+        }
+
+        .vertical-second {
+            flex: 97%;
+            margin-left: 2rem;
+        }
+
+        [data-ref="table"]>tbody>tr:nth-child(odd) {
+            background-color: #ebebeb;
+        }
+
+        .centered-text {
+            text-align: right;
+            /* Center text within the transformed div */
+            margin: 0;
+            /* Reset margin to ensure full centering */
+            color: $primary_color;
+            font-size: 54px !important;
+            letter-spacing: 10px;
+            text-transform: uppercase;
+            font-weight: bolder;
+        }
+
+        .date-text {
+            text-align: right;
+            /* Center text within the transformed div */
+            margin: 0;
+            /* Reset margin to ensure full centering */
+            padding-top: 3rem;
+            font-size: 48px !important;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .vertical-text {
+            background-color: #f0f0f0;
+            /* Change background color as desired */
+            writing-mode: vertical-lr;
+            /* Set vertical writing mode */
+            text-orientation: mixed;
+            /* Ensure text orientation */
+            transform: rotate(-180deg);
+            /* Rotate text to be upright */
+            padding: 20px;
+            justify-content: center;
+            /* Center content horizontally */
+            align-items: center;
+            /* Center content vertically */
+        }
+
+        .two-col-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border: 0px solid #000;
+        }
+
+        .company-logo {
+            max-width: $company_logo_size;
+            text-align: right;
+            float: right;
+            margin-right: 0;
+            max-height: 200px;
+            text-align: right;
+        }
+
+        #logo-container {
+            display: inline-block;
+            max-height: 200px;
+            border: 0px solid #000;
+        }
+
+        #company-wrapper {
+            margin-left: auto;
+            margin-right: 0;
+            border: 0px solid #000;
+            margin-top: 1rem;
+        }
+
+        #client-details {
+            line-height: 0.5;
+            border: 0px solid #000;
+            font-size: 1.3rem;
+        }
+
+        #company-details {
+            line-height: 0.5;
+            font-size: 1.3rem;
+        }
+
+        #company-address {
+            line-height: 0.5;
+            font-size: 1.3rem;
+        }
+
+        #date-range {
+            padding: 0;
+            margin-top: 2rem;
+            border: 0px solid #000;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="vertical-first vertical-text">
+            <p class="centered-text">$statement_label</p>
+        </div>
+        <div class="vertical-second">
+            <div class="two-col-grid" style="border-bottom: 6px solid #000;" s>
+                <div>
+                    <h1>$company.name</h1>
+                </div>
+                <div id="logo-container">
+                    <img src="$company.logo" class="company-logo">
+                </div>
+            </div>
+            <div class="two-col-grid body-margin">
+                <div id="client-details"></div>
+                <div id="company-wrapper">
+                    <div id="company-details"></div>
+                    <div id="company-address"></div>
+                    <p id="date-range">$start_date - $end_date</p>
+                </div>
+            </div>
+
+            <div style="min-width:100%; width:100%; padding-bottom: 1rem; margin-bottom:1rem;">
+                <ninja>
+                    {% if invoices|e %}
+                    <table width="100%" cellspacing="0" cellpadding="0" class="" data-ref="table">
+                        <thead class="">
+                            <tr class="">
+                                <th class="">$date_label</th>
+                                <th class="">$invoice_label #</th>
+                                <th class="">{{ t('charges') }}</th>
+                                <th class="">{{ t('credits') }}</th>
+                                <th class="">{{ t('line_total') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set running_total = 0%}
+                            {% for invoice in invoices %}
+                            <tr class="item-row border-bottom">
+                                <td class="">{{ invoice.date }}</td>
+                                <td class="">{{ invoice.number }}</td>
+                                <td class="">{{ invoice.amount }}</td>
+                                <td class="">{%set running_total = running_total + invoice.amount_raw %}</td>
+                                <td class="">{{ running_total|format_currency(currency_code) }}</td>
+                            </tr>
+                            {% for payment in invoice.payments %}
+                            {% for pivot in payment.paymentables %}
+                            <tr class="item-row border-bottom">
+                                <td class="">{{ invoice.date }}</td>
+                                <td class="">{{ invoice.number }}</td>
+                                <td class="">{%set running_total = running_total - pivot.amount_raw %}</td>
+                                <td class="">{{ pivot.amount }}</td>
+                                <td class="">{{ running_total|format_currency(currency_code) }}</td>
+                            </tr>
+                            {% if pivot.refunded_raw > 0%}
+                            <tr class="item-row border-bottom">
+                                <td class="">{{ invoice.date }}</td>
+                                <td class="">{{ invoice.number }} $refund_label</td>
+                                <td class="">{%set running_total = running_total + pivot.refunded_raw %}</td>
+                                <td class="">({{ pivot.refunded }})</td>
+                                <td class="">{{ running_total|format_currency(currency_code) }}</td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                            {% endfor %}
+                            {% endfor %}
+
+                        </tbody>
+                    </table>
+                    {% endif %}
+                </ninja>
+
+                <ninja>
+                    {% if aging and show_aging %}
+                    <div id="entity-container" style="break-inside: avoid;">
+                        <table width="100%" cellspacing="0" cellpadding="0" class="" data-ref="table">
+                            <thead class="">
+                                <tr class="item-row border-bottom">
+                                    {% for key, age in aging %}
+                                    <th class="">{{ key }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="item-row">
+                                    {% for key, age in aging %}
+                                    <td class="aging-table">{{ age }}</td>
+                                    {% endfor %}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+                </ninja>
+
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

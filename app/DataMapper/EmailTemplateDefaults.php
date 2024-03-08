@@ -15,6 +15,23 @@ use Illuminate\Support\Facades\App;
 
 class EmailTemplateDefaults
 {
+    public array $templates = [
+        'email_template_invoice',
+        'email_template_quote',
+        'email_template_credit',
+        'email_template_payment',
+        'email_template_payment_partial',
+        'email_template_statement',
+        'email_template_reminder1',
+        'email_template_reminder2',
+        'email_template_reminder3',
+        'email_template_reminder_endless',
+        'email_template_custom1',
+        'email_template_custom2',
+        'email_template_custom3',
+        'email_template_purchase_order',
+    ];
+
     public static function getDefaultTemplate($template, $locale)
     {
         App::setLocale($locale);
@@ -55,43 +72,43 @@ class EmailTemplateDefaults
                 return self::emailPurchaseOrderSubject();
             case 'email_subject_invoice':
                 return self::emailInvoiceSubject();
-                
+
             case 'email_subject_quote':
                 return self::emailQuoteSubject();
-                
+
             case 'email_subject_credit':
                 return self::emailCreditSubject();
-                
+
             case 'email_subject_payment':
                 return self::emailPaymentSubject();
-                
+
             case 'email_subject_payment_partial':
                 return self::emailPaymentPartialSubject();
-                
+
             case 'email_subject_statement':
                 return self::emailStatementSubject();
-                
+
             case 'email_subject_reminder1':
                 return self::emailReminder1Subject();
-                
+
             case 'email_subject_reminder2':
                 return self::emailReminder2Subject();
-                
+
             case 'email_subject_reminder3':
                 return self::emailReminder3Subject();
-                
+
             case 'email_subject_reminder_endless':
                 return self::emailReminderEndlessSubject();
-                
+
             case 'email_subject_custom1':
                 return self::emailInvoiceSubject();
-                
+
             case 'email_subject_custom2':
                 return self::emailInvoiceSubject();
-                
+
             case 'email_subject_custom3':
                 return self::emailInvoiceSubject();
-                
+
             case 'email_vendor_notification_subject':
                 return self::emailVendorNotificationSubject();
 
@@ -100,7 +117,7 @@ class EmailTemplateDefaults
 
             default:
                 return self::emailInvoiceTemplate();
-                
+
         }
     }
 
@@ -116,12 +133,12 @@ class EmailTemplateDefaults
 
     public static function emailInvoiceSubject()
     {
-        return ctrans('texts.invoice_subject', ['number'=>'$number', 'account'=>'$company.name']);
+        return ctrans('texts.invoice_subject', ['number' => '$number', 'account' => '$company.name']);
     }
 
     public static function emailCreditSubject()
     {
-        return ctrans('texts.credit_subject', ['number'=>'$number', 'account'=>'$company.name']);
+        return ctrans('texts.credit_subject', ['number' => '$number', 'account' => '$company.name']);
     }
 
     public static function emailInvoiceTemplate()
@@ -140,7 +157,7 @@ class EmailTemplateDefaults
 
     public static function emailQuoteSubject()
     {
-        return ctrans('texts.quote_subject', ['number'=>'$number', 'account'=>'$company.name']);
+        return ctrans('texts.quote_subject', ['number' => '$number', 'account' => '$company.name']);
     }
 
     public static function emailQuoteTemplate()
@@ -195,7 +212,7 @@ class EmailTemplateDefaults
 
     public static function emailReminder1Subject()
     {
-        return ctrans('texts.reminder_subject', ['invoice'=>'$number', 'account'=>'$company.name']);
+        return ctrans('texts.reminder_subject', ['invoice' => '$number', 'account' => '$company.name']);
     }
 
     public static function emailReminder1Template()
@@ -205,7 +222,7 @@ class EmailTemplateDefaults
 
     public static function emailReminder2Subject()
     {
-        return ctrans('texts.reminder_subject', ['invoice'=>'$number', 'account'=>'$company.name']);
+        return ctrans('texts.reminder_subject', ['invoice' => '$number', 'account' => '$company.name']);
     }
 
     public static function emailReminder2Template()
@@ -215,7 +232,7 @@ class EmailTemplateDefaults
 
     public static function emailReminder3Subject()
     {
-        return ctrans('texts.reminder_subject', ['invoice'=>'$number', 'account'=>'$company.name']);
+        return ctrans('texts.reminder_subject', ['invoice' => '$number', 'account' => '$company.name']);
     }
 
     public static function emailReminder3Template()
@@ -225,7 +242,7 @@ class EmailTemplateDefaults
 
     public static function emailReminderEndlessSubject()
     {
-        return ctrans('texts.reminder_subject', ['invoice'=>'$number', 'account'=>'$company.name']);
+        return ctrans('texts.reminder_subject', ['invoice' => '$number', 'account' => '$company.name']);
     }
 
     public static function emailReminderEndlessTemplate()

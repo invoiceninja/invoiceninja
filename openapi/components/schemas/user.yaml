@@ -99,4 +99,6 @@
           type: string
           example: '123456'
           readOnly: true
+        company_user:
+          $ref: '#/components/schemas/CompanyUser'
       type: object

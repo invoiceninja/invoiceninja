@@ -32,7 +32,7 @@ class ProcessInvoicesInBulkRequest extends FormRequest
     public function prepareForValidation()
     {
         $input = $this->all();
-        
+
         if(isset($input['invoices'])) {
             $input['invoices'] = array_unique($input['invoices']);
         }

@@ -44,12 +44,14 @@ class BankTransformer extends BaseTransformer
             'updated_at' => $now,
             'company_id' => $this->company->id,
             'user_id' => $this->company->owner()->id,
+            'participant' => $this->getString($transaction, 'transaction.participant'),
+            'participant_name' => $this->getString($transaction, 'transaction.participant_name'),
         ];
 
         return $transformed;
     }
 
-    private function calculateAmount(array $transaction):float
+    private function calculateAmount(array $transaction): float
     {
 
         if (array_key_exists('transaction.amount', $transaction) && is_numeric($transaction['transaction.amount'])) {

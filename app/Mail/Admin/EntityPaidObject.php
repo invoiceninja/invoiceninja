@@ -46,12 +46,13 @@ class EntityPaidObject
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
-        $mail_obj = new stdClass;
+        $mail_obj = new stdClass();
         $mail_obj->amount = $this->getAmount();
         $mail_obj->subject = $this->getSubject();
         $mail_obj->data = $this->getData();
         $mail_obj->markdown = 'email.admin.generic';
         $mail_obj->tag = $this->company->company_key;
+        $mail_obj->text_view = 'email.template.text';
 
         return $mail_obj;
     }
@@ -74,8 +75,6 @@ class EntityPaidObject
     {
         $settings = $this->payment->client->getMergedSettings();
 
-        $signature = $this->generateSignature($settings);
-
         $amount = Number::formatMoney($this->payment->amount, $this->payment->client);
 
         $invoice_texts = ctrans('texts.invoice_number_short');
@@ -85,37 +84,31 @@ class EntityPaidObject
         }
 
         $invoice_texts = substr($invoice_texts, 0, -1);
+        $content = ctrans(
+            'texts.notification_payment_paid',
+            ['amount' => $amount,
+                    'client' => $this->payment->client->present()->name(),
+                    'invoice' => $invoice_texts,
+                ]
+        );
 
         $data = [
             'title' => ctrans(
                 'texts.notification_payment_paid_subject',
                 ['client' => $this->payment->client->present()->name()]
             ),
-            'content' => ctrans(
-                'texts.notification_payment_paid',
-                ['amount' => $amount,
-                    'client' => $this->payment->client->present()->name(),
-                    'invoice' => $invoice_texts,
-                ]
-            ),
+            'content' => $content,
             'url' => $this->payment->portalUrl($this->use_react_url),
             'button' => ctrans('texts.view_payment'),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),
             'settings' => $settings,
             'whitelabel' => $this->company->account->isPaid() ? true : false,
+            'text_body' => $content,
+            'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
         ];
 
         return $data;
-    }
-
-    private function generateSignature($settings)
-    {
-        $html_variables = (new PaymentEmailEngine($this->payment, $this->payment->client->primary_contact()->first()))->makeValues();
-
-        $signature = str_replace(array_keys($html_variables), array_values($html_variables), $settings->email_signature);
-
-        return $signature;
     }
 
 }

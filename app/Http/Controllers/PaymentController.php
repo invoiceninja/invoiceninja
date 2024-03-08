@@ -11,27 +11,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Utils\Ninja;
-use App\Models\Account;
-use App\Models\Payment;
-use Illuminate\Http\Response;
+use App\Events\Payment\PaymentWasUpdated;
 use App\Factory\PaymentFactory;
 use App\Filters\PaymentFilters;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\SavesDocuments;
-use App\Repositories\PaymentRepository;
-use App\Transformers\PaymentTransformer;
-use App\Events\Payment\PaymentWasUpdated;
-use App\Services\Template\TemplateAction;
+use App\Http\Requests\Payment\BulkActionPaymentRequest;
+use App\Http\Requests\Payment\CreatePaymentRequest;
+use App\Http\Requests\Payment\DestroyPaymentRequest;
 use App\Http\Requests\Payment\EditPaymentRequest;
+use App\Http\Requests\Payment\RefundPaymentRequest;
 use App\Http\Requests\Payment\ShowPaymentRequest;
 use App\Http\Requests\Payment\StorePaymentRequest;
-use App\Http\Requests\Payment\CreatePaymentRequest;
-use App\Http\Requests\Payment\RefundPaymentRequest;
 use App\Http\Requests\Payment\UpdatePaymentRequest;
 use App\Http\Requests\Payment\UploadPaymentRequest;
-use App\Http\Requests\Payment\DestroyPaymentRequest;
-use App\Http\Requests\Payment\BulkActionPaymentRequest;
+use App\Models\Account;
+use App\Models\Payment;
+use App\Repositories\PaymentRepository;
+use App\Services\Template\TemplateAction;
+use App\Transformers\PaymentTransformer;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
+use Illuminate\Http\Response;
 
 /**
  * Class PaymentController.
@@ -155,6 +155,7 @@ class PaymentController extends BaseController
         $user = auth()->user();
 
         $payment = PaymentFactory::create($user->company()->id, $user->id);
+        $payment->date = now()->addSeconds($user->company()->utc_offset())->format('Y-m-d');
 
         return $this->itemResponse($payment);
     }
@@ -519,7 +520,7 @@ class PaymentController extends BaseController
         if($action == 'template' && $user->can('view', $payments->first())) {
 
             $hash_or_response = request()->boolean('send_email') ? 'email sent' : \Illuminate\Support\Str::uuid();
-nlog($payments->pluck('hashed_id')->toArray());
+
             TemplateAction::dispatch(
                 $payments->pluck('hashed_id')->toArray(),
                 $request->template_id,

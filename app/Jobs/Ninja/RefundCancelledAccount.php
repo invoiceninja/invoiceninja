@@ -13,7 +13,10 @@ use Illuminate\Support\Carbon;
 
 class RefundCancelledAccount implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $account;
 

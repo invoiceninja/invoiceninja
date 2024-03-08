@@ -35,7 +35,7 @@ class ARDetailReport extends BaseExport
     //Balance
 
     public Writer $csv;
-    
+
     public string $date_key = 'created_at';
 
     public array $report_keys = [
@@ -74,7 +74,7 @@ class ARDetailReport extends BaseExport
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
         $this->csv = Writer::createFromString();
-        
+
         $this->csv->insertOne([]);
         $this->csv->insertOne([]);
         $this->csv->insertOne([]);
@@ -90,6 +90,9 @@ class ARDetailReport extends BaseExport
 
         $query = Invoice::query()
                 ->withTrashed()
+                ->whereHas('client', function ($query){
+                    $query->where('is_deleted', 0);
+                })
                 ->where('company_id', $this->company->id)
                 ->where('is_deleted', 0)
                 ->where('balance', '>', 0)
@@ -125,8 +128,8 @@ class ARDetailReport extends BaseExport
             Number::formatMoney($invoice->balance, $client),
         ];
     }
-    
-    public function buildHeader() :array
+
+    public function buildHeader(): array
     {
         $header = [];
 

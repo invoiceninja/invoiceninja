@@ -11,15 +11,16 @@
 
 namespace App\Listeners\Mail;
 
+use App\Utils\Ninja;
+use App\Models\Webhook;
 use App\Libraries\MultiDB;
+use App\Models\QuoteInvitation;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
 use App\Models\PurchaseOrderInvitation;
-use App\Models\QuoteInvitation;
-use App\Models\RecurringInvoiceInvitation;
-use App\Utils\Ninja;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Events\MessageSent;
+use App\Models\RecurringInvoiceInvitation;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Symfony\Component\Mime\MessageConverter;
 
 class MailSentListener implements ShouldQueue
@@ -41,30 +42,31 @@ class MailSentListener implements ShouldQueue
      */
     public function handle(MessageSent $event)
     {
-        
-        if (!Ninja::isHosted()) {
-            return;
-        }
-            
-        $message_id = $event->sent->getMessageId();
 
-        $message = MessageConverter::toEmail($event->sent->getOriginalMessage());
+        try {
+            $message_id = $event->sent->getMessageId();
 
-        if (!$message->getHeaders()->get('x-invitation')) {
-            return;
-        }
+            $message = MessageConverter::toEmail($event->sent->getOriginalMessage());
 
-        $invitation_key = $message->getHeaders()->get('x-invitation')->getValue();
-
-        if ($message_id && $invitation_key) {
-            $invitation = $this->discoverInvitation($invitation_key);
-
-            if (!$invitation) {
+            if (!$message->getHeaders()->get('x-invitation')) {
                 return;
             }
 
-            $invitation->message_id = $message_id;
-            $invitation->save();
+            $invitation_key = $message->getHeaders()->get('x-invitation')->getValue();
+
+            if ($message_id && $invitation_key) {
+                $invitation = $this->discoverInvitation($invitation_key);
+
+                if (!$invitation) {
+                    return;
+                }
+
+                $invitation->message_id = str_replace(["<",">"], "", $message_id);
+                $invitation->save();
+            }
+        } catch (\Exception $e) {
+            nlog("Mail Sent Listener Exception");
+            nlog($e->getMessage());
         }
     }
 

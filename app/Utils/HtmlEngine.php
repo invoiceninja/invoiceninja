@@ -35,7 +35,7 @@ class HtmlEngine
     use AppSetup;
     use MakesHash;
     use DesignCalculator;
-    
+
     /** @var  \App\Models\Invoice | \App\Models\Credit | \App\Models\RecurringInvoice | \App\Models\Quote $entity **/
     public $entity;
 
@@ -60,7 +60,7 @@ class HtmlEngine
 
     private $helpers;
 
-        
+
     /**
      * __construct
      *
@@ -78,9 +78,9 @@ class HtmlEngine
         $this->company = $invitation->company;
 
         $this->contact = $invitation->contact->load('client');
-        
+
         $this->client = $this->contact->client->load('company', 'country');
-        
+
         $this->entity->load('client');
 
         $this->settings = $this->client->getMergedSettings();
@@ -90,6 +90,12 @@ class HtmlEngine
         $this->helpers = new Helpers();
     }
 
+    public function setSettings($settings): self
+    {
+        $this->settings = $settings;
+
+        return $this;
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -110,7 +116,7 @@ class HtmlEngine
         }
     }
 
-    public function buildEntityDataArray() :array
+    public function buildEntityDataArray(): array
     {
         if (! $this->client->currency()) {
             throw new Exception(debug_backtrace()[1]['function'], 1);
@@ -130,24 +136,32 @@ class HtmlEngine
         $data['$show_shipping_address_block'] = ['value' => $this->settings?->show_shipping_address ? 'block' : 'none', 'label' => ''];
         // $data['$show_shipping_address_visibility'] = ['value' => $this->settings?->show_shipping_address ? 'visible' : 'hidden', 'label' => ''];
         $data['$show_shipping_address_visibility'] = ['value' => $this->settings?->show_shipping_address ? 1 : 0, 'label' => ''];
-        
+
+        $data['$order_number'] = ['value' => '', 'label' => ctrans('texts.order_number')];
         $data['$tax'] = ['value' => '', 'label' => ctrans('texts.tax')];
+        $data['$quantity'] = ['value' => '', 'label' => ctrans('texts.quantity')];
+        $data['$amount_paid'] = ['value' => '', 'label' => ctrans('texts.amount_paid')];
         $data['$app_url'] = ['value' => $this->generateAppUrl(), 'label' => ''];
         $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
         $data['$to'] = ['value' => '', 'label' => ctrans('texts.to')];
+        $data['$shipping'] = ['value' => '', 'label' => ctrans('texts.ship_to')];
+
         $data['$total_tax_labels'] = ['value' => $this->totalTaxLabels(), 'label' => ctrans('texts.taxes')];
         $data['$total_tax_values'] = ['value' => $this->totalTaxValues(), 'label' => ctrans('texts.taxes')];
         $data['$line_tax_labels'] = ['value' => $this->lineTaxLabels(), 'label' => ctrans('texts.taxes')];
         $data['$line_tax_values'] = ['value' => $this->lineTaxValues(), 'label' => ctrans('texts.taxes')];
         $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->client->date_format(), $this->client->locale()) ?: ' ', 'label' => ctrans('texts.date')];
         $data['$status_logo'] = ['value' => ' ', 'label' => ' '];
+        $data['$delivery_note'] = ['value' => ' ', 'label' => ctrans('texts.delivery_note')];
+        $data['$receipt'] = ['value' => ' ', 'label' => ctrans('texts.receipt')];
+        $data['$shipping'] = ['value' => ' ', 'label' => ctrans('texts.ship_to')];
 
         $data['$invoice.date'] = &$data['$date'];
         $data['$invoiceDate'] = &$data['$date'];
         $data['$due_date'] = ['value' => $this->translateDate($this->entity->due_date, $this->client->date_format(), $this->client->locale()) ?: ' ', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
 
         $data['$partial_due_date'] = ['value' => $this->translateDate($this->entity->partial_due_date, $this->client->date_format(), $this->client->locale()) ?: ' ', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
-        
+
         $data['$dueDate'] = &$data['$due_date'];
 
         $data['$payment_due'] = ['value' => $this->translateDate($this->entity->due_date, $this->client->date_format(), $this->client->locale()) ?: ' ', 'label' => ctrans('texts.payment_due')];
@@ -162,12 +176,15 @@ class HtmlEngine
         $data['$credit.datetime'] = &$data['$entity.datetime'];
         $data['$payment_button'] = ['value' => $this->buildViewButton($this->invitation->getPaymentLink(), ctrans('texts.pay_now')), 'label' => ctrans('texts.pay_now')];
         $data['$payment_link'] = ['value' => $this->invitation->getPaymentLink(), 'label' => ctrans('texts.pay_now')];
+
         $data['$payment_qrcode'] = ['value' => $this->invitation->getPaymentQrCode(), 'label' => ctrans('texts.pay_now')];
+        $data['$payment_qrcode_raw'] = ['value' => $this->invitation->getPaymentQrCodeRaw(), 'label' => ctrans('texts.pay_now')];
+
         $data['$exchange_rate'] = ['value' => $this->entity->exchange_rate ?: ' ', 'label' => ctrans('texts.exchange_rate')];
         $data['$triangular_tax'] = ['value' => ctrans('texts.triangular_tax'), 'label' => ''];
         $data['$tax_info'] = ['value' => $this->taxLabel(), 'label' => ''];
         $data['$net'] = ['value' => '', 'label' => ctrans('texts.net')];
-        
+
         if ($this->entity_string == 'invoice' || $this->entity_string == 'recurring_invoice') {
             $data['$entity'] = ['value' => ctrans('texts.invoice'), 'label' => ctrans('texts.invoice')];
             $data['$number'] = ['value' => $this->entity->number ?: ' ', 'label' => ctrans('texts.invoice_number')];
@@ -211,7 +228,7 @@ class HtmlEngine
             $data['$status_logo'] = ['value' => '<div class="stamp is-paid"> ' . ctrans('texts.paid') .'</div>', 'label' => ''];
 
             $data['$show_paid_stamp'] = ['value' => $this->entity->status_id == 4 && $this->settings?->show_paid_stamp ? 'flex' : 'none', 'label' => ''];
-            
+
             if ($this->entity->vendor) {
                 $data['$invoice.vendor'] = ['value' => $this->entity->vendor->present()->name(), 'label' => ctrans('texts.vendor_name')];
             }
@@ -304,7 +321,7 @@ class HtmlEngine
             $data['$invoice.custom4'] = &$data['$credit.custom4'];
         }
 
-        $data['$portal_url'] = ['value' => $this->invitation->getPortalLink(), 'label' =>''];
+        $data['$portal_url'] = ['value' => $this->invitation->getPortalLink(), 'label' => ''];
 
         $data['$entity_number'] = &$data['$number'];
         $data['$invoice.discount'] = ['value' => Number::formatMoney($this->entity_calc->getTotalDiscount(), $this->client) ?: ' ', 'label' => ($this->entity->is_amount_discount) ? ctrans('texts.discount') : ctrans('texts.discount').' '.$this->entity->discount.'%'];
@@ -323,16 +340,19 @@ class HtmlEngine
         /* Do not change the order of these */
         if ($this->entity->partial > 0) {
             $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->client) ?: ' ', 'label' => ctrans('texts.partial_due')];
+            $data['$balance_due_dec'] = ['value' => sprintf("%01.2f", $this->entity->partial), 'label' => ctrans('texts.partial_due')];
             $data['$balance_due_raw'] = ['value' => $this->entity->partial, 'label' => ctrans('texts.partial_due')];
             $data['$amount_raw'] = ['value' => $this->entity->partial, 'label' => ctrans('texts.partial_due')];
             $data['$due_date'] = ['value' => $this->translateDate($this->entity->partial_due_date, $this->client->date_format(), $this->client->locale()) ?: ' ', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
         } else {
             if ($this->entity->status_id == 1 || $this->entity_string == 'recurring_invoice') {
                 $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->amount, $this->client) ?: ' ', 'label' => ctrans('texts.balance_due')];
+                $data['$balance_due_dec'] = ['value' => sprintf("%01.2f", $this->entity->amount), 'label' => ctrans('texts.balance_due')];
                 $data['$balance_due_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.balance_due')];
                 $data['$amount_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.amount')];
             } else {
                 $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->balance, $this->client) ?: ' ', 'label' => ctrans('texts.balance_due')];
+                $data['$balance_due_dec'] = ['value' => sprintf("%01.2f", $this->entity->balance), 'label' => ctrans('texts.balance_due')];
                 $data['$balance_due_raw'] = ['value' => $this->entity->balance, 'label' => ctrans('texts.balance_due')];
                 $data['$amount_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.amount')];
             }
@@ -344,12 +364,14 @@ class HtmlEngine
 
         if ($this->entity_string == 'credit') {
             $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->balance, $this->client) ?: ' ', 'label' => ctrans('texts.credit_balance')];
+            $data['$balance_due_dec'] = ['value' => sprintf("%01.2f", $this->entity->balance), 'label' => ctrans('texts.credit_balance')];
             $data['$balance_due_raw'] = ['value' => $this->entity->balance, 'label' => ctrans('texts.credit_balance')];
             $data['$amount_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.amount')];
         }
 
         if ($this->entity_string == 'credit' && $this->entity->status_id == 1) {
             $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->amount, $this->client) ?: ' ', 'label' => ctrans('texts.credit_balance')];
+            $data['$balance_due_dec'] = ['value' => sprintf("%01.2f", $this->entity->amount), 'label' => ctrans('texts.credit_balance')];
             $data['$balance_due_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.credit_balance')];
             $data['$amount_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.amount')];
         }
@@ -362,7 +384,7 @@ class HtmlEngine
 
         $data['$total'] = ['value' => Number::formatMoney($this->entity_calc->getTotal(), $this->client) ?: ' ', 'label' => ctrans('texts.total')];
         $data['$amount'] = &$data['$total'];
-        $data['$amount_due'] = ['value' => &$data['$total']['value'], 'label' => ctrans('texts.amount_due')];
+        $data['$amount_due'] = ['value' => &$data['$balance_due']['value'], 'label' => ctrans('texts.amount_due')];
         $data['$quote.total'] = &$data['$total'];
         $data['$invoice.total'] = ['value' => Number::formatMoney($this->entity_calc->getTotal(), $this->client) ?: ' ', 'label' => ctrans('texts.invoice_total')];
         $data['$invoice_total_raw'] = ['value' => $this->entity_calc->getTotal(), 'label' => ctrans('texts.invoice_total')];
@@ -375,7 +397,8 @@ class HtmlEngine
         $data['$credit.date'] = ['value' => $this->translateDate($this->entity->date, $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.credit_date')];
         $data['$balance'] = ['value' => Number::formatMoney($this->getBalance(), $this->client) ?: ' ', 'label' => ctrans('texts.balance')];
         $data['$credit.balance'] = ['value' => Number::formatMoney($this->entity_calc->getBalance(), $this->client) ?: ' ', 'label' => ctrans('texts.credit_balance')];
-
+        $data['$client.credit_balance'] = &$data['$credit.balance'];
+        
         $data['$invoice.balance'] = &$data['$balance'];
         $data['$taxes'] = ['value' => Number::formatMoney($this->entity_calc->getItemTotalTaxes(), $this->client) ?: ' ', 'label' => ctrans('texts.taxes')];
         $data['$invoice.taxes'] = &$data['$taxes'];
@@ -432,7 +455,7 @@ class HtmlEngine
         $data['$country'] = ['value' => isset($this->client->country->name) ? ctrans('texts.country_' . $this->client->country->name) : '', 'label' => ctrans('texts.country')];
         $data['$country_2'] = ['value' => isset($this->client->country) ? $this->client->country->iso_3166_2 : '', 'label' => ctrans('texts.country')];
         $data['$email'] = ['value' => isset($this->contact) ? $this->contact->email : 'no contact email on record', 'label' => ctrans('texts.email')];
-        
+
         if (str_contains($data['$email']['value'], 'example.com')) {
             $data['$email'] = ['value' => '', 'label' => ctrans('texts.email')];
         }
@@ -602,7 +625,7 @@ class HtmlEngine
         if ($this->settings->signature_on_pdf) {
             $data['$contact.signature'] = ['value' => $this->invitation->signature_base64, 'label' => ctrans('texts.signature')];
             $data['$contact.signature_date'] = ['value' => $this->translateDate($this->invitation->signature_date, $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.date')];
-            
+
         } else {
             $data['$contact.signature'] = ['value' => '', 'label' => ''];
             $data['$contact.signature_date'] = ['value' => '', 'label' => ctrans('texts.date')];
@@ -637,7 +660,7 @@ class HtmlEngine
         //$data['$entity_footer'] = ['value' => $this->client->getSetting("{$this->entity_string}_footer"), 'label' => ''];
         $data['$entity_footer'] = ['value' => Helpers::processReservedKeywords(\nl2br($this->entity->footer ?: ''), $this->client), 'label' => ''];
         $data['$footer'] = &$data['$entity_footer'];
-        
+
         $data['$page_size'] = ['value' => $this->settings->page_size, 'label' => ''];
         $data['$page_layout'] = ['value' => property_exists($this->settings, 'page_layout') ? $this->settings->page_layout : 'Portrait', 'label' => ''];
 
@@ -648,7 +671,7 @@ class HtmlEngine
         /*Payment Aliases*/
         $data['$paymentLink'] = &$data['$payment_link'];
         $data['$payment_url'] = &$data['$payment_link'];
-        
+
         $data['$dir'] = ['value' => in_array(optional($this->client->language())->locale, ['ar', 'he']) ? 'rtl' : 'ltr', 'label' => ''];
         $data['$dir_text_align'] = ['value' => in_array(optional($this->client->language())->locale, ['ar', 'he']) ? 'right' : 'left', 'label' => ''];
 
@@ -706,7 +729,7 @@ class HtmlEngine
 
         return $data;
     }
-    
+
     /**
      * Returns a localized string for tax compliance purposes
      *
@@ -722,6 +745,11 @@ class HtmlEngine
 
         if((int)$this->client->country_id !== (int)$this->company->settings->country_id) {
             $tax_label .= ctrans('texts.intracommunity_tax_info') . "<br>";
+
+            if($this->entity_calc->getTotalTaxes() > 0) {
+                $tax_label = '';
+            }
+
         }
 
         return $tax_label;
@@ -736,7 +764,7 @@ class HtmlEngine
         return $this->entity->balance;
     }
 
-    public function makeValues() :array
+    public function makeValues(): array
     {
         $data = [];
 
@@ -749,7 +777,7 @@ class HtmlEngine
         return $data;
     }
 
-    public function makeValuesNoPrefix() :array
+    public function makeValuesNoPrefix(): array
     {
         $data = [];
 
@@ -777,7 +805,7 @@ class HtmlEngine
         return $data;
     }
 
-    private function totalTaxLabels() :string
+    private function totalTaxLabels(): string
     {
         $data = '';
 
@@ -792,7 +820,7 @@ class HtmlEngine
         return $data;
     }
 
-    private function totalTaxValues() :string
+    private function totalTaxValues(): string
     {
         $data = '';
 
@@ -807,7 +835,7 @@ class HtmlEngine
         return $data;
     }
 
-    private function lineTaxLabels() :string
+    private function lineTaxLabels(): string
     {
         $tax_map = $this->entity_calc->getTaxMap();
 
@@ -820,7 +848,7 @@ class HtmlEngine
         return $data;
     }
 
-    private function getCountryName() :string
+    private function getCountryName(): string
     {
         $countries = Cache::get('countries');
 
@@ -846,7 +874,7 @@ class HtmlEngine
     }
 
 
-    private function getCountryCode() :string
+    private function getCountryCode(): string
     {
         $country = Country::find($this->settings->country_id);
 
@@ -865,7 +893,7 @@ class HtmlEngine
      * @return string a collection of <tr> rows with line item
      * aggregate data
      */
-    private function makeLineTaxes() :string
+    private function makeLineTaxes(): string
     {
         $tax_map = $this->entity_calc->getTaxMap();
 
@@ -880,7 +908,7 @@ class HtmlEngine
         return $data;
     }
 
-    private function lineTaxValues() :string
+    private function lineTaxValues(): string
     {
         $tax_map = $this->entity_calc->getTaxMap();
 
@@ -893,7 +921,7 @@ class HtmlEngine
         return $data;
     }
 
-    private function makeTotalTaxes() :string
+    private function makeTotalTaxes(): string
     {
         $data = '';
 
@@ -911,7 +939,7 @@ class HtmlEngine
         return $data;
     }
 
-    private function parseLabelsAndValues($labels, $values, $section) :string
+    private function parseLabelsAndValues($labels, $values, $section): string
     {
         $section = strtr($section, $labels);
 
@@ -932,7 +960,7 @@ class HtmlEngine
      * of Repeating headers and footers on the PDF.
      * @return string The css string
      */
-    private function generateCustomCSS() :string
+    private function generateCustomCSS(): string
     {
         $header_and_footer = '
 .header, .header-space {
@@ -1060,10 +1088,10 @@ html {
         $html = $dom->saveHTML();
 
         $dom = null;
-        
+
         return $html;
     }
-    
+
     /**
      * buildViewButton
      *

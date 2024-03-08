@@ -18,7 +18,7 @@ jobs:
         phpunit-versions: ['latest']
         ci_node_total: [ 8 ]
         ci_node_index: [ 0, 1, 2, 3, 4, 5, 6, 7]
-        laravel: [9.*]
+        laravel: [10.*]
         dependency-version: [prefer-stable]
 
     env:
@@ -81,9 +81,9 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-versions }}
-        extensions: mysql, mysqlnd, sqlite3, bcmath, gmp, gd, curl, zip, openssl, mbstring, xml, redis
+        extensions: mysql, mysqlnd, sqlite3, bcmath, gmp, gd, curl, zip, openssl, mbstring, xml, redis, :psr
 
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4
       with:
         ref: v5-develop
         fetch-depth: 1
@@ -96,7 +96,7 @@ jobs:
       id: composer-cache
       run: |
         echo "::set-output name=dir::$(composer config cache-files-dir)"
-    - uses: actions/cache@v2
+    - uses: actions/cache@v3
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}

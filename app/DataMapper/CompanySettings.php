@@ -26,7 +26,7 @@ class CompanySettings extends BaseSettings
     public $auto_archive_invoice = false; // @implemented
 
     public $qr_iban = ''; //@implemented
-    
+
     public $besr_id = ''; //@implemented
 
     public $lock_invoices = 'off'; //off,when_sent,when_paid //@implemented
@@ -229,7 +229,7 @@ class CompanySettings extends BaseSettings
     public $require_quote_signature = false;  //@TODO ben to confirm
 
     //email settings
-    public $email_sending_method = 'default'; //enum 'default','gmail','office365' 'client_postmark', 'client_mailgun' //@implemented
+    public $email_sending_method = 'default'; //enum 'default','gmail','office365' 'client_postmark', 'client_mailgun', 'mailgun' //@implemented
 
     public $gmail_sending_user_id = '0'; //@implemented
 
@@ -444,9 +444,9 @@ class CompanySettings extends BaseSettings
     public $postmark_secret = '';
 
     public $custom_sending_email = '';
-    
+
     public $mailgun_secret = '';
-    
+
     public $mailgun_domain = '';
 
     public $mailgun_endpoint = 'api.mailgun.net'; //api.eu.mailgun.net
@@ -482,9 +482,9 @@ class CompanySettings extends BaseSettings
     public $enable_e_invoice = false;
 
     public $delivery_note_design_id = '';
-    
+
     public $statement_design_id = '';
-    
+
     public $payment_receipt_design_id = '';
 
     public $payment_refund_design_id = '';
@@ -493,7 +493,13 @@ class CompanySettings extends BaseSettings
 
     public $payment_email_all_contacts = false;
 
+    public $show_pdfhtml_on_mobile = true;
+
+    public $use_unapplied_payment = 'off'; //always, option, off //@implemented
+
     public static $casts = [
+        'use_unapplied_payment'              => 'string',
+        'show_pdfhtml_on_mobile'             => 'bool',
         'payment_email_all_contacts'         => 'bool',
         'statement_design_id'                => 'string',
         'delivery_note_design_id'            => 'string',
@@ -546,7 +552,7 @@ class CompanySettings extends BaseSettings
         'use_credits_payment'                => 'string',
         'recurring_invoice_number_pattern'   => 'string',
         'recurring_invoice_number_counter'   => 'int',
-        'client_portal_under_payment_minimum'=> 'float',
+        'client_portal_under_payment_minimum' => 'float',
         'auto_bill_date'                     => 'string',
         'primary_color'                      => 'string',
         'secondary_color'                    => 'string',
@@ -840,7 +846,7 @@ class CompanySettings extends BaseSettings
     public static function setProperties($settings): stdClass
     {
         $company_settings = (object) get_class_vars(self::class);
-        
+
         foreach ($company_settings as $key => $value) {
             if (! property_exists($settings, $key)) {
                 $settings->{$key} = self::castAttribute($key, $company_settings->{$key});
@@ -855,9 +861,9 @@ class CompanySettings extends BaseSettings
      *
      * @return stdClass
      */
-    public static function notificationDefaults() :stdClass
+    public static function notificationDefaults(): stdClass
     {
-        $notification = new stdClass;
+        $notification = new stdClass();
         $notification->email = [];
         $notification->email = ['invoice_sent_all'];
 
@@ -871,11 +877,11 @@ class CompanySettings extends BaseSettings
      *
      * @return stdClass
      */
-    public static function notificationAdminDefaults() :stdClass
+    public static function notificationAdminDefaults(): stdClass
     {
-        $notification = new stdClass;
+        $notification = new stdClass();
         $notification->email = [];
-        $notification->email = ['invoice_sent_all'];
+        $notification->email = ['invoice_sent_all','payment_success_all','payment_manual_all'];
 
         return $notification;
     }
@@ -888,7 +894,7 @@ class CompanySettings extends BaseSettings
      *
      * @return stdClass The stdClass of PDF variables
      */
-    public static function getEntityVariableDefaults() :stdClass
+    public static function getEntityVariableDefaults(): stdClass
     {
         $variables = [
             'client_details' => [
@@ -975,7 +981,7 @@ class CompanySettings extends BaseSettings
                 '$product.tax',
                 '$product.line_total',
             ],
-            'task_columns' =>[
+            'task_columns' => [
                 '$task.service',
                 '$task.description',
                 '$task.rate',

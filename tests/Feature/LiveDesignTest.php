@@ -11,13 +11,13 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use App\Models\Design;
-use App\Utils\HtmlEngine;
-use Tests\MockAccountData;
 use App\Models\InvoiceInvitation;
-use Illuminate\Routing\Middleware\ThrottleRequests;
+use App\Utils\HtmlEngine;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test
@@ -62,7 +62,7 @@ class LiveDesignTest extends TestCase
         
         $data = $engine->generateLabelsAndValues();
 
-        $this->assertIsArray($data);  
+        $this->assertIsArray($data);
 
         nlog($data);
     }

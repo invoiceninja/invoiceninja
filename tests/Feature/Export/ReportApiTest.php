@@ -11,12 +11,10 @@
 
 namespace Tests\Feature\Export;
 
-use Tests\TestCase;
-use Tests\MockAccountData;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Foundation\Testing\Concerns\InteractsWithExceptionHandling;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test

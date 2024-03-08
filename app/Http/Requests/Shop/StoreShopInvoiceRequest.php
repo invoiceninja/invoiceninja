@@ -29,7 +29,7 @@ class StoreShopInvoiceRequest extends Request
      */
     private $company;
 
-    public function authorize() : bool
+    public function authorize(): bool
     {
         return true;
     }

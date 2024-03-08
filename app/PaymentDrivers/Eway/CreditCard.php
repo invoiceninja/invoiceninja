@@ -71,7 +71,7 @@ class CreditCard
         $response = $this->eway_driver->init()->eway->createCustomer(\Eway\Rapid\Enum\ApiMethod::DIRECT, $transaction);
 
         if($response->getErrors()) {
-    
+
             $response_status['message'] = \Eway\Rapid::getMessage($response->getErrors()[0]);
 
             $this->eway_driver->sendFailureMail($response_status['message']);
@@ -86,7 +86,7 @@ class CreditCard
         $cgt['token'] = strval($response->Customer->TokenCustomerID);
         $cgt['payment_method_id'] = GatewayType::CREDIT_CARD;
 
-        $payment_meta = new \stdClass;
+        $payment_meta = new \stdClass();
         $payment_meta->exp_month = $response->Customer->CardDetails->ExpiryMonth;
         $payment_meta->exp_year = $response->Customer->CardDetails->ExpiryYear;
         $payment_meta->brand = 'CC';

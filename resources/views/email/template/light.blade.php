@@ -9,9 +9,15 @@
 @if($signature)
 <br>
 <br>
-<p>
-    {!! $signature !!}
-</p>
+<p>{!! nl2br($signature) !!}</p>
 @endif
+
+@isset($email_preferences)
+<p>
+    <a href="{{ $email_preferences }}">
+        {{ ctrans('texts.email_preferences') }}
+    </a>
+</p>
+@endisset
 
 @endcomponent

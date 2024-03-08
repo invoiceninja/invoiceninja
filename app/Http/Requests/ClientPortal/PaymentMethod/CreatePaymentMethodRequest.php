@@ -4,9 +4,10 @@ namespace App\Http\Requests\ClientPortal\PaymentMethod;
 
 use App\Http\Requests\Request;
 use App\Models\Client;
+use Illuminate\Foundation\Http\FormRequest;
+
 use function auth;
 use function collect;
-use Illuminate\Foundation\Http\FormRequest;
 
 class CreatePaymentMethodRequest extends FormRequest
 {

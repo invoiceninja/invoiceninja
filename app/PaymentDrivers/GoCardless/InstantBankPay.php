@@ -97,7 +97,7 @@ class InstantBankPay implements MethodInterface
         $this->go_cardless->setPaymentHash(
             $request->getPaymentHash()
         );
-        
+
         $this->go_cardless->init();
 
         try {
@@ -113,6 +113,10 @@ class InstantBankPay implements MethodInterface
                 return $this->processSuccessfulPayment($payment);
             }
 
+            if ($billing_request->status === 'submitted') {
+                return $this->processPendingPayment($payment);
+            }
+
             return $this->processUnsuccessfulPayment($payment);
         } catch (\Exception $exception) {
             throw new PaymentFailed(
@@ -125,7 +129,40 @@ class InstantBankPay implements MethodInterface
     /**
      * Handle pending payments for Instant Bank Transfer.
      *
-     * @param ResourcesPayment $payment
+     * @param \GoCardlessPro\Resources\Payment $payment
+     * @param array $data
+     * @return RedirectResponse
+     */
+    public function processPendingPayment(\GoCardlessPro\Resources\Payment $payment, array $data = [])
+    {
+        $data = [
+            'payment_method' => $payment->links->mandate, //@phpstan-ignore tag
+            'payment_type' => PaymentType::INSTANT_BANK_PAY,
+            'amount' => $this->go_cardless->payment_hash->data->amount_with_fee,
+            'transaction_reference' => $payment->id, //@phpstan-ignore tag
+            'gateway_type_id' => GatewayType::INSTANT_BANK_PAY,
+        ];
+
+        $payment = $this->go_cardless->createPayment($data, Payment::STATUS_PENDING);
+
+        SystemLogger::dispatch(
+            ['response' => $payment, 'data' => $data],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_GOCARDLESS,
+            $this->go_cardless->client,
+            $this->go_cardless->client->company,
+        );
+
+        return redirect()->route('client.payments.show', ['payment' => $this->go_cardless->encodePrimaryKey($payment->id)]);
+    }
+
+
+
+    /**
+     * Handle pending payments for Instant Bank Transfer.
+     *
+     * @param \GoCardlessPro\Resources\Payment $payment
      * @param array $data
      * @return RedirectResponse
      */
@@ -163,12 +200,12 @@ class InstantBankPay implements MethodInterface
     {
         PaymentFailureMailer::dispatch($this->go_cardless->client, $payment->status, $this->go_cardless->client->company, $this->go_cardless->payment_hash->data->amount_with_fee);
 
-        PaymentFailureMailer::dispatch(
-            $this->go_cardless->client,
-            $payment,
-            $this->go_cardless->client->company,
-            $payment->amount
-        );
+        // PaymentFailureMailer::dispatch(
+        //     $this->go_cardless->client,
+        //     $payment,
+        //     $this->go_cardless->client->company,
+        //     $payment->amount
+        // );
 
         $message = [
             'server_response' => $payment,

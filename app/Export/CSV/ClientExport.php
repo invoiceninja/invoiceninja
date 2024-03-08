@@ -11,17 +11,17 @@
 
 namespace App\Export\CSV;
 
+use App\Export\Decorators\Decorator;
+use App\Libraries\MultiDB;
+use App\Models\Client;
+use App\Models\Company;
+use App\Transformers\ClientContactTransformer;
+use App\Transformers\ClientTransformer;
 use App\Utils\Ninja;
 use App\Utils\Number;
-use App\Models\Client;
-use League\Csv\Writer;
-use App\Models\Company;
-use App\Libraries\MultiDB;
-use Illuminate\Support\Facades\App;
-use App\Export\Decorators\Decorator;
-use App\Transformers\ClientTransformer;
 use Illuminate\Database\Eloquent\Builder;
-use App\Transformers\ClientContactTransformer;
+use Illuminate\Support\Facades\App;
+use League\Csv\Writer;
 
 class ClientExport extends BaseExport
 {
@@ -106,7 +106,7 @@ class ClientExport extends BaseExport
                     $row = $this->buildRow($client);
                     return $this->processMetaData($row, $client);
                 })->toArray();
-        
+
         return array_merge(['columns' => $header], $report);
     }
 
@@ -127,12 +127,16 @@ class ClientExport extends BaseExport
         $query = Client::query()->with('contacts')
                                 ->withTrashed()
                                 ->where('company_id', $this->company->id)
-                                ->where('is_deleted', 0);
+                                ->where('is_deleted', $this->input['include_deleted']);
 
         $query = $this->addDateRange($query);
 
+        if($this->input['document_email_attachment'] ?? false) {
+            $this->queueDocuments($query);
+        }
+
         return $query;
-            
+
     }
 
     public function run()
@@ -141,7 +145,7 @@ class ClientExport extends BaseExport
 
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
-        
+
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
@@ -153,7 +157,7 @@ class ClientExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Client $client) :array
+    private function buildRow(Client $client): array
     {
         $transformed_contact = false;
 
@@ -169,15 +173,19 @@ class ClientExport extends BaseExport
 
         foreach (array_values($this->input['report_keys']) as $key) {
             $parts = explode('.', $key);
-            
+
             if (is_array($parts) && $parts[0] == 'client' && array_key_exists($parts[1], $transformed_client)) {
                 $entity[$key] = $transformed_client[$parts[1]];
             } elseif (is_array($parts) && $parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {
                 $entity[$key] = $transformed_contact[$parts[1]];
             } else {
-                $entity[$key] = '';
+                // nlog($key);
+                $entity[$key] = $this->decorator->transform($key, $client);
+                // $entity[$key] = '';
             }
         }
+
+        // return $entity;
 
         return $this->decorateAdvancedFields($client, $entity);
     }
@@ -186,9 +194,9 @@ class ClientExport extends BaseExport
     {
         $clean_row = [];
         foreach (array_values($this->input['report_keys']) as $key => $value) {
-        
+
             $report_keys = explode(".", $value);
-            
+
             $column_key = $value;
             $clean_row[$key]['entity'] = $report_keys[0];
             $clean_row[$key]['id'] = $report_keys[1] ?? $report_keys[0];
@@ -207,7 +215,7 @@ class ClientExport extends BaseExport
         return $clean_row;
     }
 
-    private function decorateAdvancedFields(Client $client, array $entity) :array
+    private function decorateAdvancedFields(Client $client, array $entity): array
     {
         if (in_array('client.user', $this->input['report_keys'])) {
             $entity['client.user'] = $client->user->present()->name();
@@ -215,22 +223,6 @@ class ClientExport extends BaseExport
 
         if (in_array('client.assigned_user', $this->input['report_keys'])) {
             $entity['client.assigned_user'] = $client->assigned_user ? $client->user->present()->name() : '';
-        }
-
-        if (in_array('client.country_id', $this->input['report_keys'])) {
-            $entity['client.country_id'] = $client->country ? ctrans("texts.country_{$client->country->name}") : '';
-        }
-
-        if (in_array('client.shipping_country_id', $this->input['report_keys'])) {
-            $entity['client.shipping_country_id'] = $client->shipping_country ? ctrans("texts.country_{$client->shipping_country->name}") : '';
-        }
-
-        if (in_array('client.currency_id', $this->input['report_keys'])) {
-            $entity['client.currency_id'] = $client->currency() ? $client->currency()->code : $client->company->currency()->code;
-        }
-
-        if (in_array('client.industry_id', $this->input['report_keys'])) {
-            $entity['industry_id'] = $client->industry ? ctrans("texts.industry_{$client->industry->name}") : '';
         }
 
         if (in_array('client.classification', $this->input['report_keys']) && isset($client->classification)) {

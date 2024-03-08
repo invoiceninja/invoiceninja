@@ -29,7 +29,7 @@ class UpdateClientRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -53,6 +53,8 @@ class UpdateClientRequest extends Request
             $rules['file.*'] = $this->file_validation;
         } elseif ($this->file('file')) {
             $rules['file'] = $this->file_validation;
+        } else {
+            $rules['documents'] = 'bail|sometimes|array';
         }
 
         $rules['company_logo'] = 'mimes:jpeg,jpg,png,gif|max:10000';
@@ -60,7 +62,7 @@ class UpdateClientRequest extends Request
         $rules['size_id'] = 'integer|nullable';
         $rules['country_id'] = 'integer|nullable';
         $rules['shipping_country_id'] = 'integer|nullable';
-        $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,partnership,trust,charity,government,other';
+        $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,company,partnership,trust,charity,government,other';
 
         if ($this->id_number) {
             $rules['id_number'] = Rule::unique('clients')->where('company_id', $user->company()->id)->ignore($this->client->id);
@@ -124,7 +126,7 @@ class UpdateClientRequest extends Request
         if (array_key_exists('name', $input)) {
             $input['name'] = strip_tags($input['name']);
         }
-        
+
         $this->replace($input);
     }
 

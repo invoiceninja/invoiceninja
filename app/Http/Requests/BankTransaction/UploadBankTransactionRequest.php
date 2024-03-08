@@ -20,7 +20,7 @@ class UploadBankTransactionRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -58,6 +58,6 @@ class UploadBankTransactionRequest extends Request
         }
 
         $this->replace($input);
-      
+
     }
 }

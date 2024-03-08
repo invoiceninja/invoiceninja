@@ -54,6 +54,8 @@ class StripeConnectController extends BaseController
         $redirect_uri = config('ninja.app_url').'/stripe/completed';
         $endpoint = "https://connect.stripe.com/oauth/authorize?response_type=code&client_id={$stripe_client_id}&redirect_uri={$redirect_uri}&scope=read_write&state={$token}";
 
+        \Illuminate\Support\Facades\Cache::pull($token);
+
         return redirect($endpoint);
     }
 
@@ -64,6 +66,8 @@ class StripeConnectController extends BaseController
         if ($request->has('error') && $request->error == 'access_denied') {
             return view('auth.connect.access_denied');
         }
+        
+        $response = false;
 
         try {
             /** @class \stdClass $response
@@ -84,7 +88,15 @@ class StripeConnectController extends BaseController
                 'grant_type' => 'authorization_code',
                 'code' => $request->input('code'),
             ]);
+
+            nlog($response);
+
         } catch (\Exception $e) {
+
+           
+        }
+
+        if(!$response) {
             return view('auth.connect.access_denied');
         }
 
@@ -99,8 +111,8 @@ class StripeConnectController extends BaseController
 
         if (! $company_gateway) {
             $company_gateway = CompanyGatewayFactory::create($company->id, $company->owner()->id);
-            $fees_and_limits = new \stdClass;
-            $fees_and_limits->{GatewayType::CREDIT_CARD} = new FeesAndLimits;
+            $fees_and_limits = new \stdClass();
+            $fees_and_limits->{GatewayType::CREDIT_CARD} = new FeesAndLimits();
             $company_gateway->gateway_key = 'd14dd26a47cecc30fdd65700bfb67b34';
             $company_gateway->fees_and_limits = $fees_and_limits;
             $company_gateway->setConfig([]);
@@ -126,7 +138,7 @@ class StripeConnectController extends BaseController
         try {
             $stripe = $company_gateway->driver()->init();
             $a = \Stripe\Account::retrieve($response->stripe_user_id, $stripe->stripe_connect_auth);
-            
+
             if($a->business_name ?? false) {
                 $company_gateway->label = substr("Stripe - {$a->business_name}", 0, 250);
                 $company_gateway->save();
@@ -141,11 +153,12 @@ class StripeConnectController extends BaseController
         if(isset($request->getTokenContent()['is_react']) && $request->getTokenContent()['is_react']) {
             $redirect_uri = config('ninja.react_url').'/#/settings/online_payments';
         } else {
-            $redirect_uri = config('ninja.app_url').'/stripe/completed';
+            $redirect_uri = config('ninja.app_url');
         }
 
         //response here
         return view('auth.connect.completed', ['url' => $redirect_uri]);
+        // return redirect($redirect_uri);
     }
 
 }

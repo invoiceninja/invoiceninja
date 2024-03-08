@@ -1,14 +1,13 @@
 <?php
 
+use App\DataMapper\Tax\TaxModel;
 use App\Models\Company;
 use App\Models\Language;
-use App\DataMapper\Tax\TaxModel;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -25,14 +24,13 @@ return new class extends Migration
             Language::create(['id' => 38, 'name' => 'Khmer', 'locale' => 'km_KH']);
         }
 
-        if (Schema::hasColumn('companies', 'enable_e_invoice'))
-        {
+        if (Schema::hasColumn('companies', 'enable_e_invoice')) {
             Schema::table('companies', function (Blueprint $table) {
                 $table->dropColumn('enable_e_invoice');
             });
         }
 
-        Company::query()->cursor()->each(function ($company){
+        Company::query()->cursor()->each(function ($company) {
             $company->tax_data = new TaxModel();
             $company->save();
         });

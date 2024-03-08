@@ -16,6 +16,7 @@ use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Account;
 use App\Models\Invoice;
+use App\Models\Webhook;
 use Illuminate\Http\Response;
 use App\Factory\CreditFactory;
 use App\Filters\CreditFilters;
@@ -151,8 +152,9 @@ class CreditController extends BaseController
     {
         /** @var \App\Models\User $user **/
         $user = auth()->user();
-        
+
         $credit = CreditFactory::create($user->company()->id, $user->id);
+        $credit->date = now()->addSeconds($user->company()->utc_offset())->format('Y-m-d');
 
         return $this->itemResponse($credit);
     }
@@ -603,7 +605,7 @@ class CreditController extends BaseController
                 // code...
                 break;
             case 'mark_sent':
-                $credit->service()->markSent()->save();
+                $credit->service()->markSent(true)->save();
 
                 if (! $bulk) {
                     return $this->itemResponse($credit);
@@ -614,7 +616,7 @@ class CreditController extends BaseController
 
                 return response()->streamDownload(function () use ($file) {
                     echo $file;
-                }, $credit->numberFormatter().'.pdf', ['Content-Type' => 'application/pdf']);
+                }, $credit->numberFormatter() . '.pdf', ['Content-Type' => 'application/pdf']);
                 break;
             case 'archive':
                 $this->credit_repository->archive($credit);
@@ -638,25 +640,16 @@ class CreditController extends BaseController
                 }
                 break;
             case 'email':
-
-                $credit->invitations->load('contact.client.country', 'credit.client.country', 'credit.company')->each(function ($invitation) use ($credit) {
-                    EmailEntity::dispatch($invitation, $credit->company, 'credit');
-                });
-
-
-                if (! $bulk) {
-                    return response()->json(['message'=>'email sent'], 200);
-                }
-                break;
-
             case 'send_email':
 
                 $credit->invitations->load('contact.client.country', 'credit.client.country', 'credit.company')->each(function ($invitation) use ($credit) {
                     EmailEntity::dispatch($invitation, $credit->company, 'credit');
                 });
 
+                // $credit->sendEvent(Webhook::EVENT_SENT_CREDIT, "client");
+
                 if (! $bulk) {
-                    return response()->json(['message'=>'email sent'], 200);
+                    return response()->json(['message' => 'email sent'], 200);
                 }
                 break;
 
@@ -720,7 +713,7 @@ class CreditController extends BaseController
         $credit = $invitation->credit;
 
         App::setLocale($invitation->contact->preferredLocale());
-        
+
         $file = $credit->service()->getCreditPdf($invitation);
 
         $headers = ['Content-Type' => 'application/pdf'];
@@ -731,7 +724,7 @@ class CreditController extends BaseController
 
         return response()->streamDownload(function () use ($file) {
             echo $file;
-        }, $credit->numberFormatter().'.pdf', $headers);
+        }, $credit->numberFormatter() . '.pdf', $headers);
 
     }
 

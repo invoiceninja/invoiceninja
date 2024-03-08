@@ -11,16 +11,16 @@
 
 namespace Tests;
 
-use App\Models\User;
-use App\Models\Client;
-use App\Models\Vendor;
-use App\Models\Account;
-use App\Models\Company;
-use App\Models\CompanyToken;
-use App\Models\ClientContact;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Factory\InvoiceItemFactory;
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\Company;
+use App\Models\CompanyToken;
+use App\Models\User;
+use App\Models\Vendor;
 
 /**
  * Class MockUnitData.

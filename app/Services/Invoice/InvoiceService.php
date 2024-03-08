@@ -11,20 +11,21 @@
 
 namespace App\Services\Invoice;
 
-use App\Events\Invoice\InvoiceWasArchived;
-use App\Jobs\Entity\CreateRawPdf;
-use App\Jobs\Inventory\AdjustProductInventory;
-use App\Jobs\Invoice\CreateEInvoice;
-use App\Libraries\Currency\Conversion\CurrencyApi;
-use App\Models\CompanyGateway;
+use App\Models\Task;
+use App\Utils\Ninja;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\Task;
-use App\Utils\Ninja;
-use App\Utils\Traits\MakesHash;
+use App\Models\Subscription;
+use App\Models\CompanyGateway;
 use Illuminate\Support\Carbon;
+use App\Utils\Traits\MakesHash;
+use App\Jobs\Entity\CreateRawPdf;
+use App\Jobs\Invoice\CreateEInvoice;
 use Illuminate\Support\Facades\Storage;
+use App\Events\Invoice\InvoiceWasArchived;
+use App\Jobs\Inventory\AdjustProductInventory;
+use App\Libraries\Currency\Conversion\CurrencyApi;
 
 class InvoiceService
 {
@@ -89,7 +90,7 @@ class InvoiceService
         if ($company_currency != $client_currency) {
             $exchange_rate = new CurrencyApi();
 
-            $this->invoice->exchange_rate = $exchange_rate->exchangeRate($client_currency, $company_currency, now());
+            $this->invoice->exchange_rate = 1/$exchange_rate->exchangeRate($client_currency, $company_currency, now());
         }
 
         return $this;
@@ -288,7 +289,7 @@ class InvoiceService
 
         return $this;
     }
-    
+
     /**
      * Reset the reminders if only the
      * partial has been paid.
@@ -301,7 +302,7 @@ class InvoiceService
      */
     public function checkReminderStatus(): self
     {
-        
+
         if($this->invoice->partial == 0) {
             $this->invoice->partial_due_date = null;
         }
@@ -567,7 +568,7 @@ class InvoiceService
 
         /* If client currency differs from the company default currency, then insert the client exchange rate on the model.*/
         if (! isset($this->invoice->exchange_rate) && $this->invoice->client->currency()->id != (int) $this->invoice->company->settings->currency_id) {
-            $this->invoice->exchange_rate = $this->invoice->client->currency()->exchange_rate;
+            $this->invoice->exchange_rate = $this->invoice->client->setExchangeRate();
         }
 
         if ($this->invoice->client->getSetting('auto_bill_standard_invoices')) {
@@ -619,11 +620,24 @@ class InvoiceService
         return $this;
     }
 
+    public function setPaymentLink(string $subscription_id): self
+    {
+
+        $sub_id = $this->decodePrimaryKey($subscription_id);
+
+        if(Subscription::withTrashed()->where('id', $sub_id)->where('company_id', $this->invoice->company_id)->exists()) {
+            $this->invoice->subscription_id = $sub_id;
+        }
+
+        return $this;
+
+    }
+
     /**
      * Saves the invoice.
      * @return Invoice object
      */
-    public function save() :?Invoice
+    public function save(): ?Invoice
     {
         $this->invoice->saveQuietly();
 

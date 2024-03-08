@@ -46,7 +46,7 @@ class EntityCreatedObject
      * @return stdClass
      * @throws BindingResolutionException
      */
-    public function build() :stdClass
+    public function build(): stdClass
     {
         App::forgetInstance('translator');
         /* Init a new copy of the translator*/
@@ -61,9 +61,9 @@ class EntityCreatedObject
         if ($this->entity_type == 'purchase_order') {
             $this->entity->load('vendor.company');
 
-            $mail_obj = new stdClass;
+            $mail_obj = new stdClass();
             $mail_obj->amount = Number::formatMoney($this->entity->amount, $this->entity->vendor);
-            
+
             $mail_obj->subject = ctrans(
                 $this->template_subject,
                 [
@@ -73,36 +73,41 @@ class EntityCreatedObject
             );
 
             $mail_obj->markdown = 'email.admin.generic';
-            // $mail_obj->tag = $this->company->company_key;
-            $mail_obj->data = [
-                                'title' => $mail_obj->subject,
-                                'message' => ctrans(
-                                    $this->template_body,
-                                    [
+            $mail_obj->text_view = 'email.template.text';
+
+            $content = ctrans(
+                $this->template_body,
+                [
                                         'amount' => $mail_obj->amount,
                                         'vendor' => $this->entity->vendor->present()->name(),
                                         'purchase_order' => $this->entity->number,
                                     ]
-                                ),
+            );
+
+            $mail_obj->data = [
+                                'title' => $mail_obj->subject,
+                                'content' => $content,
                                 'url' => $this->entity->invitations()->first()->getAdminLink($this->use_react_link),
                                 'button' => ctrans("texts.view_{$this->entity_type}"),
                                 'signature' => $this->company->settings->email_signature,
                                 'logo' => $this->company->present()->logo(),
                                 'settings' => $this->company->settings,
                                 'whitelabel' => $this->company->account->isPaid() ? true : false,
-                            ];
+                                'text_body' => str_replace(['$view_button','$viewButton','$viewLink','$view_url'], '$view_url', $content),
+                                'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
+                ];
         } else {
             $this->entity->load('client.country', 'client.company');
             $this->client = $this->entity->client;
 
-            $mail_obj = new stdClass;
+            $mail_obj = new stdClass();
             $mail_obj->amount = $this->getAmount();
             $mail_obj->subject = $this->getSubject();
             $mail_obj->data = $this->getData();
             $mail_obj->markdown = 'email.admin.generic';
-            // $mail_obj->tag = $this->entity->company->company_key;
+            $mail_obj->text_view = 'email.template.text';
         }
-        
+
         return $mail_obj;
     }
 
@@ -165,15 +170,19 @@ class EntityCreatedObject
     {
         $settings = $this->entity->client->getMergedSettings();
 
+        $content = $this->getMessage();
+
         return [
             'title' => $this->getSubject(),
-            'message' => $this->getMessage(),
+            'content' => $content,
             'url' => $this->entity->invitations()->first()->getAdminLink($this->use_react_link),
             'button' => ctrans("texts.view_{$this->entity_type}"),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),
             'settings' => $settings,
             'whitelabel' => $this->company->account->isPaid() ? true : false,
+            'text_body' => str_replace(['$view_button','$viewButton','$view_link','$view_button'], '$view_url', $content),
+            'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
         ];
     }
 }

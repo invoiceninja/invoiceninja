@@ -17,7 +17,7 @@ use App\Models\RecurringQuote;
 
 class RecurringQuoteToQuoteFactory
 {
-    public static function create(RecurringQuote $recurring_quote, Client $client) :Quote
+    public static function create(RecurringQuote $recurring_quote, Client $client): Quote
     {
         $quote = new Quote();
         $quote->status_id = Quote::STATUS_DRAFT;
