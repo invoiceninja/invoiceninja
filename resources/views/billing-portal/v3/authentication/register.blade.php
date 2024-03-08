@@ -32,29 +32,6 @@
         </form>
     @endif
 
-    @if($state['otp_form'])
-    <form wire:submit="handleOtp" class="space-y-3">
-        @csrf
-
-        <div>
-            <span class="input-label">{{ ctrans('texts.code') }}</span>
-            <input wire:model="otp" type="text" class="input w-full" />
-
-            @error('otp')
-            <p class="validation validation-fail block w-full" role="alert">
-                {{ $message }}
-            </p>
-            @enderror
-        </div>
-
-        <button 
-            type="submit"
-            class="button button-block bg-primary text-white mt-4">
-                {{ ctrans('texts.next') }}
-        </button>
-    </form>
-    @endif
-
     @if($state['register_form'])
     <form wire:submit="register(Object.fromEntries(new FormData($event.target)))" class="space-y-3">
         @csrf
