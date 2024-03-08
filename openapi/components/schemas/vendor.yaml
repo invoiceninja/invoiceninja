@@ -13,10 +13,6 @@
           description: 'The hashed id of the assigned user to this vendor. This is a unique identifier for the user.'
           type: string
           example: Opnel5aKBz
-        company_id:
-          description: 'The hashed id of the company. This is a unique identifier for the company.'
-          type: string
-          example: Opnel5aKBz
         contacts:
           type: array
           items:
