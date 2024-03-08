@@ -13,12 +13,9 @@ namespace App\Http\Requests\TaskScheduler;
 
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\Scheduler\ValidClientIds;
-use App\Utils\Traits\MakesHash;
 
 class StoreSchedulerRequest extends Request
 {
-    use MakesHash;
-
     public array $client_statuses = [
                         'all',
                         'draft',
@@ -97,7 +94,7 @@ class StoreSchedulerRequest extends Request
 
             $task_statuses = [];
 
-            if($input['parameters']['report_name'] == 'task') {
+            if(isset($input['parameters']['report_name']) && $input['parameters']['report_name'] == 'task') {
                 $task_statuses = array_diff(explode(",", $input['parameters']['status']), $this->client_statuses);
             }
 
