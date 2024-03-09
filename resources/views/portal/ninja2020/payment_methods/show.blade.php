@@ -54,7 +54,7 @@
                                 {{ ctrans('texts.date_created') }}
                             </dt>
                             <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                {{ $payment_method->formatDateTimestamp($payment_method->created_at, auth()->user()->client->date_format()) }}
+                                {{ $payment_method->formatDateTimestamp($payment_method->created_at, auth()->guard('contact')->user()->client->date_format()) }}
                             </dd>
                         </div>
                     @endif
