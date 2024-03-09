@@ -89,7 +89,14 @@ paths:
       tags:
         - login
       summary: "Attempts authentication"
-      description: "Returns a CompanyUser object on success"
+      description: |
+        After authenticating with the API, the returned object is a CompanyUser object which is a bridge linking the user to the company. 
+
+        The company user object itself contains the users permissions (admin/owner or fine grained permissions) You will most likely want to 
+        also include in the response of this object both the company and the user object, this can be done by using the include parameter.
+
+        /api/v1/login?include=company,user
+
       operationId: postLogin
       parameters:
         - $ref: "#/components/parameters/X-API-SECRET"
@@ -109,10 +116,17 @@ paths:
                   description: "The users email address."
                   type: string
                   example: "demo@invoiceninja.com"
+                  required: true
                 password:
                   description: "The user password. Must meet minimum criteria ~ > 6 characters"
                   type: string
                   example: "Password0"
+                  required: true
+                one_time_password:
+                  description: "The one time password if 2FA is enabled"
+                  type: string
+                  example: "123456"
+                  required: false
               type: object
       responses:
         200:
@@ -127,13 +141,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Client"
+                $ref: "#/components/schemas/CompanyUser"
         401:
           $ref: "#/components/responses/401"
         403:
           $ref: "#/components/responses/403"
         422:
           $ref: "#/components/responses/422"
+        429:
+          $ref: "#/components/responses/429"
         5XX:
           description: 'Server error'
         default:

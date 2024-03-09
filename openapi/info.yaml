@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: 'Invoice Ninja API Reference - Where self host invoicing lives.'
+  title: 'Invoice Ninja API Reference.'
   description: |
         ---
         <br>
@@ -15,7 +15,7 @@ info:
   license:
     name: 'Elastic License'
     url: 'https://www.elastic.co/licensing/elastic-license'
-  version: 5.5.70
+  version: 5.8.34
 servers:
   -
     url: 'https://demo.invoiceninja.com'
