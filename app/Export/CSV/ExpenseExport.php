@@ -83,7 +83,7 @@ class ExpenseExport extends BaseExport
                         ->with('client')
                         ->withTrashed()
                         ->where('company_id', $this->company->id)
-                        ->where('is_deleted', $this->input['include_deleted']);
+                        ->where('is_deleted', $this->input['include_deleted'] ?? false);
 
         $query = $this->addDateRange($query);
 
