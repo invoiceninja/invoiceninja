@@ -5253,7 +5253,7 @@ $lang = array(
     'expense_payment_type_help' => 'The default expense payment type to be used',
     'paylater' => 'Pay in 4',
     'payment_provider' => 'Payment Provider',
-    
+    'select_email_provider' => 'Set your email as the sending user',
 );
 
 return $lang;

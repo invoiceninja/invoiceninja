@@ -123,7 +123,7 @@ class EmailDefaults
      */
     private function setFrom(): self
     {
-        if (Ninja::isHosted() && $this->email->email_object->settings->email_sending_method == 'default') {
+        if (Ninja::isHosted() && in_array($this->email->email_object->settings->email_sending_method,['default', 'mailgun'])) {
             if ($this->email->company->account->isPaid() && property_exists($this->email->email_object->settings, 'email_from_name') && strlen($this->email->email_object->settings->email_from_name) > 1) {
                 $email_from_name = $this->email->email_object->settings->email_from_name;
             } else {
