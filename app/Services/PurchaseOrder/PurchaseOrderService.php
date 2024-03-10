@@ -11,7 +11,9 @@
 
 namespace App\Services\PurchaseOrder;
 
+use App\Jobs\EDocument\CreateEDocument;
 use App\Models\PurchaseOrder;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 
 class PurchaseOrderService
@@ -73,6 +75,32 @@ class PurchaseOrderService
     public function getPurchaseOrderPdf($contact = null)
     {
         return (new GetPurchaseOrderPdf($this->purchase_order, $contact))->run();
+    }
+
+    public function getEPurchaseOrder($contact = null)
+    {
+        return (new CreateEDocument($this->purchase_order))->handle();
+    }
+    public function deleteEPurchaseOrder()
+    {
+        $this->purchase_order->load('invitations');
+
+        $this->purchase_order->invitations->each(function ($invitation) {
+            try {
+                // if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
+                Storage::disk(config('filesystems.default'))->delete($this->purchase_order->client->e_document_filepath($invitation).$this->purchase_order->getFileName("xml"));
+                // }
+
+                // if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
+                if (Ninja::isHosted()) {
+                    Storage::disk('public')->delete($this->purchase_order->client->e_document_filepath($invitation).$this->purchase_order->getFileName("xml"));
+                }
+            } catch (\Exception $e) {
+                nlog($e->getMessage());
+            }
+        });
+
+        return $this;
     }
 
     public function setStatus($status)
