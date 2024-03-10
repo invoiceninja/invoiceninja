@@ -158,15 +158,46 @@ class TemplateEmail extends Mailable
             }
 
         }
-        if ($this->invitation && $this->invitation->invoice && $this->invitation->invoice->client->getSetting('enable_e_invoice') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
-            $xml_string = $this->invitation->invoice->service()->getEInvoice($this->invitation->contact);
+        if ($this->invitation->invoice) {
+            if ($this->invitation && $this->invitation->invoice && $this->invitation->invoice->client->getSetting('enable_e_invoice') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
+                $xml_string = $this->invitation->invoice->service()->getEInvoice($this->invitation->contact);
 
-            if($xml_string) {
-                $this->attachData($xml_string, $this->invitation->invoice->getEFileName("xml"));
+                if ($xml_string) {
+                    $this->attachData($xml_string, $this->invitation->invoice->getEFileName("xml"));
+                }
+
             }
-
         }
+        elseif ($this->invitation->credit){
+            if ($this->invitation && $this->invitation->credit && $this->invitation->credit->client->getSetting('enable_e_invoice') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
+                $xml_string = $this->invitation->credit->service()->getECredit($this->invitation->contact);
 
+                if ($xml_string) {
+                    $this->attachData($xml_string, $this->invitation->credit->getEFileName("xml"));
+                }
+
+            }
+        }
+        elseif ($this->invitation->quote){
+            if ($this->invitation && $this->invitation->quote && $this->invitation->quote->client->getSetting('enable_e_invoice') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
+                $xml_string = $this->invitation->quote->service()->getEQuote($this->invitation->contact);
+
+                if ($xml_string) {
+                    $this->attachData($xml_string, $this->invitation->quote->getEFileName("xml"));
+                }
+
+            }
+        }
+        elseif ($this->invitation->purchase_order){
+            if ($this->invitation && $this->invitation->purchase_order && $this->invitation->purchase_order->client->getSetting('enable_e_invoice') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
+                $xml_string = $this->invitation->purchase_order->service()->getEPurchaseOrder($this->invitation->contact);
+
+                if ($xml_string) {
+                    $this->attachData($xml_string, $this->invitation->purchase_order->getEFileName("xml"));
+                }
+
+            }
+        }
         return $this;
     }
 }
