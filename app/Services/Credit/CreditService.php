@@ -12,6 +12,7 @@
 namespace App\Services\Credit;
 
 use App\Factory\PaymentFactory;
+use App\Jobs\EDocument\CreateEDocument;
 use App\Models\Credit;
 use App\Models\Payment;
 use App\Models\PaymentType;
@@ -35,6 +36,11 @@ class CreditService
     public function getCreditPdf($invitation)
     {
         return (new GetCreditPdf($invitation))->run();
+    }
+
+    public function getECredit($contact = null)
+    {
+        return (new CreateEDocument($this->credit))->handle();
     }
 
     /**
@@ -232,6 +238,27 @@ class CreditService
         return $this;
     }
 
+    public function deleteECredit()
+    {
+        $this->credit->load('invitations');
+
+        $this->credit->invitations->each(function ($invitation) {
+            try {
+                // if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
+                Storage::disk(config('filesystems.default'))->delete($this->credit->client->e_document_filepath($invitation).$this->credit->getFileName("xml"));
+                // }
+
+                // if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
+                if (Ninja::isHosted()) {
+                    Storage::disk('public')->delete($this->credit->client->e_document_filepath($invitation).$this->credit->getFileName("xml"));
+                }
+            } catch (\Exception $e) {
+                nlog($e->getMessage());
+            }
+        });
+
+        return $this;
+    }
     public function triggeredActions($request)
     {
         $this->credit = (new TriggeredActions($this->credit, $request))->run();
