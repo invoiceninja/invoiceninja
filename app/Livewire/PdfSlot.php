@@ -12,7 +12,7 @@
 
 namespace App\Livewire;
 
-use App\Jobs\Invoice\CreateEInvoice;
+use App\Jobs\EInvoice\CreateEInvoice;
 use App\Libraries\MultiDB;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;

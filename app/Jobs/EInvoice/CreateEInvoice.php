@@ -9,11 +9,11 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Jobs\Invoice;
+namespace App\Jobs\EInvoice;
 
 use App\Models\Invoice;
-use App\Services\Invoice\EInvoice\FacturaEInvoice;
-use App\Services\Invoice\EInvoice\ZugferdEInvoice;
+use App\Services\EInvoicing\Standards\FacturaEInvoice;
+use App\Services\EInvoicing\Standards\ZugferdEInvoice;
 use App\Utils\Ninja;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use Illuminate\Bus\Queueable;
@@ -22,6 +22,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
+use function App\Jobs\Invoice\app;
 
 class CreateEInvoice implements ShouldQueue
 {

@@ -9,28 +9,28 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Services\Invoice\EInvoice;
+namespace App\Services\EInvoicing\Standards;
 
 use App\Models\Invoice;
 use App\Services\AbstractService;
 use CleverIt\UBL\Invoice\Address;
+use CleverIt\UBL\Invoice\ClassifiedTaxCategory;
 use CleverIt\UBL\Invoice\Contact;
 use CleverIt\UBL\Invoice\Country;
 use CleverIt\UBL\Invoice\Generator;
 use CleverIt\UBL\Invoice\Invoice as UBLInvoice;
 use CleverIt\UBL\Invoice\InvoiceLine;
 use CleverIt\UBL\Invoice\Item;
+use CleverIt\UBL\Invoice\LegalEntity;
 use CleverIt\UBL\Invoice\LegalMonetaryTotal;
 use CleverIt\UBL\Invoice\Party;
+use CleverIt\UBL\Invoice\PayeeFinancialAccount;
+use CleverIt\UBL\Invoice\PaymentMeans;
+use CleverIt\UBL\Invoice\Price;
 use CleverIt\UBL\Invoice\TaxCategory;
 use CleverIt\UBL\Invoice\TaxScheme;
 use CleverIt\UBL\Invoice\TaxSubTotal;
 use CleverIt\UBL\Invoice\TaxTotal;
-use CleverIt\UBL\Invoice\PaymentMeans;
-use CleverIt\UBL\Invoice\PayeeFinancialAccount;
-use CleverIt\UBL\Invoice\LegalEntity;
-use CleverIt\UBL\Invoice\ClassifiedTaxCategory;
-use CleverIt\UBL\Invoice\Price;
 
 class RoEInvoice extends AbstractService
 {

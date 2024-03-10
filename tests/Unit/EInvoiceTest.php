@@ -9,8 +9,8 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
+use App\Jobs\EInvoice\CreateEInvoice;
 use App\Jobs\Entity\CreateRawPdf;
-use App\Jobs\Invoice\CreateEInvoice;
 use horstoeko\zugferd\ZugferdDocumentReader;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;

@@ -11,7 +11,7 @@
 
 namespace App\Services\Pdf;
 
-use App\Jobs\Invoice\CreateEInvoice;
+use App\Jobs\EInvoice\CreateEInvoice;
 use App\Models\Company;
 use App\Models\CreditInvitation;
 use App\Models\Invoice;

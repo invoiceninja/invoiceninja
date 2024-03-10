@@ -11,21 +11,21 @@
 
 namespace App\Services\Invoice;
 
-use App\Models\Task;
-use App\Utils\Ninja;
+use App\Events\Invoice\InvoiceWasArchived;
+use App\Jobs\EInvoice\CreateEInvoice;
+use App\Jobs\Entity\CreateRawPdf;
+use App\Jobs\Inventory\AdjustProductInventory;
+use App\Libraries\Currency\Conversion\CurrencyApi;
+use App\Models\CompanyGateway;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Subscription;
-use App\Models\CompanyGateway;
-use Illuminate\Support\Carbon;
+use App\Models\Task;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
-use App\Jobs\Entity\CreateRawPdf;
-use App\Jobs\Invoice\CreateEInvoice;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
-use App\Events\Invoice\InvoiceWasArchived;
-use App\Jobs\Inventory\AdjustProductInventory;
-use App\Libraries\Currency\Conversion\CurrencyApi;
 
 class InvoiceService
 {
