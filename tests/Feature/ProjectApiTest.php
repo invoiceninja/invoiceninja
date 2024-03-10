@@ -29,6 +29,8 @@ class ProjectApiTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
+    protected $faker;
+
     protected function setUp() :void
     {
         parent::setUp();
@@ -40,6 +42,110 @@ class ProjectApiTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
+    }
+
+    public function testProjectValidationForBudgetedHoursPut()
+    {
+
+        $data = $this->project->toArray();
+        $data['budgeted_hours'] = "aa";
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/projects/{$this->project->hashed_id}", $data);
+
+        $response->assertStatus(422);
+
+    }
+
+    public function testProjectValidationForBudgetedHoursPutNull()
+    {
+
+        $data = $this->project->toArray();
+        $data['budgeted_hours'] = null;
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/projects/{$this->project->hashed_id}", $data);
+
+        $response->assertStatus(200);
+
+    }
+
+
+    public function testProjectValidationForBudgetedHoursPutEmpty()
+    {
+
+        $data = $this->project->toArray();
+        $data['budgeted_hours'] = "";
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/projects/{$this->project->hashed_id}", $data);
+
+        $response->assertStatus(200);
+
+    }
+
+
+    public function testProjectValidationForBudgetedHours()
+    {
+
+        $data = [
+            'name' => $this->faker->firstName(),
+            'client_id' => $this->client->hashed_id,
+            'number' => 'duplicate',
+            'budgeted_hours' => null
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/projects', $data);
+
+        $response->assertStatus(200);
+
+    }
+
+    public function testProjectValidationForBudgetedHours2()
+    {
+
+        $data = [
+            'name' => $this->faker->firstName(),
+            'client_id' => $this->client->hashed_id,
+            'number' => 'duplicate',
+            'budgeted_hours' => "a"
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/projects', $data);
+
+        $response->assertStatus(422);
+
+    }
+
+    public function testProjectValidationForBudgetedHours3()
+    {
+
+        $data = [
+            'name' => $this->faker->firstName(),
+            'client_id' => $this->client->hashed_id,
+            'number' => 'duplicate',
+            'budgeted_hours' => ""
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/projects', $data);
+
+        $response->assertStatus(200);
+
     }
 
     public function testProjectGetFilter()
