@@ -460,7 +460,7 @@ $lang = array(
     'edit_token' => 'Edit Token',
     'delete_token' => 'Delete Token',
     'token' => 'Token',
-    'add_gateway' => 'Add Gateway',
+    'add_gateway' => 'Add Payment Gateway',
     'delete_gateway' => 'Delete Gateway',
     'edit_gateway' => 'Edit Gateway',
     'updated_gateway' => 'Successfully updated gateway',
@@ -5251,6 +5251,9 @@ $lang = array(
     'payment_type_help' => 'The default payment type to be used for payments',
     'quote_valid_until_help' => 'The number of days that the quote is valid for',
     'expense_payment_type_help' => 'The default expense payment type to be used',
+    'paylater' => 'Pay in 4',
+    'payment_provider' => 'Payment Provider',
+    
 );
 
 return $lang;
