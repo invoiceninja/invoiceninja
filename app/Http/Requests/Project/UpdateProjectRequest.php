@@ -45,6 +45,8 @@ class UpdateProjectRequest extends Request
             $rules['number'] = Rule::unique('projects')->where('company_id', $user->company()->id)->ignore($this->project->id);
         }
 
+        $rules['budgeted_hours'] = 'sometimes|numeric';
+
         if ($this->file('documents') && is_array($this->file('documents'))) {
             $rules['documents.*'] = $this->file_validation;
         } elseif ($this->file('documents')) {
@@ -72,6 +74,10 @@ class UpdateProjectRequest extends Request
 
         if (array_key_exists('color', $input) && is_null($input['color'])) {
             $input['color'] = '';
+        }
+        
+        if(array_key_exists('budgeted_hours', $input) && empty($input['budgeted_hours'])) {
+            $input['budgeted_hours'] = 0;
         }
 
         $this->replace($input);
