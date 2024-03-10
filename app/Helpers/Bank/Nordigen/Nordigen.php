@@ -97,11 +97,11 @@ class Nordigen
             return $it->transform($out);
 
         } catch (\Exception $e) {
-            if (strpos($e->getMessage(), "Invalid Account ID") !== false) {
-                return false;
-            }
 
-            throw $e;
+            nlog("Nordigen getAccount() failed => {$account_id} => " . $e->getMessage());
+            
+            return false;
+
         }
     }
 
