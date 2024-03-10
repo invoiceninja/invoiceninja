@@ -177,6 +177,8 @@ class StoreClientRequest extends Request
             $input['name'] = strip_tags($input['name']);
         }
 
+        $input['id'] = null;
+
         $this->replace($input);
     }
 
