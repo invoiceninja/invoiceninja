@@ -12,7 +12,7 @@
 
 namespace App\Livewire;
 
-use App\Jobs\EInvoice\CreateEInvoice;
+use App\Jobs\EDocument\CreateEDocument;
 use App\Libraries\MultiDB;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
@@ -113,7 +113,7 @@ class PdfSlot extends Component
 
         $file_name = $this->entity->numberFormatter().'.xml';
 
-        $file = (new CreateEInvoice($this->entity))->handle();
+        $file = (new CreateEDocument($this->entity))->handle();
 
         $headers = ['Content-Type' => 'application/xml'];
 

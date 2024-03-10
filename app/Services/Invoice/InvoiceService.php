@@ -12,7 +12,7 @@
 namespace App\Services\Invoice;
 
 use App\Events\Invoice\InvoiceWasArchived;
-use App\Jobs\EInvoice\CreateEInvoice;
+use App\Jobs\EDocument\CreateEDocument;
 use App\Jobs\Entity\CreateRawPdf;
 use App\Jobs\Inventory\AdjustProductInventory;
 use App\Libraries\Currency\Conversion\CurrencyApi;
@@ -201,7 +201,7 @@ class InvoiceService
 
     public function getEInvoice($contact = null)
     {
-        return (new CreateEInvoice($this->invoice))->handle();
+        return (new CreateEDocument($this->invoice))->handle();
     }
 
     public function sendEmail($contact = null)

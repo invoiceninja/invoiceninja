@@ -18,7 +18,7 @@ use horstoeko\zugferd\codelists\ZugferdDutyTaxFeeCategories;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdProfiles;
 
-class ZugferdEInvoice extends AbstractService
+class ZugferdEDokument extends AbstractService
 {
     public ZugferdDocumentBuilder $xrechnung;
 
