@@ -5099,6 +5099,8 @@ $lang = array(
     'drop_files_here' => 'Drop files here',
     'upload_files' => 'Upload Files',
     'download_e_invoice' => 'Download E-Invoice',
+    'download_e_credit' => 'Download E-Credit',
+    'download_e_quote' => 'Download E-Quote',
     'triangular_tax_info' => 'Intra-community triangular transaction',
     'intracommunity_tax_info' => 'Tax-free intra-community delivery',
     'reverse_tax_info' => 'Please note that this supply is subject to reverse charge',
@@ -5253,7 +5255,7 @@ $lang = array(
     'expense_payment_type_help' => 'The default expense payment type to be used',
     'paylater' => 'Pay in 4',
     'payment_provider' => 'Payment Provider',
-    
+
 );
 
 return $lang;
