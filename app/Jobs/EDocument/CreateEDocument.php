@@ -11,6 +11,7 @@
 
 namespace App\Jobs\EDocument;
 
+use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\PurchaseOrder;
 use App\Models\Quote;
@@ -70,16 +71,16 @@ class CreateEDocument implements ShouldQueue
                 case "XInvoice-Extended":
                 case "XInvoice-BasicWL":
                 case "XInvoice-Basic":
-                    $zugferd = (new ZugferdEDokument($this->invoice))->run();
+                    $zugferd = (new ZugferdEDokument($this->document))->run();
 
-                    return $this->returnObject ? $zugferd->xrechnung : $zugferd->getXml();
+                    return $this->returnObject ? $zugferd->xdocument : $zugferd->getXml();
                 case "Facturae_3.2":
                 case "Facturae_3.2.1":
                 case "Facturae_3.2.2":
-                    return (new FacturaEInvoice($this->invoice, str_replace("Facturae_", "", $e_invoice_type)))->run();
+                    return (new FacturaEInvoice($this->document, str_replace("Facturae_", "", $e_document_type)))->run();
                 default:
 
-                    $zugferd = (new ZugferdEDokument($this->invoice))->run();
+                    $zugferd = (new ZugferdEDokument($this->document))->run();
 
                     return $this->returnObject ? $zugferd : $zugferd->getXml();
 
@@ -97,15 +98,22 @@ class CreateEDocument implements ShouldQueue
                 case "XInvoice-Extended":
                 case "XInvoice-BasicWL":
                 case "XInvoice-Basic":
-                    $zugferd = (new ZugferdEDokument($this->invoice))->run();
-                    return $this->returnObject ? $zugferd->xrechnung : $zugferd->getXml();
+                    $zugferd = (new ZugferdEDokument($this->document))->run();
+                    return $this->returnObject ? $zugferd->xdocument : $zugferd->getXml();
                 default:
-                    $zugferd = (new ZugferdEDokument($this->invoice))->run();
+                    $zugferd = (new ZugferdEDokument($this->document))->run();
                     return $this->returnObject ? $zugferd : $zugferd->getXml();
             }
         }
         elseif ($this->document instanceof PurchaseOrder){
             switch ($e_document_type){
+                // No supported implementation yet.
+                default:
+                    return "";
+            }
+        }
+        elseif ($this->document instanceof Credit) {
+            switch ($e_document_type) {
                 case "EN16931":
                 case "XInvoice_3_0":
                 case "XInvoice_2_3":
@@ -116,10 +124,10 @@ class CreateEDocument implements ShouldQueue
                 case "XInvoice-Extended":
                 case "XInvoice-BasicWL":
                 case "XInvoice-Basic":
-                    $zugferd = (new ZugferdEDokument($this->invoice))->run();
-                    return $this->returnObject ? $zugferd->xrechnung : $zugferd->getXml();
+                    $zugferd = (new ZugferdEDokument($this->document))->run();
+                    return $this->returnObject ? $zugferd->xdocument : $zugferd->getXml();
                 default:
-                    $zugferd = (new ZugferdEDokument($this->invoice))->run();
+                    $zugferd = (new ZugferdEDokument($this->document))->run();
                     return $this->returnObject ? $zugferd : $zugferd->getXml();
             }
         }
