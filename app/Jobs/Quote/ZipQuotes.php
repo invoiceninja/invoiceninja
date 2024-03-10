@@ -63,6 +63,10 @@ class ZipQuotes implements ShouldQueue
         try {
 
             foreach ($invitations as $invitation) {
+                if ($invitation->quote->client->getSetting('enable_e_invoice')) {
+                    $xml = $invitation->quote->service()->getEInvoice();
+                    $zipFile->addFromString($invitation->quote->getFileName("xml"), $xml);
+                }
                 $file = (new \App\Jobs\Entity\CreateRawPdf($invitation))->handle();
                 $zipFile->addFromString($invitation->quote->numberFormatter() . '.pdf', $file);
             }
