@@ -16,6 +16,7 @@ use App\Models\Invoice;
 use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Services\EInvoicing\Standards\FacturaEInvoice;
+use App\Services\EInvoicing\Standards\OrderXDocument;
 use App\Services\EInvoicing\Standards\ZugferdEDokument;
 use App\Utils\Ninja;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
@@ -88,28 +89,26 @@ class CreateEDocument implements ShouldQueue
         }
         elseif ($this->document instanceof Quote){
             switch ($e_document_type){
-                case "EN16931":
-                case "XInvoice_3_0":
-                case "XInvoice_2_3":
-                case "XInvoice_2_2":
-                case "XInvoice_2_1":
-                case "XInvoice_2_0":
-                case "XInvoice_1_0":
-                case "XInvoice-Extended":
-                case "XInvoice-BasicWL":
-                case "XInvoice-Basic":
-                    $zugferd = (new ZugferdEDokument($this->document))->run();
-                    return $this->returnObject ? $zugferd->xdocument : $zugferd->getXml();
+                case "OrderX_Basic":
+                case "OrderX_Comfort":
+                case "OrderX_Extended":
+                    $orderx = (new OrderXDocument($this->document))->run();
+                    return $this->returnObject ? $orderx->orderxdocument : $orderx->getXml();
                 default:
-                    $zugferd = (new ZugferdEDokument($this->document))->run();
-                    return $this->returnObject ? $zugferd : $zugferd->getXml();
+                    $orderx = (new OrderXDocument($this->document))->run();
+                    return $this->returnObject ? $orderx->orderxdocument : $orderx->getXml();
             }
         }
         elseif ($this->document instanceof PurchaseOrder){
             switch ($e_document_type){
-                // No supported implementation yet.
+                case "OrderX_Basic":
+                case "OrderX_Comfort":
+                case "OrderX_Extended":
+                    $orderx = (new OrderXDocument($this->document))->run();
+                    return $this->returnObject ? $orderx->orderxdocument : $orderx->getXml();
                 default:
-                    return "";
+                    $orderx = (new OrderXDocument($this->document))->run();
+                    return $this->returnObject ? $orderx->orderxdocument : $orderx->getXml();
             }
         }
         elseif ($this->document instanceof Credit) {
