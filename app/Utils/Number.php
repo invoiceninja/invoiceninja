@@ -181,7 +181,7 @@ class Number
             return (float) $value;
         }
 
-        //comma first = traditional thousan separator
+        //comma first = traditional thousand separator
         $value = str_replace(',', '', $value);
 
         return (float)$value;
