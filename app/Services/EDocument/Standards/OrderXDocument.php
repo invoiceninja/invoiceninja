@@ -9,13 +9,15 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Services\EInvoicing\Standards;
+namespace app\Services\EInvoicing\Standards;
 
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Product;
+use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Services\AbstractService;
+use horstoeko\orderx\codelists\OrderDocumentTypes;
 use horstoeko\orderx\codelists\OrderDutyTaxFeeCategories;
 use horstoeko\orderx\OrderDocumentBuilder;
 use horstoeko\orderx\OrderProfiles;
@@ -45,7 +47,6 @@ class OrderXDocument extends AbstractService
         $this->orderxdocument = OrderDocumentBuilder::CreateNew($profile);
 
         $this->orderxdocument
-            ->setDocumentSupplyChainEvent(date_create($this->document->date ?? now()->format('Y-m-d')))
             ->setDocumentSeller($company->getSetting('name'))
             ->setDocumentSellerAddress($company->getSetting("address1"), $company->getSetting("address2"), "", $company->getSetting("postal_code"), $company->getSetting("city"), $company->country()->iso_3166_2, $company->getSetting("state"))
             ->setDocumentSellerContact($this->document->user->present()->getFullName(), "", $this->document->user->present()->phone(), "", $this->document->user->email)
@@ -63,24 +64,20 @@ class OrderXDocument extends AbstractService
             case Quote::class:
                 // Probably wrong file code https://github.com/horstoeko/zugferd/blob/master/src/codelists/ZugferdInvoiceType.php
                 if (empty($this->document->number)) {
-                    $this->orderxdocument->setDocumentInformation("DRAFT", "84", date_create($this->document->date ?? now()->format('Y-m-d')), $client->getCurrencyCode());
+                    $this->orderxdocument->setDocumentInformation("DRAFT", OrderDocumentTypes::ORDER, date_create($this->document->date ?? now()->format('Y-m-d')), $client->getCurrencyCode());
+                    $this->orderxdocument->setIsTestDocument(true);
                 } else {
-                    $this->orderxdocument->setDocumentInformation($this->document->number, "84", date_create($this->document->date ?? now()->format('Y-m-d')), $client->getCurrencyCode());
+                    $this->orderxdocument->setDocumentInformation($this->document->number, OrderDocumentTypes::ORDER, date_create($this->document->date ?? now()->format('Y-m-d')), $client->getCurrencyCode());
                 };
                 break;
-            case Invoice::class:
+            case PurchaseOrder::class:
                 if (empty($this->document->number)) {
-                    $this->orderxdocument->setDocumentInformation("DRAFT", "380", date_create($this->document->date ?? now()->format('Y-m-d')), $client->getCurrencyCode());
+                    $this->orderxdocument->setDocumentInformation("DRAFT", OrderDocumentTypes::ORDER_RESPONSE, date_create($this->document->date ?? now()->format('Y-m-d')), $client->getCurrencyCode());
+                    $this->orderxdocument->setIsTestDocument(true);
                 } else {
-                    $this->orderxdocument->setDocumentInformation($this->document->number, "380", date_create($this->document->date ?? now()->format('Y-m-d')), $client->getCurrencyCode());
+                    $this->orderxdocument->setDocumentInformation($this->document->number, OrderDocumentTypes::ORDER_RESPONSE, date_create($this->document->date ?? now()->format('Y-m-d')), $client->getCurrencyCode());
                 }
                 break;
-            case Credit::class:
-                if (empty($this->document->number)) {
-                    $this->orderxdocument->setDocumentInformation("DRAFT", "389", date_create($this->document->date ?? now()->format('Y-m-d')), $client->getCurrencyCode());
-                } else {
-                    $this->orderxdocument->setDocumentInformation($this->document->number, "389", date_create($this->document->date ?? now()->format('Y-m-d')), $client->getCurrencyCode());
-                }
         }
         if (isset($this->document->po_number)) {
             $this->orderxdocument->setDocumentBuyerOrderReferencedDocument($this->document->po_number);
@@ -124,11 +121,12 @@ class OrderXDocument extends AbstractService
                     $this->orderxdocument->setDocumentPositionProductDetails("no product name defined");
                 }
             }
-            if (isset($item->task_id)) {
-                $this->orderxdocument->setDocumentPositionQuantity($item->quantity, "HUR");
-            } else {
-                $this->orderxdocument->setDocumentPositionQuantity($item->quantity, "H87");
-            }
+// TODO: add item classification (kg, m^3, ...)
+//            if (isset($item->task_id)) {
+//                $this->orderxdocument->setDocumentPositionQuantity($item->quantity, "HUR");
+//            } else {
+//                $this->orderxdocument->setDocumentPositionQuantity($item->quantity, "H87");
+//            }
             $linenetamount = $item->line_total;
             if ($item->discount > 0) {
                 if ($this->document->is_amount_discount) {
@@ -151,7 +149,7 @@ class OrderXDocument extends AbstractService
                     $this->orderxdocument->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate3);
                     $this->addtoTaxMap($taxtype, $linenetamount, $item->tax_rate3);
                 } else {
-                    // nlog("Can't add correct tax position");
+                    nlog("Can't add correct tax position");
                 }
             } else {
                 if (!empty($this->document->tax_name1)) {
@@ -167,7 +165,7 @@ class OrderXDocument extends AbstractService
                     $this->orderxdocument->addDocumentPositionTax($taxtype, 'VAT', $this->document->tax_rate3);
                     $this->addtoTaxMap($taxtype, $linenetamount, $this->document->tax_rate3);
                 } else {
-                    $taxtype = ZugferdDutyTaxFeeCategories::ZERO_RATED_GOODS;
+                    $taxtype = OrderDutyTaxFeeCategories::ZERO_RATED_GOODS;
                     $this->orderxdocument->addDocumentPositionTax($taxtype, 'VAT', 0);
                     $this->addtoTaxMap($taxtype, $linenetamount, 0);
                     // nlog("Can't add correct tax position");
@@ -206,31 +204,31 @@ class OrderXDocument extends AbstractService
             case Product::PRODUCT_TYPE_PHYSICAL:
             case Product::PRODUCT_TYPE_SHIPPING:
             case Product::PRODUCT_TYPE_REDUCED_TAX:
-                $tax_type = ZugferdDutyTaxFeeCategories::STANDARD_RATE;
+                $tax_type = OrderDutyTaxFeeCategories::STANDARD_RATE;
                 break;
             case Product::PRODUCT_TYPE_EXEMPT:
-                $tax_type =  ZugferdDutyTaxFeeCategories::EXEMPT_FROM_TAX;
+                $tax_type =  OrderDutyTaxFeeCategories::EXEMPT_FROM_TAX;
                 break;
             case Product::PRODUCT_TYPE_ZERO_RATED:
-                $tax_type = ZugferdDutyTaxFeeCategories::ZERO_RATED_GOODS;
+                $tax_type = OrderDutyTaxFeeCategories::ZERO_RATED_GOODS;
                 break;
             case Product::PRODUCT_TYPE_REVERSE_TAX:
-                $tax_type = ZugferdDutyTaxFeeCategories::VAT_REVERSE_CHARGE;
+                $tax_type = OrderDutyTaxFeeCategories::VAT_REVERSE_CHARGE;
                 break;
         }
         $eu_states = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "EL", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE", "IS", "LI", "NO", "CH"];
         if (empty($tax_type)) {
             if ((in_array($this->document->company->country()->iso_3166_2, $eu_states) && in_array($this->document->client->country->iso_3166_2, $eu_states)) && $this->document->company->country()->iso_3166_2 != $this->document->client->country->iso_3166_2) {
-                $tax_type = ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES;
+                $tax_type = OrderDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES;
             } elseif (!in_array($this->document->client->country->iso_3166_2, $eu_states)) {
-                $tax_type = ZugferdDutyTaxFeeCategories::SERVICE_OUTSIDE_SCOPE_OF_TAX;
+                $tax_type = OrderDutyTaxFeeCategories::SERVICE_OUTSIDE_SCOPE_OF_TAX;
             } elseif ($this->document->client->country->iso_3166_2 == "ES-CN") {
-                $tax_type = ZugferdDutyTaxFeeCategories::CANARY_ISLANDS_GENERAL_INDIRECT_TAX;
+                $tax_type = OrderDutyTaxFeeCategories::CANARY_ISLANDS_GENERAL_INDIRECT_TAX;
             } elseif (in_array($this->document->client->country->iso_3166_2, ["ES-CE", "ES-ML"])) {
-                $tax_type = ZugferdDutyTaxFeeCategories::TAX_FOR_PRODUCTION_SERVICES_AND_IMPORTATION_IN_CEUTA_AND_MELILLA;
+                $tax_type = OrderDutyTaxFeeCategories::TAX_FOR_PRODUCTION_SERVICES_AND_IMPORTATION_IN_CEUTA_AND_MELILLA;
             } else {
                 nlog("Unkown tax case for xinvoice");
-                $tax_type = ZugferdDutyTaxFeeCategories::STANDARD_RATE;
+                $tax_type = OrderDutyTaxFeeCategories::STANDARD_RATE;
             }
         }
         return $tax_type;
