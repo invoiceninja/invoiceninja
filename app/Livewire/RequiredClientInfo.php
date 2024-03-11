@@ -427,6 +427,6 @@ $_contact->push();
 
     public function render()
     {
-        return render('components.livewire.required-client-infox');
+        return render('components.livewire.required-client-info');
     }
 }

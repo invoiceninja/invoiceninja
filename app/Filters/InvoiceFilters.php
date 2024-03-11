@@ -328,6 +328,7 @@ class InvoiceFilters extends QueryFilters
         }
 
         if($sort_col[0] == 'number') {
+            // return $this->builder->orderByRaw('CAST(number AS UNSIGNED), number ' . $dir);
             return $this->builder->orderByRaw('ABS(number) ' . $dir);
         }
 
