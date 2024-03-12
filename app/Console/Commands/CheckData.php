@@ -978,6 +978,16 @@ class CheckData extends Command
             });
 
 
+
+            $cus = CompanyUser::withTrashed()
+            ->whereHas("user", function ($query) {
+                $query->whereColumn("users.account_id", "!=", "company_user.account_id");
+            })->pluck('id')->implode(",");
+
+
+            $this->logMessage("Cross Linked CompanyUser ids # {$cus}");
+
+
         }
     }
 

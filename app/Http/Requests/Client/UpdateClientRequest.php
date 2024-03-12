@@ -60,17 +60,11 @@ class UpdateClientRequest extends Request
         $rules['company_logo'] = 'mimes:jpeg,jpg,png,gif|max:10000';
         $rules['industry_id'] = 'integer|nullable';
         $rules['size_id'] = 'integer|nullable';
-        $rules['country_id'] = 'integer|nullable';
-        $rules['shipping_country_id'] = 'integer|nullable';
+        $rules['country_id'] = 'integer|nullable|exists:countries,id';
+        $rules['shipping_country_id'] = 'integer|nullable|exists:countries,id';
         $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,company,partnership,trust,charity,government,other';
-
-        if ($this->id_number) {
-            $rules['id_number'] = Rule::unique('clients')->where('company_id', $user->company()->id)->ignore($this->client->id);
-        }
-
-        if ($this->number) {
-            $rules['number'] = Rule::unique('clients')->where('company_id', $user->company()->id)->ignore($this->client->id);
-        }
+        $rules['id_number'] = ['sometimes', 'bail', Rule::unique('clients')->where('company_id', $user->company()->id)->ignore($this->client->id)];
+        $rules['number'] = ['sometimes', 'bail', Rule::unique('clients')->where('company_id', $user->company()->id)->ignore($this->client->id)];
 
         $rules['settings'] = new ValidClientGroupSettingsRule();
         $rules['contacts'] = 'array';
@@ -112,6 +106,9 @@ class UpdateClientRequest extends Request
         if (array_key_exists('settings', $input) && ! array_key_exists('currency_id', $input['settings'])) {
             $input['settings']['currency_id'] = (string) $user->company()->settings->currency_id;
         }
+        elseif (empty($input['settings']['currency_id']) ?? true) {
+            $input['settings']['currency_id'] = (string) $user->company()->settings->currency_id;
+        }
 
         if (isset($input['language_code'])) {
             $input['settings']['language_id'] = $this->getLanguageId($input['language_code']);
@@ -127,7 +124,33 @@ class UpdateClientRequest extends Request
             $input['name'] = strip_tags($input['name']);
         }
 
+        // allow setting country_id by iso code
+        if (isset($input['country_code'])) {
+            $input['country_id'] = $this->getCountryCode($input['country_code']);
+        }
+
+        // allow setting country_id by iso code
+        if (isset($input['shipping_country_code'])) {
+            $input['shipping_country_id'] = $this->getCountryCode($input['shipping_country_code']);
+        }
+
+
         $this->replace($input);
+    }
+
+    private function getCountryCode($country_code)
+    {
+        $countries = Cache::get('countries');
+
+        $country = $countries->filter(function ($item) use ($country_code) {
+            return $item->iso_3166_2 == $country_code || $item->iso_3166_3 == $country_code;
+        })->first();
+
+        if ($country) {
+            return (string) $country->id;
+        }
+
+        return '';
     }
 
     private function getLanguageId($language_code)
