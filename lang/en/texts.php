@@ -5254,6 +5254,8 @@ $lang = array(
     'paylater' => 'Pay in 4',
     'payment_provider' => 'Payment Provider',
     'select_email_provider' => 'Set your email as the sending user',
+    'purchase_order_items' => 'Purchase Order Items',
+
 );
 
 return $lang;

@@ -891,7 +891,7 @@ class CheckData extends Command
                 $this->logMessage("Fixing country for # {$client->id}");
             });
 
-            Client::query()->whereNull("settings->currency_id")->cursor()->each(function ($client) {
+            Client::query()->whereNull("settings->currency_id")->orWhereJsonContains('settings', ['currency_id' => ''])->cursor()->each(function ($client) {
                 $settings = $client->settings;
                 $settings->currency_id = (string)$client->company->settings->currency_id;
                 $client->settings = $settings;
