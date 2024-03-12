@@ -9,7 +9,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace app\Services\EInvoicing\Standards;
+namespace App\Services\EInvoicing\Standards;
 
 use App\Models\Credit;
 use App\Models\Invoice;
@@ -34,8 +34,8 @@ class OrderXDocument extends AbstractService
     {
 
         $company = $this->document->company;
-        $client = $this->document->client;
-        $profile = $client->getSetting('e_quote_type');
+        $settings_entity = ($this->document Instanceof PurchaseOrder) ? $this->document->vendor : $this->document->client;
+        $profile = $settings_entity->getSetting('e_quote_type');
 
         $profile = match ($profile) {
             "OrderX_Basic" => OrderProfiles::PROFILE_BASIC,
@@ -50,9 +50,9 @@ class OrderXDocument extends AbstractService
             ->setDocumentSeller($company->getSetting('name'))
             ->setDocumentSellerAddress($company->getSetting("address1"), $company->getSetting("address2"), "", $company->getSetting("postal_code"), $company->getSetting("city"), $company->country()->iso_3166_2, $company->getSetting("state"))
             ->setDocumentSellerContact($this->document->user->present()->getFullName(), "", $this->document->user->present()->phone(), "", $this->document->user->email)
-            ->setDocumentBuyer($client->present()->name(), $client->number)
-            ->setDocumentBuyerAddress($client->address1, "", "", $client->postal_code, $client->city, $client->country->iso_3166_2, $client->state)
-            ->setDocumentBuyerContact($client->present()->primary_contact_name(), "", $client->present()->phone(), "", $client->present()->email())
+            ->setDocumentBuyer($settings_entity->present()->name(), $settings_entity->number)
+            ->setDocumentBuyerAddress($settings_entity->address1, "", "", $settings_entity->postal_code, $settings_entity->city, $settings_entity->country->iso_3166_2, $settings_entity->state)
+            ->setDocumentBuyerContact($settings_entity->present()->primary_contact_name(), "", $settings_entity->present()->phone(), "", $settings_entity->present()->email())
             ->addDocumentPaymentTerm(ctrans("texts.xinvoice_payable", ['payeddue' => date_create($this->document->date ?? now()->format('Y-m-d'))->diff(date_create($this->document->due_date ?? now()->format('Y-m-d')))->format("%d"), 'paydate' => $this->document->due_date]));
 
         if (!empty($this->document->public_notes)) {
@@ -64,18 +64,18 @@ class OrderXDocument extends AbstractService
             case Quote::class:
                 // Probably wrong file code https://github.com/horstoeko/zugferd/blob/master/src/codelists/ZugferdInvoiceType.php
                 if (empty($this->document->number)) {
-                    $this->orderxdocument->setDocumentInformation("DRAFT", OrderDocumentTypes::ORDER, date_create($this->document->date ?? now()->format('Y-m-d')), $client->getCurrencyCode());
+                    $this->orderxdocument->setDocumentInformation("DRAFT", OrderDocumentTypes::ORDER, date_create($this->document->date ?? now()->format('Y-m-d')), $settings_entity->getCurrencyCode());
                     $this->orderxdocument->setIsTestDocument(true);
                 } else {
-                    $this->orderxdocument->setDocumentInformation($this->document->number, OrderDocumentTypes::ORDER, date_create($this->document->date ?? now()->format('Y-m-d')), $client->getCurrencyCode());
+                    $this->orderxdocument->setDocumentInformation($this->document->number, OrderDocumentTypes::ORDER, date_create($this->document->date ?? now()->format('Y-m-d')), $settings_entity->getCurrencyCode());
                 };
                 break;
             case PurchaseOrder::class:
                 if (empty($this->document->number)) {
-                    $this->orderxdocument->setDocumentInformation("DRAFT", OrderDocumentTypes::ORDER_RESPONSE, date_create($this->document->date ?? now()->format('Y-m-d')), $client->getCurrencyCode());
+                    $this->orderxdocument->setDocumentInformation("DRAFT", OrderDocumentTypes::ORDER_RESPONSE, date_create($this->document->date ?? now()->format('Y-m-d')), $settings_entity->getCurrencyCode());
                     $this->orderxdocument->setIsTestDocument(true);
                 } else {
-                    $this->orderxdocument->setDocumentInformation($this->document->number, OrderDocumentTypes::ORDER_RESPONSE, date_create($this->document->date ?? now()->format('Y-m-d')), $client->getCurrencyCode());
+                    $this->orderxdocument->setDocumentInformation($this->document->number, OrderDocumentTypes::ORDER_RESPONSE, date_create($this->document->date ?? now()->format('Y-m-d')), $settings_entity->getCurrencyCode());
                 }
                 break;
         }
@@ -83,13 +83,13 @@ class OrderXDocument extends AbstractService
             $this->orderxdocument->setDocumentBuyerOrderReferencedDocument($this->document->po_number);
         }
 
-        if (empty($client->routing_id)) {
+        if (empty($settings_entity->routing_id)) {
             $this->orderxdocument->setDocumentBuyerReference(ctrans("texts.xinvoice_no_buyers_reference"));
         } else {
-            $this->orderxdocument->setDocumentBuyerReference($client->routing_id);
+            $this->orderxdocument->setDocumentBuyerReference($settings_entity->routing_id);
         }
-        if (isset($client->shipping_address1) && $client->shipping_country) {
-            $this->orderxdocument->setDocumentShipToAddress($client->shipping_address1, $client->shipping_address2, "", $client->shipping_postal_code, $client->shipping_city, $client->shipping_country->iso_3166_2, $client->shipping_state);
+        if (isset($settings_entity->shipping_address1) && $settings_entity->shipping_country) {
+            $this->orderxdocument->setDocumentShipToAddress($settings_entity->shipping_address1, $settings_entity->shipping_address2, "", $settings_entity->shipping_postal_code, $settings_entity->shipping_city, $settings_entity->shipping_country->iso_3166_2, $settings_entity->shipping_state);
         }
 
         $this->orderxdocument->addDocumentPaymentMean(68, ctrans("texts.xinvoice_online_payment"));

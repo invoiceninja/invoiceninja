@@ -54,7 +54,8 @@ class CreateEDocument implements ShouldQueue
         /* Init a new copy of the translator*/
         $t = app('translator');
         /* Set the locale*/
-        App::setLocale($this->document->client->locale());
+        $settings_entity = ($this->document Instanceof PurchaseOrder) ? $this->document->vendor : $this->document->client;
+        App::setLocale($$settings_entity->locale());
 
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->document->client->getMergedSettings()));

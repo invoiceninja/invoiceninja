@@ -67,7 +67,7 @@ class ZipPurchaseOrders implements ShouldQueue
         try {
             foreach ($invitations as $invitation) {
 
-                if ($invitation->purchase_order->client->getSetting('enable_e_invoice')) {
+                if ($invitation->purchase_order->contact->vendor->getSetting("enable_e_invoice")) {
                     $xml = $invitation->purchase_order->service()->getEInvoice();
                     $zipFile->addFromString($invitation->purchase_order->getFileName("xml"), $xml);
                 }

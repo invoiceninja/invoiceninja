@@ -88,12 +88,12 @@ class PurchaseOrderService
         $this->purchase_order->invitations->each(function ($invitation) {
             try {
                 // if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
-                Storage::disk(config('filesystems.default'))->delete($this->purchase_order->client->e_document_filepath($invitation).$this->purchase_order->getFileName("xml"));
+                Storage::disk(config('filesystems.default'))->delete($this->purchase_order->contact->vendor->e_document_filepath($invitation).$this->purchase_order->getFileName("xml"));
                 // }
 
                 // if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
                 if (Ninja::isHosted()) {
-                    Storage::disk('public')->delete($this->purchase_order->client->e_document_filepath($invitation).$this->purchase_order->getFileName("xml"));
+                    Storage::disk('public')->delete($this->purchase_order->contact->vendor->e_document_filepath($invitation).$this->purchase_order->getFileName("xml"));
                 }
             } catch (\Exception $e) {
                 nlog($e->getMessage());
