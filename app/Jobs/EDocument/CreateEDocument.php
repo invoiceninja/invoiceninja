@@ -60,7 +60,8 @@ class CreateEDocument implements ShouldQueue
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->document->client->getMergedSettings()));
 
-        $e_document_type = $this->document->client->getSetting('e_invoice_type');
+        $e_document_type = $settings_entity->getSetting('e_invoice_type') ? $settings_entity->getSetting('e_invoice_type') : "XInvoice_3_0";
+        $e_quote_type = $settings_entity->getSetting('e_quote_type') ? $settings_entity->getSetting('e_quote_type') : "OrderX_Extended";
         if ($this->document instanceof Invoice){
             switch ($e_document_type) {
                 case "EN16931":
@@ -89,7 +90,7 @@ class CreateEDocument implements ShouldQueue
             }
         }
         elseif ($this->document instanceof Quote){
-            switch ($e_document_type){
+            switch ($e_quote_type){
                 case "OrderX_Basic":
                 case "OrderX_Comfort":
                 case "OrderX_Extended":
@@ -101,7 +102,7 @@ class CreateEDocument implements ShouldQueue
             }
         }
         elseif ($this->document instanceof PurchaseOrder){
-            switch ($e_document_type){
+            switch ($e_quote_type){
                 case "OrderX_Basic":
                 case "OrderX_Comfort":
                 case "OrderX_Extended":
