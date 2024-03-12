@@ -20,7 +20,7 @@ class SubscriptionFactory
         $billing_subscription = new Subscription();
         $billing_subscription->company_id = $company_id;
         $billing_subscription->user_id = $user_id;
-        $billing_subscription->steps = collect(\App\Livewire\BillingPortal\Purchase::$dependencies)
+        $billing_subscription->steps = collect(\App\Livewire\BillingPortal\Purchase::defaultSteps())
             ->pluck('id')
             ->implode(',');
 
