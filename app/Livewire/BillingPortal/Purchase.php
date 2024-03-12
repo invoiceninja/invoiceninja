@@ -120,12 +120,8 @@ class Purchase extends Component
     public static function defaultSteps()
     {
         return [
-            Setup::class,
             Cart::class,
             RegisterOrLogin::class,
-            RFF::class,
-            Methods::class,
-            Submit::class,
         ];
     }
 
@@ -146,7 +142,13 @@ class Purchase extends Component
                 Submit::class,
             ];
         } else {
-            $this->steps = self::defaultSteps();
+            $this->steps = [
+                Setup::class,
+                ...self::defaultSteps(),
+                Methods::class,
+                RFF::class,
+                Submit::class,
+            ];
         }
 
         $this->id = Str::uuid();
