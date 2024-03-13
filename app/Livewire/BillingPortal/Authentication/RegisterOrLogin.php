@@ -70,7 +70,7 @@ class RegisterOrLogin extends Component
         }
 
         $this->state['login_form'] = false;
-        $this->state['register_form'] = true;
+        $this->registerForm();
     }
 
     public function handlePassword()
@@ -100,7 +100,7 @@ class RegisterOrLogin extends Component
             ->first();
 
         if ($contact === null) {
-            $this->state['register_form'] = true;
+            $this->registerForm();
 
             return;
         }
@@ -157,7 +157,7 @@ class RegisterOrLogin extends Component
         }
 
         $this->state['otp_form'] = false;
-        $this->state['register_form'] = true;
+        $this->registerForm();
     }
 
     public function register(array $data)
@@ -165,8 +165,8 @@ class RegisterOrLogin extends Component
         $service = new ClientRegisterService(
             company: $this->subscription->company,
         );
-        
-        $rules = $service->rules(); 
+
+        $rules = $service->rules();
         $data = Validator::make($data, $rules)->validate();
 
         $client = $service->createClient($data);
@@ -178,11 +178,38 @@ class RegisterOrLogin extends Component
         $this->dispatch('purchase.next');
     }
 
+    public function registerForm()
+    {
+        $count = collect($this->subscription->company->client_registration_fields ?? [])
+            ->filter(fn($field) => $field['required'] === true || $field['visible'] === true)
+            ->count();
+
+        if ($count === 0) {
+            $service = new ClientRegisterService(
+                company: $this->subscription->company,
+            );
+
+            $client = $service->createClient([]);
+            $contact = $service->createClientContact([], $client);
+
+            auth()->guard('contact')->loginUsingId($contact->id, true);
+
+            $this->dispatch('purchase.context', property: 'contact', value: $contact);
+            $this->dispatch('purchase.next');
+
+            return;
+        }
+
+        return $this->steps['register_form'] = true;
+    }
+
     public function mount()
     {
         if (auth()->guard('contact')->check()) {
             $this->dispatch('purchase.context', property: 'contact', value: auth()->guard('contact')->user());
             $this->dispatch('purchase.next');
+
+            return;
         }
     }
 
