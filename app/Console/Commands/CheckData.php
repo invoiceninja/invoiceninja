@@ -933,7 +933,6 @@ class CheckData extends Command
 
             });
 
-
             Invoice::withTrashed()
             ->where("partial", 0)
             ->whereNotNull("partial_due_date")
@@ -967,7 +966,6 @@ class CheckData extends Command
 
             });
 
-
             CompanyUser::whereDoesntHave('user')
             ->cursor()
             ->when(Ninja::isHosted())
@@ -976,8 +974,6 @@ class CheckData extends Command
                 $this->logMessage("Missing user for Company User # {$cu->id}");
 
             });
-
-
 
             $cus = CompanyUser::withTrashed()
             ->whereHas("user", function ($query) {
