@@ -460,7 +460,7 @@ $lang = array(
     'edit_token' => 'Éditer le jeton',
     'delete_token' => 'Supprimer le jeton',
     'token' => 'Jeton',
-    'add_gateway' => 'Ajouter une passerelle',
+    'add_gateway' => 'Add Payment Gateway',
     'delete_gateway' => 'Supprimer la passerelle',
     'edit_gateway' => 'Éditer la passerelle',
     'updated_gateway' => 'La passerelle a été mise à jour',
@@ -5198,7 +5198,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'nordigen_handler_error_heading_requisition_invalid_status' => 'Pas prêt',
     'nordigen_handler_error_contents_requisition_invalid_status' => 'Vous avez contacté ce site trop tôt. Veuillez terminer l\'autorisation et rafraîchir cette page. Contactez le support pour obtenir de l\'aide si ce problème persiste.',
     'nordigen_handler_error_heading_requisition_no_accounts' => 'Aucun compte sélectionné',
-    'nordigen_handler_error_contents_requisition_no_accounts' => 'Le service n\'a retourné aucun compte valide. Veuillez redémarrer le processus.',
+    'nordigen_handler_error_contents_requisition_no_accounts' => 'Le service n’a retourné aucun compte valide. Veuillez redémarrer le processus.',
     'nordigen_handler_restart' => 'Redémarrer le processus',
     'nordigen_handler_return' => 'Retour à l\'application',
     'lang_Lao' => 'Lao',
@@ -5238,7 +5238,19 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'test_email_sent' => 'Le courriel a été envoyé',
     'gateway_type' => 'Type de passerelle',
     'save_template_body' => 'Souhaitez-vous enregistrer cette correspondance d\'importation en tant que modèle pour une utilisation future ?',
-    'save_as_template' => 'Enregistrer la correspondance de modèle'
+    'save_as_template' => 'Enregistrer la correspondance de modèle',
+    'auto_bill_standard_invoices_help' => 'Facturer automatiquement les factures régulières à la date d\'échéance',
+    'auto_bill_on_help' => 'Facturation automatique à la date d\'envoi OU à la date d\'échéance (factures récurrentes)',
+    'use_available_credits_help' => 'Appliquer tout solde de crédit aux paiements avant de facturer une méthode de paiement',
+    'use_unapplied_payments' => 'Utiliser les paiements non appliqués',
+    'use_unapplied_payments_help' => 'Appliquer tout solde de paiement avant de facturer une méthode de paiement',
+    'payment_terms_help' => 'Définit la <b>date d\'échéance de la facture</b> par défaut',
+    'payment_type_help' => 'Définit le <b>type de paiement manuel<b/> par défaut.',
+    'quote_valid_until_help' => 'Le nombre de jours pour lesquels la soumission est valide',
+    'expense_payment_type_help' => 'Le type de paiement de dépenses par défaut à utiliser',
+    'paylater' => 'Pay in 4',
+    'payment_provider' => 'Payment Provider',
+    
 );
 
 return $lang;

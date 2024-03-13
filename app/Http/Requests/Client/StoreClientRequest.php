@@ -59,20 +59,6 @@ class StoreClientRequest extends Request
             $rules['file'] = $this->file_validation;
         }
 
-        if (isset($this->number)) {
-            $rules['number'] = Rule::unique('clients')->where('company_id', $user->company()->id);
-        }
-
-        $rules['country_id'] = 'integer|nullable';
-
-        if (isset($this->currency_code)) {
-            $rules['currency_code'] = 'sometimes|exists:currencies,code';
-        }
-
-        if (isset($this->country_code)) {
-            $rules['country_code'] = new CountryCodeExistsRule();
-        }
-
         /* Ensure we have a client name, and that all emails are unique*/
         //$rules['name'] = 'required|min:1';
         $rules['settings'] = new ValidClientGroupSettingsRule();
@@ -97,6 +83,9 @@ class StoreClientRequest extends Request
         $rules['number'] = ['bail', 'nullable', Rule::unique('clients')->where('company_id', $user->company()->id)];
         $rules['id_number'] = ['bail', 'nullable', Rule::unique('clients')->where('company_id', $user->company()->id)];
         $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,company,partnership,trust,charity,government,other';
+        $rules['shipping_country_id'] = 'integer|nullable|exists:countries,id';
+        $rules['number'] = ['sometimes', 'nullable', 'bail', Rule::unique('clients')->where('company_id', $user->company()->id)];
+        $rules['country_id'] = 'integer|nullable|exists:countries,id';
 
         return $rules;
     }
@@ -139,12 +128,16 @@ class StoreClientRequest extends Request
         if (! array_key_exists('currency_id', $input['settings']) && isset($input['group_settings_id'])) {
             $group_settings = GroupSetting::find($input['group_settings_id']);
 
-            if ($group_settings && property_exists($group_settings->settings, 'currency_id') && isset($group_settings->settings->currency_id)) {
+            if ($group_settings && property_exists($group_settings->settings, 'currency_id') && is_numeric($group_settings->settings->currency_id)) {
                 $input['settings']['currency_id'] = (string) $group_settings->settings->currency_id;
             } else {
                 $input['settings']['currency_id'] = (string) $user->company()->settings->currency_id;
             }
-        } elseif (! array_key_exists('currency_id', $input['settings'])) {
+        } 
+        elseif (! array_key_exists('currency_id', $input['settings'])) {
+            $input['settings']['currency_id'] = (string) $user->company()->settings->currency_id;
+        }
+        elseif (empty($input['settings']['currency_id']) ?? true) {
             $input['settings']['currency_id'] = (string) $user->company()->settings->currency_id;
         }
 
@@ -160,10 +153,13 @@ class StoreClientRequest extends Request
             }
         }
 
+
+        // allow setting country_id by iso code
         if (isset($input['country_code'])) {
             $input['country_id'] = $this->getCountryCode($input['country_code']);
         }
 
+        // allow setting country_id by iso code
         if (isset($input['shipping_country_code'])) {
             $input['shipping_country_id'] = $this->getCountryCode($input['shipping_country_code']);
         }
@@ -173,9 +169,13 @@ class StoreClientRequest extends Request
             unset($input['number']);
         }
 
+        // prevent xss injection
         if (array_key_exists('name', $input)) {
             $input['name'] = strip_tags($input['name']);
         }
+
+        //If you want to validate, the prop must be set.
+        $input['id'] = null;
 
         $this->replace($input);
     }

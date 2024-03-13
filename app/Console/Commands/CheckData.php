@@ -891,7 +891,7 @@ class CheckData extends Command
                 $this->logMessage("Fixing country for # {$client->id}");
             });
 
-            Client::query()->whereNull("settings->currency_id")->cursor()->each(function ($client) {
+            Client::query()->whereNull("settings->currency_id")->orWhereJsonContains('settings', ['currency_id' => ''])->cursor()->each(function ($client) {
                 $settings = $client->settings;
                 $settings->currency_id = (string)$client->company->settings->currency_id;
                 $client->settings = $settings;
@@ -933,7 +933,6 @@ class CheckData extends Command
 
             });
 
-
             Invoice::withTrashed()
             ->where("partial", 0)
             ->whereNotNull("partial_due_date")
@@ -967,7 +966,6 @@ class CheckData extends Command
 
             });
 
-
             CompanyUser::whereDoesntHave('user')
             ->cursor()
             ->when(Ninja::isHosted())
@@ -976,6 +974,14 @@ class CheckData extends Command
                 $this->logMessage("Missing user for Company User # {$cu->id}");
 
             });
+
+            $cus = CompanyUser::withTrashed()
+            ->whereHas("user", function ($query) {
+                $query->whereColumn("users.account_id", "!=", "company_user.account_id");
+            })->pluck('id')->implode(",");
+
+
+            $this->logMessage("Cross Linked CompanyUser ids # {$cus}");
 
 
         }

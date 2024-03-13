@@ -271,7 +271,7 @@ class CreditCard implements MethodInterface
             $errors = $api_response->getErrors();
         }
 
-        if (property_exists($customers, 'customers')) {
+        if ($customers && property_exists($customers, 'customers')) {
             return $customers->customers[0]->id;
         }
 
