@@ -34,7 +34,7 @@ class OrderXDocument extends AbstractService
     {
 
         $company = $this->document->company;
-        $settings_entity = ($this->document Instanceof PurchaseOrder) ? $this->document->vendor : $this->document->client;
+        $settings_entity = ($this->document instanceof PurchaseOrder) ? $this->document->vendor : $this->document->client;
         $profile = $settings_entity->getSetting('e_quote_type') ? $settings_entity->getSetting('e_quote_type') : "OrderX_Extended";
 
         $profile = match ($profile) {
