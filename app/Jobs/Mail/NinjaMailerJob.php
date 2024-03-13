@@ -145,7 +145,8 @@ class NinjaMailerJob implements ShouldQueue
                 ->send($mailable);
 
             /* Count the amount of emails sent across all the users accounts */
-            Cache::increment("email_quota".$this->company->account->key);
+
+            $this->incrementEmailCounter();
 
             LightLogs::create(new EmailSuccess($this->nmo->company->company_key, $this->nmo->mailable->subject))
                      ->send();
@@ -221,6 +222,12 @@ class NinjaMailerJob implements ShouldQueue
         $this->cleanUpMailers();
     }
 
+    private function incrementEmailCounter(): void
+    {
+        if(in_array($this->mailer, ['default','mailgun']))
+            Cache::increment("email_quota".$this->company->account->key);
+
+    }
     /**
      * Entity notification when an email fails to send
      *

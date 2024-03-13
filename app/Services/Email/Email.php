@@ -244,6 +244,12 @@ class Email implements ShouldQueue
         return $this;
     }
 
+    private function incrementEmailCounter(): void
+    {
+        if(in_array($this->mailer, ['default','mailgun']))
+            Cache::increment("email_quota".$this->company->account->key);
+    }
+    
     /**
      * Attempts to send the email
      *
@@ -270,7 +276,7 @@ class Email implements ShouldQueue
 
             $mailer->send($this->mailable);
 
-            Cache::increment("email_quota".$this->company->account->key);
+            $this->incrementEmailCounter();
 
             LightLogs::create(new EmailSuccess($this->company->company_key, $this->mailable->subject))
                      ->send();
