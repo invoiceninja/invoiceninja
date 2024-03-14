@@ -63,7 +63,7 @@ class UpdateClientRequest extends Request
         $rules['country_id'] = 'integer|nullable|exists:countries,id';
         $rules['shipping_country_id'] = 'integer|nullable|exists:countries,id';
         $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,company,partnership,trust,charity,government,other';
-        $rules['id_number'] = ['sometimes', 'bail', Rule::unique('clients')->where('company_id', $user->company()->id)->ignore($this->client->id)];
+        $rules['id_number'] = ['sometimes', 'bail', 'nullable', Rule::unique('clients')->where('company_id', $user->company()->id)->ignore($this->client->id)];
         $rules['number'] = ['sometimes', 'bail', Rule::unique('clients')->where('company_id', $user->company()->id)->ignore($this->client->id)];
 
         $rules['settings'] = new ValidClientGroupSettingsRule();
