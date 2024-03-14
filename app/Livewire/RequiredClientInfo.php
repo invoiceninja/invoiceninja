@@ -165,9 +165,18 @@ class RequiredClientInfo extends Component
             ? $this->checkFields()
             : $this->show_form = false;
 
+        if (count($this->fields) === 0) {
+            $this->show_form = false;
+
+            $this->dispatch(
+                'passed-required-fields-check',
+                client_postal_code: $this->contact->client->postal_code
+            );
+        }
+
         if (request()->query('source') === 'subscriptions') {
             $this->show_form = false;
-            
+
             $this->dispatch(
                 'passed-required-fields-check',
                 client_postal_code: $this->contact->client->postal_code
