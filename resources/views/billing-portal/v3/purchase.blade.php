@@ -6,14 +6,6 @@
     class="col-span-12 xl:col-span-6 bg-white flex flex-col items-center lg:h-screen"
     >
         <div class="w-full p-10 lg:mt-24 md:max-w-xl">
-            @if($errors->any())
-                @foreach($errors as $error)
-                    <div class="alert alert-danger">
-                        {{ $error }}
-                    </div>
-                @endforeach
-            @endif
-
             <img
                 class="h-8"
                 src="{{ $subscription->company->present()->logo }}"
@@ -23,7 +15,7 @@
             <svg id="spinner" class="animate-spin h-8 w-8 text-primary mt-10 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>    
+            </svg>
 
             <div class="my-10" id="container">
                 @livewire($this->component, ['context' => $context, 'subscription' => $this->subscription], key($this->componentUniqueId()))
@@ -41,8 +33,7 @@
         </div>
     </div>
 
-
-    <form 
+    <form
         action="{{ route('client.payments.process', ['hash' => $hash, 'sidebar' => 'hidden', 'source' => 'subscriptions']) }}"
         method="post"
         id="payment-method-form">
