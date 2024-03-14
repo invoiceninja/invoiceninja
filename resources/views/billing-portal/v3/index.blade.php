@@ -2,6 +2,14 @@
 @section('meta_title', ctrans('texts.purchase'))
 
 @section('body')
+    @if ($errors->any())
+        <div class="alert alert-danger" style="margin: 1rem">
+            @foreach ($errors->all() as $error)
+                <p>{{ $error }}</p>
+            @endforeach
+        </div>
+    @endif
+
     @livewire('billing-portal.purchase', ['subscription' => $subscription, 'db' => $subscription->company->db, 'hash' => $hash, 'request_data' => $request_data, 'campaign' => request()->query('campaign') ?? null])
 @stop
 
@@ -9,7 +17,7 @@
     <script>
         document.addEventListener('livewire:init', () => {
             Livewire.on('purchase.submit', (event) => {
-                document.getElementById('payment-method-form').submit()
+                document.getElementById('payment-method-form').submit();
             });
 
             const target = document.getElementById('container');
@@ -22,7 +30,7 @@
                     document.getElementById('spinner').classList.add('hidden');
                     document.getElementById('container').classList.remove('hidden');
                 }, 1500);
-            })
+            });
 
             Livewire.on('update-shipping-data', (event) => {
                 for (field in event) {
