@@ -200,7 +200,7 @@ class RegisterOrLogin extends Component
             return;
         }
 
-        return $this->steps['register_form'] = true;
+        return $this->state['register_form'] = true;
     }
 
     public function mount()
