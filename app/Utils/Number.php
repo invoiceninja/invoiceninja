@@ -86,6 +86,33 @@ class Number
         return rtrim(rtrim(number_format($value, $precision, $decimal, $thousand), '0'), $decimal);
     }
 
+    public static function parseFloat($value)
+    {
+
+        if(!$value)
+            return 0;
+
+        //remove everything except for numbers, decimals, commas and hyphens
+        $value = preg_replace('/[^0-9.,-]+/', '', $value);
+
+        $decimal = strpos($value, '.');
+        $comma = strpos($value, ',');
+
+        if($comma === false) //no comma must be a decimal number already
+            return (float) $value;
+
+        if($decimal < $comma){ //decimal before a comma = euro
+            $value = str_replace(['.',','], ['','.'], $value);
+            return (float) $value;
+        }
+
+        //comma first = traditional thousand separator
+        $value = str_replace(',', '', $value);
+
+        return (float)$value;
+
+
+    }
     /**
      * Formats a given value based on the clients currency
      * BACK to a float.
@@ -93,32 +120,9 @@ class Number
      * @param string $value The formatted number to be converted back to float
      * @return float            The formatted value
      */
-    public static function parseFloat($value)
+    public static function parseFloatXX($value)
     {
-        // if(!$value)
-        //     return 0;
 
-        // //remove everything except for numbers, decimals, commas and hyphens 
-        // $value = preg_replace('/[^0-9.,-]+/', '', $value);
-
-        // $decimal = strpos($value, '.');
-        // $comma = strpos($value, ',');
-        
-        // if($comma === false) //no comma must be a decimal number already
-        //     return (float) $value;
-
-        // if($decimal < $comma){ //decimal before a comma = euro
-        //     $value = str_replace(['.',','], ['','.'], $value);
-        //     // $value = str_replace(',', '.', $value);
-        //     return (float) $value;
-        // }
-
-        // //comma first = traditional thousan separator
-        // $value = str_replace(',', '', $value);
-        
-        // return (float)$value;
-    
-        
         if(!$value)
             return 0;
 

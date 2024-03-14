@@ -158,7 +158,6 @@ class LicenseController extends BaseController
 
         /* Catch claim license requests */
         if (config('ninja.environment') == 'selfhost') {
-            // $response = Http::get( "http://ninja.test:8000/claim_license", [
             $response = Http::get("https://invoicing.co/claim_license", [
                 'license_key' => $license_key,
                 'product_id' => 3,
