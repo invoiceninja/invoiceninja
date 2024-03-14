@@ -14,17 +14,8 @@ namespace App\Livewire\BillingPortal\Authentication;
 
 use Illuminate\Support\Facades\Validator;
 use Livewire\Component;
-use Illuminate\Support\Str;
 use App\Models\Subscription;
 use App\Models\ClientContact;
-use App\Factory\ClientFactory;
-use App\Jobs\Mail\NinjaMailerJob;
-use App\DataMapper\ClientSettings;
-use App\Mail\Subscription\OtpCode;
-use App\Jobs\Mail\NinjaMailerObject;
-use Illuminate\Support\Facades\Cache;
-use App\Repositories\ClientRepository;
-use App\Repositories\ClientContactRepository;
 
 class Register extends Component
 {
@@ -43,9 +34,7 @@ class Register extends Component
         'register_form' => false,
     ];
 
-    public array $registration_fields = [];
-
-    public function initial()
+    public function initial(): void
     {
         $this->validateOnly('email', ['email' => 'required|bail|email:rfc']);
 
@@ -60,7 +49,7 @@ class Register extends Component
         }
 
         $this->state['initial_completed'] = true;
-        
+
         $this->registerForm();
     }
 
@@ -69,8 +58,8 @@ class Register extends Component
         $service = new ClientRegisterService(
             company: $this->subscription->company,
         );
-        
-        $rules = $service->rules(); 
+
+        $rules = $service->rules();
 
         $data = Validator::make($data, $rules)->validate();
 
@@ -95,7 +84,7 @@ class Register extends Component
             );
 
             $client = $service->createClient([]);
-            $contact = $service->createClientContact([], $client);
+            $contact = $service->createClientContact(['email' => $this->email], $client);
 
             auth()->guard('contact')->loginUsingId($contact->id, true);
 
@@ -105,7 +94,7 @@ class Register extends Component
             return;
         }
 
-        return $this->steps['register_form'] = true;
+        return $this->state['register_form'] = true;
     }
 
     public function mount()
