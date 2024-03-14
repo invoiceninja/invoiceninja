@@ -25,14 +25,15 @@ class RFF extends Component
     public function continue(): void
     {
         $this->dispatch('purchase.context', property: 'contact', value: auth()->guard('contact')->user());
+
         $this->dispatch('purchase.next');
     }
-    
+
     public function render()
     {
         $gateway = CompanyGateway::findOrFail($this->context['form']['company_gateway_id']);
         $countries = Cache::get('countries');
-        
+
         return view('billing-portal.v3.rff', [
             'gateway' => $gateway->driver(
                 auth()->guard('contact')->user()->client
