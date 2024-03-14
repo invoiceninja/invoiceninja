@@ -271,6 +271,7 @@ class InvitationController extends Controller
                                     ->with('contact.client')
                                     ->firstOrFail();
 
+
         if ($invitation->contact->trashed()) {
             $invitation->contact->restore();
         }
@@ -294,7 +295,10 @@ class InvitationController extends Controller
                 'payable_invoices' => [
                     ['invoice_id' => $invitation->invoice->hashed_id, 'amount' => $amount],
                 ],
-                'signature' => false
+                'signature' => false,
+                'contact_first_name' => $invitation->contact->first_name ?? '',
+                'contact_last_name' => $invitation->contact->last_name ?? '',
+                'contact_email' => $invitation->contact->email ?? ''
             ];
 
             $request->replace($data);

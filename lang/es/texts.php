@@ -460,7 +460,7 @@ $lang = array(
     'edit_token' => 'Editar Token',
     'delete_token' => 'Eliminar Token',
     'token' => 'Token',
-    'add_gateway' => 'Agregar Gateway',
+    'add_gateway' => 'Add Payment Gateway',
     'delete_gateway' => 'Eliminar Gateway',
     'edit_gateway' => 'Editar Gateway',
     'updated_gateway' => 'Gateway actualizado con éxito',
@@ -5200,7 +5200,7 @@ $lang = array(
     'nordigen_handler_error_heading_requisition_invalid_status' => 'No está listo',
     'nordigen_handler_error_contents_requisition_invalid_status' => 'Llamaste a este sitio demasiado pronto. Finalice la autorización y actualice esta página. Póngase en contacto con el soporte para obtener ayuda si este problema persiste.',
     'nordigen_handler_error_heading_requisition_no_accounts' => 'No hay cuentas seleccionadas',
-    'nordigen_handler_error_contents_requisition_no_accounts' => 'El servicio no ha devuelto ninguna cuenta válida. Considere reiniciar el flujo.',
+    'nordigen_handler_error_contents_requisition_no_accounts' => 'The service has not returned any valid accounts. Consider restarting the flow.',
     'nordigen_handler_restart' => 'Reiniciar el flujo.',
     'nordigen_handler_return' => 'Volver a la aplicación.',
     'lang_Lao' => 'laosiano',
@@ -5240,7 +5240,19 @@ $lang = array(
     'test_email_sent' => 'Correo electrónico enviado correctamente',
     'gateway_type' => 'Tipo de puerta de enlace',
     'save_template_body' => '¿Le gustaría guardar este mapeo de importación como plantilla para uso futuro?',
-    'save_as_template' => 'Guardar asignación de plantilla'
+    'save_as_template' => 'Guardar asignación de plantilla',
+    'auto_bill_standard_invoices_help' => 'Auto bill standard invoices on the due date',
+    'auto_bill_on_help' => 'Auto bill on send date OR due date (recurring invoices)',
+    'use_available_credits_help' => 'Apply any credit balances to payments prior to charging a payment method',
+    'use_unapplied_payments' => 'Use unapplied payments',
+    'use_unapplied_payments_help' => 'Apply any payment balances prior to charging a payment method',
+    'payment_terms_help' => 'Establecer <b>fecha de vencimiento de la factura</b> por defecto',
+    'payment_type_help' => 'Establecer el <b>tipo de pago manual</b> por defecto.',
+    'quote_valid_until_help' => 'The number of days that the quote is valid for',
+    'expense_payment_type_help' => 'The default expense payment type to be used',
+    'paylater' => 'Pay in 4',
+    'payment_provider' => 'Payment Provider',
+    
 );
 
 return $lang;

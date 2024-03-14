@@ -98,19 +98,19 @@ class InvoiceTransformer extends BaseTransformer
                 $invoice_data,
                 'invoice.partial_due_date'
             ),
-            'custom_surcharge1' => $this->getString(
+            'custom_surcharge1' => $this->getFloat(
                 $invoice_data,
                 'invoice.custom_surcharge1'
             ),
-            'custom_surcharge2' => $this->getString(
+            'custom_surcharge2' => $this->getFloat(
                 $invoice_data,
                 'invoice.custom_surcharge2'
             ),
-            'custom_surcharge3' => $this->getString(
+            'custom_surcharge3' => $this->getFloat(
                 $invoice_data,
                 'invoice.custom_surcharge3'
             ),
-            'custom_surcharge4' => $this->getString(
+            'custom_surcharge4' => $this->getFloat(
                 $invoice_data,
                 'invoice.custom_surcharge4'
             ),

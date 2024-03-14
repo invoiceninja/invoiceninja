@@ -244,6 +244,12 @@ class Email implements ShouldQueue
         return $this;
     }
 
+    private function incrementEmailCounter(): void
+    {
+        if(in_array($this->mailer, ['default','mailgun']))
+            Cache::increment("email_quota".$this->company->account->key);
+    }
+    
     /**
      * Attempts to send the email
      *
@@ -270,7 +276,7 @@ class Email implements ShouldQueue
 
             $mailer->send($this->mailable);
 
-            Cache::increment("email_quota".$this->company->account->key);
+            $this->incrementEmailCounter();
 
             LightLogs::create(new EmailSuccess($this->company->company_key, $this->mailable->subject))
                      ->send();
@@ -549,7 +555,10 @@ class Email implements ShouldQueue
                 $this->mailer = 'mailgun';
                 $this->setMailgunMailer();
                 return $this;
-
+            case 'smtp':
+                $this->mailer = 'smtp';
+                $this->configureSmtpMailer();
+                return $this;
             default:
                 $this->mailer = config('mail.default');
                 return $this;
@@ -560,6 +569,43 @@ class Email implements ShouldQueue
         }
 
         return $this;
+    }
+
+    private function configureSmtpMailer(): void
+    {
+
+        $company = $this->company;
+
+        $smtp_host = $company->smtp_host;
+        $smtp_port = $company->smtp_port;
+        $smtp_username = $company->smtp_username;
+        $smtp_password = $company->smtp_password;
+        $smtp_encryption = $company->smtp_encryption ?? 'tls';
+        $smtp_local_domain = strlen($company->smtp_local_domain) > 2 ? $company->smtp_local_domain : null;
+        $smtp_verify_peer = $company->smtp_verify_peer ?? true;
+
+        config([
+            'mail.mailers.smtp' => [
+                'transport' => 'smtp',
+                'host' => $smtp_host,
+                'port' => $smtp_port,
+                'username' => $smtp_username,
+                'password' => $smtp_password,
+                'encryption' => $smtp_encryption,
+                'local_domain' => $smtp_local_domain,
+                'verify_peer' => $smtp_verify_peer,
+                'timeout' => 30,
+            ],
+        ]);
+
+        $user = $this->resolveSendingUser();
+
+        $sending_email = (isset($this->email_object->settings->custom_sending_email) && stripos($this->email_object->settings->custom_sending_email, "@")) ? $this->email_object->settings->custom_sending_email : $user->email;
+        $sending_user = (isset($this->email_object->settings->email_from_name) && strlen($this->email_object->settings->email_from_name) > 2) ? $this->email_object->settings->email_from_name : $user->name();
+
+        $this->mailable
+        ->from($sending_email, $sending_user);
+
     }
 
     /**

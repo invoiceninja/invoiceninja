@@ -89,6 +89,10 @@ class PaymentIntentWebhook implements ShouldQueue
         }
 
         $company_gateway = CompanyGateway::query()->find($this->company_gateway_id);
+
+        if(!$company_gateway)
+            return;
+
         $stripe_driver = $company_gateway->driver()->init();
 
         $charge_id = false;

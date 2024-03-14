@@ -460,7 +460,7 @@ $lang = array(
     'edit_token' => 'Éditer ce jeton',
     'delete_token' => 'Supprimer ce jeton',
     'token' => 'Jeton',
-    'add_gateway' => 'Ajouter une passerelle',
+    'add_gateway' => 'Add Payment Gateway',
     'delete_gateway' => 'Supprimer la passerelle',
     'edit_gateway' => 'Éditer la passerelle',
     'updated_gateway' => 'Passerelle mise à jour avec succès',
@@ -5201,7 +5201,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'nordigen_handler_error_heading_requisition_invalid_status' => 'Pas prêt',
     'nordigen_handler_error_contents_requisition_invalid_status' => 'Vous avez appelé ce site trop tôt. Veuillez terminer l&#39;autorisation et actualiser cette page. Contactez le support pour obtenir de l&#39;aide si ce problème persiste.',
     'nordigen_handler_error_heading_requisition_no_accounts' => 'Aucun compte sélectionné',
-    'nordigen_handler_error_contents_requisition_no_accounts' => 'Le service n&#39;a renvoyé aucun compte valide. Pensez à redémarrer le flux.',
+    'nordigen_handler_error_contents_requisition_no_accounts' => 'The service has not returned any valid accounts. Consider restarting the flow.',
     'nordigen_handler_restart' => 'Redémarrez le flux.',
     'nordigen_handler_return' => 'Retour à la candidature.',
     'lang_Lao' => 'Laotien',
@@ -5241,7 +5241,19 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'test_email_sent' => 'E-mail envoyé avec succès',
     'gateway_type' => 'Type de passerelle',
     'save_template_body' => 'Souhaitez-vous enregistrer ce mappage d’importation en tant que modèle pour une utilisation future ?',
-    'save_as_template' => 'Enregistrer le mappage de modèle'
+    'save_as_template' => 'Enregistrer le mappage de modèle',
+    'auto_bill_standard_invoices_help' => 'Auto bill standard invoices on the due date',
+    'auto_bill_on_help' => 'Auto bill on send date OR due date (recurring invoices)',
+    'use_available_credits_help' => 'Apply any credit balances to payments prior to charging a payment method',
+    'use_unapplied_payments' => 'Use unapplied payments',
+    'use_unapplied_payments_help' => 'Apply any payment balances prior to charging a payment method',
+    'payment_terms_help' => 'Définit <b>la date d\'échéance de la facture</b> par défaut ',
+    'payment_type_help' => 'Définit le <b>type de paiement manuel </b> par défaut.',
+    'quote_valid_until_help' => 'The number of days that the quote is valid for',
+    'expense_payment_type_help' => 'The default expense payment type to be used',
+    'paylater' => 'Pay in 4',
+    'payment_provider' => 'Payment Provider',
+    
 );
 
 return $lang;
