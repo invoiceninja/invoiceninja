@@ -93,7 +93,7 @@ class RegisterOrLogin extends Component
         session()->flash('message', 'These credentials do not match our records.');
     }
 
-    public function withOtp()
+    public function withOtp(): void
     {
         $contact = ClientContact::where('email', $this->email)
             ->where('company_id', $this->subscription->company_id)
@@ -128,7 +128,7 @@ class RegisterOrLogin extends Component
         $this->state['otp_form'] = true;
     }
 
-    public function handleOtp()
+    public function handleOtp(): void
     {
         $this->validate([
             'otp' => 'required|numeric|digits:6',
@@ -160,7 +160,7 @@ class RegisterOrLogin extends Component
         $this->registerForm();
     }
 
-    public function register(array $data)
+    public function register(array $data): void
     {
         $service = new ClientRegisterService(
             company: $this->subscription->company,
@@ -190,7 +190,7 @@ class RegisterOrLogin extends Component
             );
 
             $client = $service->createClient([]);
-            $contact = $service->createClientContact([], $client);
+            $contact = $service->createClientContact(['email' => $this->email], $client);
 
             auth()->guard('contact')->loginUsingId($contact->id, true);
 
