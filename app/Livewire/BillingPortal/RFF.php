@@ -58,9 +58,9 @@ class RFF extends Component
 
     public function mount(): void
     {
-        $this->contact_first_name = $this->context['contact']['first_name'];
-        $this->contact_last_name = $this->context['contact']['last_name'];
-        $this->contact_email = $this->context['contact']['email'];
+        $this->contact_first_name = $this->context['contact']['first_name'] ?? '';
+        $this->contact_last_name = $this->context['contact']['last_name'] ?? '';
+        $this->contact_email = $this->context['contact']['email'] ?? '';
     }
 
     public function render()
