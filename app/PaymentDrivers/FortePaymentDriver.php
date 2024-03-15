@@ -201,9 +201,6 @@ class FortePaymentDriver extends BaseDriver
                     ->withHeaders(['X-Forte-Auth-Organization-Id' => $forte_organization_id])
                     ->get("{$forte_base_uri}/organizations/{$forte_organization_id}/locations/{$forte_location_id}/customers/");
 
-                    // nlog("{$forte_base_uri}/organizations/org_{$forte_organization_id}/customers/");
-                    // {{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/customers
-
         return $response->successful();
         
     }
