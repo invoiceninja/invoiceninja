@@ -11,13 +11,14 @@
 
 namespace App\PaymentDrivers;
 
-use App\Jobs\Util\SystemLogger;
-use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\SystemLog;
-use App\PaymentDrivers\Forte\ACH;
-use App\PaymentDrivers\Forte\CreditCard;
+use App\Models\GatewayType;
+use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
+use App\PaymentDrivers\Forte\ACH;
+use Illuminate\Support\Facades\Http;
+use App\PaymentDrivers\Forte\CreditCard;
 
 class FortePaymentDriver extends BaseDriver
 {
@@ -183,6 +184,29 @@ class FortePaymentDriver extends BaseDriver
         ];
     }
 
+    public function auth(): bool
+    {
+                    
+        $forte_base_uri = "https://sandbox.forte.net/api/v3/";
+        if ($this->company_gateway->getConfigField('testMode') == false) {
+            $forte_base_uri = "https://api.forte.net/v3/";
+        }
+        $forte_api_access_id = $this->company_gateway->getConfigField('apiAccessId');
+        $forte_secure_key = $this->company_gateway->getConfigField('secureKey');
+        $forte_auth_organization_id = $this->company_gateway->getConfigField('authOrganizationId');
+        $forte_organization_id = $this->company_gateway->getConfigField('organizationId');
+        $forte_location_id = $this->company_gateway->getConfigField('locationId');
+     
+        $response = Http::withBasicAuth($forte_api_access_id, $forte_secure_key)
+                    ->withHeaders(['X-Forte-Auth-Organization-Id' => $forte_organization_id])
+                    ->get("{$forte_base_uri}/organizations/{$forte_organization_id}/locations/{$forte_location_id}/customers/");
+
+                    // nlog("{$forte_base_uri}/organizations/org_{$forte_organization_id}/customers/");
+                    // {{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/customers
+
+        return $response->successful();
+        
+    }
     // public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     // {
     //     return $this->payment_method->yourTokenBillingImplmentation();
