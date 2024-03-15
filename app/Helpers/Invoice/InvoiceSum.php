@@ -250,6 +250,7 @@ class InvoiceSum
             }
         }
         /* Set new calculated total */
+        /** @todo - rappen rounding here */
         $this->invoice->amount = $this->formatValue($this->getTotal(), $this->precision);
 
         $this->invoice->total_taxes = $this->getTotalTaxes();
