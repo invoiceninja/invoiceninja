@@ -83,7 +83,7 @@ class SubscriptionCalculator
             $line_item->quantity = (float) $item['quantity'];
             $line_item->cost = (float) $item['product']['price'];
             $line_item->notes = $item['product']['notes'];
-
+            $line_item->tax_id = $item['product']['tax_id'] ?? '1';
             $items[] = $line_item;
 
         }
@@ -99,7 +99,7 @@ class SubscriptionCalculator
             $line_item->quantity = (float) $item['quantity'];
             $line_item->cost = (float) $item['product']['price'];
             $line_item->notes = $item['product']['notes'];
-
+            $line_item->tax_id = $item['product']['tax_id'] ?? '1';
             $items[] = $line_item;
 
         }
