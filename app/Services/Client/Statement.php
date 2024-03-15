@@ -162,6 +162,7 @@ class Statement
         $ts->addGlobal(['show_credits' => $this->options['show_credits_table']]);
         $ts->addGlobal(['show_aging' => $this->options['show_aging_table']]);
         $ts->addGlobal(['show_payments' => $this->options['show_payments_table']]);
+        $ts->addGlobal(['currency_code' => $this->client->company->currency()->code]);
 
         $ts->build([
             'variables' => collect([$variables]),
