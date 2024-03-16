@@ -497,7 +497,10 @@ class CompanySettings extends BaseSettings
 
     public $use_unapplied_payment = 'off'; //always, option, off //@implemented
 
+    public $enable_rappen_rounding = false;
+
     public static $casts = [
+        'enable_rappen_rounding'             => 'bool',
         'use_unapplied_payment'              => 'string',
         'show_pdfhtml_on_mobile'             => 'bool',
         'payment_email_all_contacts'         => 'bool',

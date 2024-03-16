@@ -429,4 +429,17 @@ class SquarePaymentDriver extends BaseDriver
 
         return $amount;
     }
+
+    public function auth(): bool
+    {
+
+        $api_response = $this->init()
+                    ->square
+                    ->getCustomersApi()
+                    ->listCustomers();
+
+
+        return (bool) count($api_response->getErrors()) == 0;
+
+    }
 }

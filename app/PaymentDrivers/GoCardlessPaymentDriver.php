@@ -558,4 +558,17 @@ class GoCardlessPaymentDriver extends BaseDriver
     {
         return render('gateways.gocardless.verification');
     }
+
+    public function auth(): bool
+    {
+        try {
+            $customers = $this->init()->gateway->customers()->list();
+            return true;
+        }
+        catch(\Exception $e){
+
+        }
+
+        return false;
+    }
 }
