@@ -884,14 +884,14 @@ class CheckData extends Command
     public function checkClientSettings()
     {
         if ($this->option('fix') == 'true') {
-            Client::query()->whereNull('country_id')->cursor()->each(function ($client) {
+            Client::query()->whereNull('country_id')->orWhere('country_id', 0)->cursor()->each(function ($client) {
                 $client->country_id = $client->company->settings->country_id;
                 $client->saveQuietly();
 
                 $this->logMessage("Fixing country for # {$client->id}");
             });
 
-            Client::query()->whereNull("settings->currency_id")->cursor()->each(function ($client) {
+            Client::query()->whereNull("settings->currency_id")->orWhereJsonContains('settings', ['currency_id' => ''])->cursor()->each(function ($client) {
                 $settings = $client->settings;
                 $settings->currency_id = (string)$client->company->settings->currency_id;
                 $client->settings = $settings;
@@ -933,7 +933,6 @@ class CheckData extends Command
 
             });
 
-
             Invoice::withTrashed()
             ->where("partial", 0)
             ->whereNotNull("partial_due_date")
@@ -947,7 +946,42 @@ class CheckData extends Command
 
             });
 
+            Company::whereDoesntHave('company_users', function ($query){
+            $query->where('is_owner', 1);
+            })
+            ->cursor()
+            ->when(Ninja::isHosted())
+            ->each(function ($c){
 
+                $this->logMessage("Orphan Account # {$c->account_id}");
+
+            });
+
+            CompanyUser::whereDoesntHave('tokens')
+            ->cursor()
+            ->when(Ninja::isHosted())
+            ->each(function ($cu){
+                
+                $this->logMessage("Missing tokens for Company User # {$cu->id}");
+
+            });
+
+            CompanyUser::whereDoesntHave('user')
+            ->cursor()
+            ->when(Ninja::isHosted())
+            ->each(function ($cu) {
+
+                $this->logMessage("Missing user for Company User # {$cu->id}");
+
+            });
+
+            $cus = CompanyUser::withTrashed()
+            ->whereHas("user", function ($query) {
+                $query->whereColumn("users.account_id", "!=", "company_user.account_id");
+            })->pluck('id')->implode(",");
+
+
+            $this->logMessage("Cross Linked CompanyUser ids # {$cus}");
 
 
         }

@@ -62,6 +62,10 @@ class InvoiceFilters extends QueryFilters
                 $invoice_filters[] = Invoice::STATUS_PAID;
             }
 
+            if (in_array('cancelled', $status_parameters)) {
+                $invoice_filters[] = Invoice::STATUS_CANCELLED;
+            }
+
             if (in_array('unpaid', $status_parameters)) {
                 $invoice_filters[] = Invoice::STATUS_SENT;
                 $invoice_filters[] = Invoice::STATUS_PARTIAL;
@@ -324,6 +328,7 @@ class InvoiceFilters extends QueryFilters
         }
 
         if($sort_col[0] == 'number') {
+            // return $this->builder->orderByRaw('CAST(number AS UNSIGNED), number ' . $dir);
             return $this->builder->orderByRaw('ABS(number) ' . $dir);
         }
 

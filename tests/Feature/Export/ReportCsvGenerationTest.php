@@ -501,6 +501,7 @@ class ReportCsvGenerationTest extends TestCase
             // 'start_date' => 'bail|required_if:date_range,custom|nullable|date',
             'report_keys' => [],
             'send_email' => false,
+            'include_deleted' => false,
             // 'status' => 'sometimes|string|nullable|in:all,draft,sent,viewed,paid,unpaid,overdue',
         ];
 
@@ -547,6 +548,7 @@ class ReportCsvGenerationTest extends TestCase
             'date_range' => 'all',
             'report_keys' => ["vendor.name", "vendor.city", "vendor.number"],
             'send_email' => false,
+            'include_deleted' => false,
         ];
 
         $response = $this->withHeaders([
@@ -638,6 +640,7 @@ class ReportCsvGenerationTest extends TestCase
                 'task.custom_value4',
             ],
             'send_email' => false,
+            'include_deleted' => false,
         ];
 
         $response = $this->withHeaders([
@@ -792,6 +795,7 @@ class ReportCsvGenerationTest extends TestCase
             'date_range' => 'all',
             'report_keys' => [],
             'send_email' => false,
+            'include_deleted' => false,
         ];
 
         $response = $this->withHeaders([
@@ -873,6 +877,7 @@ class ReportCsvGenerationTest extends TestCase
                 "client.paid_to_date"
             ],
             'send_email' => false,
+            'include_deleted' => false,
         ];
 
         $response = $this->withHeaders([
@@ -1587,14 +1592,13 @@ class ReportCsvGenerationTest extends TestCase
                 
         $csv = $response->body();
 
-
-        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Amount'));
-        $this->assertEquals('50', $this->getFirstValueByColumn($csv, 'Balance'));
-        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Discount'));
-        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Number'));
-        $this->assertEquals('Public', $this->getFirstValueByColumn($csv, 'Public Notes'));
-        $this->assertEquals('Private', $this->getFirstValueByColumn($csv, 'Private Notes'));
-        $this->assertEquals('Terms', $this->getFirstValueByColumn($csv, 'Terms'));
+        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Purchase Order Amount'));
+        $this->assertEquals('50', $this->getFirstValueByColumn($csv, 'Purchase Order Balance'));
+        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Purchase Order Discount'));
+        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Purchase Order Number'));
+        $this->assertEquals('Public', $this->getFirstValueByColumn($csv, 'Purchase Order Public Notes'));
+        $this->assertEquals('Private', $this->getFirstValueByColumn($csv, 'Purchase Order Private Notes'));
+        $this->assertEquals('Terms', $this->getFirstValueByColumn($csv, 'Purchase Order Terms'));
     }
 
 

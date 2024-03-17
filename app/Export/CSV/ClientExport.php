@@ -127,7 +127,7 @@ class ClientExport extends BaseExport
         $query = Client::query()->with('contacts')
                                 ->withTrashed()
                                 ->where('company_id', $this->company->id)
-                                ->where('is_deleted', 0);
+                                ->where('is_deleted', $this->input['include_deleted'] ?? false);
 
         $query = $this->addDateRange($query);
 

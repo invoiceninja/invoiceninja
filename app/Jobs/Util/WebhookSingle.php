@@ -123,7 +123,7 @@ class WebhookSingle implements ShouldQueue
             ]);
 
             (new SystemLogger(
-                array_merge((array) $response, $data),
+                ['message' => $response->getHeaders(), 'body' => $data],
                 SystemLog::CATEGORY_WEBHOOK,
                 SystemLog::EVENT_WEBHOOK_SUCCESS,
                 SystemLog::TYPE_WEBHOOK_RESPONSE,
@@ -136,7 +136,7 @@ class WebhookSingle implements ShouldQueue
             nlog($e->getMessage());
 
             (new SystemLogger(
-                ['message' => "Error connecting to ". $subscription->target_url],
+                ['message' => "Error connecting to ". $subscription->target_url, 'body' => $data],
                 SystemLog::CATEGORY_WEBHOOK,
                 SystemLog::EVENT_WEBHOOK_FAILURE,
                 SystemLog::TYPE_WEBHOOK_RESPONSE,
@@ -152,7 +152,7 @@ class WebhookSingle implements ShouldQueue
                     $message = "There was a problem when connecting to {$subscription->target_url} => status code ". $e->getResponse()->getStatusCode(). " This webhook call will be suspended until further action is taken.";
 
                     (new SystemLogger(
-                        ['message' => $message],
+                        ['message' => $message, 'body' => $data],
                         SystemLog::CATEGORY_WEBHOOK,
                         SystemLog::EVENT_WEBHOOK_FAILURE,
                         SystemLog::TYPE_WEBHOOK_RESPONSE,
@@ -170,7 +170,7 @@ class WebhookSingle implements ShouldQueue
                 nlog($message);
 
                 (new SystemLogger(
-                    ['message' => $message],
+                    ['message' => $message, 'body' => $data],
                     SystemLog::CATEGORY_WEBHOOK,
                     SystemLog::EVENT_WEBHOOK_FAILURE,
                     SystemLog::TYPE_WEBHOOK_RESPONSE,
@@ -192,7 +192,7 @@ class WebhookSingle implements ShouldQueue
                 $message = "There was a problem when connecting to {$subscription->target_url} => status code ". $e->getResponse()->getStatusCode(). " no retry attempted.";
 
                 (new SystemLogger(
-                    ['message' => $message],
+                    ['message' => $message, 'body' => $data],
                     SystemLog::CATEGORY_WEBHOOK,
                     SystemLog::EVENT_WEBHOOK_FAILURE,
                     SystemLog::TYPE_WEBHOOK_RESPONSE,
@@ -208,7 +208,7 @@ class WebhookSingle implements ShouldQueue
             $error = json_decode($e->getResponse()->getBody()->getContents());
 
             (new SystemLogger(
-                ['message' => $error],
+                ['message' => $error, 'body' => $data],
                 SystemLog::CATEGORY_WEBHOOK,
                 SystemLog::EVENT_WEBHOOK_FAILURE,
                 SystemLog::TYPE_WEBHOOK_RESPONSE,
@@ -220,7 +220,7 @@ class WebhookSingle implements ShouldQueue
             $error = json_decode($e->getResponse()->getBody()->getContents());
 
             (new SystemLogger(
-                ['message' => $error],
+                ['message' => $error, 'body' => $data],
                 SystemLog::CATEGORY_WEBHOOK,
                 SystemLog::EVENT_WEBHOOK_FAILURE,
                 SystemLog::TYPE_WEBHOOK_RESPONSE,
@@ -232,7 +232,7 @@ class WebhookSingle implements ShouldQueue
             nlog($e->getCode());
 
             (new SystemLogger(
-                $e->getMessage(),
+                ['message' => $e->getMessage(), 'body' => $data],
                 SystemLog::CATEGORY_WEBHOOK,
                 SystemLog::EVENT_WEBHOOK_FAILURE,
                 SystemLog::TYPE_WEBHOOK_RESPONSE,

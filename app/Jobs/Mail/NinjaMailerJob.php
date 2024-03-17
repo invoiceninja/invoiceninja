@@ -145,7 +145,8 @@ class NinjaMailerJob implements ShouldQueue
                 ->send($mailable);
 
             /* Count the amount of emails sent across all the users accounts */
-            Cache::increment("email_quota".$this->company->account->key);
+
+            $this->incrementEmailCounter();
 
             LightLogs::create(new EmailSuccess($this->nmo->company->company_key, $this->nmo->mailable->subject))
                      ->send();
@@ -221,6 +222,12 @@ class NinjaMailerJob implements ShouldQueue
         $this->cleanUpMailers();
     }
 
+    private function incrementEmailCounter(): void
+    {
+        if(in_array($this->mailer, ['default','mailgun']))
+            Cache::increment("email_quota".$this->company->account->key);
+
+    }
     /**
      * Entity notification when an email fails to send
      *
@@ -279,13 +286,21 @@ class NinjaMailerJob implements ShouldQueue
                     $this->mailer = 'postmark';
                     $this->client_postmark_secret = config('services.postmark-outlook.token');
 
+                    if (property_exists($this->nmo->settings, 'email_from_name') && strlen($this->nmo->settings->email_from_name) > 1) {
+                        $email_from_name = $this->nmo->settings->email_from_name;
+                    } else {
+                        $email_from_name = $this->company->present()->name();
+                    }
+
                     $this->nmo
                      ->mailable
-                     ->from('maildelivery@invoice.services', 'Invoice Ninja');
+                     ->from(config('services.postmark-outlook.from.address'), $email_from_name);
 
                     return $this;
                 }
             } catch(\Exception $e) {
+                
+                nlog("problem switching outlook driver - hosted");
                 nlog($e->getMessage());
             }
         }
@@ -316,7 +331,10 @@ class NinjaMailerJob implements ShouldQueue
                 $this->mailer = 'mailgun';
                 $this->setMailgunMailer();
                 return $this;
-
+            case 'smtp':
+                $this->mailer = 'smtp';
+                $this->configureSmtpMailer();
+                return $this;
             default:
                 break;
         }
@@ -326,6 +344,48 @@ class NinjaMailerJob implements ShouldQueue
         }
 
         return $this;
+    }
+
+    private function configureSmtpMailer(): void
+    {
+
+        $company = $this->company;
+
+        $smtp_host = $company->smtp_host;
+        $smtp_port = $company->smtp_port;
+        $smtp_username = $company->smtp_username;
+        $smtp_password = $company->smtp_password;
+        $smtp_encryption = $company->smtp_encryption ?? 'tls';
+        $smtp_local_domain = strlen($company->smtp_local_domain) > 2 ? $company->smtp_local_domain : null;
+        $smtp_verify_peer = $company->smtp_verify_peer ?? true;
+
+        config([
+            'mail.mailers.smtp' => [
+                'transport' => 'smtp',
+                'host' => $smtp_host,
+                'port' => $smtp_port,
+                'username' => $smtp_username,
+                'password' => $smtp_password,
+                'encryption' => $smtp_encryption,
+                'local_domain' => $smtp_local_domain,
+                'verify_peer' => $smtp_verify_peer,
+                'timeout' => 30,
+            ],
+        ]);
+
+        if (property_exists($this->nmo->settings, 'email_from_name') && strlen($this->nmo->settings->email_from_name) > 1) {
+            $email_from_name = $this->nmo->settings->email_from_name;
+        } else {
+            $email_from_name = $this->company->present()->name();
+        }
+
+        $user = $this->resolveSendingUser();
+        $sending_email = (isset($this->nmo->settings->custom_sending_email) && stripos($this->nmo->settings->custom_sending_email, "@")) ? $this->nmo->settings->custom_sending_email : $user->email;
+
+        $this->nmo
+        ->mailable
+        ->from($sending_email, $email_from_name);
+
     }
 
     /**

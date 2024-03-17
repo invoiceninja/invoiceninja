@@ -180,6 +180,7 @@ class Webhook extends BaseModel
         self::EVENT_DELETE_PURCHASE_ORDER,
         self::EVENT_RESTORE_PURCHASE_ORDER,
         self::EVENT_ARCHIVE_PURCHASE_ORDER,
+        self::EVENT_CREATE_PRODUCT,
         self::EVENT_UPDATE_PRODUCT,
         self::EVENT_DELETE_PRODUCT,
         self::EVENT_RESTORE_PRODUCT,

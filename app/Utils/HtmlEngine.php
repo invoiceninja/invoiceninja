@@ -397,7 +397,8 @@ class HtmlEngine
         $data['$credit.date'] = ['value' => $this->translateDate($this->entity->date, $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.credit_date')];
         $data['$balance'] = ['value' => Number::formatMoney($this->getBalance(), $this->client) ?: ' ', 'label' => ctrans('texts.balance')];
         $data['$credit.balance'] = ['value' => Number::formatMoney($this->entity_calc->getBalance(), $this->client) ?: ' ', 'label' => ctrans('texts.credit_balance')];
-
+        $data['$client.credit_balance'] = &$data['$credit.balance'];
+        
         $data['$invoice.balance'] = &$data['$balance'];
         $data['$taxes'] = ['value' => Number::formatMoney($this->entity_calc->getItemTotalTaxes(), $this->client) ?: ' ', 'label' => ctrans('texts.taxes')];
         $data['$invoice.taxes'] = &$data['$taxes'];
@@ -620,6 +621,33 @@ class HtmlEngine
         $data['$task.task2'] = ['value' => '', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'task2')];
         $data['$task.task3'] = ['value' => '', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'task3')];
         $data['$task.task4'] = ['value' => '', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'task4')];
+
+
+        if($this->entity->vendor) {
+
+            $data['$vendor_name'] = ['value' => $this->entity->vendor->present()->name() ?: '&nbsp;', 'label' => ctrans('texts.vendor_name')];
+            $data['$vendor.name'] = &$data['$vendor_name'];
+            $data['$vendor'] = &$data['$vendor_name'];
+            $data['$vendor.address1'] = ['value' => $this->entity->vendor->address1 ?: '&nbsp;', 'label' => ctrans('texts.address1')];
+            $data['$vendor.address2'] = ['value' => $this->entity->vendor->address2 ?: '&nbsp;', 'label' => ctrans('texts.address2')];
+            $data['$vendor.id_number'] = ['value' => $this->entity->vendor->id_number ?: '&nbsp;', 'label' => ctrans('texts.id_number')];
+            $data['$vendor.number'] = ['value' => $this->entity->vendor->number ?: '&nbsp;', 'label' => ctrans('texts.number')];
+            $data['$vendor.vat_number'] = ['value' => $this->entity->vendor->vat_number ?: '&nbsp;', 'label' => ctrans('texts.vat_number')];
+            $data['$vendor.website'] = ['value' => $this->entity->vendor->present()->website() ?: '&nbsp;', 'label' => ctrans('texts.website')];
+            $data['$vendor.phone'] = ['value' => $this->entity->vendor->present()->phone() ?: '&nbsp;', 'label' => ctrans('texts.phone')];
+            $data['$vendor.country'] = ['value' => isset($this->entity->vendor->country->name) ? ctrans('texts.country_' . $this->entity->vendor->country->name) : '', 'label' => ctrans('texts.country')];
+            $data['$vendor.country_2'] = ['value' => isset($this->entity->vendor->country) ? $this->entity->vendor->country->iso_3166_2 : '', 'label' => ctrans('texts.country')];
+            $data['$vendor_address'] = ['value' => $this->entity->vendor->present()->address() ?: '&nbsp;', 'label' => ctrans('texts.address')];
+            $data['$vendor.address'] = &$data['$vendor_address'];
+            $data['$vendor.postal_code'] = ['value' => $this->entity->vendor->postal_code ?: '&nbsp;', 'label' => ctrans('texts.postal_code')];
+            $data['$vendor.public_notes'] = ['value' => $this->entity->vendor->public_notes ?: '&nbsp;', 'label' => ctrans('texts.notes')];
+            $data['$vendor.city'] = ['value' => $this->entity->vendor->city ?: '&nbsp;', 'label' => ctrans('texts.city')];
+            $data['$vendor.state'] = ['value' => $this->entity->vendor->state ?: '&nbsp;', 'label' => ctrans('texts.state')];
+            $data['$vendor.city_state_postal'] = ['value' => $this->entity->vendor->present()->cityStateZip($this->entity->vendor->city, $this->entity->vendor->state, $this->entity->vendor->postal_code, false) ?: '&nbsp;', 'label' => ctrans('texts.city_state_postal')];
+            $data['$vendor.postal_city_state'] = ['value' => $this->entity->vendor->present()->cityStateZip($this->entity->vendor->city, $this->entity->vendor->state, $this->entity->vendor->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city_state')];
+            $data['$vendor.postal_city'] = ['value' => $this->entity->vendor->present()->cityStateZip($this->entity->vendor->city, null, $this->entity->vendor->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city')];
+
+        }
 
         if ($this->settings->signature_on_pdf) {
             $data['$contact.signature'] = ['value' => $this->invitation->signature_base64, 'label' => ctrans('texts.signature')];

@@ -25,6 +25,10 @@ class SubscriptionPurchaseController extends Controller
     {
         App::setLocale($subscription->company->locale());
 
+        if ($subscription->trashed()) {
+            return $this->render('generic.not_available', ['account' => $subscription->company->account, 'company' => $subscription->company]);
+        }
+
         /* Make sure the contact is logged into the correct company for this subscription */
         if (auth()->guard('contact')->user() && auth()->guard('contact')->user()->company_id != $subscription->company_id) {
             auth()->guard('contact')->logout();
