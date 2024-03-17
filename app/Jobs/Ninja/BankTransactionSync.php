@@ -90,7 +90,14 @@ class BankTransactionSync implements ShouldQueue
 
                 if ((Ninja::isSelfHost() || (Ninja::isHosted() && $account->isEnterprisePaidClient()))) {
                     $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_NORDIGEN)->where('auto_sync', true)->where('disabled_upstream', 0)->cursor()->each(function ($bank_integration) {
-                        (new ProcessBankTransactionsNordigen($bank_integration))->handle();
+                        try {
+                            (new ProcessBankTransactionsNordigen($bank_integration))->handle();
+                        }
+                        catch(\Exception $e) {
+                            sleep(20);
+                        }
+
+                        sleep(5);
                     });
                 }
 
