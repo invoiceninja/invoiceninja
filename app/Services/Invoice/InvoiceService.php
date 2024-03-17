@@ -544,7 +544,7 @@ class InvoiceService
         return $this;
     }
 
-    public function fillDefaults()
+    public function fillDefaults(bool $is_recurring = false)
     {
         $this->invoice->load('client.company');
 
@@ -571,7 +571,7 @@ class InvoiceService
             $this->invoice->exchange_rate = $this->invoice->client->setExchangeRate();
         }
 
-        if ($this->invoice->client->getSetting('auto_bill_standard_invoices')) {
+        if ($is_recurring && $this->invoice->client->getSetting('auto_bill_standard_invoices')) {
             $this->invoice->auto_bill_enabled = true;
         }
 

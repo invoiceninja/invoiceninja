@@ -76,12 +76,12 @@ class SendRecurring implements ShouldQueue
             $invoice = $invoice->service()
                                ->markSent()
                                ->applyNumber()
-                               ->fillDefaults()
+                               ->fillDefaults(true)
                                ->adjustInventory()
                                ->save();
         } else {
             $invoice = $invoice->service()
-                               ->fillDefaults()
+                               ->fillDefaults(true)
                                ->save();
         }
 
