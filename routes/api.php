@@ -12,6 +12,7 @@
 */
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BaseController;
+use App\Http\Controllers\BrevoController;
 use App\Http\Controllers\PingController;
 use App\Http\Controllers\SmtpController;
 use App\Http\Controllers\TaskController;
@@ -426,6 +427,7 @@ Route::match(['get', 'post'], 'payment_notification_webhook/{company_key}/{compa
 
 
 Route::post('api/v1/postmark_webhook', [PostMarkController::class, 'webhook'])->middleware('throttle:1000,1');
+Route::post('api/v1/brevo_webhook', [BrevoController::class, 'webhook'])->middleware('throttle:1000,1');
 Route::post('api/v1/mailgun_webhook', [MailgunWebhookController::class, 'webhook'])->middleware('throttle:1000,1');
 Route::get('token_hash_router', [OneTimeTokenController::class, 'router'])->middleware('throttle:500,1');
 Route::get('webcron', [WebCronController::class, 'index'])->middleware('throttle:100,1');

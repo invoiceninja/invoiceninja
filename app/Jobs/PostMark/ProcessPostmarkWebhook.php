@@ -45,13 +45,15 @@ class ProcessPostmarkWebhook implements ShouldQueue
 
     private $entity;
 
-    private array $default_response =  [
+    private array $default_response = [
         'recipients' => '',
         'subject' => 'Message not found.',
         'entity' => '',
         'entity_id' => '',
         'events' => [],
     ];
+
+    private ?Company $company = null;
 
     /**
      * Create a new job instance.
@@ -64,11 +66,11 @@ class ProcessPostmarkWebhook implements ShouldQueue
     private function getSystemLog(string $message_id): ?SystemLog
     {
         return SystemLog::query()
-                ->where('company_id', $this->invitation->company_id)
-                ->where('type_id', SystemLog::TYPE_WEBHOOK_RESPONSE)
-                ->whereJsonContains('log', ['MessageID' => $message_id])
-                ->orderBy('id', 'desc')
-                ->first();
+            ->where('company_id', $this->invitation->company_id)
+            ->where('type_id', SystemLog::TYPE_WEBHOOK_RESPONSE)
+            ->whereJsonContains('log', ['MessageID' => $message_id])
+            ->orderBy('id', 'desc')
+            ->first();
 
     }
 
@@ -87,12 +89,12 @@ class ProcessPostmarkWebhook implements ShouldQueue
     public function handle()
     {
         MultiDB::findAndSetDbByCompanyKey($this->request['Tag']);
-        $company = Company::where('company_key', $this->request['Tag'])->first();
+        $this->company = Company::where('company_key', $this->request['Tag'])->first();
 
         $this->invitation = $this->discoverInvitation($this->request['MessageID']);
 
-        if ($company && $this->request['RecordType'] == 'SpamComplaint' && config('ninja.notification.slack')) {
-            $company->notification(new EmailSpamNotification($company))->ninja();
+        if ($this->company && $this->request['RecordType'] == 'SpamComplaint' && config('ninja.notification.slack')) {
+            $this->company->notification(new EmailSpamNotification($this->company))->ninja();
         }
 
         if (!$this->invitation) {
@@ -108,8 +110,8 @@ class ProcessPostmarkWebhook implements ShouldQueue
                 return $this->processDelivery();
             case 'Bounce':
 
-                if($this->request['Subject'] == ctrans('texts.confirmation_subject')) {
-                    $company->notification(new EmailBounceNotification($this->request['Email']))->ninja();
+                if ($this->request['Subject'] == ctrans('texts.confirmation_subject')) {
+                    $this->company->notification(new EmailBounceNotification($this->request['Email']))->ninja();
                 }
 
                 return $this->processBounce();
@@ -169,19 +171,21 @@ class ProcessPostmarkWebhook implements ShouldQueue
 
         $sl = $this->getSystemLog($this->request['MessageID']);
 
-        if($sl) {
+        if ($sl) {
             $this->updateSystemLog($sl, $data);
             return;
         }
 
-        (new SystemLogger(
-            $data,
-            SystemLog::CATEGORY_MAIL,
-            SystemLog::EVENT_MAIL_OPENED,
-            SystemLog::TYPE_WEBHOOK_RESPONSE,
-            $this->invitation->contact->client,
-            $this->invitation->company
-        ))->handle();
+        (
+            new SystemLogger(
+                $data,
+                SystemLog::CATEGORY_MAIL,
+                SystemLog::EVENT_MAIL_OPENED,
+                SystemLog::TYPE_WEBHOOK_RESPONSE,
+                $this->invitation->contact->client,
+                $this->invitation->company
+            )
+        )->handle();
     }
 
     // {
@@ -207,19 +211,21 @@ class ProcessPostmarkWebhook implements ShouldQueue
 
         $sl = $this->getSystemLog($this->request['MessageID']);
 
-        if($sl) {
+        if ($sl) {
             $this->updateSystemLog($sl, $data);
             return;
         }
 
-        (new SystemLogger(
-            $data,
-            SystemLog::CATEGORY_MAIL,
-            SystemLog::EVENT_MAIL_DELIVERY,
-            SystemLog::TYPE_WEBHOOK_RESPONSE,
-            $this->invitation->contact->client,
-            $this->invitation->company
-        ))->handle();
+        (
+            new SystemLogger(
+                $data,
+                SystemLog::CATEGORY_MAIL,
+                SystemLog::EVENT_MAIL_DELIVERY,
+                SystemLog::TYPE_WEBHOOK_RESPONSE,
+                $this->invitation->contact->client,
+                $this->invitation->company
+            )
+        )->handle();
     }
 
     // {
@@ -265,7 +271,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
 
         $sl = $this->getSystemLog($this->request['MessageID']);
 
-        if($sl) {
+        if ($sl) {
             $this->updateSystemLog($sl, $data);
             return;
         }
@@ -316,7 +322,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
 
         $sl = $this->getSystemLog($this->request['MessageID']);
 
-        if($sl) {
+        if ($sl) {
             $this->updateSystemLog($sl, $data);
         }
 
@@ -349,7 +355,9 @@ class ProcessPostmarkWebhook implements ShouldQueue
     public function getRawMessage(string $message_id)
     {
 
-        $postmark = new PostmarkClient(config('services.postmark.token'));
+        $postmark_secret = !empty($this->company->settings->postmark_secret) ? $this->company->settings->postmark_secret : config('services.postmark.token');
+
+        $postmark = new PostmarkClient($postmark_secret);
         $messageDetail = $postmark->getOutboundMessageDetails($message_id);
         return $messageDetail;
 
@@ -362,7 +370,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
         $messageDetail = $this->getRawMessage($message_id);
 
 
-        $event =  collect($messageDetail->messageevents)->first(function ($event) {
+        $event = collect($messageDetail->messageevents)->first(function ($event) {
 
             return $event?->Details?->BounceID ?? false;
 
@@ -374,29 +382,31 @@ class ProcessPostmarkWebhook implements ShouldQueue
 
     private function fetchMessage(): array
     {
-        if(strlen($this->request['MessageID']) < 1) {
+        if (strlen($this->request['MessageID']) < 1) {
             return $this->default_response;
         }
 
         try {
 
-            $postmark = new PostmarkClient(config('services.postmark.token'));
+            $postmark_secret = !empty($this->company->settings->postmark_secret) ? $this->company->settings->postmark_secret : config('services.postmark.token');
+
+            $postmark = new PostmarkClient($postmark_secret);
             $messageDetail = $postmark->getOutboundMessageDetails($this->request['MessageID']);
 
             $recipients = collect($messageDetail['recipients'])->flatten()->implode(',');
             $subject = $messageDetail->subject ?? '';
 
-            $events =  collect($messageDetail->messageevents)->map(function ($event) {
+            $events = collect($messageDetail->messageevents)->map(function ($event) {
 
                 return [
-                        'bounce_id' => $event?->Details?->BounceID ?? '',
-                        'recipient' => $event->Recipient ?? '',
-                        'status' => $event->Type ?? '',
-                        'delivery_message' => $event->Details->DeliveryMessage ?? $event->Details->Summary ?? '',
-                        'server' => $event->Details->DestinationServer ??  '',
-                        'server_ip' => $event->Details->DestinationIP ?? '',
-                        'date' => \Carbon\Carbon::parse($event->ReceivedAt)->format('Y-m-d H:i:s') ?? '',
-                    ];
+                    'bounce_id' => $event?->Details?->BounceID ?? '',
+                    'recipient' => $event->Recipient ?? '',
+                    'status' => $event->Type ?? '',
+                    'delivery_message' => $event->Details->DeliveryMessage ?? $event->Details->Summary ?? '',
+                    'server' => $event->Details->DestinationServer ?? '',
+                    'server_ip' => $event->Details->DestinationIP ?? '',
+                    'date' => \Carbon\Carbon::parse($event->ReceivedAt)->format('Y-m-d H:i:s') ?? '',
+                ];
 
             })->toArray();
 
