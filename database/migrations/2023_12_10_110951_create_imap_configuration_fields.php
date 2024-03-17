@@ -11,7 +11,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('company', function (Blueprint $table) {
+        Schema::table('companies', function (Blueprint $table) {
             $table->boolean("expense_mailbox_active")->default(true);
             $table->string("expense_mailbox")->nullable();
             $table->boolean("expense_mailbox_allow_company_users")->default(false);
@@ -20,7 +20,7 @@ return new class extends Migration {
             $table->string("expense_mailbox_whitelist_domains")->nullable();
             $table->string("expense_mailbox_whitelist_emails")->nullable();
         });
-        Schema::table('vendor', function (Blueprint $table) {
+        Schema::table('vendors', function (Blueprint $table) {
             $table->string("invoicing_email")->nullable();
             $table->string("invoicing_domain")->nullable();
         });
