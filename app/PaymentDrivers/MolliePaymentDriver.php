@@ -420,4 +420,20 @@ class MolliePaymentDriver extends BaseDriver
     {
         return \number_format((float) $amount, 2, '.', '');
     }
+
+    public function auth(): bool
+    {
+        $this->init();
+
+        try {
+            $p = $this->gateway->payments->page();
+            return true;
+        }
+        catch(\Exception $e){
+
+        }
+
+        return false;
+
+    }
 }

@@ -485,7 +485,7 @@ class Client extends BaseModel implements HasLocalePreference
         }
 
         /*Company Settings*/
-        elseif ((property_exists($this->company->settings, $setting) != false) && (isset($this->company->settings->{$setting}) !== false)) {
+        elseif ((property_exists($this->company->settings, $setting) !== false) && (isset($this->company->settings->{$setting}) !== false)) {
             return $this->company->settings->{$setting};
         } elseif (property_exists(CompanySettings::defaults(), $setting)) {
             return CompanySettings::defaults()->{$setting};

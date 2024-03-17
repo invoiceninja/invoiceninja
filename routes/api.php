@@ -195,7 +195,9 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::get('company_ledger', [CompanyLedgerController::class, 'index'])->name('company_ledger.index');
 
     Route::resource('company_gateways', CompanyGatewayController::class);
+
     Route::post('company_gateways/bulk', [CompanyGatewayController::class, 'bulk'])->name('company_gateways.bulk');
+    Route::post('company_gateways/{company_gateway}/test', [CompanyGatewayController::class, 'test'])->name('company_gateways.test');
 
     Route::put('company_users/{user}', [CompanyUserController::class, 'update']);
     Route::put('company_users/{user}/preferences', [CompanyUserController::class, 'updatePreferences']);

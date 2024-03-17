@@ -5,7 +5,7 @@
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
  * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
- *
+ *1`
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
@@ -21,6 +21,7 @@ class BlackListRule implements ValidationRule
 {
     /** Bad domains +/- dispoable email domains */
     private array $blacklist = [
+        'wireconnected.com',
         'secure-coinspot.com',
         'casasotombo.com',
         'otpku.com',

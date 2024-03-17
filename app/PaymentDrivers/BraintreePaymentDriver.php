@@ -157,34 +157,6 @@ class BraintreePaymentDriver extends BaseDriver
         }
     }
 
-    // public function updateCustomer()
-    // {
-    //     $customer = $this->findOrCreateCustomer();
-
-    //     $result = $this->gateway->customer()->update(
-    //         $customer->id,
-    //         [
-    //             'firstName' => $this->client->present()->name(),
-    //             'email' => $this->client->present()->email(),
-    //             'phone' => $this->client->present()->phone(),
-    //             'creditCard' => [
-    //             'billingAddress' => [
-    //                  'options' => [
-    //                     'updateExisting' => true
-    //                  ],
-    //                 'firstName' => $this->client->present()->first_name() ?: $this->client->present()->name(),
-    //                 'lastName' => $this->client->present()->last_name() ?: '',
-    //                 'streetAddress' => $this->client->address1 ?: '',
-    //                 'extendedAddress' =>$this->client->address2 ?: '',
-    //                 'locality' => $this->client->city ?: '',
-    //                 'postalCode' => $this->client->postal_code ?: '',
-    //                 'countryCodeAlpha2' => $this->client->country ? $this->client->country->iso_3166_2 : 'US',
-    //             ],
-    //         ],
-    //         ]
-    //     );
-    // }
-
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
         $this->init();
@@ -324,13 +296,21 @@ class BraintreePaymentDriver extends BaseDriver
 
         nlog('braintree webhook');
 
-        // if($webhookNotification)
-        //     nlog($webhookNotification->kind);
-
-        // // Example values for webhook notification properties
-        // $message = $webhookNotification->kind; // "subscription_went_past_due"
-        // $message = $webhookNotification->timestamp->format('D M j G:i:s T Y'); // "Sun Jan 1 00:00:00 UTC 2012"
-
         return response()->json([], 200);
+    }
+
+    public function auth(): bool
+    {
+        
+        try {
+            $ct =$this->init()->gateway->clientToken()->generate();
+            nlog($ct);
+            return true;
+        }
+        catch(\Exception $e) {
+
+        }
+        
+        return false;
     }
 }

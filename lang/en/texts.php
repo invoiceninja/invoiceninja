@@ -5259,6 +5259,9 @@ $lang = array(
     'select_email_provider' => 'Set your email as the sending user',
     'purchase_order_items' => 'Purchase Order Items',
     'csv_rows_length' => 'No data found in this CSV file',
+    'accept_payments_online' => 'Accept Payments Online',
+    'all_payment_gateways' => 'View all payment gateways',    
+    'product_cost' => 'Product cost',
 );
 
 return $lang;

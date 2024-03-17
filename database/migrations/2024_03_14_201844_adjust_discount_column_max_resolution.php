@@ -16,7 +16,6 @@ return new class extends Migration
             $table->decimal('discount', 20, 6)->default(0)->change();
         });
 
-
         Schema::table('credits', function (Blueprint $table) {
             $table->decimal('discount', 20, 6)->default(0)->change();
         });

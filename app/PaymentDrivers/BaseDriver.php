@@ -806,4 +806,9 @@ class BaseDriver extends AbstractPaymentDriver
     {
         return true;
     }
+
+    public function auth(): bool
+    {
+        return true;
+    }
 }

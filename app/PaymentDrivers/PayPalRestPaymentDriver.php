@@ -81,11 +81,7 @@ class PayPalRestPaymentDriver extends BaseDriver
 
     public function init()
     {
-        // $this->omnipay_gateway = Omnipay::create(
-        //     $this->company_gateway->gateway->provider
-        // );
 
-        // $this->omnipay_gateway->initialize((array) $this->company_gateway->getConfig());
         $this->api_endpoint_url = $this->company_gateway->getConfigField('testMode') ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com';
 
         $secret = $this->company_gateway->getConfigField('secret');
@@ -380,61 +376,6 @@ class PayPalRestPaymentDriver extends BaseDriver
 
         return $r->json()['id'];
 
-
-
-        // $_invoice = collect($this->payment_hash->data->invoices)->first();
-
-        // $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
-
-        // $order = [
-        //   "intent" => "CAPTURE",
-        //   "payer" => [
-        //     "name" => [
-        //         "given_name" => $this->client->present()->first_name(),
-        //         "surname" => $this->client->present()->last_name(),
-        //     ],
-        //     "email_address" => $this->client->present()->email(),
-        //     "address" => [
-        //         "address_line_1" => $this->client->address1,
-        //         "address_line_2" => $this->client->address2,
-        //         "admin_area_1" => $this->client->city,
-        //         "admin_area_2" => $this->client->state,
-        //         "postal_code" => $this->client->postal_code,
-        //         "country_code" => $this->client->country->iso_3166_2,
-        //     ]
-        //     ],
-        //   "purchase_units" => [
-        //         [
-        //     "description" => ctrans('texts.invoice_number').'# '.$invoice->number,
-        //     "invoice_id" => $invoice->number,
-        //     "amount" => [
-        //         "value" => (string)$data['amount_with_fee'],
-        //         "currency_code" => $this->client->currency()->code,
-        //         "breakdown" => [
-        //             "item_total" => [
-        //                 "currency_code" => $this->client->currency()->code,
-        //                 "value" => (string)$data['amount_with_fee']
-        //             ]
-        //         ]
-        //     ],
-        //     "items" => [
-        //         [
-        //             "name" => ctrans('texts.invoice_number').'# '.$invoice->number,
-        //             "quantity" => "1",
-        //             "unit_amount" => [
-        //                 "currency_code" => $this->client->currency()->code,
-        //                 "value" => (string)$data['amount_with_fee']
-        //             ],
-        //         ],
-        //     ],
-        //   ]
-        //   ]
-        // ];
-
-        // $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
-
-        // return $r->json()['id'];
-
     }
 
     private function getShippingAddress(): ?array
@@ -520,5 +461,17 @@ class PayPalRestPaymentDriver extends BaseDriver
         return 0;
     }
 
+    public function auth(): bool
+    {
 
+        try {
+            $this->init()->getClientToken();
+            return true;
+        }
+        catch(\Exception $e) {
+
+        }
+
+        return false;
+    }
 }

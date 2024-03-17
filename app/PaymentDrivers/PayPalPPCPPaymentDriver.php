@@ -560,5 +560,18 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
         PayPalWebhook::dispatch($request->all(), $request->headers->all(), $this->access_token);
     }
+    
+    public function auth(): bool
+    {
 
+        try {
+            $this->init()->getClientToken();
+            return true;
+        }
+        catch(\Exception $e) {
+
+        }
+
+        return false;
+    }
 }

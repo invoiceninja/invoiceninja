@@ -534,4 +534,16 @@ class CheckoutComPaymentDriver extends BaseDriver
     {
         // Gateway doesn't support this feature.
     }
+
+    public function auth(): bool
+    {
+        try{
+            $this->init()->gateway->getCustomersClient('x');
+            return true;
+        }
+        catch(\Exception $e){
+
+        }
+        return false;
+    }
 }
