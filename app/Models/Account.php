@@ -503,8 +503,10 @@ class Account extends BaseModel
         }
 
         if ($this->isPaid()) {
+            $multiplier = $this->plan == 'enterprise' ? 2 : 1.2;
+
             $limit = $this->paid_plan_email_quota;
-            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 30;
+            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * (20 * $multiplier);
         } else {
             $limit = $this->free_plan_email_quota;
             $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 1.5;
