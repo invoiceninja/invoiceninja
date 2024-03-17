@@ -59,7 +59,7 @@ class UpdateCompanyRequest extends Request
         $rules['e_invoice_certificate'] = 'sometimes|nullable|file|mimes:p12,pfx,pem,cer,crt,der,txt,p7b,spc,bin';
 
         $rules['smtp_host'] = 'sometimes|string|nullable';
-        $rules['smtp_port'] = 'sometimes|string|nullable';
+        $rules['smtp_port'] = 'sometimes|integer|nullable';
         $rules['smtp_encryption'] = 'sometimes|string|nullable';
         $rules['smtp_local_domain'] = 'sometimes|string|nullable';
         // $rules['smtp_verify_peer'] = 'sometimes|string';
@@ -105,6 +105,10 @@ class UpdateCompanyRequest extends Request
             unset($input['smtp_password']);
         }
         
+        if(isset($input['smtp_port'])) {
+            $input['smtp_port'] = (int)$input['smtp_port'];
+        }
+
         if(isset($input['smtp_verify_peer']) && is_string($input['smtp_verify_peer'])) {
             $input['smtp_verify_peer'] == 'true' ? true : false;
         }

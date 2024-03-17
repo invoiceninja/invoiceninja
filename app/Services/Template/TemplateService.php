@@ -717,7 +717,7 @@ class TemplateService
         return collect($payment->refund_meta)
         ->map(function ($refund) use ($payment) {
 
-            $date = \Carbon\Carbon::parse($refund['date'])->addSeconds($payment->client->timezone_offset());
+            $date = \Carbon\Carbon::parse($refund['date'] ?? $payment->date)->addSeconds($payment->client->timezone_offset());
             $date = $this->translateDate($date, $payment->client->date_format(), $payment->client->locale());
             $entity = ctrans('texts.invoice');
 
@@ -1032,6 +1032,8 @@ class TemplateService
                     'payment_balance' => $purchase_order->client->payment_balance,
                     'credit_balance' => $purchase_order->client->credit_balance,
                     'vat_number' => $purchase_order->client->vat_number ?? '',
+                    'address' => $purchase_order->client->present()->address(),
+                    'shipping_address' => $purchase_order->client->present()->shipping_address(),
                 ] : [],
                 'status_id' => (string)($purchase_order->status_id ?: 1),
                 'status' => PurchaseOrder::stringStatus($purchase_order->status_id ?? 1),

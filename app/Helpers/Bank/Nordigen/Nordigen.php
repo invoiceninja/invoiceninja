@@ -19,6 +19,7 @@
 
 namespace App\Helpers\Bank\Nordigen;
 
+use App\Models\Company;
 use App\Services\Email\Email;
 use App\Models\BankIntegration;
 use App\Services\Email\EmailObject;
@@ -96,11 +97,11 @@ class Nordigen
             return $it->transform($out);
 
         } catch (\Exception $e) {
-            if (strpos($e->getMessage(), "Invalid Account ID") !== false) {
-                return false;
-            }
 
-            throw $e;
+            nlog("Nordigen getAccount() failed => {$account_id} => " . $e->getMessage());
+            
+            return false;
+
         }
     }
 
@@ -138,11 +139,11 @@ class Nordigen
      * @param  string $dateFrom
      * @return array
      */
-    public function getTransactions(string $accountId, string $dateFrom = null): array
+    public function getTransactions(Company $company, string $accountId, string $dateFrom = null): array
     {
         $transactionResponse = $this->client->account($accountId)->getAccountTransactions($dateFrom);
 
-        $it = new TransactionTransformer();
+        $it = new TransactionTransformer($company);
         return $it->transform($transactionResponse);
     }
 

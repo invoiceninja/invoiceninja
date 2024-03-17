@@ -103,9 +103,13 @@ class CreditExport extends BaseExport
                         ->withTrashed()
                         ->with('client')
                         ->where('company_id', $this->company->id)
-                        ->where('is_deleted', 0);
+                        ->where('is_deleted', $this->input['include_deleted'] ?? false);
 
         $query = $this->addDateRange($query);
+
+        if($this->input['status'] ?? false) {
+            $query = $this->addCreditStatusFilter($query, $this->input['status']);
+        }
 
         if($this->input['document_email_attachment'] ?? false) {
             $this->queueDocuments($query);
@@ -160,6 +164,40 @@ class CreditExport extends BaseExport
         }
 
         return $this->decorateAdvancedFields($credit, $entity);
+    }
+
+    public function addCreditStatusFilter($query, $status): Builder
+    {
+
+        $status_parameters = explode(',', $status);
+
+        if (in_array('all', $status_parameters)) {
+            return $query;
+        }
+
+        $credit_filters = [];
+
+        if (in_array('draft', $status_parameters)) {
+            $credit_filters[] = Credit::STATUS_DRAFT;
+        }
+
+        if (in_array('sent', $status_parameters)) {
+            $credit_filters[] = Credit::STATUS_SENT;
+        }
+
+        if (in_array('partial', $status_parameters)) {
+            $credit_filters[] = Credit::STATUS_PARTIAL;
+        }
+
+        if (in_array('applied', $status_parameters)) {
+            $credit_filters[] = Credit::STATUS_APPLIED;
+        }
+
+        if (count($credit_filters) >= 1) {
+            $query->whereIn('status_id', $credit_filters);
+        }
+
+        return $query;
     }
 
     private function decorateAdvancedFields(Credit $credit, array $entity): array

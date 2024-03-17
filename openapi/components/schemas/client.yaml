@@ -18,11 +18,6 @@
           description: 'The unique identifier of the user who has been assigned the client'
           type: string
           example: Ua6Rw4pVbS
-        company_id:
-          description: 'The unique identifier of the company the client belongs to'
-          type: string
-          example: Co7Vn3yLmW
-          readOnly: true
         name:
           description: 'The name of the client company or organization'
           type: string

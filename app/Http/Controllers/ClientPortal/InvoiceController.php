@@ -236,7 +236,6 @@ class InvoiceController extends Controller
             'hashed_ids' => $invoices->pluck('hashed_id'),
             'total' =>  $total,
             'variables' => $variables,
-
         ];
 
         return $this->render('invoices.payment', $data);

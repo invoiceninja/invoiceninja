@@ -39,7 +39,10 @@ return [
     ],
 
     'postmark-outlook' => [
-        'token' => env('POSTMARK_OUTLOOK_SECRET','')
+        'token' => env('POSTMARK_OUTLOOK_SECRET',''),
+        'from' => [
+            'address' => env('POSTMARK_OUTLOOK_FROM_ADDRESS', '')
+        ],
     ],
     
     'microsoft' => [

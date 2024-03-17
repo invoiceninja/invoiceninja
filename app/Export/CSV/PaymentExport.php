@@ -61,6 +61,8 @@ class PaymentExport extends BaseExport
 
         $query = $this->addDateRange($query);
 
+        $query = $this->addPaymentStatusFilters($query, $this->input['status'] ?? '');
+        
         if($this->input['document_email_attachment'] ?? false) {
             $this->queueDocuments($query);
         }

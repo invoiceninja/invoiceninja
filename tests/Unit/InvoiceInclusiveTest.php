@@ -66,6 +66,8 @@ class InvoiceInclusiveTest extends TestCase
 
     public function testInvoiceTotals()
     {
+        
+        $this->invoice_calc = new InvoiceSumInclusive($this->invoice);
         $this->invoice_calc->build();
 
         $this->assertEquals($this->invoice_calc->getSubTotal(), 20);
@@ -76,6 +78,8 @@ class InvoiceInclusiveTest extends TestCase
     {
         $this->invoice->discount = 5;
 
+        
+        $this->invoice_calc = new InvoiceSumInclusive($this->invoice);
         $this->invoice_calc->build();
 
         $this->assertEquals($this->invoice_calc->getSubTotal(), 20);
@@ -88,6 +92,8 @@ class InvoiceInclusiveTest extends TestCase
         $this->invoice->discount = 5;
         $this->invoice->custom_surcharge1 = 5;
 
+        
+        $this->invoice_calc = new InvoiceSumInclusive($this->invoice);
         $this->invoice_calc->build();
 
         $this->assertEquals($this->invoice_calc->getSubTotal(), 20);
@@ -103,6 +109,8 @@ class InvoiceInclusiveTest extends TestCase
         $this->invoice->tax_rate1 = 10;
         $this->invoice->is_amount_discount = true;
 
+        
+        $this->invoice_calc = new InvoiceSumInclusive($this->invoice);
         $this->invoice_calc->build();
 
         $this->assertEquals($this->invoice_calc->getSubTotal(), 20);
@@ -119,6 +127,7 @@ class InvoiceInclusiveTest extends TestCase
         $this->invoice->tax_rate1 = 10;
         $this->invoice->is_amount_discount = false;
 
+        $this->invoice_calc = new InvoiceSumInclusive($this->invoice);
         $this->invoice_calc->build();
 
         $this->assertEquals($this->invoice_calc->getSubTotal(), 20);
@@ -135,6 +144,7 @@ class InvoiceInclusiveTest extends TestCase
         $this->invoice->uses_inclusive_taxes = true;
         $this->invoice->is_amount_discount = true;
 
+        $this->invoice_calc = new InvoiceSumInclusive($this->invoice);
         $this->invoice_calc->build();
 
         $this->assertEquals($this->invoice_calc->getSubTotal(), 20);
@@ -154,6 +164,8 @@ class InvoiceInclusiveTest extends TestCase
         $this->invoice->uses_inclusive_taxes = true;
         $this->invoice->is_amount_discount = true;
 
+        
+        $this->invoice_calc = new InvoiceSumInclusive($this->invoice);
         $this->invoice_calc->build();
 
         $this->assertEquals($this->invoice_calc->getSubTotal(), 20);
@@ -170,7 +182,10 @@ class InvoiceInclusiveTest extends TestCase
         $item->cost = 10;
         $item->tax_rate1 = 10;
         $item->tax_name1 = 10;
-
+        $item->tax_rate2 = 0;
+        $item->tax_name2 = '';
+        $item->tax_rate3 = 0;
+        $item->tax_name3 = '';
         $line_items[] = $item;
 
         $item = InvoiceItemFactory::create();
@@ -178,6 +193,10 @@ class InvoiceInclusiveTest extends TestCase
         $item->cost = 10;
         $item->tax_rate1 = 10;
         $item->tax_name1 = 10;
+        $item->tax_rate2 = 0;
+        $item->tax_name2 = '';
+        $item->tax_rate3 = 0;
+        $item->tax_name3 = '';
 
         $line_items[] = $item;
 
@@ -223,14 +242,17 @@ class InvoiceInclusiveTest extends TestCase
         $this->invoice->discount = 0;
         $this->invoice->custom_surcharge1 = 0;
 
+        $this->invoice->tax_name1 = 'dog';
+        $this->invoice->tax_name2 = 'cat';
         $this->invoice->tax_rate1 = 10;
         $this->invoice->tax_rate2 = 10;
 
+        $this->invoice_calc = null;
         $this->invoice_calc = new InvoiceSumInclusive($this->invoice, $this->settings);
         $this->invoice_calc->build();
 
-        $this->assertEquals($this->invoice_calc->getSubTotal(), 20);
-        $this->assertEquals($this->invoice_calc->getTotalTaxes(), 5.46);
+        $this->assertEquals(20, $this->invoice_calc->getSubTotal());
+        $this->assertEquals(5.46, $this->invoice_calc->getTotalTaxes());
         $this->assertEquals(count($this->invoice_calc->getTaxMap()), 1);
         $this->assertEquals($this->invoice_calc->getTotal(), 20);
         $this->assertEquals($this->invoice_calc->getBalance(), 20);
@@ -244,7 +266,7 @@ class InvoiceInclusiveTest extends TestCase
         $item->quantity = 1;
         $item->cost = 10;
         $item->tax_rate1 = 10;
-        $item->tax_name1 = 10;
+        $item->tax_name1 = 'a10';
         $item->discount = 5;
 
         $line_items[] = $item;
@@ -253,7 +275,7 @@ class InvoiceInclusiveTest extends TestCase
         $item->quantity = 1;
         $item->cost = 10;
         $item->tax_rate1 = 10;
-        $item->tax_name1 = 10;
+        $item->tax_name1 = 'a10';
         $item->discount = 5;
 
         $line_items[] = $item;
@@ -267,17 +289,20 @@ class InvoiceInclusiveTest extends TestCase
 
         $this->invoice->tax_rate1 = 10;
         $this->invoice->tax_rate2 = 10;
+        $this->invoice->tax_name1 = 'VAT';
+        $this->invoice->tax_name2 = 'VAT';
 
+        $this->invoice_calc = null;
         $this->invoice_calc = new InvoiceSumInclusive($this->invoice, $this->settings);
         $this->invoice_calc->build();
 
         $line_items = $this->invoice_calc->invoice_items->getLineItems();
+        nlog($this->invoice_calc->getTaxMap());
 
-        $this->assertEquals($this->invoice_calc->getSubTotal(), 19);
-        $this->assertEquals($this->invoice_calc->getTotalDiscount(), 0.95);
-        $this->assertEquals($this->invoice_calc->getTotalTaxes(), 4.92);
+        $this->assertEquals(19, $this->invoice_calc->getSubTotal());
+        $this->assertEquals(0.95, $this->invoice_calc->getTotalDiscount());
+        $this->assertEquals(4.92, $this->invoice_calc->getTotalTaxes());
 
-        // nlog($this->invoice_calc->getTaxMap());
 
         $this->assertEquals(count($this->invoice_calc->getTaxMap()), 1);
         $this->assertEquals($this->invoice_calc->getTotal(), 18.05);
@@ -315,6 +340,9 @@ class InvoiceInclusiveTest extends TestCase
 
         $this->invoice->tax_rate1 = 10;
         $this->invoice->tax_rate2 = 10;
+
+$this->invoice->tax_name1 = 'dog';
+$this->invoice->tax_name2 = 'cat';
 
         $this->invoice_calc = new InvoiceSumInclusive($this->invoice, $this->settings);
         $this->invoice_calc->build();
@@ -360,6 +388,9 @@ class InvoiceInclusiveTest extends TestCase
 
         $this->invoice->tax_rate1 = 10;
         $this->invoice->tax_rate2 = 10;
+
+        $this->invoice->tax_name1 = 'dog';
+        $this->invoice->tax_name2 = 'cat';
 
         $this->invoice_calc = new InvoiceSumInclusive($this->invoice, $this->settings);
         $this->invoice_calc->build();

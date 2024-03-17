@@ -57,9 +57,11 @@ class RecurringInvoiceExport extends BaseExport
                         ->withTrashed()
                         ->with('client')
                         ->where('company_id', $this->company->id)
-                        ->where('is_deleted', 0);
+                        ->where('is_deleted', $this->input['include_deleted'] ?? false);
 
         $query = $this->addDateRange($query);
+
+        $query = $this->addRecurringInvoiceStatusFilter($query, $this->input['status'] ?? '');
 
         return $query;
 

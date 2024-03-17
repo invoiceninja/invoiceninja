@@ -49,6 +49,12 @@ class ProjectTransformer extends EntityTransformer
 
     public function includeClient(Project $project): \League\Fractal\Resource\Item
     {
+
+        if (!$project->client) {
+            nlog("Project {$project->hashed_id} does not have a client attached - this project is in a bad state");
+            return null;
+        }
+
         $transformer = new ClientTransformer($this->serializer);
 
         return $this->includeItem($project->client, $transformer, Client::class);

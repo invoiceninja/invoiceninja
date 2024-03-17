@@ -260,6 +260,8 @@ class ImportController extends Controller
             }
 
         }
+        
+        /** @phpstan-ignore-next-line **/
         return $bestDelimiter ?? ',';
 
     }

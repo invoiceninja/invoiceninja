@@ -107,10 +107,10 @@ class EmailDefaults
 
         match ($this->email->email_object->settings->email_style) {
             'plain' => $this->template = 'email.template.plain',
-            'light' => $this->template = $this->email->email_object->company->account->isPremium() ? 'email.template.client_premium' : 'email.template.client',
-            'dark' => $this->template = $this->email->email_object->company->account->isPremium() ? 'email.template.client_premium' :'email.template.client',
+            'light' => $this->template = 'email.template.client',
+            'dark' => $this->template = 'email.template.client',
             'custom' => $this->template = 'email.template.custom',
-            default => $this->template = $this->email->email_object->company->account->isPremium() ? 'email.template.client_premium' :'email.template.client',
+            default => $this->template = 'email.template.client',
         };
 
         $this->email->email_object->html_template = $this->template;
@@ -123,7 +123,7 @@ class EmailDefaults
      */
     private function setFrom(): self
     {
-        if (Ninja::isHosted() && $this->email->email_object->settings->email_sending_method == 'default') {
+        if (Ninja::isHosted() && in_array($this->email->email_object->settings->email_sending_method,['default', 'mailgun'])) {
             if ($this->email->company->account->isPaid() && property_exists($this->email->email_object->settings, 'email_from_name') && strlen($this->email->email_object->settings->email_from_name) > 1) {
                 $email_from_name = $this->email->email_object->settings->email_from_name;
             } else {

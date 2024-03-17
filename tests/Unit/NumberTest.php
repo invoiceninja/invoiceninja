@@ -21,6 +21,97 @@ use Tests\TestCase;
 class NumberTest extends TestCase
 {
 
+    public function testRangeOfNumberFormats()
+    {
+
+        $floatvals = [
+            "22000.76" =>"22 000,76",
+            "22000.76" =>"22.000,76",
+            "22000.76" =>"22,000.76",
+            "22000" =>"22 000",
+            "22000" =>"22,000",
+            "22" =>"22.000",
+            "22000" =>"22.000,",
+            "22000.76" =>"22000.76",
+            "22000.76" =>"22000,76",
+            "1022000.76" =>"1.022.000,76",
+            "1022000.76" =>"1,022,000.76",
+            // "1000000" =>"1,000,000",
+            // "1000000" =>"1.000.000",
+            "1022000.76" =>"1022000.76",
+            "1022000.76" =>"1022000,76",
+            "1022000" =>"1022000",
+            "0.76" =>"0.76",
+            "0.76" =>"0,76",
+            "0" =>"0.00",
+            "0" =>"0,00",
+            "1" =>"1.00",
+            "1" =>"1,00",
+            "423545" =>"423545 €",
+            // "423545" =>"423,545 €",
+            // "423545" =>"423.545 €",
+            "1" =>"1,00 €",
+            "1.02" =>"€ 1.02",
+            "1000.02" =>"1'000,02 EUR",
+            "1000.02" =>"1 000.02$",
+            "1000.02" =>"1,000.02$",
+            "1000.02" =>"1.000,02 EURO",
+            "9.975" => "9.975",
+            "9975" => "9.975,",
+            "9975" => "9.975,00"
+        ];
+
+
+        foreach($floatvals as $key => $value) {
+
+            $this->assertEquals($key, Number::parseFloat($value));
+
+        }
+
+    }
+
+    public function testThreeDecimalFloatAsTax()
+    {
+                
+        $value = '9.975';
+
+        $res = Number::parseFloat($value);
+
+        $this->assertEquals(9.975, $res);
+
+    }
+
+    public function testNegativeFloatParse()
+    {
+
+        $value = '-22,00';
+
+        $res = Number::parseFloat($value);
+
+        $this->assertEquals(-22.0, $res);
+
+        $value = '-22.00';
+
+        $res = Number::parseFloat($value);
+
+        $this->assertEquals(-22.0, $res);
+
+        $value = '-2200,00';
+
+        $res = Number::parseFloat($value);
+
+        $this->assertEquals(-2200.0, $res);
+
+        $value = '-2.200,00';
+
+        $res = Number::parseFloat($value);
+
+        $this->assertEquals(-2200.0, $res);
+        
+        $this->assertEquals(-2200, $res);
+        
+    }
+
     public function testConvertDecimalCommaFloats()
     {
         $value = '22,00';
@@ -122,5 +213,23 @@ class NumberTest extends TestCase
         $converted_amount = Number::parseFloat($amount);
 
         $this->assertEquals(7.99, $converted_amount);
+    }
+
+    public function testMultiCommaNumber()
+    {
+        $amount = '100,100.00';
+
+        $converted_amount = Number::parseFloat($amount);
+
+        $this->assertEquals(100100, $converted_amount);
+    }
+
+    public function testMultiDecimalNumber()
+    {
+        $amount = '100.1000.000,00';
+
+        $converted_amount = Number::parseFloat($amount);
+
+        $this->assertEquals(1001000000, $converted_amount);
     }
 }

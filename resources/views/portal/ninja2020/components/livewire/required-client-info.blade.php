@@ -15,7 +15,7 @@
                 @if(!array_key_exists('filled', $field))
                     @component('portal.ninja2020.components.general.card-element', ['title' => $field['label']])
                         @if($field['name'] == 'client_country_id' || $field['name'] == 'client_shipping_country_id')
-                            <select id="client_country" class="input w-full form-select bg-white" name="{{ $field['name'] }}" wire:model="{{ str_replace(["client_","_line_","contact_"], ["client.","","contact."], $field['name']) }}">
+                            <select id="client_country" class="input w-full form-select bg-white" name="{{ $field['name'] }}" wire:model="{{ $field['name'] }}">
                                 <option value="none"></option>
 
                                 @foreach($countries as $country)
@@ -25,7 +25,7 @@
                                 @endforeach
                             </select>
                         @else
-                            <input class="input w-full" type="{{ $field['type'] ?? 'text' }}" name="{{ $field['name'] }}" wire:model="{{ str_replace(["client_","_line_","contact_"], ["client.","","contact."], $field['name']) }}">
+                            <input class="input w-full" type="{{ $field['type'] ?? 'text' }}" name="{{ $field['name'] }}" wire:model="{{ $field['name'] }}">
                         @endif
 
                         @if(session()->has('validation_errors') && array_key_exists($field['name'], session('validation_errors')))
@@ -85,7 +85,7 @@
                 </h3>
                 <div class="mt-2">
                     <p class="text-sm leading-5 text-gray-500 bg-opacity-100">
-                        {!! nl2br($invoice->terms) !!}
+                        {!! nl2br($invoice_terms) !!}
                     </p>
                 </div>
             </div>

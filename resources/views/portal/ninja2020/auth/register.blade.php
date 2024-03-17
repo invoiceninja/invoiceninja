@@ -82,7 +82,6 @@
                                             <option value="none"></option>
                                         @foreach(App\Utils\TranslationHelper::getCountries() as $country)
                                             <option
-                                                {{ $country == isset(auth()->user()->client->shipping_country->id) ? 'selected' : null }} value="{{ $country->id }}">
                                                 {{ $country->iso_3166_2 }}
                                                 ({{ $country->name }})
                                             </option>

@@ -10,7 +10,7 @@
 <br>
 <br>
 <p>
-    {!! $signature !!}
+{!! nl2br($signature) !!}
 </p>
 @endif
 

@@ -58,7 +58,7 @@ class InvoiceExport extends BaseExport
                         ->withTrashed()
                         ->with('client')
                         ->where('company_id', $this->company->id)
-                        ->where('is_deleted', 0);
+                        ->where('is_deleted', $this->input['include_deleted'] ?? false);
 
         $query = $this->addDateRange($query);
 
@@ -151,9 +151,9 @@ class InvoiceExport extends BaseExport
         //     $entity['invoice.status'] = $invoice->stringStatus($invoice->status_id);
         // }
 
-        // if (in_array('invoice.recurring_id', $this->input['report_keys'])) {
-        //     $entity['invoice.recurring_id'] = $invoice->recurring_invoice->number ?? '';
-        // }
+        if (in_array('invoice.recurring_id', $this->input['report_keys'])) {
+            $entity['invoice.recurring_id'] = $invoice->recurring_invoice->number ?? '';
+        }
 
         if (in_array('invoice.auto_bill_enabled', $this->input['report_keys'])) {
             $entity['invoice.auto_bill_enabled'] = $invoice->auto_bill_enabled ? ctrans('texts.yes') : ctrans('texts.no');

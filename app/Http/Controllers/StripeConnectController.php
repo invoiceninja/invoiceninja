@@ -64,6 +64,8 @@ class StripeConnectController extends BaseController
         if ($request->has('error') && $request->error == 'access_denied') {
             return view('auth.connect.access_denied');
         }
+        
+        $response = false;
 
         try {
             /** @class \stdClass $response
@@ -88,6 +90,11 @@ class StripeConnectController extends BaseController
             nlog($response);
 
         } catch (\Exception $e) {
+
+           
+        }
+
+        if(!$response) {
             return view('auth.connect.access_denied');
         }
 
@@ -144,11 +151,14 @@ class StripeConnectController extends BaseController
         if(isset($request->getTokenContent()['is_react']) && $request->getTokenContent()['is_react']) {
             $redirect_uri = config('ninja.react_url').'/#/settings/online_payments';
         } else {
-            $redirect_uri = config('ninja.app_url').'/stripe/completed';
+            $redirect_uri = config('ninja.app_url');
         }
+
+        \Illuminate\Support\Facades\Cache::pull($request->token);
 
         //response here
         return view('auth.connect.completed', ['url' => $redirect_uri]);
+        // return redirect($redirect_uri);
     }
 
 }

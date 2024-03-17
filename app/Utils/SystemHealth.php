@@ -84,6 +84,7 @@ class SystemHealth
             'trailing_slash' => (bool) self::checkUrlState(),
             'file_permissions' => (string) self::checkFileSystem(),
             'exchange_rate_api_not_configured' => (bool)self::checkCurrencySanity(),
+            'api_version' => (string) config('ninja.app_version'),
         ];
     }
 
