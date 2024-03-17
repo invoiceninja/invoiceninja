@@ -538,7 +538,7 @@ class MultiDB
 
         $current_db = config('database.default');
 
-        if(SMSNumbers::numberExists($phone)){
+        if(SMSNumbers::hasNumber($phone)){
             return true;
         }
 
