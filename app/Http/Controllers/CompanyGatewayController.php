@@ -20,6 +20,7 @@ use App\Http\Requests\CompanyGateway\DestroyCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\EditCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\ShowCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\StoreCompanyGatewayRequest;
+use App\Http\Requests\CompanyGateway\TestCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\UpdateCompanyGatewayRequest;
 use App\Jobs\Util\ApplePayDomain;
 use App\Models\Client;
@@ -535,4 +536,12 @@ class CompanyGatewayController extends BaseController
 
         return $this->listResponse(CompanyGateway::withTrashed()->company()->whereIn('id', $request->ids));
     }
+
+    public function test(TestCompanyGatewayRequest $request, CompanyGateway $company_gateway)
+    {
+
+        return response()->json(['message' => $company_gateway->driver()->auth() ? 'true' : 'false'], 200);
+
+    }
+
 }
