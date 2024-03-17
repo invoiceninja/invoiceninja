@@ -294,6 +294,7 @@ class BaseExport
         'line_total' => 'item.line_total',
         'gross_line_total' => 'item.gross_line_total',
         'tax_amount' => 'item.tax_amount',
+        'product_cost' => 'item.product_cost'
     ];
 
     protected array $quote_report_keys = [

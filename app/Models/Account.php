@@ -102,7 +102,7 @@ class Account extends BaseModel
 
     private $free_plan_email_quota = 20;
 
-    private $paid_plan_email_quota = 400;
+    private $paid_plan_email_quota = 300;
 
     /**
      * @var string
@@ -504,10 +504,10 @@ class Account extends BaseModel
 
         if ($this->isPaid()) {
             $limit = $this->paid_plan_email_quota;
-            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 50;
+            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 30;
         } else {
             $limit = $this->free_plan_email_quota;
-            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 2;
+            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 1.5;
         }
 
         return min($limit, 1000);
