@@ -224,7 +224,7 @@ class NinjaMailerJob implements ShouldQueue
 
     private function incrementEmailCounter(): void
     {
-        if(in_array($this->mailer, ['default','mailgun']))
+        if(in_array($this->mailer, ['default','mailgun','postmark']))
             Cache::increment("email_quota".$this->company->account->key);
 
     }
