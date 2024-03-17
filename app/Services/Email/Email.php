@@ -564,6 +564,10 @@ class Email implements ShouldQueue
                 $this->mailer = 'mailgun';
                 $this->setMailgunMailer();
                 return $this;
+            case 'client_brevo':
+                $this->mailer = 'brevo';
+                $this->setBrevoMailer();
+                return $this;
             case 'smtp':
                 $this->mailer = 'smtp';
                 $this->configureSmtpMailer();

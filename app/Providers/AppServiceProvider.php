@@ -130,18 +130,20 @@ class AppServiceProvider extends ServiceProvider
                 )
             );
         });
-        // Mailer::macro('brevo_config', function (string $key) {
-        //     // @phpstan-ignore /** @phpstan-ignore-next-line **/
-        //     Mail::setSymfonyTransport((new BrevoTransportFactory)->create(
-        //         new Dsn(
-        //             'brevo+api',
-        //             'default',
-        //             $key
-        //         )
-        //     ));
+        Mailer::macro('brevo_config', function (string $brevo_key) {
+            // @phpstan-ignore /** @phpstan-ignore-next-line **/
+            Mailer::setSymfonyTransport(
+                (new BrevoTransportFactory)->create(
+                    new Dsn(
+                        'brevo+api',
+                        'default',
+                        $brevo_key
+                    )
+                )
+            );
 
-        //     return $this;
-        // });
+            return $this;
+        });
 
     }
 

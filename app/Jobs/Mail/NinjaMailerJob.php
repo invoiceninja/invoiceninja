@@ -100,7 +100,7 @@ class NinjaMailerJob implements ShouldQueue
             }
 
             $this->nmo->mailable->replyTo($this->nmo->settings->reply_to_email, $reply_to_name);
-        } elseif(isset($this->nmo->invitation->user)) {
+        } elseif (isset ($this->nmo->invitation->user)) {
             $this->nmo->mailable->replyTo($this->nmo->invitation->user->email, $this->nmo->invitation->user->present()->name());
         } else {
             $this->nmo->mailable->replyTo($this->company->owner()->email, $this->company->owner()->present()->name());
@@ -229,8 +229,8 @@ class NinjaMailerJob implements ShouldQueue
 
     private function incrementEmailCounter(): void
     {
-        if(in_array($this->mailer, ['default','mailgun']))
-            Cache::increment("email_quota".$this->company->account->key);
+        if (in_array($this->mailer, ['default', 'mailgun']))
+            Cache::increment("email_quota" . $this->company->account->key);
 
     }
     /**
@@ -278,7 +278,7 @@ class NinjaMailerJob implements ShouldQueue
         //     return $this;
         // }
 
-        if(Ninja::isHosted() && $this->company->account->isPaid() && $this->nmo->settings->email_sending_method == 'default') {
+        if (Ninja::isHosted() && $this->company->account->isPaid() && $this->nmo->settings->email_sending_method == 'default') {
             //check if outlook.
 
             try {
@@ -286,7 +286,7 @@ class NinjaMailerJob implements ShouldQueue
                 $domain = explode("@", $email)[1] ?? "";
                 $dns = dns_get_record($domain, DNS_MX);
                 $server = $dns[0]["target"];
-                if(stripos($server, "outlook.com") !== false) {
+                if (stripos($server, "outlook.com") !== false) {
 
                     $this->mailer = 'postmark';
                     $this->client_postmark_secret = config('services.postmark-outlook.token');
@@ -298,12 +298,12 @@ class NinjaMailerJob implements ShouldQueue
                     }
 
                     $this->nmo
-                     ->mailable
-                     ->from(config('services.postmark-outlook.from.address'), $email_from_name);
+                        ->mailable
+                        ->from(config('services.postmark-outlook.from.address'), $email_from_name);
 
                     return $this;
                 }
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
 
                 nlog("problem switching outlook driver - hosted");
                 nlog($e->getMessage());
@@ -335,6 +335,10 @@ class NinjaMailerJob implements ShouldQueue
             case 'client_mailgun':
                 $this->mailer = 'mailgun';
                 $this->setMailgunMailer();
+                return $this;
+            case 'client_brevo':
+                $this->mailer = 'brevo';
+                $this->setBrevoMailer();
                 return $this;
             case 'smtp':
                 $this->mailer = 'smtp';
@@ -385,11 +389,11 @@ class NinjaMailerJob implements ShouldQueue
         }
 
         $user = $this->resolveSendingUser();
-        $sending_email = (isset($this->nmo->settings->custom_sending_email) && stripos($this->nmo->settings->custom_sending_email, "@")) ? $this->nmo->settings->custom_sending_email : $user->email;
+        $sending_email = (isset ($this->nmo->settings->custom_sending_email) && stripos($this->nmo->settings->custom_sending_email, "@")) ? $this->nmo->settings->custom_sending_email : $user->email;
 
         $this->nmo
-        ->mailable
-        ->from($sending_email, $email_from_name);
+            ->mailable
+            ->from($sending_email, $email_from_name);
 
     }
 
@@ -503,8 +507,8 @@ class NinjaMailerJob implements ShouldQueue
 
         $user = $this->resolveSendingUser();
 
-        $sending_email = (isset($this->nmo->settings->custom_sending_email) && stripos($this->nmo->settings->custom_sending_email, "@")) ? $this->nmo->settings->custom_sending_email : $user->email;
-        $sending_user = (isset($this->nmo->settings->email_from_name) && strlen($this->nmo->settings->email_from_name) > 2) ? $this->nmo->settings->email_from_name : $user->name();
+        $sending_email = (isset ($this->nmo->settings->custom_sending_email) && stripos($this->nmo->settings->custom_sending_email, "@")) ? $this->nmo->settings->custom_sending_email : $user->email;
+        $sending_user = (isset ($this->nmo->settings->email_from_name) && strlen($this->nmo->settings->email_from_name) > 2) ? $this->nmo->settings->email_from_name : $user->name();
 
         $this->nmo
             ->mailable
@@ -526,8 +530,8 @@ class NinjaMailerJob implements ShouldQueue
 
         $user = $this->resolveSendingUser();
 
-        $sending_email = (isset($this->nmo->settings->custom_sending_email) && stripos($this->nmo->settings->custom_sending_email, "@")) ? $this->nmo->settings->custom_sending_email : $user->email;
-        $sending_user = (isset($this->nmo->settings->email_from_name) && strlen($this->nmo->settings->email_from_name) > 2) ? $this->nmo->settings->email_from_name : $user->name();
+        $sending_email = (isset ($this->nmo->settings->custom_sending_email) && stripos($this->nmo->settings->custom_sending_email, "@")) ? $this->nmo->settings->custom_sending_email : $user->email;
+        $sending_user = (isset ($this->nmo->settings->email_from_name) && strlen($this->nmo->settings->email_from_name) > 2) ? $this->nmo->settings->email_from_name : $user->name();
 
         $this->nmo
             ->mailable
@@ -549,8 +553,8 @@ class NinjaMailerJob implements ShouldQueue
 
         $user = $this->resolveSendingUser();
 
-        $sending_email = (isset($this->nmo->settings->custom_sending_email) && stripos($this->nmo->settings->custom_sending_email, "@")) ? $this->nmo->settings->custom_sending_email : $user->email;
-        $sending_user = (isset($this->nmo->settings->email_from_name) && strlen($this->nmo->settings->email_from_name) > 2) ? $this->nmo->settings->email_from_name : $user->name();
+        $sending_email = (isset ($this->nmo->settings->custom_sending_email) && stripos($this->nmo->settings->custom_sending_email, "@")) ? $this->nmo->settings->custom_sending_email : $user->email;
+        $sending_user = (isset ($this->nmo->settings->email_from_name) && strlen($this->nmo->settings->email_from_name) > 2) ? $this->nmo->settings->email_from_name : $user->name();
 
         $this->nmo
             ->mailable
