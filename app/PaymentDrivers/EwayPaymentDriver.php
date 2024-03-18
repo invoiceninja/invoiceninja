@@ -220,4 +220,15 @@ class EwayPaymentDriver extends BaseDriver
         return (bool) count($response->getErrors()) == 0;
 
     }
+    
+    /**
+     * importCustomers
+     *
+     * No support
+     * @return void
+     */
+    public function importCustomers()
+    {
+        return true;
+    }
 }

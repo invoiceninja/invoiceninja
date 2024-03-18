@@ -204,8 +204,29 @@ class FortePaymentDriver extends BaseDriver
         return $response->successful();
         
     }
-    // public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
-    // {
-    //     return $this->payment_method->yourTokenBillingImplmentation();
-    // }
+    
+    public function importCustomers()
+    {
+
+        $forte_base_uri = "https://sandbox.forte.net/api/v3/";
+        if ($this->company_gateway->getConfigField('testMode') == false) {
+            $forte_base_uri = "https://api.forte.net/v3/";
+        }
+        $forte_api_access_id = $this->company_gateway->getConfigField('apiAccessId');
+        $forte_secure_key = $this->company_gateway->getConfigField('secureKey');
+        $forte_auth_organization_id = $this->company_gateway->getConfigField('authOrganizationId');
+        $forte_organization_id = $this->company_gateway->getConfigField('organizationId');
+        $forte_location_id = $this->company_gateway->getConfigField('locationId');
+
+        $response = Http::withBasicAuth($forte_api_access_id, $forte_secure_key)
+                    ->withHeaders(['X-Forte-Auth-Organization-Id' => $forte_organization_id])
+                    ->get("{$forte_base_uri}/organizations/{$forte_organization_id}/locations/{$forte_location_id}/customers/");
+                    
+        if($response->successful()){
+
+            nlog($response->json());
+
+        }
+                    
+    }
 }

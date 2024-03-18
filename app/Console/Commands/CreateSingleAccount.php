@@ -1072,6 +1072,28 @@ class CreateSingleAccount extends Command
             $cg->save();
         }
 
+        if (config('ninja.testvars.forte') && ($this->gateway == 'all' || $this->gateway == 'forte')) {
+            $cg = new CompanyGateway();
+            $cg->company_id = $company->id;
+            $cg->user_id = $user->id;
+            $cg->gateway_key = 'kivcvjexxvdiyqtj3mju5d6yhpeht2xs';
+            $cg->require_cvv = true;
+            $cg->require_billing_address = true;
+            $cg->require_shipping_address = true;
+            $cg->update_details = true;
+            $cg->config = encrypt(config('ninja.testvars.forte'));
+            $cg->save();
+
+            $gateway_types = $cg->driver()->gatewayTypes();
+
+            $fees_and_limits = new stdClass();
+            $fees_and_limits->{$gateway_types[0]} = new FeesAndLimits();
+
+            $cg->fees_and_limits = $fees_and_limits;
+            $cg->save();
+        }
+
+
 
     }
 
