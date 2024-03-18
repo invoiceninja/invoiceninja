@@ -470,8 +470,6 @@ class SquarePaymentDriver extends BaseDriver
 
             $client_repo = new ClientRepository(new ClientContactRepository());
 
-            nlog($customers);
-            
             foreach($customers as $customer)
             {
 
@@ -496,12 +494,15 @@ class SquarePaymentDriver extends BaseDriver
             $c = $api_response->getCursor();
             if ($c) {
 
-                $api_response = $client->getCustomersApi()->listCustomers(
-                    $c,
-                    $limit,
-                    'DEFAULT',
-                    'DESC'
-                );
+                $api_response = $this->init()
+                    ->square
+                    ->getCustomersApi()
+                    ->listCustomers(
+                            $c,
+                            $limit,
+                            'DEFAULT',
+                            'DESC'
+                        );
             } else {
                 break;
             }
