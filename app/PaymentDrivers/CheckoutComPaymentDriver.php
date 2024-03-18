@@ -556,7 +556,15 @@ class CheckoutComPaymentDriver extends BaseDriver
                                   ->where('token', $token)
                                   ->first();
     }
-
+    
+    /**
+     * ImportCustomers
+     *
+     * Only their methods because checkout.com 
+     * does not have a list route for customers
+     * 
+     * @return void
+     */
     public function importCustomers()
     {
         $this->init();
@@ -567,29 +575,21 @@ class CheckoutComPaymentDriver extends BaseDriver
              ->cursor()
              ->each(function ($client){
 
-                nlog("1");
-
                 if(!str_contains($client->present()->email(), "@"))
                     return;
-
-                    
-nlog("2");
-nlog($client->present()->email());
 
                 try{
                     $customer = $this->gateway->getCustomersClient()->get($client->present()->email());
                 }    
                 catch(\Exception $e) {
-                    nlog("returning due to exception");
+                    nlog("Checkout: Customer not found");
                     return;
                 }
-
-nlog("3");
 
                 $this->client = $client;
 
                 nlog($customer['instruments']);
-                
+
                 foreach($customer['instruments'] as $card) 
                 {
                     if(
@@ -598,9 +598,6 @@ nlog("3");
                         $this->getToken($card['id'], $customer['id'])
                     )
                     continue;
-
-       
-nlog("4");
              
                     $payment_meta = new \stdClass();
                     $payment_meta->exp_month = (string) $card['expiry_month'];
@@ -616,7 +613,6 @@ nlog("4");
                     ];
 
                     $this->storeGatewayToken($data, ['gateway_customer_reference' => $customer['id']]);
-
 
                 }
 
