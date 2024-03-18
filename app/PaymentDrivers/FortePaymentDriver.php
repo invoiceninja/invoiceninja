@@ -253,6 +253,50 @@ class FortePaymentDriver extends BaseDriver
                      ->first();
     }
 
+    public function getLocation()
+    {
+     
+        $response = $this->stubRequest()
+                    ->withQueryParameters(['page_size' => 10000])
+                    ->get("{$this->baseUri()}/organizations/{$this->getOrganisationId()}/locations/{$this->getLocationId()}");
+
+        if($response->successful())
+            return $response->json();
+
+        return false;
+    }
+
+    public function updateFees()
+    {
+        $response = $this->getLocation();
+
+        if($response)
+        {
+            $body = $response['services'];
+            
+            $fees_and_limits = $this->company_gateway->fees_and_limits;
+
+            if($body['card']['service_fee_percentage'] > 0 || $body['card']['service_fee_additional_amount'] > 0){
+
+                $fees_and_limits->{1}->fee_amount = $body['card']['service_fee_additional_amount'];
+                $fees_and_limits->{1}->fee_percent = $body['card']['service_fee_percentage'];
+            }
+            
+            if($body['debit']['service_fee_percentage'] > 0 || $body['debit']['service_fee_additional_amount'] > 0) {
+
+                $fees_and_limits->{2}->fee_amount = $body['debit']['service_fee_additional_amount'];
+                $fees_and_limits->{2}->fee_percent = $body['debit']['service_fee_percentage'];
+            }
+
+            $this->company_gateway->fees_and_limits = $fees_and_limits;
+            $this->company_gateway->save();
+            
+        }
+
+        return false;
+
+    }
+
     public function importCustomers()
     {
 
@@ -270,11 +314,12 @@ class FortePaymentDriver extends BaseDriver
 
                 $data = $factory->convertToNinja($customer, $this->company_gateway->company);
 
-                if(strlen($customer['email']) == 0 || $this->getClient($customer['email']))
+                if(strlen($data['email']) == 0 || $this->getClient($data['email']))
                     continue;
 
                 $client_repo->save($data, ClientFactory::create($this->company_gateway->company_id, $this->company_gateway->user_id));
 
+                //persist any payment methods here!
             }
         }
                     

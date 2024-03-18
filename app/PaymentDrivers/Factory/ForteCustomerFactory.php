@@ -31,10 +31,11 @@ class ForteCustomerFactory
                     'phone' => $this->getBillingAddress($customer)['phone'],
                 ]
             ],
-            'currency_id' => $company->settings->currency_id,
-            
-        ])->merge($this->getBillingAddress($customer))
-        ->merge($this->getShippingAddress($customer))
+            'settings' => [
+                'currency_id' => $company->settings->currency_id,
+            ],
+        ])->merge($this->getShippingAddress($customer))
+        ->merge($this->getBillingAddress($customer))
         ->toArray();
 
     }
@@ -101,12 +102,12 @@ class ForteCustomerFactory
                 }
 
                 return [
-                    'address1' => $address['physical_address']['street_line1'],
-                    'address2' => $address['physical_address']['street_line2'],
-                    'city' => $address['physical_address']['locality'],
-                    'state' => $address['physical_address']['region'],
-                    'postal_code' => $address['physical_address']['postal_code'],
-                    'country_id' => '840',
+                    'shipping_address1' => $address['physical_address']['street_line1'],
+                    'shipping_address2' => $address['physical_address']['street_line2'],
+                    'shipping_city' => $address['physical_address']['locality'],
+                    'shipping_state' => $address['physical_address']['region'],
+                    'shipping_postal_code' => $address['physical_address']['postal_code'],
+                    'shipping_country_id' => '840',
                 ];
 
             }
@@ -118,12 +119,14 @@ class ForteCustomerFactory
             $address = $customer['addresses'][1];
 
             return [
-                'address1' => $address['physical_address']['street_line1'],
-                'address2' => $address['physical_address']['street_line2'],
-                'city' => $address['physical_address']['locality'],
-                'state' => $address['physical_address']['region'],
-                'postal_code' => $address['physical_address']['postal_code'],
-                'country_id' => '840',
+                'shipping_address1' => $address['physical_address']['street_line1'],
+                'shipping_address2' => $address['physical_address']['street_line2'],
+                'shipping_city' => $address['physical_address']['locality'],
+                'shipping_state' => $address['physical_address']['region'],
+                'shipping_postal_code' => $address['physical_address']['postal_code'],
+                'shipping_country_id' => '840',
+                'email' => $address['email'],
+                'phone' => $address['phone'],
             ];
 
         }

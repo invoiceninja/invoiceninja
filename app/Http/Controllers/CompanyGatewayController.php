@@ -55,6 +55,9 @@ class CompanyGatewayController extends BaseController
 
     private string $checkout_key = '3758e7f7c6f4cecf0f4f348b9a00f456';
 
+    private string $forte_key = 'kivcvjexxvdiyqtj3mju5d6yhpeht2xs';
+
+
     /**
      * CompanyGatewayController constructor.
      * @param CompanyRepository $company_repo
@@ -228,6 +231,13 @@ class CompanyGatewayController extends BaseController
             StripeWebhook::dispatch($company_gateway->company->company_key, $company_gateway->id);
         } elseif($company_gateway->gateway_key == $this->checkout_key) {
             CheckoutSetupWebhook::dispatch($company_gateway->company->company_key, $company_gateway->id);
+        } elseif($company_gateway->gateway_key == $this->forte_key) {
+             
+            dispatch(function () use ($company_gateway) {
+                MultiDB::setDb($company_gateway->company->db);
+                $company_gateway->driver()->updateFees();
+            })->afterResponse();
+
         }
 
         return $this->itemResponse($company_gateway);
@@ -410,6 +420,13 @@ class CompanyGatewayController extends BaseController
 
         if($company_gateway->gateway_key == $this->checkout_key) {
             CheckoutSetupWebhook::dispatch($company_gateway->company->company_key, $company_gateway->fresh()->id);
+        }elseif($company_gateway->gateway_key == $this->forte_key){
+            
+            dispatch(function () use ($company_gateway) {
+                MultiDB::setDb($company_gateway->company->db);
+                $company_gateway->driver()->updateFees();
+            })->afterResponse();
+
         }
 
         return $this->itemResponse($company_gateway);
