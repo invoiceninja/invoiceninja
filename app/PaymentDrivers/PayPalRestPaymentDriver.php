@@ -424,7 +424,7 @@ class PayPalRestPaymentDriver extends BaseDriver
             SystemLog::EVENT_GATEWAY_FAILURE,
             SystemLog::TYPE_PAYPAL,
             $this->client,
-            $this->client->company,
+            $this->client->company ?? $this->company_gateway->company,
         );
 
         throw new PaymentFailed("Gateway failure - {$r->body()}", 401);
@@ -474,4 +474,10 @@ class PayPalRestPaymentDriver extends BaseDriver
 
         return false;
     }
+
+    public function importCustomers()
+    {
+        return true;
+    }   
+
 }

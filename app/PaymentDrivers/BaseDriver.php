@@ -811,4 +811,9 @@ class BaseDriver extends AbstractPaymentDriver
     {
         return true;
     }
+
+    public function importCustomers()
+    {
+        
+    }
 }

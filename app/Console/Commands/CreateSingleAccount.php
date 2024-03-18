@@ -11,53 +11,54 @@
 
 namespace App\Console\Commands;
 
-use App\DataMapper\ClientRegistrationFields;
-use App\DataMapper\CompanySettings;
-use App\DataMapper\FeesAndLimits;
-use App\Events\Invoice\InvoiceWasCreated;
-use App\Events\RecurringInvoice\RecurringInvoiceWasCreated;
-use App\Factory\GroupSettingFactory;
-use App\Factory\InvoiceFactory;
-use App\Factory\InvoiceItemFactory;
-use App\Factory\RecurringInvoiceFactory;
-use App\Factory\SubscriptionFactory;
-use App\Helpers\Invoice\InvoiceSum;
-use App\Jobs\Company\CreateCompanyTaskStatuses;
-use App\Libraries\MultiDB;
-use App\Models\Account;
-use App\Models\BankIntegration;
-use App\Models\BankTransaction;
-use App\Models\BankTransactionRule;
+use stdClass;
+use Carbon\Carbon;
+use Faker\Factory;
+use App\Models\Task;
+use App\Models\User;
+use App\Utils\Ninja;
+use App\Models\Quote;
 use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Company;
-use App\Models\CompanyGateway;
-use App\Models\CompanyToken;
-use App\Models\Country;
 use App\Models\Credit;
+use App\Models\Vendor;
+use App\Models\Account;
+use App\Models\Company;
+use App\Models\Country;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Product;
 use App\Models\Project;
-use App\Models\Quote;
-use App\Models\RecurringInvoice;
-use App\Models\Task;
-use App\Models\TaskStatus;
 use App\Models\TaxRate;
-use App\Models\User;
-use App\Models\Vendor;
+use App\Libraries\MultiDB;
+use App\Models\TaskStatus;
+use App\Models\CompanyToken;
+use App\Models\ClientContact;
 use App\Models\VendorContact;
-use App\Repositories\InvoiceRepository;
-use App\Utils\Ninja;
-use App\Utils\Traits\GeneratesCounter;
+use App\Models\CompanyGateway;
+use App\Factory\InvoiceFactory;
+use App\Models\BankIntegration;
+use App\Models\BankTransaction;
 use App\Utils\Traits\MakesHash;
-use Carbon\Carbon;
-use Faker\Factory;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Cache;
+use App\Models\RecurringInvoice;
+use App\DataMapper\FeesAndLimits;
+use App\DataMapper\ClientSettings;
+use App\DataMapper\CompanySettings;
+use App\Factory\InvoiceItemFactory;
+use App\Helpers\Invoice\InvoiceSum;
+use App\Models\BankTransactionRule;
+use App\Factory\GroupSettingFactory;
+use App\Factory\SubscriptionFactory;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
+use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Support\Facades\Schema;
-use stdClass;
+use App\Repositories\InvoiceRepository;
+use App\Factory\RecurringInvoiceFactory;
+use App\Events\Invoice\InvoiceWasCreated;
+use App\DataMapper\ClientRegistrationFields;
+use App\Jobs\Company\CreateCompanyTaskStatuses;
+use App\Events\RecurringInvoice\RecurringInvoiceWasCreated;
 
 class CreateSingleAccount extends Command
 {
@@ -951,7 +952,7 @@ class CreateSingleAccount extends Command
         }
 
 
-        if (config('ninja.testvars.paytrace.decrypted') && ($this->gateway == 'all' || $this->gateway == 'paytrace')) {
+        if (config('ninja.testvars.paytrace') && ($this->gateway == 'all' || $this->gateway == 'paytrace')) {
             $cg = new CompanyGateway();
             $cg->company_id = $company->id;
             $cg->user_id = $user->id;
@@ -960,7 +961,7 @@ class CreateSingleAccount extends Command
             $cg->require_billing_address = true;
             $cg->require_shipping_address = true;
             $cg->update_details = true;
-            $cg->config = encrypt(config('ninja.testvars.paytrace.decrypted'));
+            $cg->config = encrypt(config('ninja.testvars.paytrace'));
 
             $cg->save();
 
@@ -1015,6 +1016,85 @@ class CreateSingleAccount extends Command
             $cg->fees_and_limits = $fees_and_limits;
             $cg->save();
         }
+        
+        if (config('ninja.testvars.eway') && ($this->gateway == 'all' || $this->gateway == 'eway')) {
+            $cg = new CompanyGateway();
+            $cg->company_id = $company->id;
+            $cg->user_id = $user->id;
+            $cg->gateway_key = '944c20175bbe6b9972c05bcfe294c2c7';
+            $cg->require_cvv = true;
+            $cg->require_billing_address = true;
+            $cg->require_shipping_address = true;
+            $cg->update_details = true;
+            $cg->config = encrypt(config('ninja.testvars.eway'));
+            $cg->save();
+
+            $gateway_types = $cg->driver()->gatewayTypes();
+
+            $fees_and_limits = new stdClass();
+            $fees_and_limits->{$gateway_types[0]} = new FeesAndLimits();
+
+            $cg->fees_and_limits = $fees_and_limits;
+            $cg->save();
+        }
+
+        
+        if (config('ninja.testvars.gocardless') && ($this->gateway == 'all' || $this->gateway == 'gocardless')) {
+
+            $c_settings = ClientSettings::defaults();
+            $c_settings->currency_id = '2';
+            
+            $client = Client::factory()->create([
+                'user_id' => $user->id,
+                'company_id' => $company->id,
+                'name' => 'cypress',
+                'country_id' => 826,
+                'settings' => $c_settings
+            ]);
+
+            $cg = new CompanyGateway();
+            $cg->company_id = $company->id;
+            $cg->user_id = $user->id;
+            $cg->gateway_key = 'b9886f9257f0c6ee7c302f1c74475f6c';
+            $cg->require_cvv = true;
+            $cg->require_billing_address = true;
+            $cg->require_shipping_address = true;
+            $cg->update_details = true;
+            $cg->config = encrypt(config('ninja.testvars.gocardless'));
+            $cg->save();
+
+            $gateway_types = $cg->driver($client)->gatewayTypes();
+
+            $fees_and_limits = new stdClass();
+            $fees_and_limits->{$gateway_types[0]} = new FeesAndLimits();
+
+            $cg->fees_and_limits = $fees_and_limits;
+            $cg->save();
+        }
+
+        if (config('ninja.testvars.forte') && ($this->gateway == 'all' || $this->gateway == 'forte')) {
+            $cg = new CompanyGateway();
+            $cg->company_id = $company->id;
+            $cg->user_id = $user->id;
+            $cg->gateway_key = 'kivcvjexxvdiyqtj3mju5d6yhpeht2xs';
+            $cg->require_cvv = true;
+            $cg->require_billing_address = true;
+            $cg->require_shipping_address = true;
+            $cg->update_details = true;
+            $cg->config = encrypt(config('ninja.testvars.forte'));
+            $cg->save();
+
+            $gateway_types = $cg->driver()->gatewayTypes();
+
+            $fees_and_limits = new stdClass();
+            $fees_and_limits->{$gateway_types[0]} = new FeesAndLimits();
+
+            $cg->fees_and_limits = $fees_and_limits;
+            $cg->save();
+        }
+
+
+
     }
 
     private function createRecurringInvoice(Client $client)

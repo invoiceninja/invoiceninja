@@ -574,4 +574,14 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
         return false;
     }
+
+    public function importCustomers()
+    {
+
+        // $response = $this->gatewayRequest('/v1/reporting/transactions', 'get', ['fields' => 'all','page_size' => 500,'start_date' => '2024-02-01T00:00:00-0000', 'end_date' => '2024-03-01T00:00:00-0000']);
+        
+        // nlog($response->json());
+
+        return true;
+    }   
 }
