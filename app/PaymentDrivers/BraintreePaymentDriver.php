@@ -23,6 +23,7 @@ use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\ClientContact;
 use App\Factory\ClientFactory;
+use Illuminate\Support\Carbon;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Factory\ClientContactFactory;
@@ -343,7 +344,17 @@ class BraintreePaymentDriver extends BaseDriver
                                  ->exists();
     }
 
-    private function findContact(string $email) {
+    private function getToken(string $token, string $gateway_customer_reference)
+    {
+
+        return ClientGatewayToken::where('company_id', $this->company_gateway->company_id)
+                                 ->where('gateway_customer_reference', $gateway_customer_reference)
+                                 ->where('token', $token)
+                                 ->first();
+
+    }
+
+    private function findClient(string $email) {
         return ClientContact::where('company_id', $this->company_gateway->company_id)
                             ->where('email', $email)
                             ->first()->client ?? false;
@@ -355,6 +366,9 @@ class BraintreePaymentDriver extends BaseDriver
         $this->client = $client;
 
         foreach($cards as $card) {
+
+            if($this->getToken($card->token, $card->customerId) || Carbon::createFromDate($card->expirationYear, $card->expirationMonth, '1')->lt(now()))
+                continue;
 
             $payment_meta = new \stdClass();
             $payment_meta->exp_month = (string) $card->expirationMonth;
@@ -468,19 +482,22 @@ class BraintreePaymentDriver extends BaseDriver
 
             $customer = $this->find($c->id);
 
+            // nlog(count($customer->creditCards). " Exists for {$c->id}");
+
             if(!$customer)
                 continue;
 
-            if(!$this->findTokens($c->id) && !($client = $this->findContact($customer->email))) {
+            $client = $this->findClient($customer->email);
+
+            if(!$this->findTokens($c->id) && !$client) {
                 //customer is not referenced in the system - create client
                 $client = $this->createNinjaClient($customer);
-                nlog("Creating new Client");
+                // nlog("Creating new Client");
             }
             
-
             $this->addClientCards($client, $customer->creditCards);
 
-            nlog("Adding Braintree Client: {$c->id} => {$client->id}");
+            // nlog("Adding Braintree Client: {$c->id} => {$client->id}");
 
         }
     }
