@@ -49,15 +49,15 @@ class UpdateRecurringExpenseRequest extends Request
         $rules['category_id'] = 'bail|nullable|sometimes|exists:expense_categories,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
 
         if ($this->file('documents') && is_array($this->file('documents'))) {
-            $rules['documents.*'] = $this->file_validation;
+            $rules['documents.*'] = $this->fileValidation();
         } elseif ($this->file('documents')) {
-            $rules['documents'] = $this->file_validation;
+            $rules['documents'] = $this->fileValidation();
         }
 
         if ($this->file('file') && is_array($this->file('file'))) {
-            $rules['file.*'] = $this->file_validation;
+            $rules['file.*'] = $this->fileValidation();
         } elseif ($this->file('file')) {
-            $rules['file'] = $this->file_validation;
+            $rules['file'] = $this->fileValidation();
         }
 
         return $this->globalRules($rules);
