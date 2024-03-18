@@ -14,11 +14,9 @@ namespace App\Services\IngresEmail;
 use App\Events\Expense\ExpenseWasCreated;
 use App\Factory\ExpenseFactory;
 use App\Libraries\MultiDB;
-use App\Models\Client;
 use App\Models\Company;
 use App\Models\Vendor;
 use App\Models\VendorContact;
-use App\Services\Email\EmailObject;
 use App\Services\IngresEmail\IngresEmail;
 use App\Utils\Ninja;
 use App\Utils\TempFile;
@@ -26,24 +24,18 @@ use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\SavesDocuments;
 use App\Utils\Traits\MakesHash;
 use Cache;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class IngresEmailEngine implements ShouldQueue
+class IngresEmailEngine
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
+    use SerializesModels, MakesHash;
     use GeneratesCounter, SavesDocuments;
 
-    private IngresEmail $email;
     private ?Company $company;
     private ?bool $isUnknownRecipent = null;
     private array $globalBlacklist = [];
-    function __constructor(IngresEmail $email)
+    public function __construct(private IngresEmail $email)
     {
-        $this->email = $email;
     }
     /**
      * if there is not a company with an matching mailbox, we only do monitoring
@@ -53,14 +45,12 @@ class IngresEmailEngine implements ShouldQueue
     {
         if ($this->isInvalidOrBlocked())
             return;
+
         $this->isUnknownRecipent = true;
 
         // Expense Mailbox => will create an expense
-        foreach ($this->email->to as $expense_mailbox) {
-            $this->company = MultiDB::findAndSetDbByExpenseMailbox($expense_mailbox);
-            if (!$this->company)
-                continue;
-
+        $this->company = MultiDB::findAndSetDbByExpenseMailbox($this->email->to);
+        if ($this->company) {
             $this->isUnknownRecipent = false;
             $this->createExpense();
         }
@@ -112,13 +102,11 @@ class IngresEmailEngine implements ShouldQueue
         }
 
         // wrong recipent occurs in more than 100 emails in the last 12 hours, so the processing is blocked
-        foreach ($this->email->to as $recipent) {
-            $mailCountUnknownRecipent = Cache::get('ingresEmailUnknownRecipent:' . $recipent, 0); // @turbo124 maybe use many to save resources in case of spam with multiple to addresses each time
-            if ($mailCountUnknownRecipent >= 100) {
-                nlog('[IngressMailEngine] E-Mail blocked, because anyone sended more than ' . $mailCountUnknownRecipent . ' emails to the wrong mailbox in the last 12 hours. Current sender was blocked as well: ' . $this->email->from);
-                $this->blockSender();
-                return true;
-            }
+        $mailCountUnknownRecipent = Cache::get('ingresEmailUnknownRecipent:' . $this->email->to, 0); // @turbo124 maybe use many to save resources in case of spam with multiple to addresses each time
+        if ($mailCountUnknownRecipent >= 100) {
+            nlog('[IngressMailEngine] E-Mail blocked, because anyone sended more than ' . $mailCountUnknownRecipent . ' emails to the wrong mailbox in the last 12 hours. Current sender was blocked as well: ' . $this->email->from);
+            $this->blockSender();
+            return true;
         }
 
         return false;
@@ -141,10 +129,8 @@ class IngresEmailEngine implements ShouldQueue
             Cache::add('ingresEmailSenderUnknownRecipent:' . $this->email->from, 0, now()->addHours(6));
             Cache::increment('ingresEmailSenderUnknownRecipent:' . $this->email->from); // we save the sender, to may block him
 
-            foreach ($this->email->to as $recipent) {
-                Cache::add('ingresEmailUnknownRecipent:' . $recipent, 0, now()->addHours(12));
-                Cache::increment('ingresEmailUnknownRecipent:' . $recipent); // we save the sender, to may block him
-            }
+            Cache::add('ingresEmailUnknownRecipent:' . $this->email->to, 0, now()->addHours(12));
+            Cache::increment('ingresEmailUnknownRecipent:' . $this->email->to); // we save the sender, to may block him
         }
     }
 

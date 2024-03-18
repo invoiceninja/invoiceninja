@@ -12,24 +12,16 @@
 namespace App\Services\IngresEmail;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Carbon;
 
 /**
  * EmailObject.
  */
 class IngresEmail
 {
-    /** @var array[string] $args */
-    public array $to = [];
+    public string $to;
 
     public string $from;
-
-    public array $reply_to = [];
-
-    /** @var array[string] $args */
-    public array $cc = [];
-
-    /** @var array[string] $args */
-    public array $bcc = [];
 
     public ?string $subject = null;
 
@@ -41,7 +33,7 @@ class IngresEmail
     /** @var array[\Illuminate\Http\UploadedFile] $documents */
     public array $documents = [];
 
-    public ?\DateTimeImmutable $date = null;
+    public ?Carbon $date = null;
 
     function __constructor()
     {

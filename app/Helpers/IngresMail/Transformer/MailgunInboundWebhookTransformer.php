@@ -13,6 +13,7 @@ namespace App\Helpers\IngresMail\Transformer;
 
 use App\Services\IngresEmail\IngresEmail;
 use App\Utils\TempFile;
+use Illuminate\Support\Carbon;
 
 class MailgunInboundWebhookTransformer
 {
@@ -20,15 +21,25 @@ class MailgunInboundWebhookTransformer
     {
         $ingresEmail = new IngresEmail();
 
-        $ingresEmail->from = $data["sender"];
-        $ingresEmail->subject = $data["subject"];
+        $ingresEmail->from = $data["From"];
+        $ingresEmail->to = $data["To"];
+        $ingresEmail->subject = $data["Subject"];
         $ingresEmail->plain_message = $data["body-plain"];
         $ingresEmail->html_message = $data["body-html"];
-        $ingresEmail->date = now(); // TODO
+        $ingresEmail->date = Carbon::createFromTimestamp((int) $data["timestamp"]);
 
         // parse documents as UploadedFile from webhook-data
-        foreach ($data["Attachments"] as $attachment) {
-            $ingresEmail->documents[] = TempFile::UploadedFileFromRaw($attachment["Content"], $attachment["Name"], $attachment["ContentType"]);
+        foreach (json_decode($data["attachments"]) as $attachment) {
+
+            // prepare url with credentials before downloading :: https://github.com/mailgun/mailgun.js/issues/24
+            $url = $attachment->url;
+            $credentials = config('services.mailgun.domain') . ":" . config('services.mailgun.secret') . "@";
+            $url = str_replace("http://", "http://" . $credentials, $url);
+            $url = str_replace("https://", "https://" . $credentials, $url);
+
+            // download file and save to tmp dir
+            $ingresEmail->documents[] = TempFile::UploadedFileFromUrl($url, $attachment->name, $attachment->{"content-type"});
+
         }
 
         return $ingresEmail;

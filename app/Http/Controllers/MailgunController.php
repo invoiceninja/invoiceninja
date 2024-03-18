@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 use App\Jobs\Mailgun\ProcessMailgunInboundWebhook;
 use App\Jobs\Mailgun\ProcessMailgunWebhook;
 use Illuminate\Http\Request;
+use Log;
 
 /**
  * Class MailgunController.
@@ -112,10 +113,22 @@ class MailgunController extends BaseController
      */
     public function inboundWebhook(Request $request)
     {
-        if ($request->header('X-API-SECURITY') && $request->header('X-API-SECURITY') == config('services.mailgun.token')) {
-            ProcessMailgunInboundWebhook::dispatch($request->all())->delay(10);
+        $input = $request->all();
 
-            return response()->json(['message' => 'Success'], 200);
+        if (!array_key_exists('attachments', $input) || count(json_decode($input['attachments'])) == 0) {
+            Log::info('Message ignored because of missing attachments. Please ensure contacting this api-endpoint with a store & notify operation instead of a forward operation');
+            return response()->json(['message' => 'Sucess. Soft Fail. Missing Attachments.'], 200);
+        }
+
+        if (\abs(\time() - (int) $request['timestamp']) > 150) {
+            Log::info('Message ignored because of request body is too old.');
+            return response()->json(['message' => 'Success. Soft Fail. Message too old.'], 200);
+        }
+
+        if (\hash_equals(\hash_hmac('sha256', $input['timestamp'] . $input['token'], config('services.mailgun.webhook_signing_key')), $input['signature'])) {
+            ProcessMailgunInboundWebhook::dispatch($input)->delay(10);
+
+            return response()->json(['message' => 'Success'], 201);
         }
 
         return response()->json(['message' => 'Unauthorized'], 403);

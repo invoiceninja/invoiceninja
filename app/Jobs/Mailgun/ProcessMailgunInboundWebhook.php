@@ -9,16 +9,17 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Jobs\PostMark;
+namespace App\Jobs\Mailgun;
 
-use App\Helpers\Mail\Webhook\Maigun\MailgunWebhookHandler;
+use App\Helpers\IngresMail\Transformer\MailgunInboundWebhookTransformer;
 use App\Libraries\MultiDB;
-use App\Models\SystemLog;
+use App\Services\IngresEmail\IngresEmailEngine;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Log;
 
 class ProcessMailgunInboundWebhook implements ShouldQueue
 {
@@ -26,41 +27,12 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
 
     public $tries = 1;
 
-    public $invitation;
-
-    private $entity;
-
-    private array $default_response = [
-        'recipients' => '',
-        'subject' => 'Message not found.',
-        'entity' => '',
-        'entity_id' => '',
-        'events' => [],
-    ];
-
     /**
      * Create a new job instance.
      *
      */
     public function __construct(private array $request)
     {
-    }
-
-    private function getSystemLog(string $message_id): ?SystemLog
-    {
-        return SystemLog::query()
-            ->where('company_id', $this->invitation->company_id)
-            ->where('type_id', SystemLog::TYPE_WEBHOOK_RESPONSE)
-            ->whereJsonContains('log', ['MessageID' => $message_id])
-            ->orderBy('id', 'desc')
-            ->first();
-
-    }
-
-    private function updateSystemLog(SystemLog $system_log, array $data): void
-    {
-        $system_log->log = $data;
-        $system_log->save();
     }
 
     /**
@@ -71,20 +43,21 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
      */
     public function handle()
     {
-        // match companies
-        if (array_key_exists('ToFull', $this->request))
+        if (!array_key_exists('To', $this->request) || !array_key_exists('attachments', $this->request) || !array_key_exists('timestamp', $this->request) || !array_key_exists('Subject', $this->request) || !(array_key_exists('body-html', $this->request) || array_key_exists('body-plain', $this->request)))
             throw new \Exception('invalid body');
 
-        foreach ($this->request['ToFull'] as $toEmailEntry) {
-            $toEmail = $toEmailEntry['Email'];
-
-            $company = MultiDB::findAndSetDbByExpenseMailbox($toEmail);
-            if (!$company) {
-                nlog('unknown Expense Mailbox occured while handling an inbound email from postmark: ' . $toEmail);
-                continue;
-            }
-
-            (new MailgunWebhookHandler())->process($this->request);
+        // match company
+        $company = MultiDB::findAndSetDbByExpenseMailbox($this->request["To"]);
+        if (!$company) {
+            Log::info('unknown Expense Mailbox occured while handling an inbound email from mailgun: ' . $this->request["To"]);
+            return;
         }
+
+        // prepare
+        $ingresMail = (new MailgunInboundWebhookTransformer())->transform($this->request);
+        Log::info(json_encode($ingresMail));
+
+        // perform
+        (new IngresEmailEngine($ingresMail))->handle();
     }
 }
