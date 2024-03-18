@@ -11,6 +11,7 @@
 
 namespace App\PaymentDrivers;
 
+use App\Factory\ClientFactory;
 use App\Models\Payment;
 use App\Models\SystemLog;
 use App\Models\GatewayType;
@@ -18,7 +19,10 @@ use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
 use App\PaymentDrivers\Forte\ACH;
 use Illuminate\Support\Facades\Http;
+use App\Repositories\ClientRepository;
 use App\PaymentDrivers\Forte\CreditCard;
+use App\Repositories\ClientContactRepository;
+use App\PaymentDrivers\Factory\ForteCustomerFactory;
 
 class FortePaymentDriver extends BaseDriver
 {
@@ -184,6 +188,9 @@ class FortePaymentDriver extends BaseDriver
         ];
     }
 
+    ////////////////////////////////////////////
+    // DB
+    ///////////////////////////////////////////
     public function auth(): bool
     {
                     
@@ -204,29 +211,61 @@ class FortePaymentDriver extends BaseDriver
         return $response->successful();
         
     }
-    
-    public function importCustomers()
+
+    public function baseUri(): string
     {
 
         $forte_base_uri = "https://sandbox.forte.net/api/v3/";
         if ($this->company_gateway->getConfigField('testMode') == false) {
             $forte_base_uri = "https://api.forte.net/v3/";
         }
+
+        return $forte_base_uri;
+    }
+
+    private function getOrganisationId(): string
+    {
+        return $this->company_gateway->getConfigField('organizationId');
+    }
+
+    public function getLocationId(): string
+    {
+        return $this->company_gateway->getConfigField('locationId');
+    }
+
+    public function stubRequest()
+    {
+        
         $forte_api_access_id = $this->company_gateway->getConfigField('apiAccessId');
         $forte_secure_key = $this->company_gateway->getConfigField('secureKey');
         $forte_auth_organization_id = $this->company_gateway->getConfigField('authOrganizationId');
-        $forte_organization_id = $this->company_gateway->getConfigField('organizationId');
-        $forte_location_id = $this->company_gateway->getConfigField('locationId');
 
-        $response = Http::withBasicAuth($forte_api_access_id, $forte_secure_key)
-                    ->withHeaders(['X-Forte-Auth-Organization-Id' => $forte_organization_id])
-                    ->get("{$forte_base_uri}/organizations/{$forte_organization_id}/locations/{$forte_location_id}/customers/");
+        return Http::withBasicAuth($forte_api_access_id, $forte_secure_key)
+                    ->withHeaders(['X-Forte-Auth-Organization-Id' => $this->getOrganisationId()]);
+    }
+
+    public function importCustomers()
+    {
+
+        $response = $this->stubRequest()
+                    ->withQueryParameters(['page_size' => 10000])
+                    ->get("{$this->baseUri()}/organizations/{$this->getOrganisationId()}/locations/{$this->getLocationId()}/customers");
                     
         if($response->successful()){
+        
+            foreach($response->json()['results'] as $customer)
+            {
 
-            nlog($response->json());
+                $client_repo = new ClientRepository(new ClientContactRepository());
+                $factory = new ForteCustomerFactory();
 
+                $data = $factory->convertToNinja($customer, $this->company_gateway->company);
+
+                $client_repo->save($data, ClientFactory::create($this->company_gateway->company_id, $this->company_gateway->user_id));
+
+            }
         }
                     
     }
+    
 }
