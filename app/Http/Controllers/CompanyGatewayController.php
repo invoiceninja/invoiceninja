@@ -23,6 +23,7 @@ use App\Http\Requests\CompanyGateway\StoreCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\TestCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\UpdateCompanyGatewayRequest;
 use App\Jobs\Util\ApplePayDomain;
+use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\CompanyGateway;
 use App\PaymentDrivers\CheckoutCom\CheckoutSetupWebhook;
@@ -542,6 +543,17 @@ class CompanyGatewayController extends BaseController
 
         return response()->json(['message' => $company_gateway->driver()->auth() ? 'true' : 'false'], 200);
 
+    }
+
+    public function importCustomers(TestCompanyGatewayRequest $request, CompanyGateway $company_gateway)
+    {
+        
+        dispatch(function () use($company_gateway) {
+            MultiDB::setDb($company_gateway->company->db);
+            $company_gateway->driver()->importCustomers();
+        })->afterResponse();
+
+        return response()->json(['message' => ctrans('texts.import_started')], 200);
     }
 
 }

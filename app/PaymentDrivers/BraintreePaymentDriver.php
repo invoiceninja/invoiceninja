@@ -12,28 +12,38 @@
 
 namespace App\PaymentDrivers;
 
-use App\Jobs\Util\SystemLogger;
-use App\Models\ClientGatewayToken;
-use App\Models\GatewayType;
+use Exception;
+use App\Models\Client;
+use Braintree\Gateway;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\SystemLog;
+use App\Models\GatewayType;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use App\Models\SystemLog;
+use App\Models\ClientContact;
+use App\Factory\ClientFactory;
+use App\Jobs\Util\SystemLogger;
+use App\Models\ClientGatewayToken;
+use App\Factory\ClientContactFactory;
 use App\PaymentDrivers\Braintree\ACH;
-use App\PaymentDrivers\Braintree\CreditCard;
+use App\Utils\Traits\GeneratesCounter;
+use Illuminate\Database\QueryException;
 use App\PaymentDrivers\Braintree\PayPal;
-use Braintree\Gateway;
-use Exception;
 use Illuminate\Support\Facades\Validator;
+use App\PaymentDrivers\Braintree\CreditCard;
 
 class BraintreePaymentDriver extends BaseDriver
 {
+    use GeneratesCounter;
+    
     public $refundable = true;
 
     public $token_billing = true;
 
     public $can_authorise_credit_card = true;
+
+    private bool $completed = true;
 
     /**
      * @var Gateway;
@@ -304,7 +314,7 @@ class BraintreePaymentDriver extends BaseDriver
         
         try {
             $ct =$this->init()->gateway->clientToken()->generate();
-            nlog($ct);
+            
             return true;
         }
         catch(\Exception $e) {
@@ -312,5 +322,166 @@ class BraintreePaymentDriver extends BaseDriver
         }
         
         return false;
+    }
+
+    private function find(string $customer_id = '') {
+        
+        try {
+            return $this->init()->gateway->customer()->find($customer_id);
+        }
+        catch(\Exception $e){
+            return false;
+        }
+
+        return false;
+    }
+
+    private function findTokens(string $gateway_customer_reference)
+    {
+        return ClientGatewayToken::where('company_id', $this->company_gateway->company_id)
+                                 ->where('gateway_customer_reference', $gateway_customer_reference)
+                                 ->exists();
+    }
+
+    private function findContact(string $email) {
+        return ClientContact::where('company_id', $this->company_gateway->company_id)
+                            ->where('email', $email)
+                            ->first()->client ?? false;
+    }
+
+    private function addClientCards(Client $client, array $cards)
+    {
+        
+        $this->client = $client;
+
+        foreach($cards as $card) {
+
+            $payment_meta = new \stdClass();
+            $payment_meta->exp_month = (string) $card->expirationMonth;
+            $payment_meta->exp_year = (string) $card->expirationYear;
+            $payment_meta->brand = (string) $card->cardType;
+            $payment_meta->last4 = (string) $card->last4;
+            $payment_meta->type = GatewayType::CREDIT_CARD;
+
+            $data = [
+                'payment_meta' => $payment_meta,
+                'token' => $card->token,
+                'payment_method_id' => GatewayType::CREDIT_CARD,
+            ];
+
+            $this->storeGatewayToken($data, ['gateway_customer_reference' => $card->customerId]);
+            
+            nlog("adding card to customer payment profile");
+
+        }
+
+    }
+
+    public function createNinjaClient(mixed $customer): Client
+    {
+
+        $client = ClientFactory::create($this->company_gateway->company_id, $this->company_gateway->user_id);
+
+        $b_business_address = count($customer->addresses) >= 1 ? $customer->addresses[0] : false;
+        $b_shipping_address = count($customer->addresses) > 1 ? $customer->addresses[1] : false;
+        $import_client_data = [];
+
+        if($b_business_address) {
+
+            $braintree_address = 
+            [
+            'address1' => $b_business_address->extendedAddress ?? '',
+            'address2' => $b_business_address->streetAddress ?? '',
+            'city' => $b_business_address->locality ?? '',
+            'postal_code' => $b_business_address->postalCode ?? '',
+            'state' => $b_business_address->region ?? '',
+            'country_id' => $b_business_address->countryCodeNumeric ?? '840',
+            ];
+
+            $import_client_data = array_merge($import_client_data, $braintree_address);
+        }
+
+        if($b_shipping_address) {
+
+            $braintree_shipping_address = 
+            [
+            'shipping_address1' => $b_shipping_address->extendedAddress ?? '',
+            'shipping_address2' => $b_shipping_address->streetAddress ?? '',
+            'shipping_city' => $b_shipping_address->locality ?? '',
+            'shipping_postal_code' => $b_shipping_address->postalCode ?? '',
+            'shipping_state' => $b_shipping_address->region ?? '',
+            'shipping_country_id' => $b_shipping_address->countryCodeNumeric ?? '840',
+            ];
+
+            $import_client_data = array_merge($import_client_data, $braintree_shipping_address);
+
+        }
+
+        $client->fill($import_client_data);
+
+        $client->phone = $customer->phone ?? '';
+        $client->name = $customer->company ?? $customer->firstName;
+
+        $settings = $client->settings;
+        $settings->currency_id = (string) $this->company_gateway->company->settings->currency_id;
+        $client->settings = $settings;
+        $client->save();
+
+        $contact = ClientContactFactory::create($this->company_gateway->company_id, $this->company_gateway->user_id);
+        $contact->first_name = $customer->firstName ?? '';
+        $contact->last_name = $customer->lastName ?? '';
+        $contact->email = $customer->email ?? '';
+        $contact->phone = $customer->phone ?? '';
+        $contact->client_id = $client->id;
+        $contact->saveQuietly();
+
+        if (! isset($client->number) || empty($client->number)) {
+            $x = 1;
+
+            do {
+                try {
+                    $client->number = $this->getNextClientNumber($client);
+                    $client->saveQuietly();
+
+                    $this->completed = false;
+                } catch (QueryException $e) {
+                    $x++;
+
+                    if ($x > 10) {
+                        $this->completed = false;
+                    }
+                }
+            } while ($this->completed);
+        } else {
+            $client->saveQuietly();
+        }
+
+        return $client;
+
+    }
+
+    public function importCustomers()
+    {
+        $customers = $this->init()->gateway->customer()->all();
+        
+        foreach($customers as $c){
+
+            $customer = $this->find($c->id);
+
+            if(!$customer)
+                continue;
+
+            if(!$this->findTokens($c->id) && !($client = $this->findContact($customer->email))) {
+                //customer is not referenced in the system - create client
+                $client = $this->createNinjaClient($customer);
+                nlog("Creating new Client");
+            }
+            
+
+            $this->addClientCards($client, $customer->creditCards);
+
+            nlog("Adding Braintree Client: {$c->id} => {$client->id}");
+
+        }
     }
 }

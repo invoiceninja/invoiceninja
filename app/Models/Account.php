@@ -494,7 +494,7 @@ class Account extends BaseModel
             return 0;
         }
 
-        if (Carbon::createFromTimestamp($this->created_at)->diffInWeeks() == 0) {
+        if (Carbon::createFromTimestamp($this->created_at)->diffInWeeks() <= 1) {
             return 20;
         }
 
