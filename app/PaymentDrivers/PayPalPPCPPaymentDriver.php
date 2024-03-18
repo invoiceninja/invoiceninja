@@ -574,4 +574,9 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
         return false;
     }
+
+    public function importCustomers()
+    {
+        
+    }
 }

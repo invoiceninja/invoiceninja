@@ -11,10 +11,11 @@
 
 namespace App\PaymentDrivers;
 
-use App\Factory\ClientFactory;
 use App\Models\Payment;
 use App\Models\SystemLog;
 use App\Models\GatewayType;
+use App\Models\ClientContact;
+use App\Factory\ClientFactory;
 use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
 use App\PaymentDrivers\Forte\ACH;
@@ -244,6 +245,14 @@ class FortePaymentDriver extends BaseDriver
                     ->withHeaders(['X-Forte-Auth-Organization-Id' => $this->getOrganisationId()]);
     }
 
+    private function getClient(?string $email)
+    {
+        return ClientContact::query()
+                     ->where('company_id', $this->company_gateway->company_id)
+                     ->where('email', $email)
+                     ->first();
+    }
+
     public function importCustomers()
     {
 
@@ -260,6 +269,9 @@ class FortePaymentDriver extends BaseDriver
                 $factory = new ForteCustomerFactory();
 
                 $data = $factory->convertToNinja($customer, $this->company_gateway->company);
+
+                if(strlen($customer['email']) == 0 || $this->getClient($customer['email']))
+                    continue;
 
                 $client_repo->save($data, ClientFactory::create($this->company_gateway->company_id, $this->company_gateway->user_id));
 
