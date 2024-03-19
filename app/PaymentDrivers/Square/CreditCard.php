@@ -197,7 +197,7 @@ class CreditCard implements MethodInterface
     {
 
         $square_card = new \Square\Models\Card();
-        $square_card->setCustomerId($this->findOrCreateClient());
+        $square_card->setCustomerId($this->square_driver->findOrCreateClient());
 
         $body = new \Square\Models\CreateCardRequest(uniqid("st", true), $source_id, $square_card);
 
@@ -238,82 +238,5 @@ class CreditCard implements MethodInterface
         return false;
     }
 
-    private function findOrCreateClient()
-    {
-        $email_address = new \Square\Models\CustomerTextFilter();
-        $email_address->setExact($this->square_driver->client->present()->email());
-
-        $filter = new \Square\Models\CustomerFilter();
-        $filter->setEmailAddress($email_address);
-
-        $query = new \Square\Models\CustomerQuery();
-        $query->setFilter($filter);
-
-        $body = new \Square\Models\SearchCustomersRequest();
-        $body->setQuery($query);
-
-        $api_response = $this->square_driver
-                             ->init()
-                             ->square
-                             ->getCustomersApi()
-                             ->searchCustomers($body);
-
-        $customers = false;
-
-        if ($api_response->isSuccess()) {
-            $customers = $api_response->getBody();
-            $customers = json_decode($customers);
-
-            if (count([$api_response->getBody(), 1]) == 0) {
-                $customers = false;
-            }
-        } else {
-            $errors = $api_response->getErrors();
-        }
-
-        if (property_exists($customers, 'customers')) {
-            return $customers->customers[0]->id;
-        }
-
-        return $this->createClient();
-    }
-
-    private function createClient()
-    {
-        $country = $this->square_driver->client->country ? $this->square_driver->client->country->iso_3166_2 : $this->square_driver->client->company->country()->iso_3166_2;
-
-        /* Step two - create the customer */
-        $billing_address = new \Square\Models\Address();
-        $billing_address->setAddressLine1($this->square_driver->client->address1);
-        $billing_address->setAddressLine2($this->square_driver->client->address2);
-        $billing_address->setLocality($this->square_driver->client->city);
-        $billing_address->setAdministrativeDistrictLevel1($this->square_driver->client->state);
-        $billing_address->setPostalCode($this->square_driver->client->postal_code);
-        $billing_address->setCountry($country);
-
-        $body = new \Square\Models\CreateCustomerRequest();
-        $body->setGivenName($this->square_driver->client->present()->name());
-        $body->setFamilyName('');
-        $body->setEmailAddress($this->square_driver->client->present()->email());
-        $body->setAddress($billing_address);
-        // $body->setPhoneNumber($this->square_driver->client->phone);
-        $body->setReferenceId($this->square_driver->client->number);
-        $body->setNote('Created by Invoice Ninja.');
-
-        $api_response = $this->square_driver
-                             ->init()
-                             ->square
-                             ->getCustomersApi()
-                             ->createCustomer($body);
-
-        if ($api_response->isSuccess()) {
-            $result = $api_response->getResult();
-
-            return $result->getCustomer()->getId();
-        } else {
-            $errors = $api_response->getErrors();
-            nlog($errors);
-            return $this->processUnsuccessfulPayment($api_response);
-        }
-    }
+    
 }

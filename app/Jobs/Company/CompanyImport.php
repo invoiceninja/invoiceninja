@@ -311,8 +311,11 @@ class CompanyImport implements ShouldQueue
             }
         }
 
-        unlink($tmp_file);
-        unlink(Storage::path($this->file_location));
+        if(file_exists($tmp_file))
+            unlink($tmp_file);
+
+        if(Storage::exists($this->file_location))
+            unlink(Storage::path($this->file_location));
     }
 
     //

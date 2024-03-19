@@ -29,6 +29,8 @@ use App\Http\Middleware\SetDomainNameDb;
 use Illuminate\Queue\Events\JobProcessing;
 use App\Helpers\Mail\Office365MailTransport;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Symfony\Component\Mailer\Bridge\Brevo\Transport\BrevoTransportFactory;
+use Symfony\Component\Mailer\Transport\Dsn;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -55,7 +57,7 @@ class AppServiceProvider extends ServiceProvider
 
         /* Defines the name used in polymorphic tables */
         Relation::morphMap([
-            'invoices'  => Invoice::class,
+            'invoices' => Invoice::class,
             'proposals' => Proposal::class,
         ]);
 
@@ -115,6 +117,30 @@ class AppServiceProvider extends ServiceProvider
                 'endpoint' => $endpoint,
                 'scheme' => config('services.mailgun.scheme'),
             ]));
+
+            return $this;
+        });
+
+        Mail::extend('brevo', function () {
+            return (new BrevoTransportFactory)->create(
+                new Dsn(
+                    'brevo+api',
+                    'default',
+                    config('services.brevo.key')
+                )
+            );
+        });
+        Mailer::macro('brevo_config', function (string $brevo_key) {
+            // @phpstan-ignore /** @phpstan-ignore-next-line **/
+            Mailer::setSymfonyTransport(
+                (new BrevoTransportFactory)->create(
+                    new Dsn(
+                        'brevo+api',
+                        'default',
+                        $brevo_key
+                    )
+                )
+            );
 
             return $this;
         });

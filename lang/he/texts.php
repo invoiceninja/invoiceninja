@@ -458,7 +458,7 @@ $lang = array(
     'edit_token' => 'עריכת טוקן',
     'delete_token' => 'מחיקת טוקן',
     'token' => 'טוקן',
-    'add_gateway' => 'הוספת Gateway',
+    'add_gateway' => 'Add Payment Gateway',
     'delete_gateway' => 'מחיקת Gateway',
     'edit_gateway' => 'עריכת Gateway',
     'updated_gateway' => 'Gateway עודכן בהצלחה',
@@ -5199,7 +5199,7 @@ $lang = array(
     'nordigen_handler_error_heading_requisition_invalid_status' => 'לא מוכן',
     'nordigen_handler_error_contents_requisition_invalid_status' => 'התקשרת לאתר הזה מוקדם מדי. אנא סיים את ההרשאה ורענן דף זה. פנה לתמיכה לקבלת עזרה, אם הבעיה נמשכת.',
     'nordigen_handler_error_heading_requisition_no_accounts' => 'לא נבחרו חשבונות',
-    'nordigen_handler_error_contents_requisition_no_accounts' => 'השירות לא החזיר חשבונות תקפים. שקול להפעיל מחדש את הזרימה.',
+    'nordigen_handler_error_contents_requisition_no_accounts' => 'The service has not returned any valid accounts. Consider restarting the flow.',
     'nordigen_handler_restart' => 'הפעל מחדש את הזרימה.',
     'nordigen_handler_return' => 'חזור ליישום.',
     'lang_Lao' => 'לאו',
@@ -5239,7 +5239,19 @@ $lang = array(
     'test_email_sent' => 'דוא&quot;ל נשלח בהצלחה',
     'gateway_type' => 'סוג שער',
     'save_template_body' => 'האם תרצה לשמור את מיפוי הייבוא הזה כתבנית לשימוש עתידי?',
-    'save_as_template' => 'שמור מיפוי תבניות'
+    'save_as_template' => 'שמור מיפוי תבניות',
+    'auto_bill_standard_invoices_help' => 'Auto bill standard invoices on the due date',
+    'auto_bill_on_help' => 'Auto bill on send date OR due date (recurring invoices)',
+    'use_available_credits_help' => 'Apply any credit balances to payments prior to charging a payment method',
+    'use_unapplied_payments' => 'Use unapplied payments',
+    'use_unapplied_payments_help' => 'Apply any payment balances prior to charging a payment method',
+    'payment_terms_help' => 'מגדיר את ברית המחדל <b> תאריך לתשלום </b>',
+    'payment_type_help' => 'הגדר כברירת מחדל <b>manual payment type</b>.',
+    'quote_valid_until_help' => 'The number of days that the quote is valid for',
+    'expense_payment_type_help' => 'The default expense payment type to be used',
+    'paylater' => 'Pay in 4',
+    'payment_provider' => 'Payment Provider',
+    
 );
 
 return $lang;

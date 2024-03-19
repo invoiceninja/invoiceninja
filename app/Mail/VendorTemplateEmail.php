@@ -72,7 +72,8 @@ class VendorTemplateEmail extends Mailable
         $template_name = 'email.template.'.$this->build_email->getTemplate();
 
         if ($this->build_email->getTemplate() == 'light' || $this->build_email->getTemplate() == 'dark') {
-            $template_name = $this->company->account->isPremium() ? 'email.template.client_premium' : 'email.template.client';
+            // $template_name = $this->company->account->isPremium() ? 'email.template.client_premium' : 'email.template.client';
+            $template_name = 'email.template.client';
         }
 
         if ($this->build_email->getTemplate() == 'custom') {

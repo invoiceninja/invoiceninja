@@ -44,7 +44,6 @@ class InstantPayment
 
     public function run()
     {
-        nlog($this->request->all());
 
         $cc = auth()->guard('contact')->user();
 

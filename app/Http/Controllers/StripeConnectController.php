@@ -54,8 +54,6 @@ class StripeConnectController extends BaseController
         $redirect_uri = config('ninja.app_url').'/stripe/completed';
         $endpoint = "https://connect.stripe.com/oauth/authorize?response_type=code&client_id={$stripe_client_id}&redirect_uri={$redirect_uri}&scope=read_write&state={$token}";
 
-        \Illuminate\Support\Facades\Cache::pull($token);
-
         return redirect($endpoint);
     }
 
@@ -155,6 +153,8 @@ class StripeConnectController extends BaseController
         } else {
             $redirect_uri = config('ninja.app_url');
         }
+
+        \Illuminate\Support\Facades\Cache::pull($request->token);
 
         //response here
         return view('auth.connect.completed', ['url' => $redirect_uri]);

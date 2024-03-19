@@ -123,7 +123,7 @@ class WebhookSingle implements ShouldQueue
             ]);
 
             (new SystemLogger(
-                ['message' => $response->getBody()->getHeaders(), 'body' => $data],
+                ['message' => $response->getHeaders(), 'body' => $data],
                 SystemLog::CATEGORY_WEBHOOK,
                 SystemLog::EVENT_WEBHOOK_SUCCESS,
                 SystemLog::TYPE_WEBHOOK_RESPONSE,

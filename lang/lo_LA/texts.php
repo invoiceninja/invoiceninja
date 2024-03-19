@@ -460,7 +460,7 @@ $lang = array(
     'edit_token' => 'ແກ້ໄຂ Token',
     'delete_token' => 'ລຶບໂທເຄັນ',
     'token' => 'ໂທເຄັນ',
-    'add_gateway' => 'ເພີ່ມປະຕູ',
+    'add_gateway' => 'Add Payment Gateway',
     'delete_gateway' => 'ລຶບປະຕູທາງອອກ',
     'edit_gateway' => 'ແກ້ໄຂປະຕູ',
     'updated_gateway' => 'ປັບປຸງປະຕູທາງສຳເລັດແລ້ວ',
@@ -5201,7 +5201,7 @@ $lang = array(
     'nordigen_handler_error_heading_requisition_invalid_status' => 'ບໍ່ພ້ອມ',
     'nordigen_handler_error_contents_requisition_invalid_status' => 'ເຈົ້າເອີ້ນເວັບໄຊນີ້ໄວເກີນໄປ. ກະລຸນາສຳເລັດການອະນຸຍາດ ແລະໂຫຼດໜ້ານີ້ຄືນໃໝ່. ຕິດຕໍ່ຝ່າຍຊ່ວຍເຫຼືອເພື່ອຂໍຄວາມຊ່ວຍເຫຼືອ, ຖ້າບັນຫານີ້ຍັງຄົງຢູ່.',
     'nordigen_handler_error_heading_requisition_no_accounts' => 'ບໍ່ໄດ້ເລືອກບັນຊີໃດ',
-    'nordigen_handler_error_contents_requisition_no_accounts' => 'ການບໍລິການບໍ່ໄດ້ສົ່ງຄືນບັນຊີທີ່ຖືກຕ້ອງໃດໆ. ພິຈາລະນາເລີ່ມການໄຫຼເຂົ້າໃໝ່.',
+    'nordigen_handler_error_contents_requisition_no_accounts' => 'The service has not returned any valid accounts. Consider restarting the flow.',
     'nordigen_handler_restart' => 'ເລີ່ມການໄຫຼເຂົ້າໃໝ່.',
     'nordigen_handler_return' => 'ກັບຄືນໄປຫາແອັບພລິເຄຊັນ.',
     'lang_Lao' => 'ລາວ',
@@ -5241,7 +5241,19 @@ $lang = array(
     'test_email_sent' => 'ສົ່ງອີເມວສຳເລັດແລ້ວ',
     'gateway_type' => 'ປະເພດປະຕູ',
     'save_template_body' => 'ທ່ານຕ້ອງການບັນທຶກແຜນທີ່ການນໍາເຂົ້ານີ້ເປັນແມ່ແບບສໍາລັບການນໍາໃຊ້ໃນອະນາຄົດບໍ?',
-    'save_as_template' => 'ບັນທຶກການສ້າງແຜນທີ່ແມ່ແບບ'
+    'save_as_template' => 'ບັນທຶກການສ້າງແຜນທີ່ແມ່ແບບ',
+    'auto_bill_standard_invoices_help' => 'Auto bill standard invoices on the due date',
+    'auto_bill_on_help' => 'Auto bill on send date OR due date (recurring invoices)',
+    'use_available_credits_help' => 'Apply any credit balances to payments prior to charging a payment method',
+    'use_unapplied_payments' => 'Use unapplied payments',
+    'use_unapplied_payments_help' => 'Apply any payment balances prior to charging a payment method',
+    'payment_terms_help' => 'ກຳນົດຄ່າເລີ່ມຕົ້ນ <b>ວັນທີຄົບກຳນົດໃບແຈ້ງໜີ້</b>',
+    'payment_type_help' => 'ຕັ້ງ <b>ປະເພດການຈ່າຍເງິນດ້ວຍມື</b> ເລີ່ມຕົ້ນ.',
+    'quote_valid_until_help' => 'The number of days that the quote is valid for',
+    'expense_payment_type_help' => 'The default expense payment type to be used',
+    'paylater' => 'Pay in 4',
+    'payment_provider' => 'Payment Provider',
+    
 );
 
 return $lang;

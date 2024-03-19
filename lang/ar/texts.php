@@ -453,7 +453,7 @@ $lang = array(
     'edit_token' => 'تحرير الرمز',
     'delete_token' => 'حذف الرمز المميز',
     'token' => 'رمز',
-    'add_gateway' => 'إضافة بوابة',
+    'add_gateway' => 'Add Payment Gateway',
     'delete_gateway' => 'حذف البوابة',
     'edit_gateway' => 'تحرير البوابة',
     'updated_gateway' => 'تم تحديث البوابة بنجاح',
@@ -5182,7 +5182,7 @@ $lang = array(
     'nordigen_handler_error_heading_requisition_invalid_status' => 'غير جاهز',
     'nordigen_handler_error_contents_requisition_invalid_status' => 'لقد اتصلت بهذا الموقع مبكرًا جدًا. الرجاء إنهاء الترخيص وتحديث هذه الصفحة. اتصل بالدعم للحصول على المساعدة، إذا استمرت هذه المشكلة.',
     'nordigen_handler_error_heading_requisition_no_accounts' => 'لم يتم تحديد أي حسابات',
-    'nordigen_handler_error_contents_requisition_no_accounts' => 'لم تقم الخدمة بإرجاع أي حسابات صالحة. فكر في إعادة تشغيل التدفق.',
+    'nordigen_handler_error_contents_requisition_no_accounts' => 'The service has not returned any valid accounts. Consider restarting the flow.',
     'nordigen_handler_restart' => 'إعادة تشغيل التدفق.',
     'nordigen_handler_return' => 'العودة إلى التطبيق.',
     'lang_Lao' => 'لاو',
@@ -5222,7 +5222,19 @@ $lang = array(
     'test_email_sent' => 'تم إرسال البريد الإلكتروني بنجاح',
     'gateway_type' => 'نوع البوابة',
     'save_template_body' => 'هل ترغب في حفظ تعيين الاستيراد هذا كقالب لاستخدامه في المستقبل؟',
-    'save_as_template' => 'حفظ تعيين القالب'
+    'save_as_template' => 'حفظ تعيين القالب',
+    'auto_bill_standard_invoices_help' => 'Auto bill standard invoices on the due date',
+    'auto_bill_on_help' => 'Auto bill on send date OR due date (recurring invoices)',
+    'use_available_credits_help' => 'Apply any credit balances to payments prior to charging a payment method',
+    'use_unapplied_payments' => 'Use unapplied payments',
+    'use_unapplied_payments_help' => 'Apply any payment balances prior to charging a payment method',
+    'payment_terms_help' => 'يضبط <b>تاريخ استحقاق الفاتورة</b> الافتراضي',
+    'payment_type_help' => 'يعيّن <b>نوع الدفع اليدوي</b> الافتراضي.',
+    'quote_valid_until_help' => 'The number of days that the quote is valid for',
+    'expense_payment_type_help' => 'The default expense payment type to be used',
+    'paylater' => 'Pay in 4',
+    'payment_provider' => 'Payment Provider',
+    
 );
 
 return $lang;

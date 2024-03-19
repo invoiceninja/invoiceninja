@@ -95,6 +95,8 @@ class StoreUserRequest extends Request
             $input['last_name'] = strip_tags($input['last_name']);
         }
 
+        $input['id'] = null;
+        
         $this->replace($input);
     }
 
