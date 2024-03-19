@@ -15,6 +15,7 @@ use App\Jobs\EDocument\CreateEDocument;
 use App\Models\PurchaseOrder;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Facades\Storage;
 
 class PurchaseOrderService
 {
